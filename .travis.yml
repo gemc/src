@@ -1,0 +1,32 @@
+language: sh
+
+# latest ubuntu
+# https://docs.travis-ci.com/user/reference/overview/
+dist: bionic
+
+# just main branch
+branches:
+  only:
+    - master
+
+# Install dependencies
+addons:
+  apt:
+    packages:
+      - doxygen
+      - graphviz
+
+# script to execute
+script:
+ - ./makeDoxy
+
+# Generate and deploy documentation
+#
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: doxygen
+  github_token: $GH_REPO_TOKEN
+  on:
+    branch: master
+

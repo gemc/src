@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Purpose: creates the doxygen documentation for all the glibraries
+# This script is used by TRAVIS
+#
+# Arguments: none
+
+echo " "
+echo " Doxygen version: "$(doxygen --version)
+echo " "
+ddir='doxygen'
+
+libraries='goptions gfields'
+
+if [ -d $ddir ]
+then
+	rm -rf $ddir
+fi
+mkdir -p $ddir
+
+echo " "
+for l in $libraries
+do
+	echo " "Creating $l documentation
+	cd $l
+	doxygen Doxyfile
+	mv html ../$ddir/$l
+	cd ..
+done
+echo " "
