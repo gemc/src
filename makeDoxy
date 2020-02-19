@@ -18,13 +18,6 @@ then
 fi
 mkdir -p $ddir
 
-echo " "
-for l in $libraries
-do
-	echo " "Creating $l documentation
-	cd $l
-	doxygen Doxyfile
-	mv html ../$ddir/$l
-	cd ..
-done
+echo " "Creating gemc doxygen documentation
+doxygen Doxyfile
 echo " "
