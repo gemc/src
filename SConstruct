@@ -1,8 +1,14 @@
 from init_env import init_environment
 
-env = init_environment("geant4")
+env = init_environment("qt5 glibrary")
+env.Append(CXXFLAGS=['-std=c++17'])
 env.Append(LIBPATH = ['lib'])
 
+env.Append(CPPPATH = [Dir('utilities')])
+
+
+# utilities
+SConscript('utilities/SConscript', exports='env')
 
 gsources = Split("""
 	gemc.cc
