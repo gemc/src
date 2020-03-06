@@ -8,9 +8,8 @@
 echo " "
 echo " Doxygen version: "$(doxygen --version)
 echo " "
-ddir='doxygen'
 
-libraries='goptions gfields'
+cd ../glibrary
 
 if [ -d $ddir ]
 then

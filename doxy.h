@@ -1,3 +1,5 @@
+#ifndef  GEMC_DOXY_H
+#define  GEMC_DOXY_H  1
 /// \file gemc.cc
 /// Defines the gemc main( int argc, char **argv )
 /// \author \n &copy; Maurizio Ungaro
@@ -15,17 +17,5 @@
 /// \n\n
 /// \author \n &copy; Maurizio Ungaro
 /// \author e-mail: ungaro@jlab.org\n\n\n
-
-// c++
-#include <string>
-using namespace std;
-
-
-int main(int argc, char* argv[])
-{
-
-	return 1;
-}
-
-
+#endif
 
