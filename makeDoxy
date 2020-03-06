@@ -9,13 +9,9 @@ echo " "
 echo " Doxygen version: "$(doxygen --version)
 echo " "
 
-cd ../glibrary
 
-if [ -d $ddir ]
-then
-	rm -rf $ddir
-fi
-mkdir -p $ddir
+ ../glibrary/createDoxyfile
+ ../glibrary/makeDoxyfileForLibrary gemc
 
 echo " "Creating gemc doxygen documentation
 doxygen Doxyfile
