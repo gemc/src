@@ -1,46 +1,19 @@
 // goptions
 #include "goptions.h"
 
-// a simple struct to model the detector option
-namespace goptions {
-
-	// single option to activate gui
-	// -----------------------------
-
-	struct gui {
-		int gui;
-	};
-
-	void from_json(const json& j, gui& g) {
-		j.at("gui").get_to(g.gui);
-	}
-
-	// non groupable: method to return a single gui
-	gui getGui(vector<json> jValues) {
-		return jValues.front().get<gui>();
-	}
-
-
-}
 
 
 
-
-// methods to return single options
-bool getGui(GOptions *gopts) {
-
-
-	vector<json> guiOptions = gopts->getOptions("gui");
-	goptions::gui gui = goptions::getGui(guiOptions);
-
-
-	return gui.gui == 1;
-}
-
-
-
-
-
+//// methods to return single options
+//// GConf gui as book
+//bool getGui(GOptions *gopts) {
+//
+//	vector<json> gConf = gopts->getOptions("gui");
+//	goptions::gui gui = goptions::getGui(guiOptions);
+//
+//
+//	return gui.gui == 1;
+//}
 
 
 
@@ -50,15 +23,31 @@ vector<GOption> defineOptions()
 {
 	vector<GOption> goptions;
 
-	// single option to activate gui
-	// -----------------------------
+	// activate gui. Default = no (batch mode)
 	json guiTag = {
 		{JSONTAGNAME, "gui"},
 		{JSONTAGDESC, "Graphical User Interface. Possible Values: 0/1. Default: 0"},
 		{JSONTAGDFLT, 0}
 	};
 
-	goptions.push_back(GOption("gui", "Graphical User Interface. Possible Values: 0/1. Default: 0", guiTag));
+	// number of threads. Default = 1
+	json nthreadsTag = {
+		{JSONTAGNAME, "nthreads"},
+		{JSONTAGDESC, "Number of threads"},
+		{JSONTAGDFLT, 1}
+	};
+
+
+	json jConfTag = { guiTag, nthreadsTag};
+
+
+	goptions.push_back(GOption("gConf", "GEMC Configuration: gui, number of threads", jConfTag));
+
+
+
+
+
+
 
 	return goptions;
 }

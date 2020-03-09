@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
 	GOptions *gopts = new GOptions(argc, argv, defineOptions());
 
 
-	bool gui = getGui(gopts);
+	bool gui = goptions::getGui(gopts);
 	createQtApplication(argc, argv, gui);
 
 
