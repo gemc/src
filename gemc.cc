@@ -10,7 +10,7 @@ using namespace std;
 
 // geant4
 #include "G4UImanager.hh"
-#include "G4VisExecutive.hh"
+#include "G4UIsession.hh"
 
 int main(int argc, char* argv[])
 {
@@ -26,9 +26,11 @@ int main(int argc, char* argv[])
 	createQtApplication(argc, argv, gui);
 
 	// instantiating new User Interface Messenger
-	// cout destination for the UIM
 	G4UImanager* UIM = G4UImanager::GetUIpointer();
-	UIM->SetCoutDestination(new GSession);
+
+	// cout destination for the UIM
+	// 
+	UIM->SetCoutDestination(new G4UIsession);
 
 
 	return EXIT_SUCCESS;
