@@ -41,11 +41,7 @@ vector<GOption> defineOptions()
 	json jConfTag = { guiTag, nthreadsTag};
 
 
-	goptions.push_back(GOption("gConf", "GEMC Configuration: gui, number of threads", jConfTag));
-
-
-
-
+//	goptions.push_back(GOption("gConf", "GEMC Configuration: gui, number of threads", jConfTag));
 
 
 

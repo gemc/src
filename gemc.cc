@@ -16,14 +16,17 @@ int main(int argc, char* argv[])
 	// they include the gemc core options and any frameworks options
 	GOptions *gopts = new GOptions(argc, argv, defineOptions());
 
+	// print settings w/o defaults
+	gopts->printSettings(false);
 
-	bool gui = goptions::getGui(gopts);
-	createQtApplication(argc, argv, gui);
 
+//	bool gui = goptions::getGui(gopts);
+//	createQtApplication(argc, argv, gui);
+//
+//
+//	cout << gui << endl;
 
-	cout << gui << endl;
-
-	return 1;
+	return EXIT_SUCCESS;
 }
 
 
