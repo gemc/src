@@ -20,11 +20,10 @@ int main(int argc, char* argv[])
 	gopts->printSettings(false);
 
 
-//	bool gui = goptions::getGui(gopts);
-//	createQtApplication(argc, argv, gui);
-//
-//
-//	cout << gui << endl;
+	bool gui = goptions::getGui(gopts);
+	createQtApplication(argc, argv, gui);
+
+
 
 	return EXIT_SUCCESS;
 }
