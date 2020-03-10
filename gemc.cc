@@ -8,7 +8,9 @@ using namespace std;
 // utilities, options definitions
 #include "utilities.h"
 
-
+// geant4
+#include "G4UImanager.hh"
+#include "G4VisExecutive.hh"
 
 int main(int argc, char* argv[])
 {
@@ -23,6 +25,10 @@ int main(int argc, char* argv[])
 	bool gui = goptions::getGui(gopts);
 	createQtApplication(argc, argv, gui);
 
+	// instantiating new User Interface Messenger
+	// cout destination for the UIM
+	G4UImanager* UIM = G4UImanager::GetUIpointer();
+	UIM->SetCoutDestination(new GSession);
 
 
 	return EXIT_SUCCESS;

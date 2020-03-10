@@ -1,6 +1,6 @@
 from init_env import init_environment
 
-env = init_environment("qt5 glibrary")
+env = init_environment("qt5 glibrary geant4 clhep")
 env.Append(CXXFLAGS=['-std=c++17'])
 env.Append(LIBPATH = ['lib'])
 
