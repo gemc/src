@@ -9,9 +9,10 @@ echo " "
 echo " Doxygen version: "$(doxygen --version)
 echo " "
 
+git clone https://github.com/gemc/glibrary.git
 
- ../glibrary/createDoxyfile
- ../glibrary/makeDoxyfileForLibrary gemc
+./glibrary/createDoxyfile
+./glibrary/makeDoxyfileForLibrary gemc
 
 echo " "Creating gemc doxygen documentation
 doxygen Doxyfile
