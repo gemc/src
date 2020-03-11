@@ -25,8 +25,9 @@ namespace goptions {
 	}
 
 	// non groupable: method to return a single gui
-	GConf getGConf(vector<json> jValues) {
-		return jValues.front().get<GConf>();
+	GConf getGConf(GOptions *gopts) {
+        auto jConf = (*gopts)["gConf"].front();
+		return jConf.get<GConf>();
 	}
 
 	bool getGui(GOptions *gopts) {
@@ -36,8 +37,6 @@ namespace goptions {
 
 		return gConf.gui == 1;
 	}
-
-
 }
 
 
@@ -53,6 +52,6 @@ vector<GOption> defineOptions();
 #include <QApplication>
 
 // distinguishing between graphical and batch mode
-QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui);
+QCoreApplication* createQtApplication(int &argc, char *argv[], int gui);
 
 #endif
