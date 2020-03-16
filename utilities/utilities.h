@@ -17,11 +17,13 @@ namespace goptions {
 	struct GConf {
 		int gui;
 		int nthreads;
+        int stageMessageVerbosity;
 	};
 
 	void from_json(const json& j, GConf& c) {
 		j.at("gui").get_to(c.gui);
 		j.at("nthreads").get_to(c.nthreads);
+        j.at("stageMessageVerbosity").get_to(c.stageMessageVerbosity);
 	}
 
 	// non groupable: method to return a single gui
@@ -34,9 +36,16 @@ namespace goptions {
 		auto jConf = (*gopts)["gConf"].front();
 
 		auto gConf = jConf.get<GConf>();
-
 		return gConf.gui == 1;
 	}
+
+    bool getSMV(GOptions *gopts) {
+        auto jConf = (*gopts)["gConf"].front();
+
+        auto gConf = jConf.get<GConf>();
+        return gConf.stageMessageVerbosity;
+}
+
 }
 
 

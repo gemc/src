@@ -37,8 +37,16 @@ vector<GOption> defineOptions()
 		{JSONTAGDFLT, 1}
 	};
 
+    // stage message verbosity
+    json smvTag = {
+        {JSONTAGNAME, "stageMessageVerbosity"},
+        {JSONTAGDESC, "Verbosity of State Messages"},
+        {JSONTAGDFLT, 1}
+    };
 
-	json jConfTag = { guiTag, nthreadsTag};
+
+
+	json jConfTag = { guiTag, nthreadsTag, smvTag};
 
 
 	goptions.push_back(GOption("gConf", "GEMC Configuration: gui, number of threads", jConfTag));
