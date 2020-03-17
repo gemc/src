@@ -7,6 +7,10 @@ using namespace std;
 
 // utilities, options definitions
 #include "utilities.h"
+#include "defineOptions.h"
+
+// gsession
+#include "gsession.h"
 
 // geant4
 #include "G4UImanager.hh"
@@ -29,12 +33,10 @@ int main(int argc, char* argv[])
 	createQtApplication(argc, argv, gconf.gui);
 	
 	// instantiating new User Interface Messenger
+	// our custom cout destination for the UIM: MasterGeant4.[log, err]
 	G4UImanager* UIM = G4UImanager::GetUIpointer();
-	
-	// cout destination for the UIM
-	UIM->SetCoutDestination(new G4UIsession);
-	
-	
+	UIM->SetCoutDestination(new GSession);
+
 	// init geant4 run manager with number of threads coming from options
 	G4MTRunManager *g4MTRunManager = new G4MTRunManager;
 	g4MTRunManager->SetNumberOfThreads(gconf.nthreads);

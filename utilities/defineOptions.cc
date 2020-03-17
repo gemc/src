@@ -1,22 +1,43 @@
-// goptions
-#include "goptions.h"
+// options definitions
+#include "defineOptions.h"
 
+// c++
+#include <iostream>
+using namespace std;
 
+namespace goptions {
 
+	void from_json(const json& j, GConf& c) {
+		j.at("gui").get_to(c.gui);
+		j.at("nthreads").get_to(c.nthreads);
+		j.at("stageMessageVerbosity").get_to(c.stageMessageVerbosity);
+	}
 
-//// methods to return single options
-//// GConf gui as book
-//bool getGui(GOptions *gopts) {
-//
-//	vector<json> gConf = gopts->getOptions("gui");
-//	goptions::gui gui = goptions::getGui(guiOptions);
-//
-//
-//	return gui.gui == 1;
-//}
+	// non groupable: method to return a single gui
+	GConf getGConf(GOptions *gopts) {
+		auto jConf = (*gopts)["conf"].front();
+		return jConf.get<GConf>();
+	}
 
+	bool getGui(GOptions *gopts) {
+		auto gConf = getGConf(gopts);
+		return gConf.gui == 1;
+	}
 
+	int getSMV(GOptions *gopts) {
+		auto gConf = getGConf(gopts);
+		return gConf.stageMessageVerbosity;
+	}
 
+	int getVerbosity(GOptions *gopts, string state) {
+		auto jConf = (*gopts)["gConf"].front();
+
+		cout << " ASD " << jConf << endl;
+
+		return jConf[state];
+	}
+
+}
 
 // returns array of options definitions
 vector<GOption> defineOptions()
@@ -37,21 +58,19 @@ vector<GOption> defineOptions()
 		{JSONTAGDFLT, 1}
 	};
 
-    // stage message verbosity
-    json smvTag = {
-        {JSONTAGNAME, "stageMessageVerbosity"},
-        {JSONTAGDESC, "Verbosity of State Messages"},
-        {JSONTAGDFLT, 1}
-    };
+	// stage message verbosity
+	json smvTag = {
+		{JSONTAGNAME, "stageMessageVerbosity"},
+		{JSONTAGDESC, "Verbosity of State Messages"},
+		{JSONTAGDFLT, 1}
+	};
 
 
 
 	json jConfTag = { guiTag, nthreadsTag, smvTag};
+	string help = "GEMC configuration options.";
 
-
-	goptions.push_back(GOption("gConf", "GEMC Configuration: gui, number of threads", jConfTag));
-
-
+	goptions.push_back(GOption("conf", "GEMC Configuration: gui, number of threads", jConfTag, help));
 
 	return goptions;
 }
