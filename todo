@@ -1,3 +1,11 @@
 - account for detector dependencies: for example cadbeamline needs fc 
-- look into dd4hep
+- look into dd4hep:
+   - https://dd4hep.web.cern.ch/dd4hep/usermanuals/DD4hepManual/DD4hepManual.pdf
+   - solid tutorial: https://hallaweb.jlab.org/wiki/index.php/Meeting_solid_software#tryout
+
+- checkout fun4all tutorial:
+  - https://eic-detector.github.io/tutorials_example2_JLab.html
+
+Configure Workflow, see in gemc/docs
+
 
