@@ -25,7 +25,7 @@ env:
 
 # script to execute
 script:
- - ./makeDoxy
+ - ./makeDoxy.sh
 
 # Generate and deploy documentation
 #
