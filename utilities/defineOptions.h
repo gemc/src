@@ -15,14 +15,14 @@ namespace goptions {
 		int stageMessageVerbosity;
 	};
 
-	void from_json(const json& j, GConf& c);
+	//void from_json(const json& j, GConf& c);
 
 	// non groupable: method to return a single gui
-	GConf getGConf(GOptions *gopts);
+	//GConf getGConf(GOptions *gopts);
 
-	bool getGui(GOptions *gopts);
-	int getSMV(GOptions *gopts);
-	int getVerbosity(GOptions *gopts, string state);
+	//bool getGui(GOptions *gopts);
+	//int getSMV(GOptions *gopts);
+	//int getVerbosity(GOptions *gopts, string state);
 
 }
 

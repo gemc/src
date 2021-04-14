@@ -3,7 +3,7 @@ Import('env')
 env.Prepend(LIBS = 'gutilities')
 
 sources = Split("""
-	utilities.cc
+	gemcUtilities.cc
 	defineOptions.cc
 	""")
 

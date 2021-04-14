@@ -6,7 +6,7 @@ using namespace std;
 #include "goptions.h"
 
 // utilities, options definitions
-#include "utilities.h"
+#include "gemcUtilities.h"
 #include "defineOptions.h"
 
 // gsession
@@ -21,16 +21,19 @@ int main(int argc, char* argv[])
 {
 	// the option are loaded in utilities/defineOptions.cc
 	// they include the gemc core options and any frameworks options
+	// they are parsed from the jcard(s) and command line
 	GOptions *gopts = new GOptions(argc, argv, defineOptions());
 	
 	// print settings w/o defaults
 	gopts->printSettings(false);
 	
 	// get gemc configuration options
-	auto gconf = goptions::getGConf(gopts);
-	
+	//auto gconf = goptions::getGConf(gopts);
+	// get option and print it from here
+	int gui = gopts->getInt("gui");
+
 	// create QT app if gui is not zero
-	createQtApplication(argc, argv, gconf.gui);
+	createQtApplication(argc, argv, gui);
 	
 	// instantiating new User Interface Messenger
 	// our custom cout destination for the UIM: MasterGeant4.[log, err]

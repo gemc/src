@@ -1,11 +1,12 @@
+# Token reminder: github > settings > developer > generate > copy on clipoard
+# On travis: assign the clipboard to GH_REPO_TOKEN
 language: sh
 
-# latest ubuntu
+# latest distribution
 # https://docs.travis-ci.com/user/reference/overview/
-# Tutorial: https://gist.github.com/vidavidorra/548ffbcdae99d752da02
-dist: bionic
+dist: focal
 
-# just main branch
+# just master branch (verify branch name)
 branches:
   only:
     - master
@@ -16,6 +17,11 @@ addons:
     packages:
       - doxygen
       - graphviz
+
+# environment must be defined
+# one build will be triggered for each line in the env array.
+env:
+  - TRAVISENVIRONMENT=yes
 
 # script to execute
 script:
