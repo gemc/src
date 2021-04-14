@@ -17,6 +17,7 @@ addons:
     packages:
       - doxygen
       - graphviz
+      - zsh
 
 # environment must be defined
 # one build will be triggered for each line in the env array.
