@@ -1,22 +1,15 @@
 // goptions
 #include "goptions.h"
 
+// options definitions
+#include "defineOptions.h"
+
 // c++
 #include <iostream>
 using namespace std;
 
 
 namespace goptions {
-
-	// single option to activate gui
-	// -----------------------------
-
-	struct GemcConfiguration {
-		int gui;
-		int nthreads;
-		int stageMessageVerbosity;
-	};
-
 
 	void from_json(const json& j, GemcConfiguration& c) {
 		j.at("gui").get_to(c.gui);
@@ -26,8 +19,12 @@ namespace goptions {
 
 	// get the configuration from options
 	GemcConfiguration getGemcConfiguuration(GOptions *gopts) {
-		auto jsonConfiguration = gopts->getOption("GemcConfiguration").front();
-		return jsonConfiguration.get<GemcConfiguration>();
+		auto jsonConfigurations = gopts->getOption("GemcConfiguration");
+		if ( jsonConfigurations.size()) {
+			return jsonConfigurations.front().get<GemcConfiguration>();
+		} else {
+			exit(1);
+		}
 	}
 
 }

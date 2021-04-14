@@ -7,6 +7,7 @@ using namespace std;
 
 // utilities, options definitions
 #include "gemcUtilities.h"
+#include "defineOptions.h"
 
 // gsession
 #include "gsession.h"
@@ -29,7 +30,7 @@ int main(int argc, char* argv[])
 	// get gemc configuration options
 	//auto gconf = goptions::getGConf(gopts);
 	// get option and print it from here
-	auto gemcConfiguration = goptions::getGemcConfiguuration(gopts);
+	//auto gemcConfiguration = goptions::getGemcConfiguuration(gopts);
 
 //	// create QT app if gui is not zero
 //	createQtApplication(argc, argv, gui);
