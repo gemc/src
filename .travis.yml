@@ -1,4 +1,4 @@
-# Token reminder: github > settings > developer > generate > copy on clipoard
+# Token reminder: github > settings > developer > > tokens > (re)generate > copy on clipoard
 # On travis: assign the clipboard to GH_REPO_TOKEN
 language: sh
 

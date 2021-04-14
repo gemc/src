@@ -1,41 +1,34 @@
-// options definitions
-#include "defineOptions.h"
+// goptions
+#include "goptions.h"
 
 // c++
 #include <iostream>
 using namespace std;
 
+
 namespace goptions {
 
-//	void from_json(const json& j, GConf& c) {
-//		j.at("gui").get_to(c.gui);
-//		j.at("nthreads").get_to(c.nthreads);
-//		j.at("stageMessageVerbosity").get_to(c.stageMessageVerbosity);
-//	}
-//
-//	// non groupable: method to return a single gui
-//	GConf getGConf(GOptions *gopts) {
-//		auto jConf = (*gopts)["conf"].front();
-//		return jConf.get<GConf>();
-//	}
-//
-//	bool getGui(GOptions *gopts) {
-//		auto gConf = getGConf(gopts);
-//		return gConf.gui == 1;
-//	}
-//
-//	int getSMV(GOptions *gopts) {
-//		auto gConf = getGConf(gopts);
-//		return gConf.stageMessageVerbosity;
-//	}
-//
-//	int getVerbosity(GOptions *gopts, string state) {
-//		auto jConf = (*gopts)["gConf"].front();
-//
-//		cout << " ASD " << jConf << endl;
-//
-//		return jConf[state];
-//	}
+	// single option to activate gui
+	// -----------------------------
+
+	struct GemcConfiguration {
+		int gui;
+		int nthreads;
+		int stageMessageVerbosity;
+	};
+
+
+	void from_json(const json& j, GemcConfiguration& c) {
+		j.at("gui").get_to(c.gui);
+		j.at("nthreads").get_to(c.nthreads);
+		j.at("stageMessageVerbosity").get_to(c.stageMessageVerbosity);
+	}
+
+	// get the configuration from options
+	GemcConfiguration getGemcConfiguuration(GOptions *gopts) {
+		auto jsonConfiguration = gopts->getOption("GemcConfiguration").front();
+		return jsonConfiguration.get<GemcConfiguration>();
+	}
 
 }
 
@@ -45,36 +38,34 @@ vector<GOption> defineOptions()
 	vector<GOption> goptions;
 
 	// activate gui. Default = no (batch mode)
-	json guiTag = {
+	json jsonGuiOption = {
 		{GNAME, "gui"},
 		{GDESC, "Graphical User Interface. Possible Values: 0/1. Default: 0"},
 		{GDFLT, 0}
 	};
 
 	// number of threads. Default = 1
-	json nthreadsTag = {
+	json jsonNThreadOption = {
 		{GNAME, "nthreads"},
 		{GDESC, "Number of threads"},
 		{GDFLT, 1}
 	};
 
 	// stage message verbosity
-	json smvTag = {
-		{GNAME, "stageMessageVerbosity"},
-		{GDESC, "Verbosity of State Messages"},
+	json jsonMessageOption = {
+		{GNAME, "messageVerbosity"},
+		{GDESC, "Verbosity of GEMC State Messages"},
 		{GDFLT, 1}
 	};
 
 
 
-	json jConfTag = { guiTag, nthreadsTag, smvTag};
-	string help = "GEMC configuration options.";
+	json jConfTag = { jsonGuiOption, jsonNThreadOption, jsonMessageOption};
+	string help = "GEMC configuration option.";
 
-	goptions.push_back(GOption("conf", "GEMC Configuration: gui, number of threads", jConfTag, help));
+	goptions.push_back(GOption("GemcConfiguration", "GEMC Configuration: gui, number of threads", jConfTag, help));
 
 	return goptions;
 }
-
-
 
 
