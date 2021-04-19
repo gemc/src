@@ -9,3 +9,26 @@ open $QTDIR/lib
 - glibrary libs: open $GLIBRARY/lib/
 
 - geant4: G4run, G4tracking, G4intercoms, G4interfaces, G4global
+
+
+GEMC 3 reminders:
+
+1. set MT option in go_geant4
+2. set DG4MULTITHREADED in loadgeant4.py
+
+ Pre-processor
+ Found with scons SHOWBUILD=1
+ Can paste in one line in Build Settings - preprocessor macro.
+ For example G4MULTITHREADED will change the meaning of G4cout (will use G4cout_p instead)
+ -DG4OPTIMISE -DG4_STORE_TRAJECTORY -DG4VIS_USE_OPENGL -DG4UI_USE_TCSH -DG4INTY_USE_QT  -DG4UI_USE_QT -DG4VIS_USE_OPENGLQT -DG4USE_STD11 -DG4MULTITHREADED
+   G4OPTIMISE=1 G4_STORE_TRAJECTORY=1 G4VIS_USE_OPENGL=1 G4UI_USE_TCSH=1 G4INTY_USE_QT=1  G4UI_USE_QT=1 G4VIS_USE_OPENGLQT=1 G4USE_STD11=1 G4MULTITHREADED=1
+
+GEMC
+
+ Code conventions
+ - camel case for all variable names, class definitions
+ - type definitions start with Capital letter
+ - instances start with lowercase letter
+ - shared variables should contain "shared" / "globabl" in the name
+ - thread-local variable should contain "local" / "tlocal" / "thread"
+ - source filenames starts with Capital letters

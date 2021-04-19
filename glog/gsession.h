@@ -8,7 +8,12 @@
 #include <fstream>
 using namespace std;
 
-
+/**
+ * @class GSession
+ * @brief The new G4UIsession passed to the G4UImanager
+ * @details An instance of GSession, replacing G4UIsession, is passed to the G4UImanager pointer in gemc.cc main with: SetCoutDestination(new GSession)\n
+ * The constructor will create the files for the log and error destinations: MasterGeant4.log and MasterGeant4.err
+ */
 class GSession : public G4UIsession
 {
 public:

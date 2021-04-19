@@ -8,37 +8,50 @@
 #include "defineOptions.h"
 
 // utilities, options definitions
-#include "utilities.h"
+#include "gemcUtilities.h"
+
+// geant4
+#include "G4UIsession.hh"
 
 
 #define GFLOWMESSAGEHEADER  "♒︎"
 
-// this is a base class derived by most gemc objects
-// the class controls the log output and verbosity relative to the derived class
-// the state string is assigned by the class constructor
-// the state verbosity is a user goption. the option is defined in utilities/defineOptions.cc
-// the derived class can send 3 types of messages:
-// doutB: debug messages. Only printed if the verbosity is greater or equal GVERBOSITY_ALL
-// doutD: details messages. Only printed if the verbosity is greater or equal GVERBOSITY_DETAILS
-// dout: normal (summary) messages. Only printed if the verbosity is greater or equal GVERBOSITY_SUMMARY
+/**
+ * @class GStateMessage
+ * @brief Base class, derived by most gemc objects, to handle log flow.
+ * @details This is a base class derived by most gemc objects. It controls the log output using the verbosity.\n
+ * The state string is assigned by the class constructor and the verbosity is \"\<state\>verbosity\". \n
+ * The derived class uses three methods to communicate to log:
+ * - message: printed independently of the verbosity
+ * - summarize: summary message only printed when verbosity is equal or greater GVERBOSITY_SUMMARY
+ * - dmessage: debug message only printed when verbosity is equal to GVERBOSITY_DETAILS
+ */
+
 class GStateMessage
 {
 public:
 	
-	GStateMessage(GOptions* gopt, string state) : stateName(state) {
+	/**
+	 * @brief StateMessage constructor. Built using options and the state string
+	 * @details The constructor:
+	 * - assigns the stateName, printed in the message headers.\n
+	 * - finds the state verbosity in the goptions.
+	 */
+	GStateMessage(GOptions* gopts, string state) : stateName(state) {
 
-		stateVerbosity = goptions::getVerbosity(gopt, state);
+		// the verbosity string is the "state" + "verbosity"
+		string verbosityString = state + "verbosity";
+		stateVerbosity =  gopts->getInt(verbosityString);
 
 		stateCounter = 0;
 
-
-		if(stateVerbosity > GVERBOSITY_SILENT) {
+		if(stateVerbosity >= GVERBOSITY_SUMMARY) {
 			G4cout << stateStringHeader()  << "Constructor" << G4endl;
 		}
 	}
 
 	~GStateMessage() {
-		if(stateVerbosity > GVERBOSITY_SILENT) {
+		if(stateVerbosity >= GVERBOSITY_SUMMARY) {
 			G4cout << stateStringHeader() << "Destructor" << G4endl;
 		}
 	}
@@ -51,24 +64,12 @@ private:
 	mutable atomic<int> stateCounter;
 
 	// start of all messages
-	string stateStringHeader() const {
-		stateCounter++;
-		return string(GFLOWMESSAGEHEADER) + " " + stateName + " [" + to_string(stateCounter) + "] " + string(GFLOWMESSAGEHEADER) + " ";
-	}
+	string stateStringHeader() const;
 	
 public:
-	void stateMessage(const string msg) const {
-		if(stateVerbosity > GVERBOSITY_SILENT) {
-			G4cout << stateStringHeader()  << msg << G4endl;
-		}
-	}
-	void stateMessage(const vector<string> msgs) const {
-		if(stateVerbosity > GVERBOSITY_SILENT) {
-			for(auto msg: msgs) {
-				G4cout << stateStringHeader()  << msg << G4endl;
-			}
-		}
-	}
+	void message(const string msg) const;
+	void summarize(const string msg) const;
+	void dmessage(const string msg) const;
 };
 
 #endif
