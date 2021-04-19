@@ -32,3 +32,11 @@ GEMC
  - shared variables should contain "shared" / "globabl" in the name
  - thread-local variable should contain "local" / "tlocal" / "thread"
  - source filenames starts with Capital letters
+
+
+
+	// the exampleResources.rcc is obtained with:
+	// rcc -binary exampleResources.qrc -o exampleResources.rcc
+	// it is needed in the executable dir in case it is compiled by xcode
+	// scons on the other hand knows about it because the qt module
+	// compiles exampleResources.qrc directly
