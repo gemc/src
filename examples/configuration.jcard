@@ -1,12 +1,9 @@
 {
-	# configuration example
 
-	"GemcConfiguration": [
-	{
-		"gui": 0,
-		"nthreads": 4,
-		"messageVerbosity": 1
-	}
-]
+	# configuration example
+	"gui": 1,
+	"nthreads": 4,
+	"verbosity": 1
+
 }
 

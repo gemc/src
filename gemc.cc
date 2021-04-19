@@ -5,8 +5,9 @@ using namespace std;
 // goptions
 #include "goptions.h"
 
-// utilities, options definitions
+// utilities, conventions, options definitions
 #include "gemcUtilities.h"
+#include "conventions.h"
 #include "defineOptions.h"
 
 // gsession
@@ -23,18 +24,14 @@ int main(int argc, char* argv[])
 	// they include the gemc core options and any frameworks options
 	// they are parsed from the jcard(s) and command line
 	GOptions *gopts = new GOptions(argc, argv, defineOptions());
-	
-	// print settings w/o defaults
-	gopts->printSettings(false);
-	
-	// get gemc configuration options
-	//auto gconf = goptions::getGConf(gopts);
-	// get option and print it from here
-	//auto gemcConfiguration = goptions::getGemcConfiguuration(gopts);
 
-//	// create QT app if gui is not zero
-//	createQtApplication(argc, argv, gui);
-//	
+	// get gui option
+	int gui = gopts->getInt("gui");
+
+
+	// create QT app if gui is not zero
+	createQtApplication(argc, argv, gui);
+
 //	// instantiating new User Interface Messenger
 //	// our custom cout destination for the UIM: MasterGeant4.[log, err]
 //	G4UImanager* UIM = G4UImanager::GetUIpointer();
@@ -43,7 +40,11 @@ int main(int argc, char* argv[])
 //	// init geant4 run manager with number of threads coming from options
 //	G4MTRunManager *g4MTRunManager = new G4MTRunManager;
 //	g4MTRunManager->SetNumberOfThreads(gconf.nthreads);
-//	
+//
+
+
+	delete gopts;
+	cout << GEMCLOGMSGITEM << " Simulation completed, arrivederci! " << endl << endl;
 	return EXIT_SUCCESS;
 }
 

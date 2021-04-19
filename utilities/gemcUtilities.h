@@ -4,8 +4,8 @@
 // qt
 #include <QApplication>
 
+
 // distinguishing between graphical and batch mode
 QCoreApplication* createQtApplication(int &argc, char *argv[], int gui);
-vector<GOption> defineOptions();
 
 #endif

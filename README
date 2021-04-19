@@ -1,0 +1,11 @@
+- make sure versions are correct in included settings file
+
+- add frameworks and library by dragging it into "Frameworks" directory, can embed in binary to run it on the build
+
+- qtframeworks: QtCore, QtGui, QtWidgets:
+
+open $QTDIR/lib
+
+- glibrary libs: open $GLIBRARY/lib/
+
+- geant4: G4run, G4tracking, G4intercoms, G4interfaces, G4global

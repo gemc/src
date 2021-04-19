@@ -3,7 +3,8 @@
 
 
 // this gemc version
-#define GEMC_VERSION "3.0.beta"
+#define GEMC_VERSION    "3.0.beta"
+#define GEMCLOGMSGITEM  " ⌘"
 
 
 #endif

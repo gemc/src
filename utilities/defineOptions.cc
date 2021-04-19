@@ -11,21 +11,6 @@ using namespace std;
 
 namespace goptions {
 
-	void from_json(const json& j, GemcConfiguration& c) {
-		j.at("gui").get_to(c.gui);
-		j.at("nthreads").get_to(c.nthreads);
-		j.at("stageMessageVerbosity").get_to(c.stageMessageVerbosity);
-	}
-
-	// get the configuration from options
-	GemcConfiguration getGemcConfiguuration(GOptions *gopts) {
-		auto jsonConfigurations = gopts->getOption("GemcConfiguration");
-		if ( jsonConfigurations.size()) {
-			return jsonConfigurations.front().get<GemcConfiguration>();
-		} else {
-			exit(1);
-		}
-	}
 
 }
 
@@ -40,6 +25,7 @@ vector<GOption> defineOptions()
 		{GDESC, "Graphical User Interface. Possible Values: 0/1. Default: 0"},
 		{GDFLT, 0}
 	};
+	goptions.push_back(GOption(jsonGuiOption));
 
 	// number of threads. Default = 1
 	json jsonNThreadOption = {
@@ -47,20 +33,16 @@ vector<GOption> defineOptions()
 		{GDESC, "Number of threads"},
 		{GDFLT, 1}
 	};
+	goptions.push_back(GOption(jsonNThreadOption));
 
 	// stage message verbosity
 	json jsonMessageOption = {
-		{GNAME, "messageVerbosity"},
+		{GNAME, "verbosity"},
 		{GDESC, "Verbosity of GEMC State Messages"},
 		{GDFLT, 1}
 	};
+	goptions.push_back(GOption(jsonMessageOption));
 
-
-
-	json jConfTag = { jsonGuiOption, jsonNThreadOption, jsonMessageOption};
-	string help = "GEMC configuration option.";
-
-	goptions.push_back(GOption("GemcConfiguration", "GEMC Configuration: gui, number of threads", jConfTag, help));
 
 	return goptions;
 }

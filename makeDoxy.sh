@@ -9,6 +9,7 @@ echo " "
 echo " Doxygen version: "$(doxygen --version)
 echo " "
 
+# TRAVISENVIRONMENT is defined in .travis.yml
 if [[ -v TRAVISENVIRONMENT ]]; then
 	echo " Travis Build" >&2
 	git clone https://github.com/gemc/glibrary.git
