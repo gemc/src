@@ -25,9 +25,8 @@ int main(int argc, char* argv[])
 	// they are parsed from the jcard(s) and command line
 	GOptions *gopts = new GOptions(argc, argv, defineOptions());
 
-	// get gui option
-	int gui = gopts->getInt("gui");
-
+	// get gui switch
+	bool gui = gopts->getSwitch("gui");
 
 	// create QT app if gui is not zero
 	createQtApplication(argc, argv, gui);

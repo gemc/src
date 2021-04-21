@@ -15,6 +15,8 @@
  * external databases in various format and are loaded at run
  * time using factory methods.\n
  *
+ * \subsection cisubsection Continuous Integration
+ *
  * \n\n
  * \author \n &copy; Maurizio Ungaro
  * \author e-mail ungaro@jlab.org

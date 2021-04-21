@@ -1,7 +1,6 @@
 {
 
 	# configuration example
-	"gui": 1,
 	"nthreads": 4,
 	"verbosity": 1
 

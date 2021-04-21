@@ -20,8 +20,8 @@
  * @class GStateMessage
  * @brief Base class, derived by most gemc objects, to handle log flow.
  * @details This is a base class derived by most gemc objects. It controls the log output using the verbosity.\n
- * The state string is assigned by the class constructor and the verbosity is \"\<state\>verbosity\". \n
- * The derived class uses three methods to communicate to log:
+ * The state string is assigned by the class constructor and the verbosity is a simple goptions named \"\<state\>verbosity\". \n
+ * The derived classes use three methods to communicate to log:
  * - message: printed independently of the verbosity
  * - summarize: summary message only printed when verbosity is equal or greater GVERBOSITY_SUMMARY
  * - dmessage: debug message only printed when verbosity is equal to GVERBOSITY_DETAILS

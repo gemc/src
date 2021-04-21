@@ -1,7 +1,7 @@
 // see glibrary/frameworksREADME
 
 // Sourcing local version
-#include "/opt/projects/ceInstall/ce/settings.xcconfig"
+#include "/opt/projects/gemc/glibrary/settings.xcconfig"
 
 // installation of libraries and binaries
 CONFIGURATION_BUILD_DIR = $MYBUILDDIR

@@ -6,20 +6,6 @@
 
 namespace goptions {
 
-//	// single option to activate gui
-//	// -----------------------------
-//
-//	struct GemcConfiguration {
-//		int gui;
-//		int nthreads;
-//		int stageMessageVerbosity;
-//	};
-//
-//
-//	void from_json(const json& j, GemcConfiguration& c);
-//
-//	// get the configuration from options
-//	GemcConfiguration getGemcConfiguuration(GOptions *gopts);
 
 }
 

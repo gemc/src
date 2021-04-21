@@ -1,15 +1,30 @@
-- make sure versions are correct in included settings file
+- add frameworks and libraries by dragging it into "Frameworks" directory.
+  * frameworks can be embedded in binary (products destination) to run it on the build, uncheck copy only when installing
+  * libraryies can be copied to products destination (no subpath) to run it on the build uncheck copy only when installing
 
-- add frameworks and library by dragging it into "Frameworks" directory, can embed in binary to run it on the build
+ - if problems with plugin "cocoa":
+   * can set QT_DEBUG_PLUGINS to 1 in the env variables for more debugging
+   * can set QT_PLUGIN_PATH to plugin locations (cocoa plugin is under platforms there), currently /opt/jlab_software/2.4/Darwin_macosx10.15-clang12.0.0/qt/system/clang_64/plugins
 
-- qtframeworks: QtCore, QtGui, QtWidgets:
+- qtframeworks (qt5, note 6 are different): QtCore, QtGui, QtWidgets, QtOpenGL, QtPrintSupport:
 
 open $QTDIR/lib
 
-- glibrary libs: open $GLIBRARY/lib/
+- glibrary libs:
 
-- geant4: G4run, G4tracking, G4intercoms, G4interfaces, G4global
+open $GLIBRARY/lib/
 
+- clhep: clhep-version.dylib
+
+open $CLHEP_BASE_DIR/lib/
+
+- xerces-c: xerces-c-version.dylib
+
+open $XERCESCROOT/lib/
+
+- geant4: add all libraries
+
+open $G4ROOT/4.10.06.p02MT/lib/
 
 GEMC 3 reminders:
 

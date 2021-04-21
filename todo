@@ -1,5 +1,6 @@
-- gui should be a bool option
 
+
+- later down the road: compare map vs unordered_map speed and memory usage.
 
 - gopts must be shared ptr so it can be used in the local threads
 - account for detector dependencies: for example cadbeamline needs fc

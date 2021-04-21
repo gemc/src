@@ -2,9 +2,9 @@
 #include <QtWidgets>
 
 // distinguishing between graphical and batch mode
-QCoreApplication* createQtApplication(int &argc, char *argv[], int gui)
+QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui)
 {
-	if(gui == 1) {
+	if( !gui ) {
 		return new QCoreApplication(argc, argv);
 	} else {
 		return new QApplication(argc, argv);

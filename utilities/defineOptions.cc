@@ -19,13 +19,8 @@ vector<GOption> defineOptions()
 {
 	vector<GOption> goptions;
 
-	// activate gui. Default = no (batch mode)
-	json jsonGuiOption = {
-		{GNAME, "gui"},
-		{GDESC, "Graphical User Interface. Possible Values: 0/1. Default: 0"},
-		{GDFLT, 0}
-	};
-	goptions.push_back(GOption(jsonGuiOption));
+	// add a "gui" switch
+	goptions.push_back(GOption("gui", "Use Graphical User Interface"));
 
 	// number of threads. Default = 1
 	json jsonNThreadOption = {
