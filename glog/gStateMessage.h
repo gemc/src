@@ -4,9 +4,6 @@
 // glibrary
 #include "goptions.h"
 
-// options definitions
-#include "defineOptions.h"
-
 // utilities, options definitions
 #include "gemcUtilities.h"
 

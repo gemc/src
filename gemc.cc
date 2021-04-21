@@ -31,10 +31,10 @@ int main(int argc, char* argv[])
 	// create QT app if gui is not zero
 	createQtApplication(argc, argv, gui);
 
-//	// instantiating new User Interface Messenger
-//	// our custom cout destination for the UIM: MasterGeant4.[log, err]
-//	G4UImanager* UIM = G4UImanager::GetUIpointer();
-//	UIM->SetCoutDestination(new GSession);
+	// instantiating new User Interface Messenger
+	// our custom cout destination for the UIM: MasterGeant4.[log, err]
+	G4UImanager* UIM = G4UImanager::GetUIpointer();
+	UIM->SetCoutDestination(new GSession);
 //
 //	// init geant4 run manager with number of threads coming from options
 //	G4MTRunManager *g4MTRunManager = new G4MTRunManager;
@@ -42,7 +42,10 @@ int main(int argc, char* argv[])
 //
 
 
+	// order of pointers deletion is inverse of creation
+	delete UIM;
 	delete gopts;
+	
 	cout << GEMCLOGMSGITEM << " Simulation completed, arrivederci! " << endl << endl;
 	return EXIT_SUCCESS;
 }

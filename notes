@@ -42,11 +42,11 @@ GEMC
 
  Code conventions
  - camel case for all variable names, class definitions
- - type definitions start with Capital letter
+ - type definitions start with Capital Letter
  - instances start with lowercase letter
- - shared variables should contain "shared" / "globabl" in the name
+ - shared variables should contain "shared" / "global" in the name
  - thread-local variable should contain "local" / "tlocal" / "thread"
- - source filenames starts with Capital letters
+ - source filenames starts with Capital letters << maybe not
 
 
 
