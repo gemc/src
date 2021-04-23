@@ -2,8 +2,9 @@
 #include <iostream>
 using namespace std;
 
-// goptions
+// glibrary
 #include "goptions.h"
+#include "gsplash.h"
 
 // utilities, conventions, options definitions
 #include "gemcUtilities.h"
@@ -20,16 +21,22 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	// the option are loaded in utilities/defineOptions.cc
-	// they include the gemc core options and any frameworks options
-	// they are parsed from the jcard(s) and command line
+	// the gemc goptions are defined in utilities/defineOptions.cc
+	// they are merged with the frameworks goptions definitions
+	// the goptions are then assigned from the jcard(s) and command line
 	GOptions *gopts = new GOptions(argc, argv, defineOptions());
+
+	// splash screen
+	GSplash  *gemcSplash = nullptr;
 
 	// get gui switch
 	bool gui = gopts->getSwitch("gui");
-
 	// create QT app if gui is not zero
-	createQtApplication(argc, argv, gui);
+	QCoreApplication *gApp = createQtApplication(argc, argv, gui);
+	if ( gui ) {
+		gemcSplash = new GSplash("gemcArchitecture");
+	}
+
 
 	// instantiating new User Interface Messenger
 	// our custom cout destination for the UIM: MasterGeant4.[log, err]
@@ -44,6 +51,8 @@ int main(int argc, char* argv[])
 
 	// order of pointers deletion is inverse of creation
 	delete UIM;
+	delete gemcSplash;
+	delete gApp;
 	delete gopts;
 	
 	cout << GEMCLOGMSGITEM << " Simulation completed, arrivederci! " << endl << endl;

@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+	<qresource>
+<!--		<file>images/gemcArchitecture.png</file>-->
+		<file alias="gemcArchitecture">images/gemcArchitecture.png</file>
+
+	</qresource>
+</RCC>
