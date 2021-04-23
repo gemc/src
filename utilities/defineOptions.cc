@@ -26,7 +26,7 @@ vector<GOption> defineOptions()
 	json jsonNThreadOption = {
 		{GNAME, "nthreads"},
 		{GDESC, "Number of threads"},
-		{GDFLT, 1}
+		{GDFLT, 0}
 	};
 	goptions.push_back(GOption(jsonNThreadOption));
 

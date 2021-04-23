@@ -1,6 +1,18 @@
 // Qt
 #include <QtWidgets>
 
+// geant4 headers
+#include "G4Threading.hh"
+
+// c++
+#include <iostream>
+
+// glibrary
+#include "goptions.h"
+
+// conventions
+#include "conventions.h"
+
 // distinguishing between graphical and batch mode
 QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui)
 {
@@ -15,3 +27,15 @@ QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui)
 	}
 }
 
+// return number of cores from options. If 0 or none given,
+// returns max number of available cores
+int getNumberOfThreads(GOptions* gopts) {
+	int useThreads = gopts->getInt("nthreads");
+	int allThreads = G4Threading::G4GetNumberOfCores();
+	if(useThreads == 0) useThreads = allThreads;
+
+	// global log screen
+	cout << GEMCLOGMSGITEM << " G4MTRunManager: using " << useThreads << " threads out of "  << allThreads << " available."  << endl;
+
+	return useThreads;
+}

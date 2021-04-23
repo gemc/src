@@ -42,14 +42,16 @@ int main(int argc, char* argv[])
 	// our custom cout destination for the UIM: MasterGeant4.[log, err]
 	G4UImanager* UIM = G4UImanager::GetUIpointer();
 	UIM->SetCoutDestination(new GSession);
-//
-//	// init geant4 run manager with number of threads coming from options
-//	G4MTRunManager *g4MTRunManager = new G4MTRunManager;
-//	g4MTRunManager->SetNumberOfThreads(gconf.nthreads);
-//
+
+	// init geant4 run manager with number of threads coming from options
+	G4MTRunManager *g4MTRunManager = new G4MTRunManager;
+	g4MTRunManager->SetNumberOfThreads(getNumberOfThreads(gopts));
+
+	gopts->printSettings(true);
 
 
 	// order of pointers deletion is inverse of creation
+	delete g4MTRunManager;
 	delete UIM;
 	delete gemcSplash;
 	delete gApp;
