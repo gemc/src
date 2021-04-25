@@ -9,6 +9,7 @@
 
 // geant4
 #include "G4UIsession.hh"
+using std::atomic;
 
 
 #define GFLOWMESSAGEHEADER  "♒︎"

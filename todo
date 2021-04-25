@@ -1,4 +1,5 @@
-
+- complete chasing using namespace;
+- catalogue exit codes across libraries;
 
 - later down the road: compare map vs unordered_map speed and memory usage.
 

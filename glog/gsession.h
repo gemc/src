@@ -6,7 +6,7 @@
 
 // c++
 #include <fstream>
-using namespace std;
+using std::ofstream;
 
 /**
  * @class GSession
