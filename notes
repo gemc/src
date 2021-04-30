@@ -55,3 +55,26 @@ GEMC
 Make sure compiler is gnu++17
 Make sure frameworks are compiled into dynamic libraries, and each of those should use but not embed their dependencies
 
+
+
+
+## The rule of three:
+
+If you need to explicitly declare either the destructor, copy constructor or copy assignment operator yourself,
+you probably need to explicitly declare all three of them.
+From C++11 on, an object has 2 extra special member functions: the move constructor and move assignment.
+The rule of five states to implement these functions as well.
+
+class person
+{
+    std::string name;
+    int age;
+
+public:
+    person(const std::string& name, int age);        // Ctor
+    person(const person &) = default;                // 1/5: Copy Ctor
+    person(person &&) noexcept = default;            // 4/5: Move Ctor
+    person& operator=(const person &) = default;     // 2/5: Copy Assignment
+    person& operator=(person &&) noexcept = default; // 5/5: Move Assignment
+    ~person() noexcept = default;                    // 3/5: Dtor
+};
