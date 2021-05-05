@@ -5,6 +5,7 @@ using namespace std;
 // glibrary
 #include "goptions.h"
 #include "gsplash.h"
+#include "gdynamicdigitization.h"
 
 // utilities, conventions, options definitions
 #include "gemcUtilities.h"
@@ -37,7 +38,6 @@ int main(int argc, char* argv[])
 		gemcSplash = new GSplash("gemcArchitecture");
 	}
 
-
 	// instantiating new User Interface Messenger
 	// our custom cout destination for the UIM: MasterGeant4.[log, err]
 	G4UImanager* UIM = G4UImanager::GetUIpointer();
@@ -47,13 +47,24 @@ int main(int argc, char* argv[])
 	G4MTRunManager *g4MTRunManager = new G4MTRunManager;
 	g4MTRunManager->SetNumberOfThreads(getNumberOfThreads(gopts));
 
+
+
+
+	// instantiating pointer to global digitization map
+	map<string, GDynamicDigitization*> *globalDigitization = new map<string, GDynamicDigitization*>;
+
+
+
 	gopts->printSettings(true);
 
-
 	// order of pointers deletion is inverse of creation
+	delete globalDigitization;
 	delete g4MTRunManager;
-	delete UIM;
-	delete gemcSplash;
+
+	if ( gui ) {
+		delete UIM;
+		delete gemcSplash;
+	}
 	delete gApp;
 	delete gopts;
 	
