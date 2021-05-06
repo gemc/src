@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 	// the gemc goptions are defined in utilities/defineOptions.cc
 	// they are merged with the frameworks goptions definitions
 	// the goptions are then assigned from the jcard(s) and command line
-	GOptions *gopts = new GOptions(argc, argv, defineOptions());
+	GOptions *gopts = new GOptions(argc, argv, gemc::defineOptions());
 
 	// splash screen
 	GSplash  *gemcSplash = nullptr;
