@@ -56,6 +56,10 @@ Make sure compiler is gnu++17
 Make sure frameworks are compiled into dynamic libraries, and each of those should use but not embed their dependencies
 
 
+# Xcode testing
+
+See https://hiltmon.com/blog/2019/02/09/testing-c-plus-plus-17-project-in-xcode-with-xctest/
+
 
 
 ## The rule of three:

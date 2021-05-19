@@ -3,7 +3,7 @@
 
 // c++
 #include <iostream>
-using std::flush;
+using namespace std;
 
 
 GSession::GSession()

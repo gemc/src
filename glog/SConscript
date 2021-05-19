@@ -2,10 +2,10 @@ Import('env')
 
 env.Prepend(LIBS = 'glog')
 
-sources = Split("""
-	gStateMessage.cc
-	gsession.cc
-	""")
+sources = [
+	'gStateMessage.cc',
+	'gsession.cc'
+	]
 
 env.Library(source = sources, target = "#lib/glog")
 

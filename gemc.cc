@@ -47,13 +47,11 @@ int main(int argc, char* argv[])
 	G4MTRunManager *g4MTRunManager = new G4MTRunManager;
 	g4MTRunManager->SetNumberOfThreads(getNumberOfThreads(gopts));
 
-
-
-
 	// instantiating pointer to global digitization map
 	map<string, GDynamicDigitization*> *globalDigitization = new map<string, GDynamicDigitization*>;
 
 
+	
 
 	gopts->printSettings(true);
 

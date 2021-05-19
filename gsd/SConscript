@@ -1,10 +1,9 @@
 Import('env')
 
-env.Prepend(LIBS = 'gutilities')
+env.Prepend(LIBS = 'gsd')
 
 sources = [
-	'gemcUtilities.cc',
-	'defineOptions.cc'
+	'gsd.cc'
 	]
 
 # The # in the LIBPATH directories specify that they’re relative to the top-level directory

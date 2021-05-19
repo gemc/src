@@ -6,8 +6,7 @@
 
 // c++
 #include <iostream>
-using std::cout;
-using std::endl;
+using namespace std;
 
 // glibrary
 #include "goptions.h"
