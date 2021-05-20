@@ -5,11 +5,11 @@ env = init_environment('qt5 glibrary geant4 clhep')
 env.Append(CXXFLAGS=['-std=c++17'])
 
 # local directories include
-env.Append(CPPPATH = [Dir('utilities'), Dir('glog'), Dir('gsd')])
+env.Append(CPPPATH = [Dir('utilities'), Dir('gsession'), Dir('gsd')])
 
 # gemc subsystems are built in 'lib'
 SConscript('utilities/SConscript', exports='env')
-SConscript('glog/SConscript',      exports='env')
+SConscript('gsession/SConscript',  exports='env')
 SConscript('gsd/SConscript',       exports='env')
 
 

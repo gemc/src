@@ -7,6 +7,6 @@ sources = [
 	]
 
 # The # in the LIBPATH directories specify that they’re relative to the top-level directory
-env.Library(source = sources, target = "#lib/gutilities")
+env.Library(source = sources, target = "#lib/gsd")
 
 
