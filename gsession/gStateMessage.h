@@ -65,9 +65,12 @@ private:
 	string stateStringHeader() const;
 	
 public:
-	void message(const string msg) const;
-	void summarize(const string msg) const;
-	void dmessage(const string msg) const;
+	void logAlways(const string msg) const;
+	void logSummary(const string msg) const;
+	void logDetail(const string msg) const;
+	void logWarning(const string msg) const;
+	void logError(const string msg) const;
+
 };
 
 #endif

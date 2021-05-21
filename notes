@@ -82,3 +82,16 @@ public:
     person& operator=(person &&) noexcept = default; // 5/5: Move Assignment
     ~person() noexcept = default;                    // 3/5: Dtor
 };
+
+
+
+
+
+## Color on the output
+
+- can be seen with
+
+cat
+less if LESS is set: export LESS=-Xr
+grep
+
