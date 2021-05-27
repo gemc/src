@@ -69,7 +69,7 @@ public:
 	void logSummary(const string msg) const;
 	void logDetail(const string msg) const;
 	void logWarning(const string msg) const;
-	void logError(const string msg) const;
+	void logError(const string msg, const int exitError) const;
 
 };
 

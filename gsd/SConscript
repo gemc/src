@@ -3,7 +3,8 @@ Import('env')
 env.Prepend(LIBS = 'gsd')
 
 sources = [
-	'gsd.cc'
+	'gsd.cc',
+	'decisionToSkipHit.cc'
 	]
 
 # The # in the LIBPATH directories specify that they’re relative to the top-level directory

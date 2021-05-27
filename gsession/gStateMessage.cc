@@ -45,7 +45,8 @@ void GStateMessage::logWarning(const string msg) const {
 /**
  * @brief log error message
  */
-void GStateMessage::logError(const string msg) const {
+void GStateMessage::logError(const string msg, const int exitError) const {
 	G4cout << FATALERRORL << stateStringHeader()  << msg << G4endl;
+	gexit(exitError);
 }
 

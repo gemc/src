@@ -8,7 +8,8 @@
 
 
 // gemc exit codes: 2000
-#define EC__DYNAMICPLUGINNOTFOUND 2001
+#define EC__DYNAMICPLUGINNOTFOUND   2001
+#define EC__HITNOTFOUNDINCOLLECTION 2002
 
 #endif
 
