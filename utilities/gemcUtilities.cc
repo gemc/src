@@ -11,8 +11,9 @@ using namespace std;
 // glibrary
 #include "goptions.h"
 
-// conventions
+// conventions, utilities, options definitions
 #include "gemcConventions.h"
+#include "gemcUtilities.h"
 
 // distinguishing between graphical and batch mode
 QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui)

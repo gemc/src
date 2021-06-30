@@ -4,9 +4,6 @@
 // glibrary
 #include "goptions.h"
 
-// utilities, options definitions
-#include "gemcUtilities.h"
-
 // geant4
 #include "G4UIsession.hh"
 using std::atomic;

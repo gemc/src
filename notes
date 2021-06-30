@@ -103,5 +103,5 @@ In general from scratch:
 1. new project
 2. remove project file from folder, put one dir up
 3. add settings.xconfig to project settings debug and release
-4. select GNU++17
-5. target: add library or command line executable, remove dirs/files created, add files to build phases manually
+4. target: add library or command line executable, remove dirs/files created, add files to build phases manually
+5. select GNU++17
