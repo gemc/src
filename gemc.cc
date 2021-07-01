@@ -10,7 +10,7 @@ using namespace std;
 // utilities, conventions, options definitions
 #include "gemcUtilities.h"
 #include "gemcConventions.h"
-#include "defineOptions.h"
+#include "gemcOptions.h"
 
 // gsession
 #include "gsession.h"

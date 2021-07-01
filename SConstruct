@@ -18,6 +18,7 @@ env.Append(LIBPATH = ['lib'])
 
 gsources = [
 	'gemc.cc',
+	'gemcOptions.cc',
 	'qtresources.qrc'
 	]
 

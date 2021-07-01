@@ -3,9 +3,8 @@ Import('env')
 env.Prepend(LIBS = 'gutilities')
 
 sources = [
-	'gemcUtilities.cc',
-	'defineOptions.cc'
-	]
+	'gemcUtilities.cc'
+]
 
 # The # in the LIBPATH directories specify that they’re relative to the top-level directory
 env.Library(source = sources, target = "#lib/gutilities")
