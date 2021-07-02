@@ -2,8 +2,17 @@
 
 	# configuration example
 	"nthreads": 4,
-	"verbosity": 1
+	"verbosity": 1,
 
+	"+gsystem": [
+
+		# central detector
+		# as an example we define it in-line
+		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_1_simple_det/ctof", "factory": "text", "variation": "default" }
+
+	],
+
+	"gsystemv": 1
 
 	
 }

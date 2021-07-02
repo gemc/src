@@ -1,3 +1,10 @@
+working on gemc:
+
+next: add detector in gemc, start build gsystem then g4system
+
+
+
+
 In General:
 
 - keep chasing using namespace;
@@ -8,7 +15,7 @@ In General:
 
 Gemc Details:
 
-- catalogue exit codes across libraries;
+- catalogue exit codes across libraries: find in project #define EC__
 - use gConstruct gDestruct;
 - later down the road: compare map vs unordered_map speed and memory usage.
 - gopts must be shared ptr so it can be used in the local threads
