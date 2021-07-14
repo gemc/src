@@ -34,7 +34,7 @@ namespace gemc {
 		// stage message verbosity
 		json jsonMessageOption = {
 			{GNAME, "verbosity"},
-			{GDESC, "verbosity of GEMC State Messages. Possible values: 0 (none), 1 (some), 2 (all)"},
+			{GDESC, GVERBOSITY_DESCRIPTION},
 			{GDFLT, 1}
 		};
 		goptions.push_back(GOption(jsonMessageOption));

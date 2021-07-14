@@ -32,29 +32,28 @@ public:
 	 * - assigns the stateName, printed in the message headers.\n
 	 * - finds the state verbosity in the goptions.
 	 */
-	GStateMessage(GOptions* gopts, string state) : stateName(state) {
-
-		// the verbosity string is the "state" + "verbosity"
-		string verbosityString = state + "verbosity";
-		stateVerbosity =  gopts->getInt(verbosityString);
+	GStateMessage(GOptions* gopts, string header) : stateHeader(header) {
 
 		stateCounter = 0;
 
-		if(stateVerbosity >= GVERBOSITY_SUMMARY) {
+		string verbosityOption = header + "v";
+		verbosity =  gopts->getInt(verbosityOption);
+
+		if(verbosity >= GVERBOSITY_SUMMARY) {
 			G4cout << stateStringHeader()  << "Constructor" << G4endl;
 		}
 	}
 
 	~GStateMessage() {
-		if(stateVerbosity >= GVERBOSITY_SUMMARY) {
+		if(verbosity >= GVERBOSITY_SUMMARY) {
 			G4cout << stateStringHeader() << "Destructor" << G4endl;
 		}
 	}
 
 
 private:
-	string stateName;
-	int stateVerbosity;
+	string stateHeader;
+	int verbosity;
 
 	mutable atomic<int> stateCounter;
 

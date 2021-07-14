@@ -12,48 +12,51 @@
 
 GDetectorConstruction::GDetectorConstruction(GOptions* opt, map<string, GDynamicDigitization*> *gDDGlobal) :
 G4VUserDetectorConstruction(),                           // geant4 derived
-GStateMessage(opt, "GDetectorConstruction "),   // GStateMessage derived
+GStateMessage(opt, "gsystem"),   // GStateMessage derived
 gopt(opt),
 gDynamicDigitizationMapGlobalInstance(gDDGlobal)
 {
-
+	// should this go here or in Construct()
+	gworld = new GWorld(gopt);
 }
 
+// delete the two pointers created by GDetectorConstruction
 GDetectorConstruction::~GDetectorConstruction() {
-	delete gopt;
 	delete gworld;
 	delete g4world;
 }
 
-//G4VPhysicalVolume* GDetectorConstruction::Construct()
-//{
-//	flowMessage("Constructing gemc world");
-//
-//	// loading gvolumes, material, system parameters
-//	gsetup = new GSetup(gopt);
-//
+G4VPhysicalVolume* GDetectorConstruction::Construct()
+{
+	logDetail("Constructing gemc world");
+
+	// loading gvolumes, material, system parameters
+
 //	// builiding geant4 volumes
 //	g4setup = new G4Setup(gsetup, gopt);
 //
 //	return g4setup->getPhysical(WORLDNAME);
-//}
 
-//void GDetectorConstruction::ConstructSDandField()
-//{
-//	// no need to do anything if we're in the main thread
-//	// PRAGMA TODO:
-//	// If we return here if it's master, then the hit will not be
-//	// processed in GSensitiveDetector::ProcessHits
-//	//if (G4Threading::IsMasterThread() ) return;
-//
-//	int verbosity = gopt->getInt("gsensitivityv");
-//
+
+	return nullptr;
+}
+
+void GDetectorConstruction::ConstructSDandField()
+{
+	// no need to do anything if we're in the main thread
+	// PRAGMA TODO:
+	// If we return here if it's master, then the hit will not be
+	// processed in GSensitiveDetector::ProcessHits
+	if (G4Threading::IsMasterThread() ) return;
+
+	// int verbosity = gopt->getInt("gsensitivityv");
+
 //	flowMessage("Inside SDandField");
 //
 //	// used to check if a SD if it already exists
 //	map<string, GSensitiveDetector*> allSensitiveDetectors;
-//
-//
+
+
 //	// building the sensitive detectors
 //	// this is thread local
 //	for(auto &s : gsetup->getSetup()) {
@@ -88,9 +91,11 @@ GDetectorConstruction::~GDetectorConstruction() {
 //			}
 //		}
 //	}
-//}
-//
-//
+
+
+}
+
+
 
 
 

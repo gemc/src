@@ -12,6 +12,10 @@ using namespace std;
 #include "gemcConventions.h"
 #include "gemcOptions.h"
 
+// detector
+#include "gdetectorConstruction.h"
+
+
 // gsession
 #include "gsession.h"
 
@@ -32,7 +36,9 @@ int main(int argc, char* argv[])
 
 	// get gui switch
 	bool gui = gopts->getSwitch("gui");
-	// create QT app if gui is not zero
+
+	// createQtApplication returns a QApplication if gui is not zero
+	// otherwise it returns a QCoreApplication
 	QCoreApplication *gApp = createQtApplication(argc, argv, gui);
 	if ( gui ) {
 		gemcSplash = new GSplash("gemcArchitecture");
@@ -51,11 +57,17 @@ int main(int argc, char* argv[])
 	map<string, GDynamicDigitization*> *globalDigitization = new map<string, GDynamicDigitization*>;
 
 
+	// building detector
+	// this is global, changed at main scope
+	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitization);
+	//g4MTRunManager->SetUserInitialization(gDetectorGlobal);
+
 	
 
 	gopts->printSettings(true);
 
 	// order of pointers deletion is inverse of creation
+	delete gDetectorGlobal;
 	delete globalDigitization;
 	delete g4MTRunManager;
 
