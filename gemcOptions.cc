@@ -32,13 +32,21 @@ namespace gemc {
 		goptions.push_back(GOption(jsonNThreadOption));
 
 		// stage message verbosity
-		json jsonMessageOption = {
+		json jsonMessageVerbosity = {
 			{GNAME, "verbosity"},
 			{GDESC, GVERBOSITY_DESCRIPTION},
 			{GDFLT, 1}
 		};
-		goptions.push_back(GOption(jsonMessageOption));
+		goptions.push_back(GOption(jsonMessageVerbosity));
 
+
+		// geant4 world verbosity is defined here and passed to the g4world constructor
+		json jsonG4WorldVerbosity = {
+			{GNAME, "g4worldv"},
+			{GDESC, GVERBOSITY_DESCRIPTION},
+			{GDFLT, 1}
+		};
+		goptions.push_back(GOption(jsonG4WorldVerbosity));
 
 		goptions += gsystem::defineOptions();
 

@@ -3,7 +3,6 @@
 
 // glibrary
 #include "gworld.h"
-#include "gsystem.h"
 
 
 // geant4
@@ -17,7 +16,17 @@ gopt(opt),
 gDynamicDigitizationMapGlobalInstance(gDDGlobal)
 {
 	// should this go here or in Construct()
+
+
+	// building gemc world (systems containings gvolumes)
 	gworld = new GWorld(gopt);
+
+	// builiding geant4 world (solid, logical, physical volumes)
+	int g4worldv =  gopt->getInt("g4worldv");
+	g4world = new G4World(gworld, g4worldv);
+
+
+	
 }
 
 // delete the two pointers created by GDetectorConstruction
@@ -32,8 +41,8 @@ G4VPhysicalVolume* GDetectorConstruction::Construct()
 
 	// loading gvolumes, material, system parameters
 
-//	// builiding geant4 volumes
-//	g4setup = new G4Setup(gsetup, gopt);
+//
+//	gworld = new GWorld(gopt);
 //
 //	return g4setup->getPhysical(WORLDNAME);
 
