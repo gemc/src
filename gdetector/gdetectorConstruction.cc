@@ -27,6 +27,8 @@ gDynamicDigitizationMapGlobalInstance(gDDGlobal)
 
 
 	
+
+	
 }
 
 // delete the two pointers created by GDetectorConstruction
