@@ -36,8 +36,12 @@ int getNumberOfThreads(GOptions* gopts) {
 	int allThreads = G4Threading::G4GetNumberOfCores();
 	if(useThreads == 0) useThreads = allThreads;
 
-	// global log screen
-	cout << GEMCLOGMSGITEM << " G4MTRunManager: using " << useThreads << " threads out of "  << allThreads << " available."  << endl;
+	int verbosity = gopts->getInt("verbosity");
 
+	// global log screen
+	if (verbosity >= GVERBOSITY_SUMMARY) {
+		cout << GEMCLOGMSGITEM << " G4MTRunManager: using " << useThreads << " threads out of "  << allThreads << " available."  << endl;
+	}
+	
 	return useThreads;
 }

@@ -4,8 +4,9 @@
 // options definitions
 #include "gemcOptions.h"
 
-// other systems options
+// other modules goptions
 #include "gsystemOptions.h"
+#include "g4systemOptions.h"
 
 
 // c++
@@ -31,7 +32,7 @@ namespace gemc {
 		};
 		goptions.push_back(GOption(jsonNThreadOption));
 
-		// stage message verbosity
+		// general verbosity
 		json jsonMessageVerbosity = {
 			{GNAME, "verbosity"},
 			{GDESC, GVERBOSITY_DESCRIPTION},
@@ -40,15 +41,9 @@ namespace gemc {
 		goptions.push_back(GOption(jsonMessageVerbosity));
 
 
-		// geant4 world verbosity is defined here and passed to the g4world constructor
-		json jsonG4WorldVerbosity = {
-			{GNAME, "g4worldv"},
-			{GDESC, GVERBOSITY_DESCRIPTION},
-			{GDFLT, 1}
-		};
-		goptions.push_back(GOption(jsonG4WorldVerbosity));
-
+		// other modules goptions
 		goptions += gsystem::defineOptions();
+		goptions += g4system::defineOptions();
 
 
 		return goptions;

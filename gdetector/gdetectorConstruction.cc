@@ -22,8 +22,7 @@ gDynamicDigitizationMapGlobalInstance(gDDGlobal)
 	gworld = new GWorld(gopt);
 
 	// builiding geant4 world (solid, logical, physical volumes)
-	int g4worldv =  gopt->getInt("g4worldv");
-	g4world = new G4World(gworld, g4worldv);
+	g4world = new G4World(gworld, gopt);
 
 
 	

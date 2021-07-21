@@ -1,7 +1,7 @@
 #include "gStateMessage.h"
 
-// gstring for GWARNING and FATALERRORL
-#include "gstring.h"
+// gutilities for GWARNING and FATALERRORL
+#include "gutilities.h"
 
 // start of all messages
 string GStateMessage::stateStringHeader() const {

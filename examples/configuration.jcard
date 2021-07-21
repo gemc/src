@@ -2,7 +2,7 @@
 
 	# configuration example
 	"nthreads": 4,
-	"verbosity": 1,
+	"verbosity": 2,
 
 	"+gsystem": [
 
@@ -13,7 +13,7 @@
 	],
 
 	"gsystemv": 1,
-	"g4worldv": 2
+	"g4systemv": 0
 
 
 	
