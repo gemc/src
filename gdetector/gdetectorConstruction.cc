@@ -10,8 +10,8 @@
 
 
 GDetectorConstruction::GDetectorConstruction(GOptions* opt, map<string, GDynamicDigitization*> *gDDGlobal) :
-G4VUserDetectorConstruction(),                            // geant4 derived
-GStateMessage(opt, "GDetectorConstruction", "gsystemv"),  // GStateMessage derived
+G4VUserDetectorConstruction(),                             // geant4 derived
+GStateMessage(opt, "GDetectorConstruction", "g4systemv"),  // GStateMessage derived
 gopt(opt),
 gDynamicDigitizationMapGlobalInstance(gDDGlobal)
 {
@@ -24,10 +24,6 @@ gDynamicDigitizationMapGlobalInstance(gDDGlobal)
 	// builiding geant4 world (solid, logical, physical volumes)
 	g4world = new G4World(gworld, gopt);
 
-
-	
-
-	
 }
 
 // delete the two pointers created by GDetectorConstruction
@@ -38,17 +34,9 @@ GDetectorConstruction::~GDetectorConstruction() {
 
 G4VPhysicalVolume* GDetectorConstruction::Construct()
 {
-	logDetail("Constructing gemc world");
+	logSummary("Constructing gemc world");
 
-	// loading gvolumes, material, system parameters
-
-//
-//	gworld = new GWorld(gopt);
-//
-//	return g4setup->getPhysical(WORLDNAME);
-
-
-	return nullptr;
+	return g4world->getG4Volume(ROOTWORLDGVOLUMENAME)->getPhysical();
 }
 
 void GDetectorConstruction::ConstructSDandField()

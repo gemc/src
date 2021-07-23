@@ -21,7 +21,7 @@ public:
 	virtual ~GDetectorConstruction();
 	
 public:
-	// virtual methods from G4VUserDetectorConstruction.
+	// virtual methods from G4VUserDetectorConstruction
 	virtual G4VPhysicalVolume* Construct();
 	virtual void ConstructSDandField();
 	

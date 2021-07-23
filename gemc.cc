@@ -24,6 +24,10 @@ using namespace std;
 #include "G4UIsession.hh"
 #include "G4MTRunManager.hh"
 
+// TODO: physics list: to be gphysics
+#include "FTFP_BERT.hh"
+
+
 int main(int argc, char* argv[])
 {
 	// the gemc goptions are defined in utilities/defineOptions.cc
@@ -61,13 +65,18 @@ int main(int argc, char* argv[])
 	// building detector
 	// this is global, changed at main scope
 	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitization);
-	//g4MTRunManager->SetUserInitialization(gDetectorGlobal);
+	g4MTRunManager->SetUserInitialization(gDetectorGlobal);
 
-	
+	// TODO: physics list: to be gphysics
+	auto physicsList = new FTFP_BERT;
+	g4MTRunManager->SetUserInitialization(physicsList);
+
 	// order of pointers deletion is inverse of creation
 	delete gDetectorGlobal;
 	delete globalDigitization;
-	delete g4MTRunManager;
+
+	// TODO: apparently can't delete this yet
+	//delete g4MTRunManager;
 
 	if ( gui ) {
 		delete UIM;
