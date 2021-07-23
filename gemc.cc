@@ -30,6 +30,7 @@ int main(int argc, char* argv[])
 	// they are merged with the frameworks goptions definitions
 	// the goptions are then assigned from the jcard(s) and command line
 	GOptions *gopts = new GOptions(argc, argv, gemc::defineOptions());
+	gopts->printSettings(true);
 
 	// splash screen
 	GSplash  *gemcSplash = nullptr;
@@ -63,9 +64,6 @@ int main(int argc, char* argv[])
 	//g4MTRunManager->SetUserInitialization(gDetectorGlobal);
 
 	
-
-	gopts->printSettings(true);
-
 	// order of pointers deletion is inverse of creation
 	delete gDetectorGlobal;
 	delete globalDigitization;

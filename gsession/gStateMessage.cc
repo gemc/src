@@ -6,7 +6,7 @@
 // start of all messages
 string GStateMessage::stateStringHeader() const {
 	stateCounter++;
-	return string(GFLOWMESSAGEHEADER) + " " + stateHeader + " [" + to_string(stateCounter) + "] " + string(GFLOWMESSAGEHEADER) + " ";
+	return string(GSTATEMESSAGEHEADER) + " " + stateHeader + " [" + to_string(stateCounter) + "] " + string(GSTATEMESSAGEHEADER) + " ";
 }
 
 /**
@@ -20,7 +20,7 @@ void GStateMessage::logAlways(const string msg) const {
  * @brief log summary message, only when verbosity is equal of or greater than GVERBOSITY_SUMMARY
  */
 void GStateMessage::logSummary(const string msg) const {
-	if(verbosity > GVERBOSITY_SUMMARY) {
+	if(verbosity >= GVERBOSITY_SUMMARY) {
 		G4cout << stateStringHeader()  << msg << G4endl;
 	}
 }
@@ -29,7 +29,7 @@ void GStateMessage::logSummary(const string msg) const {
  * @brief log debug message, only when verbosity is greater than GVERBOSITY_DETAILS
  */
 void GStateMessage::logDetail(const string msg) const {
-	if(verbosity > GVERBOSITY_DETAILS) {
+	if(verbosity == GVERBOSITY_DETAILS) {
 		G4cout << stateStringHeader()  << msg << G4endl;
 	}
 }

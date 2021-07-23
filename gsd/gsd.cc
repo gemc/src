@@ -7,8 +7,8 @@
 
 // this is thread-local
 GSensitiveDetector::GSensitiveDetector(string sdName, GOptions* goptions, map<string, GDynamicDigitization*> *gDDGlobal) :
-G4VSensitiveDetector(sdName),                             // geant4 derived
-GStateMessage(goptions, "GSensitiveDetector " + sdName),  // GStateMessage derived
+G4VSensitiveDetector(sdName),                                              // geant4 derived
+GStateMessage(goptions, "GSensitiveDetector " + sdName, "gsensitivityv"),  // GStateMessage derived
 gDynamicDigitizationMapGlobalInstance(gDDGlobal)
 {
 	verbosity = goptions->getInt("gsensitivityv");
@@ -123,7 +123,7 @@ void GSensitiveDetector::EndOfEvent(G4HCofThisEvent* g4hc)
 
 void GSensitiveDetector::registerGVolumeTouchable(string name, GTouchable* gt)
 {
-	if(verbosity >= GVERBOSITY_DETAILS) {
+	if(verbosity == GVERBOSITY_DETAILS) {
 		G4cout << "Registering touchable gvolume <" << name << "> with  value: " << gt << G4endl;
 	}
 	gTouchableMap[name] = gt;

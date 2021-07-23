@@ -9,7 +9,7 @@
 using std::atomic;
 
 
-#define GFLOWMESSAGEHEADER  "♒︎"
+#define GSTATEMESSAGEHEADER  " »"
 
 /**
  * @class GStateMessage
@@ -32,21 +32,19 @@ public:
 	 * - assigns the stateName, printed in the message headers.\n
 	 * - finds the state verbosity in the goptions.
 	 */
-	GStateMessage(GOptions* gopts, string header) : stateHeader(header) {
+	GStateMessage(GOptions* gopts, string header, string voptionName) : stateHeader(header) {
 
 		stateCounter = 0;
 
-		string verbosityOption = header + "v";
-		verbosity =  gopts->getInt(verbosityOption);
-
+		verbosity =  gopts->getInt(voptionName);
 		if(verbosity >= GVERBOSITY_SUMMARY) {
-			G4cout << stateStringHeader()  << "Constructor" << G4endl;
+			G4cout << stateStringHeader()  << "constructor" << G4endl;
 		}
 	}
 
 	~GStateMessage() {
 		if(verbosity >= GVERBOSITY_SUMMARY) {
-			G4cout << stateStringHeader() << "Destructor" << G4endl;
+			G4cout << stateStringHeader() << "destructor" << G4endl;
 		}
 	}
 

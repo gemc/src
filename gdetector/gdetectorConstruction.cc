@@ -10,8 +10,8 @@
 
 
 GDetectorConstruction::GDetectorConstruction(GOptions* opt, map<string, GDynamicDigitization*> *gDDGlobal) :
-G4VUserDetectorConstruction(),                           // geant4 derived
-GStateMessage(opt, "gsystem"),   // GStateMessage derived
+G4VUserDetectorConstruction(),                            // geant4 derived
+GStateMessage(opt, "GDetectorConstruction", "gsystemv"),  // GStateMessage derived
 gopt(opt),
 gDynamicDigitizationMapGlobalInstance(gDDGlobal)
 {
