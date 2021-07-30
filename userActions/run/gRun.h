@@ -10,7 +10,7 @@
 // glibrary
 #include "goptions.h"
 #include "gdynamicdigitization.h"
-#include "gEventData.h"
+#include "event/gEventData.h"
 #include "gstreamer.h"
 
 // In Geant4 a run consists of a sequence of events and starts with BeamOn() method of G4RunManager.
@@ -21,7 +21,7 @@ class GRun : public G4Run, public GStateMessage
 {
 public:
 	GRun(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal, map<string, GStreamer*> *gstrFactory);
-	virtual ~G4GRun();
+	virtual ~GRun();
 	virtual void RecordEvent(const G4Event*);
 	virtual void Merge(const G4Run*);
 	
