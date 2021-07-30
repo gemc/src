@@ -1,0 +1,4 @@
+Import('env')
+
+SConscript('generator/SConscript',   exports='env')
+SConscript('event/SConscript',       exports='env')

@@ -1,12 +1,13 @@
 Import('env')
 
-env.Prepend(LIBS = 'gdetector')
+env.Prepend(LIBS = 'runaction')
 
 sources = [
-			  'gdetectorConstruction.cc'
+			  'gRun.cc',
+			  'gRunAction.cc'
 			  ]
 
 # The # in the LIBPATH directories specify that they’re relative to the top-level directory
-env.Library(source = sources, target = "#lib/gdetector")
+env.Library(source = sources, target = "#lib/runaction")
 
 

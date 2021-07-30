@@ -3,9 +3,9 @@ Import('env')
 env.Prepend(LIBS = 'gsession')
 
 sources = [
-	'gStateMessage.cc',
-	'gsession.cc'
-	]
+			  'gStateMessage.cc',
+			  'gsession.cc'
+			  ]
 
 env.Library(source = sources, target = "#lib/gsession")
 

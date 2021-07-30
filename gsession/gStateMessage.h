@@ -9,6 +9,24 @@
 using std::atomic;
 
 
+//Remember:
+// Shared classes (cout): geometry and physics tables are shared:
+// * G4VUserDetectorConstruction,
+// * G4VUserPhysicsList
+// * G4VUserActionInitialization
+//
+// Local thread classes (g4cout):
+// * EventManager
+// * TrackingManager
+// * SteppingManager
+// * TransportationManager
+// * GeometryManager
+// * FieldManager
+// * Navigator
+// * SensitiveDetectorManager
+
+
+
 #define GSTATEMESSAGEHEADER  " »"
 
 /**

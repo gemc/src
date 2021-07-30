@@ -7,6 +7,7 @@
 // other modules goptions
 #include "gsystemOptions.h"
 #include "g4systemOptions.h"
+#include "gstreamerOptions.h"
 
 
 // c++
@@ -40,10 +41,19 @@ namespace gemc {
 		};
 		goptions.push_back(GOption(jsonMessageVerbosity));
 
+		// event log every N events
+		json jsonELOGOption = {
+			{GNAME, "elog"},
+			{GDESC, "Log every N events"},
+			{GDFLT, 1000}
+		};
+		goptions.push_back(GOption(jsonELOGOption));
+
 
 		// other modules goptions
 		goptions += gsystem::defineOptions();
 		goptions += g4system::defineOptions();
+		goptions += gstreamer::defineOptions();
 
 
 		return goptions;
