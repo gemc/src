@@ -10,7 +10,7 @@
 // glibrary
 #include "goptions.h"
 #include "gdynamicdigitization.h"
-#include "event/gEventData.h"
+#include "event/gEventDataCollection.h"
 #include "gstreamer.h"
 
 // In Geant4 a run consists of a sequence of events and starts with BeamOn() method of G4RunManager.
@@ -33,7 +33,7 @@ private:
 	map<string, GStreamer*> *gstreamerFactory;
 
 	// vector of events data in the local run
-	vector<GEventData*> *runData;
+	vector<GEventDataCollection*> *runData;
 	
 private:
 	GDynamicDigitization *getDigitizationForHitCollection(string name);

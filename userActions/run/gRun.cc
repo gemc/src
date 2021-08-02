@@ -6,7 +6,7 @@
 
 // glibrary
 #include "ghit.h"
-#include "event/gEventHeader.h"
+#include "event/gEventDataCollectionHeader.h"
 
 
 // Constructor
@@ -18,7 +18,7 @@ gstreamerFactory(gstrFactory)
 {
 	logSummary("Instantiating GRun ");
 
-	runData = new vector<GEventData*>;
+	runData = new vector<GEventDataCollection*>;
 }
 
 // Destructor
@@ -27,7 +27,7 @@ GRun::~GRun()
 	logSummary("GRun:Destructor");
 	
 	// PRAGMA TODO: isn't the last line enough?
-	for (GEventData* evtData : *runData) {
+	for (GEventDataCollection* evtData : *runData) {
 		delete evtData;
 	}
 	
@@ -59,12 +59,12 @@ void GRun::RecordEvent(const G4Event *aEvent)
 	
 	// header
 	int verbosity = 0;
-	GEventHeader *gheader = new GEventHeader(aEvent->GetEventID(),                   // local event number
+	GEventDataCollectionHeader *gheader = new GEventDataCollectionHeader(aEvent->GetEventID(),                   // local event number
 														  G4Threading::G4GetThreadId(),           // thread ID
 														  verbosity);
 
 	// thread-local event data
-	GEventData *eventData = new GEventData(gheader, verbosity);
+	GEventDataCollection *eventDataCollection = new GEventDataCollection(gheader, verbosity);
 	
 	// looping over all collections
 	for(unsigned hci = 0; hci < HCsThisEvent->GetNumberOfCollections(); hci++) {
@@ -81,13 +81,10 @@ void GRun::RecordEvent(const G4Event *aEvent)
 			GDynamicDigitization* detectorDigitization = getDigitizationForHitCollection(hitCollectionSDName);
 			
 			if(detectorDigitization != nullptr) {
-				
-//				// collection of observables for this detector
-//				GDetectorObservables *detectorObservables = new GDetectorObservables(hitCollectionSDName);
-//
-//				// looping over hits in this collection
-//				for(size_t hitIndex = 0; hitIndex<thisGHC->GetSize(); hitIndex++) {
-//					GHit *thisHit = (GHit*) thisGHC->GetHit(hitIndex);
+
+				// looping over hits in this collection
+				for(size_t hitIndex = 0; hitIndex<thisGHC->GetSize(); hitIndex++) {
+					GHit *thisHit = (GHit*) thisGHC->GetHit(hitIndex);
 //
 //					// digitize hit and add it to detector data
 //					// PRAGMA TODO: switch this on/off with option
@@ -97,7 +94,7 @@ void GRun::RecordEvent(const G4Event *aEvent)
 //					// PRAGMA TODO: switch this on/off with option
 //					detectorObservables->addDetectorObservables(detectorDigitization->trueInfoHit(thisHit), true);
 //
-//				}
+				}
 //				eventData->addDetectorData(detectorObservables);
 
 
@@ -105,19 +102,19 @@ void GRun::RecordEvent(const G4Event *aEvent)
 		}
 	}
 	
-	runData->push_back(eventData);
+	runData->push_back(eventDataCollection);
 	G4Run::RecordEvent(aEvent);
 }
 
 // This is global
 // Method to be overwritten by the user for merging local Run objects to the global Run object
 // PRAGMA: But I can use it to save output right? No need to accumulate
-//void GRun::Merge(const G4Run *aRun)
-//{
-//	logSummary("GRun:Global Merge");
-//
-//	const GRun *localRun = static_cast<const GRun *> (aRun);
-//
+void GRun::Merge(const G4Run *aRun)
+{
+	logSummary("GRun:Global Merge");
+
+	const GRun *localRun = static_cast<const GRun *> (aRun);
+
 //	//	cout << " local run data size " << localRun->runData->size() << "  global size: " << runData->size() << endl;
 //
 //	// output data to all available plugins
@@ -127,9 +124,9 @@ void GRun::RecordEvent(const G4Event *aEvent)
 //			gmf.second->publishData(localRun->runData);
 //		}
 //	}
-//
-//	G4Run::Merge(aRun);
-//}
+
+	G4Run::Merge(aRun);
+}
 
 
 
