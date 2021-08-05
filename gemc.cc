@@ -59,8 +59,8 @@ int main(int argc, char* argv[])
 	g4MTRunManager->SetNumberOfThreads(getNumberOfThreads(gopts));
 
 	// instantiating pointer to global digitization map
+	// return a map<string, GDynamicDigitization*> from an init function
 	map<string, GDynamicDigitization*> *globalDigitization = new map<string, GDynamicDigitization*>;
-
 
 	// building detector
 	// this is global, changed at main scope

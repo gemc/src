@@ -14,4 +14,7 @@ QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui);
 // returns max number of available cores
 int getNumberOfThreads(GOptions* gopts);
 
+// initialize digitization map
+map<string, GDynamicDigitization*> initializeDigitizationFactoryMap(GOptions *gopts);
+
 #endif

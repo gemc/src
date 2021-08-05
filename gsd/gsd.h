@@ -25,8 +25,8 @@ public:
 
 	~GSensitiveDetector() {
 		delete gHitsCollection;
-		delete gDynamicDigitizationLocalInstance;
 		delete gDynamicDigitizationMapGlobalInstance;
+		delete gDynamicDigitizationLocalInstance;
 	}
 
 	// geant4 methods

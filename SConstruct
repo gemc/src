@@ -5,7 +5,7 @@ env = init_environment('qt5 glibrary geant4 clhep')
 env.Append(CXXFLAGS=['-std=c++17'])
 
 # local directories include
-env.Append(CPPPATH = [Dir('utilities'), Dir('gsession'), Dir('gsd'), Dir('gdetector'), Dir('userActions')])
+env.Append(CPPPATH = [Dir('.'), Dir('utilities'), Dir('gsession'), Dir('gsd'), Dir('gdetector'), Dir('userActions'), Dir('gui')])
 
 # gemc subsystems are built in 'lib'
 SConscript('utilities/SConscript',   exports='env')
@@ -13,7 +13,7 @@ SConscript('gsession/SConscript',    exports='env')
 SConscript('gsd/SConscript',         exports='env')
 SConscript('gdetector/SConscript',   exports='env')
 SConscript('userActions/SConscript', exports='env')
-
+SConscript('gui/SConscript',         exports='env')
 
 # load needed environment for this library
 env.Append(LIBPATH = ['lib'])

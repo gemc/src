@@ -26,7 +26,7 @@ public:
 	virtual void Merge(const G4Run*);
 	
 private:
-	// digitization map, loaded in main(), passed here
+	// digitization map, loaded in main(), passed here through GActionInitialization
 	map<string, GDynamicDigitization*> *gDigitizationGlobal;
 	
 	// output factories map, loaded in GActionInitialization constructor and passed here

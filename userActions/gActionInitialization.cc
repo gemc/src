@@ -4,53 +4,46 @@
 #include "gRunAction.h"
 #include "gEventAction.h"
 
-// mlibrary
+// glibrary
 #include "gfactory.h"
-#include "gstring.h"
-using namespace gstring;
+#include "gstreamerOptions.h"
+using namespace gstreamer;
+//#include "gstring.h"
+//using namespace gstring;
 
 // c++
 #include <iostream>
 using namespace std;
 
-GActionInitialization::GActionInitialization(GOptions* opt, map<string, GDynamic*> *gDigitization) :
-GFlowMessage(opt, "GActionInitialization"),
-gopt(opt),
-gDigitizationGlobal(gDigitization)
+GActionInitialization::GActionInitialization(GOptions* gopts, map<string, GDynamicDigitization*> *gDDGlobal) :
+GStateMessage(gopts, "GActionInitialization", "verbosity"),  // GStateMessage derived
+goptions(gopts),
+gDigitizationGlobal(gDDGlobal)
 {
-	flowMessage("GActionInitialization Constructor");
-	gmediaFactory = new map<string, GMedia*>;
-	
-	int verbosity = gopt->getInt("gemcv");
-	
-	string gmediaOption        = gopt->getString("output");
-	auto cpos = gmediaOption.find(":");
-	
-	if(cpos == string::npos) {
-		cout << GWARNING << " output option cannot be parsed. " << endl;
-	}
-	
-	string fileNameWOExtension = gmediaOption.substr(0, cpos); // until :
-	string requestedExtensions = gmediaOption.substr(cpos+1);  // after :
+	logSummary("Instantiating GActionInitialization ");
+	int verbosity = goptions->getInt("verbosity");
 
-	vector<string> requestedMedias = getStringVectorFromStringWithDelimiter(requestedExtensions, ",");
-	
-	if(requestedMedias.size() > 0) {
+	// gstreamerFactory
+	gstreamerFactory = new map<string, GStreamer*>;
 
-		GManager gOutputManager(verbosity);
+	// projecting options onto vector of JOutput
+	vector<JOutput> joutputs = getJOutputs(gopts);
+
+
+	// if any output is specified, loading its factory
+	if(joutputs.size() > 0) {
+
+		GManager gStreamerManager("GOutput", verbosity);
 
 		// the available plugins names are formatted as "xxxGMedia".
-		for(unsigned f=0; f<requestedMedias.size(); f++) {
-			string pluginName = requestedMedias[f] + "GMedia";
-			// need path here
-			gOutputManager.registerDL(pluginName);
+		for(auto &joutput: joutputs) {
+			string factory = joutput.format;
+			string pluginName = gstreamerPluginNameFromFactory(factory);
 
-			(*gmediaFactory)[requestedMedias[f]] = gOutputManager.LoadObjectFromLibrary<GMedia>(pluginName);
-
-			// set file name, open the connection
-			// protect against DL loading failure
-			if((*gmediaFactory)[requestedMedias[f]]  != nullptr) {
-				(*gmediaFactory)[requestedMedias[f]]->setOutputName(fileNameWOExtension);
+			if(gstreamerFactory->find(factory) == gstreamerFactory->end()) {
+				(*gstreamerFactory)[factory] = gStreamerManager.LoadAndRegisterObjectFromLibrary<GStreamer>(pluginName);
+				(*gstreamerFactory)[factory]->setOutputName(joutput.name);
+				(*gstreamerFactory)[factory]->openConnection();
 			}
 		}
 	}
@@ -59,10 +52,10 @@ gDigitizationGlobal(gDigitization)
 GActionInitialization::~GActionInitialization()
 {
 	// close output connections
-	for(auto gmf: (*gmediaFactory)) {
+	for(auto gsf: (*gstreamerFactory)) {
 		// protecting against DL failure
-		if(gmf.second != nullptr) {
-			gmf.second->closeConnection();
+		if(gsf.second != nullptr) {
+			gsf.second->closeConnection();
 		}
 	}
 }

@@ -5,18 +5,18 @@
 #include "G4UserRunAction.hh"
 
 // gemc
-#include "gLog.h"
+#include "gStateMessage.h"
 
-// mlibrary
+// glibrary
 #include "goptions.h"
-#include "gdynamic.h"
-#include "gmedia.h"
+#include "gdynamicdigitization.h"
+#include "gstreamer.h"
 
-class GRunAction : public G4UserRunAction, public GFlowMessage
+class GRunAction : public G4UserRunAction, public GStateMessage
 {
 public:
 	// constructor and destructor
-	GRunAction(GOptions* gopt, map<string, GDynamic*> *gDigitization, map<string, GMedia*> *gmedia);
+	GRunAction(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal, map<string, GMedia*> *gmedia);
 	virtual ~GRunAction();
 
 
