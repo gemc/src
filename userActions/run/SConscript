@@ -3,8 +3,8 @@ Import('env')
 env.Prepend(LIBS = 'runaction')
 
 sources = [
+			  'gRunAction.cc',
 			  'gRun.cc'
-#			  'gRunAction.cc'
 			  ]
 
 # The # in the LIBPATH directories specify that they’re relative to the top-level directory

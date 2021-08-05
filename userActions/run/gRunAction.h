@@ -16,7 +16,7 @@ class GRunAction : public G4UserRunAction, public GStateMessage
 {
 public:
 	// constructor and destructor
-	GRunAction(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal, map<string, GMedia*> *gmedia);
+	GRunAction(GOptions* gopts, map<string, GDynamicDigitization*> *gDDGlobal, map<string, GStreamer*> *streamerFactoryMap);
 	virtual ~GRunAction();
 
 
@@ -26,13 +26,13 @@ private:
 	virtual void BeginOfRunAction(const G4Run*);
 	virtual void EndOfRunAction(const G4Run*);
 	
-	GOptions* gopt;
+	GOptions* goptions;
 	
 	// digitization map, loaded in main(), passed here
-	map<string, GDynamic*> *gDigitizationGlobal;
+	map<string, GDynamicDigitization*> *gDigitizationGlobalMap;
 	
 	// output factories map, loaded in GActionInitialization constructor and passed here
-	map<string, GMedia*> *gmediaFactory;
+	map<string, GStreamer*> *gstreamerFactoryMap;
 
 };
 

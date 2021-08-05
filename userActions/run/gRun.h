@@ -27,10 +27,10 @@ public:
 	
 private:
 	// digitization map, loaded in main(), passed here through GActionInitialization
-	map<string, GDynamicDigitization*> *gDigitizationGlobal;
+	map<string, GDynamicDigitization*> *gDigitizationGlobalMap;
 	
 	// output factories map, loaded in GActionInitialization constructor and passed here
-	map<string, GStreamer*> *gstreamerFactory;
+	map<string, GStreamer*> *gstreamerFactoryMap;
 
 	// vector of events data in the local run
 	vector<GEventDataCollection*> *runData;

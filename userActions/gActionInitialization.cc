@@ -8,8 +8,7 @@
 #include "gfactory.h"
 #include "gstreamerOptions.h"
 using namespace gstreamer;
-//#include "gstring.h"
-//using namespace gstring;
+
 
 // c++
 #include <iostream>
@@ -18,17 +17,16 @@ using namespace std;
 GActionInitialization::GActionInitialization(GOptions* gopts, map<string, GDynamicDigitization*> *gDDGlobal) :
 GStateMessage(gopts, "GActionInitialization", "verbosity"),  // GStateMessage derived
 goptions(gopts),
-gDigitizationGlobal(gDDGlobal)
+gDigitizationGlobalMap(gDDGlobal)
 {
 	logSummary("Instantiating GActionInitialization ");
 	int verbosity = goptions->getInt("verbosity");
 
 	// gstreamerFactory
-	gstreamerFactory = new map<string, GStreamer*>;
+	gstreamerFactoryMap = new map<string, GStreamer*>;
 
 	// projecting options onto vector of JOutput
 	vector<JOutput> joutputs = getJOutputs(gopts);
-
 
 	// if any output is specified, loading its factory
 	if(joutputs.size() > 0) {
@@ -37,22 +35,32 @@ gDigitizationGlobal(gDDGlobal)
 
 		// the available plugins names are formatted as "xxxGMedia".
 		for(auto &joutput: joutputs) {
-			string factory = joutput.format;
-			string pluginName = gstreamerPluginNameFromFactory(factory);
+			string factory        = joutput.format;
+			string outputFileName = joutput.name;
 
-			if(gstreamerFactory->find(factory) == gstreamerFactory->end()) {
-				(*gstreamerFactory)[factory] = gStreamerManager.LoadAndRegisterObjectFromLibrary<GStreamer>(pluginName);
-				(*gstreamerFactory)[factory]->setOutputName(joutput.name);
-				(*gstreamerFactory)[factory]->openConnection();
+			if( factory != "na" && outputFileName != "na") {
+				string pluginName = gstreamerPluginNameFromFactory(factory);
+				
+				if(gstreamerFactoryMap->find(factory) == gstreamerFactoryMap->end()) {
+					(*gstreamerFactoryMap)[factory] = gStreamerManager.LoadAndRegisterObjectFromLibrary<GStreamer>(pluginName);
+					(*gstreamerFactoryMap)[factory]->setOutputName(outputFileName);
+					(*gstreamerFactoryMap)[factory]->openConnection();
+				}
 			}
 		}
+
+		// done with gStreamerManager
+		gStreamerManager.clearDLMap();
+
 	}
 }
 
+// Destructor:
+// delete gstreamerFactoryMap
 GActionInitialization::~GActionInitialization()
 {
 	// close output connections
-	for(auto gsf: (*gstreamerFactory)) {
+	for(auto gsf: (*gstreamerFactoryMap)) {
 		// protecting against DL failure
 		if(gsf.second != nullptr) {
 			gsf.second->closeConnection();
@@ -62,17 +70,17 @@ GActionInitialization::~GActionInitialization()
 
 void GActionInitialization::Build() const
 {
-	flowMessage("Thread Build");
-	
-	SetUserAction(new GRunAction(gopt, gDigitizationGlobal, gmediaFactory));
+	logSummary("GActionInitialization Thread Build ");
+
+	SetUserAction(new GRunAction(goptions, gDigitizationGlobalMap, gstreamerFactoryMap));
 	SetUserAction(new GPrimaryGeneratorAction);
-	SetUserAction(new GEventAction(gopt));
+	SetUserAction(new GEventAction(goptions));
 }
 
 void GActionInitialization::BuildForMaster() const
 {
-	flowMessage("Master Build");
-	SetUserAction(new GRunAction(gopt, gDigitizationGlobal, gmediaFactory));
+	logSummary("GActionInitialization Master Build ");
+	SetUserAction(new GRunAction(goptions, gDigitizationGlobalMap, gstreamerFactoryMap));
 }
 
 

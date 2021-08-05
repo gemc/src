@@ -1,35 +1,41 @@
 - add frameworks and libraries by dragging it into "Frameworks" directory.
   * frameworks can be embedded in binary (products destination) to run it on the build, uncheck copy only when installing
-  * libraryies can be copied to products destination (no subpath) to run it on the build uncheck copy only when installing
+  * libraryies can be copied to products destination (no subpath) to run it on the build, uncheck copy only when installing
 
  - if problems with plugin "cocoa":
    * can set QT_DEBUG_PLUGINS to 1 in the env variables for more debugging
    * can set QT_PLUGIN_PATH to plugin locations (cocoa plugin is under platforms there), currently /opt/jlab_software/2.4/Darwin_macosx10.15-clang12.0.0/qt/system/clang_64/plugins
 
-- qtframeworks (qt5, note 6 are different): QtCore, QtGui, QtWidgets, QtOpenGL, QtPrintSupport:
 
+Geant4 Environment:
+
+echo " \
+G4LEDATA           $G4LEDATA \
+G4LEVELGAMMADATA   $G4LEVELGAMMADATA \
+G4NEUTRONHPDATA    $G4NEUTRONHPDATA \
+G4PIIDATA          $G4PIIDATA \
+G4RADIOACTIVEDATA  $G4RADIOACTIVEDATA \
+G4REALSURFACEDATA  $G4REALSURFACEDATA \
+G4SAIDXSDATA       $G4SAIDXSDATA \
+G4ABLADATA         $G4ABLADATA \
+G4ENSDFSTATEDATA   $G4ENSDFSTATEDATA \
+G4PARTICLEXSDATA   $G4PARTICLEXSDATA
+"
+
+not defined?
+G4NEUTRONXSDATA    $G4NEUTRONXSDATA \
+
+# get libs
 open $QTDIR/lib
-
-- glibrary libs:
-
 open $GLIBRARY/lib/
-
-- clhep: clhep-version.dylib
-
 open $CLHEP_BASE_DIR/lib/
-
-- xerces-c: xerces-c-version.dylib
-
 open $XERCESCROOT/lib/
+open $G4ROOT/$GEANT4_VERSION/lib/
 
-- geant4: add all libraries
-
-open $G4ROOT/4.10.06.p02MT/lib/
 
 GEMC 3 reminders:
 
 1. set MT option in go_geant4
-2. set DG4MULTITHREADED in loadgeant4.py
 
  Pre-processor
  Found with scons SHOWBUILD=1
@@ -48,12 +54,6 @@ GEMC
  - thread-local variable should contain "local" / "tlocal" / "thread"
  - source filenames starts with Capital letters << maybe not
 
-
-
-
-
-Make sure compiler is gnu++17
-Make sure frameworks are compiled into dynamic libraries, and each of those should use but not embed their dependencies
 
 
 # Xcode testing

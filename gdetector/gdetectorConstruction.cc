@@ -36,6 +36,12 @@ G4VPhysicalVolume* GDetectorConstruction::Construct()
 {
 	logSummary("Constructing gemc world");
 
+//	// building gemc world (systems containings gvolumes)
+//	gworld = new GWorld(gopt);
+//
+//	// builiding geant4 world (solid, logical, physical volumes)
+//	g4world = new G4World(gworld, gopt);
+
 	return g4world->getG4Volume(ROOTWORLDGVOLUMENAME)->getPhysical();
 }
 
@@ -89,7 +95,6 @@ void GDetectorConstruction::ConstructSDandField()
 //			}
 //		}
 //	}
-
 
 }
 

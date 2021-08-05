@@ -7,6 +7,9 @@
 // glibrary
 #include "goptions.h"
 
+// geant4
+#include "G4MTRunManager.hh"
+
 // distinguishing between graphical and batch mode
 QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui);
 
@@ -14,7 +17,8 @@ QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui);
 // returns max number of available cores
 int getNumberOfThreads(GOptions* gopts);
 
-// initialize digitization map
-map<string, GDynamicDigitization*> initializeDigitizationFactoryMap(GOptions *gopts);
+// initialize G4MTRunManager
+void initGemcG4RunManager(G4MTRunManager *grm, GOptions* gopt);
+
 
 #endif

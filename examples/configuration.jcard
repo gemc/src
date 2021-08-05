@@ -2,7 +2,7 @@
 
 	# configuration example
 	"nthreads": 4,
-	"verbosity": 2,
+	"verbosity": 0,
 
 	"+gsystem": [
 
@@ -13,7 +13,13 @@
 	],
 
 	"gsystemv": 0,
-	"g4systemv": 0
+	"g4systemv": 2,
+
+	"+goutput": {
+		"format": "TEXT",
+		"name": "output.txt"
+	}
+
 
 
 	

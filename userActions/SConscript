@@ -1,6 +1,18 @@
 Import('env')
+env.Append(CPPPATH = [Dir('generator'), Dir('event'), Dir('run')])
 
 # runs scons in these dirs
 SConscript('generator/SConscript',   exports='env')
 SConscript('event/SConscript',       exports='env')
 SConscript('run/SConscript',         exports='env')
+
+env.Prepend(LIBS = 'gaction')
+
+sources = [
+			  'gActionInitialization.cc'
+			  ]
+
+# The # in the LIBPATH directories specify that they’re relative to the top-level directory
+env.Library(source = sources, target = "#lib/gaction")
+
+

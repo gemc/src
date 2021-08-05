@@ -13,8 +13,8 @@
 GRun::GRun(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal, map<string, GStreamer*> *gstrFactory) :
 G4Run(),
 GStateMessage(gopt, "GRun ", "grunv"),  // GStateMessage derived
-gDigitizationGlobal(gDDGlobal),
-gstreamerFactory(gstrFactory)
+gDigitizationGlobalMap(gDDGlobal),
+gstreamerFactoryMap(gstrFactory)
 {
 	logSummary("Instantiating GRun ");
 
@@ -133,10 +133,10 @@ void GRun::Merge(const G4Run *aRun)
 // retrieve digitization from gDigitizationGlobal map
 GDynamicDigitization* GRun::getDigitizationForHitCollection(string name)
 {
-	if(gDigitizationGlobal->find(name) == gDigitizationGlobal->end()) {
+	if(gDigitizationGlobalMap->find(name) == gDigitizationGlobalMap->end()) {
 		return nullptr;
 	}
 	
-	return (*gDigitizationGlobal)[name];
+	return (*gDigitizationGlobalMap)[name];
 }
 

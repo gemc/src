@@ -5,7 +5,6 @@ using namespace std;
 // glibrary
 #include "goptions.h"
 #include "gsplash.h"
-#include "gdynamicdigitization.h"
 
 // utilities, conventions, options definitions
 #include "gemcUtilities.h"
@@ -15,9 +14,12 @@ using namespace std;
 // detector
 #include "gdetectorConstruction.h"
 
-
 // gsession
 #include "gsession.h"
+
+// userActions
+#include "gActionInitialization.h"
+
 
 // geant4
 #include "G4UImanager.hh"
@@ -59,26 +61,43 @@ int main(int argc, char* argv[])
 	g4MTRunManager->SetNumberOfThreads(getNumberOfThreads(gopts));
 
 	// instantiating pointer to global digitization map
-	// return a map<string, GDynamicDigitization*> from an init function
-	map<string, GDynamicDigitization*> *globalDigitization = new map<string, GDynamicDigitization*>;
+	// the map will be filled with the gsystem information of the sensitive detectors
+	map<string, GDynamicDigitization*> *globalDigitizationMap = new map<string, GDynamicDigitization*>;
 
 	// building detector
 	// this is global, changed at main scope
-	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitization);
+	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
 	g4MTRunManager->SetUserInitialization(gDetectorGlobal);
 
 	// TODO: physics list: to be gphysics
 	auto physicsList = new FTFP_BERT;
 	g4MTRunManager->SetUserInitialization(physicsList);
 
+
+	// instantiate GActionInitialization and initialize the geant4 kernel
+	g4MTRunManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
+
+	// this Initialize g4MTRunManager, which:
+	// calls Construct in GDetectorConstruction
+	// calls ConstructSDandField in GDetectorConstruction
+	initGemcG4RunManager(g4MTRunManager, gopts);
+
+
+
+
 	// order of pointers deletion is inverse of creation
 	delete gDetectorGlobal;
-	delete globalDigitization;
+	delete globalDigitizationMap;
 
 	// TODO: apparently can't delete this yet
 	//delete g4MTRunManager;
 
 	if ( gui ) {
+
+
+
+
+
 		delete UIM;
 		delete gemcSplash;
 	}

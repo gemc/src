@@ -3,6 +3,7 @@
 
 // geant4 headers
 #include "G4Threading.hh"
+#include "G4UImanager.hh"
 
 // c++
 #include <iostream>
@@ -44,4 +45,17 @@ int getNumberOfThreads(GOptions* gopts) {
 	}
 	
 	return useThreads;
+}
+
+
+// initialize G4MTRunManager
+void initGemcG4RunManager(G4MTRunManager *grm, GOptions* gopts)
+{
+	int tlog = gopts->getInt("tlog");
+
+	G4UImanager *g4uim   = G4UImanager::GetUIpointer();
+	g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log");
+	g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept " + to_string(tlog));
+
+	grm->Initialize();
 }

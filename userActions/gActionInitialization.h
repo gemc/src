@@ -39,10 +39,10 @@ private:
 	GOptions* goptions;
 	
 	// digitization map, loaded in main(), passed here
-	map<string, GDynamicDigitization*> *gDigitizationGlobal;
+	map<string, GDynamicDigitization*> *gDigitizationGlobalMap;
 
 	// output factories map, loaded in the constructor
-	map<string, GStreamer*> *gstreamerFactory;
+	map<string, GStreamer*> *gstreamerFactoryMap;
 
 };
 

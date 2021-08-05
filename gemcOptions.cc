@@ -49,6 +49,13 @@ namespace gemc {
 		};
 		goptions.push_back(GOption(jsonELOGOption));
 
+		// event log every N events
+		json jsonTLOGOption = {
+			{GNAME, "tlog"},
+			{GDESC, "Log only thread # given. 0 (default) means log all"},
+			{GDFLT, 0}
+		};
+		goptions.push_back(GOption(jsonTLOGOption));
 
 		// other modules goptions
 		goptions += gsystem::defineOptions();
