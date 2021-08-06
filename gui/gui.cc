@@ -4,7 +4,6 @@
 
 // glibrary
 #include "gutilities.h"
-//using namespace gstring;
 
 GemcGUI::GemcGUI(string qtResourceFile, GOptions* gopts, EventDispenser *ed, QWidget *parent) :
 QWidget(parent),
@@ -31,12 +30,13 @@ eventDispenser(ed)
 	mainLayout->addLayout(bottomLayout);
 	setLayout(mainLayout);
 	setWindowTitle(tr("GEMC: Geant4 Monte-Carlo"));
+
 }
 
 
 void GemcGUI::updateGui()
 {
-	vector<string> sBefore = gutilities::getStringVectorFromString(eventNumber->text().toStdString());
+	vector<string> sBefore = gutilities::getStringVectorFromString(eventNumberLabel->text().toStdString());
 	
 	int nBefore      = stoi(sBefore[2]);
 	int nThatWasRun  = nEvents->text().toInt();
@@ -44,7 +44,7 @@ void GemcGUI::updateGui()
 	QString newNEvents("Event Number: ");
 	newNEvents.append(std::to_string(nBefore+nThatWasRun).c_str());
 	
-	eventNumber->setText(newNEvents);
+	eventNumberLabel->setText(newNEvents);
 }
 
 
@@ -53,8 +53,6 @@ GemcGUI::~GemcGUI()
 	delete leftButtons;
 	delete rightContent;
 	delete nEvents;
-	delete eventNumber;
-	delete gtimer;       // for cycling events
-	delete eventDispenser;
+	delete eventNumberLabel;
 }
 

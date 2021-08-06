@@ -42,7 +42,7 @@ void GemcGUI::createTopButtons(QHBoxLayout *topLayout)
 	closeButton->setToolTip("Quit GEMC");
 	closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
 
-	eventNumber  = new QLabel(tr("Event Number: 0"));
+	eventNumberLabel  = new QLabel(tr("Event Number: 0"));
 
 	topLayout->addWidget(nEventsLabel);
 	topLayout->addWidget(nEvents);
@@ -50,7 +50,7 @@ void GemcGUI::createTopButtons(QHBoxLayout *topLayout)
 	topLayout->addWidget(cycleButton);
 	topLayout->addWidget(stopButton);
 	topLayout->addStretch(1);
-	topLayout->addWidget(eventNumber);
+	topLayout->addWidget(eventNumberLabel);
 	topLayout->addStretch(40);
 	topLayout->addWidget(closeButton);
 

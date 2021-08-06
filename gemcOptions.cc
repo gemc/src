@@ -8,6 +8,8 @@
 #include "gsystemOptions.h"
 #include "g4systemOptions.h"
 #include "gstreamerOptions.h"
+#include "g4displayOptions.h"
+#include "eventDispenserOptions.h"
 
 
 // c++
@@ -41,6 +43,14 @@ namespace gemc {
 		};
 		goptions.push_back(GOption(jsonMessageVerbosity));
 
+		// run verbosity
+		json jsonRunVerbosity = {
+			{GNAME, "grunv"},
+			{GDESC, GVERBOSITY_DESCRIPTION},
+			{GDFLT, 1}
+		};
+		goptions.push_back(GOption(jsonRunVerbosity));
+
 		// event log every N events
 		json jsonELOGOption = {
 			{GNAME, "elog"},
@@ -61,7 +71,8 @@ namespace gemc {
 		goptions += gsystem::defineOptions();
 		goptions += g4system::defineOptions();
 		goptions += gstreamer::defineOptions();
-
+		goptions += g4display::defineOptions();
+		goptions += eventDispenser::defineOptions();
 
 		return goptions;
 	}

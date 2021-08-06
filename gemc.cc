@@ -5,26 +5,24 @@ using namespace std;
 // glibrary
 #include "goptions.h"
 #include "gsplash.h"
+#include "eventDispenser.h"
+#include "g4display.h"
 
-// utilities, conventions, options definitions
+// gemc
 #include "gemcUtilities.h"
 #include "gemcConventions.h"
 #include "gemcOptions.h"
-
-// detector
-#include "gdetectorConstruction.h"
-
-// gsession
-#include "gsession.h"
-
-// userActions
 #include "gActionInitialization.h"
-
+#include "gui.h"
+#include "gsession.h"
+#include "gdetectorConstruction.h"
 
 // geant4
 #include "G4UImanager.hh"
 #include "G4UIsession.hh"
 #include "G4MTRunManager.hh"
+#include "G4VisExecutive.hh"
+#include "G4UIQt.hh"
 
 // TODO: physics list: to be gphysics
 #include "FTFP_BERT.hh"
@@ -82,28 +80,52 @@ int main(int argc, char* argv[])
 	// calls ConstructSDandField in GDetectorConstruction
 	initGemcG4RunManager(g4MTRunManager, gopts);
 
-
-
+	
+	EventDispenser *geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
 	// order of pointers deletion is inverse of creation
 	delete gDetectorGlobal;
 	delete globalDigitizationMap;
 
-	// TODO: apparently can't delete this yet
-	//delete g4MTRunManager;
-
 	if ( gui ) {
 
+		qApp->processEvents();
+
+		// passing executable to retrieve full path
+		GemcGUI gemcGui(argv[0], gopts, geventDispenser);
+		gemcGui.show();
+		gemcSplash->finish(&gemcGui);
+
+
+		// initializing vis manager and qt session
+		G4VisManager *visManager = new G4VisExecutive();
+		visManager->Initialize();
+
+		// intializing G4UIQt session
+		G4UIsession *session = new G4UIQt(1, argv);
+
+		// opening the g4Display GUI
+		G4Display *g4Display = new G4Display(gopts);
 
 
 
 
-		delete UIM;
+		qApp->exec();
+
+
+		delete g4Display;
+//		delete session;    // somehow deleting stuff too early
+		delete visManager;
+//		delete UIM;       // somehow deleting stuff too early
 		delete gemcSplash;
+	} else {
+
 	}
+
+	//delete g4MTRunManager;
 	delete gApp;
 	delete gopts;
-	
+
 	cout << GEMCLOGMSGITEM << " Simulation completed, arrivederci! " << endl << endl;
 	return EXIT_SUCCESS;
 }

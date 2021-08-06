@@ -29,7 +29,7 @@ private:
 	GQTButtonsWidget *leftButtons;  // glibrary buttons
 	QStackedWidget   *rightContent;
 	QLineEdit        *nEvents;
-	QLabel           *eventNumber;
+	QLabel           *eventNumberLabel;
 	QTimer           *gtimer;       // for cycling events
 
 	// gruns to read number of events
