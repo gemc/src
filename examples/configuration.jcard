@@ -2,25 +2,24 @@
 
 	# configuration example
 	"nthreads": 4,
-	"verbosity": 2,
+	"verbosity": 0,
+	"gsystemv": 0,
+	"g4systemv": 0,
 
 	"+gsystem": [
 
 		# central detector
 		# as an example we define it in-line
-		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_1_simple_det/ctof", "factory": "text", "variation": "default" }
+		{ "system": "/opt/projects/gemc/sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
 
 	],
-
-	"gsystemv": 0,
-	"g4systemv": 0,
 
 	"+goutput": {
 		"format": "TEXT",
 		"name": "output.txt"
 	},
 
-	"n": 11
+	"n": 1
 
 
 	

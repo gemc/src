@@ -40,7 +40,7 @@ gDigitizationGlobalMap(gDDGlobal)
 
 			if( factory != "na" && outputFileName != "na") {
 				string pluginName = gstreamerPluginNameFromFactory(factory);
-				
+
 				if(gstreamerFactoryMap->find(factory) == gstreamerFactoryMap->end()) {
 					(*gstreamerFactoryMap)[factory] = gStreamerManager.LoadAndRegisterObjectFromLibrary<GStreamer>(pluginName);
 					(*gstreamerFactoryMap)[factory]->setOutputName(outputFileName);

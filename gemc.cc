@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
 	// instantiating new User Interface Messenger
 	// our custom cout destination for the UIM: MasterGeant4.[log, err]
 	G4UImanager* UIM = G4UImanager::GetUIpointer();
+//	UIM->SetCoutDestination(0);
 	UIM->SetCoutDestination(new GSession);
 
 	// init geant4 run manager with number of threads coming from options
