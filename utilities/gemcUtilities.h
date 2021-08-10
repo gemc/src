@@ -20,5 +20,14 @@ int getNumberOfThreads(GOptions* gopts);
 // initialize G4MTRunManager
 void initGemcG4RunManager(G4MTRunManager *grm, GOptions* gopt);
 
+// - batch
+// - gui (if needed)
+vector<string> startingUIMCommands(bool gui);
+
+// apply initial UIM commands coming from, in order:
+// - startingUIMCommands
+// - PRAGMA TODO macro file
+void applyInitialUIManagerCommands(bool gui, int verbosity);
+
 
 #endif

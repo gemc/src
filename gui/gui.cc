@@ -10,10 +10,6 @@ QWidget(parent),
 GStateMessage(gopts, "GemcGUI ", "verbosity"),  // GStateMessage derived
 eventDispenser(ed)
 {
-	QFileInfo qrcFileInfoExecutable(qtResourceFile.c_str());
-	QString rccPath = qrcFileInfoExecutable.absolutePath() + "/" + "gemcResources.rcc";
-	QResource::registerResource(rccPath);
-
 	createLeftButtons();        // instantiates leftButtons
 	createRightContent(gopts);  // instantiates rightContent: g4control
 

@@ -14,6 +14,7 @@ using std::atomic;
 // * G4VUserDetectorConstruction,
 // * G4VUserPhysicsList
 // * G4VUserActionInitialization
+// * Pretty sre GRun
 //
 // Local thread classes (g4cout):
 // * EventManager

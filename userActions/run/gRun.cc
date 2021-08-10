@@ -1,5 +1,6 @@
 // gemc
 #include "gRun.h"
+#include "gemcConventions.h"
 
 // geant4
 #include "G4Event.hh"
@@ -12,11 +13,10 @@
 // Constructor
 GRun::GRun(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal, map<string, GStreamer*> *gstrFactory) :
 G4Run(),
-GStateMessage(gopt, "GRun ", "grunv"),  // GStateMessage derived
 gDigitizationGlobalMap(gDDGlobal),
 gstreamerFactoryMap(gstrFactory)
 {
-	logSummary("Instantiating GRun ");
+	G4cout << GEMCRUNHEADER << "Instantiating GRun" << G4endl;
 
 	runData = new vector<GEventDataCollection*>;
 }
@@ -24,15 +24,13 @@ gstreamerFactoryMap(gstrFactory)
 // Destructor
 GRun::~GRun()
 {
-	logSummary("GRun:Destructor");
-	
+	G4cout << GEMCRUNHEADER << "GRun:Destructor" << G4endl;
+
 	// PRAGMA TODO: isn't the last line enough?
 	for (GEventDataCollection* evtData : *runData) {
 		delete evtData;
 	}
 	
-	runData->clear(); // i think this is not enough. we need to go over each member of ALL the maps and delete
-
 	//  pointer
 	delete runData;
 }
@@ -44,7 +42,8 @@ using GHitsCollection = G4THitsCollection<GHit> ;
 // The observables defined in each run should be filled here with the information from the hits
 void GRun::RecordEvent(const G4Event *aEvent)
 {
-	logSummary("GRun:Local RecordEvent");
+	G4cout << GEMCRUNHEADER << "GRun:Local RecordEvent" << G4endl;
+
 	// HitsCollections of This Event
 	G4HCofThisEvent* HCsThisEvent = aEvent->GetHCofThisEvent();
 	if(!HCsThisEvent) return;
@@ -111,7 +110,7 @@ void GRun::RecordEvent(const G4Event *aEvent)
 // PRAGMA: But I can use it to save output right? No need to accumulate
 void GRun::Merge(const G4Run *aRun)
 {
-	logSummary("GRun:Global Merge");
+	G4cout << GEMCRUNHEADER << "GRun:Global Merge" << G4endl;
 
 	const GRun *localRun = static_cast<const GRun *> (aRun);
 

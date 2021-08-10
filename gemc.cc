@@ -8,6 +8,13 @@ using namespace std;
 #include "eventDispenser.h"
 #include "g4display.h"
 
+// geant4
+#include "G4UImanager.hh"
+#include "G4UIsession.hh"
+#include "G4MTRunManager.hh"
+#include "G4VisExecutive.hh"
+#include "G4UIQt.hh"
+
 // gemc
 #include "gemcUtilities.h"
 #include "gemcConventions.h"
@@ -17,12 +24,7 @@ using namespace std;
 #include "gsession.h"
 #include "gdetectorConstruction.h"
 
-// geant4
-#include "G4UImanager.hh"
-#include "G4UIsession.hh"
-#include "G4MTRunManager.hh"
-#include "G4VisExecutive.hh"
-#include "G4UIQt.hh"
+
 
 // TODO: physics list: to be gphysics
 #include "FTFP_BERT.hh"
@@ -41,6 +43,7 @@ int main(int argc, char* argv[])
 
 	// get gui switch
 	bool gui = gopts->getSwitch("gui");
+	int verbosity = gopts->getInt("verbosity");
 
 	// createQtApplication returns a QApplication if gui is not zero
 	// otherwise it returns a QCoreApplication
@@ -72,7 +75,6 @@ int main(int argc, char* argv[])
 	auto physicsList = new FTFP_BERT;
 	g4MTRunManager->SetUserInitialization(physicsList);
 
-
 	// instantiate GActionInitialization and initialize the geant4 kernel
 	g4MTRunManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
 
@@ -81,21 +83,19 @@ int main(int argc, char* argv[])
 	// calls ConstructSDandField in GDetectorConstruction
 	initGemcG4RunManager(g4MTRunManager, gopts);
 
-	
 	EventDispenser *geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
-	// order of pointers deletion is inverse of creation
-	delete gDetectorGlobal;
-	delete globalDigitizationMap;
 
 	if ( gui ) {
 
+		gemcSplash->message("Starting GUI");
 		qApp->processEvents();
 
 		// passing executable to retrieve full path
 		GemcGUI gemcGui(argv[0], gopts, geventDispenser);
 		gemcGui.show();
 		gemcSplash->finish(&gemcGui);
+		delete gemcSplash;
 
 
 		// initializing vis manager and qt session
@@ -108,26 +108,32 @@ int main(int argc, char* argv[])
 		// opening the g4Display GUI
 		G4Display *g4Display = new G4Display(gopts);
 
-
+		applyInitialUIManagerCommands(true, verbosity);
 
 
 		qApp->exec();
 
+		// order of pointers deletion is inverse of creation
 
 		delete g4Display;
-//		delete session;    // somehow deleting stuff too early
+		delete session;
 		delete visManager;
-//		delete UIM;       // somehow deleting stuff too early
-		delete gemcSplash;
+
 	} else {
+		applyInitialUIManagerCommands(false, verbosity);
 
 	}
 
-	//delete g4MTRunManager;
+	// clearing pointers
+	delete geventDispenser;
+	delete gDetectorGlobal;
+	for(auto [key, value]: (*globalDigitizationMap)) { delete value;}
+	delete globalDigitizationMap;
+	delete UIM;
 	delete gApp;
 	delete gopts;
 
-	cout << GEMCLOGMSGITEM << " Simulation completed, arrivederci! " << endl << endl;
+	cout << GEMCLOGMSGITEM << "Simulation completed, arrivederci! " << endl << endl;
 	return EXIT_SUCCESS;
 }
 

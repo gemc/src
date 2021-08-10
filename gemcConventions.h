@@ -4,7 +4,8 @@
 
 // this gemc version
 #define GEMC_VERSION    "3.0.beta"
-#define GEMCLOGMSGITEM  " ⌘"
+#define GEMCLOGMSGITEM  " ⌘ "
+#define GEMCRUNHEADER   " ❖ "
 
 
 // gemc exit codes: 2000

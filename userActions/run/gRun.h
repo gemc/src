@@ -17,7 +17,7 @@
 // A run is represented by a G4Run class object.
 // G4GRun is created by G4MTRunManager, initialized in gemc.cc
 // The pointers to the digitization and streamer are kept to be passed along RecordEvent (digitized event) and Merge (streams it out)
-class GRun : public G4Run, public GStateMessage
+class GRun : public G4Run
 {
 public:
 	GRun(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal, map<string, GStreamer*> *gstrFactory);

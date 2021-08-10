@@ -41,7 +41,7 @@ int getNumberOfThreads(GOptions* gopts) {
 
 	// global log screen
 	if (verbosity >= GVERBOSITY_SUMMARY) {
-		cout << GEMCLOGMSGITEM << " G4MTRunManager: using " << useThreads << " threads out of "  << allThreads << " available."  << endl;
+		cout << GEMCLOGMSGITEM << "G4MTRunManager: using " << useThreads << " threads out of "  << allThreads << " available."  << endl;
 	}
 	
 	return useThreads;
@@ -55,7 +55,51 @@ void initGemcG4RunManager(G4MTRunManager *grm, GOptions* gopts)
 
 	G4UImanager *g4uim   = G4UImanager::GetUIpointer();
 	g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log");
-	g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept " + to_string(tlog));
+	//g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept " + to_string(tlog));
 
 	grm->Initialize();
+}
+
+
+vector<string> startingUIMCommands(bool gui) {
+	vector<string> commands;
+
+	// define batch commands
+
+	commands.push_back("/control/verbose 0");
+	commands.push_back("/geometry/navigator/verbose 0");
+	commands.push_back("/event/verbose 0");
+	commands.push_back("/run/verbose 0");
+	commands.push_back("/run/particle/verbose 0");
+	commands.push_back("/material/verbose 0");
+	commands.push_back("/process/eLoss/verbose 0");
+	commands.push_back("/vis/verbose 0");
+	commands.push_back("/vis/viewer/flush");
+	commands.push_back("/process/setVerbose 0 all");
+
+	// not in gui mode, return batch only
+	if( !gui ) return commands;
+
+	// define gui commands
+	commands.push_back("/vis/scene/add/trajectories rich smooth");
+
+	return commands;
+
+}
+
+// apply initial UIM commands coming from, in order:
+// - batch
+// - gui (if needed)
+// - goptions
+void applyInitialUIManagerCommands(bool gui, int verbosity) {
+	G4UImanager *g4uim = G4UImanager::GetUIpointer();
+
+	vector<string> commands = startingUIMCommands(gui);
+
+	for(auto &c : commands) {
+		if(verbosity > GVERBOSITY_SUMMARY) {
+			cout << GEMCLOGMSGITEM << "Executing UIManager command \"" << c << "\"" << endl;
+		}
+		g4uim->ApplyCommand(c);
+	}
 }
