@@ -29,5 +29,4 @@ vector<string> startingUIMCommands(bool gui);
 // - PRAGMA TODO macro file
 void applyInitialUIManagerCommands(bool gui, int verbosity);
 
-
 #endif

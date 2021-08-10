@@ -33,8 +33,6 @@ public:
 //	}
 	
 private:
-	int verbosity;
-
 	GOptions *gopt    = nullptr;
 	GWorld   *gworld  = nullptr;
 	G4World  *g4world = nullptr;
@@ -42,6 +40,11 @@ private:
 	// the GSensitiveDetector is built before the digitization, so we need
 	// a pointer to global digitization map, filled later, to pass to the local GSensitiveDetector
 	map<string, GDynamicDigitization*> *gDynamicDigitizationMapGlobalInstance = nullptr;
+
+
+	// loads digitization plugins
+	// returns number of loaded plugins
+	int fillgDynamicDigitizationMapGlobalInstance();
 
 };
 

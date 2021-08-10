@@ -26,6 +26,8 @@ public:
 	virtual void Merge(const G4Run*);
 	
 private:
+	int verbosity;
+	
 	// digitization map, loaded in main(), passed here through GActionInitialization
 	map<string, GDynamicDigitization*> *gDigitizationGlobalMap;
 	

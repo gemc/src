@@ -16,7 +16,11 @@ G4Run(),
 gDigitizationGlobalMap(gDDGlobal),
 gstreamerFactoryMap(gstrFactory)
 {
-	G4cout << GEMCRUNHEADER << "Instantiating GRun" << G4endl;
+	verbosity = gopt->getInt("grunv");
+
+	if(verbosity > GVERBOSITY_SUMMARY) {
+		G4cout << GEMCRUNHEADER << "Instantiating GRun" << G4endl;
+	}
 
 	runData = new vector<GEventDataCollection*>;
 }
@@ -24,8 +28,10 @@ gstreamerFactoryMap(gstrFactory)
 // Destructor
 GRun::~GRun()
 {
-	G4cout << GEMCRUNHEADER << "GRun:Destructor" << G4endl;
-
+	if(verbosity > GVERBOSITY_SUMMARY) {
+		G4cout << GEMCRUNHEADER << "GRun:Destructor" << G4endl;
+	}
+	
 	// PRAGMA TODO: isn't the last line enough?
 	for (GEventDataCollection* evtData : *runData) {
 		delete evtData;

@@ -39,7 +39,7 @@ namespace gemc {
 		json jsonMessageVerbosity = {
 			{GNAME, "verbosity"},
 			{GDESC, GVERBOSITY_DESCRIPTION},
-			{GDFLT, 1}
+			{GDFLT, 0}
 		};
 		goptions.push_back(GOption(jsonMessageVerbosity));
 
@@ -47,7 +47,7 @@ namespace gemc {
 		json jsonRunVerbosity = {
 			{GNAME, "grunv"},
 			{GDESC, GVERBOSITY_DESCRIPTION},
-			{GDFLT, 1}
+			{GDFLT, 0}
 		};
 		goptions.push_back(GOption(jsonRunVerbosity));
 

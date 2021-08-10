@@ -1,5 +1,6 @@
 // gemc
 #include "gdetectorConstruction.h"
+#include "gsd.h"
 
 // glibrary
 #include "gworld.h"
@@ -15,9 +16,6 @@ GStateMessage(opt, "GDetectorConstruction", "g4systemv"),  // GStateMessage deri
 gopt(opt),
 gDynamicDigitizationMapGlobalInstance(gDDGlobal)
 {
-	// should this go here or in Construct()
-
-
 	// building gemc world (systems containings gvolumes)
 	gworld = new GWorld(gopt);
 
@@ -34,7 +32,7 @@ GDetectorConstruction::~GDetectorConstruction() {
 
 G4VPhysicalVolume* GDetectorConstruction::Construct()
 {
-	logSummary("Constructing gemc world");
+	logSummary("GDetectorConstruction::Construct");
 
 //	// building gemc world (systems containings gvolumes)
 //	gworld = new GWorld(gopt);
@@ -53,18 +51,17 @@ void GDetectorConstruction::ConstructSDandField()
 	// processed in GSensitiveDetector::ProcessHits
 	if (G4Threading::IsMasterThread() ) return;
 
-	// int verbosity = gopt->getInt("gsensitivityv");
-
-//	flowMessage("Inside SDandField");
-//
-//	// used to check if a SD if it already exists
-//	map<string, GSensitiveDetector*> allSensitiveDetectors;
+	logSummary("GDetectorConstruction::ConstructSDandField");
 
 
-//	// building the sensitive detectors
-//	// this is thread local
-//	for(auto &s : gsetup->getSetup()) {
-//		for(auto &gv : s.second->getSytems()) {
+	// GSensitiveDetector map
+	map<string, GSensitiveDetector*> allSensitiveDetectors;
+
+
+	// building the sensitive detectors
+	// this is thread local
+	for(auto system : *gworld->getSystemsMap()) {
+		for(auto gvolume : *system.second->getGVolumesMap()) {
 //			string sensitivity = gv.second->getSensitivity();
 //
 //			// making sure the logical volume exists
@@ -93,8 +90,8 @@ void GDetectorConstruction::ConstructSDandField()
 //				allSensitiveDetectors[sensitivity]->registerGVolumeTouchable(gv.first, new GTouchable(sensitivity, gv.second->getTouchableID()));
 //				SetSensitiveDetector(gv.first, allSensitiveDetectors[sensitivity]);
 //			}
-//		}
-//	}
+		}
+	}
 
 }
 
