@@ -107,3 +107,12 @@ In general from scratch:
 3. add settings.xconfig to project settings debug and release
 4. target: add library or command line executable, remove dirs/files created, add files to build phases manually
 5. select GNU++17
+
+
+
+
+
+
+# gdetector libraries
+
+

@@ -1,7 +1,7 @@
 working on gemc:
 
-next: add detector in gemc, start build gsystem then g4system
-
+- divide source in different libraries like scons (started with gdetector)
+- put the verbosity options into conventions, like gsensitivityv
 
 
 

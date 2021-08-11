@@ -120,9 +120,10 @@ void GSensitiveDetector::EndOfEvent(G4HCofThisEvent* g4hc)
 }
 
 
-
+// called in GDetectorConstruction::ConstructSDandField
 void GSensitiveDetector::registerGVolumeTouchable(string name, GTouchable* gt)
 {
+	// not using log here as we're couting gt
 	if(verbosity == GVERBOSITY_DETAILS) {
 		G4cout << "Registering touchable gvolume <" << name << "> with  value: " << gt << G4endl;
 	}

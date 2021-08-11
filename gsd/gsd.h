@@ -25,7 +25,6 @@ public:
 
 	~GSensitiveDetector() {
 		delete gHitsCollection;
-		delete gDynamicDigitizationMapGlobalInstance;
 		delete gDynamicDigitizationLocalInstance;
 	}
 
@@ -50,15 +49,14 @@ private:
 	// set at construction, so we do not spend time retrieving it
 	HitBitSet gHitBitSet;
 
-	// map of touchable associated with each volume
-	// used to retrieve the touchable from the volume in which the step occur during processHit.
-	// the map is populated (registered) at detector construction with the volume gtouchable
-	// register function: registerGVolumeTouchable
+	// map of touchables. one entry per gvolume
+	// used to retrieve the touchable from the geant4 volume in which the step occur during processHit
+	// the map is populated (registered) at detector construction (GDetectorConstruction::ConstructSDandField)
+	// using the public function registerGVolumeTouchable
 	map<string, GTouchable*> gTouchableMap;
 
-	// retrieve touchable from map
-	// needs geant4Touchable to get the volume name
-	// vname is guaranteed to exist because it's sensitive
+	// retrieve GTouchable from map
+	// gTouchableMap[vname] is guaranteed to exist because vname is sensitive
 	inline GTouchable* getGTouchable(const G4Step* thisStep) {
 		string vname = thisStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName();
 		return gTouchableMap[vname];
@@ -95,7 +93,7 @@ private:
 
 public:
 
-	// register GTouchable
+	// register GTouchable in gTouchableMap
 	// used in GDetectorConstruction::ConstructSDandField()
 	void registerGVolumeTouchable(string name, GTouchable* gt);
 

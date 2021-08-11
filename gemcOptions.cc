@@ -51,6 +51,14 @@ namespace gemc {
 		};
 		goptions.push_back(GOption(jsonRunVerbosity));
 
+		// sensitivity verbosity
+		json jsonSensitivityVerbosity = {
+			{GNAME, "gsensitivityv"},
+			{GDESC, GVERBOSITY_DESCRIPTION},
+			{GDFLT, 0}
+		};
+		goptions.push_back(GOption(jsonSensitivityVerbosity));
+
 		// event log every N events
 		json jsonELOGOption = {
 			{GNAME, "elog"},

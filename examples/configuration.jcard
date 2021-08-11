@@ -4,7 +4,9 @@
 	"nthreads": 4,
 	"verbosity": 0,
 	"gsystemv": 0,
-	"g4systemv": 0,
+	"g4systemv": 2,
+	"grunv": 2,
+	"gsensitivityv": 2,
 
 	"+gsystem": [
 
@@ -20,7 +22,7 @@
 		"name": "output.txt"
 	},
 
-	"n": 1
+	"n": 0
 
 
 	
