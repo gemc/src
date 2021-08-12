@@ -19,6 +19,7 @@ gDynamicDigitizationMapGlobalInstance(gDDGlobal)
 
 	// should run loadReadoutSpecs here?
 
+
 	logSummary("Instantiating GSensitiveDetector " + sdName);
 }
 
@@ -33,7 +34,10 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc)
 	// assinging thread local DynamicDigitization from the global map
 	if(gDynamicDigitizationMapGlobalInstance->find(sdName) != gDynamicDigitizationMapGlobalInstance->end()) {
 		gDynamicDigitizationLocalInstance = (*gDynamicDigitizationMapGlobalInstance)[sdName];
-		gHitBitSet = gDynamicDigitizationLocalInstance->readoutSpecs->getHitBitSet();
+		cout << "AD 0 " << gDynamicDigitizationLocalInstance << " " << (*gDynamicDigitizationMapGlobalInstance)[sdName] << " " << gDynamicDigitizationLocalInstance->readoutSpecs << endl;
+	//	gDynamicDigitizationLocalInstance->loadConstants(0, "asd");
+	//	gDynamicDigitizationLocalInstance->defineReadoutSpecs(0, "asd");
+	//	gHitBitSet = gDynamicDigitizationLocalInstance->readoutSpecs->getHitBitSet();
 	}
 
 	// protecting against pluging loading failures
@@ -63,7 +67,10 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc)
 G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4th)
 {
 	// gDynamicDigitizationLocalInstance is guaranteed to exist in GSensitiveDetector::Initialize
-
+	cout << " ProcessHitsProcessHitsProcessHits" << endl;
+	cout << " ProcessHitsProcessHitsProcessHits" << endl;
+	cout << " ProcessHitsProcessHitsProcessHits" << endl;
+	gDynamicDigitizationLocalInstance->loadConstants(0, "asd");
 
 	double depe = thisStep->GetTotalEnergyDeposit();
 
@@ -75,6 +82,8 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 	// get the vector of GTouchables returned by gDynamicDigitizationLocalInstance
 	// if not defined by the plugin, base class will return a vector with one element, the input
 	vector<GTouchable*> thisStepProcessedTouchables = gDynamicDigitizationLocalInstance->processTouchable(getGTouchable(thisStep), thisStep);
+
+	gDynamicDigitizationLocalInstance->loadConstants(0, "asd");
 
 	for(const auto thisGTouchable: thisStepProcessedTouchables) {
 

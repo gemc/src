@@ -14,7 +14,7 @@ using namespace std;
 // Constructor for workers
 GRunAction::	GRunAction(GOptions* gopts, map<string, GDynamicDigitization*> *gDDGlobal, map<string, GStreamer*> *streamerFactoryMap) :
 G4UserRunAction(), // G4UserRunAction derived
-GStateMessage(gopts, "GRunAction", "verbosity"),  // GRunAction derived
+GStateMessage(gopts, "GRunAction", "grunv"),  // GRunAction derived
 goptions(gopts),
 gDigitizationGlobalMap(gDDGlobal),
 gstreamerFactoryMap(streamerFactoryMap)

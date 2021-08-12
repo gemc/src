@@ -1,11 +1,9 @@
 // gemc
 #include "gdetectorConstruction.h"
-#include "gsd.h"
 
 // glibrary
 #include "gworld.h"
 #include "g4systemConventions.h"
-
 
 // geant4
 #include "G4SDManager.hh"
@@ -55,7 +53,7 @@ void GDetectorConstruction::ConstructSDandField()
 	logSummary("GDetectorConstruction::ConstructSDandField");
 
 	// GSensitiveDetector map
-	map<string, GSensitiveDetector*> sensitiveDetectorsMap;
+	//map<string, GSensitiveDetector*> sensitiveDetectorsMap;
 
 
 	// building the sensitive detectors
@@ -78,15 +76,19 @@ void GDetectorConstruction::ConstructSDandField()
 
 				// checking that we do not already have a GSensitiveDetector
 				if(sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
+					cout << " ASDASD 1 " << volumeName << " " << digitizationName << endl;
 
 					logSummary("Sensitive detector <" + digitizationName + "> doesn't exist for <" + volumeName + ">. Creating it.");
 
+					G4cout << "Sensitive detector <" << digitizationName << "> doesn't exist for <" << volumeName << ">. Creating it." << G4endl;
+
 					sensitiveDetectorsMap[digitizationName] = new GSensitiveDetector(digitizationName, gopt, gDynamicDigitizationMapGlobalInstance);
+					cout << " ASDASD 2 " << sensitiveDetectorsMap.size() << " " << digitizationName << endl;
 
 					// PRAGMA TODO: according to the documentation the AddNewDetector is done by SetSensitiveDetector
 					// however GSensitiveDetector::Initialize will not work if this is not done here
 					auto sdManager = G4SDManager::GetSDMpointer();
-					sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName]);
+					sdManager->AddNewDetector(new GSensitiveDetector(digitizationName, gopt, gDynamicDigitizationMapGlobalInstance));
 
 				} else {
 					logSummary("Sensitive detector <" + digitizationName + "> exist for <" + volumeName + ">");
@@ -94,15 +96,17 @@ void GDetectorConstruction::ConstructSDandField()
 
 				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(volumeName, new GTouchable(digitizationName, gvolume->getGIdentity()));
 
-				// G4VUserDetectorConstruction call
+				if (find(sdnames.begin(), sdnames.end(), digitizationName) ==  sdnames.end() ) {
+					sdnames.push_back(digitizationName);
+				}
+
+				// SetSensitiveDetector is called by G4VUserDetectorConstruction call
 				SetSensitiveDetector(volumeName, sensitiveDetectorsMap[digitizationName]);
 			}
 		}
 	}
 
 }
-
-
 
 
 

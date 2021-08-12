@@ -3,6 +3,7 @@
 
 // gemc
 #include "gStateMessage.h"
+#include "gsd.h"
 
 // glibrary
 #include "goptions.h"
@@ -31,6 +32,7 @@ public:
 //		else
 //			return {};
 //	}
+	vector<string> getSensitiveDetectorNameVectors() { return sdnames;}
 	
 private:
 	GOptions *gopt    = nullptr;
@@ -39,12 +41,15 @@ private:
 
 	// the GSensitiveDetector is built before the digitization, so we need
 	// a pointer to global digitization map, filled later, to pass to the local GSensitiveDetector
-	map<string, GDynamicDigitization*> *gDynamicDigitizationMapGlobalInstance = nullptr;
-
+	std::shared_ptr<map<string, GDynamicDigitization*>> gDynamicDigitizationMapGlobalInstance;
+	vector<string> sdnames;
 
 	// loads digitization plugins
 	// returns number of loaded plugins
 	int fillgDynamicDigitizationMapGlobalInstance();
+
+
+	map<string, GSensitiveDetector*> sensitiveDetectorsMap;
 
 };
 

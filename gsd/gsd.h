@@ -21,14 +21,14 @@ class GSensitiveDetector : public G4VSensitiveDetector, public GStateMessage
 {
 
 public:
-	GSensitiveDetector(string sdName, GOptions* goptions, map<string, GDynamicDigitization*> *gDDGlobal);
+	GSensitiveDetector(string sdName, GOptions* goptions, shared<map<string, GDynamicDigitization*>> gDDGlobal);
 
 	~GSensitiveDetector() {
 		delete gHitsCollection;
 		delete gDynamicDigitizationLocalInstance;
 	}
 
-	// geant4 methods
+	// G4VSensitiveDetector geant4 methods
 	virtual void Initialize(G4HCofThisEvent* g4hc);                            // Beginning of sensitive Hit
 	virtual G4bool ProcessHits(G4Step* thisStep, G4TouchableHistory* g4th);    // Process Step, add new hit to gHitsCollection or new step to a ghit
 	virtual void EndOfEvent(G4HCofThisEvent* g4HitCollection);                 // End of sensitive Hit

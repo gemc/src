@@ -18,7 +18,7 @@ gstreamerFactoryMap(gstrFactory)
 {
 	verbosity = gopt->getInt("grunv");
 
-	if(verbosity > GVERBOSITY_SUMMARY) {
+	if(verbosity >= GVERBOSITY_SUMMARY) {
 		G4cout << GEMCRUNHEADER << "Instantiating GRun" << G4endl;
 	}
 
@@ -55,6 +55,7 @@ void GRun::RecordEvent(const G4Event *aEvent)
 	if(!HCsThisEvent) return;
 	
 	string randomStatus = "na";
+	
 	// PRAGMA TODO: see https://twiki.cern.ch/twiki/bin/view/Geant4/Geant4MTTipsAndTricks#11_How_are_exactly_random_number
 	// currently this returns null, but perhaps need some activating?
 	// Or we need to save the random status in separate file ?

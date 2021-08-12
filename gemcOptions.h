@@ -1,7 +1,7 @@
 #ifndef DEFINEOPTIONS_H
 #define DEFINEOPTIONS_H 1
 
-// goptions
+// glibrary
 #include "goptions.h"
 
 namespace gemc {

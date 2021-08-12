@@ -2,9 +2,9 @@
 
 	# configuration example
 	"nthreads": 4,
-	"verbosity": 0,
+	"verbosity": 2,
 	"gsystemv": 0,
-	"g4systemv": 2,
+	"g4systemv": 0,
 	"grunv": 2,
 	"gsensitivityv": 2,
 
@@ -17,12 +17,14 @@
 
 	],
 
+	"gpluginsPath": "/opt/projects/gemc/src",
+
 	"+goutput": {
 		"format": "TEXT",
 		"name": "output.txt"
 	},
 
-	"n": 0
+	"n": 2
 
 
 	

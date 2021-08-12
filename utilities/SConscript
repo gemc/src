@@ -3,7 +3,8 @@ Import('env')
 env.Prepend(LIBS = 'gutilities')
 
 sources = [
-	'gemcUtilities.cc'
+	'gemcUtilities.cc',
+	'loadDigitizationPlugins.cc'
 ]
 
 # The # in the LIBPATH directories specify that they’re relative to the top-level directory

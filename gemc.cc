@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 
 	// instantiating pointer to global digitization map
 	// the map will be filled with the gsystem information of the sensitive detectors
-	map<string, GDynamicDigitization*> *globalDigitizationMap = new map<string, GDynamicDigitization*>;
+	shared_ptr<map<string, GDynamicDigitization*>> globalDigitizationMap = new map<string, GDynamicDigitization*>;
 
 	// building detector
 	// this is global, changed at main scope
@@ -72,7 +72,8 @@ int main(int argc, char* argv[])
 	g4MTRunManager->SetUserInitialization(gDetectorGlobal);
 
 	// TODO: physics list: to be gphysics
-	auto physicsList = new FTFP_BERT;
+	auto physicsList = new FTFP_BERT();
+	physicsList->SetVerboseLevel(0);
 	g4MTRunManager->SetUserInitialization(physicsList);
 
 	// instantiate GActionInitialization and initialize the geant4 kernel
@@ -82,6 +83,7 @@ int main(int argc, char* argv[])
 	// calls Construct in GDetectorConstruction
 	// calls ConstructSDandField in GDetectorConstruction
 	initGemcG4RunManager(g4MTRunManager, gopts);
+	loadDigitizationPlugins(gopts, gDetectorGlobal->getSensitiveDetectorNameVectors(), globalDigitizationMap);
 
 	EventDispenser *geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
@@ -110,7 +112,6 @@ int main(int argc, char* argv[])
 
 		applyInitialUIManagerCommands(true, verbosity);
 
-
 		qApp->exec();
 
 		// order of pointers deletion is inverse of creation
@@ -128,8 +129,10 @@ int main(int argc, char* argv[])
 	// clearing pointers
 	delete geventDispenser;
 	delete gDetectorGlobal;
-	for(auto [key, value]: (*globalDigitizationMap)) { delete value;}
+
+	// for(auto [key, value]: (*globalDigitizationMap)) { delete value;}
 	delete globalDigitizationMap;
+
 	delete UIM;
 	delete gApp;
 	delete gopts;

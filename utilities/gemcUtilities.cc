@@ -66,16 +66,29 @@ vector<string> startingUIMCommands(bool gui) {
 
 	// define batch commands
 
-	commands.push_back("/control/verbose 0");
-	commands.push_back("/geometry/navigator/verbose 0");
+	commands.push_back("/process/verbose 0");
+
+	commands.push_back("/particle/process/verbose 0 -1");
+	commands.push_back("/process/setVerbose 0 all");
+	commands.push_back("/tracking/verbose -1");
+	commands.push_back("/particle/verbose 0");
+	commands.push_back("/particle/property/verbose 0");
+	commands.push_back("/process/had/rdm/verbose 0");
+	commands.push_back("/process/had/verbose 0");
 	commands.push_back("/event/verbose 0");
+	commands.push_back("/cuts/verbose 0");
 	commands.push_back("/run/verbose 0");
 	commands.push_back("/run/particle/verbose 0");
-	commands.push_back("/material/verbose 0");
 	commands.push_back("/process/eLoss/verbose 0");
+	commands.push_back("/process/em/verbose 0");
+	commands.push_back("/process/em/workerVerbose 0");
+	commands.push_back("/material/verbose 0");
+	commands.push_back("/process/had/deex/verbose 0");
+	commands.push_back("/hits/verbose 0");
+	commands.push_back("/control/verbose 0");
+	commands.push_back("/geometry/navigator/verbose 0");
 	commands.push_back("/vis/verbose 0");
 	commands.push_back("/vis/viewer/flush");
-	commands.push_back("/process/setVerbose 0 all");
 
 	// not in gui mode, return batch only
 	if( !gui ) return commands;
@@ -106,6 +119,6 @@ void applyInitialUIManagerCommands(bool gui, int verbosity) {
 		if(verbosity > GVERBOSITY_SUMMARY) {
 			cout << GEMCLOGMSGITEM << "Executing UIManager command \"" << c << "\"" << endl;
 		}
-		g4uim->ApplyCommand(c);
+		g4uim->ApplyCommand(c.c_str());
 	}
 }

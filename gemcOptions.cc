@@ -67,6 +67,14 @@ namespace gemc {
 		};
 		goptions.push_back(GOption(jsonELOGOption));
 
+		// location of plugins
+		json jsonPluginPathOption = {
+			{GNAME, "gpluginsPath"},
+			{GDESC, "Directory containing the plugins"},
+			{GDFLT, GNOTAPPLICABLE}
+		};
+		goptions.push_back(GOption(jsonPluginPathOption));
+
 		// event log every N events
 		json jsonTLOGOption = {
 			{GNAME, "tlog"},
