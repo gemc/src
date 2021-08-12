@@ -32,13 +32,13 @@ GRun::~GRun()
 		G4cout << GEMCRUNHEADER << "GRun:Destructor" << G4endl;
 	}
 	
-	// PRAGMA TODO: isn't the last line enough?
-	for (GEventDataCollection* evtData : *runData) {
-		delete evtData;
-	}
-	
-	//  pointer
-	delete runData;
+//	// PRAGMA TODO: isn't the last line enough?
+//	for (GEventDataCollection* evtData : *runData) {
+//		delete evtData;
+//	}
+//	
+//	//  pointer
+//	delete runData;
 }
 
 using GHitsCollection = G4THitsCollection<GHit> ;

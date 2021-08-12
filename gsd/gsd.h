@@ -21,11 +21,11 @@ class GSensitiveDetector : public G4VSensitiveDetector, public GStateMessage
 {
 
 public:
-	GSensitiveDetector(string sdName, GOptions* goptions, shared<map<string, GDynamicDigitization*>> gDDGlobal);
+	GSensitiveDetector(string sdName, GOptions* goptions, map<string, GDynamicDigitization*> *gDDGlobal);
 
 	~GSensitiveDetector() {
-		delete gHitsCollection;
-		delete gDynamicDigitizationLocalInstance;
+//		delete gHitsCollection;
+//		delete gDynamicDigitizationLocalInstance;
 	}
 
 	// G4VSensitiveDetector geant4 methods

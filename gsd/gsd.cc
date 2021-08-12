@@ -59,6 +59,8 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc)
 	auto hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
 	g4hc->AddHitsCollection(hcID, gHitsCollection);
 
+	cout << "Initializing GSensitiveDetector " << hcID << " " << gHitsCollection << endl;;
+
 }
 
 
