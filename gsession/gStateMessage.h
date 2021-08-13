@@ -57,13 +57,13 @@ public:
 
 		verbosity =  gopts->getInt(voptionName);
 		if(verbosity >= GVERBOSITY_SUMMARY) {
-			G4cout << stateStringHeader()  << "constructor" << G4endl;
+			G4cout << stateStringHeader()  << "Constructor" << G4endl;
 		}
 	}
 
 	~GStateMessage() {
 		if(verbosity >= GVERBOSITY_SUMMARY) {
-			G4cout << stateStringHeader() << "destructor" << G4endl;
+			G4cout << stateStringHeader() << "Destructor" << G4endl;
 		}
 	}
 

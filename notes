@@ -116,3 +116,5 @@ In general from scratch:
 # gdetector libraries
 
 
+// PRAGMA NOTE ConstructSDandField must be run on master thread as well
+// or processHits will not happen (spent a day figuring this out)

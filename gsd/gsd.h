@@ -40,10 +40,10 @@ private:
 	// the GSensitiveDetector is built before the digitization, so we need
 	// a pointer to global digitization map so we can pick gDigiLocal at initialization
 	// it will be loaded later with the plugins
-	map<string, GDynamicDigitization*> *gDynamicDigitizationMapGlobalInstance = nullptr;
+	map<string, GDynamicDigitization*> *gDynamicDigitizationMapGlobalInstance ;
 
 	// gDigiLocal is thread local, picked form gDigitizationGlobal
-	GDynamicDigitization *gDynamicDigitizationLocalInstance = nullptr;
+	GDynamicDigitization *gDynamicDigitizationLocalInstance ;
 
 	// defines what information to be stored in the hit
 	// set at construction, so we do not spend time retrieving it

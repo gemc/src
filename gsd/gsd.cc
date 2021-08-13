@@ -57,12 +57,6 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc)
 	// it can then be retrieved at the end of the event
 	auto hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
 	g4hc->AddHitsCollection(hcID, gHitsCollection);
-
-	auto sdManager = G4SDManager::GetSDMpointer();
-	cout << "SSSS " << sdManager->FindSensitiveDetector("ch") << " " << sdManager->GetCollectionID(collectionName[0]) << endl;
-
-	cout << "Initializing GSensitiveDetector " << hcID << " " << gHitsCollection << " " << collectionName.size() <<  " " << sdName <<  " " << GetName() << endl;
-
 }
 
 
@@ -71,11 +65,6 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc)
 G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4th)
 {
 	// gDynamicDigitizationLocalInstance is guaranteed to exist in GSensitiveDetector::Initialize
-	cout << " ProcessHitsProcessHitsProcessHits" << endl;
-	cout << " ProcessHitsProcessHitsProcessHits" << endl;
-	G4cout << " ProcessHitsProcessHitsProcessHits" << G4endl;
-
-	gDynamicDigitizationLocalInstance->loadConstants(0, "asd");
 
 	double depe = thisStep->GetTotalEnergyDeposit();
 
@@ -140,7 +129,6 @@ void GSensitiveDetector::registerGVolumeTouchable(string name, GTouchable* gt)
 	if(verbosity == GVERBOSITY_DETAILS) {
 		G4cout << "Registering touchable gvolume <" << name << "> with  value: " << gt << G4endl;
 	}
-	cout << "Registering touchable gvolume <" << name << "> with  value: " << gt << endl;
 	gTouchableMap[name] = gt;
 }
 

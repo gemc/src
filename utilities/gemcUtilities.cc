@@ -58,7 +58,7 @@ void initGemcG4RunManager(G4RunManager *grm, GOptions* gopts)
 	g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept " + to_string(tlog));
 
 	// done in event dispenser
-//	grm->Initialize();
+	grm->Initialize();
 }
 
 
@@ -68,7 +68,7 @@ vector<string> startingUIMCommands(bool gui) {
 	// define batch commands
 
 //	commands.push_back("/process/verbose 0");
-	commands.push_back("/run/verbose 2");
+//	commands.push_back("/run/verbose 2");
 
 //	commands.push_back("/particle/process/verbose 0 -1");
 //	commands.push_back("/process/setVerbose 0 all");
