@@ -8,6 +8,7 @@
 // glibrary
 #include "ghit.h"
 #include "event/gEventDataCollectionHeader.h"
+#include "gutsConventions.h"
 
 
 // Constructor
@@ -20,6 +21,7 @@ gstreamerFactoryMap(gstrFactory)
 
 	if(verbosity >= GVERBOSITY_SUMMARY) {
 		G4cout << GEMCRUNHEADER << "Instantiating GRun" << G4endl;
+		gLogClassConstruct("GRun");
 	}
 
 	runData = new vector<GEventDataCollection*>;
@@ -64,7 +66,6 @@ void GRun::RecordEvent(const G4Event *aEvent)
 //	}
 	
 	// header
-	int verbosity = 0;
 	GEventDataCollectionHeader *gheader = new GEventDataCollectionHeader(aEvent->GetEventID(),                   // local event number
 														  G4Threading::G4GetThreadId(),           // thread ID
 														  verbosity);
@@ -78,8 +79,10 @@ void GRun::RecordEvent(const G4Event *aEvent)
 		GHitsCollection *thisGHC = (GHitsCollection*) HCsThisEvent->GetHC(hci);
 		
 		if(thisGHC) {
-			
-			// G4cout << " Collection number  " << hci + 1 << " " << thisGHC << " name " << thisGHC->GetSDname() <<  G4endl ;
+
+			if (verbosity >= GVERBOSITY_DETAILS) {
+				G4cout << " Collection number  " << hci + 1 << " has pointer <" << thisGHC << "> and name <" << thisGHC->GetName() << ">" << G4endl ;
+			}
 			
 			string hitCollectionSDName = thisGHC->GetSDname();
 			
@@ -91,15 +94,12 @@ void GRun::RecordEvent(const G4Event *aEvent)
 				// looping over hits in this collection
 				for(size_t hitIndex = 0; hitIndex<thisGHC->GetSize(); hitIndex++) {
 					GHit *thisHit = (GHit*) thisGHC->GetHit(hitIndex);
-//
-//					// digitize hit and add it to detector data
-//					// PRAGMA TODO: switch this on/off with option
-//					detectorObservables->addDetectorObservables(detectorDigitization->digitizeHit(thisHit));
-//
-//					// digitize true info and add it to detector data
-//					// PRAGMA TODO: switch this on/off with option
-//					detectorObservables->addDetectorObservables(detectorDigitization->trueInfoHit(thisHit), true);
-//
+
+					// digitize hit and add it to detector data
+					// PRAGMA TODO: switch this on/off with option
+					GDigitizedData *digitizedData = detectorDigitization->digitizeData(thisHit);
+
+					GTrueInfoData* trueInfoData   = detectorDigitization->collectTrueInformation(thisHit);
 				}
 //				eventData->addDetectorData(detectorObservables);
 
@@ -110,6 +110,9 @@ void GRun::RecordEvent(const G4Event *aEvent)
 	
 	runData->push_back(eventDataCollection);
 	G4Run::RecordEvent(aEvent);
+
+	delete gheader;
+	delete eventDataCollection;
 }
 
 // This is global
