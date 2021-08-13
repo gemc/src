@@ -26,7 +26,7 @@ GPrimaryGeneratorAction::GPrimaryGeneratorAction() : G4VUserPrimaryGeneratorActi
 
 GPrimaryGeneratorAction::~GPrimaryGeneratorAction()
 {
-	delete fParticleGun;
+//	delete fParticleGun;
 }
 
 

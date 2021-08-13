@@ -1,12 +1,12 @@
 {
 
 	# configuration example
-	"nthreads": 4,
-	"verbosity": 2,
+	"nthreads": 1,
+	"verbosity": 0,
 	"gsystemv": 0,
-	"g4systemv": 2,
-	"grunv": 2,
-	"gsensitivityv": 2,
+	"g4systemv": 0,
+	"grunv": 0,
+	"gsensitivityv": 0,
 
 	"+gsystem": [
 
@@ -24,7 +24,7 @@
 		"name": "output.txt"
 	},
 
-	"n": 20
+	"n": 30
 
 
 	

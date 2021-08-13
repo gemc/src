@@ -119,7 +119,7 @@ void GRun::Merge(const G4Run *aRun)
 {
 	G4cout << GEMCRUNHEADER << "GRun:Global Merge" << G4endl;
 
-	const GRun *localRun = static_cast<const GRun *> (aRun);
+	//const GRun *localRun = static_cast<const GRun *> (aRun);
 
 //	//	cout << " local run data size " << localRun->runData->size() << "  global size: " << runData->size() << endl;
 //

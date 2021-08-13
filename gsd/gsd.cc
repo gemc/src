@@ -9,13 +9,15 @@
 GSensitiveDetector::GSensitiveDetector(string sdName, GOptions* goptions, map<string, GDynamicDigitization*> *gDDGlobal) :
 G4VSensitiveDetector(sdName),                                              // geant4 derived
 GStateMessage(goptions, "GSensitiveDetector " + sdName, "gsensitivityv"),  // GStateMessage derived
-gDynamicDigitizationMapGlobalInstance(gDDGlobal)
+gDynamicDigitizationMapGlobalInstance(gDDGlobal),
+gHitsCollection(nullptr)
 {
 	verbosity = goptions->getInt("gsensitivityv");
 
 	// protected, from G4VSensitiveDetector: it's a G4CollectionNameVector
 	// not really used in gemc but it's no overhead to do it as in the examples
-	collectionName.insert(sdName);
+	string hitCollectionName = sdName + "__HitCollection";
+	collectionName.insert(hitCollectionName);
 
 	// should run loadReadoutSpecs here?
 
@@ -34,10 +36,7 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc)
 	// assinging thread local DynamicDigitization from the global map
 	if(gDynamicDigitizationMapGlobalInstance->find(sdName) != gDynamicDigitizationMapGlobalInstance->end()) {
 		gDynamicDigitizationLocalInstance = (*gDynamicDigitizationMapGlobalInstance)[sdName];
-		cout << "AD 0 " << gDynamicDigitizationLocalInstance << " " << (*gDynamicDigitizationMapGlobalInstance)[sdName] << " " << gDynamicDigitizationLocalInstance->readoutSpecs << endl;
-	//	gDynamicDigitizationLocalInstance->loadConstants(0, "asd");
-	//	gDynamicDigitizationLocalInstance->defineReadoutSpecs(0, "asd");
-	//	gHitBitSet = gDynamicDigitizationLocalInstance->readoutSpecs->getHitBitSet();
+		gHitBitSet = gDynamicDigitizationLocalInstance->readoutSpecs->getHitBitSet();
 	}
 
 	// protecting against pluging loading failures
@@ -59,7 +58,10 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc)
 	auto hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
 	g4hc->AddHitsCollection(hcID, gHitsCollection);
 
-	cout << "Initializing GSensitiveDetector " << hcID << " " << gHitsCollection << endl;;
+	auto sdManager = G4SDManager::GetSDMpointer();
+	cout << "SSSS " << sdManager->FindSensitiveDetector("ch") << " " << sdManager->GetCollectionID(collectionName[0]) << endl;
+
+	cout << "Initializing GSensitiveDetector " << hcID << " " << gHitsCollection << " " << collectionName.size() <<  " " << sdName <<  " " << GetName() << endl;
 
 }
 
@@ -71,7 +73,8 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 	// gDynamicDigitizationLocalInstance is guaranteed to exist in GSensitiveDetector::Initialize
 	cout << " ProcessHitsProcessHitsProcessHits" << endl;
 	cout << " ProcessHitsProcessHitsProcessHits" << endl;
-	cout << " ProcessHitsProcessHitsProcessHits" << endl;
+	G4cout << " ProcessHitsProcessHitsProcessHits" << G4endl;
+
 	gDynamicDigitizationLocalInstance->loadConstants(0, "asd");
 
 	double depe = thisStep->GetTotalEnergyDeposit();
@@ -85,7 +88,6 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 	// if not defined by the plugin, base class will return a vector with one element, the input
 	vector<GTouchable*> thisStepProcessedTouchables = gDynamicDigitizationLocalInstance->processTouchable(getGTouchable(thisStep), thisStep);
 
-	gDynamicDigitizationLocalInstance->loadConstants(0, "asd");
 
 	for(const auto thisGTouchable: thisStepProcessedTouchables) {
 
@@ -138,6 +140,7 @@ void GSensitiveDetector::registerGVolumeTouchable(string name, GTouchable* gt)
 	if(verbosity == GVERBOSITY_DETAILS) {
 		G4cout << "Registering touchable gvolume <" << name << "> with  value: " << gt << G4endl;
 	}
+	cout << "Registering touchable gvolume <" << name << "> with  value: " << gt << endl;
 	gTouchableMap[name] = gt;
 }
 

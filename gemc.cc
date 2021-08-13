@@ -11,9 +11,11 @@ using namespace std;
 // geant4
 #include "G4UImanager.hh"
 #include "G4UIsession.hh"
-#include "G4MTRunManager.hh"
+#include "G4RunManagerFactory.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIQt.hh"
+
+#include "G4StepLimiterPhysics.hh"
 
 // gemc
 #include "gemcUtilities.h"
@@ -55,12 +57,11 @@ int main(int argc, char* argv[])
 	// instantiating new User Interface Messenger
 	// our custom cout destination for the UIM: MasterGeant4.[log, err]
 	G4UImanager* UIM = G4UImanager::GetUIpointer();
-//	UIM->SetCoutDestination(0);
 	UIM->SetCoutDestination(new GSession);
 
 	// init geant4 run manager with number of threads coming from options
-	G4MTRunManager *g4MTRunManager = new G4MTRunManager;
-	g4MTRunManager->SetNumberOfThreads(getNumberOfThreads(gopts));
+	auto* runManager =     G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+	runManager->SetNumberOfThreads(getNumberOfThreads(gopts));
 
 	// instantiating pointer to global digitization map
 	// the map will be filled with the gsystem information of the sensitive detectors
@@ -68,20 +69,23 @@ int main(int argc, char* argv[])
 
 	// building detector
 	// this is global, changed at main scope
-	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
-	g4MTRunManager->SetUserInitialization(gDetectorGlobal);
+//	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
+	runManager->SetUserInitialization(new GDetectorConstruction(gopts, globalDigitizationMap));
 
 	// TODO: physics list: to be gphysics
 	auto physicsList = new FTFP_BERT();
-	g4MTRunManager->SetUserInitialization(physicsList);
+	physicsList->RegisterPhysics(new G4StepLimiterPhysics());
+	runManager->SetUserInitialization(physicsList);
 
 	// instantiate GActionInitialization and initialize the geant4 kernel
-	g4MTRunManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
+	runManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
 
 	// this Initialize g4MTRunManager, which:
 	// calls Construct in GDetectorConstruction
 	// calls ConstructSDandField in GDetectorConstruction
-	initGemcG4RunManager(g4MTRunManager, gopts);
+	// which in turns builds gsetup, g4setup and, in each thread, the sensitive detectors
+	initGemcG4RunManager(runManager, gopts);
+
 	loadDigitizationPlugins(gopts, {"ch"}, globalDigitizationMap);
 
 	EventDispenser *geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
@@ -96,11 +100,12 @@ int main(int argc, char* argv[])
 		GemcGUI gemcGui(argv[0], gopts, geventDispenser);
 		gemcGui.show();
 		gemcSplash->finish(&gemcGui);
-		delete gemcSplash;
 
 
 		// initializing vis manager and qt session
-		G4VisManager *visManager = new G4VisExecutive();
+		// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
+		// G4VisManager* visManager = new G4VisExecutive("Quiet");
+		G4VisManager *visManager = new G4VisExecutive("Quiet");
 		visManager->Initialize();
 
 		// intializing G4UIQt session
@@ -136,9 +141,11 @@ int main(int argc, char* argv[])
 //	delete gApp;
 //	delete gopts;
 
+
+
+	delete runManager;
+
 	cout << GEMCLOGMSGITEM << "Simulation completed, arrivederci! " << endl << endl;
 	return EXIT_SUCCESS;
 }
-
-
 

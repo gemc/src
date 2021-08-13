@@ -81,7 +81,7 @@ private:
 	// GHit collection is G4THitsCollection<GHit>
 	// GHit is a G4VHit. Its thread memory management come with geant4
 	// The collection of pointers is used in G4GRun, passed to the digitizer plugins
-	GHitsCollection *gHitsCollection = nullptr;
+	GHitsCollection *gHitsCollection;
 
 	// retrieve hit with existing gtouchable
 	GHit *getHitInHitCollectionUsingTouchable(GTouchable* gtouchable);

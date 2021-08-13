@@ -19,7 +19,7 @@ QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui);
 int getNumberOfThreads(GOptions* gopts);
 
 // initialize G4MTRunManager
-void initGemcG4RunManager(G4MTRunManager *grm, GOptions* gopt);
+void initGemcG4RunManager(G4RunManager *grm, GOptions* gopt);
 
 // - batch
 // - gui (if needed)

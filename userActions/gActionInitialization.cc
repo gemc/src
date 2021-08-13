@@ -50,7 +50,7 @@ gDigitizationGlobalMap(gDDGlobal)
 		}
 
 		// done with gStreamerManager
-		gStreamerManager.clearDLMap();
+	//	gStreamerManager.clearDLMap();
 
 	}
 }
@@ -72,7 +72,7 @@ void GActionInitialization::Build() const
 {
 	logSummary("GActionInitialization Thread Build ");
 
-	SetUserAction(new GPrimaryGeneratorAction);
+	SetUserAction(new GPrimaryGeneratorAction());
 	SetUserAction(new GRunAction(goptions, gDigitizationGlobalMap, gstreamerFactoryMap));
 	SetUserAction(new GEventAction(goptions));
 }
@@ -80,6 +80,7 @@ void GActionInitialization::Build() const
 void GActionInitialization::BuildForMaster() const
 {
 	logSummary("GActionInitialization Master Build ");
+
 	SetUserAction(new GRunAction(goptions, gDigitizationGlobalMap, gstreamerFactoryMap));
 }
 

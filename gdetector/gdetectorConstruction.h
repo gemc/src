@@ -42,8 +42,6 @@ private:
 	// a pointer to global digitization map, filled later, to pass to the local GSensitiveDetector
 	map<string, GDynamicDigitization*> *gDynamicDigitizationMapGlobalInstance;
 
-	static G4ThreadLocal G4bool fConstructedSDandField;
-
 };
 
 

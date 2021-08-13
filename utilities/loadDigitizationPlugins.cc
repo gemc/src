@@ -30,10 +30,11 @@ void loadDigitizationPlugins(GOptions* gopt, vector<string> sdetectors, map<stri
 		if(gDDGlobal->find(sdname) == gDDGlobal->end()) {
 			(*gDDGlobal)[sdname] = sdPluginManager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(pluginName);
 			(*gDDGlobal)[sdname]->defineReadoutSpecs();
+
 		}
 
 		// done with sdPluginManager
-		sdPluginManager.clearDLMap();
+		//sdPluginManager.clearDLMap();
 	}
 }
 

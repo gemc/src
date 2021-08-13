@@ -49,15 +49,16 @@ int getNumberOfThreads(GOptions* gopts) {
 
 
 // initialize G4MTRunManager
-void initGemcG4RunManager(G4MTRunManager *grm, GOptions* gopts)
+void initGemcG4RunManager(G4RunManager *grm, GOptions* gopts)
 {
 	int tlog = gopts->getInt("tlog");
 
 	G4UImanager *g4uim   = G4UImanager::GetUIpointer();
 	g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log");
-	//g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept " + to_string(tlog));
+	g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept " + to_string(tlog));
 
-	grm->Initialize();
+	// done in event dispenser
+//	grm->Initialize();
 }
 
 
@@ -67,6 +68,7 @@ vector<string> startingUIMCommands(bool gui) {
 	// define batch commands
 
 //	commands.push_back("/process/verbose 0");
+	commands.push_back("/run/verbose 2");
 
 //	commands.push_back("/particle/process/verbose 0 -1");
 //	commands.push_back("/process/setVerbose 0 all");
