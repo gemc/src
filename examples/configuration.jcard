@@ -1,7 +1,7 @@
 {
 
 	# configuration example
-	"nthreads": 2,
+	"nthreads": 8,
 	"verbosity": 0,
 	"gsystemv": 0,
 	"g4systemv": 0,
@@ -24,7 +24,7 @@
 		"name": "output.txt"
 	},
 
-	"n": 3
+	"n": 100
 
 
 	

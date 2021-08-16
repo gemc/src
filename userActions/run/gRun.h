@@ -11,7 +11,6 @@
 #include "goptions.h"
 #include "gdynamicdigitization.h"
 #include "event/gEventDataCollection.h"
-#include "gstreamer.h"
 
 // In Geant4 a run consists of a sequence of events and starts with BeamOn() method of G4RunManager.
 // A run is represented by a G4Run class object.
@@ -20,7 +19,7 @@
 class GRun : public G4Run
 {
 public:
-	GRun(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal, map<string, GStreamer*> *gstrFactory);
+	GRun(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal);
 	virtual ~GRun();
 	virtual void RecordEvent(const G4Event*);
 	virtual void Merge(const G4Run*);
@@ -31,15 +30,14 @@ private:
 	// digitization map, loaded in main(), passed here through GActionInitialization
 	map<string, GDynamicDigitization*> *gDigitizationGlobalMap;
 	
-	// output factories map, loaded in GActionInitialization constructor and passed here
-	map<string, GStreamer*> *gstreamerFactoryMap;
-
 	// vector of events data in the local run
-	vector<GEventDataCollection*> *runData;
+	vector<GEventDataCollection*> runData;
 	
 private:
 	GDynamicDigitization *getDigitizationForHitCollection(string name);
 
+public:
+	inline vector<GEventDataCollection*> getRunData() const {return runData;}
 };
 
 

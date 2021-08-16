@@ -33,7 +33,7 @@ G4Run* GRunAction::GenerateRun()
 {
 	logSummary("GRunAction GenerateRun ");
 
-	return new GRun(goptions, gDigitizationGlobalMap, gstreamerFactoryMap);
+	return new GRun(goptions, gDigitizationGlobalMap);
 }
 
 // executed after BeamOn
@@ -54,14 +54,37 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun)
 void GRunAction::EndOfRunAction(const G4Run* aRun)
 {
 	const GRun* theRun = static_cast<const GRun*>(aRun);
-	
+
+//	"GRun: local run data size " << localRun->runData.size() << "  global size: " << runData.size() << G4endl
+
 	if(IsMaster()) {
-		string logMessage =  "EndOfRunAction Master for run id " + to_string(aRun->GetRunID()) + " in g4thread " + to_string(G4Threading::G4GetThreadId());
+		string logMessage =  "EndOfRunAction Master, run " + to_string(aRun->GetRunID()) + " in g4thread " + to_string(G4Threading::G4GetThreadId());
+		logMessage += ", data size:  "  + to_string(theRun->getRunData().size());
 		logSummary(logMessage);
 		logSummary("Total number of events this run: " + to_string(theRun->GetNumberOfEvent()));
+
+
+		
+
+
 	} else {
-		string logMessage =  "EndOfRunAction Local for run id " + to_string(aRun->GetRunID()) + " in g4thread " + to_string(G4Threading::G4GetThreadId());
+		string logMessage =  "EndOfRunAction Local, run " + to_string(aRun->GetRunID()) + " in g4thread " + to_string(G4Threading::G4GetThreadId());
+		logMessage += ", data size:  "  + to_string(theRun->getRunData().size());
 		logSummary(logMessage);
 		logSummary("Total number of events this thread: " + to_string(theRun->GetNumberOfEvent()));
 	}
+
+
+	//
+	//	// output data to all available plugins
+	//	for(auto gmf: (*gmediaFactory)) {
+	//		// protecting against DL failure
+	//		if(gmf.second != nullptr) {
+	//			gmf.second->publishData(localRun->runData);
+	//		}
+	//	}
+
+
+
+
 }

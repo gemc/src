@@ -12,10 +12,9 @@
 
 
 // Constructor
-GRun::GRun(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal, map<string, GStreamer*> *gstrFactory) :
+GRun::GRun(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal) :
 G4Run(),
-gDigitizationGlobalMap(gDDGlobal),
-gstreamerFactoryMap(gstrFactory)
+gDigitizationGlobalMap(gDDGlobal)
 {
 	verbosity = gopt->getInt("grunv");
 
@@ -24,7 +23,6 @@ gstreamerFactoryMap(gstrFactory)
 		gLogClassConstruct("GRun");
 	}
 
-	runData = new vector<GEventDataCollection*>;
 }
 
 // Destructor
@@ -71,6 +69,7 @@ void GRun::RecordEvent(const G4Event *aEvent)
 														  verbosity);
 
 	// thread-local event data
+	// collects hits in the entire event
 	GEventDataCollection *eventDataCollection = new GEventDataCollection(gheader, verbosity);
 	
 	// looping over all collections
@@ -97,18 +96,15 @@ void GRun::RecordEvent(const G4Event *aEvent)
 
 					// digitize hit and add it to detector data
 					// PRAGMA TODO: switch this on/off with option
-					GDigitizedData *digitizedData = detectorDigitization->digitizeData(thisHit);
 
-					GTrueInfoData* trueInfoData   = detectorDigitization->collectTrueInformation(thisHit);
+					eventDataCollection->addDetectorTrueInfoData(hitCollectionSDName,  detectorDigitization->collectTrueInformation(thisHit));
+					eventDataCollection->addDetectorDigitizedData(hitCollectionSDName, detectorDigitization->digitizeData(thisHit));
 				}
-//				eventData->addDetectorData(detectorObservables);
-
-
 			}
 		}
 	}
 	
-	runData->push_back(eventDataCollection);
+	runData.push_back(eventDataCollection);
 	G4Run::RecordEvent(aEvent);
 
 	delete gheader;
@@ -117,22 +113,20 @@ void GRun::RecordEvent(const G4Event *aEvent)
 
 // This is global
 // Method to be overwritten by the user for merging local Run objects to the global Run object
-// PRAGMA: But I can use it to save output right? No need to accumulate
+// PRAGMA: But I can use it to save output right? No need to accumulate. No! Need to accumulate. Writing output should go in GRunAction::EndOfRunAction!
 void GRun::Merge(const G4Run *aRun)
 {
 	G4cout << GEMCRUNHEADER << "GRun:Global Merge" << G4endl;
 
-	//const GRun *localRun = static_cast<const GRun *> (aRun);
+	const GRun *localRun = static_cast<const GRun *> (aRun);
 
-//	//	cout << " local run data size " << localRun->runData->size() << "  global size: " << runData->size() << endl;
-//
-//	// output data to all available plugins
-//	for(auto gmf: (*gmediaFactory)) {
-//		// protecting against DL failure
-//		if(gmf.second != nullptr) {
-//			gmf.second->publishData(localRun->runData);
-//		}
-//	}
+	for ( auto run: localRun->runData) {
+		runData.push_back(run);
+	}
+
+	if (verbosity >= GVERBOSITY_DETAILS) {
+		G4cout << GEMCRUNHEADER << "GRun: local run data size " << localRun->runData.size() << "  global size: " << runData.size() << G4endl;
+	}
 
 	G4Run::Merge(aRun);
 }
