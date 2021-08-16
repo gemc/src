@@ -7,6 +7,8 @@
 #include "G4Threading.hh"
 #include "G4MTRunManager.hh"
 
+// glibrary
+#include "gstreamerConventions.h"
 
 // c++
 using namespace std;
@@ -26,6 +28,8 @@ gstreamerFactoryMap(streamerFactoryMap)
 // Destructor
 GRunAction::~GRunAction()
 {
+	// need to delete all data here
+	
 }
 
 // TODO: this is not local?
@@ -55,16 +59,23 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 {
 	const GRun* theRun = static_cast<const GRun*>(aRun);
 
-//	"GRun: local run data size " << localRun->runData.size() << "  global size: " << runData.size() << G4endl
-
 	if(IsMaster()) {
 		string logMessage =  "EndOfRunAction Master, run " + to_string(aRun->GetRunID()) + " in g4thread " + to_string(G4Threading::G4GetThreadId());
 		logMessage += ", data size:  "  + to_string(theRun->getRunData().size());
 		logSummary(logMessage);
 		logSummary("Total number of events this run: " + to_string(theRun->GetNumberOfEvent()));
 
+		// looping over output factories
 
-		
+		for ( auto [factoryName, streamerFactory]: *gstreamerFactoryMap ) {
+			logSummary( "Writing data using streamer factor >" + factoryName + "<") ;
+
+			streamerFactory->publishRunData(goptions, theRun->getRunData());
+
+		}
+
+		// done with data, deleting it
+		for ( auto* eventDataCollection: theRun->getRunData() )  { delete eventDataCollection; }
 
 
 	} else {
@@ -73,18 +84,5 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 		logSummary(logMessage);
 		logSummary("Total number of events this thread: " + to_string(theRun->GetNumberOfEvent()));
 	}
-
-
-	//
-	//	// output data to all available plugins
-	//	for(auto gmf: (*gmediaFactory)) {
-	//		// protecting against DL failure
-	//		if(gmf.second != nullptr) {
-	//			gmf.second->publishData(localRun->runData);
-	//		}
-	//	}
-
-
-
 
 }

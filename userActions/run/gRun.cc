@@ -18,7 +18,7 @@ gDigitizationGlobalMap(gDDGlobal)
 {
 	verbosity = gopt->getInt("grunv");
 
-	if(verbosity >= GVERBOSITY_SUMMARY) {
+	if(verbosity >= GVERBOSITY_DETAILS) {
 		G4cout << GEMCRUNHEADER << "Instantiating GRun" << G4endl;
 		gLogClassConstruct("GRun");
 	}
@@ -28,17 +28,12 @@ gDigitizationGlobalMap(gDDGlobal)
 // Destructor
 GRun::~GRun()
 {
-	if(verbosity > GVERBOSITY_SUMMARY) {
+	if(verbosity >= GVERBOSITY_DETAILS) {
 		G4cout << GEMCRUNHEADER << "GRun:Destructor" << G4endl;
+		gLogDestruct("GRun");
 	}
-	
-//	// PRAGMA TODO: isn't the last line enough?
-//	for (GEventDataCollection* evtData : *runData) {
-//		delete evtData;
-//	}
-//	
-//	//  pointer
-//	delete runData;
+
+	// data is deleted in GRunAction::EndOfRunAction
 }
 
 using GHitsCollection = G4THitsCollection<GHit> ;
@@ -106,9 +101,7 @@ void GRun::RecordEvent(const G4Event *aEvent)
 	
 	runData.push_back(eventDataCollection);
 	G4Run::RecordEvent(aEvent);
-
-	delete gheader;
-	delete eventDataCollection;
+	// not deleting the pointers: they are being merged below
 }
 
 // This is global

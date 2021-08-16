@@ -138,8 +138,8 @@ int main(int argc, char* argv[])
 //	delete globalDigitizationMap;
 //
 //	delete UIM;
-//	delete gApp;
-//	delete gopts;
+	delete gApp;
+	delete gopts;
 
 
 

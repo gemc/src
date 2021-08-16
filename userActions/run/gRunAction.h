@@ -32,6 +32,7 @@ private:
 	map<string, GDynamicDigitization*> *gDigitizationGlobalMap;
 	
 	// output factories map, loaded in GActionInitialization constructor and passed here
+	// the key is the sensitive detector name
 	map<string, GStreamer*> *gstreamerFactoryMap;
 
 };
