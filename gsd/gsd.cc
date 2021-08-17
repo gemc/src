@@ -90,7 +90,7 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 			// retrieve hit from hit collection
 			// add informations according to gHitBitSet
 			GHit* existingHit = getHitInHitCollectionUsingTouchable(thisGTouchable);
-			existingHit->addHitInfos(gHitBitSet, thisStep);
+			existingHit->addHitInfosForBitset(gHitBitSet, thisStep);
 		}
 	}
 

@@ -86,14 +86,14 @@ void GRun::RecordEvent(const G4Event *aEvent)
 			if(detectorDigitization != nullptr) {
 
 				// looping over hits in this collection
-				for(size_t hitIndex = 0; hitIndex<thisGHC->GetSize(); hitIndex++) {
+				for(auto hitIndex = 0; hitIndex<thisGHC->GetSize(); hitIndex++) {
 					GHit *thisHit = (GHit*) thisGHC->GetHit(hitIndex);
 
 					// digitize hit and add it to detector data
 					// PRAGMA TODO: switch this on/off with option
 
-					eventDataCollection->addDetectorTrueInfoData(hitCollectionSDName,  detectorDigitization->collectTrueInformation(thisHit));
-					eventDataCollection->addDetectorDigitizedData(hitCollectionSDName, detectorDigitization->digitizeHit(thisHit));
+					eventDataCollection->addDetectorTrueInfoData(hitCollectionSDName,  detectorDigitization->collectTrueInformation(thisHit, hitIndex + 1) );
+					eventDataCollection->addDetectorDigitizedData(hitCollectionSDName, detectorDigitization->digitizeHit(           thisHit, hitIndex + 1) );
 				}
 			}
 		}
