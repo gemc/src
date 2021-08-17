@@ -75,7 +75,9 @@ void GDetectorConstruction::ConstructSDandField()
 					logSummary("Sensitive detector <" + digitizationName + "> exist for <" + volumeName + ">");
 				}
 
-				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(volumeName, new GTouchable(digitizationName, gvolume->getGIdentity()));
+				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(volumeName, new GTouchable(digitizationName,
+																																			gvolume->getGIdentity(),
+																																			gvolume->getDetectorDimensions()));
 
 				SetSensitiveDetector(volumeName, sensitiveDetectorsMap[digitizationName]);
 
