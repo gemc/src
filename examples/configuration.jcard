@@ -5,7 +5,7 @@
 	"verbosity": 0,
 	"gsystemv": 0,
 	"g4systemv": 0,
-	"grunv": 1,
+	"grunv": 0,
 	"gsensitivityv": 0,
 
 	"+gsystem": [
@@ -24,6 +24,7 @@
 		"name": "output.txt"
 	},
 
+	"digitizationVariation": "rga_spring2018_mc",
 	"n": 100
 
 

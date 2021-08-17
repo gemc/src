@@ -93,7 +93,7 @@ void GRun::RecordEvent(const G4Event *aEvent)
 					// PRAGMA TODO: switch this on/off with option
 
 					eventDataCollection->addDetectorTrueInfoData(hitCollectionSDName,  detectorDigitization->collectTrueInformation(thisHit));
-					eventDataCollection->addDetectorDigitizedData(hitCollectionSDName, detectorDigitization->digitizeData(thisHit));
+					eventDataCollection->addDetectorDigitizedData(hitCollectionSDName, detectorDigitization->digitizeHit(thisHit));
 				}
 			}
 		}

@@ -83,6 +83,14 @@ namespace gemc {
 		};
 		goptions.push_back(GOption(jsonTLOGOption));
 
+		// event log every N events
+		json jsonDigiVariationOption = {
+			{GNAME, "digitizationVariation"},
+			{GDESC, "Digitization Variation"},
+			{GDFLT, "default"}
+		};
+		goptions.push_back(GOption(jsonDigiVariationOption));
+
 		// other modules goptions
 		goptions += gsystem::defineOptions();
 		goptions += g4system::defineOptions();
