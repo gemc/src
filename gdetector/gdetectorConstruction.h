@@ -25,13 +25,7 @@ public:
 	// virtual methods from G4VUserDetectorConstruction
 	virtual G4VPhysicalVolume* Construct();
 	virtual void ConstructSDandField();
-	
-//	map<string, string> getSensitiveVolumes() {
-//		if(gsetup != nullptr)
-//			return gsetup->getSensitiveVolumes();
-//		else
-//			return {};
-//	}
+	inline vector<string> getDigitizationNamesList() const { return gworld->getSensitiveDetectorsList();}
 	
 private:
 	GOptions *gopt    = nullptr;

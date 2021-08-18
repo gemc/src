@@ -69,8 +69,8 @@ int main(int argc, char* argv[])
 
 	// building detector
 	// this is global, changed at main scope
-//	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
-	runManager->SetUserInitialization(new GDetectorConstruction(gopts, globalDigitizationMap));
+	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
+	runManager->SetUserInitialization(gDetectorGlobal);
 
 	// TODO: physics list: to be gphysics
 	auto physicsList = new FTFP_BERT();
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 	// which in turns builds gsetup, g4setup and, in each thread, the sensitive detectors
 	initGemcG4RunManager(runManager, gopts);
 
-	loadDigitizationPlugins(gopts, {"ch"}, globalDigitizationMap);
+	loadDigitizationPlugins(gopts, gDetectorGlobal->getDigitizationNamesList(), globalDigitizationMap);
 
 	EventDispenser *geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
