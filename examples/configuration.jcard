@@ -5,7 +5,7 @@
 	"verbosity": 0,
 	"gsystemv": 0,
 	"g4systemv": 0,
-	"grunv": 0,
+	"grunv": 1,
 	"gsensitivityv": 0,
 
 	"+gsystem": [
@@ -17,6 +17,7 @@
 
 	],
 
+#	"gpluginsPath": "/Users/ungaro/builds",
 	"gpluginsPath": "/opt/projects/gemc/src",
 
 	"+goutput": {
@@ -25,7 +26,7 @@
 	},
 
 	"digitizationVariation": "rga_spring2018_mc",
-	"n": 100
+	"n": 10
 
 
 	

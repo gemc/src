@@ -68,9 +68,14 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 		// looping over output factories
 
 		for ( auto [factoryName, streamerFactory]: *gstreamerFactoryMap ) {
-			logSummary( "Writing data using streamer factor >" + factoryName + "<") ;
+			logSummary( "Writing data using streamer factory >" + factoryName + "<") ;
 
-			streamerFactory->publishRunData(goptions, theRun->getRunData());
+			map<string, bool> streamReport = streamerFactory->publishRunData(goptions, theRun->getRunData());
+
+			for ( auto [reportName, result]: streamReport ) {
+				string resultString = result ? " success" : " failure";
+				logSummary("Factory <" + factoryName + "> " + reportName + resultString);
+			}
 
 		}
 
