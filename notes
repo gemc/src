@@ -118,3 +118,20 @@ In general from scratch:
 
 // PRAGMA NOTE ConstructSDandField must be run on master thread as well
 // or processHits will not happen (spent a day figuring this out)
+
+
+
+
+# Seg fault: usually it's the plugin!!!
+
+"gpluginsPath": "/opt/projects/gemc/src" :
+
+cp /opt/projects/gemc/glibrary/lib/gstreamerTEXTFactory.gplugin .
+cp ../sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/plugin/ch.gplugin .
+
+
+
+
+"gpluginsPath": "/Users/ungaro/builds": no need to copy, just rebuild the plugins
+
+

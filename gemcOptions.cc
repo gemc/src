@@ -91,6 +91,18 @@ namespace gemc {
 		};
 		goptions.push_back(GOption(jsonDigiVariationOption));
 
+
+		// event duration
+		json jsonEventDurationOption = {
+			{GNAME, "eventTimeSize"},
+			{GDESC, "event duration with unit. Examples: 4*ns, 2*ms"},
+			{GDFLT, 0}
+		};
+		//goptions.push_back(GOption(jsonEventDurationOption));
+
+
+
+
 		// other modules goptions
 		goptions += gsystem::defineOptions();
 		goptions += g4system::defineOptions();

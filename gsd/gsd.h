@@ -23,10 +23,7 @@ class GSensitiveDetector : public G4VSensitiveDetector, public GStateMessage
 public:
 	GSensitiveDetector(string sdName, GOptions* goptions, map<string, GDynamicDigitization*> *gDDGlobal);
 
-	~GSensitiveDetector() {
-//		delete gHitsCollection;
-//		delete gDynamicDigitizationLocalInstance;
-	}
+	~GSensitiveDetector() {}
 
 	// G4VSensitiveDetector geant4 methods
 	virtual void Initialize(G4HCofThisEvent* g4hc);                            // Beginning of sensitive Hit

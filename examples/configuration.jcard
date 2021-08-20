@@ -2,19 +2,17 @@
 
 	# configuration example
 	"nthreads": 8,
-	"verbosity": 2,
-	"gsystemv": 2,
-	"g4systemv": 2,
-	"grunv": 1,
+	"verbosity": 0,
+	"gsystemv": 0,
+	"g4systemv": 0,
+	"grunv": 0,
 	"gsensitivityv": 0,
 
 	"+gsystem": [
 
 		# central detector
 		# as an example we define it in-line
-#		{ "system": "/opt/projects/gemc/sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
-#		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_1_simple_det/ctof", "factory": "text", "variation": "default" }
-
+		{ "system": "/opt/projects/gemc/sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
 	],
 
 #	"gpluginsPath": "/Users/ungaro/builds",
