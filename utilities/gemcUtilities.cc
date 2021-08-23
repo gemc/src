@@ -97,11 +97,11 @@ vector<string> startingUIMCommands(bool gui) {
 
 	// define gui commands
 	commands.push_back("/vis/scene/add/trajectories rich smooth");
+	commands.push_back("/vis/scene/add/hits");
+//	commands.push_back("/vis/scene/endOfEventAction accumulate");        // for some reason refresh (default) won't work here
 	commands.push_back("/vis/viewer/set/culling coveredDaughters true");
 	commands.push_back("/vis/viewer/set/background 1 1 1 1");   // 205, 230, 251 = CD, E6, FA
-	commands.push_back("/vis/viewer/set/autoRefresh 1");
-	commands.push_back("/vis/scene/add/hits");
-	commands.push_back("/vis/scene/endOfEventAction accumulate -1");
+//	commands.push_back("/vis/viewer/set/autoRefresh 1");
 
 
 	return commands;

@@ -27,6 +27,15 @@ namespace gemc {
 		// add a "gui" switch
 		goptions.push_back(GOption("gui", "use Graphical User Interface"));
 
+		// stream switch will:
+		// - in GRun::RecordEvent:
+		//   this will also verify that the user called the digitization function chargeAndTimeAtHardware
+
+		// - in the local GRun::RecordEvent fill the frameRunData using event number and the hits time
+		// - in the global run GRun::Merge merge the frameRunDatas
+		// - in the streamer, write to disk the frames that are past the event number threshold
+		goptions.push_back(GOption("stream", "use Graphical User Interface"));
+
 		// number of threads. Default = 1
 		json jsonNThreadOption = {
 			{GNAME, "nthreads"},
@@ -98,7 +107,7 @@ namespace gemc {
 			{GDESC, "event duration with unit. Examples: 4*ns, 2*ms"},
 			{GDFLT, 0}
 		};
-		//goptions.push_back(GOption(jsonEventDurationOption));
+		goptions.push_back(GOption(jsonEventDurationOption));
 
 
 

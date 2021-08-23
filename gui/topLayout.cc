@@ -69,25 +69,24 @@ void GemcGUI::gquit()
 
 void GemcGUI::beamOn()
 {
-	// PRAGMA TODO: GRUNS must be able to redistribute events
 	// int nToRun  = nEvents->text().toInt();
 
-	G4UImanager *g4uim = G4UImanager::GetUIpointer();
+	//G4UImanager *g4uim = G4UImanager::GetUIpointer();
 	
 	// interestingly enough this the accumulate directive will prevent this:
 	// coreAnimation: warning, deleted thread with uncommitted CATransaction
 	// PRAGMA TODO: make this a button
-	g4uim->ApplyCommand("/vis/scene/add/trajectories rich smooth");
-	g4uim->ApplyCommand("/vis/scene/endOfEventAction accumulate -1");
-	g4uim->ApplyCommand("/vis/scene/add/hits");
+//	g4uim->ApplyCommand("/vis/scene/add/trajectories rich smooth");
+//	g4uim->ApplyCommand("/vis/scene/endOfEventAction accumulate");
+//	g4uim->ApplyCommand("/vis/scene/add/hits");
 //	g4uim->ApplyCommand("/vis/scene/endOfRunAction accumulate -1");
 //	g4uim->ApplyCommand("/event/keepCurrentEvent");
 //	g4uim->ApplyCommand("/vis/ogl/flushAt endOfEvent");
 //	g4uim->ApplyCommand("/vis/ogl/flushAt never");
 	
-	g4uim->ApplyCommand("/gun/particle proton");
-	g4uim->ApplyCommand("/gun/energy 2 GeV");
-	g4uim->ApplyCommand("/gun/direction 0 1 0");
+//	g4uim->ApplyCommand("/gun/particle proton");
+//	g4uim->ApplyCommand("/gun/energy 2 GeV");
+//	g4uim->ApplyCommand("/gun/direction 0 1 0");
 
 //	g4uim->ApplyCommand("/event/keepCurrentEvent");
 //	g4uim->ApplyCommand("/vis/disable");

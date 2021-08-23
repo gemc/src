@@ -30,7 +30,8 @@ private:
 	// digitization map, loaded in main(), passed here through GActionInitialization
 	map<string, GDynamicDigitization*> *gDigitizationGlobalMap;
 	
-	// vector of events data in the local run
+	// vector of events data in the run (local thread)
+	// vector of events data in the run (global thread, merged in GRun::Merge)
 	vector<GEventDataCollection*> runData;
 	
 private:
