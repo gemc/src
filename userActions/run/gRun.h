@@ -36,6 +36,7 @@ private:
 	
 private:
 	GDynamicDigitization *getDigitizationForHitCollection(string name);
+	bool verifyDigitizationIsReadyForStreaming();
 
 public:
 	inline vector<GEventDataCollection*> getRunData() const {return runData;}

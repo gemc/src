@@ -29,12 +29,16 @@ namespace gemc {
 
 		// stream switch will:
 		// - in GRun::RecordEvent:
-		//   this will also verify that the user called the digitization function chargeAndTimeAtHardware
 
+		// verify that the user called the digitization function chargeAndTimeAtHardware
+		// verify that the translation table pointer is defined
+		//
 		// - in the local GRun::RecordEvent fill the frameRunData using event number and the hits time
+
+
 		// - in the global run GRun::Merge merge the frameRunDatas
 		// - in the streamer, write to disk the frames that are past the event number threshold
-		goptions.push_back(GOption("stream", "use Graphical User Interface"));
+		goptions.push_back(GOption("stream", "activate streaming of data"));
 
 		// number of threads. Default = 1
 		json jsonNThreadOption = {
@@ -108,8 +112,6 @@ namespace gemc {
 			{GDFLT, 0}
 		};
 		goptions.push_back(GOption(jsonEventDurationOption));
-
-
 
 
 		// other modules goptions

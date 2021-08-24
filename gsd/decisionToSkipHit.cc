@@ -5,9 +5,12 @@
 bool GSensitiveDetector::decisionToSkipHit(double energy)
 {
 
-
 	// PRAGMA TODO: call digi skipProcess?
 	// in that case, need more argument, like trk
+
+	if ( energy == 0 ) {
+		return true;
+	}
 
 	return false;
 }
