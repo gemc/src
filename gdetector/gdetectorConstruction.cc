@@ -51,7 +51,7 @@ void GDetectorConstruction::ConstructSDandField()
 			string digitizationName = gvolume->getDigitization();
 			
 			// skip root or no digitization
-			if (volumeName == ROOTWORLDGVOLUMENAME || digitizationName == GSYSTEMNOTAPPLICABLEENTRY) {
+			if (volumeName == ROOTWORLDGVOLUMENAME || digitizationName == UNINITIALIZEDSTRINGQUANTITY) {
 				continue;
 			}
 			

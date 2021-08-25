@@ -1,4 +1,5 @@
 // goptions
+#include "gutsConventions.h"
 #include "goptions.h"
 
 // options definitions
@@ -10,7 +11,6 @@
 #include "gstreamerOptions.h"
 #include "g4displayOptions.h"
 #include "eventDispenserOptions.h"
-
 
 // c++
 #include <iostream>
@@ -27,18 +27,35 @@ namespace gemc {
 		// add a "gui" switch
 		goptions.push_back(GOption("gui", "use Graphical User Interface"));
 
-		// stream switch will:
-		// - in GRun::RecordEvent:
+		// default material to use when a material is not found
+		json jsonFrameTimeLength = {
+			{GNAME, "frameTimeLength"},
+			{GDESC, "Duration of a SRO frame"},
+			{GDFLT, UNINITIALIZEDNUMBERQUANTITY}
+		};
+		json jsonOutputName = {
+			{GNAME, "name"},
+			{GDESC, "Output file name"},
+			{GDFLT, UNINITIALIZEDSTRINGQUANTITY}
+		};
+	
+		json jsonSRO = {
+			jsonFrameTimeLength,
+			jsonOutputName
+		};
 
-		// verify that the user called the digitization function chargeAndTimeAtHardware
-		// verify that the translation table pointer is defined
-		//
-		// - in the local GRun::RecordEvent fill the frameRunData using event number and the hits time
+		vector<string> help;
+		help.push_back("Define the GEMC streaming readout");
+		help.push_back("");
+		help.push_back("Example: -sro={frameTimeLength: 64*us; name: sro.txt; }");
+		help.push_back("");
+		help.push_back("Current available formats:");
+		help.push_back("");
+		help.push_back(" - TEXT");
 
+		// the last argument refers to "cumulative"
+		goptions.push_back(GOption("sro", "Streaming Readout Definitions", jsonSRO, help, false));
 
-		// - in the global run GRun::Merge merge the frameRunDatas
-		// - in the streamer, write to disk the frames that are past the event number threshold
-		goptions.push_back(GOption("stream", "activate streaming of data"));
 
 		// number of threads. Default = 1
 		json jsonNThreadOption = {
@@ -84,7 +101,7 @@ namespace gemc {
 		json jsonPluginPathOption = {
 			{GNAME, "gpluginsPath"},
 			{GDESC, "Directory containing the plugins"},
-			{GDFLT, GNOTAPPLICABLE}
+			{GDFLT, UNINITIALIZEDSTRINGQUANTITY}
 		};
 		goptions.push_back(GOption(jsonPluginPathOption));
 
@@ -109,7 +126,7 @@ namespace gemc {
 		json jsonEventDurationOption = {
 			{GNAME, "eventTimeSize"},
 			{GDESC, "event duration with unit. Examples: 4*ns, 2*ms"},
-			{GDFLT, 0}
+			{GDFLT, "0*ns"}
 		};
 		goptions.push_back(GOption(jsonEventDurationOption));
 

@@ -1,6 +1,7 @@
 // gemc
 #include "gRunAction.h"
 #include "gRun.h"
+#include "gemcUtilities.h"
 
 // geant4
 #include "globals.hh"
@@ -9,6 +10,7 @@
 
 // glibrary
 #include "gstreamerConventions.h"
+#include "gutilities.h"
 
 // c++
 using namespace std;
@@ -22,6 +24,10 @@ gDigitizationGlobalMap(gDDGlobal),
 gstreamerFactoryMap(streamerFactoryMap)
 {
 	logSummary("Instantiating GRunAction ");
+	frameDuration = 64000;
+	eventDuration = gutilities::getG4Number(gopts->getString("eventTimeSize"));
+	nthreads      = getNumberOfThreads(gopts);
+
 }
 
 
@@ -79,6 +85,22 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 
 		}
 
+		// looping over run data and filling frameRunData
+		// need to remember last event number here
+		for ( auto eventDataCollection: theRun->getRunData() ) {
+
+			eventDataCollection->getHeader()->print();
+			int evn = eventDataCollection->getEventNumber();
+
+			for ( auto [detectorName, gdataCollection]: *eventDataCollection->getDataCollection()) {
+				for ( auto hitDigitizedData: *gdataCollection->getDigitizedData() ) {
+					float timeAtelectronic = hitDigitizedData->getflotObservable(TIMEATELECTRONICS);
+					int frameID = eventFrameID(evn, timeAtelectronic);
+				}
+
+			}
+		}
+
 		// done with data, deleting it
 		for ( auto* eventDataCollection: theRun->getRunData() )  { delete eventDataCollection; }
 
@@ -90,4 +112,23 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 		logSummary("Total number of events this thread: " + to_string(theRun->GetNumberOfEvent()));
 	}
 
+}
+
+
+// determine the frame ID based on event number, eventDuration, frameDuration and number of threads
+int const GRunAction::eventFrameID(int eventNumber, float timeAtElectronics) const {
+
+	int absoluteHitTime = eventNumber*eventDuration + timeAtElectronics/CLHEP::ns;
+
+	 cout << "eventNumber: " << eventNumber << ", absoluteHitTime: " << absoluteHitTime << ", frameDuration: " << frameDuration << " frameID: " << absoluteHitTime/frameDuration << endl;
+
+	return absoluteHitTime/frameDuration;
+}
+
+bool GRunAction::writeFrameID(int eventNumber, int frameID) {
+	int minEventNumber = eventNumber - 2*nthreads;
+
+	int minEventTime = minEventNumber*eventDuration ;
+
+	return false;
 }

@@ -7,6 +7,8 @@
 #define GEMCLOGMSGITEM  " ⌘ "
 #define GEMCRUNHEADER   " ❖ "
 
+// SRO
+#define MAXNUMBEROFFRAMES 10
 
 // gemc exit codes: 2000
 #define EC__DYNAMICPLUGINNOTFOUND   2001

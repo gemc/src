@@ -16,7 +16,7 @@ GRun::GRun(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal) :
 G4Run(),
 gDigitizationGlobalMap(gDDGlobal)
 {
-	verbosity = gopt->getInt("grunv");
+	verbosity     = gopt->getInt("grunv");
 
 	if(verbosity >= GVERBOSITY_DETAILS) {
 		G4cout << GEMCRUNHEADER << "Instantiating GRun" << G4endl;
@@ -49,19 +49,19 @@ void GRun::RecordEvent(const G4Event *aEvent)
 	G4HCofThisEvent* HCsThisEvent = aEvent->GetHCofThisEvent();
 	if(!HCsThisEvent) return;
 	
-	string randomStatus = "na";
-	
+
 	// PRAGMA TODO: see https://twiki.cern.ch/twiki/bin/view/Geant4/Geant4MTTipsAndTricks#11_How_are_exactly_random_number
 	// currently this returns null, but perhaps need some activating?
 	// Or we need to save the random status in separate file ?
-//	if(aEvent->GetRandomNumberStatusForProcessing()) {
-//		randomStatus = aEvent->GetRandomNumberStatusForProcessing();
-//	}
+	//	string randomStatus = UNINITIALIZEDSTRINGQUANTITY;
+	//	if(aEvent->GetRandomNumberStatusForProcessing()) {
+	//		randomStatus = aEvent->GetRandomNumberStatusForProcessing();
+	//	}
 	
 	// header
-	GEventDataCollectionHeader *gheader = new GEventDataCollectionHeader(aEvent->GetEventID(),                   // local event number
-														  G4Threading::G4GetThreadId(),           // thread ID
-														  verbosity);
+	GEventDataCollectionHeader *gheader = new GEventDataCollectionHeader(aEvent->GetEventID(),           // local event number
+																								G4Threading::G4GetThreadId(),   // thread ID
+																								verbosity);
 
 	// thread-local event data
 	// collects hits in the entire event
@@ -117,11 +117,14 @@ void GRun::Merge(const G4Run *aRun)
 		runData.push_back(run);
 	}
 
+
 	if (verbosity >= GVERBOSITY_DETAILS) {
 		G4cout << GEMCRUNHEADER << "GRun: local run data size " << localRun->runData.size() << "  global size: " << runData.size() << G4endl;
 	}
 
 	G4Run::Merge(aRun);
+
+
 }
 
 
@@ -135,4 +138,3 @@ GDynamicDigitization* GRun::getDigitizationForHitCollection(string name)
 	
 	return (*gDigitizationGlobalMap)[name];
 }
-

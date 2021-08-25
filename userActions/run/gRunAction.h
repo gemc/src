@@ -11,6 +11,7 @@
 #include "goptions.h"
 #include "gdynamicdigitization.h"
 #include "gstreamer.h"
+#include "frame/gFrameDataCollection.h"
 
 class GRunAction : public G4UserRunAction, public GStateMessage
 {
@@ -34,6 +35,20 @@ private:
 	// output factories map, loaded in GActionInitialization constructor and passed here
 	// the key is the sensitive detector name
 	map<string, GStreamer*> *gstreamerFactoryMap;
+
+
+	// vector of frame data in the run (local thread, merged in GRun::Merge in the global thread)
+	vector<GFrameDataCollection*> frameRunData;
+	double frameDuration = UNINITIALIZEDNUMBERQUANTITY; // frame length in nanoseconds
+	double eventDuration = UNINITIALIZEDNUMBERQUANTITY; // event duration in nanoseconds
+	int nthreads         = UNINITIALIZEDNUMBERQUANTITY;
+
+	// determine the frame ID based on event number, eventDuration, frameDuration
+	int const eventFrameID(int eventNumber, float timeAtElectronics) const;
+	// decide whethere to write or not to stream the frame based on event number, eventDuration, frameDuration and number of threads
+	// streaming the frame also deletes it from frameRunData
+	bool writeFrameID(int eventNumber, int frameID);
+
 
 };
 

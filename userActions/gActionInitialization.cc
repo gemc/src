@@ -38,7 +38,7 @@ gDigitizationGlobalMap(gDDGlobal)
 			string factory        = joutput.format;
 			string outputFileName = joutput.name;
 
-			if( factory != "na" && outputFileName != "na") {
+			if( factory != UNINITIALIZEDSTRINGQUANTITY && outputFileName != UNINITIALIZEDSTRINGQUANTITY) {
 				string pluginName = gstreamerPluginNameFromFactory(factory);
 
 				if(gstreamerFactoryMap->find(factory) == gstreamerFactoryMap->end()) {
