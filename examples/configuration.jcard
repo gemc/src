@@ -1,7 +1,7 @@
 {
 
 	# configuration example
-	"nthreads": 8,
+	"nthreads": 4,
 	"verbosity": 0,
 	"gsystemv": 0,
 	"g4systemv": 0,
@@ -20,11 +20,18 @@
 
 	"+goutput": {
 		"format": "TEXT",
-		"name": "output.txt"
+		"name": "events.txt",
+		"type": "event"
+	},
+
+	"+goutput": {
+		"format": "TEXT",
+		"name": "stream.txt",
+		"type": "stream"
 	},
 
 	"digitizationVariation": "rga_spring2018_mc",
-	"n": 40,
+	"n": 50,
 	"eventTimeSize": "2*us"
 
 

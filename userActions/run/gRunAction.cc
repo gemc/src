@@ -29,6 +29,9 @@ gstreamerFactoryMap(streamerFactoryMap)
 	frameDuration = 64000;
 	eventDuration = gutilities::getG4Number(gopt->getString("eventTimeSize"));
 	nthreads      = getNumberOfThreads(gopt);
+
+	stream = gopt->getSwitch("stream");
+
 }
 
 
@@ -75,36 +78,53 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 		// looping over output factories
 
 		for ( auto [factoryName, streamerFactory]: *gstreamerFactoryMap ) {
-			logSummary( "Writing data using streamer factory >" + factoryName + "<") ;
-
-			map<string, bool> streamReport = streamerFactory->publishRunData(goptions, theRun->getRunData());
-
-			for ( auto [reportName, result]: streamReport ) {
-				string resultString = result ? " success" : " failure";
-				logSummary("Factory <" + factoryName + "> " + reportName + resultString);
+			if ( streamerFactory->getStreamType() == "event" ) {
+				logSummary( "Writing event data using streamer factory >" + factoryName + "<") ;
+				map<string, bool> streamReport = streamerFactory->publishEventRunData(goptions, theRun->getRunData());
+				
+				for ( auto [reportName, result]: streamReport ) {
+					string resultString = result ? " success" : " failure";
+					logSummary("Factory <" + factoryName + "> " + reportName + resultString);
+				}
 			}
-
 		}
+
 
 		// looping over run data and filling frameRunData
 		// need to remember last event number here
-		for ( auto eventDataCollection: theRun->getRunData() ) {
+		if (stream ) {
+			for ( auto eventDataCollection: theRun->getRunData() ) {
 
-			//eventDataCollection->getHeader()->print();
+				//eventDataCollection->getHeader()->print();
 
-			int absoluteEventNumber = eventIndex + eventDataCollection->getEventNumber();
+				int absoluteEventNumber = eventIndex + eventDataCollection->getEventNumber();
 
-			for ( auto [detectorName, gdataCollection]: *eventDataCollection->getDataCollection()) {
-				for ( auto hitDigitizedData: *gdataCollection->getDigitizedData() ) {
-					float timeAtelectronic = hitDigitizedData->getFltObservable(TIMEATELECTRONICS);
-					int frameIndex = eventFrameIndex(absoluteEventNumber, timeAtelectronic);
-					frameRunData[frameIndex]->addIntegralPayload(formPayload(hitDigitizedData), verbosity);
-
+				// filling frameRunData with this eventDataCollection
+				for ( auto [detectorName, gdataCollection]: *eventDataCollection->getDataCollection()) {
+					for ( auto hitDigitizedData: *gdataCollection->getDigitizedData() ) {
+						float timeAtelectronic = hitDigitizedData->getFltObservable(TIMEATELECTRONICS);
+						int frameIndex = eventFrameIndex(absoluteEventNumber, timeAtelectronic);
+						frameRunData[frameIndex]->addIntegralPayload(formPayload(hitDigitizedData), verbosity);
+					}
 				}
 
+				for ( auto [factoryName, streamerFactory]: *gstreamerFactoryMap ) {
+					if ( streamerFactory->getStreamType() == "stream" ) {
+						logSummary( "Writing stream data using streamer factory >" + factoryName + "<") ;
+
+						for ( auto fid = 0; fid < frameRunData.size(); fid++ ) {
+							auto frameID = frameRunData[fid]->getFrameID();
+							if ( shouldWriteFrameID(absoluteEventNumber, frameID) ) {
+								//cout << " absoluteEventNumber: " << absoluteEventNumber << " erasing frame " << frameID << endl;
+								streamerFactory->publishFrameRunData(goptions, frameRunData[fid]);
+								frameRunData.erase(frameRunData.begin() + fid);
+							}
+						}
+					}
+				}
 			}
 		}
-
+		
 		// done with data, deleting it
 		for ( auto* eventDataCollection: theRun->getRunData() )  { delete eventDataCollection; }
 
@@ -131,20 +151,21 @@ int const GRunAction::eventFrameIndex(int eventNumber, float timeAtElectronics) 
 //		cout << ", frameRunData.size(): " << frameRunData.size() << endl;
 
 	if (frameRunData.size() < frameID) {
-		GFrameDataCollectionHeader *gframeHeader = new GFrameDataCollectionHeader(frameID ,frameDuration, verbosity);
-		GFrameDataCollection *frameData = new GFrameDataCollection(gframeHeader, verbosity);
-		frameRunData.push_back(frameData);
+		for ( auto fid = frameRunData.size(); fid <= frameID ; fid++ ) {
+			GFrameDataCollectionHeader *gframeHeader = new GFrameDataCollectionHeader(fid + 1, frameDuration, verbosity);
+			GFrameDataCollection *frameData = new GFrameDataCollection(gframeHeader, verbosity);
+			frameRunData.push_back(frameData);
+		}
 	}
 
 	return frameID - 1;
 }
 
-bool GRunAction::writeFrameID(int eventNumber, int frameID) {
+bool GRunAction::shouldWriteFrameID(int eventNumber, int frameID) {
 	int minEventNumber = eventNumber - 2*nthreads;
-
 	int minEventTime = minEventNumber*eventDuration ;
-
-	return false;
+	int currentFrameMaxTime = frameID*frameDuration;
+	return minEventTime > currentFrameMaxTime;
 }
 
 vector<int> GRunAction::formPayload(GDigitizedData* digitizedData) {

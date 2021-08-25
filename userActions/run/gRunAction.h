@@ -39,6 +39,7 @@ private:
 	map<string, GStreamer*> *gstreamerFactoryMap;
 
 	// vector of frame data in the run (local thread, merged in GRun::Merge in the global thread)
+	bool stream = false;
 	vector<GFrameDataCollection*> frameRunData;
 
 	double frameDuration = UNINITIALIZEDNUMBERQUANTITY; // frame length in nanoseconds
@@ -48,9 +49,10 @@ private:
 
 	// determine the frame ID based on event number, eventDuration, frameDuration
 	int const eventFrameIndex(int eventNumber, float timeAtElectronics);
+
 	// decide whethere to write or not to stream the frame based on event number, eventDuration, frameDuration and number of threads
 	// streaming the frame also deletes it from frameRunData
-	bool writeFrameID(int eventNumber, int frameID);
+	bool shouldWriteFrameID(int eventNumber, int frameID);
 
 	vector<int> formPayload(GDigitizedData* digitizedData);
 
