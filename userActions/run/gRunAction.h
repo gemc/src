@@ -22,6 +22,8 @@ public:
 
 
 private:
+	int verbosity;
+
 	// virtual method from G4UserRunAction.
 	virtual G4Run* GenerateRun();
 	virtual void BeginOfRunAction(const G4Run*);
@@ -36,19 +38,21 @@ private:
 	// the key is the sensitive detector name
 	map<string, GStreamer*> *gstreamerFactoryMap;
 
-
 	// vector of frame data in the run (local thread, merged in GRun::Merge in the global thread)
 	vector<GFrameDataCollection*> frameRunData;
+
 	double frameDuration = UNINITIALIZEDNUMBERQUANTITY; // frame length in nanoseconds
 	double eventDuration = UNINITIALIZEDNUMBERQUANTITY; // event duration in nanoseconds
 	int nthreads         = UNINITIALIZEDNUMBERQUANTITY;
+	int eventIndex       = 0; // added to absolute event number, increases with each run 
 
 	// determine the frame ID based on event number, eventDuration, frameDuration
-	int const eventFrameID(int eventNumber, float timeAtElectronics) const;
+	int const eventFrameIndex(int eventNumber, float timeAtElectronics);
 	// decide whethere to write or not to stream the frame based on event number, eventDuration, frameDuration and number of threads
 	// streaming the frame also deletes it from frameRunData
 	bool writeFrameID(int eventNumber, int frameID);
 
+	vector<int> formPayload(GDigitizedData* digitizedData);
 
 };
 

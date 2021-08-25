@@ -36,11 +36,11 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 	//	G4ThreeVector position = fParticleGun->GetParticlePosition();
 	//	fParticleGun->SetParticlePosition(position);
-	G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-	G4ParticleDefinition* particle = particleTable->FindParticle("proton");
-	fParticleGun->SetParticleDefinition(particle);
-	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.0, 0.04*G4UniformRand(), 0.9));
-	fParticleGun->SetParticleEnergy(1.0*GeV);
+//	G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+//	G4ParticleDefinition* particle = particleTable->FindParticle("proton");
+//	fParticleGun->SetParticleDefinition(particle);
+//	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.0, 0.04*G4UniformRand(), 0.9));
+//	fParticleGun->SetParticleEnergy(1.0*GeV);
 
 
 	fParticleGun->GeneratePrimaryVertex(anEvent);

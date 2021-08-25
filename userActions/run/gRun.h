@@ -38,6 +38,7 @@ private:
 
 public:
 	inline vector<GEventDataCollection*> getRunData() const {return runData;}
+
 };
 
 

@@ -22,7 +22,6 @@ gDigitizationGlobalMap(gDDGlobal)
 		G4cout << GEMCRUNHEADER << "Instantiating GRun" << G4endl;
 		gLogClassConstruct("GRun");
 	}
-
 }
 
 // Destructor
@@ -59,7 +58,7 @@ void GRun::RecordEvent(const G4Event *aEvent)
 	//	}
 	
 	// header
-	GEventDataCollectionHeader *gheader = new GEventDataCollectionHeader(aEvent->GetEventID(),           // local event number
+	GEventDataCollectionHeader *gheader = new GEventDataCollectionHeader(aEvent->GetEventID(),       // g4run-local event number
 																								G4Threading::G4GetThreadId(),   // thread ID
 																								verbosity);
 
@@ -123,8 +122,6 @@ void GRun::Merge(const G4Run *aRun)
 	}
 
 	G4Run::Merge(aRun);
-
-
 }
 
 
