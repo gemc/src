@@ -31,7 +31,6 @@ gstreamerFactoryMap(streamerFactoryMap)
 	nthreads      = getNumberOfThreads(gopt);
 
 	stream = gopt->getSwitch("stream");
-
 }
 
 
@@ -40,8 +39,7 @@ GRunAction::~GRunAction()
 {
 	// need to delete all data here
 	// done with data, deleting it
-	for ( auto* frameDataCollection: frameRunData )  { delete frameDataCollection; }
-
+	//for ( auto* frameDataCollection: frameRunData )  { delete frameDataCollection; }
 }
 
 // TODO: this is not local?
@@ -67,9 +65,23 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun)
 void GRunAction::EndOfRunAction(const G4Run* aRun)
 {
 	const GRun* theRun = static_cast<const GRun*>(aRun);
-	int neventsThisRun = theRun->GetNumberOfEventToBeProcessed();
 
 	if(IsMaster()) {
+
+		int neventsThisRun = theRun->GetNumberOfEventToBeProcessed();
+		int nFramesToCreate = neventsThisRun*eventDuration / frameDuration + 1;
+
+		cout << " ASD nframes " << frameRunData.size() << ", nFramesToCreate: " << nFramesToCreate << ", lastFrameCreated: " << lastFrameCreated << endl;
+
+		for( int f = lastFrameCreated; f < lastFrameCreated + nFramesToCreate; f++ ) {
+				GFrameDataCollectionHeader *gframeHeader = new GFrameDataCollectionHeader(f, frameDuration, verbosity);
+				GFrameDataCollection *frameData = new GFrameDataCollection(gframeHeader, verbosity);
+				frameRunData.push_back(frameData);
+		}
+		lastFrameCreated += nFramesToCreate;
+
+		cout << " ASD nframes " << frameRunData.size() << ", lastFrameCreated: " << lastFrameCreated << endl;
+
 		string logMessage =  "EndOfRunAction Master, run " + to_string(aRun->GetRunID()) + " in g4thread " + to_string(G4Threading::G4GetThreadId());
 		logMessage += ", data size:  "  + to_string(theRun->getRunData().size());
 		logSummary(logMessage);
@@ -92,7 +104,7 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 
 		// looping over run data and filling frameRunData
 		// need to remember last event number here
-		if (stream ) {
+		if ( stream ) {
 			for ( auto eventDataCollection: theRun->getRunData() ) {
 
 				//eventDataCollection->getHeader()->print();
@@ -107,36 +119,49 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 						frameRunData[frameIndex]->addIntegralPayload(formPayload(hitDigitizedData), verbosity);
 					}
 				}
-
-				for ( auto [factoryName, streamerFactory]: *gstreamerFactoryMap ) {
-					if ( streamerFactory->getStreamType() == "stream" ) {
-						logSummary( "Writing stream data using streamer factory >" + factoryName + "<") ;
-
-						for ( auto fid = 0; fid < frameRunData.size(); fid++ ) {
-							auto frameID = frameRunData[fid]->getFrameID();
-							if ( shouldWriteFrameID(absoluteEventNumber, frameID) ) {
-								//cout << " absoluteEventNumber: " << absoluteEventNumber << " erasing frame " << frameID << endl;
-								streamerFactory->publishFrameRunData(goptions, frameRunData[fid]);
-								frameRunData.erase(frameRunData.begin() + fid);
-							}
-						}
-					}
-				}
 			}
 		}
 		
 		// done with data, deleting it
 		for ( auto* eventDataCollection: theRun->getRunData() )  { delete eventDataCollection; }
+		eventIndex += neventsThisRun;
 
+		// now flushing all frames past eventIndex
+
+		if ( stream ) {
+			for ( auto [factoryName, streamerFactory]: *gstreamerFactoryMap ) {
+				if ( streamerFactory->getStreamType() == "stream" && frameRunData.size() > 0) {
+
+
+					int nFramesToFlush = 0;
+					for ( auto fid = 0; fid < frameRunData.size(); fid++ ) {
+						auto frameID = frameRunData[fid]->getFrameID();
+						if ( shouldWriteFrameID(eventIndex, frameID) ) {
+							nFramesToFlush += 1;
+						}
+					}
+
+					cout  << " ASD  nFramesToFlush " << nFramesToFlush << endl;
+
+					for ( auto fid = 0; fid < nFramesToFlush; fid++ ) {
+						logSummary( "Streaming frame <" + to_string(fid + 1) + " using streamer factory >" + factoryName + "<") ;
+						streamerFactory->publishFrameRunData(goptions, frameRunData.front());
+						delete frameRunData.front();
+						frameRunData.erase(frameRunData.begin());
+					}
+
+				}
+			}
+		}
 
 	} else {
+		// not in master thread
 		string logMessage =  "EndOfRunAction Local, run " + to_string(aRun->GetRunID()) + " in g4thread " + to_string(G4Threading::G4GetThreadId());
 		logMessage += ", data size:  "  + to_string(theRun->getRunData().size());
 		logSummary(logMessage);
 		logSummary("Total number of events this thread: " + to_string(theRun->GetNumberOfEvent()));
 	}
 
-	eventIndex += neventsThisRun;
 }
 
 
@@ -147,23 +172,16 @@ int const GRunAction::eventFrameIndex(int eventNumber, float timeAtElectronics) 
 	int absoluteHitTime = eventNumber*eventDuration + timeAtElectronics;
 	int frameID = absoluteHitTime/frameDuration + 1;
 
-//		cout << "eventNumber: " << eventNumber << ", absoluteHitTime: " << absoluteHitTime << ", frameDuration: " << frameDuration << " frameID: " << frameID ;
-//		cout << ", frameRunData.size(): " << frameRunData.size() << endl;
-
-	if (frameRunData.size() < frameID) {
-		for ( auto fid = frameRunData.size(); fid <= frameID ; fid++ ) {
-			GFrameDataCollectionHeader *gframeHeader = new GFrameDataCollectionHeader(fid + 1, frameDuration, verbosity);
-			GFrameDataCollection *frameData = new GFrameDataCollection(gframeHeader, verbosity);
-			frameRunData.push_back(frameData);
-		}
-	}
+//	cout << "eventNumber: " << eventNumber << ", absoluteHitTime: " << absoluteHitTime << ", frameID: " << frameID ;
+//	cout << ", size0: " << frameRunData.size() ;
+	// cout << ", size1: " << frameRunData.size() << endl;
 
 	return frameID - 1;
 }
 
-bool GRunAction::shouldWriteFrameID(int eventNumber, int frameID) {
-	int minEventNumber = eventNumber - 2*nthreads;
-	int minEventTime = minEventNumber*eventDuration ;
+bool GRunAction::shouldWriteFrameID(int eventNumber, long int frameID) {
+	int minEventNumber      = eventNumber - 2*nthreads;
+	int minEventTime        = minEventNumber*eventDuration ;
 	int currentFrameMaxTime = frameID*frameDuration;
 	return minEventTime > currentFrameMaxTime;
 }
@@ -182,4 +200,13 @@ vector<int> GRunAction::formPayload(GDigitizedData* digitizedData) {
 	payload.push_back(q);
 
 	return payload;
+}
+
+bool GRunAction::findFrameID(int fid) {
+	for ( auto frame: frameRunData) {
+		if (frame->getFrameID() == fid) {
+			return true;
+		}
+	}
+	return false;
 }

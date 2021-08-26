@@ -45,14 +45,16 @@ private:
 	double frameDuration = UNINITIALIZEDNUMBERQUANTITY; // frame length in nanoseconds
 	double eventDuration = UNINITIALIZEDNUMBERQUANTITY; // event duration in nanoseconds
 	int nthreads         = UNINITIALIZEDNUMBERQUANTITY;
-	int eventIndex       = 0; // added to absolute event number, increases with each run 
+	int eventIndex       = 0; // added to absolute event number, increases with each run
+	int lastFrameCreated = 0; // keeping track of the last frame created
 
 	// determine the frame ID based on event number, eventDuration, frameDuration
 	int const eventFrameIndex(int eventNumber, float timeAtElectronics);
+	bool findFrameID(int fid);
 
 	// decide whethere to write or not to stream the frame based on event number, eventDuration, frameDuration and number of threads
 	// streaming the frame also deletes it from frameRunData
-	bool shouldWriteFrameID(int eventNumber, int frameID);
+	bool shouldWriteFrameID(int eventNumber, long int frameID);
 
 	vector<int> formPayload(GDigitizedData* digitizedData);
 
