@@ -54,10 +54,11 @@ void GemcGUI::createTopButtons(QHBoxLayout *topLayout)
 	topLayout->addStretch(40);
 	topLayout->addWidget(closeButton);
 
-	connect(closeButton, &QPushButton::clicked, this, &GemcGUI::gquit);
-	connect(runButton,   &QPushButton::clicked, this, &GemcGUI::beamOn);
-	connect(cycleButton, &QPushButton::clicked, this, &GemcGUI::cycleBeamOn);
-	connect(stopButton,  &QPushButton::clicked, this, &GemcGUI::stopCycleBeamOn);
+	connect(nEvents,     &QLineEdit::textChanged, this, &GemcGUI::neventsChanged);
+	connect(closeButton, &QPushButton::clicked,   this, &GemcGUI::gquit);
+	connect(runButton,   &QPushButton::clicked,   this, &GemcGUI::beamOn);
+	connect(cycleButton, &QPushButton::clicked,   this, &GemcGUI::cycleBeamOn);
+	connect(stopButton,  &QPushButton::clicked,   this, &GemcGUI::stopCycleBeamOn);
 }
 
 
@@ -66,6 +67,12 @@ void GemcGUI::gquit()
 	qApp->quit();
 }
 
+
+void GemcGUI::neventsChanged() {
+
+	int newNevents = nEvents->text().toInt();
+	eventDispenser->setNumberOfEvents(newNevents);
+}
 
 void GemcGUI::beamOn()
 {
@@ -108,11 +115,12 @@ void GemcGUI::beamOn()
 
 void GemcGUI::cycleBeamOn()
 {
-	
+	gtimer->start(2000);
+	eventDispenser->processEvents();
 }
 
 
 void GemcGUI::stopCycleBeamOn()
 {
-	
+	gtimer->stop();
 }

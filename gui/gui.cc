@@ -27,6 +27,10 @@ eventDispenser(ed)
 	setLayout(mainLayout);
 	setWindowTitle(tr("GEMC: Geant4 Monte-Carlo"));
 
+	// setting timer
+	gtimer = new QTimer(this);
+	connect(gtimer, SIGNAL(timeout()), this, SLOT(cycleBeamOn()));
+
 }
 
 

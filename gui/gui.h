@@ -45,6 +45,7 @@ private slots:
 	// definded in topLayout.cc
 	// beamOn() causes workers to update the screen
 	// from a sub-thread
+	void neventsChanged();
 	void beamOn();
 	void cycleBeamOn();
 	void stopCycleBeamOn();
