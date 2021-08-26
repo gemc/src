@@ -69,12 +69,13 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 	if(IsMaster()) {
 
 		int neventsThisRun = theRun->GetNumberOfEventToBeProcessed();
-		int nFramesToCreate = neventsThisRun*eventDuration / frameDuration + 1;
+		// c
+		int nFramesToCreate = neventsThisRun*eventDuration / frameDuration + 2;
 
 		cout << " ASD nframes " << frameRunData.size() << ", nFramesToCreate: " << nFramesToCreate << ", lastFrameCreated: " << lastFrameCreated << endl;
 
 		for( int f = lastFrameCreated; f < lastFrameCreated + nFramesToCreate; f++ ) {
-				GFrameDataCollectionHeader *gframeHeader = new GFrameDataCollectionHeader(f, frameDuration, verbosity);
+				GFrameDataCollectionHeader *gframeHeader = new GFrameDataCollectionHeader(f+1, frameDuration, verbosity);
 				GFrameDataCollection *frameData = new GFrameDataCollection(gframeHeader, verbosity);
 				frameRunData.push_back(frameData);
 		}
@@ -133,18 +134,11 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 				if ( streamerFactory->getStreamType() == "stream" && frameRunData.size() > 0) {
 
 
-					int nFramesToFlush = 0;
-					for ( auto fid = 0; fid < frameRunData.size(); fid++ ) {
-						auto frameID = frameRunData[fid]->getFrameID();
-						if ( shouldWriteFrameID(eventIndex, frameID) ) {
-							nFramesToFlush += 1;
-						}
-					}
-
+					int nFramesToFlush = nFramesToCreate - 2;
 					cout  << " ASD  nFramesToFlush " << nFramesToFlush << endl;
 
 					for ( auto fid = 0; fid < nFramesToFlush; fid++ ) {
-						logSummary( "Streaming frame <" + to_string(fid + 1) + " using streamer factory >" + factoryName + "<") ;
+						logSummary( "Streaming frame id <" + to_string(frameRunData.front()->getFrameID()) + " using streamer factory >" + factoryName + "<") ;
 						streamerFactory->publishFrameRunData(goptions, frameRunData.front());
 						delete frameRunData.front();
 						frameRunData.erase(frameRunData.begin());
@@ -171,19 +165,18 @@ int const GRunAction::eventFrameIndex(int eventNumber, float timeAtElectronics) 
 
 	int absoluteHitTime = eventNumber*eventDuration + timeAtElectronics;
 	int frameID = absoluteHitTime/frameDuration + 1;
+	int frameIndex = -1;
 
-//	cout << "eventNumber: " << eventNumber << ", absoluteHitTime: " << absoluteHitTime << ", frameID: " << frameID ;
-//	cout << ", size0: " << frameRunData.size() ;
-	// cout << ", size1: " << frameRunData.size() << endl;
+	// cout << "eventNumber: " << eventNumber << ", absoluteHitTime: " << absoluteHitTime << ", frameID: " << frameID << endl;
 
-	return frameID - 1;
-}
+	for ( int f = 0; f < frameRunData.size() ; f++ ) {
+		if (frameRunData[f]->getFrameID() == frameID ) {
+			frameIndex = f;
+		}
+	}
+	// cout << "eventNumber: " << eventNumber << ", absoluteHitTime: " << absoluteHitTime << ", frameIndex: " << frameIndex << endl;
 
-bool GRunAction::shouldWriteFrameID(int eventNumber, long int frameID) {
-	int minEventNumber      = eventNumber - 2*nthreads;
-	int minEventTime        = minEventNumber*eventDuration ;
-	int currentFrameMaxTime = frameID*frameDuration;
-	return minEventTime > currentFrameMaxTime;
+	return  frameIndex;
 }
 
 vector<int> GRunAction::formPayload(GDigitizedData* digitizedData) {
