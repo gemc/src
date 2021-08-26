@@ -69,47 +69,14 @@ void GemcGUI::gquit()
 
 
 void GemcGUI::neventsChanged() {
-
 	int newNevents = nEvents->text().toInt();
 	eventDispenser->setNumberOfEvents(newNevents);
 }
 
 void GemcGUI::beamOn()
 {
-	// int nToRun  = nEvents->text().toInt();
-
-	//G4UImanager *g4uim = G4UImanager::GetUIpointer();
-	
-	// interestingly enough this the accumulate directive will prevent this:
-	// coreAnimation: warning, deleted thread with uncommitted CATransaction
-	// PRAGMA TODO: make this a button
-//	g4uim->ApplyCommand("/vis/scene/add/trajectories rich smooth");
-//	g4uim->ApplyCommand("/vis/scene/endOfEventAction accumulate");
-//	g4uim->ApplyCommand("/vis/scene/add/hits");
-//	g4uim->ApplyCommand("/vis/scene/endOfRunAction accumulate -1");
-//	g4uim->ApplyCommand("/event/keepCurrentEvent");
-//	g4uim->ApplyCommand("/vis/ogl/flushAt endOfEvent");
-//	g4uim->ApplyCommand("/vis/ogl/flushAt never");
-	
-//	g4uim->ApplyCommand("/gun/particle proton");
-//	g4uim->ApplyCommand("/gun/energy 2 GeV");
-//	g4uim->ApplyCommand("/gun/direction 0 1 0");
-
-//	g4uim->ApplyCommand("/event/keepCurrentEvent");
-//	g4uim->ApplyCommand("/vis/disable");
-
-//	g4uim->ApplyCommand( "/run/beamOn 100");
-//	g4uim->ApplyCommand( "/run/beamOn " + to_string(nToRun));
-
-//	g4uim->ApplyCommand("/vis/enable");
-//	g4uim->ApplyCommand("/vis/viewer/flush");
-//	g4uim->ApplyCommand("/vis/reviewKeptEvents");
-	//g4uim->ApplyCommand("/vis/viewer/flush");
-	
 	eventDispenser->processEvents();
-	
 	updateGui();
-
 }
 
 

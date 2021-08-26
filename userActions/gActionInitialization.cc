@@ -38,15 +38,16 @@ gDigitizationGlobalMap(gDDGlobal)
 			string factory        = joutput.format;
 			string outputFileName = joutput.name;
 			string streamType     = joutput.type;
-
+			
 			if( factory != UNINITIALIZEDSTRINGQUANTITY && outputFileName != UNINITIALIZEDSTRINGQUANTITY) {
 				string pluginName = gstreamerPluginNameFromFactory(factory);
+				string factoryMapKey = factory + "/" + streamType;
 
-				if(gstreamerFactoryMap->find(factory) == gstreamerFactoryMap->end()) {
-					(*gstreamerFactoryMap)[factory] = gStreamerManager.LoadAndRegisterObjectFromLibrary<GStreamer>(pluginName);
-					(*gstreamerFactoryMap)[factory]->setOutputName(outputFileName);
-					(*gstreamerFactoryMap)[factory]->setStreamType(streamType);
-					(*gstreamerFactoryMap)[factory]->openConnection();
+				if(gstreamerFactoryMap->find(factoryMapKey) == gstreamerFactoryMap->end()) {
+					(*gstreamerFactoryMap)[factoryMapKey] = gStreamerManager.LoadAndRegisterObjectFromLibrary<GStreamer>(pluginName);
+					(*gstreamerFactoryMap)[factoryMapKey]->setOutputName(outputFileName);
+					(*gstreamerFactoryMap)[factoryMapKey]->setStreamType(streamType);
+					(*gstreamerFactoryMap)[factoryMapKey]->openConnection();
 				}
 			}
 		}

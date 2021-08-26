@@ -19,20 +19,21 @@
 		{ "system": "/opt/projects/gemc/sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
 	],
 
-#	"gpluginsPath": "/Users/ungaro/builds",
+	#	"gpluginsPath": "/Users/ungaro/builds",
 	"gpluginsPath": "/opt/projects/gemc/src",
 
-	"+goutput": {
-		"format": "TEXT",
-		"name": "events.txt",
-		"type": "event"
-	},
-
-	"+goutput": {
-		"format": "TEXT",
-		"name": "stream.txt",
-		"type": "stream"
-	},
+	"+goutput": [
+		{
+			"format": "TEXT",
+			"name": "events.txt",
+			"type": "event"
+		},
+		{
+			"format": "TEXT",
+			"name": "stream.txt",
+			"type": "stream"
+		}
+	],
 
 	"digitizationVariation": "rga_spring2018_mc",
 	"n": 150,

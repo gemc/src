@@ -71,6 +71,8 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 	if(IsMaster()) {
 
 		int neventsThisRun = theRun->GetNumberOfEventToBeProcessed();
+
+		// TODO: 2 more is too much we need some calculation here
 		int nFramesToCreate = neventsThisRun*eventDuration / frameDuration + 2;
 
 		if ( stream ) {
@@ -116,8 +118,6 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 		if ( stream ) {
 			for ( auto eventDataCollection: theRun->getRunData() ) {
 
-				//eventDataCollection->getHeader()->print();
-
 				int absoluteEventNumber = eventIndex + eventDataCollection->getEventNumber();
 
 				// filling frameRunData with this eventDataCollection
@@ -144,7 +144,7 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 			for ( auto [factoryName, streamerFactory]: *gstreamerFactoryMap ) {
 				if ( streamerFactory->getStreamType() == "stream" && frameRunData.size() > 0) {
 
-
+					// need to look for additional frame to flush
 					int nFramesToFlush = nFramesToCreate - 2;
 					
 					if (frameStreamVerbosity >= GVERBOSITY_SUMMARY) {
