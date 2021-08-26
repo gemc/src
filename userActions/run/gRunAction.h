@@ -23,6 +23,8 @@ public:
 
 private:
 	int verbosity;
+	int eventStreamVerbosity;
+	int frameStreamVerbosity;
 
 	// virtual method from G4UserRunAction.
 	virtual G4Run* GenerateRun();

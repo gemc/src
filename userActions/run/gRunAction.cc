@@ -24,6 +24,8 @@ gDigitizationGlobalMap(gDDGlobal),
 gstreamerFactoryMap(streamerFactoryMap)
 {
 	verbosity     = gopt->getInt("grunv");
+	eventStreamVerbosity = gopt->getInt("geventstreamv");
+	frameStreamVerbosity = gopt->getInt("gframestreamv");;
 
 	logSummary("Instantiating GRunAction ");
 	frameDuration = 64000;
@@ -69,19 +71,26 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 	if(IsMaster()) {
 
 		int neventsThisRun = theRun->GetNumberOfEventToBeProcessed();
-		// c
 		int nFramesToCreate = neventsThisRun*eventDuration / frameDuration + 2;
 
-		cout << " ASD nframes " << frameRunData.size() << ", nFramesToCreate: " << nFramesToCreate << ", lastFrameCreated: " << lastFrameCreated << endl;
 
-		for( int f = lastFrameCreated; f < lastFrameCreated + nFramesToCreate; f++ ) {
+		if ( stream ) {
+			if (frameStreamVerbosity >= GVERBOSITY_SUMMARY) {
+				cout << SROLOGHEADER << " cuurent nframes in the buffer: " << frameRunData.size() << ", new frames to create: " << nFramesToCreate;
+				cout << ", last frame id created: " << lastFrameCreated << endl;
+			}
+			
+			for( int f = lastFrameCreated; f < lastFrameCreated + nFramesToCreate; f++ ) {
 				GFrameDataCollectionHeader *gframeHeader = new GFrameDataCollectionHeader(f+1, frameDuration, verbosity);
 				GFrameDataCollection *frameData = new GFrameDataCollection(gframeHeader, verbosity);
 				frameRunData.push_back(frameData);
+			}
+			lastFrameCreated += nFramesToCreate;
+			if (frameStreamVerbosity >= GVERBOSITY_SUMMARY) {
+				cout << SROLOGHEADER << nFramesToCreate << " new frames, buffer size is now " << frameRunData.size();
+				cout << ", last frame id created: " << lastFrameCreated << endl;
+			}
 		}
-		lastFrameCreated += nFramesToCreate;
-
-		cout << " ASD nframes " << frameRunData.size() << ", lastFrameCreated: " << lastFrameCreated << endl;
 
 		string logMessage =  "EndOfRunAction Master, run " + to_string(aRun->GetRunID()) + " in g4thread " + to_string(G4Threading::G4GetThreadId());
 		logMessage += ", data size:  "  + to_string(theRun->getRunData().size());
@@ -125,25 +134,29 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 		
 		// done with data, deleting it
 		for ( auto* eventDataCollection: theRun->getRunData() )  { delete eventDataCollection; }
-		eventIndex += neventsThisRun;
+
 
 		// now flushing all frames past eventIndex
 
 		if ( stream ) {
+			// updating eventIndex
+			eventIndex += neventsThisRun;
+
 			for ( auto [factoryName, streamerFactory]: *gstreamerFactoryMap ) {
 				if ( streamerFactory->getStreamType() == "stream" && frameRunData.size() > 0) {
 
 
 					int nFramesToFlush = nFramesToCreate - 2;
-					cout  << " ASD  nFramesToFlush " << nFramesToFlush << endl;
-
+					
+					if (frameStreamVerbosity >= GVERBOSITY_SUMMARY) {
+						cout << SROLOGHEADER << "number of frames to flush: " << nFramesToFlush << endl;
+					}
 					for ( auto fid = 0; fid < nFramesToFlush; fid++ ) {
 						logSummary( "Streaming frame id <" + to_string(frameRunData.front()->getFrameID()) + " using streamer factory >" + factoryName + "<") ;
 						streamerFactory->publishFrameRunData(goptions, frameRunData.front());
 						delete frameRunData.front();
 						frameRunData.erase(frameRunData.begin());
 					}
-
 				}
 			}
 		}

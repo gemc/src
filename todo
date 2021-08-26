@@ -1,7 +1,7 @@
 working on gemc:
 
 - divide source in different libraries like scons (started with gdetector)
-- put the verbosity options into conventions, like gsensitivityv
+- put the verbosity string options into conventions, like GSENSITIVITYVERBOSITY = "gsensitivityv"
 
 
 
