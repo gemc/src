@@ -1,7 +1,13 @@
 working on gemc:
 
+- materials
+- cad 
 - divide source in different libraries like scons (started with gdetector)
 - put the verbosity string options into conventions, like GSENSITIVITYVERBOSITY = "gsensitivityv"
+- add detector list + interface like gemc2
+- add hipo output
+- add sro output
+- add display goodies like gemc2++
 
 
 

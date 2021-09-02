@@ -1,6 +1,6 @@
 {
 
-	# configuration example
+	# number of threads
 	"nthreads": 4,
 
 	# verbosities
@@ -8,24 +8,23 @@
 	"gsystemv": 0,
 	"g4systemv": 0,
 	"grunv": 0,
-	"gsensitivityv": 0,
+	"gsensitivityv": 2,
 	"eventDistributionv": 0,
-	"gframestreamv": 2,
+	"gframestreamv": 0,
 
 	"+gsystem": [
 
-		# central detector
-		# as an example we define it in-line
+		# FT Calorimeter
+		# as an example, is defined in a single line but it could be more jsony
 		{ "system": "/opt/projects/gemc/sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
 	],
 
-	#	"gpluginsPath": "/Users/ungaro/builds",
 	"gpluginsPath": "/opt/projects/gemc/src",
 
 	"+goutput": [
 		{
-			"format": "TEXT",
-			"name": "events.txt",
+			"format": "ROOT",
+			"name": "events.root",
 			"type": "event"
 		},
 		{
@@ -39,7 +38,5 @@
 	"n": 150,
 	"eventTimeSize": "2*us"
 
-
-	
 }
 

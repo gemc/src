@@ -121,7 +121,7 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 				int absoluteEventNumber = eventIndex + eventDataCollection->getEventNumber();
 
 				// filling frameRunData with this eventDataCollection
-				for ( auto [detectorName, gdataCollection]: *eventDataCollection->getDataCollection()) {
+				for ( auto [detectorName, gdataCollection]: *eventDataCollection->getDataCollectionMap()) {
 					for ( auto hitDigitizedData: *gdataCollection->getDigitizedData() ) {
 						float timeAtelectronic = hitDigitizedData->getFltObservable(TIMEATELECTRONICS);
 						int frameIndex = eventFrameIndex(absoluteEventNumber, timeAtelectronic);

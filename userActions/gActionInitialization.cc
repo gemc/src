@@ -20,7 +20,8 @@ goptions(gopts),
 gDigitizationGlobalMap(gDDGlobal)
 {
 	logSummary("Instantiating GActionInitialization ");
-	int verbosity = goptions->getInt("verbosity");
+	int verbosity     = goptions->getInt("verbosity");
+	string pluginPath = goptions->getString("gpluginsPath") + "/";
 
 	// gstreamerFactory
 	gstreamerFactoryMap = new map<string, GStreamer*>;
@@ -40,7 +41,7 @@ gDigitizationGlobalMap(gDDGlobal)
 			string streamType     = joutput.type;
 			
 			if( factory != UNINITIALIZEDSTRINGQUANTITY && outputFileName != UNINITIALIZEDSTRINGQUANTITY) {
-				string pluginName = gstreamerPluginNameFromFactory(factory);
+				string pluginName = pluginPath + gstreamerPluginNameFromFactory(factory);
 				string factoryMapKey = factory + "/" + streamType;
 
 				if(gstreamerFactoryMap->find(factoryMapKey) == gstreamerFactoryMap->end()) {
