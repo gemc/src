@@ -38,7 +38,7 @@
 	],
 
 	"digitizationVariation": "rga_spring2018_mc",
-	"n": 150,
+	"n": 150000,
 	"eventTimeSize": "2*us"
 
 }

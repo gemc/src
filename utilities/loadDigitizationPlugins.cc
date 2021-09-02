@@ -22,11 +22,14 @@ void loadDigitizationPlugins(GOptions* gopt, vector<string> sdetectors, map<stri
 	for ( auto& sdname: sdetectors) {
 
 		if (sdname == FLUXNAME) {
-			(*gDDGlobal)[sdname] = new FluxDigitization();
+			(*gDDGlobal)[sdname] = new GFluxDigitization();
 			(*gDDGlobal)[sdname]->defineReadoutSpecs();
 		} else if ( sdname == COUNTERNAME ) {
-			
+			(*gDDGlobal)[sdname] = new GParticleCounterDigitization();
+			(*gDDGlobal)[sdname]->defineReadoutSpecs();
 		} else if ( sdname == DOSIMETERNAME ) {
+			(*gDDGlobal)[sdname] = new GDosimeterDigitization();
+			(*gDDGlobal)[sdname]->defineReadoutSpecs();
 
 		} else {
 			string pluginName = pluginPath + "/" + sdname;
