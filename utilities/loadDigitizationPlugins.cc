@@ -5,6 +5,8 @@ using namespace std;
 // glibrary
 #include "goptions.h"
 #include "gfactory.h"
+#include "gtouchableConventions.h"
+#include "ginternalDigitization.h"
 
 // gemc
 #include "gemcUtilities.h"
@@ -19,22 +21,31 @@ void loadDigitizationPlugins(GOptions* gopt, vector<string> sdetectors, map<stri
 
 	for ( auto& sdname: sdetectors) {
 
-		string pluginName = pluginPath + "/" + sdname;
-
-		if (verbosity >= GVERBOSITY_SUMMARY ) {
-			cout << GEMCLOGMSGITEM << "Loading plugins from file " <<  pluginName << endl;
-		}
-
-		GManager sdPluginManager(sdname + " GSensitiveDetector", verbosity);
-
-		if(gDDGlobal->find(sdname) == gDDGlobal->end()) {
-			(*gDDGlobal)[sdname] = sdPluginManager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(pluginName);
+		if (sdname == FLUXNAME) {
+			(*gDDGlobal)[sdname] = new FluxDigitization();
 			(*gDDGlobal)[sdname]->defineReadoutSpecs();
+		} else if ( sdname == COUNTERNAME ) {
+			
+		} else if ( sdname == DOSIMETERNAME ) {
 
+		} else {
+			string pluginName = pluginPath + "/" + sdname;
+
+			if (verbosity >= GVERBOSITY_SUMMARY ) {
+				cout << GEMCLOGMSGITEM << "Loading plugins from file " <<  pluginName << endl;
+			}
+
+			GManager sdPluginManager(sdname + " GSensitiveDetector", verbosity);
+
+			if(gDDGlobal->find(sdname) == gDDGlobal->end()) {
+				(*gDDGlobal)[sdname] = sdPluginManager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(pluginName);
+				(*gDDGlobal)[sdname]->defineReadoutSpecs();
+
+			}
+
+			// done with sdPluginManager
+			//sdPluginManager.clearDLMap();
 		}
-
-		// done with sdPluginManager
-		//sdPluginManager.clearDLMap();
 	}
 }
 

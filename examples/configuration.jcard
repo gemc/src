@@ -16,7 +16,10 @@
 
 		# FT Calorimeter
 		# as an example, is defined in a single line but it could be more jsony
-		{ "system": "/opt/projects/gemc/sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
+		# { "system": "/opt/projects/gemc/sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
+
+		# Sci-gi Example 1: a ca
+		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_1_simple_det/example1", "factory": "text", "variation": "default" }
 	],
 
 	"gpluginsPath": "/opt/projects/gemc/src",
