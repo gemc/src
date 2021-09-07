@@ -1,7 +1,7 @@
 from init_env import init_environment
 
 # load needed environment for this library
-env = init_environment('qt5 glibrary geant4 clhep cadmesh')
+env = init_environment('qt5 glibrary geant4 clhep gcadmesh')
 env.Append(CXXFLAGS=['-std=c++17'])
 
 # local directories include
