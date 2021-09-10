@@ -67,7 +67,7 @@ void GRun::RecordEvent(const G4Event *aEvent)
 	GEventDataCollection *eventDataCollection = new GEventDataCollection(gheader, verbosity);
 	
 	// looping over all collections
-	for(unsigned hci = 0; hci < HCsThisEvent->GetNumberOfCollections(); hci++) {
+	for(G4int hci = 0; hci < HCsThisEvent->GetNumberOfCollections(); hci++) {
 		
 		GHitsCollection *thisGHC = (GHitsCollection*) HCsThisEvent->GetHC(hci);
 		
@@ -85,7 +85,7 @@ void GRun::RecordEvent(const G4Event *aEvent)
 			if(detectorDigitization != nullptr) {
 
 				// looping over hits in this collection
-				for(auto hitIndex = 0; hitIndex<thisGHC->GetSize(); hitIndex++) {
+				for(size_t hitIndex = 0; hitIndex<thisGHC->GetSize(); hitIndex++) {
 					GHit *thisHit = (GHit*) thisGHC->GetHit(hitIndex);
 
 					// digitize hit and add it to detector data
