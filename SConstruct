@@ -1,7 +1,8 @@
 from init_env import init_environment
 
 # load needed environment for this library
-env = init_environment('qt5 glibrary geant4 clhep gcadmesh')
+# xercesc needed just on posix  by geant4
+env = init_environment('qt5 glibrary geant4 clhep gcadmesh xercesc')
 env.Append(CXXFLAGS=['-std=c++17'])
 
 # local directories include
