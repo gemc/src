@@ -13,9 +13,9 @@ GPrimaryGeneratorAction::GPrimaryGeneratorAction() : G4VUserPrimaryGeneratorActi
 
 	// default particle
 	G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-	G4ParticleDefinition* particle = particleTable->FindParticle("pi0");
+	G4ParticleDefinition* particle = particleTable->FindParticle("proton");
 	fParticleGun->SetParticleDefinition(particle);
-	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.0, 0.04*G4UniformRand(), 0.9));
+	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.5 - G4UniformRand(), 0.5 - G4UniformRand(), 0.5));
 	fParticleGun->SetParticleEnergy(1.0*GeV);
 	//
 	// default beam position
