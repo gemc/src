@@ -181,7 +181,7 @@ int const GRunAction::eventFrameIndex(int eventNumber, float timeAtElectronics) 
 
 	// cout << "eventNumber: " << eventNumber << ", absoluteHitTime: " << absoluteHitTime << ", frameID: " << frameID << endl;
 
-	for ( int f = 0; f < frameRunData.size() ; f++ ) {
+	for ( size_t f = 0; f < frameRunData.size() ; f++ ) {
 		if (frameRunData[f]->getFrameID() == frameID ) {
 			frameIndex = f;
 		}
