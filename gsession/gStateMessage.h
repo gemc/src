@@ -6,6 +6,7 @@
 
 // geant4
 #include "G4UIsession.hh"
+#include <atomic>
 using std::atomic;
 
 
