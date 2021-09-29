@@ -26,12 +26,22 @@ not defined?
 G4NEUTRONXSDATA    $G4NEUTRONXSDATA \
 
 # get libs
-open $QTDIR/lib
+open $QTDIR/lib (no needed to repeat, they come from /usr/local/Cellar)
+
 open $GLIBRARY/lib/
+cadmesh
+
+
 open $CLHEP_BASE_DIR/lib/
+
+
 open $XERCESCROOT/lib/
+
+
+
 open $G4ROOT/$GEANT4_VERSION/lib/
 
+all
 
 GEMC 3 reminders:
 

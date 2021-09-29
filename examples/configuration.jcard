@@ -10,22 +10,19 @@
 	"grunv": 0,
 	"gsensitivityv": 0,
 	"eventDistributionv": 0,
-	"gframestreamv": 0,
+	"gframestreamv": 1,
 
 	"+gsystem": [
 
 		# FT Calorimeter
 		# as an example, is defined in a single line but it could be more jsony
-		# { "system": "/opt/projects/gemc/sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
+		{ "system": "/opt/projects/gemc/sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
 
-		# Sci-gi Example 1: a calorimeter and a scattering chamber
-		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_1_simple_det/example1",  "factory": "text", "variation": "default" },
-		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_1_simple_det/cad",       "factory": "cad"}
 	],
 
-	"+gmodifier": [
-		{"volume": "scatteringChamber", "tilt": "0*deg, 180*deg, 0*deg", "shift": "0*cm, 0*cm, 125*cm"}
-	],
+#	"+gmodifier": [
+#		{"volume": "scatteringChamber", "tilt": "0*deg, 180*deg, 0*deg", "shift": "0*cm, 0*cm, 125*cm"}
+#	],
 
 	"gpluginsPath": "/opt/projects/gemc/src",
 
@@ -39,11 +36,16 @@
 			"format": "TEXT",
 			"name": "stream.txt",
 			"type": "stream"
+		},
+		{
+			"format": "TEXT",
+			"name": "events.txt",
+			"type": "event"
 		}
 	],
 
 	"digitizationVariation": "rga_spring2018_mc",
-	"n": 500,
+	"n": 2,
 	"eventTimeSize": "2*us"
 
 }
