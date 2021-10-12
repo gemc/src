@@ -16,7 +16,7 @@ using namespace std;
 // exits if failure
 void loadDigitizationPlugins(GOptions* gopt, vector<string> sdetectors, map<string, GDynamicDigitization*> *gDDGlobal) {
 
-	string pluginPath = gopt->getString("gpluginsPath");
+	string pluginPath = definePluginPath(gopt);
 	int verbosity     = gopt->getInt("gsensitivityv");
 
 	for ( auto& sdname: sdetectors) {

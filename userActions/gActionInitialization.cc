@@ -3,6 +3,7 @@
 #include "gActionInitialization.h"
 #include "gRunAction.h"
 #include "gEventAction.h"
+#include "gemcUtilities.h"
 
 // glibrary
 #include "gfactory.h"
@@ -21,25 +22,8 @@ gDigitizationGlobalMap(gDDGlobal)
 {
 	logSummary("Instantiating GActionInitialization ");
 	int verbosity     = goptions->getInt("verbosity");
-
-	// the plugin is loaded from the GPLUGIN_PATH environment variable
-	// however if gpluginsPath is defined in the jcard, it will overwrite the plugin location
-	auto pluginPathENV = getenv("GPLUGIN_PATH"); // char*
-	string pluginPathOption = goptions->getString("gpluginsPath");
-
-	string pluginPath = UNINITIALIZEDSTRINGQUANTITY;
-
-	if ( pluginPathENV != nullptr ) {
-		pluginPath = string(pluginPathENV) + "/";
-	}
-	if ( pluginPathOption != UNINITIALIZEDSTRINGQUANTITY ) {
-		pluginPath = pluginPathOption  + "/";
-	}
-	// set to current dir if pluginPath is still not defined
-	if ( pluginPath == UNINITIALIZEDSTRINGQUANTITY ) {
-		pluginPath = "./";
-	}
-
+	
+	string pluginPath = definePluginPath(gopts);
 
 	// gstreamerFactory
 	gstreamerFactoryMap = new map<string, GStreamer*>;

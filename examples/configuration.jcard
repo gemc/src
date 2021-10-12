@@ -4,7 +4,7 @@
 	"nthreads": 8,
 
 	# verbosities
-	"verbosity": 2,
+	"verbosity": 1,
 	"gsystemv": 0,
 	"g4systemv": 0,
 	"grunv": 0,
@@ -18,7 +18,8 @@
 		# as an example, is defined in a single line but it could be more jsony
 		#{ "system": "/opt/projects/gemc/sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
 
-		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_2_dosimeter/cad", "factory": "cad"}
+		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_2_dosimeter/example1_2", "factory": "text"},
+		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_2_dosimeter/targetCad/", "factory": "cad"}
 
 	],
 
@@ -46,7 +47,7 @@
 	],
 
 	"digitizationVariation": "rga_spring2018_mc",
-	"n": 2,
+	"n": 2000,
 	"eventTimeSize": "2*us"
 
 }

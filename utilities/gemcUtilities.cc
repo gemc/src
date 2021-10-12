@@ -52,6 +52,7 @@ int getNumberOfThreads(GOptions* gopts) {
 void initGemcG4RunManager(G4RunManager *grm, GOptions* gopts)
 {
 	int tlog = gopts->getInt("tlog");
+	int checkForOverlaps = gopts->getInt("checkOverlaps");
 
 	G4UImanager *g4uim   = G4UImanager::GetUIpointer();
 	g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log");
@@ -59,6 +60,15 @@ void initGemcG4RunManager(G4RunManager *grm, GOptions* gopts)
 
 	// done in event dispenser
 	grm->Initialize();
+
+	if ( checkForOverlaps == 2 ) {
+		g4uim->ApplyCommand("/geometry/test/run");
+	} else if ( checkForOverlaps >= 100 ) {
+		g4uim->ApplyCommand("/geometry/test/resolution " + to_string(checkForOverlaps));
+		g4uim->ApplyCommand("/geometry/test/run");
+	}
+
+
 }
 
 
@@ -123,4 +133,27 @@ void applyInitialUIManagerCommands(bool gui, int verbosity) {
 		}
 		g4uim->ApplyCommand(c.c_str());
 	}
+}
+
+
+string definePluginPath(GOptions* gopts) {
+	// the plugin is loaded from the GPLUGIN_PATH environment variable
+	// however if gpluginsPath is defined in the jcard, it will overwrite the plugin location
+	auto pluginPathENV = getenv("GPLUGIN_PATH"); // char*
+	string pluginPathOption = gopts->getString("gpluginsPath");
+
+	string pluginPath = UNINITIALIZEDSTRINGQUANTITY;
+
+	if ( pluginPathENV != nullptr ) {
+		pluginPath = string(pluginPathENV) + "/";
+	}
+	if ( pluginPathOption != UNINITIALIZEDSTRINGQUANTITY ) {
+		pluginPath = pluginPathOption  + "/";
+	}
+	// set to current dir if pluginPath is still not defined
+	if ( pluginPath == UNINITIALIZEDSTRINGQUANTITY ) {
+		pluginPath = "./";
+	}
+
+	return pluginPath;
 }

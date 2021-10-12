@@ -34,4 +34,6 @@ void applyInitialUIManagerCommands(bool gui, int verbosity);
 // exits if failure
 void loadDigitizationPlugins(GOptions* gopt, vector<string> sdetectors, map<string, GDynamicDigitization*> *gDDGlobal);
 
+string definePluginPath(GOptions* gopts);
+
 #endif
