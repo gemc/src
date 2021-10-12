@@ -1,0 +1,26 @@
+# For all pushes to the main branch run the tests and push the image to the
+# GitHub registry under an edge tag so we can use it for the nightly
+# integration tests
+name: compilation
+
+on:
+  push:
+    branches: master
+
+jobs:
+  validation_job:
+    runs-on: ubuntu-latest
+    name: GEMC Validation
+    steps:
+      # GitHub Actions do not automatically checkout your projects. If you need the code
+      # you need to check it out.
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Validation
+        uses: ./ # Uses an action in the root directory
+        id: run
+      # Use the output from the `hello` step
+      - name: Get the Validation time
+        run: echo "The time was ${{ steps.run.outputs.time }}"
+
+
