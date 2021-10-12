@@ -36,8 +36,7 @@ scons $copt
 
 # checking on various libraries
 ls gemc
-if ($? != 0) then
+if [ $? -ne 0 ]; then
   echo compilation not completed
   exit 1
-endif
-
+fi
