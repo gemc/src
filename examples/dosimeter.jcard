@@ -17,8 +17,8 @@
 	# the ex1_2 system.
 	"+gsystem": [
 
-		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_2_dosimeter/example1_2", "factory": "text"},
-		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_2_dosimeter/targetCad/", "factory": "cad"}
+		{ "system": "/opt/projects/gemc/sci-g/examples/geometry/dosimeter/dosimeter",  "factory": "text"},
+		{ "system": "/opt/projects/gemc/sci-g/examples/geometry/dosimeter/targetCad/", "factory": "cad"}
 
 	],
 

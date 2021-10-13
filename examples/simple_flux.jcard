@@ -17,7 +17,7 @@
 
 	# the ex1_1 system
 	"+gsystem": [
-		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_1_simple_det/example1_1", "factory": "text"}
+		{ "system": "/opt/projects/gemc/sci-g/examples/geometry/simple_flux/simple_flux", "factory": "text"}
 	],
 
 	"+goutput": [
