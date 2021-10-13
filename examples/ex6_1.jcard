@@ -1,4 +1,7 @@
 {
+	# Example6_1 jcard
+	# This is identical to the jcard in Example6_1 except for the absolute path
+	# and the nthreads/checkOverlaps combination
 
 	# number of threads
 	"nthreads": 8,
@@ -16,17 +19,9 @@
 
 		# FT Calorimeter
 		# as an example, is defined in a single line but it could be more jsony
-		#{ "system": "/opt/projects/gemc/sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
-
-		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_2_dosimeter/example1_2", "factory": "text"},
-		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_2_dosimeter/targetCad/", "factory": "cad"}
+		{ "system": "/opt/projects/gemc/sci-g/examples/6_Calorimeter_and_Hodoscope/ex6_1_calHodoDetector/ch", "factory": "text", "variation": "default" }
 
 	],
-
-	"+gmodifier": [
-		{"volume": "scatteringChamber", "tilt": "0*deg, 180*deg, 0*deg", "shift": "0*cm, 0*cm, 125*cm"}
-	],
-
 
 	"+goutput": [
 		{
@@ -47,8 +42,10 @@
 	],
 
 	"digitizationVariation": "rga_spring2018_mc",
-	"n": 2000,
-	"eventTimeSize": "2*us"
+	"n": 10,
+	"eventTimeSize": "2*us",
+	"checkOverlaps": 1
+
 
 }
 

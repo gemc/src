@@ -1,0 +1,47 @@
+{
+	# Example1_2 jcard
+	# This is identical to the jcard in Example1_2 except for the absolute path
+	# and the nthreads/checkOverlaps combination
+
+	# number of threads
+	"nthreads": 4,
+
+	# verbosities
+	"verbosity": 2,
+	"gsystemv": 0,
+	"g4systemv": 0,
+	"grunv": 0,
+	"gsensitivityv": 0,
+	"eventDistributionv": 0,
+
+	# the ex1_2 system.
+	"+gsystem": [
+
+		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_2_dosimeter/example1_2", "factory": "text"},
+		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_2_dosimeter/targetCad/", "factory": "cad"}
+
+	],
+
+	# changing position of the scattering chamber
+	"+gmodifier": [
+		{"volume": "scatteringChamber", "tilt": "0*deg, 180*deg, 0*deg", "shift": "0*cm, 0*cm, 125*cm"}
+	],
+
+	"+goutput": [
+		{
+			"format": "ROOT",
+			"name": "events.root",
+			"type": "event"
+		},
+		{
+			"format": "TEXT",
+			"name": "events.txt",
+			"type": "event"
+		}
+	],
+
+	"n": 10,
+	"checkOverlaps": 1
+
+}
+

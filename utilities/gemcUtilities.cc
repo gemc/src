@@ -52,7 +52,6 @@ int getNumberOfThreads(GOptions* gopts) {
 void initGemcG4RunManager(G4RunManager *grm, GOptions* gopts)
 {
 	int tlog = gopts->getInt("tlog");
-	int checkForOverlaps = gopts->getInt("checkOverlaps");
 
 	G4UImanager *g4uim   = G4UImanager::GetUIpointer();
 	g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log");
@@ -61,18 +60,10 @@ void initGemcG4RunManager(G4RunManager *grm, GOptions* gopts)
 	// done in event dispenser
 	grm->Initialize();
 
-	if ( checkForOverlaps == 2 ) {
-		g4uim->ApplyCommand("/geometry/test/run");
-	} else if ( checkForOverlaps >= 100 ) {
-		g4uim->ApplyCommand("/geometry/test/resolution " + to_string(checkForOverlaps));
-		g4uim->ApplyCommand("/geometry/test/run");
-	}
-
-
 }
 
 
-vector<string> startingUIMCommands(bool gui) {
+vector<string> startingUIMCommands(bool gui, int checkForOverlaps) {
 	vector<string> commands;
 
 	// define batch commands
@@ -102,6 +93,13 @@ vector<string> startingUIMCommands(bool gui) {
 //	commands.push_back("/vis/verbose 0");
 //	commands.push_back("/vis/viewer/flush");
 
+	if ( checkForOverlaps == 2 ) {
+		commands.push_back("/geometry/test/run");
+	} else if ( checkForOverlaps >= 100 ) {
+		commands.push_back("/geometry/test/resolution " + to_string(checkForOverlaps));
+		commands.push_back("/geometry/test/run");
+	}
+
 	// not in gui mode, return batch only
 	if( !gui ) return commands;
 
@@ -122,10 +120,10 @@ vector<string> startingUIMCommands(bool gui) {
 // - batch
 // - gui (if needed)
 // - goptions
-void applyInitialUIManagerCommands(bool gui, int verbosity) {
+void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity) {
 	G4UImanager *g4uim = G4UImanager::GetUIpointer();
 
-	vector<string> commands = startingUIMCommands(gui);
+	vector<string> commands = startingUIMCommands(gui, checkForOverlaps);
 
 	for(auto &c : commands) {
 		if(verbosity > GVERBOSITY_SUMMARY) {

@@ -1,0 +1,40 @@
+{
+
+	# Example1_1 jcard
+	# This is identical to the jcard in Example1_1 except for the absolute path
+	# and the nthreads/checkOverlaps combination
+
+	# number of threads
+	"nthreads": 4,
+
+	# verbosities
+	"verbosity": 2,
+	"gsystemv": 0,
+	"g4systemv": 0,
+	"grunv": 0,
+	"gsensitivityv": 0,
+	"eventDistributionv": 0,
+
+	# the ex1_1 system
+	"+gsystem": [
+		{ "system": "/opt/projects/gemc/sci-g/examples/1_Simple_detector/ex1_1_simple_det/example1_1", "factory": "text"}
+	],
+
+	"+goutput": [
+		{
+			"format": "ROOT",
+			"name": "events.root",
+			"type": "event"
+		},
+		{
+			"format": "TEXT",
+			"name": "events.txt",
+			"type": "event"
+		}
+	],
+
+	"n": 100,
+	"checkOverlaps": 1
+
+}
+

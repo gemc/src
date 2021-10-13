@@ -21,14 +21,15 @@ int getNumberOfThreads(GOptions* gopts);
 // initialize G4MTRunManager
 void initGemcG4RunManager(G4RunManager *grm, GOptions* gopt);
 
+// Starting commands
 // - batch
-// - gui (if needed)
-vector<string> startingUIMCommands(bool gui);
+// - gui (if needed), include the commands in batch mode
+vector<string> startingUIMCommands(bool gui, int checkForOverlaps);
 
 // apply initial UIM commands coming from, in order:
 // - startingUIMCommands
 // - PRAGMA TODO macro file
-void applyInitialUIManagerCommands(bool gui, int verbosity);
+void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity);
 
 // loads plugins from sensitive map <names, paths>
 // exits if failure

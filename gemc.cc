@@ -43,9 +43,10 @@ int main(int argc, char* argv[])
 	// splash screen
 	GSplash  *gemcSplash = nullptr;
 
-	// get gui switch
-	bool gui = gopts->getSwitch("gui");
-	int verbosity = gopts->getInt("verbosity");
+	// get gui switch, overlaps check and verbosity
+	bool gui             = gopts->getSwitch("gui");
+	int checkForOverlaps = gopts->getInt("checkOverlaps");
+	int verbosity        = gopts->getInt("verbosity");
 
 	// createQtApplication returns a QApplication if gui is not zero
 	// otherwise it returns a QCoreApplication
@@ -114,7 +115,7 @@ int main(int argc, char* argv[])
 		// opening the g4Display GUI
 		G4Display *g4Display = new G4Display(gopts);
 
-		applyInitialUIManagerCommands(true, verbosity);
+		applyInitialUIManagerCommands(true, checkForOverlaps, verbosity);
 
 		qApp->exec();
 
@@ -125,25 +126,24 @@ int main(int argc, char* argv[])
 		delete visManager;
 
 	} else {
-		applyInitialUIManagerCommands(false, verbosity);
+		applyInitialUIManagerCommands(false, checkForOverlaps, verbosity);
 		geventDispenser->processEvents();
 
 	}
 
 	// clearing pointers
-//	delete geventDispenser;
-//	delete gDetectorGlobal;
-//
-//	// for(auto [key, value]: (*globalDigitizationMap)) { delete value;}
-//	delete globalDigitizationMap;
-//
-//	delete UIM;
+	delete geventDispenser;
+
+	for(auto [key, value]: (*globalDigitizationMap)) { delete value;}
+	delete globalDigitizationMap;
+
 	delete gApp;
 	delete gopts;
 
-
-
+	// Free the store: user actions, physics_list and detector_description are
+	// owned and deleted by the run manager
 	delete runManager;
+
 
 	cout << GEMCLOGMSGITEM << "Simulation completed, arrivederci! " << endl << endl;
 	return EXIT_SUCCESS;
