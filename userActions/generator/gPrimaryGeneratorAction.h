@@ -1,23 +1,26 @@
 #ifndef GPRIMARYGENERATORACTION_H
 #define GPRIMARYGENERATORACTION_H 1
 
+// glibrary
+#include "gparticleOptions.h"
+
 // geant4
 #include "G4VUserPrimaryGeneratorAction.hh"
-
-// TODO: to be removed when using joptions?
-#include "G4ParticleGun.hh"
+#include "G4GeneralParticleSource.hh"
 
 class GPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
 public:
-	GPrimaryGeneratorAction();
+	GPrimaryGeneratorAction(GOptions* gopts);
 	~GPrimaryGeneratorAction();
 
 public:
-	virtual void GeneratePrimaries(G4Event*);
+	void GeneratePrimaries(G4Event*);
 
 private:
-	G4ParticleGun* fParticleGun;
+	G4GeneralParticleSource* gparticleGun;
+
+	vector<gparticle::JParticle> jparticles;
 
 };
 

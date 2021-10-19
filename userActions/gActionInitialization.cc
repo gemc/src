@@ -78,7 +78,7 @@ void GActionInitialization::Build() const
 {
 	logSummary("GActionInitialization Thread Build ");
 
-	SetUserAction(new GPrimaryGeneratorAction());
+	SetUserAction(new GPrimaryGeneratorAction(goptions));
 	SetUserAction(new GRunAction(goptions, gDigitizationGlobalMap, gstreamerFactoryMap));
 	SetUserAction(new GEventAction(goptions));
 }

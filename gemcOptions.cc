@@ -11,6 +11,7 @@
 #include "gstreamerOptions.h"
 #include "g4displayOptions.h"
 #include "eventDispenserOptions.h"
+#include "gparticleOptions.h"
 
 // c++
 #include <iostream>
@@ -24,33 +25,11 @@ namespace gemc {
 	{
 		vector<GOption> goptions;
 
-		// add a "gui" switch
+		// "gui" switch
 		goptions.push_back(GOption("gui", "use Graphical User Interface"));
 
+		// "stream" switch
 		goptions.push_back(GOption("stream", "Activate Streaming ReadOut"));
-
-//		// default material to use when a material is not found
-//		json jsonFrameTimeLength = {
-//			{GNAME, "frameTimeLength"},
-//			{GDESC, "Duration of a SRO frame"},
-//			{GDFLT, UNINITIALIZEDNUMBERQUANTITY}
-//		};
-//
-//		json jsonSRO = {
-//			jsonFrameTimeLength
-//		};
-//
-//		vector<string> help;
-//		help.push_back("Define the GEMC streaming readout");
-//		help.push_back("");
-//		help.push_back("Example: -sro={frameTimeLength: 64*us; name: sro.txt; }");
-//		help.push_back("");
-//		help.push_back("Current available formats:");
-//		help.push_back("");
-//		help.push_back(" - TEXT");
-//
-//		// the last argument refers to "cumulative"
-//		goptions.push_back(GOption("sro", "Streaming Readout Definitions", jsonSRO, help, false));
 
 
 		// number of threads. Default = 1
@@ -133,6 +112,7 @@ namespace gemc {
 		goptions += gstreamer::defineOptions();
 		goptions += g4display::defineOptions();
 		goptions += eventDispenser::defineOptions();
+		goptions += gparticle::defineOptions();
 
 		return goptions;
 	}

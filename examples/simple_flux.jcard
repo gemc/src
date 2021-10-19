@@ -34,7 +34,15 @@
 	],
 
 	"n": 100,
-	"checkOverlaps": 1
+	"checkOverlaps": 1,
+
+	"+gparticle": [
+
+		# a single 5 GeV proton along the z axis: only pid and pz need to be defined
+		{ "pid": "2212", "pz": 5000 }
+
+	]
+
 
 }
 

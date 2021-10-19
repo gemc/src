@@ -145,3 +145,10 @@ cp ../sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/plugin/ch.g
 "gpluginsPath": "/Users/ungaro/builds": no need to copy, just rebuild the plugins
 
 
+
+
+
+# Compile Geant4 Examples:
+
+
+cmake -DGeant4_DIR=$G4INSTALL $G4INSTALL/source/geant4.10.07.p02/examples/extended/eventgenerator/exgps

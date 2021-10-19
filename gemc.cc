@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 	// this Initialize g4MTRunManager, which:
 	// calls Construct in GDetectorConstruction
 	// calls ConstructSDandField in GDetectorConstruction
-	// which in turns builds gsetup, g4setup and, in each thread, the sensitive detectors
+	// which in turns builds the gsystems, the g4systems, and the sensitive detectors in each thread, 
 	initGemcG4RunManager(runManager, gopts);
 
 	loadDigitizationPlugins(gopts, gDetectorGlobal->getDigitizationNamesList(), globalDigitizationMap);
