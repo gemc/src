@@ -5,7 +5,7 @@
 	# and the nthreads/checkOverlaps combination
 
 	# number of threads
-	"nthreads": 4,
+	"nthreads": 1,
 
 	# verbosities
 	"verbosity": 2,
@@ -33,13 +33,17 @@
 		}
 	],
 
-	"n": 100,
+	"n": 2,
 	"checkOverlaps": 1,
 
 	"+gparticle": [
 
-		# a single 5 GeV proton along the z axis: only pid and pz need to be defined
-		{ "pid": "2212", "pz": 5000 }
+		# a single 5 GeV proton along the z axis: only pid and p need to be defined
+		{ "pname": "proton", "p": 550 },
+
+		# two 2.1 GeV electrons at theta=30deg and phi=90deg, at z=-mm
+		{ "pname": "e-", "multiplicity": 2, "p": 2100, "theta": 30.0, "phi": 90.0, "vz": 5.0}
+
 
 	]
 

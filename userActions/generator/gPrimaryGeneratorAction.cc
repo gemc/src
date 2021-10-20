@@ -2,10 +2,9 @@
 
 
 GPrimaryGeneratorAction::GPrimaryGeneratorAction(GOptions* gopts) :
-G4VUserPrimaryGeneratorAction(),
 gparticleGun(nullptr)
 {
-	gparticleGun = new G4GeneralParticleSource();
+	gparticleGun = new G4ParticleGun();
 	jparticles = gparticle::getJParticles(gopts);
 }
 
@@ -18,7 +17,8 @@ GPrimaryGeneratorAction::~GPrimaryGeneratorAction()
 
 void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-
-
-
+	for ( auto& jparticle: jparticles) {
+		Gparticle gpar(jparticle);
+		gpar.shootParticle(gparticleGun, anEvent);
+	}
 }

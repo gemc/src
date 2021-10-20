@@ -2,11 +2,11 @@
 #define GPRIMARYGENERATORACTION_H 1
 
 // glibrary
-#include "gparticleOptions.h"
+#include "gparticle.h"
 
 // geant4
 #include "G4VUserPrimaryGeneratorAction.hh"
-#include "G4GeneralParticleSource.hh"
+#include "G4ParticleGun.hh"
 
 class GPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
@@ -18,7 +18,7 @@ public:
 	void GeneratePrimaries(G4Event*);
 
 private:
-	G4GeneralParticleSource* gparticleGun;
+	G4ParticleGun* gparticleGun;
 
 	vector<gparticle::JParticle> jparticles;
 
