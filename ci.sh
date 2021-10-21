@@ -62,9 +62,9 @@ echo
 time=$(date)
 echo "::set-output name=time::$time"
 
-if [ $# -eq 2 ]; then
-	echo "Running individual check:" "$1" "$2"
-	runJcards "$1" "$2"
+if [ $# -eq 3 ]; then
+	echo "Running individual check:" "$1" "$2" "$3"
+	runJcards "$1" "$2" "$3"
 else
 	echo "Running all checks"
 	runAll
