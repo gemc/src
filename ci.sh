@@ -34,7 +34,7 @@ function compileGEMC {
 function runJcards {
 	local dir="$1"
 	local gcard="$2"
-	local scig=$GEMC
+	local scig=$GEMC/sci-g
 
 	echo using plugins at $GPLUGIN_PATH
 	echo using sci-g at $scig
