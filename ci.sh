@@ -1,21 +1,51 @@
-#!/usr/bin/bash -e
+#!/usr/bin/env bash
+set -e
 
 # GEMC Continuous Integration
 # ----------------------------
 #
-# Original Instructions:
-# https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action
-# The steps on "main" are pasted on the Github page under "Actions" > set up a workflow yourself
-#
 # To debug this on the container:
 #
-# cp ci.sh ~/mywork
-# docker run -it --rm -v ~/mywork:/jlab/work/mywork jeffersonlab/gemc:3.0 bash
-# cd work/mywork
+# docker run -it --rm jeffersonlab/gemc:3.0 bash
+# git clone http://github.com/gemc/src /root/src && cd /root/src
 # ./ci.sh
 
-# load environment
-source /etc/profile.d/jlab.sh
+# load environment if we're on the container
+FILE=/etc/profile.d/jlab.sh
+if test -f "$FILE"; then
+    source "$FILE"
+fi
+
+function compileGEMC {
+	# getting number of available CPUS
+	copt=" -j"`getconf _NPROCESSORS_ONLN`" OPT=1"
+	echo
+	echo Compiling GEMC with options: "$copt"
+	scons $copt
+	# checking existance of executable
+	ls gemc
+	if [ $? -ne 0 ]; then
+		echo gemc executable not found
+		exit 1
+	fi
+}
+
+# this uses the $GEMC where sci-g is expected and $GPLUGIN_PATH
+function runJcards {
+	local dir="$1"
+	local gcard="$2"
+	local scig=$GEMC
+
+	echo using plugins at $GPLUGIN_PATH
+	echo using sci-g at $scig
+
+	# each job need to compile gemc
+	# this is not a problem, compilation is fast
+	compileGEMC
+
+	local jcard=$scig/$dir/$gcard
+	./gemc $jcard
+}
 
 echo
 echo "GEMC Validation: $1"
@@ -23,20 +53,16 @@ echo
 time=$(date)
 echo "::set-output name=time::$time"
 
-cd /root
-git clone http://github.com/gemc/src
-cd src
-
-
-# getting number of available CPUS
-copt=" -j"`getconf _NPROCESSORS_ONLN`" OPT=1"
-echo
-echo Compiling echo Compiling GEMC with options: "$copt"
-scons $copt
-
-# checking on various libraries
-ls gemc
-if [ $? -ne 0 ]; then
-  echo compilation not completed
-  exit 1
+if [ $# -eq 2 ]; then
+	echo "Running individual check:" "$1" "$2"
+	runJcards "$1" "$2"
+else
+	echo "Running all checks"
+	runAll
 fi
+
+function runAll {
+	runJcards examples/geometry/simple_flux example.jcard
+	runJcards examples/plugins/calorimeter  example.jcard
+	runJcards projects/clas12/targets       target.jcard
+}
