@@ -57,7 +57,7 @@ function runJcards {
 }
 
 echo
-echo "GEMC Validation: $1"
+echo "GEMC Validation:"
 echo
 time=$(date)
 echo "::set-output name=time::$time"

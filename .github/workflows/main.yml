@@ -14,7 +14,7 @@ jobs:
   validation_job:
     runs-on: ubuntu-latest
     container: jeffersonlab/gemc:3.0
-    name: Validating ${{ matrix.dir }}
+    name: ${{ matrix.dir }}
     strategy:
       fail-fast: false
       matrix:
@@ -23,6 +23,9 @@ jobs:
             script: example.py
             gcard: example.jcard
           - dir: examples/geometry/simple_flux
+            script: example.py
+            gcard: example.jcard
+          - dir: examples/plugins/calorimeter
             script: example.py
             gcard: example.jcard
           - dir: projects/clas12/targets
