@@ -26,7 +26,7 @@ jobs:
             script: example.py
             gcard: example.jcard
           - dir: examples/plugins/calorimeter
-            script: example.py
+            script: calorimeter.py
             gcard: example.jcard
           - dir: projects/clas12/targets
             script: targets.py

@@ -71,8 +71,8 @@ else
 fi
 
 function runAll {
-	runJcards examples/geometry/simple_flux example.py example.jcard
-	runJcards examples/geometry/dosimeter   example.py example.jcard
-	runJcards examples/plugins/calorimeter  example.py example.jcard
-	runJcards projects/clas12/targets       targets.py target.jcard
+	runJcards examples/geometry/simple_flux example.py     example.jcard
+	runJcards examples/geometry/dosimeter   example.py     example.jcard
+	runJcards examples/plugins/calorimeter  calorimeter.py example.jcard
+	runJcards projects/clas12/targets       targets.py     target.jcard
 }
