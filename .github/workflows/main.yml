@@ -20,10 +20,13 @@ jobs:
       matrix:
         include:
           - dir: examples/geometry/dosimeter
+            script: example.py
             gcard: example.jcard
           - dir: examples/geometry/simple_flux
+            script: example.py
             gcard: example.jcard
           - dir: projects/clas12/targets
+            script: targets.py
             gcard: target.jcard
     steps:
       # GitHub Actions do not automatically checkout your projects. If you need the code

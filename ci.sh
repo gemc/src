@@ -33,7 +33,8 @@ function compileGEMC {
 # this uses the $GEMC where sci-g is expected and $GPLUGIN_PATH
 function runJcards {
 	local dir="$1"
-	local gcard="$2"
+	local script="$2"
+	local gcard="$3"
 	local scig=$GEMC/sci-g
 
 	echo using plugins at $GPLUGIN_PATH
@@ -43,7 +44,15 @@ function runJcards {
 	# this is not a problem, compilation is fast
 	compileGEMC
 
+	# currently we need to run the script to produce the geometry
+	# we can change this to use the MYSQL database when it is ready
+	cd $scig/$dir/
+	echo "Building geometry with $script"
+	./"$script"
+	cd -
+
 	local jcard=$scig/$dir/$gcard
+	echo running gemc with gcard: $scig/$dir/$gcard
 	./gemc $jcard
 }
 
@@ -62,7 +71,8 @@ else
 fi
 
 function runAll {
-	runJcards examples/geometry/simple_flux example.jcard
-	runJcards examples/plugins/calorimeter  example.jcard
-	runJcards projects/clas12/targets       target.jcard
+	runJcards examples/geometry/simple_flux example.py example.jcard
+	runJcards examples/geometry/dosimeter   example.py example.jcard
+	runJcards examples/plugins/calorimeter  example.py example.jcard
+	runJcards projects/clas12/targets       targets.py target.jcard
 }
