@@ -35,4 +35,4 @@ jobs:
         uses: actions/checkout@main
       - name: Run ci.sh
         run: |
-          ./ci.sh "${{ matrix.dir }}" "${{ matrix.gcard }}"
+          ./ci.sh "${{ matrix.dir }}" "${{ matrix.script }}" "${{ matrix.gcard }}"
