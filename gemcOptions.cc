@@ -31,6 +31,8 @@ namespace gemc {
 		// "stream" switch
 		goptions.push_back(GOption("stream", "Activate Streaming ReadOut"));
 
+		// "print option" switch
+		goptions.push_back(GOption("sndf", "Shows non default options"));
 
 		// number of threads. Default = 1
 		json jsonNThreadOption = {

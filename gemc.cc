@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 	// they are merged with the frameworks goptions definitions
 	// the goptions are then assigned from the jcard(s) and command line
 	GOptions *gopts = new GOptions(argc, argv, gemc::defineOptions());
-	gopts->printSettings(true);
+	gopts->printSettings(gopts->getSwitch("sndf"));
 
 	// splash screen
 	GSplash  *gemcSplash = nullptr;
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 	// this Initialize g4MTRunManager, which:
 	// calls Construct in GDetectorConstruction
 	// calls ConstructSDandField in GDetectorConstruction
-	// which in turns builds the gsystems, the g4systems, and the sensitive detectors in each thread, 
+	// which in turns builds the gsystems, the g4systems, and the sensitive detectors in each thread,
 	initGemcG4RunManager(runManager, gopts);
 
 	loadDigitizationPlugins(gopts, gDetectorGlobal->getDigitizationNamesList(), globalDigitizationMap);
