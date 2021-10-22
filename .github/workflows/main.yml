@@ -25,9 +25,9 @@ jobs:
           - dir: examples/geometry/simple_flux
             script: example.py
             gcard: example.jcard
-          - dir: examples/plugins/calorimeter
-            script: calorimeter.py
-            gcard: example.jcard
+#          - dir: examples/plugins/calorimeter
+#            script: calorimeter.py
+#            gcard: example.jcard
             
     steps:
       # GitHub Actions do not automatically checkout your projects. If you need the code
@@ -41,7 +41,7 @@ jobs:
   validation_targets:
     runs-on: ubuntu-latest
     container: jeffersonlab/gemc:3.0
-    name: Validating targets
+    name: Validating CLAS12 targets
     steps:
       # GitHub Actions do not automatically checkout your projects. If you need the code
       # you need to check it out.

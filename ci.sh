@@ -60,6 +60,8 @@ echo "::set-output name=time::$time"
 if [ $# -eq 3 ]; then
 	echo "Running gemc compilation and sci-gi check:" "$1" "$2" "$3"
 	runScigCI "$1" "$2" "$3"
+elif [ $# -eq 1 ]; then
+	runScigCI "$1"
 fi
 
 
