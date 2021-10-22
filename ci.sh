@@ -58,18 +58,8 @@ time=$(date)
 echo "::set-output name=time::$time"
 
 if [ $# -eq 3 ]; then
-	echo "Running individual check:" "$1" "$2" "$3"
-	runJcards "$1" "$2" "$3"
-else
-	echo "Running all checks"
-	runAll
+	echo "Running gemc compilation and sci-gi check:" "$1" "$2" "$3"
+	runScigCI "$1" "$2" "$3"
 fi
 
-function runAll {
-	runScigCI examples/geometry/simple_flux example.py example.json
-	runScigCI examples/geometry/dosimeter example.py example.json
-	runScigCI projects/clas12/targets targets.py target_lh2.jcard
-	runScigCI projects/clas12/targets targets.py target_c12.jcard
 
-	#runScigCI examples/plugins/calorimeter  calorimeter.py example.jcard
-}

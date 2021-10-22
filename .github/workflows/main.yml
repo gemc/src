@@ -28,14 +28,15 @@ jobs:
           - dir: examples/plugins/calorimeter
             script: calorimeter.py
             gcard: example.jcard
-          - dir: projects/clas12/targets
-            script: targets.py
-            gcard: target.jcard
+            
     steps:
       # GitHub Actions do not automatically checkout your projects. If you need the code
       # you need to check it out.
       - name: Checkout
         uses: actions/checkout@main
-      - name: Run ci.sh
+      - name: Run ci.sh on examples
         run: |
           ./ci.sh "${{ matrix.dir }}" "${{ matrix.script }}" "${{ matrix.gcard }}"
+      - name: Run ci.sh on targets
+        run: |
+          ./ci.sh targets
