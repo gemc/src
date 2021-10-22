@@ -55,7 +55,7 @@
 		# 150 MeV neutrons at theta=90deg, phi=180, vz between -2 and 2mm
 		#{ "pname": "neutron", "multiplicity": 150, "p": 150, "theta": 90.0, "phi": 180.0, "delta_vz": 2.0}
 
-		# 150 MeV protons at theta=90deg, uniform in phi, v on a sphere of radius 3mm at vz=-3mm
+		# 400 MeV protons at theta=90deg, uniform in phi, v on a sphere of radius 0.5mm at vz=-4mm
 		{ "pname": "proton", "multiplicity": 400, "p": 150, "theta": 90.0, "delta_phi": 180.0, "delta_VR": 0.5, "vz": -4.0}
 
 	]
