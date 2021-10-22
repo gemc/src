@@ -31,24 +31,28 @@ function compileGEMC {
 }
 
 # this uses the $GEMC where sci-g is expected and $GPLUGIN_PATH
-function runScigCI {
-	local dir="$1"
-	local script="$2"
-	local gcard="$3"
-	local scig=$GEMC/sci-g
-
-	echo using plugins at $GPLUGIN_PATH
-	echo using sci-g at $scig
-
+function runScigCIExamples {
 	# each job need to compile gemc
 	# this is not a problem, compilation is fast
 	compileGEMC
 
 	# currently we need to run the script to produce the geometry
 	# we can change this to use the MYSQL database when it is ready
-	cd $scig
+	cd $GEMC/sci-g
 
 	./ci.sh "$1" "$2" "$3"
+}
+
+function runScigCITargets {
+	# each job need to compile gemc
+	# this is not a problem, compilation is fast
+	compileGEMC
+
+	# currently we need to run the script to produce the geometry
+	# we can change this to use the MYSQL database when it is ready
+	cd $GEMC/sci-g
+
+	./ci.sh "$1"
 }
 
 echo
@@ -59,9 +63,9 @@ echo "::set-output name=time::$time"
 
 if [ $# -eq 3 ]; then
 	echo "Running gemc compilation and sci-gi check:" "$1" "$2" "$3"
-	runScigCI "$1" "$2" "$3"
+	runScigCIExamples "$1" "$2" "$3"
 elif [ $# -eq 1 ]; then
-	runScigCI "$1"
+	runScigCITargets "$1"
 fi
 
 
