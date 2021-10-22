@@ -31,7 +31,7 @@ function compileGEMC {
 }
 
 # this uses the $GEMC where sci-g is expected and $GPLUGIN_PATH
-function runJcards {
+function runScigCI {
 	local dir="$1"
 	local script="$2"
 	local gcard="$3"
@@ -46,14 +46,9 @@ function runJcards {
 
 	# currently we need to run the script to produce the geometry
 	# we can change this to use the MYSQL database when it is ready
-	cd $scig/$dir/
-	echo "Building geometry with $script"
-	./"$script"
-	cd -
+	cd $scig
 
-	local jcard=$scig/$dir/$gcard
-	echo running gemc with gcard: $scig/$dir/$gcard
-	./gemc $jcard
+	./ci.sh "$1" "$2" "$3"
 }
 
 echo
@@ -71,8 +66,10 @@ else
 fi
 
 function runAll {
-	runJcards examples/geometry/simple_flux example.py     example.jcard
-	runJcards examples/geometry/dosimeter   example.py     example.jcard
-	runJcards examples/plugins/calorimeter  calorimeter.py example.jcard
-	runJcards projects/clas12/targets       targets.py     target.jcard
+	runScigCI examples/geometry/simple_flux example.py example.json
+	runScigCI examples/geometry/dosimeter example.py example.json
+	runScigCI projects/clas12/targets targets.py target_lh2.jcard
+	runScigCI projects/clas12/targets targets.py target_c12.jcard
+
+	#runScigCI examples/plugins/calorimeter  calorimeter.py example.jcard
 }
