@@ -37,7 +37,6 @@ jobs:
       - name: Run ci.sh on examples
         run: |
           ./ci.sh "${{ matrix.dir }}" "${{ matrix.script }}" "${{ matrix.gcard }}"
-
  validation_targets:
     runs-on: ubuntu-latest
     container: jeffersonlab/gemc:3.0
