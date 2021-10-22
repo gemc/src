@@ -37,7 +37,8 @@ jobs:
       - name: Run ci.sh on examples
         run: |
           ./ci.sh "${{ matrix.dir }}" "${{ matrix.script }}" "${{ matrix.gcard }}"
- validation_targets:
+
+  validation_targets:
     runs-on: ubuntu-latest
     container: jeffersonlab/gemc:3.0
     name: Validating targets
@@ -46,6 +47,6 @@ jobs:
       # you need to check it out.
       - name: Checkout
         uses: actions/checkout@main
-      - name: Run ci.sh
+      - name: Run ci.sh on targets
         run: |
           ./ci.sh targets
