@@ -37,6 +37,16 @@ jobs:
       - name: Run ci.sh on examples
         run: |
           ./ci.sh "${{ matrix.dir }}" "${{ matrix.script }}" "${{ matrix.gcard }}"
-      - name: Run ci.sh on targets
+
+ validation_targets:
+    runs-on: ubuntu-latest
+    container: jeffersonlab/gemc:3.0
+    name: Validating targets
+    steps:
+      # GitHub Actions do not automatically checkout your projects. If you need the code
+      # you need to check it out.
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Run ci.sh
         run: |
           ./ci.sh targets
