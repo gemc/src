@@ -21,7 +21,9 @@ function compileGEMC {
 	copt=" -j"`getconf _NPROCESSORS_ONLN`" OPT=1"
 	echo
 	echo Compiling GEMC with options: "$copt"
-	scons $copt
+	echo Content of glibrary:
+	ls -l $GLIBRARY/lib
+	scons SHOWENV=1 SHOWBUILD=1 $copt
 	# checking existance of executable
 	ls gemc
 	if [ $? -ne 0 ]; then
