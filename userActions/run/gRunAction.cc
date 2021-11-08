@@ -198,11 +198,13 @@ vector<int> GRunAction::formPayload(GDigitizedData* digitizedData) {
 	int slot    = digitizedData->getIntObservable(SLOTSTRINGID);
 	int channel = digitizedData->getIntObservable(CHANNELSTRINGID);
 	int q       = digitizedData->getIntObservable(CHARGEATELECTRONICS);
+	int time    = digitizedData->getIntObservable(TIMEATELECTRONICS);
 
 	payload.push_back(crate);
 	payload.push_back(slot);
 	payload.push_back(channel);
 	payload.push_back(q);
+	payload.push_back(time);
 
 	return payload;
 }
