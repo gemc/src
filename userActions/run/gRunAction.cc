@@ -123,7 +123,7 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 				// filling frameRunData with this eventDataCollection
 				for ( auto [detectorName, gdataCollection]: *eventDataCollection->getDataCollectionMap()) {
 					for ( auto hitDigitizedData: *gdataCollection->getDigitizedData() ) {
-						float timeAtelectronic = hitDigitizedData->getFltObservable(TIMEATELECTRONICS);
+						int timeAtelectronic = hitDigitizedData->getIntObservable(TIMEATELECTRONICS);
 						int frameIndex = eventFrameIndex(absoluteEventNumber, timeAtelectronic);
 						frameRunData[frameIndex]->addIntegralPayload(formPayload(hitDigitizedData), verbosity);
 					}

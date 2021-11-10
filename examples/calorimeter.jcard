@@ -42,10 +42,20 @@
 	],
 
 	"digitizationVariation": "rga_spring2018_mc",
-	"n": 10,
+	"n": 500,
 	"eventTimeSize": "2*us",
-	"checkOverlaps": 1
+	"checkOverlaps": 1,
 
+	# various particles configurations
+	# uncomment the one(s) of interest
+	"+gparticle": [
+
+
+		# 3 GeV pions+ at theta between 3 and 5 deg (uniform in cos(theta)), phi = 180
+		{ "pname": "pi+", "multiplicity": 10, "p": 3000, "theta": 4.0, "delta_theta": 1.0, "phi": 180}
+
+
+	]
 
 }
 

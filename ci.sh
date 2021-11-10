@@ -8,7 +8,7 @@ set -e
 #
 # docker run -it --rm jeffersonlab/gemc:3.0 bash
 # git clone http://github.com/gemc/src /root/src && cd /root/src
-# ./ci.sh
+# ./ci.sh examples/geometry/dosimeter example.py example.jcard
 
 # load environment if we're on the container
 FILE=/etc/profile.d/jlab.sh
