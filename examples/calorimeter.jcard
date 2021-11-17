@@ -35,6 +35,11 @@
 			"type": "stream"
 		},
 		{
+			"format": "JLABSRO",
+			"name": "stream.dat",
+			"type": "stream"
+		},
+		{
 			"format": "TEXT",
 			"name": "events.txt",
 			"type": "event"
@@ -42,7 +47,7 @@
 	],
 
 	"digitizationVariation": "rga_spring2018_mc",
-	"n": 500,
+	"n": 100,
 	"eventTimeSize": "2*us",
 	"checkOverlaps": 1,
 
