@@ -40,7 +40,7 @@ function runScigCIExamples {
 
 	# currently we need to run the script to produce the geometry
 	# we can change this to use the MYSQL database when it is ready
-	cd $GEMC/sci-g
+	cd $JLAB_ROOT/$JLAB_VERSION/noarch/sci-g/$SCIG_VERSION
 
 	./ci.sh "$1" "$2" "$3"
 }
@@ -52,7 +52,7 @@ function runScigCITargets {
 
 	# currently we need to run the script to produce the geometry
 	# we can change this to use the MYSQL database when it is ready
-	cd $GEMC/sci-g
+	cd $JLAB_ROOT/$JLAB_VERSION/noarch/sci-g/$SCIG_VERSION
 
 	./ci.sh "$1"
 }
