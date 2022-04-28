@@ -86,6 +86,7 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 				GFrameDataCollection *frameData = new GFrameDataCollection(gframeHeader, verbosity);
 				frameRunData.push_back(frameData);
 			}
+			
 			lastFrameCreated += nFramesToCreate;
 			if (frameStreamVerbosity >= GVERBOSITY_SUMMARY) {
 				cout << SROLOGHEADER << nFramesToCreate << " new frames, buffer size is now " << frameRunData.size();
