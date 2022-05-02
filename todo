@@ -18,6 +18,7 @@ In General:
 - add section "fromScratch" to redo project and targets from scratch in the notes
 - go over constructors: is it move, copy, construct from scratch?
 - only load env needed by each library, see glibrary todo
+- make script to copy necessary library/gcards into xcode builds
 
 
 Gemc Details:
