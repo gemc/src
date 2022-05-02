@@ -1,4 +1,6 @@
+Running gemc in xcode:
 
+Disable malloc check Edit Scheme > Diagnostic
 
 Geant4 Environment:
 
