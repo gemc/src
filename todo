@@ -19,7 +19,7 @@ In General:
 - go over constructors: is it move, copy, construct from scratch?
 - only load env needed by each library, see glibrary todo
 - make script to copy necessary library/gcards into xcode builds
-
+- examples/advanced/doiPET/README
 
 Gemc Details:
 
@@ -33,11 +33,9 @@ Gemc Details:
 - if decisionToSkipHit, return true or false? check examples?
 
 
-
 - checkout fun4all tutorial:
   - https://eic-detector.github.io/tutorials_example2_JLab.html
 
-Configure Workflow, see in gemc/docs
 
 
 
