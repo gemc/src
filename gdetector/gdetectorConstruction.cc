@@ -56,15 +56,16 @@ void GDetectorConstruction::ConstructSDandField()
 			}
 			
 			// making sure the geant4 logical volume exists
-			if(g4world->getG4Volume(volumeName) == nullptr) {
-				G4cerr << FATALERRORL << "  Error: <" << volumeName << "> logical volume not build? This should never happen." << G4endl;
+			string g4name = gvolume->getG4Name();
+			if(g4world->getG4Volume(g4name) == nullptr) {
+				G4cerr << FATALERRORL << "  Error: <" << g4name << "> logical volume not build? This should never happen." << G4endl;
 				exit(99);
 			} else {
 				
 				// checking that we do not already have a GSensitiveDetector
 				if(sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
 					
-					logSummary("Sensitive detector <" + digitizationName + "> doesn't exist for <" + volumeName + ">. Creating it.");
+					logSummary("Sensitive detector <" + digitizationName + "> doesn't exist for <" + g4name + ">. Creating it.");
 					sensitiveDetectorsMap[digitizationName] = new GSensitiveDetector(digitizationName, gopt, gDynamicDigitizationMapGlobalInstance);
 
 					auto sdManager = G4SDManager::GetSDMpointer();
@@ -75,11 +76,11 @@ void GDetectorConstruction::ConstructSDandField()
 					logSummary("Sensitive detector <" + digitizationName + "> exist for <" + volumeName + ">");
 				}
 
-				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(volumeName, new GTouchable(digitizationName,
-																																			gvolume->getGIdentity(),
-																																			gvolume->getDetectorDimensions()));
+				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name, new GTouchable(digitizationName,
+																																	  gvolume->getGIdentity(),
+																																	  gvolume->getDetectorDimensions()));
 
-				SetSensitiveDetector(volumeName, sensitiveDetectorsMap[digitizationName]);
+				SetSensitiveDetector(g4name, sensitiveDetectorsMap[digitizationName]);
 
 			}
 		}
