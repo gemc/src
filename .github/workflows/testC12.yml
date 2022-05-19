@@ -1,0 +1,33 @@
+name: Test CLAS12
+
+on:
+  # Triggers the workflow on all pushes
+  push:
+  pull_request:
+    types:
+      # only run workflow when a commit is pushed to a PR branch
+      # instead of running for all other PR events
+      - synchronize
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  testSciG:
+    runs-on: ubuntu-latest
+    container: jeffersonlab/gemc:3.0-clas12
+    name: Run ${{ matrix.detector }}
+    strategy:
+      fail-fast: false
+      matrix:
+        detector:
+          - ftof
+          - ft/ft_cal
+    steps:
+      # GitHub Actions do not automatically checkout your projects. If you need the code
+      # you need to check it out.
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Test ${{ matrix.detector }}
+        run: |
+          ./ci/testC12.sh -e ${{ matrix.detector }}
