@@ -1,4 +1,4 @@
-name: Compile
+name: Compile GEMC
 
 on:
   # Triggers the workflow on all pushes
