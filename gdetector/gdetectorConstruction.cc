@@ -73,7 +73,7 @@ void GDetectorConstruction::ConstructSDandField()
 					sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName]);
 
 				} else {
-					logSummary("Sensitive detector <" + digitizationName + "> exist for <" + volumeName + ">");
+					logDetail("Sensitive detector <" + digitizationName + "> exist for <" + volumeName + ">");
 				}
 
 				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name, new GTouchable(digitizationName,
