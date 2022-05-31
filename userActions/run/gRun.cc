@@ -58,7 +58,7 @@ void GRun::RecordEvent(const G4Event *aEvent)
 	//	}
 	
 	// header
-	GEventDataCollectionHeader *gheader = new GEventDataCollectionHeader(aEvent->GetEventID(),       // g4run-local event number
+	GEventDataCollectionHeader *gheader = new GEventDataCollectionHeader(aEvent->GetEventID(),           // g4run-local event number
 																								G4Threading::G4GetThreadId(),   // thread ID
 																								verbosity);
 
