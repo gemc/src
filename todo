@@ -1,25 +1,21 @@
 working on gemc:
 
-- materials
-- cad 
 - divide source in different libraries like scons (started with gdetector)
 - put the verbosity string options into conventions, like GSENSITIVITYVERBOSITY = "gsensitivityv"
-- add detector list + interface like gemc2
+- add system/detector browser
 - add hipo output
-- add sro output
 - add display goodies like gemc2++
-
 
 
 In General:
 
 - keep chasing using namespace;
-- when necessary, implement the rule of 5.
+- rule of 5.
 - add section "fromScratch" to redo project and targets from scratch in the notes
 - go over constructors: is it move, copy, construct from scratch?
 - only load env needed by each library, see glibrary todo
-- make script to copy necessary library/gcards into xcode builds
 - examples/advanced/doiPET/README
+
 
 Gemc Details:
 

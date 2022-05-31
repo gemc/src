@@ -77,7 +77,7 @@ void GRunAction::EndOfRunAction(const G4Run* aRun)
 
 		if ( stream ) {
 			if (frameStreamVerbosity >= GVERBOSITY_SUMMARY) {
-				cout << SROLOGHEADER << " cuurent nframes in the buffer: " << frameRunData.size() << ", new frames to create: " << nFramesToCreate;
+				cout << SROLOGHEADER << " current nframes in the buffer: " << frameRunData.size() << ", new frames to create: " << nFramesToCreate;
 				cout << ", last frame id created: " << lastFrameCreated << endl;
 			}
 			
