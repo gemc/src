@@ -30,7 +30,6 @@ gstreamerFactoryMap(streamerFactoryMap)
 	logSummary("Instantiating GRunAction ");
 	frameDuration = 64000;
 	eventDuration = gutilities::getG4Number(gopt->getString("eventTimeSize"));
-	nthreads      = getNumberOfThreads(gopt);
 
 	stream = gopt->getSwitch("stream");
 }

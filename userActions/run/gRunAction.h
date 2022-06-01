@@ -46,7 +46,6 @@ private:
 
 	double frameDuration = UNINITIALIZEDNUMBERQUANTITY; // frame length in nanoseconds
 	double eventDuration = UNINITIALIZEDNUMBERQUANTITY; // event duration in nanoseconds
-	int nthreads         = UNINITIALIZEDNUMBERQUANTITY;
 	int eventIndex       = 0; // added to absolute event number, increases with each run
 	int lastFrameCreated = 0; // keeping track of the last frame created
 
