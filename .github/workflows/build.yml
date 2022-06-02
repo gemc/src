@@ -1,4 +1,4 @@
-name: Compile GEMC
+name: Build GEMC
 
 on:
   # Triggers the workflow on all pushes
@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  validation_job:
+  build:
     runs-on: ubuntu-latest
     container: jeffersonlab/gemc:3.0
     name: ${{ matrix.dir }}
@@ -23,6 +23,6 @@ jobs:
       # you need to check it out.
       - name: Checkout
         uses: actions/checkout@main
-      - name: Compile
+      - name: Build GEMC
         run: |
           ./ci/build.sh

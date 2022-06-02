@@ -1,4 +1,4 @@
-name: Test SciG
+name: Build, SciG Tests
 
 on:
   # Triggers the workflow on all pushes
@@ -28,6 +28,6 @@ jobs:
       # you need to check it out.
       - name: Checkout
         uses: actions/checkout@main
-      - name: Test ${{ matrix.examples }}
+      - name: Build, Test ${{ matrix.examples }}
         run: |
           ./ci/testSciG.sh -e ${{ matrix.examples }} 
