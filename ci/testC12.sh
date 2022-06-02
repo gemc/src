@@ -48,5 +48,6 @@ while getopts ":he:" option; do
 done
 
 ./ci/build.sh # build gemc
+
 cd $JLAB_SOFTWARE/clas12-systems/$G3CLAS12_VERSION
 ./ci/tests.sh -s $detector -t

@@ -1,4 +1,4 @@
-name: Compile GEMC
+name: Build GEMC
 
 on:
   # Triggers the workflow on all pushes
@@ -23,6 +23,6 @@ jobs:
       # you need to check it out.
       - name: Checkout
         uses: actions/checkout@main
-      - name: Compile
+      - name: Build GEMC
         run: |
           ./ci/build.sh

@@ -47,9 +47,6 @@ while getopts ":he:" option; do
    esac
 done
 
-
-
-
 ./ci/build.sh # build gemc
 
 cd $JLAB_ROOT/$JLAB_VERSION/noarch/sci-g/$SCIG_VERSION
