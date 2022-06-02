@@ -22,7 +22,7 @@ jobs:
       matrix:
         detector:
           - ftof
-          - ft/ft_cal
+          - ft
     steps:
       # GitHub Actions do not automatically checkout your projects. If you need the code
       # you need to check it out.
