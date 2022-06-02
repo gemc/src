@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  testSciG:
+  testCLAS12:
     runs-on: ubuntu-latest
     container: jeffersonlab/gemc:3.0-clas12
     name: Run ${{ matrix.detector }}
@@ -30,4 +30,4 @@ jobs:
         uses: actions/checkout@main
       - name: Build, Test ${{ matrix.detector }}
         run: |
-          ./ci/testC12.sh -e ${{ matrix.detector }}
+          ./ci/testC12.sh -s ${{ matrix.detector }}

@@ -144,8 +144,7 @@ int main(int argc, char* argv[])
 	// owned and deleted by the run manager
 	delete runManager;
 
-
-	cout << GEMCLOGMSGITEM << "Simulation completed, arrivederci! " << endl << endl;
+	cout << GEMCLOGMSGITEM << KGRN << "Simulation completed, arrivederci! " << RST << endl << endl;
 	return EXIT_SUCCESS;
 }
 

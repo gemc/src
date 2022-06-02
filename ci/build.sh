@@ -1,9 +1,9 @@
 #!/usr/bin/env zsh
-set -e
 
 # Purpose: compiles gemc and installs it in gemc
 
-# docker run -it --rm jeffersonlab/gemc:3.0 bash
+# Container run:
+# docker run -it --rm jeffersonlab/gemc:3.0 sh
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # ./ci/build.sh
 

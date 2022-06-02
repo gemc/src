@@ -2,9 +2,9 @@
 
 # Purpose: Runs the examples in sci-g
 
-# Container run example:
-# docker run -it --rm jeffersonlab/gemc:3.0 bash
-# git clone http://github.com/gemc/glibrary /root/glibrary && cd /root/glibrary
+# Container run:
+# docker run -it --rm jeffersonlab/gemc:3.0 sh
+# git clone http://github.com/gemc/src /root/src && cd /root/src
 # ./ci/testSciG.sh -e examples/geometry/dosimeter
 
 # load environment if we're on the container
