@@ -48,6 +48,10 @@ while getopts ":hs:" option; do
 done
 
 ./ci/build.sh # build gemc
+if [ $? -ne 0 ]; then
+	echo building gemc failed
+	exit 1
+fi
 
 cd $JLAB_SOFTWARE/clas12-systems/$G3CLAS12_VERSION
 ./ci/tests.sh -s $detector -t

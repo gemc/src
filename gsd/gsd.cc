@@ -19,9 +19,6 @@ gHitsCollection(nullptr)
 	string hitCollectionName = sdName + "__HitCollection";
 	collectionName.insert(hitCollectionName);
 
-	// should run loadReadoutSpecs here?
-
-
 	logSummary("Instantiating GSensitiveDetector " + sdName);
 }
 
@@ -77,12 +74,14 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 	// if not defined by the plugin, base class will return a vector with one element, the input
 	vector<GTouchable*> thisStepProcessedTouchables = gDynamicDigitizationLocalInstance->processTouchable(getGTouchable(thisStep), thisStep);
 
-
 	for(const auto thisGTouchable: thisStepProcessedTouchables) {
+
+		// assign track id
+		thisGTouchable->assignTrackId(thisStep->GetTrack()->GetTrackID());
 
 		if(isThisANewTouchable(thisGTouchable)) {
 			// new ghit, insert in gHitsCollection
-			// the constructor takes care of the filling the hit according to gHitBitSet
+			// the constructor takes care of the filling the hit step infos according to gHitBitSet
 			gHitsCollection->insert(new GHit(thisGTouchable, thisStep, gHitBitSet));
 
 		} else {
