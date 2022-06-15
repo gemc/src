@@ -48,6 +48,10 @@ while getopts ":he:" option; do
 done
 
 ./ci/build.sh # build gemc
+if [ $? -ne 0 ]; then
+	echo building gemc failed
+	exit 1
+fi
 
 cd $JLAB_ROOT/$JLAB_VERSION/noarch/sci-g/$SCIG_VERSION
 ./ci/tests.sh -e $detector -t
