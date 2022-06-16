@@ -18,18 +18,16 @@ gDigitizationGlobalMap(gDDGlobal)
 {
 	verbosity     = gopt->getInt("grunv");
 
-	if(verbosity >= GVERBOSITY_DETAILS) {
-		G4cout << GEMCRUNHEADER << "Instantiating GRun" << G4endl;
-		gLogClassConstruct("GRun");
+	if(verbosity >= GVERBOSITY_CLASSES) {
+		gLogClassConstruct("GRun Constructor ");
 	}
 }
 
 // Destructor
 GRun::~GRun()
 {
-	if(verbosity >= GVERBOSITY_DETAILS) {
-		G4cout << GEMCRUNHEADER << "GRun:Destructor" << G4endl;
-		gLogDestruct("GRun");
+	if(verbosity >= GVERBOSITY_CLASSES) {
+		gLogClassDestruct("GRun Destructor");
 	}
 
 	// data is deleted in GRunAction::EndOfRunAction
@@ -105,7 +103,7 @@ void GRun::RecordEvent(const G4Event *aEvent)
 
 // This is global
 // Method to be overwritten by the user for merging local Run objects to the global Run object
-// PRAGMA: But I can use it to save output right? No need to accumulate. No! Need to accumulate. Writing output should go in GRunAction::EndOfRunAction!
+// I can use it to save output right? No! Need to accumulate. Writing output should go in GRunAction::EndOfRunAction!
 void GRun::Merge(const G4Run *aRun)
 {
 	G4cout << GEMCRUNHEADER << "GRun:Global Merge" << G4endl;
@@ -115,7 +113,6 @@ void GRun::Merge(const G4Run *aRun)
 	for ( auto run: localRun->runData) {
 		runData.push_back(run);
 	}
-
 
 	if (verbosity >= GVERBOSITY_DETAILS) {
 		G4cout << GEMCRUNHEADER << "GRun: local run data size " << localRun->runData.size() << "  global size: " << runData.size() << G4endl;
