@@ -94,12 +94,15 @@ vector<string> startingUIMCommands(bool gui, int checkForOverlaps) {
 //	commands.push_back("/vis/viewer/flush");
 
 	if ( checkForOverlaps == 2 ) {
+		cout << GEMCLOGMSGITEM << "Running /geometry/test/run" << endl;
 		commands.push_back("/geometry/test/run");
 	} else if ( checkForOverlaps >= 100 ) {
 		commands.push_back("/geometry/test/resolution " + to_string(checkForOverlaps));
 		commands.push_back("/geometry/test/run");
 	}
 
+	commands.push_back("/geometry/test/resolution " + to_string(checkForOverlaps));
+	
 	// not in gui mode, return batch only
 	if( !gui ) return commands;
 
@@ -112,6 +115,10 @@ vector<string> startingUIMCommands(bool gui, int checkForOverlaps) {
 //	commands.push_back("/vis/viewer/set/autoRefresh 1");
 
 
+	
+	
+	
+	
 	return commands;
 
 }
