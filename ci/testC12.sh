@@ -56,4 +56,5 @@ fi
 
 cd $JLAB_SOFTWARE/clas12-systems/$G3CLAS12_VERSION
 ./ci/tests.sh -s $detector -t
+file /jlab/2.5/Linux_Fedora34-gcc11.2.1/clas12-systems/1.0/systemsTxtDB/ftof.gplugin
 exit $?
