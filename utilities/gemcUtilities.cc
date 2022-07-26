@@ -101,7 +101,22 @@ vector<string> startingUIMCommands(bool gui, int checkForOverlaps) {
 		commands.push_back("/geometry/test/run");
 	}
 
-	commands.push_back("/geometry/test/resolution " + to_string(checkForOverlaps));
+	if ( checkForOverlaps > 0 ) {
+		commands.push_back("/geometry/test/resolution " + to_string(checkForOverlaps));
+	}
+	
+	// incomplete list, see $G4INSTALL/lib $G4INSTALL/source/geant4-v$GEANT4_VERSION/examples/basic/B1/*.mac
+	commands.push_back("/vis/open DAWNFILE");
+	commands.push_back("/vis/drawVolume");
+	commands.push_back("/vis/viewer/set/viewpointVector -0.5 0 -1");
+	commands.push_back("/vis/viewer/set/lightsVector -1 0 0");
+	commands.push_back("/vis/scene/endOfEventAction accumulate");
+	commands.push_back("/vis/geometry/set/visibility World 0 false");
+	commands.push_back("/vis/viewer/set/style surface");
+
+	
+	
+	
 	
 	// not in gui mode, return batch only
 	if( !gui ) return commands;
@@ -112,7 +127,6 @@ vector<string> startingUIMCommands(bool gui, int checkForOverlaps) {
 	commands.push_back("/vis/scene/endOfEventAction accumulate");        // for some reason refresh (default) won't work here
 	commands.push_back("/vis/viewer/set/culling coveredDaughters true");
 	commands.push_back("/vis/viewer/set/background 1 1 1 1");   // 205, 230, 251 = CD, E6, FA
-//	commands.push_back("/vis/viewer/set/autoRefresh 1");
 
 
 	

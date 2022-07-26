@@ -91,9 +91,15 @@ int main(int argc, char* argv[])
 
 	EventDispenser *geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
+	// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance
+	// notice we initialize this in batch mode as well
+//	G4VisManager *visManager = new G4VisExecutive("Quiet");
+	G4VisManager* visManager = new G4VisExecutive;
+	visManager->Initialize();
 
 	if ( gui ) {
 
+		// initializing qt session
 		gemcSplash->message("Starting GUI");
 		qApp->processEvents();
 
@@ -103,11 +109,6 @@ int main(int argc, char* argv[])
 		gemcSplash->finish(&gemcGui);
 
 
-		// initializing vis manager and qt session
-		// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
-		// G4VisManager* visManager = new G4VisExecutive("Quiet");
-		G4VisManager *visManager = new G4VisExecutive("Quiet");
-		visManager->Initialize();
 
 		// intializing G4UIQt session
 		G4UIsession *session = new G4UIQt(1, argv);
