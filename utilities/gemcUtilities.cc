@@ -106,13 +106,13 @@ vector<string> startingUIMCommands(bool gui, int checkForOverlaps) {
 	}
 	
 	// incomplete list, see $G4INSTALL/lib $G4INSTALL/source/geant4-v$GEANT4_VERSION/examples/basic/B1/*.mac
-	commands.push_back("/vis/open DAWNFILE");
-	commands.push_back("/vis/drawVolume");
-	commands.push_back("/vis/viewer/set/viewpointVector -0.5 0 -1");
-	commands.push_back("/vis/viewer/set/lightsVector -1 0 0");
-	commands.push_back("/vis/scene/endOfEventAction accumulate");
-	commands.push_back("/vis/geometry/set/visibility World 0 false");
-	commands.push_back("/vis/viewer/set/style surface");
+//	commands.push_back("/vis/open DAWNFILE");
+//	commands.push_back("/vis/drawVolume");
+//	commands.push_back("/vis/viewer/set/viewpointVector -0.5 0 -1");
+//	commands.push_back("/vis/viewer/set/lightsVector -1 0 0");
+//	commands.push_back("/vis/scene/endOfEventAction accumulate");
+//	commands.push_back("/vis/geometry/set/visibility World 0 false");
+//	commands.push_back("/vis/viewer/set/style surface");
 
 	
 	
