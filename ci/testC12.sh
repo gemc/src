@@ -3,8 +3,9 @@
 # Purpose: Runs the CLAS12 test in clas12-system
 
 # Container run:
-# docker run -it --rm jeffersonlab/gemc:3.0 sh
+# docker run -it --rm jeffersonlab/gemc:3.0-clas12 sh
 # git clone http://github.com/gemc/src /root/src && cd /root/src
+# git clone http://github.com/maureeungaro/src /root/src && cd /root/src
 # ./ci/testC12.sh -s ft
 
 # load environment if we're on the container
@@ -55,3 +56,4 @@ fi
 
 cd $JLAB_SOFTWARE/clas12-systems/$G3CLAS12_VERSION
 ./ci/tests.sh -s $detector -t
+exit $?

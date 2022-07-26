@@ -14,7 +14,7 @@ on:
 
 jobs:
   testCLAS12:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-focal
     container: jeffersonlab/gemc:3.0-clas12
     name: Run ${{ matrix.detector }}
     strategy:

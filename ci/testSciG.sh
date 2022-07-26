@@ -55,3 +55,4 @@ fi
 
 cd $JLAB_ROOT/$JLAB_VERSION/noarch/sci-g/$SCIG_VERSION
 ./ci/tests.sh -e $detector -t
+exit $?
