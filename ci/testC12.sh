@@ -56,6 +56,13 @@ fi
 
 cd $JLAB_SOFTWARE/clas12-systems/$G3CLAS12_VERSION
 ./ci/tests.sh -s $detector -t
+exitCode=$?
+
 file /jlab/2.5/Linux_Fedora34-gcc11.2.1/clas12-systems/1.0/systemsTxtDB/ftof.gplugin
+ld /jlab/2.5/Linux_Fedora34-gcc11.2.1/clas12-systems/1.0/systemsTxtDB/ftof.gplugin
 ldd /jlab/2.5/Linux_Fedora34-gcc11.2.1/clas12-systems/1.0/systemsTxtDB/ftof.gplugin
 #exit $?
+if [[ $exitCode != 0 ]]; then
+	cat *.err
+	exit $exitCode
+fi
