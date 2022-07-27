@@ -5,13 +5,18 @@
 # Container run:
 # docker run -it --rm jeffersonlab/gemc:3.0 sh
 # git clone http://github.com/gemc/src /root/src && cd /root/src
+# git clone http://github.com/maureeungaro/src /root/src && cd /root/src
 # ./ci/testSciG.sh -e examples/geometry/dosimeter
 
-# load environment if we're on the container
-# notice the extra argument to the source command
-TERM=xterm # source script use tput for colors, TERM needs to be specified
-FILE=/etc/profile.d/jlab.sh
-test -f $FILE && source $FILE keepmine
+if [[ -z "${G3CLAS12_VERSION}" ]]; then
+	# load environment if we're on the container
+	# notice the extra argument to the source command
+	TERM=xterm # source script use tput for colors, TERM needs to be specified
+	FILE=/etc/profile.d/jlab.sh
+	test -f $FILE && source $FILE keepmine
+else
+  echo environment already defined
+fi
 
 Help()
 {
