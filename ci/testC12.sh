@@ -15,7 +15,7 @@ if [[ -z "${G3CLAS12_VERSION}" ]]; then
 	FILE=/etc/profile.d/jlab.sh
 	test -f $FILE && source $FILE keepmine
 else
-  echo g3src ci/testC12: environment already defined
+	echo g3src ci/testC12: environment already defined
 fi
 
 Help()
