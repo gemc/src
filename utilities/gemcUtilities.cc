@@ -93,17 +93,19 @@ vector<string> startingUIMCommands(bool gui, int checkForOverlaps) {
 //	commands.push_back("/vis/verbose 0");
 //	commands.push_back("/vis/viewer/flush");
 
+	
+	// added additional overlaps check if set to 2
+	// if set to a number greater than 100
 	if ( checkForOverlaps == 2 ) {
-		cout << GEMCLOGMSGITEM << "Running /geometry/test/run" << endl;
+		cout << GEMCLOGMSGITEM << "Running /geometry/test/run with 50 points. NOTICE: currently this fails" << endl;
+		commands.push_back("/geometry/test/resolution 50" );
 		commands.push_back("/geometry/test/run");
 	} else if ( checkForOverlaps >= 100 ) {
+		cout << GEMCLOGMSGITEM << "Running /geometry/test/run with " << to_string(checkForOverlaps) << " points. NOTICE: currently this fails. " << endl;
 		commands.push_back("/geometry/test/resolution " + to_string(checkForOverlaps));
 		commands.push_back("/geometry/test/run");
 	}
-
-	if ( checkForOverlaps > 0 ) {
-		commands.push_back("/geometry/test/resolution " + to_string(checkForOverlaps));
-	}
+	
 	
 	// incomplete list, see $G4INSTALL/lib $G4INSTALL/source/geant4-v$GEANT4_VERSION/examples/basic/B1/*.mac
 //	commands.push_back("/vis/open DAWNFILE");
@@ -129,7 +131,10 @@ vector<string> startingUIMCommands(bool gui, int checkForOverlaps) {
 	commands.push_back("/vis/viewer/set/background 1 1 1 1");   // 205, 230, 251 = CD, E6, FA
 
 
-	
+	commands.push_back("/vis/viewer/set/autoRefresh true");
+	commands.push_back("/vis/drawVolume");
+	commands.push_back("/vis/viewer/set/lineSegmentsPerCircle 100");
+
 	
 	
 	
