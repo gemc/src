@@ -6,7 +6,7 @@ using namespace std;
 #include "goptions.h"
 #include "gsplash.h"
 #include "eventDispenser.h"
-#include "g4DisplayProperties.h"
+#include "g4SceneProperties.h"
 
 // geant4
 #include "G4UImanager.hh"
@@ -93,8 +93,8 @@ int main(int argc, char* argv[])
 
 	// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance
 	// notice we initialize this in batch mode as well
-//	G4VisManager *visManager = new G4VisExecutive("Quiet");
-	G4VisManager* visManager = new G4VisExecutive;
+	G4VisManager *visManager = new G4VisExecutive("Quiet");
+//	G4VisManager* visManager = new G4VisExecutive;
 	visManager->Initialize();
 
 	if ( gui ) {
@@ -112,29 +112,28 @@ int main(int argc, char* argv[])
 		G4UIsession *session = new G4UIQt(1, argv);
 
 		// set display properties
-		G4DisplayProperties *g4DisplayProperties = new G4DisplayProperties(gopts);
+		G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
 
 		applyInitialUIManagerCommands(true, checkForOverlaps, verbosity);
 
 		qApp->exec();
 
 		// order of pointers deletion is inverse of creation
-
-		delete g4DisplayProperties;
+		delete g4SceneProperties;
 		delete session;
-		delete visManager;
 
 	} else {
 		// set display properties in batch mode
-		G4DisplayProperties *g4DisplayProperties = new G4DisplayProperties(gopts);
+		G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
 
 		applyInitialUIManagerCommands(false, checkForOverlaps, verbosity);
 		geventDispenser->processEvents();
 
-		delete g4DisplayProperties;
+		delete g4SceneProperties;
 	}
 
 	// clearing pointers
+	// delete visManager; deleting this cause error. Perhaps can define / delete in the functions above
 	delete geventDispenser;
 
 	for(auto [key, value]: (*globalDigitizationMap)) { delete value;}
