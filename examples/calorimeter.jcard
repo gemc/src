@@ -12,7 +12,7 @@
 	"g4systemv": 0,
 	"grunv": 0,
 	"gsensitivityv": 0,
-	"eventDistributionv": 0,
+	"runweightsv": 0,
 	"gframestreamv": 1,
 
 	"+gsystem": [
@@ -46,7 +46,7 @@
 		}
 	],
 
-	"digitizationVariation": "rga_spring2018_mc",
+	"dVariation": "rga_spring2018_mc",
 	"n": 100,
 	"eventTimeSize": "2*us",
 	"checkOverlaps": 1,

@@ -92,7 +92,7 @@ namespace gemc {
 
 		// event log every N events
 		json jsonDigiVariationOption = {
-			{GNAME, "digitizationVariation"},
+			{GNAME, "dVariation"},
 			{GDESC, "Digitization Variation"},
 			{GDFLT, "default"}
 		};
