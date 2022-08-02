@@ -15,8 +15,6 @@ using namespace std;
 #include "G4VisExecutive.hh"
 #include "G4UIQt.hh"
 
-#include "G4StepLimiterPhysics.hh"
-
 // gemc
 #include "gemcUtilities.h"
 #include "gemcConventions.h"
@@ -29,6 +27,7 @@ using namespace std;
 
 
 // TODO: physics list: to be gphysics
+#include "G4StepLimiterPhysics.hh"
 #include "FTFP_BERT.hh"
 
 
