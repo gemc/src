@@ -27,6 +27,9 @@ namespace gemc {
 
 		// "stream" switch
 		goptions.push_back(GOption("stream", "Activate Streaming ReadOut"));
+		
+		// record particle even if they do not deposit energy in the sensitive volumes
+		goptions.push_back(GOption("recordZeroEdep", "Record particle even if they do not deposit energy in the sensitive volumes"));
 
 		// "print option" switch
 		goptions.push_back(GOption("sndf", "Shows non default options"));

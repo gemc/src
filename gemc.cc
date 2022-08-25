@@ -28,7 +28,7 @@ using namespace std;
 
 // TODO: physics list: to be gphysics
 #include "G4StepLimiterPhysics.hh"
-#include "FTFP_BERT.hh"
+#include "QGSP_BERT.hh"
 
 
 int main(int argc, char* argv[])
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 	runManager->SetUserInitialization(gDetectorGlobal);
 
 	// TODO: physics list: to be gphysics
-	auto physicsList = new FTFP_BERT();
+	auto physicsList = new QGSP_BERT();
 	physicsList->RegisterPhysics(new G4StepLimiterPhysics());
 	runManager->SetUserInitialization(physicsList);
 
@@ -93,7 +93,6 @@ int main(int argc, char* argv[])
 	// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance
 	// notice we initialize this in batch mode as well
 	G4VisManager *visManager = new G4VisExecutive("Quiet");
-//	G4VisManager* visManager = new G4VisExecutive;
 	visManager->Initialize();
 
 	if ( gui ) {

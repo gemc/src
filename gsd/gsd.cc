@@ -10,9 +10,9 @@ GSensitiveDetector::GSensitiveDetector(string sdName, GOptions* goptions, map<st
 G4VSensitiveDetector(sdName),                                              // geant4 derived
 GStateMessage(goptions, "GSensitiveDetector " + sdName, "gsensitivityv"),  // GStateMessage derived
 gDynamicDigitizationMapGlobalInstance(gDDGlobal),
-gHitsCollection(nullptr)
-{
-	verbosity = goptions->getInt("gsensitivityv");
+gHitsCollection(nullptr) {
+	verbosity      = goptions->getInt("gsensitivityv");
+	recordZeroEdep = goptions->getSwitch("recordZeroEdep");
 
 	// protected, from G4VSensitiveDetector: it's a G4CollectionNameVector
 	// not really used in gemc but it's no overhead to do it as in the examples

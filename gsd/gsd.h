@@ -33,6 +33,7 @@ public:
 
 private:
 	int verbosity;
+	bool recordZeroEdep;
 
 	// the GSensitiveDetector is built before the digitization, so we need
 	// a pointer to global digitization map so we can pick gDigiLocal at initialization
