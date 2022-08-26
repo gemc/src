@@ -76,6 +76,7 @@ void GDetectorConstruction::ConstructSDandField()
 					logDetail("Sensitive detector <" + digitizationName + "> exist for <" + volumeName + ">");
 				}
 
+				// TODO: the last option shoud come from options, by default is false
 				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name, new GTouchable(digitizationName,
 																																	  gvolume->getGIdentity(),
 																																	  gvolume->getDetectorDimensions()));

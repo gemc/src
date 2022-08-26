@@ -27,8 +27,9 @@ using namespace std;
 
 
 // TODO: physics list: to be gphysics
-#include "G4StepLimiterPhysics.hh"
+//#include "G4StepLimiterPhysics.hh"
 #include "QGSP_BERT.hh"
+#include "QGSP_BERT_HP.hh"
 
 
 int main(int argc, char* argv[])
@@ -74,7 +75,7 @@ int main(int argc, char* argv[])
 
 	// TODO: physics list: to be gphysics
 	auto physicsList = new QGSP_BERT();
-	physicsList->RegisterPhysics(new G4StepLimiterPhysics());
+	//physicsList->RegisterPhysics(new G4StepLimiterPhysics());
 	runManager->SetUserInitialization(physicsList);
 
 	// instantiate GActionInitialization and initialize the geant4 kernel

@@ -62,14 +62,18 @@ private:
 
 	// GTouchable set, reset each event,
 	// used to decide if this is a new hit or not
-	std::set<GTouchable*> touchableSet;
+	std::set<GTouchable> touchableSet;
 
 	// by checking if it is present in the set. If not, add it.
-	inline bool isThisANewTouchable(GTouchable* thisTouchable)
-	{
-		// not found. Insert it and return false
-		if(touchableSet.find(thisTouchable) == touchableSet.end()) {
-			touchableSet.insert(thisTouchable);
+	inline bool isThisANewTouchable(GTouchable* thisTouchable) {
+		
+		
+		GTouchable gtInst(*thisTouchable);
+		
+		// if not found insert and return true: it's a new
+		if(touchableSet.find(gtInst) == touchableSet.end()) {
+
+			touchableSet.insert(gtInst);
 			return true;
 		}
 
