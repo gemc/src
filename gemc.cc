@@ -123,7 +123,6 @@ int main(int argc, char* argv[])
 	} else {
 		// set display properties in batch mode
 		G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
-
 		applyInitialUIManagerCommands(false, checkForOverlaps, verbosity);
 		geventDispenser->processEvents();
 
