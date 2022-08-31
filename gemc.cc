@@ -7,6 +7,7 @@ using namespace std;
 #include "gsplash.h"
 #include "eventDispenser.h"
 #include "g4SceneProperties.h"
+#include "gphysics.h"
 
 // geant4
 #include "G4UImanager.hh"
@@ -73,10 +74,15 @@ int main(int argc, char* argv[])
 	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
 	runManager->SetUserInitialization(gDetectorGlobal);
 
+	
 	// TODO: physics list: to be gphysics
 	auto physicsList = new QGSP_BERT();
 	//physicsList->RegisterPhysics(new G4StepLimiterPhysics());
 	runManager->SetUserInitialization(physicsList);
+	
+	// starting gphysics
+	auto gphysics = new GPhysics(gopts);
+	
 
 	// instantiate GActionInitialization and initialize the geant4 kernel
 	runManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));

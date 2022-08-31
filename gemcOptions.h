@@ -7,7 +7,7 @@
 namespace gemc {
 
 	// returns array of options definitions
-	// this calls all the static defineOptions functions in the various libraries/frameworks
+	// this calls all the namespaces defineOptions functions in the various libraries/frameworks
 	vector<GOption> defineOptions();
 
 }

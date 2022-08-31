@@ -12,6 +12,7 @@
 #include "g4displayOptions.h"
 #include "eventDispenserOptions.h"
 #include "gparticleOptions.h"
+#include "gphysicsOptions.h"
 
 // c++
 #include <iostream>
@@ -115,6 +116,7 @@ namespace gemc {
 		goptions += g4display::defineOptions();
 		goptions += eventDispenser::defineOptions();
 		goptions += gparticle::defineOptions();
+		goptions += gphysics::defineOptions();
 
 		return goptions;
 	}

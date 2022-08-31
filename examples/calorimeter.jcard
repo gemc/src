@@ -12,7 +12,7 @@
 	"g4systemv": 0,
 	"grunv": 0,
 	"gsensitivityv": 0,
-	"runweightsv": 0,
+	"edistv": 0,
 	"gframestreamv": 1,
 
 	"+gsystem": [
