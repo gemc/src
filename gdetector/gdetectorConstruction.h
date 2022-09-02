@@ -18,7 +18,7 @@ class GDetectorConstruction : public G4VUserDetectorConstruction, public GStateM
 {
 public:
 	// constructor and destructor.
-	GDetectorConstruction(GOptions* opt, map<string, GDynamicDigitization*> *gDDGlobal);
+	GDetectorConstruction(GOptions* gopts, map<string, GDynamicDigitization*> *gDDGlobal);
 	virtual ~GDetectorConstruction();
 	
 public:

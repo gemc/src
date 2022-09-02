@@ -1,7 +1,7 @@
 // Sourcing local version
 #include "/opt/projects/gemc/glibrary/settings.xcconfig"
 
-// destination of libraries and binaries
+// installation destination of libraries and binaries
 CONFIGURATION_BUILD_DIR = $MYBUILDDIR
 
 // includes

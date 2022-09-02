@@ -1,3 +1,45 @@
+## Executable from scratch
+
+	- select project settings
+
+### Sources:
+
+	- search for all *.cc
+	
+### Libraries:
+
+	- all within project
+
+
+open $QTDIR/lib
+
+	- Core
+	- GUI
+	- OpenGL
+	- PrintSupport
+	- Widgets
+
+open $GLIBRARY/lib/
+
+	- cadmesh
+
+
+open $CLHEP_BASE_DIR/lib/
+
+	- libCLHEP-version.dylib
+
+
+open $XERCESCROOT/lib/
+
+	- libxerces-c-3.2.dylib
+
+open $G4ROOT/$GEANT4_VERSION/lib/
+
+	- all  symlinks
+
+
+
+
 Running gemc in xcode:
 
 Disable malloc check Edit Scheme > Diagnostic
@@ -21,33 +63,6 @@ not defined?
 G4NEUTRONXSDATA    $G4NEUTRONXSDATA \
 
 
-open $QTDIR/lib
-
-	- Core
-	- GUI
-	- OpenGL
-	- PrintSupport
-	- Widgets
-
-open $GLIBRARY/lib/
-
-	- cadmesh
-
-
-open $CLHEP_BASE_DIR/lib/
-
-	- libCLHEP-2.4.4.2.dylib
-
-
-open $XERCESCROOT/lib/
-
-	- libxerces-c-3.2.dylib
-
-open $G4ROOT/$GEANT4_VERSION/lib/
-
-	- all
-
-
 Pre-processor:
 
 
@@ -62,8 +77,7 @@ GEMC
  - type definitions start with Capital Letter
  - instances start with lowercase letter
  - shared variables should contain "shared" / "global" in the name
- - thread-local variable should contain "local" / "tlocal" / "thread"
- - source filenames starts with Capital letters << maybe not
+ - thread-local variable should contain "local" / "tlocal" / "thread"  in the name
 
 
 
@@ -105,21 +119,6 @@ public:
 cat
 less if LESS is set: export LESS=-Xr
 grep
-
-
-
-
-In general from scratch:
-
-1. new project
-2. remove project file from folder, put one dir up
-3. add settings.xconfig to project settings debug and release
-4. target: add library or command line executable, remove dirs/files created, add files to build phases manually
-5. select GNU++17
-
-
-
-
 
 
 # gdetector libraries

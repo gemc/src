@@ -8,10 +8,10 @@
 // geant4
 #include "G4SDManager.hh"
 
-GDetectorConstruction::GDetectorConstruction(GOptions* opt, map<string, GDynamicDigitization*> *gDDGlobal) :
-G4VUserDetectorConstruction(),                                   // geant4 derived
-GStateMessage(opt, "GDetectorConstruction", G4SYSTEMVERBOSITY),  // GStateMessage derived
-gopt(opt),
+GDetectorConstruction::GDetectorConstruction(GOptions* gopts, map<string, GDynamicDigitization*> *gDDGlobal) :
+G4VUserDetectorConstruction(),                                     // geant4 derived
+GStateMessage(gopts, "GDetectorConstruction", G4SYSTEMVERBOSITY),  // GStateMessage derived
+gopt(gopts),
 gDynamicDigitizationMapGlobalInstance(gDDGlobal)
 {
 }

@@ -25,29 +25,23 @@ using namespace std;
 #include "gsession.h"
 #include "gdetectorConstruction.h"
 
-
-
-// TODO: physics list: to be gphysics
-//#include "G4StepLimiterPhysics.hh"
-#include "QGSP_BERT.hh"
-#include "QGSP_BERT_HP.hh"
-
-
 int main(int argc, char* argv[])
 {
 	// the gemc goptions are defined in utilities/defineOptions.cc
 	// they are merged with the frameworks goptions definitions
 	// the goptions are then assigned from the jcard(s) and command line
 	GOptions *gopts = new GOptions(argc, argv, gemc::defineOptions());
-	gopts->printSettings(gopts->getSwitch("sndf"));
-
-	// splash screen
-	GSplash  *gemcSplash = nullptr;
+	// print non default settings
+	// gopts->printSettings(gopts->getSwitch("sndf"));
 
 	// get gui switch, overlaps check and verbosity
 	bool gui             = gopts->getSwitch("gui");
 	int checkForOverlaps = gopts->getInt("checkOverlaps");
 	int verbosity        = gopts->getInt("verbosity");
+	bool showPhysX       = gopts->getSwitch("showAvailablePhysicsX");
+
+	// splash screen
+	GSplash  *gemcSplash = nullptr;
 
 	// createQtApplication returns a QApplication if gui is not zero
 	// otherwise it returns a QCoreApplication
@@ -75,15 +69,19 @@ int main(int argc, char* argv[])
 	runManager->SetUserInitialization(gDetectorGlobal);
 
 	
-	// TODO: physics list: to be gphysics
-	auto physicsList = new QGSP_BERT();
-	//physicsList->RegisterPhysics(new G4StepLimiterPhysics());
-	runManager->SetUserInitialization(physicsList);
+//	// TODO: physics list: to be gphysics
+//	auto physicsList = new QGSP_BERT();
+//	//physicsList->RegisterPhysics(new G4StepLimiterPhysics());
+//	runManager->SetUserInitialization(physicsList);
 	
 	// starting gphysics
 	auto gphysics = new GPhysics(gopts);
-	
+	if (showPhysX ) {
+		return EXIT_SUCCESS;
+	}
+	runManager->SetUserInitialization(gphysics);
 
+	
 	// instantiate GActionInitialization and initialize the geant4 kernel
 	runManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
 
