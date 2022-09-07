@@ -16,6 +16,7 @@ using namespace gstreamer;
 using namespace std;
 
 GActionInitialization::GActionInitialization(GOptions* gopts, map<string, GDynamicDigitization*> *gDDGlobal) :
+G4VUserActionInitialization(),
 GStateMessage(gopts, "GActionInitialization", "verbosity"),  // GStateMessage derived
 goptions(gopts),
 gDigitizationGlobalMap(gDDGlobal)

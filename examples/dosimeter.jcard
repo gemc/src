@@ -1,32 +1,35 @@
 {
-	# Example1_2 jcard
-	# This is identical to the jcard in Example1_2 except for the absolute path
-	# and the nthreads/checkOverlaps combination
-
+	# This jcard purpose is to test gemc in xcode. It is a copy of the one in sci-g except for the path
+	#
+	# Scheme:
+	#
+	# GEMCDB_ENV should be set to: /opt/projects/gemc/sci-g/examples/geometry/
+	# argument: dosimeter.jcard
+	
+	
+	# Run dosimeter simulation with
+	# - ROOT and TXT outputs
+	# - 1000 events
+	# - a single proton and 2 electrons / event
+	# - run on 2 threads
+	
 	# number of threads
-	"nthreads": 4,
-
+	"nthreads": 2,
+	
 	# verbosities
-	"verbosity": 2,
+	"verbosity": 1,
 	"gsystemv": 0,
 	"g4systemv": 0,
 	"grunv": 0,
 	"gsensitivityv": 0,
-	"runweightsv": 0,
-
-	# the ex1_2 system.
+	"edistv": 0,
+	
+	# the dosimeter and targetCad systems
 	"+gsystem": [
-
-		{ "system": "/opt/projects/gemc/sci-g/examples/geometry/dosimeter/dosimeter",  "factory": "text"},
-		{ "system": "/opt/projects/gemc/sci-g/examples/geometry/dosimeter/targetCad/", "factory": "cad"}
-
+		{ "system":   "./dosimeter", "factory": "text", "variation": "default" },
+		{ "system":   "./targetCad", "factory": "cad"}
 	],
-
-	# changing position of the scattering chamber
-	"+gmodifier": [
-		{"volume": "scatteringChamber", "tilt": "0*deg, 180*deg, 0*deg", "shift": "0*cm, 0*cm, 125*cm"}
-	],
-
+	
 	"+goutput": [
 		{
 			"format": "ROOT",
@@ -39,18 +42,21 @@
 			"type": "event"
 		}
 	],
-
-	# various particles configurations
-	# uncomment the one(s) of interest
+	
+	
+	
+	# run 1000 events, all in one run
+	"n": 1000,
+	"maxebuffer": 1000,
+	
 	"+gparticle": [
-
-		# 3 GeV pions+ at theta between 3 and 5 deg (uniform in cos(theta)), phi = 180
-		{ "pname": "pi+", "multiplicity": 10, "p": 3000, "theta": 4.0, "delta_theta": 1.0, "phi": 180}
-
-	],
-
-	"n": 10,
-	"checkOverlaps": 1
-
+		
+		# a single 5 GeV proton along the z axis: only pid and p need to be defined
+		{ "pname": "proton", "p": 550 },
+		
+		# two 2.1 GeV electrons at theta=30deg and phi=90deg, at z=-mm
+		{ "pname": "e-", "multiplicity": 2, "p": 2100, "theta": 30.0, "phi": 90.0, "vz": 5.0}
+		
+	]
 }
 

@@ -7,6 +7,7 @@ using namespace std;
 #include "gsplash.h"
 #include "eventDispenser.h"
 #include "g4SceneProperties.h"
+#include "gphysics.h"
 
 // geant4
 #include "G4UImanager.hh"
@@ -14,8 +15,6 @@ using namespace std;
 #include "G4RunManagerFactory.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIQt.hh"
-
-#include "G4StepLimiterPhysics.hh"
 
 // gemc
 #include "gemcUtilities.h"
@@ -26,27 +25,23 @@ using namespace std;
 #include "gsession.h"
 #include "gdetectorConstruction.h"
 
-
-
-// TODO: physics list: to be gphysics
-#include "FTFP_BERT.hh"
-
-
 int main(int argc, char* argv[])
 {
 	// the gemc goptions are defined in utilities/defineOptions.cc
 	// they are merged with the frameworks goptions definitions
 	// the goptions are then assigned from the jcard(s) and command line
 	GOptions *gopts = new GOptions(argc, argv, gemc::defineOptions());
-	gopts->printSettings(gopts->getSwitch("sndf"));
-
-	// splash screen
-	GSplash  *gemcSplash = nullptr;
+	// print non default settings
+	// gopts->printSettings(gopts->getSwitch("sndf"));
 
 	// get gui switch, overlaps check and verbosity
 	bool gui             = gopts->getSwitch("gui");
 	int checkForOverlaps = gopts->getInt("checkOverlaps");
 	int verbosity        = gopts->getInt("verbosity");
+	bool showPhysX       = gopts->getSwitch("showAvailablePhysicsX");
+
+	// splash screen
+	GSplash  *gemcSplash = nullptr;
 
 	// createQtApplication returns a QApplication if gui is not zero
 	// otherwise it returns a QCoreApplication
@@ -60,8 +55,9 @@ int main(int argc, char* argv[])
 	G4UImanager* UIM = G4UImanager::GetUIpointer();
 	UIM->SetCoutDestination(new GSession);
 
+
 	// init geant4 run manager with number of threads coming from options
-	auto* runManager =     G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+	auto runManager =     G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 	runManager->SetNumberOfThreads(getNumberOfThreads(gopts));
 
 	// instantiating pointer to global digitization map
@@ -73,11 +69,14 @@ int main(int argc, char* argv[])
 	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
 	runManager->SetUserInitialization(gDetectorGlobal);
 
-	// TODO: physics list: to be gphysics
-	auto physicsList = new FTFP_BERT();
-	physicsList->RegisterPhysics(new G4StepLimiterPhysics());
-	runManager->SetUserInitialization(physicsList);
+	// starting gphysics
+	auto gphysics = new GPhysics(gopts);
+	if (showPhysX ) {
+		return EXIT_SUCCESS;
+	}
+	runManager->SetUserInitialization(gphysics->getPhysList());
 
+	
 	// instantiate GActionInitialization and initialize the geant4 kernel
 	runManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
 
@@ -89,13 +88,13 @@ int main(int argc, char* argv[])
 
 	loadDigitizationPlugins(gopts, gDetectorGlobal->getDigitizationNamesList(), globalDigitizationMap);
 
-	EventDispenser *geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
 	// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance
 	// notice we initialize this in batch mode as well
 	G4VisManager *visManager = new G4VisExecutive("Quiet");
-//	G4VisManager* visManager = new G4VisExecutive;
 	visManager->Initialize();
+
+	auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
 	if ( gui ) {
 
@@ -125,7 +124,6 @@ int main(int argc, char* argv[])
 	} else {
 		// set display properties in batch mode
 		G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
-
 		applyInitialUIManagerCommands(false, checkForOverlaps, verbosity);
 		geventDispenser->processEvents();
 

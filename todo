@@ -9,12 +9,14 @@ working on gemc:
 
 In General:
 
+- event reproducibility: write random engine status in output stream
 - keep chasing using namespace;
 - rule of 5.
 - add section "fromScratch" to redo project and targets from scratch in the notes
 - go over constructors: is it move, copy, construct from scratch?
 - only load env needed by each library, see glibrary todo
 - examples/advanced/doiPET/README
+
 
 
 Gemc Details:

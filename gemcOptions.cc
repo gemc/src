@@ -12,6 +12,7 @@
 #include "g4displayOptions.h"
 #include "eventDispenserOptions.h"
 #include "gparticleOptions.h"
+#include "gphysicsOptions.h"
 
 // c++
 #include <iostream>
@@ -25,16 +26,16 @@ namespace gemc {
 	{
 		vector<GOption> goptions;
 
-		// "gui" switch
-		goptions.push_back(GOption("gui", "use Graphical User Interface"));
-
 		// "stream" switch
 		goptions.push_back(GOption("stream", "Activate Streaming ReadOut"));
+		
+		// record particle even if they do not deposit energy in the sensitive volumes
+		goptions.push_back(GOption("recordZeroEdep", "Record particle even if they do not deposit energy in the sensitive volumes"));
 
 		// "print option" switch
 		goptions.push_back(GOption("sndf", "Shows non default options"));
 
-		// number of threads. Default = 1
+		// number of threads. Default = 0 (all)
 		json jsonNThreadOption = {
 			{GNAME, "nthreads"},
 			{GDESC, "set number of threads"},
@@ -74,7 +75,7 @@ namespace gemc {
 		};
 		goptions.push_back(GOption(jsonELOGOption));
 
-		// location of plugins
+		// plugins search path
 		json jsonPluginPathOption = {
 			{GNAME, "gpluginsPath"},
 			{GDESC, "Directory containing the plugins"},
@@ -82,7 +83,7 @@ namespace gemc {
 		};
 		goptions.push_back(GOption(jsonPluginPathOption));
 
-		// event log every N events
+		// log only thread # given
 		json jsonTLOGOption = {
 			{GNAME, "tlog"},
 			{GDESC, "Log only thread # given. 0 (default) means log all"},
@@ -90,7 +91,7 @@ namespace gemc {
 		};
 		goptions.push_back(GOption(jsonTLOGOption));
 
-		// event log every N events
+		// digitization variation
 		json jsonDigiVariationOption = {
 			{GNAME, "dVariation"},
 			{GDESC, "Digitization Variation"},
@@ -115,6 +116,7 @@ namespace gemc {
 		goptions += g4display::defineOptions();
 		goptions += eventDispenser::defineOptions();
 		goptions += gparticle::defineOptions();
+		goptions += gphysics::defineOptions();
 
 		return goptions;
 	}

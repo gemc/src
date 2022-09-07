@@ -16,7 +16,8 @@ GRun::GRun(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal) :
 G4Run(),
 gDigitizationGlobalMap(gDDGlobal)
 {
-	verbosity     = gopt->getInt("grunv");
+	verbosity = gopt->getInt("grunv");
+	elog = gopt->getInt("elog");
 
 	if(verbosity >= GVERBOSITY_CLASSES) {
 		gLogClassConstruct("GRun Constructor ");
@@ -40,8 +41,15 @@ using GHitsCollection = G4THitsCollection<GHit> ;
 // The observables defined in each run should be filled here with the information from the hits
 void GRun::RecordEvent(const G4Event *aEvent)
 {
-	G4cout << GEMCRUNHEADER << "GRun:Local RecordEvent" << G4endl;
 
+	if (verbosity >= GVERBOSITY_DETAILS) {
+
+	int eventID = aEvent->GetEventID();
+	
+	if (eventID % elog == 0 ) {
+		G4cout << GEMCRUNHEADER << "GRun:Local RecordEvent for number " << eventID << G4endl;
+	}
+	}
 	// HitsCollections of This Event
 	G4HCofThisEvent* HCsThisEvent = aEvent->GetHCofThisEvent();
 	if(!HCsThisEvent) return;
@@ -106,8 +114,6 @@ void GRun::RecordEvent(const G4Event *aEvent)
 // I can use it to save output right? No! Need to accumulate. Writing output should go in GRunAction::EndOfRunAction!
 void GRun::Merge(const G4Run *aRun)
 {
-	G4cout << GEMCRUNHEADER << "GRun:Global Merge" << G4endl;
-
 	const GRun *localRun = static_cast<const GRun *> (aRun);
 
 	for ( auto run: localRun->runData) {
@@ -115,6 +121,7 @@ void GRun::Merge(const G4Run *aRun)
 	}
 
 	if (verbosity >= GVERBOSITY_DETAILS) {
+		G4cout << GEMCRUNHEADER << "GRun:Global Merge" << G4endl;
 		G4cout << GEMCRUNHEADER << "GRun: local run data size " << localRun->runData.size() << "  global size: " << runData.size() << G4endl;
 	}
 

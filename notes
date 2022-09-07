@@ -1,58 +1,82 @@
-Running gemc in xcode:
+## Executable from scratch
 
-Disable malloc check Edit Scheme > Diagnostic
+	- select Project > Configurations > Add settings file
 
-Geant4 Environment:
+### Sources:
 
-echo " \
-G4LEDATA           $G4LEDATA \
-G4LEVELGAMMADATA   $G4LEVELGAMMADATA \
-G4NEUTRONHPDATA    $G4NEUTRONHPDATA \
-G4PIIDATA          $G4PIIDATA \
-G4RADIOACTIVEDATA  $G4RADIOACTIVEDATA \
-G4REALSURFACEDATA  $G4REALSURFACEDATA \
-G4SAIDXSDATA       $G4SAIDXSDATA \
-G4ABLADATA         $G4ABLADATA \
-G4ENSDFSTATEDATA   $G4ENSDFSTATEDATA \
-G4PARTICLEXSDATA   $G4PARTICLEXSDATA \
-"
+	- search for all *.cc
+	
+### Libraries:
 
-not defined?
-G4NEUTRONXSDATA    $G4NEUTRONXSDATA \
-
+- all within project
 
 open $QTDIR/lib
 
-	- Core
-	- GUI
-	- OpenGL
-	- PrintSupport
-	- Widgets
-
-open $GLIBRARY/lib/
-
-	- cadmesh
-
+	- QtCore.framework
+	- QtGui.framework
+	- QtWidgets.framework
 
 open $CLHEP_BASE_DIR/lib/
 
-	- libCLHEP-2.4.4.2.dylib
+	- libCLHEP-version.dylib
+
+open $G4ROOT/$GEANT4_VERSION/lib/
+
+	- all, remove symlinks make copies instead:
+	rm libG4ptl.0.dylib ; cp libG4ptl.0.0.2.dylib libG4ptl.0.dylib
+   rm libG4ptl.dylib ; cp libG4ptl.0.0.2.dylib libG4ptl.dylib
+
+
+
+### In addition, these could only be copied only but xcode doesn't seem to remember
+### and it's better to add to both linking and copy
+
+Copy Files to Product Directory (no subpath)
+
+Add all the external libraries
 
 
 open $XERCESCROOT/lib/
 
 	- libxerces-c-3.2.dylib
 
-open $G4ROOT/$GEANT4_VERSION/lib/
+open $GLIBRARY/lib/
 
-	- all
-
-
-Pre-processor:
+	- cadmesh, tet, IrrXML
 
 
+examples > jcards
+
+###  Running gemc in xcode:
+
+Disable malloc check Edit Scheme > Diagnostic
+
+
+### Pre-processor flags
+ 
+	Used by geant4:
+ 
 	- $G4INSTALL/bin/geant4-config --cflags
+	
+	Apple Clang > Preprocessing
 
+	Each of the -D directive should be added with value = 1 (remember to remove the D)
+	
+	Example:
+	-DG4VIS_USE_OPENGL becomes G4VIS_USE_OPENG=1
+
+
+
+Options:
+
+	add to Scheme > Run > Arguments
+	
+	
+Environment:
+
+Scheme > Arguments > Environment variables
+
+	GEMCDB_ENV /opt/projects/gemc/sci-g/examples/geometry/
 
 
 GEMC
@@ -62,8 +86,7 @@ GEMC
  - type definitions start with Capital Letter
  - instances start with lowercase letter
  - shared variables should contain "shared" / "global" in the name
- - thread-local variable should contain "local" / "tlocal" / "thread"
- - source filenames starts with Capital letters << maybe not
+ - thread-local variable should contain "local" / "tlocal" / "thread"  in the name
 
 
 
@@ -105,21 +128,6 @@ public:
 cat
 less if LESS is set: export LESS=-Xr
 grep
-
-
-
-
-In general from scratch:
-
-1. new project
-2. remove project file from folder, put one dir up
-3. add settings.xconfig to project settings debug and release
-4. target: add library or command line executable, remove dirs/files created, add files to build phases manually
-5. select GNU++17
-
-
-
-
 
 
 # gdetector libraries

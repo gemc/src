@@ -26,6 +26,7 @@ public:
 	
 private:
 	int verbosity;
+	int elog;
 	
 	// digitization map, loaded in main(), passed here through GActionInitialization
 	map<string, GDynamicDigitization*> *gDigitizationGlobalMap;

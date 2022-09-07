@@ -16,11 +16,11 @@ GEventAction::~GEventAction()
 
 void GEventAction::BeginOfEventAction(const G4Event* event)
 {
-    printEventStatsBegin(event);
+	// printEventStatsBegin(event);
 }
 
 void GEventAction::EndOfEventAction(const G4Event* event)
 {
-    printEventStatsEnd(event);
+	// printEventStatsEnd(event);
 }
 
