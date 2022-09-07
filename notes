@@ -26,13 +26,15 @@ open $G4ROOT/$GEANT4_VERSION/lib/
 	rm libG4ptl.0.dylib ; cp libG4ptl.0.0.2.dylib libG4ptl.0.dylib
    rm libG4ptl.dylib ; cp libG4ptl.0.0.2.dylib libG4ptl.dylib
 
-### Copy Files
+
+
+### In addition, these could only be copied only but xcode doesn't seem to remember
+### and it's better to add to both linking and copy
 
 Copy Files to Product Directory (no subpath)
 
 Add all the external libraries
 
-In addition:
 
 open $XERCESCROOT/lib/
 
@@ -41,9 +43,6 @@ open $XERCESCROOT/lib/
 open $GLIBRARY/lib/
 
 	- cadmesh, tet, IrrXML
-
-#	- QtOpenGL.framework
-#	- QtPrintSupport.framework
 
 
 examples > jcards
