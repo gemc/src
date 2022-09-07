@@ -15,7 +15,6 @@ using namespace std;
 #include "G4RunManagerFactory.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIQt.hh"
-#include "FTFP_BERT.hh"
 
 // gemc
 #include "gemcUtilities.h"
@@ -56,8 +55,9 @@ int main(int argc, char* argv[])
 	G4UImanager* UIM = G4UImanager::GetUIpointer();
 	UIM->SetCoutDestination(new GSession);
 
+
 	// init geant4 run manager with number of threads coming from options
-	auto* runManager =     G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+	auto runManager =     G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 	runManager->SetNumberOfThreads(getNumberOfThreads(gopts));
 
 	// instantiating pointer to global digitization map
@@ -69,17 +69,12 @@ int main(int argc, char* argv[])
 	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
 	runManager->SetUserInitialization(gDetectorGlobal);
 
-	
-//	// TODO: physics list: to be gphysics
-//	auto physicsList = new FTFP_BERT();
-//	runManager->SetUserInitialization(physicsList);
-//
 	// starting gphysics
 	auto gphysics = new GPhysics(gopts);
 	if (showPhysX ) {
 		return EXIT_SUCCESS;
 	}
-	runManager->SetUserInitialization(gphysics);
+	runManager->SetUserInitialization(gphysics->getPhysList());
 
 	
 	// instantiate GActionInitialization and initialize the geant4 kernel
@@ -93,12 +88,13 @@ int main(int argc, char* argv[])
 
 	loadDigitizationPlugins(gopts, gDetectorGlobal->getDigitizationNamesList(), globalDigitizationMap);
 
-	EventDispenser *geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
 	// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance
 	// notice we initialize this in batch mode as well
 	G4VisManager *visManager = new G4VisExecutive("Quiet");
 	visManager->Initialize();
+
+	auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
 	if ( gui ) {
 

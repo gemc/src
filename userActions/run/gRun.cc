@@ -114,8 +114,6 @@ void GRun::RecordEvent(const G4Event *aEvent)
 // I can use it to save output right? No! Need to accumulate. Writing output should go in GRunAction::EndOfRunAction!
 void GRun::Merge(const G4Run *aRun)
 {
-	
-
 	const GRun *localRun = static_cast<const GRun *> (aRun);
 
 	for ( auto run: localRun->runData) {
