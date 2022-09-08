@@ -12,10 +12,7 @@
 	# - 1000 events
 	# - a single proton and 2 electrons / event
 	# - run on 2 threads
-	
-	# number of threads
-	"nthreads": 2,
-	
+		
 	# verbosities
 	"verbosity": 1,
 	"gsystemv": 0,

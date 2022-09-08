@@ -13,9 +13,6 @@
 	# - a single proton on the z axis
 	# - run on 2 threads
 	
-	# number of threads
-	"nthreads": 2,
-	
 	# verbosities
 	"verbosity": 1,
 	"gsystemv": 0,
