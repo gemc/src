@@ -45,11 +45,6 @@ open $GLIBRARY/lib/
 	- cadmesh, tet, IrrXML
 
 
-examples > jcards
-
-###  Running gemc in xcode:
-
-Disable malloc check Edit Scheme > Diagnostic
 
 
 ### Pre-processor flags
@@ -72,11 +67,26 @@ Options:
 	add to Scheme > Run > Arguments
 	
 	
-Environment:
+   Scheme > Arguments > Environment variables
 
-Scheme > Arguments > Environment variables
+	GEMCDB_ENV /opt/projects/gemc/sci-g/examples/geometry
+	GEMCDB_ENV /opt/projects/gemc/clas12-systems/systemsTxtDB
 
-	GEMCDB_ENV /opt/projects/gemc/sci-g/examples/geometry/
+
+	Options:
+
+	gui
+	/opt/projects/gemc/clas12-systems/ftof/overlaps/rga_fall2018.jcard
+	/opt/projects/gemc/sci-g/examples/geometry/simple_flux/simple_flux.jcard
+
+
+
+
+###  Running gemc in xcode:
+
+Disable malloc check Edit Scheme > Diagnostic
+
+
 
 
 GEMC
@@ -159,3 +169,11 @@ cp ../sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/plugin/ch.g
 
 
 cmake -DGeant4_DIR=$G4INSTALL $G4INSTALL/source/geant4.10.07.p02/examples/extended/eventgenerator/exgps
+
+
+
+
+TroubleShooting
+
+- cycle: add Header phase when actually needed (usually qt moc)
+- remove header phase when it is not needed
