@@ -11,7 +11,7 @@ GEventAction::GEventAction(GOptions* gopt) : G4UserEventAction()
 
 GEventAction::~GEventAction()
 {
-	G4cout << GEVENTMESSAGEHEADER << " GEventAction destructor " << G4endl;
+	// G4cout << GEVENTMESSAGEHEADER << " GEventAction destructor " << G4endl;
 }
 
 void GEventAction::BeginOfEventAction(const G4Event* event)
