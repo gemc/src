@@ -72,6 +72,15 @@ int main(int argc, char* argv[])
 	// starting gphysics
 	auto gphysics = new GPhysics(gopts);
 	if (showPhysX ) {
+		delete globalDigitizationMap;
+		delete gApp;
+		if ( gui ) {
+			delete gemcSplash;
+		}
+		delete gopts;
+		// Free the store: user actions, physics_list and detector_description are
+		// owned and deleted by the run manager
+		delete runManager;
 		return EXIT_SUCCESS;
 	}
 	runManager->SetUserInitialization(gphysics->getPhysList());
@@ -136,7 +145,6 @@ int main(int argc, char* argv[])
 
 	for(auto [key, value]: (*globalDigitizationMap)) { delete value;}
 	delete globalDigitizationMap;
-
 	delete gApp;
 	delete gopts;
 
