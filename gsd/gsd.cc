@@ -48,7 +48,7 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc)
 	// initializing gHitsCollection collection using the geant4 G4THitsCollection constructor
 	// this uses two arguments (not sure why)
 	gHitsCollection = new GHitsCollection(sdName, collectionName[0]);
-
+	
 	// adding gHitsCollection to the G4HCofThisEvent
 	// hcID is incrememnted by 1 every time we instantiate a new G4THitsCollection
 	// it can then be retrieved at the end of the event
@@ -69,17 +69,31 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 	if( decisionToSkipHit(depe) ) {
 		return true;
 	}
-
+	
 	// get the vector of GTouchables returned by gDynamicDigitizationLocalInstance
 	// if not defined by the plugin, base class will return a vector with one element, the input
 	vector<GTouchable*> thisStepProcessedTouchables = gDynamicDigitizationLocalInstance->processTouchable(getGTouchable(thisStep), thisStep);
+	
+	if ( verbosity >= GVERBOSITY_DETAILS ) {
+		
+		G4cout << " ProcessHits strarting loop with " <<thisStepProcessedTouchables.size() << " touchable(s) for step " << thisStep ;
+		G4cout << " , edep: " << depe << ", Hit collection size: " << gHitsCollection->GetSize()  << G4endl;
+	}
 
 	for(const auto thisGTouchable: thisStepProcessedTouchables) {
-
+		
 		// assign track id
 		thisGTouchable->assignTrackId(thisStep->GetTrack()->GetTrackID());
 
+		if ( verbosity >= GVERBOSITY_DETAILS ) {
+			G4cout << " ProcessHits " << *thisGTouchable << G4endl;
+		}
+		
 		if(isThisANewTouchable(thisGTouchable)) {
+
+			if ( verbosity >= GVERBOSITY_DETAILS ) {
+				G4cout << " ProcessHits: found NEW hit with this touchable "  << G4endl;
+			}
 			// new ghit, insert in gHitsCollection
 			// the constructor takes care of the filling the hit step infos according to gHitBitSet
 			gHitsCollection->insert(new GHit(thisGTouchable, thisStep, gHitBitSet));
@@ -89,6 +103,10 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 			// retrieve hit from hit collection
 			// add informations according to gHitBitSet
 			GHit* existingHit = getHitInHitCollectionUsingTouchable(thisGTouchable);
+			
+			if ( verbosity >= GVERBOSITY_DETAILS ) {
+				G4cout << " ProcessHits: adding hit infos for existingHit touchable "  << G4endl;
+			}
 			existingHit->addHitInfosForBitset(gHitBitSet, thisStep);
 		}
 	}
@@ -102,7 +120,13 @@ GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(GTouchable* gtouch
 
 	for(unsigned int i=0; i<gHitsCollection->GetSize(); i++) {
 		GHit* thisHit = (*gHitsCollection)[i];
-		if( thisHit->getGTouchable() == gtouchable) {
+		if ( verbosity >= GVERBOSITY_DETAILS ) {
+			G4cout << " getHitInHitCollectionUsingTouchable Hit n. " << i << "  has touchable: " << *(thisHit->getGTouchable())  << G4endl;
+		}
+		if( thisHit->getGTouchable() == gtouchable ) {
+			if ( verbosity >= GVERBOSITY_DETAILS ) {
+				G4cout <<   " getHitInHitCollectionUsingTouchable Gtouchable found! "  << G4endl;
+			}
 			return thisHit;
 		}
 	}

@@ -67,7 +67,6 @@ private:
 	// by checking if it is present in the set. If not, add it.
 	inline bool isThisANewTouchable(GTouchable* thisTouchable) {
 		
-		
 		GTouchable gtInst(*thisTouchable);
 		
 		// if not found insert and return true: it's a new
