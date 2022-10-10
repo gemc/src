@@ -74,21 +74,19 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 	// if not defined by the plugin, base class will return a vector with one element, the input
 	vector<GTouchable*> thisStepProcessedTouchables = gDynamicDigitizationLocalInstance->processTouchable(getGTouchable(thisStep), thisStep);
 	
-	if ( verbosity >= GVERBOSITY_DETAILS ) {
-		
+	if ( verbosity >= GVERBOSITY_SUMMARY ) {
 		G4cout << " ProcessHits starting loop with " <<thisStepProcessedTouchables.size() << " touchable(s) for step pointer" << thisStep ;
 		G4cout << ", edep: " << depe << ", Hit collection size: " << gHitsCollection->GetSize()  << G4endl;
 	}
 
 	for(const auto thisGTouchable: thisStepProcessedTouchables) {
 		
+		if ( verbosity >= GVERBOSITY_SUMMARY ) {
+			G4cout << " ProcessHits " << *thisGTouchable ;
+		}
 		// assign track id
 		thisGTouchable->assignTrackId(thisStep->GetTrack()->GetTrackID());
 
-		if ( verbosity >= GVERBOSITY_DETAILS ) {
-			G4cout << " ProcessHits " << *thisGTouchable ;
-		}
-		
 		if(isThisANewTouchable(thisGTouchable)) {
 
 			if ( verbosity >= GVERBOSITY_DETAILS ) {
@@ -103,7 +101,7 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 			// retrieve hit from hit collection
 			// add informations according to gHitBitSet
 			GHit* existingHit = getHitInHitCollectionUsingTouchable(thisGTouchable);
-			
+						
 			if ( verbosity >= GVERBOSITY_DETAILS ) {
 				G4cout << " ProcessHits: adding hit infos for existingHit touchable "  << G4endl;
 			}
@@ -116,17 +114,19 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 }
 
 // checking if it is present in the set. If not, add it.
-bool GSensitiveDetector::isThisANewTouchable(GTouchable* thisTouchable)
+bool GSensitiveDetector::isThisANewTouchable(const GTouchable* thisTouchable)
 {
-	
+	// 
 	GTouchable gtInst(*thisTouchable);
 	
 	// if not found insert and return true: it's a new
-	if( touchableSet.find(gtInst) == touchableSet.end() ) {
+	auto gtPosition = touchableSet.find(gtInst);
+	
+	if( gtPosition == touchableSet.end() ) {
 		
-		if ( verbosity >= GVERBOSITY_DETAILS ) {
+		if ( verbosity >= GVERBOSITY_SUMMARY ) {
 			for ( auto gtinset: touchableSet ) {
-				G4cout << " Not found in Gtouchable Set element" << gtinset ;
+				G4cout << gtInst << " Not found in Gtouchable Set element" << gtinset ;
 			}
 		}
 		
@@ -137,7 +137,7 @@ bool GSensitiveDetector::isThisANewTouchable(GTouchable* thisTouchable)
 	return false;
 }
 
-GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(GTouchable* gtouchable) {
+GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(const GTouchable* gtouchable) {
 
 	for(unsigned int i=0; i<gHitsCollection->GetSize(); i++) {
 		
@@ -146,8 +146,8 @@ GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(GTouchable* gtouch
 		
 		if ( verbosity >= GVERBOSITY_DETAILS ) {
 			G4cout << " getHitInHitCollectionUsingTouchable Hit n. " << i
-			       << "  comparing thisHitGTouchable: " <<  thisHitGTouchable << " with GTouchable "  << gtouchable
-					 << " yields: " << (thisHitGTouchable == gtouchable ) << G4endl;
+			       << "  comparing thisHitGTouchable: " <<  *thisHitGTouchable << " with GTouchable "  << *gtouchable
+					 << " yields: " << ( *thisHitGTouchable == *gtouchable ) << G4endl;
 		}
 		
 		if( thisHitGTouchable == gtouchable ) {
@@ -158,6 +158,20 @@ GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(GTouchable* gtouch
 		}
 	}
 
+	G4cout << " getHitInHitCollectionUsingTouchable  GTouchable "  << *gtouchable << " not found, error. Here is the looking loop: "  << G4endl;
+	
+	for(unsigned int i=0; i<gHitsCollection->GetSize(); i++) {
+		
+		GHit* thisHit = (*gHitsCollection)[i];
+		const GTouchable* thisHitGTouchable = thisHit->getGTouchable();
+		
+		G4cout << " getHitInHitCollectionUsingTouchable Hit n. " << i
+		<< "  comparing thisHitGTouchable: " <<  *thisHitGTouchable << " with GTouchable "  << *gtouchable
+		<< " yields: " << ( *thisHitGTouchable == *gtouchable ) << G4endl;
+		
+	}
+
+	
 	// hit not found, error: exit
 	logError("GHit not found in hit collection", EC__HITNOTFOUNDINCOLLECTION);
 

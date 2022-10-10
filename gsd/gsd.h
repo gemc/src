@@ -65,7 +65,7 @@ private:
 	std::set<GTouchable> touchableSet;
 
 	// checking if it is present in the set. If not, add it.
-	bool isThisANewTouchable(GTouchable* thisTouchable);
+	bool isThisANewTouchable(const GTouchable* thisTouchable);
 
 	// GHit collection is G4THitsCollection<GHit>
 	// GHit is a G4VHit. Its thread memory management come with geant4
@@ -73,7 +73,7 @@ private:
 	GHitsCollection *gHitsCollection;
 
 	// retrieve hit with existing gtouchable
-	GHit *getHitInHitCollectionUsingTouchable(GTouchable* gtouchable);
+	GHit *getHitInHitCollectionUsingTouchable(const GTouchable* gtouchable);
 
 	// decides if the hit should be processed or not
 	// can be expanded with gDynamicDigitizationLocalInstance decision or other parameters
