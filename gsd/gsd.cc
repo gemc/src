@@ -76,8 +76,8 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 	
 	if ( verbosity >= GVERBOSITY_DETAILS ) {
 		
-		G4cout << " ProcessHits strarting loop with " <<thisStepProcessedTouchables.size() << " touchable(s) for step " << thisStep ;
-		G4cout << " , edep: " << depe << ", Hit collection size: " << gHitsCollection->GetSize()  << G4endl;
+		G4cout << " ProcessHits starting loop with " <<thisStepProcessedTouchables.size() << " touchable(s) for step pointer" << thisStep ;
+		G4cout << ", edep: " << depe << ", Hit collection size: " << gHitsCollection->GetSize()  << G4endl;
 	}
 
 	for(const auto thisGTouchable: thisStepProcessedTouchables) {
@@ -86,13 +86,13 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 		thisGTouchable->assignTrackId(thisStep->GetTrack()->GetTrackID());
 
 		if ( verbosity >= GVERBOSITY_DETAILS ) {
-			G4cout << " ProcessHits " << *thisGTouchable << G4endl;
+			G4cout << " ProcessHits " << *thisGTouchable ;
 		}
 		
 		if(isThisANewTouchable(thisGTouchable)) {
 
 			if ( verbosity >= GVERBOSITY_DETAILS ) {
-				G4cout << " ProcessHits: found NEW hit with this touchable "  << G4endl;
+				G4cout << " ProcessHits: found NEW hit with this touchable "  << G4endl << G4endl;
 			}
 			// new ghit, insert in gHitsCollection
 			// the constructor takes care of the filling the hit step infos according to gHitBitSet
@@ -115,6 +115,27 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 	return true;
 }
 
+// checking if it is present in the set. If not, add it.
+bool GSensitiveDetector::isThisANewTouchable(GTouchable* thisTouchable)
+{
+	
+	GTouchable gtInst(*thisTouchable);
+	
+	// if not found insert and return true: it's a new
+	if( touchableSet.find(gtInst) == touchableSet.end() ) {
+		
+		if ( verbosity >= GVERBOSITY_DETAILS ) {
+			for ( auto gtinset: touchableSet ) {
+				G4cout << " Not found in Gtouchable Set element" << gtinset ;
+			}
+		}
+		
+		touchableSet.insert(gtInst);
+		return true;
+	}
+	
+	return false;
+}
 
 GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(GTouchable* gtouchable) {
 

@@ -25,7 +25,7 @@ public:
 
 	~GSensitiveDetector() {}
 
-	// G4VSensitiveDetector geant4 methods
+	// G4VSensitiveDetector geant4 methods to be overloaded
 	virtual void Initialize(G4HCofThisEvent* g4hc);                            // Beginning of sensitive Hit
 	virtual G4bool ProcessHits(G4Step* thisStep, G4TouchableHistory* g4th);    // Process Step, add new hit to gHitsCollection or new step to a ghit
 	virtual void EndOfEvent(G4HCofThisEvent* g4HitCollection);                 // End of sensitive Hit
@@ -55,7 +55,7 @@ private:
 
 	// retrieve GTouchable from map
 	// gTouchableMap[vname] is guaranteed to exist because vname is sensitive
-	inline GTouchable* getGTouchable(const G4Step* thisStep) {
+	inline GTouchable* getGTouchable(const G4Step* thisStep){
 		string vname = thisStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName();
 		return gTouchableMap[vname];
 	}
@@ -64,20 +64,8 @@ private:
 	// used to decide if this is a new hit or not
 	std::set<GTouchable> touchableSet;
 
-	// by checking if it is present in the set. If not, add it.
-	inline bool isThisANewTouchable(GTouchable* thisTouchable) {
-		
-		GTouchable gtInst(*thisTouchable);
-		
-		// if not found insert and return true: it's a new
-		if(touchableSet.find(gtInst) == touchableSet.end()) {
-
-			touchableSet.insert(gtInst);
-			return true;
-		}
-
-		return false;
-	}
+	// checking if it is present in the set. If not, add it.
+	bool isThisANewTouchable(GTouchable* thisTouchable);
 
 	// GHit collection is G4THitsCollection<GHit>
 	// GHit is a G4VHit. Its thread memory management come with geant4
