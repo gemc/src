@@ -140,11 +140,17 @@ bool GSensitiveDetector::isThisANewTouchable(GTouchable* thisTouchable)
 GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(GTouchable* gtouchable) {
 
 	for(unsigned int i=0; i<gHitsCollection->GetSize(); i++) {
+		
 		GHit* thisHit = (*gHitsCollection)[i];
+		const GTouchable* thisHitGTouchable = thisHit->getGTouchable();
+		
 		if ( verbosity >= GVERBOSITY_DETAILS ) {
-			G4cout << " getHitInHitCollectionUsingTouchable Hit n. " << i << "  has touchable: " << *(thisHit->getGTouchable())  << G4endl;
+			G4cout << " getHitInHitCollectionUsingTouchable Hit n. " << i
+			       << "  comparing thisHitGTouchable: " <<  thisHitGTouchable << " with GTouchable "  << gtouchable
+					 << " yields: " << (thisHitGTouchable == gtouchable ) << G4endl;
 		}
-		if( thisHit->getGTouchable() == gtouchable ) {
+		
+		if( thisHitGTouchable == gtouchable ) {
 			if ( verbosity >= GVERBOSITY_DETAILS ) {
 				G4cout <<   " getHitInHitCollectionUsingTouchable Gtouchable found! "  << G4endl;
 			}
