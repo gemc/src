@@ -42,8 +42,8 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc)
 		logError(" gDynamicDigitizationLocalInstance for " + sdName + " could not loaded.", EC__DYNAMICPLUGINNOTFOUND);
 	}
 
-	// clearing touchableSet at the start of the event
-	touchableSet.clear();
+	// clearing touchableVector at the start of the event
+	touchableVector.clear();
 
 	// initializing gHitsCollection collection using the geant4 G4THitsCollection constructor
 	// this uses two arguments (not sure why)
@@ -116,21 +116,22 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, G4TouchableHistory* g4t
 // checking if it is present in the set. If not, add it.
 bool GSensitiveDetector::isThisANewTouchable(const GTouchable* thisTouchable)
 {
-	// 
 	GTouchable gtInst(*thisTouchable);
 	
 	// if not found insert and return true: it's a new
-	auto gtPosition = touchableSet.find(gtInst);
+	auto gtPosition = find (touchableVector.begin(), touchableVector.end(), gtInst);
 	
-	if( gtPosition == touchableSet.end() ) {
+	if( gtPosition == touchableVector.end() ) {
 		
-		if ( verbosity >= GVERBOSITY_SUMMARY ) {
-			for ( auto gtinset: touchableSet ) {
-				G4cout << gtInst << " Not found in Gtouchable Set element" << gtinset ;
+		if ( verbosity >= GVERBOSITY_DETAILS ) {
+			G4cout << " Not found in Gtouchable set containing: " << G4endl ;
+			for ( size_t index = 0; auto gtinset: touchableVector ) {
+				G4cout << "  - touchable index " << index << ":" << G4endl << gtinset ;
+				index++;
 			}
 		}
 		
-		touchableSet.insert(gtInst);
+		touchableVector.push_back(gtInst);
 		return true;
 	}
 	
@@ -147,7 +148,7 @@ GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(const GTouchable* 
 		if ( verbosity >= GVERBOSITY_DETAILS ) {
 			G4cout << " getHitInHitCollectionUsingTouchable Hit n. " << i
 			       << "  comparing thisHitGTouchable: " <<  *thisHitGTouchable << " with GTouchable "  << *gtouchable
-					 << " yields: " << ( *thisHitGTouchable == *gtouchable ) << G4endl;
+					 << " comparison result: " << ( *thisHitGTouchable == *gtouchable ) << G4endl;
 		}
 		
 		if( thisHitGTouchable == gtouchable ) {
@@ -167,7 +168,7 @@ GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(const GTouchable* 
 		
 		G4cout << " getHitInHitCollectionUsingTouchable Hit n. " << i
 		<< "  comparing thisHitGTouchable: " <<  *thisHitGTouchable << " with GTouchable "  << *gtouchable
-		<< " yields: " << ( *thisHitGTouchable == *gtouchable ) << G4endl;
+		<< " comparison result: " << ( *thisHitGTouchable == *gtouchable ) << G4endl;
 		
 	}
 

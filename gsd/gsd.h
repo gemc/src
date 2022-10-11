@@ -62,7 +62,7 @@ private:
 
 	// GTouchable set, reset each event,
 	// used to decide if this is a new hit or not
-	std::set<GTouchable> touchableSet;
+	std::vector<GTouchable> touchableVector;
 
 	// checking if it is present in the set. If not, add it.
 	bool isThisANewTouchable(const GTouchable* thisTouchable);
