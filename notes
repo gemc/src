@@ -23,10 +23,14 @@ open $CLHEP_BASE_DIR/lib/
 open $G4ROOT/$GEANT4_VERSION/lib/
 
 	- all, remove symlinks make copies instead:
+	
+	cd  $G4ROOT/$GEANT4_VERSION/lib/
 	rm libG4ptl.0.dylib ; cp libG4ptl.0.0.2.dylib libG4ptl.0.dylib
    rm libG4ptl.dylib ; cp libG4ptl.0.0.2.dylib libG4ptl.dylib
 
+$QTDIR/bin/moc
 
+ - gui.h
 
 ### In addition, these could only be copied only but xcode doesn't seem to remember
 ### and it's better to add to both linking and copy
@@ -38,7 +42,7 @@ Add all the external libraries
 
 open $XERCESCROOT/lib/
 
-	- libxerces-c-3.2.dylib
+	- libxerces-c-<version>.dylib
 
 open $GLIBRARY/lib/
 
