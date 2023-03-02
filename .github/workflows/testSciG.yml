@@ -15,14 +15,14 @@ on:
 jobs:
   testSciG:
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc:3.0
+    container: jeffersonlab/gemc3:1.0
     name: Run ${{ matrix.examples }}
     strategy:
       fail-fast: false
       matrix:
         examples:
-          - examples/geometry/dosimeter
-          - examples/geometry/simple_flux
+          - examples/dosimeter
+          - examples/simple_flux
     steps:
       # GitHub Actions do not automatically checkout your projects. If you need the code
       # you need to check it out.

@@ -8,14 +8,12 @@
 # git clone http://github.com/maureeungaro/src /root/src && cd /root/src
 # ./ci/testC12.sh -s ft
 
-if [[ -z "${G3CLAS12_VERSION}" ]]; then
-	# load environment if we're on the container
-	# notice the extra argument to the source command
-	TERM=xterm # source script use tput for colors, TERM needs to be specified
-	FILE=/etc/profile.d/jlab.sh
-	test -f $FILE && source $FILE keepmine
+# if we are in the docker container, we need to load the modules
+if [[ -z "${DISTTAG}" ]]; then
+    echo "\nNot in container"
 else
-	echo g3src ci/testC12: environment already defined
+    echo "\nIn container: ${DISTTAG}"
+    source  /app/localSetup.sh
 fi
 
 Help()
@@ -53,11 +51,10 @@ while getopts ":hs:" option; do
 done
 
 ./ci/build.sh # build gemc
-if [ $? -ne 0 ]; then
-	echo building gemc failed
-	exit 1
-fi
 
-cd $JLAB_SOFTWARE/clas12-systems/$G3CLAS12_VERSION
+# for some reason DYLD_LIBRARY_PATH is not passed to this script
+export DYLD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GLIBRARY}/lib
+
+# using the just compiled gemc and the container clas12-system
+cd $CLAS12_SYSTEMS
 ./ci/tests.sh -s $detector -t
-exit $?
