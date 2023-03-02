@@ -21,8 +21,8 @@ jobs:
       fail-fast: false
       matrix:
         examples:
-          - examples/geometry/dosimeter
-          - examples/geometry/simple_flux
+          - examples/dosimeter
+          - examples/simple_flux
     steps:
       # GitHub Actions do not automatically checkout your projects. If you need the code
       # you need to check it out.
