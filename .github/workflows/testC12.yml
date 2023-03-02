@@ -15,7 +15,7 @@ on:
 jobs:
   testCLAS12:
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc:3.0-clas12
+    container: jeffersonlab/gemc3:1.0c12s
     name: Run ${{ matrix.detector }}
     strategy:
       fail-fast: false
