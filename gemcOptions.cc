@@ -35,7 +35,10 @@ namespace gemc {
 		// "print option" switch
 		goptions.push_back(GOption("sndf", "Shows non default options"));
 
-		// number of threads. Default = 0 (all)
+        // show on screen the G4 threads log
+        goptions.push_back(GOption("showG4ThreadsLog", "show on screen the G4 threads log"));
+
+        // number of threads. Default = 0 (all)
 		json jsonNThreadOption = {
 			{GNAME, "nthreads"},
 			{GDESC, "set number of threads"},
