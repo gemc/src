@@ -7,7 +7,7 @@
 #define GEMCLOGMSGITEM  " ⌘ "
 #define GEMCRUNHEADER   " ❖ "
 
-// SRO
+// Streaming Readout (SRO)
 #define MAXNUMBEROFFRAMES 10
 
 // gemc exit codes: 2000

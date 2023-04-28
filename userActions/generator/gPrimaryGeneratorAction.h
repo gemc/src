@@ -3,6 +3,7 @@
 
 // glibrary
 #include "gparticle.h"
+#include "gparticleConventions.h"
 
 // geant4
 #include "G4VUserPrimaryGeneratorAction.hh"
@@ -18,6 +19,8 @@ public:
 	void GeneratePrimaries(G4Event*);
 
 private:
+
+    int verbosity;
 	G4ParticleGun* gparticleGun;
 
 	vector<gparticle::JParticle> jparticles;
