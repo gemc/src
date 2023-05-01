@@ -21,8 +21,14 @@ jobs:
       fail-fast: false
       matrix:
         examples:
+          - examples/basic_materials
+          - examples/cad_imports
           - examples/dosimeter
-          - examples/simple_flux
+          - examples/flux_detector
+          - examples/scintillator_array
+          - examples/sqlite_db
+          - examples/variations
+
     steps:
       # GitHub Actions do not automatically checkout your projects. If you need the code
       # you need to check it out.
