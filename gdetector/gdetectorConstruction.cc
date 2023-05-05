@@ -37,6 +37,9 @@ G4VPhysicalVolume *GDetectorConstruction::Construct() {
 void GDetectorConstruction::ConstructSDandField() {
     logSummary("GDetectorConstruction::ConstructSDandField");
 
+    bool touchableVerbosity = false;
+    if ( gopt->getInt("gsensitivityv") >= GVERBOSITY_DETAILS ) touchableVerbosity = true;
+
     // GSensitiveDetector map
     map < string, GSensitiveDetector * > sensitiveDetectorsMap;
 
@@ -81,7 +84,7 @@ void GDetectorConstruction::ConstructSDandField() {
                 sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name,
                                                                                   new GTouchable(digitizationName,
                                                                                                  gvolume->getGIdentity(),
-                                                                                                 gvolume->getDetectorDimensions()));
+                                                                                                 gvolume->getDetectorDimensions(), touchableVerbosity));
 
                 SetSensitiveDetector(g4name, sensitiveDetectorsMap[digitizationName]);
 

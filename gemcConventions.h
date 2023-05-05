@@ -7,12 +7,13 @@
 #define GEMCLOGMSGITEM  " ⌘ "
 #define GEMCRUNHEADER   " ❖ "
 
-// SRO
+// Streaming Readout (SRO)
 #define MAXNUMBEROFFRAMES 10
 
 // gemc exit codes: 2000
 #define EC__DYNAMICPLUGINNOTFOUND   2001
 #define EC__HITNOTFOUNDINCOLLECTION 2002
+#define EC__RANDOMENGINENOTFOUND    2003
 
 #endif
 

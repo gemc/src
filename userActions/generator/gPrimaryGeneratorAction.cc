@@ -1,11 +1,15 @@
 #include "gPrimaryGeneratorAction.h"
 
+// c++
+using namespace std;
 
 GPrimaryGeneratorAction::GPrimaryGeneratorAction(GOptions* gopts) :
 gparticleGun(nullptr)
 {
 	gparticleGun = new G4ParticleGun();
 	jparticles = gparticle::getJParticles(gopts);
+    verbosity = gopts->getInt(GPARTICLEVERBOSITY);
+
 }
 
 GPrimaryGeneratorAction::~GPrimaryGeneratorAction()
@@ -14,11 +18,13 @@ GPrimaryGeneratorAction::~GPrimaryGeneratorAction()
 }
 
 
-
 void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
 	for ( auto& jparticle: jparticles) {
 		Gparticle gpar(jparticle);
-		gpar.shootParticle(gparticleGun, anEvent);
+        if (verbosity >= GVERBOSITY_DETAILS) {
+            cout << GPARTICLELOGHEADER << gpar ;
+        }
+		gpar.shootParticle(gparticleGun, anEvent, verbosity);
 	}
 }

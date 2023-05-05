@@ -51,6 +51,10 @@ while getopts ":hs:" option; do
 done
 
 ./ci/build.sh # build gemc
+if [ $? -ne 0 ]; then
+  echo gemc executable not found
+	exit 1
+fi
 
 # for some reason DYLD_LIBRARY_PATH is not passed to this script
 export DYLD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${GLIBRARY}/lib
