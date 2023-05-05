@@ -37,4 +37,6 @@ void loadDigitizationPlugins(GOptions* gopt, vector<string> sdetectors, map<stri
 
 string definePluginPath(GOptions* gopts);
 
+void startRandomEngine(GOptions* gopts);
+
 #endif

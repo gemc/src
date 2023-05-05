@@ -55,10 +55,13 @@ int main(int argc, char* argv[])
 	G4UImanager* UIM = G4UImanager::GetUIpointer();
 	UIM->SetCoutDestination(new GSession);
 
-
 	// init geant4 run manager with number of threads coming from options
-	auto runManager =     G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+	auto runManager =  G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 	runManager->SetNumberOfThreads(getNumberOfThreads(gopts));
+
+    // random engine
+    startRandomEngine(gopts);
+
 
 	// instantiating pointer to global digitization map
 	// the map will be filled with the gsystem information of the sensitive detectors
