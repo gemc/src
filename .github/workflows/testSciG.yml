@@ -15,7 +15,7 @@ on:
 jobs:
   testSciG:
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc3:1.0
+    container: jeffersonlab/gemc3:1.1
     name: Run ${{ matrix.examples }}
     strategy:
       fail-fast: false
