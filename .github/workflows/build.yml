@@ -15,7 +15,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc3:1.1
+    container: jeffersonlab/gemc3:dev-fedora36
     name: ${{ matrix.dir }}
 
     steps:
@@ -26,3 +26,7 @@ jobs:
       - name: Build GEMC
         run: |
           ./ci/build.sh
+      - uses: gitboard-io/gitboard-action@main
+        with:
+          username: maureeungaro
+          key: 3d8e9059-a164-4bea-9541-1cb8789d805b

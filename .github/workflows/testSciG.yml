@@ -15,7 +15,7 @@ on:
 jobs:
   testSciG:
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc3:1.1
+    container: jeffersonlab/gemc3:dev-fedora36
     name: Run ${{ matrix.examples }}
     strategy:
       fail-fast: false
@@ -37,3 +37,7 @@ jobs:
       - name: Build, Test ${{ matrix.examples }}
         run: |
           ./ci/testSciG.sh -e ${{ matrix.examples }} 
+      - uses: gitboard-io/gitboard-action@main
+        with:
+          username: maureeungaro
+          key: 3d8e9059-a164-4bea-9541-1cb8789d805b
