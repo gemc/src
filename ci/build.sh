@@ -3,7 +3,7 @@
 # Purpose: compiles gemc and installs it in gemc
 
 # Container run:
-# docker run -it --rm jeffersonlab/gemc:3.0 sh
+# docker run -it --rm jeffersonlab/gemc3:dev-fedora36 sh
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # git clone http://github.com/maureeungaro/src /root/src && cd /root/src
 # ./ci/build.sh
