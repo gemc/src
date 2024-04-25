@@ -15,7 +15,7 @@ private:
 	float     timeWindow;       // electronic readout time-window of the detector
 	float     gridStartTime;    // defines the windows grid
 	HitBitSet hitBitSet;        // defines what information to be stored in the hit
-	bool      verbosity;
+    [[maybe_unused]] bool      verbosity;
 
 public:
 

@@ -34,13 +34,20 @@ subdir('gphysics')
 subdir('gQtButtonsWidget')
 subdir('gsplash')
 subdir('gstreamer')
-
+subdir('utilities')
+subdir('gsession')
+subdir('gsd')
+subdir('gdetector')
+subdir('userActions')
+subdir('gui')
 
 # compilation loop
 foreach L : LD
     this_lib_name = L['name'] # key name must be present
 
     sources = L.get('sources', [''])
+    headers = L.get('headers', [''])
+    examples = L.get('examples', empty_dict)
     this_deps = L.get('dependencies', [])
     plugins = L.get('plugins', empty_dict)
     additional_includes = L.get('additional_includes', [''])
@@ -82,7 +89,9 @@ foreach L : LD
     endif
 
     # header files
-    install_headers(L['headers'])
+    if not headers.contains('')
+        install_headers(headers)
+    endif
 
     #  plugins
     if plugins != empty_dict
@@ -101,20 +110,21 @@ foreach L : LD
     endif
 
     # examples
-    foreach name, sources_and_arguments : L['examples']
-        exe = executable(
-            name,
-            sources_and_arguments[0] + qrc_examples_compiled_sources,
-            install : true,
-            dependencies : this_deps,
-            include_directories : all_includes + this_lib_name,
-            link_with : all_libs
-        )
-        test(' ## ' + this_lib_name + ' test ##  >>  ' + name,
-             exe,
-             args : sources_and_arguments[1])
-    endforeach
-
+    if examples != empty_dict
+        foreach name, sources_and_arguments : examples
+            exe = executable(
+                name,
+                sources_and_arguments[0] + qrc_examples_compiled_sources,
+                install : true,
+                dependencies : this_deps,
+                include_directories : all_includes + this_lib_name,
+                link_with : all_libs
+            )
+            test(' ## ' + this_lib_name + ' test ##  >>  ' + name,
+                 exe,
+                 args : sources_and_arguments[1])
+        endforeach
+    endif
     foreach include_dir : additional_includes
         if not all_includes.contains(include_dir)
             all_includes += include_dir
@@ -124,9 +134,6 @@ foreach L : LD
         all_includes += this_lib_name
     endif
 endforeach
-
-
-
 
 
 # generate pkg-config file
