@@ -1,0 +1,10 @@
+#ifndef  GPHYSICS_H_CONVENTIONS
+#define  GPHYSICS_H_CONVENTIONS 1
+
+#define GPHYSVERBOSITY "gphysv"
+#define GPHYSLOGHEADER " ⚙︎ GPhysics ▸ "
+#define DEFAULTPHYSICSLIST "FTFP_BERT"
+
+#define EC__PHYSLISTERROR 401
+
+#endif

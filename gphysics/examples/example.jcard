@@ -1,0 +1,3 @@
+{
+	"physicsList": "FTFP_BERT_EMV + G4OpticalPhysics + G4RadioactiveDecayPhysics"
+}

@@ -1,0 +1,14 @@
+#ifndef  GPARTICLE_H_CONVENTIONS
+#define  GPARTICLE_H_CONVENTIONS 1
+
+#define GPARTICLENOTDEFINED -999
+#define GPARTICLEVERBOSITY "gparticlev"
+
+// error codes in the 900s
+#define EC__GPARTICLENOTFOUND        901
+#define EC__GPARTICLEWRONGTHETAMODEL 902
+#define EC__GPARTICLETABLENOTFOUND   903
+
+#define GPARTICLELOGHEADER           " ・ GParticle ▸ "
+
+#endif

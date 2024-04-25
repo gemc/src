@@ -1,0 +1,3 @@
+#ifndef  TEXTPROGRESSBAR_H_DOXY
+#define  TEXTPROGRESSBAR_H_DOXY 1
+#endif
