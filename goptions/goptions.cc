@@ -32,6 +32,7 @@ GOptions::GOptions(int argc, char *argv[], vector<GOption> goptionDefinitions) {
             printWHelp = true;
         } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--v") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "--version") == 0) {
             print_version();
+            exit(EXIT_SUCCESS);
         }
     }
 
@@ -452,15 +453,12 @@ void GOptions::printOptionsWebHelp() {
 
 // introspection
 void GOptions::print_version() {
-    string asterisks = "****************************************************";
+    string asterisks = "**************************************************************";
     cout << endl << asterisks << endl;
     cout << " Gemc version: " << KGRN << gversion << RST << endl;
     cout << " Released on: " << KGRN << grelease_date << RST  << endl;
     cout << " Reference: " << KGRN << greference << RST << endl;
-    cout << " " << KGRN << gweb << RST << endl;
-    cout << " Author: "  << KGRN << gauthor << RST << endl;
+    cout << " Homepage:" << KGRN << gweb << RST << endl;
+    cout << " Author: "  << KGRN << gauthor << RST << endl << endl;
     cout << asterisks << endl << endl;
-
-    exit(EXIT_SUCCESS);
-
 }

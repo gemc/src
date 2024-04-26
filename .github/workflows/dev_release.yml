@@ -1,0 +1,29 @@
+# https://github.com/marketplace/actions/automatic-releases
+name: GitHub Dev Release
+
+on:
+  schedule:
+    # every day at 1:44 an
+    - cron: '44 1 * * *'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+
+jobs:
+  pre-release:
+    name: dev Release
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: Create Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "dev"
+          prerelease: false
+          title: "Development Release"
+      - uses: gitboard-io/gitboard-action@main
+        with:
+          username: maureeungaro
+          key: 3d8e9059-a164-4bea-9541-1cb8789d805b

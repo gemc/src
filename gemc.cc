@@ -30,8 +30,12 @@ int main(int argc, char *argv[]) {
     // they are merged with the frameworks goptions definitions
     // the goptions are then assigned from the jcard(s) and command line
     GOptions *gopts = new GOptions(argc, argv, gemc::defineOptions());
+
     // print non default settings
-    // gopts->printSettings(gopts->getSwitch("sndf"));
+
+
+    // print version
+    gopts->print_version();
 
     // get gui switch, overlaps check and verbosity
     bool gui = gopts->getSwitch("gui");
