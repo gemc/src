@@ -1,3 +1,5 @@
+- add project title so constructor so that print_version can be specific.
+
 - command line options should be w/o the quotes? or match exactly the jcard
 
 - search for help.push_back( and

@@ -1,4 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+run_command('version.py', check: true)
 LD += {
     'name' : sub_dir_name,
     'sources' : files([
@@ -7,7 +8,9 @@ LD += {
                       ]),
     'headers' : files([
                           'json.hpp',
+                          'goption.h',
                           'goptions.h',
+                          'gversion.h',
                           'goptionsConventions.h'
                       ]),
     'examples' : {

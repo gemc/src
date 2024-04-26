@@ -8,8 +8,6 @@ namespace gQtButtonsWidget {
 
         vector<GOption> goptions;
 
-        // "gui" switch
-        //goptions.push_back(GOption("gui", "use Graphical User Interface"));
 
         return goptions;
     }

@@ -130,7 +130,7 @@ namespace g4display {
         goptions.push_back(GOption("dawn", "takes a screenshot of the loaded scene using the dawn driver"));
 
         // "gui" switch
-        goptions.push_back(GOption("gui", "use Graphical User Interface"));
+//        goptions.push_back(GOption("gui", "use Graphical User Interface"));
 
         // g4display verbosity
         json jsonMessageVerbosity = {
