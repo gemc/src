@@ -50,7 +50,7 @@ private:
 	int lastFrameCreated = 0; // keeping track of the last frame created
 
 	// determine the frame ID based on event number, eventDuration, frameDuration
-	int const eventFrameIndex(int eventNumber, float timeAtElectronics);
+	int  eventFrameIndex(int eventNumber, float timeAtElectronics);
 	bool findFrameID(int fid);
 
 	// decide whethere to write or not to stream the frame based on event number, eventDuration, frameDuration and number of threads

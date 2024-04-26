@@ -1,0 +1,3 @@
+#ifndef  EVENTDISPENSER_H_DOXY
+#define  EVENTDISPENSER_H_DOXY 1
+#endif

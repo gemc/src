@@ -1,0 +1,26 @@
+- add project title so constructor so that print_version can be specific.
+
+- command line options should be w/o the quotes? or match exactly the jcard
+
+- search for help.push_back( and
+
+- add help as vector<string> for non structured option n the constructor
+
+- parse command line
+
+- non-cumulative: the last item wins, and a warning should be given if the option was found (-strict should return error instead)
+
+- print help (shift each line be TTAB) and exit
+
+- if switch is given not recognized (-g) exit
+
+- organize options, for example "verbosity"
+
+- add examples to meson tests
+
+> -helpToHtml:  print all available options in HTML format (options.html) and exit.
+
+- print defaults mechanism missing
+- general debug option -debug=string
+- help search mechanism, through names and descriptions
+  -h set search for the next string, look in help and description

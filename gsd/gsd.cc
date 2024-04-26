@@ -59,7 +59,7 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent *g4hc) {
 
 
 // thread local
-G4bool GSensitiveDetector::ProcessHits(G4Step *thisStep, G4TouchableHistory *g4th) {
+G4bool GSensitiveDetector::ProcessHits(G4Step *thisStep, [[maybe_unused]] G4TouchableHistory *g4th) {
 
     // gDynamicDigitizationLocalInstance is guaranteed to exist in GSensitiveDetector::Initialize
 
@@ -167,7 +167,7 @@ GHit *GSensitiveDetector::getHitInHitCollectionUsingTouchable(const GTouchable *
 
 
 // thread local
-void GSensitiveDetector::EndOfEvent(G4HCofThisEvent *g4hc) {
+void GSensitiveDetector::EndOfEvent([[maybe_unused]] G4HCofThisEvent *g4hc) {
     logSummary("EndOfEvent of GSensitiveDetector " + GetName());
 }
 
@@ -180,5 +180,3 @@ void GSensitiveDetector::registerGVolumeTouchable(string name, GTouchable *gt) {
     }
     gTouchableMap[name] = gt;
 }
-
-

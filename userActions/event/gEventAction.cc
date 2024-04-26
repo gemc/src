@@ -14,13 +14,12 @@ GEventAction::~GEventAction()
 	// G4cout << GEVENTMESSAGEHEADER << " GEventAction destructor " << G4endl;
 }
 
-void GEventAction::BeginOfEventAction(const G4Event* event)
+void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event)
 {
 	// printEventStatsBegin(event);
 }
 
-void GEventAction::EndOfEventAction(const G4Event* event)
+void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event)
 {
 	// printEventStatsEnd(event);
 }
-

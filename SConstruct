@@ -14,6 +14,7 @@ SConscript('gsession/SConscript',    exports='env')
 SConscript('gsd/SConscript',         exports='env')
 SConscript('gdetector/SConscript',   exports='env')
 SConscript('userActions/SConscript', exports='env')
+
 SConscript('gui/SConscript',         exports='env')
 
 # load needed environment for this library
@@ -27,4 +28,3 @@ gsources = [
 
 # build gemc
 gemc = env.Program(source = gsources, target = 'gemc')
-

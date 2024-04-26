@@ -1,0 +1,4 @@
+ - add verbosity with goptions, exit code from gutilities
+ - move to qrc resource for images in xcode
+ - text color should be part of options
+
