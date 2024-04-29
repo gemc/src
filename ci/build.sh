@@ -18,8 +18,16 @@ fi
 
 function compileGEMC {
 	meson setup build --native-file=release.ini -Duse_root=true --wipe
+  if [ $? -ne 0 ]; then
+    echo Meson setup failed
+  	exit 1
+  fi
 	cd build
 	meson configure -Dprefix=$GEMC
+	if [ $? -ne 0 ]; then
+    echo Meson configure failed
+    exit 1
+  fi
 	meson install
 	meson test
 	cd ..
