@@ -39,6 +39,8 @@ geant4_deps = declare_dependency(
 # sqlite
 sqlite_dep = dependency('sqlite3')
 
+# assimp
+assimp_dep = dependency('assimp')
 
 # ROOT dependencies coming from cmake are not correctly handled by meson or are just plain wrong
 # Doing this manually

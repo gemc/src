@@ -15,7 +15,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc3:dev-fedora36
+    container: jeffersonlab/gemc3:g3vdev-g4v11.2.1-almalinux93-local
     name: ${{ matrix.dir }}
 
     steps:
