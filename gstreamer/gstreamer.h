@@ -15,7 +15,7 @@ class GStreamer {
 public:
     virtual ~GStreamer() = default;
 
-    virtual bool openConnection() { return false; }  // in GActionInitialization constructor
+    virtual bool openConnection() { return false; }   // in GActionInitialization constructor
     virtual bool closeConnection() { return false; }  // in GActionInitialization destructor
 
     // called in GRunAction::EndOfRunAction

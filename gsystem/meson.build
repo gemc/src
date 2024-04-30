@@ -1,7 +1,7 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 LD += {
     'name' : sub_dir_name,
-    'sources' : files([
+    'sources' : files(
                           'gvolume.cc',
                           'gmaterial.cc',
                           'gsystem.cc',
@@ -19,8 +19,8 @@ LD += {
                           'gsystemFactories/sqlite/systemSqliteFactory.cc',
                           'gsystemFactories/sqlite/loadMaterials.cc',
                           'gsystemFactories/sqlite/loadGeometry.cc'
-                      ]),
-    'headers' : files([
+                      ),
+    'headers' : files(
                           'gvolume.h',
                           'gmaterial.h',
                           'gsystem.h',
@@ -33,7 +33,7 @@ LD += {
                           'gsystemFactories/cad/systemCadFactory.h',
                           'gsystemFactories/gdml/systemGdmlFactory.h',
                           'gsystemFactories/sqlite/systemSqliteFactory.h',
-                      ]),
+                      ),
     'dependencies' : [geant4_deps, clhep_deps, sqlite_dep],
     'additional_includes' : ['gsystem/gsystemFactories',
                              'gsystem/gsystemFactories/cad',
@@ -41,7 +41,7 @@ LD += {
                              'gsystem/gsystemFactories/sqlite',
                              'gsystem/gsystemFactories/text'],
     'examples' : {
-        'basic_gsystem' : [files(['examples/example.cc']), ['']], # jcards currently not working
-#        'basic_gsystem' : [files(['examples/example.cc']), [meson.current_build_dir() + '/examples/example.jcard']],
+        'basic_gsystem' : [files('examples/example.cc'), ['']], # jcards currently not working
+#        'basic_gsystem' : [files('examples/example.cc'), [meson.current_build_dir() + '/examples/example.jcard']],
     }
 }

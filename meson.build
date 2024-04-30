@@ -40,6 +40,7 @@ subdir('gsd')
 subdir('gdetector')
 subdir('userActions')
 subdir('gui')
+subdir('gfields')
 
 # compilation loop
 foreach L : LD

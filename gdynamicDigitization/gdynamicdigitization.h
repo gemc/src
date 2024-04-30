@@ -85,7 +85,6 @@ public:
     // need to document exactly what this does and if it's still needed
     vector<GTouchable *> processGTouchableModifiers(GTouchable *gTouchID, GTouchableModifiers gmods);
 
-
     // filter true information into GTrueInfoHit
     // this integrates all available information built in GHit::addHitInfosForBitset
     GTrueInfoData *collectTrueInformation(GHit *ghit, size_t hitn);
@@ -106,7 +105,6 @@ public:
     // this will exit with error if the TT is not defined
     // notice time is an int (assumed unit: ns)
     void chargeAndTimeAtHardware(int time, int q, GHit *ghit, GDigitizedData *gdata);
-
 
     // mandatory initialization of readout specs
     virtual bool defineReadoutSpecs() = 0;
@@ -133,10 +131,11 @@ public:
         return func();
     }
 
-    // logging: using
-    string gdMessageHeader = "   ⎍ ";
-
-    void gDLogMessage(std::string message);
+private:
+    // logging
+    void gDLogMessage(std::string message) {
+        gLogMessage("   ⎍ " + message);
+    }
 
 };
 
