@@ -8,6 +8,8 @@
 // geant4
 #include "G4SDManager.hh"
 
+G4ThreadLocal map<string, GField*>* GDetectorConstruction::gFieldMap = nullptr;
+
 GDetectorConstruction::GDetectorConstruction(GOptions *gopts,
                                              map<string, GDynamicDigitization *> *gDDGlobal) :
         G4VUserDetectorConstruction(),                                                        // geant4 derived

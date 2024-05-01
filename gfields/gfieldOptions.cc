@@ -41,6 +41,12 @@ namespace gfield {
 
         vector<GOption> goptions;
 
+        json jsonFieldName = {
+                {GNAME, "field_name"},
+                {GDESC, "Name of the field"},
+                {GDFLT, UNINITIALIZEDSTRINGQUANTITY}
+        };
+
         json jsonPole_Number = {
                 {GNAME, "pole_number"},
                 {GDESC, "Number of the multipole"},
@@ -84,6 +90,7 @@ namespace gfield {
         };
 
         json jsonMultipoles = {
+                jsonFieldName,
                 jsonPole_Number,
                 jsonPole_Vx,
                 jsonPole_Vy,
@@ -145,6 +152,7 @@ namespace gfield {
         help.push_back("  +gfield_properties={\"integration_stepper\": \"G4ClassicalRK4\", \"verbosity\": \"1\"}");
 
         json jsonFieldProperties = {
+                jsonFieldName,
                 jsonGFieldVerbosity,
                 jsonGFieldMapInterpolationMethod,
                 jsonGFieldMinimumStep,

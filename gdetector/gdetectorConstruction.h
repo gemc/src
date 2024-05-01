@@ -37,7 +37,7 @@ private:
 	map<string, GDynamicDigitization*> *gDynamicDigitizationMapGlobalInstance;
 
     // map of GField pointers
-    map<string, GField*> gFieldMap;
+    static G4ThreadLocal map<string, GField*> *gFieldMap;
 
 };
 

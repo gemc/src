@@ -8,12 +8,13 @@ class GField_MultipolesFactory : public GField {
 public:
     GField_MultipolesFactory() {}
 
-    void create_GField_Manager(const GOptions *gopts);
+    void create_FieldManager(const GOptions *gopts);
 
     void GetFieldValue(const G4double pos[4], G4double *bfield) const;
 
 private:
 
+    string field_name;
     int pole_number;
     G4double origin[3];
     G4double rotation_angle;

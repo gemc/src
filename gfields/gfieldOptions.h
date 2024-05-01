@@ -8,6 +8,7 @@ namespace gfield {
 
     // field properties
     struct JFieldProperties {
+        string field_name;
         string integration_stepper;
         string map_interpolation_method;
         double minimum_step;
@@ -22,6 +23,7 @@ namespace gfield {
 
     // Multipoles
     struct JMultipole {
+        string field_name;
         int pole_number;
         double vx, vy, vz;
         double rotation_angle;
@@ -34,7 +36,6 @@ namespace gfield {
 
     // method to return a vector of JMultipole from a structured option
     vector<JMultipole> getJMultipoles(GOptions *gopts);
-
 
     // returns array of options definitions
     vector<GOption> defineOptions();

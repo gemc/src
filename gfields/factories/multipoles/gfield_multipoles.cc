@@ -12,13 +12,14 @@
 
 using namespace std;
 
-void GField_MultipolesFactory::create_GField_Manager([[maybe_unused]] const GOptions *gopts) {
+void GField_MultipolesFactory::create_FieldManager([[maybe_unused]] const GOptions *gopts) {
 
 
 }
 
+// for now this implementation follows gemc
+// reference of this implementation: https://uspas.fnal.gov/materials/12MSU/magnet_elements.pdf
 void GField_MultipolesFactory::GetFieldValue(const G4double pos[4], G4double *bfield) const {
-    // for now this implementation follows gemc
     G4ThreeVector x(pos[0], pos[1], pos[2]);
     G4ThreeVector field_origin(origin[0], origin[1], origin[2]);
 
