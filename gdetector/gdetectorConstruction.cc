@@ -8,12 +8,12 @@
 // geant4
 #include "G4SDManager.hh"
 
-GDetectorConstruction::GDetectorConstruction(GOptions *gopts, map<string, GDynamicDigitization *> *gDDGlobal) :
-        G4VUserDetectorConstruction(),                                     // geant4 derived
+GDetectorConstruction::GDetectorConstruction(GOptions *gopts,
+                                             map<string, GDynamicDigitization *> *gDDGlobal) :
+        G4VUserDetectorConstruction(),                                                        // geant4 derived
         GStateMessage(gopts, "GDetectorConstruction", G4SYSTEMVERBOSITY),  // GStateMessage derived
         gopt(gopts),
-        gDynamicDigitizationMapGlobalInstance(gDDGlobal) {
-}
+        gDynamicDigitizationMapGlobalInstance(gDDGlobal) {}
 
 // delete the two pointers created by GDetectorConstruction
 GDetectorConstruction::~GDetectorConstruction() {
@@ -38,10 +38,10 @@ void GDetectorConstruction::ConstructSDandField() {
     logSummary("GDetectorConstruction::ConstructSDandField");
 
     bool touchableVerbosity = false;
-    if ( gopt->getInt("gsensitivityv") >= GVERBOSITY_DETAILS ) touchableVerbosity = true;
+    if (gopt->getInt("gsensitivityv") >= GVERBOSITY_DETAILS) touchableVerbosity = true;
 
     // GSensitiveDetector map
-    map < string, GSensitiveDetector * > sensitiveDetectorsMap;
+    map<string, GSensitiveDetector *> sensitiveDetectorsMap;
 
     // building the sensitive detectors
     // this is thread local
@@ -66,9 +66,8 @@ void GDetectorConstruction::ConstructSDandField() {
                 // checking that we do not already have a GSensitiveDetector
                 if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
 
-
-                    logSummary("Sensitive detector <" + digitizationName + "> doesn't exist for <" + g4name +
-                               ">. Creating it.");
+                    logSummary("Sensitive detector <" + digitizationName + "> doesn't exist for <" + g4name
+                               + ">. Creating it.");
                     sensitiveDetectorsMap[digitizationName] = new GSensitiveDetector(digitizationName, gopt,
                                                                                      gDynamicDigitizationMapGlobalInstance);
 
@@ -92,8 +91,3 @@ void GDetectorConstruction::ConstructSDandField() {
         }
     }
 }
-
-
-
-
-

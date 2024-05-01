@@ -37,10 +37,10 @@ subdir('gstreamer')
 subdir('utilities')
 subdir('gsession')
 subdir('gsd')
+subdir('gfields')
 subdir('gdetector')
 subdir('userActions')
 subdir('gui')
-subdir('gfields')
 
 # compilation loop
 foreach L : LD
@@ -131,7 +131,7 @@ foreach L : LD
             all_includes += include_dir
         endif
     endforeach
-    if not all_includes.contains(this_lib_name)
+    if not all_includes.contains(this_lib_name) and not sources.contains('')
         all_includes += this_lib_name
     endif
 endforeach

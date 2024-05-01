@@ -1,54 +1,53 @@
 // c++
 #include <string>
+
 using namespace std;
 
-// glibrary
+// gemc
 #include "goptions.h"
 #include "gfactory.h"
 #include "gtouchableConventions.h"
 #include "ginternalDigitization.h"
-
-// gemc
 #include "gemcUtilities.h"
 #include "gemcConventions.h"
 
 // loads plugins from sensitive map <names, paths>
 // exits if failure
-void loadDigitizationPlugins(GOptions* gopt, vector<string> sdetectors, map<string, GDynamicDigitization*> *gDDGlobal) {
+void loadDigitizationPlugins(GOptions *gopt, vector<string> sdetectors, map<string, GDynamicDigitization *> *gDDGlobal) {
 
-	string pluginPath = definePluginPath(gopt);
-	int verbosity     = gopt->getInt("gsensitivityv");
+    string pluginPath = string(getenv("GEMC")) + "/lib/";
 
-	for ( auto& sdname: sdetectors) {
+    int verbosity = gopt->getInt("gsensitivityv");
 
-		if (sdname == FLUXNAME) {
-			(*gDDGlobal)[sdname] = new GFluxDigitization();
-			(*gDDGlobal)[sdname]->defineReadoutSpecs();
-		} else if ( sdname == COUNTERNAME ) {
-			(*gDDGlobal)[sdname] = new GParticleCounterDigitization();
-			(*gDDGlobal)[sdname]->defineReadoutSpecs();
-		} else if ( sdname == DOSIMETERNAME ) {
-			(*gDDGlobal)[sdname] = new GDosimeterDigitization();
-			(*gDDGlobal)[sdname]->defineReadoutSpecs();
+    for (auto &sdname: sdetectors) {
 
-		} else {
-			string pluginName = pluginPath + "/" + sdname;
+        if (sdname == FLUXNAME) {
+            (*gDDGlobal)[sdname] = new GFluxDigitization();
+            (*gDDGlobal)[sdname]->defineReadoutSpecs();
+        } else if (sdname == COUNTERNAME) {
+            (*gDDGlobal)[sdname] = new GParticleCounterDigitization();
+            (*gDDGlobal)[sdname]->defineReadoutSpecs();
+        } else if (sdname == DOSIMETERNAME) {
+            (*gDDGlobal)[sdname] = new GDosimeterDigitization();
+            (*gDDGlobal)[sdname]->defineReadoutSpecs();
 
-			if (verbosity >= GVERBOSITY_SUMMARY ) {
-				cout << GEMCLOGMSGITEM << "Loading plugins from file " <<  pluginName << endl;
-			}
+        } else {
+            string pluginName = pluginPath + "/" + sdname;
 
-			GManager sdPluginManager(sdname + " GSensitiveDetector", verbosity);
+            if (verbosity >= GVERBOSITY_SUMMARY) {
+                cout << GEMCLOGMSGITEM << "Loading plugins from file " << pluginName << endl;
+            }
 
-			if(gDDGlobal->find(sdname) == gDDGlobal->end()) {
-				(*gDDGlobal)[sdname] = sdPluginManager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(pluginName);
-				(*gDDGlobal)[sdname]->defineReadoutSpecs();
+            GManager sdPluginManager(sdname + " GSensitiveDetector", verbosity);
 
-			}
+            if (gDDGlobal->find(sdname) == gDDGlobal->end()) {
+                (*gDDGlobal)[sdname] = sdPluginManager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(pluginName);
+                (*gDDGlobal)[sdname]->defineReadoutSpecs();
 
-			// done with sdPluginManager
-			//sdPluginManager.clearDLMap();
-		}
-	}
+            }
+
+            // done with sdPluginManager
+            //sdPluginManager.clearDLMap();
+        }
+    }
 }
-

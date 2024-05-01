@@ -6,6 +6,21 @@
 
 namespace gfield {
 
+    // field properties
+    struct JFieldProperties {
+        string integration_stepper;
+        string map_interpolation_method;
+        double minimum_step;
+        int verbosity;
+    };
+
+    void from_json(const json &j, JFieldProperties &field_properties);
+
+    // method to return a vector of JFieldProperties from a structured option
+    JFieldProperties getJFieldProperties(GOptions *gopts);
+
+
+    // Multipoles
     struct JMultipole {
         int pole_number;
         double vx, vy, vz;
@@ -15,7 +30,7 @@ namespace gfield {
         string field_unit;
     };
 
-    void from_json(const json& j, JMultipole& mpole);
+    void from_json(const json &j, JMultipole &mpole);
 
     // method to return a vector of JMultipole from a structured option
     vector<JMultipole> getJMultipoles(GOptions *gopts);

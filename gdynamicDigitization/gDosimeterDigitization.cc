@@ -64,19 +64,10 @@ bool GDosimeterDigitization::loadConstants([[maybe_unused]] int runno, [[maybe_u
 	nielDataFiles[2112] = "niel_neutron.txt";
 	nielDataFiles[2212] = "niel_proton.txt";
 
-	// the data is loaded from the GPLUGIN_PATH location
-	auto pluginPathENV = getenv("GPLUGIN_PATH"); // char*
-	string pluginPath = UNINITIALIZEDSTRINGQUANTITY;
+    string pluginPath = string(getenv("GEMC")) + "/data/";
 
-	if ( pluginPathENV != nullptr ) {
-		pluginPath = string(pluginPathENV) + "/";
-	}
-	// set to current dir if pluginPath is still not defined
-	if ( pluginPath == UNINITIALIZEDSTRINGQUANTITY ) {
-		pluginPath = "./";
-	}
 
-	for ( auto [pid, filename]: nielDataFiles) {
+    for ( auto [pid, filename]: nielDataFiles) {
 
 		string dataFileWithPath = pluginPath + "/dosimeterData/Niel/" + filename;
 

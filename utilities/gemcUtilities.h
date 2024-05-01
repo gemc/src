@@ -4,7 +4,7 @@
 // qt
 #include <QApplication>
 
-// glibrary
+// gemc
 #include "goptions.h"
 #include "gdynamicdigitization.h"
 
@@ -34,8 +34,6 @@ void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity
 // loads plugins from sensitive map <names, paths>
 // exits if failure
 void loadDigitizationPlugins(GOptions* gopt, vector<string> sdetectors, map<string, GDynamicDigitization*> *gDDGlobal);
-
-string definePluginPath(GOptions* gopts);
 
 void startRandomEngine(GOptions* gopts);
 

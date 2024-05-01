@@ -1,18 +1,17 @@
-// goptions
+// gemc
 #include "gutsConventions.h"
 #include "goptions.h"
-
-// options definitions
 #include "gemcOptions.h"
 
-// other modules goptions
-#include "gsystemOptions.h"
-#include "g4systemOptions.h"
-#include "gstreamerOptions.h"
-#include "g4displayOptions.h"
+// options definitions
 #include "eventDispenserOptions.h"
+#include "g4displayOptions.h"
+#include "g4systemOptions.h"
+#include "gfieldOptions.h"
 #include "gparticleOptions.h"
 #include "gphysicsOptions.h"
+#include "gstreamerOptions.h"
+#include "gsystemOptions.h"
 
 // c++
 #include <iostream>
@@ -153,19 +152,17 @@ namespace gemc {
 
 
 		// glibrary modules goptions
+        goptions += eventDispenser::defineOptions();
+        goptions += g4display::defineOptions();
+        goptions += g4system::defineOptions();
+        goptions += gfield::defineOptions();
+        goptions += gparticle::defineOptions();
+        goptions += gphysics::defineOptions();
+        goptions += gstreamer::defineOptions();
 		goptions += gsystem::defineOptions();
-		goptions += g4system::defineOptions();
-		goptions += gstreamer::defineOptions();
-		goptions += g4display::defineOptions();
-		goptions += eventDispenser::defineOptions();
-		goptions += gparticle::defineOptions();
-		goptions += gphysics::defineOptions();
 
 		return goptions;
 	}
 
 
 }
-
-
-

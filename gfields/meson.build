@@ -14,7 +14,8 @@ LD += {
     ),
     'headers' : files(
         'gfield.h',
-        'gfieldOptions.h'
+        'gfieldOptions.h',
+        'gfieldConventions.h'
     ),
     'plugins' : {
         'gfield_multipoles' : multipoles_files,
@@ -22,6 +23,6 @@ LD += {
 
     'dependencies' : [clhep_deps, geant4_deps],
     'examples' : {
-    'dipole' : [files('examples/dipole.cc'), ['']],
-}
+        'dipole' : [files('examples/dipole.cc'), ['']],
+    }
 }

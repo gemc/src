@@ -24,7 +24,8 @@ GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynam
     logSummary("Instantiating GActionInitialization ");
     int verbosity = goptions->getInt("verbosity");
 
-    string pluginPath = definePluginPath(gopts);
+    string pluginPath = string(getenv("GEMC")) + "/lib/";
+
 
     // gstreamerFactory
     gstreamerFactoryMap = new map<string, GStreamer *>;

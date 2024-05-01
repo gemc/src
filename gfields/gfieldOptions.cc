@@ -1,4 +1,5 @@
 #include "gfieldOptions.h"
+#include "gfieldConventions.h"
 
 // namespace to define options
 namespace gfield {
@@ -39,14 +40,6 @@ namespace gfield {
     vector<GOption> defineOptions() {
 
         vector<GOption> goptions;
-
-        // two verbosity: one for events, one for streaming
-        json jsonGFieldEventVerbosity = {
-                {GNAME, "gfieldv"},
-                {GDESC, "Verbosity for fields. " + string(GVERBOSITY_DESCRIPTION)},
-                {GDFLT, 0}
-        };
-        goptions.push_back(GOption(jsonGFieldEventVerbosity));
 
         json jsonPole_Number = {
                 {GNAME, "pole_number"},
@@ -103,6 +96,8 @@ namespace gfield {
 
         vector<string> help;
         help.push_back("");
+        help.push_back("Multipoles Options");
+        help.push_back("");
         help.push_back("Examples");
         help.push_back("");
         help.push_back("• 2T dipole :");
@@ -110,6 +105,53 @@ namespace gfield {
 
         // the last argument refers to "cumulative"
         goptions.push_back(GOption("gmultipole", "Magnetic Multipole Definition", jsonMultipoles, help, true));
+
+
+        json jsonGFieldVerbosity = {
+                {GNAME, "gfieldv"},
+                {GDESC, "Verbosity for fields. " + string(GVERBOSITY_DESCRIPTION)},
+                {GDFLT, 0}
+        };
+
+        json jsonGFieldMapInterpolationMethod = {
+                {GNAME, "map_interpolation_method"},
+                {GDESC, "Interpolation method for the field map. Default: \"linear\""},
+                {GDFLT, "linear"}
+        };
+
+        json jsonGFieldMinimumStep = {
+                {GNAME, "minimum_step"},
+                {GDESC, "Minimum step for integration. Default: 10 mm"},
+                {GDFLT, 10}
+        };
+
+        json jsonIntegrationStepper = {
+                {GNAME, "integration_stepper"},
+                {GDESC, "Integration stepper. Default: \"G4DormandPrince745\""},
+                {GDFLT, GFIELD_DEFAULT_INTEGRATION_STEPPER}
+        };
+
+        help.clear();
+        help.push_back("");
+        help.push_back("Examples");
+        help.push_back("");
+        help.push_back("• Set the verbosity to 2:");
+        help.push_back("  +gfield_properties={\"verbosity\": \"2\"}");
+        help.push_back("");
+        help.push_back("• Set the minimum step to 1 mm:");
+        help.push_back("  +gfield_properties={\"minimum_step\": \"1\"}");
+        help.push_back("");
+        help.push_back("• Set the integration stepper to G4ClassicalRK4 and the verbosity to 1:");
+        help.push_back("  +gfield_properties={\"integration_stepper\": \"G4ClassicalRK4\", \"verbosity\": \"1\"}");
+
+        json jsonFieldProperties = {
+                jsonGFieldVerbosity,
+                jsonGFieldMapInterpolationMethod,
+                jsonGFieldMinimumStep,
+                jsonIntegrationStepper
+        };
+
+        goptions.push_back(GOption("gfield_properties", "Field Properties", jsonFieldProperties, help, false));
 
         return goptions;
     }

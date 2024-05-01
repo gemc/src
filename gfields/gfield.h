@@ -5,10 +5,10 @@
 #include "G4MagneticField.hh"
 #include "G4FieldManager.hh"
 
-
 // gemc
 #include "gfactory.h"
 #include "goptions.h"
+#include "gfieldConventions.h"
 
 class GField : public G4MagneticField {
 
@@ -54,7 +54,7 @@ private:
 
     // logging
     void gFLogMessage(std::string message) {
-        gLogMessage("   🧲 " + message);
+        gLogMessage(GFIELDLOGHEADER + message);
     }
 };
 

@@ -3,7 +3,6 @@
 
 using namespace std;
 
-
 // geant4
 #include "G4UImanager.hh"
 #include "G4UIsession.hh"
@@ -41,7 +40,6 @@ int main(int argc, char *argv[]) {
     bool gui = gopts->getSwitch("gui");
     int checkForOverlaps = gopts->getInt("checkOverlaps");
     int verbosity = gopts->getInt("verbosity");
-    bool showPhysX = gopts->getSwitch("showAvailablePhysicsX");
 
     // splash screen
     GSplash *gemcSplash = nullptr;
@@ -67,6 +65,7 @@ int main(int argc, char *argv[]) {
 
     // instantiating pointer to global digitization map
     // the map will be filled with the gsystem information of the sensitive detectors
+    // the map is also used by eventDispenser to reload constants at every run number
     map<string, GDynamicDigitization *> *globalDigitizationMap = new map<string, GDynamicDigitization *>;
 
     // building detector
@@ -76,7 +75,9 @@ int main(int argc, char *argv[]) {
 
     // starting gphysics
     auto gphysics = new GPhysics(gopts);
-    if (showPhysX) {
+
+    // if showAvailablePhysicsX switch is on, print available physics and exit
+    if (gopts->getSwitch("showAvailablePhysicsX")) {
         delete globalDigitizationMap;
         delete gApp;
         if (gui) {
@@ -94,14 +95,15 @@ int main(int argc, char *argv[]) {
     // instantiate GActionInitialization and initialize the geant4 kernel
     runManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
 
-    // this Initialize g4MTRunManager, which:
+    // this initializes g4MTRunManager, which:
     // calls Construct in GDetectorConstruction
     // calls ConstructSDandField in GDetectorConstruction
     // which in turns builds the gsystems, the g4systems, and the sensitive detectors in each thread,
     initGemcG4RunManager(runManager, gopts);
 
+    // after the detectors are built, query the digitization names and load the plugins
+    // maybe this should be done in GDetectorConstruction
     loadDigitizationPlugins(gopts, gDetectorGlobal->getDigitizationNamesList(), globalDigitizationMap);
-
 
     // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance
     // notice we initialize this in batch mode as well
@@ -111,7 +113,6 @@ int main(int argc, char *argv[]) {
     auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
     if (gui) {
-
         // initializing qt session
         gemcSplash->message("Starting GUI");
         qApp->processEvents();
