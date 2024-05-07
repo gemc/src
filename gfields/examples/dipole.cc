@@ -3,13 +3,12 @@
 
 // c++
 #include <iostream>
+
 using namespace std;
 
 
-int main()
-{
+int main() {
 
-	// add
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

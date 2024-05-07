@@ -11,7 +11,7 @@
 #include "gdynamicdigitization.h"
 #include "gworld.h"
 #include "g4world.h"
-#include "gfield.h"
+#include "gmagneto.h"
 
 
 class GDetectorConstruction : public G4VUserDetectorConstruction, public GStateMessage
@@ -36,8 +36,8 @@ private:
 	// using the global instance of the digitization map
 	map<string, GDynamicDigitization*> *gDynamicDigitizationMapGlobalInstance;
 
-    // map of GField pointers
-    static G4ThreadLocal map<string, GField*> *gFieldMap;
+    // contains fields and field managers
+    static G4ThreadLocal GMagneto *gmagneto;
 
 };
 

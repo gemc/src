@@ -11,31 +11,30 @@
 // system plugin factory
 // this file is kept here in case in the future we'll need a gsystem plugin
 
-class GSystemDynamicFactory
-{
+class GSystemDynamicFactory {
 public:
-	virtual void loadSystem(GSystem *s, int verbosity) = 0;
-	
-	virtual ~GSystemDynamicFactory() = default;
+    virtual void loadSystem(GSystem *s, int verbosity) = 0;
 
-	// this method must be present for the dynamic loaded factories
-	static GSystemDynamicFactory* instantiate(const dlhandle handle) {
+    virtual ~GSystemDynamicFactory() = default;
 
-		if (handle == nullptr) return nullptr;
+    // this method must be present for the dynamic loaded factories
+    static GSystemDynamicFactory *instantiate(const dlhandle handle) {
 
-		void *maker = dlsym(handle , "GSystemDynamicFactory");
+        if (handle == nullptr) return nullptr;
 
-		if (maker == nullptr) return nullptr;
+        void *maker = dlsym(handle, "GSystemDynamicFactory");
 
-		typedef GSystemDynamicFactory* (*fptr)();
+        if (maker == nullptr) return nullptr;
 
-		// static_cast not allowed here
-		// see http://stackoverflow.com/questions/573294/when-to-use-reinterpret-cast
-		// need to run the DLL GSystemDynamicFactory function that returns the factory
-		fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
+        typedef GSystemDynamicFactory *(*fptr)();
 
-		return func();
-	}
+        // static_cast not allowed here
+        // see http://stackoverflow.com/questions/573294/when-to-use-reinterpret-cast
+        // need to run the DLL GSystemDynamicFactory function that returns the factory
+        fptr func = reinterpret_cast<fptr>(reinterpret_cast<void *>(maker));
+
+        return func();
+    }
 
 };
 

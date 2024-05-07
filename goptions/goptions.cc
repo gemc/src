@@ -458,7 +458,7 @@ void GOptions::print_version() {
     cout << " Gemc version: " << KGRN << gversion << RST << endl;
     cout << " Released on: " << KGRN << grelease_date << RST  << endl;
     cout << " Reference: " << KGRN << greference << RST << endl;
-    cout << " Homepage:" << KGRN << gweb << RST << endl;
+    cout << " Homepage: " << KGRN << gweb << RST << endl;
     cout << " Author: "  << KGRN << gauthor << RST << endl << endl;
     cout << asterisks << endl << endl;
 }

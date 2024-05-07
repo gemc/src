@@ -12,12 +12,8 @@
 #include "G4ImplicitEuler.hh"
 #include "G4ExplicitEuler.hh"
 
-
-
-
 // gfield
 #include "gfield.h"
-
 
 G4MagIntegratorStepper *GField::instantiate_stepper_method(std::string integration_stepper) {
     G4Mag_UsualEqRhs *iEquation = new G4Mag_UsualEqRhs(this);

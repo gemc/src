@@ -19,19 +19,19 @@ public:
     virtual void GetFieldValue(const double x[3], double *bfield) const = 0; ///< Pure virtual: must implement GetFieldValue method
 
 private:
-    G4FieldManager *fFieldManager = nullptr;
 
     // instantiate stepper based on integration method
     G4MagIntegratorStepper *instantiate_stepper_method(string integration_stepper);
 
     // Creates the G4 Magnetic Field Manager
-    void create_FieldManager(const GOptions *gopts);
+    //void create_FieldManager(const GOptions *gopts);
 
     // logging
     void gFLogMessage(std::string message) {
         gLogMessage(GFIELDLOGHEADER + message);
     }
 
+    // hardcoded list
     vector<string> SUPPORTED_STEPPERS = {
             "G4DormandPrince745",
             "G4ClassicalRK4",
@@ -51,12 +51,12 @@ public:
 
     // Returns Magnetic Field Manager Pointer
     // creates one if it doesn't exist
-    G4FieldManager *get_GField_Manager(const GOptions *gopts) {
-        if (fFieldManager == nullptr) {
-            create_FieldManager(gopts);
-        }
-        return fFieldManager;
-    }
+//    G4FieldManager *get_GField_Manager(const GOptions *gopts) {
+//        if (fFieldManager == nullptr) {
+//            create_FieldManager(gopts);
+//        }
+//        return fFieldManager;
+//    }
 
     static GField *instantiate(const dlhandle handle) {
 
