@@ -123,7 +123,7 @@ bool GRootTree::fillTree(const vector<GDigitizedData*>* digitizedData) {
 // instantiate new map entry with its proper type vector and assign it to the root tree branch
 // the second argument is needed to select proper overloaded function
 
-void GRootTree::registerVariable(const string varname, const int value) {
+void GRootTree::registerVariable(const string varname, [[maybe_unused]] const int value) {
 	if ( intVarsMap.find(varname) == intVarsMap.end() ) {
 		intVarsMap[varname] = new vector<int>;
 		rootTree->Branch(varname.c_str(), &intVarsMap[varname]);
@@ -133,7 +133,7 @@ void GRootTree::registerVariable(const string varname, const int value) {
 	}
 }
 
-void GRootTree::registerVariable(const string varname, const float value) {
+void GRootTree::registerVariable(const string varname, [[maybe_unused]] const float value) {
 	if ( floatVarsMap.find(varname) == floatVarsMap.end() ) {
 		floatVarsMap[varname] = new vector<float>;
 		rootTree->Branch(varname.c_str(), &floatVarsMap[varname]);
@@ -143,7 +143,7 @@ void GRootTree::registerVariable(const string varname, const float value) {
 	}
 }
 
-void GRootTree::registerVariable(const string varname, const double value) {
+void GRootTree::registerVariable(const string varname, [[maybe_unused]] const double value) {
 	if ( doubleVarsMap.find(varname) == doubleVarsMap.end() ) {
 		doubleVarsMap[varname] = new vector<double>;
 		rootTree->Branch(varname.c_str(), &doubleVarsMap[varname]);
@@ -153,7 +153,7 @@ void GRootTree::registerVariable(const string varname, const double value) {
 	}
 }
 
-void GRootTree::registerVariable(const string varname, const string value) {
+void GRootTree::registerVariable(const string varname, [[maybe_unused]] const string value) {
 	if ( stringVarsMap.find(varname) == stringVarsMap.end() ) {
 		stringVarsMap[varname] = new vector<string>;
 		rootTree->Branch(varname.c_str(), &stringVarsMap[varname]);

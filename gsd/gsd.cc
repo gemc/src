@@ -6,8 +6,10 @@
 #include "G4SDManager.hh"
 
 // this is thread-local
-GSensitiveDetector::GSensitiveDetector(string sdName, GOptions *goptions, map<string, GDynamicDigitization *> *gDDGlobal) :
-        G4VSensitiveDetector(sdName),                                              // geant4 derived
+GSensitiveDetector::GSensitiveDetector(string sdName,
+                                       GOptions *goptions,
+                                       map<string, GDynamicDigitization *> *gDDGlobal) :
+        G4VSensitiveDetector(sdName),                                                                        // geant4 derived
         GStateMessage(goptions, "GSensitiveDetector " + sdName, "gsensitivityv"),  // GStateMessage derived
         gDynamicDigitizationMapGlobalInstance(gDDGlobal),
         gHitsCollection(nullptr) {
@@ -71,7 +73,7 @@ G4bool GSensitiveDetector::ProcessHits(G4Step *thisStep, [[maybe_unused]] G4Touc
 
     // get the vector of GTouchables returned by gDynamicDigitizationLocalInstance
     // if not defined by the plugin, base class will return a vector with one element (the input)
-    vector < GTouchable * > thisStepProcessedTouchables = gDynamicDigitizationLocalInstance->processTouchable(getGTouchable(thisStep), thisStep);
+    vector<GTouchable *> thisStepProcessedTouchables = gDynamicDigitizationLocalInstance->processTouchable(getGTouchable(thisStep), thisStep);
 
     if (verbosity >= GVERBOSITY_SUMMARY) {
         G4cout << " Starting processHits step loop with " << thisStepProcessedTouchables.size()
@@ -152,9 +154,9 @@ GHit *GSensitiveDetector::getHitInHitCollectionUsingTouchable(const GTouchable *
 
         G4cout << " getHitInHitCollectionUsingTouchable Hit n. " << i
                << "  comparing  candidate " << G4endl
-                << *gtouchable
+               << *gtouchable
                << " with touchable in collection " << G4endl
-                << *thisHitGTouchable
+               << *thisHitGTouchable
                << " comparison result : " << (*gtouchable == *thisHitGTouchable) << G4endl;
     }
 

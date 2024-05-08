@@ -10,7 +10,6 @@
 
 // geant4
 #include "G4NistManager.hh"
-using namespace CLHEP;
 
 // c++
 using namespace std;
@@ -156,7 +155,7 @@ G4World::G4World(GWorld *gworld, GOptions* gopts) {
 
 			G4Material* thisMat = (*(matTable))[i];
 
-			cout << G4SYSTEMLOGHEADER << " GEMC Material: <" << KGRN << thisMat->GetName() << RST << ">, density: " << thisMat->GetDensity()/(g/cm3) << "g/cm3" << endl;
+			cout << G4SYSTEMLOGHEADER << " GEMC Material: <" << KGRN << thisMat->GetName() << RST << ">, density: " << thisMat->GetDensity()/(CLHEP::g/CLHEP::cm3) << "g/cm3" << endl;
 
 			for ( auto& [material, component]: thisMat->GetMatComponents() ) {
 				cout << GTAB << " material " << material->GetName() << " fractional mass: " << component << endl;
@@ -238,7 +237,7 @@ bool G4World::createG4Material(const GMaterial *gmaterial, int verbosity) {
 
 	// building material from components
 	auto density = gmaterial->getDensity();
-	(*g4materialsMap)[materialName] = new G4Material(materialName, density*g/cm3, (G4int) components.size());
+	(*g4materialsMap)[materialName] = new G4Material(materialName, density*CLHEP::g/CLHEP::cm3, (G4int) components.size());
 
 	if ( isChemical ) {
 		if(verbosity == GVERBOSITY_DETAILS) {
@@ -284,9 +283,9 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes([[maybe_unused]] int verb
 
 	// hydrogen gas
 	Z = 1;
-	a = 1.01*g/mole;
-	d = 0.00275*g/cm3;
-	T = 50.0*kelvin;
+	a = 1.01*CLHEP::g/CLHEP::mole;
+	d = 0.00275*CLHEP::g/CLHEP::cm3;
+	T = 50.0*CLHEP::kelvin;
 	G4Element* Hydrogen  = new G4Element(HYDROGEN_ELEMENT,  HYDROGEN_ELEMENT,  Z,  a);
 	(*g4materialsMap)[HGAS_MATERIAL] = new G4Material(HGAS_MATERIAL,
 																	  d,
@@ -300,7 +299,7 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes([[maybe_unused]] int verb
 	// Deuteron isotope
 	Z = 1;
 	N = 2;
-	a = 2.0141018*g/mole;
+	a = 2.0141018*CLHEP::g/CLHEP::mole;
 	G4Isotope* Deuteron  = new G4Isotope(DEUTERON_ISOTOPE, Z, N, a);
 
 	// Deuterium element
@@ -309,8 +308,8 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes([[maybe_unused]] int verb
 
 
 	// Deuterium gas
-	d = 0.000452*g/cm3;
-	T = 294.25*kelvin;
+	d = 0.000452*CLHEP::g/CLHEP::cm3;
+	T = 294.25*CLHEP::kelvin;
 	(*g4materialsMap)[DEUTERIUMGAS_MATERIAL] = new G4Material(DEUTERIUMGAS_MATERIAL,
 																				 d,
 																				 1,
@@ -320,8 +319,8 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes([[maybe_unused]] int verb
 
 
 	// Liquid Deuterium
-	d = 0.169*g/cm3;
-	T = 22.0*kelvin;
+	d = 0.169*CLHEP::g/CLHEP::cm3;
+	T = 22.0*CLHEP::kelvin;
 	(*g4materialsMap)[LD2_MATERIAL] = new G4Material(LD2_MATERIAL,
 																	 d,
 																	 1,
@@ -332,9 +331,9 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes([[maybe_unused]] int verb
 
 	// Ammonia
 	Z = 7;
-	a = 14.01*g/mole;
-	d = 1.007*g/cm3;
-	T = 1.0*kelvin;
+	a = 14.01*CLHEP::g/CLHEP::mole;
+	d = 1.007*CLHEP::g/CLHEP::cm3;
+	T = 1.0*CLHEP::kelvin;
 	G4Element* Nitrogen   = new G4Element(NITRO_ELEMENT, NITRO_ELEMENT,  Z,  a);
 	(*g4materialsMap)[ND3_MATERIAL] = new G4Material(ND3_MATERIAL,
 																	 d,
@@ -351,7 +350,7 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes([[maybe_unused]] int verb
 	// helion isotope
 	Z = 2;
 	N = 3;
-	a = 3.0160293*g/mole;
+	a = 3.0160293*CLHEP::g/CLHEP::mole;
 	G4Isotope* Helion  = new G4Isotope(HELION_ISOTOPE, Z, N, a);
 
 	// helium 3 element
@@ -360,8 +359,8 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes([[maybe_unused]] int verb
 
 	// helium 3 material gas
 	// Density at 21.1°C (70°F) : 0.1650 kg/m3
-	d = 0.1650*mg/cm3;
-	T = 294.25*kelvin;
+	d = 0.1650*CLHEP::mg/CLHEP::cm3;
+	T = 294.25*CLHEP::kelvin;
 	(*g4materialsMap)[HELIUM3GAS_MATERIAL] = new G4Material(HELIUM3GAS_MATERIAL,
 																			  d,
 																			  1,
@@ -376,7 +375,7 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes([[maybe_unused]] int verb
 	// Tritium isotope
 	Z = 1;
 	N = 3;
-	a = 3.0160492*g/mole;
+	a = 3.0160492*CLHEP::g/CLHEP::mole;
 	G4Isotope* Triton  = new G4Isotope(TRITON_ISOTOPE, Z, N, a);
 
 	// Tritium element
@@ -384,8 +383,8 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes([[maybe_unused]] int verb
 	Tritium->AddIsotope(Triton, 1);
 
 	// Tritium gas
-	d = 0.0034*g/cm3;
-	T = 40.0*kelvin;
+	d = 0.0034*CLHEP::g/CLHEP::cm3;
+	T = 40.0*CLHEP::kelvin;
 	(*g4materialsMap)[TRITIUMGAS_MATERIAL] = new G4Material(TRITIUMGAS_MATERIAL,
 																			  d,
 																			  1,

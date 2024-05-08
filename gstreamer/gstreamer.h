@@ -15,7 +15,7 @@ class GStreamer {
 public:
     virtual ~GStreamer() = default;
 
-    virtual bool openConnection() { return false; }  // in GActionInitialization constructor
+    virtual bool openConnection() { return false; }   // in GActionInitialization constructor
     virtual bool closeConnection() { return false; }  // in GActionInitialization destructor
 
     // called in GRunAction::EndOfRunAction
@@ -70,6 +70,7 @@ public:
 
         if (handle == nullptr) return nullptr;
 
+        // must match the extern C declaration in the derived factories
         void *maker = dlsym(handle, "GStreamerFactory");
 
         if (maker == nullptr) return nullptr;

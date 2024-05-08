@@ -9,10 +9,8 @@
 #include <iostream>
 using namespace std;
 
-// glibrary
+// gemc
 #include "goptions.h"
-
-// conventions, utilities, options definitions
 #include "gemcConventions.h"
 #include "gemcUtilities.h"
 
@@ -93,7 +91,11 @@ vector<string> startingUIMCommands(bool gui, int checkForOverlaps) {
 	commands.push_back("/vis/viewer/set/culling coveredDaughters true");
 	commands.push_back("/vis/viewer/set/background 1 1 1 1");   // 205, 230, 251 = CD, E6, FA
 
-	return commands;
+    commands.push_back("/vis/viewer/set/background 1 1 1 1");   // 205, 230, 251 = CD, E6, FA
+    // commands.push_back("/vis/scene/add/magneticField 10");
+
+
+    return commands;
 
 }
 
@@ -111,28 +113,6 @@ void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity
 	}
 }
 
-
-string definePluginPath(GOptions* gopts) {
-	// the plugin is loaded from the GPLUGIN_PATH environment variable
-	// however if gpluginsPath is defined in the jcard, it will overwrite the plugin location
-	auto pluginPathENV = getenv("GPLUGIN_PATH"); // char*
-	string pluginPathOption = gopts->getString("gpluginsPath");
-
-	string pluginPath = UNINITIALIZEDSTRINGQUANTITY;
-
-	if ( pluginPathENV != nullptr ) {
-		pluginPath = string(pluginPathENV) + "/";
-	}
-	if ( pluginPathOption != UNINITIALIZEDSTRINGQUANTITY ) {
-		pluginPath = pluginPathOption  + "/";
-	}
-	// set to current dir if pluginPath is still not defined
-	if ( pluginPath == UNINITIALIZEDSTRINGQUANTITY ) {
-		pluginPath = "./";
-	}
-
-	return pluginPath;
-}
 
 #include <unistd.h>  // needed for get_pid
 #include "CLHEP/Random/DRand48Engine.h"
@@ -194,4 +174,3 @@ void startRandomEngine(GOptions* gopts) {
 
 
 }
-

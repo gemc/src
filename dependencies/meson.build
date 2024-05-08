@@ -39,29 +39,31 @@ geant4_deps = declare_dependency(
 # sqlite
 sqlite_dep = dependency('sqlite3')
 
+# Open Asset Import Library (assimp)
+assimp_dep = dependency('assimp')
 
 # ROOT dependencies coming from cmake are not correctly handled by meson or are just plain wrong
 # Doing this manually
-root_cmake = dependency('root', version : '>=6.28.04')
-
+# What happes if
 if get_option('use_root')
 
-    if root_cmake.found()
-        ROOT_link_args = []
-
-        ROOT_inc_dirs = include_directories(run_command('root-config', '--incdir', check : true).stdout().strip())
-        ROOT_config_link_args = run_command('root-config', '--libs', check : true).stdout().strip().split()
-        foreach link_arg : ROOT_config_link_args
-            if link_arg.contains('root') or link_arg.contains('Core') or link_arg.contains('RIO') or link_arg.contains('Tree')
-                ROOT_link_args += link_arg
-            endif
-        endforeach
-
-        root_deps = declare_dependency(
-            include_directories : ROOT_inc_dirs,
-            link_args : ROOT_link_args,
-        )
+    # check that root-config is found
+    if run_command('root-config', '--version', check : true).returncode() != 0
+        error('ROOT not found. Please install ROOT or disable the use_root option')
     endif
-else
-    root_deps = dependency('dummy-root-dep', required : false)
+
+    ROOT_link_args = []
+
+    ROOT_inc_dirs = include_directories(run_command('root-config', '--incdir', check : true).stdout().strip())
+    ROOT_config_link_args = run_command('root-config', '--libs', check : true).stdout().strip().split()
+    foreach link_arg : ROOT_config_link_args
+        if link_arg.contains('root') or link_arg.contains('Core') or link_arg.contains('RIO') or link_arg.contains('Tree')
+            ROOT_link_args += link_arg
+        endif
+    endforeach
+
+    root_deps = declare_dependency(
+        include_directories : ROOT_inc_dirs,
+        link_args : ROOT_link_args,
+    )
 endif

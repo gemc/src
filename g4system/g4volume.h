@@ -23,6 +23,9 @@ public:
 	void setLogical(G4LogicalVolume* l, int verb);
 	void setPhysical(G4VPhysicalVolume* p, int verb);
 
+    void setFieldManager(G4FieldManager* fm, bool forceToAllDaughters) {
+        logicalVolume->SetFieldManager(fm, forceToAllDaughters);
+    }
 };
 
 

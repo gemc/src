@@ -48,6 +48,11 @@ public:
 
 	DynamicLib(std::string path, int v = 0) : dlFileName(path), verbosity(v), handle(nullptr) {
 
+        // trying $GEMC/libs/ + path if not found
+        if(!doesFileExists(dlFileName)) {
+            dlFileName = std::string(getenv("GEMC")) + "/lib/" + path;
+        }
+
 		if(doesFileExists(dlFileName)) {
 			handle = load_lib(dlFileName);
 			if(handle == nullptr) {
@@ -59,7 +64,7 @@ public:
 			}
 
 		} else {
-			std::cerr << FATALERRORL  << "couldn't load " << YELLOWHHL << dlFileName << RSTHHR  << std::endl;
+			std::cerr << FATALERRORL  << "could not load " << YELLOWHHL << dlFileName << RSTHHR  << std::endl;
 			gexit(EC__DLNOTFOUND);
 		}
 	}

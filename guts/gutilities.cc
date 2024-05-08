@@ -132,7 +132,6 @@ string gutilities::fillDigits(string word, string c, int ndigits)
 
 // CLHEP units
 #include "CLHEP/Units/PhysicalConstants.h"
-using namespace CLHEP;
 
 // c++
 #include <iostream>
@@ -184,30 +183,31 @@ double gutilities::getG4Number(string v, bool warnIfNotUnit)
 		}
 		
 		
-		if( units == "m")              answer *= m;
-		else if( units == "inches")    answer *= 2.54*cm;
-		else if( units == "inch")      answer *= 2.54*cm;
-		else if( units == "cm")        answer *= cm;
-		else if( units == "mm")        answer *= mm;
-		else if( units == "um")        answer *= 1E-6*m;
-		else if( units == "fm")        answer *= 1E-15*m;
-		else if( units == "deg")       answer *= deg;
-		else if( units == "degrees")   answer *= deg;
-		else if( units == "arcmin")    answer = answer/60.0*deg;
-		else if( units == "rad")       answer *= rad;
-		else if( units == "mrad")      answer *= mrad;
-		else if( units == "eV")        answer *= eV;
-		else if( units == "MeV")       answer *= MeV;
-		else if( units == "KeV")       answer *= 0.001*MeV;
-		else if( units == "GeV")       answer *= GeV;
-		else if( units == "T")         answer *= tesla;
-		else if( units == "T/m")       answer *= tesla/m;
-		else if( units == "Tesla")     answer *= tesla;
-		else if( units == "gauss")     answer *= gauss;
-		else if( units == "kilogauss") answer *= gauss*1000;
-		else if( units == "ns")        answer *= ns;
-		else if( units == "ms")        answer *= ms;
-		else if( units == "us")        answer *= us;
+		if( units == "m")              answer *= CLHEP::m;
+		else if( units == "inches")    answer *= 2.54*CLHEP::cm;
+		else if( units == "inch")      answer *= 2.54*CLHEP::cm;
+		else if( units == "cm")        answer *= CLHEP::cm;
+		else if( units == "mm")        answer *= CLHEP::mm;
+		else if( units == "um")        answer *= 1E-6*CLHEP::m;
+		else if( units == "fm")        answer *= 1E-15*CLHEP::m;
+		else if( units == "deg")       answer *= CLHEP::deg;
+		else if( units == "degrees")   answer *= CLHEP::deg;
+		else if( units == "arcmin")    answer = answer/60.0*CLHEP::deg;
+		else if( units == "rad")       answer *= CLHEP::rad;
+		else if( units == "mrad")      answer *= CLHEP::mrad;
+		else if( units == "eV")        answer *= CLHEP::eV;
+		else if( units == "MeV")       answer *= CLHEP::MeV;
+		else if( units == "KeV")       answer *= 0.001*CLHEP::MeV;
+		else if( units == "GeV")       answer *= CLHEP::GeV;
+		else if( units == "T")         answer *= CLHEP::tesla;
+		else if( units == "T/m")       answer *= CLHEP::tesla/CLHEP::m;
+		else if( units == "Tesla")     answer *= CLHEP::tesla;
+		else if( units == "gauss")     answer *= CLHEP::gauss;
+		else if( units == "kilogauss") answer *= CLHEP::gauss*1000;
+        else if( units == "s")         answer *= CLHEP::s;
+        else if( units == "ns")        answer *= CLHEP::ns;
+		else if( units == "ms")        answer *= CLHEP::ms;
+		else if( units == "us")        answer *= CLHEP::us;
 		else if( units == "counts")    answer *= 1;
 		else cerr << GWARNING << ">" << units << "<: unit not recognized for string <" << v << ">" << endl;
 		return answer;

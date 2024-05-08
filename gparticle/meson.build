@@ -1,17 +1,17 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 LD += {
     'name' : sub_dir_name,
-    'sources' : files([
+    'sources' : files(
                           'gparticle.cc',
                           'gparticleOptions.cc'
-                      ]),
-    'headers' : files([
+                      ),
+    'headers' : files(
                           'gparticle.h',
                           'gparticleOptions.h',
                           'gparticleConventions.h'
-                      ]),
-    'dependencies' : [geant4_deps, clhep_deps],
+                      ),
+    'dependencies' : [clhep_deps, geant4_deps],
     'examples' : {
-        'gparticle_example' : [files(['examples/example.cc']), [meson.current_source_dir() + '/examples/pointParticle.jcard']],
+        'gparticle_example' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/pointParticle.jcard']],
     }
 }

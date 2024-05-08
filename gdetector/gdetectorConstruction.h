@@ -1,18 +1,17 @@
 #ifndef GDETECTORCONSTRUCTION_H
 #define GDETECTORCONSTRUCTION_H 1
 
+// geant4
+#include "G4VUserDetectorConstruction.hh"
+
 // gemc
 #include "gStateMessage.h"
 #include "gsd.h"
-
-// glibrary
 #include "goptions.h"
 #include "gdynamicdigitization.h"
 #include "gworld.h"
 #include "g4world.h"
-
-// geant4
-#include "G4VUserDetectorConstruction.hh"
+#include "gmagneto.h"
 
 class GDetectorConstruction : public G4VUserDetectorConstruction, public GStateMessage
 {
@@ -32,9 +31,12 @@ private:
 	GWorld   *gworld  = nullptr;
 	G4World  *g4world = nullptr;
 
-	// the GSensitiveDetector is built before the digitization, so we need
-	// a pointer to global digitization map, filled later, to pass to the local GSensitiveDetector
+	// the GSensitiveDetector is in gemc.cc because it is also passed to the eventDispenser
+	// using the global instance of the digitization map
 	map<string, GDynamicDigitization*> *gDynamicDigitizationMapGlobalInstance;
+
+    // contains fields and field managers
+    static G4ThreadLocal GMagneto *gmagneto;
 
 };
 

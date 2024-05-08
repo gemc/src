@@ -1,10 +1,14 @@
 working on gemc:
 
-- divide source in different libraries like scons (started with gdetector)
+The following 3 may be solved by inheriting from GStateMessage.
 - put the verbosity string options into conventions, like GSENSITIVITYVERBOSITY = "gsensitivityv"
+- use logMessage (g4) and glogMessage (internam cout with mutex log) consistently
+- something not working with tlog / showG4ThreadsLog etc. everything better be consistent
+
+- nthreads not working?
 - add system/detector browser
 - add hipo output
-- add display goodies like gemc2++
+- do we need gFieldManager.clearDLMap(); ?
 
 
 In General:
@@ -12,11 +16,9 @@ In General:
 - event reproducibility: write random engine status in output stream
 - keep chasing using namespace;
 - rule of 5.
-- add section "fromScratch" to redo project and targets from scratch in the notes
 - go over constructors: is it move, copy, construct from scratch?
-- only load env needed by each library, see glibrary todo
 - examples/advanced/doiPET/README
-
+- add display goodies like gemc2++
 
 
 Gemc Details:
@@ -33,8 +35,3 @@ Gemc Details:
 
 - checkout fun4all tutorial:
   - https://eic-detector.github.io/tutorials_example2_JLab.html
-
-
-
-
-
