@@ -7,6 +7,7 @@
 // geant4
 #include "G4UIsession.hh"
 #include <atomic>
+
 using std::atomic;
 
 
@@ -42,48 +43,55 @@ using std::atomic;
  * - dmessage: debug message only printed when verbosity is equal to GVERBOSITY_DETAILS
  */
 
-class GStateMessage
-{
+class GStateMessage {
 public:
-	
-	/**
-	 * @brief StateMessage constructor. Built using options and the state string
-	 * @details The constructor:
-	 * - assigns the stateName, printed in the message headers.\n
-	 * - finds the state verbosity in the goptions.
-	 */
-	GStateMessage(GOptions* gopts, string header, string voptionName) : stateHeader(header) {
 
-		stateCounter = 0;
+    /**
+     * @brief StateMessage constructor. Built using options and the state string
+     * @details The constructor:
+     * - assigns the stateName, printed in the message headers.\n
+     * - finds the state verbosity in the goptions.
+     */
+    GStateMessage(GOptions *gopts, string header, string voptionName) : stateHeader(header) {
 
-		verbosity =  gopts->getInt(voptionName);
-		if(verbosity >= GVERBOSITY_SUMMARY) {
-			G4cout << stateStringHeader()  << "Constructor" << G4endl;
-		}
-	}
+        stateCounter = 0;
 
-	~GStateMessage() {
-		if(verbosity >= GVERBOSITY_SUMMARY) {
-			G4cout << stateStringHeader() << "Destructor" << G4endl;
-		}
-	}
+        verbosity = gopts->getInt(voptionName);
+        if (verbosity >= GVERBOSITY_SUMMARY) {
+            G4cout << stateStringHeader() << "Constructor" << G4endl;
+        }
+    }
+
+    ~GStateMessage() {
+        if (verbosity >= GVERBOSITY_SUMMARY) {
+            G4cout << stateStringHeader() << "Destructor" << G4endl;
+        }
+    }
 
 
 private:
-	string stateHeader;
-	int verbosity;
+    string stateHeader;
 
-	mutable atomic<int> stateCounter;
+    mutable atomic<int> stateCounter;
 
-	// start of all messages
-	string stateStringHeader() const;
-	
+    // start of all messages
+    string stateStringHeader() const;
+
+protected:
+    int verbosity;
+
+
 public:
-	void logAlways(const string msg) const;
-	void logSummary(const string msg) const;
-	void logDetail(const string msg) const;
-	void logWarning(const string msg) const;
-	void logError(const string msg, const int exitError) const;
+    void logAlways(const string msg) const;
+
+    void logSummary(const string msg) const;
+
+    void logDetail(const string msg) const;
+
+    void logWarning(const string msg) const;
+
+    void logError(const string msg, const int exitError) const;
+
 
 };
 

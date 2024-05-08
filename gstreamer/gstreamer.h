@@ -70,6 +70,7 @@ public:
 
         if (handle == nullptr) return nullptr;
 
+        // must match the extern C declaration in the derived factories
         void *maker = dlsym(handle, "GStreamerFactory");
 
         if (maker == nullptr) return nullptr;

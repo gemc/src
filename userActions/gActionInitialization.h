@@ -4,12 +4,10 @@
 // geant4
 #include "G4VUserActionInitialization.hh"
 
-// glibrary
+// gemc
 #include "goptions.h"
 #include "gdynamicdigitization.h"
 #include "gstreamer.h"
-
-// gemc
 #include "gStateMessage.h"
 
 // G4VUserActionInitialization is a newly introduced class for the user to instantiate
@@ -26,23 +24,24 @@
 // - BuildForMaster() should be used for defining only the UserRunAction for the master thread.
 
 
-class GActionInitialization : public G4VUserActionInitialization, public GStateMessage
-{
+class GActionInitialization : public G4VUserActionInitialization, public GStateMessage {
 public:
-	GActionInitialization(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal);
-	virtual ~GActionInitialization();
+    GActionInitialization(GOptions *gopt, map<string, GDynamicDigitization *> *gDDGlobal);
 
-	virtual void Build() const;
-	virtual void BuildForMaster() const;
+    virtual ~GActionInitialization();
+
+    virtual void Build() const;
+
+    virtual void BuildForMaster() const;
 
 private:
-	GOptions* goptions;
-	
-	// digitization map, loaded in main(), passed here
-	map<string, GDynamicDigitization*> *gDigitizationGlobalMap;
+    GOptions *goptions;
 
-	// output factories map, loaded in the constructor
-	map<string, GStreamer*> *gstreamerFactoryMap;
+    // digitization map, loaded in main(), passed here
+    map<string, GDynamicDigitization *> *gDigitizationGlobalMap;
+
+    // output factories map, loaded in the constructor
+    map<string, GStreamer *> *gstreamerFactoryMap;
 
 };
 

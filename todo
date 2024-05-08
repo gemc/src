@@ -1,11 +1,14 @@
 working on gemc:
 
+The following 3 may be solved by inheriting from GStateMessage.
 - put the verbosity string options into conventions, like GSENSITIVITYVERBOSITY = "gsensitivityv"
 - use logMessage (g4) and glogMessage (internam cout with mutex log) consistently
+- something not working with tlog / showG4ThreadsLog etc. everything better be consistent
+
+- nthreads not working?
 - add system/detector browser
 - add hipo output
 - do we need gFieldManager.clearDLMap(); ?
-
 
 
 In General:

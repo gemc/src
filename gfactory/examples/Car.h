@@ -16,6 +16,7 @@ public:
 
         if (handle == nullptr) return nullptr;
 
+        // must match the extern C declaration in the derived factories
         void *maker = dlsym(handle, "CarFactory");
 
         if (maker == nullptr) return nullptr;

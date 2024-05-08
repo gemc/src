@@ -159,11 +159,11 @@ public:
 	//		delete object;
 	//	}
 
-	/**
-	 * @fn clearDLMap
-	 *
-	 * Delete the various dynamic libraries handle
-	 */
+    /**
+     * @fn clearDLMap
+     *
+     * Delete the various dynamic libraries handle
+     */
 	void clearDLMap() {
 		for(auto &i : dlMap) {
 			delete i.second;

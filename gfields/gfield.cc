@@ -1,4 +1,4 @@
-// G4 headers
+// geant4
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4DormandPrince745.hh"
 #include "G4ClassicalRK4.hh"
@@ -11,41 +11,53 @@
 #include "G4NystromRK4.hh"
 #include "G4ImplicitEuler.hh"
 #include "G4ExplicitEuler.hh"
+#include "G4ChordFinder.hh"
 
 // gfield
 #include "gfield.h"
 
-G4MagIntegratorStepper *GField::instantiate_stepper_method(std::string integration_stepper) {
+
+// notice: we are always using G4Mag_UsualEqRhs here
+G4FieldManager *GField::create_FieldManager() {
+
     G4Mag_UsualEqRhs *iEquation = new G4Mag_UsualEqRhs(this);
 
-    // make sure integration_stepper is one element of SUPPORTED_STEPPERS
     if (std::find(SUPPORTED_STEPPERS.begin(), SUPPORTED_STEPPERS.end(), integration_stepper) == SUPPORTED_STEPPERS.end()) {
         gFLogMessage("Integration Stepper " + integration_stepper + " not supported. Using default: " + GFIELD_DEFAULT_INTEGRATION_STEPPER);
         integration_stepper = GFIELD_DEFAULT_INTEGRATION_STEPPER;
     }
 
+    G4MagIntegratorStepper *mag_int_stepper = nullptr;
+
+    // any way to do this autmoatically?
     if (integration_stepper == "G4DormandPrince745") {
-        return new G4DormandPrince745(iEquation);
+        mag_int_stepper = new G4DormandPrince745(iEquation);
     } else if (integration_stepper == "G4ClassicalRK4") {
-        return new G4ClassicalRK4(iEquation);
+        mag_int_stepper = new G4ClassicalRK4(iEquation);
     } else if (integration_stepper == "G4SimpleRunge") {
-        return new G4HelixSimpleRunge(iEquation);
+        mag_int_stepper = new G4HelixSimpleRunge(iEquation);
     } else if (integration_stepper == "G4HelixExplicitEuler") {
-        return new G4HelixExplicitEuler(iEquation);
+        mag_int_stepper = new G4HelixExplicitEuler(iEquation);
     } else if (integration_stepper == "G4HelixImplicitEuler") {
-        return new G4HelixImplicitEuler(iEquation);
+        mag_int_stepper = new G4HelixImplicitEuler(iEquation);
     } else if (integration_stepper == "G4CashKarpRKF45") {
-        return new G4CashKarpRKF45(iEquation);
+        mag_int_stepper = new G4CashKarpRKF45(iEquation);
     } else if (integration_stepper == "G4RKG3_Stepper") {
-        return new G4RKG3_Stepper(iEquation);
+        mag_int_stepper = new G4RKG3_Stepper(iEquation);
     } else if (integration_stepper == "G4SimpleHeum") {
-        return new G4SimpleHeum(iEquation);
+        mag_int_stepper = new G4SimpleHeum(iEquation);
     } else if (integration_stepper == "G4NystromRK4") {
-        return new G4NystromRK4(iEquation);
+        mag_int_stepper = new G4NystromRK4(iEquation);
     } else if (integration_stepper == "G4ImplicitEuler") {
-        return new G4ImplicitEuler(iEquation);
+        mag_int_stepper = new G4ImplicitEuler(iEquation);
     } else if (integration_stepper == "G4ExplicitEuler") {
-        return new G4ExplicitEuler(iEquation);
+        mag_int_stepper = new G4ExplicitEuler(iEquation);
+    } else {
+        // error, exit
+        gFLogMessage("Integration Stepper " + integration_stepper + " not supported. Exiting.");
+        exit(EC__STEPPER_NOT_FOUND);
     }
+
+    return new G4FieldManager(this, new G4ChordFinder(this, minimum_step, mag_int_stepper));
 
 }

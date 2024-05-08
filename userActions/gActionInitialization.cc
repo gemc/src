@@ -4,8 +4,6 @@
 #include "generator/gPrimaryGeneratorAction.h"
 #include "run/gRunAction.h"
 #include "gemcUtilities.h"
-
-// glibrary
 #include "gfactory.h"
 #include "gstreamerOptions.h"
 
@@ -22,7 +20,6 @@ GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynam
         goptions(gopts),
         gDigitizationGlobalMap(gDDGlobal) {
     logSummary("Instantiating GActionInitialization ");
-    int verbosity = goptions->getInt("verbosity");
 
     string pluginPath = string(getenv("GEMC")) + "/lib/";
 

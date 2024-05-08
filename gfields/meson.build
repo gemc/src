@@ -20,7 +20,7 @@ LD += {
         'gmagneto.h'
     ),
     'plugins' : {
-        'gfield_multipoles' : multipoles_files,
+        'gfieldMultipoles' : multipoles_files,
     },
 
     'dependencies' : [clhep_deps, geant4_deps],

@@ -91,7 +91,11 @@ vector<string> startingUIMCommands(bool gui, int checkForOverlaps) {
 	commands.push_back("/vis/viewer/set/culling coveredDaughters true");
 	commands.push_back("/vis/viewer/set/background 1 1 1 1");   // 205, 230, 251 = CD, E6, FA
 
-	return commands;
+    commands.push_back("/vis/viewer/set/background 1 1 1 1");   // 205, 230, 251 = CD, E6, FA
+    // commands.push_back("/vis/scene/add/magneticField 10");
+
+
+    return commands;
 
 }
 

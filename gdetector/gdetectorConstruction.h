@@ -13,7 +13,6 @@
 #include "g4world.h"
 #include "gmagneto.h"
 
-
 class GDetectorConstruction : public G4VUserDetectorConstruction, public GStateMessage
 {
 public:
