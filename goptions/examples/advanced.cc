@@ -1,4 +1,4 @@
-#ifndef DOXYGEN_SHOULD_SKIP_THIS /* DOXYGEN_SHOULD_SKIP_THIS */
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 // goptions
 #include "goptions.h"
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 	GOptions *gopts = new GOptions(argc, argv, defineOptions());
 
 	// print settings w/o defaults
-	gopts->printSettings(false);
+	gopts->print_settings(false);
 
 	// Perhaps there's a better modern way to do this
 	vector<goptions::sdet> detectors = goptions::getDetectors(gopts);
@@ -129,4 +129,4 @@ int main(int argc, char* argv[])
 	return EXIT_SUCCESS;
 }
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif

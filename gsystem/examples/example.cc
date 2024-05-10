@@ -1,4 +1,4 @@
-#ifndef DOXYGEN_SHOULD_SKIP_THIS /* DOXYGEN_SHOULD_SKIP_THIS */
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 // gsystem
 #include "gworld.h"
@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	GOptions *gopts = new GOptions(argc, argv, gsystem::defineOptions());
 
 	// print settings with defaults
-	gopts->printSettings(true);
+	gopts->print_settings(true);
 
 	GWorld *world = new GWorld(gopts);
 
@@ -31,4 +31,4 @@ int main(int argc, char* argv[])
 }
 
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif

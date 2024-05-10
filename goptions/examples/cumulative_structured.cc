@@ -1,4 +1,4 @@
-#ifndef DOXYGEN_SHOULD_SKIP_THIS /* DOXYGEN_SHOULD_SKIP_THIS */
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 // goptions
 #include "goptions.h"
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
 	GOptions *gopts = new GOptions(argc, argv, gdetector::defineOptions());
 
 	// print settings with defaults
-	gopts->printSettings(true);
+	gopts->print_settings(true);
 
 	// projecting option onto vector of GDetectors
 	vector<GDetector> detectors = getDetectors(gopts);
@@ -109,4 +109,4 @@ int main(int argc, char* argv[])
 	return EXIT_SUCCESS;
 }
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#endif

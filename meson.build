@@ -18,29 +18,29 @@ subdir('dependencies')
 #################
 subdir('guts')
 subdir('goptions')
-subdir('gfactory')
-subdir('textProgressBar')
-subdir('gtouchable')
-subdir('ghit')
-subdir('gtranslationTable')
-subdir('gdata')
-subdir('gdynamicDigitization')
-subdir('eventDispenser')
-subdir('g4display')
-subdir('gsystem')
-subdir('g4system')
-subdir('gparticle')
-subdir('gphysics')
-subdir('gQtButtonsWidget')
-subdir('gsplash')
-subdir('gstreamer')
-subdir('utilities')
-subdir('gsession')
-subdir('gsd')
-subdir('gfields')
-subdir('gdetector')
-subdir('userActions')
-subdir('gui')
+#subdir('gfactory')
+#subdir('textProgressBar')
+#subdir('gtouchable')
+#subdir('ghit')
+#subdir('gtranslationTable')
+#subdir('gdata')
+#subdir('gdynamicDigitization')
+#subdir('eventDispenser')
+#subdir('g4display')
+#subdir('gsystem')
+#subdir('g4system')
+#subdir('gparticle')
+#subdir('gphysics')
+#subdir('gQtButtonsWidget')
+#subdir('gsplash')
+#subdir('gstreamer')
+#subdir('utilities')
+#subdir('gsession')
+#subdir('gsd')
+#subdir('gfields')
+#subdir('gdetector')
+#subdir('userActions')
+#subdir('gui')
 
 # compilation loop
 foreach L : LD
@@ -139,14 +139,14 @@ endforeach
 # compile gemc
 qrc_gemc_sources = qt5.compile_resources(sources : 'qtresources.qrc')
 
-gemc = executable(
-    'gemc',
-    ['gemc.cc', 'gemcOptions.cc'] + qrc_gemc_sources,
-    install : true,
-    dependencies : all_deps,
-    include_directories : all_includes,
-    link_with : all_libs
-)
+#gemc = executable(
+#    'gemc',
+#    ['gemc.cc', 'gemcOptions.cc'] + qrc_gemc_sources,
+#    install : true,
+#    dependencies : all_deps,
+#    include_directories : all_includes,
+#    link_with : all_libs
+#)
 
 
 # generate pkg-config file
