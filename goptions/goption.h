@@ -8,12 +8,28 @@
 #include "gutsConventions.h"
 
 // c++
+#include <map>
 using std::string;
+using std::map;
 using std::vector;
 
 // yaml-cpp
 #include "yaml-cpp/yaml.h"
 
+struct GVariable {
+    string name;
+    string value;
+    string description;
+
+    GVariable(string name, string val, string description) : name(name), value(val), description(description) {}
+
+    // overloading constructors with various types of vlue
+    GVariable(string name, double val, string description) : name(name), description(description) {value = std::to_string(val);}
+    GVariable(string name, const char *val, string description) : name(name), value(val), description(description) {}
+    GVariable(string name, int val, string description) : name(name), description(description) {value = std::to_string(val);}
+    GVariable(string name, bool val, string description) : name(name), description(description) {value = val ? "true" : "false";}
+
+};
 
 /**
  * The class is used to:
@@ -34,24 +50,25 @@ public:
      */
 
     // define a simple option using a string as default value
-    GOption(string n, string d, string dv, string h) : name(n), description(d), help(h) {
-        defaultValue = YAML::Load(dv);
+    GOption(GVariable dv, string h) : name(dv.name), description(dv.description), help(h) {
+        defaultValue = YAML::Load(name + ": " + dv.value);
         values.clear();
         values.push_back(defaultValue);
     }
 
     // define a map option using vector of strings as default value
-    GOption(string n, string d, vector<string> dv, string h) : name(n), description(d), help(h) {
-        YAML::Node node;
+    GOption(string n, string desc, vector<GVariable> dv, string h) : name(n), description(desc), help(h) {
+        YAML::Node nodes;
         for (auto v: dv) {
-            node.push_back(YAML::Load(v));
+            YAML::Node this_node = YAML::Load(v.name + ": " + v.value);
+            gvar_descs.push_back(v.description);
+            nodes.push_back(this_node);
         }
-        node["key"] = "value";
-        defaultValue = node;
+        defaultValue[n] = nodes;
     }
 
-    // add a value to the option if it is cumulative
-    void addValue(string v);
+    // set the value of the option
+    void set_value(string v);
 
 private:
 
@@ -67,13 +84,16 @@ private:
     const string description;    // summary description. This is used in the search.
     const string help;           // help description. This is used in the help.
     vector<YAML::Node> values;   // option values. If the option is not cumulative, the vector will have only one element
+    vector<string> gvar_descs;   // description for each of the above values
     YAML::Node defaultValue;     // default value
 
     // print the options different from defaults
     // if withDefaults is true also print the defaults
     void print_option(bool withDefaults);
 
-    void print_help();
+    void print_help(bool detailed);
+
+    string detailed_help();
 
     // making goptions friend to it can access the private variables and functions
     friend class GOptions;

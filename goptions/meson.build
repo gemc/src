@@ -16,6 +16,7 @@ LD += {
     'dependencies' : [yaml_cpp_dep],
 
     'examples' : {
-        'read_one_yaml' : [files('examples/read_one_yaml.cc'), [meson.current_source_dir() + '/examples/simple.yaml']],
+        'define_options' : [files('examples/define_options.cc'), ['-h']],
+        #    'parse_options' : [files('examples/parse.cc'), [meson.current_source_dir() + '/examples/simple.yaml']],
     }
 }

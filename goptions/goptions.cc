@@ -12,9 +12,6 @@
 using namespace std;
 
 
-using namespace gutilities;
-//using namespace std;
-
 // constructor:
 // - load user defined options, add goptions options
 // - assign internal options (gdebug, gstrict)
@@ -23,25 +20,31 @@ using namespace gutilities;
 // - get our own option
 GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
 
+    executableName = gutilities::getFileFromPath(argv[0]);
+
+    cout << endl;
+
+    goptions += user_defined_options.goptions;
+    switches += user_defined_options.switches;
+
+    // switches for all everyone
+    defineSwitch("gui", "use Graphical User Interface"); // gui mode
+
+    // parsing command line to check for help
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--h") == 0 || strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "--help") == 0) {
+            print_version();
             print_help();
         } else if (strcmp(argv[i], "-hweb") == 0) {
             print_web_help();
         } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--v") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "--version") == 0) {
             print_version();
             exit(EXIT_SUCCESS);
+        } else if (strcmp(argv[i], "help") == 0) {
+            print_option_or_switch(argv[i + 1]);
+            exit(EXIT_SUCCESS);
         }
     }
-    cout << endl;
-
-    goptions += user_defined_options.goptions;
-    switches += user_defined_options.switches;
-
-
-    // goptions for all programs:
-    addSwitch("gui", "use Graphical User Interface"); // gui mode
-
 
     // parsing command line to check if any switch is turned on
     for (int i = 1; i < argc; i++) {
@@ -65,8 +68,23 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
 
     // parse command lines
 
+}
 
-
+void GOptions::print_option_or_switch(string tag) {
+    if (switches.find(tag) != switches.end()) {
+        cout << KGRN << "-" << tag << RST << ": " << switches[tag].getDescription() << endl << endl;
+        cout << TPOINTITEM << "Default value is " << (switches[tag].getStatus() ? "on" : "off") << endl << endl;
+    } else {
+        string alt_tag = "+" + tag;
+        for (auto &goption: goptions) {
+            if (goption.name == tag || goption.name == alt_tag) {
+                goption.print_help(true);
+                exit(EXIT_SUCCESS);
+            }
+        }
+        cerr << FATALERRORL << "the " << YELLOWHHL << tag << RSTHHR << " option is not known to this system. " << endl;
+        gexit(EC__NOOPTIONFOUND);
+    }
 }
 
 
@@ -90,69 +108,48 @@ vector <string> GOptions::find_yaml(int argc, char *argv[]) {
 }
 
 // add a command line switch to the map of switches
-void GOptions::addSwitch(string name, string description) {
+void GOptions::defineSwitch(string name, string description) {
     if (switches.find(name) == switches.end()) {
         switches[name] = GSwitch(description);
     } else {
         std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " switch is already present." << std::endl;
-        gexit(EC__SWITCHALREADYPRESENT);
+        gexit(EC__DEFINED_SWITCHALREADYPRESENT);
     }
 }
 
-// add a simple option to the map of options
-void  GOptions::addOption(string name, string description, string defaultValue, string help) {
-
-    // first, check that an option with the same name is not already defined
-    if (goptions.size() == 0) {
-        goptions.push_back(GOption(name, description, defaultValue, help));
-    } else {
-        for (auto &goption: goptions) {
-            if (goption.name == name) {
-                std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " option is already present." << std::endl;
-                gexit(EC__NONCUMULATIVEALREADYPRESENT);
-            } else {
-                goptions.push_back(GOption(name, description, defaultValue, help));
-            }
+// checks if the option exists
+bool GOptions::does_option_exist(string tag) {
+    for (auto &goption: goptions) {
+        if (goption.name == tag) {
+            return true;
         }
+    }
+    return false;
+}
+
+// add a simple option to the map of options
+void GOptions::defineOption(GVariable gvar, string help) {
+
+    if (does_option_exist(gvar.name)) {
+        std::cerr << FATALERRORL << "the " << YELLOWHHL << gvar.name << RSTHHR << " option is already present." << std::endl;
+        gexit(EC__DEFINED_OPTION_ALREADY_PRESENT);
+    } else {
+        goptions.push_back(GOption(gvar, help));
     }
 }
 
 
 // add a map option to the map of options
-void GOptions::addOption(string name, string description, vector <string> defaultValue, string help) {
+void GOptions::defineOption(string name, string description, vector <GVariable> gvars, string help) {
 
-//    // first, check that an option with the same name is not already defined
-//    for (auto &goption: goptions) {
-//        if (goption.name == name) {
-//            std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " option is already present." << std::endl;
-//            gexit(EC__NONCUMULATIVEALREADYPRESENT);
-//        } else {
-//            goptions.push_back(GOption(name, description, defaultValue, help));
-//        }
-//    }
+    if (does_option_exist(name)) {
+        std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " option is already present." << std::endl;
+        gexit(EC__DEFINED_OPTION_ALREADY_PRESENT);
+    } else {
+        goptions.push_back(GOption(name, description, gvars, help));
+    }
+
 }
-
-
-// find GOption index from the vector<GOption>
-// error if GOption is not found
-//long GOptions::findOptionIndex(string name) {
-//
-//    for (auto it = goptions.begin(); it != goptions.end(); it++) {
-//        if (it->name == name) {
-//            return distance(goptions.begin(), it);
-//        }
-//    }
-//
-//    // not found, error
-//    cerr << FATALERRORL << "the option " << YELLOWHHL << name << RSTHHR << " is not known to this system. " << endl;
-//    cerr << "Use option " << PRINTALLOPTIONS << " to print all availaible options " << endl;
-//    gexit(EC__NOOPTIONFOUND);
-//
-//    return UNINITIALIZEDNUMBERQUANTITY;
-//}
-
-
-
 
 
 // print only the non default settings set by users
@@ -260,31 +257,53 @@ map <string, GSwitch> &operator+=(map <string, GSwitch> &original, map <string, 
     return original;
 }
 
-// #include <iomanip>
 
 // print only the non default settings set by users
 void GOptions::print_help() {
 
-    long int helpSize = string(HELPFILLSPACE).size() + 1;
+    long int fill_width = string(HELPFILLSPACE).size() + 1;
     cout.fill('.');
 
     cout << KGRN << " Usage: " << RST << endl << endl;
 
+    // switches help, belongs here cause of the map key
     for (auto &s: switches) {
-
         string help = "-" + s.first + RST + " ";
-        cout << KGRN << ARROWITEM;
-        cout << left;
-        cout.width(helpSize);
+        cout << KGRN << " " << left;
+        cout.width(fill_width);
         cout << help;
-        cout << s.second.getDescription() << endl;
+        cout << ": " << s.second.getDescription() << endl;
     }
 
     for (auto &option: goptions) {
-        option.print_help();
+        option.print_help(false);
     }
 
-    cout << RST << endl;
+    cout << endl;
+
+    // add the help, web help, introspection, single help and search
+    vector <string> helps = {
+            string("-h, --h, -help, --help") + RST,
+            string("print this help and exit"),
+            string("-hweb") + RST,
+            string("print this help in web format"),
+            string("-v, --v, -version, --version") + RST,
+            string("print the version\n"),
+            string("help <value>") + RST,
+            string("print detailed help for option <value>"),
+            string("search <value>") + RST,
+            string("list all options containing <value> in the description\n")
+    };
+
+    for (auto i = 0; i < helps.size() / 2; i++) {
+        cout << KGRN << " " << left;
+        cout.width(fill_width);
+        cout << helps[i * 2] << ": " << helps[i * 2 + 1] << endl;
+    }
+    cout << endl;
+
+    cout << " Note: command line options overwrite yaml file(s). " << endl << endl;
+
     exit(EXIT_SUCCESS);
 }
 
@@ -292,27 +311,12 @@ void GOptions::print_help() {
 // print only the non default settings set by users
 void GOptions::print_web_help() {
 
-    long int helpSize = string(HELPFILLSPACE).size() + 1;
+    long int fill_width = string(HELPFILLSPACE).size() + 1;
     cout.fill('.');
 
     cout << KRED << " Usage: " << RST << endl << endl;
 
-//    for (auto &s: switches) {
-//
-//        string help = "-" + s.first + RST + " ";
-//        cout << KGRN << ARROWITEM;
-//        cout << left;
-//        cout.width(helpSize);
-//        cout << help;
-//        cout << s.second.getDescription() << endl;
-//    }
-//
-//    for (auto &jOption: goptions) {
-//        jOption.print_option_help();
-//        //	cout << endl;
-//    }
-//
-//    cout << RST << endl;
+
     exit(EXIT_SUCCESS);
 }
 
@@ -320,7 +324,7 @@ void GOptions::print_web_help() {
 void GOptions::print_version() {
     string asterisks = "**************************************************************";
     cout << endl << asterisks << endl;
-    cout << " Gemc version: " << KGRN << gversion << RST << endl;
+    cout << " " << KRED << KBOLD << executableName << RST << "  version: " << KGRN << gversion << RST << endl;
     cout << " Released on: " << KGRN << grelease_date << RST << endl;
     cout << " Reference: " << KGRN << greference << RST << endl;
     cout << " Homepage: " << KGRN << gweb << RST << endl;

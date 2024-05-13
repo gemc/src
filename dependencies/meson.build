@@ -40,10 +40,10 @@ geant4_deps = declare_dependency(
 sqlite_dep = dependency('sqlite3')
 
 # Open Asset Import Library (assimp)
-assimp_dep = dependency('assimp', required : false)
+assimp_dep = dependency('assimp')
 
 # yaml-cpp
-yaml_cpp_dep = dependency('yaml_cpp', required : true)
+yaml_cpp_dep = dependency('yaml_cpp')
 
 
 # ROOT dependencies coming from cmake are not correctly handled by meson or are just plain wrong

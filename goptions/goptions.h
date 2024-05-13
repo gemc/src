@@ -4,14 +4,9 @@
 #include "goption.h"
 #include "gswitch.h"
 
-//#include "goptionsConventions.h"
-//#include "gutsConventions.h"
-
 
 // c++
 #include <string>
-
-using std::map;
 
 
 /**
@@ -43,22 +38,36 @@ private:
     // jcards parsing utilities
     vector <string> find_yaml(int argc, char *argv[]);  // finds the yaml specified by command line. Returns "na' if not found.
 
-    // loops over all options and print web formated help
+    // loops over all options and print help
+    void print_help();
+
+    // print web formated help
     void print_web_help();
 
-    // instrospection
+    // introspection
     void print_version();
 
+    // checks if the option exists
+    bool does_option_exist(string tag);
+
+    // search
+    vector <GOption> search_for_string(string tag); // searches for a string option
+
+    // print single option or switch
+    void print_option_or_switch(string tag);
+
+    // save the executable name
+    string executableName;
 public:
 
     // add a command line switch to the map of switches
-    void addSwitch(string name, string description);
+    void defineSwitch(string name, string description);
 
     // add a simple option to the map of options
-    void addOption(string name, string description, string defaultValue, string help);
+    void defineOption(GVariable gvar, string help);
 
     // add a map option to the map of options
-    void addOption(string name, string description, vector<string> defaultValue, string help);
+    void defineOption(string name, string description, vector<GVariable> gvars, string help);
 
 
     /**
@@ -67,14 +76,13 @@ public:
      */
     void print_settings(bool withDefaults);
 
-    int getInt(string tag);       // gets the integer value 
-    float getFloat(string tag);   // gets the float value 
-    double getDouble(string tag); // gets the double value 
-    string getString(string tag); // gets the string value 
-    bool getSwitch(string tag);   // gets the bool value
+//    int getInt(string tag);       // gets the integer value
+//    float getFloat(string tag);   // gets the float value
+//    double getDouble(string tag); // gets the double value
+//    string getString(string tag); // gets the string value
+//    bool getSwitch(string tag);   // gets the bool value
 
-    // loops over all options and print help
-    void print_help();
+
 
 };
 

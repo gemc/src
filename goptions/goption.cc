@@ -11,21 +11,21 @@
 using namespace std;
 
 // add a value to the option if it is cumulative
-void GOption::addValue(string v) {
+void GOption::set_value(string v) {
 
-    // if the option is not cumulative, and the current value is not the default value
-    // then the option has already been set. exit with error
-    if (!isCumulative() && !isDefault()) {
-        cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " option is not cumulative and already set" << std::endl;
-        gexit(EC__NONCUMULATIVEALREADYPRESENT);
-    } else {
-        YAML::Node value = YAML::Load(v);
-
-        // if the value is not the default value, add it to the values vector
-        if (value != defaultValue) {
-            values.push_back(value);
-        }
-    }
+//    // if the option is not cumulative, and the current value is not the default value
+//    // then the option has already been set. exit with error
+//    if (!isCumulative() && !isDefault()) {
+//        cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " option is not cumulative and already set" << std::endl;
+//        gexit(EC__DEFINED_OPTION_ALREADY_PRESENT);
+//    } else {
+//        YAML::Node value = YAML::Load(v);
+//
+//        // if the value is not the default value, add it to the values vector
+//        if (value != defaultValue) {
+//            values.push_back(value);
+//        }
+//    }
 
 }
 
@@ -81,50 +81,67 @@ void GOption::print_option(bool withDefaults) {
 
 
 // print option
-void GOption::print_help() {
+void GOption::print_help(bool detailed) {
 
-	long int helpSize = string(HELPFILLSPACE).size() + 1;
-	//string defaultValue = "";
+    long int fill_width = string(HELPFILLSPACE).size() + 1;
+    cout.fill('.');
 
-	string helpString =  name + RST  ;
+    string helpString = "-" + name + RST;
+    if (name[0] == '+') {
+        helpString = name + RST;
+    }
+    bool is_sequence = defaultValue.begin()->second.IsSequence();
 
-    cout << " hello " << defaultValue << endl;
+    if (is_sequence) {
+        helpString += "=<sequence>";
+    } else {
+        helpString += "=<value>";
+    }
+    helpString += " ";
+
+    cout << KGRN << " " << left;
+    cout.width(fill_width);
+
+    string cumulative = "";
+    if (name[0] == '+') {
+        cumulative = " (cumulative)";
+    }
+
+    if (detailed) {
+        cout << helpString << ": " << description << cumulative << endl;
+        cout << endl;
+        cout << detailed_help() << endl;
+    } else {
+        cout << helpString << ": " << description << cumulative << endl;
+    }
+
+}
+
+string GOption::detailed_help() {
+    string newHelp = "";
 
 
-//	if ( joptionDefinition.front().is_structured() ) {
-//		helpString += "=<jsonvalue>" ;
-//	} else {
-//		helpString += "=<value>" ;
-//	}
-//	helpString += " ";
-//
-//	cout  << KGRN << ARROWITEM  ;
-//	cout << left;
-//	cout.width(helpSize);
-//	cout << helpString;
-//	cout  << description  << endl;
-//
-//	// structured option
-//	if ( joptionDefinition.front().is_structured() ) {
-//
-//		// structured option
-//		cout << endl;
-//		for ( auto& h: help) {
-//			cout << HELPFILLSPACE << h << endl;
-//		}
-//
-//		cout << endl << HELPFILLSPACE << "<jsonvalue>:" << endl << endl;
-//
-//		for (auto& [definitionJsonKey, definitionJsonValue] : joptionDefinition.items()) {
-//
-//			cout  << HELPFILLSPACE << POINTITEM  ;
-//			cout << gutilities::replaceCharInStringWithChars(definitionJsonValue[GNAME], "\"", "") << ": " ;
-//			cout << gutilities::replaceCharInStringWithChars(definitionJsonValue[GDESC], "\"", "")  << endl;
-//
-//		}
-//		cout << endl;
-//	}
+    YAML::Node yvalues = defaultValue.begin()->second;
+    if (yvalues.IsSequence()) {
+        newHelp += "\n";
 
-    cout << RST;
+        for (auto i = 0; i < yvalues.size(); i++) {
+            YAML::Node this_node = yvalues[i];
+
+            for (YAML::const_iterator it = this_node.begin(); it != this_node.end(); ++it) {
+                cout << TGREENPOINTITEM << KGRN << it->first.as<string>() << RST
+                << ": " << gvar_descs[i] << ". Default value: " << it->second.as<string>() << endl;
+            }
+
+        }
+    }
+    newHelp += "\n";
+
+    vector <string> help_lines = gutilities::getStringVectorFromStringWithDelimiter(help, "\n");
+
+    for (auto line: help_lines) {
+        newHelp += GTAB + line + "\n";
+    }
+    return newHelp;
 
 }
