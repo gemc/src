@@ -29,11 +29,11 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
 
     // switches for all everyone
     defineSwitch("gui", "use Graphical User Interface"); // gui mode
+    defineSwitch("save_options", "Save All User Options In Yaml File"); // gui m
 
     // parsing command line to check for help
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--h") == 0 || strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "--help") == 0) {
-            print_version();
             print_help();
         } else if (strcmp(argv[i], "-hweb") == 0) {
             print_web_help();
@@ -60,11 +60,18 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
         }
     }
 
+    print_version();
+
     // finds the yamls
     vector <string> yaml_files = find_yaml(argc, argv);
 
-
     // parse the yaml files
+    for (auto &yaml_file: yaml_files) {
+        cout << "Parsing " << yaml_file << endl;
+        set_options_from_yaml(yaml_file);
+
+
+    }
 
     // parse command lines
 
@@ -148,93 +155,50 @@ void GOptions::defineOption(string name, string description, vector <GVariable> 
     } else {
         goptions.push_back(GOption(name, description, gvars, help));
     }
+}
+
+void GOptions::set_options_from_yaml(string yaml) {
+
+    YAML::Node config;
+    try {
+        config = YAML::LoadFile(yaml);
+
+    } catch (YAML::ParserException &e) {
+        cerr << FATALERRORL << "Error parsing " << YELLOWHHL << yaml << RSTHHR << " yaml file." << endl;
+        cerr << e.what() << endl;
+        cerr << "Try validating the yaml file with an online yaml validator, for example: https://www.yamllint.com" << endl;
+        gexit(EC__YAML_PARSING_ERROR);
+    }
+
+    for (YAML::const_iterator it = config.begin(); it != config.end(); ++it) {
+
+        string option_name = it->first.as<std::string>();
+
+        auto option_it = get_option(option_name);
+
+        if (option_it == goptions.end()) {
+            cerr << FATALERRORL << "The option " << YELLOWHHL << option_name << RSTHHR << " is not known to this system." << endl;
+            gexit(EC__NOOPTIONFOUND);
+        } else {
+            option_it->set_value(it->second.as<std::string>());
+        }
+
+    }
+
 
 }
 
+// returns vector<GOption> iterator for option name
+vector<GOption>::iterator GOptions::get_option(string name) {
 
-// print only the non default settings set by users
-void GOptions::print_settings(bool withDefaults) {
-//    // making sure at least one option has value
-//    bool canPrint = false;
-//
-//    for (auto &jOption: goptions) {
-//        if (jOption.jOptionAssignedValues.size()) {
-//            canPrint = true;
-//        }
-//    }
-//
-//    // nothing to do.
-//    if (!canPrint) {
-//        cout << KGRN << " No settings defined. " << RST << endl;
-//        return;
-//    }
-//
-//    if (withDefaults) {
-//        cout << endl << KGRN << " All Settings: " << RST << endl << endl;
-//    } else {
-//        cout << endl << KGRN << " Non Default User Settings: " << RST << endl << endl;
-//    }
-//    // switches
-//    for (auto [name, switchValue]: switches) {
-//        if (withDefaults) {
-//            // print all switches
-//            cout << KGRN << ARROWITEM << name << RST << ": " << (switchValue.getStatus() ? "on" : "off") << endl;
-//        } else {
-//            // only print the active switches
-//            if (switchValue.getStatus()) {
-//                cout << KGRN << ARROWITEM << name << RST << ": on" << endl;
-//            }
-//        }
-//    }
-//
-//    for (auto &jOption: goptions) {
-//
-//        jOption.printOption(withDefaults);
-//
-//        // non structured option, the jOptionAssignedValues has only one object, the json size is 1
-//        if (jOption.jOptionAssignedValues.size() == 1 && jOption.jOptionAssignedValues.front().size() == 1) {
-//        } else {
-//            cout << endl;
-//        }
-//    }
-    cout << endl;
+    for (auto it = goptions.begin(); it != goptions.end(); it++) {
+        if (it->name == name) {
+            return it;
+        }
+    }
+
+    return  goptions.end();
 }
-
-
-
-
-//int GOptions::getInt(string tag) {
-//    json jn = getNonStructuredOptionSingleValue(tag); // will exit if not found
-//    return jn[tag].get<int>();
-//}
-//
-//float GOptions::getFloat(string tag) {
-//    json jn = getNonStructuredOptionSingleValue(tag); // will exit if not found
-//    return jn[tag].get<float>();
-//}
-//
-//double GOptions::getDouble(string tag) {
-//    json jn = getNonStructuredOptionSingleValue(tag); // will exit if not found
-//    return jn[tag].get<double>();
-//}
-//
-//string GOptions::getString(string tag) {
-//    json jn = getNonStructuredOptionSingleValue(tag); // will exit if not found
-//    return jn[tag].get<string>();
-//}
-//
-//bool GOptions::getSwitch(string tag) {
-//    if (switches.find(tag) != switches.end()) {
-//        return switches[tag].getStatus();
-//    } else {
-//        cerr << FATALERRORL << "the " << YELLOWHHL << tag << RSTHHR << " switch is not known to this system. " << endl;
-//        gexit(EC__NOOPTIONFOUND);
-//    }
-//    return false;
-//}
-
-
-
 
 
 // overloaded operator to add option vectors
@@ -243,7 +207,6 @@ vector <GOption> &operator+=(vector <GOption> &original, vector <GOption> option
     for (const auto &optionToadd: optionsToAdd) {
         original.push_back(optionToadd);
     }
-
     return original;
 }
 
@@ -253,7 +216,6 @@ map <string, GSwitch> &operator+=(map <string, GSwitch> &original, map <string, 
     for (const auto &[name, switchToAdd]: optionsToAdd) {
         original[name] = switchToAdd;
     }
-
     return original;
 }
 
@@ -264,7 +226,8 @@ void GOptions::print_help() {
     long int fill_width = string(HELPFILLSPACE).size() + 1;
     cout.fill('.');
 
-    cout << KGRN << " Usage: " << RST << endl << endl;
+    cout << KRED << KBOLD << " " << executableName << RST << " [options] [yaml files]" << endl << endl;
+    cout << KGRN << " Options: " << RST << endl << endl;
 
     // switches help, belongs here cause of the map key
     for (auto &s: switches) {
@@ -286,13 +249,13 @@ void GOptions::print_help() {
             string("-h, --h, -help, --help") + RST,
             string("print this help and exit"),
             string("-hweb") + RST,
-            string("print this help in web format"),
+            string("print this help in web format and exit"),
             string("-v, --v, -version, --version") + RST,
-            string("print the version\n"),
+            string("print the version and exit\n"),
             string("help <value>") + RST,
-            string("print detailed help for option <value>"),
+            string("print detailed help for option <value> and exit"),
             string("search <value>") + RST,
-            string("list all options containing <value> in the description\n")
+            string("list all options containing <value> in the description and exit\n")
     };
 
     for (auto i = 0; i < helps.size() / 2; i++) {

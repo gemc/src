@@ -58,6 +58,12 @@ private:
 
     // save the executable name
     string executableName;
+
+    void set_options_from_yaml(string yaml);
+
+    // returns vector<GOption> map iterator for option name
+    vector <GOption>::iterator get_option(string name);
+
 public:
 
     // add a command line switch to the map of switches
@@ -68,22 +74,6 @@ public:
 
     // add a map option to the map of options
     void defineOption(string name, string description, vector<GVariable> gvars, string help);
-
-
-    /**
-     * @details Print Settings
-     * \param withDefaults if true prints also the default options not assigned by the user
-     */
-    void print_settings(bool withDefaults);
-
-//    int getInt(string tag);       // gets the integer value
-//    float getFloat(string tag);   // gets the float value
-//    double getDouble(string tag); // gets the double value
-//    string getString(string tag); // gets the string value
-//    bool getSwitch(string tag);   // gets the bool value
-
-
-
 };
 
 // overloaded operator to add option vectors and switch maps

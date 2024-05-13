@@ -17,6 +17,6 @@ LD += {
 
     'examples' : {
         'define_options' : [files('examples/define_options.cc'), ['-h']],
-        #    'parse_options' : [files('examples/parse.cc'), [meson.current_source_dir() + '/examples/simple.yaml']],
+        'parse_file' : [files('examples/define_options.cc'), [meson.current_source_dir() + '/examples/simple.yaml']],
     }
 }

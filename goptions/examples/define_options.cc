@@ -27,7 +27,7 @@ GOptions defineOptions() {
 
     vector<GVariable> gparticle = {
             {"pname",        goptions::NODFLT, "particle name"},
-            {"multiplicity", 1  ,              "number of particles"},
+            {"multiplicity", 1  ,              "number of particles per event"},
             {"p",            goptions::NODFLT, "momentum"},
             {"theta",        "0*degrees",      "polar angle"}
     };

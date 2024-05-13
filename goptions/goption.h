@@ -28,7 +28,6 @@ struct GVariable {
     GVariable(string name, const char *val, string description) : name(name), value(val), description(description) {}
     GVariable(string name, int val, string description) : name(name), description(description) {value = std::to_string(val);}
     GVariable(string name, bool val, string description) : name(name), description(description) {value = val ? "true" : "false";}
-
 };
 
 /**
@@ -40,11 +39,9 @@ class GOption {
 public:
 
     /**
-     * @brief Constructor
-     * \param n option name
-     * \param d option description
-     * \param dv default value
-     * \param h help description
+     * @brief Constructor of simple option
+     * \param GV a GVariable with the name, value and description
+     * \param h  help for the option
      *
      * The value is set to the default value
      */
@@ -55,6 +52,17 @@ public:
         values.clear();
         values.push_back(defaultValue);
     }
+
+
+    /**
+     * @brief Constructor of a sequence option
+     * \param n  name of the option
+     * \param desc  summary description of the option
+     * \param dv  vector of GVariable with the name, value and description of each element in the sequence
+     * \param h  help for the option
+     *
+     * The value is set to the default value
+     */
 
     // define a map option using vector of strings as default value
     GOption(string n, string desc, vector<GVariable> dv, string h) : name(n), description(desc), help(h) {
@@ -67,8 +75,7 @@ public:
         defaultValue[n] = nodes;
     }
 
-    // set the value of the option
-    void set_value(string v);
+
 
 private:
 
@@ -94,6 +101,10 @@ private:
     void print_help(bool detailed);
 
     string detailed_help();
+
+    // set the value of the option
+    void set_value(string v);
+
 
     // making goptions friend to it can access the private variables and functions
     friend class GOptions;

@@ -1,8 +1,7 @@
 runno: 12,
-nthreads: 8
 
 +gparticle:
-  pname: "e-",
-  multiplicity": 1
-  p: 2300
+  pname: e-,
+  multiplicity": 1,
+  p: 2300,
   theta: 23.0
