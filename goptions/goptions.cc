@@ -14,10 +14,8 @@ using namespace std;
 
 // constructor:
 // - load user defined options, add goptions options
-// - assign internal options (gdebug, gstrict)
-// - parse the base jcard plus all imported jcards
+// - parse the yaml files
 // - parse the command line options
-// - get our own option
 GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
 
     executableName = gutilities::getFileFromPath(argv[0]);
@@ -28,8 +26,22 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
     switches += user_defined_options.switches;
 
     // switches for all everyone
-    defineSwitch("gui", "use Graphical User Interface"); // gui mode
-    defineSwitch("save_options", "Save All User Options In Yaml File"); // gui m
+    defineSwitch("gui", "use Graphical User Interface");
+    defineOption(GVariable("conf_yaml", "saved_configuration", "the yaml filename prefix where all used options are saved"),
+                 "The default value appends \"_saved_configuration\" to the executable name.");
+
+    // version is a special option, not settable by the user
+    // it is set by the gversion.h file
+    // we add it here so it can be saved to the yaml file
+    vector <GVariable> version = {
+            {"release",      gversion,      "release version number"},
+            {"release_date", grelease_date, "release date"},
+            {"Reference",    greference,    "article reference"},
+            {"Homepage",     gweb,          "homepage"},
+            {"Author",       gauthor,       "author"}
+    };
+    defineOption(GVERSION_STRING, "version information", version, "Version information. Not settable by user.");
+
 
     // parsing command line to check for help
     for (int i = 1; i < argc; i++) {
@@ -41,7 +53,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
             print_version();
             exit(EXIT_SUCCESS);
         } else if (strcmp(argv[i], "help") == 0) {
-            print_option_or_switch(argv[i + 1]);
+            print_option_or_switch_help(argv[i + 1]);
             exit(EXIT_SUCCESS);
         }
     }
@@ -50,41 +62,66 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
     for (int i = 1; i < argc; i++) {
         string candidateSwitch = string(argv[i]);
         if (candidateSwitch[0] == '-') {
-            for (auto &[switchName, swiitchValue]: switches) {
+            for (auto &[switchName, switchValue]: switches) {
                 string candidateRoot = candidateSwitch.substr(1, candidateSwitch.size() - 1);
-
                 if (switchName == candidateRoot) {
-                    swiitchValue.turnOn();
+                    switchValue.turnOn();
                 }
             }
         }
     }
 
-    print_version();
 
-    // finds the yamls
-    vector <string> yaml_files = find_yaml(argc, argv);
+    // finds the yaml files
+    vector <string> yaml_files = find_yamls(argc, argv);
 
     // parse the yaml files
     for (auto &yaml_file: yaml_files) {
         cout << "Parsing " << yaml_file << endl;
-        set_options_from_yaml(yaml_file);
-
-
+        set_options_values_from_yaml(yaml_file);
     }
 
     // parse command lines
+    // revisit with below
+
+
+    // now going again through the command line anche check that every option passed is either a switch, an option or a yaml file
+    for (int i = 1; i < argc; i++) {
+        string candidate = string(argv[i]);
+        if (switches.find(candidate) == switches.end()) {
+            if (!does_option_exist(candidate)) {
+
+                if ( find( yaml_files.begin(), yaml_files.end(), candidate) == yaml_files.end() ) {
+                    cerr << FATALERRORL << "the " << YELLOWHHL << candidate << RSTHHR << " option is not known to this system. " << endl;
+                    gexit(EC__NOOPTIONFOUND);
+                }
+            }
+        }
+    }
+
+
+
+// print version no matter what
+    print_version();
+
+// save options to yaml
+    string yaml_conf_filename = executableName + "." + getString("conf_yaml") + ".yaml";
+    cout << " Saving options to " << yaml_conf_filename << endl <<
+         endl;
+    yaml_conf = ofstream(yaml_conf_filename);
+
+    save_options();
 
 }
 
-void GOptions::print_option_or_switch(string tag) {
+void GOptions::print_option_or_switch_help(string tag) {
     if (switches.find(tag) != switches.end()) {
         cout << KGRN << "-" << tag << RST << ": " << switches[tag].getDescription() << endl << endl;
         cout << TPOINTITEM << "Default value is " << (switches[tag].getStatus() ? "on" : "off") << endl << endl;
+        exit(EXIT_SUCCESS);
     } else {
-        string alt_tag = "+" + tag;
         for (auto &goption: goptions) {
-            if (goption.name == tag || goption.name == alt_tag) {
+            if (goption.name == tag) {
                 goption.print_help(true);
                 exit(EXIT_SUCCESS);
             }
@@ -96,7 +133,7 @@ void GOptions::print_option_or_switch(string tag) {
 
 
 // Finds the (first) configuration file (yaml).
-vector <string> GOptions::find_yaml(int argc, char *argv[]) {
+vector <string> GOptions::find_yamls(int argc, char *argv[]) {
     vector <string> yaml_files;
 
     for (int i = 1; i < argc; i++) {
@@ -106,12 +143,18 @@ vector <string> GOptions::find_yaml(int argc, char *argv[]) {
         if (pos != string::npos) yaml_files.push_back(arg);
     }
 
-    if (yaml_files.size() == 0) {
-        return {UNINITIALIZEDSTRINGQUANTITY};
-    }
-
     return yaml_files;
+}
 
+
+// checks if the option exists
+bool GOptions::does_option_exist(string tag) {
+    for (auto &goption: goptions) {
+        if (goption.name == tag) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // add a command line switch to the map of switches
@@ -122,16 +165,6 @@ void GOptions::defineSwitch(string name, string description) {
         std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " switch is already present." << std::endl;
         gexit(EC__DEFINED_SWITCHALREADYPRESENT);
     }
-}
-
-// checks if the option exists
-bool GOptions::does_option_exist(string tag) {
-    for (auto &goption: goptions) {
-        if (goption.name == tag) {
-            return true;
-        }
-    }
-    return false;
 }
 
 // add a simple option to the map of options
@@ -147,17 +180,17 @@ void GOptions::defineOption(GVariable gvar, string help) {
 
 
 // add a map option to the map of options
-void GOptions::defineOption(string name, string description, vector <GVariable> gvars, string help) {
+void GOptions::defineOption(string name, string description, vector <GVariable> g_vars, string help) {
 
     if (does_option_exist(name)) {
         std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " option is already present." << std::endl;
         gexit(EC__DEFINED_OPTION_ALREADY_PRESENT);
     } else {
-        goptions.push_back(GOption(name, description, gvars, help));
+        goptions.push_back(GOption(name, description, g_vars, help));
     }
 }
 
-void GOptions::set_options_from_yaml(string yaml) {
+void GOptions::set_options_values_from_yaml(string yaml) {
 
     YAML::Node config;
     try {
@@ -174,38 +207,70 @@ void GOptions::set_options_from_yaml(string yaml) {
 
         string option_name = it->first.as<std::string>();
 
-        auto option_it = get_option(option_name);
+        auto option_it = get_option_iterator(option_name);
 
         if (option_it == goptions.end()) {
-            cerr << FATALERRORL << "The option " << YELLOWHHL << option_name << RSTHHR << " is not known to this system." << endl;
-            gexit(EC__NOOPTIONFOUND);
+            if (switches.find(option_name) == switches.end()) {
+                cerr << FATALERRORL << "The option or switch " << YELLOWHHL << option_name << RSTHHR << " is not known to this system." << endl;
+                gexit(EC__NOOPTIONFOUND);
+            } else {
+                switches[option_name].turnOn();
+            }
         } else {
-            option_it->set_value(it->second.as<std::string>());
+            switch (it->second.Type()) {
+                case YAML::NodeType::Scalar:
+                    option_it->set_value(it->second.as<std::string>());
+                    break;
+                case YAML::NodeType::Sequence:
+                    option_it->set_value(it->second);
+                    break;
+                case YAML::NodeType::Map:
+                    option_it->set_value(it->second);
+                    break;
+                default:
+                    break;
+
+            }
         }
-
     }
-
-
 }
 
 // returns vector<GOption> iterator for option name
-vector<GOption>::iterator GOptions::get_option(string name) {
+vector<GOption>::iterator GOptions::get_option_iterator(string name) {
 
-    for (auto it = goptions.begin(); it != goptions.end(); it++) {
+    for (auto it = goptions.begin(); it != goptions.end(); ++it) {
         if (it->name == name) {
             return it;
         }
     }
 
-    return  goptions.end();
+    return goptions.end();
 }
 
+int GOptions::getInt(string tag) {
+    auto it = get_option_iterator(tag);
+    return it->values[0].begin()->second.as<int>();
+}
+
+float GOptions::getFloat(string tag) {
+    auto it = get_option_iterator(tag);
+    return it->values[0].begin()->second.as<float>();
+}
+
+double GOptions::getDouble(string tag) {
+    auto it = get_option_iterator(tag);
+    return it->values[0].begin()->second.as<double>();
+}
+
+string GOptions::getString(string tag) {
+    auto it = get_option_iterator(tag);
+    return it->values[0].begin()->second.as<string>();
+}
 
 // overloaded operator to add option vectors
 vector <GOption> &operator+=(vector <GOption> &original, vector <GOption> optionsToAdd) {
-
-    for (const auto &optionToadd: optionsToAdd) {
-        original.push_back(optionToadd);
+    for (const auto &option_to_add: optionsToAdd) {
+        original.push_back(option_to_add);
     }
     return original;
 }
@@ -227,7 +292,7 @@ void GOptions::print_help() {
     cout.fill('.');
 
     cout << KRED << KBOLD << " " << executableName << RST << " [options] [yaml files]" << endl << endl;
-    cout << KGRN << " Options: " << RST << endl << endl;
+    cout << " Switches: " << endl << endl;
 
     // switches help, belongs here cause of the map key
     for (auto &s: switches) {
@@ -237,6 +302,9 @@ void GOptions::print_help() {
         cout << help;
         cout << ": " << s.second.getDescription() << endl;
     }
+    cout << endl;
+
+    cout << " Options: " << endl << endl;
 
     for (auto &option: goptions) {
         option.print_help(false);
@@ -244,26 +312,26 @@ void GOptions::print_help() {
 
     cout << endl;
 
-    // add the help, web help, introspection, single help and search
+    cout << endl << " Help / Search / Introspection: " << endl << endl;
+
     vector <string> helps = {
             string("-h, --h, -help, --help") + RST,
             string("print this help and exit"),
             string("-hweb") + RST,
             string("print this help in web format and exit"),
             string("-v, --v, -version, --version") + RST,
-            string("print the version and exit\n"),
-            string("help <value>") + RST,
+            string("print the version and exit\n"), string("help <value>") + RST,
             string("print detailed help for option <value> and exit"),
             string("search <value>") + RST,
             string("list all options containing <value> in the description and exit\n")
     };
-
     for (auto i = 0; i < helps.size() / 2; i++) {
         cout << KGRN << " " << left;
         cout.width(fill_width);
         cout << helps[i * 2] << ": " << helps[i * 2 + 1] << endl;
     }
     cout << endl;
+
 
     cout << " Note: command line options overwrite yaml file(s). " << endl << endl;
 
@@ -274,16 +342,28 @@ void GOptions::print_help() {
 // print only the non default settings set by users
 void GOptions::print_web_help() {
 
-    long int fill_width = string(HELPFILLSPACE).size() + 1;
-    cout.fill('.');
-
-    cout << KRED << " Usage: " << RST << endl << endl;
-
-
     exit(EXIT_SUCCESS);
 }
 
-// introspection
+
+// print options and switches values
+
+void GOptions::save_options() {
+
+    for (auto &s: switches) {
+        string status = "false";
+        if (s.second.getStatus()) status = "true";
+        yaml_conf << s.first + ": " + status << "," << endl;
+    }
+
+    for (auto &option: goptions) {
+        option.save_option(yaml_conf);
+    }
+
+    yaml_conf.close();
+}
+
+// introspection, add file option
 void GOptions::print_version() {
     string asterisks = "**************************************************************";
     cout << endl << asterisks << endl;
@@ -293,4 +373,5 @@ void GOptions::print_version() {
     cout << " Homepage: " << KGRN << gweb << RST << endl;
     cout << " Author: " << KGRN << gauthor << RST << endl << endl;
     cout << asterisks << endl << endl;
+
 }

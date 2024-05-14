@@ -7,6 +7,7 @@
 
 // c++
 #include <string>
+#include <fstream>
 
 
 /**
@@ -36,7 +37,22 @@ private:
     map <string, GSwitch> switches;
 
     // jcards parsing utilities
-    vector <string> find_yaml(int argc, char *argv[]);  // finds the yaml specified by command line. Returns "na' if not found.
+    vector <string> find_yamls(int argc, char *argv[]);  // finds the yaml specified by command line. Returns "na' if not found.
+
+    // parse the yaml file
+    void set_options_values_from_yaml(string yaml);
+
+    // checks if the option exists
+    bool does_option_exist(string tag);
+
+    // returns vector<GOption> map iterator for option name
+    vector<GOption>::iterator get_option_iterator(string name);
+
+    // search
+    vector <GOption> search_for_string(string tag); // searches for a string option
+
+    // print single option or switch
+    void print_option_or_switch_help(string tag);
 
     // loops over all options and print help
     void print_help();
@@ -44,25 +60,17 @@ private:
     // print web formated help
     void print_web_help();
 
-    // introspection
-    void print_version();
+    // Save All User Options In a Yaml File
+    void save_options();
 
-    // checks if the option exists
-    bool does_option_exist(string tag);
-
-    // search
-    vector <GOption> search_for_string(string tag); // searches for a string option
-
-    // print single option or switch
-    void print_option_or_switch(string tag);
-
-    // save the executable name
+    // sets the executable name at construction
     string executableName;
 
-    void set_options_from_yaml(string yaml);
+    // yaml saved configuration filename
+    std::ofstream yaml_conf;
 
-    // returns vector<GOption> map iterator for option name
-    vector <GOption>::iterator get_option(string name);
+    // introspection.
+    void print_version();
 
 public:
 
@@ -73,7 +81,19 @@ public:
     void defineOption(GVariable gvar, string help);
 
     // add a map option to the map of options
-    void defineOption(string name, string description, vector<GVariable> gvars, string help);
+    void defineOption(string name, string description, vector <GVariable> gvars, string help);
+
+
+    // option getters for scalar options
+    int getInt(string tag);
+
+    float getFloat(string tag);
+
+    double getDouble(string tag);
+
+    string getString(string tag);
+
+    bool getSwitch(string tag);
 };
 
 // overloaded operator to add option vectors and switch maps

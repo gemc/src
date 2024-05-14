@@ -36,7 +36,7 @@ namespace gutilities {
 	// Replace all occurences of a char in string with a string
 	string replaceCharInStringWithChars(string input, string toReplace, string replacement);
 
-	// Replace all occurences of a a string with a string
+	// Replace all occurences of a string with a string
 	string replaceAllStringsWithString(string source, const string from, const string to);
 
 	// adds characters to a word to fill its digits up to ndigits

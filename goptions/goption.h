@@ -9,6 +9,7 @@
 
 // c++
 #include <map>
+#include <fstream>
 using std::string;
 using std::map;
 using std::vector;
@@ -46,7 +47,8 @@ public:
      * The value is set to the default value
      */
 
-    // define a simple option using a string as default value
+    // define a scalar option using a string as default value
+    // scalar option default value cannot be NODFLT
     GOption(GVariable dv, string h) : name(dv.name), description(dv.description), help(h) {
         defaultValue = YAML::Load(name + ": " + dv.value);
         values.clear();
@@ -67,20 +69,26 @@ public:
     // define a map option using vector of strings as default value
     GOption(string n, string desc, vector<GVariable> dv, string h) : name(n), description(desc), help(h) {
         YAML::Node nodes;
+        bool has_no_default = false;
         for (auto v: dv) {
             YAML::Node this_node = YAML::Load(v.name + ": " + v.value);
-            gvar_descs.push_back(v.description);
             nodes.push_back(this_node);
+            gvar_descs.push_back(v.description);
+            if (v.value == goptions::NODFLT) has_no_default = true;
         }
         defaultValue[n] = nodes;
+
+        // if an option does not have NODFLT, it is then set to the default value
+        if (!has_no_default) {
+            values.clear();
+            values.push_back(defaultValue);
+        }
+
     }
 
 
 
 private:
-
-    // if the name start with '+' the option is cumulative
-    inline bool isCumulative() { return name[0] == '+'; }
 
     // if there is only one value and it is the default value
     bool isDefault() {
@@ -94,17 +102,18 @@ private:
     vector<string> gvar_descs;   // description for each of the above values
     YAML::Node defaultValue;     // default value
 
-    // print the options different from defaults
-    // if withDefaults is true also print the defaults
-    void print_option(bool withDefaults);
+    // save option value
+    void save_option(std::ofstream &yaml_conf);
 
     void print_help(bool detailed);
 
     string detailed_help();
 
-    // set the value of the option
+    // sets the value of the scalar option based on the command line string
     void set_value(string v);
 
+    // sets the value of the option based on the parsed yaml node
+    void set_value(YAML::Node v);
 
     // making goptions friend to it can access the private variables and functions
     friend class GOptions;

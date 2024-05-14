@@ -7,7 +7,9 @@
 #define GVERBOSITY_SUMMARY 1 // prints only summary message
 #define GVERBOSITY_DETAILS 2 // print all details
 #define GVERBOSITY_CLASSES 3 // print all details and class constructors / destructors messages
-#define GVERBOSITY_DESCRIPTION "Possible values: 0: shush; 1: summary; 2: details; 3: everything"   //
+#define GVERBOSITY_DESCRIPTION "Possible values: 0: shush; 1: summary; 2: details; 3: everything"
+
+#define GVERSION_STRING "version"
 
 // exit codes: 100s
 #define EC__NOOPTIONFOUND                  101
