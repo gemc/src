@@ -88,13 +88,13 @@ public:
 
 
     // option getters for scalar options
-    int getInt(string tag);
+    int getScalarInt(string tag);
 
-    float getFloat(string tag);
+    float getScalarFloat(string tag);
 
-    double getDouble(string tag);
+    double getScalarDouble(string tag);
 
-    string getString(string tag);
+    string getScalarString(string tag);
 
     bool getSwitch(string tag);
 };

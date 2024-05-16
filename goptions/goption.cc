@@ -14,9 +14,8 @@ using namespace std;
 void GOption::set_scalar_value(string v) {
     string value_to_set = gutilities::replaceCharInStringWithChars(v, ",", "");
 
-    auto scalar = values.front();
-    string key = scalar.begin()->first.as<string>();
-    scalar[key] = value_to_set;
+    string key = value.begin()->first.as<string>();
+    value[key] = value_to_set;
 }
 
 
@@ -24,7 +23,6 @@ void GOption::set_scalar_value(string v) {
 void GOption::set_value(YAML::Node v) {
     // if the option is cumulative,
     if (isCumulative) {
-        YAML::Node to_set;
         // sequence of maps
         bool all_good = true;
         for (auto element: v) {
@@ -36,27 +34,57 @@ void GOption::set_value(YAML::Node v) {
             }
         }
         if (all_good) {
-            values.push_back(v);
+            value[name] = v;
+        }
+        // looping over the sequence of maps in defaultValue sequence
+        // if a key from the default value is not found in each of the value sequence, it is added to it
+        for (auto map_element_in_default_value: defaultValue.begin()->second) {
+            for (YAML::const_iterator default_value_iterator = map_element_in_default_value.begin();
+                 default_value_iterator != map_element_in_default_value.end(); ++default_value_iterator) {
+                string default_key = default_value_iterator->first.as<string>();
+                auto default_value = default_value_iterator->second;
+
+                // looping over the sequence of maps in value
+                for (auto map_element_in_value: value.begin()->second) {
+                    bool key_found = false;
+                    // checking if the key is already in the value
+                    for (YAML::const_iterator value_iterator = map_element_in_value.begin(); value_iterator != map_element_in_value.end(); ++value_iterator) {
+                        string value_key = value_iterator->first.as<string>();
+                        if (default_key == value_key) {
+                            key_found = true;
+                            break;
+                        }
+                    }
+                    if (!key_found) {
+                        map_element_in_value[default_key] = default_value;
+                    }
+                }
+
+
+            }
         }
 
+
     } else {
-        // if the option is not cumulative, the value
-        // is already set to the default value.
-        // we only need to replace the items in the sequence that are not the default value
-        auto first_option_map = values.front().begin()->second;
-        for (auto element: v) {
-            for (YAML::const_iterator it = element.begin(); it != element.end(); ++it) {
-                for (auto items: first_option_map) {
-                    for (YAML::const_iterator itv = items.begin(); itv != items.end(); ++itv) {
-                        string first_key = itv->first.as<string>();
-                        string second_key = it->first.as<string>();
+        // looping over the sequence of maps in v
+        // notice: the non cumulative node is already copied from the default value
+        // here we are just updating the values to the desired value
+        for (auto map_element_in_desired_value: v) {
+            for (YAML::const_iterator desired_value_iterator = map_element_in_desired_value.begin();
+                 desired_value_iterator != map_element_in_desired_value.end(); ++desired_value_iterator) {
+                for (auto existing_map: value.begin()->second) {
+                    for (YAML::const_iterator existing_map_iterator = existing_map.begin();
+                         existing_map_iterator != existing_map.end(); ++existing_map_iterator) {
+                        string first_key = existing_map_iterator->first.as<string>();
+                        string second_key = desired_value_iterator->first.as<string>();
                         if (first_key == second_key) {
-                            items[itv->first] = it->second;
+                            existing_map[existing_map_iterator->first] = desired_value_iterator->second;
                         }
                     }
                 }
             }
         }
+
     }
 }
 
@@ -91,30 +119,11 @@ bool GOption::does_the_option_set_all_necessary_values(YAML::Node v) {
 // print the option
 void GOption::save_option(ofstream &yaml_conf) {
 
-    for (auto &value: values) {
+    // setting style to block
+    // this does not work with command line passed values
+    value.SetStyle(YAML::EmitterStyle::Block);
 
-        if (value.size() == 1) {
-            yaml_conf << value << endl;
-        } else {
-            yaml_conf << name << ":" << endl;
-
-            switch (value.Type()) {
-                case YAML::NodeType::Sequence:
-                    for (auto element: value) {
-                        for (YAML::const_iterator it = element.begin(); it != element.end(); ++it) {
-                            if (it == element.begin()) {
-                                yaml_conf << "  - " << it->first << " " << it->second << endl;
-                            } else {
-                                yaml_conf << "    " << it->first << " " << it->second << endl;
-                            }
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+    yaml_conf << value << endl;
 }
 
 

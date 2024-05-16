@@ -55,8 +55,7 @@ public:
     // scalar option default value cannot be NODFLT
     GOption(GVariable dv, string h) : name(dv.name), description(dv.description), help(h) {
         defaultValue = YAML::Load(name + ": " + dv.value);
-        values.clear();
-        values.push_back(defaultValue);
+        value = defaultValue;
     }
 
 
@@ -87,18 +86,12 @@ public:
 
         // if an option is not cumulative, the default value is copied to the first element of the sequence
         if (!isCumulative) {
-            values.clear();
-            values.push_back(defaultValue);
+            value = defaultValue;
         }
     }
 
 
 private:
-
-    // if there is only one value, and it is the default value
-    bool isDefault() {
-        return values.size() == 1 && values[0] == defaultValue;
-    }
 
     // if any of the variables in defaultValue is NODFLT, the option is cumulative
     bool isCumulative = false;
@@ -106,8 +99,7 @@ private:
     const string name;           // option name
     const string description;    // summary description. This is used in the search.
     const string help;           // help description. This is used in the help.
-    // values is an array of nodes
-    // each element in the array is a map containing either:
+    // values is a map, containing either:
     // - a single scalar
     //   Example:
     //    runno: 14
@@ -121,8 +113,8 @@ private:
     //     verbosity:
     //       - fields: 1
     //       - particles: 2
-    vector <YAML::Node> values;
-    vector <string> gvar_descs;    // description for each of the above values
+    YAML::Node value;
+    vector <string> gvar_descs;    // description for each variable value sequence
     YAML::Node defaultValue;       // default value
     vector<string> mandatory_keys; // keys that must be present in the option
 

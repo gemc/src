@@ -132,7 +132,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
     print_version();
 
     // save options to yaml
-    string yaml_conf_filename = executableName + "." + getString("conf_yaml") + ".yaml";
+    string yaml_conf_filename = executableName + "." + getScalarString("conf_yaml") + ".yaml";
     cout << " Saving options to " << yaml_conf_filename << endl << endl;
     yaml_conf = ofstream(yaml_conf_filename);
 
@@ -285,24 +285,24 @@ vector<GOption>::iterator GOptions::get_option_iterator(string name) {
     return goptions.end();
 }
 
-int GOptions::getInt(string tag) {
+int GOptions::getScalarInt(string tag) {
     auto it = get_option_iterator(tag);
-    return it->values[0].begin()->second.as<int>();
+    return it->value.begin()->second.as<int>();
 }
 
-float GOptions::getFloat(string tag) {
+float GOptions::getScalarFloat(string tag) {
     auto it = get_option_iterator(tag);
-    return it->values[0].begin()->second.as<float>();
+    return it->value.begin()->second.as<float>();
 }
 
-double GOptions::getDouble(string tag) {
+double GOptions::getScalarDouble(string tag) {
     auto it = get_option_iterator(tag);
-    return it->values[0].begin()->second.as<double>();
+    return it->value.begin()->second.as<double>();
 }
 
-string GOptions::getString(string tag) {
+string GOptions::getScalarString(string tag) {
     auto it = get_option_iterator(tag);
-    return it->values[0].begin()->second.as<string>();
+    return it->value.begin()->second.as<string>();
 }
 
 // overloaded operator to add option vectors

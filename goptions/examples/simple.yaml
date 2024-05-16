@@ -2,13 +2,11 @@ runno: 14,
 
 gparticle:
   - pname: e-,
-    multiplicity: 1,
     p: 2300,
     theta: 23.0
   - pname: proton,
     multiplicity: 4,
     p: 1900,
-    theta: 19.0
 
 verbosity:
   - fields: 1,
