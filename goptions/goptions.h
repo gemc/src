@@ -40,7 +40,10 @@ private:
     vector <string> find_yamls(int argc, char *argv[]);  // finds the yaml specified by command line. Returns "na' if not found.
 
     // parse the yaml file
-    void set_options_values_from_yaml(string yaml);
+    void set_options_values_from_yaml_file(string yamls);
+
+    // parse a command line
+    void set_option_values_from_command_line_argument(string option_name, string possible_yaml_node);
 
     // checks if the option exists
     bool does_option_exist(string tag);

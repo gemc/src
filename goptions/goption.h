@@ -10,6 +10,7 @@
 // c++
 #include <map>
 #include <fstream>
+
 using std::string;
 using std::map;
 using std::vector;
@@ -25,10 +26,13 @@ struct GVariable {
     GVariable(string name, string val, string description) : name(name), value(val), description(description) {}
 
     // overloading constructors with various types of vlue
-    GVariable(string name, double val, string description) : name(name), description(description) {value = std::to_string(val);}
+    GVariable(string name, double val, string description) : name(name), description(description) { value = std::to_string(val); }
+
     GVariable(string name, const char *val, string description) : name(name), value(val), description(description) {}
-    GVariable(string name, int val, string description) : name(name), description(description) {value = std::to_string(val);}
-    GVariable(string name, bool val, string description) : name(name), description(description) {value = val ? "true" : "false";}
+
+    GVariable(string name, int val, string description) : name(name), description(description) { value = std::to_string(val); }
+
+    GVariable(string name, bool val, string description) : name(name), description(description) { value = val ? "true" : "false"; }
 };
 
 /**
@@ -60,47 +64,67 @@ public:
      * @brief Constructor of a sequence option
      * \param n  name of the option
      * \param desc  summary description of the option
-     * \param dv  vector of GVariable with the name, value and description of each element in the sequence
+     * \param dv  vector of GVariable with the name, default value and description of each element in the sequence
      * \param h  help for the option
      *
-     * The value is set to the default value
+     * Note: if any of the values is NODFLT, the option is cumulative, otherwise it is not.
      */
 
     // define a map option using vector of strings as default value
-    GOption(string n, string desc, vector<GVariable> dv, string h) : name(n), description(desc), help(h) {
+    GOption(string n, string desc, vector <GVariable> dv, string h) : name(n), description(desc), help(h) {
+        mandatory_keys.clear();
         YAML::Node nodes;
-        bool has_no_default = false;
         for (auto v: dv) {
             YAML::Node this_node = YAML::Load(v.name + ": " + v.value);
             nodes.push_back(this_node);
             gvar_descs.push_back(v.description);
-            if (v.value == goptions::NODFLT) has_no_default = true;
+            if (v.value == goptions::NODFLT) {
+                isCumulative = true;
+                mandatory_keys.push_back(v.name);
+            }
         }
         defaultValue[n] = nodes;
 
-        // if an option does not have NODFLT, it is then set to the default value
-        if (!has_no_default) {
+        // if an option is not cumulative, the default value is copied to the first element of the sequence
+        if (!isCumulative) {
             values.clear();
             values.push_back(defaultValue);
         }
-
     }
-
 
 
 private:
 
-    // if there is only one value and it is the default value
+    // if there is only one value, and it is the default value
     bool isDefault() {
         return values.size() == 1 && values[0] == defaultValue;
     }
 
+    // if any of the variables in defaultValue is NODFLT, the option is cumulative
+    bool isCumulative = false;
+
     const string name;           // option name
     const string description;    // summary description. This is used in the search.
     const string help;           // help description. This is used in the help.
-    vector<YAML::Node> values;   // option values. If the option is not cumulative, the vector will have only one element
-    vector<string> gvar_descs;   // description for each of the above values
-    YAML::Node defaultValue;     // default value
+    // values is an array of nodes
+    // each element in the array is a map containing either:
+    // - a single scalar
+    //   Example:
+    //    runno: 14
+    //
+    // - a sequence of maps
+    //   Example 1:
+    //     gparticle:
+    //       - pname: e-
+    //         multiplicity: 1
+    //   Example 2:
+    //     verbosity:
+    //       - fields: 1
+    //       - particles: 2
+    vector <YAML::Node> values;
+    vector <string> gvar_descs;    // description for each of the above values
+    YAML::Node defaultValue;       // default value
+    vector<string> mandatory_keys; // keys that must be present in the option
 
     // save option value
     void save_option(std::ofstream &yaml_conf);
@@ -110,17 +134,18 @@ private:
     string detailed_help();
 
     // sets the value of the scalar option based on the command line string
-    void set_value(string v);
+    void set_scalar_value(string v);
 
     // sets the value of the option based on the parsed yaml node
     void set_value(YAML::Node v);
+
+    // make sure that all variables matked as NOFLT are set
+    bool does_the_option_set_all_necessary_values(YAML::Node v);
 
     // making goptions friend to it can access the private variables and functions
     friend class GOptions;
 
 };
-
-
 
 
 #endif

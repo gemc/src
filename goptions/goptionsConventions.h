@@ -16,6 +16,8 @@
 #define EC__DEFINED_OPTION_ALREADY_PRESENT 102
 #define EC__DEFINED_SWITCHALREADYPRESENT   103
 #define EC__YAML_PARSING_ERROR             104
+#define EC__MANDATORY_NOT_FILLED           105
+
 
 #include <string>
 namespace goptions {

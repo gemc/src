@@ -11,7 +11,7 @@
 using namespace std;
 
 // sets the value to the scalar option
-void GOption::set_value(string v) {
+void GOption::set_scalar_value(string v) {
     string value_to_set = gutilities::replaceCharInStringWithChars(v, ",", "");
 
     auto scalar = values.front();
@@ -22,16 +22,26 @@ void GOption::set_value(string v) {
 
 // sets the value of the option based on the parsed yaml node
 void GOption::set_value(YAML::Node v) {
-    // a cumulative option will have one of the entries as NODFLT
-    // in this case values is empty, just need to push back the value here
-    if (values.size() == 0) {
-        // version is a special option
-        if (name != GVERSION_STRING) {
+    // if the option is cumulative,
+    if (isCumulative) {
+        YAML::Node to_set;
+        // sequence of maps
+        bool all_good = true;
+        for (auto element: v) {
+            if (!does_the_option_set_all_necessary_values(element)) {
+                all_good = false;
+                cerr << FATALERRORL << "Trying to set " << YELLOWHHL << name << RSTHHR << " but missing mandatory values." << endl;
+                cerr << "        Use the option: " << YELLOWHHL << " help " << name << " " << RSTHHR << " for details." << endl << endl;
+                exit(EC__MANDATORY_NOT_FILLED);
+            }
+        }
+        if (all_good) {
             values.push_back(v);
         }
+
     } else {
         // if the option is not cumulative, the value
-        // is set to the default value.
+        // is already set to the default value.
         // we only need to replace the items in the sequence that are not the default value
         auto first_option_map = values.front().begin()->second;
         for (auto element: v) {
@@ -42,7 +52,6 @@ void GOption::set_value(YAML::Node v) {
                         string second_key = it->first.as<string>();
                         if (first_key == second_key) {
                             items[itv->first] = it->second;
-
                         }
                     }
                 }
@@ -51,6 +60,33 @@ void GOption::set_value(YAML::Node v) {
     }
 }
 
+// make sure that all variables matked as NOFLT are set
+bool GOption::does_the_option_set_all_necessary_values(YAML::Node v) {
+    vector <string> this_keys;
+
+    // currently we only have maps in the sequence
+    switch (v.Type()) {
+        case YAML::NodeType::Map:
+            for (YAML::const_iterator it = v.begin(); it != v.end(); ++it) {
+                this_keys.push_back(it->first.as<string>());
+            }
+            break;
+        default:
+            break;
+    }
+
+    bool it_does = false;
+    for (auto key: mandatory_keys) {
+        if (find(this_keys.begin(), this_keys.end(), key) != this_keys.end()) {
+            it_does = true;
+        } else {
+            it_does = false;
+            break;
+        }
+    }
+
+    return it_does;
+}
 
 // print the option
 void GOption::save_option(ofstream &yaml_conf) {

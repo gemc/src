@@ -58,19 +58,6 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
         }
     }
 
-    // parsing command line to check if any switch is turned on
-    for (int i = 1; i < argc; i++) {
-        string candidateSwitch = string(argv[i]);
-        if (candidateSwitch[0] == '-') {
-            for (auto &[switchName, switchValue]: switches) {
-                string candidateRoot = candidateSwitch.substr(1, candidateSwitch.size() - 1);
-                if (switchName == candidateRoot) {
-                    switchValue.turnOn();
-                }
-            }
-        }
-    }
-
 
     // finds the yaml files
     vector <string> yaml_files = find_yamls(argc, argv);
@@ -78,40 +65,78 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
     // parse the yaml files
     for (auto &yaml_file: yaml_files) {
         cout << "Parsing " << yaml_file << endl;
-        set_options_values_from_yaml(yaml_file);
+        set_options_values_from_yaml_file(yaml_file);
     }
 
+
     // parse command lines
-    // revisit with below
-
-
-    // now going again through the command line anche check that every option passed is either a switch, an option or a yaml file
+    // check that every option passed is either a switch, an option or a yaml file
     for (int i = 1; i < argc; i++) {
         string candidate = string(argv[i]);
-        if (switches.find(candidate) == switches.end()) {
-            if (!does_option_exist(candidate)) {
 
-                if ( find( yaml_files.begin(), yaml_files.end(), candidate) == yaml_files.end() ) {
-                    cerr << FATALERRORL << "the " << YELLOWHHL << candidate << RSTHHR << " option is not known to this system. " << endl;
-                    gexit(EC__NOOPTIONFOUND);
+        if (find(yaml_files.begin(), yaml_files.end(), candidate) == yaml_files.end()) {
+
+            // if the command line is not a yaml file, check that is a valid
+            // - switch: starts with a dash
+            // - option: a dash followed by a string and an equal sign
+            if (candidate[0] == '-') {
+
+                // checking for a switch
+                string possible_switch = candidate.substr(1, candidate.size() - 1);
+
+                // switch found, turn it on
+                if (switches.find(possible_switch) != switches.end()) {
+                    switches[possible_switch].turnOn();
+                } else {
+                    // not a switch, check if it is an option
+                    // checking if '-' is present
+                    if (possible_switch.find("=") != string::npos) {
+
+                        string possible_option = possible_switch.substr(0, candidate.find("=") - 1);
+
+                        // option found, parse it
+                        if (does_option_exist(possible_option)) {
+                            string possible_yaml_node = possible_switch.substr(candidate.find("="), candidate.size() - 1);
+                            set_option_values_from_command_line_argument(possible_option, possible_yaml_node);
+                        } else {
+                            // option not found
+                            cerr << FATALERRORL << "the " << YELLOWHHL << candidate << RSTHHR << " option is not known to this system. " << endl;
+                            cerr << endl << "   " << executableName << " -h for help." << endl << endl;
+                            gexit(EC__NOOPTIONFOUND);
+
+                        }
+                    } else {
+                        // not a switch, not an option
+                        cerr << FATALERRORL << YELLOWHHL << candidate << RSTHHR << " is not a valid command line option or switch.  " << endl;
+                        cerr << " Note: switches start with a dash; options start with a dash, and are followed by an equal sign and their desired value."
+                             << endl;
+                        cerr << endl << " Usage: " << endl << endl;
+                        cerr << "   " << executableName << " [options] [yaml files]" << endl;
+                        cerr << "   " << executableName << " -h for help." << endl << endl;
+                        gexit(EC__NOOPTIONFOUND);
+                    }
                 }
+
+            } else {
+                // not a file, not a switch, not an option
+                cerr << FATALERRORL << "the " << YELLOWHHL << candidate << RSTHHR << " command line is not known to this system. " << endl;
+                cerr << endl << " Usage: " << endl << endl;
+                cerr << "   " << executableName << " [options] [yaml files]" << endl;
+                cerr << "   " << executableName << " -h for help." << endl << endl;
+                gexit(EC__NOOPTIONFOUND);
             }
         }
     }
 
-
-
-// print version no matter what
+    // print version no matter what
     print_version();
 
-// save options to yaml
+    // save options to yaml
     string yaml_conf_filename = executableName + "." + getString("conf_yaml") + ".yaml";
-    cout << " Saving options to " << yaml_conf_filename << endl <<
-         endl;
+    cout << " Saving options to " << yaml_conf_filename << endl << endl;
     yaml_conf = ofstream(yaml_conf_filename);
 
     save_options();
-
 }
 
 void GOptions::print_option_or_switch_help(string tag) {
@@ -190,7 +215,7 @@ void GOptions::defineOption(string name, string description, vector <GVariable> 
     }
 }
 
-void GOptions::set_options_values_from_yaml(string yaml) {
+void GOptions::set_options_values_from_yaml_file(string yaml) {
 
     YAML::Node config;
     try {
@@ -219,7 +244,7 @@ void GOptions::set_options_values_from_yaml(string yaml) {
         } else {
             switch (it->second.Type()) {
                 case YAML::NodeType::Scalar:
-                    option_it->set_value(it->second.as<std::string>());
+                    option_it->set_scalar_value(it->second.as<std::string>());
                     break;
                 case YAML::NodeType::Sequence:
                     option_it->set_value(it->second);
@@ -232,6 +257,19 @@ void GOptions::set_options_values_from_yaml(string yaml) {
 
             }
         }
+    }
+}
+
+// parse a command line
+void GOptions::set_option_values_from_command_line_argument(string option_name, string possible_yaml_node) {
+    YAML::Node node = YAML::Load(possible_yaml_node);
+
+    auto option_it = get_option_iterator(option_name);
+
+    if (node.Type() == YAML::NodeType::Scalar) {
+        option_it->set_scalar_value(possible_yaml_node);
+    } else {
+        option_it->set_value(node);
     }
 }
 
