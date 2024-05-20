@@ -43,6 +43,28 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
     defineOption(GVERSION_STRING, "version information", version, "Version information. Not settable by user.");
 
 
+    vector <GVariable> verbosity = {
+            {"fields",          0, "verbosity for fields"},
+            {"particles",       0, "verbosity for particles"},
+            {"hits",            0, "verbosity for hits"},
+            {"detectors",       0, "verbosity for detectors"},
+            {"materials",       0, "verbosity for materials"},
+            {"regions",         0, "verbosity for regions"},
+            {"volumes",         0, "verbosity for volumes"},
+            {"surfaces",        0, "verbosity for surfaces"},
+            {"optical",         0, "verbosity for optical properties"},
+            {"event_dispenser", 0, "verbosity event dispenser"},
+    };
+
+    string help = "Effects: \n \n";
+    help += "0: shush\n";
+    help += "1: summaryt\n";
+    help += "2: details\n";
+    help += "3: everything\n \n";
+    help += "Example: -verbosity=\"[{fields: 3}, {materials: 1}]\" \n";
+    defineOption("verbosity", "Sets the log verbosity for various categories", verbosity, help);
+
+
     // parsing command line to check for help
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--h") == 0 || strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "--help") == 0) {
@@ -73,6 +95,8 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
     // check that every option passed is either a switch, an option or a yaml file
     for (int i = 1; i < argc; i++) {
         string candidate = string(argv[i]);
+        // empty string
+        if (candidate == "") continue;
 
         if (find(yaml_files.begin(), yaml_files.end(), candidate) == yaml_files.end()) {
 
@@ -116,7 +140,6 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
                         gexit(EC__NOOPTIONFOUND);
                     }
                 }
-
             } else {
                 // not a file, not a switch, not an option
                 cerr << FATALERRORL << "the " << YELLOWHHL << candidate << RSTHHR << " command line is not known to this system. " << endl;

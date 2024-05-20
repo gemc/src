@@ -11,10 +11,9 @@
 using namespace std;
 
 
-//int main(int argc, char* argv[])
-int main() {
+int main(int argc, char* argv[]) {
 
-    //GOptions *gopts = new GOptions(argc, argv, eventDispenser::defineOptions());
+    GOptions *gopts = new GOptions(argc, argv, eventDispenser::defineOptions());
 
    // auto geventDispenser = new EventDispenser(gopts, nullptr);
 

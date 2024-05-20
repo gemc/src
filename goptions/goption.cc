@@ -12,6 +12,10 @@ using namespace std;
 
 // sets the value to the scalar option
 void GOption::set_scalar_value(string v) {
+
+    // return if v is empty
+    if(v == "") return;
+
     string value_to_set = gutilities::replaceCharInStringWithChars(v, ",", "");
 
     string key = value.begin()->first.as<string>();

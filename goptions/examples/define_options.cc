@@ -36,28 +36,6 @@ GOptions defineOptions() {
     help += "-gparticle=\"[{pname: e-, multiplicity: 1, p: 2300, theta: 23.0}, {pname: proton, multiplicity: 2, p: 1200, theta: 14.0}]\"\n";
     goptions.defineOption("gparticle", "define the generator particle(s)", gparticle, help);
 
-    vector <GVariable> verbosity = {
-            {"fields",    0, "verbosity for fields"},
-            {"particles", 0, "verbosity for particles"},
-            {"hits",      0, "verbosity for hits"},
-            {"banks",     0, "verbosity for banks"},
-            {"detectors", 0, "verbosity for detectors"},
-            {"materials", 0, "verbosity for materials"},
-            {"regions",   0, "verbosity for regions"},
-            {"volumes",   0, "verbosity for volumes"},
-            {"surfaces",  0, "verbosity for surfaces"},
-            {"optical",   0, "verbosity for optical properties"},
-            {"all",       0, "verbosity for all"}
-    };
-
-    help = "Effects: \n \n";
-    help += "0: shush\n";
-    help += "1: summaryt\n";
-    help += "2: details\n";
-    help += "3: everything\n";
-    goptions.defineOption("verbosity", "Sets the log verbosity for various categories", verbosity, help);
-
-
 
     return goptions;
 }

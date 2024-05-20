@@ -1,3 +1,4 @@
 - help search mechanism, through names and descriptions
 - include mechanism in yaml files
 - helpToHtml:  print all available options in HTML format (options.html) and exit.
+- test should include asserts for yaml and command line options

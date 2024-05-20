@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
     UIM->SetCoutDestination(new GSession);
 
     // init geant4 run manager with number of threads coming from options
+    // as of 11.2 the default is  task-based parallel mode
     auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
     runManager->SetNumberOfThreads(getNumberOfThreads(gopts));
 

@@ -5,10 +5,8 @@
 #include <iostream>
 using namespace std;
 
-
 int main(int argc, char* argv[])
 {
-
 	vector<GIdentifier> identity;
 
 	identity.push_back(GIdentifier("sector", 2));

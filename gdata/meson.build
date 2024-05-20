@@ -23,7 +23,7 @@ LD += {
                           'frame/gFrameDataCollection.h'
                       ),
     'additional_includes' : ['gdata/event'],
-    'dependencies' : [clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
         'gdata_event' : [files('examples/event_data.cc'), ['']],
     }
