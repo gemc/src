@@ -48,8 +48,13 @@ private:
     // checks if the option exists
     bool does_option_exist(string tag);
 
-    // returns vector<GOption> map iterator for option name
+    // returns vector<GOption> map iterator that has the option name
     vector<GOption>::iterator get_option_iterator(string name);
+
+    // returns the YAML::Node of the option with the tag
+    inline const YAML::Node get_option_node(string tag) {
+        return get_option_iterator(tag)->value.begin()->second;
+    }
 
     // search
     vector <GOption> search_for_string(string tag); // searches for a string option

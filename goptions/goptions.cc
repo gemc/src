@@ -53,7 +53,8 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
             {"volumes",         0, "verbosity for volumes"},
             {"surfaces",        0, "verbosity for surfaces"},
             {"optical",         0, "verbosity for optical properties"},
-            {"event_dispenser", 0, "verbosity event dispenser"},
+            {"event_dispenser", 0, "verbosity for the event dispenser"},
+            {"g4display",       0, "verbosity for the g4display"},
     };
 
     string help = "Effects: \n \n";
@@ -339,9 +340,9 @@ vector <GOption> &operator+=(vector <GOption> &original, vector <GOption> option
 int GOptions::getVerbosityFor(string tag) {
 
     // this is the iterator pointing to the verbosity sequence
-    auto verb_item = get_option_iterator("verbosity")->value.begin()->second;
+    auto verb_node = get_option_node("verbosity");
 
-    for (auto seq_item: verb_item) {
+    for (auto seq_item: verb_node) {
         for (auto map_item = seq_item.begin(); map_item != seq_item.end(); ++map_item) {
             if (map_item->first.as<string>() == tag) {
                 return map_item->second.as<int>();
