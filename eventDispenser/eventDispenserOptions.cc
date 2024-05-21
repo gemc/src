@@ -18,7 +18,7 @@ namespace eventDispenser {
 
         // runno: 12,
         help = "Not to be confused with the geant4 run number - g4runno is set automatically \n \n";
-        help = "Example: -runno=12\n";
+        help += "Example: -runno=12\n";
         goptions.defineOption(GVariable("runno", 1, "sets run number"), help);
 
 
@@ -37,16 +37,16 @@ namespace eventDispenser {
         help += "will simulate 10% of events with run number 11 conditions, 70% for run 12 and 20% for run 13.\n";
         goptions.defineOption(GVariable("wdbfile", goptions::NODFLT, "File with run number and weights"), help);
 
+        help = "Max number of events  to buffer before they're written out.\n \n";
+        help += "Example: -n_evemt_buffer=12\n";
+        goptions.defineOption(GVariable("n_evemt_buffer", 100, "Buffer events and write them out in one file"), help);
+        // TODO: change to 0, and write out events in each thread as default
+        // TODO: maybe this will replace the "stream" switch?
+        // help = "By default gemc writes one output file / thread. If the 'stream' swith is enabled, .\n \n";
+        // help += "Example: -n_evemt_buffer=12\n";
+        // goptions.defineOption(GVariable("n_evemt_buffer", 0, "Buffer events and write them out in one file"), help);
 
 
-
-//
-//	json jsonNEventsBuffer = {
-//		{GNAME, "maxebuffer"},
-//		{GDESC, "Max number of events to keep in memory before writing out the output."},
-//		{GDFLT, 100}
-//	};
-//	goptions.push_back(GOption(jsonNEventsBuffer));
 
         return goptions;
     }

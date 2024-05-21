@@ -336,6 +336,25 @@ vector <GOption> &operator+=(vector <GOption> &original, vector <GOption> option
     return original;
 }
 
+int GOptions::getVerbosityFor(string tag) {
+
+    // this is the iterator pointing to the verbosity sequence
+    auto verb_item = get_option_iterator("verbosity")->value.begin()->second;
+
+    for (auto seq_item: verb_item) {
+        for (auto map_item = seq_item.begin(); map_item != seq_item.end(); ++map_item) {
+            if (map_item->first.as<string>() == tag) {
+                return map_item->second.as<int>();
+            }
+        }
+    }
+
+    cerr << FATALERRORL << "The verbosity for " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+    gexit(EC__NOOPTIONFOUND);
+
+    return -1;
+}
+
 
 map <string, GSwitch> &operator+=(map <string, GSwitch> &original, map <string, GSwitch> optionsToAdd) {
 

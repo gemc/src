@@ -97,6 +97,8 @@ public:
     string getScalarString(string tag);
 
     bool getSwitch(string tag);
+
+    int getVerbosityFor(string tag);
 };
 
 // overloaded operator to add option vectors and switch maps
