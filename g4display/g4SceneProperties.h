@@ -1,5 +1,5 @@
-#ifndef  G4DISPLAY_H
-#define  G4DISPLAY_H  1
+#ifndef  G4SCENE_PROPERTIES
+#define  G4SCENE_PROPERTIES  1
 
 // c++
 #include <string>
@@ -10,14 +10,12 @@
 
 // class used to initialize G4UImanager
 // notice: this can be 
-class  G4SceneProperties
-{
+class G4SceneProperties {
 
 public:
-	G4SceneProperties(GOptions* gopts);
+    G4SceneProperties(GOptions *gopts);
 
-	vector<string> addSceneTexts(GOptions* gopts);
-
+    vector <string> addSceneTexts(GOptions *gopts);
 };
 
 

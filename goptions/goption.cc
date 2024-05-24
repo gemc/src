@@ -121,13 +121,13 @@ bool GOption::does_the_option_set_all_necessary_values(YAML::Node v) {
 }
 
 // print the option
-void GOption::save_option(ofstream &yaml_conf) {
+void GOption::save_option(ofstream *yaml_conf) {
 
     // setting style to block
     // this does not work with command line passed values
     value.SetStyle(YAML::EmitterStyle::Block);
 
-    yaml_conf << value << endl;
+    *yaml_conf << value << endl;
 }
 
 
@@ -154,7 +154,6 @@ void GOption::print_help(bool detailed) {
     cout << KGRN << " " << left;
     cout.width(fill_width);
 
-
     if (detailed) {
         cout << helpString << ": " << description << endl;
         cout << endl;
@@ -162,7 +161,6 @@ void GOption::print_help(bool detailed) {
     } else {
         cout << helpString << ": " << description << endl;
     }
-
 }
 
 string GOption::detailed_help() {

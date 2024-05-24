@@ -51,11 +51,6 @@ private:
     // returns vector<GOption> map iterator that has the option name
     vector<GOption>::iterator get_option_iterator(string name);
 
-    // returns the YAML::Node of the option with the tag
-    inline const YAML::Node get_option_node(string tag) {
-        return get_option_iterator(tag)->value.begin()->second;
-    }
-
     // search
     vector <GOption> search_for_string(string tag); // searches for a string option
 
@@ -75,7 +70,7 @@ private:
     string executableName;
 
     // yaml saved configuration filename
-    std::ofstream yaml_conf;
+    std::ofstream *yaml_conf;
 
     // introspection.
     void print_version();
@@ -91,7 +86,6 @@ public:
     // add a map option to the map of options
     void defineOption(string name, string description, vector <GVariable> gvars, string help);
 
-
     // option getters for scalar options
     int getScalarInt(string tag);
 
@@ -103,13 +97,34 @@ public:
 
     bool getSwitch(string tag);
 
+    // returns the YAML::Node of the option with the tag
+    inline const YAML::Node get_option_node(string tag) {
+        return get_option_iterator(tag)->value.begin()->second;
+    }
+
+    YAML::Node get_option_map_in_node(string option_name, string map_key);
+
     int getVerbosityFor(string tag);
+
+    // returns the goptions array
+    vector <GOption> get_options() { return goptions; }
+
+    // return the switches map
+    map <string, GSwitch> get_switches() { return switches; }
+
+    // adds a vector of options to the current options
+    inline void addGOptions(GOptions goptions_to_add) {
+        for (auto gopt: goptions_to_add.get_options()) {
+            goptions.push_back(gopt);
+        }
+        for (auto sw: goptions_to_add.get_switches()) {
+            switches.insert(sw);
+        }
+    }
+
 };
 
 // overloaded operator to add option vectors and switch maps
-vector <GOption> &operator+=(vector <GOption> &original, vector <GOption> optionsToAdd);
-
-map <string, GSwitch> &operator+=(map <string, GSwitch> &original, map <string, GSwitch> optionsToAdd);
-
+GOptions &operator+=(GOptions &original, GOptions optionsToAdd);
 
 #endif

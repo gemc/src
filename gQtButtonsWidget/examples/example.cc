@@ -22,6 +22,8 @@ int main(int argc, char *argv[]) {
     GQTButtonsWidget window(128, 128, bicons);
     window.show();
 
+
+
     // if gui command line option is given - TODO: gui should be standard in goptions
     if (argc > 1) {
         // Iterate through command-line arguments

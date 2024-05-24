@@ -40,10 +40,10 @@ geant4_deps = declare_dependency(
 sqlite_dep = dependency('sqlite3')
 
 # Open Asset Import Library (assimp)
-assimp_dep = dependency('assimp')
+assimp_dep = dependency('assimp', cmake_args : ['-DCMAKE_CXX_FLAGS=-w'])     # looks like we can't overwrite the CXX_FLAGS
 
 # yaml-cpp
-yaml_cpp_dep = dependency('yaml_cpp')
+yaml_cpp_dep = dependency('yaml_cpp', cmake_args : ['-DCMAKE_CXX_FLAGS=-w']) # looks like we can't overwrite the CXX_FLAGS
 
 
 # ROOT dependencies coming from cmake are not correctly handled by meson or are just plain wrong

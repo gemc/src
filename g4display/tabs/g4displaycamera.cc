@@ -13,8 +13,8 @@ using namespace std;
 
 G4DisplayCamera::G4DisplayCamera(GOptions* gopts, QWidget* parent) : QWidget(parent)
 {
-	// projecting option onto JView
-	JCamera jcamera = getJCamera(gopts);
+	// projecting option onto G4View
+	G4Camera jcamera = getG4Camera(gopts);
 
 	double thetaValue = getG4Number(jcamera.theta);
 	double phiValue   = getG4Number(jcamera.phi);

@@ -10,6 +10,6 @@ LD += {
         'gtranslationTableConventions.h'
     ),
     'examples' : {
-        'basic_tt' : [files('examples/simple.cc'), ['']],
+        'basic_tt' : [files('examples/simple.cc'), ''],
     }
 }

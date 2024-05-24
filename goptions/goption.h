@@ -90,7 +90,6 @@ public:
         }
     }
 
-
 private:
 
     // if any of the variables in defaultValue is NODFLT, the option is cumulative
@@ -114,12 +113,12 @@ private:
     //       - fields: 1
     //       - particles: 2
     YAML::Node value;
-    vector <string> gvar_descs;    // description for each variable value sequence
-    YAML::Node defaultValue;       // default value
-    vector<string> mandatory_keys; // keys that must be present in the option
+    vector <string> gvar_descs;     // description for each variable value sequence
+    YAML::Node defaultValue;        // default value
+    vector <string> mandatory_keys; // keys that must be present in the option
 
     // save option value
-    void save_option(std::ofstream &yaml_conf);
+    void save_option(std::ofstream *yaml_conf);
 
     void print_help(bool detailed);
 

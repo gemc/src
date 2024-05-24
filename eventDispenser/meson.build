@@ -12,6 +12,6 @@ LD += {
     ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'basic_event_dispenser' : [files('examples/simple.cc'), ['']]
+        'basic_event_dispenser' : [files('examples/simple.cc'), meson.current_source_dir() + '/examples/simple.yaml' ]
     }
 }

@@ -12,6 +12,6 @@ LD += {
     ),
     'dependencies' : [clhep_deps, geant4_deps],
     'examples' : {
-        'basic_hit' : [files('examples/simple.cc'), ['']]
+        'basic_hit' : [files('examples/simple.cc'), '']
     }
 }

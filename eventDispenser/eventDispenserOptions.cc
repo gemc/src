@@ -47,7 +47,6 @@ namespace eventDispenser {
         // goptions.defineOption(GVariable("n_evemt_buffer", 0, "Buffer events and write them out in one file"), help);
 
 
-
         return goptions;
     }
 

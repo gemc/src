@@ -11,32 +11,35 @@
 namespace g4display {
 
     // G4View
-    struct JView {
+    struct G4View {
         string viewer;
         string dimension;
         string position;
         int segsPerCircle;
     };
-    JView getJView(GOptions *gopts);
+
+    G4View getG4View(GOptions *gopts);
 
 
     // G4Camera
-    struct JCamera {
+    struct G4Camera {
         string phi;
         string theta;
     };
-    JCamera getJCamera(GOptions *gopts);
+
+    G4Camera getG4Camera(GOptions *gopts);
 
 
     // Dawn
-    struct JDawn {
+    struct G4Dawn {
         string phi;
         string theta;
     };
-    JDawn getJDawn(GOptions *gopts);
+
+    G4Dawn getG4Dawn(GOptions *gopts);
 
 
-    vector <GOption> defineOptions();
+    GOptions defineOptions();
 }
 
 #endif

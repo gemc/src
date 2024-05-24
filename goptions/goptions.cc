@@ -22,8 +22,9 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
 
     cout << endl;
 
-    goptions += user_defined_options.goptions;
-    switches += user_defined_options.switches;
+    // copy the user defined options maps and switches onto ours
+    addGOptions(user_defined_options);
+
 
     // switches for all everyone
     defineSwitch("gui", "use Graphical User Interface");
@@ -158,7 +159,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
     // save options to yaml
     string yaml_conf_filename = executableName + "." + getScalarString("conf_yaml") + ".yaml";
     cout << " Saving options to " << yaml_conf_filename << endl << endl;
-    yaml_conf = ofstream(yaml_conf_filename);
+    yaml_conf = new ofstream(yaml_conf_filename);
 
     save_options();
 }
@@ -329,41 +330,39 @@ string GOptions::getScalarString(string tag) {
     return it->value.begin()->second.as<string>();
 }
 
-// overloaded operator to add option vectors
-vector <GOption> &operator+=(vector <GOption> &original, vector <GOption> optionsToAdd) {
-    for (const auto &option_to_add: optionsToAdd) {
-        original.push_back(option_to_add);
+bool GOptions::getSwitch(string tag) {
+    if (switches.find(tag) != switches.end()) {
+        return switches[tag].getStatus();
+    } else {
+        cerr << FATALERRORL << "The switch " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+        gexit(EC__NOOPTIONFOUND);
     }
-    return original;
+    return false;
 }
 
-int GOptions::getVerbosityFor(string tag) {
 
-    // this is the iterator pointing to the verbosity sequence
-    auto verb_node = get_option_node("verbosity");
+YAML::Node GOptions::get_option_map_in_node(string option_name, string map_key) {
 
-    for (auto seq_item: verb_node) {
+    auto sequence_node = get_option_node(option_name);
+
+    for (auto seq_item: sequence_node) {
         for (auto map_item = seq_item.begin(); map_item != seq_item.end(); ++map_item) {
-            if (map_item->first.as<string>() == tag) {
-                return map_item->second.as<int>();
+            if (map_item->first.as<string>() == map_key) {
+                return map_item->second;
             }
         }
     }
 
-    cerr << FATALERRORL << "The verbosity for " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
-    gexit(EC__NOOPTIONFOUND);
-
-    return -1;
+    return sequence_node;
 }
 
 
-map <string, GSwitch> &operator+=(map <string, GSwitch> &original, map <string, GSwitch> optionsToAdd) {
+int GOptions::getVerbosityFor(string tag) {
+    auto verbosity_node = get_option_map_in_node("verbosity", tag);
 
-    for (const auto &[name, switchToAdd]: optionsToAdd) {
-        original[name] = switchToAdd;
-    }
-    return original;
+    return verbosity_node.as<int>();
 }
+
 
 
 // print only the non default settings set by users
@@ -372,7 +371,7 @@ void GOptions::print_help() {
     long int fill_width = string(HELPFILLSPACE).size() + 1;
     cout.fill('.');
 
-    cout << KRED << KBOLD << " " << executableName << RST << " [options] [yaml files]" << endl << endl;
+    cout << KGRN << KBOLD << " " << executableName << RST << " [options] [yaml files]" << endl << endl;
     cout << " Switches: " << endl << endl;
 
     // switches help, belongs here cause of the map key
@@ -434,21 +433,21 @@ void GOptions::save_options() {
     for (auto &s: switches) {
         string status = "false";
         if (s.second.getStatus()) status = "true";
-        yaml_conf << s.first + ": " + status << "," << endl;
+        *yaml_conf << s.first + ": " + status << "," << endl;
     }
 
     for (auto &option: goptions) {
         option.save_option(yaml_conf);
     }
 
-    yaml_conf.close();
+    yaml_conf->close();
 }
 
 // introspection, add file option
 void GOptions::print_version() {
     string asterisks = "**************************************************************";
     cout << endl << asterisks << endl;
-    cout << " " << KRED << KBOLD << executableName << RST << "  version: " << KGRN << gversion << RST << endl;
+    cout << " " << KGRN << KBOLD << executableName << RST << "  version: " << KGRN << gversion << RST << endl;
     cout << " Released on: " << KGRN << grelease_date << RST << endl;
     cout << " Reference: " << KGRN << greference << RST << endl;
     cout << " Homepage: " << KGRN << gweb << RST << endl;

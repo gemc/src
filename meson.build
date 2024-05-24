@@ -113,9 +113,13 @@ foreach L : LD
     # examples
     if examples != empty_dict
         foreach name, sources_and_arguments : examples
+            # concatenate the items in sources_and_arguments[1] to a string
+            example_sources = sources_and_arguments[0] + qrc_examples_compiled_sources
+            arguments = sources_and_arguments[1]
+
             exe = executable(
                 name,
-                sources_and_arguments[0] + qrc_examples_compiled_sources,
+                example_sources,
                 install : true,
                 dependencies : this_deps,
                 include_directories : all_includes + this_lib_name,
@@ -123,7 +127,7 @@ foreach L : LD
             )
             test(' ## ' + this_lib_name + ' test ##  >>  ' + name,
                  exe,
-                 args : sources_and_arguments[1])
+                 args : arguments)
         endforeach
     endif
     foreach include_dir : additional_includes

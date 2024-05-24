@@ -30,9 +30,6 @@ int main(int argc, char *argv[]) {
     // the goptions are then assigned from the jcard(s) and command line
     GOptions *gopts = new GOptions(argc, argv, gemc::defineOptions());
 
-    // print non default settings
-
-
     // print version
     gopts->print_version();
 

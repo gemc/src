@@ -16,6 +16,6 @@ LD += {
         'CTofRoutineExample' : [files('examples/ctofRoutinesExample.cc'), false],
     },
     'examples' : {
-        'gdynamic_plugin_load_example' : [files('examples/plugin_load_example.cc'), ['']]
+        'gdynamic_plugin_load_example' : [files('examples/plugin_load_example.cc'), '']
     }
 }

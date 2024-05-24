@@ -36,7 +36,6 @@ GOptions defineOptions() {
     help += "-gparticle=\"[{pname: e-, multiplicity: 1, p: 2300, theta: 23.0}, {pname: proton, multiplicity: 2, p: 1200, theta: 14.0}]\"\n";
     goptions.defineOption("gparticle", "define the generator particle(s)", gparticle, help);
 
-
     return goptions;
 }
 

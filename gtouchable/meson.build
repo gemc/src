@@ -12,6 +12,6 @@ LD += {
         'gtouchableConventions.h'
     ),
     'examples' : {
-        'basic_gtouchable' : [files('examples/simple.cc'), ['']]
+        'basic_gtouchable' : [files('examples/simple.cc'), '']
     }
 }
