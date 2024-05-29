@@ -75,6 +75,9 @@ private:
     // introspection.
     void print_version();
 
+    // save yaml file locations
+    vector <string> yaml_files;
+
 public:
 
     // add a command line switch to the map of switches
@@ -121,6 +124,11 @@ public:
             switches.insert(sw);
         }
     }
+
+    template<typename T>
+    T get_variable_in_option(const YAML::Node& node, const string& variable_name, const T& default_value);
+
+    vector <string> get_yaml_files() { return yaml_files; }
 
 };
 

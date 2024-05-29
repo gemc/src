@@ -18,21 +18,13 @@ namespace g4display {
 
         for (auto g4t_item: g4t_node) {
             G4SceneText st_item;
-            for (auto map_item = g4t_item.begin(); map_item != g4t_item.end(); ++map_item) {
-                if (map_item->first.as<string>() == "text") {
-                    st_item.text = map_item->second.as<string>();
-                } else if (map_item->first.as<string>() == "color") {
-                    st_item.color = map_item->second.as<string>();
-                } else if (map_item->first.as<string>() == "x") {
-                    st_item.x = map_item->second.as<float>();
-                } else if (map_item->first.as<string>() == "y") {
-                    st_item.y = map_item->second.as<float>();
-                } else if (map_item->first.as<string>() == "z") {
-                    st_item.z = map_item->second.as<float>();
-                } else if (map_item->first.as<string>() == "size") {
-                    st_item.size = map_item->second.as<int>();
-                }
-            }
+
+            st_item.text = gopts->get_variable_in_option<string>(g4t_item, "text", goptions::NODFLT);
+            st_item.color = gopts->get_variable_in_option<string>(g4t_item, "color", "black");
+            st_item.x = gopts->get_variable_in_option<float>(g4t_item, "x", 0);
+            st_item.y = gopts->get_variable_in_option<float>(g4t_item, "y", 0);
+            st_item.z = gopts->get_variable_in_option<float>(g4t_item, "z", GNOT_SPECIFIED_SCENE_TEXT_Z);
+            st_item.size = gopts->get_variable_in_option<int>(g4t_item, "size", 24);
             st.push_back(st_item);
         }
 

@@ -56,6 +56,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
             {"optical",         0, "verbosity for optical properties"},
             {"event_dispenser", 0, "verbosity for the event dispenser"},
             {"g4display",       0, "verbosity for the g4display"},
+            {"gsystem",         0, "verbosity for the gsystem"},
     };
 
     string help = "Effects: \n \n";
@@ -84,11 +85,11 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
 
 
     // finds the yaml files
-    vector <string> yaml_files = find_yamls(argc, argv);
+    yaml_files = find_yamls(argc, argv);
 
     // parse the yaml files
     for (auto &yaml_file: yaml_files) {
-        cout << "Parsing " << yaml_file << endl;
+        cout << " Parsing " << yaml_file << endl;
         set_options_values_from_yaml_file(yaml_file);
     }
 
@@ -356,13 +357,31 @@ YAML::Node GOptions::get_option_map_in_node(string option_name, string map_key) 
     return sequence_node;
 }
 
+template<typename T>
+T GOptions::get_variable_in_option(const YAML::Node &node, const string &variable_name, const T &default_value) {
+    if (node[variable_name]) {
+        return node[variable_name].as<T>();
+    }
+    return default_value;
+}
+
+// Explicit instantiations
+template int GOptions::get_variable_in_option<int>(const YAML::Node &node, const std::string &variable_name, const int &default_value);
+
+template float GOptions::get_variable_in_option<float>(const YAML::Node &node, const std::string &variable_name, const float &default_value);
+
+template double GOptions::get_variable_in_option<double>(const YAML::Node &node, const std::string &variable_name, const double &default_value);
+
+template string GOptions::get_variable_in_option<string>(const YAML::Node &node, const std::string &variable_name, const string &default_value);
+
+template bool GOptions::get_variable_in_option<bool>(const YAML::Node &node, const std::string &variable_name, const bool &default_value);
+
 
 int GOptions::getVerbosityFor(string tag) {
     auto verbosity_node = get_option_map_in_node("verbosity", tag);
 
     return verbosity_node.as<int>();
 }
-
 
 
 // print only the non default settings set by users

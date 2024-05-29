@@ -35,7 +35,7 @@ public:
         // environment for cad
         auto gtextEnv = getenv(GEMCDB_ENV); // char*
         if (gtextEnv != nullptr) {
-            vector<string> dirsDB = getStringVectorFromString(gtextEnv);
+            vector <string> dirsDB = getStringVectorFromString(gtextEnv);
 
             if (dirsDB.size() > 0) {
                 for (auto &dirDB: dirsDB) {
@@ -60,7 +60,7 @@ private:
     virtual void loadGeometry(GSystem *system, int verbosity) = 0;
 
 protected:
-    vector<string> possibleLocationOfFiles;
+    vector <string> possibleLocationOfFiles;
 
 public:
     void addPossibleFileLocation(string fl) { possibleLocationOfFiles.push_back(fl); }

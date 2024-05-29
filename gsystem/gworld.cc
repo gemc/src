@@ -19,34 +19,25 @@ GWorld::GWorld(GOptions *gopts) {
 
     gsystemsMap = new map<string, GSystem *>;
 
-    int verbosity = gopts->getInt("gsystemv");
-
-    // projecting json options onto vector of JSystem
-    vector<gsystem::JSystem> jsystems = gsystem::getSystems(gopts);
+    int verbosity = gopts->getVerbosityFor("gsystem");
 
     // loading gsystemsMap with GSystems
-    for (auto &jsystem: jsystems) {
-        string keyName = gutilities::getFileFromPath(jsystem.system);
-        (*gsystemsMap)[keyName] = new GSystem(jsystem.system, jsystem.factory, jsystem.variation, verbosity,
-                                              jsystem.runno,
-                                              jsystem.annotations,
-                                              jsystem.sqlite_file);
+    for (auto &gsystem: gsystem::getSystems(gopts) ) {
+        string keyName = gutilities::getFileFromPath(gsystem.getName());
+        (*gsystemsMap)[keyName] = &gsystem;
     }
 
-    // projecting options onto vector of GModifiers
-    vector<gsystem::JModifier> jmodifiers = gsystem::getModifiers(gopts);
-
     // loading gmodifiersMap
-    for (auto &modifier: jmodifiers) {
-        if (modifier.volume != GSYSTEMNOMODIFIER) {
-            gmodifiersMap[modifier.volume] = new GModifier(modifier.volume, modifier.shift, modifier.tilt, modifier.isPresent, verbosity);
+    for (auto &gmodifier: gsystem::getModifiers(gopts) ) {
+        if (gmodifier.getName() != GSYSTEMNOMODIFIER) {
+            gmodifiersMap[gmodifier.getName()] = &gmodifier;
         }
     }
 
     // instantiating gSystemManager and systemFactory
     GManager gSystemManager("GWorld", verbosity);
 
-    map<string, GSystemFactory *> systemFactory;
+    map < string, GSystemFactory * > systemFactory;
 
     // registering factories in gSystemManager
     // and adding them to systemFactory
@@ -89,7 +80,9 @@ GWorld::GWorld(GOptions *gopts) {
         string factory = gsystem->getFactoryName();
 
         if (systemFactory.find(factory) != systemFactory.end()) {
-            systemFactory[factory]->addPossibleFileLocation(getDirFromPath(gopts->jcardFilename));
+            for ( auto yaml_file: gopts->get_yaml_files() ) {
+                systemFactory[factory]->addPossibleFileLocation(getDirFromPath(yaml_file));
+            }
             systemFactory[factory]->loadSystem(gsystem, verbosity);
             systemFactory[factory]->closeSystem();
         } else {
@@ -111,10 +104,11 @@ GWorld::GWorld(GOptions *gopts) {
     }
 
 
-    // adding root volume to the a "root" gsystem
+    // adding root volume to the "root" gsystem
     // using the text factory
 
-    string worldVolumeDefinition = gopts->getString("worldVolume");
+    string worldVolumeDefinition = gopts->getScalarString("worldVolume");
+
     (*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(ROOTWORLDGVOLUMENAME, GSYSTEMTEXTFACTORYLABEL, "default", verbosity);
     (*gsystemsMap)[ROOTWORLDGVOLUMENAME]->addROOTVolume(worldVolumeDefinition);
 
@@ -184,8 +178,8 @@ GVolume *GWorld::searchForVolume(string volumeName, string purpose) const {
 }
 
 
-vector<string> GWorld::getSensitiveDetectorsList() {
-    vector<string> snames;
+vector <string> GWorld::getSensitiveDetectorsList() {
+    vector <string> snames;
     for (auto &system: *gsystemsMap) {
         for (auto &gvolume: *system.second->getGVolumesMap()) {
             string digitization = gvolume.second->getDigitization();

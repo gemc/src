@@ -7,34 +7,34 @@
 #include "gsystemOptions.h"
 
 // a world is a collection of GSystem, their
-class GWorld
-{
-public:
-	// constructor from a jcard / command lines:
-	//
-	// - load systems and modifiers map
-	// - load factories
-	// - run factory load system for each item in gsystemsMap
-	// - apply modifiers
-	GWorld(GOptions* gopts);
-	~GWorld() {
-		delete gsystemsMap;
-	}
+class GWorld {
 
+public:
+    // constructor from a jcard / command lines:
+    //
+    // - load systems and modifiers map
+    // - load factories
+    // - run factory load system for each item in gsystemsMap
+    // - apply modifiers
+    GWorld(GOptions *gopts);
+
+    ~GWorld() {
+        delete gsystemsMap;
+    }
 
 private:
-	map<string, GSystem*>  *gsystemsMap;    // key is system name
-	map<string, GModifier*> gmodifiersMap;  // key is volume name
+    map<string, GSystem *> *gsystemsMap;    // key is system name
+    map<string, GModifier *> gmodifiersMap;  // key is volume name
 
-	// search for a volume among systems in gsystemsMap
-	// cannot return const because this is used in the constructor to apply shifts
-	GVolume* searchForVolume(string volumeName, string purpose) const;
+    // search for a volume among systems in gsystemsMap
+    // cannot return const because this is used in the constructor to apply shifts
+    GVolume *searchForVolume(string volumeName, string purpose) const;
 
 public:
-	map<string, GSystem*>* getSystemsMap() const {return gsystemsMap;}
+    map<string, GSystem *> *getSystemsMap() const { return gsystemsMap; }
 
-	// sensitive detector names, needed to load the plugins at run time
-	vector<string> getSensitiveDetectorsList();
+    // sensitive detector names, needed to load the plugins at run time
+    vector <string> getSensitiveDetectorsList();
 
 };
 

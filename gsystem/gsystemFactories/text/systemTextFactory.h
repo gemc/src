@@ -10,21 +10,21 @@
 #define GTEXTMIRSTYPE "__mirrors_"
 
 // system factory
-class GSystemTextFactory : GSystemFactory
-{
+class GSystemTextFactory : GSystemFactory {
 
 public:
 
-	// constructor will load the possible location(s) of the geometry and material databases
-	GSystemTextFactory();
+    // constructor will load the possible location(s) of the geometry and material databases
+    GSystemTextFactory();
 
 private:
 
-	virtual void loadMaterials(GSystem *system, int verbosity);
-	virtual void loadGeometry(GSystem *system, int verbosity);
+    virtual void loadMaterials(GSystem *system, int verbosity);
 
-	// returns the requested system file stream, checking all possibleLocationOfFiles
-	ifstream* gSystemTextFileStream(GSystem *system, string SYSTEMTYPE, int verbosity);  // SYTEMTYPE one of file types above
+    virtual void loadGeometry(GSystem *system, int verbosity);
+
+    // returns the requested system file stream, checking all possibleLocationOfFiles
+    ifstream *gSystemTextFileStream(GSystem *system, string SYSTEMTYPE, int verbosity);  // SYTEMTYPE one of file types above
 
 };
 

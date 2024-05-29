@@ -1,5 +1,6 @@
 // string for gexit
 #include "gutilities.h"
+
 using namespace gutilities;
 
 // gsystem
@@ -10,6 +11,5 @@ using namespace std;
 
 
 GSystemCADFactory::GSystemCADFactory() {
-	
-}
 
+}

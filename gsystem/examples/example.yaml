@@ -1,0 +1,12 @@
+gsystem:
+  - name: experiments/clas12/targets,
+    factory: TEXT,
+    variation: bonus
+  - name: experiments/clas12/rtpc,
+    factory: TEXT,
+    variation: rgb_spring2019,
+    runno: 11
+
+gmodifier:
+  - name: rtpc,
+    shift: "0, 0, -5, cm"

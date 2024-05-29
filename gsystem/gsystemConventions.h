@@ -8,10 +8,6 @@
 #define GVOLUMENUMBEROFPARS    21
 #define GMATERIALNUMBEROFPARS  18
 
-// must match the API definitions
-#define GMATERIALNOTASSIGNEDPROPERTYSTRING "na"
-#define GMATERIALNOTASSIGNEDPROPERTYNUMBER -1
-
 #define DEFAULTPOSITION       "0*cm, 0*cm, 0*cm";
 #define DEFAULTROTATION       "0*deg, 0*deg, 0*deg";
 
@@ -32,6 +28,7 @@
 #define GEMCDB_ENV           "GEMCDB_ENV"
 
 #define ROOTWORLDGVOLUMENAME "root"
+#define ROOTDEFINITION       "G4Box, 15*m, 15*m, 15*m, G4_AIR"
 #define MOTHEROFUSALL        "akasha"
 #define GSYSTEM_DELIMITER    "/"
 
@@ -42,5 +39,6 @@
 #define GSYSTEMGDMLTFACTORYLABEL   "GDML"
 #define GSYSTEMMYSQLTFACTORYLABEL  "MYSQL"
 #define GSYSTEMSQLITETFACTORYLABEL "SQLITE"
+#define GSYSTEMSQLITETDEFAULTFILE  "gemc.sqlite"
 
 #endif

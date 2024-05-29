@@ -38,7 +38,6 @@ namespace g4display {
 
     G4Dawn getG4Dawn(GOptions *gopts);
 
-
     GOptions defineOptions();
 }
 

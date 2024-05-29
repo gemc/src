@@ -5,18 +5,18 @@
 #include "systemFactory.h"
 
 // system factory
-class GSystemCADFactory : GSystemFactory
-{
+class GSystemCADFactory : GSystemFactory {
 
 public:
-	
-	// constructor will load the possible location(s) of the geometry and material databases
-	GSystemCADFactory();
+
+    // constructor will load the possible location(s) of the geometry and material databases
+    GSystemCADFactory();
 
 private:
 
-	virtual void loadMaterials(GSystem *system, int verbosity);
-	virtual void loadGeometry(GSystem *system, int verbosity);
+    virtual void loadMaterials(GSystem *system, int verbosity);
+
+    virtual void loadGeometry(GSystem *system, int verbosity);
 
 };
 

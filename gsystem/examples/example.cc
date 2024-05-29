@@ -18,16 +18,10 @@ int main(int argc, char* argv[])
 {
 	GOptions *gopts = new GOptions(argc, argv, gsystem::defineOptions());
 
-	// print settings with defaults
-	gopts->print_settings(true);
-
 	GWorld *world = new GWorld(gopts);
-
-
 	delete world;
 	
 	return EXIT_SUCCESS;
-
 }
 
 
