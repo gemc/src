@@ -25,6 +25,9 @@ public:
             string annotations = "none",
             string sqlite_file = "none");
 
+    // default copy constructor
+    GSystem(const GSystem &other) = default;
+
 private:
 
     // MARK: class vars

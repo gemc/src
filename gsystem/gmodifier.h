@@ -19,11 +19,11 @@ public:
             isPresent(existance) {
 
         if (verbosity) {
-            cout << GSYSTEMLOGHEADER << "volume " << name << " modified with:";
+            cout << GSYSTEMLOGHEADER << "volume " << name << " modified with:" << KGRN;
             if (shift != GSYSTEMNOMODIFIER) cout << " - shift: " << shift;
             if (tilts != GSYSTEMNOMODIFIER) cout << " - tilts: " << tilts;
             if (!isPresent) cout << " - existence: " << isPresent;
-            cout << endl;
+            cout << RST << endl;
         }
     }
 

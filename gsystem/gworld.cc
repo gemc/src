@@ -24,7 +24,7 @@ GWorld::GWorld(GOptions *gopts) {
     // loading gsystemsMap with GSystems
     for (auto &gsystem: gsystem::getSystems(gopts) ) {
         string keyName = gutilities::getFileFromPath(gsystem.getName());
-        (*gsystemsMap)[keyName] = &gsystem;
+        (*gsystemsMap)[keyName] = new GSystem(gsystem);
     }
 
     // loading gmodifiersMap
@@ -35,12 +35,11 @@ GWorld::GWorld(GOptions *gopts) {
     }
 
     // instantiating gSystemManager and systemFactory
-    GManager gSystemManager("GWorld", verbosity);
+    GManager gSystemManager("GSystemManager", verbosity);
 
     map < string, GSystemFactory * > systemFactory;
 
-    // registering factories in gSystemManager
-    // and adding them to systemFactory
+    // registering factories in gSystemManager and adding them to systemFactory
     // if a factory is not existing already, registering it in the manager, instantiating it, and loading it into the map
 
     // text factory created no matter what, needed to create ROOT volume

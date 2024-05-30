@@ -183,7 +183,7 @@ void GOptions::print_option_or_switch_help(string tag) {
 }
 
 
-// Finds the (first) configuration file (yaml).
+// Finds the (first) configuration file (yaml or yml extensions).
 vector <string> GOptions::find_yamls(int argc, char *argv[]) {
     vector <string> yaml_files;
 
@@ -191,6 +191,8 @@ vector <string> GOptions::find_yamls(int argc, char *argv[]) {
         string arg = argv[i];
 
         size_t pos = arg.find(".yaml");
+        if (pos != string::npos) yaml_files.push_back(arg);
+        pos = arg.find(".yml");
         if (pos != string::npos) yaml_files.push_back(arg);
     }
 

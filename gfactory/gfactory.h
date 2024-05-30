@@ -76,7 +76,7 @@ public:
      */
     GManager(std::string name, int v = 0) : gname(name), verbosity(v) {
         if (verbosity > 0) {
-            std::cout << PLUGINITEM << " GPlugin: Instantiating " << YELLOWHHL << gname << RSTHHR << " GManager" << std::endl;
+            std::cout << PLUGINITEM << " GPlugin: Instantiating " << YELLOWHHL << gname << RSTHHR << std::endl;
         }
     }
 
@@ -93,7 +93,7 @@ public:
     void RegisterObjectFactory(std::string name) {
         factoryMap[name] = new GFactory<Derived>();
         if (verbosity > 1) {
-            std::cout << PLUGINITEM << gname << " Manager: Registering <" << KYEL << name << RST << "> factory. ";
+            std::cout << PLUGINITEM << " " << gname << " Plugin Manager: Registering " << YELLOWHHL << KYEL << name << RSTHHR << " factory. ";
         }
     }
 

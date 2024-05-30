@@ -1,0 +1,20 @@
+rohacell | 0.1 | G4_C 0.6465 G4_H 0.0784 G4_N 0.0839 G4_O 0.1912  | target rohacell scattering chamber material | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+epoxy | 1.16 | H 32 N 2 O 4 C 15  | epoxy glue 1.16 g/cm3 | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+carbonFiber | 1.75 | G4_C 0.745 epoxy 0.255  | carbon fiber material is epoxy and carbon - 1.75g/cm3 | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+HDIce | 0.147 | G4_H 0.3335186508882006 DeuteriumGas 0.6664813491117993  | solid HD ice | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+solidHD | 0.175 | HDIce 0.9890325107716412 G4_Al 0.01096748922835879  | solidHD target material - HDIce + Al | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+MgB2 | 2.57 | G4_Mg 0.5292093975221547 G4_B 0.47079060247784527  | MgB2 | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+Cu70Ni30 | 8.95 | G4_Cu 0.7 G4_Ni 0.3  | Cupronickel 70-30 | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+polarizedHe3 | 0.000748 | Helium3Gas 1  | polarizedHe3 target material | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+lHeCoolant | 0.146 | G4_He 1  | liquid He coolant for the polarized target cell | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+NH3 | 0.867 | G4_N 0.8333333333333334 G4_H 0.16666666666666666  | NH3 material | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+NH3target | 0.5782 | NH3 0.8996886890349359 lHeCoolant 0.10031131096506397  | solid NH3 target material | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+G10 | 1.7 | G4_Si 0.283 G4_O 0.323 G4_C 0.364 G4_H 0.03  | G10 - 1.70 g/cm3 | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+HeGas | 0.000164 | G4_He 1  | Upstream He gas | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+AlCell | 2.7 | G4_Al 1  | Aluminum for target cells  | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+ShimCoil | 7.946956521739132 | G4_Cu 0.31521739130434784 G4_Nb 0.44565217391304346 G4_Ti 0.2391304347826087  | Cu/NbTi correction coils ratio is 1.3 Cu  to 1 NbTi | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+AmmoniaCellWalls | 2.135 | G4_C 0.20689655172413793 G4_Cl 0.3017241379310345 G4_F 0.49137931034482757  | PCTFE target cell walls with holes C_2ClF_3 | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+ND3target | 0.6621999999999999 | ND3 0.9124131682271218 lHeCoolant 0.08758683177287829  | solid ND3 target | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+lHe | 0.145 | G4_He 1  | liquid helium | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+solidND3 | 0.6621999999999999 | ND3 0.9124131682271218 lHe 0.08758683177287829  | solid ND3 target | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |
+bonusTargetGas | 0.00126 | DeuteriumGas 1  | 7 atm deuterium gas | na | na | na | na | na | na | na | -1 | -1 | -1 | -1 | -1 | -1 | na |

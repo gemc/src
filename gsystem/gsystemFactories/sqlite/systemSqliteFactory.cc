@@ -39,13 +39,13 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem *system, int verbosity) 
 
             if (rc == 0) {
                 if (verbosity >= GVERBOSITY_SUMMARY) {
-                    cout << GSYSTEMLOGHEADER << "Sqlite file >" << KMAG << newName << RST << "< opened successfully" << endl;
+                    cout << GSYSTEMLOGHEADER << "Sqlite file >" << KGRN << newName << RST << "< opened successfully" << endl;
                 }
                 return;
             }
         }
     } else {
-        cout << GSYSTEMLOGHEADER << "Sqlite file >" << KMAG << sqlite_file << RST << "< opened successfully" << endl;
+        cout << GSYSTEMLOGHEADER << "Sqlite file >" << KGRN << sqlite_file << RST << "< opened successfully" << endl;
         return;
     }
 
@@ -57,6 +57,6 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem *system, int verbosity) 
 void GSystemSQLiteFactory::closeSystem() {
     sqlite3_close(db);
     possibleLocationOfFiles.clear();
-    cout << GSYSTEMLOGHEADER << "Sqlite database >" << KMAG << sqlite_file << RST << "<  closed successfully" << endl;
+    cout << GSYSTEMLOGHEADER << "Sqlite database >" << KGRN << sqlite_file << RST << "<  closed successfully" << endl;
 
 }

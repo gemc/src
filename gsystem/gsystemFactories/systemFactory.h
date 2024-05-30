@@ -25,8 +25,7 @@ public:
     void loadSystem(GSystem *system, int verbosity) {
 
         if (verbosity >= GVERBOSITY_SUMMARY) {
-            cout << GSYSTEMLOGHEADER << "Loading system <" << KWHT << system->getName() << RST << "> using factory <" << system->getFactoryName() << ">"
-                 << endl;
+            cout << GSYSTEMLOGHEADER << "Loading system " << YELLOWHHL << system->getName() << RSTHHR << " using factory " << YELLOWHHL << system->getFactoryName() << RSTHHR << endl;
         }
 
         possibleLocationOfFiles.push_back(".");

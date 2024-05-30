@@ -1,15 +1,15 @@
-runno: 14,
+runno: 14
 
 gparticle:
-  - pname: e-,
-    p: 2300,
+  - pname: e-
+    p: 2300
     theta: 23.0
-  - pname: proton,
-    multiplicity: 4,
-    p: 1900,
+  - pname: proton
+    multiplicity: 4
+    p: 1900
 
 verbosity:
-  - fields: 1,
+  - fields: 1
   - hits: 2
 
 gui: true
