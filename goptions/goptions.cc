@@ -57,6 +57,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
             {"event_dispenser", 0, "verbosity for the event dispenser"},
             {"g4display",       0, "verbosity for the g4display"},
             {"gsystem",         0, "verbosity for the gsystem"},
+            {"g4system",        0, "verbosity for the g4system"},
     };
 
     string help = "Effects: \n \n";

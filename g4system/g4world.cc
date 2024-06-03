@@ -21,7 +21,7 @@ G4World::G4World(GWorld *gworld, GOptions* gopts) {
 	g4materialsMap = new map<string, G4Material*>;
 
 	// instantiating gSystemManager
-	int verbosity = gopts->getInt(G4SYSTEMVERBOSITY);
+    int verbosity = gopts->getVerbosityFor("g4system");
 	GManager g4SystemManager("G4World", verbosity);
 
 	buildDefaultMaterialsElementsAndIsotopes(verbosity);
@@ -144,7 +144,7 @@ G4World::G4World(GWorld *gworld, GOptions* gopts) {
 	} while (thisIterationRemainingVolumes.size() > 0);
 
 
-	if ( gopts->getSwitch("logG4Materials") ) {
+	if ( gopts->getSwitch("showPredefinedMaterials") ) {
 		G4NistManager::Instance()->ListMaterials("all");
 	}
 

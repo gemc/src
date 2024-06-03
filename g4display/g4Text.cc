@@ -24,7 +24,7 @@ namespace g4display {
             st_item.x = gopts->get_variable_in_option<float>(g4t_item, "x", 0);
             st_item.y = gopts->get_variable_in_option<float>(g4t_item, "y", 0);
             st_item.z = gopts->get_variable_in_option<float>(g4t_item, "z", GNOT_SPECIFIED_SCENE_TEXT_Z);
-            st_item.size = gopts->get_variable_in_option<int>(g4t_item, "size", 24);
+            st_item.size = gopts->get_variable_in_option<double>(g4t_item, "size", 24.0);
             st.push_back(st_item);
         }
 
@@ -48,7 +48,7 @@ namespace g4display {
                 {"x",     0,                       "x position of the text"},
                 {"y",     0,                       "y position of the text"},
                 {"z", GNOT_SPECIFIED_SCENE_TEXT_Z, "z position of the text"},
-                {"size",  24,                      "size of the text"},
+                {"size",  24.0,                      "size of the text"},
         };
         goptions.defineOption("g4text", "Insert texts in the current scene", g4text, help);
 

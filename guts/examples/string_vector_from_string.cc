@@ -14,8 +14,9 @@ int main(int argc, char *argv[]) {
 
     if (argc != 2) {
         cerr << FATALERRORL << "run example with exactly one argument: a quotes enclosed list of strings." << endl;
-    } else {
+        return EXIT_FAILURE;
 
+    } else {
         string test = argv[1];
         vector <string> testResult = getStringVectorFromString(test);
 

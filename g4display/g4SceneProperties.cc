@@ -92,13 +92,11 @@ vector <string> G4SceneProperties::addSceneTexts(GOptions *gopts) {
     // looking over each of the vector<json> items
     for (const auto &text: text_to_add) {
 
-        double z_position = text.z;
-
         commands.push_back("/vis/set/textColour " + text.color);
         string position = to_string(text.x) + " " + to_string(text.y);
         string size = " " + to_string(text.size) + " ! ! ";
-        if (z_position != GNOT_SPECIFIED_SCENE_TEXT_Z) {
-            position += " " + to_string(z_position);
+        if (text.z != GNOT_SPECIFIED_SCENE_TEXT_Z) {
+            position += " " + to_string(text.z);
             commands.push_back("/vis/scene/add/text2D " + position + size + text.text);
         } else {
             commands.push_back("/vis/scene/add/text " + position + size + text.text);

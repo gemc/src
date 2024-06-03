@@ -231,8 +231,3 @@ G4VSolid* G4NativeSystemFactory::buildSolid(GOptions* gopt, GVolume *s, map<stri
 
 	return nullptr;
 }
-
-
-
-
-

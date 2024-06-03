@@ -51,7 +51,7 @@ G4VPhysicalVolume* G4CadSystemFactory::buildPhysical(GOptions* gopt, GVolume *s,
 	// not placed until a later stage of the assembly program.
 
 	bool checkForOverlaps = false;
-	if(gopt->getInt("checkOverlaps") > 0) checkForOverlaps = true;
+	if(gopt->getScalarInt("checkOverlaps") > 0) checkForOverlaps = true;
 
 	G4Volume *thisG4Volume = (*g4s)[g4name];
 
@@ -70,5 +70,3 @@ G4VPhysicalVolume* G4CadSystemFactory::buildPhysical(GOptions* gopt, GVolume *s,
 
 	return thisG4Volume->getPhysical();
 }
-
-

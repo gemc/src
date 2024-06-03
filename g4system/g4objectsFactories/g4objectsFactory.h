@@ -46,10 +46,10 @@ protected:
 
 	bool getVerbosity(GOptions* gopt, string vname) {
 
-		int    verbosity = gopt->getInt(G4SYSTEMVERBOSITY);
-		string logVolume = gopt->getString("logVolume");
+        int verbosity = gopt->getVerbosityFor("g4system");
+        string vtocheck = gopt->getScalarString("logVolume");
 
-		return (verbosity == GVERBOSITY_DETAILS) || (vname == logVolume);
+		return (verbosity == GVERBOSITY_DETAILS) || (vname == vtocheck);
 	}
 
 };

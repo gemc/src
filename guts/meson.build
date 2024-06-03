@@ -12,6 +12,6 @@ LD += {
 
     'dependencies' : [clhep_deps],
     'examples' : {
-        'guts_string_vector_from_string' : [files('examples/string_vector_from_string.cc'), ['akasha', 'enkil', 'marius']]
+        'guts_string_vector_from_string' : [files('examples/string_vector_from_string.cc'), 'akasha enkil marius']
     }
 }

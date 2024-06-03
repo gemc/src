@@ -1,7 +1,6 @@
 #ifndef  G4VOLUMESCONVENTIONS_H
 #define  G4VOLUMESCONVENTIONS_H 1
 
-#define G4SYSTEMVERBOSITY "g4systemv"
 
 #define G4SYSTEMLOGHEADER " ⌂ G4System ▸ "
 
@@ -34,4 +33,3 @@
 #define TRITIUMGAS_MATERIAL   "H3Gas"
 
 #endif
-
