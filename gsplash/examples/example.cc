@@ -27,7 +27,6 @@ int main(int argc, char* argv[])
                 }
                 QMainWindow window;
                 window.show();
-                cout << "GUI option detected! TODO: gui should be standard in goptions" << endl;
                 gsplash.finish(&window);
                // return app.exec(); // Exit the program
             }

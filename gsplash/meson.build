@@ -10,8 +10,8 @@ LD += {
     'qrc_examples_sources' : files(
                               'examples/example.qrc'
                           ),
-    'dependencies' : [qt5_deps],
+    'dependencies' : [yaml_cpp_dep, qt5_deps],
     'examples' : {
-        'gsplash_example' : [files('examples/example.cc'), ['gui']],
+        'test_gsplash' : [files('examples/example.cc'), ['gui']],
     }
 }
