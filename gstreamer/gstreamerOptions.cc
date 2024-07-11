@@ -32,9 +32,9 @@ namespace gstreamer {
     }
 
     // returns array of options definitions
-    vector<GOption> defineOptions() {
+    GOptions defineOptions() {
 
-        vector<GOption> goptions;
+        GOptions goptions;
 
         // two verbosity: one for events, one for streaming
         json jsonGStreamerEventVerbosity = {

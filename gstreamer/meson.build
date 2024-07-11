@@ -44,7 +44,7 @@ if get_option('use_root')
             'gstreamerJLABSROFactory' : jlab_sro_plugin_files,
             'gstreamerROOTFactory' : root_plugin_files
         }
-        streamer_dependencies = [clhep_deps, geant4_deps, root_deps]
+        streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_deps, root_deps]
 
     endif
 else
@@ -69,6 +69,6 @@ LD += {
     'plugins' : streamer_plugins,
     'dependencies' : streamer_dependencies,
     'examples' : {
-        'gstreamer_example' : [files('examples/example.cc'), ['']],
+        'test_gstreamer' : [files('examples/example.cc'), ['']],
     }
 }

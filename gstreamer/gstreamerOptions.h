@@ -21,7 +21,7 @@ namespace gstreamer {
     string gstreamerPluginNameFromFactory(string factory);
 
     // returns array of options definitions
-    vector<GOption> defineOptions();
+    GOptions defineOptions();
 
 }
 

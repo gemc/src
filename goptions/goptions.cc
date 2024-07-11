@@ -45,17 +45,16 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
 
 
     vector <GVariable> verbosity = {
-            {"fields",          0, "fields verbosity"},
-            {"ghits",           0, "ghits verbosity"},
-            {"detectors",       0, "detectors verbosity"},
-            {"materials",       0, "materials verbosity"},
-            {"regions",         0, "regions verbosity"},
-            {"event_dispenser", 0, "event dispenser verbositythe  "},
-            {"g4display",       0, "g4display verbositythe "},
-            {"gsystem",         0, "gsystem verbositythe "},
-            {"g4system",        0, "g4system verbositythe "},
-            {"gparticle",       0, "gparticle verbosity"},
-            {"gphysics",        0, "gphysics verbosity"},
+            {"gfields",          0, "gfields verbosity"},
+            {"ghits",            0, "ghits verbosity"},
+            {"gmaterials",       0, "gmaterials verbosity"},
+            {"gevent_dispenser", 0, "event dispenser verbosity"},
+            {"g4display",        0, "g4display verbositythe "},
+            {"gsystem",          0, "gsystem verbositythe "},
+            {"g4system",         0, "g4system verbositythe "},
+            {"gparticle",        0, "gparticle verbosity"},
+            {"gphysics",         0, "gphysics verbosity"},
+            {"gstreamer",        0, "gstreamer verbosity"},
 
     };
 
