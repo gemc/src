@@ -25,7 +25,7 @@ Gparticle::Gparticle(string aname,
                      string arandomMomentumModel,
                      float atheta,
                      float adelta_theta,
-                     string athetaModel,
+                     string arandomThetaModel,
                      float aphi,
                      float adelta_phi,
                      string aunit,
@@ -42,10 +42,10 @@ Gparticle::Gparticle(string aname,
         multiplicity(amultiplicity),
         p(getG4Number(to_string(ap) + punit)),
         delta_p(getG4Number(to_string(adelta_p) + punit)),
-        randomMomentumModel(arandomMomentumModel),
+        randomMomentumModel(gutilities::stringToRandomModel(arandomMomentumModel)),
         theta(getG4Number(to_string(atheta) + aunit)),
         delta_theta(getG4Number(to_string(adelta_theta) + aunit)),
-        thetaModel(athetaModel),
+        randomThetaModel(gutilities::stringToRandomModel(arandomThetaModel)),
         phi(getG4Number(to_string(aphi) + aunit)),
         delta_phi(getG4Number(to_string(adelta_phi) + aunit)),
         v(G4ThreeVector(
@@ -58,7 +58,7 @@ Gparticle::Gparticle(string aname,
                 getG4Number(to_string(adelta_vy) + vunit),
                 getG4Number(to_string(adelta_vz) + vunit)
         )),
-        randomVertexModel(arandomVertexModel),
+        randomVertexModel(gutilities::stringToRandomModel(arandomVertexModel)),
         verbosity(averbosity) {
 
     set_pdg_id();
@@ -125,7 +125,7 @@ void Gparticle::shootParticle(G4ParticleGun *particleGun, G4Event *anEvent, [[ma
 
 float Gparticle::calculateMomentum() {
 
-    float pmev = randomize(p / CLHEP::MeV, delta_p / CLHEP::MeV, momentumGaussianSpread);
+    float pmev = randomizeNumberFromSigmaWithModel(p, delta_p, randomMomentumModel);
 
     return pmev;
 }
@@ -141,36 +141,10 @@ float Gparticle::calculateKinEnergy(float mass) {
 
 G4ThreeVector Gparticle::calculateBeamDirection() {
 
-    double thetaRad = 0;
-
-    if (thetaModel == "ct") {
-
-        double lower = (theta - delta_theta) / CLHEP::rad;
-        double upper = (theta + delta_theta) / CLHEP::rad;
-
-        if (lower < upper) {
-            // generate random cos(theta) in range [lower, upper]
-            do {
-                thetaRad = acos(1 - 2 * G4UniformRand());
-            } while (thetaRad < lower || thetaRad > upper);
-        } else {
-            thetaRad = theta / CLHEP::rad;
-        }
-
-        // notice the formula below doesn't work because cos(theta) = cos(-theta)
-        // would need to add cases for theta - delta_theta < 0 and theta + delta_theta > pi
-        //		thetaRad = acos(G4UniformRand()*(cos(theta - delta_theta/CLHEP::rad) - cos(theta/CLHEP::rad + delta_theta/CLHEP::rad))
-        //							 + cos(theta/CLHEP::rad + delta_theta/CLHEP::rad)) / CLHEP::rad;
-
-    } else if (thetaModel == "flat") {
-        thetaRad = randomize(theta / CLHEP::rad, delta_theta / CLHEP::rad, momentumGaussianSpread);
-    } else {
-        cerr << FATALERRORL << " thetaModel >" << thetaModel << "< not recognized." << endl;
-        gexit(EC__GPARTICLEWRONGTHETAMODEL);
-    }
+    float thetaRad = randomizeNumberFromSigmaWithModel(theta, delta_theta, randomThetaModel);
 
 
-    double phiRad = randomize(phi / CLHEP::rad, delta_phi / CLHEP::rad, momentumGaussianSpread);
+    float phiRad = randomizeNumberFromSigmaWithModel(phi / CLHEP::rad, delta_phi / CLHEP::rad, cosine);
 
     G4ThreeVector pdir = G4ThreeVector(
             cos(phiRad) * sin(thetaRad),
@@ -185,37 +159,71 @@ G4ThreeVector Gparticle::calculateVertex() {
 
     float x, y, z;
 
-    if (delta_VR > 0) {
-        float radius;
-        do {
-            x = randomize(0, delta_VR, vertexGaussianSpread);
-            y = randomize(0, delta_VR, vertexGaussianSpread);
-            z = randomize(0, delta_VR, vertexGaussianSpread);
-            radius = x * x + y * y + z * z;
-        } while (radius > delta_VR);
 
-        x = x + v.x();
-        y = y + v.y();
-        z = z + v.z();
-
-    } else {
-        x = randomize(v.x(), delta_v.x(), vertexGaussianSpread);
-        y = randomize(v.y(), delta_v.y(), vertexGaussianSpread);
-        z = randomize(v.z(), delta_v.z(), vertexGaussianSpread);
+    switch (randomVertexModel) {
+        case uniform:
+            x = randomizeNumberFromSigmaWithModel(v.x(), delta_v.x(), uniform);
+            y = randomizeNumberFromSigmaWithModel(v.y(), delta_v.y(), uniform);
+            z = randomizeNumberFromSigmaWithModel(v.z(), delta_v.z(), uniform);
+            break;
+        case gaussian:
+            x = randomizeNumberFromSigmaWithModel(v.x(), delta_v.x(), gaussian);
+            y = randomizeNumberFromSigmaWithModel(v.y(), delta_v.y(), gaussian);
+            z = randomizeNumberFromSigmaWithModel(v.z(), delta_v.z(), gaussian);
+            break;
+        case sphere: {
+            float radius;
+            float max_radius = delta_v.r();
+            // assumes all 3 components have the same spread
+            do {
+                x = randomizeNumberFromSigmaWithModel(0, max_radius, uniform);
+                y = randomizeNumberFromSigmaWithModel(0, max_radius, uniform);
+                z = randomizeNumberFromSigmaWithModel(0, max_radius, uniform);
+                radius = x * x + y * y + z * z;
+            } while (radius > max_radius);
+            x = x + v.x();
+            y = y + v.y();
+            z = z + v.z();
+            break;
+        }
+        default:
+            x = v.x();
+            y = v.y();
+            z = v.z();
+            break;
     }
 
-
-    G4ThreeVector vertex = G4ThreeVector(x, y, z);
-
-    return vertex;
+    return G4ThreeVector(x, y, z);
 }
 
 
-float Gparticle::randomize(float center, float delta, bool gaussianSPread) {
-    if (gaussianSPread) {
-        return G4RandGauss::shoot(center, delta);
-    } else {
-        return center + (2.0 * G4UniformRand() - 1.0) * delta;
+float Gparticle::randomizeNumberFromSigmaWithModel(float center, float delta, gutilities::randomModel model) {
+    switch (model) {
+        case uniform:
+            return center + (2.0 * G4UniformRand() - 1.0) * delta;
+
+        case gaussian:
+            return G4RandGauss::shoot(center, delta);
+
+        case cosine: {            // assuming this is an angle with corrected units
+            float lower = (center - delta) / CLHEP::rad;
+            float upper = (center + delta) / CLHEP::rad;
+            float center_rad = center / CLHEP::rad;
+
+            if (lower < upper) {
+                // generate random cos(theta) in range [lower, upper]
+                do {
+                    center_rad = acos(1 - 2 * G4UniformRand());
+                } while (center_rad < lower || center_rad > upper);
+            } else {
+                center_rad = theta / CLHEP::rad;
+            }
+
+            return center_rad * CLHEP::rad;
+        }
+
+        default:
+            return center;
     }
 }
 
@@ -225,18 +233,18 @@ ostream &operator<<(ostream &stream, Gparticle gparticle) {
     cout << "  name: " << gparticle.name << " (pid: " << gparticle.pid << ")" << endl;
     cout << "  mass: " << gparticle.get_mass() << endl;
     cout << "  multiplicity: " << gparticle.multiplicity << endl;
-    cout << "  thetaModel: " << gparticle.thetaModel << endl;
     cout << "  p: " << gparticle.p << endl;
-    cout << "  delta_p: " << gparticle.delta_p << endl;
-    cout << "  theta: " << gparticle.theta / CLHEP::rad << endl;
-    cout << "  delta_theta: " << gparticle.delta_theta << endl;
-    cout << "  phi: " << gparticle.phi << endl;
-    cout << "  delta_phi: " << gparticle.delta_phi << endl;
-    cout << "  momentumGaussianSpread: " << gparticle.momentumGaussianSpread << endl;
-    cout << "  vertexGaussianSpread: " << gparticle.vertexGaussianSpread << endl;
+    cout << "  delta_p: " << gparticle.delta_p / CLHEP :: MeV << " MeV" << endl;
+    cout << "  randomMomentumModel: " << gparticle.randomMomentumModel << endl;
+    cout << "  theta: " << gparticle.theta / CLHEP::deg << "deg" << endl;
+    cout << "  delta_theta: " << gparticle.delta_theta / CLHEP::deg << "deg" << endl;
+    cout << "  randomThetaModel: " << gparticle.randomThetaModel << endl;
+    cout << "  phi: " << gparticle.phi / CLHEP::deg << "deg" << endl;
+    cout << "  delta_phi: " << gparticle.delta_phi / CLHEP::deg << "deg" << endl;
     cout << "  v: " << gparticle.v << endl;
     cout << "  delta_v: " << gparticle.delta_v << endl;
-    cout << "  delta_VR: " << gparticle.delta_VR << endl;
+    cout << "  randomVertexModel: " << gparticle.randomVertexModel << endl;
+    cout << "  verbosity: " << gparticle.verbosity << endl;
 
     return stream;
 }

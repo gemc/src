@@ -1,9 +1,0 @@
-{
-	# gparticle is a cumulative structured option: entries can be accumulated on the jcard(s) or at the command line
-
-	"+gparticle": [
-		# a single 5 GeV proton along the z axis: only pid and pz need to be defined
-		{ "pname": "e-", "multiplicity": 1,  "p": 2300,  "theta": 23.0, "delta_phi": 180.0, "delta_x": 11}
-	]
-
-}

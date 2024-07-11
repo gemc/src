@@ -70,6 +70,17 @@ namespace gutilities {
 
 	template<class KEY, class VALUE> vector<KEY> getKeys(const map<KEY, VALUE>& map);
 
+    enum randomModel {
+        uniform,
+        gaussian,
+        cosine,
+        sphere
+    };
+
+    // Function to convert string to enum
+    randomModel stringToRandomModel(const std::string& str);
+
+
 };
 
 

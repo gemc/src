@@ -10,8 +10,10 @@ using namespace std;
 
 // returns this example options
 GOptions defineOptions() {
+
     GOptions goptions;
     string help;
+
 
     // command line switch
     goptions.defineSwitch("log", "a switch, this is just an example.");

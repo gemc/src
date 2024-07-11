@@ -2,9 +2,11 @@
 #include "gparticleOptions.h"
 #include "gparticleConventions.h"
 
+#include <iostream>
+using namespace std;
+
 // namespace to define options
 namespace gparticle {
-
 
     // method to return a vector of GParticles from the options
     vector <Gparticle> getGParticles(GOptions *gopts) {
@@ -18,15 +20,14 @@ namespace gparticle {
             gparticles.push_back(Gparticle(
                     gopts->get_variable_in_option<string>(gparticle_item, "name", goptions::NODFLT),
                     gopts->get_variable_in_option<int>(gparticle_item, "multiplicity", 1),
-
-                    gopts->get_variable_in_option<float>(gparticle_item, "p", goptions::NODFLT),
+                    gopts->get_variable_in_option<float>(gparticle_item, "p", GPARTICLENOTDEFINED),
                     gopts->get_variable_in_option<float>(gparticle_item, "delta_p", 0),
                     gopts->get_variable_in_option<string>(gparticle_item, "randomMomentumModel", "uniform"),
                     gopts->get_variable_in_option<string>(gparticle_item, "punit", "MeV"),
 
                     gopts->get_variable_in_option<float>(gparticle_item, "theta", 0),
                     gopts->get_variable_in_option<float>(gparticle_item, "delta_theta", 0),
-                    gopts->get_variable_in_option<string>(gparticle_item, "thetaModel", "ct"),
+                    gopts->get_variable_in_option<string>(gparticle_item, "randomThetaModel", "ct"),
                     gopts->get_variable_in_option<float>(gparticle_item, "phi", 0),
                     gopts->get_variable_in_option<float>(gparticle_item, "delta_phi", 0),
                     gopts->get_variable_in_option<string>(gparticle_item, "aunit", "deg"),
@@ -50,9 +51,9 @@ namespace gparticle {
 
 
     // returns array of options definitions
-    GOption defineOptions() {
+    GOptions defineOptions() {
 
-        GOption goptions;
+        GOptions goptions;
 
         string help;
         help = "Adds a particle to the event generator \n ";
@@ -72,7 +73,7 @@ namespace gparticle {
                 {"randomMomentumModel", "uniform",        "Momentum randomization. Default: 'uniform'. Alternative: 'gaussian' (use deltas as sigmas)"},
                 {"theta",               0,                "Particle polar angle. Default: 0"},
                 {"delta_theta",         0,                "Particle polar angle range, centered on theta. Default: 0"},
-                {"thetaModel",          "ct",             "Distribute cos(theta) or theta. 'ct' (default): cosTheta is uniform. 'flat': theta is uniform"},
+                {"randomThetaModel",    "cosine",         "Distribute cos(theta) or theta. 'cosine' (default): cos(theta) is uniform. 'uniform': theta is uniform"},
                 {"phi",                 0,                "Particle azimuthal angle. Default: 0"},
                 {"delta_phi",           0,                "Particle azimuthal angle range, centered on phi. Default: 0"},
                 {"aunit",               "deg",            "Geant4 unit for the particle angles. Default: \"deg\" "},
@@ -85,6 +86,8 @@ namespace gparticle {
                 {"vunit",               "cm",             "Unit for the particle vertex. Default: \"cm\" "},
                 {"randomVertexModel",   "uniform",        "Vertex randomization. Default: 'uniform'. Alternative: 'gaussian' (use deltas as sigmas), 'sphere'"}
         };
+
+        goptions.defineOption("gparticle", "define the generator particle(s)", gparticle, help);
 
         return goptions;
     }

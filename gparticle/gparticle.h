@@ -1,12 +1,16 @@
 #ifndef  GPARTICLE_H
 #define  GPARTICLE_H  1
 
+// glibrary
+#include "gutilities.h"
+
 // geant4
 #include "G4ThreeVector.hh"
 #include "G4ParticleGun.hh"
 
 // c++
 using std::ostream;
+
 
 // This class interfaces to the Geant4 General Particle Source
 class Gparticle {
@@ -47,18 +51,18 @@ private:
     // assigned momentum and distributions. See particle options for description
     float p;
     float delta_p;
-    string randomMomentumModel;
+    gutilities::randomModel randomMomentumModel;
 
     float theta;
     float delta_theta;
-    string thetaModel;
+    gutilities::randomModel randomThetaModel;
 
     float phi;
     float delta_phi;
 
     G4ThreeVector v;
     G4ThreeVector delta_v;
-    bool randomVertexModel;
+    gutilities::randomModel randomVertexModel;
 
     int verbosity;
 
@@ -75,7 +79,8 @@ public:
 
 private:
 
-    float randomize(float center, float delta, bool gaussianSPread);
+    // if this is used somewhere else it should be moved to gutilities (it does require geant4)
+    float randomizeNumberFromSigmaWithModel(float center, float delta, gutilities::randomModel model);
 
     float calculateMomentum();
 
