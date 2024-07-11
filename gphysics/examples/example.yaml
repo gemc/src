@@ -1,0 +1,1 @@
+phys_list: FTFP_BERT_EMV + G4OpticalPhysics + G4RadioactiveDecayPhysics

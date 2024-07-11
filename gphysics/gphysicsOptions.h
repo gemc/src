@@ -2,12 +2,11 @@
 #define  GPHYSICS_H_OPTIONS 1
 
 // glibrary
-#include "goptions.h" 
+#include "goptions.h"
 
 namespace gphysics {
 
-// returns array of options definitions
-vector<GOption> defineOptions();
+    GOptions defineOptions();
 
 }
 #endif

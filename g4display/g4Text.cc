@@ -48,7 +48,7 @@ namespace g4display {
                 {"x",     0,                       "x position of the text"},
                 {"y",     0,                       "y position of the text"},
                 {"z", GNOT_SPECIFIED_SCENE_TEXT_Z, "z position of the text"},
-                {"size",  24.0,                      "size of the text"},
+                {"size",  24.0,                    "size of the text"},
         };
         goptions.defineOption("g4text", "Insert texts in the current scene", g4text, help);
 

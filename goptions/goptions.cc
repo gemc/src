@@ -55,6 +55,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
             {"gsystem",         0, "gsystem verbositythe "},
             {"g4system",        0, "g4system verbositythe "},
             {"gparticle",       0, "gparticle verbosity"},
+            {"gphysics",        0, "gphysics verbosity"},
 
     };
 

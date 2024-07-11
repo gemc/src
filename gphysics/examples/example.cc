@@ -13,8 +13,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
 	GOptions *gopts = new GOptions(argc, argv, gphysics::defineOptions());
-	gopts->print_settings(false);
-	
+
 	[[maybe_unused]] auto gphysics = new GPhysics(gopts);
 
 	return EXIT_SUCCESS;

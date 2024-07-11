@@ -10,8 +10,8 @@ LD += {
                           'gphysicsOptions.h',
                           'gphysicsConventions.h'
                       ),
-    'dependencies' : [clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'gphysics_example' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/example.jcard']],
+        'test_gphysics' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/example.yaml']],
     }
 }

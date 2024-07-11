@@ -33,6 +33,8 @@ int main(int argc, char *argv[]) {
     // print version
     gopts->print_version();
 
+    // todo: add geant4 version here, see phys list on how
+
     // get gui switch, overlaps check and verbosity
     bool gui = gopts->getSwitch("gui");
     int checkForOverlaps = gopts->getInt("checkOverlaps");

@@ -13,7 +13,7 @@ namespace g4system {
 
         help = "All information related to the volume will be logged. \n \n";
         help += "Example: -logVolume=ctof\n";
-        goptions.defineOption(GVariable("logVolume", goptions::NODFLT, "log alll information for volume"), help);
+        goptions.defineOption(GVariable("logVolume", goptions::NODFLT, "log all information for volume"), help);
 
         help = "Material to be used if the switch \"useDefaultMaterial\" is activated and a material for a volume is not defined. \n \n";
         help += "The default is G4_Galactic\n";
