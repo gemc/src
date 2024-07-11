@@ -3,10 +3,9 @@
 // namespace to define options
 namespace gQtButtonsWidget {
 
-// returns array of options definitions
-    vector<GOption> defineOptions() {
+    GOptions defineOptions() {
 
-        vector<GOption> goptions;
+        GOptions goptions;
 
 
         return goptions;

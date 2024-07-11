@@ -6,8 +6,7 @@
 
 namespace gQtButtonsWidget {
 
-    // returns array of options definitions
-    vector<GOption> defineOptions();
+    GOptions defineOptions();
 
 }
 
