@@ -29,11 +29,13 @@ GOptions defineOptions() {
             {"pname",        goptions::NODFLT, "particle name"},
             {"multiplicity", 1,                "number of particles per event"},
             {"p",            goptions::NODFLT, "momentum"},
-            {"theta",        "0*degrees",      "polar angle"}
+            {"theta",        "0*degrees",      "polar angle"},
+            {"delta_theta",  0,                "Particle polar angle range, centered on theta. Default: 0"},
+
     };
 
-    help = "Example to add two particles: \n \n";
-    help += "-gparticle=\"[{pname: e-, multiplicity: 1, p: 2300, theta: 23.0}, {pname: proton, multiplicity: 2, p: 1200, theta: 14.0}]\"\n";
+    help = "Example to add three particles, one electron and two protons, identical except spread in theta: \n \n";
+    help += "-gparticle=\"[{pname: e-, multiplicity: 1, p: 2300, theta: 23.0}, {pname: proton, multiplicity: 2, p: 1200, theta: 14.0, delta_theta: 10}]\"\n";
     goptions.defineOption("gparticle", "define the generator particle(s)", gparticle, help);
 
     return goptions;

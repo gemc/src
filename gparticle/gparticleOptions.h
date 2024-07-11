@@ -11,7 +11,7 @@ namespace gparticle {
     GOptions defineOptions();
 
     // method to return a vector of JSystem from a structured option
-    vector <Gparticle> getParticles(GOptions *gopts);
+    vector <Gparticle> getGParticles(GOptions *gopts);
 
 }
 

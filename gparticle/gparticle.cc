@@ -17,100 +17,73 @@ using namespace std;
 
 
 // Constructor based on parameters
-Gparticle::Gparticle(string name,
-                     int multiplicity,
-                     float p,
-                     float delta_p,
-                     float theta,
-                     float phi,
-                     float delta_theta,
-                     float delta_phi,
-                     string thetaModel,
-                     bool momentumGaussianSpread,
-                     G4ThreeVector v,
-                     G4ThreeVector delta_v,
-                     float delta_VR,
-                     bool vertexGaussianSpread,
-                     int verbosity) :
-        name(name),
-        multiplicity(multiplicity),
-        p(p),
-        delta_p(delta_p),
-        theta(theta),
-        phi(phi),
-        delta_theta(delta_theta),
-        delta_phi(delta_phi),
-        thetaModel(thetaModel),
-        momentumGaussianSpread(momentumGaussianSpread),
-        v(v),
-        delta_v(delta_v),
-        delta_VR(delta_VR),
-        vertexGaussianSpread(vertexGaussianSpread),
-        verbosity(verbosity) {
+Gparticle::Gparticle(string aname,
+                     int amultiplicity,
+                     float ap,
+                     float adelta_p,
+                     string punit,
+                     string arandomMomentumModel,
+                     float atheta,
+                     float adelta_theta,
+                     string athetaModel,
+                     float aphi,
+                     float adelta_phi,
+                     string aunit,
+                     float avx,
+                     float avy,
+                     float avz,
+                     float adelta_vx,
+                     float adelta_vy,
+                     float adelta_vz,
+                     string vunit,
+                     string arandomVertexModel,
+                     int averbosity) :
+        name(aname),
+        multiplicity(amultiplicity),
+        p(getG4Number(to_string(ap) + punit)),
+        delta_p(getG4Number(to_string(adelta_p) + punit)),
+        randomMomentumModel(arandomMomentumModel),
+        theta(getG4Number(to_string(atheta) + aunit)),
+        delta_theta(getG4Number(to_string(adelta_theta) + aunit)),
+        thetaModel(athetaModel),
+        phi(getG4Number(to_string(aphi) + aunit)),
+        delta_phi(getG4Number(to_string(adelta_phi) + aunit)),
+        v(G4ThreeVector(
+                getG4Number(to_string(avx) + vunit),
+                getG4Number(to_string(avy) + vunit),
+                getG4Number(to_string(avz) + vunit)
+        )),
+        delta_v(G4ThreeVector(
+                getG4Number(to_string(adelta_vx) + vunit),
+                getG4Number(to_string(adelta_vy) + vunit),
+                getG4Number(to_string(adelta_vz) + vunit)
+        )),
+        randomVertexModel(arandomVertexModel),
+        verbosity(averbosity) {
 
     set_pdg_id();
 
-    if (verbosity >= GVERBOSITY_DETAILS) {
-        cout << "Gparticle: " << endl;
-        cout << "  name: " << name << " (pid: " << pid << ")" << endl;
-        cout << "  multiplicity: " << multiplicity << endl;
-        cout << "  thetaModel: " << thetaModel << endl;
-        cout << "  p: " << p << endl;
-        cout << "  delta_p: " << delta_p << endl;
-        cout << "  theta: " << theta / CLHEP::rad << endl;
-        cout << "  delta_theta: " << delta_theta << endl;
-        cout << "  phi: " << phi << endl;
-        cout << "  delta_phi: " << delta_phi << endl;
-        cout << "  momentumGaussianSpread: " << momentumGaussianSpread << endl;
-        cout << "  vertexGaussianSpread: " << vertexGaussianSpread << endl;
-        cout << "  v: " << v << endl;
-        cout << "  delta_v: " << delta_v << endl;
-        cout << "  delta_VR: " << delta_VR << endl;
-    }
-}
-
-Gparticle::Gparticle(gparticle::JParticle jparticle) {
-
-    name = jparticle.pname;
-    set_pdg_id();
-    multiplicity = jparticle.multiplicity;
-    thetaModel = jparticle.thetaModel;
-
-    p = getG4Number(jparticle.p, jparticle.punit);
-    theta = getG4Number(jparticle.theta, jparticle.aunit);
-    phi = getG4Number(jparticle.phi, jparticle.aunit);
-
-    delta_p = getG4Number(jparticle.delta_p, jparticle.punit);
-    delta_theta = getG4Number(jparticle.delta_theta, jparticle.aunit);
-    delta_phi = getG4Number(jparticle.delta_phi, jparticle.aunit);
+    // print particle with ostream operator
 
 
-    if (jparticle.randomMomentumModel == "gaussian") {
-        momentumGaussianSpread = true;
-    } else {
-        momentumGaussianSpread = false;
-    }
 
-    if (jparticle.randomVertexModel == "gaussian") {
-        vertexGaussianSpread = true;
-    } else {
-        vertexGaussianSpread = false;
-    }
-
-    v = G4ThreeVector(
-            getG4Number(jparticle.vx, jparticle.vunit),
-            getG4Number(jparticle.vy, jparticle.vunit),
-            getG4Number(jparticle.vz, jparticle.vunit)
-    );
-
-    delta_v = G4ThreeVector(
-            getG4Number(jparticle.delta_vx, jparticle.vunit),
-            getG4Number(jparticle.delta_vy, jparticle.vunit),
-            getG4Number(jparticle.delta_vz, jparticle.vunit)
-    );
-
-    delta_VR = getG4Number(jparticle.delta_VR, jparticle.vunit);
-
+//    if (verbosity >= GVERBOSITY_DETAILS) {
+//        cout << "Gparticle: " << endl;
+//        cout << "  name: " << name << " (pid: " << pid << ")" << endl;
+//        cout << "  p: " << p << endl;
+//        cout << "  delta_p: " << delta_p << endl;
+//        cout << "  randomMomentumModel: " << randomMomentumModel << endl;
+//        cout << "  thetaModel: " << thetaModel << endl;
+//
+//        cout << "  theta: " << theta / CLHEP::rad << endl;
+//        cout << "  delta_theta: " << delta_theta << endl;
+//        cout << "  phi: " << phi << endl;
+//        cout << "  delta_phi: " << delta_phi << endl;
+//        cout << "  vertexGaussianSpread: " << vertexGaussianSpread << endl;
+//        cout << "  v: " << v << endl;
+//        cout << "  delta_v: " << delta_v << endl;
+//        cout << "  delta_VR: " << delta_VR << endl;
+//    }
 }
 
 
@@ -249,7 +222,7 @@ float Gparticle::randomize(float center, float delta, bool gaussianSPread) {
 ostream &operator<<(ostream &stream, Gparticle gparticle) {
     stream << "Gparticle: " << endl;
 
-    cout << "  name: " << gparticle.name <<  " (pid: " << gparticle.pid << ")" <<  endl;
+    cout << "  name: " << gparticle.name << " (pid: " << gparticle.pid << ")" << endl;
     cout << "  mass: " << gparticle.get_mass() << endl;
     cout << "  multiplicity: " << gparticle.multiplicity << endl;
     cout << "  thetaModel: " << gparticle.thetaModel << endl;

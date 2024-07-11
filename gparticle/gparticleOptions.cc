@@ -6,19 +6,46 @@
 namespace gparticle {
 
 
-    // method to return a vector of GDetectors from a structured option
-    vector <JParticle> getJParticles(GOptions *gopts) {
+    // method to return a vector of GParticles from the options
+    vector <Gparticle> getGParticles(GOptions *gopts) {
 
-        vector <JParticle> jparticles;
+        vector <Gparticle> gparticles;
+        int verbosity = gopts->getVerbosityFor("gsystem");
 
-        auto jpars = gopts->getStructuredOptionAssignedValues("gparticle");
+        auto gparticle_node = gopts->get_option_node("gparticle");
 
-        // looking over each of the vector<json> items
-        for (const auto &jpar: jpars) {
-            jparticles.push_back(jpar.get<JParticle>());
+        for (auto gparticle_item: gparticle_node) {
+            gparticles.push_back(Gparticle(
+                    gopts->get_variable_in_option<string>(gparticle_item, "name", goptions::NODFLT),
+                    gopts->get_variable_in_option<int>(gparticle_item, "multiplicity", 1),
+
+                    gopts->get_variable_in_option<float>(gparticle_item, "p", goptions::NODFLT),
+                    gopts->get_variable_in_option<float>(gparticle_item, "delta_p", 0),
+                    gopts->get_variable_in_option<string>(gparticle_item, "randomMomentumModel", "uniform"),
+                    gopts->get_variable_in_option<string>(gparticle_item, "punit", "MeV"),
+
+                    gopts->get_variable_in_option<float>(gparticle_item, "theta", 0),
+                    gopts->get_variable_in_option<float>(gparticle_item, "delta_theta", 0),
+                    gopts->get_variable_in_option<string>(gparticle_item, "thetaModel", "ct"),
+                    gopts->get_variable_in_option<float>(gparticle_item, "phi", 0),
+                    gopts->get_variable_in_option<float>(gparticle_item, "delta_phi", 0),
+                    gopts->get_variable_in_option<string>(gparticle_item, "aunit", "deg"),
+
+                    gopts->get_variable_in_option<float>(gparticle_item, "vx", 0),
+                    gopts->get_variable_in_option<float>(gparticle_item, "vy", 0),
+                    gopts->get_variable_in_option<float>(gparticle_item, "vz", 0),
+
+                    gopts->get_variable_in_option<float>(gparticle_item, "delta_vx", 0),
+                    gopts->get_variable_in_option<float>(gparticle_item, "delta_vy", 0),
+                    gopts->get_variable_in_option<float>(gparticle_item, "delta_vz", 0),
+                    gopts->get_variable_in_option<string>(gparticle_item, "vunit", "cm"),
+
+                    gopts->get_variable_in_option<string>(gparticle_item, "randomVertexModel", "uniform"),
+                    verbosity
+            ));
         }
 
-        return jparticles;
+        return gparticles;
     }
 
 
@@ -32,208 +59,32 @@ namespace gparticle {
         help += "The particle is generated with a fixed or randomized momentum, angles, and vertex.  \n \n";
         help += "Examples: \n";
         help += "• 5 GeV electron along z: \n";
-
+        help += "-gparticle=\"[{pname: e-, p: 5000}]\" \n \n";
+        help = "•  three particles, one electron and two protons, identical except spread in theta: \n \n";
+        help += "-gparticle=\"[{pname: e-, p: 2300, theta: 23.0}, {pname: proton, multiplicity: 2, p: 1200, theta: 14.0, delta_theta: 10}]\"\n";
 
         vector <GVariable> gparticle = {
                 {"name",                goptions::NODFLT, "Particle name (mandatory),  for example \"proton\""},
                 {"multiplicity",        1,                "How many copies of this particle will be generated in each event"},
-                {"p",                   0,                "Particle momentum"},
-                {"theta",               0,                "Particle polar angle. Default: 0"},
-                {"phi",                 0,                "Particle azimuthal angle. Default: 0"},
+                {"p",                   goptions::NODFLT, "Particle momentum"},
                 {"delta_p",             0,                "Particle momentum range, centered on p. Default: 0"},
+                {"punit",               "MeV",            "Geant4 Unit for the particle momentum. Default: \"MeV\" "},
+                {"randomMomentumModel", "uniform",        "Momentum randomization. Default: 'uniform'. Alternative: 'gaussian' (use deltas as sigmas)"},
+                {"theta",               0,                "Particle polar angle. Default: 0"},
                 {"delta_theta",         0,                "Particle polar angle range, centered on theta. Default: 0"},
-                {"delta_phi",           0,                "Particle azimuthal angle range, centered on phi. Default: 0"},
-                {"randomMomentumModel", "uniform",        "Momentum randomization. Default: uniform distribution. 'gaussian': use deltas as sigmas"},
                 {"thetaModel",          "ct",             "Distribute cos(theta) or theta. 'ct' (default): cosTheta is uniform. 'flat': theta is uniform"},
-                {"punit",               "MeV",            "Unit for the particle momentum. Default: \"MeV\" "},
-                {"aunit",               "deg",            "Unit for the particle angles. Default: \"deg\" "},
+                {"phi",                 0,                "Particle azimuthal angle. Default: 0"},
+                {"delta_phi",           0,                "Particle azimuthal angle range, centered on phi. Default: 0"},
+                {"aunit",               "deg",            "Geant4 unit for the particle angles. Default: \"deg\" "},
                 {"vx",                  0,                "Particle vertex x component. Default: 0"},
                 {"vy",                  0,                "Particle vertex y component. Default: 0"},
                 {"vz",                  0,                "Particle vertex z component. Default: 0"},
                 {"delta_vx",            0,                "Particle vertex range of the x component. Default: 0"},
                 {"delta_vy",            0,                "Particle vertex range of the y component. Default: 0"},
                 {"delta_vz",            0,                "Particle vertex range of the z component. Default: 0"},
-                {"delta_VR",            0,                "Particle vertex is generated within a sphere of radius delta_R. Default: 0"},
-                {"randomVertexModel",   "uniform",        "Vertex randomization. Default: uniform distribution. 'gaussian': use deltas as sigmas"},
-                {"vunit",               "cm",             "Unit for the particle vertex. Default: \"cm\" "}
-
+                {"vunit",               "cm",             "Unit for the particle vertex. Default: \"cm\" "},
+                {"randomVertexModel",   "uniform",        "Vertex randomization. Default: 'uniform'. Alternative: 'gaussian' (use deltas as sigmas), 'sphere'"}
         };
-
-
-        json jmulti = {
-                {GNAME, "multiplicity"},
-                {GDESC, "How many copies of this particle will be generated in each event"},
-                {GDFLT, 1}
-        };
-
-        json jp = {
-                {GNAME, "p"},
-                {GDESC, "Particle momentum"},
-                {GDFLT, 0}
-        };
-
-        json jtheta = {
-                {GNAME, "theta"},
-                {GDESC, "Particle polar angle. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jphi = {
-                {GNAME, "phi"},
-                {GDESC, "Particle azimuthal angle. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jdelta_p = {
-                {GNAME, "delta_p"},
-                {GDESC, "Particle momentum range, centered on p. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jdelta_theta = {
-                {GNAME, "delta_theta"},
-                {GDESC, "Particle polar angle range, centered on theta. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jdelta_phi = {
-                {GNAME, "delta_phi"},
-                {GDESC, "Particle azimuthal angle range, centered on phi. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jthetaModel = {
-                {GNAME, "thetaModel"},
-                {GDESC, "Distribute cos(theta) or theta. 'ct' (default): cosTheta is uniform. 'flat': theta is uniform"},
-                {GDFLT, "ct"}
-        };
-
-        json jrandomMomentumModel = {
-                {GNAME, "randomMomentumModel"},
-                {GDESC, "Momentum randomization. Default: uniform distribution. 'gaussian': use deltas as sigmas"},
-                {GDFLT, "uniform"}
-        };
-
-        json jpunit = {
-                {GNAME, "punit"},
-                {GDESC, "Unit for the particle momentum. Default: \"MeV\" "},
-                {GDFLT, "MeV"}
-        };
-
-        json jaunit = {
-                {GNAME, "aunit"},
-                {GDESC, "Unit for the particle angles. Default: \"deg\" "},
-                {GDFLT, "deg"}
-        };
-
-        json jvx = {
-                {GNAME, "vx"},
-                {GDESC, "Particle vertex x component. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jvy = {
-                {GNAME, "vy"},
-                {GDESC, "Particle vertex y component. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jvz = {
-                {GNAME, "vz"},
-                {GDESC, "Particle vertex z component. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jdelta_vx = {
-                {GNAME, "delta_vx"},
-                {GDESC, "Particle vertex range of the x component. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jdelta_vy = {
-                {GNAME, "delta_vy"},
-                {GDESC, "Particle vertex range of the y component. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jdelta_vz = {
-                {GNAME, "delta_vz"},
-                {GDESC, "Particle vertex range of the z component. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jdelta_VR = {
-                {GNAME, "delta_VR"},
-                {GDESC, "Particle vertex is generated within a sphere of radius delta_R. Default: 0"},
-                {GDFLT, 0}
-        };
-
-        json jrandomVertexModel = {
-                {GNAME, "randomVertexModel"},
-                {GDESC, "Vertex randomization. Default: uniform distribution. 'gaussian': use deltas as sigmas"},
-                {GDFLT, "uniform"}
-        };
-
-        json jvunit = {
-                {GNAME, "vunit"},
-                {GDESC, "Unit for the particle vertex. Default: \"mm\" "},
-                {GDFLT, "cm"}
-        };
-
-        json jparticleOption = {
-                jpname,
-                jmulti,
-                jp,
-                jtheta,
-                jphi,
-                jdelta_p,
-                jdelta_theta,
-                jdelta_phi,
-                jrandomMomentumModel,
-                jthetaModel,
-                jpunit,
-                jaunit,
-                jvx,
-                jvy,
-                jvz,
-                jdelta_vx,
-                jdelta_vy,
-                jdelta_vz,
-                jdelta_VR,
-                jrandomVertexModel,
-                jvunit
-        };
-
-        vector <string> help;
-        help.push_back("");
-        help.push_back("Examples");
-        help.push_back("");
-        help.push_back("• 5 GeV electron along z:");
-        help.push_back("  +gparticle={\"pname\": \"e-\"; \"p\": 5000;}");
-        help.push_back("");
-        help.push_back("• a 500 MeV neutron at theta=20 deg and uniform distribution in phi:");
-        help.push_back("  +gparticle={\"pname\": \"neutron\"; \"p\": 500; \"theta\": 20; \"delta_phi\": 180}");
-        help.push_back("");
-        help.push_back("• 150 2.1 GeV electrons at theta=3deg, uniform in phi, at z=-2mm");
-        help.push_back(
-                "  +gparticle={ \"pname\": \"e-\", \"multiplicity\": 150, \"p\": 2100, \"theta\": 3.0, \"delta_phi\": 180.0, \"vz\": -2.0}");
-        help.push_back("");
-        help.push_back("• 250 3 GeV pions+ at theta between 5 and 15 deg (uniform in cos(theta)), phi = 180");
-        help.push_back(
-                "  +gparticle={ \"pname\": \"pi+\", \"multiplicity\": 250, \"p\": 3000, \"theta\": 10.0, \"delta_theta\": 5.0, \"phi\": 180}");
-        help.push_back("");
-        help.push_back("• 250 3 GeV pions+ at theta between 5 and 15 deg (uniform in theta), phi = 180");
-        help.push_back(
-                "  +gparticle={ \"pname\": \"pi+\", \"multiplicity\": 250, \"p\": 3000, \"theta\": 10.0, \"delta_theta\": 5.0, \"phi\": 180, \"thetaModel\": \"flat\"}");
-        help.push_back("");
-        help.push_back("• 400 MeV protons at theta=90deg, uniform in phi, v on a sphere of radius 0.5mm at vz=-4mm");
-        help.push_back(
-                "  +gparticle={ \"pname\": \"proton\", \"multiplicity\": 400, \"p\": 150, \"theta\": 90.0, \"delta_phi\": 180.0, \"delta_VR\": 0.5, \"vz\": -4.0}");
-
-
-        // the last argument refers to "cumulative"
-        goptions.push_back(GOption("gparticle", "adds a particle to the event generator", jparticleOption, help, true));
-
 
         return goptions;
     }

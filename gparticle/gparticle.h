@@ -18,16 +18,22 @@ public:
               int multiplicity,
               float p,
               float delta_p,
+              string punit,
+              string randomMomentumModel,
               float theta,
-              float phi,
               float delta_theta,
-              float delta_phi,
               string thetaModel,
-              bool momentumGaussianSpread,
-              G4ThreeVector v,
-              G4ThreeVector delta_v,
-              float delta_VR,
-              bool vertexGaussianSpread,
+              float phi,
+              float delta_phi,
+              string aunit,
+              float avx,
+              float avy,
+              float avz,
+              float adelta_vx,
+              float adelta_vy,
+              float adelta_vz,
+              string vunit,
+              string randomVertexModel,
               int verbosity);
 
 private:
@@ -38,24 +44,27 @@ private:
     int pid;
     int multiplicity;
 
-    // assigned momentum and distributions
+    // assigned momentum and distributions. See particle options for description
     float p;
     float delta_p;
+    string randomMomentumModel;
+
     float theta;
+    float delta_theta;
+    string thetaModel;
 
     float phi;
-    float delta_theta;
     float delta_phi;
-    string thetaModel;  // 'ct' (default): cosTheta is uniform. 'flat': theta is uniform
-    bool momentumGaussianSpread;  // true: gaussian around values, using the deltas as sigmas. false: uniform distribution in speficied range
 
-    // assigned vertex and distributions
     G4ThreeVector v;
     G4ThreeVector delta_v;
-    float delta_VR;
-    bool vertexGaussianSpread;     // true: gaussian around values. false: uniform distribution in specified range
+    bool randomVertexModel;
 
     int verbosity;
+
+    // utility methods
+    void set_pdg_id();
+    double get_mass();
 
     friend ostream &operator<<(ostream &stream, Gparticle); // Logs infos on screen.
 
@@ -64,7 +73,6 @@ public:
     void shootParticle(G4ParticleGun *particleGun, G4Event *anEvent, int verbosity = 0);
 
 
-    // methods that uniformly distribute the particles
 private:
 
     float randomize(float center, float delta, bool gaussianSPread);
@@ -77,9 +85,7 @@ private:
 
     G4ThreeVector calculateVertex();
 
-    void set_pdg_id();
 
-    double get_mass();
 
 };
 
