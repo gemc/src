@@ -1,9 +1,6 @@
 #ifndef  GPARTICLE_H
 #define  GPARTICLE_H  1
 
-// gparticle
-#include "gparticleOptions.h"
-
 // geant4
 #include "G4ThreeVector.hh"
 #include "G4ParticleGun.hh"
@@ -13,14 +10,30 @@ using std::ostream;
 
 // This class interfaces to the Geant4 General Particle Source
 class Gparticle {
+
 public:
 
-    Gparticle(gparticle::JParticle jparticle);
+    // Constructor based on parameters
+    Gparticle(string name,
+              int multiplicity,
+              float p,
+              float delta_p,
+              float theta,
+              float phi,
+              float delta_theta,
+              float delta_phi,
+              string thetaModel,
+              bool momentumGaussianSpread,
+              G4ThreeVector v,
+              G4ThreeVector delta_v,
+              float delta_VR,
+              bool vertexGaussianSpread,
+              int verbosity);
 
 private:
 
     // PDG Monte Carlo Particle Numbering Scheme:
-    // https://pdg.lbl.gov/2019/reviews/rpp2019-rev-monte-carlo-numbering.pdf
+    // https://pdg.lbl.gov/ > Reviews Tables and Plots > Mathematical Tools > Numbering Scheme
     string name;
     int pid;
     int multiplicity;
@@ -43,6 +56,7 @@ private:
     bool vertexGaussianSpread;     // true: gaussian around values. false: uniform distribution in specified range
 
     int verbosity;
+
     friend ostream &operator<<(ostream &stream, Gparticle); // Logs infos on screen.
 
 public:
@@ -64,6 +78,7 @@ private:
     G4ThreeVector calculateVertex();
 
     void set_pdg_id();
+
     double get_mass();
 
 };

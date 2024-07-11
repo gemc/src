@@ -9,6 +9,6 @@ LD += {
         'textProgressBarConventions.h'
     ),
     'examples' : {
-        'simple_bar' : [files('examples/bar.cc'), '']
+        'test_textProgressBar' : [files('examples/bar.cc'), '']
     }
 }

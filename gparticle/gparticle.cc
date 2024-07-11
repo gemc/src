@@ -15,6 +15,60 @@ using namespace gutilities;
 // c++
 using namespace std;
 
+
+// Constructor based on parameters
+Gparticle::Gparticle(string name,
+                     int multiplicity,
+                     float p,
+                     float delta_p,
+                     float theta,
+                     float phi,
+                     float delta_theta,
+                     float delta_phi,
+                     string thetaModel,
+                     bool momentumGaussianSpread,
+                     G4ThreeVector v,
+                     G4ThreeVector delta_v,
+                     float delta_VR,
+                     bool vertexGaussianSpread,
+                     int verbosity) :
+        name(name),
+        multiplicity(multiplicity),
+        p(p),
+        delta_p(delta_p),
+        theta(theta),
+        phi(phi),
+        delta_theta(delta_theta),
+        delta_phi(delta_phi),
+        thetaModel(thetaModel),
+        momentumGaussianSpread(momentumGaussianSpread),
+        v(v),
+        delta_v(delta_v),
+        delta_VR(delta_VR),
+        vertexGaussianSpread(vertexGaussianSpread),
+        verbosity(verbosity) {
+
+    set_pdg_id();
+
+    if (verbosity >= GVERBOSITY_DETAILS) {
+        cout << "Gparticle: " << endl;
+        cout << "  name: " << name << " (pid: " << pid << ")" << endl;
+        cout << "  multiplicity: " << multiplicity << endl;
+        cout << "  thetaModel: " << thetaModel << endl;
+        cout << "  p: " << p << endl;
+        cout << "  delta_p: " << delta_p << endl;
+        cout << "  theta: " << theta / CLHEP::rad << endl;
+        cout << "  delta_theta: " << delta_theta << endl;
+        cout << "  phi: " << phi << endl;
+        cout << "  delta_phi: " << delta_phi << endl;
+        cout << "  momentumGaussianSpread: " << momentumGaussianSpread << endl;
+        cout << "  vertexGaussianSpread: " << vertexGaussianSpread << endl;
+        cout << "  v: " << v << endl;
+        cout << "  delta_v: " << delta_v << endl;
+        cout << "  delta_VR: " << delta_VR << endl;
+    }
+}
+
 Gparticle::Gparticle(gparticle::JParticle jparticle) {
 
     name = jparticle.pname;

@@ -10,8 +10,8 @@ LD += {
                           'gparticleOptions.h',
                           'gparticleConventions.h'
                       ),
-    'dependencies' : [clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'gparticle_example' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/pointParticle.jcard']],
+        'test_gparticle_single' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/pointParticle.jcard']],
     }
 }

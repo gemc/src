@@ -10,6 +10,6 @@ LD += {
         'teslaFactory' : [files('examples/TeslaFactory.cc'), false],
     },
     'examples' : {
-        'gfactory_static_and_dynamic_example' : [files('examples/static_and_dynamic_example.cc', 'examples/ShapeFactory.cc'), '']
+        'test_gfactory_static_and_dynamic_load' : [files('examples/static_and_dynamic_example.cc', 'examples/ShapeFactory.cc'), '']
     }
 }

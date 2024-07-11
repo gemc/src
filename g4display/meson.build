@@ -24,6 +24,6 @@ LD += {
     'dependencies' : [yaml_cpp_dep, qt5_deps, clhep_deps, geant4_deps],
     'additional_includes' : ['g4display/tabs'],
     'examples' : {
-        'basic_display' : [files('examples/example.cc'),  meson.current_source_dir() + '/examples/example.yaml'],
+        'test_basic_display' : [files('examples/example.cc'),  meson.current_source_dir() + '/examples/example.yaml'],
     }
 }

@@ -45,19 +45,17 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
 
 
     vector <GVariable> verbosity = {
-            {"fields",          0, "verbosity for fields"},
-            {"particles",       0, "verbosity for particles"},
-            {"hits",            0, "verbosity for hits"},
-            {"detectors",       0, "verbosity for detectors"},
-            {"materials",       0, "verbosity for materials"},
-            {"regions",         0, "verbosity for regions"},
-            {"volumes",         0, "verbosity for volumes"},
-            {"surfaces",        0, "verbosity for surfaces"},
-            {"optical",         0, "verbosity for optical properties"},
-            {"event_dispenser", 0, "verbosity for the event dispenser"},
-            {"g4display",       0, "verbosity for the g4display"},
-            {"gsystem",         0, "verbosity for the gsystem"},
-            {"g4system",        0, "verbosity for the g4system"},
+            {"fields",          0, "fields verbosity"},
+            {"ghits",           0, "ghits verbosity"},
+            {"detectors",       0, "detectors verbosity"},
+            {"materials",       0, "materials verbosity"},
+            {"regions",         0, "regions verbosity"},
+            {"event_dispenser", 0, "event dispenser verbositythe  "},
+            {"g4display",       0, "g4display verbositythe "},
+            {"gsystem",         0, "gsystem verbositythe "},
+            {"g4system",        0, "g4system verbositythe "},
+            {"gparticle",       0, "gparticle verbosity"},
+
     };
 
     string help = "Effects: \n \n";

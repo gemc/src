@@ -22,8 +22,6 @@ GSystem::GSystem(string n, string f, string v, int verbosity, int r, string note
     path = gutilities::getDirFromPath(n);
     name = gutilities::getFileFromPath(n);
 
-
-
     gvolumesMap = new map<string, GVolume *>;
     gmaterialsMap = new map<string, GMaterial *>;
 

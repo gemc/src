@@ -16,8 +16,8 @@ LD += {
     'dependencies' : [yaml_cpp_dep],
 
     'examples' : {
-        'define_options' : [files('examples/define_options.cc'), ''],
-        'define_options_help' : [files('examples/define_options.cc'), '-h'],
-        'parse_file' : [files('examples/define_options.cc'), meson.current_source_dir() + '/examples/simple.yaml'],
+        'test_goptions_definitions' : [files('examples/define_options.cc'), ''],
+        'test_goptions_help' : [files('examples/define_options.cc'), '-h'],
+        'test_goptions_parse_file' : [files('examples/define_options.cc'), meson.current_source_dir() + '/examples/simple.yaml'],
     }
 }

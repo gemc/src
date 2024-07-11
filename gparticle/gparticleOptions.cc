@@ -6,32 +6,6 @@
 namespace gparticle {
 
 
-    // JParticle
-    // ------
-    void from_json(const json &j, JParticle &jpar) {
-        j.at("pname").get_to(jpar.pname);
-        j.at("multiplicity").get_to(jpar.multiplicity);
-        j.at("p").get_to(jpar.p);
-        j.at("theta").get_to(jpar.theta);
-        j.at("phi").get_to(jpar.phi);
-        j.at("delta_p").get_to(jpar.delta_p);
-        j.at("delta_theta").get_to(jpar.delta_theta);
-        j.at("delta_phi").get_to(jpar.delta_phi);
-        j.at("thetaModel").get_to(jpar.thetaModel);
-        j.at("randomMomentumModel").get_to(jpar.randomMomentumModel);
-        j.at("punit").get_to(jpar.punit);
-        j.at("aunit").get_to(jpar.aunit);
-        j.at("vx").get_to(jpar.vx);
-        j.at("vy").get_to(jpar.vy);
-        j.at("vz").get_to(jpar.vz);
-        j.at("delta_vx").get_to(jpar.delta_vx);
-        j.at("delta_vy").get_to(jpar.delta_vy);
-        j.at("delta_vz").get_to(jpar.delta_vz);
-        j.at("delta_VR").get_to(jpar.delta_VR);
-        j.at("randomVertexModel").get_to(jpar.randomVertexModel);
-        j.at("vunit").get_to(jpar.vunit);
-    }
-
     // method to return a vector of GDetectors from a structured option
     vector <JParticle> getJParticles(GOptions *gopts) {
 
@@ -49,27 +23,42 @@ namespace gparticle {
 
 
     // returns array of options definitions
-    vector <GOption> defineOptions() {
+    GOption defineOptions() {
 
-        vector <GOption> goptions;
+        GOption goptions;
 
-        json jsonParticleVerbosity = {
-                {GNAME, GPARTICLEVERBOSITY},
-                {GDESC, "Verbosity for gparticle. " + string(GVERBOSITY_DESCRIPTION)},
-                {GDFLT, 1}
+        string help;
+        help = "Adds a particle to the event generator \n ";
+        help += "The particle is generated with a fixed or randomized momentum, angles, and vertex.  \n \n";
+        help += "Examples: \n";
+        help += "• 5 GeV electron along z: \n";
+
+
+        vector <GVariable> gparticle = {
+                {"name",                goptions::NODFLT, "Particle name (mandatory),  for example \"proton\""},
+                {"multiplicity",        1,                "How many copies of this particle will be generated in each event"},
+                {"p",                   0,                "Particle momentum"},
+                {"theta",               0,                "Particle polar angle. Default: 0"},
+                {"phi",                 0,                "Particle azimuthal angle. Default: 0"},
+                {"delta_p",             0,                "Particle momentum range, centered on p. Default: 0"},
+                {"delta_theta",         0,                "Particle polar angle range, centered on theta. Default: 0"},
+                {"delta_phi",           0,                "Particle azimuthal angle range, centered on phi. Default: 0"},
+                {"randomMomentumModel", "uniform",        "Momentum randomization. Default: uniform distribution. 'gaussian': use deltas as sigmas"},
+                {"thetaModel",          "ct",             "Distribute cos(theta) or theta. 'ct' (default): cosTheta is uniform. 'flat': theta is uniform"},
+                {"punit",               "MeV",            "Unit for the particle momentum. Default: \"MeV\" "},
+                {"aunit",               "deg",            "Unit for the particle angles. Default: \"deg\" "},
+                {"vx",                  0,                "Particle vertex x component. Default: 0"},
+                {"vy",                  0,                "Particle vertex y component. Default: 0"},
+                {"vz",                  0,                "Particle vertex z component. Default: 0"},
+                {"delta_vx",            0,                "Particle vertex range of the x component. Default: 0"},
+                {"delta_vy",            0,                "Particle vertex range of the y component. Default: 0"},
+                {"delta_vz",            0,                "Particle vertex range of the z component. Default: 0"},
+                {"delta_VR",            0,                "Particle vertex is generated within a sphere of radius delta_R. Default: 0"},
+                {"randomVertexModel",   "uniform",        "Vertex randomization. Default: uniform distribution. 'gaussian': use deltas as sigmas"},
+                {"vunit",               "cm",             "Unit for the particle vertex. Default: \"cm\" "}
+
         };
-        goptions.push_back(GOption(jsonParticleVerbosity));
 
-
-        // gparticle
-        // ---------
-
-        // gparticle is cumulative structured (groupable): can use -add
-        json jpname = {
-                {GNAME, "pname"},
-                {GDESC, "Particle name, for example \"proton\""},
-                {GDFLT, NODFLT}
-        };
 
         json jmulti = {
                 {GNAME, "multiplicity"},

@@ -41,6 +41,6 @@ LD += {
                              'gsystem/gsystemFactories/sqlite',
                              'gsystem/gsystemFactories/text'],
     'examples' : {
-        'basic_gsystem' : [files('examples/example.cc'), meson.current_source_dir() + '/examples/example.yaml']
+        'test_basic_gsystem' : [files('examples/example.cc'), meson.current_source_dir() + '/examples/example.yaml']
     }
 }

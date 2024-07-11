@@ -29,6 +29,6 @@ LD += {
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps, assimp_dep],
     'additional_includes' : ['g4system/g4objectsFactories', 'g4system/g4objectsFactories/g4native', 'g4system/g4objectsFactories/cad'],
     'examples' : {
-        'basic_g4system' : [files('examples/basic_example.cc'), ['']],
+        'test_basic_g4system' : [files('examples/basic_example.cc'), ['']],
     }
 }
