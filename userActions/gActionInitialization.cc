@@ -28,18 +28,16 @@ GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynam
     gstreamerFactoryMap = new map<string, GStreamer *>;
 
     // projecting options onto vector of JOutput
-    vector<JOutput> joutputs = getJOutputs(gopts);
+    vector<GOutputDefinition> goutput_defs = getJOutputs(gopts);
 
     // if any output is specified, loading its factory
-    if (joutputs.size() > 0) {
+    if (goutput_defs.size() > 0) {
 
         GManager gStreamerManager("GOutput", verbosity);
 
         // the available plugins names are formatted as "xxxGMedia".
-        for (auto &joutput: joutputs) {
+        for (auto &goutput_def: goutput_defs) {
             string factory = joutput.format;
-            string outputFileName = joutput.name;
-            string streamType = joutput.type;
 
             if (factory != UNINITIALIZEDSTRINGQUANTITY && outputFileName != UNINITIALIZEDSTRINGQUANTITY) {
                 string pluginName = pluginPath + gstreamerPluginNameFromFactory(factory);
@@ -47,8 +45,7 @@ GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynam
 
                 if (gstreamerFactoryMap->find(factoryMapKey) == gstreamerFactoryMap->end()) {
                     (*gstreamerFactoryMap)[factoryMapKey] = gStreamerManager.LoadAndRegisterObjectFromLibrary<GStreamer>(pluginName);
-                    (*gstreamerFactoryMap)[factoryMapKey]->setOutputName(outputFileName);
-                    (*gstreamerFactoryMap)[factoryMapKey]->setStreamType(streamType);
+                    (*gstreamerFactoryMap)[factoryMapKey]->define_ouput(goutput_def);
                     (*gstreamerFactoryMap)[factoryMapKey]->openConnection();
                 }
             }

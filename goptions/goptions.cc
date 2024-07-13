@@ -54,7 +54,8 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
             {"g4system",         0, "g4system verbositythe "},
             {"gparticle",        0, "gparticle verbosity"},
             {"gphysics",         0, "gphysics verbosity"},
-            {"gstreamer",        0, "gstreamer verbosity"},
+            {"gstreamer_ev",     0, "gstreamer event verbosity"},
+            {"gstreamer_fr",     0, "gstreamer frame verbosity"},
 
     };
 

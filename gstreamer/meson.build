@@ -52,7 +52,7 @@ else
         'gstreamerTEXTFactory' : text_plugin_files,
         'gstreamerJLABSROFactory' : jlab_sro_plugin_files
     }
-    streamer_dependencies = [clhep_deps, geant4_deps]
+    streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_deps]
 endif
 
 LD += {

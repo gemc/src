@@ -6,23 +6,11 @@
 
 namespace gstreamer {
 
-    struct JOutput {
-        string format;
-        string name;
-        string type;
-    };
-
-    void from_json(const json &j, JOutput &det);
-
-    // method to return a vector of JOutput from a structured option
-    vector<JOutput> getJOutputs(GOptions *gopts);
-
-    // returns dynamic library name from the factory
-    string gstreamerPluginNameFromFactory(string factory);
+    // method to return a vector of GOutputDefinition from the options
+    vector<GOutputDefinition> getGOutputDefinition(GOptions *gopts);
 
     // returns array of options definitions
     GOptions defineOptions();
-
 }
 
 

@@ -10,6 +10,16 @@
 // c++
 #include <string>
 
+struct GOutputDefinition {
+    string format;
+    string name;
+    string type;
+
+    string gstreamerPluginName() {
+        return "gstreamer" + format + "Factory";
+    }
+};
+
 class GStreamer {
 
 public:
@@ -28,11 +38,18 @@ public:
     // the key is the routine name + frame streamer id
     map<string, bool> publishFrameRunData(const GOptions *gopts, const GFrameDataCollection *frameRunData);
 
-    void setOutputName(const string output) { outputFileName = output; }
-
-    void setStreamType(const string stype) { streamType = stype; }
+    void define_ouput(const GOutputDefinition goutputdef) {
+        outputFileName = goutputdef.name;
+        streamType = goutputdef.type;
+    }
 
     inline string const getStreamType() const { return streamType; }
+
+    static const vector<string> supported_formats = {"jlabsro", "root", "text"};
+    static inline bool is_valid_format(string format) {
+        format_lowercased = format.lower();
+        return std::find(supported_formats.begin(), supported_formats.end(), format_lowercased) != supported_formats.end();
+    }
 
 protected:
 
@@ -47,9 +64,11 @@ protected:
     virtual bool publishEventHeader([[maybe_unused]] const GEventDataCollectionHeader *gheader) { return false; }
 
     // vector index is hit number
-    virtual bool publishEventTrueInfoData ([[maybe_unused]] const string detectorName, [[maybe_unused]] const vector<GTrueInfoData *> *trueInfoData) { return false; }
+    virtual bool
+    publishEventTrueInfoData([[maybe_unused]] const string detectorName, [[maybe_unused]] const vector<GTrueInfoData *> *trueInfoData) { return false; }
 
-    virtual bool publishEventDigitizedData([[maybe_unused]] const string detectorName, [[maybe_unused]] const vector<GDigitizedData *> *digitizedData) { return false; }
+    virtual bool
+    publishEventDigitizedData([[maybe_unused]] const string detectorName, [[maybe_unused]] const vector<GDigitizedData *> *digitizedData) { return false; }
 
     virtual bool endEvent([[maybe_unused]] const GEventDataCollection *eventData) { return false; }
 
