@@ -38,13 +38,13 @@ namespace eventDispenser {
         goptions.defineOption(GVariable("wdbfile", goptions::NODFLT, "File with run number and weights"), help);
 
         help = "Max number of events  to buffer before they're written out.\n \n";
-        help += "Example: -n_evemt_buffer=12\n";
-        goptions.defineOption(GVariable("n_evemt_buffer", 100, "Buffer events and write them out in one file"), help);
+        help += "Example: -n_event_buffer=12\n";
+        goptions.defineOption(GVariable("n_event_buffer", 100, "Buffer events and write them out in one file"), help);
         // TODO: change to 0, and write out events in each thread as default
         // TODO: maybe this will replace the "stream" switch?
         // help = "By default gemc writes one output file / thread. If the 'stream' swith is enabled, .\n \n";
-        // help += "Example: -n_evemt_buffer=12\n";
-        // goptions.defineOption(GVariable("n_evemt_buffer", 0, "Buffer events and write them out in one file"), help);
+        // help += "Example: -n_event_buffer=12\n";
+        // goptions.defineOption(GVariable("n_event_buffer", 0, "Buffer events and write them out in one file"), help);
 
 
         return goptions;

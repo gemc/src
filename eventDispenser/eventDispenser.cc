@@ -16,15 +16,13 @@ using namespace std;
 
 EventDispenser::EventDispenser(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal) : gDigitizationGlobal(gDDGlobal) {
 
-    verbosity = gopt->getVerbosityFor("n_evemt_buffer");
+    verbosity = gopt->getVerbosityFor("gevent_dispenser");
 	string filename  = gopt->getScalarString("runWeightsFile");
 	//variation        = gopt->getString("dVariation");
 	userRunno        = gopt->getScalarInt("runno");
-	nEventBuffer     = gopt->getScalarInt("maxebuffer");
+	nEventBuffer     = gopt->getScalarInt("n_event_buffer");
 	neventsToProcess = gopt->getScalarInt("n");
 	//elog             = gopt->getInt("elog");
-
-
 
 	// nothing to do here
 	if(neventsToProcess == 0) return;

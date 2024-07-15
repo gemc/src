@@ -1,3 +1,3 @@
 verbosity:
-  - fields: 3
-  - event_dispener: 4
+  - gfields: 3
+  - gevent_dispenser: 4

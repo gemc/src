@@ -341,6 +341,13 @@ namespace gutilities {
         return fileList;
     }
 
+    string convertToLowercase(const string& str) {
+        string lower = str;
+        transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+        return lower;
+    }
+
+
 
     // returns all keys from a map<key, value>
     // I think this is in STL now?

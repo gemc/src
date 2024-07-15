@@ -20,7 +20,6 @@ namespace gstreamer {
             }
 
             return goutputs;
-
     }
 
 
@@ -28,29 +27,6 @@ namespace gstreamer {
     GOptions defineOptions() {
 
         GOptions goptions;
-
-
-        json jsonOutputFormat = {
-                {GNAME, "format"},
-                {GDESC, "Output file format"},
-                {GDFLT, UNINITIALIZEDSTRINGQUANTITY}
-        };
-        json jsonOutputName = {
-                {GNAME, "name"},
-                {GDESC, "Output file name"},
-                {GDFLT, UNINITIALIZEDSTRINGQUANTITY}
-        };
-        json jsonOutputType = {
-                {GNAME, "type"},
-                {GDESC, "Output type"},
-                {GDFLT, UNINITIALIZEDSTRINGQUANTITY}
-        };
-
-        json jsonOutput = {
-                jsonOutputFormat,
-                jsonOutputName,
-                jsonOutputType
-        };
 
         string help = "Define a Output format and name\n";
         help += "\n";
@@ -71,6 +47,8 @@ namespace gstreamer {
                 {"type",       goptions::NODFLT, "type of output file"},
 
         };
+
+        goptions.defineOption("gstreamer", "define a gstreamer output", gstreamer, help);
 
 
         return goptions;

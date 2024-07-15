@@ -66,7 +66,11 @@ namespace gutilities {
 	// returns UNINITIALIZEDSTRINGQUANTITY if not found
 	string searchForDirInLocations(string dirName, vector<string> possibleLocations);
 
-	vector<string> getListOfFilesInDirectory(string dirName, vector<string> extensions) ;
+
+    string convertToLowercase(const string& str);
+
+
+    vector<string> getListOfFilesInDirectory(string dirName, vector<string> extensions) ;
 
 	template<class KEY, class VALUE> vector<KEY> getKeys(const map<KEY, VALUE>& map);
 

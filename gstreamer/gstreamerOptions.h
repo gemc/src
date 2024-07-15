@@ -1,6 +1,9 @@
 #ifndef  GSTREAMEROPTIONS_H
 #define  GSTREAMEROPTIONS_H 1
 
+// gstreamer
+#include "gstreamer.h"
+
 // glibrary
 #include "goptions.h"
 

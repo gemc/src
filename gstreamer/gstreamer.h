@@ -11,6 +11,10 @@
 #include <string>
 
 struct GOutputDefinition {
+
+    // default constructor
+    GOutputDefinition(string f, string n, string t) : format(f), name(n), type(t) {}
+
     string format;
     string name;
     string type;
@@ -45,11 +49,8 @@ public:
 
     inline string const getStreamType() const { return streamType; }
 
-    static const vector<string> supported_formats = {"jlabsro", "root", "text"};
-    static inline bool is_valid_format(string format) {
-        format_lowercased = format.lower();
-        return std::find(supported_formats.begin(), supported_formats.end(), format_lowercased) != supported_formats.end();
-    }
+    static vector<string> supported_formats ;
+    static bool is_valid_format(string format);
 
 protected:
 
