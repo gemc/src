@@ -46,7 +46,9 @@ GOptions defineOptions() {
 // Define options
 int main(int argc, char *argv[]) {
 
-    new GOptions(argc, argv, defineOptions());
+    GOptions *gopts = new GOptions(argc, argv, defineOptions());
+
+    cout << " > Nthreads: " << gopts->getScalarInt("nthreads") << endl;
 
     return EXIT_SUCCESS;
 }

@@ -31,11 +31,12 @@ QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui)
 // return number of cores from options. If 0 or none given,
 // returns max number of available cores
 int getNumberOfThreads(GOptions* gopts) {
-	int useThreads = gopts->getInt("nthreads");
-	int allThreads = G4Threading::G4GetNumberOfCores();
+	int useThreads =  gopts->getScalarInt("nthreads");
+
+    int allThreads = G4Threading::G4GetNumberOfCores();
 	if(useThreads == 0) useThreads = allThreads;
 
-	int verbosity = gopts->getInt("verbosity");
+	int verbosity = gopts->getVerbosityFor("gverbosity");
 
 	// global log screen
 	if (verbosity >= GVERBOSITY_SUMMARY) {
@@ -49,7 +50,7 @@ int getNumberOfThreads(GOptions* gopts) {
 // initialize G4MTRunManager
 void initGemcG4RunManager(G4RunManager *grm, GOptions* gopts)
 {
-	int tlog = gopts->getInt("tlog");
+	int tlog = gopts->getScalarInt("thread_log");
     bool showG4ThreadsLog = gopts->getSwitch("showG4ThreadsLog");
 
 	G4UImanager *g4uim   = G4UImanager::GetUIpointer();
@@ -132,8 +133,8 @@ void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity
 
 void startRandomEngine(GOptions* gopts) {
 
-    string randomEngineName = gopts->getString("randomEngineName");
-    int seed = gopts->getInt("randomSeed");
+    string randomEngineName = gopts->getScalarString("randomEngineName");
+    int seed = gopts->getScalarInt("randomSeed");
     if ( seed == -99 ) {
         double timed = time(NULL);
         double clockd = clock();

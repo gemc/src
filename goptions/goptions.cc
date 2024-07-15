@@ -49,6 +49,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
             {"ghits",            0, "ghits verbosity"},
             {"gmaterials",       0, "gmaterials verbosity"},
             {"gevent_dispenser", 0, "event dispenser verbosity"},
+            {"grun",             0, "run verbosity"},
             {"g4display",        0, "g4display verbositythe "},
             {"gsystem",          0, "gsystem verbositythe "},
             {"g4system",         0, "g4system verbositythe "},
@@ -56,6 +57,8 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
             {"gphysics",         0, "gphysics verbosity"},
             {"gstreamer_ev",     0, "gstreamer event verbosity"},
             {"gstreamer_fr",     0, "gstreamer frame verbosity"},
+            {"gsensitivity",     0, "sensitivity verbosity"},
+            {"gverbosity",       0, "general verbosity"},
 
     };
 

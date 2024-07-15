@@ -5,7 +5,6 @@ multipoles_files = [files(
                     ),
                     true]
 
-
 LD += {
     'name' : sub_dir_name,
     'sources' : files(

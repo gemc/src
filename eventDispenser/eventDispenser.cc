@@ -18,11 +18,9 @@ EventDispenser::EventDispenser(GOptions* gopt, map<string, GDynamicDigitization*
 
     verbosity = gopt->getVerbosityFor("gevent_dispenser");
 	string filename  = gopt->getScalarString("runWeightsFile");
-	//variation        = gopt->getString("dVariation");
 	userRunno        = gopt->getScalarInt("runno");
 	nEventBuffer     = gopt->getScalarInt("n_event_buffer");
 	neventsToProcess = gopt->getScalarInt("n");
-	//elog             = gopt->getInt("elog");
 
 	// nothing to do here
 	if(neventsToProcess == 0) return;

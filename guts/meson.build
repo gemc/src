@@ -10,7 +10,7 @@ LD += {
         'gutsConventions.h'
     ),
 
-    'dependencies' : [clhep_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps],
     'examples' : {
         'test_guts_string_vector_from_string' : [files('examples/string_vector_from_string.cc'), 'akasha enkil marius']
     }
