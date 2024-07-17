@@ -95,8 +95,8 @@ void GDetectorConstruction::ConstructSDandField() {
 
             string field_name = gvolume->getEMField();
             if (field_name != UNINITIALIZEDSTRINGQUANTITY) {
-                logDetail("Volume  <" + volumeName + "> has field: <" + field_name + ">. Looking into field map definitions.");
                 if (gmagneto == nullptr) gmagneto = new GMagneto(gopt);
+                logDetail("Volume  <" + volumeName + "> has field: <" + field_name + ">. Looking into field map definitions.");
 
                 // assigning field manager to the volume
                 logDetail("Setting field manager for volume <" + g4name + "> with field <" + field_name + ">");

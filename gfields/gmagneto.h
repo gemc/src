@@ -6,13 +6,12 @@
 #include "gfieldOptions.h"
 #include "gStateMessage.h"
 
-// a world is a collection of GSystem, their
+// a world is a collection of GFields and G4FieldManager
 class GMagneto : public GStateMessage {
 public:
-    // constructor from a jcard / command lines:
+    // constructor from yaml
     //
-    // - load fields jcard definitions
-    // - load fields from $GEMC/shared/fields directory
+    // - load fields definitions
 
     GMagneto(GOptions *gopts);
 
@@ -40,11 +39,11 @@ public:
 //        return gFieldMap->at(name);
 //    }
 
-    G4FieldManager *getFieldMgr(string name) {
+    G4FieldManager *getFieldMgr(string name) {1
         if (gFieldMgrMap->find(name) == gFieldMgrMap->end()) {
 
             // error, exit
-            logError("Field " + name + " not found.", EC__WRONG_FIELD_NOT_FOUND);
+            logError("GField " + name + " not found.", EC__WRONG_FIELD_NOT_FOUND);
         }
 
         return gFieldMgrMap->at(name);

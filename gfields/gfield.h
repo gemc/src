@@ -18,34 +18,24 @@ public:
 
     virtual void GetFieldValue(const double x[3], double *bfield) const = 0; ///< Pure virtual: must implement GetFieldValue method
 
-    // parameters are passed as string, then converted appropriately
-    // the derived classes should call set_basic_parameters
-    virtual void set_parameters(map<string, string> parameters) = 0;
-
-    void set_basic_parameters(map<string, string> parameters) {
-        integration_stepper = parameters["integration_stepper"];
-        map_interpolation_method = parameters["map_interpolation_method"];
-        minimum_step = stod(parameters["minimum_step"]);
-    }
 
     // create the G4FieldManager
-    G4FieldManager* create_FieldManager();
+    G4FieldManager *create_FieldManager(string int_stepper, double min_step);
 
 private:
 
-    // Creates the G4 Magnetic Field Manager
-    //void create_FieldManager(const GOptions *gopts);
+    string name; // key in the gmagneto maps
     string integration_stepper;
-    string map_interpolation_method;
     double minimum_step;
+    int verbosity;
 
     // logging
     void gFLogMessage(std::string message) {
-        gLogMessage(GFIELDLOGHEADER + message);
+        gLogMessage(GFIELDLOGHEADER + name + " " + message);
     }
 
-    // hardcoded list
-    vector<string> SUPPORTED_STEPPERS = {
+    // hardcoded list, how to make it dynamic?
+    vector <string> SUPPORTED_STEPPERS = {
             "G4DormandPrince745",
             "G4ClassicalRK4",
             "G4SimpleRunge",

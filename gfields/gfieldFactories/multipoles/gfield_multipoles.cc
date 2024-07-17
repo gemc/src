@@ -4,7 +4,7 @@
 // geant4 headers
 #include "G4ThreeVector.hh"
 
-// gemc
+// gfields
 #include "gfield_multipoles.h"
 
 // c++
@@ -12,19 +12,34 @@
 
 using namespace std;
 
-
-
 // tells the DLL how to create a GField_MultipolesFactory
 extern "C" GField *GFieldFactory(void) {
     return static_cast<GField *>(new GField_MultipolesFactory);
 }
 
+// constructor from parameters
+GField_MultipolesFactory::GField_MultipolesFactory(string fname,
+                                                   string interp_steppper,
+                                                   double minstep,
+                                                   int Npole,
+                                                   G4double x,
+                                                   G4double y,
+                                                   G4double z,
+                                                   G4double scale,
+                                                   G4double rot,
+                                                   int ROTaxis) {
+    name = fname;
+    integration_stepper = interp_steppper;
+    minimum_step = minstep;
+    pole_number = Npole;
+    origin[0] = x;
+    origin[1] = y;
+    origin[2] = z;
+    rotation_angle = rot;
+    rotaxis = ROTaxis;
+    strength = scale;
 
-
-//void GField_MultipolesFactory::create_FieldManager([[maybe_unused]] const GOptions *gopts) {
-//
-//
-//}
+}
 
 // for now this implementation follows gemc
 // reference of this implementation: https://uspas.fnal.gov/materials/12MSU/magnet_elements.pdf

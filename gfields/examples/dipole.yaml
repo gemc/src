@@ -1,6 +1,4 @@
-runno: 14
-
-gparticle:
+gmultipole:
   - pname: e-
     p: 2300
     theta: 23.0
@@ -10,6 +8,5 @@ gparticle:
 
 verbosity:
   - gfields: 1
-  - ghits: 2
 
 gui: true

@@ -22,8 +22,8 @@ LD += {
         'gfieldMultipoles' : multipoles_files,
     },
 
-    'dependencies' : [clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'dipole' : [files('examples/dipole.cc'), ['']],
+        'test_dipole' : [files('examples/example.cc'), ['dipole.yaml']],
     }
 }
