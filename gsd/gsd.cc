@@ -14,7 +14,7 @@ GSensitiveDetector::GSensitiveDetector(string sdName,
         gDynamicDigitizationMapGlobalInstance(gDDGlobal),
         gHitsCollection(nullptr) {
 
-    verbosity = goptions->getInt("gsensitivityv");
+    verbosity = goptions->getVerbosityFor("gsensitivity");
     recordZeroEdep = goptions->getSwitch("recordZeroEdep");
 
     // protected, from G4VSensitiveDetector: it's a G4CollectionNameVector

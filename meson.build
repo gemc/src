@@ -34,10 +34,10 @@ subdir('gphysics')
 subdir('gQtButtonsWidget')
 subdir('gsplash')
 subdir('gstreamer')
+subdir('gsession')
+subdir('gsd')
 subdir('gfields')
 #subdir('utilities')
-#subdir('gsession')
-#subdir('gsd')
 #subdir('gdetector')
 #subdir('userActions')
 #subdir('gui')
@@ -102,7 +102,7 @@ foreach L : LD
                 sources[0],
                 install : sources[1],
                 dependencies : this_deps,
-                include_directories : all_includes + this_lib_name,
+                include_directories : all_includes + this_lib_name + additional_includes,
                 link_with : all_libs,
                 name_suffix : 'gplugin',
                 name_prefix : ''
@@ -122,7 +122,7 @@ foreach L : LD
                 example_sources,
                 install : true,
                 dependencies : this_deps,
-                include_directories : all_includes + this_lib_name,
+                include_directories : all_includes + this_lib_name  + additional_includes,
                 link_with : all_libs
             )
             test(' ## ' + this_lib_name + ' test ##  >>  ' + name,

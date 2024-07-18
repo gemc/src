@@ -3,6 +3,7 @@
 
 // glibrary
 #include "goptions.h"
+#include "gfield_multipoles.h"
 
 namespace gfield {
 

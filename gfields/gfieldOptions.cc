@@ -1,6 +1,9 @@
 #include "gfieldOptions.h"
 #include "gfieldConventions.h"
 
+// gemc
+#include "gutilities.h"
+
 // namespace to define options
 namespace gfield {
 
@@ -15,17 +18,17 @@ namespace gfield {
             gmultipoles.push_back(GField_MultipolesFactory(
                     gopts->get_variable_in_option<string>(gmultipoles_item, "name", goptions::NODFLT),
                     gopts->get_variable_in_option<string>(gmultipoles_item, "integration_stepper", GFIELD_DEFAULT_INTEGRATION_STEPPER),
-                    gopts->get_variable_in_option<float>(gmultipoles_item, "minimum_step", 1 * mm),
+                    gutilities::getG4Number(gopts->get_variable_in_option<string>(gmultipoles_item, "minimum_step", "1*mm")),
                     gopts->get_variable_in_option<int>(gmultipoles_item, "pole_number", 1),
-                    gopts->get_variable_in_option<float>(gmultipoles_item, "vx", 0.0),
-                    gopts->get_variable_in_option<float>(gmultipoles_item, "vy", 0.0),
-                    gopts->get_variable_in_option<float>(gmultipoles_item, "vz", 0.0),
-                    gopts->get_variable_in_option<float>(gmultipoles_item, "rotation_angle", 0.0),
+                    gutilities::getG4Number(gopts->get_variable_in_option<string>(gmultipoles_item, "vx", "0.0")),
+                    gutilities::getG4Number(gopts->get_variable_in_option<string>(gmultipoles_item, "vy", "0.0")),
+                    gutilities::getG4Number(gopts->get_variable_in_option<string>(gmultipoles_item, "vz", "0.0")),
+                    gutilities::getG4Number(gopts->get_variable_in_option<string>(gmultipoles_item, "rotation_angle", "0.0")),
                     gopts->get_variable_in_option<string>(gmultipoles_item, "rotaxis", "Z"),
-                    gopts->get_variable_in_option<float>(gmultipoles_item, "strength", 1.0)
-            ));
+                    gopts->get_variable_in_option<float>(gmultipoles_item, "strength", 1.0),
+                    verbosity)
+            );
         }
-
 
         return gmultipoles;
     }
@@ -33,7 +36,6 @@ namespace gfield {
 
     // returns array of options definitions
     GOptions defineOptions() {
-
 
         GOptions goptions;
 

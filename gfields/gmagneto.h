@@ -39,7 +39,7 @@ public:
 //        return gFieldMap->at(name);
 //    }
 
-    G4FieldManager *getFieldMgr(string name) {1
+    G4FieldManager *getFieldMgr(string name) {
         if (gFieldMgrMap->find(name) == gFieldMgrMap->end()) {
 
             // error, exit

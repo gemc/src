@@ -52,6 +52,16 @@ private:
 // method to dynamically load factories
 public:
 
+    void set_name(string n) { name = n; }
+    void set_stepper(string s) { integration_stepper = s; }
+    void set_min_step(double m) { minimum_step = m; }
+    void set_verbosity(int v) { verbosity = v; }
+
+    string get_name() { return name; }
+    string get_stepper() { return integration_stepper; }
+    double get_min_step() { return minimum_step; }
+
+
     static GField *instantiate(const dlhandle handle) {
 
         if (handle == nullptr) return nullptr;

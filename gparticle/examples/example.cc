@@ -3,12 +3,12 @@
 
 // c++
 #include <iostream>
+
 using namespace std;
 
-
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 
     GOptions *gopts = new GOptions(argc, argv, gparticle::defineOptions());
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

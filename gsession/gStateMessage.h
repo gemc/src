@@ -56,7 +56,7 @@ public:
 
         stateCounter = 0;
 
-        verbosity = gopts->getInt(voptionName);
+        verbosity = gopts->getVerbosityFor(voptionName);
         if (verbosity >= GVERBOSITY_SUMMARY) {
             G4cout << stateStringHeader() << "Constructor" << G4endl;
         }
@@ -67,7 +67,6 @@ public:
             G4cout << stateStringHeader() << "Destructor" << G4endl;
         }
     }
-
 
 private:
     string stateHeader;

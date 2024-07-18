@@ -15,21 +15,16 @@ GMagneto::GMagneto(GOptions *gopts) : GStateMessage(gopts, "GMagneto", "verbosit
     string pluginPath = string(getenv("GEMC")) + "/lib/";
 
 
-
     // multipoles from joptions
-    vector <gfield::GField_MultipolesFactory> gmultipoles = gfield::get_GField_MultipolesFactories(gopts);
+    vector <GField_MultipolesFactory> gmultipoles = gfield::get_GField_MultipolesFactories(gopts);
 
     for (auto &gmultipole: gmultipoles) {
 
-        string name = gmultipole.name;
+        string name = gmultipole.get_name();
         string factory = string(GFIELD_MULTIPOLES_FACTORY_NAME);
 
-        string pluginName = pluginPath + factory ;
+        string pluginName = pluginPath + factory;
 
-            (*gFieldMgrMap)[name] = (*gFieldMap)[name]->create_FieldManager();
-        }
+        (*gFieldMgrMap)[name] = (*gFieldMap)[name]->create_FieldManager(gmultipole.get_stepper(), gmultipole.get_min_step());
     }
-
-    // done with gFieldManager
-    //gFieldManager.clearDLMap();
 }

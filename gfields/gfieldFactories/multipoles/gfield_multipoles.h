@@ -2,13 +2,24 @@
 #define GFIELD_MULTIPOLES_FACTORY_H 1
 
 // gemc
-#include "gfield.h"
+#include "../../gfield.h"
 
 class GField_MultipolesFactory : public GField {
 
 public:
+    GField_MultipolesFactory() = default;
 
-    GField_MultipolesFactory();
+    GField_MultipolesFactory(string fname,
+                             string interp_steppper,
+                             double minstep,
+                             int Npole,
+                             double x,
+                             double y,
+                             double z,
+                             double rot,
+                             string ROTaxis,
+                             float scale,
+                             int v);
 
     void GetFieldValue(const G4double pos[4], G4double *bfield) const;
 

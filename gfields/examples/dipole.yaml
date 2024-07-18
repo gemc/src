@@ -1,12 +1,4 @@
 gmultipole:
-  - pname: e-
-    p: 2300
-    theta: 23.0
-  - pname: proton
-    multiplicity: 4
-    p: 1900
-
-verbosity:
-  - gfields: 1
-
-gui: true
+  - name: dipole
+    pole_number: 2
+    strength: 2

@@ -10,18 +10,19 @@ LD += {
     'sources' : files(
         'gfield.cc',
         'gfieldOptions.cc',
-        'gmagneto.cc'
+        'gmagneto.cc',
     ),
     'headers' : files(
         'gfield.h',
         'gfieldOptions.h',
         'gfieldConventions.h',
-        'gmagneto.h'
+        'gmagneto.h',
+
     ),
     'plugins' : {
         'gfieldMultipoles' : multipoles_files,
     },
-
+    'additional_includes' : ['gfields/gfieldFactories/multipoles'],
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
         'test_dipole' : [files('examples/example.cc'), ['dipole.yaml']],

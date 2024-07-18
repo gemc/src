@@ -7,6 +7,9 @@
 // gfields
 #include "gfield_multipoles.h"
 
+// gemv
+#include "gutilities.h"
+
 // c++
 #include <iostream>
 
@@ -22,23 +25,30 @@ GField_MultipolesFactory::GField_MultipolesFactory(string fname,
                                                    string interp_steppper,
                                                    double minstep,
                                                    int Npole,
-                                                   G4double x,
-                                                   G4double y,
-                                                   G4double z,
-                                                   G4double scale,
-                                                   G4double rot,
-                                                   int ROTaxis) {
-    name = fname;
-    integration_stepper = interp_steppper;
-    minimum_step = minstep;
+                                                   double x,
+                                                   double y,
+                                                   double z,
+                                                   double rot,
+                                                   string ROTaxis,
+                                                   float scale,
+                                                   int v) {
+    // gfield
+    set_name(fname);
+    set_stepper(interp_steppper);
+    set_min_step(minstep);
+    set_verbosity(v);
+
+    // multipoles
     pole_number = Npole;
     origin[0] = x;
     origin[1] = y;
     origin[2] = z;
     rotation_angle = rot;
-    rotaxis = ROTaxis;
     strength = scale;
-
+    string axis =  gutilities::convertToLowercase(ROTaxis);
+    if (ROTaxis == "x") { rotaxis = 0; }
+    else if (ROTaxis == "y") { rotaxis = 1; }
+    else if (ROTaxis == "z") { rotaxis = 2; }
 }
 
 // for now this implementation follows gemc
