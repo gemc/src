@@ -45,7 +45,6 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
 
 
     vector <GVariable> verbosity = {
-            {"gfields",          0, "gfields verbosity"},
             {"ghits",            0, "ghits verbosity"},
             {"gmaterials",       0, "gmaterials verbosity"},
             {"gevent_dispenser", 0, "event dispenser verbosity"},

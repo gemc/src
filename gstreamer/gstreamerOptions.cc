@@ -5,14 +5,14 @@
 // namespace to define options
 namespace gstreamer {
 
-    vector<GOutputDefinition> getGOutputDefinition(GOptions *gopts) {
+    vector<GStreamerDefinition> getGStreamerDefinition(GOptions *gopts) {
 
-            vector<GOutputDefinition> goutputs;
+            vector<GStreamerDefinition> goutputs;
 
             auto goutput_node = gopts->get_option_node("goutput");
 
             for (auto goutput_item: goutput_node) {
-                goutputs.push_back(GOutputDefinition(
+                goutputs.push_back(GStreamerDefinition(
                         gopts->get_variable_in_option<string>(goutput_item, "format", goptions::NODFLT),
                         gopts->get_variable_in_option<string>(goutput_item, "name", goptions::NODFLT),
                         gopts->get_variable_in_option<string>(goutput_item, "type", goptions::NODFLT)

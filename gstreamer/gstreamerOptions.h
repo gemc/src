@@ -9,8 +9,8 @@
 
 namespace gstreamer {
 
-    // method to return a vector of GOutputDefinition from the options
-    vector<GOutputDefinition> getGOutputDefinition(GOptions *gopts);
+    // method to return a vector of GStreamerDefinition from the options
+    vector<GStreamerDefinition> getGStreamerDefinition(GOptions *gopts);
 
     // returns array of options definitions
     GOptions defineOptions();

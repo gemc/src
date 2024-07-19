@@ -4,7 +4,7 @@
 // glibrary
 #include "gutilities.h"
 
-vector <string> GStreamer::supported_formats = {"jlabsro", "root", "text"};
+const vector<string> GStreamer::supported_formats = {"jlabsro", "root", "text"};
 
 bool GStreamer::is_valid_format(string format) {
     vector < string > supported = GStreamer::supported_formats;

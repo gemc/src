@@ -10,10 +10,13 @@
 // c++
 #include <string>
 
-struct GOutputDefinition {
+// utility struct to load GStreamer from options
+struct GStreamerDefinition {
 
     // default constructor
-    GOutputDefinition(string f, string n, string t) : format(f), name(n), type(t) {}
+    GStreamerDefinition() = default;
+
+    GStreamerDefinition(string f, string n, string t) : format(f), name(n), type(t) {}
 
     string format;
     string name;
@@ -42,20 +45,14 @@ public:
     // the key is the routine name + frame streamer id
     map<string, bool> publishFrameRunData(const GOptions *gopts, const GFrameDataCollection *frameRunData);
 
-    void define_ouput(const GOutputDefinition goutputdef) {
-        outputFileName = goutputdef.name;
-        streamType = goutputdef.type;
-    }
+    inline string const getStreamType() const { return gstreamer_definitions.type; }
 
-    inline string const getStreamType() const { return streamType; }
-
-    static vector<string> supported_formats ;
+    static const vector<string> supported_formats ;
     static bool is_valid_format(string format);
 
 protected:
 
-    string outputFileName = UNINITIALIZEDSTRINGQUANTITY;
-    string streamType = UNINITIALIZEDSTRINGQUANTITY;
+    GStreamerDefinition gstreamer_definitions;
 
     // event virtual methods called by publishRunData, in order
     // --------------------------------------------------------

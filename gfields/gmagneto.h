@@ -27,17 +27,19 @@ private:
 
 public:
 
-    // map<string, GField*>* getFieldsMap() const {return gFieldMap;}
-    // map<string, G4FieldManager*>* getFieldMgrMap() const {return gFieldMgrMap;}
+    bool isField(string name) {
+        return gFieldMap->find(name) != gFieldMap->end();
+    }
 
-//    GField *getField(string name) {
-//        if (gFieldMap->find(name) == gFieldMap->end()) {
-//
-//            // error, exit
-//            logError("Field " + name + " not found.", EC__WRONG_FIELD_NOT_FOUND);
-//        }
-//        return gFieldMap->at(name);
-//    }
+
+    GField *getField(string name) {
+        if (gFieldMap->find(name) == gFieldMap->end()) {
+
+            // error, exit
+            logError("Field " + name + " not found.", EC__WRONG_FIELD_NOT_FOUND);
+        }
+        return gFieldMap->at(name);
+    }
 
     G4FieldManager *getFieldMgr(string name) {
         if (gFieldMgrMap->find(name) == gFieldMgrMap->end()) {

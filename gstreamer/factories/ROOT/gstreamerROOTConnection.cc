@@ -3,7 +3,7 @@
 
 bool GstreamerRootFactory::openConnection()
 {
-	rootfile = new TFile(string(outputFileName).c_str(), "RECREATE");
+	rootfile = new TFile(string(gstreamer_definitions.name).c_str(), "RECREATE");
 	gRootTrees = new map<string, GRootTree*>;
 
 
@@ -22,6 +22,3 @@ bool GstreamerRootFactory::closeConnection()
 	// PRAGMA: need to check if file closed successfully
 	return true;
 }
-
-
-

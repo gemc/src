@@ -15,41 +15,11 @@
 
 using namespace std;
 
-// tells the DLL how to create a GField_MultipolesFactory
+// tells the DLL how to create a GFieldFactory
 extern "C" GField *GFieldFactory(void) {
     return static_cast<GField *>(new GField_MultipolesFactory);
 }
 
-// constructor from parameters
-GField_MultipolesFactory::GField_MultipolesFactory(string fname,
-                                                   string interp_steppper,
-                                                   double minstep,
-                                                   int Npole,
-                                                   double x,
-                                                   double y,
-                                                   double z,
-                                                   double rot,
-                                                   string ROTaxis,
-                                                   float scale,
-                                                   int v) {
-    // gfield
-    set_name(fname);
-    set_stepper(interp_steppper);
-    set_min_step(minstep);
-    set_verbosity(v);
-
-    // multipoles
-    pole_number = Npole;
-    origin[0] = x;
-    origin[1] = y;
-    origin[2] = z;
-    rotation_angle = rot;
-    strength = scale;
-    string axis =  gutilities::convertToLowercase(ROTaxis);
-    if (ROTaxis == "x") { rotaxis = 0; }
-    else if (ROTaxis == "y") { rotaxis = 1; }
-    else if (ROTaxis == "z") { rotaxis = 2; }
-}
 
 // for now this implementation follows gemc
 // reference of this implementation: https://uspas.fnal.gov/materials/12MSU/magnet_elements.pdf

@@ -16,12 +16,18 @@
 // gfield
 #include "gfield.h"
 
+const vector<string> GField::supported_types = {"multipole"};
+
+bool GField::init_basic_parameters() {
+
+}
+
 
 // notice: we are always using G4Mag_UsualEqRhs here
-G4FieldManager *GField::create_FieldManager(string int_stepper, double min_step) {
+G4FieldManager *GField::create_FieldManager() {
 
-    integration_stepper = int_stepper;
-    minimum_step = min_step;
+    string integration_stepper = gfield_definitions.integration_stepper;
+    double minimum_step = gfield_definitions.minimum_step;
 
     G4Mag_UsualEqRhs *iEquation = new G4Mag_UsualEqRhs(this);
 

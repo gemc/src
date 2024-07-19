@@ -11,27 +11,57 @@
 #include "goptions.h"
 #include "gfieldConventions.h"
 
-class GField : public G4MagneticField {
+// utility struct to load GFields from options
+struct GFieldDefinition {
 
-public:
-    virtual ~GField() = default;
+    // default constructor
+    GFieldDefinition() {}
 
-    virtual void GetFieldValue(const double x[3], double *bfield) const = 0; ///< Pure virtual: must implement GetFieldValue method
-
-
-    // create the G4FieldManager
-    G4FieldManager *create_FieldManager(string int_stepper, double min_step);
-
-private:
+    void init_parameters(string n, string is, double ms, string t, int v) {
+        name = n;
+        integration_stepper = is;
+        minimum_step = ms;
+        type = t;
+    }
 
     string name; // key in the gmagneto maps
     string integration_stepper;
     double minimum_step;
+    string type;
     int verbosity;
+
+    map <string, string> field_parameters;
+
+    void add_map_parameter(string key, string value) {
+        field_parameters[key] = value;
+    }
+
+    string gfieldPluginName() {
+        return "gfield" + type + "Factory";
+    }
+};
+
+class GField : public G4MagneticField {
+
+public:
+    GField() {}
+
+    virtual ~GField() = default;
+
+    virtual void GetFieldValue(const double x[3], double *bfield) const = 0; ///< Pure virtual: must implement GetFieldValue method
+
+    // create the G4FieldManager
+    G4FieldManager *create_FieldManager();
+
+    static const vector <string> supported_types;
+
+    virtual bool set_field_parameters() { return false ; }
+
+private:
 
     // logging
     void gFLogMessage(std::string message) {
-        gLogMessage(GFIELDLOGHEADER + name + " " + message);
+        gLogMessage(GFIELDLOGHEADER + gfield_definitions.name + " " + message);
     }
 
     // hardcoded list, how to make it dynamic?
@@ -49,18 +79,16 @@ private:
             "G4ExplicitEuler"
     };
 
-// method to dynamically load factories
+
+protected:
+    GFieldDefinition gfield_definitions;
+
+    //string get_name() { return gfield_definitions.name; }
+
+    bool init_basic_parameters();
+
+
 public:
-
-    void set_name(string n) { name = n; }
-    void set_stepper(string s) { integration_stepper = s; }
-    void set_min_step(double m) { minimum_step = m; }
-    void set_verbosity(int v) { verbosity = v; }
-
-    string get_name() { return name; }
-    string get_stepper() { return integration_stepper; }
-    double get_min_step() { return minimum_step; }
-
 
     static GField *instantiate(const dlhandle handle) {
 

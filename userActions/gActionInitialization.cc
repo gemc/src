@@ -28,7 +28,7 @@ GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynam
     gstreamerFactoryMap = new map<string, GStreamer *>;
 
     // projecting options onto vector of JOutput
-    vector<GOutputDefinition> goutput_defs = getJOutputs(gopts);
+    vector<GStreamerDefinition> goutput_defs = getJOutputs(gopts);
 
     // if any output is specified, loading its factory
     if (goutput_defs.size() > 0) {

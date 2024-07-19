@@ -22,9 +22,9 @@ LD += {
     'plugins' : {
         'gfieldMultipoles' : multipoles_files,
     },
-    'additional_includes' : ['gfields/gfieldFactories/multipoles'],
+    'additional_includes' : ['gfields', 'gfields/gfieldFactories/multipoles'],
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'test_dipole' : [files('examples/example.cc'), ['dipole.yaml']],
+        'test_dipole' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/dipole.yaml']],
     }
 }

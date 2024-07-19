@@ -7,10 +7,9 @@
 
 namespace gfield {
 
-    vector<GField_MultipolesFactory> get_GField_MultipolesFactories(GOptions *gopts);
+    vector<GFieldDefinition> get_GFieldDefinition(GOptions *gopts);
 
     GOptions defineOptions();
-
 }
 
 
