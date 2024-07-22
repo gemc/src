@@ -67,15 +67,8 @@ namespace gemc {
         help += string(HELPFILLSPACE) + " - clock function \n";
         goptions.defineOption(GVariable("randomSeed", -12345, "randomEngineName"), help);
 
-        json jsonRandomSeedOption = {
-                {GNAME, "randomSeed"},
-                {GDESC, help},
-                {GDFLT, -99}
-        };
-        goptions.push_back(GOption(jsonRandomSeedOption));
 
-
-        // glibrary modules goptions
+        // load other
         goptions += eventDispenser::defineOptions();
         goptions += g4display::defineOptions();
         goptions += g4system::defineOptions();

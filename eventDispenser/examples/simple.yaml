@@ -1,3 +1,2 @@
 verbosity:
-  - gfields: 3
   - gevent_dispenser: 4
