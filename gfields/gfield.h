@@ -22,6 +22,7 @@ struct GFieldDefinition {
         integration_stepper = is;
         minimum_step = ms;
         type = t;
+        verbosity = v;
     }
 
     string name; // key in the gmagneto maps

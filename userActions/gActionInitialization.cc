@@ -28,7 +28,7 @@ GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynam
     gstreamerFactoryMap = new map<string, GStreamer *>;
 
     // projecting options onto vector of JOutput
-    vector<GStreamerDefinition> goutput_defs = getJOutputs(gopts);
+    vector <GStreamerDefinition> goutput_defs = getGStreamerDefinition(gopts);
 
     // if any output is specified, loading its factory
     if (goutput_defs.size() > 0) {
@@ -37,18 +37,18 @@ GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynam
 
         // the available plugins names are formatted as "xxxGMedia".
         for (auto &goutput_def: goutput_defs) {
-            string factory = joutput.format;
+            // by constructions format and outputFileName have to be initialized
+            string factory = goutput_def.format;
 
-            if (factory != UNINITIALIZEDSTRINGQUANTITY && outputFileName != UNINITIALIZEDSTRINGQUANTITY) {
-                string pluginName = pluginPath + gstreamerPluginNameFromFactory(factory);
-                string factoryMapKey = factory + "/" + streamType;
+            string pluginName = pluginPath + goutput_def.gstreamerPluginName();
+            string factoryMapKey = factory + "/" + goutput_def.type;
 
-                if (gstreamerFactoryMap->find(factoryMapKey) == gstreamerFactoryMap->end()) {
-                    (*gstreamerFactoryMap)[factoryMapKey] = gStreamerManager.LoadAndRegisterObjectFromLibrary<GStreamer>(pluginName);
-                    (*gstreamerFactoryMap)[factoryMapKey]->define_ouput(goutput_def);
-                    (*gstreamerFactoryMap)[factoryMapKey]->openConnection();
-                }
+            if (gstreamerFactoryMap->find(factoryMapKey) == gstreamerFactoryMap->end()) {
+                (*gstreamerFactoryMap)[factoryMapKey] = gStreamerManager.LoadAndRegisterObjectFromLibrary<GStreamer>(pluginName);
+                (*gstreamerFactoryMap)[factoryMapKey]->define_gstreamer(goutput_def);
+                (*gstreamerFactoryMap)[factoryMapKey]->openConnection();
             }
+
         }
 
         // done with gStreamerManager

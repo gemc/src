@@ -9,7 +9,7 @@
 #include "G4ParticleGun.hh"
 
 // c++
-using std::ostream;
+#include <string>
 
 
 // This class interfaces to the Geant4 General Particle Source
@@ -18,33 +18,33 @@ class Gparticle {
 public:
 
     // Constructor based on parameters
-    Gparticle(string name,
+    Gparticle(std::string name,
               int multiplicity,
               float p,
               float delta_p,
-              string punit,
-              string randomMomentumModel,
+              std::string punit,
+              std::string randomMomentumModel,
               float theta,
               float delta_theta,
-              string thetaModel,
+              std::string thetaModel,
               float phi,
               float delta_phi,
-              string aunit,
+              std::string aunit,
               float avx,
               float avy,
               float avz,
               float adelta_vx,
               float adelta_vy,
               float adelta_vz,
-              string vunit,
-              string randomVertexModel,
+              std::string vunit,
+              std::string randomVertexModel,
               int verbosity);
 
 private:
 
     // PDG Monte Carlo Particle Numbering Scheme:
     // https://pdg.lbl.gov/ > Reviews Tables and Plots > Mathematical Tools > Numbering Scheme
-    string name;
+    std::string name;
     int pid;
     int multiplicity;
 
@@ -70,7 +70,7 @@ private:
     void set_pdg_id();
     double get_mass();
 
-    friend ostream &operator<<(ostream &stream, Gparticle); // Logs infos on screen.
+    friend std::ostream &operator<<(std::ostream &stream, Gparticle); // Logs infos on screen.
 
 public:
 

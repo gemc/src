@@ -46,6 +46,7 @@ public:
     map<string, bool> publishFrameRunData(const GOptions *gopts, const GFrameDataCollection *frameRunData);
 
     inline string const getStreamType() const { return gstreamer_definitions.type; }
+    inline void define_gstreamer(GStreamerDefinition gstreamerDefinition) { gstreamer_definitions = gstreamerDefinition; }
 
     static const vector<string> supported_formats ;
     static bool is_valid_format(string format);

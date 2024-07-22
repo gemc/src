@@ -1,7 +1,8 @@
 #ifndef GPRIMARYGENERATORACTION_H
 #define GPRIMARYGENERATORACTION_H 1
 
-// glibrary
+// gemc
+#include "goptions.h"
 #include "gparticle.h"
 #include "gparticleConventions.h"
 
@@ -23,7 +24,7 @@ private:
     int verbosity;
 	G4ParticleGun* gparticleGun;
 
-	vector<gparticle::JParticle> jparticles;
+	vector<Gparticle> gparticles;
 
 };
 

@@ -51,6 +51,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
             {"grun",             0, "run verbosity"},
             {"g4display",        0, "g4display verbositythe "},
             {"gsystem",          0, "gsystem verbositythe "},
+            {"gfield",           0, "general fields verbositythe "},
             {"g4system",         0, "g4system verbositythe "},
             {"gparticle",        0, "gparticle verbosity"},
             {"gphysics",         0, "gphysics verbosity"},
@@ -61,7 +62,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
 
     };
 
-    string help = "Effects: \n \n";
+    string help = "Levels: \n \n";
     help += "0: shush\n";
     help += "1: summaryt\n";
     help += "2: details\n";

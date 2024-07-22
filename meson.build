@@ -38,8 +38,8 @@ subdir('gsession')
 subdir('gsd')
 subdir('gfields')
 subdir('utilities')
-#subdir('gdetector')
-#subdir('userActions')
+subdir('gdetector')
+subdir('userActions')
 #subdir('gui')
 
 # compilation loop

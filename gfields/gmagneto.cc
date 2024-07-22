@@ -6,7 +6,7 @@
 
 using namespace std;
 
-GMagneto::GMagneto(GOptions *gopts) : GStateMessage(gopts, "GMagneto", "verbosity") {
+GMagneto::GMagneto(GOptions *gopts) : GStateMessage(gopts, "GMagneto", "gfield") {
 
     gFieldMap = new map<string, GField *>;
     gFieldMgrMap = new map<string, G4FieldManager *>;

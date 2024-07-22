@@ -16,5 +16,5 @@ LD += {
                           'run/gRunAction.h',
                           'run/gRun.h'
                       ),
-    'dependencies' : [geant4_deps, qt5_deps, clhep_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, qt5_deps, geant4_deps],
 }
