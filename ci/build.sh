@@ -3,17 +3,17 @@
 # Purpose: compiles gemc and installs it in gemc
 
 # Container run:
-# docker run -it --rm jeffersonlab/gemc3:g3vdev-g4v11.2.1-almalinux93-local
+# docker run -it --rm jeffersonlab//geant4:g4v11.2.2-almalinux93
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # git clone http://github.com/maureeungaro/src /root/src && cd /root/src
 # ./ci/build.sh
 
 # if we are in the docker container, we need to load the modules
-if [[ -z "${DISTTAG}" ]]; then
+if [[ -z "${AUTOBUILD}" ]]; then
     echo "\nNot in container"
 else
     echo "\nIn container: ${DISTTAG}"
-    source  /app/localSetup.sh
+    source  /etc/profile.d/localSetup.sh
 fi
 
 function compileGEMC {
@@ -23,6 +23,7 @@ function compileGEMC {
   	exit 1
   fi
 	cd build
+  module load gemc/dev3
 	meson configure -Dprefix=$GEMC
 	if [ $? -ne 0 ]; then
     echo Meson configure failed

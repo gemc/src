@@ -229,8 +229,6 @@ namespace gutilities {
     }
 
 
-
-
     // need to add verbosity
     string parseFileAndRemoveComments(string filename, string commentChars, int verbosity) {
 
@@ -310,6 +308,9 @@ namespace gutilities {
 // string search for a path with <name> from a possible list of absolute paths
 // returns UNINITIALIZEDSTRINGQUANTITY if not found
 
+// cstdint needed on some systems before filesystem
+
+#include <cstdint>
 #include <filesystem>
 
     namespace fs = std::filesystem;
@@ -341,12 +342,11 @@ namespace gutilities {
         return fileList;
     }
 
-    string convertToLowercase(const string& str) {
+    string convertToLowercase(const string &str) {
         string lower = str;
         transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
         return lower;
     }
-
 
 
     // returns all keys from a map<key, value>
