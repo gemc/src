@@ -30,7 +30,7 @@ G4SceneProperties::G4SceneProperties(GOptions *gopts) {
     G4View g4view = getG4View(gopts);
     G4Camera g4camera = getG4Camera(gopts);
     G4Dawn g4dawn = getG4Dawn(gopts);
-    bool use_dawn = g4dawn.phi != goptions::NODFLT;
+    bool use_dawn = gopts->getSwitch("useDawn");
 
     vector <string> commands;
 

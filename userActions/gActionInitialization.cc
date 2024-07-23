@@ -16,13 +16,11 @@ using namespace std;
 
 GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynamicDigitization *> *gDDGlobal) :
         G4VUserActionInitialization(),
-        GStateMessage(gopts, "GActionInitialization", "verbosity"),  // GStateMessage derived
+        GStateMessage(gopts, "GActionInitialization", "general"),  // GStateMessage derived
         goptions(gopts),
         gDigitizationGlobalMap(gDDGlobal) {
     logSummary("Instantiating GActionInitialization ");
-
     string pluginPath = string(getenv("GEMC")) + "/lib/";
-
 
     // gstreamerFactory
     gstreamerFactoryMap = new map<string, GStreamer *>;

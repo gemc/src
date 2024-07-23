@@ -36,7 +36,7 @@ int getNumberOfThreads(GOptions* gopts) {
     int allThreads = G4Threading::G4GetNumberOfCores();
 	if(useThreads == 0) useThreads = allThreads;
 
-	int verbosity = gopts->getVerbosityFor("gverbosity");
+	int verbosity = gopts->getVerbosityFor("general");
 
 	// global log screen
 	if (verbosity >= GVERBOSITY_SUMMARY) {
@@ -51,14 +51,16 @@ int getNumberOfThreads(GOptions* gopts) {
 void initGemcG4RunManager(G4RunManager *grm, GOptions* gopts)
 {
 	int tlog = gopts->getScalarInt("thread_log");
-    bool showG4ThreadsLog = gopts->getSwitch("showG4ThreadsLog");
+    // bool thread_log = gopts->getSwitch("thread_log");
 
 	G4UImanager *g4uim   = G4UImanager::GetUIpointer();
-    if ( ! showG4ThreadsLog ) { g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log"); }
-	
-	if ( tlog != 0 ) {
+    // if ( ! thread_log ) { g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log"); }
+    g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log");
+
+    if ( tlog != 0 ) {
 		g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept " + to_string(tlog));
 	}
+
 	// initialize run manager
 	grm->Initialize();
 }

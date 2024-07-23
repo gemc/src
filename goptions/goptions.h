@@ -8,6 +8,7 @@
 // c++
 #include <string>
 #include <fstream>
+#include <iostream>
 
 
 /**
@@ -102,6 +103,11 @@ public:
 
     // returns the YAML::Node of the option with the tag
     inline const YAML::Node get_option_node(string tag) {
+        // if the option does not exist, exit with error
+        if (!does_option_exist(tag)) {
+            std::cerr << " option " << tag << " does not exist. Exiting." << std::endl;
+            gexit(EC__NOOPTIONFOUND);
+        }
         return get_option_iterator(tag)->value.begin()->second;
     }
 

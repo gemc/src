@@ -17,7 +17,7 @@ void loadDigitizationPlugins(GOptions *gopt, vector<string> sdetectors, map<stri
 
     string pluginPath = string(getenv("GEMC")) + "/lib/";
 
-    int verbosity = gopt->getScalarInt("gsensitivity");
+    int verbosity = gopt->getVerbosityFor("gsensitivity");
 
     for (auto &sdname: sdetectors) {
 

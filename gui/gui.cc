@@ -1,8 +1,7 @@
-// gemc
+// gui
 #include "gui.h"
-#include "gemcConventions.h"
 
-// glibrary
+// gemc
 #include "gutilities.h"
 
 GemcGUI::GemcGUI([[maybe_unused]] string qtResourceFile, GOptions *gopts, EventDispenser *ed, QWidget *parent) :

@@ -40,7 +40,7 @@ subdir('gfields')
 subdir('utilities')
 subdir('gdetector')
 subdir('userActions')
-#subdir('gui')
+subdir('gui')
 
 # compilation loop
 foreach L : LD
@@ -143,14 +143,14 @@ endforeach
 # compile gemc
 qrc_gemc_sources = qt5.compile_resources(sources : 'qtresources.qrc')
 
-#gemc = executable(
-#    'gemc',
-#    ['gemc.cc', 'gemcOptions.cc'] + qrc_gemc_sources,
-#    install : true,
-#    dependencies : all_deps,
-#    include_directories : all_includes,
-#    link_with : all_libs
-#)
+gemc = executable(
+    'gemc',
+    ['gemc.cc'] + qrc_gemc_sources,
+    install : true,
+    dependencies : all_deps,
+    include_directories : all_includes,
+    link_with : all_libs
+)
 
 
 # generate pkg-config file

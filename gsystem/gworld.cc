@@ -105,8 +105,7 @@ GWorld::GWorld(GOptions *gopts) {
 
     // adding root volume to the "root" gsystem
     // using the text factory
-
-    string worldVolumeDefinition = gopts->getScalarString("worldVolume");
+    string worldVolumeDefinition = gopts->getScalarString(ROOTWORLDGVOLUMENAME);
 
     (*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(ROOTWORLDGVOLUMENAME, GSYSTEMTEXTFACTORYLABEL, "default", verbosity);
     (*gsystemsMap)[ROOTWORLDGVOLUMENAME]->addROOTVolume(worldVolumeDefinition);

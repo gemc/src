@@ -17,7 +17,6 @@ namespace g4display {
         string position;
         int segsPerCircle;
     };
-
     G4View getG4View(GOptions *gopts);
 
 
@@ -28,7 +27,6 @@ namespace g4display {
     };
 
     G4Camera getG4Camera(GOptions *gopts);
-
 
     // Dawn
     struct G4Dawn {

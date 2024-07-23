@@ -3,13 +3,15 @@ working on gemc:
 The following 3 may be solved by inheriting from GStateMessage.
 - put the verbosity string options into conventions, like GSENSITIVITYVERBOSITY = "gsensitivityv"
 - use logMessage (g4) and glogMessage (internam cout with mutex log) consistently
-- something not working with tlog / showG4ThreadsLog etc. everything better be consistent
+- something not working with tlog / thread_log etc. everything better be consistent
 - use G4debug instead?
 
 - nthreads not working?
 - add system/detector browser
 - add hipo output
 - do we need gFieldManager.clearDLMap(); ?
+- gext with message (and threadlock) so we don't have to use cerr or G4cerr
+- any level of optimization higher than 0 cause some exit failure, gexit misses. why?
 
 
 In General:

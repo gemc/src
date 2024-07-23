@@ -30,15 +30,13 @@ int main(int argc, char *argv[]) {
     // the goptions are then assigned from the jcard(s) and command line
     GOptions *gopts = new GOptions(argc, argv, gemc::defineOptions());
 
-    // print version
-    gopts->print_version();
 
     // todo: add geant4 version here, see phys list on how
 
     // get gui switch, overlaps check and verbosity
     bool gui = gopts->getSwitch("gui");
-    int checkForOverlaps = gopts->getInt("checkOverlaps");
-    int verbosity = gopts->getInt("verbosity");
+    int checkForOverlaps = gopts->getScalarInt("checkOverlaps");
+    int verbosity = gopts->getVerbosityFor("general");
 
     // splash screen
     GSplash *gemcSplash = nullptr;
@@ -66,7 +64,7 @@ int main(int argc, char *argv[]) {
     // instantiating pointer to global digitization map
     // the map will be filled with the gsystem information of the sensitive detectors
     // the map is also used by eventDispenser to reload constants at every run number
-    map<string, GDynamicDigitization *> *globalDigitizationMap = new map<string, GDynamicDigitization *>;
+    map < string, GDynamicDigitization * > *globalDigitizationMap = new map<string, GDynamicDigitization *>;
 
     // building detector
     // this is global, changed at main scope
@@ -91,7 +89,6 @@ int main(int argc, char *argv[]) {
     }
     runManager->SetUserInitialization(gphysics->getPhysList());
 
-
     // instantiate GActionInitialization and initialize the geant4 kernel
     runManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
 
@@ -111,6 +108,7 @@ int main(int argc, char *argv[]) {
     visManager->Initialize();
 
     auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
+
 
     if (gui) {
         // initializing qt session

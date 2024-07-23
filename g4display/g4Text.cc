@@ -8,7 +8,6 @@ using namespace std;
 
 namespace g4display {
 
-
     // method to return a vector of G4SceneText from a structured option
     vector <G4SceneText> getSceneTexts(GOptions *gopts) {
 
@@ -54,6 +53,5 @@ namespace g4display {
 
         return goptions;
     }
-
 
 }

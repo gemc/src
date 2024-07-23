@@ -116,10 +116,11 @@ namespace g4display {
         help = "Defines the dawn camera view point and take a dawn screenshot \n \n ";
         help += "Example: -dawn=\"[{phi: 20*deg, theta: 15*deg}]\"  \n ";
         vector <GVariable> dawn = {
-                {"phi",   goptions::NODFLT, "dawn phi"},
-                {"theta", goptions::NODFLT, "dawn theta"}
+                {"phi",   30, "dawn phi"},
+                {"theta", 30, "dawn theta"}
         };
         goptions.defineOption("dawn", "Defines the dawn view point", dawn, help);
+        goptions.defineSwitch("useDawn", "Take a dawn screenshot");
 
         // scenetext
         goptions.addGOptions(addSceneTextsOptions());

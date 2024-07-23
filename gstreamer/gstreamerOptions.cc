@@ -9,7 +9,7 @@ namespace gstreamer {
 
             vector<GStreamerDefinition> goutputs;
 
-            auto goutput_node = gopts->get_option_node("goutput");
+            auto goutput_node = gopts->get_option_node("gstreamer");
 
             for (auto goutput_item: goutput_node) {
                 goutputs.push_back(GStreamerDefinition(

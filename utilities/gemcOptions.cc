@@ -13,11 +13,6 @@
 #include "gstreamerOptions.h"
 #include "gsystemOptions.h"
 
-// c++
-#include <iostream>
-
-using namespace std;
-
 
 namespace gemc {
 
@@ -29,10 +24,9 @@ namespace gemc {
         goptions.defineSwitch("stream", "Activate Streaming ReadOut");
         goptions.defineSwitch("recordZeroEdep", "Record particle even if they do not deposit energy in the sensitive volumes");
 
-        goptions.defineOption(GVariable("nthreads", 1, "sets number of threads."), "Default: 0 (use one thread for each available cores)");
+        goptions.defineOption(GVariable("nthreads", 0, "sets number of threads."), "Default: 0 (use one thread for each available cores)");
         goptions.defineOption(GVariable("thread_log", 0, "Log only thread number"), "Default: 0 (log all threads)");
         goptions.defineOption(GVariable("em_log", 0, "Event Modulo log"), "Logs every <value> events. Default: 0 (log all events)");
-
 
         goptions.defineOption(GVariable("digitization_variation", "default", "digitization variation"), "Default: default");
         goptions.defineOption(GVariable("eventTimeSize", "0*ns", "event duration with unit"), "Default: 0*ns");

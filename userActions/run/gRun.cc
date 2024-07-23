@@ -17,7 +17,7 @@ G4Run(),
 gDigitizationGlobalMap(gDDGlobal)
 {
 	verbosity = gopt->getVerbosityFor("grun");
-	elog      = gopt->getVerbosityFor("em_log");
+	elog      = gopt->getScalarInt("em_log");
 
 	if(verbosity >= GVERBOSITY_CLASSES) {
 		gLogClassConstruct("GRun Constructor ");

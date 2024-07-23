@@ -25,7 +25,6 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
     // copy the user defined options maps and switches onto ours
     addGOptions(user_defined_options);
 
-
     // switches for all everyone
     defineSwitch("gui", "use Graphical User Interface");
     defineOption(GVariable("conf_yaml", "saved_configuration", "the yaml filename prefix where all used options are saved"),
@@ -58,7 +57,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
             {"gstreamer_ev",     0, "gstreamer event verbosity"},
             {"gstreamer_fr",     0, "gstreamer frame verbosity"},
             {"gsensitivity",     0, "sensitivity verbosity"},
-            {"gverbosity",       0, "general verbosity"},
+            {"general",          0, "general verbosity"},
 
     };
 
@@ -318,21 +317,49 @@ vector<GOption>::iterator GOptions::get_option_iterator(string name) {
 
 int GOptions::getScalarInt(string tag) {
     auto it = get_option_iterator(tag);
+
+    // if the option is not found, exit with error
+    if (it == goptions.end()) {
+        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+        gexit(EC__NOOPTIONFOUND);
+    }
+
     return it->value.begin()->second.as<int>();
 }
 
 float GOptions::getScalarFloat(string tag) {
     auto it = get_option_iterator(tag);
+
+    // if the option is not found, exit with error
+    if (it == goptions.end()) {
+        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+        gexit(EC__NOOPTIONFOUND);
+    }
+
     return it->value.begin()->second.as<float>();
 }
 
 double GOptions::getScalarDouble(string tag) {
     auto it = get_option_iterator(tag);
+
+    // if the option is not found, exit with error
+    if (it == goptions.end()) {
+        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+        gexit(EC__NOOPTIONFOUND);
+    }
+
     return it->value.begin()->second.as<double>();
 }
 
 string GOptions::getScalarString(string tag) {
     auto it = get_option_iterator(tag);
+
+    // if the option is not found, exit with error
+    if (it == goptions.end()) {
+        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+        gexit(EC__NOOPTIONFOUND);
+    }
+
     return it->value.begin()->second.as<string>();
 }
 
@@ -358,6 +385,9 @@ YAML::Node GOptions::get_option_map_in_node(string option_name, string map_key) 
             }
         }
     }
+    // if the key is not found, exit with error
+    cerr << FATALERRORL << "The key " << YELLOWHHL << map_key << RSTHHR << " was not found in " << YELLOWHHL << option_name << RSTHHR << endl;
+    gexit(EC__NOOPTIONFOUND);
 
     return sequence_node;
 }
@@ -478,4 +508,10 @@ void GOptions::print_version() {
     cout << " Author: " << KGRN << gauthor << RST << endl << endl;
     cout << asterisks << endl << endl;
 
+}
+
+// overloaded operator to add option vectors and switch maps
+GOptions &operator+=(GOptions &gopts, GOptions goptions_to_add) {
+    gopts.addGOptions(goptions_to_add);
+    return gopts;
 }

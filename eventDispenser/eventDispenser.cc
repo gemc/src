@@ -17,7 +17,7 @@ using namespace std;
 EventDispenser::EventDispenser(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal) : gDigitizationGlobal(gDDGlobal) {
 
     verbosity = gopt->getVerbosityFor("gevent_dispenser");
-	string filename  = gopt->getScalarString("runWeightsFile");
+	string filename  = gopt->getScalarString("wdbfile");
 	userRunno        = gopt->getScalarInt("runno");
 	nEventBuffer     = gopt->getScalarInt("n_event_buffer");
 	neventsToProcess = gopt->getScalarInt("n");
