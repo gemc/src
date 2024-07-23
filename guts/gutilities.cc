@@ -7,17 +7,14 @@
 // c++
 // algorithm for the erase/remove combo
 #include <sstream>
-#include<algorithm>
+//#include <algorithm>
 #include <iostream>
 #include <fstream>
-#include <sstream>
-#include<algorithm>
 
 using namespace std;
 
 
 namespace gutilities {
-
 
     // Trim Both leading and trailing spaces
     string removeLeadingAndTrailingSpacesFromString(string in) {
@@ -38,7 +35,6 @@ namespace gutilities {
         return out;
 
     }
-
 
     // Remove all spaces from string
     string removeAllSpacesFromString(string str) {
@@ -310,17 +306,13 @@ namespace gutilities {
 
 // cstdint needed on some systems before filesystem
 
-#include <cstdint>
 #include <filesystem>
-
-    namespace fs = std::filesystem;
 
     string searchForDirInLocations(string dirName, vector <string> possibleLocations) {
 
         for (auto trialLocation: possibleLocations) {
             string possibleDir = trialLocation + "/" + dirName;
-            fs::path path = possibleDir;
-            if (fs::exists(path)) {
+            if (std::filesystem::exists(possibleDir)) {
                 return possibleDir;
             }
         }
@@ -331,7 +323,7 @@ namespace gutilities {
 
         vector <string> fileList;
 
-        for (const auto &entry: fs::directory_iterator(dirName)) {
+        for (const auto &entry: std::filesystem::directory_iterator(dirName)) {
             for (auto &extension: extensions) {
                 if (entry.path().extension() == extension) {
                     fileList.push_back(entry.path().filename());
