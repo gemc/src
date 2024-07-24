@@ -25,23 +25,30 @@ function compileGEMC {
 	cd build
   module load geant4
   module load sim_system
-  mkdir -p $SIM_HOME/gemc
-	meson configure -Dprefix=$SIM_HOME/gemc
+  export GEMC=$SIM_HOME/gemc
+  mkdir -p GEMC
+  echo " > Running meson configure -Dprefix=GEMC"
+	meson configure -Dprefix=GEMC
 	if [ $? -ne 0 ]; then
     echo Meson configure failed
     exit 1
   fi
+  echo " > Running meson install and test"
 	meson install
 	meson test
+	if [ $? -ne 0 ]; then
+    echo Meson test failed
+    exit 1
+  fi
 	cd ..
 }
 
 compileGEMC
 echo
-echo "- Content of $SIM_HOME/gemcC"
-ls -lrt $SIM_HOME/gemc
-echo "- Content of $SIM_HOME/gemc/bin"
-ls -lrt $SIM_HOME/gemc/bin
+echo "- Content of $GEMC"
+ls -lrt $GEMC
+echo "- Content of $GEMC/bin"
+ls -lrt $GEMC/bin
 echo
 echo "gemc version:"
-$SIM_HOME/gemc/bin/gemc -v
+$GEMC/bin/gemc -v
