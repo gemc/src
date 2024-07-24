@@ -8,6 +8,8 @@
 
 // c++
 #include <iostream>
+// c style string
+#include <cstring>
 
 using namespace std;
 
@@ -459,7 +461,8 @@ void GOptions::print_help() {
             string("search <value>") + RST,
             string("list all options containing <value> in the description and exit\n")
     };
-    for (auto i = 0; i < helps.size() / 2; i++) {
+    unsigned half_help = helps.size() / 2;
+    for (auto i = 0; i < half_help; i++) {
         cout << KGRN << " " << left;
         cout.width(fill_width);
         cout << helps[i * 2] << ": " << helps[i * 2 + 1] << endl;
@@ -481,7 +484,6 @@ void GOptions::print_web_help() {
 
 
 // print options and switches values
-
 void GOptions::save_options() {
 
     for (auto &s: switches) {

@@ -7,7 +7,7 @@
 // c++
 // algorithm for the erase/remove combo
 #include <sstream>
-//#include <algorithm>
+#include <unordered_map>
 #include <iostream>
 #include <fstream>
 
