@@ -22,13 +22,17 @@ jobs:
       # Check out the code
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set ownership
+        run: |
+            # this is to fix GIT not liking owner of the checkout dir
+            chown -R $(id -u):$(id -g) $PWD
       - name: Build GEMC
         run: |
           ./ci/build.sh
-#      - uses: gitboard-io/gitboard-action@main
-#        with:
-#          username: maureeungaro
-#          key: 3d8e9059-a164-4bea-9541-1cb8789d805b
+  #      - uses: gitboard-io/gitboard-action@main
+  #        with:
+  #          username: maureeungaro
+  #          key: 3d8e9059-a164-4bea-9541-1cb8789d805b
 
   build-fedora:
     runs-on: ubuntu-latest
@@ -42,10 +46,10 @@ jobs:
       - name: Build GEMC
         run: |
           ./ci/build.sh
-#      - uses: gitboard-io/gitboard-action@main
-#        with:
-#          username: maureeungaro
-#          key: 3d8e9059-a164-4bea-9541-1cb8789d805b
+  #      - uses: gitboard-io/gitboard-action@main
+  #        with:
+  #          username: maureeungaro
+  #          key: 3d8e9059-a164-4bea-9541-1cb8789d805b
 
   build-almalinux:
     runs-on: ubuntu-latest
