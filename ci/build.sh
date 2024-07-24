@@ -23,10 +23,6 @@ function compileGEMC {
   git describe --tags --always --abbrev=0
   echo " > After git describe"
 	meson setup build --native-file=release.ini -Duse_root=true --wipe
-  if [ $? -ne 0 ]; then
-    echo Meson setup failed
-  	exit 1
-  fi
 	cd build
   module load geant4
   module load sim_system
@@ -34,17 +30,9 @@ function compileGEMC {
   mkdir -p $GEMC
   echo " > Running meson configure -Dprefix=$GEMC"
 	meson configure -Dprefix=$GEMC
-	if [ $? -ne 0 ]; then
-    echo Meson configure failed
-    exit 1
-  fi
   echo " > Running meson install and test"
 	meson install
-	meson test
-	if [ $? -ne 0 ]; then
-    echo Meson test failed
-    exit 1
-  fi
+	meson test -v
 	cd ..
 }
 
@@ -57,3 +45,7 @@ ls -lrt $GEMC/bin
 echo
 echo "gemc version:"
 $GEMC/bin/gemc -v
+if [ $? -ne 0 ]; then
+  echo Running gemc  failed
+  exit 1
+fi

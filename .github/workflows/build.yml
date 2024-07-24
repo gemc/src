@@ -62,6 +62,12 @@ jobs:
       # Check out the code
       - name: Checkout
         uses: actions/checkout@main
+      - name: Set ownership
+        run: |
+          # this is to fix GIT not liking owner of the checkout dir
+          chown -R $(id -u):$(id -g) $PWD
+          git fetch --prune --unshallow --tags
+          git config --global --add safe.directory '*'
       - name: Build GEMC
         run: |
           ./ci/build.sh
