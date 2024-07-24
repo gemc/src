@@ -16,12 +16,12 @@ jobs:
   build-ubuntu:
     runs-on: ubuntu-latest
     container: jeffersonlab/geant4:g4v11.2.2-ubuntu24
-    #name: ${{ matrix.dir }}
+    name: ${{ matrix.dir }}
 
     steps:
       # Check out the code
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
       - name: Set ownership
         run: |
             # this is to fix GIT not liking owner of the checkout dir
@@ -43,6 +43,10 @@ jobs:
       # Check out the code
       - name: Checkout
         uses: actions/checkout@main
+      - name: Set ownership
+        run: |
+          # this is to fix GIT not liking owner of the checkout dir
+          chown -R $(id -u):$(id -g) $PWD
       - name: Build GEMC
         run: |
           ./ci/build.sh
@@ -60,6 +64,10 @@ jobs:
       # Check out the code
       - name: Checkout
         uses: actions/checkout@main
+      - name: Set ownership
+        run: |
+          # this is to fix GIT not liking owner of the checkout dir
+          chown -R $(id -u):$(id -g) $PWD
       - name: Build GEMC
         run: |
           ./ci/build.sh
