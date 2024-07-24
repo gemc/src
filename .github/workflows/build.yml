@@ -33,7 +33,6 @@ jobs:
   build-fedora:
     runs-on: ubuntu-latest
     container: jeffersonlab/geant4:g4v11.2.2-fedora36
-    options: --user 1001
     #name: ${{ matrix.dir }}
 
     steps:
