@@ -42,7 +42,7 @@ jobs:
     steps:
       # Check out the code
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@main
       - name: Build GEMC
         run: |
           ./ci/build.sh
