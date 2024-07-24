@@ -48,9 +48,14 @@ public:
 
 	DynamicLib(std::string path, int v = 0) : dlFileName(path), verbosity(v), handle(nullptr) {
 
-        // trying $GEMC/libs/ + path if not found
+        // trying $GEMC/lib/ + path if not found
         if(!doesFileExists(dlFileName)) {
             dlFileName = std::string(getenv("GEMC")) + "/lib/" + path;
+        }
+
+        // trying $GEMC/lib64/ + path if not found
+        if(!doesFileExists(dlFileName)) {
+            dlFileName = std::string(getenv("GEMC")) + "/lib64/" + path;
         }
 
 		if(doesFileExists(dlFileName)) {

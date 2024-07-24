@@ -42,6 +42,17 @@ echo "- Content of $GEMC"
 ls -lrt $GEMC
 echo "- Content of $GEMC/bin"
 ls -lrt $GEMC/bin
+if [ -d $GEMC/lib ]; then
+  echo "- Content of $GEMC/lib"
+  ls -lrt $GEMC/lib
+  export LD_LIBRARY_PATH=$GEMC/lib:$LD_LIBRARY_PATH
+elif [ -d $GEMC/lib64 ]; then
+  echo "- Content of $GEMC/lib64"
+  ls -lrt $GEMC/lib64
+  export LD_LIBRARY_PATH=$GEMC/lib64:$LD_LIBRARY_PATH
+fi
+echo
+
 echo
 echo "gemc version:"
 $GEMC/bin/gemc -v

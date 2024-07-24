@@ -462,7 +462,7 @@ void GOptions::print_help() {
             string("list all options containing <value> in the description and exit\n")
     };
     unsigned half_help = helps.size() / 2;
-    for (auto i = 0; i < half_help; i++) {
+    for (unsigned i = 0; i < half_help; i++) {
         cout << KGRN << " " << left;
         cout.width(fill_width);
         cout << helps[i * 2] << ": " << helps[i * 2 + 1] << endl;

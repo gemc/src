@@ -14,7 +14,7 @@ using namespace std;
 void GOption::set_scalar_value(string v) {
 
     // return if v is empty
-    if(v == "") return;
+    if (v == "") return;
 
     string value_to_set = gutilities::replaceCharInStringWithChars(v, ",", "");
 
@@ -28,18 +28,15 @@ void GOption::set_value(YAML::Node v) {
     // if the option is cumulative,
     if (isCumulative) {
         // sequence of maps
-        bool all_good = true;
         for (auto element: v) {
             if (!does_the_option_set_all_necessary_values(element)) {
-                all_good = false;
                 cerr << FATALERRORL << "Trying to set " << YELLOWHHL << name << RSTHHR << " but missing mandatory values." << endl;
                 cerr << "        Use the option: " << YELLOWHHL << " help " << name << " " << RSTHHR << " for details." << endl << endl;
                 exit(EC__MANDATORY_NOT_FILLED);
             }
         }
-        if (all_good) {
-            value[name] = v;
-        }
+        value[name] = v;
+
         // looping over the sequence of maps in defaultValue sequence
         // if a key from the default value is not found in each of the value sequence, it is added to it
         for (auto map_element_in_default_value: defaultValue.begin()->second) {
@@ -170,7 +167,7 @@ string GOption::detailed_help() {
     if (yvalues.IsSequence()) {
         newHelp += "\n";
 
-        for (auto i = 0; i < yvalues.size(); i++) {
+        for (unsigned i = 0; i < (unsigned) yvalues.size(); i++) {
             YAML::Node this_node = yvalues[i];
 
             for (YAML::const_iterator it = this_node.begin(); it != this_node.end(); ++it) {
