@@ -16,6 +16,18 @@ else
     source  /etc/profile.d/localSetup.sh
 fi
 
+function lib_or_lib64 {
+  if [ -d $GEMC/lib ]; then
+    echo "- Content of $GEMC/lib"
+    ls -lrt $GEMC/lib
+    export LD_LIBRARY_PATH=$GEMC/lib:$LD_LIBRARY_PATH
+  elif [ -d $GEMC/lib64 ]; then
+    echo "- Content of $GEMC/lib64"
+    ls -lrt $GEMC/lib64
+    export LD_LIBRARY_PATH=$GEMC/lib64:$LD_LIBRARY_PATH
+  fi
+}
+
 function compileGEMC {
   echo " > Current dir: $(pwd)"
   ls -l
@@ -32,6 +44,8 @@ function compileGEMC {
 	meson configure -Dprefix=$GEMC
   echo " > Running meson install and test"
 	meson install
+  lib_or_lib64
+  echo " > Running meson test"
 	meson test -v
 	cd ..
 }
@@ -42,15 +56,7 @@ echo "- Content of $GEMC"
 ls -lrt $GEMC
 echo "- Content of $GEMC/bin"
 ls -lrt $GEMC/bin
-if [ -d $GEMC/lib ]; then
-  echo "- Content of $GEMC/lib"
-  ls -lrt $GEMC/lib
-  export LD_LIBRARY_PATH=$GEMC/lib:$LD_LIBRARY_PATH
-elif [ -d $GEMC/lib64 ]; then
-  echo "- Content of $GEMC/lib64"
-  ls -lrt $GEMC/lib64
-  export LD_LIBRARY_PATH=$GEMC/lib64:$LD_LIBRARY_PATH
-fi
+lib_or_lib64
 echo
 
 echo
