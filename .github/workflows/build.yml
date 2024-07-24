@@ -13,13 +13,49 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-ubuntu:
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc3:g3vdev-g4v11.2.1-almalinux93-local
+    container: jeffersonlab/geant4:g4v11.2.2-ubuntu24
     name: ${{ matrix.dir }}
 
     steps:
-      # GitHub Actions do not automatically checkout your projects. If you need the code
+      # GitHub Actions do not automatically check out your projects. If you need the code
+      # you need to check it out.
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Build GEMC
+        run: |
+          ./ci/build.sh
+      - uses: gitboard-io/gitboard-action@main
+        with:
+          username: maureeungaro
+          key: 3d8e9059-a164-4bea-9541-1cb8789d805b
+
+  build-fedora:
+    runs-on: ubuntu-latest
+    container: jeffersonlab/geant4:g4v11.2.2-fedora36
+    name: ${{ matrix.dir }}
+
+    steps:
+      # GitHub Actions do not automatically check out your projects. If you need the code
+      # you need to check it out.
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Build GEMC
+        run: |
+          ./ci/build.sh
+      - uses: gitboard-io/gitboard-action@main
+        with:
+          username: maureeungaro
+          key: 3d8e9059-a164-4bea-9541-1cb8789d805b
+
+  build-almalinux:
+    runs-on: ubuntu-latest
+    container: jeffersonlab/geant4:g4v11.2.2-almalinux93
+    name: ${{ matrix.dir }}
+
+    steps:
+      # GitHub Actions do not automatically check out your projects. If you need the code
       # you need to check it out.
       - name: Checkout
         uses: actions/checkout@main

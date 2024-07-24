@@ -25,16 +25,16 @@ struct GVariable {
     string value;
     string description;
 
-    GVariable(string name, string val, string description) : name(name), value(val), description(description) {}
+    GVariable(string n, string val, string d) : name(n), value(val), description(d) {}
 
     // overloading constructors with various types of vlue
-    GVariable(string name, double val, string description) : name(name), description(description) { value = std::to_string(val); }
+    GVariable(string n, double val, string d) : name(n), description(d) { value = std::to_string(val); }
 
-    GVariable(string name, const char *val, string description) : name(name), value(val), description(description) {}
+    GVariable(string n, const char *val, string d) : name(n), value(val), description(d) {}
 
-    GVariable(string name, int val, string description) : name(name), description(description) { value = std::to_string(val); }
+    GVariable(string n, int val, string d) : name(n), description(d) { value = std::to_string(val); }
 
-    GVariable(string name, bool val, string description) : name(name), description(description) { value = val ? "true" : "false"; }
+    GVariable(string n, bool val, string d) : name(n), description(d) { value = val ? "true" : "false"; }
 };
 
 /**

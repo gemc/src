@@ -10,9 +10,9 @@
 #include <unordered_map>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 using namespace std;
-
 
 namespace gutilities {
 
@@ -303,42 +303,98 @@ namespace gutilities {
 
 // string search for a path with <name> from a possible list of absolute paths
 // returns UNINITIALIZEDSTRINGQUANTITY if not found
+// the filesystem solution does not work on linux systems.
+// TODO: periodically try this?
+//#include <filesystem>
+//
+//    string searchForDirInLocations(string dirName, vector <string> possibleLocations) {
+//
+//        for (auto trialLocation: possibleLocations) {
+//            string possibleDir = trialLocation + "/" + dirName;
+//            if (std::filesystem::exists(possibleDir)) {
+//                return possibleDir;
+//            }
+//        }
+//        return UNINITIALIZEDSTRINGQUANTITY;
+//    }
+//
+//    vector <string> getListOfFilesInDirectory(string dirName, vector <string> extensions) {
+//
+//        vector <string> fileList;
+//
+//        for (const auto &entry: std::filesystem::directory_iterator(dirName)) {
+//            for (auto &extension: extensions) {
+//                if (entry.path().extension() == extension) {
+//                    fileList.push_back(entry.path().filename());
+//                }
+//            }
+//        }
+//
+//        return fileList;
+//    }
+// end of TODO
 
-// cstdint needed on some systems before filesystem
+#include <dirent.h>
+#include <sys/stat.h>
 
-#include <filesystem>
+    bool directoryExists(const std::string& path) {
+        struct stat info;
+        if (stat(path.c_str(), &info) != 0) {
+            return false; // Path does not exist
+        }
+        return (info.st_mode & S_IFDIR) != 0; // Check if it's a directory
+    }
 
-    string searchForDirInLocations(string dirName, vector <string> possibleLocations) {
-
-        for (auto trialLocation: possibleLocations) {
-            string possibleDir = trialLocation + "/" + dirName;
-            if (std::filesystem::exists(possibleDir)) {
+    string searchForDirInLocations(string dirName, vector<string> possibleLocations) {
+        for (const auto& trialLocation : possibleLocations) {
+            std::string possibleDir = trialLocation + "/" + dirName;
+            if (directoryExists(possibleDir)) {
                 return possibleDir;
             }
         }
-        return UNINITIALIZEDSTRINGQUANTITY;
+        return "UNINITIALIZEDSTRINGQUANTITY";
     }
 
-    vector <string> getListOfFilesInDirectory(string dirName, vector <string> extensions) {
-
-        vector <string> fileList;
-
-        for (const auto &entry: std::filesystem::directory_iterator(dirName)) {
-            for (auto &extension: extensions) {
-                if (entry.path().extension() == extension) {
-                    fileList.push_back(entry.path().filename());
+        bool hasExtension(const std::string& filename, const std::vector<std::string>& extensions) {
+            for (const auto& ext : extensions) {
+                if (filename.size() >= ext.size() &&
+                    filename.compare(filename.size() - ext.size(), ext.size(), ext) == 0) {
+                    return true;
                 }
             }
+            return false;
         }
 
-        return fileList;
-    }
+        std::vector<std::string> getListOfFilesInDirectory(string dirName, vector<string> extensions) {
+            std::vector<std::string> fileList;
 
-    string convertToLowercase(const string &str) {
+            DIR* dir = opendir(dirName.c_str());
+            if (dir) {
+                struct dirent* entry;
+                while ((entry = readdir(dir)) != nullptr) {
+                    struct stat info;
+                    std::string filepath = dirName + "/" + entry->d_name;
+                    if (stat(filepath.c_str(), &info) == 0 && S_ISREG(info.st_mode)) {
+                        std::string filename = entry->d_name;
+                        if (hasExtension(filename, extensions)) {
+                            fileList.push_back(filename);
+                        }
+                    }
+                }
+                closedir(dir);
+            }
+
+            return fileList;
+        }
+
+
+
+        string convertToLowercase(const string &str) {
         string lower = str;
         transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
         return lower;
     }
+
 
 
     // returns all keys from a map<key, value>
