@@ -22,6 +22,8 @@ jobs:
       # Check out the code
       - name: Checkout
         uses: actions/checkout@main
+        run: git fetch --prune --unshallow
+
       - name: Set ownership
         run: |
             # this is to fix GIT not liking owner of the checkout dir
