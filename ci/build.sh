@@ -19,6 +19,7 @@ fi
 function compileGEMC {
   echo " > Current dir: $(pwd)"
   ls -l
+  git fetch --prune --unshallow --tags
   git describe --tags --always --abbrev=0
   echo " > After git describe"
 	meson setup build --native-file=release.ini -Duse_root=true --wipe

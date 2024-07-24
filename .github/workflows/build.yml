@@ -16,8 +16,6 @@ jobs:
   build-ubuntu:
     runs-on: ubuntu-latest
     container: jeffersonlab/geant4:g4v11.2.2-ubuntu24
-    name: ${{ matrix.dir }}
-
     steps:
       # Check out the code
       - name: Checkout
@@ -26,7 +24,7 @@ jobs:
         run: |
             # this is to fix GIT not liking owner of the checkout dir
             chown -R $(id -u):$(id -g) $PWD
-            git fetch --prune --unshallow
+            git fetch --prune --unshallow --tags
             git config --global --add safe.directory '*'
       - name: Build GEMC
         run: |
@@ -39,8 +37,6 @@ jobs:
   build-fedora:
     runs-on: ubuntu-latest
     container: jeffersonlab/geant4:g4v11.2.2-fedora36
-    #name: ${{ matrix.dir }}
-
     steps:
       # Check out the code
       - name: Checkout
@@ -49,6 +45,8 @@ jobs:
         run: |
           # this is to fix GIT not liking owner of the checkout dir
           chown -R $(id -u):$(id -g) $PWD
+          git fetch --prune --unshallow --tags
+          git config --global --add safe.directory '*'
       - name: Build GEMC
         run: |
           ./ci/build.sh
@@ -60,16 +58,10 @@ jobs:
   build-almalinux:
     runs-on: ubuntu-latest
     container: jeffersonlab/geant4:g4v11.2.2-almalinux93
-    #name: ${{ matrix.dir }}
-
     steps:
       # Check out the code
       - name: Checkout
         uses: actions/checkout@main
-      - name: Set ownership
-        run: |
-          # this is to fix GIT not liking owner of the checkout dir
-          chown -R $(id -u):$(id -g) $PWD
       - name: Build GEMC
         run: |
           ./ci/build.sh
