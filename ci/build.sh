@@ -12,11 +12,12 @@
 if [[ -z "${AUTOBUILD}" ]]; then
     echo "\nNot in container"
 else
-    echo "\n > Running In a docker container"
+    echo "\n > Running In a Docker Container"
     source  /etc/profile.d/localSetup.sh
 fi
 
 function compileGEMC {
+  pwd
 	meson setup build --native-file=release.ini -Duse_root=true --wipe
   if [ $? -ne 0 ]; then
     echo Meson setup failed
@@ -26,9 +27,9 @@ function compileGEMC {
   module load geant4
   module load sim_system
   export GEMC=$SIM_HOME/gemc
-  mkdir -p GEMC
-  echo " > Running meson configure -Dprefix=GEMC"
-	meson configure -Dprefix=GEMC
+  mkdir -p $GEMC
+  echo " > Running meson configure -Dprefix=$GEMC"
+	meson configure -Dprefix=$GEMC
 	if [ $? -ne 0 ]; then
     echo Meson configure failed
     exit 1
