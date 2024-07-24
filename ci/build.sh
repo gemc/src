@@ -12,7 +12,7 @@
 if [[ -z "${AUTOBUILD}" ]]; then
     echo "\nNot in container"
 else
-    echo "\nIn container: ${DISTTAG}"
+    echo "\n > Running In a docker container"
     source  /etc/profile.d/localSetup.sh
 fi
 
