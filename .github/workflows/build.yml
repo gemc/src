@@ -22,7 +22,7 @@ jobs:
       # Check out the code
       - name: Checkout
         uses: actions/checkout@main
-        run: git fetch --prune --unshallow
+      - run: git fetch --prune --unshallow
 
       - name: Set ownership
         run: |
