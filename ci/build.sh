@@ -17,7 +17,8 @@ else
 fi
 
 function compileGEMC {
-  pwd
+  echo " > Current dir: $(pwd)"
+  ls -l
 	meson setup build --native-file=release.ini -Duse_root=true --wipe
   if [ $? -ne 0 ]; then
     echo Meson setup failed
