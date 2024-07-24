@@ -6,7 +6,7 @@ from datetime import datetime
 def get_git_version():
     try:
         # Run the git command to get the latest tag
-        tag = subprocess.check_output(['git', 'describe', '--tags', '--abbrev=0']).strip().decode('utf-8')
+        tag = subprocess.check_output(['git', 'describe', '--tags', '--abbrev=0', '--always']).strip().decode('utf-8')
         # Run another git command to get the date of the tag
         date = subprocess.check_output(['git', 'log', '-1', '--format=%ai', tag]).strip().decode('utf-8')
         return tag, datetime.strptime(date, '%Y-%m-%d %H:%M:%S %z').strftime('%Y-%m-%d')

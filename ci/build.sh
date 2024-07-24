@@ -19,8 +19,6 @@ fi
 function compileGEMC {
   echo " > Current dir: $(pwd)"
   ls -l
-  git config --global --add safe.directory $PWD
-  git fetch --tags
   git describe --tags --always --abbrev=0
   echo " > After git describe"
 	meson setup build --native-file=release.ini -Duse_root=true --wipe
