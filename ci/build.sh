@@ -23,8 +23,10 @@ function compileGEMC {
   	exit 1
   fi
 	cd build
-  module load gemc/dev3
-	meson configure -Dprefix=$GEMC
+  module load geant4
+  module load sim_system
+  mkdir -p $SIM_HOME/gemc
+	meson configure -Dprefix=$SIM_HOME/gemc
 	if [ $? -ne 0 ]; then
     echo Meson configure failed
     exit 1
@@ -36,9 +38,10 @@ function compileGEMC {
 
 compileGEMC
 echo
-echo "- Content of $GEMC"
-ls -lrt $GEMC
-echo "- Content of $GEMC/bin"
-ls -lrt $GEMC/bin
-echo "- Content of $GEMC/lib"
-ls -lrt $GEMC/lib
+echo "- Content of $SIM_HOME/gemcC"
+ls -lrt $SIM_HOME/gemc
+echo "- Content of $SIM_HOME/gemc/bin"
+ls -lrt $SIM_HOME/gemc/bin
+echo
+echo "gemc version:"
+$SIM_HOME/gemc/bin/gemc -v

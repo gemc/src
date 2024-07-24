@@ -5,7 +5,8 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 // c++
-// algorithm for the erase/remove combo
+// algorithm for 'transform'
+#include <algorithm>
 #include <sstream>
 #include <unordered_map>
 #include <iostream>
