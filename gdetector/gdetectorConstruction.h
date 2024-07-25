@@ -28,6 +28,8 @@ public:
 
     inline vector <string> getDigitizationNamesList() const { return gworld->getSensitiveDetectorsList(); }
 
+    bool is_empty() const { return g4world->is_empty() ; }
+
 private:
     GOptions *gopt = nullptr;
     GWorld *gworld = nullptr;

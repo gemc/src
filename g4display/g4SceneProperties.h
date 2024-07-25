@@ -14,6 +14,9 @@ class G4SceneProperties {
 
 public:
     G4SceneProperties(GOptions *gopts);
+    // default destructor
+    ~G4SceneProperties() = default;
+
 
     vector <string> addSceneTexts(GOptions *gopts);
 };
