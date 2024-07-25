@@ -1,4 +1,4 @@
-name: Build GEMC
+name: Test GEMC
 
 on:
   # Triggers the workflow on all pushes
@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-ubuntu:
+  ubuntu:
     runs-on: ubuntu-latest
     container: jeffersonlab/geant4:g4v11.2.2-ubuntu24
     steps:
@@ -29,8 +29,10 @@ jobs:
       - name: Build GEMC
         run: |
           ./ci/build.sh
-
-  build-fedora:
+      - name: Test API
+        run: |
+          ./ci/testAPI.sh
+  fedora:
     runs-on: ubuntu-latest
     container: jeffersonlab/geant4:g4v11.2.2-fedora36
     steps:
@@ -46,8 +48,11 @@ jobs:
       - name: Build GEMC
         run: |
           ./ci/build.sh
+      - name: Test API
+        run: |
+          ./ci/testAPI.sh
 
-  build-almalinux:
+  almalinux:
     runs-on: ubuntu-latest
     container: jeffersonlab/geant4:g4v11.2.2-almalinux93
     steps:
@@ -63,3 +68,6 @@ jobs:
       - name: Build GEMC
         run: |
           ./ci/build.sh
+      - name: Test API
+        run: |
+          ./ci/testAPI.sh

@@ -5,10 +5,10 @@ import argparse
 import logging
 import os
 
-# from gemc_api_geometry import *
+# from geometry import *
 from solids_map import AVAILABLE_SOLIDS_MAP
 
-_logger = logging.getLogger("sci-g")
+_logger = logging.getLogger("api")
 
 NGIVEN: str = 'NOTGIVEN'
 NGIVENS: [str] = ['NOTGIVEN']
@@ -121,7 +121,7 @@ def write_templates(system, variations):
         ps.write('import logging\n')
         ps.write('import subprocess\n\n')
         ps.write('# sci-g:\n')
-        ps.write('from gemc_api_utils import GConfiguration\n\n')
+        ps.write('from utils import GConfiguration\n\n')
         ps.write(f'# {system}:\n')
         ps.write('from materials import define_materials\n')
         ps.write(f'from geometry import build_{system}\n\n')
@@ -160,7 +160,7 @@ def write_templates(system, variations):
 
     ask_to_overwrite_file(mat_script)
     with open(f'{mat_script}', 'w') as pm:
-        pm.write('from gemc_api_materials import GMaterial\n\n')
+        pm.write('from materials import GMaterial\n\n')
         pm.write('def define_materials(configuration):\n\n')
         pm.write('# example of material: epoxy glue, defined with number of atoms\n')
         pm.write('	gmaterial = GMaterial("epoxy")\n')
@@ -181,7 +181,7 @@ def write_templates(system, variations):
 
     ask_to_overwrite_file(geo_script)
     with open(f'{geo_script}', 'w') as pg:
-        pg.write('from gemc_api_geometry import GVolume\n')
+        pg.write('from geometry import GVolume\n')
         pg.write('import math\n\n')
         pg.write('# These are example of methods to build a mother and daughter volume.\n\n')
         pg.write(f'def build_{system}(configuration):\n')

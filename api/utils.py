@@ -126,7 +126,7 @@ class GConfiguration():
 
 
 # The following code allows this module to be executed as a main python script for the purpose of testing the functions
-# To test, type:  'python gemc_api_utils.py' on the command line
+# To test, type:  'python utils.py' on the command line
 if __name__ == "__main__":
     import argparse, sys
 

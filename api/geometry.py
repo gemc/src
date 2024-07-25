@@ -227,11 +227,11 @@ class GVolume:
 
         To print the corresponding code:
 
-        > scigTemplate.py -gv G4Box -gvp '30, 40, 60' -silent
+        > templates.py -gv G4Box -gvp '30, 40, 60' -silent
 
         To print the generic code:
 
-        > scigTemplate.py -gv G4Box
+        > templates.py -gv G4Box
         """
 
         self.solid = WILLBESET
@@ -268,11 +268,11 @@ class GVolume:
 
         To print the corresponding code:
 
-        > scigTemplate.py -gv G4Tubs -gvp '10, 15, 20, 0, 90' -silent
+        > templates.py -gv G4Tubs -gvp '10, 15, 20, 0, 90' -silent
 
         To print the generic code:
 
-        > scigTemplate.py -gv G4Tubs
+        > templates.py -gv G4Tubs
 
         """
 
@@ -316,11 +316,11 @@ class GVolume:
 
         To print the corresponding code:
 
-        > scigTemplate.py -gv G4Cons -gvp '5, 10, 20, 25, 40, 0, 270' -silent
+        > templates.py -gv G4Cons -gvp '5, 10, 20, 25, 40, 0, 270' -silent
 
         To print the generic code:
 
-        > scigTemplate.py -gv G4Cons
+        > templates.py -gv G4Cons
 
         """
 
@@ -359,11 +359,11 @@ class GVolume:
 
         To print the corresponding code:
 
-        > scigTemplate.py -gv G4Trd -gvp '30, 10, 40, 15, 60' -silent
+        > templates.py -gv G4Trd -gvp '30, 10, 40, 15, 60' -silent
 
         To print the generic code:
 
-        > scigTemplate.py -gv G4Trd
+        > templates.py -gv G4Trd
 
 
         """
@@ -400,11 +400,11 @@ class GVolume:
 
         To print the corresponding code:
 
-        > scigTemplate.py -gv G4TrapRAW -gvp '30, 40, 50, 20' -silent
+        > templates.py -gv G4TrapRAW -gvp '30, 40, 50, 20' -silent
 
         To print the generic code:
 
-        > scigTemplate.py -gv G4TrapRAW
+        > templates.py -gv G4TrapRAW
 
         """
 
@@ -451,11 +451,11 @@ class GVolume:
 
         To print the corresponding code:
 
-        > scigTemplate.py -gv G4TrapG -gvp '30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130' -silent
+        > templates.py -gv G4TrapG -gvp '30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130' -silent
 
         To print the generic code:
 
-        > scigTemplate.py -gv G4TrapG
+        > templates.py -gv G4TrapG
 
         """
 

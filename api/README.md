@@ -6,22 +6,22 @@ assign sensitivity, etc.
 
 ### Prerequisites:
 
-- gemc installation
 - python3
+- gemc installation
 
 # Quickstart
 
-The python script `scigTemplate.py` can be used to create: 
+The python script `templates.py` can be used to create: 
  - a new system 
  - template code to build a new volume, material, etc.
 
 
-### Create a new system 
+### New system 
 
-To create a 'my_project' system:
+To create new system:
 
 ``` 
-scigTemplate.py -s my_project
+$GEMC/api/templates.py -s my_system
 ```
 
 See [gemc systems](https://gemc.github.io/home/documentation/system) for more details.

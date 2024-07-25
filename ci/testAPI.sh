@@ -14,22 +14,6 @@
 
 source functions.sh
 
-function compile {
-  echo " > Current dir: $(pwd)"
-  ls -l
-  echo " > After git describe"
-	meson setup build --native-file=release.ini -Duse_root=true --wipe
-	cd build
-  module load geant4
-  module load sim_system
-  echo " > Running meson configure -Dprefix=$GEMC"
-	meson configure -Dprefix=$GEMC
-  echo " > Running meson compile and install"
-	meson compile -v
-	meson install
-  show_installation
-}
-
 function tests {
   cd build
   echo " > Running meson test"
@@ -42,8 +26,6 @@ function tests {
   fi
 }
 
-set_environment
-compile
 set_ld_path
 echo
 tests

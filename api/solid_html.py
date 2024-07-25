@@ -5,7 +5,7 @@ import argparse
 import logging
 import os
 
-from gemc_api_geometry import *
+from geometry import *
 
 _logger = logging.getLogger("sci-g")
 

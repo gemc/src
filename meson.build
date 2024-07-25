@@ -153,6 +153,8 @@ gemc = executable(
     link_with : all_libs
 )
 
+# api
+install_subdir('api', install_dir : '.')
 
 # generate pkg-config file
 pkg = import('pkgconfig')
