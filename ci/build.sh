@@ -18,6 +18,8 @@ if [[ -z "${AUTOBUILD}" ]]; then
 else
     echo "\n > Running In a Docker Container"
     source  /etc/profile.d/localSetup.sh
+    # In github actions, the clone is not deep, so we need to fetch the tags
+    git fetch --prune --unshallow --tags
 fi
 
 function lib_or_lib64 {
@@ -35,8 +37,6 @@ function lib_or_lib64 {
 function compileGEMC {
   echo " > Current dir: $(pwd)"
   ls -l
-  git fetch --prune --unshallow --tags
-  git describe --tags --always --abbrev=0
   echo " > After git describe"
 	meson setup build --native-file=release.ini -Duse_root=true --wipe
 	cd build

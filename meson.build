@@ -1,6 +1,6 @@
 project('gemc3', 'cpp',
         default_options : ['cpp_std=c++20'],
-        version : run_command('git', 'describe', '--tags', '--abbrev=0', check : true).stdout().strip()
+        version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip()
 )
 project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 
@@ -84,6 +84,7 @@ foreach L : LD
 
         foreach dep : this_deps
             if not all_deps.contains(dep)
+                message(' adding ' + dep.name() + ' to ' + this_lib_name)
                 all_deps += dep
             endif
         endforeach
