@@ -42,7 +42,6 @@ function tests {
   fi
 }
 
-set_environment
 compile
 echo
 tests

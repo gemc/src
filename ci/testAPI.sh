@@ -15,6 +15,7 @@
 source ci/functions.sh
 
 function tests_templates {
+  set_ld_path
   echo " > Testing helper"
   $GEMC/api/templates.py
   echo " > Testing solid list helper"
@@ -25,6 +26,5 @@ function tests_templates {
   done
 }
 
-set_ld_path
 echo
 tests_templates

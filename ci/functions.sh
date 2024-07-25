@@ -8,14 +8,13 @@ else
     source  /etc/profile.d/localSetup.sh
     # In github actions, the clone is not deep, so we need to fetch the tags
     git fetch --prune --unshallow --tags
-    export GEMC=$SIM_HOME/gemc
 fi
 
-function set_environment {
-  echo " > Setting environment, current dir: $(pwd)"
-  ls -l
-  mkdir -p $GEMC
-}
+# assuming only geant4 and not gemc is loaded
+echo " > Setting environment, current dir: $(pwd)"
+ls -l
+export GEMC=$SIM_HOME/gemc
+mkdir -p $GEMC
 
 function set_ld_path {
   echo " > Setting LD Path"
