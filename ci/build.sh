@@ -3,7 +3,11 @@
 # Purpose: compiles gemc and installs it in gemc
 
 # Container run:
-# docker run -it --rm jeffersonlab//geant4:g4v11.2.2-almalinux93
+# docker_run_image jeffersonlab/geant4:g4v11.2.2-almalinux93
+# docker_run_image jeffersonlab/geant4:g4v11.2.2-ubuntu24
+# docker_run_image jeffersonlab/geant4:g4v11.2.2-fedora36
+#
+# local build:
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # git clone http://github.com/maureeungaro/src /root/src && cd /root/src
 # ./ci/build.sh
@@ -42,7 +46,8 @@ function compileGEMC {
   mkdir -p $GEMC
   echo " > Running meson configure -Dprefix=$GEMC"
 	meson configure -Dprefix=$GEMC
-  echo " > Running meson install and test"
+  echo " > Running meson compile and install"
+	meson compile -v
 	meson install
   lib_or_lib64
   echo " > Running meson test"
