@@ -35,7 +35,7 @@ namespace eventDispenser {
         help += "13 0.2\n \n";
         help += GTAB;
         help += "will simulate 10% of events with run number 11 conditions, 70% for run 12 and 20% for run 13.\n";
-        goptions.defineOption(GVariable("wdbfile", goptions::NODFLT, "File with run number and weights"), help);
+        goptions.defineOption(GVariable("wdbfile", "na", "File with run number and weights"), help);
 
         help = "Max number of events  to buffer before they're written out.\n \n";
         help += "Example: -n_event_buffer=12\n";

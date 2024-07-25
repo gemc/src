@@ -51,6 +51,7 @@ namespace gutilities {
     // Get the directory from the path (currently only posix)
     string getDirFromPath(string path) {
         auto lastSlash = path.find_last_of("/");
+        if (lastSlash == string::npos) return ".";
         return path.substr(0, lastSlash);
     }
 
@@ -171,7 +172,6 @@ namespace gutilities {
                 cerr << "Value: >" << v << "<, error: " << e.what() << endl;
                 gexit(EC__G4NUMBERERROR);
             }
-
 
             if (units == "m") answer *= CLHEP::m;
             else if (units == "inches") answer *= 2.54 * CLHEP::cm;
@@ -412,6 +412,7 @@ namespace gutilities {
 
     // Function to convert string to enum
     randomModel stringToRandomModel(const std::string &str) {
+
         static const std::unordered_map <std::string, randomModel> strToEnum = {
                 {"uniform",  uniform},
                 {"gaussian", gaussian},
@@ -423,7 +424,7 @@ namespace gutilities {
         if (it != strToEnum.end()) {
             return it->second;
         } else {
-            throw std::invalid_argument("Invalid string for randomModel enum");
+            throw std::invalid_argument("Invalid string for randomModel: " + str);
         }
     }
 

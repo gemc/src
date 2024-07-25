@@ -137,14 +137,16 @@ void startRandomEngine(GOptions* gopts) {
 
     string randomEngineName = gopts->getScalarString("randomEngineName");
     int seed = gopts->getScalarInt("randomSeed");
-    if ( seed == -99 ) {
+    if ( seed == -12345 ) {
         double timed = time(NULL);
         double clockd = clock();
         double getpidi = (double) getpid();
         seed = (G4int) (  timed - clockd - getpidi );
     }
 
-    cout << GEMCLOGMSGITEM << "Starting random engine: >" << randomEngineName << "< using seed: " << seed << endl;
+    cout << GEMCLOGMSGITEM << "Starting random engine: >"
+    << KGRN << randomEngineName << RST
+    << "< using seed: " << KGRN << seed << RST << endl;
 
     // the below will not work:
     // if uncommented, it will set the same seed for each event - even if setTheSeed is called below

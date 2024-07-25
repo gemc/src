@@ -29,7 +29,6 @@ public:
         }
 
         possibleLocationOfFiles.push_back(".");
-        possibleLocationOfFiles.push_back("");
 
         // environment for cad
         auto gtextEnv = getenv(GEMCDB_ENV); // char*
@@ -62,7 +61,7 @@ protected:
     vector <string> possibleLocationOfFiles;
 
 public:
-    void addPossibleFileLocation(string fl) { possibleLocationOfFiles.push_back(fl); }
+    void addPossibleFileLocation(string fl) {  possibleLocationOfFiles.push_back(fl); }
 
 };
 

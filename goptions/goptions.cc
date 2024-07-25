@@ -68,7 +68,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
     help += "1: summaryt\n";
     help += "2: details\n";
     help += "3: everything\n \n";
-    help += "Example: -verbosity=\"[{fields: 3}, {materials: 1}]\" \n";
+    help += "Example: -verbosity=\"[{gsystem: 3}, {grun: 1}]\" \n";
     defineOption("verbosity", "Sets the log verbosity for various categories", verbosity, help);
 
 
@@ -387,6 +387,7 @@ YAML::Node GOptions::get_option_map_in_node(string option_name, string map_key) 
             }
         }
     }
+
     // if the key is not found, exit with error
     cerr << FATALERRORL << "The key " << YELLOWHHL << map_key << RSTHHR << " was not found in " << YELLOWHHL << option_name << RSTHHR << endl;
     gexit(EC__NOOPTIONFOUND);
@@ -415,9 +416,15 @@ template bool GOptions::get_variable_in_option<bool>(const YAML::Node &node, con
 
 
 int GOptions::getVerbosityFor(string tag) {
-    auto verbosity_node = get_option_map_in_node("verbosity", tag);
+    auto verbosity_node = get_option_node("verbosity");
 
-    return verbosity_node.as<int>();
+    for (auto v: verbosity_node) {
+        if (v.begin()->first.as<string>() == tag) {
+            return v.begin()->second.as<int>();
+        }
+    }
+
+    return 0;
 }
 
 

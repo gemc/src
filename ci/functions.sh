@@ -14,6 +14,7 @@ fi
 echo " > Setting environment, current dir: $(pwd)"
 ls -l
 export GEMC=$SIM_HOME/gemc
+export PYTHONPATH=${PYTHONPATH}:${GEMC}/api
 mkdir -p $GEMC
 
 function set_ld_path {

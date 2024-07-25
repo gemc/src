@@ -162,3 +162,10 @@ const GMaterial *GSystem::getMaterialForGVolume(string volumeName) const {
 
     return nullptr;
 }
+
+const string GSystem::getFilePath() {
+    if (path == "") {
+        return name;
+    }
+    return path + "/" + name;
+}

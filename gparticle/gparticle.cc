@@ -23,12 +23,14 @@ Gparticle::Gparticle(string aname,
                      float adelta_p,
                      string punit,
                      string arandomMomentumModel,
+
                      float atheta,
                      float adelta_theta,
                      string arandomThetaModel,
                      float aphi,
                      float adelta_phi,
                      string aunit,
+
                      float avx,
                      float avy,
                      float avz,
@@ -40,23 +42,23 @@ Gparticle::Gparticle(string aname,
                      int averbosity) :
         name(aname),
         multiplicity(amultiplicity),
-        p(getG4Number(to_string(ap) + punit)),
-        delta_p(getG4Number(to_string(adelta_p) + punit)),
+        p(getG4Number(to_string(ap) +  "*" + punit)),
+        delta_p(getG4Number(to_string(adelta_p) +  "*" + punit)),
         randomMomentumModel(gutilities::stringToRandomModel(arandomMomentumModel)),
-        theta(getG4Number(to_string(atheta) + aunit)),
-        delta_theta(getG4Number(to_string(adelta_theta) + aunit)),
+        theta(getG4Number(to_string(atheta) + "*" + aunit)),
+        delta_theta(getG4Number(to_string(adelta_theta) + "*" + aunit)),
         randomThetaModel(gutilities::stringToRandomModel(arandomThetaModel)),
-        phi(getG4Number(to_string(aphi) + aunit)),
-        delta_phi(getG4Number(to_string(adelta_phi) + aunit)),
+        phi(getG4Number(to_string(aphi) + "*" + aunit)),
+        delta_phi(getG4Number(to_string(adelta_phi) + "*" + aunit)),
         v(G4ThreeVector(
-                getG4Number(to_string(avx) + vunit),
-                getG4Number(to_string(avy) + vunit),
-                getG4Number(to_string(avz) + vunit)
+                getG4Number(to_string(avx) + "*" + vunit),
+                getG4Number(to_string(avy) + "*" + vunit),
+                getG4Number(to_string(avz) + "*" + vunit)
         )),
         delta_v(G4ThreeVector(
-                getG4Number(to_string(adelta_vx) + vunit),
-                getG4Number(to_string(adelta_vy) + vunit),
-                getG4Number(to_string(adelta_vz) + vunit)
+                getG4Number(to_string(adelta_vx) + "*" + vunit),
+                getG4Number(to_string(adelta_vy) + "*" + vunit),
+                getG4Number(to_string(adelta_vz) + "*" + vunit)
         )),
         randomVertexModel(gutilities::stringToRandomModel(arandomVertexModel)),
         verbosity(averbosity) {
@@ -141,10 +143,10 @@ float Gparticle::calculateKinEnergy(float mass) {
 
 G4ThreeVector Gparticle::calculateBeamDirection() {
 
-    float thetaRad = randomizeNumberFromSigmaWithModel(theta, delta_theta, randomThetaModel);
 
+    float thetaRad = randomizeNumberFromSigmaWithModel(theta, delta_theta, randomThetaModel) / CLHEP::rad;
 
-    float phiRad = randomizeNumberFromSigmaWithModel(phi / CLHEP::rad, delta_phi / CLHEP::rad, cosine);
+    float phiRad = randomizeNumberFromSigmaWithModel(phi, delta_phi, uniform) / CLHEP::rad ;
 
     G4ThreeVector pdir = G4ThreeVector(
             cos(phiRad) * sin(thetaRad),
@@ -158,7 +160,6 @@ G4ThreeVector Gparticle::calculateBeamDirection() {
 G4ThreeVector Gparticle::calculateVertex() {
 
     float x, y, z;
-
 
     switch (randomVertexModel) {
         case uniform:
@@ -198,6 +199,7 @@ G4ThreeVector Gparticle::calculateVertex() {
 
 
 float Gparticle::randomizeNumberFromSigmaWithModel(float center, float delta, gutilities::randomModel model) {
+
     switch (model) {
         case uniform:
             return center + (2.0 * G4UniformRand() - 1.0) * delta;
@@ -228,23 +230,24 @@ float Gparticle::randomizeNumberFromSigmaWithModel(float center, float delta, gu
 }
 
 ostream &operator<<(ostream &stream, Gparticle gparticle) {
+
     stream << "Gparticle: " << endl;
 
-    cout << "  name: " << gparticle.name << " (pid: " << gparticle.pid << ")" << endl;
-    cout << "  mass: " << gparticle.get_mass() << endl;
-    cout << "  multiplicity: " << gparticle.multiplicity << endl;
-    cout << "  p: " << gparticle.p << endl;
-    cout << "  delta_p: " << gparticle.delta_p / CLHEP :: MeV << " MeV" << endl;
-    cout << "  randomMomentumModel: " << gparticle.randomMomentumModel << endl;
-    cout << "  theta: " << gparticle.theta / CLHEP::deg << "deg" << endl;
-    cout << "  delta_theta: " << gparticle.delta_theta / CLHEP::deg << "deg" << endl;
-    cout << "  randomThetaModel: " << gparticle.randomThetaModel << endl;
-    cout << "  phi: " << gparticle.phi / CLHEP::deg << "deg" << endl;
-    cout << "  delta_phi: " << gparticle.delta_phi / CLHEP::deg << "deg" << endl;
-    cout << "  v: " << gparticle.v << endl;
-    cout << "  delta_v: " << gparticle.delta_v << endl;
-    cout << "  randomVertexModel: " << gparticle.randomVertexModel << endl;
-    cout << "  verbosity: " << gparticle.verbosity << endl;
+    stream << "  name: " << gparticle.name << " (pid: " << gparticle.pid << ")" << endl;
+    stream << "  mass: " << gparticle.get_mass() << endl;
+    stream << "  multiplicity: " << gparticle.multiplicity << endl;
+    stream << "  p: " << gparticle.p << endl;
+    stream << "  delta_p: " << gparticle.delta_p / CLHEP :: MeV << " MeV" << endl;
+    stream << "  randomMomentumModel: " << gparticle.randomMomentumModel << endl;
+    stream << "  theta: " << gparticle.theta / CLHEP::deg << " deg" << endl;
+    stream << "  delta_theta: " << gparticle.delta_theta / CLHEP::deg << " deg" << endl;
+    stream << "  randomThetaModel: " << gparticle.randomThetaModel << endl;
+    stream << "  phi: " << gparticle.phi / CLHEP::deg << "deg" << endl;
+    stream << "  delta_phi: " << gparticle.delta_phi / CLHEP::deg << "deg" << endl;
+    stream << "  v: " << gparticle.v << endl;
+    stream << "  delta_v: " << gparticle.delta_v << endl;
+    stream << "  randomVertexModel: " << gparticle.randomVertexModel << endl;
+    stream << "  verbosity: " << gparticle.verbosity << endl;
 
     return stream;
 }

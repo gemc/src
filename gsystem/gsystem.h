@@ -56,7 +56,7 @@ public:
 
     inline const string getVariation() const { return variation; }
 
-    inline const string getFilePath() const { return path + "/" + name; }
+    const string getFilePath() ;
 
     inline const string getAnnotations() const { return annotations; }
 

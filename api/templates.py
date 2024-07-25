@@ -109,7 +109,7 @@ def write_templates(system, variations):
     system_script = system + '/' + system + '.py'
     geo_script    = system + '/geometry.py'
     mat_script    = system + '/materials.py'
-    jcard         = system + '/' + system + '.jcard'
+    yaml          = system + '/' + system + '.yaml'
     readme        = system + '/README.md'
 
 
@@ -117,11 +117,12 @@ def write_templates(system, variations):
     with open(f'{system_script}', 'w') as ps:
         ps.write('#!/usr/bin/env python3\n\n')
         ps.write('# python:\n')
-        ps.write('import sys, os, argparse\n')
+        ps.write('import argparse\n')
+        # ps.write('import sys, os, argparse\n')
         ps.write('import logging\n')
-        ps.write('import subprocess\n\n')
-        ps.write('# sci-g:\n')
-        ps.write('from utils import GConfiguration\n\n')
+        # ps.write('import subprocess\n\n')
+        ps.write('# api:\n')
+        ps.write('from utils_api import GConfiguration\n\n')
         ps.write(f'# {system}:\n')
         ps.write('from materials import define_materials\n')
         ps.write(f'from geometry import build_{system}\n\n')
@@ -160,7 +161,7 @@ def write_templates(system, variations):
 
     ask_to_overwrite_file(mat_script)
     with open(f'{mat_script}', 'w') as pm:
-        pm.write('from materials import GMaterial\n\n')
+        pm.write('from materials_api import GMaterial\n\n')
         pm.write('def define_materials(configuration):\n\n')
         pm.write('# example of material: epoxy glue, defined with number of atoms\n')
         pm.write('	gmaterial = GMaterial("epoxy")\n')
@@ -181,7 +182,7 @@ def write_templates(system, variations):
 
     ask_to_overwrite_file(geo_script)
     with open(f'{geo_script}', 'w') as pg:
-        pg.write('from geometry import GVolume\n')
+        pg.write('from geometry_api import GVolume\n')
         pg.write('import math\n\n')
         pg.write('# These are example of methods to build a mother and daughter volume.\n\n')
         pg.write(f'def build_{system}(configuration):\n')
@@ -207,44 +208,25 @@ def write_templates(system, variations):
         pg.write('	gvolume.color       = \'ff0000\'\n')
         pg.write('	gvolume.publish(configuration)\n\n\n\n')
 
-    ask_to_overwrite_file(jcard)
-    with open(f'{jcard}', 'w') as pj:
-        pj.write('{\n')
-        pj.write('	# no nthreads specified: runs on all available threads\n')
-        pj.write('	# uncomment this line to specify number of threads\n')
-        pj.write('	# "nthreads": 4,\n\n')
-        pj.write('	# verbosities\n')
-        pj.write('	"verbosity": 1,\n')
-        pj.write('	"g4displayv": 2,\n')
-        pj.write('	"gsystemv": 1,\n')
-        pj.write('	"g4systemv": 2,\n\n')
-        pj.write(f'	# the {system} system\n')
-        pj.write('	"+gsystem": [\n')
-        pj.write('		{\n')
-        pj.write(f'			"system":   "./{system}",\n')
-        pj.write('			"factory": "text",\n')
-        pj.write('			"variation": "default"\n')
-        pj.write('		}\n')
-        pj.write('	],\n\n')
-        pj.write('	"+goutput": [\n')
-        pj.write('		{\n')
-        pj.write('			"format": "ROOT",\n')
-        pj.write('			"name": "events.root",\n')
-        pj.write('			"type": "event"\n')
-        pj.write('		},\n')
-        pj.write('		{\n')
-        pj.write('			"format": "TEXT",\n')
-        pj.write('			"name": "events.txt",\n')
-        pj.write('			"type": "event"\n')
-        pj.write('		}\n')
-        pj.write('	],\n\n')
-        pj.write('	"n": 200,\n')
-        pj.write('	"+gparticle": [\n')
-        pj.write(
-            '		{ "pname": "pi0", "multiplicity": 1,  "p": 300,  "theta": 20.0, "delta_phi": 180.0, "vz": -20.0}\n')
-        pj.write('	]\n')
+    ask_to_overwrite_file(yaml)
+    with open(f'{yaml}', 'w') as pj:
+        pj.write('runno: 1\n\n')
+        pj.write('gparticle:\n')
+        pj.write('  - name: e-\n')
+        pj.write('    p: 1500\n')
+        pj.write('    theta: 23.0\n')
+        pj.write('    delta_theta: 4.0\n')
+        pj.write('    delta_phi: 18.0\n')
+        pj.write('    multiplicity: 4\n\n')
+        pj.write('  - name: proton\n')
+        pj.write('    p: 3000\n')
+        pj.write('verbosity:\n')
+        pj.write('  - ghits: 2\n')
+        pj.write('  - gsystem: 2\n')
+        pj.write('gsystem:\n')
+        pj.write('  - name: mys\n')
+        pj.write('    factory: TEXT\n\n')
 
-        pj.write('}\n\n')
 
     ask_to_overwrite_file(readme)
     with open(f'{readme}', 'w') as rm:

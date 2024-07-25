@@ -28,7 +28,7 @@ GOptions defineOptions() {
     goptions.defineOption(GVariable("nthreads", 0, "number of threads"), help);
 
     vector <GVariable> gparticle = {
-            {"pname",        goptions::NODFLT, "particle name"},
+            {"name",         goptions::NODFLT, "particle name"},
             {"multiplicity", 1,                "number of particles per event"},
             {"p",            goptions::NODFLT, "momentum"},
             {"theta",        "0*degrees",      "polar angle"},

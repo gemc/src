@@ -24,6 +24,9 @@ ifstream *GSystemTextFactory::gSystemTextFileStream(GSystem *system, string SYST
     string variation = system->getVariation();
 
     string fname = fileName + SYSTEMTYPE + variation + ".txt";
+   // if (verbosity == GVERBOSITY_DETAILS) {
+        cout << GSYSTEMLOGHEADER << "gSystemTextFileStream: filename: " << KGRN << fname << RST << endl;
+    //}
 
     // default dir is "."
     ifstream *IN = new ifstream(fname.c_str());
@@ -38,6 +41,8 @@ ifstream *GSystemTextFactory::gSystemTextFileStream(GSystem *system, string SYST
         for (auto trialLocation: possibleLocationOfFiles) {
 
             string newName = trialLocation + "/" + fname;
+            cout << GSYSTEMLOGHEADER << "gSystemTextFileStream: filename: " << KGRN << newName << RST << endl;
+
             if (verbosity == GVERBOSITY_DETAILS) {
                 cout << GSYSTEMLOGHEADER << "Trying file " << newName << endl;
             }
