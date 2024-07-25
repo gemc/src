@@ -24,7 +24,7 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
 
     # Provides the -h, --help message
-    desc_str = "   SCI-G template creator\n"
+    desc_str = "   GEMC templates creator\n"
     parser = argparse.ArgumentParser(description=desc_str)
 
     # file writers
@@ -35,9 +35,9 @@ def main():
                         default=['default'])
 
     # code snippets loggers: volume
-    parser.add_argument('-silent', action='store_true', help='do not print the commented line of code',
+    parser.add_argument('-silent', action='store_true', help='do not output the commented lines of code',
                         default=False)
-    parser.add_argument('-sl',     action='store_true', help='show available solids list')  # and geant4 link
+    parser.add_argument('-sl',     action='store_true', help='show available geant4 solids constructors')  # and geant4 link
     parser.add_argument('-gv',     metavar='volume', action='store', type=str,
                         help="show on screen sci-g code for selected geant4 volume type. "
                              "Use ' -sl ' to list the available types.",

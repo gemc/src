@@ -14,18 +14,17 @@
 
 source ci/functions.sh
 
-function tests {
-  cd build
-  echo " > Running meson test"
-	meson test -v
-	cd ..
-  $GEMC/bin/gemc -v
-  if [ $? -ne 0 ]; then
-    echo Running gemc  failed
-    exit 1
-  fi
+function tests_templates {
+  echo " > Testing helper"
+  $GEMC/api/templates.py
+  echo " > Testing solid list helper"
+  $GEMC/api/templates.py -sl
+  for solid in G4Box G4Tubs G4Cons G4Trd G4TrapRAW G4TrapG; do
+    echo " > Testing solid code for $solid"
+    $GEMC/api/templates.py -gv $solid
+  done
 }
 
 set_ld_path
 echo
-tests
+tests_templates

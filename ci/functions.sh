@@ -8,16 +8,17 @@ else
     source  /etc/profile.d/localSetup.sh
     # In github actions, the clone is not deep, so we need to fetch the tags
     git fetch --prune --unshallow --tags
+    export GEMC=$SIM_HOME/gemc
 fi
 
 function set_environment {
-  echo " > Current dir: $(pwd)"
+  echo " > Setting environment, current dir: $(pwd)"
   ls -l
-  export GEMC=$SIM_HOME/gemc
   mkdir -p $GEMC
 }
 
 function set_ld_path {
+  echo " > Setting LD Path"
   if [ -d $GEMC/lib ]; then
     export LD_LIBRARY_PATH=$GEMC/lib:$LD_LIBRARY_PATH
   elif [ -d $GEMC/lib64 ]; then

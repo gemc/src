@@ -15,7 +15,7 @@
 #                The order of the parameters matches the GEANT4 solid constructors.
 #                For example a "G4Box" type needs 3 dimensions:  pX, pY, pZ "2*cm 5*m 24*cm"
 #
-# - material:  A string defining the volume's material.  This can be a sci-g GMaterial name, or one from the GEANT4
+# - material:  A string defining the volume's material.  This can be a GMaterial name, or one from the GEANT4
 #              material database:
 #              https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Appendix/materialNames.html
 #              for example, "G4_MYLAR" or "G4_PLEXIGLASS".
