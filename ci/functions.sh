@@ -11,6 +11,8 @@ else
 fi
 
 function set_environment {
+  echo " > Current dir: $(pwd)"
+  ls -l
   export GEMC=$SIM_HOME/gemc
   mkdir -p $GEMC
 }

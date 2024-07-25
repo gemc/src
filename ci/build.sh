@@ -12,12 +12,9 @@
 # git clone http://github.com/maureeungaro/src /root/src && cd /root/src
 # ./ci/build.sh
 
-source functions.sh
+source ci/functions.sh
 
 function compile {
-  echo " > Current dir: $(pwd)"
-  ls -l
-  echo " > After git describe"
 	meson setup build --native-file=release.ini -Duse_root=true --wipe
 	cd build
   module load geant4

@@ -12,7 +12,7 @@
 # git clone http://github.com/maureeungaro/src /root/src && cd /root/src
 # ./ci/build.sh
 
-source functions.sh
+source ci/functions.sh
 
 function tests {
   cd build
