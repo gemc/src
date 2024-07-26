@@ -9,13 +9,13 @@
 #
 # local build:
 # git clone http://github.com/gemc/src /root/src && cd /root/src
-# git clone http://github.com/maureeungaro/src /root/src && cd /root/src
 # ./ci/build.sh
 
 source ci/functions.sh
 
 set_ld_path
 cd build
+ls -l
 echo " > Running meson tests"
 meson test -v
 $GEMC/bin/gemc -v
