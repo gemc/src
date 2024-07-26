@@ -20,7 +20,7 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "dev"
+          automatic_release_tag: "dev3"
           prerelease: false
           title: "Development Release"
       - uses: gitboard-io/gitboard-action@main

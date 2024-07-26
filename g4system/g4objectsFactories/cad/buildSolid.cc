@@ -57,7 +57,6 @@ G4VSolid *G4CadSystemFactory::buildSolid(GOptions *gopt, GVolume *s, map<string,
 
         auto mesh = CADMesh::TessellatedMesh::From(g4filename, CADMesh::File::ASSIMP());
 
-
         mesh->SetScale(CLHEP::mm);
         mesh->SetReverse(false);
 
@@ -66,7 +65,7 @@ G4VSolid *G4CadSystemFactory::buildSolid(GOptions *gopt, GVolume *s, map<string,
 
     } else if (extension == "stl") {
 
-    // auto mesh = CADMesh::TessellatedMesh::FromSTL(g4filename);
+        // auto mesh = CADMesh::TessellatedMesh::FromSTL(g4filename);
 
         auto mesh = CADMesh::TessellatedMesh::From(g4filename, CADMesh::File::ASSIMP());
 

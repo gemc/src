@@ -35,7 +35,7 @@ void GSystemSQLiteFactory::loadMaterials(GSystem *system, int verbosity) {
                      << " = " << sqlite3_column_text(stmt, i) << RST << " (column " << i << ")" << endl;
             }
             // matching gvolume constructor order
-            if ( i > 3) { gmaterialPars.push_back((char *) sqlite3_column_text(stmt, i)); }
+            if (i > 3) { gmaterialPars.push_back((char *) sqlite3_column_text(stmt, i)); }
         }
 
         system->addGMaterial(gmaterialPars, verbosity);

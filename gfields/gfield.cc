@@ -16,9 +16,18 @@
 // gfield
 #include "gfield.h"
 
+const vector<string> GField::supported_types = {"multipole"};
+
+bool GField::init_basic_parameters() {
+
+}
+
 
 // notice: we are always using G4Mag_UsualEqRhs here
 G4FieldManager *GField::create_FieldManager() {
+
+    string integration_stepper = gfield_definitions.integration_stepper;
+    double minimum_step = gfield_definitions.minimum_step;
 
     G4Mag_UsualEqRhs *iEquation = new G4Mag_UsualEqRhs(this);
 
@@ -29,7 +38,7 @@ G4FieldManager *GField::create_FieldManager() {
 
     G4MagIntegratorStepper *mag_int_stepper = nullptr;
 
-    // any way to do this autmoatically?
+    // any way to do this automatically?
     if (integration_stepper == "G4DormandPrince745") {
         mag_int_stepper = new G4DormandPrince745(iEquation);
     } else if (integration_stepper == "G4ClassicalRK4") {
@@ -58,6 +67,8 @@ G4FieldManager *GField::create_FieldManager() {
         exit(EC__STEPPER_NOT_FOUND);
     }
 
-    return new G4FieldManager(this, new G4ChordFinder(this, minimum_step, mag_int_stepper));
+    G4ChordFinder *fChordFinder = new G4ChordFinder(this, minimum_step, mag_int_stepper);
+
+    return new G4FieldManager(this, fChordFinder);
 
 }

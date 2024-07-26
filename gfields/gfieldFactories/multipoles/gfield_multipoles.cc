@@ -4,27 +4,22 @@
 // geant4 headers
 #include "G4ThreeVector.hh"
 
-// gemc
+// gfields
 #include "gfield_multipoles.h"
+
+// gemv
+#include "gutilities.h"
 
 // c++
 #include <iostream>
 
 using namespace std;
 
-
-
-// tells the DLL how to create a GField_MultipolesFactory
+// tells the DLL how to create a GFieldFactory
 extern "C" GField *GFieldFactory(void) {
     return static_cast<GField *>(new GField_MultipolesFactory);
 }
 
-
-
-//void GField_MultipolesFactory::create_FieldManager([[maybe_unused]] const GOptions *gopts) {
-//
-//
-//}
 
 // for now this implementation follows gemc
 // reference of this implementation: https://uspas.fnal.gov/materials/12MSU/magnet_elements.pdf

@@ -9,12 +9,12 @@
 GSensitiveDetector::GSensitiveDetector(string sdName,
                                        GOptions *goptions,
                                        map<string, GDynamicDigitization *> *gDDGlobal) :
-        G4VSensitiveDetector(sdName),                                                                        // geant4 derived
-        GStateMessage(goptions, "GSensitiveDetector " + sdName, "gsensitivityv"),  // GStateMessage derived
+        G4VSensitiveDetector(sdName),                                                                       // geant4 derived
+        GStateMessage(goptions, "GSensitiveDetector " + sdName, "gsensitivity"),  // GStateMessage derived
         gDynamicDigitizationMapGlobalInstance(gDDGlobal),
         gHitsCollection(nullptr) {
 
-    verbosity = goptions->getInt("gsensitivityv");
+    verbosity = goptions->getVerbosityFor("gsensitivity");
     recordZeroEdep = goptions->getSwitch("recordZeroEdep");
 
     // protected, from G4VSensitiveDetector: it's a G4CollectionNameVector

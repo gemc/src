@@ -34,14 +34,13 @@ LD += {
                           'gsystemFactories/gdml/systemGdmlFactory.h',
                           'gsystemFactories/sqlite/systemSqliteFactory.h',
                       ),
-    'dependencies' : [geant4_deps, clhep_deps, sqlite_dep],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps, sqlite_dep],
     'additional_includes' : ['gsystem/gsystemFactories',
                              'gsystem/gsystemFactories/cad',
                              'gsystem/gsystemFactories/gdml',
                              'gsystem/gsystemFactories/sqlite',
                              'gsystem/gsystemFactories/text'],
     'examples' : {
-        'basic_gsystem' : [files('examples/example.cc'), ['']], # jcards currently not working
-#        'basic_gsystem' : [files('examples/example.cc'), [meson.current_build_dir() + '/examples/example.jcard']],
+        'test_basic_gsystem' : [files('examples/example.cc'), meson.current_source_dir() + '/examples/example.yaml']
     }
 }

@@ -10,6 +10,23 @@
 // c++
 #include <string>
 
+// utility struct to load GStreamer from options
+struct GStreamerDefinition {
+
+    // default constructor
+    GStreamerDefinition() = default;
+
+    GStreamerDefinition(string f, string n, string t) : format(f), name(n), type(t) {}
+
+    string format;
+    string name;
+    string type;
+
+    string gstreamerPluginName() {
+        return "gstreamer" + format + "Factory";
+    }
+};
+
 class GStreamer {
 
 public:
@@ -28,16 +45,15 @@ public:
     // the key is the routine name + frame streamer id
     map<string, bool> publishFrameRunData(const GOptions *gopts, const GFrameDataCollection *frameRunData);
 
-    void setOutputName(const string output) { outputFileName = output; }
+    inline string const getStreamType() const { return gstreamer_definitions.type; }
+    inline void define_gstreamer(GStreamerDefinition gstreamerDefinition) { gstreamer_definitions = gstreamerDefinition; }
 
-    void setStreamType(const string stype) { streamType = stype; }
-
-    inline string const getStreamType() const { return streamType; }
+    static const vector<string> supported_formats ;
+    static bool is_valid_format(string format);
 
 protected:
 
-    string outputFileName = UNINITIALIZEDSTRINGQUANTITY;
-    string streamType = UNINITIALIZEDSTRINGQUANTITY;
+    GStreamerDefinition gstreamer_definitions;
 
     // event virtual methods called by publishRunData, in order
     // --------------------------------------------------------
@@ -47,9 +63,11 @@ protected:
     virtual bool publishEventHeader([[maybe_unused]] const GEventDataCollectionHeader *gheader) { return false; }
 
     // vector index is hit number
-    virtual bool publishEventTrueInfoData ([[maybe_unused]] const string detectorName, [[maybe_unused]] const vector<GTrueInfoData *> *trueInfoData) { return false; }
+    virtual bool
+    publishEventTrueInfoData([[maybe_unused]] const string detectorName, [[maybe_unused]] const vector<GTrueInfoData *> *trueInfoData) { return false; }
 
-    virtual bool publishEventDigitizedData([[maybe_unused]] const string detectorName, [[maybe_unused]] const vector<GDigitizedData *> *digitizedData) { return false; }
+    virtual bool
+    publishEventDigitizedData([[maybe_unused]] const string detectorName, [[maybe_unused]] const vector<GDigitizedData *> *digitizedData) { return false; }
 
     virtual bool endEvent([[maybe_unused]] const GEventDataCollection *eventData) { return false; }
 

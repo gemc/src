@@ -9,47 +9,53 @@
 
 // gemc
 #include "gStateMessage.h"
-
-// glibrary
 #include "gQtButtonsWidget.h"
 #include "goptions.h"
 #include "eventDispenser.h"
 
-class GemcGUI : public QWidget, public GStateMessage
-{
-	// metaobject required for non-qt slots
-	Q_OBJECT
+class GemcGUI : public QWidget, public GStateMessage {
+    // metaobject required for non-qt slots
+    Q_OBJECT
 
 public:
-	GemcGUI(string qtResourceFile, GOptions* gopts, EventDispenser *ed, QWidget *parent = Q_NULLPTR) ;
-	~GemcGUI();
+    GemcGUI(string qtResourceFile, GOptions *gopts, EventDispenser *ed, QWidget *parent = Q_NULLPTR);
+
+    ~GemcGUI();
 
 
 private:
-	GQTButtonsWidget *leftButtons;  // glibrary buttons
-	QStackedWidget   *rightContent;
-	QLineEdit        *nEvents;
-	QLabel           *eventNumberLabel;
-	QTimer           *gtimer;       // for cycling events
+    GQTButtonsWidget *leftButtons;  // glibrary buttons
+    QStackedWidget *rightContent;
+    QLineEdit *nEvents;
+    QLabel *eventNumberLabel;
+    QTimer *gtimer;       // for cycling events
 
-	// gruns to read number of events
-	EventDispenser *eventDispenser;
-	
+    // gruns to read number of events
+    EventDispenser *eventDispenser;
+
 private:
-	void createLeftButtons();
-	void createRightContent(GOptions* gopts);
-	void createTopButtons(QHBoxLayout *topLayout);
-	void updateGui();
+    void createLeftButtons();
 
-private slots:
-	// definded in topLayout.cc
-	// beamOn() causes workers to update the screen
-	// from a sub-thread
-	void neventsChanged();
-	void beamOn();
-	void cycleBeamOn();
-	void stopCycleBeamOn();
-	void gquit();
+    void createRightContent(GOptions *gopts);
+
+    void createTopButtons(QHBoxLayout *topLayout);
+
+    void updateGui();
+
+private
+    slots:
+            // definded in topLayout.cc
+            // beamOn() causes workers to update the screen
+            // from a sub-thread
+            void neventsChanged();
+
+    void beamOn();
+
+    void cycleBeamOn();
+
+    void stopCycleBeamOn();
+
+    void gquit();
 };
 
 #endif

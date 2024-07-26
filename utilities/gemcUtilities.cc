@@ -31,11 +31,12 @@ QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui)
 // return number of cores from options. If 0 or none given,
 // returns max number of available cores
 int getNumberOfThreads(GOptions* gopts) {
-	int useThreads = gopts->getInt("nthreads");
-	int allThreads = G4Threading::G4GetNumberOfCores();
+	int useThreads =  gopts->getScalarInt("nthreads");
+
+    int allThreads = G4Threading::G4GetNumberOfCores();
 	if(useThreads == 0) useThreads = allThreads;
 
-	int verbosity = gopts->getInt("verbosity");
+	int verbosity = gopts->getVerbosityFor("general");
 
 	// global log screen
 	if (verbosity >= GVERBOSITY_SUMMARY) {
@@ -49,15 +50,17 @@ int getNumberOfThreads(GOptions* gopts) {
 // initialize G4MTRunManager
 void initGemcG4RunManager(G4RunManager *grm, GOptions* gopts)
 {
-	int tlog = gopts->getInt("tlog");
-    bool showG4ThreadsLog = gopts->getSwitch("showG4ThreadsLog");
+	int tlog = gopts->getScalarInt("thread_log");
+    // bool thread_log = gopts->getSwitch("thread_log");
 
 	G4UImanager *g4uim   = G4UImanager::GetUIpointer();
-    if ( ! showG4ThreadsLog ) { g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log"); }
-	
-	if ( tlog != 0 ) {
+    // if ( ! thread_log ) { g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log"); }
+    g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log");
+
+    if ( tlog != 0 ) {
 		g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept " + to_string(tlog));
 	}
+
 	// initialize run manager
 	grm->Initialize();
 }
@@ -132,16 +135,18 @@ void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity
 
 void startRandomEngine(GOptions* gopts) {
 
-    string randomEngineName = gopts->getString("randomEngineName");
-    int seed = gopts->getInt("randomSeed");
-    if ( seed == -99 ) {
+    string randomEngineName = gopts->getScalarString("randomEngineName");
+    int seed = gopts->getScalarInt("randomSeed");
+    if ( seed == -12345 ) {
         double timed = time(NULL);
         double clockd = clock();
         double getpidi = (double) getpid();
         seed = (G4int) (  timed - clockd - getpidi );
     }
 
-    cout << GEMCLOGMSGITEM << "Starting random engine: >" << randomEngineName << "< using seed: " << seed << endl;
+    cout << GEMCLOGMSGITEM << "Starting random engine: >"
+    << KGRN << randomEngineName << RST
+    << "< using seed: " << KGRN << seed << RST << endl;
 
     // the below will not work:
     // if uncommented, it will set the same seed for each event - even if setTheSeed is called below

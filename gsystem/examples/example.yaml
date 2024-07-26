@@ -1,0 +1,14 @@
+gsystem:
+  - name: clas12Target
+    factory: TEXT
+    variation: lh2
+  - name: cloudc
+    factory: SQLITE
+    runno: 22
+
+gmodifier:
+  - name: shield
+    shift: "0 0 -5 cm"
+
+verbosity:
+  - gsystem: 1

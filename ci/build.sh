@@ -1,43 +1,28 @@
 #!/usr/bin/env zsh
 
-# Purpose: compiles gemc and installs it in gemc
+# Purpose: compiles, installs gemc, run tests
 
 # Container run:
-# docker run -it --rm jeffersonlab/gemc3:g3vdev-g4v11.2.1-almalinux93-local
+# docker_run_image jeffersonlab/geant4:g4v11.2.2-almalinux93
+# docker_run_image jeffersonlab/geant4:g4v11.2.2-ubuntu24
+# docker_run_image jeffersonlab/geant4:g4v11.2.2-fedora36
+#
+# local build:
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # git clone http://github.com/maureeungaro/src /root/src && cd /root/src
 # ./ci/build.sh
 
-# if we are in the docker container, we need to load the modules
-if [[ -z "${DISTTAG}" ]]; then
-    echo "\nNot in container"
-else
-    echo "\nIn container: ${DISTTAG}"
-    source  /app/localSetup.sh
-fi
+source ci/functions.sh
 
-function compileGEMC {
-	meson setup build --native-file=release.ini -Duse_root=true --wipe
-  if [ $? -ne 0 ]; then
-    echo Meson setup failed
-  	exit 1
-  fi
-	cd build
-	meson configure -Dprefix=$GEMC
-	if [ $? -ne 0 ]; then
-    echo Meson configure failed
-    exit 1
-  fi
-	meson install
-	meson test
-	cd ..
-}
-
-compileGEMC
-echo
-echo "- Content of $GEMC"
-ls -lrt $GEMC
-echo "- Content of $GEMC/bin"
-ls -lrt $GEMC/bin
-echo "- Content of $GEMC/lib"
-ls -lrt $GEMC/lib
+echo " > Running build Configure"
+meson setup build --native-file=release.ini -Duse_root=true --wipe
+cd build
+module load geant4
+module load sim_system
+echo " > Running meson configure -Dprefix=$GEMC"
+meson configure -Dprefix=$GEMC
+echo " > Running meson compile and install"
+meson compile -v
+meson install
+cd ..
+show_installation

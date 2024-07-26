@@ -7,5 +7,5 @@ LD += {
     'headers' : files(
                           'gdetectorConstruction.h'
                       ),
-    'dependencies' : [clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
 }

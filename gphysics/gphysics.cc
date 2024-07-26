@@ -4,6 +4,7 @@
 
 // glibrary
 #include "gutilities.h"
+
 using namespace gutilities;
 
 // geant4 version
@@ -30,36 +31,37 @@ using namespace std;
 #include "G4PhysicsConstructorFactory.hh"
 
 
-GPhysics::GPhysics(GOptions* gopts) : physList(nullptr) {
-	
-//	int verbosity  = gopts->getInt(GPHYSVERBOSITY);
-	bool showPhys    = gopts->getSwitch("showAvailablePhysics");
-	bool showPhysX   = gopts->getSwitch("showAvailablePhysicsX");
-	string gphysList = gopts->getString("physicsList");
+GPhysics::GPhysics(GOptions *gopts) : physList(nullptr) {
 
-	if ( showPhys || showPhysX ) {
-		printAvailable();
-	}
-	if ( showPhysX ) {
-		return ;
-	}
-	
-	// g4alt::G4PhysListFactoryAlt is the extensible factory
-	// including the G4PhysListFactoryAlt.hh header and the line:
-	//    using namespace g4alt;
-	// would make this a drop-in replacement, but we'll list the explicit
-	// namespace here just for clarity
-	g4alt::G4PhysListFactory factory;
-	string g4physList = removeAllSpacesFromString(gphysList);
 
-	physList = factory.GetReferencePhysList(g4physList);
+    bool showPhys = gopts->getSwitch("showAvailablePhysics");
+    bool showPhysX = gopts->getSwitch("showAvailablePhysicsX");
+    string gphysList = gopts->getScalarString("phys_list");
 
-	if ( ! physList ) {		
-		cerr << FATALERRORL << "physics list <" << gphysList << "> could not be loaded." << endl;
-		gexit(EC__PHYSLISTERROR);
-	}
-	
-	cout << GPHYSLOGHEADER << "Geant4 physics list: <" << g4physList << ">" << endl;
+    if (showPhys || showPhysX) {
+        printAvailable();
+        if (showPhysX) {
+            return;
+        }
+    }
+
+
+    // g4alt::G4PhysListFactoryAlt is the extensible factory
+    // including the G4PhysListFactoryAlt.hh header and the line:
+    //    using namespace g4alt;
+    // would make this a drop-in replacement, but we'll list the explicit
+    // namespace here just for clarity
+    g4alt::G4PhysListFactory factory;
+    string g4physList = removeAllSpacesFromString(gphysList);
+
+    physList = factory.GetReferencePhysList(g4physList);
+
+    if (!physList) {
+        cerr << FATALERRORL << "physics list <" << gphysList << "> could not be loaded." << endl;
+        gexit(EC__PHYSLISTERROR);
+    }
+
+    cout << GPHYSLOGHEADER << "Geant4 physics list: <" << g4physList << ">" << endl;
 }
 
 GPhysics::~GPhysics() {}
@@ -68,17 +70,14 @@ GPhysics::~GPhysics() {}
 // calls PrintAvailablePhysLists
 // if verbosity is > 0 calls PrintAvailablePhysicsConstructors
 void GPhysics::printAvailable() {
-	
-	cout << endl << "Geant4 Version " <<  replaceCharInStringWithChars(G4Version, "$", "") << "  " << G4Date << endl << endl;
-	
-	g4alt::G4PhysListFactory factory;
-	factory.PrintAvailablePhysLists();
-	
-	G4cout << GPHYSLOGHEADER << " Geant4 available physics constructor that can be added to physicsList:" << G4endl;
-	G4PhysicsConstructorRegistry* g4pctorFactory = G4PhysicsConstructorRegistry::Instance();
-	g4pctorFactory->PrintAvailablePhysicsConstructors();
+
+    cout << endl << "Geant4 Version " << replaceCharInStringWithChars(G4Version, "$", "") << "  " << G4Date << endl << endl;
+
+    g4alt::G4PhysListFactory factory;
+    factory.PrintAvailablePhysLists();
+
+    G4cout << GPHYSLOGHEADER << " Geant4 available physics constructor that can be added to physicsList:" << G4endl;
+    G4PhysicsConstructorRegistry *g4pctorFactory = G4PhysicsConstructorRegistry::Instance();
+    g4pctorFactory->PrintAvailablePhysicsConstructors();
 
 }
-
-
-

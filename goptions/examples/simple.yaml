@@ -1,0 +1,12 @@
+runno: 14
+
+gparticle:
+  - name: e-
+    p: 1500
+    theta: 23.0
+  - name: proton
+    p: 1900
+    multiplicity: 4
+
+verbosity:
+  - ghits: 2

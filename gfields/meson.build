@@ -5,26 +5,26 @@ multipoles_files = [files(
                     ),
                     true]
 
-
 LD += {
     'name' : sub_dir_name,
     'sources' : files(
         'gfield.cc',
         'gfieldOptions.cc',
-        'gmagneto.cc'
+        'gmagneto.cc',
     ),
     'headers' : files(
         'gfield.h',
         'gfieldOptions.h',
         'gfieldConventions.h',
-        'gmagneto.h'
+        'gmagneto.h',
+
     ),
     'plugins' : {
         'gfieldMultipoles' : multipoles_files,
     },
-
-    'dependencies' : [clhep_deps, geant4_deps],
+    'additional_includes' : ['gfields', 'gfields/gfieldFactories/multipoles'],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'dipole' : [files('examples/dipole.cc'), ['']],
+        'test_dipole' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/dipole.yaml']],
     }
 }

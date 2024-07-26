@@ -7,6 +7,7 @@
 #define GEMCLOGMSGITEM  " ⌘ "
 #define GEMCRUNHEADER   " ❖ "
 
+
 // Streaming Readout (SRO)
 #define MAXNUMBEROFFRAMES 10
 
@@ -16,4 +17,3 @@
 #define EC__RANDOMENGINENOTFOUND    2003
 
 #endif
-

@@ -9,18 +9,19 @@
 
 
 // system factory
-class GSystemSQLiteFactory : GSystemFactory
-{
+class GSystemSQLiteFactory : GSystemFactory {
 
 public:
 
-	// constructor will load the possible location(s) of the geometry and material databases
+    // constructor will load the possible location(s) of the geometry and material databases
     GSystemSQLiteFactory();
 
 private:
 
-	virtual void loadMaterials(GSystem *system, int verbosity);
-	virtual void loadGeometry(GSystem *system, int verbosity);
+    virtual void loadMaterials(GSystem *system, int verbosity);
+
+    virtual void loadGeometry(GSystem *system, int verbosity);
+
     virtual void closeSystem();
 
 

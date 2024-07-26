@@ -8,14 +8,12 @@
 // geant4
 #include "G4SDManager.hh"
 
-G4ThreadLocal GMagneto
-*
-GDetectorConstruction::gmagneto = nullptr;
+G4ThreadLocal GMagneto* GDetectorConstruction::gmagneto = nullptr;
 
 GDetectorConstruction::GDetectorConstruction(GOptions *gopts,
                                              map<string, GDynamicDigitization *> *gDDGlobal) :
-        G4VUserDetectorConstruction(),                                                        // geant4 derived
-        GStateMessage(gopts, "GDetectorConstruction", G4SYSTEMVERBOSITY),  // GStateMessage derived
+        G4VUserDetectorConstruction(),                                                 // Geant4 derived
+        GStateMessage(gopts, "GDetectorConstruction", "g4system"),  // GStateMessage derived
         gopt(gopts),
         gDynamicDigitizationMapGlobalInstance(gDDGlobal) {}
 
@@ -43,10 +41,10 @@ void GDetectorConstruction::ConstructSDandField() {
     logSummary("GDetectorConstruction::ConstructSDandField ");
 
     bool touchableVerbosity = false;
-    if (gopt->getInt("gsensitivityv") >= GVERBOSITY_DETAILS) touchableVerbosity = true;
+    if (gopt->getVerbosityFor("gsensitivity") >= GVERBOSITY_DETAILS) touchableVerbosity = true;
 
     // GSensitiveDetector map
-    map<string, GSensitiveDetector *> sensitiveDetectorsMap;
+    map < string, GSensitiveDetector * > sensitiveDetectorsMap;
 
     // building the sensitive detectors
     // this is thread local
@@ -63,7 +61,6 @@ void GDetectorConstruction::ConstructSDandField() {
             }
             // skip no digitization
             if (digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
-
 
                 // checking that we do not already have a GSensitiveDetector
                 if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
@@ -90,13 +87,12 @@ void GDetectorConstruction::ConstructSDandField() {
                                                                                                  touchableVerbosity));
 
                 SetSensitiveDetector(g4name, sensitiveDetectorsMap[digitizationName]);
-
             }
 
             string field_name = gvolume->getEMField();
             if (field_name != UNINITIALIZEDSTRINGQUANTITY) {
-                logDetail("Volume  <" + volumeName + "> has field: <" + field_name + ">. Looking into field map definitions.");
                 if (gmagneto == nullptr) gmagneto = new GMagneto(gopt);
+                logDetail("Volume  <" + volumeName + "> has field: <" + field_name + ">. Looking into field map definitions.");
 
                 // assigning field manager to the volume
                 logDetail("Setting field manager for volume <" + g4name + "> with field <" + field_name + ">");

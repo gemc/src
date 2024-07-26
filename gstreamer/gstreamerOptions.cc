@@ -1,94 +1,55 @@
 // gstreamer
 #include "gstreamerOptions.h"
+#include "gstreamer.h"
 
 // namespace to define options
 namespace gstreamer {
 
-    // projecting options onto JOutput
-    void from_json(const json &j, JOutput &output) {
-        j.at("format").get_to(output.format);
-        j.at("name").get_to(output.name);
-        j.at("type").get_to(output.type);
+    vector<GStreamerDefinition> getGStreamerDefinition(GOptions *gopts) {
+
+            vector<GStreamerDefinition> goutputs;
+
+            auto goutput_node = gopts->get_option_node("gstreamer");
+
+            for (auto goutput_item: goutput_node) {
+                goutputs.push_back(GStreamerDefinition(
+                        gopts->get_variable_in_option<string>(goutput_item, "format", goptions::NODFLT),
+                        gopts->get_variable_in_option<string>(goutput_item, "name", goptions::NODFLT),
+                        gopts->get_variable_in_option<string>(goutput_item, "type", goptions::NODFLT)
+                ));
+            }
+
+            return goutputs;
     }
 
-    // method to return a vector of JOutput from a structured option
-    vector<JOutput> getJOutputs(GOptions *gopts) {
-
-        vector<JOutput> outputs;
-
-        auto gouts = gopts->getStructuredOptionAssignedValues("goutput");
-
-        // looking over each of the vector<json> items
-        for (const auto &gout: gouts) {
-            outputs.push_back(gout.get<JOutput>());
-        }
-
-        return outputs;
-    }
-
-    // returns dynamic library name from the factory
-    string gstreamerPluginNameFromFactory(string factory) {
-        return "gstreamer" + factory + "Factory";
-    }
 
     // returns array of options definitions
-    vector<GOption> defineOptions() {
+    GOptions defineOptions() {
 
-        vector<GOption> goptions;
+        GOptions goptions;
 
-        // two verbosity: one for events, one for streaming
-        json jsonGStreamerEventVerbosity = {
-                {GNAME, "geventstreamv"},
-                {GDESC, "Verbosity for gstreamer. " + string(GVERBOSITY_DESCRIPTION)},
-                {GDFLT, 0}
-        };
-        goptions.push_back(GOption(jsonGStreamerEventVerbosity));
+        string help = "Define a Output format and name\n";
+        help += "\n";
+        help += "Supported formats:\n";
+        for(auto &format: GStreamer::supported_formats) {
+            help += " - " + format + "\n";
+        }
+        help += "\n";
+        help += "Output types\n";
+        help += "\n";
+        help += " - event: write events\n";
+        help += " - stream: write frame stream\n";
+        help += "-gstreamer=\"[{format: root, filename: output}, {format: jlabsro, filename: output}}]\"\n";
 
-        json jsonGStreamerFrameVerbosity = {
-                {GNAME, "gframestreamv"},
-                {GDESC, GVERBOSITY_DESCRIPTION},
-                {GDFLT, 0}
-        };
-        goptions.push_back(GOption(jsonGStreamerFrameVerbosity));
+        vector <GVariable> gstreamer = {
+                {"filename",   goptions::NODFLT, "name of output file"},
+                {"format",     goptions::NODFLT, "format of output file"},
+                {"type",       goptions::NODFLT, "type of output file"},
 
-        json jsonOutputFormat = {
-                {GNAME, "format"},
-                {GDESC, "Output file format"},
-                {GDFLT, UNINITIALIZEDSTRINGQUANTITY}
-        };
-        json jsonOutputName = {
-                {GNAME, "name"},
-                {GDESC, "Output file name"},
-                {GDFLT, UNINITIALIZEDSTRINGQUANTITY}
-        };
-        json jsonOutputType = {
-                {GNAME, "type"},
-                {GDESC, "Output type"},
-                {GDFLT, UNINITIALIZEDSTRINGQUANTITY}
         };
 
-        json jsonOutput = {
-                jsonOutputFormat,
-                jsonOutputName,
-                jsonOutputType
-        };
+        goptions.defineOption("gstreamer", "define a gstreamer output", gstreamer, help);
 
-        vector<string> help;
-        help.push_back("Define a Output format and name");
-        help.push_back("");
-        help.push_back("Example: +output={format: \"TEXT\", name: \"output.txt\", type: \"event\" }");
-        help.push_back("");
-        help.push_back("Current available formats:");
-        help.push_back("");
-        help.push_back(" - TEXT");
-        help.push_back("");
-        help.push_back("Output types");
-        help.push_back("");
-        help.push_back(" - event: write events");
-        help.push_back(" - stream: write frame stream");
-
-        // the last argument refers to "cumulative"
-        goptions.push_back(GOption("goutput", "Output format and name", jsonOutput, help, true));
 
         return goptions;
     }

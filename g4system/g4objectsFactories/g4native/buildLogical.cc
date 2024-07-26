@@ -19,7 +19,7 @@ G4LogicalVolume* G4NativeSystemFactory::buildLogical(GOptions* gopt, GVolume *s,
 	//if(matName == "component") return true;
 
 	// dependencies are there, can build volume
-	string defaultmaterial  = gopt->getString("defaultMaterial");
+    string defaultmaterial  = gopt->getScalarString("defaultMaterial");
 	bool useDefaultMaterial = gopt->getSwitch("useDefaultMaterial");
 
 	// if the g4volume doesn't exist, create one and add it to the map
@@ -86,12 +86,3 @@ G4LogicalVolume* G4NativeSystemFactory::buildLogical(GOptions* gopt, GVolume *s,
 
 	return thisG4Volume->getLogical();
 }
-
-
-
-
-
-
-
-
-

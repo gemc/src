@@ -1,4 +1,4 @@
-name: Build, CLAS12 Tests
+name: CLAS12 Tests
 
 on:
   # Triggers the workflow on all pushes

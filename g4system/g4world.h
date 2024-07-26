@@ -58,6 +58,10 @@ public:
         }
     }
 
+    bool is_empty() const {
+        return g4volumesMap->size() == 1;
+    }
+
 
 };
 

@@ -1,0 +1,2 @@
+verbosity:
+  - gevent_dispenser: 4

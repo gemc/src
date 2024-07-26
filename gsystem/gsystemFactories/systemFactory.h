@@ -25,17 +25,15 @@ public:
     void loadSystem(GSystem *system, int verbosity) {
 
         if (verbosity >= GVERBOSITY_SUMMARY) {
-            cout << GSYSTEMLOGHEADER << "Loading system <" << KWHT << system->getName() << RST << "> using factory <" << system->getFactoryName() << ">"
-                 << endl;
+            cout << GSYSTEMLOGHEADER << "Loading system " << YELLOWHHL << system->getName() << RSTHHR << " using factory " << YELLOWHHL << system->getFactoryName() << RSTHHR << endl;
         }
 
         possibleLocationOfFiles.push_back(".");
-        possibleLocationOfFiles.push_back("");
 
         // environment for cad
         auto gtextEnv = getenv(GEMCDB_ENV); // char*
         if (gtextEnv != nullptr) {
-            vector<string> dirsDB = getStringVectorFromString(gtextEnv);
+            vector <string> dirsDB = getStringVectorFromString(gtextEnv);
 
             if (dirsDB.size() > 0) {
                 for (auto &dirDB: dirsDB) {
@@ -60,10 +58,10 @@ private:
     virtual void loadGeometry(GSystem *system, int verbosity) = 0;
 
 protected:
-    vector<string> possibleLocationOfFiles;
+    vector <string> possibleLocationOfFiles;
 
 public:
-    void addPossibleFileLocation(string fl) { possibleLocationOfFiles.push_back(fl); }
+    void addPossibleFileLocation(string fl) {  possibleLocationOfFiles.push_back(fl); }
 
 };
 

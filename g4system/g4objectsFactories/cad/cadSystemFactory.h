@@ -13,7 +13,7 @@ class G4CadSystemFactory : G4ObjectsFactory
 public:
 	bool loadG4System(GOptions* gopt, GVolume *s, map<string, G4Volume*> *g4s) {
 
-		int verbosity = gopt->getInt(G4SYSTEMVERBOSITY);
+        int verbosity = gopt->getVerbosityFor("g4system");
 		string vname = s->getG4Name();
 
 		if(verbosity >= GVERBOSITY_DETAILS) {

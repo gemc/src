@@ -30,16 +30,12 @@ int main(int argc, char *argv[]) {
     // the goptions are then assigned from the jcard(s) and command line
     GOptions *gopts = new GOptions(argc, argv, gemc::defineOptions());
 
-    // print non default settings
-
-
-    // print version
-    gopts->print_version();
+    // todo: add geant4 version here, see phys list on how
 
     // get gui switch, overlaps check and verbosity
     bool gui = gopts->getSwitch("gui");
-    int checkForOverlaps = gopts->getInt("checkOverlaps");
-    int verbosity = gopts->getInt("verbosity");
+    int checkForOverlaps = gopts->getScalarInt("checkOverlaps");
+    int verbosity = gopts->getVerbosityFor("general");
 
     // splash screen
     GSplash *gemcSplash = nullptr;
@@ -57,6 +53,7 @@ int main(int argc, char *argv[]) {
     UIM->SetCoutDestination(new GSession);
 
     // init geant4 run manager with number of threads coming from options
+    // as of 11.2 the default is  task-based parallel mode
     auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
     runManager->SetNumberOfThreads(getNumberOfThreads(gopts));
 
@@ -66,7 +63,7 @@ int main(int argc, char *argv[]) {
     // instantiating pointer to global digitization map
     // the map will be filled with the gsystem information of the sensitive detectors
     // the map is also used by eventDispenser to reload constants at every run number
-    map<string, GDynamicDigitization *> *globalDigitizationMap = new map<string, GDynamicDigitization *>;
+    map < string, GDynamicDigitization * > *globalDigitizationMap = new map<string, GDynamicDigitization *>;
 
     // building detector
     // this is global, changed at main scope
@@ -91,7 +88,6 @@ int main(int argc, char *argv[]) {
     }
     runManager->SetUserInitialization(gphysics->getPhysList());
 
-
     // instantiate GActionInitialization and initialize the geant4 kernel
     runManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
 
@@ -112,6 +108,8 @@ int main(int argc, char *argv[]) {
 
     auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
+    G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
+
     if (gui) {
         // initializing qt session
         gemcSplash->message("Starting GUI");
@@ -125,26 +123,25 @@ int main(int argc, char *argv[]) {
         // intializing G4UIQt session
         G4UIsession *session = new G4UIQt(1, argv);
 
-        // set display properties
-        G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
+        if (gDetectorGlobal->is_empty()) {
+            cout << GEMCLOGMSGITEM << "Warning: Detector is empty. Nothing to do." << endl;
+        } else {
+            applyInitialUIManagerCommands(true, checkForOverlaps, verbosity);
 
-        applyInitialUIManagerCommands(true, checkForOverlaps, verbosity);
+            // causing problems?
+            qApp->exec();
+        }
 
-        qApp->exec();
-
-        // order of pointers deletion is inverse of creation
-        delete g4SceneProperties;
         delete session;
 
     } else {
         // set display properties in batch mode
-        G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
+      //  G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
         applyInitialUIManagerCommands(false, checkForOverlaps, verbosity);
         geventDispenser->processEvents();
 
-        delete g4SceneProperties;
     }
-
+    delete g4SceneProperties;
     // clearing pointers
     // delete visManager; deleting this cause error. Perhaps can define / delete in the functions above
     delete geventDispenser;

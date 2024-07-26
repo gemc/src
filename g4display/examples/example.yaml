@@ -1,0 +1,17 @@
+g4view:
+    driver: OpenGLImmediateQt
+    segsPerCircle: 100
+
+g4camera:
+    theta: 160*deg
+    phi: 30*deg
+
+g4text:
+    - text: hello world
+    - text: hello again
+      size: 30.0
+      x: 0.2
+      color: green
+
+verbosity:
+  - g4display: 2

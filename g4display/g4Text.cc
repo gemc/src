@@ -5,216 +5,53 @@
 // c++
 using namespace std;
 
-// options added to G4SceneProperties
-vector<string> G4SceneProperties::addSceneTexts(GOptions *gopts) {
-    vector<string> commands;
-
-
-    vector<g4display::JSceneText> jstexts = g4display::getSceneTexts(gopts);
-
-    // looking over each of the vector<json> items
-    for (const auto &jstext: jstexts) {
-
-        commands.push_back("/vis/set/textColour " + jstext.color);
-        string position = to_string(jstext.x) + " " + to_string(jstext.y);
-        string size = " " + to_string(jstext.size) + " ! ! ";
-        commands.push_back("/vis/scene/add/text2D " + position + size + jstext.text);
-        commands.push_back("/vis/set/textColour");
-    }
-
-
-    vector<g4display::JViewText> jvtexts = g4display::getViewTexts(gopts);
-
-    // looking over each of the vector<json> items
-    for (const auto &jvtext: jvtexts) {
-
-        commands.push_back("/vis/set/textColour " + jvtext.color);
-        string position = to_string(jvtext.x) + " " + to_string(jvtext.y) + " " + to_string(jvtext.z) + " cm ";
-        string size = " " + to_string(jvtext.size) + " ! ! ";
-        commands.push_back("/vis/scene/add/text " + position + size + jvtext.text);
-        commands.push_back("/vis/set/textColour");
-    }
-
-
-    return commands;
-
-}
-
 
 namespace g4display {
 
-    void from_json(const json &j, JSceneText &jstext);
+    // method to return a vector of G4SceneText from a structured option
+    vector <G4SceneText> getSceneTexts(GOptions *gopts) {
 
-    // scenetext
-    void from_json(const json &j, JSceneText &jstext) {
-        j.at("text").get_to(jstext.text);
-        j.at("color").get_to(jstext.color);
-        j.at("x").get_to(jstext.x);
-        j.at("y").get_to(jstext.y);
-        j.at("size").get_to(jstext.size);
-    }
+        vector <G4SceneText> st;
 
-    // method to return a vector of JSceneText from a structured option
-    vector<JSceneText> getSceneTexts(GOptions *gopts) {
+        auto g4t_node = gopts->get_option_node("g4text");
 
-        vector<JSceneText> st;
+        for (auto g4t_item: g4t_node) {
+            G4SceneText st_item;
 
-        auto jsceneTexts = gopts->getStructuredOptionAssignedValues("scenetext");
-
-        // looking over each of the vector<json> items
-        for (const auto &jsceneText: jsceneTexts) {
-            st.push_back(jsceneText.get<JSceneText>());
+            st_item.text = gopts->get_variable_in_option<string>(g4t_item, "text", goptions::NODFLT);
+            st_item.color = gopts->get_variable_in_option<string>(g4t_item, "color", "black");
+            st_item.x = gopts->get_variable_in_option<float>(g4t_item, "x", 0);
+            st_item.y = gopts->get_variable_in_option<float>(g4t_item, "y", 0);
+            st_item.z = gopts->get_variable_in_option<float>(g4t_item, "z", GNOT_SPECIFIED_SCENE_TEXT_Z);
+            st_item.size = gopts->get_variable_in_option<double>(g4t_item, "size", 24.0);
+            st.push_back(st_item);
         }
 
         return st;
     }
 
 
-    // viewtext
-    void from_json(const json &j, JViewText &jvtext) {
-        j.at("text").get_to(jvtext.text);
-        j.at("color").get_to(jvtext.color);
-        j.at("x").get_to(jvtext.x);
-        j.at("y").get_to(jvtext.y);
-        j.at("z").get_to(jvtext.z);
-        j.at("size").get_to(jvtext.size);
-    }
-
-    // method to return a vector of JSceneText from a structured option
-    vector<JViewText> getViewTexts(GOptions *gopts) {
-
-        vector<JViewText> vt;
-
-        auto jviewTexts = gopts->getStructuredOptionAssignedValues("viewtext");
-
-        // looking over each of the vector<json> items
-        for (const auto &jviewText: jviewTexts) {
-            vt.push_back(jviewText.get<JViewText>());
-        }
-
-        return vt;
-    }
-
-
     // returns array of options definitions
-    vector<GOption> addSceneTextsOptions() {
+    GOptions addSceneTextsOptions() {
 
-        vector<GOption> goptions;
+        GOptions goptions;
+        string help;
 
-        // scenetext
-        // cumulative: can use -add
-        json jsonSceneTextTag = {
-                {GNAME, "text"},
-                {GDESC, "scene text (mandatory)."},
-                {GDFLT, NODFLT}
+        // g4text
+        help = "If the z coordinate is specified, the text is considered 2D. \n \n";
+        help = "Example to add two texts: \n \n";
+        help += "-g4text=\"[{text: hello, x: -100}, {text: there, x: 100}]\"\n";
+        vector <GVariable> g4text = {
+                {"text",  goptions::NODFLT,        "string with the text to be displayed"},
+                {"color", "black",                 "color of the text"},
+                {"x",     0,                       "x position of the text"},
+                {"y",     0,                       "y position of the text"},
+                {"z", GNOT_SPECIFIED_SCENE_TEXT_Z, "z position of the text"},
+                {"size",  24.0,                    "size of the text"},
         };
-
-        json jsonSceneTextColorTag = {
-                {GNAME, "color"},
-                {GDESC, "scene text color (optional). Possible values are color names such as green, red, etc. Default is white."},
-                {GDFLT, "black"}
-        };
-
-        json jsonSceneTextXPosTag = {
-                {GNAME, "x"},
-                {GDESC, "scene text x position (optional). Possible values: between -1 and 1. Default is 0."},
-                {GDFLT, 0}
-        };
-
-        json jsonSceneTextYPosTag = {
-                {GNAME, "y"},
-                {GDESC, "scene text y position (optional). Possible values: between -1 and 1. Default is 0."},
-                {GDFLT, 0}
-        };
-
-        json jsonSceneTextSizeTag = {
-                {GNAME, "size"},
-                {GDESC, "scene text size (optional). Default is 24"},
-                {GDFLT, 24}
-        };
-
-
-        json jsonSceneTextOption = {
-                jsonSceneTextTag,
-                jsonSceneTextColorTag,
-                jsonSceneTextXPosTag,
-                jsonSceneTextYPosTag,
-                jsonSceneTextSizeTag
-        };
-
-        vector<string> help;
-        help.push_back("Adds a scene text. The text does not move with the detector. ");
-        help.push_back("");
-        help.push_back("Example: +scenetext={text: \"lhc experiment\", color: \"green\", x: 0.5, y: 0.5}");
-
-        // the last argument refers to "cumulative"
-        goptions.push_back(GOption("scenetext", "adds text to the scene", jsonSceneTextOption, help, true));
+        goptions.defineOption("g4text", "Insert texts in the current scene", g4text, help);
 
         return goptions;
     }
 
-
-    // returns array of options definitions
-    vector<GOption> addViewTextsOptions() {
-
-        vector<GOption> goptions;
-
-        // scenetext
-        // cumulative: can use -add
-        json jsonViewTextTag = {
-                {GNAME, "text"},
-                {GDESC, "view text (mandatory)."},
-                {GDFLT, NODFLT}
-        };
-
-        json jsonViewTextColorTag = {
-                {GNAME, "color"},
-                {GDESC, "view text color (optional). Possible values are color names such as green, red, etc. Default is white."},
-                {GDFLT, "black"}
-        };
-
-        json jsonViewTextXPosTag = {
-                {GNAME, "x"},
-                {GDESC, "view text x position in cm. Default is 0."},
-                {GDFLT, 0}
-        };
-
-        json jsonViewTextYPosTag = {
-                {GNAME, "y"},
-                {GDESC, "view text y position in cm. Default is 0."},
-                {GDFLT, 0}
-        };
-
-        json jsonViewTextZPosTag = {
-                {GNAME, "z"},
-                {GDESC, "view text z position in cm. Default is 0."},
-                {GDFLT, 0}
-        };
-
-        json jsonViewTextSizeTag = {
-                {GNAME, "size"},
-                {GDESC, "view text size (optional). Default is 24"},
-                {GDFLT, 24}
-        };
-
-
-        json jsonviewTextOption = {
-                jsonViewTextTag,
-                jsonViewTextColorTag,
-                jsonViewTextXPosTag,
-                jsonViewTextYPosTag,
-                jsonViewTextZPosTag,
-                jsonViewTextSizeTag
-        };
-
-        vector<string> help;
-        help.push_back("Adds a view text. ");
-        help.push_back("");
-        help.push_back("Example: +viewtext={text: \"lhc experiment\", color: \"green\", x: 5, y: 5, z: 30}");
-
-        // the last argument refers to "cumulative"
-        goptions.push_back(GOption("viewtext", "adds text to the view", jsonviewTextOption, help, true));
-
-        return goptions;
-    }
 }

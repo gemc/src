@@ -16,42 +16,41 @@ using namespace std;
 
 GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynamicDigitization *> *gDDGlobal) :
         G4VUserActionInitialization(),
-        GStateMessage(gopts, "GActionInitialization", "verbosity"),  // GStateMessage derived
+        GStateMessage(gopts, "GActionInitialization", "general"),  // GStateMessage derived
         goptions(gopts),
         gDigitizationGlobalMap(gDDGlobal) {
     logSummary("Instantiating GActionInitialization ");
-
     string pluginPath = string(getenv("GEMC")) + "/lib/";
-
+    // if pluginPath dir does not exists, try $GEMC/lib64
+    if (!gutilities::directoryExists(pluginPath)) {
+        pluginPath = string(getenv("GEMC")) + "/lib64/";
+    }
 
     // gstreamerFactory
     gstreamerFactoryMap = new map<string, GStreamer *>;
 
     // projecting options onto vector of JOutput
-    vector<JOutput> joutputs = getJOutputs(gopts);
+    vector <GStreamerDefinition> goutput_defs = getGStreamerDefinition(gopts);
 
     // if any output is specified, loading its factory
-    if (joutputs.size() > 0) {
+    if (goutput_defs.size() > 0) {
 
         GManager gStreamerManager("GOutput", verbosity);
 
         // the available plugins names are formatted as "xxxGMedia".
-        for (auto &joutput: joutputs) {
-            string factory = joutput.format;
-            string outputFileName = joutput.name;
-            string streamType = joutput.type;
+        for (auto &goutput_def: goutput_defs) {
+            // by constructions format and outputFileName have to be initialized
+            string factory = goutput_def.format;
 
-            if (factory != UNINITIALIZEDSTRINGQUANTITY && outputFileName != UNINITIALIZEDSTRINGQUANTITY) {
-                string pluginName = pluginPath + gstreamerPluginNameFromFactory(factory);
-                string factoryMapKey = factory + "/" + streamType;
+            string pluginName = pluginPath + goutput_def.gstreamerPluginName();
+            string factoryMapKey = factory + "/" + goutput_def.type;
 
-                if (gstreamerFactoryMap->find(factoryMapKey) == gstreamerFactoryMap->end()) {
-                    (*gstreamerFactoryMap)[factoryMapKey] = gStreamerManager.LoadAndRegisterObjectFromLibrary<GStreamer>(pluginName);
-                    (*gstreamerFactoryMap)[factoryMapKey]->setOutputName(outputFileName);
-                    (*gstreamerFactoryMap)[factoryMapKey]->setStreamType(streamType);
-                    (*gstreamerFactoryMap)[factoryMapKey]->openConnection();
-                }
+            if (gstreamerFactoryMap->find(factoryMapKey) == gstreamerFactoryMap->end()) {
+                (*gstreamerFactoryMap)[factoryMapKey] = gStreamerManager.LoadAndRegisterObjectFromLibrary<GStreamer>(pluginName);
+                (*gstreamerFactoryMap)[factoryMapKey]->define_gstreamer(goutput_def);
+                (*gstreamerFactoryMap)[factoryMapKey]->openConnection();
             }
+
         }
 
         // done with gStreamerManager

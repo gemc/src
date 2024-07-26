@@ -14,8 +14,7 @@ void GSystemTextFactory::loadGeometry(GSystem *system, int verbosity) {
     if (IN != nullptr) {
 
         if (verbosity >= GVERBOSITY_SUMMARY) {
-            cout << GSYSTEMLOGHEADER << "Loading <text> geometry for <" << KWHT << system->getName() << RST << ">"
-                 << endl;
+            cout << GSYSTEMLOGHEADER << "Loading " << YELLOWHHL << "text" << RSTHHR << " geometry for " << BOLDWHHL << system->getName() << RSTHHR << endl;
         }
 
         // loading volumes
@@ -35,4 +34,3 @@ void GSystemTextFactory::loadGeometry(GSystem *system, int verbosity) {
         IN->close();
     }
 }
-

@@ -2,147 +2,128 @@
 #include "g4displayOptions.h"
 #include "g4displayConventions.h"
 
-// full list from /vis/list
-// ASCIITree ATree DAWNFILE G4HepRepFile HepRepFile RayTracer VRML2FILE gMocrenFile OpenGLImmediateQt OGLIQt OGLI OpenGLStoredQt OGLSQt OGL OGLS
-vector<string> AVAILABLEG4VIEWERS = {
-        "OpenGLImmediateQt",
-        "OGLIQt",
-        "OGLI",
-        "OpenGLStoredQt",
-        "OGLSQt",
-        "OGL",
-        "OGLS"};
+#include <iostream>
+
+using namespace std;
 
 // namespace to define options
 namespace g4display {
 
-    // JView
-    void from_json(const json &j, JView &jview) {
-        j.at("viewer").get_to(jview.viewer);
-        j.at("dimension").get_to(jview.dimension);
-        j.at("position").get_to(jview.position);
-        j.at("segsPerCircle").get_to(jview.segsPerCircle);
-    }
+    // full list from /vis/list
+    // TODO: lets get that programmatically
+    // ASCIITree ATree DAWNFILE G4HepRepFile HepRepFile RayTracer VRML2FILE gMocrenFile OpenGLImmediateQt OGLIQt OGLI OpenGLStoredQt OGLSQt OGL OGLS
+    vector <string> AVAILABLEG4VIEWERS = {
+            "OpenGLImmediateQt",
+            "OGLIQt",
+            "OGLI",
+            "OpenGLStoredQt",
+            "OGLSQt",
+            "OGL",
+            "OGLS"
+    };
 
-    // read structured option
-    JView getJView(GOptions *gopts) {
-
-        // getting json detector from option
-        auto jview = gopts->getStructuredOptionAssignedValues("g4view");
-
-        // projecting it onto GDetector structure
-        return jview.front().get<JView>();
-    }
-
-    // JCamera
-    void from_json(const json &j, JCamera &jcamera) {
-        j.at("theta").get_to(jcamera.theta);
-        j.at("phi").get_to(jcamera.phi);
-    }
-
-    // read structured option
-    JCamera getJCamera(GOptions *gopts) {
+    // read g4view option and return G4View struct
+    G4View getG4View(GOptions *gopts) {
 
         // getting json detector from option
-        auto jcamera = gopts->getStructuredOptionAssignedValues("g4camera");
+        auto driver = gopts->get_option_map_in_node("g4view", "driver").as<string>();
 
-        // projecting it onto GDetector structure
-        return jcamera.front().get<JCamera>();
+        // checking if driver is in the list
+        if (find(AVAILABLEG4VIEWERS.begin(), AVAILABLEG4VIEWERS.end(), driver) == AVAILABLEG4VIEWERS.end()) {
+            cerr << FATALERRORL << "the driver " << YELLOWHHL << driver << RSTHHR << " is not available. " << endl;
+            gexit(EC__VISDRIVERNOTFOUND);
+        }
+
+        // projecting it onto G4View structure
+        G4View g4view;
+        g4view.viewer = driver;
+        g4view.dimension = gopts->get_option_map_in_node("g4view", "dimension").as<string>();
+        g4view.position = gopts->get_option_map_in_node("g4view", "position").as<string>();
+        g4view.segsPerCircle = gopts->get_option_map_in_node("g4view", "segsPerCircle").as<int>();
+
+        return g4view;
     }
+
+    // read g4camera option and return G4Camera struct
+    G4Camera getG4Camera(GOptions *gopts) {
+
+        G4Camera gcamera;
+        gcamera.phi = gopts->get_option_map_in_node("g4camera", "phi").as<string>();
+        gcamera.theta = gopts->get_option_map_in_node("g4camera", "theta").as<string>();
+
+        return gcamera;
+    }
+
+    // read dawn option and return G4Dawn struct
+    G4Dawn getG4Dawn(GOptions *gopts) {
+
+        G4Dawn gdawn;
+
+        auto phi = gopts->get_option_map_in_node("dawn", "phi").as<string>();
+        auto theta = gopts->get_option_map_in_node("dawn", "theta").as<string>();
+
+        if (phi == "null") phi = goptions::NODFLT;
+        if (theta == "null") theta = goptions::NODFLT;
+
+        gdawn.phi = phi;
+        gdawn.theta = theta;
+
+        return gdawn;
+    }
+
 
     // returns array of options definitions
-    vector<GOption> defineOptions() {
+    GOptions defineOptions() {
 
-        vector<GOption> goptions;
+        GOptions goptions;
+        string help;
 
-
-        // JView
+        // g4view
         string VIEWERCHOICES = "g4 viewer. Available choices:\n\n";
         for (auto c: AVAILABLEG4VIEWERS) {
             VIEWERCHOICES += "\t\t\t\t- " + c + "\n";
         }
 
-        // gview option, non groupable
-        json jsonViewer = {
-                {GNAME, "viewer"},
-                {GDESC, VIEWERCHOICES},
-                {GDFLT, GDEFAULTVIEWERDRIVER}
-        };
-        json jsonViewDimension = {
-                {GNAME, "dimension"},
-                {GDESC, "g4 viewer dimension"},
-                {GDFLT, GDEFAULTVIEWERSIZE}
-        };
-        json jsonViewPosition = {
-                {GNAME, "position"},
-                {GDESC, "g4 viewer position"},
-                {GDFLT, GDEFAULTVIEWERPOS}
-        };
-        json jsonSegsPerCircle = {
-                {GNAME, "segsPerCircle"},
-                {GDESC, "Number of segments per circle"},
-                {GDFLT, GDEFAULTVSEGPERCIRCLE}
-        };
-        json jsonViewOption = {
-                jsonViewer,
-                jsonViewDimension,
-                jsonViewPosition,
-                jsonSegsPerCircle
+        vector <GVariable> g4view = {
+                {"driver",    string(GDEFAULTVIEWERDRIVER), "Geant4 vis driver"},
+                {"dimension", string(GDEFAULTVIEWERSIZE),   "g4 viewer dimension"},
+                {"position",  string(GDEFAULTVIEWERPOS),    "g4 viewer position"},
+                {"segsPerCircle", GDEFAULTVSEGPERCIRCLE,    "Number of segments per circle"}
+
         };
 
-        vector<string> help;
-        help.push_back("Defines the geant4 viewer properties:");
-        help.push_back(" - screen dimensions");
-        help.push_back(" - screen position");
-        help.push_back(" - resolution in terms of segments per circle");
-        help.push_back("");
-        help.push_back("Example: -g4view={viewer: \"OGL\", dimension: \"1100x800\", position: \"+200+100\", segsPerCircle: 100}");
-
-        // the last argument refers to "cumulative"
-        goptions.push_back(GOption("g4view", "geant4 viewer properties", jsonViewOption, help, false));
+        help = "Defines the geant4 viewer properties:  \n ";
+        help += " - screen dimensions  \n ";
+        help += " - screen position  \n ";
+        help += " - resolution in terms of segments per circle  \n ";
+        help += " Example: -g4view={viewer: \"OGL\", dimension: \"1100x800\", position: \"+200+100\", segsPerCircle: 100}  \n \n";
+        help += "-g4view=\"[{dimensions: 1200x1000}]\"\n";
+        goptions.defineOption("g4view", "Defines the geant4 viewer properties", g4view, help);
 
 
-        // JCamera
-        json jsonCameraPhi = {
-                {GNAME, "phi"},
-                {GDESC, "geant4 camera phi"},
-                {GDFLT, "0*deg"}
-        };
-        json jsonCameratheta = {
-                {GNAME, "theta"},
-                {GDESC, "geant4 camera theta"},
-                {GDFLT, "0*deg"}
-        };
-        json jsonCameraOption = {
-                jsonCameraPhi,
-                jsonCameratheta
+        // g4camera
+        vector <GVariable> g4camera = {
+                {"phi",   "0*deg", "geant4 camera phi"},
+                {"theta", "0*deg", "geant4 camera theta"}
         };
 
-        help.clear();
-        help.push_back("Defines the geant4 camera view point");
-        help.push_back("");
-        help.push_back("Example: -g4camera={phi: \"20*deg\"; theta: \"15*deg\";}");
+        help = "Defines the geant4 camera view point  \n \n ";
+        help += "Example: -g4camera=\"[{phi: 20*deg, theta: 15*deg}]\"  \n ";
+        goptions.defineOption("g4camera", "Defines the geant4 camera view point", g4camera, help);
 
-        // the last argument refers to "cumulative"
-        goptions.push_back(GOption("g4camera", "geant4 camera", jsonCameraOption, help, false));
 
-        // dawn switch
-        goptions.push_back(GOption("dawn", "takes a screenshot of the loaded scene using the dawn driver"));
-
-        // "gui" switch
-//        goptions.push_back(GOption("gui", "use Graphical User Interface"));
-
-        // g4display verbosity
-        json jsonMessageVerbosity = {
-                {GNAME, "g4displayv"},
-                {GDESC, "Verbosity for g4display. " + string(GVERBOSITY_DESCRIPTION)},
-                {GDFLT, 0}
+        // dawn
+        help = "Defines the dawn camera view point and take a dawn screenshot \n \n ";
+        help += "Example: -dawn=\"[{phi: 20*deg, theta: 15*deg}]\"  \n ";
+        vector <GVariable> dawn = {
+                {"phi",   30, "dawn phi"},
+                {"theta", 30, "dawn theta"}
         };
-        goptions.push_back(GOption(jsonMessageVerbosity));
+        goptions.defineOption("dawn", "Defines the dawn view point", dawn, help);
+        goptions.defineSwitch("useDawn", "Take a dawn screenshot");
 
-        goptions += addSceneTextsOptions();
-        goptions += addViewTextsOptions();
-
+        // scenetext
+        goptions.addGOptions(addSceneTextsOptions());
 
         return goptions;
     }

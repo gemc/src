@@ -10,10 +10,7 @@ using namespace std;
 
 int main()
 {
-
-	// AV manages Shapes. It's the same as managerA but with verbosity 1
-	// registering 3 shape classes
-	// notice, here we know of them through the header
+	// AV manages Shapes, with verbosity set to 1
 	GManager managerAV("exampleAV", 1);    // no verbosity
 	managerAV.RegisterObjectFactory<Triangle>("triangle");
 	managerAV.RegisterObjectFactory<Box>("box1");
@@ -34,32 +31,12 @@ int main()
 	fffv["triangle"]->Area();
 	fffv["box1"]->Area();
 
+    cout << " Shape pointers: " << fffv["triangle"] << " " << aShape << endl;
+
+    // once we're done with it
 	managerAV.clearDLMap();
 
 
-	// A manages Shapes
-	// registering 3 shape classes
-	// notice, here we know of them through the header
-	GManager managerA("exampleA");    // no verbosity
-	managerA.RegisterObjectFactory<Triangle>("triangle");
-	managerA.RegisterObjectFactory<Box>("box1");
-	managerA.RegisterObjectFactory<Box>("box2");
-
-	// putting A factory in map
-	map<string, Shape*> fff;
-	fff["triangle"] = managerA.CreateObject<Shape>("triangle");
-	fff["box1"]     = managerA.CreateObject<Shape>("box1");
-	fff["box2"]     = managerA.CreateObject<Shape>("box2");
-
-	// aShape is same pointer as map element
-	Shape* avShape = fff["triangle"];
-
-	// calling base and derived methods
-	avShape->Area();
-	fff["triangle"]->Area();
-	fff["box1"]->Area();
-
-	managerA.clearDLMap();
 
 
 
@@ -80,13 +57,11 @@ int main()
 	ggg["tesla"]->go();
 	ggg["ford"]->go();
 
-	cout << " Shape pointers: " << fff["triangle"] << " " << aShape << endl;
 	cout << " Car pointers: " << ggg["ford"] << " " << aCar << endl;
 
 	cout << "generalCarVar from factory map: " << ggg["tesla"]->generalCarVar << endl;
 
-	// why this need to be cleared here, and not after the factories are
-	// put in the map?
+	// clearing the map - this should be done in classes destructors
 	managerB.clearDLMap();
 
 }

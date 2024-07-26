@@ -1,6 +1,6 @@
 project('gemc3', 'cpp',
         default_options : ['cpp_std=c++20'],
-        version : run_command('git', 'describe', '--tags', '--abbrev=0', check : true).stdout().strip()
+        version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip()
 )
 project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 
@@ -34,10 +34,10 @@ subdir('gphysics')
 subdir('gQtButtonsWidget')
 subdir('gsplash')
 subdir('gstreamer')
-subdir('utilities')
 subdir('gsession')
 subdir('gsd')
 subdir('gfields')
+subdir('utilities')
 subdir('gdetector')
 subdir('userActions')
 subdir('gui')
@@ -84,6 +84,7 @@ foreach L : LD
 
         foreach dep : this_deps
             if not all_deps.contains(dep)
+                message(' adding ' + dep.name() + ' to ' + this_lib_name)
                 all_deps += dep
             endif
         endforeach
@@ -102,7 +103,7 @@ foreach L : LD
                 sources[0],
                 install : sources[1],
                 dependencies : this_deps,
-                include_directories : all_includes + this_lib_name,
+                include_directories : all_includes + this_lib_name + additional_includes,
                 link_with : all_libs,
                 name_suffix : 'gplugin',
                 name_prefix : ''
@@ -113,17 +114,21 @@ foreach L : LD
     # examples
     if examples != empty_dict
         foreach name, sources_and_arguments : examples
+            # concatenate the items in sources_and_arguments[1] to a string
+            example_sources = sources_and_arguments[0] + qrc_examples_compiled_sources
+            arguments = sources_and_arguments[1]
+
             exe = executable(
                 name,
-                sources_and_arguments[0] + qrc_examples_compiled_sources,
+                example_sources,
                 install : true,
                 dependencies : this_deps,
-                include_directories : all_includes + this_lib_name,
+                include_directories : all_includes + this_lib_name  + additional_includes,
                 link_with : all_libs
             )
             test(' ## ' + this_lib_name + ' test ##  >>  ' + name,
                  exe,
-                 args : sources_and_arguments[1])
+                 args : arguments)
         endforeach
     endif
     foreach include_dir : additional_includes
@@ -141,13 +146,15 @@ qrc_gemc_sources = qt5.compile_resources(sources : 'qtresources.qrc')
 
 gemc = executable(
     'gemc',
-    ['gemc.cc', 'gemcOptions.cc'] + qrc_gemc_sources,
+    ['gemc.cc'] + qrc_gemc_sources,
     install : true,
     dependencies : all_deps,
     include_directories : all_includes,
     link_with : all_libs
 )
 
+# api
+subdir('api')
 
 # generate pkg-config file
 pkg = import('pkgconfig')

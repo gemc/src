@@ -8,16 +8,15 @@
 
 // c++
 #include <iostream>
+
 using namespace std;
 
 
-//int main(int argc, char* argv[])
-int main() {
+int main(int argc, char *argv[]) {
 
-    //GOptions *gopts = new GOptions(argc, argv, eventDispenser::defineOptions());
+    GOptions *gopts = new GOptions(argc, argv, eventDispenser::defineOptions());
 
-   // auto geventDispenser = new EventDispenser(gopts, nullptr);
+    cout << " Event Dispenser Verbosity: " << gopts->getVerbosityFor("gevent_dispenser") << endl;
 
-
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

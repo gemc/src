@@ -1,0 +1,73 @@
+name: Build and Test GEMC
+
+on:
+  # Triggers the workflow on all pushes
+  push:
+  pull_request:
+    types:
+      # only run workflow when a commit is pushed to a PR branch
+      # instead of running for all other PR events
+      - synchronize
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  ubuntu:
+    runs-on: ubuntu-latest
+    container: jeffersonlab/geant4:g4v11.2.2-ubuntu24
+    steps:
+      # Check out the code
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Set ownership
+        run: |
+            # this is to fix GIT not liking owner of the checkout dir
+            chown -R $(id -u):$(id -g) $PWD
+            git fetch --prune --unshallow --tags
+            git config --global --add safe.directory '*'
+      - name: Build
+        run: |
+          ./ci/build.sh
+      - name: Test
+        run: |
+          ./ci/test.sh
+  fedora:
+    runs-on: ubuntu-latest
+    container: jeffersonlab/geant4:g4v11.2.2-fedora36
+    steps:
+      # Check out the code
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Set ownership
+        run: |
+          # this is to fix GIT not liking owner of the checkout dir
+          chown -R $(id -u):$(id -g) $PWD
+          git fetch --prune --unshallow --tags
+          git config --global --add safe.directory '*'
+      - name: Build
+        run: |
+          ./ci/build.sh
+      - name: Test
+        run: |
+          ./ci/test.sh
+
+  almalinux:
+    runs-on: ubuntu-latest
+    container: jeffersonlab/geant4:g4v11.2.2-almalinux93
+    steps:
+      # Check out the code
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Set ownership
+        run: |
+          # this is to fix GIT not liking owner of the checkout dir
+          chown -R $(id -u):$(id -g) $PWD
+          git fetch --prune --unshallow --tags
+          git config --global --add safe.directory '*'
+      - name: Build
+        run: |
+          ./ci/build.sh
+      - name: Test
+        run: |
+          ./ci/test.sh

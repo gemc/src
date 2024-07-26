@@ -1,14 +1,14 @@
 // gparticle
-#include "gparticle.h"
+#include "gparticleOptions.h"
 
 // c++
 #include <iostream>
+
 using namespace std;
 
+int main(int argc, char *argv[]) {
 
-int main()
-{
+    GOptions *gopts = new GOptions(argc, argv, gparticle::defineOptions());
 
-
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

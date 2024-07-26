@@ -1,3 +1,6 @@
+// gemc
+#include "gparticleOptions.h"
+
 #include "gPrimaryGeneratorAction.h"
 
 // c++
@@ -7,8 +10,8 @@ GPrimaryGeneratorAction::GPrimaryGeneratorAction(GOptions* gopts) :
 gparticleGun(nullptr)
 {
 	gparticleGun = new G4ParticleGun();
-	jparticles = gparticle::getJParticles(gopts);
-    verbosity = gopts->getInt(GPARTICLEVERBOSITY);
+	gparticles = gparticle::getGParticles(gopts);
+    verbosity = gopts->getVerbosityFor("gparticle");
 
 }
 
@@ -20,11 +23,10 @@ GPrimaryGeneratorAction::~GPrimaryGeneratorAction()
 
 void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-	for ( auto& jparticle: jparticles) {
-		Gparticle gpar(jparticle);
+	for ( auto& gparticle: gparticles) {
         if (verbosity >= GVERBOSITY_DETAILS) {
-            cout << GPARTICLELOGHEADER << gpar ;
+            cout << GPARTICLELOGHEADER << gparticle ;
         }
-		gpar.shootParticle(gparticleGun, anEvent, verbosity);
+        gparticle.shootParticle(gparticleGun, anEvent, verbosity);
 	}
 }

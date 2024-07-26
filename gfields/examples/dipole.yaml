@@ -1,0 +1,5 @@
+gmultipole:
+  - name: dipole
+    pole_number: 2
+    strength: 2
+    verbosity: 1

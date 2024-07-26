@@ -8,11 +8,10 @@
 // glibrary
 #include "goptions.h"
 
-class  G4Controls : public QTabWidget
-{
+class G4Controls : public QTabWidget {
 
 public:
-	G4Controls(GOptions* gopt, QWidget* parent = Q_NULLPTR);
+    G4Controls(GOptions *gopt, QWidget *parent = Q_NULLPTR);
 
 };
 

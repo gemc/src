@@ -1,3 +1,5 @@
+XCODE Notes
+
 ## Executable from scratch
 
 	- select Project > Configurations > Add settings file
@@ -34,74 +36,9 @@ open $XERCESCROOT/lib/
 	-DG4VIS_USE_OPENGL becomes G4VIS_USE_OPENG=1
 
 
-
-Options:
-
-	add to Scheme > Run > Arguments
-	
-	
-   Scheme > Arguments > Environment variables
-
-	GEMCDB_ENV /opt/projects/gemc/sci-g/examples/geometry
-	GEMCDB_ENV /opt/projects/gemc/clas12-systems/systemsTxtDB
-
-
-	Options:
-
-	gui
-	/opt/projects/gemc/clas12-systems/ftof/overlaps/rga_fall2018.jcard
-	/opt/projects/gemc/sci-g/examples/geometry/simple_flux/simple_flux.jcard
-
-
-
-
 ###  Running gemc in xcode:
 
 Disable malloc check Edit Scheme > Diagnostic
-
-
-
-
-GEMC
-
- Code conventions
- - camel case for all variable names, class definitions
- - type definitions start with Capital Letter
- - instances start with lowercase letter
- - shared variables should contain "shared" / "global" in the name
- - thread-local variable should contain "local" / "tlocal" / "thread"  in the name
-
-
-
-# Xcode testing
-
-See https://hiltmon.com/blog/2019/02/09/testing-c-plus-plus-17-project-in-xcode-with-xctest/
-
-
-
-## The rule of three:
-
-If you need to explicitly declare either the destructor, copy constructor or copy assignment operator yourself,
-you probably need to explicitly declare all three of them.
-From C++11 on, an object has 2 extra special member functions: the move constructor and move assignment.
-The rule of five states to implement these functions as well.
-
-class person
-{
-    std::string name;
-    int age;
-
-public:
-    person(const std::string& name, int age);        // Ctor
-    person(const person &) = default;                // 1/5: Copy Ctor
-    person(person &&) noexcept = default;            // 4/5: Move Ctor
-    person& operator=(const person &) = default;     // 2/5: Copy Assignment
-    person& operator=(person &&) noexcept = default; // 5/5: Move Assignment
-    ~person() noexcept = default;                    // 3/5: Dtor
-};
-
-
-
 
 
 ## Color on the output
@@ -112,41 +49,9 @@ cat
 less if LESS is set: export LESS=-Xr
 grep
 
+GEMC Notes
 
 # gdetector libraries
 
-
 // PRAGMA NOTE ConstructSDandField must be run on master thread as well
 // or processHits will not happen (spent a day figuring this out)
-
-
-
-
-# Seg fault: usually it's the plugin!!!
-
-"gpluginsPath": "/opt/projects/gemc/src" :
-
-cp /opt/projects/gemc/glibrary/lib/gstreamerTEXTFactory.gplugin .
-cp ../sci-g/examples/6_CalorimeterAndHodoscope/ex6_1_calHodoDetector/plugin/ch.gplugin .
-
-
-
-
-"gpluginsPath": "/Users/ungaro/builds": no need to copy, just rebuild the plugins
-
-
-
-
-
-# Compile Geant4 Examples:
-
-
-cmake -DGeant4_DIR=$G4INSTALL $G4INSTALL/source/geant4.10.07.p02/examples/extended/eventgenerator/exgps
-
-
-
-
-TroubleShooting
-
-- cycle: add Header phase when actually needed (usually qt moc)
-- remove header phase when it is not needed

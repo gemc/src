@@ -2,20 +2,13 @@
 #define  GOPTIONS_H  1
 
 #include "goption.h"
-#include "goptionsConventions.h"
-#include "gutsConventions.h"
+#include "gswitch.h"
 
-// json parser
-#include "json.hpp"
-
-using nlohmann::json;
 
 // c++
 #include <string>
-
-using std::string;
-using std::map;
-using std::vector;
+#include <fstream>
+#include <iostream>
 
 
 /**
@@ -25,98 +18,127 @@ class GOptions {
 
 public:
 
+    // empty constructor, to be used to define the GOptions user_defined_options passed in the below constructor
+    GOptions() { return; }
+
     /**
-     * @details Users Constructor
+     * @details Library based constructor: each library can define its own options,
      * \param argc number of arguments, passed from "main"
      * \param argv argument arrays of *chars, passed from main
-     * \param goptionDefinitions vector of user options, usually returned by a defineOptions() function
+     * \param user_defined_options vector of user options, usually returned by a defineOptions() function
      */
-    GOptions(int argc, char *argv[], vector<GOption> goptionDefinitions);
+    GOptions(int argc, char *argv[], GOptions user_defined_options);
 
 private:
 
-    // read directly in the command line to control option debugging
-    // an option cannot be used because the parsing is part of the debug
-    // activate debug logging
-    bool gdebug = false;
-
-    // read directly in the command line to control option debugging
-    // an option cannot be used because the parsing is part of the debug
-    // activate exit on:
-    // - duplicate options
-    bool gstrict = false;
-
-    // print option help and exit if set to true
-    // with any of these flags: -h --h -help --help
-    bool printHelp = false;
-
-    // print option web formatted help and exit if set to true
-    // with any of these flags: -hweb
-    bool printWHelp = false;
-
-
     // GOption array
-    vector<GOption> goptions;
+    vector <GOption> goptions;
 
     // Switches map
-    map<string, GSwitch> switches;
+    map <string, GSwitch> switches;
 
     // jcards parsing utilities
-    string findBaseJCard(int argc, char *argv[]);  // finds a configuration file (jcard). Returns "na' if not found.
+    vector <string> find_yamls(int argc, char *argv[]);  // finds the yaml specified by command line. Returns "na' if not found.
 
-    vector<json> getUserJsonsFromJCard(string jcardFilename);    // returns all jsons objects pointed by the base and imported jcards
+    // parse the yaml file
+    void set_options_values_from_yaml_file(string yamls);
 
-    void parseJSONSIntoGOption(vector<json> allUserJsons);       // parse all the jsons from the jcards / command line in the GOptions array
+    // parse a command line
+    void set_option_values_from_command_line_argument(string option_name, string possible_yaml_node);
 
-    // search utilities
-    long findOptionIndex(string name);  // find goption from the array. return jOptions array index or UNINITIALIZEDNUMBERQUANTITY if not found
+    // checks if the option exists
+    bool does_option_exist(string tag);
 
-    // same as above, but look for specifically a non structured option
-    // exit if the tag refers to a non structured option
-    json getNonStructuredOptionSingleValue(string tag);
+    // returns vector<GOption> map iterator that has the option name
+    vector<GOption>::iterator get_option_iterator(string name);
 
-    // options for GOptions
-    vector<GOption> defineGOptionsOptions();
+    // search
+    vector <GOption> search_for_string(string tag); // searches for a string option
 
-    // add a switch to the map of switches
-    void addSwitch(string name, string description);
+    // print single option or switch
+    void print_option_or_switch_help(string tag);
 
     // loops over all options and print help
-    void printOptionsHelp();
+    void print_help();
 
-    // loops over all options and print web formattd help
-    void printOptionsWebHelp();
+    // print web formated help
+    void print_web_help();
 
+    // Save All User Options In a Yaml File
+    void save_options();
+
+    // sets the executable name at construction
+    string executableName;
+
+    // yaml saved configuration filename
+    std::ofstream *yaml_conf;
+
+    // introspection.
+    void print_version();
+
+    // save yaml file locations
+    vector <string> yaml_files;
 
 public:
 
-    /**
-     * @details Print Settings
-     * \param withDefaults if true prints the options not assigned by the user
-     */
-    void printSettings(bool withDefaults);
+    // add a command line switch to the map of switches
+    void defineSwitch(string name, string description);
 
-    int getInt(string tag);       // gets the integer value associated with non structured option \"tag\"
-    float getFloat(string tag);   // gets the float value associated with non structured option \"tag\"
-    double getDouble(string tag); // gets the double value associated with non structured option \"tag\"
-    string getString(string tag); // gets the string value associated with non structured option \"tag\"
-    bool getSwitch(string tag);   // gets the bool value associated with switch \"tag\"
+    // add a simple option to the map of options
+    void defineOption(GVariable gvar, string help);
 
-    string jcardFilename;         // jcard with path, specified by the command line
+    // add a map option to the map of options
+    void defineOption(string name, string description, vector <GVariable> gvars, string help);
 
-    /**
-     * @brief Get the (structured) option json values corresponding to a tag
-     * \param tag the structured option json tag
-     * Used to project options onto structures (see structuredExample)
-     */
-    vector<json> getStructuredOptionAssignedValues(string tag);
+    // option getters for scalar options
+    int getScalarInt(string tag);
 
-    // introspection
-    void print_version();
+    float getScalarFloat(string tag);
+
+    double getScalarDouble(string tag);
+
+    string getScalarString(string tag);
+
+    bool getSwitch(string tag);
+
+    // returns the YAML::Node of the option with the tag
+    inline const YAML::Node get_option_node(string tag) {
+        // if the option does not exist, exit with error
+        if (!does_option_exist(tag)) {
+            std::cerr << " option " << tag << " does not exist. Exiting." << std::endl;
+            gexit(EC__NOOPTIONFOUND);
+        }
+        return get_option_iterator(tag)->value.begin()->second;
+    }
+
+    YAML::Node get_option_map_in_node(string option_name, string map_key);
+
+    int getVerbosityFor(string tag);
+
+    // returns the goptions array
+    vector <GOption> get_options() { return goptions; }
+
+    // return the switches map
+    map <string, GSwitch> get_switches() { return switches; }
+
+    // adds a vector of options to the current options
+    inline void addGOptions(GOptions goptions_to_add) {
+        for (auto gopt: goptions_to_add.get_options()) {
+            goptions.push_back(gopt);
+        }
+        for (auto sw: goptions_to_add.get_switches()) {
+            switches.insert(sw);
+        }
+    }
+
+    template<typename T>
+    T get_variable_in_option(const YAML::Node& node, const string& variable_name, const T& default_value);
+
+    vector <string> get_yaml_files() { return yaml_files; }
+
 };
 
-// overloaded operator to add option vectors
-vector<GOption> &operator+=(vector<GOption> &original, vector<GOption> optionsToAdd);
-
+// overloaded operator to add option vectors and switch maps
+GOptions &operator+=(GOptions &original, GOptions optionsToAdd);
 
 #endif
