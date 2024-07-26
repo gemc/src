@@ -215,7 +215,7 @@ def write_templates(system, variations):
     with open(f'{geo_main}', 'w') as pg:
         pg.write(f'from geometry_{system} import build_{system}\n\n')
         pg.write(f'def build_geometry(configuration):\n')
-        pg.write(f'  build_{system}\n')
+        pg.write(f'  build_{system}(configuration)\n')
 
     # ask_to_overwrite_file(yaml)
     with open(f'{yaml}', 'w') as pj:
