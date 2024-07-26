@@ -290,7 +290,7 @@ def log_gvolume(silent, volume_type, parameters: [str] = None):
                 f'{parameters[4]}, \'{unit}\', \'{unit2}\')')
 
     elif volume_type == 'G4Cons':
-        if parameters == NGIVENS:
+        if parameters == None:
             volume_definitions.append(
                 'gvolume.make_cons(rin1, rout1, rin2, rout2, length, phiStart, totalPhi) # default units: mm and '
                 'degrees')

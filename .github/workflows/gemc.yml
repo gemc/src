@@ -26,12 +26,12 @@ jobs:
             chown -R $(id -u):$(id -g) $PWD
             git fetch --prune --unshallow --tags
             git config --global --add safe.directory '*'
-      - name: Build GEMC
+      - name: Build
         run: |
           ./ci/build.sh
-      - name: Test API
+      - name: Test
         run: |
-          ./ci/testAPI.sh
+          ./ci/test.sh
   fedora:
     runs-on: ubuntu-latest
     container: jeffersonlab/geant4:g4v11.2.2-fedora36
@@ -45,12 +45,12 @@ jobs:
           chown -R $(id -u):$(id -g) $PWD
           git fetch --prune --unshallow --tags
           git config --global --add safe.directory '*'
-      - name: Build GEMC
+      - name: Build
         run: |
           ./ci/build.sh
-      - name: Test API
+      - name: Test
         run: |
-          ./ci/testAPI.sh
+          ./ci/test.sh
 
   almalinux:
     runs-on: ubuntu-latest
@@ -65,9 +65,9 @@ jobs:
           chown -R $(id -u):$(id -g) $PWD
           git fetch --prune --unshallow --tags
           git config --global --add safe.directory '*'
-      - name: Build GEMC
+      - name: Build
         run: |
           ./ci/build.sh
-      - name: Test API
+      - name: Test
         run: |
-          ./ci/testAPI.sh
+          ./ci/test.sh
