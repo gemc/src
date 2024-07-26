@@ -1,4 +1,4 @@
-name: Test GEMC
+name: Build and Test GEMC
 
 on:
   # Triggers the workflow on all pushes
