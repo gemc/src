@@ -1,5 +1,5 @@
 # https://github.com/marketplace/actions/automatic-releases
-name: GitHub Dev Release
+name: Nightly Dev Release
 
 on:
   schedule:

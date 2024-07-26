@@ -4,6 +4,8 @@
 import argparse
 import logging
 import os
+import sys
+
 
 # from geometry import *
 from solids_map import AVAILABLE_SOLIDS_MAP
@@ -12,6 +14,7 @@ _logger = logging.getLogger("api")
 
 NGIVEN: str = 'NOTGIVEN'
 NGIVENS: [str] = ['NOTGIVEN']
+
 
 # Purposes:
 # 1. write a geometry/material/mirror template file, using the system name and optional variation
@@ -37,8 +40,8 @@ def main():
     # code snippets loggers: volume
     parser.add_argument('-silent', action='store_true', help='do not output the commented lines of code',
                         default=False)
-    parser.add_argument('-sl',     action='store_true', help='show available geant4 solids constructors')  # and geant4 link
-    parser.add_argument('-gv',     metavar='volume', action='store', type=str,
+    parser.add_argument('-sl', action='store_true', help='show available geant4 solids constructors')  # and geant4 link
+    parser.add_argument('-gv', metavar='volume', action='store', type=str,
                         help="show on screen sci-g code for selected geant4 volume type. "
                              "Use ' -sl ' to list the available types.",
                         default=NGIVEN)
@@ -87,8 +90,8 @@ def ask_to_overwrite_file(path):
             print('Stopping execution')
             exit()
 
-def write_templates(system, variations):
 
+def write_templates(system, variations):
     print()
     print(f' Writing files system template >{system}< using variations >{variations}<:')
     print()
@@ -107,13 +110,12 @@ def write_templates(system, variations):
         os.makedirs(system)
 
     system_script = system + '/' + system + '.py'
-    geo_script    = system + '/geometry.py'
-    mat_script    = system + '/materials.py'
-    yaml          = system + '/' + system + '.yaml'
-    readme        = system + '/README.md'
+    geo_script = system + '/geometry_' + system + '.py'
+    mat_script = system + '/materials.py'
+    yaml = system + '/' + system + '.yaml'
+    readme = system + '/README.md'
 
-
-    ask_to_overwrite_file(system_script)
+    # ask_to_overwrite_file(system_script)
     with open(f'{system_script}', 'w') as ps:
         ps.write('#!/usr/bin/env python3\n\n')
         ps.write('# python:\n')
@@ -125,7 +127,7 @@ def write_templates(system, variations):
         ps.write('from utils_api import GConfiguration\n\n')
         ps.write(f'# {system}:\n')
         ps.write('from materials import define_materials\n')
-        ps.write(f'from geometry import build_{system}\n\n')
+        ps.write(f'from geometry import build_geometry\n\n')
 
         ps.write(f'_logger = logging.getLogger("{system}")\n\n')
         ps.write('VARIATIONS = {\n')
@@ -151,7 +153,7 @@ def write_templates(system, variations):
         ps.write('		define_materials(configuration)\n\n')
         ps.write('		# build geometry\n')
         ps.write('		configuration.init_geom_file()\n')
-        ps.write(f'		build_{system}(configuration)\n\n')
+        ps.write(f'		build_geometry(configuration)\n\n')
         ps.write('		# print out the GConfiguration\n')
         ps.write('		configuration.printC()\n\n\n')
         ps.write('if __name__ == "__main__":\n')
@@ -159,7 +161,7 @@ def write_templates(system, variations):
     # change permission
     os.chmod(system_script, 0o755)
 
-    ask_to_overwrite_file(mat_script)
+    # ask_to_overwrite_file(mat_script)
     with open(f'{mat_script}', 'w') as pm:
         pm.write('from materials_api import GMaterial\n\n')
         pm.write('def define_materials(configuration):\n\n')
@@ -180,7 +182,7 @@ def write_templates(system, variations):
         pm.write('	gmaterial.addMaterialWithFractionalMass("epoxy", 0.255)\n')
         pm.write('	gmaterial.publish(configuration)\n\n\n\n')
 
-    ask_to_overwrite_file(geo_script)
+    # ask_to_overwrite_file(geo_script)
     with open(f'{geo_script}', 'w') as pg:
         pg.write('from geometry_api import GVolume\n')
         pg.write('import math\n\n')
@@ -208,9 +210,17 @@ def write_templates(system, variations):
         pg.write('	gvolume.color       = \'ff0000\'\n')
         pg.write('	gvolume.publish(configuration)\n\n\n\n')
 
-    ask_to_overwrite_file(yaml)
+    geo_main = system + '/geometry.py'
+    # ask_to_overwrite_file(geo_main)
+    with open(f'{geo_main}', 'w') as pg:
+        pg.write(f'from geometry_{system} import build_{system}\n\n')
+        pg.write(f'def build_geometry(configuration):\n')
+        pg.write(f'  build_{system}\n')
+
+    # ask_to_overwrite_file(yaml)
     with open(f'{yaml}', 'w') as pj:
-        pj.write('runno: 1\n\n')
+        pj.write('runno: 1\n')
+        pj.write('n: 10\n\n')
         pj.write('gparticle:\n')
         pj.write('  - name: e-\n')
         pj.write('    p: 1500\n')
@@ -219,18 +229,21 @@ def write_templates(system, variations):
         pj.write('    delta_phi: 18.0\n')
         pj.write('    multiplicity: 4\n\n')
         pj.write('  - name: proton\n')
-        pj.write('    p: 3000\n')
+        pj.write('    p: 3000\n\n')
         pj.write('verbosity:\n')
         pj.write('  - ghits: 2\n')
         pj.write('  - gsystem: 2\n')
+        pj.write('  - gstreamer: 2\n\n')
         pj.write('gsystem:\n')
-        pj.write('  - name: mys\n')
+        pj.write(f'  - name: {system}\n')
         pj.write('    factory: TEXT\n\n')
+        pj.write('gstreamer:\n')
+        pj.write(f'  - filename: {system}.txt\n')
+        pj.write( '    format: TEXT\n\n')
 
-
-    ask_to_overwrite_file(readme)
+    # ask_to_overwrite_file(readme)
     with open(f'{readme}', 'w') as rm:
-        gemc='[GEMC: Monte Carlo Particles and Hardware Simulator](https://gemc.github.io/home/)'
+        gemc = '[GEMC: Monte Carlo Particles and Hardware Simulator](https://gemc.github.io/home/)'
         rm.write('\n')
         """write 20 spaces then system name then 20 spaces"""
         rm.write(f'|{" " * 20}{gemc}{" " * 20}|\n')
@@ -290,7 +303,7 @@ def log_gvolume(silent, volume_type, parameters: [str] = None):
                 f'{parameters[4]}, \'{unit}\', \'{unit2}\')')
 
     elif volume_type == 'G4Cons':
-        if parameters == None:
+        if parameters is None:
             volume_definitions.append(
                 'gvolume.make_cons(rin1, rout1, rin2, rout2, length, phiStart, totalPhi) # default units: mm and '
                 'degrees')
@@ -363,15 +376,18 @@ def log_gvolume(silent, volume_type, parameters: [str] = None):
 
     volume_definitions.append('gvolume.material = \'G4_AIR\'')
     if not silent:
-        volume_definitions.append('# Uncomment any of the lines below to set parameters different than these defaults:\n')
+        volume_definitions.append(
+            '# Uncomment any of the lines below to set parameters different than these defaults:\n')
         volume_definitions.append('# gvolume.mother = \'motherVolumeName\'                 # default: \'root\' ')
         volume_definitions.append('# gvolume.description = \'describe your volume here\'   # default: \'na\'')
         volume_definitions.append('# gvolume.set_position(myX, myY, myZ)                 # default: (0, 0, 0)')
         volume_definitions.append('# gvolume.set_rotation(myX, myY, myZ)                 # default: (0, 0, 0)')
         volume_definitions.append('# gvolume.mfield = \'solenoid\'                         # default: \'na\'')
         volume_definitions.append('# gvolume.color = \'838EDE\'                            # default: \'778899\'')
-        volume_definitions.append('# gvolume.style = \'0\'                                 # (1 = surface, 0 = wireframe) default is 1')
-        volume_definitions.append('# gvolume.visible = \'0\'                               # (1 = visible, 0 = invisible) default is 1')
+        volume_definitions.append(
+            '# gvolume.style = \'0\'                                 # (1 = surface, 0 = wireframe) default is 1')
+        volume_definitions.append(
+            '# gvolume.visible = \'0\'                               # (1 = visible, 0 = invisible) default is 1')
         volume_definitions.append('# gvolume.digitization = \'flux\'                       # default: \'na\'')
         volume_definitions.append('# gvolume.set_identifier(\'paddleid\', 1)               # default: \'na\'')
 
@@ -398,6 +414,6 @@ def print_all_g4solids():
               f'    \033[92m{description[1]} \033[0m\n')
     print('\n\n')
 
-import sys
+
 if __name__ == "__main__":
     main()

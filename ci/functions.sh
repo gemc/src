@@ -16,6 +16,7 @@ fi
 # assuming only geant4 and not gemc is loaded
 echo " > Setting environment, current dir: $(pwd)"
 ls -l
+module load geant4
 module load sim_system
 echo " > SIM_HOME is $SIM_HOME"
 export GEMC=$SIM_HOME/gemc

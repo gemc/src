@@ -15,7 +15,7 @@ namespace gstreamer {
                 goutputs.push_back(GStreamerDefinition(
                         gopts->get_variable_in_option<string>(goutput_item, "format", goptions::NODFLT),
                         gopts->get_variable_in_option<string>(goutput_item, "name", goptions::NODFLT),
-                        gopts->get_variable_in_option<string>(goutput_item, "type", goptions::NODFLT)
+                        gopts->get_variable_in_option<string>(goutput_item, "type", "event")
                 ));
             }
 
@@ -44,7 +44,7 @@ namespace gstreamer {
         vector <GVariable> gstreamer = {
                 {"filename",   goptions::NODFLT, "name of output file"},
                 {"format",     goptions::NODFLT, "format of output file"},
-                {"type",       goptions::NODFLT, "type of output file"},
+                {"type",       "event", "type of output file"},
 
         };
 
