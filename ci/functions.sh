@@ -6,7 +6,10 @@ if [[ -z "${AUTOBUILD}" ]]; then
 else
     echo "\n > Running In a Docker Container"
     source  /etc/profile.d/localSetup.sh
-    # In github actions, the clone is not deep, so we need to fetch the tags
+fi
+
+# If shallow, need to fetch the tags
+if $(git rev-parse --is-shallow-repository); then
     git fetch --prune --unshallow --tags
 fi
 

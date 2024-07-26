@@ -16,9 +16,8 @@ source ci/functions.sh
 
 set_ld_path
 cd build
-echo " > Running meson test"
-eson test -v
-cd ..
+echo " > Running meson tests"
+meson test -v
 $GEMC/bin/gemc -v
 if [ $? -ne 0 ]; then
   echo Running gemc  failed
