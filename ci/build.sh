@@ -17,7 +17,12 @@ echo " > Running build Configure"
 meson setup build --native-file=release.ini -Duse_root=true --wipe
 cd build
 echo " > Running meson configure -Dprefix=$GEMC"
-meson configure -Dprefix=$GEMC
+# if we are on an ubuntu OS, need the profile ocmpiler options to complete, no idea why
+if [[ $(cat /etc/os-release | grep -i ubuntu) ]]; then
+  meson configure -Dprefix=$GEMC Db_pgo='generate'
+else
+  meson configure -Dprefix=$GEMC
+fi
 echo " > Running meson compile and install"
 meson compile -v
 meson install

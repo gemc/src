@@ -375,9 +375,9 @@ class GVolume:
         ]
         self.parameters = ", ".join(with_units)
 
-    def make_trap_from_angular_wedges(self, pz, py, px, pltx, unit='mm'):
+    def make_trap_from_right_angular_wedges(self, pz, py, px, pltx, unit='mm'):
         """
-        make_trap_from_angular_wedges(pz, py, px, pltx, lunit1='mm')
+        make_trap_from_right_angular_wedges(pz, py, px, pltx, lunit1='mm')
 
         Creates a geant4 Generic Trapezoid: right Angular Wedge (4 parameters)
 
@@ -396,7 +396,7 @@ class GVolume:
         TO VERIFY:
         Creates a trapezoid with pz=30mm, py=40mm, px=50mm, pltx=20mm:
 
-        > make_trap_from_angular_wedges(30, 40, 50, 20)
+        > make_trap_from_right_angular_wedges(30, 40, 50, 20)
 
         To print the corresponding code:
 
@@ -572,7 +572,7 @@ class GVolume:
         """
 
         if len(params) == 4:
-            self.make_trap_from_angular_wedges(self, *params, lunit1)
+            self.make_trap_from_right_angular_wedges(self, *params, lunit1)
         elif len(params) == 11:
             self.make_general_trapezoid(params[0], params[1], params[2], params[3], params[4],
                                         params[5], params[6], params[7], params[8], params[9],

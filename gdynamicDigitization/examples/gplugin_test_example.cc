@@ -1,11 +1,11 @@
-#include "ctofRoutinesExample.h"
+#include "gplugin_test_example.h"
 
 #include <iostream>
 
 using namespace std;
 
 
-bool CTofRoutineExample::defineReadoutSpecs() {
+bool GPlugin_test_example::defineReadoutSpecs() {
 
     float timeWindow = 10;                  // electronic readout time-window of the detector
     float gridStartTime = 0;                // defines the windows grid
@@ -18,7 +18,7 @@ bool CTofRoutineExample::defineReadoutSpecs() {
 }
 
 
-bool CTofRoutineExample::loadConstants(int runno, [[maybe_unused]] string variation) {
+bool GPlugin_test_example::loadConstants(int runno, [[maybe_unused]] string variation) {
     var1 = 2.0;
     var2[0] = 1;
     var2[0] = 2;
@@ -37,5 +37,5 @@ bool CTofRoutineExample::loadConstants(int runno, [[maybe_unused]] string variat
 
 // tells the DLL how to create a GDynamicFactory
 extern "C" GDynamicDigitization *GDynamicFactory(void) {
-    return static_cast<GDynamicDigitization *>(new CTofRoutineExample);
+    return static_cast<GDynamicDigitization *>(new GPlugin_test_example);
 }

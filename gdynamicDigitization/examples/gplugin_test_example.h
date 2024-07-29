@@ -1,5 +1,5 @@
-#ifndef CTOFROUTINEEXAMPLE
-#define CTOFROUTINEEXAMPLE 1
+#ifndef GPLUGIN_TEST_EXAMPLE
+#define GPLUGIN_TEST_EXAMPLE 1
 
 // gdynamic
 #include "gdynamicdigitization.h"
@@ -7,7 +7,7 @@
 // c++
 #include <string>
 
-class CTofRoutineExample : public GDynamicDigitization {
+class GPlugin_test_example : public GDynamicDigitization {
 
 public:
     // constructor not needed
@@ -26,7 +26,7 @@ private:
 };
 
 extern "C" GDynamicDigitization* GDynamicDigitizationFactory(void) {
-    return static_cast<GDynamicDigitization*>(new CTofRoutineExample);
+    return static_cast<GDynamicDigitization*>(new GPlugin_test_example);
 }
 
 #endif

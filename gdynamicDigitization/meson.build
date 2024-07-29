@@ -13,7 +13,7 @@ LD += {
     ),
     'dependencies' : [clhep_deps, geant4_deps],
     'plugins' : {
-        'CTofRoutineExample' : [files('examples/ctofRoutinesExample.cc'), false],
+        'gplugin_test_example' : [files('examples/gplugin_test_example.cc'), true],
     },
     'examples' : {
         'test_gdynamic_plugin_load' : [files('examples/plugin_load_example.cc'), '']

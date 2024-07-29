@@ -6,7 +6,6 @@ import logging
 import os
 import sys
 
-
 # from geometry import *
 from solids_map import AVAILABLE_SOLIDS_MAP
 
@@ -40,21 +39,20 @@ def main():
     # code snippets loggers: volume
     parser.add_argument('-silent', action='store_true', help='do not output the commented lines of code',
                         default=False)
-    parser.add_argument('-sl', action='store_true', help='show available geant4 solids constructors')  # and geant4 link
+    parser.add_argument('-sl', action='store_true', help='show available geant4 solids constructors')
     parser.add_argument('-gv', metavar='volume', action='store', type=str,
-                        help="show on screen sci-g code for selected geant4 volume type. "
-                             "Use ' -sl ' to list the available types.",
-                        default=NGIVEN)
-    parser.add_argument('-gvp', metavar='volume parameters', action='store', type=str,
-                        help="assign parameters to the geant4 volume type selected with the gv option",
-                        default=NGIVENS)
+                        help="show or write python code to create selected geant4 volume "
+                             "Use ' -sl ' to list the available types.", default=NGIVEN)
+    parser.add_argument('-gvp', metavar='assign volume parameters (use with -gv)', action='store', type=str,
+                        help="assign parameters to the geant4 volume type selected with the gv option", default=NGIVENS)
     parser.add_argument('-gmatFM', metavar='material', action='store', type=str,
-                        help='show on screen sci-g code for a material defined using fractional masses',
-                        default=NGIVEN)
+                        help='show or write python code for a material defined using fractional masses', default=NGIVEN)
     parser.add_argument('-gmatNA', metavar='material', action='store', type=str,
-                        help='show on screen sci-g code for a material defined using number of atoms',
-                        default=NGIVEN)
-
+                        help='show or write python code for a material defined using number of atoms', default=NGIVEN)
+    parser.add_argument('-write_to', metavar='filename', action='store', type=str,
+                        help='write code to filename instead of showing it to screen', default=NGIVEN)
+    parser.add_argument('-geo_sub', metavar='geometry subroutine name', action='store', type=str,
+                        help='to use with write_to option: defines name of geo subroutine', default="build_test")
     args = parser.parse_args()
     # print(vars(args))
 
@@ -64,12 +62,13 @@ def main():
     if args.gv != NGIVEN:
         silent: bool = args.silent
         volume_type: str = args.gv
+        subroutine_name=args.geo_sub
         if args.gvp != NGIVENS:
             pars = args.gvp.split()
             pars = [p.replace(',', '') for p in pars]
-            log_gvolume(silent, volume_type, pars)
+            log_gvolume(subroutine_name, silent, args.write_to, volume_type, pars)
         else:
-            log_gvolume(silent, volume_type)
+            log_gvolume(subroutine_name, silent, args.write_to, volume_type)
 
     if args.sl:
         print_all_g4solids()
@@ -239,7 +238,7 @@ def write_templates(system, variations):
         pj.write('    factory: TEXT\n\n')
         pj.write('gstreamer:\n')
         pj.write(f'  - filename: {system}.txt\n')
-        pj.write( '    format: TEXT\n\n')
+        pj.write('    format: TEXT\n\n')
 
     # ask_to_overwrite_file(readme)
     with open(f'{readme}', 'w') as rm:
@@ -269,7 +268,7 @@ def check_units(unit_string) -> str:
         return unit_string
 
 
-def log_gvolume(silent, volume_type, parameters: [str] = None):
+def log_gvolume(subroutine_name, silent, write_to, volume_type, parameters: [str] = None):
     volume_definitions = ['gvolume = GVolume(\"volume name\")']
     if volume_type == 'G4Box':
         if parameters is None:
@@ -340,16 +339,16 @@ def log_gvolume(silent, volume_type, parameters: [str] = None):
     elif volume_type == 'G4TrapRAW':
         if parameters is None:
             volume_definitions.append(
-                'gvolume.make_trap_from_angular_wedges(dx1, dx2, dy1, dy2, dz, theta, phi) # default units: mm.')
-        elif len(parameters) == 7:
+                'gvolume.make_trap_from_right_angular_wedges(pZ, pY, pX, pLTX) # default units: mm.')
+        elif len(parameters) == 4:
             volume_definitions.append(
-                f'gvolume.make_trap_from_angular_wedges({parameters[0]}, {parameters[1]}, {parameters[2]}, '
-                f'{parameters[3]}, {parameters[4]}, {parameters[5]}, {parameters[6]}) # default units: mm.')
-        elif len(parameters) == 8:
-            unit = check_units(parameters[7])
+                f'gvolume.make_trap_from_right_angular_wedges({parameters[0]}, {parameters[1]}, {parameters[2]}, '
+                f'{parameters[3]}) # default units: mm.')
+        elif len(parameters) == 5:
+            unit = check_units(parameters[4])
             volume_definitions.append(
-                f'gvolume.make_trap_from_angular_wedges({parameters[0]}, {parameters[1]}, {parameters[2]}, '
-                f'{parameters[3]}, {parameters[4]}, {parameters[5]}, {parameters[6]}, \'{unit}\')')
+                f'gvolume.make_trap_from_right_angular_wedges({parameters[0]}, {parameters[1]}, {parameters[2]}, '
+                f'{parameters[3]} \'{unit}\')')
 
     elif volume_type == 'G4TrapG':
         if parameters is None:
@@ -367,7 +366,13 @@ def log_gvolume(silent, volume_type, parameters: [str] = None):
                 f'gvolume.make_general_trapezoid({parameters[0]}, {parameters[1]}, {parameters[2]}, {parameters[3]}, '
                 f'{parameters[4]}, {parameters[5]}, {parameters[6]}, {parameters[7]}, {parameters[8]}, '
                 f'{parameters[9]}, {parameters[10]}, \'{unit}\')')
-
+        elif len(parameters) == 13:
+            unit = check_units(parameters[11])
+            unit2 = check_units(parameters[12])
+            volume_definitions.append(
+                f'gvolume.make_general_trapezoid({parameters[0]}, {parameters[1]}, {parameters[2]}, {parameters[3]}, '
+                f'{parameters[4]}, {parameters[5]}, {parameters[6]}, {parameters[7]}, {parameters[8]}, '
+                f'{parameters[9]}, {parameters[10]}, \'{unit}\', \'{unit2}\' )')
     # elif volume_type == 'G4Trap8':
 
     else:
@@ -393,14 +398,25 @@ def log_gvolume(silent, volume_type, parameters: [str] = None):
 
     volume_definitions.append('gvolume.publish(configuration)')
 
-    log_gvolume_from_defs(volume_definitions)
+    log_gvolume_from_defs(subroutine_name, volume_definitions, write_to)
 
 
-def log_gvolume_from_defs(volume_definitions):
-    print()
-    for vd in volume_definitions:
-        print(f'	{vd}')
-    print()
+def log_gvolume_from_defs(subroutine_name, volume_definitions, write_to):
+    if write_to != NGIVEN:
+        print(f' Writing to file: {write_to}')
+        with open(f'{write_to}', 'w') as pv:
+            pv.write('from geometry_api import GVolume\n\n')
+            pv.write(f'def {subroutine_name}(configuration):\n')
+            for vd in volume_definitions:
+                pv.write(f' {vd}\n')
+        print()
+    else:
+        print()
+        print('from geometry_api import GVolume\n')
+        print(f'def {subroutine_name}(configuration):')
+        for vd in volume_definitions:
+            print(f'    {vd}')
+        print()
 
 
 def print_all_g4solids():

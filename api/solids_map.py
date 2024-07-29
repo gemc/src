@@ -25,7 +25,7 @@ AVAILABLE_SOLIDS_MAP = {
               "make_trapezoid",
               "aTrd.jpg"],
     "G4TrapRAW": ["Generic Trapezoid: right Angular Wedge (4 parameters)",
-                  "make_trap_from_angular_wedges",
+                  "make_trap_from_right_angular_wedges",
                   "aTrap.jpg"],
     "G4TrapG": ["Generic Trapezoid: general trapezoid (11 parameters)",
                 "make_general_trapezoid",
