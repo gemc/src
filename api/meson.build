@@ -13,14 +13,14 @@ g4objects = {
     'G4Cons' : '10 20 30 40 10 0 360 cm deg',
     'G4Trd' : '30 10 40 15 60 cm',
     'G4TrapRAW' : '10 20 30 40',
-    'G4TrapG' : '60 20 5 40 30 40 40 10 16 10 14 10 cm deg'
+    'G4TrapG' : '60 20 5 40 30 40 10 16 10 14 10 cm deg'
 }
 
 
 foreach volume: g4objects.keys()
     pars = g4objects[volume]
     test(' ## template show code for volume ' + volume, python_exe, args : [api_dir + 'templates.py', '-gv', volume])
-    test(' ## template show code for volume ' + volume + ' with pars' + pars, python_exe, args : [api_dir + 'templates.py', '-gv', volume, '-gvp', pars])
+    test(' ## template show code for volume ' + volume + ' with parameters ' + pars, python_exe, args : [api_dir + 'templates.py', '-gv', volume, '-gvp', pars])
 endforeach
 
 test(' ## template show code for solid G4Cons in silent mode', python_exe, args : [api_dir + 'templates.py', '-gv', 'G4Cons', '-silent'])
@@ -42,6 +42,6 @@ foreach volume: g4objects.keys()
     pars = g4objects[volume]
     test(' ## template create system test for volume' + volume, python_exe, args : [api_dir + 'templates.py', '-s', test_name], priority : 10)
     test(' ## template replace geometry in test with ' + volume, python_exe, args: [api_dir + 'templates.py', '-gv', volume, '-gvp', pars, geo_py, sub_name], workdir : test_dir, priority : -10)
-    test(' ## template build geometry in test of replacing geometry with' + volume, python_exe, args : [python_main], workdir : test_dir, priority : -20)
+    test(' ## template build geometry in test of replacing geometry with ' + volume, python_exe, args : [python_main], workdir : test_dir, priority : -20)
     test(' ## run gemc in test with replaced geometry using ' + volume, gemc, args : [yaml_file], workdir : test_dir, priority : -30)
 endforeach

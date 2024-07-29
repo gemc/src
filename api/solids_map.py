@@ -18,7 +18,7 @@ AVAILABLE_SOLIDS_MAP = {
                "aTubs.jpg"],
     # "G4CutTubs": "Cylindrical Cut Section or Cut Tube",
     "G4Cons": ["Cone or Conical section",
-               "make_cone",
+               "make_cons",
                "aCons.jpg"],
     # "G4Para": "Parallelepiped",
     "G4Trd": ["Trapezoid",

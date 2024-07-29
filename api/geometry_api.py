@@ -288,9 +288,9 @@ class GVolume:
     # def make_cut_tube()
 
     # Cone or Conical section
-    def make_cone(self, rin1, rout1, rin2, rout2, length, phi_start, phi_total, lunit1='mm', lunit2='deg'):
+    def make_cons(self, rin1, rout1, rin2, rout2, length, phi_start, phi_total, lunit1='mm', lunit2='deg'):
         """
-        make_cone(rin1, rout1, rin2, rout2, length, phi_start, phi_total, lunit1='mm', lunit2='deg')
+        make_cons(rin1, rout1, rin2, rout2, length, phi_start, phi_total, lunit1='mm', lunit2='deg')
 
         Creates a geant4 Cone or Conical section
 
@@ -312,7 +312,7 @@ class GVolume:
 
         Creates a cone with rin1=5mm, rout1=10mm, rin2=20mm, rout2=25mm, length=40mm, phi_start=0deg, phi_total=270deg:
 
-        > make_cone(5, 10, 20, 25, 40, 0, 270)
+        > make_cons(5, 10, 20, 25, 40, 0, 270)
 
         To print the corresponding code:
 

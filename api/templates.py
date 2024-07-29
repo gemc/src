@@ -325,15 +325,15 @@ def log_gvolume(subroutine_name, silent, write_to, volume_type, parameters: [str
     elif volume_type == 'G4Trd':
         if parameters is None:
             volume_definitions.append(
-                'gvolume.make_trd(dx1, dx2, dy1, dy2, dz) # default units: mm.')
+                'gvolume.make_trapezoid(dx1, dx2, dy1, dy2, dz) # default units: mm.')
         elif len(parameters) == 5:
             volume_definitions.append(
-                f'gvolume.make_trd({parameters[0]}, {parameters[1]}, {parameters[2]}, {parameters[3]}, '
+                f'gvolume.make_trapezoid({parameters[0]}, {parameters[1]}, {parameters[2]}, {parameters[3]}, '
                 f'{parameters[4]}) # default units: mm.')
         elif len(parameters) == 6:
             unit = check_units(parameters[5])
             volume_definitions.append(
-                f'gvolume.make_trd({parameters[0]}, {parameters[1]}, {parameters[2]}, {parameters[3]}, '
+                f'gvolume.make_trapezoid({parameters[0]}, {parameters[1]}, {parameters[2]}, {parameters[3]}, '
                 f'{parameters[4]}, \'{unit}\')')
 
     elif volume_type == 'G4TrapRAW':
@@ -353,8 +353,7 @@ def log_gvolume(subroutine_name, silent, write_to, volume_type, parameters: [str
     elif volume_type == 'G4TrapG':
         if parameters is None:
             volume_definitions.append(
-                'gvolume.make_general_trapezoid(pDz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, '
-                'pAlp2) # default units: mm.')
+                'gvolume.make_general_trapezoid(pDz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2) # default units: mm.')
         elif len(parameters) == 11:
             volume_definitions.append(
                 f'gvolume.make_general_trapezoid({parameters[0]}, {parameters[1]}, {parameters[2]}, {parameters[3]}, '
@@ -374,7 +373,6 @@ def log_gvolume(subroutine_name, silent, write_to, volume_type, parameters: [str
                 f'{parameters[4]}, {parameters[5]}, {parameters[6]}, {parameters[7]}, {parameters[8]}, '
                 f'{parameters[9]}, {parameters[10]}, \'{unit}\', \'{unit2}\' )')
     # elif volume_type == 'G4Trap8':
-
     else:
         print(f'\n Fatal error: {volume_type} not supported yet')
         exit(1)
