@@ -6,8 +6,8 @@ LD += {
                           'gfactory.h'
                       ),
     'plugins' : {
-        'fordFactory' : [files('examples/FordFactory.cc'), false],
-        'teslaFactory' : [files('examples/TeslaFactory.cc'), false],
+        'test_dyn_factory1' : [files('examples/FordFactory.cc'), true],
+        'test_dyn_factory2' : [files('examples/TeslaFactory.cc'), true],
     },
     'examples' : {
         'test_gfactory_static_and_dynamic_load' : [files('examples/static_and_dynamic_example.cc', 'examples/ShapeFactory.cc'), '']

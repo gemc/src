@@ -48,8 +48,8 @@ int main()
 	GManager managerB("exampleB", 1); // no verbosity of 1
 	
 	map<string, Car*> ggg;
-	ggg["tesla"] = managerB.LoadAndRegisterObjectFromLibrary<Car>("teslaFactory");
-	ggg["ford"]  = managerB.LoadAndRegisterObjectFromLibrary<Car>("fordFactory");
+	ggg["tesla"] = managerB.LoadAndRegisterObjectFromLibrary<Car>("test_dyn_factory1");
+	ggg["ford"]  = managerB.LoadAndRegisterObjectFromLibrary<Car>("test_dyn_factory2");
 	Car* aCar = ggg["ford"];
 
 
@@ -59,7 +59,7 @@ int main()
 
 	cout << " Car pointers: " << ggg["ford"] << " " << aCar << endl;
 
-	cout << "generalCarVar from factory map: " << ggg["tesla"]->generalCarVar << endl;
+	cout << "run generalCarVar method from factory map: " << ggg["tesla"]->generalCarVar << endl;
 
 	// clearing the map - this should be done in classes destructors
 	managerB.clearDLMap();

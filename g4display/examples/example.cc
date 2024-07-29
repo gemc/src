@@ -26,16 +26,6 @@ int main(int argc, char* argv[])
     G4VisManager* visManager = new G4VisExecutive;
     visManager->Initialize();
 
-    // geant4 stuff
-//    auto runManager =
-//            G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
-//
-//    auto physicsList = new FTFP_BERT;
-//    physicsList->RegisterPhysics(new G4StepLimiterPhysics());
-//    runManager->SetUserInitialization(physicsList);
-
-
-
     G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
 
     // main window

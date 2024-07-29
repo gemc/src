@@ -22,6 +22,7 @@ NGIVENS: [str] = ['NOTGIVEN']
 # 4. print on screen html help for all solid types
 
 
+
 def main():
     logging.basicConfig(level=logging.DEBUG)
 
@@ -43,7 +44,7 @@ def main():
     parser.add_argument('-gv', metavar='volume', action='store', type=str,
                         help="show or write python code to create selected geant4 volume "
                              "Use ' -sl ' to list the available types.", default=NGIVEN)
-    parser.add_argument('-gvp', metavar='assign volume parameters (use with -gv)', action='store', type=str,
+    parser.add_argument('-gvp', metavar='parameters', action='store', type=str,
                         help="assign parameters to the geant4 volume type selected with the gv option", default=NGIVENS)
     parser.add_argument('-gmatFM', metavar='material', action='store', type=str,
                         help='show or write python code for a material defined using fractional masses', default=NGIVEN)
@@ -51,10 +52,9 @@ def main():
                         help='show or write python code for a material defined using number of atoms', default=NGIVEN)
     parser.add_argument('-write_to', metavar='filename', action='store', type=str,
                         help='write code to filename instead of showing it to screen', default=NGIVEN)
-    parser.add_argument('-geo_sub', metavar='geometry subroutine name', action='store', type=str,
+    parser.add_argument('-geo_sub', metavar='method', action='store', type=str,
                         help='to use with write_to option: defines name of geo subroutine', default="build_test")
     args = parser.parse_args()
-    # print(vars(args))
 
     if args.s != NGIVEN:
         write_templates(args.s, args.v)
@@ -62,7 +62,7 @@ def main():
     if args.gv != NGIVEN:
         silent: bool = args.silent
         volume_type: str = args.gv
-        subroutine_name=args.geo_sub
+        subroutine_name = args.geo_sub
         if args.gvp != NGIVENS:
             pars = args.gvp.split()
             pars = [p.replace(',', '') for p in pars]
