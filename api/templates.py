@@ -233,6 +233,7 @@ def write_templates(system, variations):
         pj.write('  - ghits: 2\n')
         pj.write('  - gsystem: 2\n')
         pj.write('  - gstreamer: 2\n\n')
+        pj.write('  - general: 2\n\n')
         pj.write('gsystem:\n')
         pj.write(f'  - name: {system}\n')
         pj.write('    factory: TEXT\n\n')

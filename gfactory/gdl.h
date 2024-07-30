@@ -50,11 +50,16 @@ public:
 
         // trying $GEMC/lib/ + path if not found
         if(!doesFileExists(dlFileName)) {
-            dlFileName = std::string(getenv("GEMC")) + "/lib/" + path;
+            if(verbosity > 0) {
+                std::cout << PLUGINITEM << " Trying " << YELLOWHHL << dlFileName << RSTHHR << std::endl;
+            }            dlFileName = std::string(getenv("GEMC")) + "/lib/" + path;
         }
 
         // trying $GEMC/lib64/ + path if not found
         if(!doesFileExists(dlFileName)) {
+            if(verbosity > 0) {
+                std::cout << PLUGINITEM << " Trying " << YELLOWHHL << dlFileName << RSTHHR << std::endl;
+            }
             dlFileName = std::string(getenv("GEMC")) + "/lib64/" + path;
         }
 

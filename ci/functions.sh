@@ -23,29 +23,31 @@ export GEMC=$SIM_HOME/gemc
 export PYTHONPATH=${PYTHONPATH}:${GEMC}/api
 mkdir -p $GEMC
 
+# on ubuntu, both lib and lib64 are created
 function set_ld_path {
   echo " > Setting LD Path"
   if [ -d $GEMC/lib ]; then
     export LD_LIBRARY_PATH=$GEMC/lib:$LD_LIBRARY_PATH
-  elif [ -d $GEMC/lib64 ]; then
+  fi
+  if [ -d $GEMC/lib64 ]; then
     export LD_LIBRARY_PATH=$GEMC/lib64:$LD_LIBRARY_PATH
   fi
 }
 
 function show_installation {
   echo
-  echo "- Content of $GEMC"
+  echo "- Content of \$GEMC=$GEMC"
   ls -lrt $GEMC
 
-  echo "- Content of $GEMC/bin"
+  echo "- Content of \$GEMC/bin=$GEMC/bin"
   ls -lrt $GEMC/bin
 
   if [ -d $GEMC/lib ]; then
-    echo "- Content of $GEMC/lib"
+    echo "- Content of \$GEMC/lib=$GEMC/lib"
     ls -lrt $GEMC/lib
-
-  elif [ -d $GEMC/lib64 ]; then
-    echo "- Content of $GEMC/lib64"
+  fi
+  if [ -d $GEMC/lib64 ]; then
+    echo "- Content of \$GEMC/lib64=$GEMC/lib64"
     ls -lrt $GEMC/lib64
   fi
 }
