@@ -5,9 +5,7 @@ import argparse
 import logging
 import os
 
-from geometry import *
-
-_logger = logging.getLogger("sci-g")
+from geometry_api import *
 
 NGIVEN: str = 'NOTGIVEN'
 NGIVENS: [str] = ['NOTGIVEN']

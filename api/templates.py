@@ -9,7 +9,6 @@ import sys
 # from geometry import *
 from solids_map import AVAILABLE_SOLIDS_MAP
 
-_logger = logging.getLogger("api")
 
 NGIVEN: str = 'NOTGIVEN'
 NGIVENS: [str] = ['NOTGIVEN']
@@ -128,7 +127,6 @@ def write_templates(system, variations):
         ps.write('from materials import define_materials\n')
         ps.write(f'from geometry import build_geometry\n\n')
 
-        ps.write(f'_logger = logging.getLogger("{system}")\n\n')
         ps.write('VARIATIONS = {\n')
         for v in variations:
             ps.write(f'    \"{v}",\n')
@@ -142,8 +140,6 @@ def write_templates(system, variations):
         ps.write('	parser = argparse.ArgumentParser(description=desc_str)\n')
         ps.write('	args = parser.parse_args()\n\n')
         ps.write('	for variation in VARIATIONS:\n\n')
-        ps.write(f'		_logger.info(f"Building {system} volumes for variation')
-        ps.write(' {variation}")\n')
         ps.write('		# Define GConfiguration name, factory and description.\n')
         ps.write(f'		configuration = GConfiguration(\'{system}\', \'TEXT\', \'The {system} system\')\n')
         ps.write('		configuration.setVariation(variation)\n\n')

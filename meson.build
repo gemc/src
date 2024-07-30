@@ -155,6 +155,7 @@ gemc = executable(
 
 # api
 subdir('api')
+subdir('examples')
 
 # generate pkg-config file
 pkg = import('pkgconfig')
