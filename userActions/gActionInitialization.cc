@@ -20,11 +20,6 @@ GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynam
         goptions(gopts),
         gDigitizationGlobalMap(gDDGlobal) {
     logSummary("Instantiating GActionInitialization ");
-    string pluginPath = string(getenv("GEMC")) + "/lib/";
-    // if pluginPath dir does not exists, try $GEMC/lib64
-    if (!gutilities::directoryExists(pluginPath)) {
-        pluginPath = string(getenv("GEMC")) + "/lib64/";
-    }
 
     // gstreamerFactory
     gstreamerFactoryMap = new map<string, GStreamer *>;
@@ -42,7 +37,7 @@ GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynam
             // by constructions format and outputFileName have to be initialized
             string factory = goutput_def.format;
 
-            string pluginName = pluginPath + goutput_def.gstreamerPluginName();
+            string pluginName = goutput_def.gstreamerPluginName();
             string factoryMapKey = factory + "/" + goutput_def.type;
 
             if (gstreamerFactoryMap->find(factoryMapKey) == gstreamerFactoryMap->end()) {
