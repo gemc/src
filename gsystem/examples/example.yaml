@@ -11,4 +11,4 @@ gmodifier:
     shift: "0 0 -5 cm"
 
 verbosity:
-  - gsystem: 1
+  - gsystem: 2

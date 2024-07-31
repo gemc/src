@@ -13,7 +13,6 @@
 #include "gstreamerOptions.h"
 #include "gsystemOptions.h"
 
-
 namespace gemc {
 
     // returns array of options definitions
@@ -53,16 +52,13 @@ namespace gemc {
         help += string(HELPFILLSPACE) + " - TripleRand\n";
         goptions.defineOption(GVariable("randomEngineName", DEFAULT_RANDOM_ENGINE, "randomEngineName"), help);
 
-
-
         // random seed
-        help = "Random Seed: set the random seed to an integer value. Default: -99\n";
-        help += string(HELPFILLSPACE) + "If the random seed is set to -99, the seed will be set using: \n";
+        help = "Random Seed: set the random seed to an integer value. Default: \n";
+        help += string(HELPFILLSPACE) + "If the random seed is set to -12345, the seed will be set using a combinration of: \n";
         help += string(HELPFILLSPACE) + " - local time \n";
         help += string(HELPFILLSPACE) + " - process id \n";
         help += string(HELPFILLSPACE) + " - clock function \n";
-        goptions.defineOption(GVariable("randomSeed", -12345, "randomEngineName"), help);
-
+        goptions.defineOption(GVariable("seed", SEEDNOTSET, "randomEngineName"), help);
 
         // load other
         goptions += eventDispenser::defineOptions();

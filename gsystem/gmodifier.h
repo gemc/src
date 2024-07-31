@@ -12,11 +12,11 @@ class GModifier {
 
 public:
 
-    GModifier(string n, string s, string t, bool existance, int verbosity) :
+    GModifier(string n, string s, string t, bool existence, int verbosity) :
             name(n),
             shift(s),
             tilts(t),
-            isPresent(existance) {
+            isPresent(existence) {
 
         if (verbosity) {
             cout << GSYSTEMLOGHEADER << "volume " << name << " modified with:" << KGRN;

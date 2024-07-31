@@ -22,6 +22,7 @@ In General:
 - go over constructors: is it move, copy, construct from scratch?
 - examples/advanced/doiPET/README
 - add display goodies like gemc2++
+- standardize log colors
 
 
 Gemc Details:

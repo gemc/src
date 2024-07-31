@@ -16,23 +16,19 @@ fi
 # assuming only geant4 and not gemc is loaded
 echo " > Setting environment, current dir: $(pwd)"
 ls -l
-module load geant4
-module load sim_system
-echo " > SIM_HOME is $SIM_HOME"
-export GEMC=$SIM_HOME/gemc
-export PYTHONPATH=${PYTHONPATH}:${GEMC}/api
+module load gemc/dev3
 mkdir -p $GEMC
 
-# on ubuntu, both lib and lib64 are created
-function set_ld_path {
-  echo " > Setting LD Path"
-  if [ -d $GEMC/lib ]; then
-    export LD_LIBRARY_PATH=$GEMC/lib:$LD_LIBRARY_PATH
-  fi
-  if [ -d $GEMC/lib64 ]; then
-    export LD_LIBRARY_PATH=$GEMC/lib64:$LD_LIBRARY_PATH
-  fi
-}
+## on ubuntu, both lib and lib64 are created
+#function set_ld_path {
+#  echo " > Setting LD Path"
+#  if [ -d $GEMC/lib ]; then
+#    export LD_LIBRARY_PATH=$GEMC/lib:$LD_LIBRARY_PATH
+#  fi
+#  if [ -d $GEMC/lib64 ]; then
+#    export LD_LIBRARY_PATH=$GEMC/lib64:$LD_LIBRARY_PATH
+#  fi
+#}
 
 function show_installation {
   echo

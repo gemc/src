@@ -41,7 +41,6 @@ ifstream *GSystemTextFactory::gSystemTextFileStream(GSystem *system, string SYST
         for (auto trialLocation: possibleLocationOfFiles) {
 
             string newName = trialLocation + "/" + fname;
-            cout << GSYSTEMLOGHEADER << "gSystemTextFileStream: filename: " << KGRN << newName << RST << endl;
 
             if (verbosity == GVERBOSITY_DETAILS) {
                 cout << GSYSTEMLOGHEADER << "Trying file " << newName << endl;

@@ -10,18 +10,18 @@ validRoutineNames = ["constants",       "loadTT",                 "processID",  
 validRoutineDescr = ["loads constants", "loat translation table", "manipulate/create new ID", "digitize a hit",   "write all routines"]
 
 def printHelp():
-	print ''
+	print()
 	print 'Usage:'
-	print ''
+	print()
 	print 'createSystemRoutine.py -s <systemName> -r [routineNames]'
 	print '[routineNames] is a vector of names separated by space'
-	print ''
+	print()
 	print 'Example: createSystemRoutine.py -s driftChamber -r constants touchable'
-	print ''
+	print()
 	print 'Available routines:'
 	for n in range(len(validRoutineNames)):
 		print '-', validRoutineNames[n], ':',validRoutineDescr[n]
-	print ''
+	print()
 
 
 def parseSystem(argv):
@@ -51,13 +51,13 @@ def parseRNames(argv):
 
 def validateOptions(system, routines):
 	if system == 'none':
-		print ''
+		print()
 		print 'Error: system not given, use -s to define it'
 		printHelp()
 		sys.exit()
 	for roname in routines:
 		if not roname in validRoutineNames :
-			print ''
+			print()
 			print 'Error: ', roname, ' is not a vaild routine name'
 			printHelp()
 			sys.exit()
@@ -216,7 +216,3 @@ if 'loadTT' in routines or 'all' in routines:
 
 if 'hitDigitization' in routines or 'all' in routines:
 	writeHitDigitization(systemName)
-
-
-
-

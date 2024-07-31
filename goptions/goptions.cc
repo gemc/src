@@ -60,7 +60,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
             {"gstreamer_fr",     0, "gstreamer frame verbosity"},
             {"gsensitivity",     0, "sensitivity verbosity"},
             {"general",          0, "general verbosity"},
-
+            {"event",            0, "event verbosity"},
     };
 
     string help = "Levels: \n \n";

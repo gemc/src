@@ -16,14 +16,6 @@ source ci/functions.sh
 echo " > Running build Configure"
 meson setup build --native-file=release.ini -Duse_root=true --wipe
 cd build
-## if we are on an ubuntu OS, need the profile compiler options to complete, no idea why
-#if [[ $(cat /etc/os-release | grep -i ubuntu) ]]; then
-#  echo " > Running meson configure -Dprefix=$GEMC  -Db_pgo=\'generate\'  "
-#  meson configure -Dprefix=$GEMC -Db_pgo="generate"
-#else
-#  echo " > Running meson configure -Dprefix=$GEMC"
-#  meson configure -Dprefix=$GEMC
-#fi
 meson configure -Dprefix=$GEMC
 echo " > Running meson compile and install"
 meson compile -v

@@ -29,9 +29,9 @@ GWorld::GWorld(GOptions *gopts) {
 
     // loading gmodifiersMap
     for (auto &gmodifier: gsystem::getModifiers(gopts) ) {
-        if (gmodifier.getName() != GSYSTEMNOMODIFIER) {
+        //if (gmodifier.getName() != GSYSTEMNOMODIFIER) {
             gmodifiersMap[gmodifier.getName()] = &gmodifier;
-        }
+        //}
     }
 
     // instantiating gSystemManager and systemFactory

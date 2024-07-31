@@ -1,11 +1,12 @@
 #ifndef GUTILITIES_H
 #define GUTILITIES_H 1
 
+
 // qt
 #include <QApplication>
 
 // gemc
-#include "goptions.h"
+#include "gemcOptions.h"
 #include "gdynamicdigitization.h"
 
 // geant4

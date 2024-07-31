@@ -31,9 +31,9 @@ GSystem::GSystem(string n, string f, string v, int verbosity, int r, string note
         // in that case reset the path to an empty string
         if (name == path) {
             path = "";
-            cout << GSYSTEMLOGHEADER << "Instantiating GSystem " << YELLOWHHL << KGRN << name << RSTHHR << endl;
+            cout << GSYSTEMLOGHEADER << "Instantiating GSystem " << GREENHHL << KGRN << name << RSTHHR << endl;
         } else {
-            cout << GSYSTEMLOGHEADER << "Instantiating GSystem " << YELLOWHHL << KGRN << name << RSTHHR << " using path " << YELLOWHHL << KGRN << path << RSTHHR << endl;
+            cout << GSYSTEMLOGHEADER << "Instantiating GSystem " << GREENHHL << KGRN << name << RSTHHR << " using path " << YELLOWHHL << KGRN << path << RSTHHR << endl;
         }
     }
 }

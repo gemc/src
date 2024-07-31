@@ -16,7 +16,6 @@ verbosity:
   - ghits: 2
   - gsystem: 2
   - gstreamer: 2
-
   - general: 2
 
 gsystem:
@@ -26,4 +25,3 @@ gsystem:
 gstreamer:
   - filename: B1.txt
     format: TEXT
-

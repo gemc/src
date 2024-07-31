@@ -21,12 +21,13 @@ public:
 
 private:
     int elog; // print event log every elog events
-    
+    int verbosity;
+    // todo: pass thread number from action here?
+    // int thread_number;
+
 private:
     // logs event statistics
-    void printEventStatsBegin(const G4Event* event);
-    void printEventStatsEnd(const G4Event* event);
-
+    void event_print_stats(const G4Event* event, bool start);
 };
 
 

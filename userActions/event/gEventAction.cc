@@ -4,22 +4,17 @@
 #include "G4EventManager.hh"
 
 
-GEventAction::GEventAction(GOptions* gopt) : G4UserEventAction()
-{
+GEventAction::GEventAction(GOptions *gopt) : G4UserEventAction() {
     elog = gopt->getScalarInt("em_log");
+    verbosity = gopt->getVerbosityFor("event");
 }
 
-GEventAction::~GEventAction()
-{
-	// G4cout << GEVENTMESSAGEHEADER << " GEventAction destructor " << G4endl;
+GEventAction::~GEventAction() {}
+
+void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event *event) {
+    if (verbosity >= GVERBOSITY_SUMMARY) event_print_stats(event, true);
 }
 
-void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event)
-{
-	// printEventStatsBegin(event);
-}
-
-void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event)
-{
-	// printEventStatsEnd(event);
+void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event *event) {
+    if (verbosity >= GVERBOSITY_SUMMARY) event_print_stats(event, false);
 }

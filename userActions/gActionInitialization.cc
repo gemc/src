@@ -66,16 +66,16 @@ GActionInitialization::~GActionInitialization() {
     }
 }
 
+void GActionInitialization::BuildForMaster() const {
+    logSummary("GActionInitialization Master Build ");
+    SetUserAction(new GRunAction(goptions, gDigitizationGlobalMap, gstreamerFactoryMap));
+}
+
+
 void GActionInitialization::Build() const {
     logDetail("GActionInitialization Thread Build ");
 
     SetUserAction(new GPrimaryGeneratorAction(goptions));
     SetUserAction(new GRunAction(goptions, gDigitizationGlobalMap, gstreamerFactoryMap));
     SetUserAction(new GEventAction(goptions));
-}
-
-void GActionInitialization::BuildForMaster() const {
-    logSummary("GActionInitialization Master Build ");
-
-    SetUserAction(new GRunAction(goptions, gDigitizationGlobalMap, gstreamerFactoryMap));
 }
