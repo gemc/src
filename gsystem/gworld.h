@@ -29,6 +29,7 @@ private:
     // search for a volume among systems in gsystemsMap
     // cannot return const because this is used in the constructor to apply shifts
     GVolume *searchForVolume(string volumeName, string purpose) const;
+    int verbosity;
 
 public:
     map<string, GSystem *> *getSystemsMap() const { return gsystemsMap; }

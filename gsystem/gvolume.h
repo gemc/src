@@ -12,6 +12,8 @@ using namespace gutilities;
 // c++
 #include <string>
 
+#include <iostream>
+
 using std::string;
 using std::ostream;
 using std::vector;
@@ -130,7 +132,7 @@ public:
     inline const string getDescription() const { return description; }
 
     // assign modifiers
-    void applyShift(string s) { shift = s; }
+    void applyShift(string s) { std::cout << "ooooo" ; shift = s; }
 
     void applyTilt(string t) { tilt = t; }
 

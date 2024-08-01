@@ -33,7 +33,7 @@ GSystem::GSystem(string n, string f, string v, int verbosity, int r, string note
             path = "";
             cout << GSYSTEMLOGHEADER << "Instantiating GSystem " << GREENHHL << KGRN << name << RSTHHR << endl;
         } else {
-            cout << GSYSTEMLOGHEADER << "Instantiating GSystem " << GREENHHL << KGRN << name << RSTHHR << " using path " << YELLOWHHL << KGRN << path << RSTHHR << endl;
+            cout << GSYSTEMLOGHEADER << "Instantiating GSystem " << GREENHHL << KGRN << name << RSTHHR << " using path " << GREENHHL << KGRN << path << RSTHHR << endl;
         }
     }
 }

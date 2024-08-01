@@ -27,11 +27,18 @@ public:
         }
     }
 
+    GModifier(const GModifier &other) = default;
+
 private:
     string name;  // volume name
     string shift;
     string tilts;
     bool isPresent; // true by default
+    friend ostream &operator<<(ostream &stream, GModifier gm) {
+        stream << "GModifier: " << gm.name << " shift: " << gm.shift << " tilts: " << gm.tilts << " isPresent: "
+               << gm.isPresent;
+        return stream;
+    }
 
 public:
     string getName() { return name; }

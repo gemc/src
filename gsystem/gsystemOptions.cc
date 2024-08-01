@@ -4,7 +4,6 @@
 // project goption to a system
 namespace gsystem {
 
-
     // method to return a vector of GSystem from the options
     vector <GSystem> getSystems(GOptions *gopts) {
 

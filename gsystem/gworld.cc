@@ -18,20 +18,17 @@ using std::endl;
 GWorld::GWorld(GOptions *gopts) {
 
     gsystemsMap = new map<string, GSystem *>;
-
-    int verbosity = gopts->getVerbosityFor("gsystem");
+    verbosity = gopts->getVerbosityFor("gsystem");
 
     // loading gsystemsMap with GSystems
-    for (auto &gsystem: gsystem::getSystems(gopts) ) {
+    for (auto &gsystem: gsystem::getSystems(gopts)) {
         string keyName = gutilities::getFileFromPath(gsystem.getName());
         (*gsystemsMap)[keyName] = new GSystem(gsystem);
     }
 
     // loading gmodifiersMap
-    for (auto &gmodifier: gsystem::getModifiers(gopts) ) {
-        //if (gmodifier.getName() != GSYSTEMNOMODIFIER) {
-            gmodifiersMap[gmodifier.getName()] = &gmodifier;
-        //}
+    for (auto &gmodifier: gsystem::getModifiers(gopts)) {
+        gmodifiersMap[gmodifier.getName()] = new GModifier(gmodifier);
     }
 
     // instantiating gSystemManager and systemFactory
@@ -79,7 +76,7 @@ GWorld::GWorld(GOptions *gopts) {
         string factory = gsystem->getFactoryName();
 
         if (systemFactory.find(factory) != systemFactory.end()) {
-            for ( auto yaml_file: gopts->get_yaml_files() ) {
+            for (auto yaml_file: gopts->get_yaml_files()) {
                 systemFactory[factory]->addPossibleFileLocation(getDirFromPath(yaml_file));
             }
             systemFactory[factory]->loadSystem(gsystem, verbosity);
@@ -114,12 +111,16 @@ GWorld::GWorld(GOptions *gopts) {
     for (auto &[volumeNameToModify, gmodifier]: gmodifiersMap) {
 
         // looping over systems, searching for volume
-        GVolume *thisVolume = searchForVolume(volumeNameToModify, " is marked for modifications ");
+        GVolume *thisVolume = searchForVolume(volumeNameToModify, " is marked for modifications");
 
         if (thisVolume != nullptr) {
             thisVolume->applyShift(gmodifier->getShift());
             thisVolume->applyTilt(gmodifier->getTilts());
             thisVolume->modifyExistence(gmodifier->getExistence());
+            if (verbosity == GVERBOSITY_DETAILS) {
+                cout << GSYSTEMLOGHEADER << " g-modifying volume <" << volumeNameToModify << ">. with gmodifier: " << *gmodifier << ". After modifications: " << endl;
+                cout << *thisVolume;
+            }
         }
     }
 
@@ -141,12 +142,10 @@ GWorld::GWorld(GOptions *gopts) {
                 if (motherVolumeName == ROOTWORLDGVOLUMENAME) {
                     g4motherName = ROOTWORLDGVOLUMENAME;
                 }
-
                 gvolume->assignG4Names(g4name, g4motherName);
 
             } else {
                 gvolume->assignG4Names(ROOTWORLDGVOLUMENAME, MOTHEROFUSALL);
-
             }
         }
     }
@@ -164,6 +163,9 @@ GVolume *GWorld::searchForVolume(string volumeName, string purpose) const {
 
         GVolume *thisVolume = system.second->getGVolume(volumeName);
         if (thisVolume != nullptr) {
+            if (verbosity == GVERBOSITY_DETAILS) {
+                cout << GSYSTEMLOGHEADER << " gvolume named <" << volumeName << "> found with purpose: " << purpose << endl;
+            }
             return thisVolume;
         }
     }
