@@ -12,11 +12,17 @@
 # ./ci/build.sh
 
 source ci/functions.sh
+sanitize_option='-Db_sanitize=$1'
+
+# reset sanitize option if on mac
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sanitize_option=''
+fi
 
 echo " > Running build Configure"
 meson setup build --native-file=release.ini -Duse_root=true --wipe
 cd build
-meson configure -Dprefix=$GEMC
+meson configure -Dprefix=$GEMC $sanitize_option
 echo " > Running meson compile and install"
 meson compile -v
 meson install

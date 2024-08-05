@@ -12,62 +12,33 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-jobs:
-  ubuntu:
-    runs-on: ubuntu-latest
-    container: jeffersonlab/geant4:g4v11.2.2-ubuntu24
-    steps:
-      # Check out the code
-      - name: Checkout
-        uses: actions/checkout@main
-      - name: Set ownership
-        run: |
-            # this is to fix GIT not liking owner of the checkout dir
-            chown -R $(id -u):$(id -g) $PWD
-            git fetch --prune --unshallow --tags
-            git config --global --add safe.directory '*'
-      - name: Build
-        run: |
-          ./ci/build.sh
-      - name: Test
-        run: |
-          ./ci/test.sh
-  fedora:
-    runs-on: ubuntu-latest
-    container: jeffersonlab/geant4:g4v11.2.2-fedora36
-    steps:
-      # Check out the code
-      - name: Checkout
-        uses: actions/checkout@main
-      - name: Set ownership
-        run: |
-          # this is to fix GIT not liking owner of the checkout dir
-          chown -R $(id -u):$(id -g) $PWD
-          git fetch --prune --unshallow --tags
-          git config --global --add safe.directory '*'
-      - name: Build
-        run: |
-          ./ci/build.sh
-      - name: Test
-        run: |
-          ./ci/test.sh
 
-  almalinux:
+jobs:
+
+  matrix:
+    container: [ ubuntu24, fedora36, almalinux93 ]
+    # container: [jeffersonlab/geant4:g4v11.2.2-ubuntu24, jeffersonlab/geant4:g4v11.2.2-fedora36, jeffersonlab/geant4:g4v11.2.2-almalinux93]
+    sanitize: [ normal, address, thread, memory, leak, undefined ]
+
+
+  validate:
     runs-on: ubuntu-latest
     container: jeffersonlab/geant4:g4v11.2.2-almalinux93
+    # name is matric container plus sanitize
+    name: ${{ matrix.container }}-${{ matrix.sanitize }}
     steps:
       # Check out the code
       - name: Checkout
         uses: actions/checkout@main
-      - name: Set ownership
+      - name: Fix Ownership
         run: |
           # this is to fix GIT not liking owner of the checkout dir
           chown -R $(id -u):$(id -g) $PWD
           git fetch --prune --unshallow --tags
           git config --global --add safe.directory '*'
-      - name: Build
+      - name: Build ${{ matrix.sanitize }}
         run: |
-          ./ci/build.sh
+          ./ci/build.sh ${{ matrix.sanitize }}
       - name: Test
         run: |
           ./ci/test.sh
