@@ -15,17 +15,21 @@ on:
 
 jobs:
 
-  matrix:
-    container: [ ubuntu24, fedora36, almalinux93 ]
-    # container: [jeffersonlab/geant4:g4v11.2.2-ubuntu24, jeffersonlab/geant4:g4v11.2.2-fedora36, jeffersonlab/geant4:g4v11.2.2-almalinux93]
-    sanitize: [ normal, address, thread, memory, leak, undefined ]
-
-
   validate:
+    strategy:
+      matrix:
+        container:
+          - name: ubuntu24
+            image: jeffersonlab/geant4:g4v11.2.2-ubuntu24
+          - name: fedora36
+            image: jeffersonlab/geant4:g4v11.2.2-fedora36
+          - name: almalinux93
+            image: jeffersonlab/geant4:g4v11.2.2-almalinux93
+        sanitize: [ normal, address, thread, memory, leak, undefined ]
     runs-on: ubuntu-latest
-    container: jeffersonlab/geant4:g4v11.2.2-almalinux93
-    # name is matric container plus sanitize
-    name: ${{ matrix.container }}-${{ matrix.sanitize }}
+    container: ${{ matrix.container.name }}
+    name: ${{ matrix.container.name }} - ${{ matrix.sanitize }}
+
     steps:
       # Check out the code
       - name: Checkout

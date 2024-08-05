@@ -9,10 +9,10 @@
 #
 # local build:
 # git clone http://github.com/gemc/src /root/src && cd /root/src
-# ./ci/build.sh
+# ./ci/build.sh leak
 
 source ci/functions.sh
-sanitize_option='-Db_sanitize=$1'
+sanitize_option="-Db_sanitize=$1"
 
 # reset sanitize option if on mac
 if [[ "$OSTYPE" == "darwin"* ]]; then
