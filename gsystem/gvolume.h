@@ -132,7 +132,7 @@ public:
     inline const string getDescription() const { return description; }
 
     // assign modifiers
-    void applyShift(string s) { std::cout << "ooooo" ; shift = s; }
+    void applyShift(string s) { shift = s; }
 
     void applyTilt(string t) { tilt = t; }
 

@@ -108,7 +108,6 @@ int main(int argc, char *argv[]) {
 
     auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
 
-    G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
 
     if (gui) {
         // initializing qt session
@@ -120,28 +119,29 @@ int main(int argc, char *argv[]) {
         gemcGui.show();
         gemcSplash->finish(&gemcGui);
 
-        // intializing G4UIQt session
+        // intializing G4UIQt session. Notice g4SceneProperties has to be declared after this, so we have to duplicate code below.
         G4UIsession *session = new G4UIQt(1, argv);
+        G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
 
         if (gDetectorGlobal->is_empty()) {
             cout << GEMCLOGMSGITEM << "Warning: Detector is empty. Nothing to do." << endl;
         } else {
             applyInitialUIManagerCommands(true, checkForOverlaps, verbosity);
 
-            // causing problems?
             qApp->exec();
         }
 
+        delete g4SceneProperties;
         delete session;
 
     } else {
         // set display properties in batch mode
-      //  G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
+        G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
         applyInitialUIManagerCommands(false, checkForOverlaps, verbosity);
         geventDispenser->processEvents();
+        delete g4SceneProperties;
 
     }
-    delete g4SceneProperties;
     // clearing pointers
     // delete visManager; deleting this cause error. Perhaps can define / delete in the functions above
     delete geventDispenser;

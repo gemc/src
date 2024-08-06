@@ -7,8 +7,9 @@ gsystem:
     runno: 22
 
 gmodifier:
-  - name: shield
-    shift: "0 0 -10 cm"
+  - name: target
+    shift: "0*cm, 0*cm, -100*cm"
 
 verbosity:
   - gsystem: 2
+  - g4system: 2
