@@ -263,10 +263,6 @@ void GOptions::set_options_values_from_yaml_file(string yaml) {
     for (YAML::const_iterator it = config.begin(); it != config.end(); ++it) {
 
         string option_name = it->first.as<std::string>();
-
-        string option_value_string;
-        auto option_value = it->second;
-
         auto option_it = get_option_iterator(option_name);
 
         if (option_it == goptions.end()) {
@@ -281,14 +277,13 @@ void GOptions::set_options_values_from_yaml_file(string yaml) {
 
             switch (type) {
                 case YAML::NodeType::Scalar:
-                    option_value_string = it->second.as<std::string>();
-                    option_it->set_scalar_value(option_value_string);
+                    option_it->set_scalar_value(it->second.as<std::string>());
                     break;
                 case YAML::NodeType::Sequence:
-                    option_it->set_value(option_value);
+                    option_it->set_value(it->second);
                     break;
                 case YAML::NodeType::Map:
-                    option_it->set_value(option_value);
+                    option_it->set_value(it->second);
                     break;
                 default:
                     break;

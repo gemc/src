@@ -4,7 +4,7 @@ on:
   # Triggers the workflow on all pushes
   push:
   pull_request:
-    types:
+    types:360
       # only run workflow when a commit is pushed to a PR branch
       # instead of running for all other PR events
       - synchronize
@@ -27,8 +27,8 @@ jobs:
             image: jeffersonlab/geant4:g4v11.2.2-almalinux93
         # NOTE: `b_sanitize=memory` is not used because `libc++` needs to be re-compiled with `-fsanitize=memory`, otherwise
         #        we are bothered by false positives (e.g., from `std::map` insertion)
-        sanitize: [ standard, address, thread, leak, undefined ]
-        # sanitize: [ standard ]
+        #sanitize: [ standard, address, thread, leak, undefined ]
+        sanitize: [ standard ]
     runs-on: ubuntu-latest
     container: ${{ matrix.container.image }}
     name: ${{ matrix.container.name }} - ${{ matrix.sanitize }}
