@@ -19,7 +19,7 @@ concurrency:
 jobs:
   validate:
     strategy:
-      max-parallel: 3
+      max-parallel: 6
       matrix:
         container:
           - name: ubuntu24

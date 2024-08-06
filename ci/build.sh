@@ -23,7 +23,7 @@ fi
 # if on ubuntu, use pgo generate
 if [ -f /etc/os-release ]; then
     if grep -q "Ubuntu" /etc/os-release; then
-        pgo="-Dpgo=generate"
+        pgo="-Db_pgo=generate"
     fi
 fi
 
