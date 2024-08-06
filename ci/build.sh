@@ -14,10 +14,16 @@
 source ci/functions.sh
 sanitize_option="-Db_sanitize=$1"
 pgo=""
+buildtype="-Dbuildtype=debug"
 
 # reset sanitize option if on mac
 if [[ "$OSTYPE" == "darwin"* ]] || [[ "standard" == $1 ]]; then
     sanitize_option=""
+fi
+
+# reset sanitize option if on mac
+if [[ "standard" == $1 ]]; then
+  buildtype="-Dbuildtype=release"
 fi
 
 # if on ubuntu, use pgo generate
@@ -27,9 +33,8 @@ if [ -f /etc/os-release ]; then
     fi
 fi
 
-
 echo " > Running build Configure"
-meson setup build --native-file=release.ini -Duse_root=true $sanitize_option $pgo -Dprefix=$GEMC --wipe
+meson setup build --native-file=core.ini -Duse_root=true $sanitize_option $buildtype $pgo -Dprefix=$GEMC --wipe
 cd build
 echo " > Running meson compile and install"
 meson compile -v
