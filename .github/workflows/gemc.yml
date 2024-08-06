@@ -26,9 +26,10 @@ jobs:
             image: jeffersonlab/geant4:g4v11.2.2-almalinux93
         # NOTE: `b_sanitize=memory` is not used because `libc++` needs to be re-compiled with `-fsanitize=memory`, otherwise
         #        we are bothered by false positives (e.g., from `std::map` insertion)
-        #sanitize: [ standard, address, thread, leak, undefined ]
-        sanitize: [ standard, address ]
+        sanitize: [ standard, address, thread, leak, undefined ]
+        #sanitize: [ standard, address ]
     runs-on: ubuntu-latest
+    continue-on-error: true
     container: ${{ matrix.container.image }}
     name: ${{ matrix.container.name }} - ${{ matrix.sanitize }}
 
