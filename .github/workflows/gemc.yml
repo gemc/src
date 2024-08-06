@@ -4,7 +4,7 @@ on:
   # Triggers the workflow on all pushes
   push:
   pull_request:
-    types:360
+    types:
       # only run workflow when a commit is pushed to a PR branch
       # instead of running for all other PR events
       - synchronize
