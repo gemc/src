@@ -15,7 +15,7 @@ source ci/functions.sh
 sanitize_option="-Db_sanitize=$1"
 
 # reset sanitize option if on mac
-if [[ "$OSTYPE" == "darwin"* ]]; then
+if [[ "$OSTYPE" == "darwin"* ]] || [[ 'standard' == $1 ]]; then
     sanitize_option=''
 fi
 
