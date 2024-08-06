@@ -11,7 +11,7 @@
 using namespace std;
 
 // sets the value to the scalar option
-void GOption::set_scalar_value(string v) {
+void GOption::set_scalar_value(const string& v) {
 
     // return if v is empty
     if (v == "") return;
@@ -24,11 +24,12 @@ void GOption::set_scalar_value(string v) {
 
 
 // sets the value of the option based on the parsed yaml node
-void GOption::set_value(YAML::Node v) {
+void GOption::set_value(const YAML::Node& v) {
+
     // if the option is cumulative,
     if (isCumulative) {
         // sequence of maps
-        for (auto element: v) {
+        for (const auto& element: v) {
             if (!does_the_option_set_all_necessary_values(element)) {
                 cerr << FATALERRORL << "Trying to set " << YELLOWHHL << name << RSTHHR << " but missing mandatory values." << endl;
                 cerr << "        Use the option: " << YELLOWHHL << " help " << name << " " << RSTHHR << " for details." << endl << endl;
@@ -37,11 +38,12 @@ void GOption::set_value(YAML::Node v) {
         }
         value[name] = v;
 
-        // looping over the sequence of maps in defaultValue sequence
-        // if a key from the default value is not found in each of the value sequence, it is added to it
-        for (auto map_element_in_default_value: defaultValue.begin()->second) {
+        // Copy keys from the defaultValue map to the value map if they do not exist
+        auto default_value_node = defaultValue.begin()->second;
+        for (const auto& map_element_in_default_value: default_value_node) {
             for (YAML::const_iterator default_value_iterator = map_element_in_default_value.begin();
                  default_value_iterator != map_element_in_default_value.end(); ++default_value_iterator) {
+
                 string default_key = default_value_iterator->first.as<string>();
                 auto default_value = default_value_iterator->second;
 
@@ -60,11 +62,8 @@ void GOption::set_value(YAML::Node v) {
                         map_element_in_value[default_key] = default_value;
                     }
                 }
-
-
             }
         }
-
 
     } else {
         // looping over the sequence of maps in v
@@ -85,7 +84,6 @@ void GOption::set_value(YAML::Node v) {
                 }
             }
         }
-
     }
 }
 

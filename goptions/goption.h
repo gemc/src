@@ -127,10 +127,10 @@ private:
     string detailed_help();
 
     // sets the value of the scalar option based on the command line string
-    void set_scalar_value(string v);
+    void set_scalar_value(const string& v);
 
     // sets the value of the option based on the parsed yaml node
-    void set_value(YAML::Node v);
+    void set_value(const YAML::Node& v);
 
     // make sure that all variables matked as NOFLT are set
     bool does_the_option_set_all_necessary_values(YAML::Node v);

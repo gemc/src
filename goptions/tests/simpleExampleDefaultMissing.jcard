@@ -1,7 +1,0 @@
-{
-	# simple example with 2 options
-	#
-	# runno and useGui are non structured options
-
-	"runno":  12
-}

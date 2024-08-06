@@ -50,7 +50,7 @@ private:
     bool does_option_exist(string tag);
 
     // returns vector<GOption> map iterator that has the option name
-    vector<GOption>::iterator get_option_iterator(string name);
+    vector<GOption>::iterator get_option_iterator(const string& name);
 
     // search
     vector <GOption> search_for_string(string tag); // searches for a string option

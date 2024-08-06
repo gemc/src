@@ -264,6 +264,9 @@ void GOptions::set_options_values_from_yaml_file(string yaml) {
 
         string option_name = it->first.as<std::string>();
 
+        string option_value_string;
+        auto option_value = it->second;
+
         auto option_it = get_option_iterator(option_name);
 
         if (option_it == goptions.end()) {
@@ -274,15 +277,18 @@ void GOptions::set_options_values_from_yaml_file(string yaml) {
                 switches[option_name].turnOn();
             }
         } else {
-            switch (it->second.Type()) {
+            YAML::NodeType::value type = it->second.Type(); // Cache the type to avoid repeated calls
+
+            switch (type) {
                 case YAML::NodeType::Scalar:
-                    option_it->set_scalar_value(it->second.as<std::string>());
+                    option_value_string = it->second.as<std::string>();
+                    option_it->set_scalar_value(option_value_string);
                     break;
                 case YAML::NodeType::Sequence:
-                    option_it->set_value(it->second);
+                    option_it->set_value(option_value);
                     break;
                 case YAML::NodeType::Map:
-                    option_it->set_value(it->second);
+                    option_it->set_value(option_value);
                     break;
                 default:
                     break;
@@ -306,7 +312,7 @@ void GOptions::set_option_values_from_command_line_argument(string option_name, 
 }
 
 // returns vector<GOption> iterator for option name
-vector<GOption>::iterator GOptions::get_option_iterator(string name) {
+vector<GOption>::iterator GOptions::get_option_iterator(const string& name) {
 
     for (auto it = goptions.begin(); it != goptions.end(); ++it) {
         if (it->name == name) {

@@ -1,9 +1,0 @@
-
-
-[32m User Settings: [0m
-
-[32m ➤ gui[0m: true
-[32m ➤ runno[0m: 12
-[32m ➤ nthreads[0m: 4 (default)
-
- simpleExample runno: 12, gui: 1
