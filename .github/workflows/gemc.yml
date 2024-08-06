@@ -27,7 +27,7 @@ jobs:
             image: jeffersonlab/geant4:g4v11.2.2-almalinux93
         sanitize: [ normal, address, thread, memory, leak, undefined ]
     runs-on: ubuntu-latest
-    container: ${{ matrix.container.name }}
+    container: ${{ matrix.container.image }}
     name: ${{ matrix.container.name }} - ${{ matrix.sanitize }}
 
     steps:
