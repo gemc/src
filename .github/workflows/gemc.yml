@@ -12,11 +12,14 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-
   validate:
     strategy:
+      max-parallel: 3
       matrix:
         container:
           - name: ubuntu24
@@ -27,8 +30,8 @@ jobs:
             image: jeffersonlab/geant4:g4v11.2.2-almalinux93
         # NOTE: `b_sanitize=memory` is not used because `libc++` needs to be re-compiled with `-fsanitize=memory`, otherwise
         #        we are bothered by false positives (e.g., from `std::map` insertion)
-        #sanitize: [ standard, address, thread, leak, undefined ]
-        sanitize: [ standard ]
+        sanitize: [ standard, address, thread, leak, undefined ]
+        #sanitize: [ standard ]
     runs-on: ubuntu-latest
     container: ${{ matrix.container.image }}
     name: ${{ matrix.container.name }} - ${{ matrix.sanitize }}
