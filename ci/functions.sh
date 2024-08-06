@@ -19,16 +19,6 @@ ls -l
 module load gemc/dev3
 mkdir -p $GEMC
 
-## on ubuntu, both lib and lib64 are created
-#function set_ld_path {
-#  echo " > Setting LD Path"
-#  if [ -d $GEMC/lib ]; then
-#    export LD_LIBRARY_PATH=$GEMC/lib:$LD_LIBRARY_PATH
-#  fi
-#  if [ -d $GEMC/lib64 ]; then
-#    export LD_LIBRARY_PATH=$GEMC/lib64:$LD_LIBRARY_PATH
-#  fi
-#}
 
 function show_installation {
   echo
