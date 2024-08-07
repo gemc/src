@@ -1,6 +1,5 @@
 // gemc
 #include "gsd.h"
-#include "gemcConventions.h"
 
 // geant4
 #include "G4SDManager.hh"

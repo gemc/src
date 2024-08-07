@@ -16,8 +16,14 @@ foreach branch : examples_map.keys()
     foreach example : examples
         example_dir = examples_dir + branch + '/' + example + '/'
         yaml_file = example_dir + example + '.yaml'
-        test(' ## Building example' + example_dir + ' ##', python_exe, args : [example_dir + example + '.py'], workdir : example_dir,  priority : 10)
-        test(' ## run gemc on example ' + example_dir,     gemc, args : [yaml_file], workdir : test_dir, priority : -10)
+        test(' ## Building example' + example_dir + ' ##',
+             python_exe, args : [example_dir + example + '.py'], workdir : example_dir,  priority : 10)
+        test(' ## run gemc on example ' + example_dir,
+             gemc,
+             args : [yaml_file],
+             env : project_test_env,
+             workdir : test_dir,
+             priority : -10)
     endforeach
 
 endforeach

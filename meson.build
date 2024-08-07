@@ -4,6 +4,7 @@ project('gemc3', 'cpp',
 )
 project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 
+
 # init lists
 ############
 LD = []
@@ -12,7 +13,8 @@ all_deps = []
 all_includes = []
 empty_dict = { 'na' : [''] }
 
-subdir('dependencies')
+subdir('meson')
+add_project_arguments('-Wno-shadow', language : 'cpp')
 
 # Fill dictionary
 #################
@@ -123,11 +125,12 @@ foreach L : LD
                 example_sources,
                 install : true,
                 dependencies : this_deps,
-                include_directories : all_includes + this_lib_name  + additional_includes,
+                include_directories : all_includes + this_lib_name + additional_includes,
                 link_with : all_libs
             )
             test(' ## ' + this_lib_name + ' test ##  >>  ' + name,
                  exe,
+                 env : project_test_env,
                  args : arguments)
         endforeach
     endif

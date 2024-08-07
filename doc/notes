@@ -55,3 +55,16 @@ GEMC Notes
 
 // PRAGMA NOTE ConstructSDandField must be run on master thread as well
 // or processHits will not happen (spent a day figuring this out)
+
+
+# Debugging:
+
+lldb -- ./your_program
+(lldb) settings set target.env-vars DYLD_LIBRARY_PATH= (output from echo $DYLD_LIBRARY_PATH)
+(lldb) run
+
+When the segmentation fault occurs, use bt to get a backtrace:
+
+(lldb) bt
+
+This can help pinpoint the exact location and context of the error.

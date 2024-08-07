@@ -40,10 +40,10 @@ geant4_deps = declare_dependency(
 sqlite_dep = dependency('sqlite3')
 
 # Open Asset Import Library (assimp)
-assimp_dep = dependency('assimp', cmake_args : ['-DCMAKE_CXX_STANDARD=20'])     # looks like we can't overwrite the CXX_FLAGS
+assimp_dep = dependency('assimp', cmake_args : ['-DCMAKE_CXX_STANDARD=20'], default_options : ['cpp_args=-Wno-shadow'])     # looks like cmake_args is not working
 
 # yaml-cpp
-yaml_cpp_dep = dependency('yaml_cpp', cmake_args : ['-DCMAKE_CXX_FLAGS=-Wno-shadow']) # looks like we can't overwrite the CXX_FLAGS
+yaml_cpp_dep = dependency('yaml_cpp', cmake_args : ['-DCXX_FLAGS=-Wno-shadow'], default_options : ['cpp_args=-Wno-shadow']) # looks like cmake_args is not working
 
 
 # ROOT dependencies coming from cmake are not correctly handled by meson or are just plain wrong
@@ -71,3 +71,40 @@ if get_option('use_root')
         link_args : ROOT_link_args,
     )
 endif
+
+
+# sanitizer settings
+project_test_env = environment()
+project_test_env.set(
+    'UBSAN_OPTIONS',
+    'halt_on_error=1',
+    'abort_on_error=1',
+    'print_summary=1',
+    'print_stacktrace=1',
+    'verbosity=100',
+    'suppressions=' + meson.project_source_root() / 'meson' / 'ubsan.supp',
+)
+project_test_env.set(
+    'ASAN_OPTIONS',
+    'halt_on_error=1',
+    'abort_on_error=1',
+    'print_summary=1',
+    'verbosity=100',
+    'suppressions=' + meson.project_source_root() / 'meson' / 'asan.supp',
+)
+
+project_test_env.set(
+    'LSAN_OPTIONS',
+    'verbosity=100',
+    'suppressions=' + meson.project_source_root() / 'meson' / 'lsan.supp',
+)
+
+# allocator_may_return_null=1: Allows TSan to return NULL on allocation failure instead of crashing,
+# which might give you more information about where the allocation problem is happening.
+project_test_env.set(
+    'TSAN_OPTIONS',
+    'verbosity=100',
+    'heap_size=512M',
+    'allocator_may_return_null=1',
+    'suppressions=' + meson.project_source_root() / 'meson' / 'tsan.supp',
+)

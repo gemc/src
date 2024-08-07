@@ -14,6 +14,9 @@
 #include "goptions.h"
 #include "gdynamicdigitization.h"
 
+#define EC__DYNAMICPLUGINNOTFOUND   2001
+#define EC__HITNOTFOUNDINCOLLECTION 2002
+
 using GHitsCollection = G4THitsCollection<GHit> ;
 
 // this is thread-local
@@ -91,4 +94,3 @@ public:
 };
 
 #endif
-

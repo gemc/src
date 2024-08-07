@@ -11,7 +11,7 @@
 using namespace std;
 
 // sets the value to the scalar option
-void GOption::set_scalar_value(const string& v) {
+void GOption::set_scalar_value(const string &v) {
 
     // return if v is empty
     if (v == "") return;
@@ -24,35 +24,40 @@ void GOption::set_scalar_value(const string& v) {
 
 
 // sets the value of the option based on the parsed yaml node
-void GOption::set_value(const YAML::Node& v) {
+void GOption::set_value(const YAML::Node &v) {
 
     // if the option is cumulative,
     if (isCumulative) {
         // sequence of maps
-        for (const auto& element: v) {
+        for (const auto &element: v) {
             if (!does_the_option_set_all_necessary_values(element)) {
                 cerr << FATALERRORL << "Trying to set " << YELLOWHHL << name << RSTHHR << " but missing mandatory values." << endl;
                 cerr << "        Use the option: " << YELLOWHHL << " help " << name << " " << RSTHHR << " for details." << endl << endl;
                 exit(EC__MANDATORY_NOT_FILLED);
             }
         }
+
+
         value[name] = v;
 
         // Copy keys from the defaultValue map to the value map if they do not exist
         auto default_value_node = defaultValue.begin()->second;
-        for (const auto& map_element_in_default_value: default_value_node) {
+
+        for (const auto &map_element_in_default_value: default_value_node) {
             for (YAML::const_iterator default_value_iterator = map_element_in_default_value.begin();
                  default_value_iterator != map_element_in_default_value.end(); ++default_value_iterator) {
 
                 string default_key = default_value_iterator->first.as<string>();
                 auto default_value = default_value_iterator->second;
 
-                // looping over the sequence of maps in value
-                for (auto map_element_in_value: value.begin()->second) {
+
+                for (auto map_element_in_value: value[name]) {
                     bool key_found = false;
                     // checking if the key is already in the value
-                    for (YAML::const_iterator value_iterator = map_element_in_value.begin(); value_iterator != map_element_in_value.end(); ++value_iterator) {
+                    for (YAML::const_iterator value_iterator = map_element_in_value.begin();
+                         value_iterator != map_element_in_value.end(); ++value_iterator) {
                         string value_key = value_iterator->first.as<string>();
+
                         if (default_key == value_key) {
                             key_found = true;
                             break;
@@ -66,17 +71,22 @@ void GOption::set_value(const YAML::Node& v) {
         }
 
     } else {
+
         // looping over the sequence of maps in v
         // notice: the non cumulative node is already copied from the default value
         // here we are just updating the values to the desired value
         for (auto map_element_in_desired_value: v) {
+
             for (YAML::const_iterator desired_value_iterator = map_element_in_desired_value.begin();
                  desired_value_iterator != map_element_in_desired_value.end(); ++desired_value_iterator) {
-                for (auto existing_map: value.begin()->second) {
+
+                for (auto existing_map: value[name]) {
                     for (YAML::const_iterator existing_map_iterator = existing_map.begin();
                          existing_map_iterator != existing_map.end(); ++existing_map_iterator) {
+
                         string first_key = existing_map_iterator->first.as<string>();
                         string second_key = desired_value_iterator->first.as<string>();
+
                         if (first_key == second_key) {
                             existing_map[existing_map_iterator->first] = desired_value_iterator->second;
                         }

@@ -1,0 +1,10 @@
+# Suppress race conditions involving getenv and related functions
+race:getenv
+race:__getenv
+race:secure_getenv
+
+# Suppress race conditions in dyld (dynamic linker)
+race:dyld4::LibSystemHelpers::getenv
+
+# Suppress known TBB-related race conditions
+race:tbb::detail::r1::governor::release_resources
