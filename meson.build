@@ -14,7 +14,7 @@ all_includes = []
 empty_dict = { 'na' : [''] }
 
 subdir('meson')
-add_project_arguments('-Wno-shadow', language : 'cpp')
+add_project_arguments('-Wno-shadow', language : ['cpp'])
 
 # Fill dictionary
 #################

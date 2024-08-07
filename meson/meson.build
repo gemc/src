@@ -81,7 +81,7 @@ project_test_env.set(
     'abort_on_error=1',
     'print_summary=1',
     'print_stacktrace=1',
-    'verbosity=100',
+    'verbosity=10',
     'suppressions=' + meson.project_source_root() / 'meson' / 'ubsan.supp',
 )
 project_test_env.set(
@@ -89,13 +89,13 @@ project_test_env.set(
     'halt_on_error=1',
     'abort_on_error=1',
     'print_summary=1',
-    'verbosity=100',
+    'verbosity=10',
     'suppressions=' + meson.project_source_root() / 'meson' / 'asan.supp',
 )
 
 project_test_env.set(
     'LSAN_OPTIONS',
-    'verbosity=100',
+    'verbosity=10',
     'suppressions=' + meson.project_source_root() / 'meson' / 'lsan.supp',
 )
 
@@ -103,7 +103,7 @@ project_test_env.set(
 # which might give you more information about where the allocation problem is happening.
 project_test_env.set(
     'TSAN_OPTIONS',
-    'verbosity=100',
+    'verbosity=10',
     'heap_size=512M',
     'allocator_may_return_null=1',
     'suppressions=' + meson.project_source_root() / 'meson' / 'tsan.supp',
