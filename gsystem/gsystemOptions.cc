@@ -10,7 +10,7 @@ namespace gsystem {
         vector <GSystem> systems;
         int verbosity = gopts->getVerbosityFor("gsystem");
 
-        auto gsystem_node = gopts->get_option_node("gsystem");
+        auto gsystem_node = gopts->getOptionNode("gsystem");
 
         for (auto gsystem_item: gsystem_node) {
             systems.push_back(GSystem(
@@ -34,7 +34,7 @@ namespace gsystem {
         vector <GModifier> gmods;
         int verbosity = gopts->getVerbosityFor("gsystem");
 
-        auto gmodifier_node = gopts->get_option_node("gmodifier");
+        auto gmodifier_node = gopts->getOptionNode("gmodifier");
 
         for (auto gmodifier_item: gmodifier_node) {
 

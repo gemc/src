@@ -1,8 +1,7 @@
 #ifndef  GSWITCH_H
 #define  GSWITCH_H  1
 
-using std::string;
-
+#include <string>
 
 /**
  * The GSwitch contains the switch description and its status
@@ -11,22 +10,25 @@ class GSwitch {
 
 public:
 
+//    /// empty constructor, needed by compiler to know how to handle unordered_map<string, GSwitch>
+//    GSwitch() { return; }
+
     /// empty constructor, needed by compiler to know how to handle unordered_map<string, GSwitch>
-    GSwitch() { return; }
+    GSwitch() = default;
 
     /**
      * @brief Constructor, status is false at construction
      * \param d switch description
      */
-    GSwitch(string d) : description(d), status(false) { return; }
+    GSwitch(const string& d) : description(d), status(false) {}
 
     /// @brief turn on switch
     void turnOn() { status = true; }
 
     /// @brief get switch status
-    bool getStatus() { return status; }
+    bool getStatus() const { return status; }
 
-    string getDescription() { return description; }
+    string getDescription() const { return description; }
 
 
 private:

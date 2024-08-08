@@ -13,7 +13,7 @@ namespace g4display {
 
         vector <G4SceneText> st;
 
-        auto g4t_node = gopts->get_option_node("g4text");
+        auto g4t_node = gopts->getOptionNode("g4text");
 
         for (auto g4t_item: g4t_node) {
             G4SceneText st_item;

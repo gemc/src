@@ -18,7 +18,7 @@ using namespace std;
 // - load user defined options, add goptions options
 // - parse the yaml files
 // - parse the command line options
-GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
+GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options) {
 
     executableName = gutilities::getFileFromPath(argv[0]);
 
@@ -126,7 +126,7 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
                         string possible_option = possible_switch.substr(0, candidate.find("=") - 1);
 
                         // option found, parse it
-                        if (does_option_exist(possible_option)) {
+                        if (doesOptionExist(possible_option)) {
                             string possible_yaml_node = possible_switch.substr(candidate.find("="), candidate.size() - 1);
                             set_option_values_from_command_line_argument(possible_option, possible_yaml_node);
                         } else {
@@ -169,6 +169,87 @@ GOptions::GOptions(int argc, char *argv[], GOptions user_defined_options) {
     save_options();
 }
 
+// define and add a command line switch to the map of switches
+void GOptions::defineSwitch(const std::string &name, const std::string &description) {
+    if (switches.find(name) == switches.end()) {
+        switches[name] = GSwitch(description);
+    } else {
+        std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " switch is already present." << std::endl;
+        gexit(EC__DEFINED_SWITCHALREADYPRESENT);
+    }
+}
+
+// add a simple option to the map of options
+void GOptions::defineOption(const GVariable &gvar, const std::string &help) {
+
+    if (doesOptionExist(gvar.name)) {
+        std::cerr << FATALERRORL << "the " << YELLOWHHL << gvar.name << RSTHHR << " option is already present." << std::endl;
+        gexit(EC__DEFINED_OPTION_ALREADY_PRESENT);
+    } else {
+        goptions.push_back(GOption(gvar, help));
+    }
+}
+
+// add a map option to the map of options
+void GOptions::defineOption(const std::string &name, const std::string &description, const std::vector <GVariable> &g_vars, const std::string &help) {
+
+    if (doesOptionExist(name)) {
+        std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " option is already present." << std::endl;
+        gexit(EC__DEFINED_OPTION_ALREADY_PRESENT);
+    } else {
+        goptions.push_back(GOption(name, description, g_vars, help));
+    }
+}
+
+int GOptions::getScalarInt(const std::string &tag) const {
+    auto it = getOptionIterator(tag);
+
+    // if the option is not found, exit with error
+    if (it == goptions.end()) {
+        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+        gexit(EC__NOOPTIONFOUND);
+    }
+
+    return it->value.begin()->second.as<int>();
+}
+
+float GOptions::getScalarFloat(const std::string &tag) const {
+    auto it = getOptionIterator(tag);
+
+    // if the option is not found, exit with error
+    if (it == goptions.end()) {
+        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+        gexit(EC__NOOPTIONFOUND);
+    }
+
+    return it->value.begin()->second.as<float>();
+}
+
+double GOptions::getScalarDouble(const std::string &tag) const {
+    auto it = getOptionIterator(tag);
+
+    // if the option is not found, exit with error
+    if (it == goptions.end()) {
+        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+        gexit(EC__NOOPTIONFOUND);
+    }
+
+    return it->value.begin()->second.as<double>();
+}
+
+string GOptions::getScalarString(const std::string &tag) const {
+    auto it = getOptionIterator(tag);
+
+    // if the option is not found, exit with error
+    if (it == goptions.end()) {
+        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+        gexit(EC__NOOPTIONFOUND);
+    }
+
+    return it->value.begin()->second.as<string>();
+}
+
+
 void GOptions::print_option_or_switch_help(string tag) {
     if (switches.find(tag) != switches.end()) {
         cout << KGRN << "-" << tag << RST << ": " << switches[tag].getDescription() << endl << endl;
@@ -205,46 +286,14 @@ vector <string> GOptions::find_yamls(int argc, char *argv[]) {
 
 
 // checks if the option exists
-bool GOptions::does_option_exist(string tag) {
-    for (auto &goption: goptions) {
+bool GOptions::doesOptionExist(const std::string& tag) const {
+    for (const auto& goption : goptions) {
+        // Use const auto& to avoid copying and to ensure const-correctness
         if (goption.name == tag) {
             return true;
         }
     }
     return false;
-}
-
-// add a command line switch to the map of switches
-void GOptions::defineSwitch(string name, string description) {
-    if (switches.find(name) == switches.end()) {
-        switches[name] = GSwitch(description);
-    } else {
-        std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " switch is already present." << std::endl;
-        gexit(EC__DEFINED_SWITCHALREADYPRESENT);
-    }
-}
-
-// add a simple option to the map of options
-void GOptions::defineOption(GVariable gvar, string help) {
-
-    if (does_option_exist(gvar.name)) {
-        std::cerr << FATALERRORL << "the " << YELLOWHHL << gvar.name << RSTHHR << " option is already present." << std::endl;
-        gexit(EC__DEFINED_OPTION_ALREADY_PRESENT);
-    } else {
-        goptions.push_back(GOption(gvar, help));
-    }
-}
-
-
-// add a map option to the map of options
-void GOptions::defineOption(string name, string description, vector <GVariable> g_vars, string help) {
-
-    if (does_option_exist(name)) {
-        std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " option is already present." << std::endl;
-        gexit(EC__DEFINED_OPTION_ALREADY_PRESENT);
-    } else {
-        goptions.push_back(GOption(name, description, g_vars, help));
-    }
 }
 
 void GOptions::set_options_values_from_yaml_file(string yaml) {
@@ -263,7 +312,7 @@ void GOptions::set_options_values_from_yaml_file(string yaml) {
     for (YAML::const_iterator it = config.begin(); it != config.end(); ++it) {
 
         string option_name = it->first.as<std::string>();
-        auto option_it = get_option_iterator(option_name);
+        auto option_it = getOptionIterator(option_name);
 
         if (option_it == goptions.end()) {
             if (switches.find(option_name) == switches.end()) {
@@ -297,7 +346,7 @@ void GOptions::set_options_values_from_yaml_file(string yaml) {
 void GOptions::set_option_values_from_command_line_argument(string option_name, string possible_yaml_node) {
     YAML::Node node = YAML::Load(possible_yaml_node);
 
-    auto option_it = get_option_iterator(option_name);
+    auto option_it = getOptionIterator(option_name);
 
     if (node.Type() == YAML::NodeType::Scalar) {
         option_it->set_scalar_value(possible_yaml_node);
@@ -306,80 +355,36 @@ void GOptions::set_option_values_from_command_line_argument(string option_name, 
     }
 }
 
-// returns vector<GOption> iterator for option name
-vector<GOption>::iterator GOptions::get_option_iterator(const string& name) {
-
-    for (auto it = goptions.begin(); it != goptions.end(); ++it) {
-        if (it->name == name) {
-            return it;
-        }
-    }
-
-    return goptions.end();
+// Non-const version
+std::vector<GOption>::iterator GOptions::getOptionIterator(const std::string& name) {
+    return std::find_if(goptions.begin(), goptions.end(),
+                        [&name](GOption& option) { return option.name == name; });
 }
 
-int GOptions::getScalarInt(string tag) {
-    auto it = get_option_iterator(tag);
-
-    // if the option is not found, exit with error
-    if (it == goptions.end()) {
-        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
-        gexit(EC__NOOPTIONFOUND);
-    }
-
-    return it->value.begin()->second.as<int>();
+// Const version
+std::vector<GOption>::const_iterator GOptions::getOptionIterator(const std::string& name) const {
+    return std::find_if(goptions.begin(), goptions.end(),
+                        [&name](const GOption& option) { return option.name == name; });
 }
 
-float GOptions::getScalarFloat(string tag) {
-    auto it = get_option_iterator(tag);
 
-    // if the option is not found, exit with error
-    if (it == goptions.end()) {
-        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
-        gexit(EC__NOOPTIONFOUND);
-    }
+bool GOptions::getSwitch(const std::string &tag) const {
+    // Use the find method to get an iterator to the switch
+    auto it = switches.find(tag);
 
-    return it->value.begin()->second.as<float>();
-}
-
-double GOptions::getScalarDouble(string tag) {
-    auto it = get_option_iterator(tag);
-
-    // if the option is not found, exit with error
-    if (it == goptions.end()) {
-        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
-        gexit(EC__NOOPTIONFOUND);
-    }
-
-    return it->value.begin()->second.as<double>();
-}
-
-string GOptions::getScalarString(string tag) {
-    auto it = get_option_iterator(tag);
-
-    // if the option is not found, exit with error
-    if (it == goptions.end()) {
-        cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
-        gexit(EC__NOOPTIONFOUND);
-    }
-
-    return it->value.begin()->second.as<string>();
-}
-
-bool GOptions::getSwitch(string tag) {
-    if (switches.find(tag) != switches.end()) {
-        return switches[tag].getStatus();
+    // Check if the iterator is not at the end, indicating the switch was found
+    if (it != switches.end()) {
+        return it->second.getStatus();
     } else {
-        cerr << FATALERRORL << "The switch " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+        std::cerr << FATALERRORL << "The switch " << YELLOWHHL << tag << RSTHHR << " was not found." << std::endl;
         gexit(EC__NOOPTIONFOUND);
     }
-    return false;
+    return false; // This will never be reached due to gexit, but included for completeness
 }
 
+YAML::Node GOptions::getOptionMapInNode(string option_name, string map_key) {
 
-YAML::Node GOptions::get_option_map_in_node(string option_name, string map_key) {
-
-    auto sequence_node = get_option_node(option_name);
+    auto sequence_node = getOptionNode(option_name);
 
     for (auto seq_item: sequence_node) {
         for (auto map_item = seq_item.begin(); map_item != seq_item.end(); ++map_item) {
@@ -415,9 +420,8 @@ template string GOptions::get_variable_in_option<string>(const YAML::Node &node,
 
 template bool GOptions::get_variable_in_option<bool>(const YAML::Node &node, const std::string &variable_name, const bool &default_value);
 
-
-int GOptions::getVerbosityFor(string tag) {
-    auto verbosity_node = get_option_node("verbosity");
+int GOptions::getVerbosityFor(const std::string& tag) const{
+    auto verbosity_node = getOptionNode("verbosity");
 
     for (auto v: verbosity_node) {
         if (v.begin()->first.as<string>() == tag) {

@@ -4,16 +4,12 @@
 #include "goption.h"
 #include "gswitch.h"
 
-
 // c++
 #include <string>
 #include <fstream>
 #include <iostream>
 
 
-/**
- * Contains STL the (private) GOption array
- */
 class GOptions {
 
 public:
@@ -27,7 +23,62 @@ public:
      * \param argv argument arrays of *chars, passed from main
      * \param user_defined_options vector of user options, usually returned by a defineOptions() function
      */
-    GOptions(int argc, char *argv[], GOptions user_defined_options);
+    GOptions(int argc, char *argv[], const GOptions &user_defined_options);
+
+    // define and add a command line switch to the map of switches
+    void defineSwitch(const std::string &name, const std::string &description);
+
+    // add a simple option to the map of options
+    void defineOption(const GVariable &gvar, const std::string &help);
+
+    // add a map option to the map of options
+    void defineOption(const std::string &name, const std::string &description, const std::vector <GVariable> &gvars, const std::string &help);
+
+    // option getters for scalar options
+    int getScalarInt(const std::string &tag) const;
+
+    float getScalarFloat(const std::string &tag) const;
+
+    double getScalarDouble(const std::string &tag) const;
+
+    std::string getScalarString(const std::string &tag) const;
+
+    bool getSwitch(const std::string &tag) const;
+
+    // Returns the YAML::Node of the option with the tag
+    inline const YAML::Node getOptionNode(const std::string& tag) const {
+        // If the option does not exist, exit with error
+        if (!doesOptionExist(tag)) {
+            std::cerr << "Option " << tag << " does not exist. Exiting." << std::endl;
+            gexit(EC__NOOPTIONFOUND);
+        }
+        return getOptionIterator(tag)->value.begin()->second;
+    }
+
+    YAML::Node getOptionMapInNode(string option_name, string map_key);
+
+    int getVerbosityFor(const std::string& tag) const;
+
+    // returns the goptions array
+    const std::vector<GOption>& getOptions() const { return goptions; }
+
+    // return the switches map
+    const std::map<std::string, GSwitch>& getSwitches() const { return switches; }
+
+    // adds a vector of options to the current options
+    inline void addGOptions(GOptions goptions_to_add) {
+        for (auto gopt: goptions_to_add.getOptions()) {
+            goptions.push_back(gopt);
+        }
+        for (auto sw: goptions_to_add.getSwitches()) {
+            switches.insert(sw);
+        }
+    }
+
+    template<typename T>
+    T get_variable_in_option(const YAML::Node &node, const string &variable_name, const T &default_value);
+
+    vector <string> get_yaml_files() { return yaml_files; }
 
 private:
 
@@ -43,14 +94,15 @@ private:
     // parse the yaml file
     void set_options_values_from_yaml_file(string yamls);
 
-    // parse a command line
+    // parse a command linegetSwitch
     void set_option_values_from_command_line_argument(string option_name, string possible_yaml_node);
 
-    // checks if the option exists
-    bool does_option_exist(string tag);
+    // Checks if the option exists
+    bool doesOptionExist(const std::string& tag) const;
 
     // returns vector<GOption> map iterator that has the option name
-    vector<GOption>::iterator get_option_iterator(const string& name);
+    std::vector<GOption>::iterator getOptionIterator(const std::string& name);
+    std::vector<GOption>::const_iterator getOptionIterator(const std::string& name) const;
 
     // search
     vector <GOption> search_for_string(string tag); // searches for a string option
@@ -78,63 +130,6 @@ private:
 
     // save yaml file locations
     vector <string> yaml_files;
-
-public:
-
-    // add a command line switch to the map of switches
-    void defineSwitch(string name, string description);
-
-    // add a simple option to the map of options
-    void defineOption(GVariable gvar, string help);
-
-    // add a map option to the map of options
-    void defineOption(string name, string description, vector <GVariable> gvars, string help);
-
-    // option getters for scalar options
-    int getScalarInt(string tag);
-
-    float getScalarFloat(string tag);
-
-    double getScalarDouble(string tag);
-
-    string getScalarString(string tag);
-
-    bool getSwitch(string tag);
-
-    // returns the YAML::Node of the option with the tag
-    inline const YAML::Node get_option_node(string tag) {
-        // if the option does not exist, exit with error
-        if (!does_option_exist(tag)) {
-            std::cerr << " option " << tag << " does not exist. Exiting." << std::endl;
-            gexit(EC__NOOPTIONFOUND);
-        }
-        return get_option_iterator(tag)->value.begin()->second;
-    }
-
-    YAML::Node get_option_map_in_node(string option_name, string map_key);
-
-    int getVerbosityFor(string tag);
-
-    // returns the goptions array
-    vector <GOption> get_options() { return goptions; }
-
-    // return the switches map
-    map <string, GSwitch> get_switches() { return switches; }
-
-    // adds a vector of options to the current options
-    inline void addGOptions(GOptions goptions_to_add) {
-        for (auto gopt: goptions_to_add.get_options()) {
-            goptions.push_back(gopt);
-        }
-        for (auto sw: goptions_to_add.get_switches()) {
-            switches.insert(sw);
-        }
-    }
-
-    template<typename T>
-    T get_variable_in_option(const YAML::Node& node, const string& variable_name, const T& default_value);
-
-    vector <string> get_yaml_files() { return yaml_files; }
 
 };
 

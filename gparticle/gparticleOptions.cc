@@ -14,7 +14,7 @@ namespace gparticle {
         vector <Gparticle> gparticles;
         int verbosity = gopts->getVerbosityFor("gsystem");
 
-        auto gparticle_node = gopts->get_option_node("gparticle");
+        auto gparticle_node = gopts->getOptionNode("gparticle");
 
         for (auto gparticle_item: gparticle_node) {
             gparticles.push_back(Gparticle(

@@ -12,7 +12,7 @@ namespace gfield {
         vector <GFieldDefinition> gfield_defs;
 
         // multipoles
-        auto gmultipoles_node = gopts->get_option_node("gmultipoles");
+        auto gmultipoles_node = gopts->getOptionNode("gmultipoles");
         for (auto gmultipoles_item: gmultipoles_node) {
             GFieldDefinition gfield_def = GFieldDefinition();
 

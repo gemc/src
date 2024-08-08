@@ -26,7 +26,7 @@ namespace g4display {
     G4View getG4View(GOptions *gopts) {
 
         // getting json detector from option
-        auto driver = gopts->get_option_map_in_node("g4view", "driver").as<string>();
+        auto driver = gopts->getOptionMapInNode("g4view", "driver").as<string>();
 
         // checking if driver is in the list
         if (find(AVAILABLEG4VIEWERS.begin(), AVAILABLEG4VIEWERS.end(), driver) == AVAILABLEG4VIEWERS.end()) {
@@ -37,9 +37,9 @@ namespace g4display {
         // projecting it onto G4View structure
         G4View g4view;
         g4view.viewer = driver;
-        g4view.dimension = gopts->get_option_map_in_node("g4view", "dimension").as<string>();
-        g4view.position = gopts->get_option_map_in_node("g4view", "position").as<string>();
-        g4view.segsPerCircle = gopts->get_option_map_in_node("g4view", "segsPerCircle").as<int>();
+        g4view.dimension = gopts->getOptionMapInNode("g4view", "dimension").as<string>();
+        g4view.position = gopts->getOptionMapInNode("g4view", "position").as<string>();
+        g4view.segsPerCircle = gopts->getOptionMapInNode("g4view", "segsPerCircle").as<int>();
 
         return g4view;
     }
@@ -48,8 +48,8 @@ namespace g4display {
     G4Camera getG4Camera(GOptions *gopts) {
 
         G4Camera gcamera;
-        gcamera.phi = gopts->get_option_map_in_node("g4camera", "phi").as<string>();
-        gcamera.theta = gopts->get_option_map_in_node("g4camera", "theta").as<string>();
+        gcamera.phi = gopts->getOptionMapInNode("g4camera", "phi").as<string>();
+        gcamera.theta = gopts->getOptionMapInNode("g4camera", "theta").as<string>();
 
         return gcamera;
     }
@@ -59,8 +59,8 @@ namespace g4display {
 
         G4Dawn gdawn;
 
-        auto phi = gopts->get_option_map_in_node("dawn", "phi").as<string>();
-        auto theta = gopts->get_option_map_in_node("dawn", "theta").as<string>();
+        auto phi = gopts->getOptionMapInNode("dawn", "phi").as<string>();
+        auto theta = gopts->getOptionMapInNode("dawn", "theta").as<string>();
 
         if (phi == "null") phi = goptions::NODFLT;
         if (theta == "null") theta = goptions::NODFLT;
