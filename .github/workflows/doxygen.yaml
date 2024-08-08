@@ -12,20 +12,13 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  pages: write
-  id-token: write
+
 
 jobs:
   build:
     strategy:
-      # max-parallel: 4
       matrix:
         class: [ goptions ]
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     container: jeffersonlab/base:fedora36
     continue-on-error: true
@@ -38,6 +31,19 @@ jobs:
           ./ci/doxygen.sh ${{ matrix.class }}
           pwd
           ls -lR ${{ matrix.class }}
+  deploy:
+    needs: build
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    permissions:
+      pages: write
+      id-token: write
+    strategy:
+      matrix:
+        class: [ goptions ]
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: upload build log artifacts
         uses: actions/upload-artifact@v3
         with:
