@@ -3,13 +3,11 @@
 # Purpose: creates the doxygen documentation for the selected classes
 
 # Container run:
-# docker_run_image jeffersonlab/geant4:g4v11.2.2-almalinux93
-# docker_run_image jeffersonlab/geant4:g4v11.2.2-ubuntu24
-# docker_run_image jeffersonlab/geant4:g4v11.2.2-fedora36
+# docker_run_image jeffersonlab/base:fedora36
 #
 # local build:
 # git clone http://github.com/gemc/src /root/src && cd /root/src
-# ./ci/doxygen.sh goption
+# ./ci/doxygen.sh goptions
 
 echo " "
 echo " Doxygen version: "$(doxygen --version)

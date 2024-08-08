@@ -19,6 +19,7 @@ jobs:
       matrix:
         class: [ goptions ]
     runs-on: ubuntu-latest
+    container: jeffersonlab/base:fedora36
     continue-on-error: true
     name: ${{ matrix.class }} Doxy
 
