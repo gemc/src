@@ -14,7 +14,6 @@ on:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
   pages: write
   id-token: write
 
@@ -31,7 +30,6 @@ jobs:
     container: jeffersonlab/base:fedora36
     continue-on-error: true
     name: ${{ matrix.class }} Doxy
-
     steps:
       - name: Checkout
         uses: actions/checkout@main
@@ -40,11 +38,10 @@ jobs:
           ./ci/doxygen.sh ${{ matrix.class }}
           pwd
           ls -lR ${{ matrix.class }}
-      - name: Create .nojekyll
-        run: touch ${{ inputs.folder }}/.nojekyll
-        shell: bash
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: upload build log artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          folder: ${{ matrix.class }}/html
+          name: upload {{ matrix.class }}
+          retention-days: 1
+          path: ${{ matrix.class }}/html
