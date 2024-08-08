@@ -5,8 +5,8 @@ on:
   push:
   pull_request:
     types:
-      # only run workflow when a commit is pushed to a PR branch
-      # instead of running for all other PR events
+      # Only run workflow when a commit is pushed to a PR branch
+      # Instead of running for all other PR events
       - synchronize
 
   # Allows you to run this workflow manually from the Actions tab
@@ -16,14 +16,14 @@ jobs:
   build:
     strategy:
       matrix:
-        class: [ goptions ]
+        class: [goptions]
     runs-on: ubuntu-latest
     container: jeffersonlab/base:fedora36
     name: ${{ matrix.class }} Doxy
     steps:
       - name: Checkout
         uses: actions/checkout@main
-      - name: Doxygen ${{ matrix.class }}
+      - name: Run Doxygen
         run: |
           ./ci/doxygen.sh ${{ matrix.class }}
           pwd
@@ -31,10 +31,11 @@ jobs:
           chmod -R a+rX ${{ matrix.class }}/html
           cp ${{ matrix.class }}/html/index.html ${{ matrix.class }}
           cp ${{ matrix.class }}/html/index.html .
-      - name: Upload html code as artifact
+      - name: Upload HTML code as artifact
         uses: actions/upload-artifact@v4
         with:
           name: github-pages
+          retention-days: 3
           path: ${{ matrix.class }}/html
 
   deploy:
@@ -44,7 +45,7 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deploy.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
