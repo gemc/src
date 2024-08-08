@@ -38,9 +38,8 @@ jobs:
           ./ci/doxygen.sh ${{ matrix.class }}
           pwd
           ls -lR ${{ matrix.class }}
-          chmod 755 ${{ matrix.class }}/html
       - name: upload build log artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: github-pages
           retention-days: 3
