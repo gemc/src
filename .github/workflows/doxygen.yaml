@@ -32,10 +32,9 @@ jobs:
           cp ${{ matrix.class }}/html/index.html ${{ matrix.class }}
           cp ${{ matrix.class }}/html/index.html .
       - name: Upload html code as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: github-pages
-          retention-days: 3
           path: ${{ matrix.class }}/html
 
   deploy:
