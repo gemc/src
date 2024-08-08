@@ -38,6 +38,9 @@ jobs:
 
   # Deployment job
   deploy:
+    # max-parallel: 4
+    matrix:
+      class: [ goptions ]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
