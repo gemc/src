@@ -76,7 +76,7 @@ GWorld::GWorld(GOptions *gopts) {
         string factory = gsystem->getFactoryName();
 
         if (systemFactory.find(factory) != systemFactory.end()) {
-            for (auto yaml_file: gopts->get_yaml_files()) {
+            for (auto yaml_file: gopts->getYamlFiles()) {
                 systemFactory[factory]->addPossibleFileLocation(getDirFromPath(yaml_file));
             }
             systemFactory[factory]->loadSystem(gsystem, verbosity);

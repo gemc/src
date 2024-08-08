@@ -89,12 +89,12 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 
 
     // finds the yaml files
-    yaml_files = find_yamls(argc, argv);
+    yaml_files = findYamls(argc, argv);
 
     // parse the yaml files
     for (auto &yaml_file: yaml_files) {
         cout << " Parsing " << yaml_file << endl;
-        set_options_values_from_yaml_file(yaml_file);
+        setOptionsValuesFromYamlFile(yaml_file);
     }
 
 
@@ -269,7 +269,7 @@ void GOptions::print_option_or_switch_help(string tag) {
 
 
 // Finds the (first) configuration file (yaml or yml extensions).
-vector <string> GOptions::find_yamls(int argc, char *argv[]) {
+vector <string> GOptions::findYamls(int argc, char *argv[]) {
     vector <string> yaml_files;
 
     for (int i = 1; i < argc; i++) {
@@ -296,7 +296,7 @@ bool GOptions::doesOptionExist(const std::string& tag) const {
     return false;
 }
 
-void GOptions::set_options_values_from_yaml_file(string yaml) {
+void GOptions::setOptionsValuesFromYamlFile(const std::string& yaml) {
 
     YAML::Node config;
     try {

@@ -13,11 +13,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  workflow-telemetry-action:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Collect Workflow Telemetry
-        uses: catchpoint/workflow-telemetry-action@v2
   build_and_test:
     strategy:
       # max-parallel: 4
@@ -40,7 +35,8 @@ jobs:
     name: ${{ matrix.container.name }} - ${{ matrix.sanitize }}
 
     steps:
-      # Check out the code
+      - name: Collect Workflow Telemetry
+        uses: catchpoint/workflow-telemetry-action@v2
       - name: Checkout
         uses: actions/checkout@main
       - name: Fix Ownership

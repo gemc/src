@@ -78,7 +78,7 @@ public:
     template<typename T>
     T get_variable_in_option(const YAML::Node &node, const string &variable_name, const T &default_value);
 
-    vector <string> get_yaml_files() { return yaml_files; }
+    std::vector<std::string> getYamlFiles() const { return yaml_files; }
 
 private:
 
@@ -89,10 +89,10 @@ private:
     map <string, GSwitch> switches;
 
     // jcards parsing utilities
-    vector <string> find_yamls(int argc, char *argv[]);  // finds the yaml specified by command line. Returns "na' if not found.
+    vector <string> findYamls(int argc, char *argv[]);  // finds the yaml specified by command line. Returns "na' if not found.
 
     // parse the yaml file
-    void set_options_values_from_yaml_file(string yamls);
+    void setOptionsValuesFromYamlFile(const std::string& yaml);
 
     // parse a command linegetSwitch
     void set_option_values_from_command_line_argument(string option_name, string possible_yaml_node);
