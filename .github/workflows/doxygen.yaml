@@ -58,3 +58,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          name: github-pages
