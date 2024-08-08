@@ -1,9 +1,14 @@
 # qt: pkg-config. https://mesonbuild.com/Qt5-module.html
 qt5 = import('qt5')
-qt5_deps = dependency('qt5', modules : ['Core', 'Gui', 'Widgets'])
+qt5_deps = dependency('qt5',
+                      modules : ['Core', 'Gui', 'Widgets'],
+                      include_type: 'system')
 
 # clhep: pkg-config
-clhep_deps = dependency('clhep', version : '>=2.4.7.1')
+clhep_deps = dependency('clhep',
+                        version : '>=2.4.7.1',
+                        include_type : 'system'
+)
 
 # geant4: no pkg-config. The cmake dependency include clhep and a lot of stuff that is not working
 # notice: this assumes that the geant4-config exists and is in the PATH
@@ -33,17 +38,23 @@ endforeach
 geant4_deps = declare_dependency(
     include_directories : Geant4_inc_dirs,
     link_args : G4_link_args,
-    compile_args : Geant4_flags
+    compile_args : Geant4_flags,
 )
 
 # sqlite
 sqlite_dep = dependency('sqlite3')
 
 # Open Asset Import Library (assimp)
-assimp_dep = dependency('assimp', cmake_args : ['-DCMAKE_CXX_STANDARD=20'], default_options : ['cpp_args=-Wno-shadow'])     # looks like cmake_args is not working
+assimp_dep = dependency('assimp',
+                        cmake_args : ['-DCMAKE_CXX_STANDARD=20'],
+                        default_options : ['cpp_args=-Wno-shadow'],
+                        include_type : 'system')     # looks like cmake_args is not working
 
 # yaml-cpp
-yaml_cpp_dep = dependency('yaml_cpp', cmake_args : ['-DCXX_FLAGS=-Wno-shadow'], default_options : ['cpp_args=-Wno-shadow']) # looks like cmake_args is not working
+yaml_cpp_dep = dependency('yaml_cpp',
+                          cmake_args : ['-DCXX_FLAGS=-Wno-shadow'],
+                          default_options : ['cpp_args=-Wno-shadow'],
+                          include_type : 'system') # looks like cmake_args is not working
 
 
 # ROOT dependencies coming from cmake are not correctly handled by meson or are just plain wrong
@@ -67,7 +78,7 @@ if get_option('use_root')
     endforeach
 
     root_deps = declare_dependency(
-        include_directories : ROOT_inc_dirs,
+        include_directories : [ROOT_inc_dirs],
         link_args : ROOT_link_args,
     )
 endif
