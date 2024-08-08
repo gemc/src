@@ -31,6 +31,12 @@ jobs:
           ./ci/doxygen.sh ${{ matrix.class }}
           pwd
           ls -lR ${{ matrix.class }}
+      - name: upload build log artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-pages
+          retention-days: 3
+          path: ${{ matrix.class }}/html
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,12 +53,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: upload build log artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: github-pages
-          retention-days: 3
-          path: ${{ matrix.class }}/html
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
