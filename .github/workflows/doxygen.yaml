@@ -44,8 +44,6 @@ jobs:
     needs: build
     # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
     permissions:
-      actions: read
-      contents: read
       pages: write
       id-token: write
     strategy:
@@ -59,4 +57,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         id: deployment
-        uses: actions/deploy-pages@v4.0.5
+        uses: actions/deploy-pages@v3
