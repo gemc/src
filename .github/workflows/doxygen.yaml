@@ -30,6 +30,7 @@ jobs:
           ls -lR ${{ matrix.class }}
           chmod -R a+rX ${{ matrix.class }}/html
           cp ${{ matrix.class }}/html/index.html ${{ matrix.class }}
+          cp ${{ matrix.class }}/html/index.html .
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
