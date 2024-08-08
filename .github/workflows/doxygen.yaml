@@ -48,6 +48,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - - name: Doxygen ${{ matrix.class }}
+          run: |
+            pwd
+            ls -l
       - uses: DenverCoder1/doxygen-github-pages-action@v2.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

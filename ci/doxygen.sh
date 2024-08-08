@@ -18,7 +18,7 @@ cd $class
 
 echo
 ../ci/create_doxygen.sh
-cp ../doc/doxygen.css .
+cp ../doc/mydoxygen.css .
 echo " Running Doxygen for "$class
 doxygen Doxyfile
 echo
