@@ -95,7 +95,7 @@ private:
     void setOptionsValuesFromYamlFile(const std::string& yaml);
 
     // parse a command linegetSwitch
-    void set_option_values_from_command_line_argument(string option_name, string possible_yaml_node);
+    void setOptionValuesFromCommandLineArgument(const std::string& optionName, const std::string& possibleYamlNode);
 
     // Checks if the option exists
     bool doesOptionExist(const std::string& tag) const;
@@ -104,26 +104,23 @@ private:
     std::vector<GOption>::iterator getOptionIterator(const std::string& name);
     std::vector<GOption>::const_iterator getOptionIterator(const std::string& name) const;
 
-    // search
-    vector <GOption> search_for_string(string tag); // searches for a string option
-
     // print single option or switch
-    void print_option_or_switch_help(string tag);
+    void printOptionOrSwitchHelp(const std::string& tag) const;
 
     // loops over all options and print help
-    void print_help();
+    void printHelp() const;
 
     // print web formated help
-    void print_web_help();
+    void printWebHelp() const;
 
     // Save All User Options In a Yaml File
-    void save_options();
+    void saveOptions() const ;
 
     // sets the executable name at construction
     string executableName;
 
     // yaml saved configuration filename
-    std::ofstream *yaml_conf;
+    std::ofstream *yamlConf;
 
     // introspection.
     void print_version();
@@ -134,6 +131,6 @@ private:
 };
 
 // overloaded operator to add option vectors and switch maps
-GOptions &operator+=(GOptions &original, GOptions optionsToAdd);
+GOptions &operator+=(GOptions &original, const GOptions& optionsToAdd);
 
 #endif

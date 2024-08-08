@@ -120,11 +120,11 @@ private:
     vector <string> mandatory_keys; // keys that must be present in the option
 
     // save option value
-    void save_option(std::ofstream *yaml_conf);
+    void saveOption(std::ofstream *yamlConf) const;
 
-    void print_help(bool detailed);
+    void printHelp(bool detailed) const;
 
-    string detailed_help();
+    string detailedHelp() const;
 
     // sets the value of the scalar option based on the command line string
     void set_scalar_value(const string &v);

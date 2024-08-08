@@ -126,18 +126,20 @@ bool GOption::does_the_option_set_all_necessary_values(YAML::Node v) {
 }
 
 // print the option
-void GOption::save_option(ofstream *yaml_conf) {
+void GOption::saveOption(std::ofstream *yamlConf) const {
 
     // setting style to block
     // this does not work with command line passed values
-    value.SetStyle(YAML::EmitterStyle::Block);
+    YAML::Node mutableValue = value;
+    mutableValue.SetStyle(YAML::EmitterStyle::Block); // Apply style to the mutable copy
 
-    *yaml_conf << value << endl;
+    *yamlConf << mutableValue << std::endl;
+
 }
 
 
 // print option
-void GOption::print_help(bool detailed) {
+void GOption::printHelp(bool detailed) const {
     if (name == GVERSION_STRING) {
         return;
     }
@@ -162,13 +164,13 @@ void GOption::print_help(bool detailed) {
     if (detailed) {
         cout << helpString << ": " << description << endl;
         cout << endl;
-        cout << detailed_help() << endl;
+        cout << detailedHelp() << endl;
     } else {
         cout << helpString << ": " << description << endl;
     }
 }
 
-string GOption::detailed_help() {
+string GOption::detailedHelp() const {
     string newHelp = "";
 
     YAML::Node yvalues = defaultValue.begin()->second;
