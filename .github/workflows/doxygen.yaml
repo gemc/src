@@ -34,6 +34,9 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
+        with:
+          site: ${{ matrix.class }}
+          target: ${{ matrix.class }}/html
       - name: Upload html code as artifact
         uses: actions/upload-artifact@v4
         with:
