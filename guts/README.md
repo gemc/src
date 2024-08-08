@@ -1,3 +1,1 @@
 # Library: Guts
-
-## Installation
