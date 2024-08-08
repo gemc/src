@@ -39,10 +39,9 @@ jobs:
         run: |
           ./ci/doxygen.sh ${{ matrix.class }}
           pwd
-          ls -lR
-      - uses: DenverCoder1/doxygen-github-pages-action@v2.0.0
+          ls -lR ${{ matrix.class }}
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: ${{ matrix.class }}/html
-          config_file: ${{ matrix.class }}/Doxyfile
+          publish_dir: ./${{ matrix.class }}/html
