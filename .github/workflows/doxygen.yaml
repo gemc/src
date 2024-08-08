@@ -40,8 +40,12 @@ jobs:
           ./ci/doxygen.sh ${{ matrix.class }}
           pwd
           ls -lR ${{ matrix.class }}
+      - name: Create .nojekyll
+        run: touch ${{ inputs.folder }}/.nojekyll
+        shell: bash
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./${{ matrix.class }}/html
+          branch: main
+          folder: ${{ matrix.class }}/html
