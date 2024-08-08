@@ -58,7 +58,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
           artifact_name: github-pages
           timeout: 600000
           error_count: 10
