@@ -66,7 +66,7 @@ public:
     const std::map<std::string, GSwitch>& getSwitches() const { return switches; }
 
     // adds a vector of options to the current options
-    inline void addGOptions(GOptions goptions_to_add) {
+    inline void addGOptions(const GOptions& goptions_to_add) {
         for (auto gopt: goptions_to_add.getOptions()) {
             goptions.push_back(gopt);
         }
