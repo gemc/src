@@ -29,6 +29,9 @@ jobs:
           pwd
           ls -lR ${{ matrix.class }}
           chmod -R a+rX ${{ matrix.class }}/html
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
       - name: Upload html code as artifact
         uses: actions/upload-artifact@v4
         with:
