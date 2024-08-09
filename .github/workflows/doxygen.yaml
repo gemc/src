@@ -29,8 +29,9 @@ jobs:
           pwd
           mv ${{ matrix.class }}/html pages
       - name: Upload HTML code as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: hello
           retention-days: 3
           path: pages/
 
@@ -41,7 +42,7 @@ jobs:
       pages: write
       id-token: write
     environment:
-      name: github-pages
+      name: hello
       url: ${{ steps.deploy.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
