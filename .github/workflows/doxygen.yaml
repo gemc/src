@@ -49,4 +49,7 @@ jobs:
       - name: deployment
         id: deployment
         uses: actions/deploy-pages@v4
-        artifact_name: hello
+        with:
+            artifact_name: hello
+            #branch: gh-pages
+            # token: ${{ secrets.GH_TOKEN }}
