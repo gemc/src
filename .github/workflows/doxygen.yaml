@@ -42,10 +42,11 @@ jobs:
       pages: write
       id-token: write
     environment:
-      name: hello
+      name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: deployment
         id: deployment
         uses: actions/deploy-pages@v4
+        artifact_name: hello
