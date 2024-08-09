@@ -28,7 +28,6 @@ jobs:
           ./ci/doxygen.sh ${{ matrix.class }}
           pwd
           mv ${{ matrix.class }}/html pages
-      - name: Upload HTML code as artifact
       - uses: actions/upload-pages-artifact@v3
         with:
           name: hello
