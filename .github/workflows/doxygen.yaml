@@ -27,14 +27,11 @@ jobs:
         run: |
           ./ci/doxygen.sh ${{ matrix.class }}
           pwd
-          ls -lR ${{ matrix.class }}
-          chmod -R a+rX ${{ matrix.class }}/html
-          cp ${{ matrix.class }}/html/index.html ${{ matrix.class }}
-          cp ${{ matrix.class }}/html/index.html .
+          mv ${{ matrix.class }}/html pages
+          tree
       - name: Upload HTML code as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: github-pages
           retention-days: 3
           path: ${{ matrix.class }}/
 
