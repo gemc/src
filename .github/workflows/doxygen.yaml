@@ -27,16 +27,20 @@ jobs:
         run: |
           ./ci/doxygen.sh ${{ matrix.class }}
           pwd
-          mv ${{ matrix.class }}/html pages
+          mkdir -p pages
+          mv ${{ matrix.class }} pages
+
+  upload_pages:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/upload-pages-artifact@v3
         with:
-          name: hello
           retention-days: 3
           path: pages/
 
   deploy:
-    name: Deploy Doxygen
-    needs: build
+    needs: upload_pages
     permissions:
       pages: write
       id-token: write
@@ -45,7 +49,7 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: deployment
+      - name: Deploy Doxygen
         id: deployment
         uses: actions/deploy-pages@v4
         with:
