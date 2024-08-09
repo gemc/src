@@ -47,16 +47,17 @@ html_header = """<!DOCTYPE html>
         }
 
         .link-list {
-            list-style: none;
+          display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             padding: 0;
             margin: 0;
-            column-count: 1;
-            column-gap: 20px;
+            list-style: none;
         }
 
         .link-list li {
-            margin: 10px 0;
-            width: 100%;
+        margin: 10px;
+            flex: 0 1 calc(50% - 20px);
             display: flex;
             justify-content: center;
         }

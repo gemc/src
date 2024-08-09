@@ -22,13 +22,13 @@ jobs:
       - name: Run Doxygen
         run: |
           ./ci/doxygen.sh
+          ls -lR pages/
       - uses: actions/upload-pages-artifact@v3
         with:
           retention-days: 3
           path: pages/
 
   deploy:
-    name: Deploy Doxygen
     needs: build
     permissions:
       pages: write
