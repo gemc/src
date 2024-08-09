@@ -104,7 +104,7 @@ html_header = """<!DOCTYPE html>
 html_footer = """
         </ul>
         <div class="footer">
-            © 2024 Your Company Name
+            © 2024 GEMC - Maurizio Ungaro
         </div>
     </div>
 </body>

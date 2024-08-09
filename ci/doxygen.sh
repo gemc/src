@@ -23,8 +23,8 @@ rm -rf pages ; mkdir pages
 cp doc/mydoxygen.css pages
 foreach class in $=classes; do
     echo " Running Doxygen for $class"
-    ./ci/create_doxygen.sh $class
     cd $class
+    ../ci/create_doxygen.sh $class
     doxygen Doxyfile
     mkdir -p ../pages/$class
     mv html/* ../pages/$class

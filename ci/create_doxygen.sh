@@ -13,7 +13,7 @@ class=$1
 
 # painfully, manually doing these, but we HAVE TO
 # Note: keep STRIP_CODE_COMMENTS (refers just to doxygen comments) and SOURCE_TOOLTIPS to yes to make browing more readable
-sed -i 's/PROJECT_NAME           = "My Project"/PROJECT_NAME  = "template_class"/g'                 Doxyfile
+sed -i "s/PROJECT_NAME           = \"My Project\"/PROJECT_NAME  = \"$class\"/g"                     Doxyfile
 sed -i 's/REPEAT_BRIEF           = YES/REPEAT_BRIEF           = NO/g'                               Doxyfile
 sed -i 's/OPTIMIZE_OUTPUT_FOR_C  = NO/OPTIMIZE_OUTPUT_FOR_C   = YES/g'                              Doxyfile
 sed -i 's/BUILTIN_STL_SUPPORT    = NO/BUILTIN_STL_SUPPORT     = YES/g'                              Doxyfile
@@ -39,7 +39,6 @@ sed -i 's/HIDE_FRIEND_COMPOUNDS  = NO/HIDE_FRIEND_COMPOUNDS   = YES/g'          
 sed -i 's/HTML_EXTRA_STYLESHEET  =/HTML_EXTRA_STYLESHEET      = mydoxygen.css/g'                     Doxyfile
 sed -i 's/PREDEFINED             =/PREDEFINED                 = DOXYGEN_SHOULD_SKIP_THIS/g'         Doxyfile
 
-sed -i s/template_class/$class/g Doxyfile
 
 # painfully removing the individual patterns
 sed -i  '/*.hpp \\/d'      Doxyfile
