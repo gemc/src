@@ -36,9 +36,10 @@ jobs:
         with:
           name: github-pages
           retention-days: 3
-          path: ${{ matrix.class }}/html
+          path: ${{ matrix.class }}/
 
   deploy:
+    name: Deploy Doxygen
     needs: build
     permissions:
       pages: write
@@ -48,6 +49,6 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
-        id: deploy
+      - name: deployment
+        id: deployment
         uses: actions/deploy-pages@v4
