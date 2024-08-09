@@ -1,111 +1,189 @@
-#ifndef  GUTS_CONVENTIONS_H
-#define  GUTS_CONVENTIONS_H  1
-
-#define UNINITIALIZEDNUMBERQUANTITY -123456
-#define UNINITIALIZEDSTRINGQUANTITY "na"
-
-// exit codes: 300
-#define EC__FILENOTFOUND     301
-#define EC__G4NUMBERERROR    302
-
-// use of colors in iostream
-// example:
-// cout << BOLD(FBLU("I'm blue-bold.")) << endl;
-// taken from:
-// https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
-
-#define KBOLD "\x1B[1m"
-#define KRED  "\x1B[31m"
-#define KGRN  "\x1B[32m"
-#define KYEL  "\x1B[33m"
-#define KBLU  "\x1B[34m"
-#define KMAG  "\x1B[35m"
-#define KCYN  "\x1B[36m"
-#define KWHT  "\x1B[37m"
-#define RST   "\x1B[0m" // reset string
-
-#define FRED(x) KRED x RST
-#define FGRN(x) KGRN x RST
-#define FYEL(x) KYEL x RST
-#define FBLU(x) KBLU x RST
-#define FMAG(x) KMAG x RST
-#define FCYN(x) KCYN x RST
-#define FWHT(x) KWHT x RST
-
-#define BOLD(x) "\x1B[1m" x RST
-#define UNDL(x) "\x1B[4m" x RST
-
-#define FATALERRORL BOLD(FRED(" Error: "))
-#define GWARNING    BOLD(FYEL(" Warning: "))
-
-#define CONSTRUCTORLOG " ↑ "
-#define DESTRUCTORLOG " ↓ "
-
-// list bullets
-#define POINTITEM  " • "
-#define CIRCLEITEM " ◦ "
-#define SQUAREITEM " ◻︎ "
-#define ARROWITEM " ➤ "
-#define GREENPOINTITEM  BOLD(FGRN(POINTITEM))
-#define GREENCIRCLEITEM BOLD(FGRN(CIRCLEITEM))
-#define GREENSQUAREITEM BOLD(FGRN(SQUAREITEM))
-#define GREENARROWITEM  BOLD(FGRN(ARROWITEM))
-#define REDPOINTITEM    BOLD(FRED(POINTITEM))
-#define REDCIRCLEITEM   BOLD(FRED(CIRCLEITEM))
-#define REDSQUAREITEM   BOLD(FRED(SQUAREITEM))
-#define REDARROWITEM    BOLD(FRED(ARROWITEM))
-
-// tab is three spaces
-#define GTAB "   "
-#define GTABTAB GTAB GTAB
-#define GTABTABTAB GTAB GTAB GTAB
-
-// with one GTAB
-#define TPOINTITEM       GTAB POINTITEM
-#define TCIRCLEITEM      GTAB CIRCLEITEM
-#define TSQUAREITEM      GTAB SQUAREITEM
-#define TARROWITEM       GTAB ARROWITEM
-#define TGREENPOINTITEM  GTAB GREENPOINTITEM
-#define TGREENCIRCLEITEM GTAB GREENCIRCLEITEM
-#define TGREENSQUAREITEM GTAB GREENSQUAREITEM
-#define TGREENARROWITEM  GTAB GREENARROWITEM
-#define TREDPOINTITEM    GTAB REDPOINTITEM
-#define TREDCIRCLEITEM   GTAB REDCIRCLEITEM
-#define TREDSQUAREITEM   GTAB REDSQUAREITEM
-#define TREDARROWITEM    GTAB REDARROWITEM
-
-// with two GTABS
-#define TTPOINTITEM       GTABTAB POINTITEM
-#define TTCIRCLEITEM      GTABTAB CIRCLEITEM
-#define TTSQUAREITEM      GTABTAB SQUAREITEM
-#define TTARROWITEM       GTABTAB ARROWITEM
-#define TTGREENPOINTITEM  GTABTAB GREENPOINTITEM
-#define TTGREENCIRCLEITEM GTABTAB GREENCIRCLEITEM
-#define TTGREENSQUAREITEM GTABTAB GREENSQUAREITEM
-#define TTGREENARROWITEM  GTABTAB GREENARROWITEM
-#define TTREDPOINTITEM    GTABTAB REDPOINTITEM
-#define TTREDCIRCLEITEM   GTABTAB REDCIRCLEITEM
-#define TTREDSQUAREITEM   GTABTAB REDSQUAREITEM
-#define TTREDARROWITEM    GTABTAB REDARROWITEM
-
-// item highlight
-#define HHL "⏵"
-#define HHR "⏴"
-#define RSTHHR          HHR RST   // rest color after right arrow
-#define GREENHHL        KGRN HHL  // notice this will highlight the item green
-#define REDHHL          KRED HHL
-#define GREENHHL        KGRN HHL  // notice this will highlight the item green
-#define YELLOWHHL       KYEL HHL
-#define BOLDWHHL        "\x1B[1m" HHL
+#ifndef GUTS_CONVENTIONS_H
+#define GUTS_CONVENTIONS_H 1
 
 #include <string>
 
-// thread safe message systems
+/**
+ * @brief Represents an uninitialized numeric quantity.
+ */
+#define UNINITIALIZEDNUMBERQUANTITY -123456
+
+/**
+ * @brief Represents an uninitialized string quantity.
+ */
+#define UNINITIALIZEDSTRINGQUANTITY "na"
+
+// Exit codes for various error scenarios.
+#define EC__FILENOTFOUND 301    ///< File not found error code.
+#define EC__G4NUMBERERROR 302   ///< G4 number error code.
+
+// ANSI color codes for terminal text formatting.
+// These can be used to print colored text to the console.
+
+/**
+ * @brief ANSI code for bold text.
+ */
+#define KBOLD "\x1B[1m"
+
+/**
+ * @brief ANSI code for red colored text.
+ */
+#define KRED "\x1B[31m"
+
+/**
+ * @brief ANSI code for green colored text.
+ */
+#define KGRN "\x1B[32m"
+
+/**
+ * @brief ANSI code for yellow colored text.
+ */
+#define KYEL "\x1B[33m"
+
+/**
+ * @brief ANSI code for blue colored text.
+ */
+#define KBLU "\x1B[34m"
+
+/**
+ * @brief ANSI code for magenta colored text.
+ */
+#define KMAG "\x1B[35m"
+
+/**
+ * @brief ANSI code for cyan colored text.
+ */
+#define KCYN "\x1B[36m"
+
+/**
+ * @brief ANSI code for white colored text.
+ */
+#define KWHT "\x1B[37m"
+
+/**
+ * @brief ANSI code to reset text formatting.
+ */
+#define RST "\x1B[0m"
+
+// Macros for colored text formatting with reset
+#define FRED(x) KRED x RST  ///< Macro to wrap text in red color.
+#define FGRN(x) KGRN x RST  ///< Macro to wrap text in green color.
+#define FYEL(x) KYEL x RST  ///< Macro to wrap text in yellow color.
+#define FBLU(x) KBLU x RST  ///< Macro to wrap text in blue color.
+#define FMAG(x) KMAG x RST  ///< Macro to wrap text in magenta color.
+#define FCYN(x) KCYN x RST  ///< Macro to wrap text in cyan color.
+#define FWHT(x) KWHT x RST  ///< Macro to wrap text in white color.
+
+#define BOLD(x) KBOLD x RST ///< Macro to wrap text in bold.
+#define UNDL(x) "\x1B[4m" x RST ///< Macro to wrap text with underline.
+
+#define FATALERRORL BOLD(FRED("Error: ")) ///< Fatal error label.
+#define GWARNING BOLD(FYEL("Warning: "))  ///< Warning label.
+
+#define CONSTRUCTORLOG "↑"  ///< Log symbol for constructor.
+#define DESTRUCTORLOG "↓"   ///< Log symbol for destructor.
+
+// List item symbols
+#define POINTITEM "•"          ///< Symbol for point item.
+#define CIRCLEITEM "◦"         ///< Symbol for circle item.
+#define SQUAREITEM "◻︎"        ///< Symbol for square item.
+#define ARROWITEM "➤"          ///< Symbol for arrow item.
+#define GREENPOINTITEM BOLD(FGRN(POINTITEM)) ///< Green point item.
+#define GREENCIRCLEITEM BOLD(FGRN(CIRCLEITEM)) ///< Green circle item.
+#define GREENSQUAREITEM BOLD(FGRN(SQUAREITEM)) ///< Green square item.
+#define GREENARROWITEM BOLD(FGRN(ARROWITEM)) ///< Green arrow item.
+#define REDPOINTITEM BOLD(FRED(POINTITEM)) ///< Red point item.
+#define REDCIRCLEITEM BOLD(FRED(CIRCLEITEM)) ///< Red circle item.
+#define REDSQUAREITEM BOLD(FRED(SQUAREITEM)) ///< Red square item.
+#define REDARROWITEM BOLD(FRED(ARROWITEM)) ///< Red arrow item.
+
+// Tab spacing for indentation
+#define GTAB "   "              ///< One tab spacing.
+#define GTABTAB GTAB GTAB       ///< Two tab spacing.
+#define GTABTABTAB GTAB GTAB GTAB ///< Three tab spacing.
+
+// Single tab list items
+#define TPOINTITEM GTAB POINTITEM       ///< Point item with single tab.
+#define TCIRCLEITEM GTAB CIRCLEITEM     ///< Circle item with single tab.
+#define TSQUAREITEM GTAB SQUAREITEM     ///< Square item with single tab.
+#define TARROWITEM GTAB ARROWITEM       ///< Arrow item with single tab.
+#define TGREENPOINTITEM GTAB GREENPOINTITEM  ///< Green point item with single tab.
+#define TGREENCIRCLEITEM GTAB GREENCIRCLEITEM ///< Green circle item with single tab.
+#define TGREENSQUAREITEM GTAB GREENSQUAREITEM ///< Green square item with single tab.
+#define TGREENARROWITEM GTAB GREENARROWITEM  ///< Green arrow item with single tab.
+#define TREDPOINTITEM GTAB REDPOINTITEM    ///< Red point item with single tab.
+#define TREDCIRCLEITEM GTAB REDCIRCLEITEM  ///< Red circle item with single tab.
+#define TREDSQUAREITEM GTAB REDSQUAREITEM  ///< Red square item with single tab.
+#define TREDARROWITEM GTAB REDARROWITEM    ///< Red arrow item with single tab.
+
+// Double tab list items
+#define TTPOINTITEM GTABTAB POINTITEM       ///< Point item with double tab.
+#define TTCIRCLEITEM GTABTAB CIRCLEITEM     ///< Circle item with double tab.
+#define TTSQUAREITEM GTABTAB SQUAREITEM     ///< Square item with double tab.
+#define TTARROWITEM GTABTAB ARROWITEM       ///< Arrow item with double tab.
+#define TTGREENPOINTITEM GTABTAB GREENPOINTITEM  ///< Green point item with double tab.
+#define TTGREENCIRCLEITEM GTABTAB GREENCIRCLEITEM ///< Green circle item with double tab.
+#define TTGREENSQUAREITEM GTABTAB GREENSQUAREITEM ///< Green square item with double tab.
+#define TTGREENARROWITEM GTABTAB GREENARROWITEM  ///< Green arrow item with double tab.
+#define TTREDPOINTITEM GTABTAB REDPOINTITEM    ///< Red point item with double tab.
+#define TTREDCIRCLEITEM GTABTAB REDCIRCLEITEM  ///< Red circle item with double tab.
+#define TTREDSQUAREITEM GTABTAB REDSQUAREITEM  ///< Red square item with double tab.
+#define TTREDARROWITEM GTABTAB REDARROWITEM    ///< Red arrow item with double tab.
+
+// Highlight symbols
+#define HHL "⏵"                ///< Highlight left symbol.
+#define HHR "⏴"                ///< Highlight right symbol.
+#define RSTHHR HHR RST         ///< Reset highlight right.
+#define GREENHHL KGRN HHL      ///< Green highlight left.
+#define REDHHL KRED HHL        ///< Red highlight left.
+#define YELLOWHHL KYEL HHL     ///< Yellow highlight left.
+#define BOLDWHHL BOLD(HHL)     ///< Bold white highlight left.
+
+/**
+ * @brief Thread-safe exit function with error code.
+ *
+ * This function is used to exit the program with a specific error code, ensuring
+ * any necessary cleanup or logging can occur before termination.
+ *
+ * @param error The error code to exit with.
+ */
 void gexit(int error);
+
+/**
+ * @brief Logs the construction of a class instance.
+ *
+ * @param className The name of the class being constructed.
+ */
 void gLogClassConstruct(std::string className);
+
+/**
+ * @brief Logs the copy construction of a class instance.
+ *
+ * @param className The name of the class being copy-constructed.
+ */
 void gLogCopyConstruct(std::string className);
+
+/**
+ * @brief Logs the move construction of a class instance.
+ *
+ * @param className The name of the class being move-constructed.
+ */
 void gLogMoveConstruct(std::string className);
+
+/**
+ * @brief Logs the destruction of a class instance.
+ *
+ * @param className The name of the class being destructed.
+ */
 void gLogClassDestruct(std::string className);
+
+/**
+ * @brief Logs a message.
+ *
+ * This function logs a given message, typically used for debugging or informational purposes.
+ *
+ * @param message The message to be logged.
+ */
 void gLogMessage(std::string message);
 
-#endif
+#endif // GUTS_CONVENTIONS_H

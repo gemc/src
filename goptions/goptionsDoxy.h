@@ -2,24 +2,29 @@
  * \mainpage
  * \section main Overview
  *
- * The GOptions framework provides a flexible system for parsing command-line arguments
- * and/or YAML configuration files.
+ * GOptions provides an unified framework to parse command-line arguments
+ * and YAML files. The main components are: GSwitch and GOption
  *
  * \subsection subsection0 GSwitches
  * A GSwitches is struct with a boolean flag and a description. It is initialized to `false` by default and can be toggled to `true` by specifying it on the command line.
  * For example, the switch "gui" is activated if the command line contains:
- * <pre>  -gui </pre>
+ * ~~~sh
+ * -gui
+ * ~~~
  *
- * \subsection subsection1 Simple Option
- * A simple option is associated with a single value, which can be an integer, float, double, or string. It is represented as follows in a YAML configuration file:
+ * \subsection subsection1 Simple GOption
+ * A simple GOption is associated with a single value, which can be an integer, float, double, or string.
+ * It is represented as follows in a YAML configuration file:
  * ~~~yaml
  * runno: 12
  * ~~~
  * The corresponding command-line option would be:
- * <pre>  -runno=12 </pre>
+ * ~~~sh
+ * -runno=12
+ * ~~~
  *
- * \subsection subsection2 Structured Options
- * A structured option consists of multiple key-value pairs within a single tag. An example from a YAML file:
+ * \subsection subsection2 Structured GOption
+ * A structured GOption consists of multiple key-value pairs within a single tag. An example from a YAML file:
  * ~~~yaml
  * gparticle:
  *  - name: e-
@@ -28,15 +33,17 @@
  *    multiplicity: 4
  * ~~~
  * The equivalent command-line option:
-* -gparticle="[{name: e-, p: 1500, theta: 23.0, multiplicity: 4}]"
- * Note the need of quotes in the command line to define an yaml node.
+ * ~~~sh
+ * -gparticle="[{name: e-, p: 1500, theta: 23.0, multiplicity: 4}]"
+ * ~~~
+ * Note the need of quotes in the command line to define.
  *
  * \subsection subsection3 GOptions Main Features
- * * Dynamically add options and switches to an executable via framework or plugins.
- * * Seamless merging of command-line options with YAML file values. Command line options override YAML values.
- * * Projection of options onto user-defined structures or classes.
+ * * Add options and switches to an executable via framework or plugins.
+ * * Merging of command-line options with YAML file values. Command line options override YAML values.
  * * Import child YAML files for modular configuration.
- * * YAML output for user-selected options.
+ * * YAML output for all user-selected and default options.
+ * * Automatic versioning and formatted help.
  *
  * \subsection subsection4 C++ User Interface
  * Users can instantiate the GOptions class by calling its constructor:
@@ -46,8 +53,6 @@
  * \param argv Array of command-line arguments passed from `main`.
  * \param defineOptions Function that constructs and returns a GOptions object.
  *
- *
- * \brief Defines the options for the GOptions framework.
  *
  * The defineOptions function creates and returns an instance of GOptions with predefined command line switches and options.
  *
@@ -76,9 +81,9 @@
  *
  *     // Vector of GVariable for structured option gparticle
  *     vector <GVariable> gparticle = {
- *         {"name",         goptions::NODFLT, "Particle name"},
+ *         {"name",  * goptions::NODFLT, "Particle name"},
  *         {"multiplicity", 1,                "Number of particles per event"},
- *         {"p",            goptions::NODFLT, "Momentum"},
+ *         {"p",     * goptions::NODFLT, "Momentum"},
  *         {"theta",        "0*degrees",      "Polar angle"},
  *         {"delta_theta",  0,                "Particle polar angle range, centered on theta. Default: 0"},
  *     };
@@ -90,12 +95,29 @@
  *     return goptions;
  * }
  * \endcode
- */
-
  *
+ * \subsubsection subsubsection1 Adding Options and Switches from a framework or plugin
+ *
+ * Each framework or plugin can define its own options and switches. The user can then merge these with the main executable's.
+ * For example, in the gemc defineOptions function, the Goptions defined in the external libraries defineOptions
+ * and added, as in the code below:
+ * 
+ * \code
+ * goptions += eventDispenser::defineOptions();
+ * goptions += g4display::defineOptions();
+ * goptions += g4system::defineOptions();
+ * goptions += gfield::defineOptions();
+ * goptions += gparticle::defineOptions();
+ * goptions += gphysics::defineOptions();
+ * goptions += gstreamer::defineOptions();
+ * goptions += gsystem::defineOptions();
+ *
+ * \endcode
+ * 
  * \subsection subsection6 YAML Library and Validator
  *
- * The YAML parser used in this project is from the [yaml-cpp](https://github.com/jbeder/yaml-cpp) library. It is included as a dependency and facilitates parsing complex YAML configurations.
+ * The YAML parser used in this project is from the [yaml-cpp](https://github.com/jbeder/yaml-cpp) library.
+ * It is included as a dependency and facilitates parsing complex YAML configurations.
  *
  * \subsection cisubsection Continuous Integration
  * The GOptions framework is continuously integrated and tested to ensure stability and reliability across updates.

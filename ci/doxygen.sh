@@ -20,11 +20,11 @@ classes_to_do=(gdetector ghit gsession  gtranslationTable g4display gdynamicDigi
 gQtButtonsWidget gfactory gphysics gsystem utilities eventDispenser gdata gfields gsd gtouchable )
 
 rm -rf pages ; mkdir pages
-cp doc/mydoxygen.css pages
 foreach class in $=classes; do
     echo " Running Doxygen for $class"
+    cp doc/mydoxygen.css .
     cd $class
-    ../ci/create_doxygen.sh $class
+    ../ci/create_doxygen.sh $class # dummy copy to silent warning, not needed
     doxygen Doxyfile
     mkdir -p ../pages/$class
     mv html/* ../pages/$class

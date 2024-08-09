@@ -9,5 +9,6 @@ The validation includes the following workflows
 - Run API tests
 
 
-[![Build and Test GEMC](https://github.com/gemc/src/actions/workflows/gemc.yml/badge.svg)](https://github.com/gemc/src/actions/workflows/gemc.yml)
+[![CI](https://github.com/gemc/src/actions/workflows/ci.yaml/badge.svg)](https://github.com/gemc/src/actions/workflows/ci.yaml)
 [![Nighly Release](https://github.com/gemc/src/actions/workflows/dev_release.yml/badge.svg)](https://github.com/gemc/src/actions/workflows/dev_release.yml)
+[![Doxygen](https://github.com/gemc/src/actions/workflows/doxygen.yaml/badge.svg)](https://github.com/gemc/src/actions/workflows/doxygen.yaml)

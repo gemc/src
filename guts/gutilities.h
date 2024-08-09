@@ -1,5 +1,5 @@
-#ifndef  GSTRING_H
-#define  GSTRING_H  1
+#ifndef  GUTILITIES_H
+#define  GUTILITIES_H  1
 
 // conventions
 #include "gutsConventions.h"
@@ -15,11 +15,19 @@ namespace gutilities {
     using std::vector;
     using std::map;
 
-    // Removes leading and trailing spaces
-    string removeLeadingAndTrailingSpacesFromString(string);
+    /**
+     * @brief Removes leading and trailing spaces from a string.
+     * @param str The input string.
+     * @return The trimmed string.
+     */
+    string removeLeadingAndTrailingSpacesFromString(const string& str);
 
-    // Removes all spaces from string
-    string removeAllSpacesFromString(string);
+    /**
+     * @brief Removes all spaces from a string.
+     * @param str The input string.
+     * @return The string without spaces.
+     */
+    string removeAllSpacesFromString(const string& str);
 
     // get the filename from the path (currently only posix)
     string getFileFromPath(string);

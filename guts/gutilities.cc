@@ -17,30 +17,28 @@ using namespace std;
 
 namespace gutilities {
 
-    // Trim Both leading and trailing spaces
-    string removeLeadingAndTrailingSpacesFromString(string in) {
-        //	str.erase(remove(str.begin(), str.end(), ' '), str.end());
-        //	return str;
+    string removeLeadingAndTrailingSpacesFromString(const string& in) {
+        size_t start = in.find_first_not_of(" \t");
+        size_t end = in.find_last_not_of(" \t");
 
-        string out;
-
-        size_t leapos = in.find_first_not_of(" \t"); // Find the first character position after excluding leading blank spaces
-        size_t endpos = in.find_last_not_of(" \t");  // Find the first character position from reverse af
-
-        // if all spaces or empty return an empty string
-        if ((leapos == string::npos) || (endpos == string::npos)) {
-            out = "";
-        } else {
-            out = in.substr(leapos, endpos - leapos + 1);
+        if (start == string::npos || end == string::npos) {
+            return "";
         }
-        return out;
 
+        return in.substr(start, end - start + 1);
     }
 
-    // Remove all spaces from string
-    string removeAllSpacesFromString(string str) {
-        str.erase(remove(str.begin(), str.end(), ' '), str.end());
-        return str;
+    string removeAllSpacesFromString(const string& str) {
+        string result;
+        result.reserve(str.size());
+
+        for (char c : str) {
+            if (!isspace(c)) {
+                result += c;
+            }
+        }
+
+        return result;
     }
 
     // Get the filename from the path (currently only posix)

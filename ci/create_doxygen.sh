@@ -17,8 +17,9 @@ sed -i "s/PROJECT_NAME           = \"My Project\"/PROJECT_NAME  = \"$class\"/g" 
 sed -i 's/REPEAT_BRIEF           = YES/REPEAT_BRIEF           = NO/g'                               Doxyfile
 sed -i 's/OPTIMIZE_OUTPUT_FOR_C  = NO/OPTIMIZE_OUTPUT_FOR_C   = YES/g'                              Doxyfile
 sed -i 's/BUILTIN_STL_SUPPORT    = NO/BUILTIN_STL_SUPPORT     = YES/g'                              Doxyfile
-sed -i 's/SHOW_INCLUDE_FILES     = YES/SHOW_INCLUDE_FILES     = NO/g'                               Doxyfile
-sed -i 's/SHOW_FILES             = YES/SHOW_FILES             = NO/g'                               Doxyfile
+#sed -i 's/SHOW_INCLUDE_FILES     = YES/SHOW_INCLUDE_FILES     = NO/g'                               Doxyfile
+#sed -i 's/SHOW_FILES             = YES/SHOW_FILES             = NO/g'                               Doxyfile
+sed -i 's/EXTRACT_ALL            = NO/EXTRACT_ALL            = YES/g'                               Doxyfile
 sed -i 's/SOURCE_BROWSER         = NO/SOURCE_BROWSER          = YES/g'                              Doxyfile
 sed -i 's/RECURSIVE              = NO/RECURSIVE               = YES/g'                              Doxyfile
 sed -i 's/HTML_COLORSTYLE_HUE    = 220/HTML_COLORSTYLE_HUE    = 200/g'                              Doxyfile
