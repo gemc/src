@@ -36,7 +36,7 @@ sed -i 's/UML_LOOK               = NO/UML_LOOK                = YES/g'          
 sed -i 's/EXCLUDE                =/EXCLUDE                    = README.md .git/g'                   Doxyfile
 sed -i 's/QUIET                  = NO/QUIET                   = YES/g'                              Doxyfile
 sed -i 's/HIDE_FRIEND_COMPOUNDS  = NO/HIDE_FRIEND_COMPOUNDS   = YES/g'                              Doxyfile
-sed -i 's/HTML_EXTRA_STYLESHEET  =/HTML_EXTRA_STYLESHEET      = mydoxygen.css/g'                     Doxyfile
+sed -i "s/HTML_EXTRA_STYLESHEET  =/HTML_EXTRA_STYLESHEET      = ..\/mydoxygen.css/g"                 Doxyfile
 sed -i 's/PREDEFINED             =/PREDEFINED                 = DOXYGEN_SHOULD_SKIP_THIS/g'         Doxyfile
 
 

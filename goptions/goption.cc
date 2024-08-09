@@ -10,11 +10,17 @@
 
 using namespace std;
 
-// sets the value to the scalar option
-void GOption::set_scalar_value(const string &v) {
+/**
+ * @brief Sets the value of the scalar option.
+ *
+ * This function replaces any commas in the input string with empty spaces
+ * and then assigns the modified string as the value for the scalar option.
+ *
+ * @param v The input string to be set as the value.
+ */
+ void GOption::set_scalar_value(const string &v) {
 
-    // return if v is empty
-    if (v == "") return;
+    if (v.empty()) return;  ///< Return early if the input string is empty.
 
     string value_to_set = gutilities::replaceCharInStringWithChars(v, ",", "");
 
@@ -23,12 +29,19 @@ void GOption::set_scalar_value(const string &v) {
 }
 
 
-// sets the value of the option based on the parsed yaml node
-void GOption::set_value(const YAML::Node &v) {
+/**
+ * @brief Sets the value of the option based on the parsed YAML node.
+ *
+ * This function handles both cumulative and non-cumulative options.
+ * It checks for missing mandatory values and updates the option value accordingly.
+ *
+ * @param v The YAML node containing the new values for the option.
+ */void GOption::set_value(const YAML::Node &v) {
 
     // if the option is cumulative,
     if (isCumulative) {
-        // sequence of maps
+
+        // Sequence of maps: checks for missing mandatory values
         for (const auto &element: v) {
             if (!does_the_option_set_all_necessary_values(element)) {
                 cerr << FATALERRORL << "Trying to set " << YELLOWHHL << name << RSTHHR << " but missing mandatory values." << endl;
@@ -36,7 +49,6 @@ void GOption::set_value(const YAML::Node &v) {
                 exit(EC__MANDATORY_NOT_FILLED);
             }
         }
-
 
         value[name] = v;
 
@@ -49,7 +61,6 @@ void GOption::set_value(const YAML::Node &v) {
 
                 string default_key = default_value_iterator->first.as<string>();
                 auto default_value = default_value_iterator->second;
-
 
                 for (auto map_element_in_value: value[name]) {
                     bool key_found = false;
@@ -72,10 +83,8 @@ void GOption::set_value(const YAML::Node &v) {
 
     } else {
 
-        // looping over the sequence of maps in v
-        // notice: the non cumulative node is already copied from the default value
-        // here we are just updating the values to the desired value
-        for (auto map_element_in_desired_value: v) {
+        // Update non-cumulative option values
+        for (const auto &map_element_in_desired_value: v) {
 
             for (YAML::const_iterator desired_value_iterator = map_element_in_desired_value.begin();
                  desired_value_iterator != map_element_in_desired_value.end(); ++desired_value_iterator) {
@@ -97,52 +106,64 @@ void GOption::set_value(const YAML::Node &v) {
     }
 }
 
-// make sure that all variables matked as NOFLT are set
-bool GOption::does_the_option_set_all_necessary_values(YAML::Node v) {
+/**
+ * @brief Ensures that all necessary variables marked as `NODFLT` are set.
+ *
+ * This function checks if all mandatory keys are present in the provided YAML node.
+ *
+ * @param v The YAML node to check.
+ * @return True if all necessary values are set, false otherwise.
+ */
+ bool GOption::does_the_option_set_all_necessary_values(YAML::Node v) {
     vector <string> this_keys;
 
-    // currently we only have maps in the sequence
     switch (v.Type()) {
         case YAML::NodeType::Map:
-            for (YAML::const_iterator it = v.begin(); it != v.end(); ++it) {
-                this_keys.push_back(it->first.as<string>());
+            for (const auto &it : v) {
+                this_keys.push_back(it.first.as<string>());
             }
             break;
         default:
             break;
     }
 
-    bool it_does = false;
-    for (auto key: mandatory_keys) {
-        if (find(this_keys.begin(), this_keys.end(), key) != this_keys.end()) {
-            it_does = true;
-        } else {
-            it_does = false;
-            break;
+    for (const auto &key : mandatory_keys) {
+        if (find(this_keys.begin(), this_keys.end(), key) == this_keys.end()) {
+            return false;
         }
     }
-
-    return it_does;
+    return true;
 }
 
-// print the option
-void GOption::saveOption(std::ofstream *yamlConf) const {
+/**
+ * @brief Saves the option value to a YAML configuration file.
+ *
+ * This function writes the current value of the option to the specified YAML configuration file.
+ *
+ * @param yamlConf Pointer to the output file stream.
+ */
+ void GOption::saveOption(std::ofstream *yamlConf) const {
 
     // setting style to block
     // this does not work with command line passed values
     YAML::Node mutableValue = value;
-    mutableValue.SetStyle(YAML::EmitterStyle::Block); // Apply style to the mutable copy
+    mutableValue.SetStyle(YAML::EmitterStyle::Block);  ///< Apply block style to the mutable copy.
 
     *yamlConf << mutableValue << std::endl;
 
 }
 
 
-// print option
-void GOption::printHelp(bool detailed) const {
-    if (name == GVERSION_STRING) {
-        return;
-    }
+/**
+ * @brief Prints the help information for the option.
+ *
+ * This function outputs the help information to the console, either in detailed or summary form.
+ *
+ * @param detailed If true, prints detailed help; otherwise, prints a summary.
+ */
+ void GOption::printHelp(bool detailed) const {
+
+    if (name == GVERSION_STRING) return;
 
     long int fill_width = string(HELPFILLSPACE).size() + 1;
     cout.fill('.');
@@ -169,6 +190,14 @@ void GOption::printHelp(bool detailed) const {
         cout << helpString << ": " << description << endl;
     }
 }
+
+/**
+ * @brief Provides detailed help information for the option.
+ *
+ * This function returns a string containing detailed help information, including default values and descriptions.
+ *
+ * @return A string containing the detailed help information.
+ */
 
 string GOption::detailedHelp() const {
     string newHelp = "";

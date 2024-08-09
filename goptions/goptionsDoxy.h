@@ -2,77 +2,106 @@
  * \mainpage
  * \section main Overview
  *
- * The goptions framework provides command line and/or JSON file parsing of user defined options.\n
- * The JSON files (steering cards) have the extension <i>".jcard"</i> and are referred to as <i>jcards</i>.\n\n
+ * The GOptions framework provides a flexible system for parsing command-line arguments
+ * and/or YAML configuration files.
  *
- * \subsection subsection0 Switch
- * A switch is a boolean variable, initialized to \"false\", that is switched true by command line. \n
- * For example, the switch \"gui\" is true if the command lne contains:\n
- * <pre>	-gui</pre>
+ * \subsection subsection0 GSwitches
+ * A GSwitches is struct with a boolean flag and a description. It is initialized to `false` by default and can be toggled to `true` by specifying it on the command line.
+ * For example, the switch "gui" is activated if the command line contains:
+ * <pre>  -gui </pre>
  *
-* \subsection subsection1 Simple Option
- * A simple option has a int, float, double or string value associated with it, and looks like this in the jcard:\n
+ * \subsection subsection1 Simple Option
+ * A simple option is associated with a single value, which can be an integer, float, double, or string. It is represented as follows in a YAML configuration file:
+ * ~~~yaml
+ * runno: 12
  * ~~~
- *	"runno":  12
- * ~~~
- * and the corresponding command line option is:\n
- * <pre>	-runno=11  </pre>
+ * The corresponding command-line option would be:
+ * <pre>  -runno=12 </pre>
  *
- * \subsection subsection2 Structured Option
- * A structured option has multiple objects associated with a tag. In the jcard:\n
+ * \subsection subsection2 Structured Options
+ * A structured option consists of multiple key-value pairs within a single tag. An example from a YAML file:
+ * ~~~yaml
+ * gparticle:
+ *  - name: e-
+ *    p: 1500
+ *    theta: 23.0
+ *    multiplicity: 4
  * ~~~
- * "beam": {
- * 	"vertex": "0, 0, -3, cm",
- * 	"value": "electron, 4*GeV, 20*deg, 180*deg"
- * }
- * ~~~
- * The corresponding  command line option is:\n
- * <pre>	-beam={ vertex: 0, 0, -3, cm; mom: electron, 4*GeV, 20*deg, 180*deg; }  </pre>
- * Notice the absence of quotes in the command line: the colons delimit the values, the semi-colons delimit the fields.
- * \n
+ * The equivalent command-line option:
+* -gparticle="[{name: e-, p: 1500, theta: 23.0, multiplicity: 4}]"
+ * Note the need of quotes in the command line to define an yaml node.
  *
- * \subsection subsection3 Goptions  Main Features
- * * Goptions are dynamically added to an executable by a framework or plugin.
- * * Superposition of  command line / jcards option values.
- * * Mechanism to project options onto user defined structure/class.
- * * Mechanism to import child jcards.
- * * JSON output of user selections.
- * * HTML output of options help.
+ * \subsection subsection3 GOptions Main Features
+ * * Dynamically add options and switches to an executable via framework or plugins.
+ * * Seamless merging of command-line options with YAML file values. Command line options override YAML values.
+ * * Projection of options onto user-defined structures or classes.
+ * * Import child YAML files for modular configuration.
+ * * YAML output for user-selected options.
  *
  * \subsection subsection4 C++ User Interface
- * The users build his/her own GOptions class by calling the constructor:
- * <pre> GOptions(argc, argv, defineOptions())</pre>
+ * Users can instantiate the GOptions class by calling its constructor:
+ * <pre> GOptions(argc, argv, defineOptions()) </pre>
  *
- * \param "argc, argv" passed from "main"
- * \param defineOptions() is the function building the options map.
+ * \param argc Number of command-line arguments passed from `main`.
+ * \param argv Array of command-line arguments passed from `main`.
+ * \param defineOptions Function that constructs and returns a GOptions object.
  *
- * Check the examples below to see how to define and use a few GOptions.
  *
- * \subsubsection subsubsection1 Projections Onto Structures
- * GOptions can be projected onto a user structures.
+ * \brief Defines the options for the GOptions framework.
  *
- * \subsection subsection5 examples
- * An example of defineOptions() that creates two categories is in simpleExample.cc:
- * Running <i>example -h</i> will produce the following log:
- * ~~~
+ * The defineOptions function creates and returns an instance of GOptions with predefined command line switches and options.
  *
- * Usage:
+ * Example with these options and switches:
+ * - A switch `log` to enable logging.
+ * - An integer option `runno` to set the run number with a default value.
+ * - An integer option `nthreads` to set the number of threads to use, with a default that uses all available threads.
+ * - A structured option `gparticle` to define generator particles with attributes such as name, multiplicity, momentum, and angles.
  *
- * > -h, -help, --help: print this message and exit.
- * > -helpToHtml:  print all available options in HTML format (options.html) and exit.
+ * \code
+ * GOptions defineOptions() {
+ *     GOptions goptions;
+ *     string help;
  *
- * ~~~
- * \subsection subsection6  JSON Library and validator
+ *     // Command line switch
+ *     goptions.defineSwitch("log", "A switch, this is just an example.");
  *
- * The JSON parser used is in this project is https://github.com/nlohmann/json. It's included as a single hpp.\n
+ *     // Option for run number
+ *     help = "Example: -runno=12\n";
+ *     goptions.defineOption(GVariable("runno", 1, "Sets the run number"), help);
  *
- * A json validator can be found here: https://codebeautify.org/jsonvalidator
+ *     // Option for number of threads
+ *     help = "If not set, use all available threads. 0: use all threads\n";
+ *     help += "Example: -nthreads=12\n";
+ *     goptions.defineOption(GVariable("nthreads", 0, "Number of threads"), help);
+ *
+ *     // Vector of GVariable for structured option gparticle
+ *     vector <GVariable> gparticle = {
+ *         {"name",         goptions::NODFLT, "Particle name"},
+ *         {"multiplicity", 1,                "Number of particles per event"},
+ *         {"p",            goptions::NODFLT, "Momentum"},
+ *         {"theta",        "0*degrees",      "Polar angle"},
+ *         {"delta_theta",  0,                "Particle polar angle range, centered on theta. Default: 0"},
+ *     };
+ *
+ *     help = "Example to add three particles, one electron and two protons, identical except spread in theta:\n\n";
+ *     help += "-gparticle=\"[{name: e-, multiplicity: 1, p: 2300, theta: 23.0}, {name: proton, multiplicity: 2, p: 1200, theta: 14.0, delta_theta: 10}]\"\n";
+ *     goptions.defineOption("gparticle", "Define the generator particle(s)", gparticle, help);
+ *
+ *     return goptions;
+ * }
+ * \endcode
+ */
+
+ *
+ * \subsection subsection6 YAML Library and Validator
+ *
+ * The YAML parser used in this project is from the [yaml-cpp](https://github.com/jbeder/yaml-cpp) library. It is included as a dependency and facilitates parsing complex YAML configurations.
  *
  * \subsection cisubsection Continuous Integration
+ * The GOptions framework is continuously integrated and tested to ensure stability and reliability across updates.
  *
  * \n\n
  * \author \n &copy; Maurizio Ungaro
  * \author e-mail: ungaro@jlab.org
  * \n\n\n
-*/
-
+ */
