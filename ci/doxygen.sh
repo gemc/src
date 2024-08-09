@@ -13,13 +13,22 @@ echo " "
 echo " Doxygen version: "$(doxygen --version)
 echo " "
 
-class=$1
-cd $class
+classes=( goptions guts )
 
-echo
-../ci/create_doxygen.sh
-cp ../doc/mydoxygen.css .
-echo " Running Doxygen for "$class
-doxygen Doxyfile
-echo
-echo done
+classes_to_do=(gdetector ghit gsession  gtranslationTable g4display gdynamicDigitization
+ gsplash gui textProgressBar g4system gparticle gstreamer  userActions
+gQtButtonsWidget gfactory gphysics gsystem utilities eventDispenser gdata gfields gsd gtouchable )
+
+rm -rf pages ; mkdir pages
+cp doc/mydoxygen.css pages
+foreach class in $=classes; do
+    echo " Running Doxygen for $class"
+    ./ci/create_doxygen.sh $class
+    cd $class
+    doxygen Doxyfile
+    mkdir -p ../pages/$class
+    mv html/* ../pages/$class
+    cd ..
+    echo
+done
+./ci/generate_html.py

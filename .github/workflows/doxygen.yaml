@@ -14,33 +14,22 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        class: [goptions]
     runs-on: ubuntu-latest
     container: jeffersonlab/base:fedora36
-    name: ${{ matrix.class }} Doxy
     steps:
       - name: Checkout
         uses: actions/checkout@main
       - name: Run Doxygen
         run: |
-          ./ci/doxygen.sh ${{ matrix.class }}
-          pwd
-          mkdir -p pages
-          mv ${{ matrix.class }} pages
-
-  upload_pages:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
+          ./ci/doxygen.sh
       - uses: actions/upload-pages-artifact@v3
         with:
           retention-days: 3
           path: pages/
 
   deploy:
-    needs: upload_pages
+    name: Deploy Doxygen
+    needs: build
     permissions:
       pages: write
       id-token: write
@@ -49,8 +38,6 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Doxygen
+      - name: deployment
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-            artifact_name: hello
