@@ -33,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           retention-days: 3
-          path: ${{ matrix.class }}/
+          path: pages/
 
   deploy:
     name: Deploy Doxygen
