@@ -1,15 +1,21 @@
 /// \mainpage
 /// \section Overview
 /// The **gutilities** library provides a suite of basic utilities encapsulated within a dedicated namespace,
-/// offering a range of functionality for string manipulation and console output formatting.
+/// offering a range of functionality for string manipulation, file path operations, and unit conversions.
 ///
 /// \section Main gutilities namespace:
 /// The `gutilities` namespace includes essential utility functions such as:
 ///
-/// - `string trimSpacesFromString(string input)`
-///   - Removes leading and trailing spaces from the given string.
-/// - `vector<string> getStringVectorFromString(string input)`
-///   - Splits a string into a vector of substrings based on spaces or other delimiters.
+/// - `std::string removeLeadingAndTrailingSpacesFromString(const std::string &input)`
+///   - Removes leading and trailing spaces and tabs from the given string.
+/// - `std::vector<std::string> getStringVectorFromString(const std::string &input)`
+///   - Splits a string into a vector of substrings based on spaces, removing leading and trailing spaces from each.
+/// - `std::string getFileFromPath(const std::string &path)`
+///   - Extracts the filename from a given file path.
+/// - `std::string getDirFromPath(const std::string &path)`
+///   - Extracts the directory path from a given file path.
+/// - `double getG4Number(const std::string &v, bool warnIfNotUnit = false)`
+///   - Converts a string representation of a number with optional units to a double, with an optional warning if no units are specified.
 ///
 /// \section Conventions
 /// The **gutilities** library adheres to several conventions for consistent output formatting and verbosity:
@@ -53,3 +59,17 @@
 /// by
 /// spaces
 /// \endcode
+///
+/// \section Additional Features
+///
+/// The library provides additional utility functions, such as:
+///
+/// - `std::string replaceCharInStringWithChars(const std::string &input, const std::string &toReplace, const std::string &replacement)`
+///   - Replaces all occurrences of specified characters in a string with another string.
+/// - `bool directoryExists(const std::string &path)`
+///   - Checks if a directory exists at the given path.
+/// - `std::vector<std::string> getListOfFilesInDirectory(const std::string &dirName, const std::vector<std::string> &extensions)`
+///   - Retrieves a list of files with specific extensions from a directory.
+///
+/// These utilities are designed to streamline common tasks in software development by providing efficient
+/// and easy-to-use functions for string manipulation and file system operations.

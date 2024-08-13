@@ -17,288 +17,258 @@ using namespace std;
 
 namespace gutilities {
 
-    string removeLeadingAndTrailingSpacesFromString(const string& in) {
-        size_t start = in.find_first_not_of(" \t");
-        size_t end = in.find_last_not_of(" \t");
+    string removeLeadingAndTrailingSpacesFromString(const std::string &input) {
+        size_t startPos = input.find_first_not_of(" \t"); // Find the first non-whitespace character
+        size_t endPos = input.find_last_not_of(" \t");    // Find the last non-whitespace character
 
-        if (start == string::npos || end == string::npos) {
+        // If all spaces or empty, return an empty string
+        if (startPos == std::string::npos || endPos == std::string::npos) {
             return "";
         }
 
-        return in.substr(start, end - start + 1);
+        // Return the substring between startPos and endPos
+        return input.substr(startPos, endPos - startPos + 1);
     }
 
-    string removeAllSpacesFromString(const string& str) {
-        string result;
-        result.reserve(str.size());
-
-        for (char c : str) {
-            if (!isspace(c)) {
-                result += c;
-            }
-        }
-
+    string removeAllSpacesFromString(const std::string &str) {
+        string result = str;
+        result.erase(std::remove(result.begin(), result.end(), ' '), result.end());
         return result;
     }
 
-    // Get the filename from the path (currently only posix)
-    string getFileFromPath(string path) {
-        return path.substr(path.find_last_of("/") + 1);
+    string getFileFromPath(const std::string &path) {
+        std::size_t lastSlashPos = path.find_last_of('/');
+        if (lastSlashPos == std::string::npos) {
+            // No slashes found, return the entire path
+            return path;
+        }
+        return path.substr(lastSlashPos + 1);
     }
 
-    // Get the directory from the path (currently only posix)
-    string getDirFromPath(string path) {
-        auto lastSlash = path.find_last_of("/");
-        if (lastSlash == string::npos) return ".";
+    string getDirFromPath(const std::string &path) {
+        auto lastSlash = path.find_last_of('/');
+        if (lastSlash == std::string::npos) return ".";
         return path.substr(0, lastSlash);
     }
 
-    // Return a vector of strings from a stringstream, space is delimeter
-    vector <string> getStringVectorFromString(string input) {
-        vector <string> pvalues;
+    vector <std::string> getStringVectorFromString(const std::string &input) {
+        std::vector <std::string> pvalues;
         stringstream plist(input);
-        while (!plist.eof()) {
-            string tmp;
-            plist >> tmp;
-            string toPut = removeLeadingAndTrailingSpacesFromString(tmp);
-            if (toPut != "")
-                pvalues.push_back(toPut);
+        string tmp;
+        while (plist >> tmp) {
+            string trimmed = removeLeadingAndTrailingSpacesFromString(tmp);
+            if (!trimmed.empty()) {
+                pvalues.push_back(trimmed);
+            }
         }
-
         return pvalues;
     }
 
     // Replace all occurences of specific chars in a string with a string
-    string replaceCharInStringWithChars(string input, string toReplace, string replacement) {
-
-        string output = "";
-
-        for (unsigned int k = 0; k < input.size(); k++) {
-
-            int replace = 0;
-
-            for (unsigned int j = 0; j < toReplace.size(); j++) {
-                // found common char, replacing it with replacement
-                if (input[k] == toReplace[j]) {
-                    output.append(replacement);
-                    replace = 1;
-                }
+    string replaceCharInStringWithChars(const std::string &input, const std::string &toReplace, const std::string &replacement) {
+        string output;
+        for (const char &ch: input) {
+            if (toReplace.find(ch) != std::string::npos) {
+                output.append(replacement);
+            } else {
+                output.push_back(ch);
             }
-            if (!replace) output += input[k];
         }
-
         return output;
     }
 
-    // Replace all occurences of a a string with a string
-    string replaceAllStringsWithString(string source, const string from, const string to) {
+    string replaceAllStringsWithString(const string &source, const string &from, const string &to) {
+        if (from.empty()) return source; // Avoid infinite loop
+
         string newString;
-
         size_t lastPos = 0;
-        size_t findPos;
+        size_t findPos = source.find(from, lastPos);
 
-        while ((findPos = source.find(from, lastPos) != string::npos)) {
+        while (findPos != string::npos) {
+            // Append part before the match and the replacement string
+            newString.append(source, lastPos, findPos - lastPos);
             newString += to;
-            newString.append(source, lastPos + from.length(), findPos - lastPos);
             lastPos = findPos + from.length();
+            findPos = source.find(from, lastPos);
         }
 
-        // Care for the rest after last occurrence
+        // Append the remaining part of the string after the last occurrence
         newString += source.substr(lastPos);
 
         return newString;
     }
 
 
-    // Fill a string with the string c to be ndigits long
-    string fillDigits(string word, string c, int ndigits) {
+    string fillDigits(const string &word, const string &c, int ndigits) {
+        if (c.empty() || ndigits <= static_cast<int>(word.size())) return word; // Return original if no padding needed
+
         string filled;
 
-        int toFill = ndigits - (int) word.size();
+        int toFill = ndigits - static_cast<int>(word.size());
+        filled.reserve(ndigits);
 
-        for (int d = 0; d < toFill; d++) {
-            filled += c;
-        }
-
+        filled.append(toFill, c[0]); // Use the first character of the string 'c'
         filled += word;
 
         return filled;
     }
 
 
-    // \fn double getG4Number(string v, bool warnIfNotUnit)
-    // \brief Return value of the input string, which may or may not
-    // contain units (warning given if requested)
-    // \param v input string. Ex: 10.2*cm
-    // \return value with correct G4 unit.
-    double getG4Number(string v, bool warnIfNotUnit) {
+    double getG4Number(const string &v, bool warnIfNotUnit) {
         string value = removeLeadingAndTrailingSpacesFromString(v);
 
-        // no * found
-        if (value.find("*") == string::npos) {
-            // no * found, this should be a number
-            // no unit is still ok if the number is 0 or if it's meant to be a count
-
-            if (value.length() > 0 && warnIfNotUnit && stod(value) != 0) {
+        // If no '*' is found, the input is assumed to be a number without units
+        if (value.find('*') == string::npos) {
+            if (!value.empty() && warnIfNotUnit && stod(value) != 0) {
                 cerr << " ! Warning: value " << v << " does not contain units." << endl;
             }
 
-            double answer = 0;
-
             try {
-                answer = stod(value);
-            }
-            catch (exception &e) {
-                cerr << FATALERRORL << "stod exception in gutilities: could not convert string to double. ";
-                cerr << "Value: >" << v << "<, error: " << e.what() << endl;
+                return stod(value);
+            } catch (const exception &e) {
+                cerr << FATALERRORL << "stod exception in gutilities: could not convert string to double. "
+                     << "Value: >" << v << "<, error: " << e.what() << endl;
                 gexit(EC__G4NUMBERERROR);
             }
-
-            return answer;
-
         } else {
-            string rootValue = value.substr(0, value.find("*"));
-            string units = value.substr(value.find("*") + 1);
+            // Split the input string into the numeric part and the unit part
+            size_t pos = value.find('*');
+            string rootValue = value.substr(0, pos);
+            string units = value.substr(pos + 1);
 
             double answer = 0;
-
             try {
                 answer = stod(rootValue);
-            }
-            catch (exception &e) {
-                cerr << FATALERRORL << "stod exception in gutilities: could not convert string to double. ";
-                cerr << "Value: >" << v << "<, error: " << e.what() << endl;
+            } catch (const exception &e) {
+                cerr << FATALERRORL << "stod exception in gutilities: could not convert string to double. "
+                     << "Value: >" << v << "<, error: " << e.what() << endl;
                 gexit(EC__G4NUMBERERROR);
             }
 
-            if (units == "m") answer *= CLHEP::m;
-            else if (units == "inches") answer *= 2.54 * CLHEP::cm;
-            else if (units == "inch") answer *= 2.54 * CLHEP::cm;
-            else if (units == "cm") answer *= CLHEP::cm;
-            else if (units == "mm") answer *= CLHEP::mm;
-            else if (units == "um") answer *= 1E-6 * CLHEP::m;
-            else if (units == "fm") answer *= 1E-15 * CLHEP::m;
-            else if (units == "deg") answer *= CLHEP::deg;
-            else if (units == "degrees") answer *= CLHEP::deg;
-            else if (units == "arcmin") answer = answer / 60.0 * CLHEP::deg;
-            else if (units == "rad") answer *= CLHEP::rad;
-            else if (units == "mrad") answer *= CLHEP::mrad;
-            else if (units == "eV") answer *= CLHEP::eV;
-            else if (units == "MeV") answer *= CLHEP::MeV;
-            else if (units == "KeV") answer *= 0.001 * CLHEP::MeV;
-            else if (units == "GeV") answer *= CLHEP::GeV;
-            else if (units == "T") answer *= CLHEP::tesla;
-            else if (units == "T/m") answer *= CLHEP::tesla / CLHEP::m;
-            else if (units == "Tesla") answer *= CLHEP::tesla;
-            else if (units == "gauss") answer *= CLHEP::gauss;
-            else if (units == "kilogauss") answer *= CLHEP::gauss * 1000;
-            else if (units == "s") answer *= CLHEP::s;
-            else if (units == "ns") answer *= CLHEP::ns;
-            else if (units == "ms") answer *= CLHEP::ms;
-            else if (units == "us") answer *= CLHEP::us;
-            else if (units == "counts") answer *= 1;
-            else cerr << GWARNING << ">" << units << "<: unit not recognized for string <" << v << ">" << endl;
+            // Map of unit conversions for easier lookup and maintenance
+            static const unordered_map<string, double> unitConversion = {
+                    {"m",         CLHEP::m},
+                    {"cm",        CLHEP::cm},
+                    {"mm",        CLHEP::mm},
+                    {"um",        1E-6 * CLHEP::m},
+                    {"fm",        1E-15 * CLHEP::m},
+                    {"inches",    2.54 * CLHEP::cm},
+                    {"inch",      2.54 * CLHEP::cm},
+                    {"deg",       CLHEP::deg},
+                    {"degrees",   CLHEP::deg},
+                    {"arcmin",    CLHEP::deg / 60.0},
+                    {"rad",       CLHEP::rad},
+                    {"mrad",      CLHEP::mrad},
+                    {"eV",        CLHEP::eV},
+                    {"MeV",       CLHEP::MeV},
+                    {"KeV",       0.001 * CLHEP::MeV},
+                    {"GeV",       CLHEP::GeV},
+                    {"T",         CLHEP::tesla},
+                    {"T/m",       CLHEP::tesla / CLHEP::m},
+                    {"Tesla",     CLHEP::tesla},
+                    {"gauss",     CLHEP::gauss},
+                    {"kilogauss", CLHEP::gauss * 1000},
+                    {"s",         CLHEP::s},
+                    {"ns",        CLHEP::ns},
+                    {"ms",        CLHEP::ms},
+                    {"us",        CLHEP::us},
+                    {"counts",    1}
+            };
+
+            auto it = unitConversion.find(units);
+            if (it != unitConversion.end()) {
+                answer *= it->second;
+            } else {
+                cerr << GWARNING << ">" << units << "<: unit not recognized for string <" << v << ">" << endl;
+            }
+
             return answer;
         }
 
+        return 0.0; // Default return in case of unexpected flow
     }
 
-
-    double getG4Number(double input, string unit) {
+    double getG4Number(double input, const string &unit) {
         string gnumber = to_string(input) + "*" + unit;
-        return getG4Number(gnumber);
+        return getG4Number(gnumber, true);
     }
 
-    vector<double> getG4NumbersFromStringVector(vector <string> vstring, bool warnIfNotUnit) {
+    vector<double> getG4NumbersFromStringVector(const vector <string> &vstring, bool warnIfNotUnit) {
         vector<double> output;
+        output.reserve(vstring.size());
 
-        for (auto &s: vstring) {
+        for (const auto &s: vstring) {
             output.push_back(getG4Number(s, warnIfNotUnit));
         }
 
         return output;
     }
 
-    vector<double> getG4NumbersFromString(string vstring, bool warnIfNotUnit) {
+    vector<double> getG4NumbersFromString(const string &vstring, bool warnIfNotUnit) {
         return getG4NumbersFromStringVector(getStringVectorFromStringWithDelimiter(vstring, ","), warnIfNotUnit);
     }
 
 
-    // need to add verbosity
-    string parseFileAndRemoveComments(string filename, string commentChars, int verbosity) {
-
-        // reading file
-        stringstream strStream;
-        ifstream in(filename.c_str());
+    string parseFileAndRemoveComments(const string &filename, const string &commentChars, int verbosity) {
+        // Reading file
+        ifstream in(filename);
         if (!in) {
             cerr << FATALERRORL << "can't open input file " << filename << ". Check your spelling. " << endl;
             gexit(EC__FILENOTFOUND);
-        } else {
-            if (verbosity > 0) {
-                cout << endl << CIRCLEITEM << " Loading string from " << filename << endl;
-            }
-            strStream << in.rdbuf(); //read the file
         }
-        in.close();
 
+        stringstream strStream;
+        if (verbosity > 0) {
+            cout << endl << CIRCLEITEM << " Loading string from " << filename << endl;
+        }
+        strStream << in.rdbuf(); // Read the file
+        in.close();
 
         string parsedString = strStream.str();
 
-        // removing all occurances of commentChars
-        while (parsedString.find(commentChars.c_str()) != string::npos) {
-            size_t nFPos = parsedString.find(commentChars.c_str());   // locate commentChars in the string
-            size_t secondNL = parsedString.find('\n', nFPos);         // locate the next CR starting from where commentChars was found
-            size_t firstNL = parsedString.rfind('\n', nFPos);         // locate the last CR before where commentChars was found
-
-            // remove the lines containing the comment
+        // Removing all occurrences of commentChars
+        size_t nFPos;
+        while ((nFPos = parsedString.find(commentChars)) != string::npos) {
+            size_t firstNL = parsedString.rfind('\n', nFPos);
+            size_t secondNL = parsedString.find('\n', nFPos);
             parsedString.erase(firstNL, secondNL - firstNL);
-
         }
 
         return parsedString;
     }
 
-    // retrieve string between two strings
-    string retrieveStringBetweenChars(string input, string firstDelimiter, string secondDelimiter) {
-        string out;
+    string retrieveStringBetweenChars(const string &input, const string &firstDelimiter, const string &secondDelimiter) {
+        size_t firstpos = input.find(firstDelimiter);
+        size_t secondpos = input.find(secondDelimiter);
 
-        size_t firstpos = input.find(firstDelimiter);  // Find the first character position after excluding leading blank spaces
-        size_t secondpos = input.find(secondDelimiter); // Find the second character position after excluding leading blank spaces
-
-        // if all spaces or empty return an empty string
-        if ((firstpos == string::npos) || (secondpos == string::npos))
-            out = "";
-        else
-            out = input.substr(firstpos + 1, secondpos - firstpos - 1);
-
-        return out;
-
+        if (firstpos == string::npos || secondpos == string::npos) {
+            return "";
+        }
+        return input.substr(firstpos + firstDelimiter.length(), secondpos - firstpos - firstDelimiter.length());
     }
 
-    // returns a vector of strings from a stringstream, x (one char) is delimiter
-    vector <string> getStringVectorFromStringWithDelimiter(string input, string x) {
+    vector <string> getStringVectorFromStringWithDelimiter(const string &input, const string &x) {
         vector <string> pvalues;
+        string tmp;
 
-        string tmp = "";
-        for (unsigned int i = 0; i < input.size(); i++) {
-
-            if (input[i] != x[0]) {
-                tmp += input[i];
+        for (char ch: input) {
+            if (ch != x[0]) {
+                tmp += ch;
             } else {
-                if (tmp != "") {
+                if (!tmp.empty()) {
                     pvalues.push_back(removeLeadingAndTrailingSpacesFromString(tmp));
+                    tmp.clear();
                 }
-                tmp = "";
             }
+        }
 
-            // end of line
-            if (i == input.size() - 1 && tmp != "") {
-                pvalues.push_back(removeLeadingAndTrailingSpacesFromString(tmp));
-            }
+        if (!tmp.empty()) {
+            pvalues.push_back(removeLeadingAndTrailingSpacesFromString(tmp));
         }
 
         return pvalues;
     }
+
 
 // string search for a path with <name> from a possible list of absolute paths
 // returns UNINITIALIZEDSTRINGQUANTITY if not found
@@ -336,7 +306,7 @@ namespace gutilities {
 #include <dirent.h>
 #include <sys/stat.h>
 
-    bool directoryExists(const std::string& path) {
+    bool directoryExists(const std::string &path) {
         struct stat info;
         if (stat(path.c_str(), &info) != 0) {
             return false; // Path does not exist
@@ -344,9 +314,9 @@ namespace gutilities {
         return (info.st_mode & S_IFDIR) != 0; // Check if it's a directory
     }
 
-    string searchForDirInLocations(string dirName, vector<string> possibleLocations) {
-        for (const auto& trialLocation : possibleLocations) {
-            std::string possibleDir = trialLocation + "/" + dirName;
+    string searchForDirInLocations(const string &dirName, const vector <string> &possibleLocations) {
+        for (const auto &trialLocation: possibleLocations) {
+            string possibleDir = trialLocation + "/" + dirName;
             if (directoryExists(possibleDir)) {
                 return possibleDir;
             }
@@ -354,63 +324,59 @@ namespace gutilities {
         return "UNINITIALIZEDSTRINGQUANTITY";
     }
 
-        bool hasExtension(const std::string& filename, const std::vector<std::string>& extensions) {
-            for (const auto& ext : extensions) {
-                if (filename.size() >= ext.size() &&
-                    filename.compare(filename.size() - ext.size(), ext.size(), ext) == 0) {
-                    return true;
-                }
+
+    bool hasExtension(const std::string &filename, const std::vector <std::string> &extensions) {
+        for (const auto &ext: extensions) {
+            if (filename.size() >= ext.size() &&
+                filename.compare(filename.size() - ext.size(), ext.size(), ext) == 0) {
+                return true;
             }
-            return false;
         }
+        return false;
+    }
 
-        std::vector<std::string> getListOfFilesInDirectory(string dirName, vector<string> extensions) {
-            std::vector<std::string> fileList;
+    vector <string> getListOfFilesInDirectory(const string &dirName, const vector <string> &extensions) {
+        vector <string> fileList;
 
-            DIR* dir = opendir(dirName.c_str());
-            if (dir) {
-                struct dirent* entry;
-                while ((entry = readdir(dir)) != nullptr) {
-                    struct stat info;
-                    std::string filepath = dirName + "/" + entry->d_name;
-                    if (stat(filepath.c_str(), &info) == 0 && S_ISREG(info.st_mode)) {
-                        std::string filename = entry->d_name;
-                        if (hasExtension(filename, extensions)) {
-                            fileList.push_back(filename);
-                        }
+        DIR *dir = opendir(dirName.c_str());
+        if (dir) {
+            struct dirent *entry;
+            while ((entry = readdir(dir)) != nullptr) {
+                struct stat info;
+                string filepath = dirName + "/" + entry->d_name;
+                if (stat(filepath.c_str(), &info) == 0 && S_ISREG(info.st_mode)) {
+                    string filename = entry->d_name;
+                    if (hasExtension(filename, extensions)) {
+                        fileList.push_back(filename);
                     }
                 }
-                closedir(dir);
             }
-
-            return fileList;
+            closedir(dir);
         }
 
+        return fileList;
+    }
 
-
-        string convertToLowercase(const string &str) {
+    string convertToLowercase(const string &str) {
         string lower = str;
         transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
         return lower;
     }
 
 
-
-    // returns all keys from a map<key, value>
-    // I think this is in STL now?
-    // wow including this in a code makes the library not build correctly?
-    // How? I added it in gworld.cc to get first key and it was not building the constructor
     template<class KEY, class VALUE>
-    vector <KEY> getKeys(const map <KEY, VALUE> &map) {
-        vector <KEY> keys(map.size());
-        for (const auto &it: map)
+    vector<KEY> getKeys(const map<KEY, VALUE>& map) {
+        vector<KEY> keys;
+        keys.reserve(map.size()); // Reserve space for efficiency
+
+        for (const auto& it : map) {
             keys.push_back(it.first);
+        }
+
         return keys;
     }
 
-    // Function to convert string to enum
     randomModel stringToRandomModel(const std::string &str) {
-
         static const std::unordered_map <std::string, randomModel> strToEnum = {
                 {"uniform",  uniform},
                 {"gaussian", gaussian},

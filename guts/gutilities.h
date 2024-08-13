@@ -1,5 +1,5 @@
-#ifndef  GUTILITIES_H
-#define  GUTILITIES_H  1
+#ifndef  GSTRING_H
+#define  GSTRING_H  1
 
 // conventions
 #include "gutsConventions.h"
@@ -16,85 +16,280 @@ namespace gutilities {
     using std::map;
 
     /**
-     * @brief Removes leading and trailing spaces from a string.
-     * @param str The input string.
-     * @return The trimmed string.
-     */
-    string removeLeadingAndTrailingSpacesFromString(const string& str);
+    * @brief Removes leading and trailing spaces and tabs from a string.
+    *
+    * This function trims any whitespace, including spaces and tabs, from both the
+    * beginning and the end of the input string.
+    *
+    * @param input The string to be trimmed.
+    * @return A new string with leading and trailing spaces and tabs removed.
+    */
+    std::string removeLeadingAndTrailingSpacesFromString(const std::string &input);
 
     /**
-     * @brief Removes all spaces from a string.
-     * @param str The input string.
-     * @return The string without spaces.
-     */
-    string removeAllSpacesFromString(const string& str);
+    * @brief Removes all spaces from a string.
+    *
+    * This function removes all spaces from the input string and returns the modified string.
+    *
+    * @param str The input string from which spaces will be removed.
+    * @return A new string with all spaces removed.
+    */
+    std::string removeAllSpacesFromString(const std::string &str);
 
-    // get the filename from the path (currently only posix)
-    string getFileFromPath(string);
+    /**
+    * @brief Extracts the filename from a given file path.
+    *
+    *  This function extracts and returns the filename from a given POSIX file path.
+    *
+    * @param path The input file path.
+    * @return The filename extracted from the path.
+    */
+    std::string getFileFromPath(const std::string &path);
 
-    // get the directory from the path (currently only posix)
-    string getDirFromPath(string);
+    /**
+    * @brief Extracts the directory path from a given file path.
+    *
+    * This function extracts and returns the directory path from a given POSIX file path.
+    *
+    * @param path The input file path.
+    * @return The directory path extracted from the path.
+    */
+    std::string getDirFromPath(const std::string &path);
 
-    // a vector of strings from a stringstream, space is delimiter
-    vector <string> getStringVectorFromString(string);
+    /**
+    * @brief Splits a string into a vector of strings using spaces as delimiters.
+    *
+    * This function splits the input string into a vector of strings, using spaces as the delimiter,
+    * and removes leading and trailing spaces from each substring.
+    *
+    * @param input The input string to split.
+    * @return A vector of strings obtained by splitting the input string.
+    */
+    std::vector <std::string> getStringVectorFromString(const std::string &input);
 
-    // returns a vector of strings from a stringstream, second string is delimiter
-    vector <string> getStringVectorFromStringWithDelimiter(string, string);
+    /**
+    * @brief Replaces all occurrences of specified characters in a string with another string.
+    *
+    * This function replaces every occurrence of any character from the 'toReplace' string
+    * in the input string with the specified replacement string.
+    *
+    * @param input The input string in which characters are to be replaced.
+    * @param toReplace A string containing characters to be replaced.
+    * @param replacement The string to replace each occurrence of characters in 'toReplace'.
+    * @return A new string with specified characters replaced by the replacement string.
+    */
+    std::string replaceCharInStringWithChars(const std::string &input, const std::string &toReplace, const std::string &replacement);
 
-    // Replace all occurences of a char in string with a string
-    string replaceCharInStringWithChars(string input, string toReplace, string replacement);
+    /**
+    * @brief Replaces all occurrences of specified characters in a string with another string.
+    *
+    * This function replaces every occurrence of any character from the 'toReplace' string
+    * in the input string with the specified replacement string.
+    *
+    * @param input The input string in which characters are to be replaced.
+    * @param toReplace A string containing characters to be replaced.
+    * @param replacement The string to replace each occurrence of characters in 'toReplace'.
+    * @return A new string with specified characters replaced by the replacement string.
+    */
+    std::string replaceCharInStringWithChars(const std::string &input, const std::string &toReplace, const std::string &replacement);
 
-    // Replace all occurences of a string with a string
-    string replaceAllStringsWithString(string source, const string from, const string to);
 
-    // adds characters to a word to fill its digits up to ndigits
-    string fillDigits(string word, string c, int ndigits);
+    /**
+    * @brief Replaces all occurrences of a substring with another string.
+    *
+    * This function searches for all occurrences of the specified substring in the source string
+    * and replaces them with the provided replacement string.
+    *
+    * @param source The original string where replacements will occur.
+    * @param from The substring to be replaced.
+    * @param to The string to replace each occurrence of the substring.
+    * @return A new string with all occurrences of the substring replaced.
+    */
+    string replaceAllStringsWithString(const string &source, const string &from, const string &to);
 
-    // gets a g4number from a string that contains units
-    double getG4Number(string input, bool warnIfNotUnit = false);
+    /**
+    * @brief Pads a string with a specified character until it reaches a desired length.
+    *
+    * This function prepends the specified character to the given word until its length
+    * is equal to the specified number of digits.
+    *
+    * @param word The original string to be padded.
+    * @param c The character to use for padding.
+    * @param ndigits The target length of the padded string.
+    * @return A new string padded to the specified length.
+    */
+    string fillDigits(const string &word, const string &c, int ndigits);
 
-    double getG4Number(double input, string unit);
+    /**
+    * @brief Converts a string representation of a number with optional units to a double.
+    *
+    * This function extracts the numeric value from the input string and multiplies it by the appropriate unit conversion factor.
+    * If no units are specified, it issues a warning if `warnIfNotUnit` is true and the value is non-zero.
+    *
+    * @param v The input string containing the number and optional units, formatted as "number*unit".
+    * @param warnIfNotUnit Flag indicating whether to issue a warning if the units are not present.
+    * @return The numeric value converted to a double, taking into account the units if provided.
+    */
+    double getG4Number(const string& v, bool warnIfNotUnit = false);
 
-    // gets a vector of g4numbers from a vector of strings containing units
-    vector<double> getG4NumbersFromStringVector(vector <string> vstring, bool warnIfNotUnit = false);
+    /**
+    * @brief Converts a numeric value with a unit into a G4 number format and returns the converted value.
+    *
+    * This function concatenates a numeric value and a unit into a G4 number format and then converts it to the appropriate unit.
+    *
+    * @param input The numeric value to convert.
+    * @param unit The unit associated with the numeric value.
+    * @return The converted numeric value as a double.
+    */
+    double getG4Number(double input, const string& unit);
 
-    // gets a vector of g4numbers from a strings containing units
-    vector<double> getG4NumbersFromString(string vstring, bool warnIfNotUnit = false);
+    /**
+    * @brief Converts a vector of strings representing numbers with units to a vector of doubles.
+    *
+    * This function parses each string in the input vector and converts it into a double, taking into account the specified units.
+    *
+    * @param vstring A vector of strings, each containing a number with optional units.
+    * @param warnIfNotUnit Flag indicating whether to issue a warning if the units are not present.
+    * @return A vector of doubles representing the converted numeric values.
+    */
+    vector<double> getG4NumbersFromStringVector(const vector<string>& vstring, bool warnIfNotUnit = false);
 
-    // parse a file, remove comments (starting with commentChars) and return the pure JSON string
-    string parseFileAndRemoveComments(string filename, string commentChars = "#", int verbosity = 0);
+    /**
+    * @brief Converts a comma-separated string of numbers with units to a vector of doubles.
+    *
+    * This function splits the input string by commas and converts each segment to a double, taking into account the specified units.
+    *
+    * @param vstring A comma-separated string of numbers with optional units.
+    * @param warnIfNotUnit Flag indicating whether to issue a warning if the units are not present.
+    * @return A vector of doubles representing the converted numeric values.
+    */
+    vector<double> getG4NumbersFromString(const string& vstring, bool warnIfNotUnit = false);
 
-    // retrieve string between two strings
-    string retrieveStringBetweenChars(string input, string firstDelimiter, string secondDelimiter);
+    /**
+    * @brief Parses a file and removes all lines containing specified comment characters.
+    *
+    * This function reads the content of a file, removes lines containing the specified comment characters, and returns the processed string.
+    *
+    * @param filename The name of the file to parse.
+    * @param commentChars The characters indicating the start of a comment in the file.
+    * @param verbosity The verbosity level for logging information.
+    * @return A string representing the content of the file with comments removed.
+    */
+    string parseFileAndRemoveComments(const string& filename, const string& commentChars = "#", int verbosity = 0);
 
-    // retrieve string between two strings
-    string retrieveStringBetweenChars(string input, string firstDelimiter, string secondDelimiter);
 
-    // string search for a path with <name> from a possible list of absolute paths
-    // returns UNINITIALIZEDSTRINGQUANTITY if not found
+    /**
+    * @brief Retrieves a substring between two specified delimiters in a string.
+    *
+    * This function extracts and returns the substring found between the first and second delimiters within the input string.
+    *
+    * @param input The input string containing the delimiters.
+    * @param firstDelimiter The delimiter marking the start of the substring.
+    * @param secondDelimiter The delimiter marking the end of the substring.
+    * @return The substring found between the specified delimiters, or an empty string if delimiters are not found.
+    */
+    string retrieveStringBetweenChars(const string& input, const string& firstDelimiter, const string& secondDelimiter);
+
+    /**
+    * @brief Splits a string into a vector of substrings using a specified delimiter.
+    *
+    * This function splits the input string by the given single-character delimiter and returns the substrings as a vector.
+    *
+    * @param input The input string to split.
+    * @param x The delimiter character used to split the string.
+    * @return A vector of strings containing the split substrings.
+    */
+    vector<string> getStringVectorFromStringWithDelimiter(const string& input, const string& x);
+
+    /**
+    * @brief Checks if a directory exists at the given path.
+    *
+    * This function checks the file system to determine whether a directory exists at the specified path.
+    *
+    * @param path The path to check for a directory.
+    * @return `true` if the directory exists, `false` otherwise.
+    */
     bool directoryExists(const std::string &path);
 
-    bool hasExtension(const std::string &filename, const std::vector <std::string> &extensions);
 
-    string searchForDirInLocations(string dirName, vector <string> possibleLocations);
+    /**
+    * @brief Searches for a directory within a list of possible locations.
+    *
+    * This function iterates over a list of possible locations to find the first directory that matches the specified name.
+    *
+    * @param dirName The name of the directory to search for.
+    * @param possibleLocations A vector of paths where the directory might be located.
+    * @return The path to the found directory or "UNINITIALIZEDSTRINGQUANTITY" if not found.
+    */
+    string searchForDirInLocations(const string& dirName, const vector<string>& possibleLocations);
 
-    vector <string> getListOfFilesInDirectory(string dirName, vector <string> extensions);
 
+    /**
+    * @brief Checks if a filename has one of the specified extensions.
+    *
+    * This function checks whether a given filename ends with any of the extensions specified in a list.
+    *
+    * @param filename The name of the file to check.
+    * @param extensions A vector of extensions to check against.
+    * @return `true` if the filename has one of the specified extensions, `false` otherwise.
+    */
+    bool hasExtension(const string& filename, const vector<string>& extensions);
 
+    /**
+    * @brief Retrieves a list of files with specific extensions from a directory.
+    *
+    * This function opens the specified directory and retrieves a list of files that match the given extensions.
+    *
+    * @param dirName The name of the directory to search in.
+    * @param extensions A vector of file extensions to filter the files.
+    * @return A vector of file names that have the specified extensions.
+    */
+    vector<string> getListOfFilesInDirectory(const string& dirName, const vector<string>& extensions);
+
+    /**
+    * @brief Converts a string to lowercase.
+    *
+    * This function transforms all characters in the input string to lowercase.
+    *
+    * @param str The string to convert.
+    * @return The lowercase version of the input string.
+    */
     string convertToLowercase(const string &str);
 
+    /**
+    * @brief Retrieves all keys from a map.
+    *
+    * This function extracts and returns all the keys from the given map.
+    *
+    * @tparam KEY The type of keys in the map.
+    * @tparam VALUE The type of values in the map.
+    * @param map The map from which to extract keys.
+    * @return A vector containing all the keys from the map.
+    */
     template<class KEY, class VALUE>
     vector <KEY> getKeys(const map <KEY, VALUE> &map);
 
+/**
+ * @brief Enumeration of random models.
+ */
     enum randomModel {
-        uniform,
-        gaussian,
-        cosine,
-        sphere
+        uniform,   ///< Uniform distribution
+        gaussian,  ///< Gaussian distribution
+        cosine,    ///< Cosine distribution
+        sphere     ///< Sphere distribution
     };
 
-    // Function to convert string to enum
-    randomModel stringToRandomModel(const std::string &str);
+    /**
+    * @brief Converts a string to a corresponding `randomModel` enum value.
+    *
+    * This function maps a given string to its corresponding `randomModel` enum value.
+    * If the string does not match any known model, an exception is thrown.
+    *
+    * @param str The string representation of the random model.
+    * @return The corresponding `randomModel` enum value.
+    * @throws std::invalid_argument if the string does not match any valid model.
+    */
+    randomModel stringToRandomModel(const std::string& str);
 
 
 };
