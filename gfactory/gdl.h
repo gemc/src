@@ -1,6 +1,8 @@
 #ifndef  GDYNAMICLIB_H
 #define  GDYNAMICLIB_H  1
 
+// documentation: http://www.faqs.org/docs/Linux-mini/C++-dlopen.html
+
 // glibrary: for color logs definitions
 #include "gutsConventions.h"
 

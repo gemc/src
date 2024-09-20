@@ -1,5 +1,5 @@
-#ifndef  GSTRING_H
-#define  GSTRING_H  1
+#ifndef  GUTILITIES_H
+#define  GUTILITIES_H  1
 
 // conventions
 #include "gutsConventions.h"
