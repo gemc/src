@@ -7,7 +7,6 @@
 // gemc
 #include "gStateMessage.h"
 
-// glibrary
 #include "goptions.h"
 #include "gdynamicdigitization.h"
 #include "gstreamer.h"

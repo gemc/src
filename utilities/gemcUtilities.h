@@ -1,6 +1,5 @@
-#ifndef GUTILITIES_H
-#define GUTILITIES_H 1
-
+#ifndef GEMCUTILITIES_H
+#define GEMCUTILITIES_H 1
 
 // qt
 #include <QApplication>

@@ -1,16 +1,16 @@
 // gemc
 #include "gRunAction.h"
 #include "gRun.h"
+#include "gutilities.h"
 #include "gemcUtilities.h"
+#include "gstreamerConventions.h"
 
 // geant4
 #include "globals.hh"
 #include "G4Threading.hh"
 #include "G4MTRunManager.hh"
 
-// glibrary
-#include "gstreamerConventions.h"
-#include "gutilities.h"
+
 
 // c++
 using namespace std;

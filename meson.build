@@ -46,6 +46,7 @@ subdir('gui')
 
 # compilation loop
 foreach L : LD
+
     this_lib_name = L['name'] # key name must be present
 
     sources = L.get('sources', [''])
