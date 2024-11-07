@@ -114,14 +114,14 @@ int main(int argc, char *argv[]) {
         gemcSplash->message("Starting GUI");
         qApp->processEvents();
 
+        // intializing G4UIQt session. Notice g4SceneProperties has to be declared after this, so we have to duplicate code below.
+        G4UIsession *uiQtSession = new G4UIQt(1, argv);
+        G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
+
         // passing executable to retrieve full path
         GemcGUI gemcGui(argv[0], gopts, geventDispenser);
         gemcGui.show();
         gemcSplash->finish(&gemcGui);
-
-        // intializing G4UIQt session. Notice g4SceneProperties has to be declared after this, so we have to duplicate code below.
-        G4UIsession *session = new G4UIQt(1, argv);
-        G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
 
         if (gDetectorGlobal->is_empty()) {
             cout << GEMCLOGMSGITEM << "Warning: Detector is empty. Nothing to do." << endl;
@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
         }
 
         delete g4SceneProperties;
-        delete session;
+        delete uiQtSession;
 
     } else {
         // set display properties in batch mode

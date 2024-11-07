@@ -2,11 +2,11 @@
 #include "gui.h"
 
 // gemc
-#include "g4controls.h"
+#include "g4display.h"
 
 void GemcGUI::createRightContent(GOptions *gopts) {
 
     rightContent = new QStackedWidget;
 
-    rightContent->addWidget(new G4Controls(gopts));
+    rightContent->addWidget(new G4Display(gopts));
 }

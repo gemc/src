@@ -54,13 +54,10 @@ GQTButtonsWidget::GQTButtonsWidget(double h, double v, vector<string> bicons, QW
 	buttonsWidget->setCurrentRow(1);
 	connect(buttonsWidget,	SIGNAL(itemPressed(QListWidgetItem *)), this, SLOT(buttonWasPressed(QListWidgetItem *)) );
 
-
 	QVBoxLayout *layout = new QVBoxLayout;
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->addWidget(buttonsWidget);
 	setLayout(layout);
-
-
 
 	// icon container sizes
 	// depends on the OS
@@ -78,15 +75,10 @@ GQTButtonsWidget::GQTButtonsWidget(double h, double v, vector<string> bicons, QW
 
 void GQTButtonsWidget::buttonWasPressed(QListWidgetItem* item)
 {
-	for(int i=0; i<buttonsWidget->count(); i++)
-		buttonsWidget->item(i)->setIcon(buttons[i]->buttonForState(1));
+	for(int i=0; i<buttonsWidget->count(); i++) { buttonsWidget->item(i)->setIcon(buttons[i]->buttonForState(1)); }
 
 	// starts at 0
 	int index = buttonsWidget->currentRow();
 
 	item->setIcon(buttons[index]->buttonForState(2));
 }
-
-
-
-

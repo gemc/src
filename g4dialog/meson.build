@@ -1,30 +1,20 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
 sources = files(
-    'g4displayOptions.cc',
-    'g4SceneProperties.cc',
-    'g4Text.cc',
-    'g4display.cc',
-    'tabs/g4displaycamera.cc',
-    'tabs/g4displayslice.cc'
+    'g4dialog.cc'
 )
 
 headers = files(
-    'g4displayOptions.h',
-    'g4SceneProperties.h',
-    'g4Text.h',
-    'g4display.h',
-    'tabs/g4displaycamera.h',
-    'tabs/g4displayslice.h'
+    'g4dialog.h'
 )
 
-moc_headers = files(
-    'tabs/g4displaycamera.h',
-    'tabs/g4displayslice.h'
-)
+#moc_headers = files(
+#    'tabs/g4displaycamera.h',
+#    'tabs/g4displayslice.h'
+#)
 
 examples = {
-    'test_basic_display' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/example.yaml', '-gui']],
+    'test_basic_dialog' : [files('examples/example.cc'), meson.current_source_dir() + '/examples/example.yaml'],
 }
 
 if get_option('i_test')
@@ -34,7 +24,7 @@ if get_option('i_test')
         'headers' : headers,
         'moc_headers' : moc_headers,
         'dependencies' : [yaml_cpp_dep, qt5_deps, clhep_deps, geant4_deps],
-        'additional_includes' : ['g4display/tabs'],
+   #     'additional_includes' : ['g4dialog/tabs'],
         'examples' : examples
     }
 else
@@ -44,6 +34,6 @@ else
         'headers' : headers,
         'moc_headers' : moc_headers,
         'dependencies' : [yaml_cpp_dep, qt5_deps, clhep_deps, geant4_deps],
-        'additional_includes' : ['g4display/tabs']
+  #      'additional_includes' : ['g4dialog/tabs']
     }
 endif

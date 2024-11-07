@@ -24,7 +24,7 @@ public:
 
 
 private:
-    GQTButtonsWidget *leftButtons;  // glibrary buttons
+    GQTButtonsWidget *leftButtons;  // buttons
     QStackedWidget *rightContent;
     QLineEdit *nEvents;
     QLabel *eventNumberLabel;
@@ -42,12 +42,11 @@ private:
 
     void updateGui();
 
-private
-    slots:
-            // definded in topLayout.cc
-            // beamOn() causes workers to update the screen
-            // from a sub-thread
-            void neventsChanged();
+private slots:
+    // definded in topLayout.cc
+    // beamOn() causes workers to update the screen
+    // from a sub-thread
+    void neventsChanged();
 
     void beamOn();
 

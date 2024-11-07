@@ -33,16 +33,16 @@ public:
     // no need to delete the pointers below, done by qt parenting
     ~GQTButtonsWidget() {}
 
+    int button_pressed() { return buttonsWidget->currentRow(); }
+
 private:
     QListWidget *buttonsWidget;
 
     std::vector<ButtonInfo *> buttons;
 
 private slots:
-            void buttonWasPressed(QListWidgetItem * );
-
+    void buttonWasPressed(QListWidgetItem *item );
 
 };
-
 
 #endif

@@ -1,6 +1,7 @@
 project('gemc3', 'cpp',
         default_options : ['cpp_std=c++20'],
-        version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip()
+        version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip(),
+        meson_version: '>= 1.6.0'
 )
 project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 

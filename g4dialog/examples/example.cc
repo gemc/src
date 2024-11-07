@@ -4,10 +4,8 @@
 #include "FTFP_BERT.hh"
 #include "G4StepLimiterPhysics.hh"
 
-// g4display
-#include "g4SceneProperties.h"
-#include "g4display.h"
-#include "g4displayOptions.h"
+// g4dialog
+#include "g4dialog.h"
 
 // c++
 #include <iostream>

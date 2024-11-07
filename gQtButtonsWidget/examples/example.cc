@@ -13,10 +13,6 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
 
-    QFileInfo qrcFileInfoExecutable(argv[0]);
-    QString rccPath = qrcFileInfoExecutable.absolutePath() + "/" + "exampleResources.rcc";
-    QResource::registerResource(rccPath);
-
     vector <string> bicons;
 
     // notice path must match the path in the qrc file

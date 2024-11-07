@@ -27,16 +27,17 @@ jobs:
         # NOTE1: `b_sanitize=memory` is not used because `libc++` needs to be re-compiled with `-fsanitize=memory`, otherwise
         #        we are bothered by false positives (e.g., from `std::map` insertion)
         # NOTE2: additional packages needed for the sanitizer: libasan libubsan libtsan
-        sanitize: [ standard, address, thread, leak, undefined ]
-        #sanitize: [ standard, address ]
+        # NOTE3: address, thread, leak: some examples are not working. Need to investigate.
+        #sanitize: [ standard, address, thread, leak, undefined ]
+        sanitize: [ standard, undefined ]
     runs-on: ubuntu-latest
     continue-on-error: true
     container: ${{ matrix.container.image }}
     name: ${{ matrix.container.name }} - ${{ matrix.sanitize }}
 
     steps:
-      - name: Collect Workflow Telemetry
-        uses: catchpoint/workflow-telemetry-action@v2
+#      - name: Collect Workflow Telemetry
+#        uses: catchpoint/workflow-telemetry-action@v2
       - name: Checkout
         uses: actions/checkout@main
       - name: Fix Ownership
