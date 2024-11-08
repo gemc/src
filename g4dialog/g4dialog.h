@@ -1,11 +1,10 @@
 #ifndef  G4DIALOG_H
 #define  G4DIALOG_H  1
 
-
 // qt
 #include <QtWidgets>
 
-// glibrary
+// gemc
 #include "goptions.h"
 
 class G4Dialog : public QTabWidget {

@@ -33,10 +33,18 @@ public:
     // no need to delete the pointers below, done by qt parenting
     ~GQTButtonsWidget() {}
 
+    // public so we can connect to it
+    QListWidget *buttonsWidget;
+
+    // return the button pressed
     int button_pressed() { return buttonsWidget->currentRow(); }
 
+    void press_button(int i) {
+        buttonsWidget->setCurrentRow(i);
+        buttonsWidget->item(i)->setIcon(buttons[i]->buttonForState(2));
+    }
+
 private:
-    QListWidget *buttonsWidget;
 
     std::vector<ButtonInfo *> buttons;
 

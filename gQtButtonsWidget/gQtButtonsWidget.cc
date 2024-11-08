@@ -51,7 +51,7 @@ GQTButtonsWidget::GQTButtonsWidget(double h, double v, vector<string> bicons, QW
 	}
 
 	// maybe call from mother
-	buttonsWidget->setCurrentRow(1);
+	// buttonsWidget->setCurrentRow(1);
 	connect(buttonsWidget,	SIGNAL(itemPressed(QListWidgetItem *)), this, SLOT(buttonWasPressed(QListWidgetItem *)) );
 
 	QVBoxLayout *layout = new QVBoxLayout;

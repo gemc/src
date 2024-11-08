@@ -29,6 +29,11 @@ GemcGUI::GemcGUI([[maybe_unused]] string qtResourceFile, GOptions *gopts, EventD
     // setting timer
     gtimer = new QTimer(this);
     connect(gtimer, SIGNAL(timeout()), this, SLOT(cycleBeamOn()));
+
+    // connect GQTButtonsWidget signal button_pressed to slot change_page()
+    connect(leftButtons->buttonsWidget,
+            SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem*)),
+            this, SLOT(change_page(QListWidgetItem *, QListWidgetItem*)));
 }
 
 
@@ -50,4 +55,13 @@ GemcGUI::~GemcGUI() {
     delete rightContent;
     delete nEvents;
     delete eventNumberLabel;
+}
+
+void GemcGUI::change_page(QListWidgetItem *current, QListWidgetItem *previous)
+{
+    if (!current)
+        current = previous;
+
+    int thisIndex = leftButtons->button_pressed();
+    rightContent->setCurrentIndex(thisIndex);
 }

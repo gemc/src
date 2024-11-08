@@ -1,20 +1,22 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
 sources = files(
-    'g4dialog.cc'
+    'g4dialog.cc',
+    'g4dialogOptions.cc',
+    'tabs/gcommands.cc',
 )
 
 headers = files(
-    'g4dialog.h'
+    'g4dialog.h',
+    'g4dialogOptions.h'
 )
 
-#moc_headers = files(
-#    'tabs/g4displaycamera.h',
-#    'tabs/g4displayslice.h'
-#)
+moc_headers = files(
+    'tabs/gcommands.h'
+)
 
 examples = {
-    'test_basic_dialog' : [files('examples/example.cc'), meson.current_source_dir() + '/examples/example.yaml'],
+    'test_basic_dialog' : [files('examples/example.cc'), ['-gui']],
 }
 
 if get_option('i_test')
@@ -34,6 +36,6 @@ else
         'headers' : headers,
         'moc_headers' : moc_headers,
         'dependencies' : [yaml_cpp_dep, qt5_deps, clhep_deps, geant4_deps],
-  #      'additional_includes' : ['g4dialog/tabs']
+        'additional_includes' : ['g4dialog/tabs']
     }
 endif

@@ -55,6 +55,8 @@ private slots:
     void stopCycleBeamOn();
 
     void gquit();
+
+    void change_page(QListWidgetItem *current, QListWidgetItem *previous);
 };
 
 #endif

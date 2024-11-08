@@ -6,6 +6,7 @@
 
 // g4dialog
 #include "g4dialog.h"
+#include "g4dialogOptions.h"
 
 // c++
 #include <iostream>
@@ -17,31 +18,28 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-    GOptions *gopts = new GOptions(argc, argv, g4display::defineOptions());
+    GOptions *gopts = new GOptions(argc, argv, g4dialog::defineOptions());
 
     QApplication app(argc, argv);
 
     G4VisManager* visManager = new G4VisExecutive;
     visManager->Initialize();
 
-    G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
-
     // main window
     QMainWindow *window = new QMainWindow();
     window->setWindowTitle(QString::fromUtf8("displayUI example"));
 
     // controls
-    G4Display *g4display = new G4Display(gopts, window);
-    window->setCentralWidget(g4display);
+    G4Dialog *g4dialog = new G4Dialog(gopts, window);
+    window->setCentralWidget(g4dialog);
 
     if (gopts->getSwitch("gui")) {
         window->show();
         return app.exec();
     }
 
-    delete g4display;
+    delete g4dialog;
     delete window;
-    delete g4SceneProperties;
     delete visManager;
     delete gopts;
     return EXIT_SUCCESS;
