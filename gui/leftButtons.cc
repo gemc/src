@@ -6,6 +6,10 @@ void GemcGUI::createLeftButtons() {
 
     bicons.push_back(":/gui/images/buttons/display");
     bicons.push_back(":/gui/images/buttons/dialog");
+    bicons.push_back(":/gui/images/buttons/dialog");
+    bicons.push_back(":/gui/images/buttons/dialog");
+    bicons.push_back(":/gui/images/buttons/dialog");
+    bicons.push_back(":/gui/images/buttons/dialog");
 
     leftButtons = new GQTButtonsWidget(128, 128, bicons);
 }

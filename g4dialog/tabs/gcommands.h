@@ -25,16 +25,24 @@ private:
     QListWidget *w_history;
     QLineEdit *w_command;
 
-
-    void create_geant4_commands_widget();
-
     void create_child_help_tree(QTreeWidgetItem *aParent, G4UIcommandTree *aCommandTree);
+
+    // gets the G4 help on a command
+    QString get_command_g4help (const G4UIcommand *aCommand);
+    void filterTreeItems(QTreeWidget *tree, const QString &search_text);
+    bool filterItem(QTreeWidgetItem *item, const QString &search_text);
 
 private slots:
 
-    void execute_command();
+     void execute_command();
 
-    void execute_history_item();
+    void recall_history_item();
+
+    void display_help_from_selection();
+
+    void paste_help_selection_item();
+
+    void create_geant4_commands_widget();
 
 };
 
