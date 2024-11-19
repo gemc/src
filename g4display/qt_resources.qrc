@@ -1,8 +1,9 @@
-<!DOCTYPE RCC><RCC version="1.0">
-	<qresource>
-		<file>images/firstButton_1.png</file>
-		<file>images/firstButton_2.png</file>
-		<file>images/secondButton_1.png</file>
-		<file>images/secondButton_2.png</file>
-	</qresource>
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file>images/hidden_lines_1.png</file>
+        <file>images/hidden_lines_2.png</file>
+        <file>images/hidden_surfaces_1.png</file>
+        <file>images/hidden_surfaces_2.png</file>
+    </qresource>
 </RCC>

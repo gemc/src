@@ -1,11 +1,12 @@
-#ifndef  G4DISPLAYCAMERA_H
-#define  G4DISPLAYCAMERA_H 1
+#ifndef  G4DISPLAYVIEW_H
+#define  G4DISPLAYVIEW_H 1
 
 // qt
 #include <QtWidgets>
 
 // glibrary
 #include "goptions.h"
+#include "gQtButtonsWidget.h"
 
 // geant4 headers
 #include "G4UImanager.hh"
@@ -22,6 +23,8 @@ public:
 	~G4DisplayView() {}
 
 private:
+
+	GQTButtonsWidget *topButtons;  // buttons
 	QSlider *cameraTheta;
 	QSlider *cameraPhi;
 	QSlider *lightTheta;

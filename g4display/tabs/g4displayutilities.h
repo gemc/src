@@ -1,5 +1,5 @@
-#ifndef  G4DISPLAYSLICE_H
-#define  G4DISPLAYSLICE_H 1
+#ifndef  G4DISPLAYUTILITIES_H
+#define  G4DISPLAYUTILITIES_H 1
 
 // qt
 #include <QtWidgets>

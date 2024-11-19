@@ -29,13 +29,13 @@ subdir('gtranslationTable')
 subdir('gdata')
 subdir('gdynamicDigitization')
 subdir('eventDispenser')
+subdir('gQtButtonsWidget')
 subdir('g4display')
 subdir('g4dialog')
 subdir('gsystem')
 subdir('g4system')
 subdir('gparticle')
 subdir('gphysics')
-subdir('gQtButtonsWidget')
 subdir('gsplash')
 subdir('gstreamer')
 subdir('gsession')
@@ -152,7 +152,7 @@ qrc_gemc_sources = qt5.compile_resources(sources : 'qtresources.qrc')
 
 gemc = executable(
     'gemc',
-    ['gemc.cc'] + qrc_gemc_sources,
+    ['gemc.cc'] + qrc_gemc_sources + qrc_compiled_sources,
     install : true,
     dependencies : all_deps,
     include_directories : all_includes,

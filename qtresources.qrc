@@ -6,5 +6,6 @@
         <file>gui/images/buttons/display_2.png</file>
         <file>gui/images/buttons/dialog_1.png</file>
         <file>gui/images/buttons/dialog_2.png</file>
+        <file>gui/images/buttons/dialog_2.png</file>
     </qresource>
 </RCC>

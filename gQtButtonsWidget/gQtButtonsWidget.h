@@ -28,7 +28,7 @@ class GQTButtonsWidget : public QWidget {
     Q_OBJECT
 
 public:
-    GQTButtonsWidget(double h, double v, std::vector <std::string> bicons, QWidget *parent = Q_NULLPTR);
+    GQTButtonsWidget(double h, double v, std::vector <std::string> bicons, bool vertical = true, QWidget *parent = Q_NULLPTR);
 
     // no need to delete the pointers below, done by qt parenting
     ~GQTButtonsWidget() {}
@@ -46,10 +46,12 @@ public:
 
 private:
 
+    bool is_vertical;
     std::vector<ButtonInfo *> buttons;
 
 private slots:
-    void buttonWasPressed(QListWidgetItem *item );
+
+    void buttonWasPressed(QListWidgetItem * item);
 
 };
 

@@ -19,6 +19,12 @@ G4DisplayView::G4DisplayView(GOptions* gopts, QWidget* parent) : QWidget(parent)
 	double thetaValue = getG4Number(jcamera.theta);
 	double phiValue   = getG4Number(jcamera.phi);
 
+	vector <string> bicons;
+	bicons.push_back(":/images/hidden_lines");
+	bicons.push_back(":/images/hidden_surfaces");
+	bicons.push_back(":/images/hidden_lines");
+	topButtons = new GQTButtonsWidget(64, 64, bicons, false);
+
 
 	// Camera Direction Group
 	// ----------------------------
@@ -202,6 +208,7 @@ G4DisplayView::G4DisplayView(GOptions* gopts, QWidget* parent) : QWidget(parent)
 	// all layouts together
 	// --------------------
 	QVBoxLayout *mainLayout = new QVBoxLayout;
+	mainLayout->addWidget(topButtons);
 	mainLayout->addWidget(cameraAnglesGroup);
 	mainLayout->addWidget(lightAnglesGroup);
 	mainLayout->addLayout(sliceLayout);
