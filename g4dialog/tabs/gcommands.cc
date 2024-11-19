@@ -18,7 +18,7 @@ G4Commands::G4Commands(GOptions *gopt, QWidget *parent) : QTabWidget(parent) {
     //  | |                   | |
     //  | +-------------------+ |
     //  | +-------------------+ |
-    //  | |    > Promt        | |
+    //  | |    > Prompt       | |
     //  | +-------------------+ |
     //  +-----------------------+
 

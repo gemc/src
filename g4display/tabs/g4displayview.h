@@ -1,5 +1,5 @@
-#ifndef  G4DISPLAYSLICE_H
-#define  G4DISPLAYSLICE_H 1
+#ifndef  G4DISPLAYCAMERA_H
+#define  G4DISPLAYCAMERA_H 1
 
 // qt
 #include <QtWidgets>
@@ -10,18 +10,22 @@
 // geant4 headers
 #include "G4UImanager.hh"
 
-class G4DisplaySlice: public QWidget {
+class G4DisplayView: public QWidget {
 
 	// metaobject required for non-qt slots
 	Q_OBJECT
 
 public:
-	G4DisplaySlice(GOptions* gopt, QWidget* parent = Q_NULLPTR);
+	G4DisplayView(GOptions* gopts, QWidget* parent = Q_NULLPTR);
 
 	// no need to delete the pointers below, done by qt parenting
-	~G4DisplaySlice() {}
+	~G4DisplayView() {}
 
 private:
+	QSlider *cameraTheta;
+	QSlider *cameraPhi;
+	QSlider *lightTheta;
+	QSlider *lightPhi;
 
 	// slices
 	QLineEdit *sliceXEdit, *sliceYEdit, *sliceZEdit;
@@ -32,10 +36,12 @@ private:
 	QRadioButton *sliceSectn;
 	QRadioButton *sliceUnion;
 
-	private slots:
+
+private slots:
+	void changeCameraDirection();
+	void changeLightDirection();
 	void slice();
 	void clearSlices();
-
 };
 
 

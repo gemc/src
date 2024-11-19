@@ -5,8 +5,8 @@ sources = files(
     'g4SceneProperties.cc',
     'g4Text.cc',
     'g4display.cc',
-    'tabs/g4displaycamera.cc',
-    'tabs/g4displayslice.cc'
+    'tabs/g4displayview.cc',
+    'tabs/g4displayutilities.cc'
 )
 
 headers = files(
@@ -14,13 +14,17 @@ headers = files(
     'g4SceneProperties.h',
     'g4Text.h',
     'g4display.h',
-    'tabs/g4displaycamera.h',
-    'tabs/g4displayslice.h'
+    'tabs/g4displayview.h',
+    'tabs/g4displayutilities.h'
 )
 
 moc_headers = files(
-    'tabs/g4displaycamera.h',
-    'tabs/g4displayslice.h'
+    'tabs/g4displayview.h',
+    'tabs/g4displayutilities.h'
+)
+
+qrc_examples_sources = files(
+    'qt_resources.qrc'
 )
 
 examples = {
