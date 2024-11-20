@@ -10,7 +10,11 @@ ButtonInfo::ButtonInfo(string icon) : buttonName(icon) {
     // default state is normal
     thisButton->setIcon(iconForState(1));
 
-    thisButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    // a second click on the same button will unselect the button
+    // thisButton->setCheckState(Qt::Unchecked);
+
+    thisButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled );
+
 }
 
 // returns icon depending on state
@@ -43,29 +47,28 @@ GQTButtonsWidget::GQTButtonsWidget(double h, double v, vector <string> bicons, b
     buttonsWidget = new QListWidget;
     buttonsWidget->setViewMode(QListView::IconMode);
     buttonsWidget->setIconSize(QSize(h, v));
-    buttonsWidget->setMovement(QListView::Static);
-    //buttonsWidget->setMouseTracking(1);
+    //buttonsWidget->setMovement(QListView::Static);
+
+    // transparent background
+    buttonsWidget->setStyleSheet("background-color: rgba(0,0,0,0);");
 
     for (auto &b: buttons) {
         buttonsWidget->addItem(b->thisButton);
     }
 
-    // maybe call from mother
-    // buttonsWidget->setCurrentRow(1);
     connect(buttonsWidget, SIGNAL(itemPressed(QListWidgetItem * )), this, SLOT(buttonWasPressed(QListWidgetItem * )));
 
 
     // apparently there's no difference between QHBoxLayout and QVBoxLayout?
+	QVBoxLayout *layout = new QVBoxLayout;
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->addWidget(buttonsWidget);
+	setLayout(layout);
 
-//	QVBoxLayout *layout = new QVBoxLayout;
-//	layout->setContentsMargins(0, 0, 0, 0);
-//	layout->addWidget(buttonsWidget);
-//	setLayout(layout);
-
-    QHBoxLayout *layout = new QHBoxLayout;
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(buttonsWidget);
-    setLayout(layout);
+//    QHBoxLayout *layout = new QHBoxLayout;
+//    layout->setContentsMargins(0, 0, 0, 0);
+//    layout->addWidget(buttonsWidget);
+//    setLayout(layout);
 
     // icon container sizes
     // depends on the OS
