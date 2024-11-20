@@ -4,6 +4,7 @@
 #include "tabs/g4displayutilities.h"
 
 G4Display::G4Display(GOptions *gopt, QWidget *parent) : QTabWidget(parent) {
+
     setStyleSheet("QTabBar::tab       { background-color: #ACB6B6;}"
                   "QTabBar::tab:focus { color: #000011; }");
 

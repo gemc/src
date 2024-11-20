@@ -9,7 +9,7 @@ headers = files(
 )
 
 qrc_examples_sources = files(
-    'examples/example.qrc'
+    'examples/qt_resources_example.qrc'
 )
 
 examples = {

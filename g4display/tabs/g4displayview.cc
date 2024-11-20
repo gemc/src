@@ -20,9 +20,9 @@ G4DisplayView::G4DisplayView(GOptions* gopts, QWidget* parent) : QWidget(parent)
 	double phiValue   = getG4Number(jcamera.phi);
 
 	vector <string> bicons;
-	bicons.push_back(":/images/hidden_lines");
-	bicons.push_back(":/images/hidden_surfaces");
-	bicons.push_back(":/images/hidden_lines");
+	bicons.push_back("g4display/images/hidden_lines");
+	bicons.push_back("g4display/images/hidden_surfaces");
+	bicons.push_back("g4display/images/hidden_lines");
 	topButtons = new GQTButtonsWidget(64, 64, bicons, false);
 
 

@@ -8,13 +8,13 @@ ButtonInfo::ButtonInfo(string icon) : buttonName(icon) {
     thisButton = new QListWidgetItem();
 
     // default state is normal
-    thisButton->setIcon(buttonForState(1));
+    thisButton->setIcon(iconForState(1));
 
     thisButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 }
 
 // returns icon depending on state
-QIcon ButtonInfo::buttonForState(int state) {
+QIcon ButtonInfo::iconForState(int state) {
     string bname = buttonName + "_" + to_string(state) + ".png";
 
     QFileInfo checkFile(QString(bname.c_str()));
@@ -76,7 +76,6 @@ GQTButtonsWidget::GQTButtonsWidget(double h, double v, vector <string> bicons, b
     //	else
     //	buttonsWidget->setFixedSize(74, 620);
 
-
     // remove scrollbars and fit content to buttons
     buttonsWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     buttonsWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -94,10 +93,10 @@ GQTButtonsWidget::GQTButtonsWidget(double h, double v, vector <string> bicons, b
 
 
 void GQTButtonsWidget::buttonWasPressed(QListWidgetItem *item) {
-    for (int i = 0; i < buttonsWidget->count(); i++) { buttonsWidget->item(i)->setIcon(buttons[i]->buttonForState(1)); }
+    for (int i = 0; i < buttonsWidget->count(); i++) { buttonsWidget->item(i)->setIcon(buttons[i]->iconForState(1)); }
 
     // starts at 0
     int index = buttonsWidget->currentRow();
 
-    item->setIcon(buttons[index]->buttonForState(2));
+    item->setIcon(buttons[index]->iconForState(2));
 }

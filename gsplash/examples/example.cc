@@ -12,22 +12,22 @@ using namespace std;
 
 // no idea why this is not working
 int main(int argc, char *argv[]) {
-    GOptions empty_options;
 
-    GOptions *gopts = new GOptions(argc, argv, empty_options);
-
+    GOptions *gopts = new GOptions(argc, argv, GOptions());
     bool gui = gopts->getSwitch("gui");
 
-    GSplash *gsplash = nullptr;
     QApplication *gApp = new QApplication(argc, argv);
+    GSplash *gsplash = nullptr;
+    Q_INIT_RESOURCE(qt_resources_example);
 
     if (gui) {
 
-        gsplash = new GSplash("splash_example");
+        gsplash = new GSplash("example.png");
 
         // wait 1 second
         QTime dieTime = QTime::currentTime().addSecs(1);
         while (QTime::currentTime() < dieTime) { QCoreApplication::processEvents(QEventLoop::AllEvents, 100); }
+        gsplash->message("Some text I want to show");
 
         gApp->processEvents();
 
@@ -35,9 +35,8 @@ int main(int argc, char *argv[]) {
         window.show();
         gsplash->finish(&window);
 
-        return gApp->exec(); // Exit the program
+        return gApp->exec();
     }
-
 
     return EXIT_SUCCESS;
 }

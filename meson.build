@@ -1,7 +1,7 @@
 project('gemc3', 'cpp',
         default_options : ['cpp_std=c++20'],
         version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip(),
-        meson_version: '>= 1.6.0'
+        meson_version : '>= 1.6.0'
 )
 project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 
@@ -68,14 +68,13 @@ foreach L : LD
         moc_sources = qt5.compile_moc(headers : moc_headers,
                                       dependencies : this_deps)
     endif
-    if not qrc_sources.contains('')
-        qrc_compiled_sources = qt5.compile_resources(sources : qrc_sources)
-    endif
-    if not qrc_examples_sources.contains('')
-        qrc_examples_compiled_sources = qt5.compile_resources(sources : qrc_examples_sources)
-    endif
+
+
 
     if not sources.contains('')
+        if not qrc_sources.contains('')
+            qrc_compiled_sources += qt5.compile_resources(sources : qrc_sources)
+        endif
         this_library = static_library(
             this_lib_name,
             sources + moc_sources + qrc_compiled_sources,
@@ -118,6 +117,9 @@ foreach L : LD
 
     # examples
     if examples != empty_dict
+        if not qrc_examples_sources.contains('')
+            qrc_examples_compiled_sources = qt5.compile_resources(sources : qrc_examples_sources)
+        endif
         foreach name, sources_and_arguments : examples
             # concatenate the items in sources_and_arguments[1] to a string
             example_sources = sources_and_arguments[0] + qrc_examples_compiled_sources

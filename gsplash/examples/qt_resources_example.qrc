@@ -1,6 +1,6 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource>
-        <file alias="splash_example">example.png</file>
+        <file>example.png</file>
     </qresource>
 </RCC>

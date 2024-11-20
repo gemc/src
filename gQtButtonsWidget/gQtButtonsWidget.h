@@ -17,7 +17,7 @@ struct ButtonInfo {
 public:
     QListWidgetItem *thisButton;
 
-    QIcon buttonForState(int state);
+    QIcon iconForState(int state);
 
 private:
     std::string buttonName;
@@ -41,7 +41,7 @@ public:
 
     void press_button(int i) {
         buttonsWidget->setCurrentRow(i);
-        buttonsWidget->item(i)->setIcon(buttons[i]->buttonForState(2));
+        buttonsWidget->item(i)->setIcon(buttons[i]->iconForState(2));
     }
 
 private:
