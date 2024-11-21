@@ -13,7 +13,7 @@ ButtonInfo::ButtonInfo(string icon) : buttonName(icon) {
     // a second click on the same button will unselect the button
     // thisButton->setCheckState(Qt::Unchecked);
 
-    thisButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled );
+    thisButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
 }
 
@@ -33,9 +33,8 @@ QIcon ButtonInfo::iconForState(int state) {
 
 
 // GQTButtonsWidget constructor
-GQTButtonsWidget::GQTButtonsWidget(double h, double v, vector <string> bicons, bool vertical, QWidget *parent) :
-        QWidget(parent),
-        is_vertical(vertical) {
+GQTButtonsWidget::GQTButtonsWidget(double h, double v, vector <string> bicons, bool is_vertical, QWidget *parent) :
+        QWidget(parent) {
 
     static int distanceToMargin = 12;
 
@@ -58,17 +57,16 @@ GQTButtonsWidget::GQTButtonsWidget(double h, double v, vector <string> bicons, b
 
     connect(buttonsWidget, SIGNAL(itemPressed(QListWidgetItem * )), this, SLOT(buttonWasPressed(QListWidgetItem * )));
 
+    QBoxLayout *layout = nullptr;
+    if (is_vertical) {
+        layout = new QVBoxLayout(this);
+    } else {
+        layout = new QHBoxLayout(this);
+    }
 
-    // apparently there's no difference between QHBoxLayout and QVBoxLayout?
-	QVBoxLayout *layout = new QVBoxLayout;
-	layout->setContentsMargins(0, 0, 0, 0);
-	layout->addWidget(buttonsWidget);
-	setLayout(layout);
-
-//    QHBoxLayout *layout = new QHBoxLayout;
-//    layout->setContentsMargins(0, 0, 0, 0);
-//    layout->addWidget(buttonsWidget);
-//    setLayout(layout);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(buttonsWidget);
+    setLayout(layout);
 
     // icon container sizes
     // depends on the OS
@@ -102,4 +100,67 @@ void GQTButtonsWidget::buttonWasPressed(QListWidgetItem *item) {
     int index = buttonsWidget->currentRow();
 
     item->setIcon(buttons[index]->iconForState(2));
+}
+
+GQTToggleButtonWidget::GQTToggleButtonWidget(int buttonWidth, int buttonHeight, int borderRadius,
+                                             std::vector <std::string> titles, bool vertical, QWidget *parent) :
+        QWidget(parent), buttonPressedIndex(-1) {
+
+    // Create a vertical layout
+    QBoxLayout *layout = nullptr;
+    if (vertical) {
+        layout = new QVBoxLayout(this);
+    } else {
+        layout = new QHBoxLayout(this);
+    }
+
+    // Strings for the toggle buttons
+    QStringList buttonStrings;
+    for (const std::string &title: titles) {
+        buttonStrings.append(QString::fromStdString(title));
+    }
+
+    // Create buttons and add them to the layout
+    for (int i = 0; i < buttonStrings.size(); ++i) {
+
+        QPushButton *button = new QPushButton(buttonStrings[i], this);
+        button->setCheckable(true); // Make the button toggleable
+        button->setFixedSize(buttonWidth, buttonHeight); // Set button size
+
+//        QString imagePath = "g4display/images/hidden_lines.png";
+//        QPixmap pixmap(imagePath);
+//        button->setIcon(QIcon(pixmap));
+//        button->setIconSize(button->size());
+
+
+        // Apply stylesheet for round shape and dynamic color
+        button->setStyleSheet(QString(
+                "QPushButton {"
+                "    border-radius: %1px;" // Use the borderRadius parameter
+                "    border: 2px solid black;"
+                "    background-color: rgba(255, 0, 0, 150);"
+                "    font-weight: bold;"
+                "}"
+                "QPushButton:checked {"
+                "    background-color: rgba(0, 255, 0, 150);"
+
+                "}"
+        ).arg(borderRadius)); // Use the borderRadius parameter);
+        layout->addWidget(button);
+
+        buttons.push_back(button); // Store button for later access
+
+        //  map the button's clicked or toggled signal to its index
+        signalMapper->setMapping(button, i);
+
+        // Connect signal mapper to handle button index
+        connect(button, &QPushButton::clicked, signalMapper, QOverload<>::of(&QSignalMapper::map));
+    }
+
+    // Connect the signal mapper to the slot that updates the index
+    connect(signalMapper, &QSignalMapper::mappedInt, this, &GQTToggleButtonWidget::setButtonPressed);
+
+
+    // Set the layout for this widget
+    setLayout(layout);
 }

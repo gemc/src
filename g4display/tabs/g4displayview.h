@@ -11,40 +11,43 @@
 // geant4 headers
 #include "G4UImanager.hh"
 
-class G4DisplayView: public QWidget {
-
-	// metaobject required for non-qt slots
-	Q_OBJECT
+class G4DisplayView : public QWidget {
+Q_OBJECT // Required for non-qt signals/slots
 
 public:
-	G4DisplayView(GOptions* gopts, QWidget* parent = Q_NULLPTR);
+    G4DisplayView(GOptions *gopts, QWidget *parent = Q_NULLPTR);
 
-	// no need to delete the pointers below, done by qt parenting
-	~G4DisplayView() {}
+    // no need to delete the pointers below, done by qt parenting
+    ~G4DisplayView() {}
 
 private:
 
-	GQTButtonsWidget *topButtons;  // buttons
-	QSlider *cameraTheta;
-	QSlider *cameraPhi;
-	QSlider *lightTheta;
-	QSlider *lightPhi;
+    GQTToggleButtonWidget *buttons_set1;  // buttons
+    QSlider *cameraTheta;
+    QSlider *cameraPhi;
+    QSlider *lightTheta;
+    QSlider *lightPhi;
 
-	// slices
-	QLineEdit *sliceXEdit, *sliceYEdit, *sliceZEdit;
-	QCheckBox *sliceXActi, *sliceYActi, *sliceZActi;
-	QCheckBox *sliceXInve, *sliceYInve, *sliceZInve;
+    // slices
+    QLineEdit *sliceXEdit, *sliceYEdit, *sliceZEdit;
+    QCheckBox *sliceXActi, *sliceYActi, *sliceZActi;
+    QCheckBox *sliceXInve, *sliceYInve, *sliceZInve;
 
-	// intersection or union
-	QRadioButton *sliceSectn;
-	QRadioButton *sliceUnion;
+    // intersection or union
+    QRadioButton *sliceSectn;
+    QRadioButton *sliceUnion;
 
 
 private slots:
-	void changeCameraDirection();
-	void changeLightDirection();
-	void slice();
-	void clearSlices();
+    void changeCameraDirection();
+
+    void changeLightDirection();
+
+    void slice();
+
+    void clearSlices();
+
+    void apply_buttons_set1(int index);
 };
 
 

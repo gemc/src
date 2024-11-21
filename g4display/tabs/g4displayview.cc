@@ -19,11 +19,14 @@ G4DisplayView::G4DisplayView(GOptions* gopts, QWidget* parent) : QWidget(parent)
 	double thetaValue = getG4Number(jcamera.theta);
 	double phiValue   = getG4Number(jcamera.phi);
 
-	vector <string> bicons;
-	bicons.push_back("g4display/images/hidden_lines");
-	bicons.push_back("g4display/images/hidden_surfaces");
-	bicons.push_back("g4display/images/hidden_lines");
-	topButtons = new GQTButtonsWidget(64, 64, bicons, false);
+	vector <string> toggle_button_titles;
+	toggle_button_titles.push_back("Hidden\nLines");
+	toggle_button_titles.push_back("Anti\nAliasing");
+	toggle_button_titles.push_back("Auxiliary\nEdges");
+	toggle_button_titles.push_back("Field\nLines");
+
+	buttons_set1 = new GQTToggleButtonWidget(80, 80, 20, toggle_button_titles, false, this);
+    connect(buttons_set1, SIGNAL(buttonPressedIndexChanged(int)), this, SLOT(apply_buttons_set1(int)));
 
 
 	// Camera Direction Group
@@ -208,7 +211,7 @@ G4DisplayView::G4DisplayView(GOptions* gopts, QWidget* parent) : QWidget(parent)
 	// all layouts together
 	// --------------------
 	QVBoxLayout *mainLayout = new QVBoxLayout;
-	mainLayout->addWidget(topButtons);
+	mainLayout->addWidget(buttons_set1);
 	mainLayout->addWidget(cameraAnglesGroup);
 	mainLayout->addWidget(lightAnglesGroup);
 	mainLayout->addLayout(sliceLayout);
@@ -281,4 +284,41 @@ void G4DisplayView::clearSlices()
 	sliceXActi->setChecked(false);
 	sliceYActi->setChecked(false);
 	sliceZActi->setChecked(false);
+}
+
+void G4DisplayView::apply_buttons_set1(int index) {
+
+    int button_index = buttons_set1->buttonPressed();
+    bool button_state = buttons_set1->lastButtonState();
+
+	G4UImanager *g4uim = G4UImanager::GetUIpointer();
+	if (g4uim == nullptr) {
+		return;
+	}
+
+    if (button_index == 0) {
+        string command = string("/vis/viewer/set/hiddenEdge") + (button_state ? " 1" : " 0");
+        g4uim->ApplyCommand(command);
+    } else if (button_index == 1) {
+		if (button_state == 0) {
+			glDisable(GL_LINE_SMOOTH);
+			glDisable(GL_POLYGON_SMOOTH);
+		} else {
+			glEnable(GL_LINE_SMOOTH);
+			glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+			glEnable(GL_POLYGON_SMOOTH);
+			glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+		}
+		g4uim->ApplyCommand("/vis/viewer/flush");
+	} else if (button_index == 2) {
+		string command = string("/vis/viewer/set/auxiliaryEdge") + (button_state ? " 1" : " 0");
+		g4uim->ApplyCommand(command);
+		command = string("/vis/viewer/set/hiddenEdge") + (button_state ? " 1" : " 0");
+		g4uim->ApplyCommand(command);
+		if (buttons_set1->buttonStatus(0) != button_state) {
+			buttons_set1->toggleButton(0);
+		}
+	} else if (button_index == 3) {
+
+	}
 }

@@ -17,14 +17,16 @@ GemcGUI::GemcGUI([[maybe_unused]] string qtResourceFile, GOptions *gopts, EventD
     createTopButtons(topLayout);
 
     QHBoxLayout *bottomLayout = new QHBoxLayout;
-    bottomLayout->addWidget(leftButtons);
-    bottomLayout->addWidget(rightContent);
+    // second argument is stretch factor. Right content can have 10 times more space.
+    bottomLayout->addWidget(leftButtons, 1);
+    bottomLayout->addWidget(rightContent, 10);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addLayout(topLayout);
     mainLayout->addLayout(bottomLayout);
     setLayout(mainLayout);
     setWindowTitle(tr("GEMC: Geant4 Monte-Carlo"));
+    setFixedWidth(800);
 
     // setting timer
     gtimer = new QTimer(this);
