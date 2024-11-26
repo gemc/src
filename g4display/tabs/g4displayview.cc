@@ -319,6 +319,17 @@ void G4DisplayView::apply_buttons_set1(int index) {
 			buttons_set1->toggleButton(0);
 		}
 	} else if (button_index == 3) {
-
+		if (button_state == 0) {
+			string command = string("vis/scene/activateModel Field false");
+			g4uim->ApplyCommand(command);
+			command = string("/vis/viewer/flush");
+			g4uim->ApplyCommand(command);
+		} else {
+			string npoints = "100";
+			string command = string("/vis/scene/add/magneticField ") + npoints;
+			g4uim->ApplyCommand(command);
+			command = string("/vis/viewer/flush");
+			g4uim->ApplyCommand(command);
+		}
 	}
 }

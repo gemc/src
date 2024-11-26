@@ -16,7 +16,8 @@ int main(int argc, char *argv[]) {
     GOptions *gopts = new GOptions(argc, argv, GOptions());
     bool gui = gopts->getSwitch("gui");
 
-    QApplication *gApp = new QApplication(argc, argv);
+    QScopedPointer <QCoreApplication> gApp(new QApplication(argc, argv));
+
     GSplash *gsplash = nullptr;
     Q_INIT_RESOURCE(qt_resources_example);
 

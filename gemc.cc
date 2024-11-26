@@ -42,7 +42,9 @@ int main(int argc, char *argv[]) {
 
     // createQtApplication returns a QApplication if gui is not zero
     // otherwise it returns a QCoreApplication
-    QCoreApplication *gApp = createQtApplication(argc, argv, gui);
+    // QScopedPointer os smart pointer in Qt that manages the lifetime of a QCoreApplication
+    QScopedPointer <QCoreApplication> gApp(createQtApplication(argc, argv, gui));
+
     if (gui) {
         gemcSplash = new GSplash("gemcArchitecture");
     }
@@ -76,7 +78,6 @@ int main(int argc, char *argv[]) {
     // if showAvailablePhysicsX switch is on, print available physics and exit
     if (gopts->getSwitch("showAvailablePhysicsX")) {
         delete globalDigitizationMap;
-        delete gApp;
         if (gui) {
             delete gemcSplash;
         }
@@ -148,7 +149,6 @@ int main(int argc, char *argv[]) {
 
     for (auto [key, value]: (*globalDigitizationMap)) { delete value; }
     delete globalDigitizationMap;
-    delete gApp;
     delete gopts;
 
     // Free the store: user actions, physics_list and detector_description are
