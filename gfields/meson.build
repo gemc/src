@@ -20,7 +20,7 @@ LD += {
 
     ),
     'plugins' : {
-        'gfieldMultipoles' : multipoles_files,
+        'gfieldmultipolesFactory' : multipoles_files,
     },
     'additional_includes' : ['gfields', 'gfields/gfieldFactories/multipoles'],
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],

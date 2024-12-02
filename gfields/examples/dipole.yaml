@@ -1,4 +1,4 @@
-gmultipole:
+gmultipoles:
   - name: dipole
     pole_number: 2
     strength: 2

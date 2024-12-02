@@ -30,7 +30,6 @@ namespace gemc {
         goptions.defineOption(GVariable("digitization_variation", "default", "digitization variation"), "Default: default");
         goptions.defineOption(GVariable("eventTimeSize", "0*ns", "event duration with unit"), "Default: 0*ns");
 
-
         // random engine name
         // the names come from the CLHEP library, can be found with
         // grep ": public HepRandomEngine" *.h $CLHEP_BASE_DIR/include/CLHEP/Random/* | awk -Fclass '{print $2}' | awk -F: '{print $1}'
@@ -64,7 +63,7 @@ namespace gemc {
         goptions += eventDispenser::defineOptions();
         goptions += g4display::defineOptions();
         goptions += g4system::defineOptions();
-        goptions += gfield::defineOptions();
+        goptions += gfields::defineOptions();
         goptions += gparticle::defineOptions();
         goptions += gphysics::defineOptions();
         goptions += gstreamer::defineOptions();

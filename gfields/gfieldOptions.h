@@ -5,7 +5,7 @@
 #include "goptions.h"
 #include "gfield_multipoles.h"
 
-namespace gfield {
+namespace gfields {
 
     vector<GFieldDefinition> get_GFieldDefinition(GOptions *gopts);
 

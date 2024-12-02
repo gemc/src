@@ -11,12 +11,24 @@
 #include "goptions.h"
 #include "gfieldConventions.h"
 
-// utility struct to load GFields from options
+/**
+ * @brief Utility struct to load GFields from options.
+ */
 struct GFieldDefinition {
 
-    // default constructor
+    /**
+     * @brief Default constructor.
+     */
     GFieldDefinition() {}
 
+    /**
+    * @brief Initializes the parameters for the field definition.
+    * @param n Name of the field.
+    * @param is Integration stepper type.
+    * @param ms Minimum step size.
+    * @param t Field type.
+    * @param v Verbosity level.
+    */
     void init_parameters(string n, string is, double ms, string t, int v) {
         name = n;
         integration_stepper = is;
@@ -25,68 +37,89 @@ struct GFieldDefinition {
         verbosity = v;
     }
 
-    string name; // key in the gmagneto maps
-    string integration_stepper;
-    double minimum_step;
-    string type;
-    int verbosity;
+    std::string name; ///< Key in the gmagneto maps.
+    std::string integration_stepper; ///< Type of integration stepper.
+    double minimum_step; ///< Minimum step size for integration.
+    std::string type; ///< Type of the field.
+    int verbosity; ///< Verbosity level.
 
-    map <string, string> field_parameters;
+    map <std::string, string> field_parameters; ///< Field parameters as key-value pairs.
 
-    void add_map_parameter(string key, string value) {
+    /**
+     * @brief Adds a parameter to the field parameters map.
+     * @param key Parameter key.
+     * @param value Parameter value.
+     */
+    void add_map_parameter(std::string key, std::string value) {
         field_parameters[key] = value;
     }
 
+    /**
+     * @brief Gets the plugin name for the field.
+     * @return Plugin name as a string.
+     */
     string gfieldPluginName() {
         return "gfield" + type + "Factory";
     }
 };
 
+/**
+ * @brief Abstract base class representing a magnetic field.
+ */
 class GField : public G4MagneticField {
 
 public:
-    GField() {}
+    /**
+        * @brief Default constructor.
+        */
+    GField();
 
+    /**
+     * @brief Virtual destructor.
+     */
     virtual ~GField() = default;
 
-    virtual void GetFieldValue(const double x[3], double *bfield) const = 0; ///< Pure virtual: must implement GetFieldValue method
+    /**
+     * @brief Pure virtual function to get the magnetic field value.
+     * @param x Position in space.
+     * @param bfield Magnetic field vector.
+     */
+    virtual void GetFieldValue(const double x[3], double *bfield) const = 0;
 
-    // create the G4FieldManager
+    /**
+     * @brief Creates the G4FieldManager for the field.
+     * @return Pointer to the G4FieldManager.
+     */
     G4FieldManager *create_FieldManager();
 
-    static const vector <string> supported_types;
+    /**
+     * @brief Sets the field parameters.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool set_field_parameters();
 
-    virtual bool set_field_parameters() { return false ; }
+    static const std::vector <std::string> supported_types; ///< Supported field types.
 
 private:
-
-    // logging
+    /**
+        * @brief Logs a message with the field context.
+        * @param message Message to log.
+        */
     void gFLogMessage(std::string message) {
         gLogMessage(GFIELDLOGHEADER + gfield_definitions.name + " " + message);
     }
 
-    // hardcoded list, how to make it dynamic?
-    vector <string> SUPPORTED_STEPPERS = {
-            "G4DormandPrince745",
-            "G4ClassicalRK4",
-            "G4SimpleRunge",
-            "G4HelixExplicitEuler",
-            "G4HelixImplicitEuler",
-            "G4CashKarpRKF45",
-            "G4RKG3_Stepper",
-            "G4SimpleHeum",
-            "G4NystromRK4",
-            "G4ImplicitEuler",
-            "G4ExplicitEuler"
+    std::vector<std::string> SUPPORTED_STEPPERS = { ///< Supported integration steppers.
+            "G4DormandPrince745", "G4ClassicalRK4", "G4SimpleRunge", "G4HelixExplicitEuler",
+            "G4HelixImplicitEuler", "G4CashKarpRKF45", "G4RKG3_Stepper", "G4SimpleHeum",
+            "G4NystromRK4", "G4ImplicitEuler", "G4ExplicitEuler"
     };
 
 
 protected:
     GFieldDefinition gfield_definitions;
 
-    //string get_name() { return gfield_definitions.name; }
-
-    bool init_basic_parameters();
+    //bool init_basic_parameters();
 
 
 public:

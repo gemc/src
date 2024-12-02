@@ -1,5 +1,6 @@
 // gfields
 #include "gfieldOptions.h"
+#include "gmagneto.h"
 
 // c++
 #include <iostream>
@@ -8,7 +9,21 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    //GOptions *gopts = new GOptions(argc, argv, gfield::defineOptions());
+    // Initialize GOptions (parsed from YAML or another source)
+    GOptions *gopts = new GOptions(argc, argv, gfields::defineOptions());
+
+    // Create a GMagneto instance to manage fields
+    GMagneto *magneto = new GMagneto(gopts);
+
+    string field_name = "dipolea";
+
+    // Check if a specific field exists
+    if (magneto->isField(field_name)) {
+        GField *field = magneto->getField(field_name);
+        G4FieldManager *fieldManager = magneto->getFieldMgr(field_name);
+    } else {
+        cout << "Field " << field_name << " not found." << endl;
+    }
 
     return EXIT_SUCCESS;
 }

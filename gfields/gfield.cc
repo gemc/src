@@ -18,9 +18,9 @@
 
 const vector<string> GField::supported_types = {"multipole"};
 
-bool GField::init_basic_parameters() {
-
-}
+//bool GField::init_basic_parameters() {
+//
+//}
 
 
 // notice: we are always using G4Mag_UsualEqRhs here

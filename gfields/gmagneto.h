@@ -6,15 +6,23 @@
 #include "gfieldOptions.h"
 #include "gStateMessage.h"
 
-// a world is a collection of GFields and G4FieldManager
+/**
+ * @brief Represents a world containing collections of GFields and G4FieldManagers.
+ *
+ * GMagneto manages the lifecycle and access to magnetic field objects (`GField`) and their
+ * corresponding field managers (`G4FieldManager`).
+ */
 class GMagneto : public GStateMessage {
 public:
-    // constructor from yaml
-    //
-    // - load fields definitions
-
+    /**
+     * @brief Constructs a GMagneto object and loads field definitions from options.
+     * @param gopts Pointer to the GOptions object containing configuration options.
+     */
     GMagneto(GOptions *gopts);
 
+    /**
+    * @brief Destructor to clean up dynamically allocated memory.
+    */
     ~GMagneto() {
         delete gFieldMap;
         delete gFieldMgrMap;
@@ -22,17 +30,28 @@ public:
 
 private:
 
-    map<string, GField *> *gFieldMap;
-    map<string, G4FieldManager *> *gFieldMgrMap;
+    std::map<std::string, GField *> *gFieldMap; ///< Map of field names to GField objects.
+    std::map<std::string, G4FieldManager *> *gFieldMgrMap; ///< Map of field names to G4FieldManager objects.
 
 public:
 
-    bool isField(string name) {
+    /**
+     * @brief Checks if a field with the given name exists.
+     * @param name Name of the field to check.
+     * @return True if the field exists, false otherwise.
+     */
+    bool isField(std::string name) {
         return gFieldMap->find(name) != gFieldMap->end();
     }
 
 
-    GField *getField(string name) {
+    /**
+     * @brief Retrieves a GField object by its name.
+     * @param name Name of the field to retrieve.
+     * @return Pointer to the GField object.
+     * @throws Logs an error and exits if the field is not found.
+     */
+    GField *getField(std::string name) {
         if (gFieldMap->find(name) == gFieldMap->end()) {
 
             // error, exit
@@ -41,7 +60,13 @@ public:
         return gFieldMap->at(name);
     }
 
-    G4FieldManager *getFieldMgr(string name) {
+    /**
+     * @brief Retrieves a G4FieldManager object by its name.
+     * @param name Name of the field manager to retrieve.
+     * @return Pointer to the G4FieldManager object.
+     * @throws Logs an error and exits if the field manager is not found.
+     */
+    G4FieldManager *getFieldMgr(std::string name) {
         if (gFieldMgrMap->find(name) == gFieldMgrMap->end()) {
 
             // error, exit

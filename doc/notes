@@ -16,7 +16,6 @@ $QTDIR/bin/moc
 
 ### For some reason 
 
-
 open $XERCESCROOT/lib/
 
 	- libxerces-c-<version>.dylib
@@ -49,12 +48,6 @@ cat
 less if LESS is set: export LESS=-Xr
 grep
 
-GEMC Notes
-
-# gdetector libraries
-
-// PRAGMA NOTE ConstructSDandField must be run on master thread as well
-// or processHits will not happen (spent a day figuring this out)
 
 
 # Debugging:
