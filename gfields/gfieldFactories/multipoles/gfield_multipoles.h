@@ -35,4 +35,4 @@ private:
 
 };
 
-#endif // GFIELD_MULTIPOLES_FACTORY_H
+#endif

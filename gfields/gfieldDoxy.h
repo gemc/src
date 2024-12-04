@@ -28,35 +28,29 @@
  *
  * ### Defining and Managing a Multipole Field:
  * ```cpp
- * // Initialize GOptions (parsed from YAML or another source)
- * GOptions* gopts = new GOptions("config.yaml");
+ *   // Create a GMagneto instance to manage fields
+ *   GMagneto *magneto = new GMagneto(gopts);
  *
- * // Create a GMagneto instance to manage fields
- * GMagneto* magneto = new GMagneto(gopts);
+ *   string field_name = "dipole";
  *
- * // Check if a specific field exists
- * if (magneto->isField("multipole_field")) {
- *     GField* field = magneto->getField("multipole_field");
- *     G4FieldManager* fieldManager = magneto->getFieldMgr("multipole_field");
- * }
+ *   // Check if a specific field exists
+ *   if (magneto->isField(field_name)) {
+ *       GField *field = magneto->getField(field_name);
+ *       G4FieldManager *fieldManager = magneto->getFieldMgr(field_name);
+ *   } else {
+ *       cout << "Field " << field_name << " was not found." << endl;
+ *   }
  * ```
  *
  * ### Implementing a Custom Field:
- * ```cpp
- * class CustomField : public GField {
- * public:
- *     void GetFieldValue(const double pos[3], double* bfield) const override {
- *         // Implement custom field logic here
- *     }
- * };
- * ```
+ * To be completed
  *
  * @section api API Documentation
  *
  * ### Class GField
  * - **Description**: Abstract base class for magnetic fields.
- * - **Methods**:
- *   - `virtual void GetFieldValue(const double x[3], double* bfield) const = 0`: Computes the magnetic field vector at a given position.
+ * - **Relevant Methods**:
+ *   - `virtual void GetFieldValue(const double x[3], double* bfield)`: Computes the magnetic field vector at a given position.
  *   - `G4FieldManager* create_FieldManager()`: Creates a Geant4 field manager for the field.
  *
  * ### Class GFieldDefinition
@@ -78,4 +72,13 @@
  * - **Methods**:
  *   - `void GetFieldValue(const G4double pos[4], G4double* bfield) const`: Computes the multipole field vector at a given position.
  *
+ *
+ *
+ * \subsection cisubsection Continuous Integration
+ * The GFields framework is continuously integrated and tested to ensure stability and reliability across updates.
+ *
+ * \n\n
+ * \author \n &copy; Maurizio Ungaro
+ * \author e-mail: ungaro@jlab.org
+ * \n\n\n
  */

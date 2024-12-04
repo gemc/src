@@ -15,7 +15,6 @@
  * @brief Utility struct to load GFields from options.
  */
 struct GFieldDefinition {
-
     /**
      * @brief Default constructor.
      */
@@ -61,6 +60,16 @@ struct GFieldDefinition {
     string gfieldPluginName() {
         return "gfield" + type + "Factory";
     }
+
+    // overload << to print the field definition
+    friend std::ostream &operator<<(std::ostream &stream, GFieldDefinition gfd) {
+        stream << "  > Field name:           " << gfd.name << std::endl;
+        stream << "    - integration stepper: " << gfd.integration_stepper << std::endl;
+        stream << "    - minimum step:        " << gfd.minimum_step << " mm" << std::endl;
+        stream << "    - type:                " << gfd.type << std::endl;
+        stream << "    - verbosity:           " << gfd.verbosity << std::endl;
+        return stream;
+    }
 };
 
 /**
@@ -72,7 +81,7 @@ public:
     /**
         * @brief Default constructor.
         */
-    GField();
+    GField() = default;
 
     /**
      * @brief Virtual destructor.
@@ -93,23 +102,25 @@ public:
     G4FieldManager *create_FieldManager();
 
     /**
-     * @brief Sets the field parameters.
-     * @return True if successful, false otherwise.
+     * @brief Sets the field definition for the field.
+     * @param gfd Field definition to set.
      */
-    virtual bool set_field_parameters();
+    void set_field_definitions(GFieldDefinition gfd) {
+        gfield_definitions = gfd;
+    }
 
-    static const std::vector <std::string> supported_types; ///< Supported field types.
-
-private:
     /**
-        * @brief Logs a message with the field context.
-        * @param message Message to log.
-        */
+      * @brief Logs a message with the field context.
+      * @param message Message to log.
+     */
     void gFLogMessage(std::string message) {
         gLogMessage(GFIELDLOGHEADER + gfield_definitions.name + " " + message);
     }
 
-    std::vector<std::string> SUPPORTED_STEPPERS = { ///< Supported integration steppers.
+private:
+
+
+    std::vector <std::string> SUPPORTED_STEPPERS = { ///< Supported integration steppers.
             "G4DormandPrince745", "G4ClassicalRK4", "G4SimpleRunge", "G4HelixExplicitEuler",
             "G4HelixImplicitEuler", "G4CashKarpRKF45", "G4RKG3_Stepper", "G4SimpleHeum",
             "G4NystromRK4", "G4ImplicitEuler", "G4ExplicitEuler"
@@ -118,9 +129,6 @@ private:
 
 protected:
     GFieldDefinition gfield_definitions;
-
-    //bool init_basic_parameters();
-
 
 public:
 

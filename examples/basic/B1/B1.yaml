@@ -13,10 +13,10 @@ gparticle:
     p: 3000
 
 verbosity:
-  - ghits: 2
-  - gsystem: 2
-  - gstreamer: 2
-  - general: 2
+  - ghits: 0
+  - gsystem: 0
+  - gfield: 2
+  - general: 0
 
 gsystem:
   - name: B1
@@ -25,3 +25,9 @@ gsystem:
 gstreamer:
   - filename: B1.txt
     format: TEXT
+
+gmultipoles:
+  - name: dipole
+    pole_number: 2
+    strength: 2
+    verbosity: 2

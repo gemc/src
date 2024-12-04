@@ -48,11 +48,14 @@ void GField_MultipolesFactory::GetFieldValue(const G4double pos[4], G4double *bf
         B_local.setX(0);
         B_local.setY(strength);
         B_local.setZ(0);
-    } else {
+    } else if (pole_number > 0) {
         int a = pole_number / 2 - 1;
         B_local.setX(strength * pow(r / CLHEP::m, a) * sin(a * phi));
         B_local.setY(strength * pow(r / CLHEP::m, a) * cos(a * phi));
         B_local.setZ(0);
+    } else {
+        cout << GFIELDLOGHEADER << "GField_MultipolesFactory::GetFieldValue: Pole number " + to_string(pole_number) + " not supported. Exiting." << endl;
+        exit(EC__WRONG_POLE_NUMBER);
     }
 
     G4ThreeVector B_lab = B_local;
@@ -60,18 +63,24 @@ void GField_MultipolesFactory::GetFieldValue(const G4double pos[4], G4double *bf
     else if (rotaxis == 1) { B_lab.rotateY(rotation_angle); }
     else if (rotaxis == 2) { B_lab.rotateZ(rotation_angle); }
 
+//    bfield[0] = 100;
+//    bfield[1] = 10;
+//    bfield[2] = 10000;
 
     bfield[0] = 10000 * B_lab.x();
     bfield[1] = 10000 * B_lab.y();
     bfield[2] = 10000 * B_lab.z();
 
-//    cout << " Pole number: " << pole_number << endl;
-//    cout << " Strength: " << strength << endl;
-//    cout << " Origin: " << origin[0] << " " << origin[1] << " " << origin[2] << endl;
-//    cout << " Rotation angle: " << rotation_angle << endl;
-//    cout << " Rotation axis: " << rotaxis << endl;
-//    cout << "B_lab.x() = " << B_lab.x() << endl;
-//    cout << "B_lab.y() = " << B_lab.y() << endl;
-//    cout << "B_lab.z() = " << B_lab.z() << endl;
+    cout << " Pole number: " << pole_number << endl;
+    cout << " Strength: " << strength << endl;
+    cout << " Origin: " << origin[0] << " " << origin[1] << " " << origin[2] << endl;
+    cout << " Rotation angle: " << rotation_angle << endl;
+    cout << " Rotation axis: " << rotaxis << endl;
+    cout << "B_lab.x() = " << B_lab.x() << endl;
+    cout << "B_lab.y() = " << B_lab.y() << endl;
+    cout << "B_lab.z() = " << B_lab.z() << endl;
+    cout << " B Field x = " << bfield[0] << endl;
+    cout << " B Field y = " << bfield[1] << endl;
+    cout << " B Field z = " << bfield[2] << endl;
 
 }

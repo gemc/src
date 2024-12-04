@@ -52,10 +52,10 @@ public:
      * @throws Logs an error and exits if the field is not found.
      */
     GField *getField(std::string name) {
-        if (gFieldMap->find(name) == gFieldMap->end()) {
+        bool not_found = (gFieldMap->find(name) == gFieldMap->end());
 
-            // error, exit
-            logError("Field " + name + " not found.", EC__WRONG_FIELD_NOT_FOUND);
+        if (not_found) {
+            logError("GField " + name + " not found.", EC__WRONG_FIELD_NOT_FOUND);
         }
         return gFieldMap->at(name);
     }
@@ -68,9 +68,7 @@ public:
      */
     G4FieldManager *getFieldMgr(std::string name) {
         if (gFieldMgrMap->find(name) == gFieldMgrMap->end()) {
-
-            // error, exit
-            logError("GField " + name + " not found.", EC__WRONG_FIELD_NOT_FOUND);
+            logError("G4FieldManager " + name + " not found.", EC__WRONG_FIELD_NOT_FOUND);
         }
 
         return gFieldMgrMap->at(name);

@@ -16,12 +16,6 @@
 // gfield
 #include "gfield.h"
 
-const vector<string> GField::supported_types = {"multipole"};
-
-//bool GField::init_basic_parameters() {
-//
-//}
-
 
 // notice: we are always using G4Mag_UsualEqRhs here
 G4FieldManager *GField::create_FieldManager() {
@@ -68,6 +62,7 @@ G4FieldManager *GField::create_FieldManager() {
     }
 
     G4ChordFinder *fChordFinder = new G4ChordFinder(this, minimum_step, mag_int_stepper);
+    gFLogMessage("Loaded Integration Stepper: " + integration_stepper);
 
     return new G4FieldManager(this, fChordFinder);
 
