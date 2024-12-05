@@ -22,6 +22,8 @@ public:
 
 private:
 
+    QLineEdit *field_npoints;
+
     GQTToggleButtonWidget *buttons_set1;  // buttons
     QSlider *cameraTheta;
     QSlider *cameraPhi;
@@ -37,6 +39,7 @@ private:
     QRadioButton *sliceSectn;
     QRadioButton *sliceUnion;
 
+    int field_NPOINTS = 5;
 
 private slots:
     void changeCameraDirection();
@@ -48,6 +51,9 @@ private slots:
     void clearSlices();
 
     void apply_buttons_set1(int index);
+
+    void field_precision_changed();
+
 };
 
 

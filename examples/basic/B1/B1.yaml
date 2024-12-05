@@ -28,6 +28,6 @@ gstreamer:
 
 gmultipoles:
   - name: dipole
-    pole_number: 2
+    pole_number: 3
     strength: 2
     verbosity: 2

@@ -29,7 +29,6 @@ vector <GFieldDefinition> get_GFieldDefinition(GOptions *gopts) {
         gfield_def.add_map_parameter("rotation_angle", gopts->get_variable_in_option<string>(gmultipoles_item, "rotation_angle", GFIELD_DEFAULT_ROTANGLE));
         gfield_def.add_map_parameter("rotaxis", gopts->get_variable_in_option<string>(gmultipoles_item, "rotaxis", GFIELD_DEFAULT_ROTAXIS));
         gfield_def.add_map_parameter("strength", gopts->get_variable_in_option<string>(gmultipoles_item, "strength", GFIELD_DEFAULT_STRENGTH));
-        gfield_def.add_map_parameter("verbosity", gopts->get_variable_in_option<string>(gmultipoles_item, "verbosity", GFIELD_DEFAULT_VERBOSITY));
         gfield_def.type = "multipoles";
         gfield_defs.push_back(gfield_def);
     }
@@ -55,8 +54,7 @@ GOptions defineOptions() {
             {"vz",                  GFIELD_DEFAULT_VERTEX,              "z component of the origin of the multipole"},
             {"rotation_angle",      GFIELD_DEFAULT_ROTANGLE,            "rotation angle of the multipole"},
             {"rotaxis",             GFIELD_DEFAULT_ROTAXIS,             "rotation axis of the multipole"},
-            {"strength",            GFIELD_DEFAULT_STRENGTH,            "strength of the multipole"},
-            {"verbosity",           GFIELD_DEFAULT_VERBOSITY,           "verbosity"},
+            {"strength",            GFIELD_DEFAULT_STRENGTH,            "strength of the multipole"}
     };
     goptions.defineOption("gmultipoles", "define the e.m. gmultipoles", gmultipoles, help);
 

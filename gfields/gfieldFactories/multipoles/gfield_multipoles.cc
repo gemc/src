@@ -63,24 +63,41 @@ void GField_MultipolesFactory::GetFieldValue(const G4double pos[4], G4double *bf
     else if (rotaxis == 1) { B_lab.rotateY(rotation_angle); }
     else if (rotaxis == 2) { B_lab.rotateZ(rotation_angle); }
 
-//    bfield[0] = 100;
-//    bfield[1] = 10;
-//    bfield[2] = 10000;
-
     bfield[0] = 10000 * B_lab.x();
     bfield[1] = 10000 * B_lab.y();
     bfield[2] = 10000 * B_lab.z();
 
-    cout << " Pole number: " << pole_number << endl;
-    cout << " Strength: " << strength << endl;
-    cout << " Origin: " << origin[0] << " " << origin[1] << " " << origin[2] << endl;
-    cout << " Rotation angle: " << rotation_angle << endl;
-    cout << " Rotation axis: " << rotaxis << endl;
-    cout << "B_lab.x() = " << B_lab.x() << endl;
-    cout << "B_lab.y() = " << B_lab.y() << endl;
-    cout << "B_lab.z() = " << B_lab.z() << endl;
-    cout << " B Field x = " << bfield[0] << endl;
-    cout << " B Field y = " << bfield[1] << endl;
-    cout << " B Field z = " << bfield[2] << endl;
+//    cout << " Pole number: " << pole_number << endl;
+//    cout << " Strength: " << strength << endl;
+//    cout << " Origin: " << origin[0] << " " << origin[1] << " " << origin[2] << endl;
+//    cout << " Rotation angle: " << rotation_angle << endl;
+//    cout << " Rotation axis: " << rotaxis << endl;
+//    cout << "B_lab.x() = " << B_lab.x() << endl;
+//    cout << "B_lab.y() = " << B_lab.y() << endl;
+//    cout << "B_lab.z() = " << B_lab.z() << endl;
+//    cout << " B Field x = " << bfield[0] << endl;
+//    cout << " B Field y = " << bfield[1] << endl;
+//    cout << " B Field z = " << bfield[2] << endl;
 
+}
+
+void GField_MultipolesFactory::load_field_definitions(GFieldDefinition gfd) {
+    gfield_definitions = gfd;
+
+    pole_number =  get_field_parameter_int("pole_number");
+    origin[0] = get_field_parameter_double("vx");
+    origin[1] = get_field_parameter_double("vy");
+    origin[2] = get_field_parameter_double("vz");
+    rotation_angle = get_field_parameter_double("rotation_angle");
+    if( gfield_definitions.field_parameters["rotaxis"] == "X") {
+        rotaxis = 0;
+    } else if( gfield_definitions.field_parameters["rotaxis"] == "Y") {
+        rotaxis = 1;
+    } else if( gfield_definitions.field_parameters["rotaxis"] == "Z") {
+        rotaxis = 2;
+    } else {
+        cout << GFIELDLOGHEADER << "GField_MultipolesFactory::load_field_definitions: Rotation axis " + gfield_definitions.field_parameters["rotaxis"] + " not supported. Exiting." << endl;
+        exit(EC__WRONG_FIELD_ROTATION);
+    }
+    strength = get_field_parameter_double("strength");
 }

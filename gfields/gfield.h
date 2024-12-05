@@ -28,13 +28,6 @@ struct GFieldDefinition {
     * @param t Field type.
     * @param v Verbosity level.
     */
-    void init_parameters(string n, string is, double ms, string t, int v) {
-        name = n;
-        integration_stepper = is;
-        minimum_step = ms;
-        type = t;
-        verbosity = v;
-    }
 
     std::string name; ///< Key in the gmagneto maps.
     std::string integration_stepper; ///< Type of integration stepper.
@@ -63,11 +56,18 @@ struct GFieldDefinition {
 
     // overload << to print the field definition
     friend std::ostream &operator<<(std::ostream &stream, GFieldDefinition gfd) {
-        stream << "  > Field name:           " << gfd.name << std::endl;
-        stream << "    - integration stepper: " << gfd.integration_stepper << std::endl;
-        stream << "    - minimum step:        " << gfd.minimum_step << " mm" << std::endl;
-        stream << "    - type:                " << gfd.type << std::endl;
-        stream << "    - verbosity:           " << gfd.verbosity << std::endl;
+        stream << "  > Field name:            " << gfd.name << std::endl;
+        stream << "    - integration stepper  " << gfd.integration_stepper << std::endl;
+        stream << "    - minimum step         " << gfd.minimum_step << " mm" << std::endl;
+        stream << "    - type                 " << gfd.type << std::endl;
+        stream << "    - verbosity            " << gfd.verbosity << std::endl;
+
+        // print the field parameters
+        // align the keys to the left
+        for (auto &field_parameter: gfd.field_parameters) {
+            stream << "    - " << std::left << std::setw(21) << field_parameter.first  << field_parameter.second << std::endl;
+        }
+
         return stream;
     }
 };
@@ -105,7 +105,7 @@ public:
      * @brief Sets the field definition for the field.
      * @param gfd Field definition to set.
      */
-    void set_field_definitions(GFieldDefinition gfd) {
+    virtual void load_field_definitions(GFieldDefinition gfd) {
         gfield_definitions = gfd;
     }
 
@@ -115,6 +115,13 @@ public:
      */
     void gFLogMessage(std::string message) {
         gLogMessage(GFIELDLOGHEADER + gfield_definitions.name + " " + message);
+    }
+
+    int get_field_parameter_int(std::string key) {
+        return stoi(gfield_definitions.field_parameters[key]);
+    }
+    double get_field_parameter_double(std::string key) {
+        return stod(gfield_definitions.field_parameters[key]);
     }
 
 private:

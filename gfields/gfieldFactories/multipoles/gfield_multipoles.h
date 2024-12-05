@@ -23,7 +23,9 @@ public:
      * @param pos Array containing the position (x, y, z, time).
      * @param bfield Output array to store the magnetic field vector (Bx, By, Bz).
      */
-    void GetFieldValue(const G4double pos[4], G4double *bfield) const;
+    void GetFieldValue(const G4double pos[4], G4double *bfield) const override;
+
+    void load_field_definitions(GFieldDefinition gfd) override;
 
 private:
 

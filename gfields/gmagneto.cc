@@ -27,7 +27,7 @@ GMagneto::GMagneto(GOptions *gopts) : GStateMessage(gopts, "GMagneto", "gfield")
 
         if (gFieldMap->find(name) == gFieldMap->end()) {
             (*gFieldMap)[name] = gFieldManager.LoadAndRegisterObjectFromLibrary<GField>(pluginName);
-            (*gFieldMap)[name]->set_field_definitions(field_definition);
+            (*gFieldMap)[name]->load_field_definitions(field_definition);
             (*gFieldMgrMap)[name] = (*gFieldMap)[name]->create_FieldManager();
         }
     }

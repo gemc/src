@@ -210,10 +210,31 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
     connect(sliceZInve, SIGNAL(stateChanged(int)), this, SLOT(slice()));
 
 
+    QGroupBox *fieldPrecisionBox = new QGroupBox(tr("Number of Field Points"));
+    field_npoints = new QLineEdit(to_string(field_NPOINTS).c_str());
+    field_npoints->setMaximumWidth(40);
+
+    QFont font = field_npoints->font();
+    font.setPointSize(24);
+    field_npoints->setFont(font);
+    connect(field_npoints, SIGNAL(returnPressed()) , this, SLOT(field_precision_changed()));
+
+
+    // buttons + field line number
+    QHBoxLayout *fieldPointsHBox = new QHBoxLayout;
+    fieldPointsHBox->addWidget(field_npoints);
+    fieldPrecisionBox->setLayout(fieldPointsHBox);
+
+    QHBoxLayout *buttons_field_HBox = new QHBoxLayout;
+    buttons_field_HBox->addWidget(buttons_set1);
+    buttons_field_HBox->addWidget(fieldPrecisionBox);
+    fieldPrecisionBox->setMaximumHeight(3*buttons_set1->height());
+    fieldPrecisionBox->setMaximumWidth(140);
+
     // all layouts together
     // --------------------
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(buttons_set1);
+    mainLayout->addLayout(buttons_field_HBox);
     mainLayout->addWidget(cameraAnglesGroup);
     mainLayout->addWidget(lightAnglesGroup);
     mainLayout->addLayout(sliceLayout);
@@ -285,14 +306,12 @@ void G4DisplayView::clearSlices() {
 
 void G4DisplayView::apply_buttons_set1(int index) {
 
-    bool button_state = buttons_set1->lastButtonState();
-
-    cout << " state: " << button_state << "  index: " << index << endl;
-
     G4UImanager *g4uim = G4UImanager::GetUIpointer();
     if (g4uim == nullptr) {
         return;
     }
+
+    bool button_state = buttons_set1->lastButtonState();
 
     if (index == 0) {
         string command = string("/vis/viewer/set/hiddenEdge") + (button_state ? " 1" : " 0");
@@ -302,13 +321,11 @@ void G4DisplayView::apply_buttons_set1(int index) {
         if (button_state == 0) {
             glDisable(GL_LINE_SMOOTH);
             glDisable(GL_POLYGON_SMOOTH);
-            g4uim->ApplyCommand("/vis/viewer/flush");
         } else {
             glEnable(GL_LINE_SMOOTH);
             glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
             glEnable(GL_POLYGON_SMOOTH);
             glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-            g4uim->ApplyCommand("/vis/viewer/flush");
         }
     } else if (index == 2) {
         string command = string("/vis/viewer/set/auxiliaryEdge") + (button_state ? " 1" : " 0");
@@ -323,12 +340,27 @@ void G4DisplayView::apply_buttons_set1(int index) {
             string command = string("vis/scene/activateModel Field 0");
             g4uim->ApplyCommand(command);
             g4uim->ApplyCommand("/vis/scene/removeModel Field");
-            g4uim->ApplyCommand("/vis/viewer/flush");
         } else {
-            string npoints = "100";
+            string npoints = to_string(field_NPOINTS);
             string command = string("/vis/scene/add/magneticField ") + npoints;
             g4uim->ApplyCommand(command);
-            g4uim->ApplyCommand("/vis/viewer/flush");
         }
+    }
+}
+
+void G4DisplayView::field_precision_changed() {
+    G4UImanager *g4uim = G4UImanager::GetUIpointer();
+    if (g4uim == nullptr) {
+        return;
+    }
+    field_NPOINTS = field_npoints->text().toInt();
+    if (buttons_set1->buttonStatus(3) == 1) {
+        string command = string("vis/scene/activateModel Field 0");
+        g4uim->ApplyCommand(command);
+        g4uim->ApplyCommand("/vis/scene/removeModel Field");
+
+        string npoints = to_string(field_NPOINTS);
+        command = string("/vis/scene/add/magneticField ") + npoints;
+        G4UImanager::GetUIpointer()->ApplyCommand(command);
     }
 }

@@ -18,6 +18,7 @@ def build_mother_volume(configuration):
     gvolume.digitization = 'flux'
     gvolume.set_identifier('box', 2)  # identifier for this box
     gvolume.style = 0
+    gvolume.mfield = 'dipole'
     gvolume.publish(configuration)
 
 
@@ -28,5 +29,4 @@ def build_target(configuration):
     gvolume.make_tube(0, 20, 40, 0, 360)
     gvolume.material = 'epoxy'
     gvolume.color = 'ff0000'
-    gvolume.mfield = 'dipole'
     gvolume.publish(configuration)
