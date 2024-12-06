@@ -3,7 +3,7 @@
 
 ## To add a library to the doxygen CI:
 
-- modify ci/doxygen.sh to include the library
+- modify ci/doxygen.sh to include the library being added
 - add a <library>Doxy.h header file to describe the library, possibly with:
   - overview
   - conventions

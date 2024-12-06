@@ -20,15 +20,6 @@ struct GFieldDefinition {
      */
     GFieldDefinition() {}
 
-    /**
-    * @brief Initializes the parameters for the field definition.
-    * @param n Name of the field.
-    * @param is Integration stepper type.
-    * @param ms Minimum step size.
-    * @param t Field type.
-    * @param v Verbosity level.
-    */
-
     std::string name; ///< Key in the gmagneto maps.
     std::string integration_stepper; ///< Type of integration stepper.
     double minimum_step; ///< Minimum step size for integration.

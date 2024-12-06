@@ -120,6 +120,7 @@ a.qindexHL {
 
 dl.el {
 	margin-left: -1cm;
+	font-size: 20pt;
 }
 
 a.el {
@@ -144,7 +145,7 @@ pre.fragment {
 	 font-family: monospace, fixed;
 	 font-size: 105%;*/
 	font-family: monospace, fixed;
-	font-size: 16pt;
+	font-size: 14pt;
 	padding: 0.5em 1em;
 	background-color: #f5f5f5;
 	border: 1px solid #bbb;
@@ -162,7 +163,7 @@ div.fragment {
 	 border-bottom: 0;*/
 
 	font-family: Consolas, "Liberation Mono", Courier, monospace;
-	font-size: 14pt;
+	font-size: 12pt;
 	padding: 0.5em 1em;
 	background-color: #f5f5f5;
 	border: 1px solid #bbb;
@@ -518,7 +519,7 @@ dl.reflist dd {
 	font-style: normal;
 }
 .paramname code {
-	line-height: 14px;
+	line-height: 16px;
 }
 
 .params, .retval, .exception, .tparams {
@@ -571,7 +572,7 @@ span.mlabel {
 	margin-right: 4px;
 	padding: 2px 3px;
 	border-radius: 3px;
-	font-size: 12pt;
+	font-size: 20pt;
 	white-space: nowrap;
 	vertical-align: middle;
 }
@@ -1208,7 +1209,7 @@ div.contents code {
 
 div.contents pre code {
 	font-family: monospace, fixed;
-	font-size: 16pt;
+	font-size: 14pt;
 	padding: 0.5em 1em;
 	background-color: #f5f5f5;
 	border: 1px solid #bbb;
@@ -1218,6 +1219,7 @@ div.contents pre code {
 div.contents ul li {
 	color: #333;
 	margin: 0 0 0.3em 0;
+	font-size: 14pt;
 }
 
 

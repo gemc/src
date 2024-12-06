@@ -14,7 +14,7 @@ GMagneto::GMagneto(GOptions *gopts) : GStateMessage(gopts, "GMagneto", "gfield")
     GManager gFieldManager("GMagneto", verbosity);
     string pluginPath = string(getenv("GEMC")) + "/lib/";
 
-    // multipoles from joptions
+    // TODO: this should be done in gemc instead and passed to gmagneto, same as gopts.
     vector <GFieldDefinition> field_definition_array = gfields::get_GFieldDefinition(gopts);
 
     for (auto &field_definition: field_definition_array) {
