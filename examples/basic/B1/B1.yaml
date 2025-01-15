@@ -1,5 +1,5 @@
 runno: 1
-n: 10
+n: 1
 
 gparticle:
   - name: e-
@@ -7,7 +7,7 @@ gparticle:
     theta: 23.0
     delta_theta: 4.0
     delta_phi: 18.0
-    multiplicity: 4
+    multiplicity: 1
 
   - name: proton
     p: 3000
@@ -15,7 +15,7 @@ gparticle:
 verbosity:
   - ghits: 0
   - gsystem: 0
-  - gfield: 2
+  - gfield: 0
   - general: 0
 
 gsystem:
@@ -28,6 +28,6 @@ gstreamer:
 
 gmultipoles:
   - name: dipole
-    pole_number: 3
-    strength: 2
-    verbosity: 2
+    pole_number: 2
+    strength: 1.2
+    verbosity: 0

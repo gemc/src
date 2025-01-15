@@ -9,6 +9,8 @@ using namespace std;
 #include "G4RunManagerFactory.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIQt.hh"
+//#include "G4Transportation.hh"
+#include "G4TransportationParameters.hh"
 
 // gemc
 #include "goptions.h"
@@ -91,6 +93,18 @@ int main(int argc, char *argv[]) {
 
     // instantiate GActionInitialization and initialize the geant4 kernel
     runManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
+
+    G4double warningE = 10.0 * CLHEP::keV;
+    G4double importantE = 1 * CLHEP::GeV;
+    G4int numTrials = 30;
+
+
+    auto transportParams = G4TransportationParameters::Instance();
+    transportParams->SetWarningEnergy(warningE);
+    transportParams->SetImportantEnergy(importantE);
+	transportParams->SetNumberOfTrials(numTrials);
+    G4cout << "field01: Using G4TransportationParameters to set looper parameters." << G4endl;
+
 
     // this initializes g4MTRunManager, which:
     // calls Construct in GDetectorConstruction

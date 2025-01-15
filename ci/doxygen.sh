@@ -7,13 +7,13 @@
 #
 # local build:
 # git clone http://github.com/gemc/src /root/src && cd /root/src
-# ./ci/doxygen.sh goptions
+# ./ci/doxygen.sh
 
 echo " "
 echo " Doxygen version: "$(doxygen --version)
 echo " "
 
-classes=( goptions guts gfields)
+classes=( goptions guts gfields )
 
 classes_to_do=(gdetector ghit gsession  gtranslationTable g4display gdynamicDigitization
  gsplash gui textProgressBar g4system gparticle gstreamer  userActions

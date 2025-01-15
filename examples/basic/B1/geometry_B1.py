@@ -27,6 +27,6 @@ def build_target(configuration):
     gvolume.description = 'epoxy target'
     gvolume.mother = 'absorber'
     gvolume.make_tube(0, 20, 40, 0, 360)
-    gvolume.material = 'epoxy'
+    gvolume.material = 'G4_H'
     gvolume.color = 'ff0000'
     gvolume.publish(configuration)

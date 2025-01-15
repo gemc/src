@@ -63,9 +63,9 @@ void GField_MultipolesFactory::GetFieldValue(const G4double pos[4], G4double *bf
     else if (rotaxis == 1) { B_lab.rotateY(rotation_angle); }
     else if (rotaxis == 2) { B_lab.rotateZ(rotation_angle); }
 
-    bfield[0] = 10000 * B_lab.x();
-    bfield[1] = 10000 * B_lab.y();
-    bfield[2] = 10000 * B_lab.z();
+    bfield[0] =  B_lab.x();
+    bfield[1] =  B_lab.y();
+    bfield[2] =  B_lab.z();
 
 //    cout << " Pole number: " << pole_number << endl;
 //    cout << " Strength: " << strength << endl;

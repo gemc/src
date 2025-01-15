@@ -7,7 +7,6 @@ moc*.cc
 *.saved_configuration.yaml
 DoxyfilePure
 Doxyfile.bak
-pages
 __pycache__
 MasterGeant4.err
 MasterGeant4.log
