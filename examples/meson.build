@@ -6,7 +6,7 @@ install_subdir(meson.current_source_dir(), install_dir : '.')
 
 # Test all solid creators
 examples_map = {
-    'basic' : 'B1'
+    'geant4_basic' : 'B1'
 }
 
 
