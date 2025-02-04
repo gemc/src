@@ -1,5 +1,5 @@
 project('gemc3', 'cpp',
-        default_options : ['cpp_std=c++20'],
+        default_options : ['cpp_std=c++20', 'default_library=static', 'default_both_libraries=static'],
         version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip(),
         meson_version : '>= 1.6.0'
 )
@@ -70,7 +70,6 @@ foreach L : LD
     endif
 
 
-
     if not sources.contains('')
         if not qrc_sources.contains('')
             qrc_compiled_sources += qt5.compile_resources(sources : qrc_sources)
@@ -84,11 +83,12 @@ foreach L : LD
         )
         if not all_libs.contains(this_library)
             all_libs += this_library
+            message(' Adding Library ' + this_lib_name)
         endif
 
         foreach dep : this_deps
             if not all_deps.contains(dep)
-                message(' adding ' + dep.name() + ' to ' + this_lib_name)
+                message(' Adding Dependency ' + dep.name() + ' to ' + this_lib_name)
                 all_deps += dep
             endif
         endforeach
@@ -156,9 +156,10 @@ gemc = executable(
     'gemc',
     ['gemc.cc'] + qrc_gemc_sources + qrc_compiled_sources,
     install : true,
-    dependencies : all_deps,
+    dependencies :  [yaml_cpp_dep, qt5_deps, clhep_deps, geant4_deps],
     include_directories : all_includes,
     link_with : all_libs
+
 )
 
 # api
