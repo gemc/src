@@ -1,7 +1,8 @@
-# qt: pkg-config. https://mesonbuild.com/Qt5-module.html
-qt5 = import('qt5')
-qt5_deps = dependency('qt5',
-                      modules : ['Core', 'Gui', 'Widgets', 'OpenGL'],
+# qt
+qt5 = import('qt6')
+qt6_deps = dependency('qt6',
+                      modules : ['Core', 'Gui', 'Widgets', 'OpenGLWidgets'],
+                      static : true,
                       include_type : 'preserve')
 
 # clhep: pkg-config
@@ -10,40 +11,38 @@ clhep_deps = dependency('clhep',
                         include_type : 'preserve'
 )
 
-# geant4: pkg-config created manually by meson/create_and_install_geant4_pkgconfig.py
-geant4_deps = dependency('geant4',
-                         version : '>=11.3.0',
-                         include_type : 'preserve'
-)
 
-# geant4: pkg-config created manually by meson/create_and_install_geant4_pkgconfig.py
+
+# root: pkg-config created manually by./meson/install_geant4_root_pkgconfig.py
 root_deps = dependency('root',
-                       version : '>=6.32.06',
+                       version : '>=6.32.08',
                        include_type : 'preserve'
 )
+#root_deps = dependency('root', method: 'cmake')
+
+# geant4: pkg-config created manually by ./meson/install_geant4_root_pkgconfig.py
+#geant4_deps = dependency('geant4',
+#                         version : '>=11.3.0',
+#                         include_type : 'preserve'
+#)
+# these also work, although they come with warnings
+geant4_deps = dependency('Geant4', method: 'cmake')
+
 
 # sqlite
 sqlite_dep = dependency('sqlite3',
                         include_type : 'preserve')
 
-# Open Asset Import Library (assimp)
-#assimp_dep = dependency('assimp',
-#                        default_options : ['cpp_args=-Wno-shadow'],
-#                        include_type : 'preserve') # looks like cmake_args is not working
 cmake = import('cmake')
 opt_var = cmake.subproject_options()
-opt_var.add_cmake_defines({'BUILD_SHARED_LIBS': 'OFF'})
+opt_var.add_cmake_defines({ 'BUILD_SHARED_LIBS' : 'OFF', 'BUILD_STATIC_LIBS' : 'ON' })
+opt_var.append_compile_args('cpp', '-Wno-shadow')
 
-assimp_proj = cmake.subproject('assimp',
-                               options : opt_var
-)
+assimp_proj = cmake.subproject('assimp', options : opt_var)
 assimp_dep = assimp_proj.dependency('assimp')
 
-
-# yaml-cpp
-yaml_cpp_dep = dependency('yaml_cpp',
-                          default_options : ['cpp_args=-Wno-shadow'],
-                          include_type : 'preserve') # looks like cmake_args is not working
+yaml_cpp_proj = cmake.subproject('yaml-cpp', options : opt_var)
+yaml_cpp_dep = yaml_cpp_proj.dependency('yaml_cpp')
 
 # sanitizer settings
 project_test_env = environment()

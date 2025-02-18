@@ -87,7 +87,6 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
         }
     }
 
-
     // finds the yaml files
     yaml_files = findYamls(argc, argv);
 

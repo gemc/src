@@ -38,7 +38,7 @@ if get_option('i_test')
         'headers' : headers,
         'moc_headers' : moc_headers,
         'qrc_examples_sources' : qrc_examples_sources,
-        'dependencies' : [yaml_cpp_dep, qt5_deps, clhep_deps, geant4_deps],
+        'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
         'additional_includes' : ['g4display/tabs'],
         'examples' : examples
     }
@@ -48,7 +48,7 @@ else
         'sources' : sources,
         'headers' : headers,
         'moc_headers' : moc_headers,
-        'dependencies' : [yaml_cpp_dep, qt5_deps, clhep_deps, geant4_deps],
+        'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
         'additional_includes' : ['g4display/tabs']
     }
 endif

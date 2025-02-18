@@ -1,7 +1,7 @@
 project('gemc3', 'cpp',
         default_options : ['cpp_std=c++20', 'default_library=static', 'default_both_libraries=static'],
         version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip(),
-        meson_version : '>= 1.6.0'
+        meson_version : '>= 1.7.0'
 )
 project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 
@@ -10,7 +10,7 @@ project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to 
 ############
 LD = []
 all_libs = []
-all_deps = []
+# all_deps = []
 all_includes = []
 empty_dict = { 'na' : [''] }
 
@@ -86,12 +86,12 @@ foreach L : LD
             message(' Adding Library ' + this_lib_name)
         endif
 
-        foreach dep : this_deps
-            if not all_deps.contains(dep)
-                message(' Adding Dependency ' + dep.name() + ' to ' + this_lib_name)
-                all_deps += dep
-            endif
-        endforeach
+#        foreach dep : this_deps
+#            if not all_deps.contains(dep)
+#                message(' Adding Dependency ' + dep.name() + ' to ' + this_lib_name)
+#                all_deps += dep
+#            endif
+#        endforeach
     endif
 
     # header files
@@ -156,7 +156,7 @@ gemc = executable(
     'gemc',
     ['gemc.cc'] + qrc_gemc_sources + qrc_compiled_sources,
     install : true,
-    dependencies :  [yaml_cpp_dep, qt5_deps, clhep_deps, geant4_deps],
+    dependencies :  [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
     include_directories : all_includes,
     link_with : all_libs
 

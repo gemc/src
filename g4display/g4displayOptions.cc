@@ -13,6 +13,7 @@ namespace g4display {
     // TODO: lets get that programmatically
     // ASCIITree ATree DAWNFILE G4HepRepFile HepRepFile RayTracer VRML2FILE gMocrenFile OpenGLImmediateQt OGLIQt OGLI OpenGLStoredQt OGLSQt OGL OGLS
     vector <string> AVAILABLEG4VIEWERS = {
+			"TOOLSSG_QT_GLES",
             "OpenGLImmediateQt",
             "OGLIQt",
             "OGLI",

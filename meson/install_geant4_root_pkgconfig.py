@@ -12,7 +12,8 @@ def run_config(command, option):
 
 def filter_unwanted_flags(flags):
     """Remove unwanted flags related to Qt, CLHEP, and XercesC."""
-    unwanted = ["Qt", "qt", "CLHEP", "clhep", "xercesc", "XercesC", "TreePlayer"]
+    #unwanted = ["CLHEP", "clhep", "xercesc", "XercesC", "TreePlayer", "-Wshadow"]
+    unwanted = ["Qt", "qt", "CLHEP", "clhep", "xercesc", "XercesC", "TreePlayer", "-Wshadow"]
     return " ".join(flag for flag in flags.split() if not any(uw in flag for uw in unwanted))
 
 
@@ -48,7 +49,7 @@ Libs:  {libs}
     """.strip()
 
     # Write to the .pc file
-    pc_file_path = os.path.join(prefix, "lib", "pkgconfig", output_filename)
+    pc_file_path = os.path.join(os.environ["GEMC"], "lib", "pkgconfig", output_filename)
     os.makedirs(os.path.dirname(pc_file_path), exist_ok=True)
     with open(pc_file_path, "w") as pc_file:
         pc_file.write(pc_content + "\n")

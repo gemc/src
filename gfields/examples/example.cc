@@ -19,8 +19,8 @@ int main(int argc, char *argv[]) {
 
     // Check if a specific field exists
     if (magneto->isField(field_name)) {
-        GField *field = magneto->getField(field_name);
-        G4FieldManager *fieldManager = magneto->getFieldMgr(field_name);
+//        GField *field = magneto->getField(field_name);
+//        G4FieldManager *fieldManager = magneto->getFieldMgr(field_name);
     } else {
         cout << "Field " << field_name << " was not found." << endl;
     }

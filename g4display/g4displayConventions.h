@@ -1,7 +1,10 @@
 #ifndef  G4DISPLAY_H_CONVENTIONS
 #define  G4DISPLAY_H_CONVENTIONS 1
 
-#define GDEFAULTVIEWERDRIVER  "OGL"
+// Notice: with qt6 we do not have access anymore to OGL, but the examples still do.
+// This can be a potential problem in the future.
+
+#define GDEFAULTVIEWERDRIVER  "TOOLSSG_QT_GLES"
 #define GDEFAULTVIEWERSIZE    "1200x1200"
 #define GDEFAULTVIEWERPOS     "-400+100"
 #define GDEFAULTVSEGPERCIRCLE 50

@@ -23,7 +23,7 @@ if get_option('i_test')
         'sources' : sources,
         'headers' : headers,
         'qrc_examples_sources' : qrc_examples_sources,
-        'dependencies' : [yaml_cpp_dep, qt5_deps],
+        'dependencies' : [yaml_cpp_dep, qt6_deps],
         'examples' : examples
     }
 else
@@ -32,6 +32,6 @@ else
         'sources' : sources,
         'headers' : headers,
         'qrc_examples_sources' : qrc_examples_sources,
-        'dependencies' : [yaml_cpp_dep, qt5_deps]
+        'dependencies' : [yaml_cpp_dep, qt6_deps]
     }
 endif
