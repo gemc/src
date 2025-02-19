@@ -10,9 +10,9 @@ project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to 
 ############
 LD = []
 all_libs = []
-# all_deps = []
 all_includes = []
 empty_dict = { 'na' : [''] }
+all_lib_names = []  # Store library names as linker flags
 
 subdir('meson')
 add_project_arguments('-Wno-shadow', language : ['cpp'])
@@ -45,6 +45,7 @@ subdir('utilities')
 subdir('gdetector')
 subdir('userActions')
 subdir('gui')
+
 
 # compilation loop
 foreach L : LD
@@ -83,15 +84,9 @@ foreach L : LD
         )
         if not all_libs.contains(this_library)
             all_libs += this_library
+            all_lib_names += 'lib' + this_lib_name + '.a' # Add as linker flag
             message(' Adding Library ' + this_lib_name)
         endif
-
-#        foreach dep : this_deps
-#            if not all_deps.contains(dep)
-#                message(' Adding Dependency ' + dep.name() + ' to ' + this_lib_name)
-#                all_deps += dep
-#            endif
-#        endforeach
     endif
 
     # header files
@@ -111,6 +106,7 @@ foreach L : LD
                 link_with : all_libs,
                 name_suffix : 'gplugin',
                 name_prefix : ''
+                # link_args : all_lib_names
             )
         endforeach
     endif
@@ -132,6 +128,7 @@ foreach L : LD
                 dependencies : this_deps,
                 include_directories : all_includes + this_lib_name + additional_includes,
                 link_with : all_libs
+                #link_args : all_lib_names
             )
             test(' ## ' + this_lib_name + ' test ##  >>  ' + name,
                  exe,
@@ -156,23 +153,24 @@ gemc = executable(
     'gemc',
     ['gemc.cc'] + qrc_gemc_sources + qrc_compiled_sources,
     install : true,
-    dependencies :  [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
+    dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
     include_directories : all_includes,
-    link_with : all_libs
-
+    # link_with : all_libs
+    link_args : all_lib_names
 )
 
 # api
 subdir('api')
 subdir('examples')
-subdir('tests')
 
 # generate pkg-config file
+# needs testing - add libraries?
 pkg = import('pkgconfig')
 pkg.generate(
     name : meson.project_name(),
     description : project_description,
-    #requires : all_deps, # pkg-config dependencies only
+    requires : ['yaml-cpp', 'qt6', 'clhep', 'geant4'], # pkg-config dependencies only
     version : meson.project_version(),
-    libraries : all_libs
+    #    libraries : all_libs
+    #    link_args : all_lib_names
 )

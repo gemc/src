@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
 
     GOptions *gopts = new GOptions(argc, argv, g4system::defineOptions());
 
-	cout << " > Nthreads: " << gopts->getScalarInt("nthreads") << endl;
+	cout << " > Gui: " << gopts->getSwitch("gui") << endl;
 
     return EXIT_SUCCESS;
 }

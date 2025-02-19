@@ -3,9 +3,7 @@
 # Purpose: compiles, installs gemc, run tests
 
 # Container run:
-# docker_run_image jeffersonlab/geant4:g4v11.2.2-almalinux93
-# docker_run_image jeffersonlab/geant4:g4v11.2.2-ubuntu24
-# docker_run_image jeffersonlab/geant4:g4v11.2.2-fedora36
+# docker_run_image jeffersonlab/geant4:g4v11.3.0-almalinux93
 #
 # local build:
 # git clone http://github.com/gemc/src /root/src && cd /root/src

@@ -4,11 +4,4 @@ moc*.cc
 *__materials*.txt
 *__geometry*.txt
 *__mirrors*.txt
-*.saved_configuration.yaml
-DoxyfilePure
-Doxyfile.bak
-__pycache__
-MasterGeant4.err
-MasterGeant4.log
-G4W*_gthread.log
 .DS_Store
