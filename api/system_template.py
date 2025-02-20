@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-# imports: do not edit these lines
 import argparse
 import logging
 import os
@@ -9,10 +8,8 @@ import sys
 # from geometry import *
 from solids_map import AVAILABLE_SOLIDS_MAP
 
-
 NGIVEN: str = 'NOTGIVEN'
 NGIVENS: [str] = ['NOTGIVEN']
-
 
 # Purposes:
 # 1. write a geometry/material/mirror template file, using the system name and optional variation
@@ -20,13 +17,11 @@ NGIVENS: [str] = ['NOTGIVEN']
 # 3. list solid types
 # 4. print on screen html help for all solid types
 
-
-
 def main():
     logging.basicConfig(level=logging.DEBUG)
 
     # Provides the -h, --help message
-    desc_str = "   GEMC templates creator\n"
+    desc_str = "   GEMC system templates creator\n"
     parser = argparse.ArgumentParser(description=desc_str)
 
     # file writers
@@ -53,7 +48,14 @@ def main():
                         help='write code to filename instead of showing it to screen', default=NGIVEN)
     parser.add_argument('-geo_sub', metavar='method', action='store', type=str,
                         help='to use with write_to option: defines name of geo subroutine', default="build_test")
+    # add option to select the database type
+    parser.add_argument('-db', metavar='database', action='store', type=str,
+                        help='select the database type', default='ascii')
+
     args = parser.parse_args()
+
+    # check if the database type is valid
+    is_valid_database(args.db)
 
     if args.s != NGIVEN:
         write_templates(args.s, args.v)
@@ -77,6 +79,20 @@ def main():
         parser.print_help(sys.stderr)
         print()
         sys.exit(1)
+
+# return the list of available databases
+def available_databases():
+    return ['ascii', 'sqlite']
+
+# check that is one of the available databases
+# if not print the available databases and exit
+def is_valid_database(database):
+    if database in available_databases():
+        return
+    print('Error: database must be one of the following:')
+    for db in available_databases():
+        print(f'  - {db}')
+    exit(1)
 
 
 def ask_to_overwrite_file(path):

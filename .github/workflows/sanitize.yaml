@@ -49,6 +49,4 @@ jobs:
       - name: Build ${{ matrix.sanitize }}
         run: |
           ./ci/build.sh ${{ matrix.sanitize }}
-#      - name: Test
-#        run: |
-#          ./ci/test.sh
+

@@ -103,7 +103,8 @@ foreach L : LD
                 include_directories : all_includes + this_lib_name + additional_includes,
                 link_with : all_libs,
                 name_suffix : 'gplugin',
-                name_prefix : ''
+                name_prefix : '',
+                override_options: ['b_staticpic=true']
                 # link_args : all_lib_names
             )
         endforeach
@@ -125,8 +126,9 @@ foreach L : LD
                 install : true,
                 dependencies : this_deps,
                 include_directories : all_includes + this_lib_name + additional_includes,
-                link_with : all_libs
+                link_with : all_libs,
                 #link_args : all_lib_names
+                override_options: ['b_pie=true']
             )
             test(' ## ' + this_lib_name + ' test ##  >>  ' + name,
                  exe,
@@ -154,7 +156,8 @@ gemc = executable(
     dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
     include_directories : all_includes,
     # link_with : all_libs
-    link_args : all_lib_names
+    link_args : all_lib_names,
+    override_options: ['b_pie=true']
 )
 
 # api

@@ -1,13 +1,16 @@
 # Python API to build detectors 
 
-This interface is part  [GEMC](https://gemc.github.io/home/).
-It provides utilities to build detectors, create materials, 
+This [GEMC](https://gemc.github.io/home/) interface provides utilities to build detectors, create materials, 
 assign sensitivity, etc.
+
+The possible databases are:
+
+- ASCII text files
+- SQLite database
 
 ### Prerequisites:
 
 - python3
-- gemc installation
 
 # Quickstart
 

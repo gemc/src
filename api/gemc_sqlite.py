@@ -14,7 +14,7 @@ NGIVENS: [str] = ['NOTGIVEN']
 
 def main():
     # Provides the -h, --help message
-    desc_str = "   SCI-G sql interface\n"
+    desc_str = "   gemc sqlite interface\n"
     sqlitedb: sqlite3.Connection = None
 
     variation_filter = ''

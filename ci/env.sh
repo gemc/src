@@ -43,11 +43,43 @@ fi
 mkdir -p $GEMC
 
 function sanitize_options {
-    if [ "$1" == "leak" ]; then
-        sanitize_option="-Db_sanitize=address,undefined"
-    elif [ "$1" == "thread" ]; then
-        sanitize_option="-Db_sanitize=thread"
-    else
-        sanitize_option=""
+    # valid options: address, thread, undefined, memory, leak
+
+    sanitize_option=""
+    case $1 in
+        "address")
+            sanitize_option="-Db_sanitize=address"
+            ;;
+        "thread")
+            sanitize_option="-Db_sanitize=thread"
+            ;;
+        "undefined")
+            sanitize_option="-Db_sanitize=undefined"
+            ;;
+        "memory")
+            sanitize_option="-Db_sanitize=memory"
+            ;;
+        "leak")
+            sanitize_option="-Db_sanitize=leak"
+            ;;
+          "none"
+            sanitize_option=""
+            ;;
+        *)
+            sanitize_option=""
+            ;;
+    esac
+
+
+    pgo=""
+    buildtype="-Dbuildtype=debug"
+
+    # if on ubuntu, use pgo generate
+    if [ -f /etc/os-release ]; then
+        if grep -q "Ubuntu" /etc/os-release; then
+            pgo="-Db_pgo=generate"
+        fi
     fi
+
+    echo $sanitize_option $pgo $buildtype
 }
