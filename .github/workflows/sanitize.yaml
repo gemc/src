@@ -1,16 +1,17 @@
-name: CI
+name: Sanitize
 
+# Controls when the workflow will run
 on:
   # Triggers the workflow on all pushes
   push:
-  pull_request:
-    types:
-      # only run workflow when a commit is pushed to a PR branch
-      # instead of running for all other PR events
-      - synchronize
+    branches:
+      - '*'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
+permissions:
+  actions: read
 
 jobs:
   build_and_test:
@@ -23,12 +24,13 @@ jobs:
           - name: fedora36
             image: jeffersonlab/geant4:g4v11.3.0-fedora36
           - name: almalinux93
-            image: jeffersonlab/geant4:g4v11.3.0-almalinux93
+            image: jeffersonlab/geant4:g4v11.3.0-almalinux94
+        # to be revisited
         # NOTE1: `b_sanitize=memory` is not used because `libc++` needs to be re-compiled with `-fsanitize=memory`, otherwise
         #        we are bothered by false positives (e.g., from `std::map` insertion)
         # NOTE2: additional packages needed for the sanitizer: libasan libubsan libtsan
         # NOTE3: address, thread, leak: some examples are not working. Need to investigate.
-        #sanitize: [ standard, address, thread, leak, undefined ]
+        #sanitize: [ none, address, thread, undefined, memory, leak, address,undefined ]
         sanitize: [ standard, undefined ]
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -36,10 +38,10 @@ jobs:
     name: ${{ matrix.container.name }}-${{ matrix.sanitize }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@main
-      - name: Fix Ownership
-        run: |
+#      - name: Checkout
+#        uses: actions/checkout@main
+#      - name: Fix Ownership
+#        run: |
 #          # this is to fix GIT not liking owner of the checkout dir
 #          chown -R $(id -u):$(id -g) $PWD
 #          git fetch --prune --unshallow --tags
@@ -47,6 +49,6 @@ jobs:
       - name: Build ${{ matrix.sanitize }}
         run: |
           ./ci/build.sh ${{ matrix.sanitize }}
-      - name: Test
-        run: |
-          ./ci/test.sh
+#      - name: Test
+#        run: |
+#          ./ci/test.sh

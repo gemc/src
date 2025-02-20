@@ -14,10 +14,13 @@ clhep_deps = dependency('clhep',
 
 
 # root: pkg-config created manually by./meson/install_geant4_root_pkgconfig.py
-root_deps = dependency('root',
-                       version : '>=6.32.08',
-                       include_type : 'preserve'
-)
+if get_option('use_root')
+    root_deps = dependency('root',
+                           version : '>=6.32.08',
+                           include_type : 'preserve'
+    )
+endif
+
 #root_deps = dependency('root', method: 'cmake')
 
 # geant4: pkg-config created manually by ./meson/install_geant4_root_pkgconfig.py
@@ -25,8 +28,8 @@ root_deps = dependency('root',
 #                         version : '>=11.3.0',
 #                         include_type : 'preserve'
 #)
-# these also work, although they come with warnings
-geant4_deps = dependency('Geant4', method: 'cmake')
+# this also works, although it comes with warnings
+geant4_deps = dependency('Geant4', method : 'cmake', static : true)
 
 
 # sqlite

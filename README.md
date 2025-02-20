@@ -5,8 +5,11 @@
 
 ## Sanitizers
 
+- none, address, thread, undefined, memory, leak (meson configure)
 
+Working on mac:
 
+- undefined
 
 ## Validation
 
