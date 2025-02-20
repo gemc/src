@@ -2,6 +2,7 @@
 
 import subprocess
 import os
+import shutil
 
 
 def run_config(command, option):
@@ -107,9 +108,14 @@ geant4_set_and_check_package_variable(XercesC_LIBRARY_RELEASE "{xercesc_lib}" FI
 
     print(f"Installed {output_path}")
 
+def check_root_config():
+    """Check if root-config is available."""
+    return shutil.which("root-config") is not None
+
 
 if __name__ == "__main__":
     # generate_pkgconfig("geant4-config", "geant4.pc", "Geant4", "Geant4 Simulation Toolkit")
-    root_list = ["RIO", "Tree", "Core", "root"]
-    generate_pkgconfig("root-config", "root.pc", "ROOT", "ROOT Data Analysis Framework", root_list)
+    if check_root_config():
+        root_list = ["RIO", "Tree", "Core", "root"]
+        generate_pkgconfig("root-config", "root.pc", "ROOT", "ROOT Data Analysis Framework", root_list)
     generate_geant4_package_cache("Geant4PackageCache.cmake")
