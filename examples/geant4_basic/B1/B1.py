@@ -3,29 +3,28 @@
 # python:
 import argparse
 import logging
-# api:
-from utils_api import GConfiguration
 
-# B1:
+# api:
+from utils_api import GConfiguration, defined_parser
+
+# B1 specific
 from materials import define_materials
 from geometry import build_geometry
 
 VARIATIONS = {
-    "default",
+	"default",
 }
+
 
 def main():
 	logging.basicConfig(level=logging.DEBUG)
 
 	# Provides the -h, --help message
-	desc_str = "   Will create the B1 system\n"
-	parser = argparse.ArgumentParser(description=desc_str)
-	args = parser.parse_args()
+	args = defined_parser('The B1 system')
 
 	for variation in VARIATIONS:
-
 		# Define GConfiguration name, factory and description.
-		configuration = GConfiguration('B1', 'TEXT', 'The B1 system')
+		configuration = GConfiguration('B1', 'TEXT', args)
 		configuration.setVariation(variation)
 
 		# define materials

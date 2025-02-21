@@ -16,7 +16,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc:dev-almalinux94
+    container:  jeffersonlab/geant4:g4v11.3.0-ubuntu24
 
     steps:
       - name: Checkout
@@ -24,4 +24,3 @@ jobs:
       - name: Build gemc
         run: |
           ./ci/build.sh none
-

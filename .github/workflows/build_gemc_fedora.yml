@@ -16,7 +16,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: jeffersonlab/gemc:dev-fedora36
+    container:  jeffersonlab/geant4:g4v11.3.0-fedora36
 
     steps:
       - name: Checkout
