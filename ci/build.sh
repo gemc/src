@@ -12,8 +12,8 @@ source ci/env.sh
 sanitize_option=$(sanitize_options $1)
 
 echo " > Running build Configure"
-meson setup build --native-file=core.ini -Duse_root=true $sanitize_option -Dprefix=$GEMC --wipe
-cd build
+meson setup build --native-file=core.ini -Duse_root=true $sanitize_option -Dprefix=$GEMC --wipe || exit 1
+cd build  || exit 1
 echo " > Running meson compile and install"
-meson compile -v
+meson compile -v  || exit 1
 

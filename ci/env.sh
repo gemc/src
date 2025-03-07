@@ -53,21 +53,24 @@ function sanitize_options {
 
 
     pgo=""
-    buildtype="-Dbuildtype=debug"
+    buildtype=" -Dbuildtype=debug "
 
     # if on ubuntu, use pgo generate
     if [ -f /etc/os-release ]; then
         if grep -q "Ubuntu" /etc/os-release; then
-            pgo="-Db_pgo=generate"
+            pgo=" -Db_pgo=generate "
         fi
     fi
 
     echo $sanitize_option $pgo $buildtype
 }
 
-# If shallow, need to fetch the tags
-if $(git rev-parse --is-shallow-repository); then
-    git fetch --prune --unshallow --tags
+is_shallow=$(git rev-parse --is-shallow-repository)
+echo "Repository is_shallow: $is_shallow"
+
+if [ "$is_shallow" = "true" ]; then
+    echo " > Fetching all tags"
+  git fetch --tags --unshallow
 fi
 
 # if we are in the docker container, we need to load the modules

@@ -11,7 +11,16 @@ clhep_deps = dependency('clhep',
                         include_type : 'preserve'
 )
 
-
+# install geant4.pc if not found
+python_exe = import('python').find_installation('python3')
+fs = import('fs')
+geant4_path = get_option('prefix')
+geant4_pc = geant4_path / 'lib/pkgconfig/geant4.pc'
+script_path = meson.project_source_root() / 'meson/install_geant4_root_pkgconfig.py'
+if not fs.exists(geant4_pc)
+    message('geant4.pc not found in ' + geant4_pc + ', running install script...')
+    run_command(python_exe, script_path)
+endif
 
 # root: pkg-config created manually by./meson/install_geant4_root_pkgconfig.py
 if get_option('use_root')
@@ -20,7 +29,6 @@ if get_option('use_root')
                            include_type : 'preserve'
     )
 endif
-
 #root_deps = dependency('root', method: 'cmake')
 
 # geant4: pkg-config created manually by ./meson/install_geant4_root_pkgconfig.py
