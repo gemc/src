@@ -114,7 +114,7 @@ def check_root_config():
 
 
 if __name__ == "__main__":
-    # generate_pkgconfig("geant4-config", "geant4.pc", "Geant4", "Geant4 Simulation Toolkit")
+    generate_pkgconfig("geant4-config", "geant4.pc", "Geant4", "Geant4 Simulation Toolkit")
     if check_root_config():
         root_list = ["RIO", "Tree", "Core", "root"]
         generate_pkgconfig("root-config", "root.pc", "ROOT", "ROOT Data Analysis Framework", root_list)

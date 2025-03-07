@@ -23,25 +23,6 @@ function show_installation {
   fi
 }
 
-# If shallow, need to fetch the tags
-if $(git rev-parse --is-shallow-repository); then
-    git fetch --prune --unshallow --tags
-fi
-
-# if we are in the docker container, we need to load the modules
-if [[ -z "${AUTOBUILD}" ]]; then
-	echo "\nNot in container"
-else
-	echo "\nIn docker container."
-	if [[ -n "${GITHUB_WORKFLOW}" ]]; then
-		echo "GITHUB_WORKFLOW: ${GITHUB_WORKFLOW}"
-	fi
-	source /etc/profile.d/localSetup.sh
-	module load gemc/dev3
-	echo
-fi
-mkdir -p $GEMC
-
 function sanitize_options {
     # valid options: address, thread, undefined, memory, leak
 
@@ -62,7 +43,7 @@ function sanitize_options {
         "leak")
             sanitize_option="-Db_sanitize=leak"
             ;;
-          "none"
+        "none")
             sanitize_option=""
             ;;
         *)
@@ -83,3 +64,29 @@ function sanitize_options {
 
     echo $sanitize_option $pgo $buildtype
 }
+
+# If shallow, need to fetch the tags
+if $(git rev-parse --is-shallow-repository); then
+    git fetch --prune --unshallow --tags
+fi
+
+# if we are in the docker container, we need to load the modules
+if [[ -z "${AUTOBUILD}" ]]; then
+	echo "\nNot in container"
+else
+	echo "\nIn docker container."
+	if [[ -n "${GITHUB_WORKFLOW}" ]]; then
+		echo "GITHUB_WORKFLOW: ${GITHUB_WORKFLOW}"
+	fi
+	source /etc/profile.d/localSetup.sh
+	module load gemc/dev3
+	echo
+fi
+mkdir -p $GEMC/lib/pkgconfig
+
+# if $GEMC/lib/pkgconfig/geant4.pc is not existing, run meson/install_geant4_root_pkgconfig.py
+if [ ! -f $GEMC/lib/pkgconfig/geant4.pc ]; then
+    echo " > Running meson/install_geant4_root_pkgconfig.py"
+    python3 meson/install_geant4_root_pkgconfig.py
+fi
+

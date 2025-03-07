@@ -1,5 +1,5 @@
 # qt
-qt5 = import('qt6')
+qt6 = import('qt6')
 qt6_deps = dependency('qt6',
                       modules : ['Core', 'Gui', 'Widgets', 'OpenGLWidgets'],
                       static : true,
@@ -24,12 +24,12 @@ endif
 #root_deps = dependency('root', method: 'cmake')
 
 # geant4: pkg-config created manually by ./meson/install_geant4_root_pkgconfig.py
-#geant4_deps = dependency('geant4',
-#                         version : '>=11.3.0',
-#                         include_type : 'preserve'
-#)
-# this also works, although it comes with warnings
-geant4_deps = dependency('Geant4', method : 'cmake', static : true)
+geant4_deps = dependency('geant4',
+                         version : '>=11.3.0',
+                         include_type : 'preserve'
+)
+# this also works,but ONLY if the dynamic libraries are present
+# geant4_deps = dependency('Geant4', method : 'cmake', static : true)
 
 
 # sqlite

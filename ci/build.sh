@@ -17,4 +17,3 @@ cd build
 echo " > Running meson compile and install"
 meson compile -v
 
-# if

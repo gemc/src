@@ -1,4 +1,4 @@
-name: Almalinux Build
+name: Ubuntu Build
 
 # Controls when the workflow will run
 on:

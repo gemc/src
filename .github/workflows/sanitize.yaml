@@ -38,14 +38,14 @@ jobs:
     name: ${{ matrix.container.name }}-${{ matrix.sanitize }}
 
     steps:
-#      - name: Checkout
-#        uses: actions/checkout@main
-#      - name: Fix Ownership
-#        run: |
-#          # this is to fix GIT not liking owner of the checkout dir
-#          chown -R $(id -u):$(id -g) $PWD
-#          git fetch --prune --unshallow --tags
-#          git config --global --add safe.directory '*'
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Fix Ownership
+        run: |
+          # this is to fix GIT not liking owner of the checkout dir
+          #chown -R $(id -u):$(id -g) $PWD
+          #git fetch --prune --unshallow --tags
+          git config --global --add safe.directory '*'
       - name: Build ${{ matrix.sanitize }}
         run: |
           ./ci/build.sh ${{ matrix.sanitize }}
