@@ -84,6 +84,7 @@ else
 	module load gemc/dev3
 	echo
 fi
+
 mkdir -p $GEMC/lib/pkgconfig
 
 # if $GEMC/lib/pkgconfig/geant4.pc is not existing, run meson/install_geant4_root_pkgconfig.py
@@ -92,3 +93,6 @@ if [ ! -f $GEMC/lib/pkgconfig/geant4.pc ]; then
     python3 meson/install_geant4_root_pkgconfig.py
 fi
 
+# since the pkgconfig files are installed after the module loads, we need to reload the modules
+module unload gemc
+module load gemc/dev3

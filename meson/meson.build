@@ -11,6 +11,9 @@ ogl_deps = dependency('opengl', required: true)
 # pkg-config --cflags --libs gl
 sqlite_dep = dependency('sqlite3', required: true)
 
+# pkg-config --modversion expat
+expat_dep = dependency('expat', required: true)
+
 # clhep: pkg-config
 clhep_deps = dependency('clhep',
                         version : '>=2.4.7.1',
