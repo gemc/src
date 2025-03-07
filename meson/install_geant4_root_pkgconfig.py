@@ -4,7 +4,6 @@ import subprocess
 import os
 import shutil
 
-
 def run_config(command, option):
     """Run a config command with the given option and return the output."""
     result = subprocess.run([command, option], capture_output=True, text=True, check=True)

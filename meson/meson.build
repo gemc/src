@@ -5,6 +5,12 @@ qt6_deps = dependency('qt6',
                       static : true,
                       include_type : 'preserve')
 
+# check system: pkg-config --cflags --libs gl
+ogl_deps = dependency('opengl', required: true)
+
+# pkg-config --cflags --libs gl
+sqlite_dep = dependency('sqlite3', required: true)
+
 # clhep: pkg-config
 clhep_deps = dependency('clhep',
                         version : '>=2.4.7.1',
@@ -25,7 +31,7 @@ endif
 # root: pkg-config created manually by./meson/install_geant4_root_pkgconfig.py
 if get_option('use_root')
     root_deps = dependency('root',
-                           version : '>=6.32.08',
+                           version : '>=6.28/02',
                            include_type : 'preserve'
     )
 endif

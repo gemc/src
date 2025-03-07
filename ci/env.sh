@@ -27,6 +27,9 @@ function sanitize_options {
     # valid options: address, thread, undefined, memory, leak
 
     sanitize_option=""
+    pgo=""
+    buildtype=" -Dbuildtype=debug "
+
     case $1 in
         "address")
             sanitize_option="-Db_sanitize=address"
@@ -50,10 +53,6 @@ function sanitize_options {
             sanitize_option=""
             ;;
     esac
-
-
-    pgo=""
-    buildtype=" -Dbuildtype=debug "
 
     # if on ubuntu, use pgo generate
     if [ -f /etc/os-release ]; then

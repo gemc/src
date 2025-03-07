@@ -3,17 +3,20 @@
 # Purpose: compiles gemc with sanitizers
 
 # Container run:
-# docker run -it --rm --platform linux/amd64 jeffersonlab/gemc:dev-fedora36 sh
-# git clone http://github.com/gemc/clas12Tags /root/clas12Tags && cd /root/clas12Tags
-# ./ci/build_gemc.sh
+# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.0-almalinux94 sh
+# git clone http://github.com/gemc/src /root/src && cd /root/src
+# ./ci/build.sh none
 
 source ci/env.sh
 
 sanitize_option=$(sanitize_options $1)
 
-echo " > Running build Configure"
-meson setup build --native-file=core.ini -Duse_root=true $sanitize_option -Dprefix=$GEMC --wipe || exit 1
+setup_options=" --native-file=core.ini -Duse_root=true $sanitize_option -Dprefix=$GEMC --wipe "
+echo " > Running build Configure with setup build options: $setup_options"
+
+meson setup build $=setup_options || exit 1
 cd build  || exit 1
 echo " > Running meson compile and install"
 meson compile -v  || exit 1
+meson test -v || exit 1
 
