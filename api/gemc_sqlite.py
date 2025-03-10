@@ -148,17 +148,26 @@ def add_materials_fields_to_sqlite_if_needed(gmaterial, configuration):
 
 
 def populate_sqlite_geometry(gvolume, configuration):
-    add_geometry_fields_to_sqlite_if_needed(gvolume, configuration)
+	add_geometry_fields_to_sqlite_if_needed(gvolume, configuration)
 
-    sql = configuration.sqlitedb.cursor()
+	sql = configuration.sqlitedb.cursor()
 
-    # form a string representing the gvolume columns of the table
-    columns = form_string_with_column_definitions(gvolume)
-    values  = form_string_with_column_values(gvolume, configuration)
-    #print(columns)
-    #print(values)
-    sql.execute("INSERT INTO geometry {} VALUES {}".format(columns, values))
-    configuration.sqlitedb.commit()
+	# Delete existing entries for the same system, variation, and run number
+	delete_query = """
+        DELETE FROM geometry WHERE system = ? AND variation = ? AND runno = ?
+    """
+	sql.execute(delete_query, (configuration.system, configuration.variation, configuration.runno))
+
+	# Insert new geometry data
+	columns = form_string_with_column_definitions(gvolume)
+	values  = form_string_with_column_values(gvolume, configuration)
+
+	insert_query = f"INSERT INTO geometry {columns} VALUES {values}"
+	sql.execute(insert_query)
+
+	# Commit changes
+	configuration.sqlitedb.commit()
+
 
 def populate_sqlite_materials(gmaterial, configuration):
     add_materials_fields_to_sqlite_if_needed(gmaterial, configuration)

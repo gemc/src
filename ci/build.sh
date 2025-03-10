@@ -18,5 +18,6 @@ meson setup build $=setup_options || exit 1
 cd build  || exit 1
 echo " > Running meson compile and install"
 meson compile -v  || exit 1
+meson install  || exit 1
 meson test -v || exit 1
 
