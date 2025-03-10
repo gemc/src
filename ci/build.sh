@@ -18,6 +18,9 @@ meson setup build $=setup_options || exit 1
 cd build  || exit 1
 echo " > Running meson compile and install"
 meson compile -v  || exit 1
+ls -l build || exit 1
 meson install  || exit 1
+ls -l $GEMC/lib || exit 1
+ls -R $GEMC/examples || exit 1
 meson test -v || exit 1
 
