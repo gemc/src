@@ -198,7 +198,7 @@ def sqltype_of_variable(variable) -> str:
     if type(variable) is int:
         return 'INT'
     elif type(variable) is str:
-        return 'TEXT'
+        return 'ASCII'
 
 def add_column(db, tablename, column_name, var_type):
     sql = db.cursor()

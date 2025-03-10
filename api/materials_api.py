@@ -86,7 +86,7 @@ NOTASSIGNEDNUMBER = -1
 ISCHEMICAL   = "ISCHEMICAL"
 ISFRACTIONAL = "ISFRACTIONAL"
 
-from scig_sql import populate_sqlite_materials
+from gemc_sqlite import populate_sqlite_materials
 
 # Material class definition
 class GMaterial():
@@ -145,7 +145,7 @@ class GMaterial():
 	def publish(self, configuration):
 		self.check_validity()
 		# TEXT factory
-		if configuration.factory == 'TEXT':
+		if configuration.factory == 'ASCII':
 			fileName = configuration.matFileName
 			configuration.nmaterials += 1
 			with open(fileName, 'a+') as dn:

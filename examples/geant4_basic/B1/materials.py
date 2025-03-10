@@ -1,6 +1,6 @@
 from materials_api import GMaterial
 
-def define_materials(configuration):
+def define_B1_materials(configuration):
 
 	# example of material: epoxy glue, defined with number of atoms
 	gmaterial = GMaterial("epoxy")

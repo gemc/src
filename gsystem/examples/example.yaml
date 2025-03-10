@@ -1,6 +1,6 @@
 gsystem:
   - name: clas12Target
-    factory: TEXT
+    factory: ASCII
     variation: lh2
   - name: cloudc
     factory: SQLITE

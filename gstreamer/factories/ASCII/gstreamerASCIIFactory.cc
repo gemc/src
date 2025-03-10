@@ -1,5 +1,5 @@
 // gstreamer
-#include "gstreamerTEXTFactory.h"
+#include "gstreamerASCIIFactory.h"
 
 // tells the DLL how to create a GStreamerFactory
 extern "C" GStreamer* GStreamerFactory(void) {

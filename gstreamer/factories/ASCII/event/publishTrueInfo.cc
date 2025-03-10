@@ -1,16 +1,16 @@
 // gstreamer
-#include "../gstreamerTEXTFactory.h"
+#include "../gstreamerASCIIFactory.h"
 
-bool GstreamerTextFactory::publishEventDigitizedData(const string detectorName, const vector<GDigitizedData*>* digitizedData) {
+bool GstreamerTextFactory::publishEventTrueInfoData(const string detectorName, const vector<GTrueInfoData*>* trueInfoData) {
 
 	if(ofile == nullptr) return false;
+	
+	*ofile << GTAB << "Detector <" <<  detectorName << "> True Info Bank {" << endl;
 
-	*ofile << GTAB << "Detector <" <<  detectorName << "> Digitized Bank {" << endl;
-
-	for ( auto dgtzHit: *digitizedData ) {
+	for ( auto trueInfoHit: *trueInfoData ) {
 
 		string identifierString = "";
-		vector<GIdentifier> gidentity = dgtzHit->getIdentity();
+		vector<GIdentifier> gidentity = trueInfoHit->getIdentity();
 		for ( size_t i=0; i<gidentity.size() - 1; i++ ) {
 			identifierString += gidentity[i].getName() + "->" + to_string(gidentity[i].getValue()) + ", ";
 		}
@@ -18,17 +18,19 @@ bool GstreamerTextFactory::publishEventDigitizedData(const string detectorName, 
 
 		*ofile << GTABTAB << "Hit address: " << identifierString << " {" << endl;
 
-		// argument passed to getter: 0 = do not get sro vars
-		for ( auto [variableName, value]: dgtzHit->getIntObservablesMap(0)  ) {
+		for ( auto [variableName, value]: trueInfoHit->getFloatVariablesMap() ) {
 			*ofile << GTABTABTAB << variableName << ": " << value << endl;
 		}
-		for ( auto [variableName, value]: dgtzHit->getFltObservablesMap(0) ) {
+		for ( auto [variableName, value]: trueInfoHit->getStringVariablesMap() ) {
 			*ofile << GTABTABTAB << variableName << ": " << value << endl;
 		}
 
 		*ofile << GTABTAB << "}" << endl;
+
+
 	}
 	*ofile << GTAB << "}" << endl;
-	
+
+
 	return true;
 }

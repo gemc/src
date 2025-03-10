@@ -7,11 +7,12 @@ install_subdir(meson.current_source_dir(), install_dir : '.')
 test(' ## templates help',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
-     args : [api_dir + 'templates.py', '-h'])
+     args : [api_dir + 'system_template.py', '-h'])
+
 test(' ## templates show solid creators',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
-     args : [api_dir + 'templates.py', '-sl'])
+     args : [api_dir + 'system_template.py', '-sl'])
 
 # Test all solid creators
 g4objects = {
@@ -29,28 +30,31 @@ foreach volume: g4objects.keys()
     test(' ## template show code for volume ' + volume,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
-         args : [api_dir + 'templates.py', '-gv', volume])
+         args : [api_dir + 'system_template.py', '-gv', volume])
     test(' ## template show code for volume ' + volume + ' with parameters ' + pars,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
-         args : [api_dir + 'templates.py', '-gv', volume, '-gvp', pars])
+         args : [api_dir + 'system_template.py', '-gv', volume, '-gvp', pars])
 endforeach
 
 test(' ## template show code for solid G4Cons in silent mode',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
-     args : [api_dir + 'templates.py', '-gv', 'G4Cons', '-silent'])
+     args : [api_dir + 'system_template.py', '-gv', 'G4Cons', '-silent'])
 
 # general system creator
+factories_to_test=['ASCII']
+
+
 test_dir = meson.current_build_dir() + '/../test'
 test(' ## template create system test',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
-     args : [api_dir + 'templates.py', '-s', 'test'], priority : 10)
+     args : [api_dir + 'system_template.py', '-s', 'test'], priority : 10)
 test(' ## template build geometry in test',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
-     args : ['test.py'], workdir : test_dir, priority : -10)
+     args : ['test.py', '-f', 'ASCII'], workdir : test_dir, priority : -10)
 test(' ## run gemc in test',
      gemc, args : ['test.yaml'],
      workdir : test_dir,
@@ -69,15 +73,15 @@ foreach volume: g4objects.keys()
     test(' ## template create system test for volume' + volume,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
-         args : [api_dir + 'templates.py', '-s', test_name], priority : 10)
+         args : [api_dir + 'system_template.py', '-s', test_name], priority : 10)
     test(' ## template replace geometry in test with ' + volume,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
-         args: [api_dir + 'templates.py', '-gv', volume, '-gvp', pars, geo_py, sub_name], workdir : test_dir, priority : -10)
+         args: [api_dir + 'system_template.py', '-gv', volume, '-gvp', pars, geo_py, sub_name], workdir : test_dir, priority : -10)
     test(' ## template build geometry in test of replacing geometry with ' + volume,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
-         args : [python_main], workdir : test_dir, priority : -20)
+         args : [python_main, '-f', 'ASCII'], workdir : test_dir, priority : -20)
     test(' ## run gemc in test with replaced geometry using ' + volume,
          gemc,
          args : [yaml_file],

@@ -81,7 +81,7 @@ NOTAPPLICABLE = 'na'  # for optionals fields
 DEFAULTMOTHER = 'root'
 DEFAULTCOLOR = '778899'
 
-from scig_sql import populate_sqlite_geometry
+from gemc_sqlite import populate_sqlite_geometry
 
 # GVolume class definition
 class GVolume:
@@ -171,7 +171,7 @@ class GVolume:
     def publish(self, configuration):
         self.check_validity()
         # TEXT factory
-        if configuration.factory == 'TEXT':
+        if configuration.factory == 'ASCII':
             file_name = configuration.geoFileName
             configuration.nvolumes += 1
             with open(file_name, 'a+') as dn:

@@ -40,10 +40,10 @@ GWorld::GWorld(GOptions *gopts) {
     // if a factory is not existing already, registering it in the manager, instantiating it, and loading it into the map
 
     // text factory created no matter what, needed to create ROOT volume
-    gSystemManager.RegisterObjectFactory<GSystemTextFactory>(GSYSTEMTEXTFACTORYLABEL);
+    gSystemManager.RegisterObjectFactory<GSystemTextFactory>(GSYSTEMASCIIFACTORYLABEL);
 
-    if (systemFactory.find(GSYSTEMTEXTFACTORYLABEL) == systemFactory.end()) {
-        systemFactory[GSYSTEMTEXTFACTORYLABEL] = gSystemManager.CreateObject<GSystemFactory>(GSYSTEMTEXTFACTORYLABEL);
+    if (systemFactory.find(GSYSTEMASCIIFACTORYLABEL) == systemFactory.end()) {
+        systemFactory[GSYSTEMASCIIFACTORYLABEL] = gSystemManager.CreateObject<GSystemFactory>(GSYSTEMASCIIFACTORYLABEL);
     }
 
     for (auto &[gsystemName, gsystem]: *gsystemsMap) {
@@ -104,7 +104,7 @@ GWorld::GWorld(GOptions *gopts) {
     // using the text factory
     string worldVolumeDefinition = gopts->getScalarString(ROOTWORLDGVOLUMENAME);
 
-    (*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(ROOTWORLDGVOLUMENAME, GSYSTEMTEXTFACTORYLABEL, "default", verbosity);
+    (*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(ROOTWORLDGVOLUMENAME, GSYSTEMASCIIFACTORYLABEL, "default", verbosity);
     (*gsystemsMap)[ROOTWORLDGVOLUMENAME]->addROOTVolume(worldVolumeDefinition);
 
     // applying gvolumes modifiers

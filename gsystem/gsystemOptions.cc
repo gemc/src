@@ -15,7 +15,7 @@ namespace gsystem {
         for (auto gsystem_item: gsystem_node) {
             systems.push_back(GSystem(
                     gopts->get_variable_in_option<string>(gsystem_item, "name", goptions::NODFLT),
-                    gopts->get_variable_in_option<string>(gsystem_item, "factory", "TEXT"),
+                    gopts->get_variable_in_option<string>(gsystem_item, "factory", "ASCII"),
                     gopts->get_variable_in_option<string>(gsystem_item, "variation", "default"),
                     verbosity,
                     gopts->get_variable_in_option<int>(gsystem_item, "runno", 1),
@@ -62,7 +62,7 @@ namespace gsystem {
 
         vector <GVariable> gsystem = {
                 {"name",      goptions::NODFLT,              "system name (mandatory). For TEXT factories, it may include the path to the file"},
-                {"factory",   "TEXT",                        "factory name. Possible choices: TEXT, CAD, GDML, SQLITE. Default is TEXT"},
+                {"factory",   "ASCII",                        "factory name. Possible choices: TEXT, CAD, GDML, SQLITE. Default is TEXT"},
                 {"variation", "default",                     "geometry variation, default is \"default\")"},
                 {"runno",     1,                             "runno, default is 1)"},
                 {"annotations", UNINITIALIZEDSTRINGQUANTITY, "optional system annotations. Examples: \"mats_only\" "},

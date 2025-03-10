@@ -1,5 +1,5 @@
 // gstreamer
-#include "../gstreamerTEXTFactory.h"
+#include "../gstreamerASCIIFactory.h"
 
 bool GstreamerTextFactory::publishFrameHeader(const GFrameDataCollectionHeader *gframeHeader) 
 {

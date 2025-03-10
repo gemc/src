@@ -1,15 +1,15 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
-text_plugin_files = [files(
-                         'factories/TEXT/gstreamerTEXTFactory.cc',
-                         'factories/TEXT/gstreamerTEXTConnection.cc',
-                         'factories/TEXT/event/event.cc',
-                         'factories/TEXT/event/eventHeader.cc',
-                         'factories/TEXT/event/publishTrueInfo.cc',
-                         'factories/TEXT/event/publishDigitized.cc',
-                         'factories/TEXT/stream/stream.cc',
-                         'factories/TEXT/stream/frameHeader.cc',
-                         'factories/TEXT/stream/publishPayload.cc'
+ascii_plugin_files = [files(
+                         'factories/ASCII/gstreamerASCIIFactory.cc',
+                         'factories/ASCII/gstreamerASCIIConnection.cc',
+                         'factories/ASCII/event/event.cc',
+                         'factories/ASCII/event/eventHeader.cc',
+                         'factories/ASCII/event/publishTrueInfo.cc',
+                         'factories/ASCII/event/publishDigitized.cc',
+                         'factories/ASCII/stream/stream.cc',
+                         'factories/ASCII/stream/frameHeader.cc',
+                         'factories/ASCII/stream/publishPayload.cc'
                      ),
                      true]
 
@@ -40,7 +40,7 @@ root_plugin_files = [files(
 if get_option('use_root')
     if root_deps.found()
         streamer_plugins = {
-            'gstreamerTEXTFactory' : text_plugin_files,
+            'gstreamerASCIIFactory' : ascii_plugin_files,
             'gstreamerJLABSROFactory' : jlab_sro_plugin_files,
             'gstreamerROOTFactory' : root_plugin_files
         }
@@ -49,7 +49,7 @@ if get_option('use_root')
     endif
 else
     streamer_plugins = {
-        'gstreamerTEXTFactory' : text_plugin_files,
+        'gstreamerASCIIFactory' : ascii_plugin_files,
         'gstreamerJLABSROFactory' : jlab_sro_plugin_files
     }
     streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_deps]
