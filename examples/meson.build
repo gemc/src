@@ -17,7 +17,7 @@ foreach branch : examples_map.keys()
         yaml_file = example_dir + example + '.yaml'
         test(' ## Building example' + example_dir + ' geometry ##',
              python_exe,
-             args : [example_dir + example + '.py'],
+             args : [example_dir + example + '.py', '-f', 'ASCII'],
              workdir : example_dir,
              env : {'PYTHONDONTWRITEBYTECODE': '1'},
              priority : 10)
