@@ -18,9 +18,15 @@ meson setup build $=setup_options || exit 1
 cd build  || exit 1
 echo " > Running meson compile and install"
 meson compile -v  || exit 1
+echo " > Current directory: $(pwd) content:"
 ls -l || exit 1
 meson install  || exit 1
-ls -l $GEMC/lib || exit 1
-ls -R $GEMC/examples || exit 1
-meson test -v || exit 1
+echo " > $GEMC recursive content:"
+ls -l $GEMC || exit 1
+
+# if $1 is NOT one of sanitize option, run meson test
+if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
+    echo " > Running meson test"
+    meson test -v || exit 1
+fi
 

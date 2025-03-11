@@ -93,6 +93,14 @@ foreach L : LD
     endif
 
     #  plugins
+    #  explicitly tell the linker to prefer dynamic libz.so with link_args below
+    if host_machine.system() == 'darwin'
+        # macOS: Do not use -Bdynamic, it's not needed
+        zlib_link_args = ['-lz']
+    else
+        # Linux: Use -Bdynamic
+        zlib_link_args = ['-Wl,-Bdynamic', '-lz']
+    endif
     if plugins != empty_dict
         foreach name, sources : plugins
             shared_library(
@@ -102,6 +110,7 @@ foreach L : LD
                 dependencies : this_deps,
                 include_directories : all_includes + this_lib_name + additional_includes,
                 link_with : all_libs,
+                link_args: zlib_link_args,
                 name_suffix : 'gplugin',
                 name_prefix : '',
                 override_options: ['b_staticpic=true']

@@ -154,7 +154,7 @@ def populate_sqlite_geometry(gvolume, configuration):
 
 	# Delete existing entries for the same system, variation, and run number
 	delete_query = """
-        DELETE FROM geometry WHERE system = ? AND variation = ? AND runno = ?
+        DELETE FROM geometry WHERE system = ? AND variation = ? AND run = ?
     """
 	sql.execute(delete_query, (configuration.system, configuration.variation, configuration.runno))
 
