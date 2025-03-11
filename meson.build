@@ -114,7 +114,7 @@ foreach L : LD
                 link_args: zlib_link_args,
                 name_suffix : 'gplugin',
                 name_prefix : '',
-                # override_options: ['b_staticpic=true']
+                override_options: ['b_staticpic=false']
                 # link_args : all_lib_names
             )
         endforeach
