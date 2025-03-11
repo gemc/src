@@ -24,7 +24,6 @@ struct GFieldDefinition {
     std::string integration_stepper; ///< Type of integration stepper.
     double minimum_step; ///< Minimum step size for integration.
     std::string type; ///< Type of the field.
-    int verbosity; ///< Verbosity level.
 
     map <std::string, string> field_parameters; ///< Field parameters as key-value pairs.
 
@@ -51,7 +50,6 @@ struct GFieldDefinition {
         stream << "    - integration stepper  " << gfd.integration_stepper << std::endl;
         stream << "    - minimum step         " << gfd.minimum_step << " mm" << std::endl;
         stream << "    - type                 " << gfd.type << std::endl;
-        stream << "    - verbosity            " << gfd.verbosity << std::endl;
 
         // print the field parameters
         // align the keys to the left

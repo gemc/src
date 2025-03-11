@@ -45,14 +45,12 @@ int getNumberOfThreads(GOptions *gopts) {
 // initialize G4MTRunManager
 void initGemcG4RunManager(G4RunManager *grm, GOptions *gopts) {
     int tlog = gopts->getScalarInt("thread_log");
-    // bool thread_log = gopts->getSwitch("thread_log");
 
     G4UImanager *g4uim = G4UImanager::GetUIpointer();
-    // if ( ! thread_log ) { g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log"); }
     g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log");
 
     if (tlog != 0) {
-        g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept " + to_string(tlog));
+        g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept " + to_string(tlog - 1));
     }
 
     // initialize run manager

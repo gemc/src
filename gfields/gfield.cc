@@ -62,7 +62,9 @@ G4FieldManager *GField::create_FieldManager() {
     }
 
     G4ChordFinder *fChordFinder = new G4ChordFinder(this, minimum_step, mag_int_stepper);
-    gFLogMessage("Loaded Integration Stepper: " + integration_stepper);
+
+	// TODO: need to control tis with verbosity
+	// gFLogMessage("Loaded Integration Stepper: " + integration_stepper);
 
     return new G4FieldManager(this, fChordFinder);
 
