@@ -26,3 +26,9 @@ The validation includes the following workflows
 [![Sanitize](https://github.com/gemc/src/actions/workflows/sanitize.yaml/badge.svg)](https://github.com/gemc/src/actions/workflows/sanitize.yaml)
 [![Nightly Dev Release](https://github.com/gemc/src/actions/workflows/dev_release.yml/badge.svg)](https://github.com/gemc/src/actions/workflows/dev_release.yml)
 
+
+
+
+### Known issues:
+
+- on ubuntuu container somehow libz is linked statically, and the compilation fails

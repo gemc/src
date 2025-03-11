@@ -111,7 +111,6 @@ foreach L : LD
                 dependencies : [this_deps, zlib_dep],
                 include_directories : all_includes + this_lib_name + additional_includes,
                 link_with : all_libs,
-               # link_args: zlib_link_args,
                 name_suffix : 'gplugin',
                 name_prefix : '',
                 override_options: ['b_staticpic=false']

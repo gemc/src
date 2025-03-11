@@ -14,13 +14,16 @@ sqlite_dep = dependency('sqlite3', required: true)
 # pkg-config --modversion expat
 expat_dep = dependency('expat', required: true)
 
+# pkg-config --cflags --libs zlib
+zlib_dep = dependency('zlib', static: false, required: true)  # Use shared libz.so instead of libz.a
+
 # clhep: pkg-config
 clhep_deps = dependency('clhep',
                         version : '>=2.4.7.1',
                         include_type : 'preserve'
 )
 
-# install geant4.pc if not found
+# install root.pc, geant4.pc if not found
 python_exe = import('python').find_installation('python3')
 fs = import('fs')
 geant4_path = get_option('prefix')
@@ -52,8 +55,6 @@ geant4_deps = dependency('geant4',
 # sqlite
 sqlite_dep = dependency('sqlite3',
                         include_type : 'preserve')
-
-zlib_dep = dependency('zlib', static: false)  # Use shared libz.so instead of libz.a
 
 cmake = import('cmake')
 opt_var = cmake.subproject_options()

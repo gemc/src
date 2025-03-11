@@ -55,14 +55,28 @@ function sanitize_options {
     esac
 
     # if on ubuntu, use pgo generate
-    if [ -f /etc/os-release ]; then
-        if grep -q "Ubuntu" /etc/os-release; then
-            pgo=" -Db_pgo=generate "
-        fi
-    fi
+    # suspended while investigating differences between fedora and ubuntu
+    #    if [ -f /etc/os-release ]; then
+    #        if grep -q "Ubuntu" /etc/os-release; then
+    #            pgo=" -Db_pgo=generate "
+    #        fi
+    #    fi
 
     echo $sanitize_option $pgo $buildtype
 }
+
+function max_j {
+    max_threads$(($(nproc) / 2))
+
+    # for some reason on ubuntu we need to reduce the number of threads
+    if [ -f /etc/os-release ]; then
+        if grep -q "Ubuntu" /etc/os-release; then
+            max_threadss$(($(nproc) / 4))
+        fi
+    fi
+    echo max_threads
+}
+
 
 is_shallow=$(git rev-parse --is-shallow-repository)
 echo "Repository is_shallow: $is_shallow"
