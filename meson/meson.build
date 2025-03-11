@@ -53,6 +53,8 @@ geant4_deps = dependency('geant4',
 sqlite_dep = dependency('sqlite3',
                         include_type : 'preserve')
 
+zlib_dep = dependency('zlib', static: false)  # Use shared libz.so instead of libz.a
+
 cmake = import('cmake')
 opt_var = cmake.subproject_options()
 opt_var.add_cmake_defines({ 'BUILD_SHARED_LIBS' : 'OFF', 'BUILD_STATIC_LIBS' : 'ON' })
