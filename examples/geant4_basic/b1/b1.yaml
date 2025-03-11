@@ -19,11 +19,11 @@ verbosity:
   - general: 0
 
 gsystem:
-  - name: B1
+  - name: b1
     factory: ASCII
 
 gstreamer:
-  - filename: B1.txt
+  - filename: b1.txt
     format: ASCII
 
 gmultipoles:

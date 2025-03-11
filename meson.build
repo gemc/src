@@ -101,6 +101,7 @@ foreach L : LD
         # Linux: Use -Bdynamic
         zlib_link_args = ['-Wl,-Bdynamic', '-lz']
     endif
+
     if plugins != empty_dict
         foreach name, sources : plugins
             shared_library(
@@ -113,7 +114,7 @@ foreach L : LD
                 link_args: zlib_link_args,
                 name_suffix : 'gplugin',
                 name_prefix : '',
-                override_options: ['b_staticpic=true']
+                # override_options: ['b_staticpic=true']
                 # link_args : all_lib_names
             )
         endforeach

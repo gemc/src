@@ -147,16 +147,25 @@ def add_materials_fields_to_sqlite_if_needed(gmaterial, configuration):
     configuration.sqlitedb.commit()
 
 
+# Store already deleted (system, variation, runno) combinations
+deleted_geometry = set()
+
 def populate_sqlite_geometry(gvolume, configuration):
+	global deleted_geometry  # Ensure we modify the global set
+
 	add_geometry_fields_to_sqlite_if_needed(gvolume, configuration)
 
 	sql = configuration.sqlitedb.cursor()
 
-	# Delete existing entries for the same system, variation, and run number
-	delete_query = """
-        DELETE FROM geometry WHERE system = ? AND variation = ? AND run = ?
-    """
-	sql.execute(delete_query, (configuration.system, configuration.variation, configuration.runno))
+	key = (configuration.system, configuration.variation, configuration.runno)
+
+	# Only delete if this is the first time encountering this combination
+	if key not in deleted_geometry:
+		delete_query = """
+            DELETE FROM geometry WHERE system = ? AND variation = ? AND run = ?
+        """
+		sql.execute(delete_query, key)
+		deleted_geometry.add(key)  # Mark as deleted
 
 	# Insert new geometry data
 	columns = form_string_with_column_definitions(gvolume)
@@ -169,17 +178,36 @@ def populate_sqlite_geometry(gvolume, configuration):
 	configuration.sqlitedb.commit()
 
 
-def populate_sqlite_materials(gmaterial, configuration):
-    add_materials_fields_to_sqlite_if_needed(gmaterial, configuration)
 
-    sql = configuration.sqlitedb.cursor()
-    # form a string representing the gmaterial columns of the table
-    columns = form_string_with_column_definitions(gmaterial)
-    values  = form_string_with_column_values(gmaterial, configuration)
-    #print(columns)
-    #print(values)
-    sql.execute("INSERT INTO materials {} VALUES {}".format(columns, values))
-    configuration.sqlitedb.commit()
+# Store already deleted (system, variation, runno) combinations for materials
+deleted_materials = set()
+
+def populate_sqlite_materials(gmaterial, configuration):
+	global deleted_materials  # Ensure we modify the global set
+
+	add_materials_fields_to_sqlite_if_needed(gmaterial, configuration)
+
+	sql = configuration.sqlitedb.cursor()
+
+	key = (configuration.system, configuration.variation, configuration.runno)
+
+	# Only delete if this is the first time encountering this combination
+	if key not in deleted_materials:
+		delete_query = """
+            DELETE FROM materials WHERE system = ? AND variation = ? AND run = ?
+        """
+		sql.execute(delete_query, key)
+		deleted_materials.add(key)  # Mark as deleted
+
+	# Insert new material data
+	columns = form_string_with_column_definitions(gmaterial)
+	values  = form_string_with_column_values(gmaterial, configuration)
+
+	sql.execute(f"INSERT INTO materials {columns} VALUES {values}")
+
+	# Commit changes
+	configuration.sqlitedb.commit()
+
 
 
 def form_string_with_column_definitions(gobject) -> str:
