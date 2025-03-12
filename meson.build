@@ -45,6 +45,7 @@ subdir('utilities')
 subdir('gdetector')
 subdir('userActions')
 subdir('gui')
+subdir('dbselect')
 
 # compilation loop
 foreach L : LD

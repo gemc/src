@@ -6,10 +6,8 @@
 
 // gemc
 #include "goptions.h"
-#include "gQtButtonsWidget.h"
+//#include "gQtButtonsWidget.h"
 
-// Geant4
-#include "G4UImanager.hh"
 
 class DBSelectView : public QWidget {
 	Q_OBJECT

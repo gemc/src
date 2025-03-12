@@ -1,24 +1,26 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
 sources = files(
-    'dbselect.cc',
+    'dbselectOptions.cc',
+    'dbselectView.cc',
 )
 
 headers = files(
-    'dbselect.h',
+    'dbselectOptions.h',
+    'dbselectView.h',
 )
 
 moc_headers = files(
-    'dbselect.h',
+    'dbselectView.h',
 )
 
 
 qrc_examples_sources = files(
-    'qt_resources.qrc'
+    'dbqt_resources.qrc'
 )
 
 examples = {
-    'test_db_select' : [files('examples/example.cc'), ['-gui']],
+    'test_db_select' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/example.yaml', '-gui']],
 }
 
 if get_option('i_test')
