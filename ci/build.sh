@@ -15,18 +15,24 @@ sanitize_option=$(sanitize_options $1)
 max_threads=$(max_j)
 
 setup_options=" --native-file=core.ini -Duse_root=true $sanitize_option -Dprefix=$GEMC --wipe "
-echo " > Running build Configure with setup build options: $setup_options"
 
+echo " > Running build Configure with setup build options: $setup_options"
 meson setup build $=setup_options || exit 1
 
 cd build  || exit 1
-echo " > Running meson compile and install"
+
+echo " > Running meson compile -v  -j $max_threads"
 meson compile -v  -j $max_threads || exit 1
+
 echo " > Current directory: $(pwd) content:"
 ls -l || exit 1
+
+echo " > Running meson install"
 meson install  || exit 1
+
 echo " > $GEMC recursive content:"
-ls -l $GEMC || exit 1
+ls -lR $GEMC || exit 1
+
 echo " ldd of $GEMC/bin/gemc:"
 ldd $GEMC/bin/gemc || exit 1
 
