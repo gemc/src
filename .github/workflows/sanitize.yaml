@@ -30,7 +30,7 @@ jobs:
         #        we are bothered by false positives (e.g., from `std::map` insertion)
         # NOTE2: additional packages needed for the sanitizer: libasan libubsan libtsan
         # NOTE3: address, thread, leak: some examples are not working. Need to investigate.
-        sanitize: [ none, address, thread, undefined, memory, leak, address,undefined ]
+        sanitize: [ none, address, thread, undefined, memory, leak ]
         #sanitize: [ standard, undefined ]
     runs-on: ubuntu-latest
     continue-on-error: true

@@ -48,6 +48,12 @@ function sanitize_options {
             ;;
         "none")
             sanitize_option=""
+            if [ -f /etc/os-release ]; then
+              if grep -q "Ubuntu" /etc/os-release; then
+                sanitize_option="-Db_sanitize=undefined"
+              fi
+            fi
+
             ;;
         *)
             sanitize_option=""
