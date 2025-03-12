@@ -73,13 +73,6 @@ function sanitize_options {
 
 function max_j {
     max_threads=$(($(nproc) / 2))
-
-    # for some reason on ubuntu we need to reduce the number of threads
-#    if [ -f /etc/os-release ]; then
-#        if grep -q "Ubuntu" /etc/os-release; then
-#            max_threadss$(($(nproc) / 4))
-#        fi
-#    fi
     echo $max_threads
 }
 

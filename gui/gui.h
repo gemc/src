@@ -18,7 +18,7 @@ class GemcGUI : public QWidget, public GStateMessage {
     Q_OBJECT
 
 public:
-    GemcGUI(string qtResourceFile, GOptions *gopts, EventDispenser *ed, QWidget *parent = Q_NULLPTR);
+    GemcGUI(string qtResourceFile, GOptions *gopts, EventDispenser *ed, QWidget *parent = nullptr);
 
     ~GemcGUI();
 

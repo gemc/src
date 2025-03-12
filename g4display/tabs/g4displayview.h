@@ -1,60 +1,51 @@
-#ifndef  G4DISPLAYVIEW_H
-#define  G4DISPLAYVIEW_H 1
+#ifndef G4DISPLAYVIEW_H
+#define G4DISPLAYVIEW_H 1
 
-// qt
+// Qt
 #include <QtWidgets>
 
-// glibrary
+// gemc
 #include "goptions.h"
 #include "gQtButtonsWidget.h"
 
-// geant4 headers
+// Geant4
 #include "G4UImanager.hh"
 
 class G4DisplayView : public QWidget {
-Q_OBJECT // Required for non-qt signals/slots
+	Q_OBJECT
 
 public:
-    G4DisplayView(GOptions *gopts, QWidget *parent = Q_NULLPTR);
+	G4DisplayView(GOptions *gopts, QWidget *parent = nullptr);
 
-    // no need to delete the pointers below, done by qt parenting
-    ~G4DisplayView() {}
+	~G4DisplayView() override {}
 
 private:
+	QLineEdit *field_npoints;
 
-    QLineEdit *field_npoints;
+	GQTToggleButtonWidget *buttons_set1;
+	QSlider *cameraTheta, *cameraPhi;
+	QSlider *lightTheta, *lightPhi;
 
-    GQTToggleButtonWidget *buttons_set1;  // buttons
-    QSlider *cameraTheta;
-    QSlider *cameraPhi;
-    QSlider *lightTheta;
-    QSlider *lightPhi;
+	QLineEdit *sliceXEdit, *sliceYEdit, *sliceZEdit;
+	QCheckBox *sliceXActi, *sliceYActi, *sliceZActi;
+	QCheckBox *sliceXInve, *sliceYInve, *sliceZInve;
 
-    // slices
-    QLineEdit *sliceXEdit, *sliceYEdit, *sliceZEdit;
-    QCheckBox *sliceXActi, *sliceYActi, *sliceZActi;
-    QCheckBox *sliceXInve, *sliceYInve, *sliceZInve;
+	QRadioButton *sliceSectn, *sliceUnion;
 
-    // intersection or union
-    QRadioButton *sliceSectn;
-    QRadioButton *sliceUnion;
-
-    int field_NPOINTS = 5;
+	int field_NPOINTS = 5;
 
 private slots:
-    void changeCameraDirection();
+	void changeCameraDirection();
 
-    void changeLightDirection();
+	void changeLightDirection();
 
-    void slice();
+	void slice();
 
-    void clearSlices();
+	void clearSlices();
 
-    void apply_buttons_set1(int index);
+	void apply_buttons_set1(int index);
 
-    void field_precision_changed();
-
+	void field_precision_changed();
 };
-
 
 #endif

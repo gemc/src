@@ -28,7 +28,7 @@ class GQTButtonsWidget : public QWidget {
     Q_OBJECT // Required for non-qt signals/slots
 
 public:
-    GQTButtonsWidget(double h, double v, std::vector <std::string> bicons, bool vertical = true, QWidget *parent = Q_NULLPTR);
+    GQTButtonsWidget(double h, double v, std::vector <std::string> bicons, bool vertical = true, QWidget *parent = nullptr);
 
     // no need to delete the pointers below, done by qt parenting
     ~GQTButtonsWidget() {}

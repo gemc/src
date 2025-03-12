@@ -7,6 +7,5 @@ G4Dialog::G4Dialog(GOptions *gopt, QWidget *parent) : QTabWidget(parent) {
                   "QTabBar::tab:focus { color: #000011; }");
 
 
-    addTab(new G4Commands(gopt, this), "Geant4 Commands");
-
+    addTab(new G4Commands(this), "Geant4 Commands");
 }

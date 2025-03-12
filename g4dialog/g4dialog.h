@@ -10,7 +10,7 @@
 class G4Dialog : public QTabWidget {
 
 public:
-    G4Dialog(GOptions *gopt, QWidget *parent = Q_NULLPTR);
+    G4Dialog(GOptions *gopt, QWidget *parent = nullptr);
 
 };
 

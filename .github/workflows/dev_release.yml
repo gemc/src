@@ -3,7 +3,7 @@ name: Nightly Dev Release
 
 on:
   schedule:
-    # every day at 1:44 an
+    # every day at 1:44 am
     - cron: '44 1 * * *'
 
   # Allows you to run this workflow manually from the Actions tab

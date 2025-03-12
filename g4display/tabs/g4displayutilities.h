@@ -16,7 +16,7 @@ class G4DisplayUtilities: public QWidget {
 	Q_OBJECT
 
 public:
-	G4DisplayUtilities(GOptions* gopt, QWidget* parent = Q_NULLPTR);
+	G4DisplayUtilities(GOptions* gopt, QWidget* parent = nullptr);
 
 	// no need to delete the pointers below, done by qt parenting
 	~G4DisplayUtilities() {}
