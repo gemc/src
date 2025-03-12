@@ -15,18 +15,24 @@ foreach branch : examples_map.keys()
     foreach example : examples
         example_dir = examples_dir + branch + '/' + example + '/'
         yaml_file = example_dir + example + '.yaml'
-        test(' ## Building example' + example_dir + ' geometry ##',
-             python_exe,
-             args : [example_dir + example + '.py', '-f', 'ASCII'],
-             workdir : example_dir,
-             env : {'PYTHONDONTWRITEBYTECODE': '1'},
-             priority : 10)
-        test(' ## run gemc on example ' + example_dir,
-             gemc,
-             args : [yaml_file],
-             env : project_test_env,
-             workdir : test_dir,
-             priority : -10)
+
+        # Iterate over the formats 'ASCII' and 'SQLITE'
+        foreach format : ['ASCII', 'SQLITE']
+            test(' ## Building example ' + example_dir + ' geometry with format ' + format + ' ##',
+                 python_exe,
+                 args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db'],
+                 workdir : example_dir,
+                 env : {'PYTHONDONTWRITEBYTECODE': '1'},
+                 priority : 10)
+
+            test(' ## run gemc on example ' + example_dir + ' with format ' + format + ' ##',
+                 gemc,
+                 args : [yaml_file, '-gsystem="[{name: b2, factory: ' + format + ', sql_file: ../../gemc.db}]" '],
+                 env : project_test_env,
+                 workdir : test_dir,
+                 priority : -10)
+        endforeach
+
     endforeach
 
 endforeach
