@@ -7,6 +7,8 @@
 import argparse
 import sys
 import sqlite3
+from utils_api import GColors
+
 
 NGIVEN: str = 'NOTGIVEN'
 NGIVENS: [str] = ['NOTGIVEN']
@@ -171,8 +173,12 @@ def populate_sqlite_geometry(gvolume, configuration):
 	columns = form_string_with_column_definitions(gvolume)
 	values  = form_string_with_column_values(gvolume, configuration)
 
-	insert_query = f"INSERT INTO geometry {columns} VALUES {values}"
-	sql.execute(insert_query)
+
+	sql.execute("SELECT COUNT(*) FROM geometry WHERE name = ?", (gvolume.name,))
+	if sql.fetchone()[0] == 0:
+		sql.execute(f"INSERT INTO geometry {columns} VALUES {values}")
+	else:
+		sys.exit(f"{GColors.RED}Error: volume >{gvolume.name}< already exists in the database  {GColors.END}")
 
 	# Commit changes
 	configuration.sqlitedb.commit()
@@ -203,7 +209,11 @@ def populate_sqlite_materials(gmaterial, configuration):
 	columns = form_string_with_column_definitions(gmaterial)
 	values  = form_string_with_column_values(gmaterial, configuration)
 
-	sql.execute(f"INSERT INTO materials {columns} VALUES {values}")
+	sql.execute("SELECT COUNT(*) FROM materials WHERE name = ?", (gmaterial.name,))
+	if sql.fetchone()[0] == 0:
+		sql.execute(f"INSERT INTO materials {columns} VALUES {values}")
+	else:
+		sys.exit(f"{GColors.RED}Error: material >{gmaterial.name}< already exists in the database  {GColors.END}")
 
 	# Commit changes
 	configuration.sqlitedb.commit()

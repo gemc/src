@@ -10,10 +10,10 @@ def build_B1_geometry(configuration):
 
 
 def build_mother_volume(configuration):
-	gvolume = GVolume('absorber')
+	gvolume = GVolume('babsorber')
 	gvolume.description = 'scintillator box'
 	gvolume.make_box(100.0, 100.0, 100.0)
-	gvolume.material = 'carbonFiber'
+	gvolume.material = 'bcarbonFiber'
 	gvolume.color = '3399FF'
 	gvolume.digitization = 'flux'
 	gvolume.set_identifier('box', 2)  # identifier for this box
@@ -23,9 +23,9 @@ def build_mother_volume(configuration):
 
 
 def build_target(configuration):
-	gvolume = GVolume('target')
+	gvolume = GVolume('btarget')
 	gvolume.description = 'epoxy target'
-	gvolume.mother = 'absorber'
+	gvolume.mother = 'babsorber'
 	gvolume.make_tube(0, 20, 40, 0, 360)
 	gvolume.material = 'G4_H'
 	gvolume.color = 'ff0000'
