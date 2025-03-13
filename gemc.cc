@@ -74,6 +74,7 @@ int main(int argc, char *argv[]) {
     GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
     runManager->SetUserInitialization(gDetectorGlobal);
 
+
     // starting gphysics
     auto gphysics = new GPhysics(gopts);
 
@@ -94,17 +95,15 @@ int main(int argc, char *argv[]) {
     // instantiate GActionInitialization and initialize the geant4 kernel
     runManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
 
+
     G4double warningE = 10.0 * CLHEP::keV;
     G4double importantE = 1 * CLHEP::GeV;
     G4int numTrials = 30;
-
 
     auto transportParams = G4TransportationParameters::Instance();
     transportParams->SetWarningEnergy(warningE);
     transportParams->SetImportantEnergy(importantE);
 	transportParams->SetNumberOfTrials(numTrials);
-    G4cout << "field01: Using G4TransportationParameters to set looper parameters." << G4endl;
-
 
     // this initializes g4MTRunManager, which:
     // calls Construct in GDetectorConstruction
@@ -122,6 +121,7 @@ int main(int argc, char *argv[]) {
     visManager->Initialize();
 
     auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
+	cout << GEMCLOGMSGITEM << KMAG << "Tally summary: " << gDetectorGlobal->get_number_of_volumes() << " volumes, " << gDetectorGlobal->get_number_of_g4_volumes() << " geant4 built volumes" << RST << endl << endl;
 
 
     if (gui) {

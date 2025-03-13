@@ -171,7 +171,7 @@ class GVolume:
     def publish(self, configuration):
         self.check_validity()
         # TEXT factory
-        if configuration.factory == 'ASCII':
+        if configuration.factory == 'ascii':
             file_name = configuration.geoFileName
             configuration.nvolumes += 1
             with open(file_name, 'a+') as dn:
@@ -196,8 +196,8 @@ class GVolume:
                        + f'{self.exist} | ' \
                        + f'{self.description} |\n'
                 dn.write(lstr)
-        # SQLITE factory
-        elif configuration.factory == 'SQLITE':
+        # sqlite factory
+        elif configuration.factory == 'sqlite':
             configuration.nvolumes += 1
             self.rotations = self.get_rotation_string()
             populate_sqlite_geometry(self, configuration)

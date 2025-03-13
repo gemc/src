@@ -30,6 +30,14 @@ public:
 
     bool is_empty() const { return g4world->is_empty() ; }
 
+	int get_number_of_volumes() const {
+		return gworld->get_number_of_volumes();
+	}
+
+	int get_number_of_g4_volumes() const {
+		return g4world->get_number_of_volumes();
+	}
+
 private:
     GOptions *gopt = nullptr;
     GWorld *gworld = nullptr;

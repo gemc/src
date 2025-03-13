@@ -33,6 +33,7 @@ private:
 
 public:
     map<string, GSystem *> *getSystemsMap() const { return gsystemsMap; }
+	int get_number_of_volumes() const { return gsystemsMap->size(); }
 
     // sensitive detector names, needed to load the plugins at run time
     vector <string> getSensitiveDetectorsList();

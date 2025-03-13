@@ -113,7 +113,7 @@ class MyMirror():
 
 # Function to initialize (overwrite) any existing mirror file so that any new mirrors can simply be appended in this project	
 def init_mirrors_file(configuration):
-	if configuration.factory == "ASCII":
+	if configuration.factory == "ascii":
 		fileName = configuration.detector_name + "__mirrors_"+str(configuration.variation)+".txt"
 		open(fileName, "w+")
 
@@ -126,7 +126,7 @@ def print_mir(configuration, mirror):
 			print(" !! Optical properties must be defined.\n")
 
 	# TEXT Factory
-	if configuration.factory == "ASCII":
+	if configuration.factory == "ascii":
 		fName = configuration.detector_name+"__mirrors_"+configuration.variation+".txt"
 		with open(fName, "a+") as fn:
 			if mirror.type == "notDefined":

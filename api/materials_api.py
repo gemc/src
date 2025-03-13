@@ -145,7 +145,7 @@ class GMaterial():
 	def publish(self, configuration):
 		self.check_validity()
 		# TEXT factory
-		if configuration.factory == 'ASCII':
+		if configuration.factory == 'ascii':
 			fileName = configuration.matFileName
 			configuration.nmaterials += 1
 			with open(fileName, 'a+') as dn:
@@ -176,8 +176,8 @@ class GMaterial():
 				lstr += '%s |\n' % self.rayleigh
 
 				dn.write(lstr)
-		# SQLITE factory
-		elif configuration.factory == 'SQLITE':
+		# sqlite factory
+		elif configuration.factory == 'sqlite':
 			configuration.nmaterials += 1
 			populate_sqlite_materials(self, configuration)
 

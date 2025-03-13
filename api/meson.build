@@ -42,8 +42,6 @@ test(' ## template show code for solid G4Cons in silent mode',
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
      args : [api_dir + 'system_template.py', '-gv', 'G4Cons', '-silent'])
 
-# general system creator
-factories_to_test=['ASCII']
 
 
 test_dir = meson.current_build_dir() + '/../test'
@@ -51,15 +49,17 @@ test(' ## template create system test',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
      args : [api_dir + 'system_template.py', '-s', 'test'], priority : 10)
-test(' ## template build geometry in test',
-     python_exe,
-     env : {'PYTHONDONTWRITEBYTECODE': '1'},
-     args : ['test.py', '-f', 'ASCII'], workdir : test_dir, priority : -10)
-test(' ## run gemc in test',
-     gemc, args : ['test.yaml'],
-     workdir : test_dir,
-     env : project_test_env,
-     priority : -20)
+foreach format : ['ascii', 'sqlite']
+    test(' ## template build geometry in test for format ' + format,
+         python_exe,
+         env : {'PYTHONDONTWRITEBYTECODE': '1'},
+         args : ['test.py', '-f', format], workdir : test_dir, priority : -10)
+    test(' ## run gemc in test for format ' + format,
+         gemc, args : ['test.yaml', '-gsystem="[{name: test, factory: ' + format + '}]" '],
+         workdir : test_dir,
+         env : project_test_env,
+         priority : -20)
+endforeach
 
 # replace geometry with templates
 foreach volume: g4objects.keys()
@@ -78,14 +78,16 @@ foreach volume: g4objects.keys()
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
          args: [api_dir + 'system_template.py', '-gv', volume, '-gvp', pars, geo_py, sub_name], workdir : test_dir, priority : -10)
-    test(' ## template build geometry in test of replacing geometry with ' + volume,
-         python_exe,
-         env : {'PYTHONDONTWRITEBYTECODE': '1'},
-         args : [python_main, '-f', 'ASCII'], workdir : test_dir, priority : -20)
-    test(' ## run gemc in test with replaced geometry using ' + volume,
-         gemc,
-         args : [yaml_file],
-         workdir : test_dir,
-         env : project_test_env,
-         priority : -30)
+    foreach format : ['ascii', 'sqlite']
+        test(' ## template build geometry in test of replacing geometry with ' + volume + ' with format ' + format,
+             python_exe,
+             env : {'PYTHONDONTWRITEBYTECODE': '1'},
+             args : [python_main, '-f', format], workdir : test_dir, priority : -20)
+        test(' ## run gemc in test with replaced geometry using ' + volume + ' with format ' + format,
+             gemc,
+             args : [yaml_file, '-gsystem="[{name: ' + test_name + ', factory: ' + format + '}]" '],
+             workdir : test_dir,
+             env : project_test_env,
+             priority : -30)
+    endforeach
 endforeach

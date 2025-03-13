@@ -15,7 +15,7 @@ vector <GSystem> getSystems(GOptions *gopts) {
 	for (auto gsystem_item: gsystem_node) {
 		systems.push_back(GSystem(
 				gopts->get_variable_in_option<string>(gsystem_item, "name", goptions::NODFLT),
-				gopts->get_variable_in_option<string>(gsystem_item, "factory", "ASCII"),
+				gopts->get_variable_in_option<string>(gsystem_item, "factory", "ascii"),
 				gopts->get_variable_in_option<string>(gsystem_item, "variation", "default"),
 				verbosity,
 				gopts->get_variable_in_option<int>(gsystem_item, "runno", 1),
@@ -61,8 +61,8 @@ GOptions defineOptions() {
 	help += "Example: +gsystem={detector: \"experiments/clas12/targets\", factory: \"TEXT\", variation: \"bonus\"}";
 
 	vector <GVariable> gsystem = {
-			{"name",      goptions::NODFLT,              "system name (mandatory). For TEXT factories, it may include the path to the file"},
-			{"factory",   "ASCII",                       "factory name. Possible choices: TEXT, CAD, GDML, SQLITE. Default is TEXT"},
+			{"name",      goptions::NODFLT,              "system name (mandatory). For ascii factories, it may include the path to the file"},
+			{"factory",   "sqlite",                       "factory name. Possible choices: ascii, CAD, GDML, sqlite. Default is ascii"},
 			{"variation", "default",                     "geometry variation, default is \"default\")"},
 			{"runno",     1,                             "runno, default is 1)"},
 			{"annotations", UNINITIALIZEDSTRINGQUANTITY, "optional system annotations. Examples: \"mats_only\" "},

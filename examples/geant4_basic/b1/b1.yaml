@@ -20,11 +20,11 @@ verbosity:
 
 gsystem:
   - name: b1
-    factory: ASCII
+    factory: ascii
 
 gstreamer:
   - filename: b1.txt
-    format: ASCII
+    format: ascii
 
 gmultipoles:
   - name: dipole

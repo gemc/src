@@ -1,10 +1,7 @@
 gsystem:
   - name: clas12Target
-    factory: ASCII
+    factory: ascii
     variation: lh2
-  - name: cloudc
-    factory: SQLITE
-    runno: 22
 
 gmodifier:
   - name: target

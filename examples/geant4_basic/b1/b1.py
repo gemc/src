@@ -9,7 +9,7 @@ from geometry import build_B1_geometry
 
 
 def main():
-	configuration = GConfiguration("b1")
+	configuration = GConfiguration("examples", "b1")
 	build_B1_geometry(configuration)
 	define_B1_materials(configuration)
 	configuration.printC()

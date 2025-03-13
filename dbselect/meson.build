@@ -20,7 +20,7 @@ qrc_examples_sources = files(
 )
 
 examples = {
-    'test_db_select' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/example.yaml', '-gui']],
+    'test_db_select' : [files('examples/example.cc'), ['-gui']],
 }
 
 if get_option('i_test')

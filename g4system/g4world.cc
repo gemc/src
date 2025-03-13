@@ -35,8 +35,7 @@ G4World::G4World(GWorld *gworld, GOptions *gopts) {
         string g4Factory = g4FactoryNameFromSystemFactory(factory);
 
         // registering factories
-        if (factory == GSYSTEMASCIIFACTORYLABEL || factory == GSYSTEMSQLITETFACTORYLABEL || factory == GSYSTEMMYSQLTFACTORYLABEL ||
-            factory == GSYSTEMJSONFACTORYLABEL) {
+        if (factory == GSYSTEMASCIIFACTORYLABEL || factory == GSYSTEMSQLITETFACTORYLABEL || factory == GSYSTEMMYSQLTFACTORYLABEL) {
             // if factory not found, registering it in the manager and loading it into the map
             if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) {
                 g4SystemManager.RegisterObjectFactory<G4NativeSystemFactory>(g4Factory);
@@ -181,8 +180,7 @@ G4World::G4World(GWorld *gworld, GOptions *gopts) {
 
 
 string G4World::g4FactoryNameFromSystemFactory(string factory) {
-    if (factory == GSYSTEMASCIIFACTORYLABEL || factory == GSYSTEMSQLITETFACTORYLABEL || factory == GSYSTEMMYSQLTFACTORYLABEL ||
-        factory == GSYSTEMJSONFACTORYLABEL) {
+    if (factory == GSYSTEMASCIIFACTORYLABEL || factory == GSYSTEMSQLITETFACTORYLABEL || factory == GSYSTEMMYSQLTFACTORYLABEL) {
         return G4SYSTEMNATFACTORY;
     } else if (factory == GSYSTEMCADTFACTORYLABEL) {
         return G4SYSTEMCADFACTORY;

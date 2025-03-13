@@ -20,11 +20,11 @@ verbosity:
 
 gsystem:
   - name: b2
-    factory: SQLITE
+    factory: sqlite
 
 gstreamer:
   - filename: b2.txt
-    format: ASCII
+    format: ascii
 
 gmultipoles:
   - name: dipole

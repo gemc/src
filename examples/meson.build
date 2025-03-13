@@ -16,8 +16,8 @@ foreach branch : examples_map.keys()
         example_dir = examples_dir + branch + '/' + example + '/'
         yaml_file = example_dir + example + '.yaml'
 
-        # Iterate over the formats 'ASCII' and 'SQLITE'
-        foreach format : ['ASCII', 'SQLITE']
+        # Iterate over the formats 'ascii' and 'sqlite'
+        foreach format : ['ascii', 'sqlite']
             test(' ## Building example ' + example_dir + ' geometry with format ' + format + ' ##',
                  python_exe,
                  args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db'],

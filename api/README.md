@@ -10,7 +10,7 @@ assign sensitivity, etc. All the information is stored in databases.
 
 The supported databases are:
 
-- ASCII text files
+- ascii text files
 - SQLite database
 
 ``

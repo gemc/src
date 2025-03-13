@@ -62,6 +62,10 @@ public:
         return g4volumesMap->size() == 1;
     }
 
+	int get_number_of_volumes() const {
+		return g4volumesMap->size();
+	}
+
 
 };
 
