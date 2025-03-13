@@ -94,7 +94,6 @@ void GRunAction::EndOfRunAction(const G4Run *aRun) {
         logSummary("Total number of events this run: " + to_string(theRun->GetNumberOfEvent()));
 
         // looping over output factories
-
         for (auto [factoryName, streamerFactory]: *gstreamerFactoryMap) {
             if (streamerFactory->getStreamType() == "event") {
                 logSummary("Writing event data using streamer factory >" + factoryName + "<");

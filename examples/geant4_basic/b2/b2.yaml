@@ -24,7 +24,7 @@ gsystem:
 
 gstreamer:
   - filename: b2.txt
-    format: ascii
+    format: ASCII
 
 gmultipoles:
   - name: dipole
