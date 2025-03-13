@@ -21,6 +21,8 @@ verbosity:
 gsystem:
   - name: b2
     factory: sqlite
+    variation: default
+    run: 11
 
 gstreamer:
   - filename: b2.txt

@@ -162,34 +162,38 @@ deleted_geometry = set()
 deleted_materials = set()
 
 def populate_sqlite_geometry(gvolume, configuration):
-	global deleted_geometry  # Ensure we modify the global set
+	global deleted_geometry
 
 	add_geometry_fields_to_sqlite_if_needed(gvolume, configuration)
 
 	sql = configuration.sqlitedb.cursor()
-
 	key = (configuration.experiment, configuration.system, configuration.variation, configuration.runno)
 
-	# Only delete if this is the first time encountering this combination
 	if key not in deleted_geometry:
 		delete_query = """
-            DELETE FROM geometry WHERE experiment  = ? AND system = ? AND variation = ? AND run = ?
+            DELETE FROM geometry WHERE experiment = ? AND system = ? AND variation = ? AND run = ?
         """
 		sql.execute(delete_query, key)
-		deleted_geometry.add(key)  # Mark as deleted
+		configuration.sqlitedb.commit()
+		deleted_geometry.add(key)
 
-	# Insert new geometry data
-	columns = form_string_with_column_definitions(gvolume)
-	values = form_string_with_column_values(gvolume, configuration)
+	# Updated query: Check existence based on name **AND** variation/run/experiment/system
+	sql.execute(
+		"""SELECT COUNT(*) FROM geometry 
+		   WHERE name = ? AND experiment = ? AND system = ? AND variation = ? AND run = ?""",
+		(gvolume.name, configuration.experiment, configuration.system, configuration.variation, configuration.runno)
+	)
 
-	sql.execute("SELECT COUNT(*) FROM geometry WHERE name = ?", (gvolume.name,))
 	if sql.fetchone()[0] == 0:
+		columns = form_string_with_column_definitions(gvolume)
+		values = form_string_with_column_values(gvolume, configuration)
 		sql.execute(f"INSERT INTO geometry {columns} VALUES {values}")
 	else:
-		sys.exit(f"{GColors.RED}Error: volume >{gvolume.name}< already exists in the database  {GColors.END}")
+		sys.exit(f"{GColors.RED}Error: volume >{gvolume.name}< already exists in the database for variation '{configuration.variation}'{GColors.END}")
 
-	# Commit changes
 	configuration.sqlitedb.commit()
+
+
 
 
 def populate_sqlite_materials(gmaterial, configuration):
@@ -201,26 +205,32 @@ def populate_sqlite_materials(gmaterial, configuration):
 
 	key = (configuration.experiment, configuration.system, configuration.variation, configuration.runno)
 
-	# Only delete if this is the first time encountering this combination
+	# Ensure deletion happens only once per variation and run
 	if key not in deleted_materials:
 		delete_query = """
-            DELETE FROM materials WHERE experiment  = ? AND system = ? AND variation = ? AND run = ?
+            DELETE FROM materials WHERE experiment = ? AND system = ? AND variation = ? AND run = ?
         """
 		sql.execute(delete_query, key)
+		configuration.sqlitedb.commit()  # Ensure deletion applies
 		deleted_materials.add(key)  # Mark as deleted
 
-	# Insert new material data
-	columns = form_string_with_column_definitions(gmaterial)
-	values = form_string_with_column_values(gmaterial, configuration)
+	# Check if material already exists for this experiment, system, variation, and run
+	sql.execute(
+		"""SELECT COUNT(*) FROM materials 
+		   WHERE name = ? AND experiment = ? AND system = ? AND variation = ? AND run = ?""",
+		(gmaterial.name, configuration.experiment, configuration.system, configuration.variation, configuration.runno)
+	)
 
-	sql.execute("SELECT COUNT(*) FROM materials WHERE name = ?", (gmaterial.name,))
 	if sql.fetchone()[0] == 0:
-		sql.execute(f"INSERT INTO materials {columns} VALUES {values}")
-	else:
-		sys.exit(f"{GColors.RED}Error: material >{gmaterial.name}< already exists in the database  {GColors.END}")
+		columns = form_string_with_column_definitions(gmaterial)
+		values = form_string_with_column_values(gmaterial, configuration)
 
-	# Commit changes
-	configuration.sqlitedb.commit()
+		insert_query = f"INSERT INTO materials {columns} VALUES {values}"
+		sql.execute(insert_query)
+		configuration.sqlitedb.commit()
+	else:
+		sys.exit(f"{GColors.RED}Error: material >{gmaterial.name}< already exists in the database for variation '{configuration.variation}'{GColors.END}")
+
 
 
 def form_string_with_column_definitions(gobject) -> str:
@@ -234,18 +244,13 @@ def form_string_with_column_definitions(gobject) -> str:
 
 
 def form_string_with_column_values(gobject, configuration) -> str:
-	strn = "( '{}', '{}', '{}', {}, ".format(configuration.experiment,
-											 configuration.system,
-											 configuration.variation,
-											 configuration.runno)
-	for field in gobject.__dict__:
+	strn = f"( '{configuration.experiment}', '{configuration.system}', '{configuration.variation}', {configuration.runno}, "
+	for field, value in gobject.__dict__.items():
 		if field != 'compType' and field != 'totComposition':
-			value = gobject.__dict__[field]
-			if type(value) is str:
-				value = "'{}'".format(value)
-			strn += f"{value}, "
-	strn = strn[:-2] + ")"
+			strn += f"'{value}', " if isinstance(value, str) else f"{value}, "
+	strn = strn[:-2] + ")"  # Remove last comma and space, then close parenthesis
 	return strn
+
 
 
 def sqltype_of_variable(variable) -> str:
