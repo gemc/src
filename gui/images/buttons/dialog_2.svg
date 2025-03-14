@@ -6,7 +6,7 @@
     <line x1="6" y1="12" x2="42" y2="12" stroke="currentColor" stroke-width="1"/>
 
     <!-- Prompt Element: a simple command prompt symbol in the center -->
-    <text x="24" y="25" text-anchor="middle" fill="currentColor" font-size="10" font-family="Mono">
+    <text x="24" y="25" text-anchor="middle" fill="currentColor" font-size="10" font-family="Monaco">
         &gt;_
     </text>
 

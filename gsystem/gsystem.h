@@ -22,8 +22,7 @@ public:
             string variation,
             int verbosity,
             int runno = 0,
-            string annotations = "none",
-            string sqlite_file = "none");
+            string annotations = "none");
 
     // default copy constructor
     GSystem(const GSystem &other) = default;
@@ -33,11 +32,10 @@ private:
     // MARK: class vars
     string name;                    // System name
     string path;                    // Absolute/relative path
-    string factoryName;             // Name of actory that builds the detector
+    string factoryName;             // Name of factory that builds the detector
     string variation = "default";   // Variation of the detector. Default is "default"
     int runno;                      // Run number
     string annotations;             // Annotations of the detector. "mats_only" means that only materials are loaded.
-    string sqlite_file;             // database
 
     // map containing the volumes
     // the key is system + volume name;
@@ -48,6 +46,9 @@ private:
     // materials are part of a system and cannot be shared among systems
     // (for that, the G4 Material database should be sufficient
     map<string, GMaterial *> *gmaterialsMap;
+
+	// dbhost, if sqlite or mysql is the same for all systems
+	string dbhost;
 
 public:
     inline const string getName() const { return name; }
@@ -62,7 +63,9 @@ public:
 
     inline int getRunno() const { return runno; }
 
-    inline const string getSqliteFile() const { return sqlite_file; }
+	inline string get_dbhost() const { return dbhost; }
+
+	inline void set_dbhost(string dbhost) { this->dbhost = dbhost; }
 
 
     // MARK: GVOLUMES

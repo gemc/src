@@ -29,7 +29,7 @@ private:
 
     sqlite3 *db = nullptr;
     string system_name = "na";
-    string sqlite_file = "na";
+    string dbhost = "na";
     string variation = "default";
     int runno = 0;
 

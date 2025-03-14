@@ -19,10 +19,11 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem *system, int verbosity) 
     system_name = system->getName();
     variation = system->getVariation();
     runno = system->getRunno();
-    sqlite_file = system->getSqliteFile();
 
+	if (dbhost == "na") { dbhost = system->get_dbhost(); }
+	
     // sqlite3_open_v2 will return SQLITE_OK (0) on success if the file exist (note: even if it's not a sqlite db)
-    int rc = sqlite3_open_v2(sqlite_file.c_str(), &db, SQLITE_OPEN_READWRITE, NULL);
+    int rc = sqlite3_open_v2(dbhost.c_str(), &db, SQLITE_OPEN_READWRITE, NULL);
 
     if (rc) {
 
@@ -31,7 +32,7 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem *system, int verbosity) 
         // file not found, now trying other locations
         for (auto trialLocation: possibleLocationOfFiles) {
 
-            string newName = trialLocation + "/" + sqlite_file;
+            string newName = trialLocation + "/" + dbhost;
             if (verbosity == GVERBOSITY_DETAILS) {
                 cout << GSYSTEMLOGHEADER << "Trying sqlite file " << newName << endl;
             }
@@ -45,18 +46,18 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem *system, int verbosity) 
             }
         }
     } else {
-        cout << GSYSTEMLOGHEADER << "Sqlite file >" << KGRN << sqlite_file << RST << "< opened successfully" << endl;
+        cout << GSYSTEMLOGHEADER << "Sqlite file >" << KGRN << dbhost << RST << "< opened successfully" << endl;
         return;
     }
 
     // If we are here, the file was not found. Exit
-    cerr << GSYSTEMLOGHEADER << "Sqlite database " << sqlite_file << " not found " << endl;
+    cerr << GSYSTEMLOGHEADER << "Sqlite database >" << dbhost << "< not found " << endl;
     gexit(EC__GSETUPFILENOTOFOUND);
 }
 
 void GSystemSQLiteFactory::closeSystem() {
     sqlite3_close(db);
     possibleLocationOfFiles.clear();
-    cout << GSYSTEMLOGHEADER << "Sqlite database >" << KGRN << sqlite_file << RST << "<  closed successfully" << endl;
+    cout << GSYSTEMLOGHEADER << "Sqlite database >" << KGRN << dbhost << RST << "<  closed successfully" << endl;
 
 }

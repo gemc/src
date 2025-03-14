@@ -44,8 +44,8 @@ subdir('gfields')
 subdir('utilities')
 subdir('gdetector')
 subdir('userActions')
-subdir('gui')
 subdir('dbselect')
+subdir('gui')
 
 # compilation loop
 foreach L : LD

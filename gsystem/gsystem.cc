@@ -12,12 +12,11 @@
 using namespace std;
 
 // init system based on name, factory, variation and run number
-GSystem::GSystem(string n, string f, string v, int verbosity, int r, string notes, string sqlf) :
+GSystem::GSystem(string n, string f, string v, int verbosity, int r, string notes) :
         factoryName(f),
         variation(v),
         runno(r),
-        annotations(notes),
-        sqlite_file(sqlf) {
+        annotations(notes) {
 
     path = gutilities::getDirFromPath(n);
     name = gutilities::getFileFromPath(n);

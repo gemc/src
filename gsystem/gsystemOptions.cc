@@ -19,8 +19,7 @@ vector <GSystem> getSystems(GOptions *gopts) {
 				gopts->get_variable_in_option<string>(gsystem_item, "variation", "default"),
 				verbosity,
 				gopts->get_variable_in_option<int>(gsystem_item, "runno", 1),
-				gopts->get_variable_in_option<string>(gsystem_item, "annotations", UNINITIALIZEDSTRINGQUANTITY),
-				gopts->get_variable_in_option<string>(gsystem_item, "sql_file", GSYSTEMSQLITETDEFAULTFILE)
+				gopts->get_variable_in_option<string>(gsystem_item, "annotations", UNINITIALIZEDSTRINGQUANTITY)
 		));
 	}
 
@@ -65,9 +64,7 @@ GOptions defineOptions() {
 			{"factory",   "sqlite",                       "factory name. Possible choices: ascii, CAD, GDML, sqlite. Default is ascii"},
 			{"variation", "default",                     "geometry variation, default is \"default\")"},
 			{"runno",     1,                             "runno, default is 1)"},
-			{"annotations", UNINITIALIZEDSTRINGQUANTITY, "optional system annotations. Examples: \"mats_only\" "},
-			{"sql_file",    GSYSTEMSQLITETDEFAULTFILE,   "sqlite file name, default is " +
-														 string(GSYSTEMSQLITETDEFAULTFILE)}
+			{"annotations", UNINITIALIZEDSTRINGQUANTITY, "optional system annotations. Examples: \"mats_only\" "}
 	};
 	goptions.defineOption("gsystem", "defines the group of volumes in a system", gsystem, help);
 
@@ -85,6 +82,8 @@ GOptions defineOptions() {
 
 	goptions.defineOption(GVariable(ROOTWORLDGVOLUMENAME, ROOTDEFINITION, "root volume definition"),
 						  "root volume definition");
+	// add sql option to define host or sqlite file
+	goptions.defineOption(GVariable("sql", GSYSTEMSQLITETDEFAULTFILE, "sql host or sqlite file"), "sql host or sqlite file");
 
 	return goptions;
 }

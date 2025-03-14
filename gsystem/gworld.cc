@@ -19,11 +19,13 @@ GWorld::GWorld(GOptions *gopts) {
 
     gsystemsMap = new map<string, GSystem *>;
     verbosity = gopts->getVerbosityFor("gsystem");
+	string dbhost = gopts->getScalarString("sql");
 
     // loading gsystemsMap with GSystems
     for (auto &gsystem: gsystem::getSystems(gopts)) {
         string keyName = gutilities::getFileFromPath(gsystem.getName());
         (*gsystemsMap)[keyName] = new GSystem(gsystem);
+		(*gsystemsMap)[keyName]->set_dbhost(dbhost);
     }
 
     // loading gmodifiersMap
