@@ -5,8 +5,7 @@
 
 // --- ButtonInfo Implementation ---
 ButtonInfo::ButtonInfo(const std::string &icon)
-		: buttonName(icon)
-{
+		: buttonName(icon) {
 	thisButton = new QListWidgetItem();
 	// Set the default (normal) state icon
 	thisButton->setIcon(iconForState(1));
@@ -24,12 +23,11 @@ QIcon ButtonInfo::iconForState(int state) const {
 
 // --- GQTButtonsWidget Implementation ---
 GQTButtonsWidget::GQTButtonsWidget(double h, double v,
-								   const std::vector<std::string> &bicons,
+								   const std::vector <std::string> &bicons,
 								   bool vertical, QWidget *parent)
-		: QWidget(parent)
-{
+		: QWidget(parent) {
 	constexpr int distanceToMargin = 12;
-	for (const auto &b : bicons) {
+	for (const auto &b: bicons) {
 		buttons.push_back(new ButtonInfo(b));
 	}
 
@@ -43,7 +41,7 @@ GQTButtonsWidget::GQTButtonsWidget(double h, double v,
 			"QListWidget::item:selected { background: transparent; border: none; }");
 
 	// Add buttons to the widget
-	for (auto &b : buttons) {
+	for (auto &b: buttons) {
 		buttonsWidget->addItem(b->thisButton);
 	}
 
@@ -51,8 +49,8 @@ GQTButtonsWidget::GQTButtonsWidget(double h, double v,
 	connect(buttonsWidget, &QListWidget::itemPressed,
 			this, &GQTButtonsWidget::buttonWasPressed);
 
-	QBoxLayout *layout = vertical ? static_cast<QBoxLayout*>(new QVBoxLayout(this))
-								  : static_cast<QBoxLayout*>(new QHBoxLayout(this));
+	QBoxLayout *layout = vertical ? static_cast<QBoxLayout *>(new QVBoxLayout(this))
+								  : static_cast<QBoxLayout *>(new QHBoxLayout(this));
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->addWidget(buttonsWidget);
 	setLayout(layout);
@@ -94,17 +92,16 @@ void GQTButtonsWidget::buttonWasPressed(QListWidgetItem *item) {
 
 // --- GQTToggleButtonWidget Implementation ---
 GQTToggleButtonWidget::GQTToggleButtonWidget(int buttonWidth, int buttonHeight, int borderRadius,
-											 const std::vector<std::string> &titles,
+											 const std::vector <std::string> &titles,
 											 bool vertical, QWidget *parent)
 		: QWidget(parent),
-		  buttonPressedIndex(-1)
-{
-	QBoxLayout *layout = vertical ? static_cast<QBoxLayout*>(new QVBoxLayout(this))
-								  : static_cast<QBoxLayout*>(new QHBoxLayout(this));
+		  buttonPressedIndex(-1) {
+	QBoxLayout *layout = vertical ? static_cast<QBoxLayout *>(new QVBoxLayout(this))
+								  : static_cast<QBoxLayout *>(new QHBoxLayout(this));
 
 	// Convert std::string titles to QStringList
 	QStringList buttonStrings;
-	for (const auto &title : titles) {
+	for (const auto &title: titles) {
 		buttonStrings.append(QString::fromStdString(title));
 	}
 

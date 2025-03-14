@@ -1,25 +1,28 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
     <!-- Container Outline -->
-    <rect x="4" y="4" width="40" height="40" rx="4" stroke="currentColor" stroke-width="2"/>
-    <!-- Detector Grid (4x4) with centered squares -->
-    <!-- Row 0 -->
-    <rect x="9" y="9" width="6" height="6" fill="currentColor"/>
-    <rect x="17" y="9" width="6" height="6" fill="currentColor"/>
-    <rect x="25" y="9" width="6" height="6" fill="#CCCCCC"/>
-    <rect x="33" y="9" width="6" height="6" fill="currentColor"/>
+    <rect x="4" y="4" width="40" height="40" rx="4" stroke="currentColor" stroke-width="1"/>
+
+    <!-- Detector Grid (3 rows x 4 columns) with smaller, centered squares (moved down by 4 units) -->
+    <!-- Row 0 (original y positions +4) -->
+    <rect x="10.5" y="8" width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="8" width="6" height="6" fill="currentColor"/>
+    <rect x="24.5" y="8" width="6" height="6" fill="#CCCCCC"/>
+    <rect x="31.5" y="8" width="6" height="6" fill="currentColor"/>
+
     <!-- Row 1 -->
-    <rect x="9" y="17" width="6" height="6" fill="currentColor"/>
-    <rect x="17" y="17" width="6" height="6" fill="#CCCCCC"/>
-    <rect x="25" y="17" width="6" height="6" fill="currentColor"/>
-    <rect x="33" y="17" width="6" height="6" fill="currentColor"/>
+    <rect x="10.5" y="15" width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="15" width="6" height="6" fill="#CCCCCC"/>
+    <rect x="24.5" y="15" width="6" height="6" fill="currentColor"/>
+    <rect x="31.5" y="15" width="6" height="6" fill="currentColor"/>
+
     <!-- Row 2 -->
-    <rect x="9" y="25" width="6" height="6" fill="currentColor"/>
-    <rect x="17" y="25" width="6" height="6" fill="currentColor"/>
-    <rect x="25" y="25" width="6" height="6" fill="currentColor"/>
-    <rect x="33" y="25" width="6" height="6" fill="#CCCCCC"/>
-    <!-- Row 3 -->
-    <rect x="9" y="33" width="6" height="6" fill="#CCCCCC"/>
-    <rect x="17" y="33" width="6" height="6" fill="currentColor"/>
-    <rect x="25" y="33" width="6" height="6" fill="#CCCCCC"/>
-    <rect x="33" y="33" width="6" height="6" fill="currentColor"/>
+    <rect x="10.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="24.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="31.5" y="22" width="6" height="6" fill="#CCCCCC"/>
+
+    <!-- Text label "Setup" moved down for vertical centering -->
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Avenir">
+        Setup
+    </text>
 </svg>
