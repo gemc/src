@@ -1,0 +1,20 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Dialog box outline -->
+    <rect x="6" y="6" width="36" height="36" rx="3" stroke="currentColor" stroke-width="2"/>
+    <!-- Title Bar -->
+    <line x1="6" y1="12" x2="42" y2="12" stroke="currentColor" stroke-width="2"/>
+    <!-- Parameter lines representing text -->
+    <line x1="10" y1="20" x2="30" y2="20" stroke="currentColor" stroke-width="2"/>
+    <line x1="10" y1="28" x2="30" y2="28" stroke="currentColor" stroke-width="2"/>
+    <!-- Gear icon in the bottom right corner -->
+    <circle cx="34" cy="34" r="4" stroke="currentColor" stroke-width="2"/>
+    <!-- Gear notches -->
+    <line x1="34" y1="29" x2="34" y2="27" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="34" y1="39" x2="34" y2="41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="29" y1="34" x2="27" y2="34" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="39" y1="34" x2="41" y2="34" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="31.5" y1="30.5" x2="29.5" y2="28.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36.5" y1="37.5" x2="38.5" y2="39.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="31.5" y1="37.5" x2="29.5" y2="39.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36.5" y1="30.5" x2="38.5" y2="28.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+</svg>

@@ -1,4 +1,5 @@
 // gQtButtonsWidget
+#include "qapplication.h"
 #include "gQtButtonsWidget.h"
 #include "gQtButtonsWidgetOptions.h"
 

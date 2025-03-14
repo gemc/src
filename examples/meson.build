@@ -31,6 +31,12 @@ foreach branch : examples_map.keys()
                      workdir : example_dir,
                      env : {'PYTHONDONTWRITEBYTECODE': '1'},
                      priority : 10)
+                test(' ## run gemc on example ' + example_dir + ' with format ' + format + ', default run  and variation default ##',
+                     gemc,
+                     args : [yaml_file, '-gsystem="[{name:' + example + ', factory: ' + format + ', variation:' +  variation + ', sql_file: ../../gemc.db}]"'],
+                     env : project_test_env,
+                     workdir : test_dir,
+                     priority : -10)
             endforeach
 
             # Geometry building tests (runs loop): Loop over runs with fixed variation "default"
@@ -41,19 +47,6 @@ foreach branch : examples_map.keys()
                      workdir : example_dir,
                      env : {'PYTHONDONTWRITEBYTECODE': '1'},
                      priority : 10)
-            endforeach
-
-            # Gemc run tests: Loop over runs with fixed variation "default"
-            foreach variation : variations
-                test(' ## run gemc on example ' + example_dir + ' with format ' + format + ', default run  and variation default ##',
-                     gemc,
-                     args : [yaml_file, '-gsystem="[{name:' + example + ', factory: ' + format + ', variation:' +  variation + ', sql_file: ../../gemc.db}]"'],
-                     env : project_test_env,
-                     workdir : test_dir,
-                     priority : -10)
-            endforeach
-            # Gemc run tests: Loop over runs with fixed variation "default"
-            foreach run_value : runs
                 test(' ## run gemc on example ' + example_dir + ' with format ' + format + ', run ' + run_value + ' and variation default ##',
                      gemc,
                      args : [yaml_file, '-gsystem="[{name:' + example + ', factory: ' + format + ', runno:' +  run_value + ',  sql_file: ../../gemc.db}]"'],
@@ -61,6 +54,7 @@ foreach branch : examples_map.keys()
                      workdir : test_dir,
                      priority : -10)
             endforeach
+
         endforeach
     endforeach
 endforeach

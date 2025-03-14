@@ -2,9 +2,11 @@
 <RCC version="1.0">
     <qresource>
         <file alias="gemcArchitecture">images/gemcArchitecture.png</file>
-        <file>gui/images/buttons/display_1.png</file>
-        <file>gui/images/buttons/display_2.png</file>
-        <file>gui/images/buttons/dialog_1.png</file>
-        <file>gui/images/buttons/dialog_2.png</file>
+        <file>gui/images/buttons/display_1.svg</file>
+        <file>gui/images/buttons/display_2.svg</file>
+        <file>gui/images/buttons/dialog_1.svg</file>
+        <file>gui/images/buttons/dialog_2.svg</file>
+        <file>gui/images/buttons/setup_1.svg</file>
+        <file>gui/images/buttons/setup_2.svg</file>
     </qresource>
 </RCC>

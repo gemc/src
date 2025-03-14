@@ -6,7 +6,7 @@ void GemcGUI::createLeftButtons() {
 
     bicons.push_back(":/gui/images/buttons/display");
     bicons.push_back(":/gui/images/buttons/dialog");
-    bicons.push_back(":/gui/images/buttons/dialog");
+    bicons.push_back(":/gui/images/buttons/setup");
     bicons.push_back(":/gui/images/buttons/dialog");
     bicons.push_back(":/gui/images/buttons/dialog");
     bicons.push_back(":/gui/images/buttons/dialog");

@@ -17,24 +17,35 @@ private:
 	void setupDatabase();
 	void loadExperiments();
 	void loadSystemsForExperiment(QStandardItem *experimentItem, const std::string &experiment);
-	void loadVariations(const std::string &system);
-	void loadRuns(const std::string &system);
-	void filterSystemsByVariation(const std::string &variation);
-	void filterSystemsByRun(int run);
+	void loadAllVariations();
+	void loadAllRuns();
+	// Update system appearance based on availability (status icon only).
+	void updateSystemItemAppearance(QStandardItem *systemItem, bool available);
+	// Update all systems in all experiments according to the current filter.
+	void filter_systems(const std::string &variation, int run);
+	// Returns true if the given system is available (i.e. present in DB for the given variation and run).
+	bool systemAvailable(const std::string &system, const std::string &variation, int run);
+	// Creates a small colored square icon.
+	QIcon createStatusIcon(const QColor &color);
+
+	// Combined slot to handle check state changes for both experiment and system items.
+	void onItemChanged(QStandardItem *item);
 
 	sqlite3 *db;
-	QTreeView *experimentTree;  // Hierarchical tree with experiments & systems
-	QTreeView *variationTree;
-	QTreeView *runTree;
-
+	QTreeView *experimentTree;      // The experiment tree (experiments + systems)
+	QComboBox *variationComboBox;    // Variation dropdown
+	QComboBox *runComboBox;          // Run dropdown
 	QStandardItemModel *experimentModel;
-	QStandardItemModel *variationModel;
-	QStandardItemModel *runModel;
+
+	// A header label to display total number of systems for the selected experiment.
+	QLabel *experimentHeaderLabel;
+
+	// Flag to avoid recursive processing.
+	bool m_ignoreItemChange = false;
 
 private slots:
-	void onExperimentSelected(const QModelIndex &index);
-	void onVariationSelected(const QModelIndex &index);
-	void onRunSelected(const QModelIndex &index);
+	void onVariationSelected(int index);
+	void onRunSelected(int index);
 };
 
 #endif

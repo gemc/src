@@ -169,13 +169,18 @@ def populate_sqlite_geometry(gvolume, configuration):
 	sql = configuration.sqlitedb.cursor()
 	key = (configuration.experiment, configuration.system, configuration.variation, configuration.runno)
 
-	if key not in deleted_geometry:
-		delete_query = """
-            DELETE FROM geometry WHERE experiment = ? AND system = ? AND variation = ? AND run = ?
-        """
-		sql.execute(delete_query, key)
-		configuration.sqlitedb.commit()
-		deleted_geometry.add(key)
+	# Check if the geometry table exists
+	sql.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='geometry'")
+	if sql.fetchone()[0] == 1:  # Table exists
+		if key not in deleted_geometry:
+			delete_query = """
+                DELETE FROM geometry WHERE experiment = ? AND system = ? AND variation = ? AND run = ?
+            """
+			sql.execute(delete_query, key)
+			configuration.sqlitedb.commit()
+			deleted_geometry.add(key)
+	else:
+		print("Warning: 'geometry' table does not exist. Skipping deletion.")
 
 	# Updated query: Check existence based on name **AND** variation/run/experiment/system
 	sql.execute(
@@ -192,6 +197,7 @@ def populate_sqlite_geometry(gvolume, configuration):
 		sys.exit(f"{GColors.RED}Error: volume >{gvolume.name}< already exists in the database for variation '{configuration.variation}'{GColors.END}")
 
 	configuration.sqlitedb.commit()
+
 
 
 
