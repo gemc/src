@@ -6,100 +6,77 @@
 using namespace std;
 
 bool DBSelectView::isGeometryTableValid(sqlite3 *db) {
-
 	if (!db) return false; // Ensure db is not null before querying
 
 	sqlite3_stmt *stmt = nullptr;
 	const char *sql_query = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='geometry'";
-
-	// Check if the 'geometry' table exists
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
 		std::cerr << "SQL Error: Failed to check geometry table existence: " << sqlite3_errmsg(db) << std::endl;
 		return false;
 	}
-
 	bool tableExists = false;
 	if (sqlite3_step(stmt) == SQLITE_ROW) {
 		tableExists = sqlite3_column_int(stmt, 0) > 0;
 	}
 	sqlite3_finalize(stmt);
-
 	if (!tableExists) {
 		return false;
 	}
 
-	// Now check if the table has at least one row
+	// Check if the table has at least one row.
 	sql_query = "SELECT COUNT(*) FROM geometry";
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
 		std::cerr << "SQL Error: Failed to count rows in geometry table: " << sqlite3_errmsg(db) << std::endl;
 		return false;
 	}
-
 	bool hasData = false;
 	if (sqlite3_step(stmt) == SQLITE_ROW) {
 		hasData = sqlite3_column_int(stmt, 0) > 0;
 	}
 	sqlite3_finalize(stmt);
-
-	if (!hasData) {
-		return false;
-	}
-
-	return true;
+	return hasData;
 }
-
 
 void DBSelectView::applyGSystemSelections(GOptions *gopts) {
 	std::vector<GSystem> gsystems = gsystem::getSystems(gopts);  // Get vector of GSystem objects
-
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
 		QStandardItem *expItem = experimentModel->item(i, 0);
 		if (!expItem) continue;
-
+		// Look only at the experiment level. If the experiment's text equals the default experiment string,
+		// mark it checked.
+		if (expItem->text() == QString::fromStdString(experiment)) {
+			expItem->setCheckState(Qt::Checked);
+		}
+		// Now process its child systems.
 		for (int j = 0; j < expItem->rowCount(); ++j) {
 			QStandardItem *sysItem = expItem->child(j, 0);
 			QStandardItem *varItem = expItem->child(j, 1);
 			QStandardItem *runItem = expItem->child(j, 2);
 			if (!sysItem || !varItem || !runItem) continue;
-
 			std::string sysName = sysItem->text().toStdString();
 			bool systemFound = false;
-
-			// Iterate through the vector to find the system
 			for (const GSystem &gsys : gsystems) {
 				if (gsys.getName() == sysName) {
 					systemFound = true;
-
-					// Check the system checkbox
 					sysItem->setCheckState(Qt::Checked);
-
-					// Set the default variation in the combobox
 					QStringList availableVariations = getAvailableVariations(sysName);
 					QString selectedVar = QString::fromStdString(gsys.getVariation());
-					if (availableVariations.contains(selectedVar)) {
+					if (availableVariations.contains(selectedVar))
 						varItem->setData(selectedVar, Qt::EditRole);
-					} else if (!availableVariations.isEmpty()) {
+					else if (!availableVariations.isEmpty())
 						varItem->setData(availableVariations.first(), Qt::EditRole);
-					}
 					varItem->setData(availableVariations, Qt::UserRole);
-
-					// Set the default run in the combobox
 					QStringList availableRuns = getAvailableRuns(sysName);
 					QString selectedRun = QString::number(gsys.getRunno());
-					if (availableRuns.contains(selectedRun)) {
+					if (availableRuns.contains(selectedRun))
 						runItem->setData(selectedRun, Qt::EditRole);
-					} else if (!availableRuns.isEmpty()) {
+					else if (!availableRuns.isEmpty())
 						runItem->setData(availableRuns.first(), Qt::EditRole);
-					}
 					runItem->setData(availableRuns, Qt::UserRole);
-
-					// Update appearance
 					updateSystemItemAppearance(sysItem);
-					break;  // Stop searching once we find the system
+					break;
 				}
 			}
-
-			// If system was not found in gsystems, ensure it's unchecked
 			if (!systemFound) {
 				sysItem->setCheckState(Qt::Unchecked);
 			}
@@ -107,38 +84,49 @@ void DBSelectView::applyGSystemSelections(GOptions *gopts) {
 	}
 }
 
-
-
 DBSelectView::DBSelectView(GOptions *gopts, QWidget *parent)
 		: QWidget(parent), db(nullptr), m_ignoreItemChange(false) {
+
 	// Open the database.
 	dbhost = gopts->getScalarString("sql");
+	experiment = gopts->getScalarString("experiment");
 
-	dbhost = gopts->getScalarString("sql");
 	if (sqlite3_open(dbhost.c_str(), &db) != SQLITE_OK || !isGeometryTableValid(db)) {
 		std::cerr << "Database Warning: Failed to open or validate database: " << dbhost << std::endl;
-
-		// Close the failed database connection
 		sqlite3_close(db);
 		db = nullptr;
-
-		// Revert to backup database: $GEMC/examples/gemc.db
 		dbhost = string(getenv("GEMC")) + "/examples/gemc.db";
 		if (sqlite3_open(dbhost.c_str(), &db) != SQLITE_OK || !isGeometryTableValid(db)) {
 			std::cerr << "Database Error: Failed to open or validate backup database: " << dbhost << std::endl;
 			sqlite3_close(db);
-			db = nullptr; // Ensure db remains null if both attempts fail
+			db = nullptr;
+			std::exit(1);
 		} else {
 			std::cerr << "Database Warning: Using backup database: " << dbhost << std::endl;
 		}
 	}
 
-
 	setupUI();
 	loadExperiments();
-	applyGSystemSelections(gopts);  // Apply system selections from gsystem map
 
-	// Optionally, update all system items’ status initially:
+	// Now, verify that the experiment provided in options exists in the database.
+	bool expFound = false;
+	for (int i = 0; i < experimentModel->rowCount(); ++i) {
+		QStandardItem *expItem = experimentModel->item(i, 0);
+		if (expItem && expItem->text() == QString::fromStdString(experiment)) {
+			expItem->setCheckState(Qt::Checked);
+			expFound = true;
+			break;
+		}
+	}
+	if (!expFound) {
+		std::cerr << "Error: Experiment \"" << experiment << "\" not found in database. Exiting." << std::endl;
+		std::exit(1);
+	}
+
+	applyGSystemSelections(gopts);
+
+	// Optionally, update all system items’ status initially.
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
 		QStandardItem *expItem = experimentModel->item(i, 0);
 		for (int j = 0; j < expItem->rowCount(); ++j) {
@@ -175,19 +163,17 @@ void DBSelectView::setupUI() {
 	experimentTree->setStyleSheet("QTreeView { alternate-background-color: #f0f0f0; }");
 	experimentTree->setSelectionMode(QAbstractItemView::SingleSelection);
 	experimentTree->setSelectionBehavior(QAbstractItemView::SelectRows);
-	// Unhide header so that we can use its resize modes.
 	experimentTree->header()->show();
 
-	// Create a three‑column model.
+	// Create a four-column model.
 	experimentModel = new QStandardItemModel(this);
 	experimentTree->setModel(experimentModel);
-	// Set custom delegates for columns 1 and 2.
-	experimentTree->setItemDelegateForColumn(1, new ComboDelegate(this));
+	// Set custom delegates for columns 2 and 3 (variation and run).
 	experimentTree->setItemDelegateForColumn(2, new ComboDelegate(this));
+	experimentTree->setItemDelegateForColumn(3, new ComboDelegate(this));
 
 	mainLayout->addWidget(experimentTree);
 
-	// Connect the model's itemChanged signal.
 	connect(experimentModel, &QStandardItemModel::itemChanged,
 			this, &DBSelectView::onItemChanged);
 
@@ -210,17 +196,16 @@ void DBSelectView::loadExperiments() {
 		if (expText) {
 			QString expName = QString::fromUtf8(expText);
 			QStandardItem *expItem = new QStandardItem(expName);
-			// Make experiment item read‑only and checkable.
 			expItem->setFlags(expItem->flags() & ~Qt::ItemIsEditable);
 			expItem->setCheckable(true);
 			expItem->setCheckState(Qt::Unchecked);
-			// For experiments, columns 1 and 2 are empty.
+			// For experiments, columns 1, 2, and 3 are initially empty.
+			QStandardItem *dummyEntries = new QStandardItem("");
 			QStandardItem *dummyVar = new QStandardItem("");
 			QStandardItem *dummyRun = new QStandardItem("");
 			// Load systems for this experiment.
 			loadSystemsForExperiment(expItem, expName.toStdString());
-			// Append the experiment row (a row with three columns).
-			experimentModel->appendRow(QList<QStandardItem *>() << expItem << dummyVar << dummyRun);
+			experimentModel->appendRow(QList<QStandardItem *>() << expItem << dummyEntries << dummyVar << dummyRun);
 		}
 	}
 	sqlite3_finalize(stmt);
@@ -239,20 +224,18 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem *experimentItem, const
 				sysItem->setFlags(sysItem->flags() & ~Qt::ItemIsEditable);
 				sysItem->setCheckable(true);
 				sysItem->setCheckState(Qt::Unchecked);
-
-				// Column 1: Variation drop‑down item.
+				// Column 1: Entries – initially empty; will be updated in updateSystemItemAppearance.
+				QStandardItem *entriesItem = new QStandardItem("");
+				// Column 2: Variation drop‑down item.
 				QStandardItem *varItem = new QStandardItem();
 				QStringList varList = getAvailableVariations(sysText);
 				if (!varList.isEmpty())
 					varItem->setData(varList.first(), Qt::EditRole);
 				else
 					varItem->setData("", Qt::EditRole);
-				// Store the available options in UserRole.
 				varItem->setData(varList, Qt::UserRole);
-				// Set a distinct background color for variation.
 				varItem->setBackground(QColor("lightblue"));
-
-				// Column 2: Run drop‑down item.
+				// Column 3: Run drop‑down item.
 				QStandardItem *runItem = new QStandardItem();
 				QStringList runList = getAvailableRuns(sysText);
 				if (!runList.isEmpty())
@@ -260,20 +243,36 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem *experimentItem, const
 				else
 					runItem->setData("", Qt::EditRole);
 				runItem->setData(runList, Qt::UserRole);
-				// Set a distinct background color for runs.
 				runItem->setBackground(QColor("lightgreen"));
 
-
-
-				// Append a new row (three columns) to the experiment item.
-				QList < QStandardItem * > rowItems;
-				rowItems << sysItem << varItem << runItem;
+				QList<QStandardItem*> rowItems;
+				rowItems << sysItem << entriesItem << varItem << runItem;
 				experimentItem->appendRow(rowItems);
 			}
 		}
 	}
 	sqlite3_finalize(stmt);
 }
+
+int DBSelectView::getGeometryCount(const string &experiment, const string &system, const string &variation, int run) {
+	int count = 0;
+	string query = "SELECT COUNT(*) FROM geometry WHERE experiment = ? AND system = ? AND variation = ? AND run = ?";
+	sqlite3_stmt *stmt = nullptr;
+	if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
+		sqlite3_bind_text(stmt, 1, experiment.c_str(), -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmt, 2, system.c_str(), -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmt, 3, variation.c_str(), -1, SQLITE_TRANSIENT);
+		sqlite3_bind_int(stmt, 4, run);
+		if (sqlite3_step(stmt) == SQLITE_ROW) {
+			count = sqlite3_column_int(stmt, 0);
+		}
+	} else {
+		std::cerr << "getGeometryCount: prepare failed: " << sqlite3_errmsg(db) << std::endl;
+	}
+	sqlite3_finalize(stmt);
+	return count;
+}
+
 
 QStringList DBSelectView::getAvailableVariations(const string &system) {
 	QStringList varList;
@@ -338,21 +337,31 @@ void DBSelectView::updateSystemItemAppearance(QStandardItem *systemItem) {
 	if (!parentItem)
 		return;
 	int row = systemItem->row();
-	QStandardItem *varItem = parentItem->child(row, 1);
-	QStandardItem *runItem = parentItem->child(row, 2);
+	QStandardItem *varItem = parentItem->child(row, 2); // Variation is now column 2.
+	QStandardItem *runItem = parentItem->child(row, 3); // Run is now column 3.
 	QString varStr = varItem ? varItem->data(Qt::EditRole).toString() : "";
 	QString runStr = runItem ? runItem->data(Qt::EditRole).toString() : "";
 	int run = runStr.toInt();
-	bool available = systemAvailable(systemItem->text().toStdString(), varStr.toStdString(), run);
+	// The experiment name is in the parent item (top-level experiment row).
+	QString expStr = parentItem->text();
+	string experimentName = expStr.toStdString();
+	string systemName = systemItem->text().toStdString();
+	string variation = varStr.toStdString();
+
+	int count = getGeometryCount(experimentName, systemName, variation, run);
+	// Update the "Entries" column (column 1).
+	QStandardItem *entriesItem = parentItem->child(row, 1);
+	if (entriesItem) {
+		entriesItem->setText(QString::number(count));
+	}
+	bool available = (count > 0);
 	QColor statusColor = available ? QColor("green") : QColor("red");
 	systemItem->setIcon(createStatusIcon(statusColor));
-	// Do not change background or text colors.
 	systemItem->setData(QColor("white"), Qt::BackgroundRole);
 	systemItem->setData(QColor("black"), Qt::ForegroundRole);
 }
 
 void DBSelectView::updateExperimentHeader() {
-	// Find the checked experiment (they are mutually exclusive).
 	QStandardItem *selectedExp = nullptr;
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
 		QStandardItem *expItem = experimentModel->item(i, 0);
@@ -368,18 +377,18 @@ void DBSelectView::updateExperimentHeader() {
 	} else {
 		experimentHeaderLabel->setText("");
 	}
+	experimentTree->expandAll();
+	experimentModel->setHorizontalHeaderLabels(QStringList() << "exp/system" << "volumes" << "variation" << "run");
+
 }
 
 void DBSelectView::onItemChanged(QStandardItem *item) {
-	if (m_ignoreItemChange)
-		return;
-	if (!item)
+	if (m_ignoreItemChange || !item)
 		return;
 	m_ignoreItemChange = true;
-	// If this is a top-level experiment item:
 	if (!item->parent()) {
+		// Experiment item changes.
 		if (item->checkState() == Qt::Checked) {
-			// Uncheck all other experiments.
 			for (int i = 0; i < experimentModel->rowCount(); ++i) {
 				QStandardItem *expItem = experimentModel->item(i, 0);
 				if (expItem != item)
@@ -387,7 +396,6 @@ void DBSelectView::onItemChanged(QStandardItem *item) {
 			}
 			updateExperimentHeader();
 		} else {
-			// Experiment unchecked: uncheck all its child systems.
 			for (int i = 0; i < item->rowCount(); ++i) {
 				QStandardItem *sysItem = item->child(i, 0);
 				if (sysItem)
@@ -396,25 +404,19 @@ void DBSelectView::onItemChanged(QStandardItem *item) {
 			updateExperimentHeader();
 		}
 	} else {
-		// This is a child item (a system row).
-		// If the changed item is in column 0 (system checkbox), update its appearance.
+		// Child (system) item changed.
 		if (item->column() == 0) {
 			updateSystemItemAppearance(item);
-		}
-			// If the changed item is in column 1 or 2 (variation or run drop‑down), update the corresponding system item.
-		else if (item->column() == 1 || item->column() == 2) {
+		} else if (item->column() == 2 || item->column() == 3) {
 			QStandardItem *sysItem = item->parent()->child(item->row(), 0);
 			updateSystemItemAppearance(sysItem);
 		}
 	}
 	m_ignoreItemChange = false;
 
-	// resize columns to contents if necessary
 	experimentTree->resizeColumnToContents(0);
-	experimentTree->setColumnWidth(1, 200);
-	experimentTree->setColumnWidth(2, 100);
+	experimentTree->setColumnWidth(1, 100);
+	experimentTree->setColumnWidth(2, 150);
+	experimentTree->setColumnWidth(3, 150);
 	experimentTree->header()->setStretchLastSection(false);
-	experimentModel->setHorizontalHeaderLabels(QStringList() << "Experiment" << "Variation" << "Run");
-
 }
-

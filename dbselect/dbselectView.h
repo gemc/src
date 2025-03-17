@@ -24,15 +24,18 @@ private:
 	QStringList getAvailableVariations(const string &system);
 	// Returns a list of available runs for a given system.
 	QStringList getAvailableRuns(const string &system);
-	// Update the status icon for a system item based on its current variation and run selections.
+	// Returns the number of entries in the geometry table for the given combination.
+	int getGeometryCount(const string &experiment, const string &system, const string &variation, int run);
+	// Update the status icon for a system item and update the "Entries" column.
 	void updateSystemItemAppearance(QStandardItem *systemItem);
-	// Returns true if a system is available for the given variation and run.
+	// Returns true if a system is available (i.e. count > 0) for the given combination.
 	bool systemAvailable(const string &system, const string &variation, int run);
 	// Update the experiment header label (displaying the checked experiment name and total systems).
 	void updateExperimentHeader();
 
 	sqlite3 *db;
-	std::string dbhost;
+	string dbhost;
+	string experiment;  // default experiment from options
 
 	QTreeView *experimentTree;          // Tree showing experiments (top-level) and systems (children)
 	QStandardItemModel *experimentModel;
@@ -43,12 +46,11 @@ private:
 
 	QIcon createStatusIcon(const QColor &color);
 	bool isGeometryTableValid(sqlite3 *db);
-
 	void applyGSystemSelections(GOptions *gopts);
 
 private slots:
-			// Combined slot for handling changes (experiment checkboxes and system drop‑down changes).
-			void onItemChanged(QStandardItem *item);
+	// Combined slot for handling changes (experiment checkboxes and system drop‑down changes).
+	void onItemChanged(QStandardItem *item);
 };
 
 //

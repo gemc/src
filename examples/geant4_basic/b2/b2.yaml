@@ -1,3 +1,4 @@
+experiment: examples
 runno: 1
 n: 1
 
@@ -20,7 +21,6 @@ verbosity:
 
 gsystem:
   - name: b2
-    factory: sqlite
     variation: default
     run: 11
 

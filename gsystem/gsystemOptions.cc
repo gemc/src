@@ -61,7 +61,7 @@ GOptions defineOptions() {
 
 	vector <GVariable> gsystem = {
 			{"name",      goptions::NODFLT,              "system name (mandatory). For ascii factories, it may include the path to the file"},
-			{"factory",   "sqlite",                       "factory name. Possible choices: ascii, CAD, GDML, sqlite. Default is ascii"},
+			{"factory",   "sqlite",                      "factory name. Possible choices: ascii, CAD, GDML, sqlite. Default is ascii"},
 			{"variation", "default",                     "geometry variation, default is \"default\")"},
 			{"runno",     1,                             "runno, default is 1)"},
 			{"annotations", UNINITIALIZEDSTRINGQUANTITY, "optional system annotations. Examples: \"mats_only\" "}
@@ -82,8 +82,14 @@ GOptions defineOptions() {
 
 	goptions.defineOption(GVariable(ROOTWORLDGVOLUMENAME, ROOTDEFINITION, "root volume definition"),
 						  "root volume definition");
+
 	// add sql option to define host or sqlite file
-	goptions.defineOption(GVariable("sql", GSYSTEMSQLITETDEFAULTFILE, "sql host or sqlite file"), "sql host or sqlite file");
+	goptions.defineOption(GVariable("sql", GSYSTEMSQLITETDEFAULTFILE, "sql host or sqlite file"),
+						  "sql host or sqlite file");
+
+	// add experiment option to define the experiment
+	goptions.defineOption(GVariable("experiment", "examples", "Experiment selection"),
+						  "Each experiment have a subset of unique systems");
 
 	return goptions;
 }
