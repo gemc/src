@@ -117,4 +117,4 @@ if __name__ == "__main__":
     if check_root_config():
         root_list = ["RIO", "Tree", "Core", "root"]
         generate_pkgconfig("root-config", "root.pc", "ROOT", "ROOT Data Analysis Framework", root_list)
-    # generate_geant4_package_cache("Geant4PackageCache.cmake")
+    generate_geant4_package_cache("Geant4PackageCache.cmake")

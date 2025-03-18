@@ -4,7 +4,6 @@ LD += {
     'sources' : files(
         'gemcUtilities.cc',
         'gemcOptions.cc',
-        'loadDigitizationPlugins.cc',
     ),
     'headers' : files(
         'gemcUtilities.h',
