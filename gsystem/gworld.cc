@@ -101,12 +101,10 @@ GWorld::GWorld(GOptions *gopts) {
         }
     }
 
-
     // adding root volume to the "root" gsystem
-    // using the text factory
     string worldVolumeDefinition = gopts->getScalarString(ROOTWORLDGVOLUMENAME);
 
-    (*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(ROOTWORLDGVOLUMENAME, GSYSTEMASCIIFACTORYLABEL, "default", verbosity);
+    (*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(ROOTWORLDGVOLUMENAME, GSYSTEMSQLITETFACTORYLABEL, "default", verbosity);
     (*gsystemsMap)[ROOTWORLDGVOLUMENAME]->addROOTVolume(worldVolumeDefinition);
 
     // applying gvolumes modifiers
@@ -151,9 +149,6 @@ GWorld::GWorld(GOptions *gopts) {
             }
         }
     }
-
-    // PRAGMA TODO: Loads material
-
 
 }
 

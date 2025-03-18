@@ -59,6 +59,11 @@ public:
     }
 
     bool is_empty() const {
+		// print out the volumes
+		for (auto& [keys, values]: (*g4volumesMap) ) {
+			std::cout << " G4Volume: " << keys << 	std::endl;
+		}
+
         return g4volumesMap->size() == 1;
     }
 

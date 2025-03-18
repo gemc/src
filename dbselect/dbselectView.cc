@@ -1,13 +1,14 @@
 #include "dbselectView.h"
 #include "gsystemConventions.h"
 #include "gsystemOptions.h"
+#include "gsystemConventions.h"
 #include <iostream>
 
 using namespace std;
 
+// Checks that the database has a non-empty "geometry" table.
 bool DBSelectView::isGeometryTableValid(sqlite3 *db) {
-	if (!db) return false; // Ensure db is not null before querying
-
+	if (!db) return false;
 	sqlite3_stmt *stmt = nullptr;
 	const char *sql_query = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='geometry'";
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
@@ -19,11 +20,7 @@ bool DBSelectView::isGeometryTableValid(sqlite3 *db) {
 		tableExists = sqlite3_column_int(stmt, 0) > 0;
 	}
 	sqlite3_finalize(stmt);
-	if (!tableExists) {
-		return false;
-	}
-
-	// Check if the table has at least one row.
+	if (!tableExists) return false;
 	sql_query = "SELECT COUNT(*) FROM geometry";
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
 		std::cerr << "SQL Error: Failed to count rows in geometry table: " << sqlite3_errmsg(db) << std::endl;
@@ -37,23 +34,23 @@ bool DBSelectView::isGeometryTableValid(sqlite3 *db) {
 	return hasData;
 }
 
+// This method applies selections from the GSystem vector.
 void DBSelectView::applyGSystemSelections(GOptions *gopts) {
-	std::vector<GSystem> gsystems = gsystem::getSystems(gopts);  // Get vector of GSystem objects
+	vector<GSystem> gsystems = gsystem::getSystems(gopts);  // Get vector of GSystem objects
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
 		QStandardItem *expItem = experimentModel->item(i, 0);
 		if (!expItem) continue;
-		// Look only at the experiment level. If the experiment's text equals the default experiment string,
-		// mark it checked.
+		// Mark the default experiment as checked if it matches.
 		if (expItem->text() == QString::fromStdString(experiment)) {
 			expItem->setCheckState(Qt::Checked);
 		}
-		// Now process its child systems.
+		// Process each child system.
 		for (int j = 0; j < expItem->rowCount(); ++j) {
 			QStandardItem *sysItem = expItem->child(j, 0);
-			QStandardItem *varItem = expItem->child(j, 1);
-			QStandardItem *runItem = expItem->child(j, 2);
+			QStandardItem *varItem = expItem->child(j, 2);
+			QStandardItem *runItem = expItem->child(j, 3);
 			if (!sysItem || !varItem || !runItem) continue;
-			std::string sysName = sysItem->text().toStdString();
+			string sysName = sysItem->text().toStdString();
 			bool systemFound = false;
 			for (const GSystem &gsys : gsystems) {
 				if (gsys.getName() == sysName) {
@@ -84,6 +81,7 @@ void DBSelectView::applyGSystemSelections(GOptions *gopts) {
 	}
 }
 
+// Constructor
 DBSelectView::DBSelectView(GOptions *gopts, QWidget *parent)
 		: QWidget(parent), db(nullptr), m_ignoreItemChange(false) {
 
@@ -109,7 +107,7 @@ DBSelectView::DBSelectView(GOptions *gopts, QWidget *parent)
 	setupUI();
 	loadExperiments();
 
-	// Now, verify that the experiment provided in options exists in the database.
+	// Verify that the default experiment exists.
 	bool expFound = false;
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
 		QStandardItem *expItem = experimentModel->item(i, 0);
@@ -126,7 +124,7 @@ DBSelectView::DBSelectView(GOptions *gopts, QWidget *parent)
 
 	applyGSystemSelections(gopts);
 
-	// Optionally, update all system items’ status initially.
+	// Update system items’ status initially.
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
 		QStandardItem *expItem = experimentModel->item(i, 0);
 		for (int j = 0; j < expItem->rowCount(); ++j) {
@@ -151,7 +149,7 @@ void DBSelectView::setupUI() {
 	titleLabel->setAlignment(Qt::AlignCenter);
 	mainLayout->addWidget(titleLabel);
 
-	// Header label to display the selected experiment and total systems.
+	// Header label to display experiment info.
 	experimentHeaderLabel = new QLabel("", this);
 	experimentHeaderLabel->setAlignment(Qt::AlignCenter);
 	experimentHeaderLabel->setWordWrap(true);
@@ -167,8 +165,10 @@ void DBSelectView::setupUI() {
 
 	// Create a four-column model.
 	experimentModel = new QStandardItemModel(this);
+	// Set header labels: "exp/system", "volumes", "variation", "run"
+	experimentModel->setHorizontalHeaderLabels(QStringList() << "exp/system" << "volumes" << "variation" << "run");
 	experimentTree->setModel(experimentModel);
-	// Set custom delegates for columns 2 and 3 (variation and run).
+	// Set delegates for the variation and run columns (columns 2 and 3).
 	experimentTree->setItemDelegateForColumn(2, new ComboDelegate(this));
 	experimentTree->setItemDelegateForColumn(3, new ComboDelegate(this));
 
@@ -177,10 +177,9 @@ void DBSelectView::setupUI() {
 	connect(experimentModel, &QStandardItemModel::itemChanged,
 			this, &DBSelectView::onItemChanged);
 
-	// Expand all nodes so that system items are visible.
+	// Expand all nodes so that all items are visible.
 	experimentTree->expandAll();
 }
-
 
 void DBSelectView::loadExperiments() {
 	experimentModel->clear();
@@ -203,9 +202,8 @@ void DBSelectView::loadExperiments() {
 			QStandardItem *dummyEntries = new QStandardItem("");
 			QStandardItem *dummyVar = new QStandardItem("");
 			QStandardItem *dummyRun = new QStandardItem("");
-			// Load systems for this experiment.
 			loadSystemsForExperiment(expItem, expName.toStdString());
-			experimentModel->appendRow(QList<QStandardItem *>() << expItem << dummyEntries << dummyVar << dummyRun);
+			experimentModel->appendRow(QList<QStandardItem*>() << expItem << dummyEntries << dummyVar << dummyRun);
 		}
 	}
 	sqlite3_finalize(stmt);
@@ -224,9 +222,9 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem *experimentItem, const
 				sysItem->setFlags(sysItem->flags() & ~Qt::ItemIsEditable);
 				sysItem->setCheckable(true);
 				sysItem->setCheckState(Qt::Unchecked);
-				// Column 1: Entries – initially empty; will be updated in updateSystemItemAppearance.
+				// Column 1: "volumes" drop – initially empty; will be updated in updateSystemItemAppearance.
 				QStandardItem *entriesItem = new QStandardItem("");
-				// Column 2: Variation drop‑down item.
+				// Column 2: Variation drop‑down.
 				QStandardItem *varItem = new QStandardItem();
 				QStringList varList = getAvailableVariations(sysText);
 				if (!varList.isEmpty())
@@ -235,7 +233,7 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem *experimentItem, const
 					varItem->setData("", Qt::EditRole);
 				varItem->setData(varList, Qt::UserRole);
 				varItem->setBackground(QColor("lightblue"));
-				// Column 3: Run drop‑down item.
+				// Column 3: Run drop‑down.
 				QStandardItem *runItem = new QStandardItem();
 				QStringList runList = getAvailableRuns(sysText);
 				if (!runList.isEmpty())
@@ -272,7 +270,6 @@ int DBSelectView::getGeometryCount(const string &experiment, const string &syste
 	sqlite3_finalize(stmt);
 	return count;
 }
-
 
 QStringList DBSelectView::getAvailableVariations(const string &system) {
 	QStringList varList;
@@ -332,13 +329,13 @@ QIcon DBSelectView::createStatusIcon(const QColor &color) {
 }
 
 void DBSelectView::updateSystemItemAppearance(QStandardItem *systemItem) {
-	// Get the corresponding variation and run items from the same row.
+	// Get corresponding variation and run items from the same row.
 	QStandardItem *parentItem = systemItem->parent();
 	if (!parentItem)
 		return;
 	int row = systemItem->row();
-	QStandardItem *varItem = parentItem->child(row, 2); // Variation is now column 2.
-	QStandardItem *runItem = parentItem->child(row, 3); // Run is now column 3.
+	QStandardItem *varItem = parentItem->child(row, 2); // Variation column.
+	QStandardItem *runItem = parentItem->child(row, 3); // Run column.
 	QString varStr = varItem ? varItem->data(Qt::EditRole).toString() : "";
 	QString runStr = runItem ? runItem->data(Qt::EditRole).toString() : "";
 	int run = runStr.toInt();
@@ -347,9 +344,8 @@ void DBSelectView::updateSystemItemAppearance(QStandardItem *systemItem) {
 	string experimentName = expStr.toStdString();
 	string systemName = systemItem->text().toStdString();
 	string variation = varStr.toStdString();
-
 	int count = getGeometryCount(experimentName, systemName, variation, run);
-	// Update the "Entries" column (column 1).
+	// Update the "volumes" column (column 1) with the count.
 	QStandardItem *entriesItem = parentItem->child(row, 1);
 	if (entriesItem) {
 		entriesItem->setText(QString::number(count));
@@ -378,8 +374,8 @@ void DBSelectView::updateExperimentHeader() {
 		experimentHeaderLabel->setText("");
 	}
 	experimentTree->expandAll();
+	// Set header labels (once).
 	experimentModel->setHorizontalHeaderLabels(QStringList() << "exp/system" << "volumes" << "variation" << "run");
-
 }
 
 void DBSelectView::onItemChanged(QStandardItem *item) {
@@ -387,7 +383,6 @@ void DBSelectView::onItemChanged(QStandardItem *item) {
 		return;
 	m_ignoreItemChange = true;
 	if (!item->parent()) {
-		// Experiment item changes.
 		if (item->checkState() == Qt::Checked) {
 			for (int i = 0; i < experimentModel->rowCount(); ++i) {
 				QStandardItem *expItem = experimentModel->item(i, 0);
@@ -404,7 +399,6 @@ void DBSelectView::onItemChanged(QStandardItem *item) {
 			updateExperimentHeader();
 		}
 	} else {
-		// Child (system) item changed.
 		if (item->column() == 0) {
 			updateSystemItemAppearance(item);
 		} else if (item->column() == 2 || item->column() == 3) {
@@ -419,4 +413,37 @@ void DBSelectView::onItemChanged(QStandardItem *item) {
 	experimentTree->setColumnWidth(2, 150);
 	experimentTree->setColumnWidth(3, 150);
 	experimentTree->header()->setStretchLastSection(false);
+}
+
+vector<GSystem> DBSelectView::get_gsystems() {
+	vector<GSystem> updatedSystems;
+
+	// Iterate over experiments (or the selected one if mutually exclusive)
+	for (int i = 0; i < experimentModel->rowCount(); i++) {
+		QStandardItem* expItem = experimentModel->item(i, 0);
+		if (!expItem)
+			continue;
+		// For each system under the experiment:
+		for (int j = 0; j < expItem->rowCount(); j++) {
+			QStandardItem* sysItem = expItem->child(j, 0);
+			QStandardItem* varItem = expItem->child(j, 2);
+			QStandardItem* runItem = expItem->child(j, 3);
+			if (!sysItem || !varItem || !runItem)
+				continue;
+
+			// Only update if the system is checked.
+			if (sysItem->checkState() == Qt::Checked) {
+				string systemName = sysItem->text().toStdString();
+				string variation = varItem->data(Qt::EditRole).toString().toStdString();
+				int run = runItem->data(Qt::EditRole).toInt();
+
+				// Create or update a GSystem object using these values.
+				// (Assume a constructor or update method exists for GSystem.)
+				GSystem updatedSystem(systemName, GSYSTEMSQLITETFACTORYLABEL, variation, /*verbosity*/ 0, run);
+				updatedSystems.push_back(updatedSystem);
+			}
+		}
+	}
+
+	return updatedSystems;
 }

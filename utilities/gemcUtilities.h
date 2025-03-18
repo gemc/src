@@ -6,7 +6,6 @@
 
 // gemc
 #include "gemcOptions.h"
-#include "gdynamicdigitization.h"
 
 // geant4
 #include "G4MTRunManager.hh"
@@ -30,10 +29,6 @@ vector<string> startingUIMCommands(bool gui, int checkForOverlaps);
 // - startingUIMCommands
 // - PRAGMA TODO macro file
 void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity);
-
-// loads plugins from sensitive map <names, paths>
-// exits if failure
-void loadDigitizationPlugins(GOptions* gopt, vector<string> sdetectors, map<string, GDynamicDigitization*> *gDDGlobal);
 
 void startRandomEngine(GOptions* gopts);
 

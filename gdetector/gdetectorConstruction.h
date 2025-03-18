@@ -26,7 +26,7 @@ public:
 
     virtual void ConstructSDandField();
 
-    inline vector <string> getDigitizationNamesList() const { return gworld->getSensitiveDetectorsList(); }
+  //  inline vector <string> getDigitizationNamesList() const { return gworld->getSensitiveDetectorsList(); }
 
     bool is_empty() const { return g4world->is_empty() ; }
 
@@ -43,13 +43,13 @@ private:
     GWorld *gworld = nullptr;
     G4World *g4world = nullptr;
 
-    // the GSensitiveDetector is in gemc.cc because it is also passed to the eventDispenser
-    // using the global instance of the digitization map
+    // the gDynamicDigitizationMapGlobalInstance is in gemc.cc because it is also passed to the eventDispenser
     map<string, GDynamicDigitization *> *gDynamicDigitizationMapGlobalInstance;
 
     // contains fields and field managers
     static G4ThreadLocal GMagneto *gmagneto;
 
+	void loadDigitizationPlugins();
 };
 
 

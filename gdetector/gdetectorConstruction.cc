@@ -1,9 +1,14 @@
 // gemc
 #include "gdetectorConstruction.h"
-
-// glibrary
 #include "gworld.h"
 #include "g4systemConventions.h"
+
+//#include "goptions.h"
+//#include "gfactory.h"
+#include "gtouchableConventions.h"
+#include "ginternalDigitization.h"
+//#include "gemcUtilities.h"
+//#include "gemcConventions.h"
 
 // geant4
 #include "G4SDManager.hh"
@@ -102,4 +107,44 @@ void GDetectorConstruction::ConstructSDandField() {
         }
     }
 
+	loadDigitizationPlugins();
 }
+
+void  GDetectorConstruction::loadDigitizationPlugins() {
+
+	vector<string> sdetectors = gworld->getSensitiveDetectorsList();
+
+	int verbosity = gopt->getVerbosityFor("gsensitivity");
+
+	for (auto &sdname: sdetectors) {
+
+		if (sdname == FLUXNAME) {
+			(*gDynamicDigitizationMapGlobalInstance)[sdname] = new GFluxDigitization();
+			(*gDynamicDigitizationMapGlobalInstance)[sdname]->defineReadoutSpecs();
+		} else if (sdname == COUNTERNAME) {
+			(*gDynamicDigitizationMapGlobalInstance)[sdname] = new GParticleCounterDigitization();
+			(*gDynamicDigitizationMapGlobalInstance)[sdname]->defineReadoutSpecs();
+		} else if (sdname == DOSIMETERNAME) {
+			(*gDynamicDigitizationMapGlobalInstance)[sdname] = new GDosimeterDigitization();
+			(*gDynamicDigitizationMapGlobalInstance)[sdname]->defineReadoutSpecs();
+
+		} else {
+
+			if (verbosity >= GVERBOSITY_SUMMARY) {
+				cout  << "Loading plugins from file " << sdname << endl;
+			}
+
+			GManager sdPluginManager(sdname + " GSensitiveDetector", verbosity);
+
+			if (gDynamicDigitizationMapGlobalInstance->find(sdname) == gDynamicDigitizationMapGlobalInstance->end()) {
+				(*gDynamicDigitizationMapGlobalInstance)[sdname] = sdPluginManager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(sdname);
+				(*gDynamicDigitizationMapGlobalInstance)[sdname]->defineReadoutSpecs();
+
+			}
+
+			// done with sdPluginManager
+			//sdPluginManager.clearDLMap();
+		}
+	}
+}
+

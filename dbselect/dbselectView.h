@@ -1,6 +1,8 @@
 #ifndef DBSELECT_H
 #define DBSELECT_H 1
 
+#include "gsystem.h"
+
 #include <QtWidgets>
 #include "goptions.h"
 #include <sqlite3.h>
@@ -16,6 +18,9 @@ public:
 	DBSelectView(GOptions *gopts, QWidget *parent = nullptr);
 	~DBSelectView() override;
 
+	vector<GSystem> get_gsystems();
+
+
 private:
 	void setupUI();
 	void loadExperiments();
@@ -26,13 +31,14 @@ private:
 	QStringList getAvailableRuns(const string &system);
 	// Returns the number of entries in the geometry table for the given combination.
 	int getGeometryCount(const string &experiment, const string &system, const string &variation, int run);
-	// Update the status icon for a system item and update the "Entries" column.
+	// Update the status icon for a system item and update the "volumes" column.
 	void updateSystemItemAppearance(QStandardItem *systemItem);
 	// Returns true if a system is available (i.e. count > 0) for the given combination.
 	bool systemAvailable(const string &system, const string &variation, int run);
 	// Update the experiment header label (displaying the checked experiment name and total systems).
 	void updateExperimentHeader();
 
+	// Database information.
 	sqlite3 *db;
 	string dbhost;
 	string experiment;  // default experiment from options
@@ -49,8 +55,8 @@ private:
 	void applyGSystemSelections(GOptions *gopts);
 
 private slots:
-	// Combined slot for handling changes (experiment checkboxes and system drop‑down changes).
-	void onItemChanged(QStandardItem *item);
+			// Combined slot for handling changes (experiment checkboxes and system drop‑down changes).
+			void onItemChanged(QStandardItem *item);
 };
 
 //

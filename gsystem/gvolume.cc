@@ -115,7 +115,7 @@ GVolume::GVolume(string rootVolumeDefinition) {
     pos = DEFAULTPOSITION;
     rot = DEFAULTROTATION;
     emfield = UNINITIALIZEDSTRINGQUANTITY;
-    visible = false;
+    visible = true;
     style = 0; // wireframe
     color = "ccffff";
     digitization = UNINITIALIZEDSTRINGQUANTITY;

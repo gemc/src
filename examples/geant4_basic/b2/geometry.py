@@ -14,7 +14,7 @@ def build_mother_volume(configuration):
 	gvolume.description = 'scintillator box'
 	gvolume.make_box(100.0, 100.0, 100.0)
 	gvolume.material = 'bcarbonFiber'
-	gvolume.color = '3399FF'
+	gvolume.color = 'ff8833'
 	gvolume.digitization = 'flux'
 	gvolume.set_identifier('box', 2)  # identifier for this box
 	gvolume.style = 0
@@ -28,5 +28,5 @@ def build_target(configuration):
 	gvolume.mother = 'babsorber'
 	gvolume.make_tube(0, 20, 40, 0, 360)
 	gvolume.material = 'G4_H'
-	gvolume.color = 'ff0000'
+	gvolume.color = '00ff00'
 	gvolume.publish(configuration)
