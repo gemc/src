@@ -39,6 +39,6 @@ ldd $GEMC/bin/gemc || exit 1
 # if $1 is NOT one of sanitize option, run meson test
 if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
     echo " > Running meson test"
-    meson test -v || exit 1
+    meson test -v -j 1 || exit 1
 fi
 
