@@ -7,6 +7,8 @@
 // g4system
 #include "g4volume.h"
 
+// geant4
+#include "G4NistManager.hh"
 
 // a world is a collection of GSystem, their
 class G4World {
@@ -42,6 +44,9 @@ private:
 
     void buildDefaultMaterialsElementsAndIsotopes(int verbosity);
 
+	G4Element *Deuterium;
+	G4Element *Helium3;
+	G4Element *Tritium;
 
 public:
     inline const G4Volume *getG4Volume(string volumeName) const {

@@ -461,6 +461,7 @@ vector<GSystem> DBSelectView::get_gsystems() {
 				string variation = varItem->data(Qt::EditRole).toString().toStdString();
 				int run = runItem->data(Qt::EditRole).toInt();
 				GSystem updatedSystem(systemName, GSYSTEMSQLITETFACTORYLABEL, variation, /*verbosity*/ 0, run);
+				updatedSystem.set_dbhost(dbhost);
 				updatedSystems.push_back(updatedSystem);
 			}
 		}
@@ -496,7 +497,8 @@ void DBSelectView::updateModifiedUI() {
  * (Geometry reloading logic can be added here.)
  */
 void DBSelectView::reload_geometry() {
-	gDetectorConstruction->reload_geometry();
+	// Reload the geometry using the updated GSystem objects.
+	gDetectorConstruction->reload_geometry(get_gsystems());
 
 	// Reset the modified flag.
 	modified = false;

@@ -25,7 +25,7 @@ public:
             string annotations = "none");
 
     // default copy constructor
-    GSystem(const GSystem &other) = default;
+    //GSystem(const GSystem &other) = default;
 
 private:
 
