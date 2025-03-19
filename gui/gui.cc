@@ -4,13 +4,13 @@
 // gemc
 #include "gutilities.h"
 
-GemcGUI::GemcGUI([[maybe_unused]] string qtResourceFile, GOptions *gopts, EventDispenser *ed, QWidget *parent) :
+GemcGUI::GemcGUI([[maybe_unused]] string qtResourceFile, GOptions *gopts, EventDispenser *ed, GDetectorConstruction *dc,  QWidget *parent) :
         QWidget(parent),
         GStateMessage(gopts, "GemcGUI ", "verbosity"),  // GStateMessage derived
         eventDispenser(ed) {
 
-    createLeftButtons();        // instantiates leftButtons
-    createRightContent(gopts);  // instantiates rightContent: g4control
+    createLeftButtons();            // instantiates leftButtons
+    createRightContent(gopts, dc);  // instantiates rightContent: g4control
 
     // top rows button
     QHBoxLayout *topLayout = new QHBoxLayout;

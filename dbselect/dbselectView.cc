@@ -34,9 +34,9 @@ bool DBSelectView::isGeometryTableValid(sqlite3 *db) {
 	return hasData;
 }
 
-// This method applies selections from the GSystem vector.
+// Applies selections from the GSystem vector to update the UI.
 void DBSelectView::applyGSystemSelections(GOptions *gopts) {
-	vector<GSystem> gsystems = gsystem::getSystems(gopts);  // Get vector of GSystem objects
+	vector<GSystem> gsystems = gsystem::getSystems(gopts);  // Get vector of GSystem objects.
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
 		QStandardItem *expItem = experimentModel->item(i, 0);
 		if (!expItem) continue;
@@ -81,10 +81,10 @@ void DBSelectView::applyGSystemSelections(GOptions *gopts) {
 	}
 }
 
-// Constructor
-DBSelectView::DBSelectView(GOptions *gopts, QWidget *parent)
-		: QWidget(parent), db(nullptr), m_ignoreItemChange(false) {
-
+// Constructor. Initializes the widget, opens the database and sets up the UI.
+DBSelectView::DBSelectView(GOptions *gopts, GDetectorConstruction *dc, QWidget *parent)
+		: QWidget(parent), db(nullptr), m_ignoreItemChange(false), gDetectorConstruction(dc)
+{
 	// Open the database.
 	dbhost = gopts->getScalarString("sql");
 	experiment = gopts->getScalarString("experiment");
@@ -105,6 +105,9 @@ DBSelectView::DBSelectView(GOptions *gopts, QWidget *parent)
 	}
 
 	setupUI();
+
+	// Block signals during initial population so that onItemChanged is not triggered.
+	experimentModel->blockSignals(true);
 	loadExperiments();
 
 	// Verify that the default experiment exists.
@@ -122,9 +125,10 @@ DBSelectView::DBSelectView(GOptions *gopts, QWidget *parent)
 		std::exit(1);
 	}
 
+	// Apply selections from GSystem objects.
 	applyGSystemSelections(gopts);
 
-	// Update system items’ status initially.
+	// Update system appearances initially.
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
 		QStandardItem *expItem = experimentModel->item(i, 0);
 		for (int j = 0; j < expItem->rowCount(); ++j) {
@@ -132,31 +136,67 @@ DBSelectView::DBSelectView(GOptions *gopts, QWidget *parent)
 			updateSystemItemAppearance(sysItem);
 		}
 	}
+
+	// Unblock signals now that initial population is complete.
+	experimentModel->blockSignals(false);
+
+	// Ensure modified starts as false.
+	modified = false;
+	updateModifiedUI();
 }
 
+
+// Destructor: Closes the database if it is open.
 DBSelectView::~DBSelectView() {
 	if (db) sqlite3_close(db);
 }
 
+/**
+ * setupUI() sets up the widget's layout:
+ * - The header area consists of a left vertical layout containing the title label
+ *   ("Experiment Selection") and the experiment tally label (experimentHeaderLabel),
+ *   and a Reload button aligned to the right.
+ * - The experiment tree is added below the header.
+ */
 void DBSelectView::setupUI() {
 	QVBoxLayout *mainLayout = new QVBoxLayout(this);
 	mainLayout->setContentsMargins(10, 10, 10, 10);
 	mainLayout->setSpacing(10);
 
-	QLabel *titleLabel = new QLabel("Experiment Selection", this);
+	// Header layout: left side holds labels, right side holds the Reload button.
+	QHBoxLayout *headerLayout = new QHBoxLayout();
+
+	// Vertical layout for the two labels.
+	QVBoxLayout *labelLayout = new QVBoxLayout();
+	// Title label: displays "Experiment Selection" (will be updated if modified).
+	titleLabel = new QLabel("Experiment Selection", this);
 	QFont titleFont("Avenir", 20, QFont::Bold);
 	titleLabel->setFont(titleFont);
-	titleLabel->setAlignment(Qt::AlignCenter);
-	mainLayout->addWidget(titleLabel);
+	titleLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+	labelLayout->addWidget(titleLabel);
 
-	// Header label to display experiment info.
+	// Tally label: displays the total systems for the selected experiment.
 	experimentHeaderLabel = new QLabel("", this);
-	experimentHeaderLabel->setAlignment(Qt::AlignCenter);
+	// Align to left for consistency with the title.
+	experimentHeaderLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 	experimentHeaderLabel->setWordWrap(true);
 	experimentHeaderLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-	mainLayout->addWidget(experimentHeaderLabel);
+	labelLayout->addWidget(experimentHeaderLabel);
 
-	// Create the experiment tree.
+	headerLayout->addLayout(labelLayout);
+
+	// Add a stretch to push the reload button to the far right.
+	headerLayout->addStretch();
+
+	// Reload button: when clicked, calls reload_geometry().
+	reloadButton = new QPushButton("Reload", this);
+	reloadButton->setEnabled(false);  // initially disabled (modified is false)
+	headerLayout->addWidget(reloadButton);
+	connect(reloadButton, &QPushButton::clicked, this, &DBSelectView::reload_geometry);
+
+	mainLayout->addLayout(headerLayout);
+
+	// Create and set up the experiment tree.
 	experimentTree = new QTreeView(this);
 	experimentTree->setStyleSheet("QTreeView { alternate-background-color: #f0f0f0; }");
 	experimentTree->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -168,17 +208,14 @@ void DBSelectView::setupUI() {
 	// Set header labels: "exp/system", "volumes", "variation", "run"
 	experimentModel->setHorizontalHeaderLabels(QStringList() << "exp/system" << "volumes" << "variation" << "run");
 	experimentTree->setModel(experimentModel);
-	// Set delegates for the variation and run columns (columns 2 and 3).
+	// Set delegates for the variation and run columns.
 	experimentTree->setItemDelegateForColumn(2, new ComboDelegate(this));
 	experimentTree->setItemDelegateForColumn(3, new ComboDelegate(this));
-
 	mainLayout->addWidget(experimentTree);
 
 	connect(experimentModel, &QStandardItemModel::itemChanged,
 			this, &DBSelectView::onItemChanged);
 
-	// Expand all nodes so that all items are visible.
-	experimentTree->expandAll();
 }
 
 void DBSelectView::loadExperiments() {
@@ -198,7 +235,6 @@ void DBSelectView::loadExperiments() {
 			expItem->setFlags(expItem->flags() & ~Qt::ItemIsEditable);
 			expItem->setCheckable(true);
 			expItem->setCheckState(Qt::Unchecked);
-			// For experiments, columns 1, 2, and 3 are initially empty.
 			QStandardItem *dummyEntries = new QStandardItem("");
 			QStandardItem *dummyVar = new QStandardItem("");
 			QStandardItem *dummyRun = new QStandardItem("");
@@ -217,14 +253,11 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem *experimentItem, const
 		while (sqlite3_step(stmt) == SQLITE_ROW) {
 			const char *sysText = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0));
 			if (sysText) {
-				// Column 0: system item.
 				QStandardItem *sysItem = new QStandardItem(QString::fromUtf8(sysText));
 				sysItem->setFlags(sysItem->flags() & ~Qt::ItemIsEditable);
 				sysItem->setCheckable(true);
 				sysItem->setCheckState(Qt::Unchecked);
-				// Column 1: "volumes" drop – initially empty; will be updated in updateSystemItemAppearance.
 				QStandardItem *entriesItem = new QStandardItem("");
-				// Column 2: Variation drop‑down.
 				QStandardItem *varItem = new QStandardItem();
 				QStringList varList = getAvailableVariations(sysText);
 				if (!varList.isEmpty())
@@ -233,7 +266,6 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem *experimentItem, const
 					varItem->setData("", Qt::EditRole);
 				varItem->setData(varList, Qt::UserRole);
 				varItem->setBackground(QColor("lightblue"));
-				// Column 3: Run drop‑down.
 				QStandardItem *runItem = new QStandardItem();
 				QStringList runList = getAvailableRuns(sysText);
 				if (!runList.isEmpty())
@@ -329,7 +361,6 @@ QIcon DBSelectView::createStatusIcon(const QColor &color) {
 }
 
 void DBSelectView::updateSystemItemAppearance(QStandardItem *systemItem) {
-	// Get corresponding variation and run items from the same row.
 	QStandardItem *parentItem = systemItem->parent();
 	if (!parentItem)
 		return;
@@ -339,13 +370,11 @@ void DBSelectView::updateSystemItemAppearance(QStandardItem *systemItem) {
 	QString varStr = varItem ? varItem->data(Qt::EditRole).toString() : "";
 	QString runStr = runItem ? runItem->data(Qt::EditRole).toString() : "";
 	int run = runStr.toInt();
-	// The experiment name is in the parent item (top-level experiment row).
 	QString expStr = parentItem->text();
 	string experimentName = expStr.toStdString();
 	string systemName = systemItem->text().toStdString();
 	string variation = varStr.toStdString();
 	int count = getGeometryCount(experimentName, systemName, variation, run);
-	// Update the "volumes" column (column 1) with the count.
 	QStandardItem *entriesItem = parentItem->child(row, 1);
 	if (entriesItem) {
 		entriesItem->setText(QString::number(count));
@@ -373,8 +402,7 @@ void DBSelectView::updateExperimentHeader() {
 	} else {
 		experimentHeaderLabel->setText("");
 	}
-	experimentTree->expandAll();
-	// Set header labels (once).
+
 	experimentModel->setHorizontalHeaderLabels(QStringList() << "exp/system" << "volumes" << "variation" << "run");
 }
 
@@ -408,22 +436,19 @@ void DBSelectView::onItemChanged(QStandardItem *item) {
 	}
 	m_ignoreItemChange = false;
 
-	experimentTree->resizeColumnToContents(0);
-	experimentTree->setColumnWidth(1, 100);
-	experimentTree->setColumnWidth(2, 150);
-	experimentTree->setColumnWidth(3, 150);
-	experimentTree->header()->setStretchLastSection(false);
+	// Mark the view as modified (if not already) and update the UI.
+	if (!modified) {
+		modified = true;
+	}
+	updateModifiedUI();
 }
 
 vector<GSystem> DBSelectView::get_gsystems() {
 	vector<GSystem> updatedSystems;
-
-	// Iterate over experiments (or the selected one if mutually exclusive)
 	for (int i = 0; i < experimentModel->rowCount(); i++) {
 		QStandardItem* expItem = experimentModel->item(i, 0);
 		if (!expItem)
 			continue;
-		// For each system under the experiment:
 		for (int j = 0; j < expItem->rowCount(); j++) {
 			QStandardItem* sysItem = expItem->child(j, 0);
 			QStandardItem* varItem = expItem->child(j, 2);
@@ -431,19 +456,49 @@ vector<GSystem> DBSelectView::get_gsystems() {
 			if (!sysItem || !varItem || !runItem)
 				continue;
 
-			// Only update if the system is checked.
 			if (sysItem->checkState() == Qt::Checked) {
 				string systemName = sysItem->text().toStdString();
 				string variation = varItem->data(Qt::EditRole).toString().toStdString();
 				int run = runItem->data(Qt::EditRole).toInt();
-
-				// Create or update a GSystem object using these values.
-				// (Assume a constructor or update method exists for GSystem.)
 				GSystem updatedSystem(systemName, GSYSTEMSQLITETFACTORYLABEL, variation, /*verbosity*/ 0, run);
 				updatedSystems.push_back(updatedSystem);
 			}
 		}
 	}
-
 	return updatedSystems;
+}
+
+/**
+ * updateModifiedUI() updates the title label text and the enabled state of the Reload button
+ * based on whether the view has been modified.
+ */
+void DBSelectView::updateModifiedUI() {
+	updateExperimentHeader();
+
+	if (modified)
+		titleLabel->setText("Experiment Selection* (modified)");
+	else
+		titleLabel->setText("Experiment Selection");
+	reloadButton->setEnabled(modified);
+
+	experimentTree->resizeColumnToContents(0);
+	experimentTree->setColumnWidth(1, 100);
+	experimentTree->setColumnWidth(2, 150);
+	experimentTree->setColumnWidth(3, 150);
+	experimentTree->header()->setStretchLastSection(false);
+	experimentTree->expandAll();
+
+}
+
+/**
+ * reload_geometry() is the slot for the Reload button.
+ * Currently it resets the modified flag and updates the UI.
+ * (Geometry reloading logic can be added here.)
+ */
+void DBSelectView::reload_geometry() {
+	gDetectorConstruction->reload_geometry();
+
+	// Reset the modified flag.
+	modified = false;
+	updateModifiedUI();
 }

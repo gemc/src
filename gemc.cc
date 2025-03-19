@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
 		G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
 
 		// passing executable to retrieve full path
-		GemcGUI gemcGui(argv[0], gopts, geventDispenser);
+		GemcGUI gemcGui(argv[0], gopts, geventDispenser, gDetectorGlobal);
 		gemcGui.show();
 		gemcSplash->finish(&gemcGui);
 

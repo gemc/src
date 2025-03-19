@@ -38,6 +38,8 @@ public:
 		return g4world->get_number_of_volumes();
 	}
 
+	void reload_geometry();
+
 private:
     GOptions *gopt = nullptr;
     GWorld *gworld = nullptr;
@@ -51,6 +53,7 @@ private:
 
 	void loadDigitizationPlugins();
 };
+
 
 
 #endif

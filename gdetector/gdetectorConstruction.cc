@@ -13,106 +13,109 @@
 // geant4
 #include "G4SDManager.hh"
 
-G4ThreadLocal GMagneto* GDetectorConstruction::gmagneto = nullptr;
+G4ThreadLocal GMagneto
+*
+GDetectorConstruction::gmagneto = nullptr;
 
 GDetectorConstruction::GDetectorConstruction(GOptions *gopts,
-                                             map<string, GDynamicDigitization *> *gDDGlobal) :
-        G4VUserDetectorConstruction(),                                                 // Geant4 derived
-        GStateMessage(gopts, "GDetectorConstruction", "g4system"),  // GStateMessage derived
-        gopt(gopts),
-        gDynamicDigitizationMapGlobalInstance(gDDGlobal) {}
+											 map<string, GDynamicDigitization *> *gDDGlobal) :
+		G4VUserDetectorConstruction(),                                                 // Geant4 derived
+		GStateMessage(gopts, "GDetectorConstruction", "g4system"),  // GStateMessage derived
+		gopt(gopts),
+		gDynamicDigitizationMapGlobalInstance(gDDGlobal) {}
 
 // delete the two pointers created by GDetectorConstruction
 GDetectorConstruction::~GDetectorConstruction() {
-    delete gworld;
-    delete g4world;
-    delete gmagneto;
+	delete gworld;
+	delete g4world;
+	delete gmagneto;
 }
 
 G4VPhysicalVolume *GDetectorConstruction::Construct() {
-    logSummary("GDetectorConstruction::Construct");
+	logSummary("GDetectorConstruction::Construct");
 
-    // building gemc world (systems containings gvolumes)
-    gworld = new GWorld(gopt);
+	// building gemc world (systems containings gvolumes)
+	gworld = new GWorld(gopt);
 
-    // builiding geant4 world (solid, logical, physical volumes)
-    g4world = new G4World(gworld, gopt);
+	// builiding geant4 world (solid, logical, physical volumes)
+	g4world = new G4World(gworld, gopt);
 
-    return g4world->getG4Volume(ROOTWORLDGVOLUMENAME)->getPhysical();
+	return g4world->getG4Volume(ROOTWORLDGVOLUMENAME)->getPhysical();
 }
 
 // thread local beware
 void GDetectorConstruction::ConstructSDandField() {
-    logSummary("GDetectorConstruction::ConstructSDandField ");
+	logSummary("GDetectorConstruction::ConstructSDandField ");
 
-    bool touchableVerbosity = false;
-    if (gopt->getVerbosityFor("gsensitivity") >= GVERBOSITY_DETAILS) touchableVerbosity = true;
+	bool touchableVerbosity = false;
+	if (gopt->getVerbosityFor("gsensitivity") >= GVERBOSITY_DETAILS) touchableVerbosity = true;
 
-    // GSensitiveDetector map
-    map < string, GSensitiveDetector * > sensitiveDetectorsMap;
+	// GSensitiveDetector map
+	map < string, GSensitiveDetector * > sensitiveDetectorsMap;
 
-    // building the sensitive detectors
-    // this is thread local
-    for (auto [systemName, gsystem]: *gworld->getSystemsMap()) {
-        for (auto [volumeName, gvolume]: *gsystem->getGVolumesMap()) {
+	// building the sensitive detectors
+	// this is thread local
+	for (auto [systemName, gsystem]: *gworld->getSystemsMap()) {
+		for (auto [volumeName, gvolume]: *gsystem->getGVolumesMap()) {
 
-            string digitizationName = gvolume->getDigitization();
-            string g4name = gvolume->getG4Name();
-            // making sure the geant4 logical volume exists
-            if (g4world->getG4Volume(g4name) == nullptr) {
-                G4cerr << FATALERRORL << "  Error: <" << g4name
-                       << "> logical volume not build? This should never happen." << G4endl;
-                exit(99);  // not assigned a value
-            }
-            // skip no digitization
-            if (digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
+			string digitizationName = gvolume->getDigitization();
+			string g4name = gvolume->getG4Name();
+			// making sure the geant4 logical volume exists
+			if (g4world->getG4Volume(g4name) == nullptr) {
+				G4cerr << FATALERRORL << "  Error: <" << g4name
+					   << "> logical volume not build? This should never happen." << G4endl;
+				exit(99);  // not assigned a value
+			}
+			// skip no digitization
+			if (digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
 
-                // checking that we do not already have a GSensitiveDetector
-                if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
+				// checking that we do not already have a GSensitiveDetector
+				if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
 
-                    logSummary("Sensitive detector <" + digitizationName + "> doesn't exist for <" + g4name
-                               + ">. Creating it.");
-                    sensitiveDetectorsMap[digitizationName] = new GSensitiveDetector(digitizationName,
-                                                                                     gopt,
-                                                                                     gDynamicDigitizationMapGlobalInstance);
+					logSummary("Sensitive detector <" + digitizationName + "> doesn't exist for <" + g4name
+							   + ">. Creating it.");
+					sensitiveDetectorsMap[digitizationName] = new GSensitiveDetector(digitizationName,
+																					 gopt,
+																					 gDynamicDigitizationMapGlobalInstance);
 
-                    auto sdManager = G4SDManager::GetSDMpointer();
-                    sdManager->SetVerboseLevel(10);
-                    sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName]);
+					auto sdManager = G4SDManager::GetSDMpointer();
+					sdManager->SetVerboseLevel(10);
+					sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName]);
 
-                } else {
-                    logDetail("Sensitive detector <" + digitizationName + "> exist for <" + volumeName + ">");
-                }
+				} else {
+					logDetail("Sensitive detector <" + digitizationName + "> exist for <" + volumeName + ">");
+				}
 
-                // TODO: the last option should come from options, by default is false
-                sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name,
-                                                                                  new GTouchable(digitizationName,
-                                                                                                 gvolume->getGIdentity(),
-                                                                                                 gvolume->getDetectorDimensions(),
-                                                                                                 touchableVerbosity));
+				// TODO: the last option should come from options, by default is false
+				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name,
+																				  new GTouchable(digitizationName,
+																								 gvolume->getGIdentity(),
+																								 gvolume->getDetectorDimensions(),
+																								 touchableVerbosity));
 
-                SetSensitiveDetector(g4name, sensitiveDetectorsMap[digitizationName]);
-            }
+				SetSensitiveDetector(g4name, sensitiveDetectorsMap[digitizationName]);
+			}
 
-            string field_name = gvolume->getEMField();
-            if (field_name != UNINITIALIZEDSTRINGQUANTITY) {
-                if (gmagneto == nullptr) gmagneto = new GMagneto(gopt);
-                logDetail("Volume  <" + volumeName + "> has field: <" + field_name + ">. Looking into field map definitions.");
+			string field_name = gvolume->getEMField();
+			if (field_name != UNINITIALIZEDSTRINGQUANTITY) {
+				if (gmagneto == nullptr) gmagneto = new GMagneto(gopt);
+				logDetail("Volume  <" + volumeName + "> has field: <" + field_name +
+						  ">. Looking into field map definitions.");
 
-                // assigning field manager to the volume
-                logDetail("Setting field manager for volume <" + g4name + "> with field <" + field_name + ">");
-                g4world->setFieldManagerForVolume(g4name, gmagneto->getFieldMgr(field_name), true);
+				// assigning field manager to the volume
+				logDetail("Setting field manager for volume <" + g4name + "> with field <" + field_name + ">");
+				g4world->setFieldManagerForVolume(g4name, gmagneto->getFieldMgr(field_name), true);
 
-            }
-        }
-    }
+			}
+		}
+	}
 
 	loadDigitizationPlugins();
 }
 
-void  GDetectorConstruction::loadDigitizationPlugins() {
+void GDetectorConstruction::loadDigitizationPlugins() {
 
-	vector<string> sdetectors = gworld->getSensitiveDetectorsList();
+	vector <string> sdetectors = gworld->getSensitiveDetectorsList();
 
 	int verbosity = gopt->getVerbosityFor("gsensitivity");
 
@@ -131,13 +134,14 @@ void  GDetectorConstruction::loadDigitizationPlugins() {
 		} else {
 
 			if (verbosity >= GVERBOSITY_SUMMARY) {
-				cout  << "Loading plugins from file " << sdname << endl;
+				cout << "Loading plugins from file " << sdname << endl;
 			}
 
 			GManager sdPluginManager(sdname + " GSensitiveDetector", verbosity);
 
 			if (gDynamicDigitizationMapGlobalInstance->find(sdname) == gDynamicDigitizationMapGlobalInstance->end()) {
-				(*gDynamicDigitizationMapGlobalInstance)[sdname] = sdPluginManager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(sdname);
+				(*gDynamicDigitizationMapGlobalInstance)[sdname] = sdPluginManager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(
+						sdname);
 				(*gDynamicDigitizationMapGlobalInstance)[sdname]->defineReadoutSpecs();
 
 			}
@@ -148,3 +152,10 @@ void  GDetectorConstruction::loadDigitizationPlugins() {
 	}
 }
 
+void GDetectorConstruction::reload_geometry() {
+	cout << " HELLO OOOOOOO " << endl;
+//	delete gworld;
+//	delete g4world;
+//	gworld = new GWorld(gopt);
+//	g4world = new G4World(gworld, gopt);
+}

@@ -12,13 +12,14 @@
 #include "gQtButtonsWidget.h"
 #include "goptions.h"
 #include "eventDispenser.h"
+#include "gdetectorConstruction.h"
 
 class GemcGUI : public QWidget, public GStateMessage {
     // metaobject required for non-qt slots
     Q_OBJECT
 
 public:
-    GemcGUI(string qtResourceFile, GOptions *gopts, EventDispenser *ed, QWidget *parent = nullptr);
+    GemcGUI(string qtResourceFile, GOptions *gopts, EventDispenser *ed, GDetectorConstruction *dc, QWidget *parent = nullptr);
 
     ~GemcGUI();
 
@@ -30,20 +31,21 @@ private:
     QLabel *eventNumberLabel;
     QTimer *gtimer;       // for cycling events
 
-    // gruns to read number of events
+    // EventDispenser to run beamOn
     EventDispenser *eventDispenser;
+
 
 private:
     void createLeftButtons();
 
-    void createRightContent(GOptions *gopts);
+    void createRightContent(GOptions *gopts, GDetectorConstruction *dc);
 
     void createTopButtons(QHBoxLayout *topLayout);
 
     void updateGui();
 
 private slots:
-    // definded in topLayout.cc
+    // defined in topLayout.cc
     // beamOn() causes workers to update the screen
     // from a sub-thread
     void neventsChanged();

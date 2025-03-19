@@ -149,7 +149,6 @@ GWorld::GWorld(GOptions *gopts) {
             }
         }
     }
-
 }
 
 
