@@ -4,14 +4,14 @@
 from utils_api import GConfiguration
 
 # B1 specific
-from materials import define_B1_materials
-from geometry import build_B1_geometry
+from materials import define_materials
+from geometry import build_geometry
 
 
 def main():
 	configuration = GConfiguration("examples", "b2")
-	build_B1_geometry(configuration)
-	define_B1_materials(configuration)
+	build_geometry(configuration)
+	define_materials(configuration)
 	configuration.printC()
 
 if __name__ == "__main__":

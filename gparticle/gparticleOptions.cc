@@ -12,7 +12,7 @@ namespace gparticle {
     vector <Gparticle> getGParticles(GOptions *gopts) {
 
         vector <Gparticle> gparticles;
-        int verbosity = gopts->getVerbosityFor("gsystem");
+        int verbosity = gopts->getVerbosityFor("gparticle");
 
         auto gparticle_node = gopts->getOptionNode("gparticle");
 

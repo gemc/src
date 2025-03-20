@@ -28,7 +28,7 @@
 #define GEMCDB_ENV           "GEMCDB_ENV"
 
 #define ROOTWORLDGVOLUMENAME "root"
-#define ROOTDEFINITION       "G4Box, 15*m, 15*m, 15*m, G4_AIR"
+#define ROOTDEFINITION       "G4Box 15*m 15*m 15*m G4_AIR"
 #define MOTHEROFUSALL        "akasha"
 #define GSYSTEM_DELIMITER    "/"
 

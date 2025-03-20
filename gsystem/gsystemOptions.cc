@@ -80,8 +80,11 @@ GOptions defineOptions() {
 	};
 	goptions.defineOption("gmodifier", "modify volume existence or placement", gmodifier, help);
 
+	help = "root volume definition. Default is: " + string(ROOTDEFINITION) + ". \n\n";
+	help += "Command line Example: -root=\"G4Box 25*cm 24*cm 40*cm G4_WATER\"\n";
+	help += "YAML file example: root: G4Box, 24*cm, 24*cm, 40*cm, G4_WATER\n";
 	goptions.defineOption(GVariable(ROOTWORLDGVOLUMENAME, ROOTDEFINITION, "root volume definition"),
-						  "root volume definition");
+						  help);
 
 	// add sql option to define host or sqlite file
 	goptions.defineOption(GVariable("sql", GSYSTEMSQLITETDEFAULTFILE, "sql host or sqlite file"),

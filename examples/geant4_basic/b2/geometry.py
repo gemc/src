@@ -4,7 +4,7 @@ import math
 
 # These are example of methods to build a mother and daughter volume.
 
-def build_B1_geometry(configuration):
+def build_geometry(configuration):
 	build_mother_volume(configuration)
 	build_target(configuration)
 

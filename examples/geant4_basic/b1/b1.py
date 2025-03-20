@@ -3,15 +3,13 @@
 # gemc api:
 from utils_api import GConfiguration
 
-# B1 specific
-from materials import define_B1_materials
-from geometry import build_B1_geometry
+# B1
+from geometry import build_geometry
 
 
 def main():
 	configuration = GConfiguration("examples", "b1")
-	build_B1_geometry(configuration)
-	define_B1_materials(configuration)
+	build_geometry(configuration)
 	configuration.printC()
 
 if __name__ == "__main__":

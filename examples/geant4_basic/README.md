@@ -1,7 +1,7 @@
 
-| [![gemc](https://github.com/gemc/home/blob/main/assets/images/gemcLogo64.png?raw=true  )](https://gemc.github.io/home/) | 
-|:-----------------------------------------------------------------------------------------------------------------------:|
-|                                                  Basic Geant4 Examples                                                  |
+| [![gemc][gemc-logo]]([gemc-home]) |
+|:---------------------------------:|
+|      Basic Geant4 Examples        |
 
 
 ## Description
@@ -14,18 +14,28 @@ instructions on how to run the example.
 
 
 
-|     Example     | Description                                                               |
-|:---------------:|:--------------------------------------------------------------------------|
-|    [B1](B1)     | Simple geometry with a few solids                                         |
-|    [B2](B2)     | Simplified tracker geometry with global constant magnetic field           |
-|    [B3](B3)     | Schematic Positron Emitted Tomography system                              |
-|    [B4](B4)     | Simplified calorimeter with layers of two materials                       |
-|    [B5](B5)     | A double-arm spectrometer with wire chambers, hodoscopes and calorimeters |
+|       Example        | Description                                                               |
+|:--------------------:|:--------------------------------------------------------------------------|
+| [b1](b1/README.md)   | Simple geometry with a few solids                                         |
+|  [b2](b2/README.md)  | Simplified tracker geometry with global constant magnetic field           |
+|  [b3](b3/README.md)  | Schematic Positron Emitted Tomography system                              |
+|  [b4](b4/README.md)  | Simplified calorimeter with layers of two materials                       |
+|  [b5](b5/README.md)  | A double-arm spectrometer with wire chambers, hodoscopes and calorimeters |
 
 <br/>
 ---
 
 ## Author(s)
+| M. Ungaro | [![Homepage][home-icon]]([homepage])  | [![email][email-icon]]([email]) | [![github][gh-icon]]([github]) |
+|:---------:|:-------------------------------------:|:-------------------------------:|:----------------------------------:|
 
-| M. Ungaro | [![Homepage](https://cdn3.iconfinder.com/data/icons/feather-5/24/home-32.png)](https://maureeungaro.github.io/home/) | [![email](https://cdn4.iconfinder.com/data/icons/aiga-symbol-signs/439/aiga_mail-32.png)](mailto:ungaro@jlab.org) | [![github](https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-social-github-32.png)](https://github.com/maureeungaro) |
-|:---------:|:--------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------:|
+[home-icon]: https://cdn3.iconfinder.com/data/icons/feather-5/24/home-32.png
+[email-icon]: https://cdn4.iconfinder.com/data/icons/aiga-symbol-signs/439/aiga_mail-32.png
+[gh-icon]: https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-social-github-32.png
+
+[homepage]: https://maureeungaro.github.io/home/
+[email]: mailto:ungaro@jlab.org
+[github]: https://github.com/maureeungaro
+
+[gemc-logo]: https://github.com/gemc/home/blob/main/assets/images/gemcLogo64.png?raw=true
+[gemc-home]: https://gemc.github.io/home/

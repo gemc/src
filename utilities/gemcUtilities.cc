@@ -79,14 +79,22 @@ vector <string> startingUIMCommands(bool gui, int checkForOverlaps) {
     // define gui commands
     // all this needs to go in scene properties
     // and gui needs not to be passed here
-    commands.push_back("/vis/scene/add/trajectories rich smooth");
-    commands.push_back("/vis/scene/add/hits");
-    commands.push_back("/vis/scene/endOfEventAction accumulate");        // for some reason refresh (default) won't work here
-    commands.push_back("/vis/viewer/set/culling coveredDaughters true");
-    commands.push_back("/vis/viewer/set/background 1 1 1 1");   // 205, 230, 251 = CD, E6, FA
+	commands.push_back("/vis/viewer/set/autoRefresh false");
+	commands.push_back("/vis/viewer/set/viewpointVector -1 0 0");
+	commands.push_back("/vis/viewer/set/lightsVector -1 0 0");
 
-    commands.push_back("/vis/viewer/set/background 1 1 1 1");   // 205, 230, 251 = CD, E6, FA
+	commands.push_back("/vis/scene/add/trajectories rich smooth");
+    commands.push_back("/vis/scene/add/hits");
+    commands.push_back("/vis/scene/endOfEventAction accumulate 10000");        // for some reason refresh (default) won't work here
+    commands.push_back("/vis/viewer/set/culling coveredDaughters true");
+
+	// background colors and root volume are the same
+	//commands.push_back("/vis/viewer/set/background 1 1 1 1");
+	commands.push_back("/vis/geometry/set/colour root 0 0 0 0");
+	commands.push_back("/vis/geometry/set/colour root 0 0 0 0");
+
     // commands.push_back("/vis/scene/add/magneticField 10");
+	commands.push_back("/vis/viewer/set/autoRefresh true");
 
 
     return commands;
