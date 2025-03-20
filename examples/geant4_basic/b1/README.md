@@ -1,13 +1,14 @@
 
 
-|  [![gemc][gemc-logo]]([gemc-home])  |
-|:-----------------------------------:|
-|       Geant4 Basic Example B1       |
+|  [![gemc][gemc-logo]][gemc-home]  |
+|:---------------------------------:|
+|      Geant4 Basic Example B1      |
 
+---
 
 ### Description
 
-This example reproduces the [Geant4 example B1]([example-B1]). 
+This example reproduces the [Geant4 example B1][example-B1]. 
 The world is a box containing an envelope made of water, also a box.  
 
 The envelope includes two volumes: a spherical cone and a trapezoid. The two inner volumes
@@ -48,8 +49,8 @@ phys_list: QBBC
 
 
 ## Author(s)
-| M. Ungaro | [![Homepage][home-icon]]([homepage])  | [![email][email-icon]]([email]) |  [![github][gh-icon]]([github])   |
-|:---------:|:-------------------------------------:|:-------------------------------:|:---------------------------------:|
+| M. Ungaro | [![Homepage][home-icon]][homepage]  | [![email][email-icon]][email] |  [![github][gh-icon]][github]   |
+|:---------:|:-----------------------------------:|:-----------------------------:|:-------------------------------:|
 
 
 [example-B1]: https://geant4-userdoc.web.cern.ch/Doxygen/examples_doc/html/ExampleB1.html
@@ -63,3 +64,4 @@ phys_list: QBBC
 
 [gemc-logo]: https://github.com/gemc/home/blob/main/assets/images/gemcLogo64.png?raw=true
 [gemc-home]: https://gemc.github.io/home/
+

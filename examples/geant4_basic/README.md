@@ -1,7 +1,9 @@
 
-| [![gemc][gemc-logo]]([gemc-home]) |
+|  [![gemc][gemc-logo]][gemc-home]  |
 |:---------------------------------:|
-|      Basic Geant4 Examples        |
+|      Geant4 Basic Example B1      |
+
+---
 
 
 ## Description
@@ -26,9 +28,11 @@ instructions on how to run the example.
 ---
 
 ## Author(s)
-| M. Ungaro | [![Homepage][home-icon]]([homepage])  | [![email][email-icon]]([email]) | [![github][gh-icon]]([github]) |
-|:---------:|:-------------------------------------:|:-------------------------------:|:----------------------------------:|
+| M. Ungaro | [![Homepage][home-icon]][homepage]  | [![email][email-icon]][email] |  [![github][gh-icon]][github]   |
+|:---------:|:-----------------------------------:|:-----------------------------:|:-------------------------------:|
 
+
+[example-B1]: https://geant4-userdoc.web.cern.ch/Doxygen/examples_doc/html/ExampleB1.html
 [home-icon]: https://cdn3.iconfinder.com/data/icons/feather-5/24/home-32.png
 [email-icon]: https://cdn4.iconfinder.com/data/icons/aiga-symbol-signs/439/aiga_mail-32.png
 [gh-icon]: https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-social-github-32.png
@@ -39,3 +43,4 @@ instructions on how to run the example.
 
 [gemc-logo]: https://github.com/gemc/home/blob/main/assets/images/gemcLogo64.png?raw=true
 [gemc-home]: https://gemc.github.io/home/
+
