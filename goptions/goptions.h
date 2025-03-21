@@ -138,6 +138,14 @@ public:
 	int getVerbosityFor(const std::string &tag) const;
 
 	/**
+	 * @brief Retrieves the debug level for a given tag.
+	 *
+	 * @param tag The name of the debug option.
+	 * @return The debug level as an integer.
+	 */
+	 int getDebugFor(const std::string &tag) const;
+
+	/**
 	 * @brief Returns the list of all defined options.
 	 *
 	 * @return A vector of GOption objects.

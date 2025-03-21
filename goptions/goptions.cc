@@ -46,32 +46,37 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
     defineOption(GVERSION_STRING, "version information", version, "Version information. Not settable by user.");
 
 
-    vector <GVariable> verbosity = {
-            {"ghits",            0, "ghits verbosity"},
-            {"gmaterials",       0, "gmaterials verbosity"},
-            {"gevent_dispenser", 0, "event dispenser verbosity"},
-            {"grun",             0, "run verbosity"},
-            {"g4display",        0, "g4display verbositythe "},
-            {"gsystem",          0, "gsystem verbositythe "},
-            {"gfield",           0, "general fields verbosity"},
-            {"g4system",         0, "g4system verbosity"},
-            {"gparticle",        0, "gparticle verbosity"},
-            {"gphysics",         0, "gphysics verbosity"},
-            {"gstreamer_ev",     0, "gstreamer event verbosity"},
-            {"gstreamer_fr",     0, "gstreamer frame verbosity"},
-            {"gsensitivity",     0, "sensitivity verbosity"},
-            {"general",          0, "general verbosity"},
-            {"event",            0, "event verbosity"},
+    vector <GVariable> classes = {
+            {"ghits",            0, "ghits"},
+            {"gmaterials",       0, "gmaterials"},
+            {"gevent_dispenser", 0, "event dispenser"},
+            {"grun",             0, "run"},
+            {"g4display",        0, "g4display "},
+            {"gsystem",          0, "gsystem "},
+			{"g4system",         0, "g4system"},
+            {"gfield",           0, "general "},
+            {"gparticle",        0, "gparticle"},
+            {"gphysics",         0, "gphysics"},
+            {"gstreamer_ev",     0, "gstreamer event"},
+            {"gstreamer_fr",     0, "gstreamer frame"},
+            {"gsensitivity",     0, "sensitivity"},
+            {"general",          0, "general"}
     };
 
     string help = "Levels: \n \n";
     help += "0: shush\n";
-    help += "1: summaryt\n";
-    help += "2: details\n";
-    help += "3: everything\n \n";
-    help += "Example: -verbosity=\"[{gsystem: 3}, {grun: 1}]\" \n";
-    defineOption("verbosity", "Sets the log verbosity for various categories", verbosity, help);
+    help += "1: normal information\n";
+    help += "2: detailed information\n";
+	help += "Example: -verbosity=\"[{gsystem: 2}, {grun: 1}]\" \n";
+	help += "By default all verbosity levels set to zero\n";
+    defineOption("verbosity", "Sets the log verbosity for various classes", classes, help);
 
+	help = "Debug information Types: \n \n";
+	help += "0: shush\n";
+	help += "1: show debug information\n";
+	help += "Example: -debug=\"[{gsystem: 0}, {grun: 1}]\" \n";
+	help += "By default all debug levels set to zero\n";
+	defineOption("debug", "Sets the debug level for various classes", classes, help);
 
     // parsing command line to check for help
     for (int i = 1; i < argc; i++) {
@@ -436,6 +441,17 @@ int GOptions::getVerbosityFor(const std::string& tag) const{
     return 0;
 }
 
+int GOptions::getDebugFor(const std::string& tag) const{
+	auto debug_node = getOptionNode("debug");
+
+	for (auto d: debug_node) {
+		if (d.begin()->first.as<string>() == tag) {
+			return d.begin()->second.as<int>();
+		}
+	}
+
+	return 0;
+}
 
 // print only the non default settings set by users
 void GOptions::printHelp() const {

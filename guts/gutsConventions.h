@@ -139,51 +139,5 @@
 #define YELLOWHHL KYEL HHL     ///< Yellow highlight left.
 #define BOLDWHHL BOLD(HHL)     ///< Bold white highlight left.
 
-/**
- * @brief Thread-safe exit function with error code.
- *
- * This function is used to exit the program with a specific error code, ensuring
- * any necessary cleanup or logging can occur before termination.
- *
- * @param error The error code to exit with.
- */
-void gexit(int error);
-
-/**
- * @brief Logs the construction of a class instance.
- *
- * @param className The name of the class being constructed.
- */
-void gLogClassConstruct(std::string className);
-
-/**
- * @brief Logs the copy construction of a class instance.
- *
- * @param className The name of the class being copy-constructed.
- */
-void gLogCopyConstruct(std::string className);
-
-/**
- * @brief Logs the move construction of a class instance.
- *
- * @param className The name of the class being move-constructed.
- */
-void gLogMoveConstruct(std::string className);
-
-/**
- * @brief Logs the destruction of a class instance.
- *
- * @param className The name of the class being destructed.
- */
-void gLogClassDestruct(std::string className);
-
-/**
- * @brief Logs a message.
- *
- * This function logs a given message, typically used for debugging or informational purposes.
- *
- * @param message The message to be logged.
- */
-void gLogMessage(std::string message);
 
 #endif // GUTS_CONVENTIONS_H

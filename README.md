@@ -20,6 +20,26 @@ The validation includes the following workflows
 - Run API tests
 
 
+## Multithreading
+
+### Shared classes: geometry and physics tables are shared:
+- G4VUserDetectorConstruction,
+- G4VUserPhysicsList
+- G4VUserActionInitialization
+- Pretty sure GRun
+
+### Local thread classes:
+- EventManager
+- TrackingManager
+- SteppingManager
+- TransportationManager
+- GeometryManager
+- FieldManager
+- Navigator
+- SensitiveDetectorManager
+
+# Validation
+
 [![Almalinux Build](https://github.com/gemc/src/actions/workflows/build_gemc_almalinux.yml/badge.svg)](https://github.com/gemc/src/actions/workflows/build_gemc_almalinux.yml)
 [![Fedora Build](https://github.com/gemc/src/actions/workflows/build_gemc_fedora.yml/badge.svg)](https://github.com/gemc/src/actions/workflows/build_gemc_fedora.yml)
 [![Ubuntu Build](https://github.com/gemc/src/actions/workflows/build_gemc_ubuntu.yml/badge.svg)](https://github.com/gemc/src/actions/workflows/build_gemc_ubuntu.yml)

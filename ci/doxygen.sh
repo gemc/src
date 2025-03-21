@@ -13,9 +13,9 @@ echo " "
 echo " Doxygen version: "$(doxygen --version)
 echo " "
 
-classes=( goptions guts gfields gsession)
+classes=( goptions guts gfields glogging )
 
-classes_to_do=(gdetector ghit gsession  gtranslationTable g4display gdynamicDigitization
+classes_to_do=(gdetector ghit  gtranslationTable g4display gdynamicDigitization
  gsplash gui textProgressBar g4system gparticle gstreamer  userActions
 gQtButtonsWidget gfactory gphysics gsystem utilities eventDispenser gdata  gsd gtouchable )
 

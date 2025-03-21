@@ -128,7 +128,7 @@ namespace gutilities {
             } catch (const exception &e) {
                 cerr << FATALERRORL << "stod exception in gutilities: could not convert string to double. "
                      << "Value: >" << v << "<, error: " << e.what() << endl;
-                gexit(EC__G4NUMBERERROR);
+                exit(EC__G4NUMBERERROR);
             }
         } else {
             // Split the input string into the numeric part and the unit part
@@ -142,7 +142,7 @@ namespace gutilities {
             } catch (const exception &e) {
                 cerr << FATALERRORL << "stod exception in gutilities: could not convert string to double. "
                      << "Value: >" << v << "<, error: " << e.what() << endl;
-                gexit(EC__G4NUMBERERROR);
+				exit(EC__G4NUMBERERROR);
             }
 
             // Map of unit conversions for easier lookup and maintenance
@@ -214,7 +214,7 @@ namespace gutilities {
         ifstream in(filename);
         if (!in) {
             cerr << FATALERRORL << "can't open input file " << filename << ". Check your spelling. " << endl;
-            gexit(EC__FILENOTFOUND);
+			exit(EC__FILENOTFOUND);
         }
 
         stringstream strStream;

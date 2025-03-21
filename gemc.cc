@@ -26,20 +26,18 @@ using namespace std;
 #include "gemcOptions.h"
 #include "gActionInitialization.h"
 #include "gui.h"
-#include "gsession.h"
+#include "gbatch_session.h"
 #include "gdetectorConstruction.h"
+#include "glogger.h"
 
 int main(int argc, char *argv[]) {
-	// the gemc goptions are formed in utilities/defineOptions.cc
 	GOptions *gopts = new GOptions(argc, argv, gemc::defineOptions());
 
-	// todo: add based on geant4 version here, see phys list on how
-
-	// get gui switch, overlaps check and verbosity
 	bool gui = gopts->getSwitch("gui");
 	bool interactive = gopts->getSwitch("i");
 	int checkForOverlaps = gopts->getScalarInt("checkOverlaps");
-	int verbosity = gopts->getVerbosityFor("general");
+
+	GLogger log(gopts, "gemc", "general");
 
 	// splash screen
 	GSplash *gemcSplash = nullptr;
@@ -49,17 +47,14 @@ int main(int argc, char *argv[]) {
 	// QScopedPointer os smart pointer in Qt that manages the lifetime of a QCoreApplication
 	QScopedPointer <QCoreApplication> gApp(createQtApplication(argc, argv, gui));
 
+	G4UImanager *UIM = G4UImanager::GetUIpointer();
 	if (gui) {
 		gemcSplash = new GSplash("gemcArchitecture");
+	} else {
+		UIM->SetCoutDestination(new GBatch_Session);
 	}
 
-	// instantiating new User Interface Messenger
-	// our custom cout destination for the UIM: MasterGeant4.[log, err]
-	G4UImanager *UIM = G4UImanager::GetUIpointer();
-	UIM->SetCoutDestination(new GSession);
-
 	// init geant4 run manager with number of threads coming from options
-	// as of 11.2 the default is  task-based parallel mode
 	auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 	runManager->SetNumberOfThreads(getNumberOfThreads(gopts));
 
@@ -70,9 +65,7 @@ int main(int argc, char *argv[]) {
 	// the map is also used by eventDispenser to reload constants at every run number
 	map < string, GDynamicDigitization * > *globalDigitizationMap = new map<string, GDynamicDigitization *>;
 
-	// building detector
-	// this is global, changed at main scope
-	// this will also load the digitization plugins
+	// GDetectorConstruction will run Construct() and load the digitization plugins
 	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
 	runManager->SetUserInitialization(gDetectorGlobal);
 
@@ -96,7 +89,6 @@ int main(int argc, char *argv[]) {
 	// instantiate GActionInitialization and initialize the geant4 kernel
 	runManager->SetUserInitialization(new GActionInitialization(gopts, globalDigitizationMap));
 
-
 	G4double warningE = 10.0 * CLHEP::keV;
 	G4double importantE = 1 * CLHEP::GeV;
 	G4int numTrials = 30;
@@ -107,9 +99,8 @@ int main(int argc, char *argv[]) {
 	transportParams->SetNumberOfTrials(numTrials);
 
 	// this initializes g4MTRunManager, which:
-	// calls Construct in GDetectorConstruction
-	// calls ConstructSDandField in GDetectorConstruction
-	// which in turns builds the gsystems, the g4systems, and the sensitive detectors in each thread,
+	// - calls Construct in GDetectorConstruction (builds gworld and g4world)
+	// - calls ConstructSDandField in GDetectorConstruction (builds sensitive detectors)
 	initGemcG4RunManager(runManager, gopts);
 
 	// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance
@@ -118,9 +109,8 @@ int main(int argc, char *argv[]) {
 	visManager->Initialize();
 
 	auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
-	cout << GEMCLOGMSGITEM << KMAG << "Tally summary: " << gDetectorGlobal->get_number_of_volumes() << " volumes, "
+	log.critical("Tally summary: " + gDetectorGlobal->get_number_of_volumes() + " volumes, "
 		 << gDetectorGlobal->get_number_of_g4_volumes() << " geant4 built volumes" << RST << endl << endl;
-
 
 	if (gui) {
 		// initializing qt session

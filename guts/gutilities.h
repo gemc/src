@@ -93,7 +93,6 @@ namespace gutilities {
     */
     std::string replaceCharInStringWithChars(const std::string &input, const std::string &toReplace, const std::string &replacement);
 
-
     /**
     * @brief Replaces all occurrences of a substring with another string.
     *
@@ -189,6 +188,7 @@ namespace gutilities {
     * @return The substring found between the specified delimiters, or an empty string if delimiters are not found.
     */
     string retrieveStringBetweenChars(const string& input, const string& firstDelimiter, const string& secondDelimiter);
+
 
     /**
     * @brief Splits a string into a vector of substrings using a specified delimiter.
