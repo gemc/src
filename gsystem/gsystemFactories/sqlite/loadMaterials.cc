@@ -17,10 +17,34 @@ void GSystemSQLiteFactory::loadMaterials(GSystem *system, int verbosity) {
 		gexit(EC__GSQLITEERROR);
 	}
 
+	// Check if the materials table has any rows
+	int count = 0;
+	const char *count_query = "SELECT COUNT(*) FROM materials";
+	sqlite3_stmt *count_stmt = nullptr;
+	int rc = sqlite3_prepare_v2(db, count_query, -1, &count_stmt, NULL);
+	if (rc != SQLITE_OK) {
+		cerr << GSYSTEMLOGHEADER << "Sqlite error preparing count query in loadMaterials: "
+			 << sqlite3_errmsg(db) << " (" << rc << ") using query: " << count_query << endl;
+		gexit(EC__GSQLITEERROR);
+	}
+	if (sqlite3_step(count_stmt) == SQLITE_ROW) {
+		count = sqlite3_column_int(count_stmt, 0);
+	}
+	sqlite3_finalize(count_stmt);
+
+	if (count == 0) {
+		if (verbosity >= GVERBOSITY_DETAILS) {
+			cout << GSYSTEMLOGHEADER << "Table 'materials' is empty for system <"
+				 << system_name << ">, variation <" << variation << ">, run " << runno << ". Returning." << endl;
+		}
+		return;
+	}
+
+
 	// Prepare the SQL query.
 	const char *sql_query = "SELECT DISTINCT * FROM materials WHERE system = ? AND variation = ? AND run = ?";
 	sqlite3_stmt *stmt = nullptr;
-	int rc = sqlite3_prepare_v2(db, sql_query, -1, &stmt, NULL);
+	rc = sqlite3_prepare_v2(db, sql_query, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		cerr << GSYSTEMLOGHEADER << "Sqlite database error in loadMaterials: "
 			 << sqlite3_errmsg(db) << " (" << rc << ") using query: " << sql_query << endl;

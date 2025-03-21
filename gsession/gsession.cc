@@ -6,6 +6,8 @@
 
 using namespace std;
 
+// strategy: if gui is on, logfile will go on a stream to be displayed on the GUI
+// in all cases, it will also go to MasterGeant4.*
 
 GSession::GSession() {
     logFile.open("MasterGeant4.log");
@@ -17,6 +19,7 @@ GSession::GSession() {
  */
 G4int GSession::ReceiveG4cout(const G4String &coutString) {
     logFile << coutString << flush;
+	std::cout <<  coutString << std::flush;
     return 0;
 }
 

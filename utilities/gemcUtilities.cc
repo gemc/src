@@ -44,16 +44,46 @@ int getNumberOfThreads(GOptions *gopts) {
 
 // initialize G4MTRunManager
 void initGemcG4RunManager(G4RunManager *grm, GOptions *gopts) {
-    int tlog = gopts->getScalarInt("thread_log");
 
     G4UImanager *g4uim = G4UImanager::GetUIpointer();
-    g4uim->ApplyCommand("/control/cout/setCoutFile gthread.log");
+	// this will cause all thread to write each to a log file
+	// usually turned off in the examples, not sure why we'd ever need this
+  	// g4uim->ApplyCommand("/control/cout/setCoutFile .log");
 
-    if (tlog != 0) {
-        g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept " + to_string(tlog - 1));
-    }
+	g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept 1");
+	g4uim->ApplyCommand("/control/cout/ignoreInitializationCout");
 
-    // initialize run manager
+	// Geant4 verbosity. TODO: these should go to common options
+	g4uim->ApplyCommand("/control/verbose 0"); // Applied command will also be shown on screen
+
+	g4uim->ApplyCommand("/process/verbose 0"); // Set Verbose Level for Process Table
+	g4uim->ApplyCommand("/process/setVerbose 0 all"); // Set verbose level for processes
+	g4uim->ApplyCommand("/process/had/verbose 0");
+	g4uim->ApplyCommand("/process/had/deex/verbose 0");
+	g4uim->ApplyCommand("/process/had/cascade/verbose 0");
+	g4uim->ApplyCommand("/process/em/verbose 0");
+	g4uim->ApplyCommand("/process/eLoss/verbose 0");
+
+	g4uim->ApplyCommand("/particle/process/verbose 0");
+	g4uim->ApplyCommand("/particle/verbose 0");
+
+	g4uim->ApplyCommand("/tracking/verbose 0");
+
+	g4uim->ApplyCommand("/geometry/navigator/verbose 0");
+
+	g4uim->ApplyCommand("/event/verbose 0");
+	g4uim->ApplyCommand("/event/stack/verbose 0");
+
+	g4uim->ApplyCommand("/cuts/verbose 0");
+
+	g4uim->ApplyCommand("/run/particle/verbose 0");
+	g4uim->ApplyCommand("/run/verbose 0");
+
+	g4uim->ApplyCommand("/material/verbose 0");
+
+	g4uim->ApplyCommand("/vis/verbose 0");
+
+	// initialize run manager
     grm->Initialize();
 }
 

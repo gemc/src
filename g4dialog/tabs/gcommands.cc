@@ -59,7 +59,7 @@ G4Commands::G4Commands(QWidget *parent) : QTabWidget(parent) {
 	connect(w_command, &QLineEdit::returnPressed, this, &G4Commands::execute_command);
 
 	// putting all together
-	commands_help_splitter->setSizes(QList<int>() << 600 << 200);
+	commands_help_splitter->setSizes(QList<int>() << 300 << 800);
 
 	QVBoxLayout *v_layout = new QVBoxLayout(parent);
 	v_layout->addWidget(new QLabel("Search Commands"));
@@ -99,6 +99,8 @@ void G4Commands::create_geant4_commands_widget() {
 		create_child_help_tree(newItem, g4_commands_tree->GetTree(a + 1));
 	}
 
+	// w_commands is read only
+	w_commands->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 	connect(w_commands->selectionModel(), &QItemSelectionModel::selectionChanged, this,
 			&G4Commands::display_help_from_selection);

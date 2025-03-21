@@ -8,8 +8,11 @@ using namespace std;
 #include "G4UIsession.hh"
 #include "G4RunManagerFactory.hh"
 #include "G4VisExecutive.hh"
+
+#include "G4UIterminal.hh"
+#include "G4UItcsh.hh"
+
 #include "G4UIQt.hh"
-//#include "G4Transportation.hh"
 #include "G4TransportationParameters.hh"
 
 // gemc
@@ -34,6 +37,7 @@ int main(int argc, char *argv[]) {
 
 	// get gui switch, overlaps check and verbosity
 	bool gui = gopts->getSwitch("gui");
+	bool interactive = gopts->getSwitch("i");
 	int checkForOverlaps = gopts->getScalarInt("checkOverlaps");
 	int verbosity = gopts->getVerbosityFor("general");
 
@@ -123,7 +127,8 @@ int main(int argc, char *argv[]) {
 		gemcSplash->message("Starting GUI");
 		qApp->processEvents();
 
-		// intializing G4UIQt session. Notice g4SceneProperties has to be declared after this, so we have to duplicate code below.
+		// initializing G4UIQt session.
+		// Notice g4SceneProperties has to be declared after this, so we have to duplicate it for batch mode
 		G4UIsession *uiQtSession = new G4UIQt(1, argv);
 		G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
 
@@ -139,11 +144,17 @@ int main(int argc, char *argv[]) {
 		delete uiQtSession;
 
 	} else {
+		G4UIsession* session = new G4UIterminal(new G4UItcsh);
+
 		// set display properties in batch mode
 		G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
 		applyInitialUIManagerCommands(false, checkForOverlaps, verbosity);
+
+		if (interactive) { session->SessionStart(); }
+
 		geventDispenser->processEvents();
 		delete g4SceneProperties;
+		delete session;
 
 	}
 	// clearing pointers

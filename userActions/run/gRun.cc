@@ -16,7 +16,7 @@ GRun::GRun(GOptions *gopt, map<string, GDynamicDigitization *> *gDDGlobal) :
         G4Run(),
         gDigitizationGlobalMap(gDDGlobal) {
     verbosity = gopt->getVerbosityFor("grun");
-    elog = gopt->getScalarInt("em_log");
+    elog = gopt->getScalarInt("event_module_log");
 
     if (verbosity >= GVERBOSITY_CLASSES) {
         gLogClassConstruct("GRun Constructor ");

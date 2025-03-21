@@ -26,7 +26,7 @@ GemcGUI::GemcGUI([[maybe_unused]] string qtResourceFile, GOptions *gopts, EventD
     mainLayout->addLayout(bottomLayout);
     setLayout(mainLayout);
     setWindowTitle(tr("GEMC: Geant4 Monte-Carlo"));
-    setFixedWidth(800);
+    setFixedWidth(1200);
 
     // setting timer
     gtimer = new QTimer(this);

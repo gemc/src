@@ -11,8 +11,8 @@ gparticle:
     multiplicity: 1
 
 verbosity:
-  - gparticle: 2
-  - gsystem: 0
+  - gparticle: 0
+  - g4system: 2
   - gfield: 0
   - general: 0
 

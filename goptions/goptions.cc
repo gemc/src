@@ -29,6 +29,7 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 
     // switches for all everyone
     defineSwitch("gui", "use Graphical User Interface");
+	defineSwitch("i", "use interactive batch mode");
     defineOption(GVariable("conf_yaml", "saved_configuration", "the yaml filename prefix where all used options are saved"),
                  "The default value appends \"_saved_configuration\" to the executable name.");
 

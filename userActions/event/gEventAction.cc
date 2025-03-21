@@ -5,7 +5,7 @@
 
 
 GEventAction::GEventAction(GOptions *gopt) : G4UserEventAction() {
-    elog = gopt->getScalarInt("em_log");
+    elog = gopt->getScalarInt("event_module_log");
     verbosity = gopt->getVerbosityFor("event");
 }
 
