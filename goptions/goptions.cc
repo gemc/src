@@ -8,24 +8,32 @@
 
 // c++
 #include <iostream>
-// c style string
 #include <cstring>
 
 using namespace std;
 
-
-// constructor:
-// - load user defined options, add goptions options
-// - parse the yaml files
-// - parse the command line options
+/**
+ * @brief Constructs a GOptions object.
+ *
+ * This constructor performs the following tasks:
+ * - Loads user-defined options.
+ * - Defines built-in options and switches.
+ * - Parses YAML configuration files.
+ * - Processes command-line arguments (supporting both YAML–style and dot–notation).
+ * - Saves the final configuration to a YAML file.
+ *
+ * @param argc Number of command-line arguments.
+ * @param argv Array of command-line argument strings.
+ * @param user_defined_options A GOptions object containing user-defined options.
+ */
 GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options) {
 
 	executableName = gutilities::getFileFromPath(argv[0]);
-
 	cout << endl;
 
-	// copy the user defined options maps and switches onto ours
+	// Add user-defined options.
 	addGOptions(user_defined_options);
+	addOptionTitle(user_defined_options.option_verbosity_name);
 
 	// switches for all everyone
 	defineSwitch("gui", "use Graphical User Interface");
@@ -46,67 +54,31 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 	};
 	defineOption(GVERSION_STRING, "version information", version, "Version information. Not settable by user.");
 
-
-	vector <GVariable> classes = {
-			{"ghits",            0, "ghits"},
-			{"gmaterials",       0, "gmaterials"},
-			{"gevent_dispenser", 0, "event dispenser"},
-			{"grun",             0, "run"},
-			{"g4display",        0, "g4display "},
-			{"gsystem",          0, "gsystem "},
-			{"g4system",         0, "g4system"},
-			{"gfield",           0, "general "},
-			{"gparticle",        0, "gparticle"},
-			{"gphysics",         0, "gphysics"},
-			{"gstreamer_ev",     0, "gstreamer event"},
-			{"gstreamer_fr",     0, "gstreamer frame"},
-			{"gsensitivity",     0, "sensitivity"},
-			{"plugins",          0, "plugins"},
-			{"general",          0, "general"}
-	};
-
-
 	string help = "Levels: \n \n";
-	help += "0: (default) shush\n";
-	help += "1: normal information\n";
-	help += "2: detailed information\n";
-	help += "Example: -verbosity=\"[{gsystem: 2}, {grun: 1}]\" \n";
-	defineOption("verbosity", "Sets the log verbosity for various classes", classes, help);
+	help += " - 0: (default) shush\n";
+	help += " - 1: normal information\n";
+	help += " - 2: detailed information\n \n";
+	help += "Example: -verbosity.general=1 \n \n";
+	help += "This option can be repeated.\n \n";
+	defineOption("verbosity", "Sets the log verbosity for various classes", option_verbosity_names, help);
 
-
-	vector <GVariable> dclasses = {
-			{"ghits",            false, "ghits"},
-			{"gmaterials",       false, "gmaterials"},
-			{"gevent_dispenser", false, "event dispenser"},
-			{"grun",             false, "run"},
-			{"g4display",        false, "g4display "},
-			{"gsystem",          false, "gsystem "},
-			{"g4system",         false, "g4system"},
-			{"gfield",           false, "general "},
-			{"gparticle",        false, "gparticle"},
-			{"gphysics",         false, "gphysics"},
-			{"gstreamer_ev",     false, "gstreamer event"},
-			{"gstreamer_fr",     false, "gstreamer frame"},
-			{"gsensitivity",     false, "sensitivity"},
-			{"plugins",          false, "plugins"},
-			{"general",          false, "general"}
-	};
 
 	help = "Debug information Types: \n \n";
-	help += "false: (default): do not print debug information\n";
-	help += "true: print debug information\n";
-	help += "Example: -verbosity=\"[{gsystem: true}, {grun: true}]\" \n";
-	defineOption("debug", "Sets the debug level for various classes", dclasses, help);
+	help += " - false: (default): do not print debug information\n";
+	help += " - true: print debug information\n\n";
+	help += "Example: -debug.general=1 \n \n";
+	help += "This option can be repeated.\n \n";
+	defineOption("debug", "Sets the debug level for various classes", option_verbosity_names, help);
 
-	// parsing command line to check for help
+	// Process help/version command-line arguments.
 	for (int i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--h") == 0 || strcmp(argv[i], "-help") == 0 ||
-			strcmp(argv[i], "--help") == 0) {
+		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--h") == 0 ||
+			strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "--help") == 0) {
 			printHelp();
 		} else if (strcmp(argv[i], "-hweb") == 0) {
 			printWebHelp();
-		} else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--v") == 0 || strcmp(argv[i], "-version") == 0 ||
-				   strcmp(argv[i], "--version") == 0) {
+		} else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--v") == 0 ||
+				   strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "--version") == 0) {
 			print_version();
 			exit(EXIT_SUCCESS);
 		} else if (strcmp(argv[i], "help") == 0) {
@@ -115,214 +87,227 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 		}
 	}
 
-	// finds the yaml files
+	// finds and parse the yaml files
 	yaml_files = findYamls(argc, argv);
-
-	// parse the yaml files
 	for (auto &yaml_file: yaml_files) {
 		cout << " Parsing " << yaml_file << endl;
 		setOptionsValuesFromYamlFile(yaml_file);
 	}
 
-
-	// parse command lines
-	// check that every option passed is either a switch, an option or a yaml file
+	// Parse command-line arguments (supports both standard YAML–style and dot–notation).
 	for (int i = 1; i < argc; i++) {
-		string candidate = string(argv[i]);
-		// empty string
+		string candidate = argv[i];
 		if (candidate == "") continue;
-
-		if (find(yaml_files.begin(), yaml_files.end(), candidate) == yaml_files.end()) {
-
-			// if the command line is not a yaml file, check that is a valid
-			// - switch: starts with a dash
-			// - option: a dash followed by a string and an equal sign
-			if (candidate[0] == '-') {
-
-				// checking for a switch
-				string possible_switch = candidate.substr(1, candidate.size() - 1);
-
-				// switch found, turn it on
-				if (switches.find(possible_switch) != switches.end()) {
-					switches[possible_switch].turnOn();
-				} else {
-					// not a switch, check if it is an option
-					// checking if '-' is present
-					if (possible_switch.find("=") != string::npos) {
-
-						string possible_option = possible_switch.substr(0, candidate.find("=") - 1);
-
-						// option found, parse it
-						if (doesOptionExist(possible_option)) {
-							string possible_yaml_node = possible_switch.substr(candidate.find("="),
-																			   candidate.size() - 1);
-							setOptionValuesFromCommandLineArgument(possible_option, possible_yaml_node);
-						} else {
-							// option not found
-							cerr << FATALERRORL << "the " << YELLOWHHL << candidate << RSTHHR
-								 << " option is not known to this system. " << endl;
-							cerr << endl << "   " << executableName << " -h for help." << endl << endl;
-							exit(EC__NOOPTIONFOUND);
-
-						}
+		if (find(yaml_files.begin(), yaml_files.end(), candidate) != yaml_files.end()) continue;
+		if (candidate[0] == '-') {
+			string argStr = candidate.substr(1);
+			size_t eqPos = argStr.find('=');
+			if (eqPos != string::npos) {
+				string keyPart = argStr.substr(0, eqPos);
+				string valuePart = argStr.substr(eqPos + 1);
+				size_t dotPos = keyPart.find('.');
+				if (dotPos != string::npos) {
+					// Dot–notation detected (e.g. "debug.general=true")
+					string mainOption = keyPart.substr(0, dotPos);
+					string subOption = keyPart.substr(dotPos + 1);
+					if (doesOptionExist(mainOption)) {
+						auto it = getOptionIterator(mainOption);
+						it->set_sub_option_value(subOption, valuePart);
 					} else {
-						// not a switch, not an option
-						cerr << FATALERRORL << YELLOWHHL << candidate << RSTHHR
-							 << " is not a valid command line option or switch.  " << endl;
-						cerr
-								<< " Note: switches start with a dash; options start with a dash, and are followed by an equal sign and their desired value."
-								<< endl;
-						cerr << endl << " Usage: " << endl << endl;
-						cerr << "   " << executableName << " [options] [yaml files]" << endl;
-						cerr << "   " << executableName << " -h for help." << endl << endl;
+						cerr << "The option " << mainOption << " is not known to this system." << endl;
+						exit(EC__NOOPTIONFOUND);
+					}
+				} else {
+					// Standard option syntax.
+					if (doesOptionExist(keyPart)) {
+						setOptionValuesFromCommandLineArgument(keyPart, valuePart);
+					} else {
+						cerr << "The option " << keyPart << " is not known to this system." << endl;
 						exit(EC__NOOPTIONFOUND);
 					}
 				}
 			} else {
-				// not a file, not a switch, not an option
-				cerr << FATALERRORL << "the " << YELLOWHHL << candidate << RSTHHR
-					 << " command line is not known to this system. " << endl;
-				cerr << endl << " Usage: " << endl << endl;
-				cerr << "   " << executableName << " [options] [yaml files]" << endl;
-				cerr << "   " << executableName << " -h for help." << endl << endl;
-				exit(EC__NOOPTIONFOUND);
+				// Treat as a switch.
+				string possibleSwitch = argStr;
+				if (switches.find(possibleSwitch) != switches.end()) {
+					switches[possibleSwitch].turnOn();
+				} else {
+					cerr << "The switch " << possibleSwitch << " is not known to this system." << endl;
+					exit(EC__NOOPTIONFOUND);
+				}
 			}
+		} else {
+			cerr << "The command-line argument \"" << candidate << "\" is not valid." << endl;
+			exit(EC__NOOPTIONFOUND);
 		}
 	}
 
-	// print version no matter what
+	// Always print version information.
 	print_version();
 
-	// save options to yaml
+	// Save the final configuration to a YAML file.
 	string yamlConf_filename = executableName + "." + getScalarString("conf_yaml") + ".yaml";
 	cout << " Saving options to " << yamlConf_filename << endl << endl;
 	yamlConf = new std::ofstream(yamlConf_filename);
-
 	saveOptions();
 }
 
-// define and add a command line switch to the map of switches
+/**
+ * @brief Defines and adds a command-line switch.
+ *
+ * @param name The name of the switch.
+ * @param description The description of the switch.
+ */
 void GOptions::defineSwitch(const std::string &name, const std::string &description) {
 	if (switches.find(name) == switches.end()) {
 		switches[name] = GSwitch(description);
 	} else {
-		std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " switch is already present." << std::endl;
+		std::cerr << FATALERRORL << "The " << YELLOWHHL << name << RSTHHR
+				  << " switch is already present." << std::endl;
 		exit(EC__DEFINED_SWITCHALREADYPRESENT);
 	}
 }
 
-// add a simple option to the map of options
+/**
+ * @brief Defines and adds a scalar option.
+ *
+ * @param gvar The GVariable representing the option.
+ * @param help Help text for the option.
+ */
 void GOptions::defineOption(const GVariable &gvar, const std::string &help) {
-
 	if (doesOptionExist(gvar.name)) {
-		std::cerr << FATALERRORL << "the " << YELLOWHHL << gvar.name << RSTHHR << " option is already present."
-				  << std::endl;
+		std::cerr << FATALERRORL << "The " << YELLOWHHL << gvar.name << RSTHHR
+				  << " option is already present." << std::endl;
 		exit(EC__DEFINED_OPTION_ALREADY_PRESENT);
 	} else {
 		goptions.push_back(GOption(gvar, help));
 	}
 }
 
-// add a map option to the map of options
-void
-GOptions::defineOption(const std::string &name, const std::string &description, const std::vector <GVariable> &g_vars,
-					   const std::string &help) {
-
+/**
+ * @brief Defines and adds a structured option.
+ *
+ * @param name The name of the option.
+ * @param description Summary description of the option.
+ * @param g_vars Vector of GVariable objects representing the option elements.
+ * @param help Help text for the option.
+ */
+void GOptions::defineOption(const std::string &name, const std::string &description, const std::vector <GVariable> &g_vars,
+							const std::string &help) {
 	if (doesOptionExist(name)) {
-		std::cerr << FATALERRORL << "the " << YELLOWHHL << name << RSTHHR << " option is already present." << std::endl;
+		std::cerr << FATALERRORL << "The " << YELLOWHHL << name << RSTHHR
+				  << " option is already present." << std::endl;
 		exit(EC__DEFINED_OPTION_ALREADY_PRESENT);
 	} else {
 		goptions.push_back(GOption(name, description, g_vars, help));
 	}
 }
 
+/**
+ * @brief Retrieves the value of a scalar integer option.
+ *
+ * @param tag The name of the option.
+ * @return The integer value.
+ */
 int GOptions::getScalarInt(const std::string &tag) const {
 	auto it = getOptionIterator(tag);
-
-	// if the option is not found, exit with error
 	if (it == goptions.end()) {
-		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR
+			 << " was not found." << endl;
 		exit(EC__NOOPTIONFOUND);
 	}
-
 	return it->value.begin()->second.as<int>();
 }
 
+/**
+ * @brief Retrieves the value of a scalar float option.
+ *
+ * @param tag The name of the option.
+ * @return The float value.
+ */
 float GOptions::getScalarFloat(const std::string &tag) const {
 	auto it = getOptionIterator(tag);
-
-	// if the option is not found, exit with error
 	if (it == goptions.end()) {
-		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR
+			 << " was not found." << endl;
 		exit(EC__NOOPTIONFOUND);
 	}
-
 	return it->value.begin()->second.as<float>();
 }
 
+/**
+ * @brief Retrieves the value of a scalar double option.
+ *
+ * @param tag The name of the option.
+ * @return The double value.
+ */
 double GOptions::getScalarDouble(const std::string &tag) const {
 	auto it = getOptionIterator(tag);
-
-	// if the option is not found, exit with error
 	if (it == goptions.end()) {
-		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR
+			 << " was not found." << endl;
 		exit(EC__NOOPTIONFOUND);
 	}
-
 	return it->value.begin()->second.as<double>();
 }
 
+/**
+ * @brief Retrieves the value of a scalar string option.
+ *
+ * @param tag The name of the option.
+ * @return The string value.
+ */
 string GOptions::getScalarString(const std::string &tag) const {
 	auto it = getOptionIterator(tag);
-
-	// if the option is not found, exit with error
 	if (it == goptions.end()) {
-		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR << " was not found." << endl;
+		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR
+			 << " was not found." << endl;
 		exit(EC__NOOPTIONFOUND);
 	}
-
 	return it->value.begin()->second.as<string>();
 }
 
+/**
+ * @brief Prints detailed help for a specific option or switch.
+ *
+ * @param tag The name of the option or switch.
+ */
 void GOptions::printOptionOrSwitchHelp(const std::string &tag) const {
-	// Check if the tag is a switch
 	auto switchIt = switches.find(tag);
 	if (switchIt != switches.end()) {
 		cout << KGRN << "-" << tag << RST << ": " << switchIt->second.getDescription() << endl << endl;
 		cout << TPOINTITEM << "Default value is " << (switchIt->second.getStatus() ? "on" : "off") << endl << endl;
 		exit(EXIT_SUCCESS);
 	}
-
-	// Check if the tag is an option
-	for (const auto &goption: goptions) {  // Use const auto& to avoid copying and ensure const-correctness
+	for (const auto &goption: goptions) {
 		if (goption.name == tag) {
-			goption.printHelp(true);  // Assuming printHelp() is const-correct
+			goption.printHelp(true);
 			exit(EXIT_SUCCESS);
 		}
 	}
-
-	// If not found, print error and exit
-	cerr << FATALERRORL << "The " << YELLOWHHL << tag << RSTHHR << " option is not known to this system." << endl;
+	cerr << FATALERRORL << "The " << YELLOWHHL << tag << RSTHHR
+		 << " option is not known to this system." << endl;
 	exit(EC__NOOPTIONFOUND);
 }
 
-
-// Finds the (first) configuration file (yaml or yml extensions).
+/**
+ * @brief Finds YAML files specified by the command line.
+ *
+ * @param argc Number of command-line arguments.
+ * @param argv Array of command-line argument strings.
+ * @return A vector of YAML file paths.
+ */
 vector <string> GOptions::findYamls(int argc, char *argv[]) {
 	vector <string> yaml_files;
-
 	for (int i = 1; i < argc; i++) {
 		string arg = argv[i];
-
 		size_t pos = arg.find(".yaml");
 		if (pos != string::npos) yaml_files.push_back(arg);
 		pos = arg.find(".yml");
 		if (pos != string::npos) yaml_files.push_back(arg);
 	}
-
 	return yaml_files;
 }
-
 
 // checks if the option exists
 bool GOptions::doesOptionExist(const std::string &tag) const {
@@ -335,25 +320,26 @@ bool GOptions::doesOptionExist(const std::string &tag) const {
 	return false;
 }
 
+/**
+ * @brief Parses and sets option values from a YAML file.
+ *
+ * @param yaml The YAML file path.
+ */
 void GOptions::setOptionsValuesFromYamlFile(const std::string &yaml) {
-
 	YAML::Node config;
 	try {
 		config = YAML::LoadFile(yaml);
-
 	} catch (YAML::ParserException &e) {
-		cerr << FATALERRORL << "Error parsing " << YELLOWHHL << yaml << RSTHHR << " yaml file." << endl;
+		cerr << FATALERRORL << "Error parsing " << YELLOWHHL << yaml << RSTHHR
+			 << " yaml file." << endl;
 		cerr << e.what() << endl;
-		cerr << "Try validating the yaml file with an online yaml validator, for example: https://www.yamllint.com"
-			 << endl;
+		cerr << "Try validating the yaml file with an online yaml validator, e.g., https://www.yamllint.com" << endl;
 		exit(EC__YAML_PARSING_ERROR);
 	}
 
-	for (YAML::const_iterator it = config.begin(); it != config.end(); ++it) {
-
+	for (auto it = config.begin(); it != config.end(); ++it) {
 		string option_name = it->first.as<std::string>();
 		auto option_it = getOptionIterator(option_name);
-
 		if (option_it == goptions.end()) {
 			if (switches.find(option_name) == switches.end()) {
 				cerr << FATALERRORL << "The option or switch " << YELLOWHHL << option_name << RSTHHR
@@ -363,8 +349,7 @@ void GOptions::setOptionsValuesFromYamlFile(const std::string &yaml) {
 				switches[option_name].turnOn();
 			}
 		} else {
-			YAML::NodeType::value type = it->second.Type(); // Cache the type to avoid repeated calls
-
+			YAML::NodeType::value type = it->second.Type();
 			switch (type) {
 				case YAML::NodeType::Scalar:
 					option_it->set_scalar_value(it->second.as<std::string>());
@@ -377,19 +362,20 @@ void GOptions::setOptionsValuesFromYamlFile(const std::string &yaml) {
 					break;
 				default:
 					break;
-
 			}
 		}
 	}
 }
 
-// parse a command line
-void
-GOptions::setOptionValuesFromCommandLineArgument(const std::string &optionName, const std::string &possibleYamlNode) {
+/**
+ * @brief Parses and sets an option value from a command-line argument.
+ *
+ * @param optionName The name of the option.
+ * @param possibleYamlNode The YAML-formatted value string.
+ */
+void GOptions::setOptionValuesFromCommandLineArgument(const std::string &optionName, const std::string &possibleYamlNode) {
 	YAML::Node node = YAML::Load(possibleYamlNode);
-
 	auto option_it = getOptionIterator(optionName);
-
 	if (node.Type() == YAML::NodeType::Scalar) {
 		option_it->set_scalar_value(possibleYamlNode);
 	} else {
@@ -397,112 +383,147 @@ GOptions::setOptionValuesFromCommandLineArgument(const std::string &optionName, 
 	}
 }
 
-// Non-const version
+/**
+ * @brief Retrieves an iterator to the option with the specified name.
+ *
+ * @param name The name of the option.
+ * @return An iterator to the option.
+ */
 std::vector<GOption>::iterator GOptions::getOptionIterator(const std::string &name) {
 	return std::find_if(goptions.begin(), goptions.end(),
 						[&name](GOption &option) { return option.name == name; });
 }
 
-// Const version
+
+/**
+ * @brief Retrieves a const iterator to the option with the specified name.
+ *
+ * @param name The name of the option.
+ * @return A const iterator to the option.
+ */
 std::vector<GOption>::const_iterator GOptions::getOptionIterator(const std::string &name) const {
 	return std::find_if(goptions.begin(), goptions.end(),
 						[&name](const GOption &option) { return option.name == name; });
 }
 
-
+/**
+ * @brief Retrieves the status of the specified switch.
+ *
+ * @param tag The name of the switch.
+ * @return True if the switch is on; false otherwise.
+ */
 bool GOptions::getSwitch(const std::string &tag) const {
-	// Use the find method to get an iterator to the switch
 	auto it = switches.find(tag);
-
-	// Check if the iterator is not at the end, indicating the switch was found
 	if (it != switches.end()) {
 		return it->second.getStatus();
 	} else {
-		std::cerr << FATALERRORL << "The switch " << YELLOWHHL << tag << RSTHHR << " was not found." << std::endl;
+		std::cerr << FATALERRORL << "The switch " << YELLOWHHL << tag << RSTHHR
+				  << " was not found." << std::endl;
 		exit(EC__NOOPTIONFOUND);
 	}
-	return false; // This will never be reached due to exit, but included for completeness
+	return false;
 }
 
+/**
+ * @brief Retrieves a map option’s value from within a YAML node.
+ *
+ * @param option_name The name of the option.
+ * @param map_key The key to look up within the option.
+ * @return The YAML::Node corresponding to the specified map key.
+ */
 YAML::Node GOptions::getOptionMapInNode(string option_name, string map_key) {
-
 	auto sequence_node = getOptionNode(option_name);
-
-	for (auto seq_item: sequence_node) {
+	for (auto seq_item : sequence_node) {
 		for (auto map_item = seq_item.begin(); map_item != seq_item.end(); ++map_item) {
 			if (map_item->first.as<string>() == map_key) {
 				return map_item->second;
 			}
 		}
 	}
-
-	// if the key is not found, exit with error
-	cerr << FATALERRORL << "The key " << YELLOWHHL << map_key << RSTHHR << " was not found in " << YELLOWHHL
-		 << option_name << RSTHHR << endl;
+	cerr << FATALERRORL << "The key " << YELLOWHHL << map_key << RSTHHR
+		 << " was not found in " << YELLOWHHL << option_name << RSTHHR << endl;
 	exit(EC__NOOPTIONFOUND);
-
 	return sequence_node;
 }
 
+/**
+ * @brief Template function to retrieve a variable from a YAML node.
+ *
+ * @tparam T The type of the variable.
+ * @param node The YAML node.
+ * @param variable_name The name of the variable.
+ * @param default_value The default value if the variable is not found.
+ * @return The variable value.
+ */
 template<typename T>
-T GOptions::get_variable_in_option(const YAML::Node &node, const string &variable_name, const T &default_value) {
+T GOptions::get_variable_in_option(const YAML::Node &node, const std::string &variable_name, const T &default_value) {
 	if (node[variable_name]) {
 		return node[variable_name].as<T>();
 	}
 	return default_value;
 }
 
-// Explicit instantiations
-template int GOptions::get_variable_in_option<int>(const YAML::Node &node, const std::string &variable_name,
-												   const int &default_value);
+// Explicit template instantiations.
+template int GOptions::get_variable_in_option<int>(const YAML::Node &node, const std::string &variable_name, const int &default_value);
+template float GOptions::get_variable_in_option<float>(const YAML::Node &node, const std::string &variable_name, const float &default_value);
+template double GOptions::get_variable_in_option<double>(const YAML::Node &node, const std::string &variable_name, const double &default_value);
+template string GOptions::get_variable_in_option<string>(const YAML::Node &node, const std::string &variable_name, const string &default_value);
+template bool GOptions::get_variable_in_option<bool>(const YAML::Node &node, const std::string &variable_name, const bool &default_value);
 
-template float GOptions::get_variable_in_option<float>(const YAML::Node &node, const std::string &variable_name,
-													   const float &default_value);
-
-template double GOptions::get_variable_in_option<double>(const YAML::Node &node, const std::string &variable_name,
-														 const double &default_value);
-
-template string GOptions::get_variable_in_option<string>(const YAML::Node &node, const std::string &variable_name,
-														 const string &default_value);
-
-template bool GOptions::get_variable_in_option<bool>(const YAML::Node &node, const std::string &variable_name,
-													 const bool &default_value);
-
+/**
+ * @brief Retrieves the verbosity level for the specified tag.
+ *
+ * @param tag The name of the verbosity option.
+ * @return The verbosity level as an integer.
+ */
 int GOptions::getVerbosityFor(const std::string &tag) const {
-	auto verbosity_node = getOptionNode("verbosity");
-
-	for (auto v: verbosity_node) {
+	YAML::Node verbosity_node = getOptionNode("verbosity");
+	for (auto v : verbosity_node) {
 		if (v.begin()->first.as<string>() == tag) {
 			return v.begin()->second.as<int>();
 		}
 	}
-
 	return 0;
 }
 
+/**
+ * @brief Retrieves the debug level for the specified tag.
+ *
+ * Accepts values as either booleans ("true"/"false") or integers.
+ *
+ * @param tag The name of the debug option.
+ * @return The debug level as an integer.
+ */
 int GOptions::getDebugFor(const std::string &tag) const {
-	auto debug_node = getOptionNode("debug");
-
-	for (auto d: debug_node) {
+	YAML::Node debug_node = getOptionNode("debug");
+	for (auto d : debug_node) {
 		if (d.begin()->first.as<string>() == tag) {
-			return d.begin()->second.as<bool>();
+			YAML::Node valNode = d.begin()->second;
+			if (valNode.IsScalar()) {
+				string s = valNode.as<string>();
+				if (s == "true") return 1;
+				if (s == "false") return 0;
+			}
+			try {
+				return valNode.as<int>();
+			} catch (const YAML::BadConversion &) {
+				std::cerr << "Invalid debug value for " << tag << std::endl;
+				exit(EC__BAD_CONVERSION);
+			}
 		}
 	}
-
 	return 0;
 }
 
-// print only the non default settings set by users
+/**
+ * @brief Prints general help information to the console.
+ */
 void GOptions::printHelp() const {
-
 	long int fill_width = string(HELPFILLSPACE).size() + 1;
 	cout.fill('.');
-
 	cout << KGRN << KBOLD << " " << executableName << RST << " [options] [yaml files]" << endl << endl;
 	cout << " Switches: " << endl << endl;
-
-	// switches help, belongs here cause of the map key
-	for (auto &s: switches) {
+	for (auto &s : switches) {
 		string help = "-" + s.first + RST + " ";
 		cout << KGRN << " " << left;
 		cout.width(fill_width);
@@ -510,24 +531,20 @@ void GOptions::printHelp() const {
 		cout << ": " << s.second.getDescription() << endl;
 	}
 	cout << endl;
-
 	cout << " Options: " << endl << endl;
-
-	for (auto &option: goptions) {
+	for (auto &option : goptions) {
 		option.printHelp(false);
 	}
-
 	cout << endl;
-
 	cout << endl << " Help / Search / Introspection: " << endl << endl;
-
-	vector <string> helps = {
+	vector<string> helps = {
 			string("-h, --h, -help, --help") + RST,
 			string("print this help and exit"),
 			string("-hweb") + RST,
 			string("print this help in web format and exit"),
 			string("-v, --v, -version, --version") + RST,
-			string("print the version and exit\n"), string("help <value>") + RST,
+			string("print the version and exit\n"),
+			string("help <value>") + RST,
 			string("print detailed help for option <value> and exit"),
 			string("search <value>") + RST,
 			string("list all options containing <value> in the description and exit\n")
@@ -539,37 +556,36 @@ void GOptions::printHelp() const {
 		cout << helps[i * 2] << ": " << helps[i * 2 + 1] << endl;
 	}
 	cout << endl;
-
-
-	cout << " Note: command line options overwrite yaml file(s). " << endl << endl;
-
+	cout << " Note: command line options overwrite YAML file(s)." << endl << endl;
 	exit(EXIT_SUCCESS);
 }
 
 
-// print only the non default settings set by users
+
+/**
+ * @brief Prints web-formatted help information.
+ */
 void GOptions::printWebHelp() const {
 	exit(EXIT_SUCCESS);
 }
 
-
-// print options and switches values
+/**
+ * @brief Saves all switches and options to a YAML configuration file.
+ */
 void GOptions::saveOptions() const {
-
-	for (auto &s: switches) {
-		string status = "false";
-		if (s.second.getStatus()) status = "true";
+	for (auto &s : switches) {
+		string status = s.second.getStatus() ? "true" : "false";
 		*yamlConf << s.first + ": " + status << "," << endl;
 	}
-
-	for (const auto &option: goptions) {
+	for (const auto &option : goptions) {
 		option.saveOption(yamlConf);
 	}
-
 	yamlConf->close();
 }
 
-// introspection, add file option
+/**
+ * @brief Prints the version information of the executable.
+ */
 void GOptions::print_version() {
 	string asterisks = "**************************************************************";
 	cout << endl << asterisks << endl;
@@ -579,10 +595,15 @@ void GOptions::print_version() {
 	cout << " Homepage: " << KGRN << gweb << RST << endl;
 	cout << " Author: " << KGRN << gauthor << RST << endl << endl;
 	cout << asterisks << endl << endl;
-
 }
 
-// overloaded operator to add option vectors and switch maps
+/**
+ * @brief Overloaded operator to add options and switches from one GOptions object to another.
+ *
+ * @param gopts The original GOptions object.
+ * @param goptions_to_add The GOptions object to add.
+ * @return A reference to the updated GOptions object.
+ */
 GOptions &operator+=(GOptions &gopts, const GOptions &goptions_to_add) {
 	gopts.addGOptions(goptions_to_add);
 	return gopts;

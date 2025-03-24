@@ -1,227 +1,208 @@
-// goptions
 #include "goption.h"
 #include "goptionsConventions.h"
-
-// gemc
 #include "gutilities.h"
-
-// c++
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
 /**
  * @brief Sets the value of the scalar option.
  *
- * This function replaces any commas in the input string with empty spaces
- * and then assigns the modified string as the value for the scalar option.
+ * This function replaces any commas in the input string with empty spaces and assigns
+ * the modified string as the option’s value.
  *
  * @param v The input string to be set as the value.
  */
- void GOption::set_scalar_value(const string &v) {
-
-    if (v.empty()) return;  ///< Return early if the input string is empty.
-
-    string value_to_set = gutilities::replaceCharInStringWithChars(v, ",", "");
-
-    string key = value.begin()->first.as<string>();
-    value[key] = value_to_set;
-}
-
-
-/**
- * @brief Sets the value of the option based on the parsed YAML node.
- *
- * This function handles both cumulative and non-cumulative options.
- * It checks for missing mandatory values and updates the option value accordingly.
- *
- * @param v The YAML node containing the new values for the option.
- */void GOption::set_value(const YAML::Node &v) {
-
-    // if the option is cumulative,
-    if (isCumulative) {
-
-        // Sequence of maps: checks for missing mandatory values
-        for (const auto &element: v) {
-            if (!does_the_option_set_all_necessary_values(element)) {
-                cerr << FATALERRORL << "Trying to set " << YELLOWHHL << name << RSTHHR << " but missing mandatory values." << endl;
-                cerr << "        Use the option: " << YELLOWHHL << " help " << name << " " << RSTHHR << " for details." << endl << endl;
-                exit(EC__MANDATORY_NOT_FILLED);
-            }
-        }
-
-        value[name] = v;
-
-        // Copy keys from the defaultValue map to the value map if they do not exist
-        auto default_value_node = defaultValue.begin()->second;
-
-        for (const auto &map_element_in_default_value: default_value_node) {
-            for (YAML::const_iterator default_value_iterator = map_element_in_default_value.begin();
-                 default_value_iterator != map_element_in_default_value.end(); ++default_value_iterator) {
-
-                string default_key = default_value_iterator->first.as<string>();
-                auto default_value = default_value_iterator->second;
-
-                for (auto map_element_in_value: value[name]) {
-                    bool key_found = false;
-                    // checking if the key is already in the value
-                    for (YAML::const_iterator value_iterator = map_element_in_value.begin();
-                         value_iterator != map_element_in_value.end(); ++value_iterator) {
-                        string value_key = value_iterator->first.as<string>();
-
-                        if (default_key == value_key) {
-                            key_found = true;
-                            break;
-                        }
-                    }
-                    if (!key_found) {
-                        map_element_in_value[default_key] = default_value;
-                    }
-                }
-            }
-        }
-
-    } else {
-
-        // Update non-cumulative option values
-        for (const auto &map_element_in_desired_value: v) {
-
-            for (YAML::const_iterator desired_value_iterator = map_element_in_desired_value.begin();
-                 desired_value_iterator != map_element_in_desired_value.end(); ++desired_value_iterator) {
-
-                for (auto existing_map: value[name]) {
-                    for (YAML::const_iterator existing_map_iterator = existing_map.begin();
-                         existing_map_iterator != existing_map.end(); ++existing_map_iterator) {
-
-                        string first_key = existing_map_iterator->first.as<string>();
-                        string second_key = desired_value_iterator->first.as<string>();
-
-                        if (first_key == second_key) {
-                            existing_map[existing_map_iterator->first] = desired_value_iterator->second;
-                        }
-                    }
-                }
-            }
-        }
-    }
+void GOption::set_scalar_value(const string &v) {
+	if (v.empty()) return;
+	string value_to_set = gutilities::replaceCharInStringWithChars(v, ",", "");
+	string key = value.begin()->first.as<string>();
+	value[key] = value_to_set;
 }
 
 /**
- * @brief Ensures that all necessary variables marked as `NODFLT` are set.
+ * @brief Sets the option’s value based on the provided YAML node.
  *
- * This function checks if all mandatory keys are present in the provided YAML node.
+ * Handles both cumulative and non-cumulative options. For cumulative options, the function
+ * checks for missing mandatory keys and merges default values.
+ *
+ * @param v The YAML node containing the new value(s) for the option.
+ */
+void GOption::set_value(const YAML::Node &v) {
+	if (isCumulative) {
+		for (const auto &element : v) {
+			if (!does_the_option_set_all_necessary_values(element)) {
+				cerr << FATALERRORL << "Trying to set " << YELLOWHHL << name << RSTHHR
+					 << " but missing mandatory values." << endl;
+				cerr << "        Use the option: " << YELLOWHHL << " help " << name
+					 << " " << RSTHHR << " for details." << endl << endl;
+				exit(EC__MANDATORY_NOT_FILLED);
+			}
+		}
+		value[name] = v;
+		auto default_value_node = defaultValue.begin()->second;
+		for (const auto &map_element_in_default_value : default_value_node) {
+			for (auto default_value_iterator = map_element_in_default_value.begin();
+				 default_value_iterator != map_element_in_default_value.end(); ++default_value_iterator) {
+				string default_key = default_value_iterator->first.as<string>();
+				auto default_value = default_value_iterator->second;
+				for (auto map_element_in_value : value[name]) {
+					bool key_found = false;
+					for (auto value_iterator = map_element_in_value.begin();
+						 value_iterator != map_element_in_value.end(); ++value_iterator) {
+						string value_key = value_iterator->first.as<string>();
+						if (default_key == value_key) {
+							key_found = true;
+							break;
+						}
+					}
+					if (!key_found) {
+						map_element_in_value[default_key] = default_value;
+					}
+				}
+			}
+		}
+	} else {
+		for (const auto &map_element_in_desired_value : v) {
+			for (auto desired_value_iterator = map_element_in_desired_value.begin();
+				 desired_value_iterator != map_element_in_desired_value.end(); ++desired_value_iterator) {
+				for (auto existing_map : value[name]) {
+					for (auto existing_map_iterator = existing_map.begin();
+						 existing_map_iterator != existing_map.end(); ++existing_map_iterator) {
+						string first_key = existing_map_iterator->first.as<string>();
+						string second_key = desired_value_iterator->first.as<string>();
+						if (first_key == second_key) {
+							existing_map[existing_map_iterator->first] = desired_value_iterator->second;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+/**
+ * @brief Checks if all mandatory keys (marked as NODFLT) are present in the YAML node.
  *
  * @param v The YAML node to check.
- * @return True if all necessary values are set, false otherwise.
+ * @return True if all mandatory keys are present; false otherwise.
  */
- bool GOption::does_the_option_set_all_necessary_values(YAML::Node v) {
-    vector <string> this_keys;
-
-    switch (v.Type()) {
-        case YAML::NodeType::Map:
-            for (const auto &it : v) {
-                this_keys.push_back(it.first.as<string>());
-            }
-            break;
-        default:
-            break;
-    }
-
-    for (const auto &key : mandatory_keys) {
-        if (find(this_keys.begin(), this_keys.end(), key) == this_keys.end()) {
-            return false;
-        }
-    }
-    return true;
+bool GOption::does_the_option_set_all_necessary_values(YAML::Node v) {
+	vector<string> this_keys;
+	if (v.Type() == YAML::NodeType::Map) {
+		for (const auto &it : v) {
+			this_keys.push_back(it.first.as<string>());
+		}
+	}
+	for (const auto &key : mandatory_keys) {
+		if (find(this_keys.begin(), this_keys.end(), key) == this_keys.end()) {
+			return false;
+		}
+	}
+	return true;
 }
 
 /**
- * @brief Saves the option value to a YAML configuration file.
+ * @brief Saves the current option value to a YAML configuration file.
  *
- * This function writes the current value of the option to the specified YAML configuration file.
+ * The function sets the YAML emitter style to block and writes the option value.
  *
  * @param yamlConf Pointer to the output file stream.
  */
- void GOption::saveOption(std::ofstream *yamlConf) const {
-
-    // setting style to block
-    // this does not work with command line passed values
-    YAML::Node mutableValue = value;
-    mutableValue.SetStyle(YAML::EmitterStyle::Block);  ///< Apply block style to the mutable copy.
-
-    *yamlConf << mutableValue << std::endl;
-
+void GOption::saveOption(std::ofstream *yamlConf) const {
+	YAML::Node mutableValue = value;
+	mutableValue.SetStyle(YAML::EmitterStyle::Block);
+	*yamlConf << mutableValue << std::endl;
 }
 
-
 /**
- * @brief Prints the help information for the option.
+ * @brief Prints help information for the option.
  *
- * This function outputs the help information to the console, either in detailed or summary form.
+ * Depending on the 'detailed' flag, prints either a brief summary or detailed help
+ * (including default values and descriptions).
  *
  * @param detailed If true, prints detailed help; otherwise, prints a summary.
  */
- void GOption::printHelp(bool detailed) const {
-
-    if (name == GVERSION_STRING) return;
-
-    long int fill_width = string(HELPFILLSPACE).size() + 1;
-    cout.fill('.');
-
-    string helpString = "-" + name + RST;
-
-    bool is_sequence = defaultValue.begin()->second.IsSequence();
-
-    if (is_sequence) {
-        helpString += "=<sequence>";
-    } else {
-        helpString += "=<value>";
-    }
-    helpString += " ";
-
-    cout << KGRN << " " << left;
-    cout.width(fill_width);
-
-    if (detailed) {
-        cout << helpString << ": " << description << endl;
-        cout << endl;
-        cout << detailedHelp() << endl;
-    } else {
-        cout << helpString << ": " << description << endl;
-    }
+void GOption::printHelp(bool detailed) const {
+	if (name == GVERSION_STRING) return;
+	long int fill_width = string(HELPFILLSPACE).size() + 1;
+	cout.fill('.');
+	string helpString = "-" + name + RST;
+	bool is_sequence = defaultValue.begin()->second.IsSequence();
+	helpString += is_sequence ? "=<sequence>" : "=<value>";
+	helpString += " ";
+	cout << KGRN << " " << left;
+	cout.width(fill_width);
+	if (detailed) {
+		cout << helpString << ": " << description << endl << endl;
+		cout << detailedHelp() << endl;
+	} else {
+		cout << helpString << ": " << description << endl;
+	}
 }
 
 /**
- * @brief Provides detailed help information for the option.
+ * @brief Generates detailed help text for the option.
  *
- * This function returns a string containing detailed help information, including default values and descriptions.
+ * This function returns a string containing detailed help information,
+ * including default values and associated descriptions.
  *
- * @return A string containing the detailed help information.
+ * @return A string with detailed help information.
  */
-
 string GOption::detailedHelp() const {
-    string newHelp = "";
+	string newHelp = "";
+	YAML::Node yvalues = defaultValue.begin()->second;
+	if (yvalues.IsSequence()) {
+		newHelp += "\n";
+		for (unsigned i = 0; i < yvalues.size(); i++) {
+			YAML::Node this_node = yvalues[i];
+			for (auto it = this_node.begin(); it != this_node.end(); ++it) {
+				cout << TGREENPOINTITEM << " " << KGRN << it->first.as<string>() << RST
+					 << ": " << gvar_descs[i] << ". Default value: " << it->second.as<string>() << endl;
+			}
+		}
+	}
+	newHelp += "\n";
+	vector<string> help_lines = gutilities::getStringVectorFromStringWithDelimiter(help, "\n");
+	for (auto line : help_lines) {
+		newHelp += GTAB + line + "\n";
+	}
+	return newHelp;
+}
 
-    YAML::Node yvalues = defaultValue.begin()->second;
-    if (yvalues.IsSequence()) {
-        newHelp += "\n";
-
-        for (unsigned i = 0; i < (unsigned) yvalues.size(); i++) {
-            YAML::Node this_node = yvalues[i];
-
-            for (YAML::const_iterator it = this_node.begin(); it != this_node.end(); ++it) {
-                cout << TGREENPOINTITEM << " " << KGRN << it->first.as<string>() << RST
-                     << ": " << gvar_descs[i] << ". Default value: " << it->second.as<string>() << endl;
-            }
-        }
-    }
-    newHelp += "\n";
-
-    vector <string> help_lines = gutilities::getStringVectorFromStringWithDelimiter(help, "\n");
-
-    for (auto line: help_lines) {
-        newHelp += GTAB + line + "\n";
-    }
-    return newHelp;
-
+/**
+ * @brief Sets the value of a sub–option using dot–notation.
+ *
+ * For options that are structured as maps or sequences of maps, this function updates a single
+ * sub–option (e.g. for "-debug.general=true", it updates the "general" key within "debug").
+ *
+ * @param subkey The key within the option to update.
+ * @param subvalue The new value for the sub–option as a string.
+ */
+void GOption::set_sub_option_value(const string &subkey, const string &subvalue) {
+	YAML::Node option_node = value.begin()->second;
+	if (option_node.IsSequence()) {
+		bool updated = false;
+		for (auto it = option_node.begin(); it != option_node.end(); ++it) {
+			if ((*it).IsMap() && (*it)[subkey]) {
+				(*it)[subkey] = YAML::Load(subvalue);
+				updated = true;
+			}
+		}
+		if (!updated) {
+			cerr << "Sub-option key '" << subkey << "' not found in option '" << name << "'." << endl;
+			exit(EC__NOOPTIONFOUND);
+		}
+	} else if (option_node.IsMap()) {
+		if (option_node[subkey]) {
+			option_node[subkey] = YAML::Load(subvalue);
+		} else {
+			cerr << "Sub-option key '" << subkey << "' not found in option '" << name << "'." << endl;
+			exit(EC__NOOPTIONFOUND);
+		}
+	} else {
+		cerr << "Option '" << name << "' is not structured to accept sub–options." << endl;
+		exit(EC__NOOPTIONFOUND);
+	}
 }

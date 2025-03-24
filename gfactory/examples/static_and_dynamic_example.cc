@@ -1,4 +1,4 @@
-#include "goptions.h"
+#include "gfactory_options.h"
 
 #include "gfactory.h"
 #include "ShapeFactory.h"
@@ -13,7 +13,8 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 
-	GOptions *gopts = new GOptions(argc, argv);
+	GOptions *gopts = new GOptions(argc, argv, gfactory::defineOptions());
+
 	GLogger log(gopts, "GFactory", "general");
 
 	GManager managerAV(gopts, "exampleAV");    // no verbosity

@@ -11,12 +11,12 @@
 #define EC__DEFINED_SWITCHALREADYPRESENT   103
 #define EC__YAML_PARSING_ERROR             104
 #define EC__MANDATORY_NOT_FILLED           105
+#define EC__BAD_CONVERSION                 106
 
 
 #include <string>
 namespace goptions {
     const std::string NODFLT = "NODFLT";
-
 }
 
 

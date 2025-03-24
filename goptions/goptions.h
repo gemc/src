@@ -1,5 +1,5 @@
-#ifndef  GOPTIONS_H
-#define  GOPTIONS_H  1
+#ifndef GOPTIONS_H
+#define GOPTIONS_H 1
 
 #include "goption.h"
 #include "gswitch.h"
@@ -14,105 +14,103 @@
 /**
  * @brief The GOptions class manages command-line options and switches.
  *
- * This class provides methods to define, access, and manage configuration options
- * and switches for command-line applications. Options can be scalar or sequence-based
- * and are stored in YAML format.
+ * This class provides methods to define, access, and manage configuration options and switches
+ * for command-line applications. Options can be scalar or sequence-based and are stored in YAML format.
  */
-
 class GOptions {
-
 public:
-
 	/**
 	 * @brief Default constructor.
 	 *
-	 * Creates an empty GOptions object, typically used for defining user-defined options.
+	 * Creates an empty GOptions object, typically used for defining user–defined options.
 	 */
 	GOptions() { return; }
 
 	/**
-	 * @details Library based constructor: each library can define its own options,
-	 * \param argc number of arguments, passed from "main"
-	 * \param argv argument arrays of *chars, passed from main
-	 * \param user_defined_options vector of user options, usually returned by a defineOptions() function
+	 * @brief Constructor for verbosity and debug options.
+	 *
+	 * @param name: verbosity and debug option name
+	 */
+	GOptions(string name) : option_verbosity_name(name) {}
+
+	/**
+	 * @brief Library–based constructor.
+	 *
+	 * Constructs a GOptions object by initializing built–in options and switches,
+	 * loading user–defined options, parsing YAML files, and processing command–line arguments.
+	 *
+	 * @param argc Number of command–line arguments.
+	 * @param argv Array of command–line argument strings.
+	 * @param user_defined_options A GOptions object containing user–defined options.
 	 */
 	GOptions(int argc, char *argv[], const GOptions &user_defined_options = GOptions());
 
 	/**
-	 * @brief Defines and adds a command-line switch to the map of switches.
-	 *
+	 * @brief Defines and adds a command–line switch.
 	 * @param name The name of the switch.
 	 * @param description The description of the switch.
 	 */
-	void defineSwitch(const std::string &name, const std::string &description);
+	void defineSwitch(const string &name, const string &description);
 
 	/**
-	 * @brief Defines and adds a scalar option to the map of options.
-	 *
-	 * @param gvar The GVariable object representing the scalar option.
-	 * @param help The help message for the option.
+	 * @brief Defines and adds a scalar option.
+	 * @param gvar A GVariable representing the option.
+	 * @param help Help text for the option.
 	 */
-	void defineOption(const GVariable &gvar, const std::string &help);
+	void defineOption(const GVariable &gvar, const string &help);
 
 	/**
-	 * @brief Defines and adds a structured option to the map of options.
-	 *
+	 * @brief Defines and adds a structured (map/sequence) option.
 	 * @param name The name of the option.
-	 * @param description The description of the option.
-	 * @param gvars A vector of GVariable objects representing the structured option.
-	 * @param help The help message for the option.
+	 * @param description A summary description of the option.
+	 * @param gvars A vector of GVariable objects representing the option elements.
+	 * @param help Help text for the option.
 	 */
-	void defineOption(const std::string &name, const std::string &description, const std::vector <GVariable> &gvars,
-					  const std::string &help);
+	void defineOption(const string &name, const string &description, const std::vector<GVariable> &gvars,
+					  const string &help);
 
 	/**
 	 * @brief Retrieves the value of a scalar integer option.
-	 *
 	 * @param tag The name of the option.
-	 * @return The integer value of the option.
+	 * @return The integer value.
 	 */
-	int getScalarInt(const std::string &tag) const;
+	int getScalarInt(const string &tag) const;
 
 	/**
 	 * @brief Retrieves the value of a scalar float option.
-	 *
 	 * @param tag The name of the option.
-	 * @return The float value of the option.
+	 * @return The float value.
 	 */
-	float getScalarFloat(const std::string &tag) const;
+	float getScalarFloat(const string &tag) const;
 
 	/**
 	 * @brief Retrieves the value of a scalar double option.
-	 *
 	 * @param tag The name of the option.
-	 * @return The double value of the option.
+	 * @return The double value.
 	 */
-	double getScalarDouble(const std::string &tag) const;
+	double getScalarDouble(const string &tag) const;
 
 	/**
 	 * @brief Retrieves the value of a scalar string option.
-	 *
 	 * @param tag The name of the option.
-	 * @return The string value of the option.
+	 * @return The string value.
 	 */
-	std::string getScalarString(const std::string &tag) const;
+	string getScalarString(const string &tag) const;
 
 	/**
 	 * @brief Retrieves the status of a switch.
-	 *
 	 * @param tag The name of the switch.
-	 * @return The boolean status of the switch.
+	 * @return True if the switch is on; false otherwise.
 	 */
-	bool getSwitch(const std::string &tag) const;
+	bool getSwitch(const string &tag) const;
 
 	/**
-	 * @brief Retrieves the YAML::Node of the specified option.
+	 * @brief Retrieves the YAML node for the specified option.
 	 *
 	 * @param tag The name of the option.
 	 * @return The YAML::Node containing the option's value.
 	 */
-	inline const YAML::Node getOptionNode(const std::string &tag) const {
-		// If the option does not exist, exit with error
+	inline const YAML::Node getOptionNode(const string &tag) const {
 		if (!doesOptionExist(tag)) {
 			std::cerr << "Option " << tag << " does not exist. Exiting." << std::endl;
 			exit(EC__NOOPTIONFOUND);
@@ -121,138 +119,136 @@ public:
 	}
 
 	/**
-	  * @brief Retrieves a map option within a YAML::Node.
-	  *
-	  * @param option_name The name of the option.
-	  * @param map_key The key of the map within the option.
-	  * @return The YAML::Node corresponding to the map key.
-	  */
+	 * @brief Retrieves a map option’s value from within a YAML node.
+	 * @param option_name The name of the option.
+	 * @param map_key The key within the option.
+	 * @return The YAML::Node corresponding to the specified map key.
+	 */
 	YAML::Node getOptionMapInNode(string option_name, string map_key);
 
 	/**
-	 * @brief Retrieves the verbosity level for a given tag.
-	 *
+	 * @brief Retrieves the verbosity level for the specified tag.
 	 * @param tag The name of the verbosity option.
 	 * @return The verbosity level as an integer.
 	 */
-	int getVerbosityFor(const std::string &tag) const;
+	int getVerbosityFor(const string &tag) const;
 
 	/**
-	 * @brief Retrieves the debug level for a given tag.
+	 * @brief Retrieves the debug level for the specified tag.
+	 *
+	 * Accepts values as either booleans ("true"/"false") or integers.
 	 *
 	 * @param tag The name of the debug option.
 	 * @return The debug level as an integer.
 	 */
-	 int getDebugFor(const std::string &tag) const;
+	int getDebugFor(const string &tag) const;
 
 	/**
-	 * @brief Returns the list of all defined options.
-	 *
+	 * @brief Returns the list of defined options.
 	 * @return A vector of GOption objects.
 	 */
-	const std::vector <GOption> &getOptions() const { return goptions; }
+	const std::vector<GOption> &getOptions() const { return goptions; }
 
 	/**
-	 * @brief Returns the map of all defined switches.
-	 *
+	 * @brief Returns the map of defined switches.
 	 * @return A map of switches.
 	 */
-	const std::map <std::string, GSwitch> &getSwitches() const { return switches; }
+	const std::map<string, GSwitch> &getSwitches() const { return switches; }
 
 	/**
-	 * @brief Adds a set of GOptions to the current options.
-	 *
-	 * @param goptions_to_add The GOptions object to be added.
+	 * @brief Adds options from another GOptions object.
+	 * @param goptions_to_add The GOptions object to add.
 	 */
 	inline void addGOptions(const GOptions &goptions_to_add) {
-		for (auto gopt: goptions_to_add.getOptions()) {
+		for (auto gopt : goptions_to_add.getOptions()) {
 			goptions.push_back(gopt);
 		}
-		for (auto sw: goptions_to_add.getSwitches()) {
+		for (auto sw : goptions_to_add.getSwitches()) {
 			switches.insert(sw);
 		}
 	}
 
+	string option_verbosity_name = UNINITIALIZEDSTRINGQUANTITY;
+	vector <GVariable> option_verbosity_names;
+	inline void addOptionTitle(string name) {
+		string option_verbosity_name_desc = name + " verbosity level or debug switch";
+		option_verbosity_names.push_back( GVariable(name, 0, option_verbosity_name_desc) ) ;
+	}
+
 	/**
-	 * @brief Retrieves a variable from a YAML::Node.
-	 *
-	 * @param node The YAML::Node containing the variable.
+	 * @brief Retrieves a variable from a YAML node within an option.
+	 * @tparam T The type of the variable.
+	 * @param node The YAML node.
 	 * @param variable_name The name of the variable.
-	 * @param default_value The default value to return if the variable is not found.
-	 * @return The value of the variable.
+	 * @param default_value The default value if the variable is not found.
+	 * @return The variable value.
 	 */
 	template<typename T>
 	T get_variable_in_option(const YAML::Node &node, const string &variable_name, const T &default_value);
 
 	/**
-	 * @brief Retrieves the list of YAML files.
-	 *
+	 * @brief Retrieves the list of YAML file paths.
 	 * @return A vector of YAML file paths as strings.
 	 */
-	std::vector <std::string> getYamlFiles() const { return yaml_files; }
+	std::vector<string> getYamlFiles() const { return yaml_files; }
 
 	/**
- 	* @brief Checks if the specified option exists.
-	*
-	* @param tag The name of the option.
-	* @return True if the option exists, false otherwise.
-	*/
-	bool doesOptionExist(const std::string &tag) const;
+	 * @brief Checks if the specified option exists.
+	 * @param tag The name of the option.
+	 * @return True if the option exists; false otherwise.
+	 */
+	bool doesOptionExist(const string &tag) const;
 
 private:
-
-	std::vector <GOption> goptions;           ///< Array of GOption objects.
-	std::map <std::string, GSwitch> switches; ///< Map of GSwitch objects.
+	std::vector<GOption> goptions;           ///< Array of GOption objects.
+	std::map<string, GSwitch> switches;   ///< Map of GSwitch objects.
 	std::ofstream *yamlConf;                 ///< YAML configuration file stream.
-	std::string executableName;              ///< Name of the executable.
-	std::vector <std::string> yaml_files;     ///< List of YAML files.
-
+	string executableName;              ///< Executable name.
+	std::vector<string> yaml_files;     ///< List of YAML file paths.
 
 	/**
 	 * @brief Finds YAML files specified by the command line.
-	 *
 	 * @param argc Number of command-line arguments.
-	 * @param argv Array of command-line arguments.
-	 * @return A vector of YAML file paths as strings.
+	 * @param argv Array of command-line argument strings.
+	 * @return A vector of YAML file paths.
 	 */
-	vector <string>
-	findYamls(int argc, char *argv[]);  // finds the yaml specified by command line. Returns "na' if not found.
+	vector<string> findYamls(int argc, char *argv[]);
 
 	/**
 	 * @brief Parses and sets option values from a YAML file.
-	 *
-	 * @param yaml The path to the YAML file.
+	 * @param yaml The YAML file path.
 	 */
-	void setOptionsValuesFromYamlFile(const std::string &yaml);
+	void setOptionsValuesFromYamlFile(const string &yaml);
 
 	/**
 	 * @brief Parses and sets option values from a command-line argument.
-	 *
 	 * @param optionName The name of the option.
-	 * @param possibleYamlNode The potential YAML node.
+	 * @param possibleYamlNode The YAML-formatted value string.
 	 */
-	void setOptionValuesFromCommandLineArgument(const std::string &optionName, const std::string &possibleYamlNode);
-
+	void setOptionValuesFromCommandLineArgument(const string &optionName, const string &possibleYamlNode);
 
 	/**
-	 * @brief Retrieves the iterator to an option with the specified name.
-	 *
+	 * @brief Retrieves an iterator to the option with the specified name.
 	 * @param name The name of the option.
 	 * @return An iterator to the option.
 	 */
-	std::vector<GOption>::iterator getOptionIterator(const std::string &name);
-
-	std::vector<GOption>::const_iterator getOptionIterator(const std::string &name) const;
+	std::vector<GOption>::iterator getOptionIterator(const string &name);
 
 	/**
-	 * @brief Prints help information for a single option or switch.
-	 *
+	 * @brief Retrieves a const iterator to the option with the specified name.
+	 * @param name The name of the option.
+	 * @return A const iterator to the option.
+	 */
+	std::vector<GOption>::const_iterator getOptionIterator(const string &name) const;
+
+	/**
+	 * @brief Prints help information for a specific option or switch.
 	 * @param tag The name of the option or switch.
 	 */
-	void printOptionOrSwitchHelp(const std::string &tag) const;
+	void printOptionOrSwitchHelp(const string &tag) const;
 
 	/**
-	 * @brief Loops over all options and prints help information.
+	 * @brief Prints general help information to the console.
 	 */
 	void printHelp() const;
 
@@ -262,19 +258,17 @@ private:
 	void printWebHelp() const;
 
 	/**
-	 * @brief Saves all user options in a YAML file.
+	 * @brief Saves all user options to a YAML configuration file.
 	 */
 	void saveOptions() const;
 
 	/**
-	 * @brief Prints the version of the executable.
+	 * @brief Prints the version information of the executable.
 	 */
 	void print_version();
-
-
 };
 
-// overloaded operator to add option vectors and switch maps
+/// Overloaded operator to add options and switches from one GOptions object to another.
 GOptions &operator+=(GOptions &original, const GOptions &optionsToAdd);
 
 #endif
