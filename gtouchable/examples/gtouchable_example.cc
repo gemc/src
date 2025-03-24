@@ -15,8 +15,8 @@ int main(int argc, char* argv[])
 	GOptions *gopts = new GOptions(argc, argv, gtouchable::defineOptions());
 	GLogger *log = new GLogger(gopts, "GTouchable", "gtouchable");
 
-	string first_identity = "sector: 1, paddle: 1";
-	vector<double> first_dimensions = {1.0, 20.0, 1.0};
+	string first_identity = "sector: 98, paddle: 98";
+	vector<double> first_dimensions = {1.0, 20.0, 98.0};
 	GTouchable first_ctof = GTouchable("readout", first_identity, first_dimensions, log);
 
 	for(unsigned i=1; i<100; i++) {

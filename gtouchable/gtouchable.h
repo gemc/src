@@ -17,22 +17,49 @@ using std::vector;
 // - flux: track id is the discriminating factor, standard true infos variable
 // - particleCounter: no other discriminating factors, standard true infos variable
 // - dosimeter: track id is the discriminating factor, radiation digitization
+
+
+
+/**
+ * @brief Enumeration representing the type of a GTouchable element.
+ *
+ * Defines different types of sensitive detector elements.
+ */
 enum GTouchableType {
-    readout, flux, particleCounter, dosimeter
+	readout,          ///< Electronic readout with time window discrimination.
+	flux,             ///< Track-based discrimination.
+	particleCounter,  ///< No additional discriminating factors.
+	dosimeter         ///< Radiation digitization using track id.
 };
 
+/**
+ * @brief Represents a unique identifier for a sensitive detector element.
+ *
+ * Each identifier consists of a name and an integer value.
+ */
 struct GIdentifier {
 
 public:
 
-    // constructor
-    GIdentifier(string n, int v) : idName{n}, idValue{v} {}
+	/**
+	 * @brief Constructs a GIdentifier.
+	 * @param n The identifier name.
+	 * @param v The identifier value.
+	 */
+	GIdentifier(std::string n, int v) : idName{n}, idValue{v} {}
 
-    //  Overloaded "=="
-    bool operator==(const GIdentifier &gid) const { return this->idValue == gid.idValue; }
+	/**
+	 * @brief Equality operator comparing only the identifier value.
+	 * @param gid The GIdentifier to compare.
+	 * @return True if the identifier values are equal.
+	 */
+	bool operator==(const GIdentifier &gid) const { return this->idValue == gid.idValue; }
 
-    // api
-    inline string getName() const { return idName; }
+	/**
+	 * @brief Gets the identifier name.
+	 * @return The identifier name.
+	 */
+	inline std::string getName() const { return idName; }
 
     inline int getValue() const { return idValue; }
 

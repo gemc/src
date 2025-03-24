@@ -100,7 +100,7 @@ bool GTouchable::operator==(const GTouchable &that) const {
 	// first, compare size of identity
 	// this should never happen because the same sensitivity should be assigned the same identifier structure
 	if (this->gidentity.size() != that.gidentity.size()) {
-		log->debug(NORMAL, " Touchable sizes are different ");
+		log->debug(NORMAL, "Touchable sizes are different ");
 		return false;
 	}
 
@@ -108,27 +108,37 @@ bool GTouchable::operator==(const GTouchable &that) const {
 	// return false if something is different
 	for (size_t i = 0; i < that.gidentity.size(); i++) {
 		if (this->gidentity[i].getValue() != that.gidentity[i].getValue()) {
-
 			log->debug(NORMAL, " Touchable gidentity  are different: ", this->gidentity[i], " ", that.gidentity[i]);
-
 			return false;
 		}
 	}
+	log->debug(NORMAL, " Touchable gidentity are the same. Now using type comparison");
+	bool typeComparison = false;
 
 	// all identities are the same
 	// now using gtouchable type
 	switch (this->gType) {
-		case readout:
-			return this->stepTimeAtElectronicsIndex == that.stepTimeAtElectronicsIndex;
-		case flux:
-			return this->trackId == that.trackId;
-		case dosimeter:
-			return this->trackId == that.trackId;
-		case particleCounter:
-			return true;
-	}
 
-	return false;
+		case readout:
+			typeComparison = this->stepTimeAtElectronicsIndex == that.stepTimeAtElectronicsIndex;
+			log->debug(NORMAL, " Touchable type is readout. Time cell comparison: ", this->stepTimeAtElectronicsIndex, " ", that.stepTimeAtElectronicsIndex);
+			break;
+		case flux:
+			typeComparison = this->trackId == that.trackId;
+			log->debug(NORMAL, " Touchable type is flux. Track id comparison: ", this->trackId, " ", that.trackId);
+			break;
+		case dosimeter:
+			typeComparison =  this->trackId == that.trackId;
+			log->debug(NORMAL, " Touchable type is dosimeter. Track id comparison: ", this->trackId, " ");
+			break;
+		case particleCounter:
+			typeComparison = true;
+			log->debug(NORMAL, " Touchable type is particleCounter. No additional comparison needed, returning true  ✅");
+			break;
+	}
+	log->debug(NORMAL, " Touchable comparison result: ", typeComparison  ? " ✅\n" : " ❌\n");
+
+	return typeComparison;
 }
 
 // ostream GTouchable
