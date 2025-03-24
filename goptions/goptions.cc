@@ -96,7 +96,7 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 	help += "false: (default): do not print debug information\n";
 	help += "true: print debug information\n";
 	help += "Example: -verbosity=\"[{gsystem: true}, {grun: true}]\" \n";
-	defineOption("debug", "Sets the debug level for various classes", classes, help);
+	defineOption("debug", "Sets the debug level for various classes", dclasses, help);
 
 	// parsing command line to check for help
 	for (int i = 1; i < argc; i++) {
@@ -485,7 +485,7 @@ int GOptions::getDebugFor(const std::string &tag) const {
 
 	for (auto d: debug_node) {
 		if (d.begin()->first.as<string>() == tag) {
-			return d.begin()->second.as<int>();
+			return d.begin()->second.as<bool>();
 		}
 	}
 
