@@ -1,4 +1,0 @@
-doxygen
-
-- provide time spent by each plugin?
-- add mutex so we can use verbosity cout? see http://en.cppreference.com/w/cpp/memory/shared_ptr

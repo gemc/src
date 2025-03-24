@@ -36,7 +36,7 @@ public:
 	 * \param argv argument arrays of *chars, passed from main
 	 * \param user_defined_options vector of user options, usually returned by a defineOptions() function
 	 */
-	GOptions(int argc, char *argv[], const GOptions &user_defined_options);
+	GOptions(int argc, char *argv[], const GOptions &user_defined_options = GOptions());
 
 	/**
 	 * @brief Defines and adds a command-line switch to the map of switches.
@@ -115,7 +115,7 @@ public:
 		// If the option does not exist, exit with error
 		if (!doesOptionExist(tag)) {
 			std::cerr << "Option " << tag << " does not exist. Exiting." << std::endl;
-			gexit(EC__NOOPTIONFOUND);
+			exit(EC__NOOPTIONFOUND);
 		}
 		return getOptionIterator(tag)->value.begin()->second;
 	}

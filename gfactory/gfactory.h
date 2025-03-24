@@ -4,7 +4,6 @@
 // c++
 #include <map>
 #include <string>
-#include <iostream>
 
 // dynamic loading
 #include "gdl.h"
@@ -52,7 +51,6 @@ private:
     std::map<std::string, DynamicLib *> dlMap;
 
     std::string gname; // manager name
-    int verbosity;
 
     /**
      * @fn registerDL
@@ -62,11 +60,12 @@ private:
      */
     void registerDL(std::string name) {
         // PRAGMA TODO: make it OS independent?
-        dlMap[name] = new DynamicLib(name + ".gplugin", verbosity);
-        if (verbosity > 0) {
-            std::cout << PLUGINITEM << " GManager: Loading DL " << YELLOWHHL << name << RSTHHR << std::endl;
-        }
-    }
+        dlMap[name] = new DynamicLib(gopts, name + ".gplugin");
+		log.debug(NORMAL, "Loading DL ", name);
+	}
+
+	GOptions *gopts;
+	GLogger log;
 
 public:
     /**
@@ -74,11 +73,9 @@ public:
      - 0: no not print any log
      - 1: print gmanager registering and instantiating classes
      */
-    GManager(std::string name, int v = 0) : gname(name), verbosity(v) {
-        if (verbosity > 0) {
-            std::cout << PLUGINITEM << " GPlugin: Instantiating " << YELLOWHHL << gname << RSTHHR << std::endl;
-        }
-    }
+    GManager(GOptions* g, std::string name) :gname(name),  gopts(g), log(g, "Plugins Manager", "plugins") {
+		log.debug(CONSTRUCTOR, "Instantiating ", gname);
+	}
 
 public:
     /**
@@ -92,10 +89,9 @@ public:
     template<class Derived>
     void RegisterObjectFactory(std::string name) {
         factoryMap[name] = new GFactory<Derived>();
-        if (verbosity > 1) {
-            std::cout << PLUGINITEM << " " << gname << " Plugin Manager: Registering " << YELLOWHHL << KYEL << name << RSTHHR << " factory. ";
-        }
-    }
+		log.debug(NORMAL, "Registering ", name, "into factory Map");
+
+	}
 
     /**
      * @fn CreateObject
@@ -112,13 +108,10 @@ public:
         auto factory = factoryMap.find(name);
 
         if (factory == factoryMap.end()) {
-            std::cerr << FATALERRORL << "couldn't find factory " << YELLOWHHL << name << RSTHHR << " in factoryMap." << std::endl;
-            gexit(EC__FACTORYNOTFOUND);
+			log.error(EC__FACTORYNOTFOUND, "couldn't find factory ", name, " in factory Map.");
         }
-        if (verbosity > 1) {
-            std::cout << "Factory has " << factoryMap.size() << " registered plugin(s) " << std::endl;
-            std::cout << PLUGINITEM << " GPlugin: " << gname << " Manager: Creating instance of <" << KYEL << name << RST << "> factory." << std::endl;
-        }
+
+		log.debug(NORMAL, "Creating instance of ", name, " factory.");
         return static_cast<Base *>(factory->second->Create());
     }
 
@@ -144,11 +137,10 @@ public:
             }
         } else {
             // warning message already given if plugin not found
-            std::cerr << FATALERRORL << " GManager: plugin " << name << " could not be loaded " << std::endl;
+			log.error(EC__DLHANDLENOTFOUND, "plugin ", name, " could not be loaded.");
         }
         return nullptr;
     }
-
 
     /**
      * @fn destroyObject
@@ -171,7 +163,6 @@ public:
             delete i.second;
         }
     }
-
 
 };
 

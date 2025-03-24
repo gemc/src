@@ -20,32 +20,32 @@ add_project_arguments('-Wno-shadow', language : ['cpp'])
 # Fill dictionary
 #################
 subdir('guts')
-subdir('glogging')
 subdir('goptions')
+subdir('glogging')
 subdir('gfactory')
-subdir('textProgressBar')
-subdir('gtouchable')
-subdir('ghit')
-subdir('gtranslationTable')
-subdir('gdata')
-subdir('gdynamicDigitization')
-subdir('eventDispenser')
-subdir('gQtButtonsWidget')
-subdir('g4display')
-subdir('g4dialog')
-subdir('gsystem')
-subdir('g4system')
-subdir('gparticle')
-subdir('gphysics')
-subdir('gsplash')
-subdir('gstreamer')
-subdir('gsd')
-subdir('gfields')
-subdir('utilities')
-subdir('gdetector')
-subdir('userActions')
-subdir('dbselect')
-subdir('gui')
+#subdir('textProgressBar')
+#subdir('gtouchable')
+#subdir('ghit')
+#subdir('gtranslationTable')
+#subdir('gdata')
+#subdir('gdynamicDigitization')
+#subdir('eventDispenser')
+#subdir('gQtButtonsWidget')
+#subdir('g4display')
+#subdir('g4dialog')
+#subdir('gsystem')
+#subdir('g4system')
+#subdir('gparticle')
+#subdir('gphysics')
+#subdir('gsplash')
+#subdir('gstreamer')
+#subdir('gsd')
+#subdir('gfields')
+#subdir('utilities')
+#subdir('gdetector')
+#subdir('userActions')
+#subdir('dbselect')
+#subdir('gui')
 
 # compilation loop
 foreach L : LD
@@ -91,6 +91,7 @@ foreach L : LD
     # header files
     if not headers.contains('')
         install_headers(headers)
+        message(' Adding Headers for' + this_lib_name)
     endif
 
     #  plugins
@@ -151,7 +152,7 @@ foreach L : LD
             all_includes += include_dir
         endif
     endforeach
-    if not all_includes.contains(this_lib_name) and not sources.contains('')
+    if not all_includes.contains(this_lib_name) and not ( sources.contains('') and headers.contains('') )
         all_includes += this_lib_name
     endif
 endforeach
@@ -159,31 +160,31 @@ endforeach
 # compile gemc
 qrc_gemc_sources = qt6.compile_resources(sources : 'qtresources.qrc')
 
-gemc = executable(
-    'gemc',
-    ['gemc.cc'] + qrc_gemc_sources + qrc_compiled_sources,
-    install : true,
-    dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, sqlite_dep, expat_dep, assimp_dep],
-    include_directories : all_includes,
-    link_with : all_libs,
-    link_args : all_lib_names,
-    override_options : ['b_pie=true']
-)
+#gemc = executable(
+#    'gemc',
+#    ['gemc.cc'] + qrc_gemc_sources + qrc_compiled_sources,
+#    install : true,
+#    dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, sqlite_dep, expat_dep, assimp_dep],
+#    include_directories : all_includes,
+#    link_with : all_libs,
+#    link_args : all_lib_names,
+#    override_options : ['b_pie=true']
+#)
 
 
-subdir('api')
-subdir('examples')
+#subdir('api')
+#subdir('examples')
 
 post_install = run_command('echo', 'Installation completed!', check: true)
 
 # generate pkg-config file
 # needs testing - add libraries?
-pkg = import('pkgconfig')
-pkg.generate(
-    name : meson.project_name(),
-    description : project_description,
-    requires : ['yaml-cpp', 'qt6', 'clhep', 'geant4'], # pkg-config dependencies only
-    version : meson.project_version(),
-    #    libraries : all_libs
-    #    link_args : all_lib_names
-)
+#pkg = import('pkgconfig')
+#pkg.generate(
+#    name : meson.project_name(),
+#    description : project_description,
+#    requires : ['yaml-cpp', 'qt6', 'clhep', 'geant4'], # pkg-config dependencies only
+#    version : meson.project_version(),
+#    #    libraries : all_libs
+#    #    link_args : all_lib_names
+#)

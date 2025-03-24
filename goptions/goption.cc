@@ -210,7 +210,7 @@ string GOption::detailedHelp() const {
             YAML::Node this_node = yvalues[i];
 
             for (YAML::const_iterator it = this_node.begin(); it != this_node.end(); ++it) {
-                cout << TGREENPOINTITEM << KGRN << it->first.as<string>() << RST
+                cout << TGREENPOINTITEM << " " << KGRN << it->first.as<string>() << RST
                      << ": " << gvar_descs[i] << ". Default value: " << it->second.as<string>() << endl;
             }
         }

@@ -2,9 +2,11 @@ sub_dir_name = meson.current_source_dir().split('/').get(-1)
 LD += {
     'name' : sub_dir_name,
     'headers' : files(
-                          'gdl.h',
-                          'gfactory.h'
-                      ),
+        'gdl.h',
+        'gfactory.h'
+    ),
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+
     'plugins' : {
         'test_dyn_factory1' : [files('examples/FordFactory.cc'), true],
         'test_dyn_factory2' : [files('examples/TeslaFactory.cc'), true],

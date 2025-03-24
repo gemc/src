@@ -109,8 +109,9 @@ int main(int argc, char *argv[]) {
 	visManager->Initialize();
 
 	auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
-	log.critical("Tally summary: " + gDetectorGlobal->get_number_of_volumes() + " volumes, "
-		 << gDetectorGlobal->get_number_of_g4_volumes() << " geant4 built volumes" << RST << endl << endl;
+	log.critical("Tally summary: ", gDetectorGlobal->get_number_of_volumes(), " volumes, ",
+				 gDetectorGlobal->get_number_of_g4_volumes(), " geant4 built volumes", RST, endl, endl);
+
 
 	if (gui) {
 		// initializing qt session
@@ -134,7 +135,7 @@ int main(int argc, char *argv[]) {
 		delete uiQtSession;
 
 	} else {
-		G4UIsession* session = new G4UIterminal(new G4UItcsh);
+		G4UIsession *session = new G4UIterminal(new G4UItcsh);
 
 		// set display properties in batch mode
 		G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
@@ -159,6 +160,6 @@ int main(int argc, char *argv[]) {
 	// owned and deleted by the run manager
 	delete runManager;
 
-	cout << GEMCLOGMSGITEM << KGRN << "Simulation completed, arrivederci! " << RST << endl << endl;
+	log.critical("Simulation completed, arrivederci! ");
 	return EXIT_SUCCESS;
 }

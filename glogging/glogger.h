@@ -3,7 +3,7 @@
 
 // Color conventions and logging macros
 #include "gutsConventions.h"
-#include "goptions"
+#include "goptions.h"
 
 // Geant4
 #include "G4UIsession.hh"
@@ -12,6 +12,9 @@
 #include <cstdlib>
 #include <sstream>
 #include <utility>
+
+
+enum debug_type { NORMAL, CONSTRUCTOR, DESTRUCTOR };
 
 /**
  * @class GLogger
@@ -35,6 +38,9 @@ public:
 		debug_level = gopts->getDebugFor(category_name);
 	}
 
+	// default constructor
+	GLogger() = default;
+
 	~GLogger() = default;
 
 	/**
@@ -50,19 +56,24 @@ public:
 	 * - **Fold expressions** to stream all arguments into an `ostringstream`.
 	 */
 	template <typename... Args>
-	void debug(int type, Args&&... args) const {
+	void debug(debug_type type, Args&&... args) const {
 		if (debug_level == 0) return;
 
 		std::ostringstream oss;
 		(oss << ... << std::forward<Args>(args));
 
-		if (type == 1) {
-			G4cout << KMAG << header_string() << oss.str() << RST << G4endl;
-		} else if (type == 10) {
-			G4cout << KBLU << header_string() << " (constructor " << CONSTRUCTORLOG << ")" << RST << oss.str() << G4endl;
-		} else if (type == -10) {
-			G4cout << KRED << header_string() << " (destructor " << DESTRUCTORLOG << ")" << RST << oss.str() << G4endl;
+		switch (type) {
+			case NORMAL:
+				G4cout << KYEL << header_string() << oss.str() << RST << G4endl;
+				break;
+			case CONSTRUCTOR:
+				G4cout << KCYN << header_string() << CONSTRUCTORLOG << " constructor " << CONSTRUCTORLOG << " " << RST << oss.str() << G4endl;
+				break;
+			case DESTRUCTOR:
+				G4cout << KCYN << header_string() << DESTRUCTORLOG << " destructor " << DESTRUCTORLOG << " " << RST << oss.str() << G4endl;
+				break;
 		}
+
 	}
 
 	/**

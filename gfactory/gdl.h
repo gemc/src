@@ -1,13 +1,10 @@
 #ifndef  GDYNAMICLIB_H
 #define  GDYNAMICLIB_H  1
 
-// documentation: http://www.faqs.org/docs/Linux-mini/C++-dlopen.html
-
-// glibrary: for color logs definitions
-#include "gutsConventions.h"
-#include "gutilities.h"
+#include "glogger.h"
 
 // c++ plugin loading functions
+// documentation: http://www.faqs.org/docs/Linux-mini/C++-dlopen.html
 #include <dlfcn.h>
 
 // c++
@@ -37,66 +34,56 @@ struct DynamicLib {
 
 private:
 	std::string dlFileName;  // dynamic library file
-	int verbosity = 0;
 
 	bool doesFileExists(const std::string &name) {
 		struct stat buffer;
 		return (stat(name.c_str(), &buffer) == 0);
 	}
 
+	GLogger log;
 
 public:
 	// default constructor
 	DynamicLib() = default;
 
-	dlhandle handle = nullptr;   // posix handle of the dynamic library
-
 	// path here is the filename
-	DynamicLib(std::string path, int v = 0) : dlFileName(path), verbosity(v), handle(nullptr) {
+	DynamicLib(GOptions *g, std::string path) : dlFileName(path), log(g, "Plugins", "plugins"), handle(nullptr) {
 
-		if (verbosity > 0) {
-			std::cout << PLUGINITEM << " Trying (1) " << YELLOWHHL << dlFileName << RSTHHR << std::endl;
-		}
+		log.debug(CONSTRUCTOR, "Instantiating ", path);
+		log.debug(NORMAL, "Trying ", dlFileName);
 
 		// trying $GEMC/lib/ + path if not found
 		if (!doesFileExists(dlFileName)) {
+			log.debug(NORMAL, dlFileName, "Not found...");
 			dlFileName = std::string(getenv("GEMC")) + "/lib/" + path;
-			if (verbosity > 0) {
-				std::cout << PLUGINITEM << " Trying (2) " << YELLOWHHL << dlFileName << RSTHHR << std::endl;
-			}
+			log.debug(NORMAL, "Trying ", dlFileName);
 		}
 
 		// trying $GEMC/lib64/ + path if not found
 		if (!doesFileExists(dlFileName)) {
-			if (verbosity > 0) {
-				std::cout << PLUGINITEM << " Trying (3) " << YELLOWHHL << dlFileName << RSTHHR << std::endl;
-			}
+			log.debug(NORMAL, dlFileName, "Not found...");
 			dlFileName = std::string(getenv("GEMC")) + "/lib64/" + path;
+			log.debug(NORMAL, "Trying ", dlFileName);
 		}
 
 		if (doesFileExists(dlFileName)) {
 			handle = load_lib(dlFileName);
+			log.info(0, "Loaded ", dlFileName);
 			if (handle == nullptr) {
 				char const *const dlopen_error = dlerror();
-
-				std::cerr << FATALERRORL << "File " << YELLOWHHL << dlFileName << RSTHHR
-						  << " found, but handle dlopenened is null" << std::endl;
-				std::cerr << "dlopen error: " << dlopen_error << std::endl;
-				gexit(EC__DLHANDLENOTFOUND);
+				log.error(EC__DLHANDLENOTFOUND, "File ", dlFileName, " found, but handle is null. Error: ", dlopen_error);
 			}
-
 		} else {
-			std::cerr << FATALERRORL << "could not load " << YELLOWHHL << dlFileName << RSTHHR << std::endl;
-			gexit(EC__DLNOTFOUND);
+			log.error(EC__DLNOTFOUND, "could not find ", dlFileName);
 		}
 	}
+
+	dlhandle handle = nullptr;   // posix handle of the dynamic library
 
 	~DynamicLib() {
 		if (handle != nullptr) {
 			close_lib(handle);
-			if (verbosity > 1) {
-				std::cout << PLUGINITEM << " Closing DL " << YELLOWHHL << dlFileName << RSTHHR << std::endl;
-			}
+			log.debug(DESTRUCTOR, "Destroying ", dlFileName);
 		}
 	}
 
