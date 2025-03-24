@@ -110,9 +110,10 @@ bool GSensitiveDetector::isThisANewTouchable(const GTouchable *thisTouchable) {
     }
 
     // if not found insert and return true: it's a new
-    auto gtPosition = find(touchableVector.begin(), touchableVector.end(), *thisTouchable);
+	// this uses the gtouchable == operator so it's expensive to do this at every step - but we have to
+    auto gt_iterator = find(touchableVector.begin(), touchableVector.end(), *thisTouchable);
 
-    if (gtPosition == touchableVector.end()) {
+    if (gt_iterator == touchableVector.end()) {
         if (verbosity >= GVERBOSITY_DETAILS) {
             G4cout << " ✅ yes, new GTouchable. Adding it to touchableVector. " << G4endl;
         }

@@ -14,6 +14,7 @@ LD += {
         'test_dyn_factory2' : [files('examples/TeslaFactory.cc'), true],
     },
     'examples' : {
-        'test_gfactory_static_and_dynamic_load' : [files('examples/static_and_dynamic_example.cc', 'examples/ShapeFactory.cc'), '']
+        'test_gfactory_static_and_dynamic_load' : [files('examples/static_and_dynamic_example.cc', 'examples/ShapeFactory.cc'), ''],
+        'test_gfactory_static_and_dynamic_load_with_debug' : [files('examples/static_and_dynamic_example.cc', 'examples/ShapeFactory.cc'), '-debug.plugins=1']
     }
 }

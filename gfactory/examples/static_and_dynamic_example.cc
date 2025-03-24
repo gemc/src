@@ -1,6 +1,5 @@
-#include "gfactory_options.h"
-
 #include "gfactory.h"
+#include "gfactory_options.h"
 #include "ShapeFactory.h"
 #include "Car.h"
 

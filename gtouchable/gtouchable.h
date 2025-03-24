@@ -1,6 +1,8 @@
 #ifndef  GTOUCHABLE_H
 #define  GTOUCHABLE_H 1
 
+#include "glogger.h"
+
 // c++
 #include <vector>
 #include <string>
@@ -51,7 +53,7 @@ class GTouchable {
 public:
     // constructor called in GDetectorConstruction::ConstructSDandField
     // to register a new gtouchable in the sensitive detector gtouchable map
-    GTouchable(string digitization, string gidentityString, vector<double> dimensions, bool verb = false);
+    GTouchable(string digitization, string gidentityString, vector<double> dimensions, GLogger* logger);
 
     // copy constructor called in the non-overloaded processTouchable:
     // used in case the stepTimeIndex of the hit is different from the gtouchable one
@@ -69,10 +71,11 @@ public:
     //GTouchable(const GTouchable& baseGT, vector<GIdentifier> gidentity, float weight, float t);
 
 private:
+	GLogger *log;
+
     // set by sensitive detector constructor
     GTouchableType gType;
     vector <GIdentifier> gidentity;  // Uniquely identify a sensitive element
-    bool verbosity;
 
     // set in sensitiveDetector::ProcessHit
     // Used to determine if steps belong to the same hit for flux/particle counter detectors

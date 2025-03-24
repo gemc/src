@@ -4,6 +4,8 @@
 #include "gemcOptions.h"
 
 // options definitions
+#include "gfactory_options.h"
+#include "gtouchable_options.h"
 #include "eventDispenserOptions.h"
 #include "g4displayOptions.h"
 #include "g4systemOptions.h"
@@ -58,8 +60,16 @@ namespace gemc {
         help += string(HELPFILLSPACE) + " - clock function \n";
         goptions.defineOption(GVariable("seed", SEEDNOTSET, "randomEngineName"), help);
 
-        // load other
-        goptions += eventDispenser::defineOptions();
+
+
+
+		// load other
+		goptions += gfactory::defineOptions();
+		goptions += gtouchable::defineOptions();
+
+
+
+		goptions += eventDispenser::defineOptions();
         goptions += g4display::defineOptions();
         goptions += g4system::defineOptions();
         goptions += gfields::defineOptions();

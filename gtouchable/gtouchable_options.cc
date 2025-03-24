@@ -1,14 +1,15 @@
 #include "gfactory_options.h"
 
 // project goption to a system
-namespace gfactory {
+namespace gtouchable {
 
 // returns array of options definitions
 GOptions defineOptions() {
 
-	GOptions goptions("plugins");
+	GOptions goptions("gtouchable");
 
 	return goptions;
 }
+
 
 }

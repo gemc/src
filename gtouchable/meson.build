@@ -4,14 +4,19 @@ LD += {
     'sources' : files(
         'gelectronic.cc',
         'gtouchable.cc',
+        'gtouchable_options.cc'
 
     ),
     'headers' : files(
         'gelectronic.h',
         'gtouchable.h',
-        'gtouchableConventions.h'
+        'gtouchableConventions.h',
+        'gtouchable_options.h'
+
     ),
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'test_basic_gtouchable' : [files('examples/simple.cc'), '']
+        'test_gtouchable_example' : [files('examples/gtouchable_example.cc'), ''],
+        'test_gtouchable_example_debug' : [files('examples/gtouchable_example.cc'), '-debug.gtouchable=1']
     }
 }

@@ -33,7 +33,6 @@ private:
 
 	int singleStep, indexStep;
 
-
 };
 
 
