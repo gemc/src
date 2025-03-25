@@ -11,15 +11,14 @@ using namespace std;
 
 // constructor from digitization and gidentity strings
 // called in GDetectorConstruction::ConstructSDandField
-// to register a new gtouchable in the sensitive detector gtouchable map
-GTouchable::GTouchable(string digitization, string gidentityString, vector<double> dimensions, GLogger *logger) :
+GTouchable::GTouchable(const std::string &digitization, const std::string &gidentityString, const std::vector<double> &dimensions, GLogger *logger) :
 		log(logger),
 		trackId(0),
 		eMultiplier(1),
 		stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),
 		detectorDimensions(dimensions) {
 
-	// gtype from digitization
+	// Determine the type based on the digitization string.
 	if (digitization == FLUXNAME) {
 		gType = flux;
 	} else if (digitization == COUNTERNAME) {
@@ -30,15 +29,16 @@ GTouchable::GTouchable(string digitization, string gidentityString, vector<doubl
 		gType = readout;
 	}
 
-	// the gidentity string is of the form: 'sector: 2, layer: 4, wire; 33'
-	// by construction in the API
-	vector <string> identity = gutilities::getStringVectorFromStringWithDelimiter(gidentityString, ",");
-	// each identity item is a string of the form 'sector: 2'
-	for (auto &gid: identity) {
-		vector <string> identifier = gutilities::getStringVectorFromStringWithDelimiter(gid, ":");
+	// Parse the gidentity string.
+	// Expected format: "sector: 2, layer: 4, wire: 33"
+	std::vector<std::string> identity = gutilities::getStringVectorFromStringWithDelimiter(gidentityString, ",");
+	// Process each identifier (e.g., "sector: 2").
+	for (auto &gid : identity) {
+		std::vector<std::string> identifier = gutilities::getStringVectorFromStringWithDelimiter(gid, ":");
 
-		string idName = identifier[0];
-		int idValue = stoi(identifier[1]);
+		// Note: In production, consider adding try-catch here to handle conversion errors.
+		std::string idName = identifier[0];
+		int idValue = std::stoi(identifier[1]);
 
 		gidentity.push_back(GIdentifier(idName, idValue));
 	}
@@ -46,8 +46,8 @@ GTouchable::GTouchable(string digitization, string gidentityString, vector<doubl
 }
 
 
-// copy constructor called in the non-overloaded processTouchable:
-// used in case the stepTimeIndex of the hit is different from the gtouchable one
+// Copy constructor to create a new hit, in case the time indices differ.
+// Used in the non-overloaded processTouchable when time indices differ.
 GTouchable::GTouchable(const GTouchable *baseGT, int newTimeIndex) {
 	gType = baseGT->gType;
 	gidentity = baseGT->gidentity;
@@ -58,91 +58,61 @@ GTouchable::GTouchable(const GTouchable *baseGT, int newTimeIndex) {
 }
 
 
-
-// copy constructor called in processTouchable
-// weight and time can be set by processTouchable
-//GTouchable::GTouchable(const GTouchable& baseGT, vector<GIdentifier> gid, float weight) :
-//gidentity(gid),
-//eMultiplier(weight) {
-//	gType             = baseGT.gType;
-//	verbosity         = baseGT.verbosity;
-//	trackId           = baseGT.trackId;
-//	stepTimeAtElectronics = baseGT.stepTimeAtElectronics;
-//}
-
-// copy constructor called in processTouchable
-// weight and time can be set by processTouchable
-//GTouchable::GTouchable(const GTouchable& baseGT, vector<GIdentifier> gid, float weight, float t) :
-//gidentity(gid),
-//eMultiplier(weight),
-//stepTimeAtElectronics(t) {
-//	gType         = baseGT.gType;
-//	verbosity     = baseGT.verbosity;
-//	trackId       = baseGT.trackId;
-//}
-
-
-// todo: optimize the algorithm
 // Overloaded "==" operator for the class 'GTouchable'
 bool GTouchable::operator==(const GTouchable &that) const {
 
-	log->debug(NORMAL, " Touchable comparison:  ");
-	for (size_t i = 0; i < that.gidentity.size(); i++) {
-		string comparisonResult = (this->gidentity[i].getValue() == that.gidentity[i].getValue()) ? " ✅" : " ❌";
-		log->debug(NORMAL, "   ", this->gidentity[i], " ", that.gidentity[i], comparisonResult);
-	}
-	if (this->gType == readout) {
-		string cellIndexComparison = (this->stepTimeAtElectronicsIndex == that.stepTimeAtElectronicsIndex) ? " ✅" : " ❌";
-		log->debug(NORMAL, "   time index: ", this->stepTimeAtElectronicsIndex, " ", that.stepTimeAtElectronicsIndex, cellIndexComparison);
-	}
-
-
-	// first, compare size of identity
+	// First, check if both gidentity vectors are the same size.
 	// this should never happen because the same sensitivity should be assigned the same identifier structure
 	if (this->gidentity.size() != that.gidentity.size()) {
-		log->debug(NORMAL, "Touchable sizes are different ");
+		log->debug(NORMAL, "Touchable sizes are different");
 		return false;
 	}
 
-	// now compare that the identity is actually the same
-	// return false if something is different
-	for (size_t i = 0; i < that.gidentity.size(); i++) {
-		if (this->gidentity[i].getValue() != that.gidentity[i].getValue()) {
-			log->debug(NORMAL, " Touchable gidentity  are different: ", this->gidentity[i], " ", that.gidentity[i]);
+	log->debug(NORMAL, "  + Touchable comparison:  ");
+	for (size_t i = 0; i < this->gidentity.size(); ++i) {
+		bool equal = (this->gidentity[i].getValue() == that.gidentity[i].getValue());
+		std::string comparisonResult = equal ? " ✅" : " ❌";
+		log->debug(NORMAL, "     ← ", this->gidentity[i], "   → ", that.gidentity[i], comparisonResult);
+		if (!equal) {
 			return false;
 		}
 	}
-	log->debug(NORMAL, " Touchable gidentity are the same. Now using type comparison");
+
 	bool typeComparison = false;
+	std::string result;
 
 	// all identities are the same
 	// now using gtouchable type
 	switch (this->gType) {
-
 		case readout:
 			typeComparison = this->stepTimeAtElectronicsIndex == that.stepTimeAtElectronicsIndex;
-			log->debug(NORMAL, " Touchable type is readout. Time cell comparison: ", this->stepTimeAtElectronicsIndex, " ", that.stepTimeAtElectronicsIndex);
+			result = typeComparison ? " ✅" : " ❌";
+			log->debug(NORMAL, "    Touchable type is readout. Time cell comparison: ", this->stepTimeAtElectronicsIndex, " ", that.stepTimeAtElectronicsIndex,
+					   " result:", result);
 			break;
 		case flux:
 			typeComparison = this->trackId == that.trackId;
-			log->debug(NORMAL, " Touchable type is flux. Track id comparison: ", this->trackId, " ", that.trackId);
+			result = typeComparison ? " ✅" : " ❌";
+			log->debug(NORMAL, "    Touchable type is flux. Track id comparison: ", this->trackId, " ", that.trackId,
+					   " result:", result);
 			break;
 		case dosimeter:
 			typeComparison =  this->trackId == that.trackId;
-			log->debug(NORMAL, " Touchable type is dosimeter. Track id comparison: ", this->trackId, " ");
+			result = typeComparison ? " ✅" : " ❌";
+			log->debug(NORMAL, "    Touchable type is dosimeter. Track id comparison: ", this->trackId, " ", that.trackId,
+					   " result:", result);
 			break;
 		case particleCounter:
 			typeComparison = true;
-			log->debug(NORMAL, " Touchable type is particleCounter. No additional comparison needed, returning true  ✅");
+			log->debug(NORMAL, "    Touchable type is particleCounter. No additional comparison needed, returning true  ✅");
 			break;
 	}
-	log->debug(NORMAL, " Touchable comparison result: ", typeComparison  ? " ✅\n" : " ❌\n");
 
 	return typeComparison;
 }
 
 // ostream GTouchable
-ostream &operator<<(ostream &stream, GTouchable gtouchable) {
+ostream &operator<<(ostream &stream, const GTouchable &gtouchable) {
 
 	stream << " GTouchable: ";
 	for (auto &gid: gtouchable.gidentity) {
@@ -172,8 +142,8 @@ ostream &operator<<(ostream &stream, GTouchable gtouchable) {
 	return stream;
 }
 
-// ostream GIdentifier
-ostream &operator<<(ostream &stream, GIdentifier gidentifier) {
+/// Overloaded output operator for GIdentifier.
+ostream &operator<<(ostream &stream, const GIdentifier &gidentifier) {
 	stream << gidentifier.idName << ": " << gidentifier.idValue;
 	return stream;
 }

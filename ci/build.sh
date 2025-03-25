@@ -34,7 +34,7 @@ echo " > $GEMC recursive content:"
 ls -lR $GEMC || exit 1
 
 echo " ldd of $GEMC/bin/gemc:"
-ldd $GEMC/bin/gemc || exit 1
+# ldd $GEMC/bin/gemc || exit 1
 
 # if $1 is NOT one of sanitize option, run meson test
 if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then

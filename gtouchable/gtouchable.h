@@ -8,10 +8,6 @@
 #include <string>
 #include <iostream>
 
-using std::string;
-using std::ostream;
-using std::vector;
-
 // - readout: electronic Time Window is the discriminating factor.
 //   parameters and hitBitSet determined by defineReadoutSpecs in the plugin
 // - flux: track id is the discriminating factor, standard true infos variable
@@ -61,88 +57,121 @@ public:
 	 */
 	inline std::string getName() const { return idName; }
 
-    inline int getValue() const { return idValue; }
+	/**
+	 * @brief Gets the identifier value.
+	 * @return The identifier value.
+	 */
+	inline int getValue() const { return idValue; }
 
 private:
-    string idName;
-    int idValue;
+	string idName;
+	int idValue;
 
-    // Logs GIdentifier on screen
-    friend ostream &operator<<(ostream &stream, GIdentifier gidentifier);
+	/// Overloaded output operator for GIdentifier.
+	friend std::ostream &operator<<(std::ostream &stream, const GIdentifier &gidentifier);
+
 };
 
-// GTouchable:
-// 1. Always use gidentifier as the main discriminating factor.
-// 2. If the gidentifier are the same, gType is used
-// Criteria in the overloaded == 
+
+/**
+ * @brief Represents a touchable sensitive detector element.
+ *
+ * The GTouchable class encapsulates properties and identification of a sensitive
+ * detector element used in hit processing and digitization.
+ * The key discriminating factors to check if the hit belongs to an existing hitcollection are:
+ *  - the gidentity vector
+ *  - the gType (if the gidentity vectors are the same)
+ *  The algorithm is implemented in the operator== method.
+ */
 class GTouchable {
 
 public:
-    // constructor called in GDetectorConstruction::ConstructSDandField
-    // to register a new gtouchable in the sensitive detector gtouchable map
-    GTouchable(string digitization, string gidentityString, vector<double> dimensions, GLogger* logger);
+	/**
+	* @brief Constructs a GTouchable from digitization and identifier strings.
+	*
+	* Called in GDetectorConstruction::ConstructSDandField to register a new
+	* GTouchable in the sensitive detector map.
+	*
+	* @param digitization The digitization type as a string.
+	* @param gidentityString The string specifying the gidentity (e.g., "sector: 2, layer: 4, wire: 33").
+	* @param dimensions The physical dimensions of the detector element.
+	* @param logger Pointer to the GLogger instance for logging messages.
+	*/
+	GTouchable(const std::string &digitization, const std::string &gidentityString, const std::vector<double> &dimensions, GLogger *logger);
 
-    // copy constructor called in the non-overloaded processTouchable:
-    // used in case the stepTimeIndex of the hit is different from the gtouchable one
-    GTouchable(const GTouchable *baseGT, int newTimeIndex);
+
+	/**
+	* @brief Copy constructor for updating the electronics time index.
+	*
+	* Used when the step time index of the hit is different from that of the GTouchable.
+	*
+	* @param baseGT Pointer to the base GTouchable.
+	* @param newTimeIndex The new electronics time index.
+	*/
+	GTouchable(const GTouchable *baseGT, int newTimeIndex);
 
 
-    // copy constructor called in processTouchable
-    // used for energy sharing (keeps time as is)
-    // need to provide the gidentity
-    //GTouchable(const GTouchable& baseGT, vector<GIdentifier> gidentity, float weight);
+	/**
+	* @brief Equality operator comparing two GTouchable objects.
+	*
+	* Comparison is based on the gidentity vector and, if needed, on a type-specific property.
+	*
+	* @param gtouchable The GTouchable to compare with.
+	* @return True if the objects are considered equal.
+	*/
+	bool operator==(const GTouchable &gtouchable) const;
 
-    // copy constructor called in processTouchable
-    // used for energy sharing and time propagation
-    // need to provide the gidentity
-    //GTouchable(const GTouchable& baseGT, vector<GIdentifier> gidentity, float weight, float t);
+	/**
+	* @brief Assigns a track identifier.
+	* @param tid The track id.
+	* Called in GSensitiveDetector::ProcessHits
+	*/
+	inline void assignTrackId(int tid) { trackId = tid; }
+
+	/**
+	* @brief Gets the energy multiplier.
+ 	* @return The energy multiplier.
+ 	*/
+	inline float getEnergyMultiplier() const { return eMultiplier; }
+
+	/**
+ 	* @brief Assigns the step time index used in electronics.
+	* @param timeIndex The new time index.
+ 	*/
+	inline void assignStepTimeAtElectronicsIndex(int timeIndex) { stepTimeAtElectronicsIndex = timeIndex; }
+
+	/**
+	* @brief Gets the electronics time index.
+	* @return The step time index.
+	*/
+	inline int getStepTimeAtElectronicsIndex() const { return stepTimeAtElectronicsIndex; }
+
+	/**
+	* @brief Returns the identifier vector.
+	* @return A vector of GIdentifier objects.
+	*/
+	inline const std::vector<GIdentifier> getIdentity() const { return gidentity; }
+
+	/**
+	* @brief Returns the detector dimensions.
+	* @return A vector containing the dimensions.
+	*/
+	inline const std::vector<double> getDetectorDimensions() const { return detectorDimensions; }
+
+
 
 private:
-	GLogger *log;
+	GLogger *log;                           ///< Logger instance (assumed to be managed externally; consider using a smart pointer if ownership semantics change).
+	GTouchableType gType;                   ///< The type of the touchable element.
+	std::vector <GIdentifier> gidentity;     ///< Unique identifiers for the detector element.
+	int trackId;                            ///< Track id (used in flux and dosimeter types). Assigned in sensitiveDetector::ProcessHit
+	float eMultiplier;                      ///< Energy multiplier for energy sharing. Set by processGTouchable in the digitization plugin. Defaulted to 1. Used to share energy / create new hits.
+	int stepTimeAtElectronicsIndex;         ///< Used to determine if a hit is within an existing detector readout electronic time window. Set by the digitization plugin using the readout specs.
+	std::vector<double> detectorDimensions; ///< Physical dimensions of the detector element. Saved to be used in GDynamicDigitization if needed
 
-    // set by sensitive detector constructor
-    GTouchableType gType;
-    vector <GIdentifier> gidentity;  // Uniquely identify a sensitive element
 
-    // set in sensitiveDetector::ProcessHit
-    // Used to determine if steps belong to the same hit for flux/particle counter detectors
-    int trackId;
-
-    // set by processGTouchable in the digitization plugin. Defaulted to 1. Used to share energy / create new hits.
-    // Energy Multiplier. By default, it is 1, but energy could be shared (or created) among volumes
-    float eMultiplier;
-
-    // stepTimeAtElectronicsIndex is used to determine if a hit is within
-    // an existing detector readout electronic time window
-    // stepTimeAtElectronicsIndex is set using assignStepTimeAtElectronicsIndex
-    // in gDynamicDigitization using the greadoutSpecs
-    int stepTimeAtElectronicsIndex;
-
-    // to print it out
-    friend ostream &operator<<(ostream &stream, GTouchable gtouchable);
-
-    // could be used in GDynamicDigitization when the dimensions are needed
-    vector<double> detectorDimensions;
-
-public:
-    // Overloaded "==" operator for the class 'GTouchable'
-    bool operator==(const GTouchable &gtouchable) const;
-
-    // called in GSensitiveDetector::ProcessHits
-    // void assignTimeAtElectronics(float t) {timeAtElectronics = t;}
-    inline void assignTrackId(int tid) { trackId = tid; }
-
-    inline float getEnergyMultiplier() const { return eMultiplier; }
-
-    inline void assignStepTimeAtElectronicsIndex(int timeIndex) { stepTimeAtElectronicsIndex = timeIndex; }
-
-    inline int getStepTimeAtElectronicsIndex() const { return stepTimeAtElectronicsIndex; }
-
-// api
-public:
-    inline const vector <GIdentifier> getIdentity() const { return gidentity; }
-
-    inline const vector<double> getDetectorDimensions() const { return detectorDimensions; }
+	/// Overloaded output operator for GTouchable.
+	friend std::ostream &operator<<(std::ostream &stream, const GTouchable &gtouchable);
 
 };
 
