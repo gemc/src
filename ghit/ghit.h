@@ -15,6 +15,9 @@
 // gemc
 #include "gtouchable.h"
 
+// c++
+#include <optional>
+
 /**
  * \class GHit
  * \brief Represents a hit in the detector.
