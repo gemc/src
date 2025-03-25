@@ -4,87 +4,99 @@
 // glibrary
 #include "gutsConventions.h"
 
-// notice: if the energy deposited is very low (~50eV)
-// the rounding error on the averave calculations could be up to 10^-3
 
-void GHit::calculateInfosForBit(int bit)
-{
-	// bit 0: always present
-	if ( bit == 0 ) {
+/**
+ * \brief Calculates averaged hit information for the specified bit.
+ *
+ * For bit 0, it calculates the total energy deposited, average time, and weighted average positions.
+ * The computation uses energy deposition as weights. For other bits, placeholders exist for future extensions.
+ * Notice: if the energy deposited is very low (~50eV), the rounding error on the average calculations could be up to 10^-3.
+ *
+ * \param bit The bit index for which to calculate the information.
+ */
+void GHit::calculateInfosForBit(int bit) {
+	// Bit 0: always present - calculate total energy, average time, and average positions.
+	if (bit == 0) {
+		double tote = getTotalEnergyDeposited();
 
-		if(totalEnergyDeposited == UNINITIALIZEDNUMBERQUANTITY) {
-			getTotalEnergyDeposited();
-		}
-
-		float  avgx = 0,  avgy = 0,  avgz = 0;
+		float avgx = 0, avgy = 0, avgz = 0;
 		float avglx = 0, avgly = 0, avglz = 0;
-		averageTime= 0;
+		averageTime = 0;
 
 		auto nsteps = edeps.size();
-		for ( size_t s=0; s<nsteps; s++) {
-			if ( totalEnergyDeposited > 0 ) {
-				averageTime += times[s]*edeps[s]/totalEnergyDeposited;
-				avgx  += globalPositions[s].getX()*edeps[s]/totalEnergyDeposited;
-				avgy  += globalPositions[s].getY()*edeps[s]/totalEnergyDeposited;
-				avgz  += globalPositions[s].getZ()*edeps[s]/totalEnergyDeposited;
-				avglx += localPositions[s].getX() *edeps[s]/totalEnergyDeposited;
-				avgly += localPositions[s].getY() *edeps[s]/totalEnergyDeposited;
-				avglz += localPositions[s].getZ() *edeps[s]/totalEnergyDeposited;
-			} else {
-				averageTime += times[s]/nsteps;
-				avgx  += globalPositions[s].getX()/nsteps;
-				avgy  += globalPositions[s].getY()/nsteps;
-				avgz  += globalPositions[s].getZ()/nsteps;
-				avglx += localPositions[s].getX() /nsteps;
-				avgly += localPositions[s].getY() /nsteps;
-				avglz += localPositions[s].getZ() /nsteps;
+		for (size_t s = 0; s < nsteps; s++) {
+			// Energy-weighted average.
+			if (tote > 0) {
+				averageTime += times[s] * edeps[s] / tote;
+				avgx += globalPositions[s].getX() * edeps[s] / tote;
+				avgy += globalPositions[s].getY() * edeps[s] / tote;
+				avgz += globalPositions[s].getZ() * edeps[s] / tote;
+				avglx += localPositions[s].getX() * edeps[s] / tote;
+				avgly += localPositions[s].getY() * edeps[s] / tote;
+				avglz += localPositions[s].getZ() * edeps[s] / tote;
+			} else { // Fallback to simple averaging if no energy is deposited.
+				averageTime += times[s] / nsteps;
+				avgx += globalPositions[s].getX() / nsteps;
+				avgy += globalPositions[s].getY() / nsteps;
+				avgz += globalPositions[s].getZ() / nsteps;
+				avglx += localPositions[s].getX() / nsteps;
+				avgly += localPositions[s].getY() / nsteps;
+				avglz += localPositions[s].getZ() / nsteps;
 			}
 		}
-		avgGlobalPosition = G4ThreeVector(avgx,  avgy,  avgz);
-		avgLocalPosition  = G4ThreeVector(avglx, avgly, avglz);
+		avgGlobalPosition = G4ThreeVector(avgx, avgy, avgz);
+		avgLocalPosition = G4ThreeVector(avglx, avgly, avglz);
 
-		if ( processNames.size() > 0) {
+		// Use the first process name if available.
+		if (!processNames.empty()) {
 			processName = processNames.front();
 		}
-		
-	} else if ( bit == 1 ) {
-
-	} else if ( bit == 2 ) {
-
-	} else if ( bit == 3 ) {
-
-	} else if ( bit == 4 ) {
-
+	}
+		// Future extensions for bits 1-4 can be added below.
+	else if (bit == 1) {
+		// Placeholder for step length and track information.
+	} else if (bit == 2) {
+		// Placeholder for mother particle tracks information.
+	} else if (bit == 3) {
+		// Placeholder for meta information.
+	} else if (bit == 4) {
+		// Placeholder for optical photon specific information.
 	}
 }
 
-float GHit::getTotalEnergyDeposited()
-{
-	if(totalEnergyDeposited == UNINITIALIZEDNUMBERQUANTITY) {
-		totalEnergyDeposited = 0;
 
-		for(const auto &ei: edeps) {
-			totalEnergyDeposited += ei;
+/**
+ * \brief Computes the total energy deposited.
+ *
+ * Sums the energy depositions over all steps.
+ *
+ * \return The total energy deposited.
+ */
+// Then in getTotalEnergyDeposited():
+float GHit::getTotalEnergyDeposited() {
+	if (!totalEnergyDeposited.has_value()) {
+		float sum = 0;
+		for (const auto &ei: edeps) {
+			sum += ei;
 		}
+		totalEnergyDeposited = sum;
 	}
-	return totalEnergyDeposited;
+	return totalEnergyDeposited.value();
 }
 
-float GHit::getAverageTime()
-{
-	if(averageTime == UNINITIALIZEDNUMBERQUANTITY) {
+float GHit::getAverageTime() {
+	if (averageTime == UNINITIALIZEDNUMBERQUANTITY) {
 
-		if(totalEnergyDeposited == UNINITIALIZEDNUMBERQUANTITY) {
-			getTotalEnergyDeposited();
-		}
+		double tote = getTotalEnergyDeposited();
+
 
 		averageTime = 0;
 		auto nsteps = edeps.size();
-		for ( size_t s=0; s<nsteps; s++) {
-			if ( totalEnergyDeposited > 0 ) {
-				averageTime += times[s]*edeps[s]/totalEnergyDeposited;
+		for (size_t s = 0; s < nsteps; s++) {
+			if (totalEnergyDeposited > 0) {
+				averageTime += times[s] * edeps[s] / tote;
 			} else {
-				averageTime += times[s]/nsteps;
+				averageTime += times[s] / nsteps;
 			}
 		}
 
@@ -94,61 +106,67 @@ float GHit::getAverageTime()
 }
 
 
-
+/**
+ * \brief Computes the average global position of the hit.
+ *
+ * Uses energy-weighted averaging if energy deposition is nonzero.
+ * \return The averaged global position as a G4ThreeVector.
+ */
 G4ThreeVector GHit::getAvgGlobaPosition() {
 
-	if ( avgGlobalPosition.getX() == UNINITIALIZEDNUMBERQUANTITY && avgGlobalPosition.getY() == UNINITIALIZEDNUMBERQUANTITY) {
+	if (avgGlobalPosition.getX() == UNINITIALIZEDNUMBERQUANTITY && avgGlobalPosition.getY() == UNINITIALIZEDNUMBERQUANTITY) {
 
-		if(totalEnergyDeposited == UNINITIALIZEDNUMBERQUANTITY) {
-			getTotalEnergyDeposited();
-		}
+		double tote = getTotalEnergyDeposited();
 
-		float  avgx = 0, avgy = 0, avgz = 0;
+		float avgx = 0, avgy = 0, avgz = 0;
 
 		auto nsteps = edeps.size();
-		for ( size_t s=0; s<nsteps; s++) {
-			if ( totalEnergyDeposited > 0 ) {
-				avgx  += globalPositions[s].getX()*edeps[s]/totalEnergyDeposited;
-				avgy  += globalPositions[s].getY()*edeps[s]/totalEnergyDeposited;
-				avgz  += globalPositions[s].getZ()*edeps[s]/totalEnergyDeposited;
+		for (size_t s = 0; s < nsteps; s++) {
+			if (totalEnergyDeposited > 0) {
+				avgx += globalPositions[s].getX() * edeps[s] / tote;
+				avgy += globalPositions[s].getY() * edeps[s] / tote;
+				avgz += globalPositions[s].getZ() * edeps[s] / tote;
 			} else {
-				averageTime += times[s]/nsteps;
-				avgx  += globalPositions[s].getX()/nsteps;
-				avgy  += globalPositions[s].getY()/nsteps;
-				avgz  += globalPositions[s].getZ()/nsteps;
+				averageTime += times[s] / nsteps;
+				avgx += globalPositions[s].getX() / nsteps;
+				avgy += globalPositions[s].getY() / nsteps;
+				avgz += globalPositions[s].getZ() / nsteps;
 			}
 		}
-		avgGlobalPosition = G4ThreeVector(avgx,  avgy,  avgz);
+		avgGlobalPosition = G4ThreeVector(avgx, avgy, avgz);
 	}
 
 	return avgGlobalPosition;
 }
 
+/**
+ * \brief Computes the average local position of the hit.
+ *
+ * Uses energy-weighted averaging if available.
+ * \return The averaged local position as a G4ThreeVector.
+ */
 G4ThreeVector GHit::getAvgLocalPosition() {
 
-	if ( avgLocalPosition.getX() == UNINITIALIZEDNUMBERQUANTITY && avgLocalPosition.getY() == UNINITIALIZEDNUMBERQUANTITY) {
+	if (avgLocalPosition.getX() == UNINITIALIZEDNUMBERQUANTITY && avgLocalPosition.getY() == UNINITIALIZEDNUMBERQUANTITY) {
 
-		if(totalEnergyDeposited == UNINITIALIZEDNUMBERQUANTITY) {
-			getTotalEnergyDeposited();
-		}
+		double tote = getTotalEnergyDeposited();
 
-
-		float  avgx = 0, avgy = 0, avgz = 0;
+		float avgx = 0, avgy = 0, avgz = 0;
 
 		auto nsteps = edeps.size();
-		for ( size_t s=0; s<nsteps; s++) {
-			if ( totalEnergyDeposited > 0 ) {
-				avgx  += localPositions[s].getX()*edeps[s]/totalEnergyDeposited;
-				avgy  += localPositions[s].getY()*edeps[s]/totalEnergyDeposited;
-				avgz  += localPositions[s].getZ()*edeps[s]/totalEnergyDeposited;
+		for (size_t s = 0; s < nsteps; s++) {
+			if (totalEnergyDeposited > 0) {
+				avgx += localPositions[s].getX() * edeps[s] / tote;
+				avgy += localPositions[s].getY() * edeps[s] / tote;
+				avgz += localPositions[s].getZ() * edeps[s] / tote;
 			} else {
-				averageTime += times[s]/nsteps;
-				avgx  += localPositions[s].getX()/nsteps;
-				avgy  += localPositions[s].getY()/nsteps;
-				avgz  += localPositions[s].getZ()/nsteps;
+				averageTime += times[s] / nsteps;
+				avgx += localPositions[s].getX() / nsteps;
+				avgy += localPositions[s].getY() / nsteps;
+				avgz += localPositions[s].getZ() / nsteps;
 			}
 		}
-		avgLocalPosition = G4ThreeVector(avgx,  avgy,  avgz);
+		avgLocalPosition = G4ThreeVector(avgx, avgy, avgz);
 
 	}
 	return avgLocalPosition;

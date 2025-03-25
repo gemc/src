@@ -1,9 +1,6 @@
 #ifndef  GHIT_H
 #define  GHIT_H 1
 
-// This example is based on B4cCalorHit in  examples/basic/B4/B4c
-// find with locate examples/basic/B4/B4c
-
 // HitBitSet definition
 #include "ghitConventions.h"
 
@@ -15,29 +12,64 @@
 #include "G4Step.hh"
 #include "G4Colour.hh"
 
-// glibrary
+// gemc
 #include "gtouchable.h"
 
-class GHit : public G4VHit
-{
+/**
+ * \class GHit
+ * \brief Represents a hit in the detector.
+ *
+ * This class is derived from G4VHit and is used to store information about
+ * a detector hit. It collects standard hit data (energy, time, positions) as well
+ * as additional information based on a configurable HitBitSet.
+ */
+class GHit : public G4VHit {
 public:
-	GHit(GTouchable *gt, const G4Step* thisStep, const HitBitSet hbs, const string cScheme = "default");
+	/**
+	 * \brief Constructor for GHit.
+	 * \param gt Pointer to the GTouchable that produced the hit.
+	 * \param thisStep Pointer to the G4Step associated with the hit.
+	 * \param hbs Bitset selecting which hit information to record.
+	 * \param cScheme Color schema for visualization (default is "default").
+	 */
+	GHit(GTouchable *gt, const HitBitSet hbs, const G4Step *thisStep = nullptr, const string cScheme = "default");
 
-	virtual ~GHit();
+	/**
+	 * \brief Destructor for GHit.
+	 */
+	virtual ~GHit() override;
 
-	// examples/basic/B4/B4c/include/CalorHit
-	inline void* operator new(size_t);
-	inline void  operator delete(void*);
-	// Overloaded "==" operator for the class 'GHit'
-	// bool operator== (const GHit& that) const;
+	/**
+	 * \brief Overloaded new operator using G4Allocator.
+	 * \param size Size of the object to allocate.
+	 * \return Pointer to allocated memory.
+	 */
+	inline void *operator new(size_t);
 
-	// G4VHit: draws an object at hit location
-	void Draw();
+	/**
+	 * \brief Overloaded delete operator using G4Allocator.
+	 * \param pointer Pointer to the object to deallocate.
+	 */
+	inline void operator delete(void *);
+
+	/**
+	 * \brief Draws the hit using Geant4 visualization.
+	 */
+	void Draw() override;
+
+	/**
+	 * @brief Compare two ghits
+	 * @param hit
+	 * @return Returns true if this gtouchable is the same as the one in the hit.
+	 */
+	bool is_same_hit(GHit *hit);
 
 private:
 
 	G4Colour colour_touch, colour_hit, colour_passby;
+
 	bool setColorSchema();
+
 	string colorSchema;
 
 	// GTouchable saved here so it can be used in the overloaded == function
@@ -46,56 +78,126 @@ private:
 	// hit data, selected by HitBitSet, to be collected for each step
 	// always present:
 	vector<float> edeps, times;
-	vector<G4ThreeVector> globalPositions;
-	vector<G4ThreeVector> localPositions;
+	vector <G4ThreeVector> globalPositions;
+	vector <G4ThreeVector> localPositions;
 
 	// bit 1
 	vector<int> pids;
 	vector<float> Es;
-	vector<string> processNames;
+	vector <string> processNames;
 
 	// bit 2
 	vector<float> stepSize;
 
 	// calculated/single quantities
-	// initialized to UNINITIALIZEDNUMBERQUANTITY. Set/retrieved with methods below
-	float totalEnergyDeposited;
+	std::optional<float> totalEnergyDeposited;
 	float averageTime;
 	G4ThreeVector avgGlobalPosition;
 	G4ThreeVector avgLocalPosition;
 	string processName;
 
 	// build hit information based on the bit index and the touchable
-	bool addHitInfosForBitIndex(size_t bitIndex, const bool test, const G4Step* thisStep);
+	bool addHitInfosForBitIndex(size_t bitIndex, const bool test, const G4Step *thisStep);
 
 public:
-	// public interface: getting step by step quantities
-	inline const vector<float> getEdeps()                   const { return edeps;}
-	inline const vector<float> getTimes()                   const { return times;}
-	inline const vector<G4ThreeVector> getGlobalPositions() const { return globalPositions;}
-	inline const vector<G4ThreeVector> getLocalPositions()  const { return localPositions; }
-	inline const vector<int> getPids()                      const { return pids;}
-	inline int getPid()                               const { return pids.front();}
-	inline vector<float> getEs()                      const { return Es;}
-	inline float getE()                               const { return Es.front();}
-	inline const string getProcessName()                    const { return processName; }
+	// inline getters for hit information:
+	/**
+	   * \brief Gets the energy depositions from each step.
+	   * \return A vector of energy deposition values.
+	   */
+	inline const vector<float> getEdeps() const { return edeps; }
+
+	/**
+	 * \brief Gets the time stamps for each step.
+	 * \return A vector of time values.
+	 */
+	inline const vector<float> getTimes() const { return times; }
+
+	/**
+	 * \brief Gets the global positions recorded for the hit.
+	 * \return A vector of G4ThreeVector representing global positions.
+	 */
+	inline const vector <G4ThreeVector> getGlobalPositions() const { return globalPositions; }
+
+	/**
+	  * \brief Gets the local positions recorded for the hit.
+	  * \return A vector of G4ThreeVector representing local positions.
+	  */
+	inline const vector <G4ThreeVector> getLocalPositions() const { return localPositions; }
+
+	/**
+	 * \brief Gets the particle IDs recorded for the hit.
+	 * \return A vector of integer particle IDs.
+	 */
+	inline const vector<int> getPids() const { return pids; }
+
+	/**
+	 * \brief Returns the first particle ID.
+	 * \note This method assumes that the 'pids' vector is not empty.
+	 * \return The first particle ID.
+	 */
+	inline int getPid() const { return pids.front(); }
+
+	/**
+	 * \brief Gets the energy values recorded in bit 1.
+	 * \return A vector of energy values.
+	 */
+	inline vector<float> getEs() const { return Es; }
+
+	/**
+	 * \brief Returns the first energy value.
+	 * \note Assumes Es is non-empty.
+	 * \return The first energy value.
+	 */
+	inline float getE() const { return Es.front(); }
+
+	/**
+	 * \brief Gets the process name associated with the hit.
+	 * \return The process name string.
+	 */
+	inline const string getProcessName() const { return processName; }
+
+	/**
+   * \brief Returns the GTouchable associated with the hit.
+   * \return Pointer to the GTouchable.
+   */
+	inline const GTouchable *getGTouchable() const { return gtouchable; }
+
+	/**
+	 * \brief Returns the detector element identity.
+	 * \return A vector of GIdentifier.
+	 */
+	inline const vector <GIdentifier> getGID() const { return gtouchable->getIdentity(); }
+
+	/**
+     * \brief Returns the dimensions of the detector element.
+     * \return A vector of double containing the dimensions.
+     */
+	inline const vector<double> getDetectorDimensions() const { return gtouchable->getDetectorDimensions(); }
 
 	// calculated quantities
 	void calculateInfosForBit(int bit);
+
 	float getTotalEnergyDeposited();
+
 	float getAverageTime();
+
 	G4ThreeVector getAvgLocalPosition();
+
 	G4ThreeVector getAvgGlobaPosition();
 
 	// gemc api
 	// build hit information based on the G4Step
-	void addHitInfosForBitset(const HitBitSet hbs, const G4Step* thisStep);
+	void addHitInfosForBitset(const HitBitSet hbs, const G4Step *thisStep);
 
-	inline const GTouchable*         getGTouchable()         const { return gtouchable; }
-	inline const vector<GIdentifier> getGID()                const { return gtouchable->getIdentity(); }
-	inline const vector<double>      getDetectorDimensions() const { return gtouchable->getDetectorDimensions(); }
 
-	// returns gtouchable identity values
+	/**
+	 * \brief Returns the touchable identity values as integers.
+	 *
+	 * Iterates over the GIdentifier vector from the associated GTouchable.
+	 *
+	 * \return A vector of integer identity values.
+	 */
 	vector<int> getTTID();
 
 };
@@ -103,26 +205,21 @@ public:
 // MT definitions, as from:
 // https://twiki.cern.ch/twiki/bin/view/Geant4/QuickMigrationGuideForGeant4V10
 extern G4ThreadLocal G4Allocator<GHit>* GHitAllocator;
+using GHitsCollection = G4THitsCollection<GHit>;
 
-using GHitsCollection = G4THitsCollection<GHit> ;
-
-inline void* GHit::operator new(size_t)
-{
-	if(!GHitAllocator) GHitAllocator = new G4Allocator<GHit>;
+inline void *GHit::operator new(size_t) {
+	if (!GHitAllocator) GHitAllocator = new G4Allocator<GHit>;
 	return (void *) GHitAllocator->MallocSingle();
 
 }
 
-inline void GHit::operator delete(void *hit)
-{
+inline void GHit::operator delete(void *hit) {
 	if (!GHitAllocator) {
 		GHitAllocator = new G4Allocator<GHit>;
 	}
 
-	GHitAllocator->FreeSingle((GHit*) hit);
+	GHitAllocator->FreeSingle((GHit *) hit);
 }
-
-
 
 
 #endif

@@ -70,7 +70,7 @@ private:
 	// checking if it is present in the set. If not, add it.
 	bool isThisANewTouchable(const GTouchable* thisTouchable);
 
-	// GHit collection is G4THitsCollection<GHit>
+	// GHitsCollection is G4THitsCollection<GHit>
 	// GHit is a G4VHit. Its thread memory management come with geant4
 	// The collection of pointers is used in G4GRun, passed to the digitizer plugins
 	GHitsCollection *gHitsCollection;

@@ -63,6 +63,8 @@ public:
 	 */
 	inline int getValue() const { return idValue; }
 
+
+
 private:
 	string idName;
 	int idValue;
@@ -158,7 +160,23 @@ public:
 	*/
 	inline const std::vector<double> getDetectorDimensions() const { return detectorDimensions; }
 
+	/**
+	 * @brief Checks if the GTouchable is found in a vector of GTouchable objects.
+	 * @param v The vector of GTouchable objects.
+	 * @return True if the GTouchable is found in the vector.
+	 */
 
+	bool exists_in_vector(const std::vector<GTouchable> &v) const {
+		for (const auto &gt : v) {
+			if (*this == gt) {
+				log->info("GTouchable", this, " exists in vector.");
+				return true;
+			}
+		}
+		log->info("GTouchable", this, " does not exist in vector.");
+
+		return false;
+	}
 
 private:
 	GLogger *log;                           ///< Logger instance (assumed to be managed externally; consider using a smart pointer if ownership semantics change).
@@ -174,6 +192,5 @@ private:
 	friend std::ostream &operator<<(std::ostream &stream, const GTouchable &gtouchable);
 
 };
-
 
 #endif

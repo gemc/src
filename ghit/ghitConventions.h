@@ -5,7 +5,7 @@
 #include <bitset>
 
 // number of bits that defines a ghit.
-#define NHITBITS 6
+constexpr size_t NHITBITS = 6;
 
 using HitBitSet = std::bitset<NHITBITS> ;
 

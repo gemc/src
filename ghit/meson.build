@@ -10,8 +10,9 @@ LD += {
         'ghit.h',
         'ghitConventions.h'
     ),
-    'dependencies' : [clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'test_basic_hit' : [files('examples/simple.cc'), '']
+        'test_ghit' : [files('examples/ghit_example.cc'), ''],
+        'test_ghit_debug' : [files('examples/ghit_example.cc'), '-debug.gtouchable=1']
     }
 }

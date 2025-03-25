@@ -103,29 +103,32 @@ G4bool GSensitiveDetector::ProcessHits(G4Step *thisStep, [[maybe_unused]] G4Touc
 }
 
 // checking if it is present in the set. If not, add it.
-bool GSensitiveDetector::isThisANewTouchable(const GTouchable *thisTouchable) {
 
-    if (verbosity >= GVERBOSITY_SUMMARY) {
-        G4cout << " isThisANewTouchable for " << *thisTouchable;
-    }
+// replaced by exists_in_vector in gtouchable
 
-    // if not found insert and return true: it's a new
-	// this uses the gtouchable == operator so it's expensive to do this at every step - but we have to
-    auto gt_iterator = find(touchableVector.begin(), touchableVector.end(), *thisTouchable);
-
-    if (gt_iterator == touchableVector.end()) {
-        if (verbosity >= GVERBOSITY_DETAILS) {
-            G4cout << " ✅ yes, new GTouchable. Adding it to touchableVector. " << G4endl;
-        }
-        touchableVector.push_back(*thisTouchable);
-        return true;
-    } else {
-        if (verbosity >= GVERBOSITY_DETAILS) {
-            G4cout << " ❌ no, GTouchable is found, retrieving hit...";
-        }
-        return false;
-    }
-}
+//bool GSensitiveDetector::isThisANewTouchable(const GTouchable *thisTouchable) {
+//
+//    if (verbosity >= GVERBOSITY_SUMMARY) {
+//        G4cout << " isThisANewTouchable for " << *thisTouchable;
+//    }
+//
+//    // if not found insert and return true: it's a new
+//	// this uses the gtouchable == operator so it's expensive to do this at every step - but we have to
+//    auto gt_iterator = find(touchableVector.begin(), touchableVector.end(), *thisTouchable);
+//
+//    if (gt_iterator == touchableVector.end()) {
+//        if (verbosity >= GVERBOSITY_DETAILS) {
+//            G4cout << " ✅ yes, new GTouchable. Adding it to touchableVector. " << G4endl;
+//        }
+//        touchableVector.push_back(*thisTouchable);
+//        return true;
+//    } else {
+//        if (verbosity >= GVERBOSITY_DETAILS) {
+//            G4cout << " ❌ no, GTouchable is found, retrieving hit...";
+//        }
+//        return false;
+//    }
+//}
 
 
 GHit *GSensitiveDetector::getHitInHitCollectionUsingTouchable(const GTouchable *gtouchable) {

@@ -57,7 +57,6 @@ GTouchable::GTouchable(const GTouchable *baseGT, int newTimeIndex) {
 	stepTimeAtElectronicsIndex = newTimeIndex;
 }
 
-
 // Overloaded "==" operator for the class 'GTouchable'
 bool GTouchable::operator==(const GTouchable &that) const {
 
