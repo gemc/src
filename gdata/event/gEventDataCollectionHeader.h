@@ -38,7 +38,7 @@ public:
 private:
 	int g4localEventNumber;  // G4Run-local 
 	int threadID;
-	GLogger *log;
+	GLogger * const log;
 
 	string assignTimeStamp() {
 		time_t now = time(NULL);

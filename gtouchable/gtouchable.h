@@ -99,7 +99,7 @@ public:
 	* @param dimensions The physical dimensions of the detector element.
 	* @param logger Pointer to the GLogger instance for logging messages.
 	*/
-	GTouchable(const std::string &digitization, const std::string &gidentityString, const std::vector<double> &dimensions, GLogger *logger);
+	GTouchable(const std::string &digitization, const std::string &gidentityString, const std::vector<double> &dimensions, GLogger * const logger);
 
 
 	/**
@@ -183,7 +183,7 @@ public:
 	}
 
 private:
-	GLogger *log;                           ///< Logger instance (assumed to be managed externally; consider using a smart pointer if ownership semantics change).
+	GLogger * const log;                           ///< Logger instance (assumed to be managed externally; consider using a smart pointer if ownership semantics change).
 	GTouchableType gType;                   ///< The type of the touchable element.
 	std::vector <GIdentifier> gidentity;     ///< Unique identifiers for the detector element.
 	int trackId;                            ///< Track id (used in flux and dosimeter types). Assigned in sensitiveDetector::ProcessHit

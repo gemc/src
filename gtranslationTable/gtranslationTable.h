@@ -66,7 +66,7 @@ private:
 	std::string formTTKey(const std::vector<int>& identity) const;
 
 	/// Pointer to a logger instance for logging messages.
-	GLogger *log;
+	GLogger * const log;
 
 };
 

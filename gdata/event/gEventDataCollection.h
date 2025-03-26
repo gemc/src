@@ -50,7 +50,7 @@ public:
 
 private:
 
-	GLogger *log;
+	GLogger * const log;
 	GEventDataCollectionHeader *gheader = nullptr;
 
 	// key is sensitive detector name

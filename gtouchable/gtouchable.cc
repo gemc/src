@@ -11,7 +11,7 @@ using namespace std;
 
 // constructor from digitization and gidentity strings
 // called in GDetectorConstruction::ConstructSDandField
-GTouchable::GTouchable(const std::string &digitization, const std::string &gidentityString, const std::vector<double> &dimensions, GLogger *logger) :
+GTouchable::GTouchable(const std::string &digitization, const std::string &gidentityString, const std::vector<double> &dimensions, GLogger * const logger) :
 		log(logger),
 		trackId(0),
 		eMultiplier(1),
@@ -50,7 +50,7 @@ GTouchable::GTouchable(const std::string &digitization, const std::string &giden
 
 // Copy constructor to create a new hit, in case the time indices differ.
 // Used in the non-overloaded processTouchable when time indices differ.
-GTouchable::GTouchable(const GTouchable *baseGT, int newTimeIndex) {
+GTouchable::GTouchable(const GTouchable *baseGT, int newTimeIndex) : log(baseGT->log)  {
 	gType = baseGT->gType;
 	gidentity = baseGT->gidentity;
 	trackId = baseGT->trackId;

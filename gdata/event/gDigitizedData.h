@@ -21,7 +21,12 @@ class GDigitizedData {
 	
 public:
 
-	GDigitizedData(GHit *ghit);
+	GDigitizedData(GHit *ghit, GLogger *logger);
+
+	~GDigitizedData() {
+		log->debug(DESTRUCTOR, "GDigitizedData");
+	}
+
 	vector<GIdentifier> getIdentity() const {return gidentity;}
 
 	// public interface to add data to a hit
@@ -59,6 +64,8 @@ private:
 	vector<GIdentifier> gidentity;
 
 	bool validVarName(string varName, int which) const;
+
+	GLogger * const log;
 
 };
 
