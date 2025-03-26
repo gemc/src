@@ -9,8 +9,7 @@ void GEventDataCollection::addDetectorTrueInfoData(string sdName, GTrueInfoData 
 		(*gdataCollectionMap)[sdName] = new GDataCollection();
 	}
 	(*gdataCollectionMap)[sdName]->addTrueInfoData(data);
-
-
+	log.info(2, "GEventDataCollection: added new detector TrueInfoData for ", sdName);
 }
 
 void GEventDataCollection::addDetectorDigitizedData(string sdName, GDigitizedData *data) {
@@ -20,8 +19,7 @@ void GEventDataCollection::addDetectorDigitizedData(string sdName, GDigitizedDat
 		(*gdataCollectionMap)[sdName] = new GDataCollection();
 	}
 	(*gdataCollectionMap)[sdName]->addDigitizedData(data);
-
-
+	log.info(2, "GEventDataCollection: added new detector DigitizedData for ", sdName);
 }
 
 

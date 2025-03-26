@@ -9,6 +9,7 @@
 #include <string>
 #include <map>
 #include <vector>
+
 using std::string;
 using std::map;
 using std::vector;
@@ -19,14 +20,14 @@ class GDataCollection {
 
 public:
 	GDataCollection() {
-		trueInfosData  = new vector<GTrueInfoData*>;
-		digitizedData  = new vector<GDigitizedData*>;
+		trueInfosData = new vector<GTrueInfoData *>;
+		digitizedData = new vector<GDigitizedData *>;
 	}
-	
+
 	~GDataCollection() {
 
-		for ( auto* hit: (*trueInfosData) )  { delete hit; }
-		for ( auto* hit: (*digitizedData) )  { delete hit; }
+		for (auto *hit: (*trueInfosData)) { delete hit; }
+		for (auto *hit: (*digitizedData)) { delete hit; }
 
 		delete trueInfosData;
 		delete digitizedData;
@@ -36,21 +37,26 @@ public:
 public:
 
 	// public interface to add hit
-	void addTrueInfoData( GTrueInfoData *data);
-	void addDigitizedData(GDigitizedData *data);
+	void addTrueInfoData(GTrueInfoData *data) {
+		trueInfosData->push_back(data);
+	}
+
+	void addDigitizedData(GDigitizedData *data) {
+		digitizedData->push_back(data);
+	}
 
 	// one entry / hit
-	inline const vector<GTrueInfoData*>  *getTrueInfoData()  const { return trueInfosData;}
-	inline const vector<GDigitizedData*> *getDigitizedData() const { return digitizedData;}
+	inline const vector<GTrueInfoData *> *getTrueInfoData() const { return trueInfosData; }
+
+	inline const vector<GDigitizedData *> *getDigitizedData() const { return digitizedData; }
 
 private:
 
 	// index is hit number
-	vector<GTrueInfoData*>  *trueInfosData = nullptr;
-	vector<GDigitizedData*> *digitizedData = nullptr;
+	vector<GTrueInfoData *> *trueInfosData = nullptr;
+	vector<GDigitizedData *> *digitizedData = nullptr;
 
 };
-
 
 
 #endif

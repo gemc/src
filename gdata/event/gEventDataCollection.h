@@ -13,13 +13,13 @@ class GEventDataCollection {
 public:
 	// notice that the logger must come here with the 'gdata' name in the constructor
 	GEventDataCollection(GEventDataCollectionHeader *header, GLogger *logger) : gheader(header), log(logger) {
-		log.debug(CONSTRUCTOR, "GEventDataCollection");
+		log->debug(CONSTRUCTOR, "GEventDataCollection");
 		gdataCollectionMap = new map<string, GDataCollection *>();
 	}
 
 	~GEventDataCollection() {
 
-		log.debug(DESTRUCTOR, "GEventDataCollection");
+		log->debug(DESTRUCTOR, "GEventDataCollection");
 
 		// PRAGMA TODO: what do delete here?
 		for (auto &[keys, values]: (*gdataCollectionMap)) {
@@ -27,6 +27,7 @@ public:
 		}
 		delete gheader;
 		delete gdataCollectionMap;
+		delete log;
 	}
 
 public:
