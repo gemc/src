@@ -2,10 +2,17 @@
 #define  GTRANSLATIONTABLE_H_DOXY 1
 
 /**
- * \mainpage
- * \section main Overview
+ * \mainpage GTranslationTable Documentation
  *
- * The translation table framework provides an interface between an hardware object <Crate Slot Channel> and an identifier (a vector of int) \n
+ * \section intro_sec Introduction
+ *
+ * The GTranslationTable class provides a mapping between a vector-based identity and a GElectronic object.
+ * It is used to add and retrieve GElectronic configurations by a unique identity.
+ *
+ * \section usage_sec Usage
+ *
+ * To add a GElectronic, use \ref addGElectronicWithIdentity. To retrieve an electronic configuration,
+ * use \ref getElectronics. The table can be printed using the \ref print method.
  *
  *
  * \n\n

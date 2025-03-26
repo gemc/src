@@ -1,12 +1,12 @@
-#include "gtouchable_options.h"
+#include "gtranslationTable_options.h"
 
 // project goption to a system
-namespace gtouchable {
+namespace gtranslationTable {
 
 // returns array of options definitions
 GOptions defineOptions() {
 
-	GOptions goptions("gtouchable");
+	GOptions goptions("gtranslationTable");
 
 	return goptions;
 }

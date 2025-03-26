@@ -5,15 +5,12 @@
 // gemc
 #include "glogger.h"
 
-// c++
-#include <iostream>
-
 using namespace std;
 
 int main(int argc, char *argv[]) {
 
 	GOptions *gopts = new GOptions(argc, argv, gtouchable::defineOptions());
-	GLogger *log = new GLogger(gopts, "GTouchable", "gtouchable");
+	GLogger *log = new GLogger(gopts, "gtouchable");
 
 	string first_identity = "sector: 98, paddle: 98";
 	vector<double> first_dimensions = {1.0, 20.0, 98.0};
@@ -30,6 +27,10 @@ int main(int argc, char *argv[]) {
 			log->info(" GTouchable: ", ctof, " is equal: ", is_equal);
 		}
 	}
+
+	// clean up
+	delete log;
+	delete gopts;
 
 	return EXIT_SUCCESS;
 }

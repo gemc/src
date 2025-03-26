@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
 	GOptions *gopts = new GOptions(argc, argv, gfactory::defineOptions());
 
-	GLogger log(gopts, "GFactory", "general");
+	GLogger log(gopts, "plugins");
 
 	GManager managerAV(gopts, "exampleAV");    // no verbosity
 	managerAV.RegisterObjectFactory<Triangle>("triangle");

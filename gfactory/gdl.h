@@ -47,7 +47,7 @@ public:
 	DynamicLib() = default;
 
 	// path here is the filename
-	DynamicLib(GOptions *g, std::string path) : dlFileName(path), log(g, "Plugins", "plugins"), handle(nullptr) {
+	DynamicLib(GOptions *g, std::string path) : dlFileName(path), log(g, "plugins"), handle(nullptr) {
 
 		log.debug(CONSTRUCTOR, "Instantiating ", path);
 		log.debug(NORMAL, "Trying ", dlFileName);

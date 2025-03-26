@@ -483,7 +483,12 @@ int GOptions::getVerbosityFor(const std::string &tag) const {
 			return v.begin()->second.as<int>();
 		}
 	}
-	return 0;
+
+	std::cout << " HELLO tag <" << tag << ">,  node: " << verbosity_node << endl;
+
+	// not found. error
+	std::cerr << KRED << " Invalid verbosity or debug requested: " << tag << RST << std::endl;
+	exit(EC__NOOPTIONFOUND);
 }
 
 /**
@@ -512,8 +517,9 @@ int GOptions::getDebugFor(const std::string &tag) const {
 			}
 		}
 	}
-	return 0;
-}
+	// not found. error
+	std::cerr << KRED << " Invalid verbosity or debug requested: " << tag << RST << std::endl;
+	exit(EC__NOOPTIONFOUND);}
 
 /**
  * @brief Prints general help information to the console.

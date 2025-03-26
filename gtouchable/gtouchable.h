@@ -113,6 +113,10 @@ public:
 	GTouchable(const GTouchable *baseGT, int newTimeIndex);
 
 
+	~GTouchable() {
+		log->debug(DESTRUCTOR, "GTouchable");
+	}
+
 	/**
 	* @brief Equality operator comparing two GTouchable objects.
 	*

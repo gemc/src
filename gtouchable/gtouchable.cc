@@ -18,6 +18,8 @@ GTouchable::GTouchable(const std::string &digitization, const std::string &giden
 		stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),
 		detectorDimensions(dimensions) {
 
+	log->debug(NORMAL, "GTouchable constructor: ", digitization, " ", gidentityString);
+
 	// Determine the type based on the digitization string.
 	if (digitization == FLUXNAME) {
 		gType = flux;

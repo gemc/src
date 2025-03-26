@@ -15,7 +15,7 @@ using namespace std;
 int main(int argc, char *argv[]) {
 
 	GOptions *gopts = new GOptions(argc, argv, gtouchable::defineOptions());
-	GLogger *log = new GLogger(gopts, "GTouchable", "gtouchable");
+	GLogger *log = new GLogger(gopts, "gtouchable");
 
 	HitBitSet hitBitSet;
 
@@ -45,10 +45,17 @@ int main(int argc, char *argv[]) {
 				}
 			}
 		}
+		delete hit;
+		delete ctof;
 	}
 
-
-
+	// cleaning up
+	for (auto &hit: hits) {
+		delete hit;
+	}
+	delete first_ctof;
+	delete log;
+	delete gopts;
 
 	return EXIT_SUCCESS;
 }

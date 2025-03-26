@@ -29,13 +29,12 @@ public:
 	/**
 	 * @brief Constructs a GLogger instance.
 	 * @param gopts Pointer to GOptions instance used for verbosity/debug lookup.
-	 * @param header A prefix string used in all log outputs.
-	 * @param category_name The category for fetching verbosity/debug levels from GOptions.
+	 * @param name The verbosity or debyg name is string used to identify the logger and as header for all messages
 	 */
-	explicit GLogger(GOptions* gopts, std::string header, std::string category_name)
-			: log_header(std::move(header)), log_counter(0) {
-		verbosity_level = gopts->getVerbosityFor(category_name);
-		debug_level = gopts->getDebugFor(category_name);
+	explicit GLogger(GOptions* gopts, std::string vname)
+			: name(std::move(vname)), log_counter(0) {
+		verbosity_level = gopts->getVerbosityFor(name);
+		debug_level = gopts->getDebugFor(name);
 	}
 
 	// default constructor
@@ -151,7 +150,7 @@ public:
 	}
 
 private:
-	std::string log_header;       ///< Prefix for all messages
+	std::string name;       ///< Prefix for all messages
 	int verbosity_level;          ///< Verbosity level (0 = low, >0 = detailed)
 	int debug_level;              ///< Debug level: 0 = off, 1 = normal, 10/-10 = ctor/dtor
 
@@ -165,7 +164,7 @@ private:
 	 */
 	[[nodiscard]] std::string header_string() const {
 		log_counter++;
-		return log_header + " [" + std::to_string(log_counter.load()) + "] ";
+		return name + " [" + std::to_string(log_counter.load()) + "] ";
 	}
 };
 

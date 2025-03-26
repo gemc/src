@@ -73,7 +73,7 @@ public:
      - 0: no not print any log
      - 1: print gmanager registering and instantiating classes
      */
-    GManager(GOptions* g, std::string name) :gname(name),  gopts(g), log(g, "Plugins Manager", "plugins") {
+    GManager(GOptions* g, std::string name) :gname(name),  gopts(g), log(g, "plugins") {
 		log.debug(CONSTRUCTOR, "Instantiating ", gname);
 	}
 
