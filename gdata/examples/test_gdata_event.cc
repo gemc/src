@@ -6,11 +6,9 @@
 #include <thread>
 using std::thread;
 
-
 // emulation of a run of 10 events
-// PRAGMA TODO: fix example, add stream example
-//int main(int argc, char* argv[])
-int main() {
+// PRAGMA TODO: stream example
+int main(int argc, char* argv[]) {
 
 	int nevents = 10;
 
@@ -20,7 +18,7 @@ int main() {
 	for (int evn = 1; evn <= nevents ; evn++ ) {
 
 		// calling gheader with verbosity 1 for debugging purposes
-		// GEventDataCollectionHeader *gheader = new GEventDataCollectionHeader(evn, evn, 1);
+		GEventDataCollectionHeader *gheader = new GEventDataCollectionHeader(evn, evn, 1);
 		//GEventDataCollection *eventData = new GEventDataCollection(gheader, 1);
 
 		// hit with null G4Step (not used)

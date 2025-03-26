@@ -29,7 +29,7 @@ public:
 	/**
 	 * @brief Constructs a GLogger instance.
 	 * @param gopts Pointer to GOptions instance used for verbosity/debug lookup.
-	 * @param name The verbosity or debyg name is string used to identify the logger and as header for all messages
+	 * @param name The verbosity or debyg name is a string used to identify the logger and as header for all messages
 	 */
 	explicit GLogger(GOptions* gopts, std::string vname)
 			: name(std::move(vname)), log_counter(0) {

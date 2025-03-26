@@ -25,5 +25,9 @@ int main(int argc, char *argv[]) {
 
 	log->info(0, "Retrieved electronic: ", retrievedElectronic);
 
+
+	delete gopts;
+	delete log;
+
 	return EXIT_SUCCESS;
 }

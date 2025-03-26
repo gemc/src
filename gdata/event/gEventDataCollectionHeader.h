@@ -18,17 +18,14 @@ public:
 	GEventDataCollectionHeader(int n, int tid, GLogger *logger) : g4localEventNumber(n), threadID(tid), log(logger) {
 
 		timeStamp = assignTimeStamp();
-
-		if (verbosity >= GVERBOSITY_CLASSES) {
-			gLogClassConstruct("GEventHeader evn " + to_string(g4localEventNumber));
-			print();
-		}
+		log.debug(CONSTRUCTOR, "GEventDataCollectionHeader");
+		log.info(1, TPOINTITEM, "Event Number:  ", g4localEventNumber);
+		log.info(1, TPOINTITEM, "Thread ID:  ", threadID);
+		log.info(1, TPOINTITEM, "Time Stamp:  ", timeStamp);
 	}
 
 	~GEventDataCollectionHeader() {
-		if (verbosity >= GVERBOSITY_CLASSES) {
-			gLogClassDestruct("GEventHeader evn " + to_string(g4localEventNumber));
-		}
+		log.debug(DESTRUCTOR, "GEventDataCollectionHeader");
 	}
 
 	inline string const getTimeStamp() const { return timeStamp; }
@@ -37,12 +34,6 @@ public:
 
 	inline int getThreadID() const { return threadID; }
 
-	void print() {
-		cout << CONSTRUCTORLOG << " Event header: " << endl;
-		cout << TPOINTITEM << " Event Number:  " << g4localEventNumber << endl;
-		cout << TPOINTITEM << " Thread ID:  " << threadID << endl;
-		cout << TPOINTITEM << " Time Stamp:  " << timeStamp << endl;
-	}
 
 private:
 	int g4localEventNumber;  // G4Run-local 
