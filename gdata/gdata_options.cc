@@ -1,16 +1,20 @@
+/**
+ * \file gdata_options.cpp
+ * \brief Implementation of GData options definitions.
+ *
+ * This file implements the function that creates and aggregates the options for
+ * the GData module.
+ */
+
 #include "gdata_options.h"
 #include "gtouchable_options.h"
 
-// project goption to a system
 namespace gdata {
 
-// returns array of options definitions
 GOptions defineOptions() {
-
 	GOptions goptions("gdata");
 	goptions += gtouchable::defineOptions();
-
 	return goptions;
 }
 
-}
+} // namespace gdata

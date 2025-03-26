@@ -29,10 +29,6 @@ GHit::GHit(GTouchable *gt, const HitBitSet hbs,  const G4Step *thisStep, string 
 
 }
 
-GHit::~GHit() {
-
-}
-
 bool GHit::is_same_hit(GHit *hit) {
 	return (*gtouchable) == (*hit->getGTouchable());
 }

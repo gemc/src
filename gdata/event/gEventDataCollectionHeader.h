@@ -1,22 +1,31 @@
-#ifndef  GEVENTHEADER_H
-#define  GEVENTHEADER_H  1
+#ifndef GEVENTHEADER_H
+#define GEVENTHEADER_H 1
 
-// gdata
+/**
+ * \file GEventDataCollectionHeader.h
+ * \brief Defines the header for event data collection.
+ *
+ * This header contains event-related information such as the event number,
+ * thread ID, and a timestamp. It is used by the GEventDataCollection class.
+ */
+
 #include "../gdataConventions.h"
-
-// gemc
 #include "glogger.h"
-
-// c++
-#include "ctime"
-
+#include <ctime>
+#include <string>
 
 class GEventDataCollectionHeader {
 public:
-	// the event number comes from aEvent->GetEventID(), track id is G4Threading::G4GetThreadId().
-	// notice that the logger must come here with the 'gdata' name in the constructor
+	/**
+	 * \brief Constructs a GEventDataCollectionHeader.
+	 *
+	 * The event number is obtained from aEvent->GetEventID(), and the thread ID from G4Threading::G4GetThreadId().
+	 *
+	 * \param n The local event number.
+	 * \param tid The thread ID.
+	 * \param logger Pointer to a GLogger instance.
+	 */
 	GEventDataCollectionHeader(int n, int tid, GLogger *logger) : g4localEventNumber(n), threadID(tid), log(logger) {
-
 		timeStamp = assignTimeStamp();
 		log->debug(CONSTRUCTOR, "GEventDataCollectionHeader");
 		log->info(1, TPOINTITEM, " Event Number:  ", g4localEventNumber);
@@ -24,35 +33,53 @@ public:
 		log->info(1, TPOINTITEM, " Time Stamp:  ", timeStamp);
 	}
 
+	/**
+	 * \brief Destructor for GEventDataCollectionHeader.
+	 */
 	~GEventDataCollectionHeader() {
 		log->debug(DESTRUCTOR, "GEventDataCollectionHeader");
 	}
 
-	inline string const getTimeStamp() const { return timeStamp; }
+	/**
+	 * \brief Gets the timestamp.
+	 * \return The timestamp as a string.
+	 */
+	inline std::string const getTimeStamp() const { return timeStamp; }
 
+	/**
+	 * \brief Gets the local event number.
+	 * \return The event number.
+	 */
 	inline int getG4LocalEvn() const { return g4localEventNumber; }
 
+	/**
+	 * \brief Gets the thread ID.
+	 * \return The thread ID.
+	 */
 	inline int getThreadID() const { return threadID; }
 
-
 private:
-	int g4localEventNumber;  // G4Run-local 
-	int threadID;
-	GLogger * const log;
+	int g4localEventNumber;  ///< G4Run-local event number.
+	int threadID;            ///< Thread ID.
+	GLogger * const log;     ///< Logger instance.
 
-	string assignTimeStamp() {
+	/**
+	 * \brief Assigns a timestamp using the local time.
+	 *
+	 * Uses C functions to format the time as a string.
+	 *
+	 * \return A string representing the timestamp.
+	 */
+	std::string assignTimeStamp() {
 		time_t now = time(NULL);
 		struct tm *ptm = localtime(&now);
 		char buffer[32];
-
 		// Format: Mo, 15.06.2009 20:20:00
 		strftime(buffer, 32, "%a, %m.%d.%Y %H:%M:%S", ptm);
-
-		return string(buffer);
+		return std::string(buffer);
 	}
 
-	string timeStamp;
+	std::string timeStamp;  ///< The timestamp.
 };
-
 
 #endif

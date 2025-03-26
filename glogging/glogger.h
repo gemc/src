@@ -72,7 +72,6 @@ public:
 				G4cout << KCYN << header_string() << DESTRUCTORLOG << " destructor " << DESTRUCTORLOG << " " << RST << oss.str() << G4endl;
 				break;
 		}
-
 	}
 
 	/**
@@ -86,6 +85,13 @@ public:
 	 */
 	template <typename... Args>
 	void info(int level, Args&&... args) const {
+
+		// error if level is not 0, 1 or 2
+		if (level != 0 && level != 1  && level != 2 ) {
+			G4cerr << FATALERRORL << header_string() << GWARNING <<  " Invalid verbosity level requested: " << level << RST << G4endl;
+			exit(EC_WRONG_VERBOSITY_LEVEL);
+		}
+
 		if (level == 0 || (level == 1 && verbosity_level > 0)) {
 			std::ostringstream oss;
 			(oss << ... << std::forward<Args>(args));

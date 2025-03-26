@@ -53,5 +53,6 @@
  * </pre>
  * \n\n
  * \author \n &copy; Maurizio Ungaro
- * \author e-mail: ungaro@jlab.org\n\n\n
+ * \author e-mail: ungaro@jlab.org
+ * \n\n\n
  */

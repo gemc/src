@@ -40,7 +40,7 @@ public:
 	/**
 	 * \brief Destructor for GHit.
 	 */
-	virtual ~GHit() override;
+	~GHit() = default;
 
 	/**
 	 * \brief Overloaded new operator using G4Allocator.
