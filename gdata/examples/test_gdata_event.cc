@@ -41,7 +41,7 @@ int main() {
 
 	// we probably want to print events here 
 
-	// now deleting events
+	// cleanup
 	for (auto* edata: (*runData) ) {
 		delete edata;
 	}

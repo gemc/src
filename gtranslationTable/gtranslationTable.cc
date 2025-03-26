@@ -53,6 +53,13 @@ void GTranslationTable::addGElectronicWithIdentity(const std::vector<int> &ident
 	} else {
 		log->warning("Key <" + ttKey + "> already present in TT map");
 	}
+
+	log->info(1, "Added GElectronic with identity <", ttKey, "> to TT map");
+
+	log->debug(NORMAL, "Translation Table:");
+	for (auto &thisItem: tt) {
+		log->debug(NORMAL, GTAB, "<", thisItem.first, "> ", thisItem.second);
+	}
 }
 
 
@@ -78,9 +85,3 @@ GElectronic GTranslationTable::getElectronics(const std::vector<int> &identity) 
 	return GElectronic();
 }
 
-void GTranslationTable::print() {
-	log->info("Translation Table:");
-	for (auto &thisItem: tt) {
-		log->info(0, GTAB, "<", thisItem.first, "> ", thisItem.second);
-	}
-}

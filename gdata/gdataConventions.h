@@ -6,9 +6,6 @@
 #define EC__VARIABLENOTFOUND    602
 #define EC__WRONGPAYLOAD        603
 
-#define GDATALOGITEM " ℹ︎"
-
-
 #define CRATESTRINGID   "crate"
 #define SLOTSTRINGID    "slot"
 #define CHANNELSTRINGID "channel"

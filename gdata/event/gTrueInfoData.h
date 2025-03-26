@@ -11,7 +11,7 @@ using std::vector;
 // glibrary
 #include "ghit.h"
 
-// data for a single bu
+// data for a single
 class GTrueInfoData {
 	
 public:

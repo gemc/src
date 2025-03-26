@@ -51,13 +51,6 @@ public:
 	 */
 	GElectronic getElectronics(const std::vector<int>& identity) const;
 
-/**
- * \brief Prints the translation table.
- *
- * Iterates over the table and logs each key and its corresponding GElectronic object.
- */
-	void print();
-
 private:
 	// the map uses a string formed by the vector<int> identity as its key
 	std::unordered_map<std::string, GElectronic> tt;

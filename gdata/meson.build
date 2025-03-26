@@ -5,7 +5,6 @@ LD += {
         'event/gDigitizedData.cc',
         'event/gTrueInfoData.cc',
         'event/gDataCollection.cc',
-        'event/gEventDataCollectionHeader.cc',
         'event/gEventDataCollection.cc',
         'frame/gIntegralPayload.cc',
         'frame/gFrameDataCollectionHeader.cc',
@@ -25,6 +24,6 @@ LD += {
     'additional_includes' : ['gdata/event'],
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'test_gdata_event' : [files('examples/event_data.cc'), ''],
+        'test_gdata_event' : [files('examples/test_gdata_event.cc'), ''],
     }
 }

@@ -13,11 +13,11 @@ echo " "
 echo " Doxygen version: "$(doxygen --version)
 echo " "
 
-classes=( goptions guts gfields glogging gfactory gtouchable ghit gtranslationTable )
+classes=( goptions guts gfields glogging gfactory gtouchable ghit gtranslationTable gdata )
 
 classes_to_do=(gdetector   gtranslationTable g4display gdynamicDigitization
  gsplash gui textProgressBar g4system gparticle gstreamer  userActions
-gQtButtonsWidget  gphysics gsystem utilities eventDispenser gdata  gsd  )
+gQtButtonsWidget  gphysics gsystem utilities eventDispenser   gsd  )
 
 rm -rf pages ; mkdir pages
 foreach class in $=classes; do
