@@ -10,16 +10,14 @@
 #include <map>
 #include <vector>
 
-using std::string;
-using std::map;
-using std::vector;
-
 
 // collected for each sensitive detector
 class GDataCollection {
 
 public:
-	GDataCollection() {
+	GDataCollection(GLogger * const logger) : log(logger) {
+
+		log->debug(CONSTRUCTOR, "GDataCollection");
 		trueInfosData = new vector<GTrueInfoData *>;
 		digitizedData = new vector<GDigitizedData *>;
 	}
@@ -28,20 +26,21 @@ public:
 
 		for (auto *hit: (*trueInfosData)) { delete hit; }
 		for (auto *hit: (*digitizedData)) { delete hit; }
+		log->debug(DESTRUCTOR, "GDataCollection");
 
 		delete trueInfosData;
 		delete digitizedData;
 	}
 
 
-public:
-
 	// public interface to add hit
 	void addTrueInfoData(GTrueInfoData *data) {
+		log->debug(NORMAL, " adding hit to trueInfosData with identity: ", data->getIdentityString());
 		trueInfosData->push_back(data);
 	}
 
 	void addDigitizedData(GDigitizedData *data) {
+		log->debug(NORMAL, " adding hit to digitizedData with identity: ", data->getIdentityString());
 		digitizedData->push_back(data);
 	}
 
@@ -55,6 +54,8 @@ private:
 	// index is hit number
 	vector<GTrueInfoData *> *trueInfosData = nullptr;
 	vector<GDigitizedData *> *digitizedData = nullptr;
+
+	GLogger * const log;
 
 };
 

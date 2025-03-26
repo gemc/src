@@ -6,6 +6,8 @@
 // options definitions
 #include "gfactory_options.h"
 #include "gtouchable_options.h"
+#include "gtranslationTable_options.h"
+#include "gdata_options.h"
 
 
 #include "eventDispenserOptions.h"
@@ -67,7 +69,8 @@ namespace gemc {
 
 		// load other
 		goptions += gfactory::defineOptions();
-		goptions += gtouchable::defineOptions();
+		goptions += gtranslationTable::defineOptions();
+		goptions += gdata::defineOptions(); // includes gtouchable
 
 
 

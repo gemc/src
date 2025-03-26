@@ -2,15 +2,13 @@ sub_dir_name = meson.current_source_dir().split('/').get(-1)
 LD += {
     'name' : sub_dir_name,
     'sources' : files(
+        'gdata_options.cc',
         'event/gDigitizedData.cc',
         'event/gTrueInfoData.cc',
-        'event/gDataCollection.cc',
-        'event/gEventDataCollection.cc',
-        'frame/gIntegralPayload.cc',
-        'frame/gFrameDataCollectionHeader.cc',
-        'frame/gFrameDataCollection.cc'
+        'event/gEventDataCollection.cc'
     ),
     'headers' : files(
+        'gdata_options.h',
         'gdataConventions.h',
         'event/gDigitizedData.h',
         'event/gTrueInfoData.h',
@@ -24,6 +22,8 @@ LD += {
     'additional_includes' : ['gdata/event'],
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'test_gdata_event' : [files('examples/test_gdata_event.cc'), ''],
+        'test_gdata_event' : [files('examples/gdata_event_example.cc'), ''],
+        'test_gdata_event_debug' : [files('examples/gdata_event_example.cc'), '-debug.gdata=1', '-debug.gtouchable=1'],
+        'test_gdata_event_verbosity' : [files('examples/gdata_event_example.cc'), '-verbosity.gdata=1', '-verbosity.gtouchable=1'],
     }
 }

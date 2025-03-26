@@ -1,4 +1,5 @@
 #include "gdata_options.h"
+#include "gtouchable_options.h"
 
 // project goption to a system
 namespace gdata {
@@ -7,6 +8,7 @@ namespace gdata {
 GOptions defineOptions() {
 
 	GOptions goptions("gdata");
+	goptions += gtouchable::defineOptions();
 
 	return goptions;
 }

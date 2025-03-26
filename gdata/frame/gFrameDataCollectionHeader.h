@@ -4,51 +4,38 @@
 // gdata
 #include "../gdataConventions.h"
 
-// glibrary
-#include "goptions.h"         // GVERBOSITY
-#include "gutsConventions.h"  // gLogClassConstruct
+// gemc
+#include "glogger.h"
 
 // c++
 #include <iostream>
-using std::to_string;
 
-class GFrameDataCollectionHeader
-{
+class GFrameDataCollectionHeader {
 public:
-	GFrameDataCollectionHeader(long int frameID_, float frameDuration_, int v = 0) : verbosity(v), frameID(frameID_), frameDuration(frameDuration_)  {
-		
-		if ( verbosity >= GVERBOSITY_CLASSES ) {
-			string log = "GFrameHeader id " + to_string(frameID) + ", time: " + to_string(time_ns()) + "ns";
-			gLogClassConstruct(log);
-		}
+	GFrameDataCollectionHeader(long int frameID_, float frameDuration_, GLogger *const logger) : frameID(frameID_), frameDuration(frameDuration_), log(logger) {
+		log->debug(CONSTRUCTOR, "GFrameHeader id ", frameID);
 	}
-	
+
 	~GFrameDataCollectionHeader() {
-		if ( verbosity >= GVERBOSITY_CLASSES) {
-			string log = "GFrameHeader id " + to_string(frameID);
-			gLogClassDestruct(log);
-		}
+		log->debug(DESTRUCTOR, "GFrameHeader id ", frameID);
 	}
-	
+
 	// getters
 	inline long int getFrameID() const { return frameID; }
+
 	inline long int getTime() const { return time_ns(); }
-	
-	
+
+
 private:
-	
-	int verbosity;
-	
+
+	GLogger *const log;
+
 	long int frameID;
 	float frameDuration;
-	
-	long int time_ns() const;
-	
+
+	long int time_ns() const  {return frameID*frameDuration;}
+
 };
-
-
-
-
 
 
 #endif

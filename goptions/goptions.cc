@@ -33,7 +33,6 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 
 	// Add user-defined options.
 	addGOptions(user_defined_options);
-	addOptionTitle(user_defined_options.option_verbosity_name);
 
 	// switches for all everyone
 	defineSwitch("gui", "use Graphical User Interface");

@@ -112,7 +112,6 @@ public:
 	*/
 	GTouchable(const GTouchable *baseGT, int newTimeIndex);
 
-
 	~GTouchable() {
 		log->debug(DESTRUCTOR, "GTouchable");
 	}

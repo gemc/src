@@ -4,19 +4,22 @@
 #include <string>
 #include <map>
 #include <vector>
-using std::string;
-using std::map;
-using std::vector;
 
-// glibrary
+// gemc
 #include "ghit.h"
+#include "glogger.h"
 
 // data for a single
 class GTrueInfoData {
 	
 public:
-	GTrueInfoData(GHit *ghit);
-	vector<GIdentifier> getIdentity() const {return gidentity;}
+	GTrueInfoData(GHit *ghit, GLogger * const logger);
+
+	~GTrueInfoData() {
+		log->debug(DESTRUCTOR, "GTrueInfoData");
+	}
+
+	string getIdentityString();
 
 	void includeVariable(string varName, float var);
 	void includeVariable(string varName, string var);
@@ -33,6 +36,8 @@ private:
 	map<string, string> trueInfoStringVariablesMap ;
 
 	vector<GIdentifier> gidentity;
+
+	GLogger * const log;
 
 };
 

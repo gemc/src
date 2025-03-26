@@ -14,5 +14,6 @@ LD += {
     'examples' : {
         'test_translation_table' : [files('examples/tt_example.cc'), ''],
         'test_translation_table_debug' : [files('examples/tt_example.cc'), '-debug.gtranslationTable=1'],
+        'test_translation_table_verbosity' : [files('examples/tt_example.cc'), '-verbosity.gtranslationTable=1']
     }
 }

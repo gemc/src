@@ -31,7 +31,7 @@ public:
 	 *
 	 * @param name: verbosity and debug option name
 	 */
-	GOptions(string name) : option_verbosity_name(name) {}
+	GOptions(string name) : option_verbosity_name(name) { addOptionTitle(name); }
 
 	/**
 	 * @brief Library–based constructor.
@@ -165,6 +165,9 @@ public:
 		}
 		for (auto sw : goptions_to_add.getSwitches()) {
 			switches.insert(sw);
+		}
+		for(auto &gvar : goptions_to_add.option_verbosity_names) {
+			option_verbosity_names.push_back(gvar);
 		}
 	}
 

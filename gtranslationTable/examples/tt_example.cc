@@ -27,7 +27,6 @@ int main(int argc, char *argv[]) {
 
 	// cleanup
 	// deleting log here gives error on linux. should be investigated
-	delete log;
 	delete gopts;
 
 	return EXIT_SUCCESS;

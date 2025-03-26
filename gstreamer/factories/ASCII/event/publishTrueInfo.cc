@@ -9,12 +9,7 @@ bool GstreamerTextFactory::publishEventTrueInfoData(const string detectorName, c
 
 	for ( auto trueInfoHit: *trueInfoData ) {
 
-		string identifierString = "";
-		vector<GIdentifier> gidentity = trueInfoHit->getIdentity();
-		for ( size_t i=0; i<gidentity.size() - 1; i++ ) {
-			identifierString += gidentity[i].getName() + "->" + to_string(gidentity[i].getValue()) + ", ";
-		}
-		identifierString += gidentity.back().getName() + "->" + to_string(gidentity.back().getValue()) ;
+		string identifierString = trueInfoHit->getIdentityString();
 
 		*ofile << GTABTAB << "Hit address: " << identifierString << " {" << endl;
 

@@ -9,12 +9,7 @@ bool GstreamerTextFactory::publishEventDigitizedData(const string detectorName, 
 
 	for ( auto dgtzHit: *digitizedData ) {
 
-		string identifierString = "";
-		vector<GIdentifier> gidentity = dgtzHit->getIdentity();
-		for ( size_t i=0; i<gidentity.size() - 1; i++ ) {
-			identifierString += gidentity[i].getName() + "->" + to_string(gidentity[i].getValue()) + ", ";
-		}
-		identifierString += gidentity.back().getName() + "->" + to_string(gidentity.back().getValue()) ;
+		string identifierString = dgtzHit->getIdentityString();
 
 		*ofile << GTABTAB << "Hit address: " << identifierString << " {" << endl;
 

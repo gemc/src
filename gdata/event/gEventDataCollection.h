@@ -12,7 +12,7 @@
 class GEventDataCollection {
 public:
 	// notice that the logger must come here with the 'gdata' name in the constructor
-	GEventDataCollection(GEventDataCollectionHeader *header, GLogger *logger) : gheader(header), log(logger) {
+	GEventDataCollection(GEventDataCollectionHeader *header, GLogger *logger) :  log(logger), gheader(header) {
 		log->debug(CONSTRUCTOR, "GEventDataCollection");
 		gdataCollectionMap = new map<string, GDataCollection *>();
 	}

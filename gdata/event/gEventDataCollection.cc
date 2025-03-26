@@ -6,20 +6,20 @@ void GEventDataCollection::addDetectorTrueInfoData(string sdName, GTrueInfoData 
 
 	// digitized data not found, creating it
 	if ( gdataCollectionMap->find(sdName) == gdataCollectionMap->end() ) {
-		(*gdataCollectionMap)[sdName] = new GDataCollection();
+		(*gdataCollectionMap)[sdName] = new GDataCollection(log);
 	}
 	(*gdataCollectionMap)[sdName]->addTrueInfoData(data);
-	log.info(2, "GEventDataCollection: added new detector TrueInfoData for ", sdName);
+	log->info(2, "GEventDataCollection: added new detector TrueInfoData for ", sdName);
 }
 
 void GEventDataCollection::addDetectorDigitizedData(string sdName, GDigitizedData *data) {
 
 	// digitized data not found, creating it
 	if ( gdataCollectionMap->find(sdName) == gdataCollectionMap->end() ) {
-		(*gdataCollectionMap)[sdName] = new GDataCollection();
+		(*gdataCollectionMap)[sdName] = new GDataCollection(log);
 	}
 	(*gdataCollectionMap)[sdName]->addDigitizedData(data);
-	log.info(2, "GEventDataCollection: added new detector DigitizedData for ", sdName);
+	log->info(2, "GEventDataCollection: added new detector DigitizedData for ", sdName);
 }
 
 

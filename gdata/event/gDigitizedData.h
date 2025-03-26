@@ -6,12 +6,10 @@
 #include <string>
 #include <map>
 #include <vector>
-using std::string;
-using std::map;
-using std::vector;
 
-// glibrary
+// gemc
 #include "ghit.h"
+#include "glogger.h"
 
 // in each hit, the digitization can produce:
 // - single values
@@ -21,13 +19,13 @@ class GDigitizedData {
 	
 public:
 
-	GDigitizedData(GHit *ghit, GLogger *logger);
+	GDigitizedData(GHit *ghit, GLogger * const logger);
 
 	~GDigitizedData() {
 		log->debug(DESTRUCTOR, "GDigitizedData");
 	}
 
-	vector<GIdentifier> getIdentity() const {return gidentity;}
+	string getIdentityString();
 
 	// public interface to add data to a hit
 	void includeVariable(string vname, int value);

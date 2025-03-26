@@ -1,43 +1,46 @@
 #ifndef  GINTEGRALPAYLOAD_H
 #define  GINTEGRALPAYLOAD_H  1
 
-// gdata
-//#include "gutsConventions.h"
 
-// glibrary
-#include "goptions.h"         // GVERBOSITY
-#include "gutsConventions.h"  // gLogClassConstruct
+// gemc
+#include "glogger.h"
 
 // c++
 #include <iostream>
-using std::to_string;
 
-struct GIntegralPayload
-{
+
+struct GIntegralPayload {
 public:
-	GIntegralPayload(int c, int s, int h, int q, int t, int v = 0) :
-	verbosity(v),
-	crate(c),
-	slot(s),
-	channel(h),
-	charge(q),
-	time(t) {
+	GIntegralPayload(int c, int s, int h, int q, int t, GLogger *const logger) :
+			log(logger),
+			crate(c),
+			slot(s),
+			channel(h),
+			charge(q),
+			time(t) {
 
-		if ( verbosity >= GVERBOSITY_CLASSES ) {
-			gLogClassConstruct("GIntegralPayload Construct");
-		}
+		log->debug(CONSTRUCTOR, "GIntegralPayload crate ", crate, " slot ", slot, " channel ", channel, " charge ", charge, " time ", time);
 	}
 
 	~GIntegralPayload() {
-		if ( verbosity >= GVERBOSITY_CLASSES) {
-			gLogClassDestruct("GIntegralPayload Destruct");
-		}
+		log->debug(DESTRUCTOR, "GIntegralPayload crate ", crate, " slot ", slot, " channel ", channel, " charge ", charge, " time ", time);
 	}
 
-	vector<int> getPayload();
+	vector<int> getPayload()  {
+
+		vector<int> payload;
+
+		payload.push_back(crate);
+		payload.push_back(slot);
+		payload.push_back(channel);
+		payload.push_back(charge);
+		payload.push_back(time);
+
+		return payload;
+	}
 
 private:
-	int verbosity;
+	GLogger *const log;
 
 	int crate;
 	int slot;

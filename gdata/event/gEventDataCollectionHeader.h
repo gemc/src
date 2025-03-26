@@ -18,14 +18,14 @@ public:
 	GEventDataCollectionHeader(int n, int tid, GLogger *logger) : g4localEventNumber(n), threadID(tid), log(logger) {
 
 		timeStamp = assignTimeStamp();
-		log.debug(CONSTRUCTOR, "GEventDataCollectionHeader");
-		log.info(1, TPOINTITEM, "Event Number:  ", g4localEventNumber);
-		log.info(1, TPOINTITEM, "Thread ID:  ", threadID);
-		log.info(1, TPOINTITEM, "Time Stamp:  ", timeStamp);
+		log->debug(CONSTRUCTOR, "GEventDataCollectionHeader");
+		log->info(1, TPOINTITEM, " Event Number:  ", g4localEventNumber);
+		log->info(1, TPOINTITEM, " Thread ID:  ", threadID);
+		log->info(1, TPOINTITEM, " Time Stamp:  ", timeStamp);
 	}
 
 	~GEventDataCollectionHeader() {
-		log.debug(DESTRUCTOR, "GEventDataCollectionHeader");
+		log->debug(DESTRUCTOR, "GEventDataCollectionHeader");
 	}
 
 	inline string const getTimeStamp() const { return timeStamp; }
