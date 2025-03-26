@@ -29,8 +29,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	// clean up
-	delete log;
-//	delete gopts;
+//	delete log;
+	delete gopts;
 
 	return EXIT_SUCCESS;
 }
