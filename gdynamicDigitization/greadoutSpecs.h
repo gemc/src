@@ -1,42 +1,96 @@
-#ifndef  GREADOUTSPECS_H
-#define  GREADOUTSPECS_H 1
+#ifndef GREADOUTSPECS_H
+#define GREADOUTSPECS_H 1
 
-// gemc for HitBitSet
-#include "ghitConventions.h"
+/**
+ * \file GReadoutSpecs.h
+ * \brief Defines the GReadoutSpecs class for readout electronics specifications.
+ *
+ * \mainpage GReadoutSpecs Module
+ *
+ * \section intro_sec Introduction
+ * The GReadoutSpecs class encapsulates properties of the readout electronics, such as
+ * the electronic readout time-window, grid start time, and the hit bitset that defines
+ * what information is stored in a hit. These specifications are used by both GTouchable
+ * and GHit to determine the appropriate time cell index for a hit.
+ *
+ * \section usage_sec Usage
+ * To use this class, a plugin should construct a GReadoutSpecs object by providing:
+ *  - The electronic readout time-window.
+ *  - The grid start time.
+ *  - A HitBitSet defining what hit information to store.
+ *  - A logger for informational output.
+ *
+ * Once constructed, the hit bitset can be retrieved via getHitBitSet(), and the time cell
+ * index can be computed for a given time using timeCellIndex().
+ *
+ * \n\n
+ * \author \n &copy; Maurizio Ungaro
+ * \author e-mail: ungaro@jlab.org
+ * \n\n\n
+ */
+
+#include "ghitConventions.h" // For HitBitSet
 #include "glogger.h"
 
-#include <math.h>  /* floor */
+#include <cmath>  // Use <cmath> for std::floor
 
-// properties of the readout electronics, used in GTouchable and GHit.
-// they are defined here so that the plugin can define it
+/**
+ * \class GReadoutSpecs
+ * \brief Specifies the readout electronics parameters.
+ *
+ * This class holds parameters such as the electronic readout time-window,
+ * grid start time, and the hit bitset. These values are used to determine which
+ * information is stored in a hit and to compute the corresponding time cell index.
+ */
 class GReadoutSpecs {
 
 private:
-	// readout specs, set by plugin function loadReadoutSpecs
-	float timeWindow;       // electronic readout time-window of the detector
-	float gridStartTime;    // defines the windows grid
-	HitBitSet hitBitSet;        // defines what information to be stored in the hit
+	float timeWindow;      ///< Electronic readout time-window of the detector.
+	float gridStartTime;   ///< The start time of the time grid.
+	HitBitSet hitBitSet;   ///< Defines which hit information to be stored.
 
 public:
-
-	// constructor set by plugins
+	/**
+	 * \brief Constructs a GReadoutSpecs object.
+	 *
+	 * This constructor is intended to be called by plugins to set readout specifications.
+	 *
+	 * \param tw The electronic readout time-window.
+	 * \param gst The grid start time.
+	 * \param hbs The hit bitset defining what information to store.
+	 * \param log Pointer to a GLogger instance for logging.
+	 */
 	GReadoutSpecs(const float tw, const float gst, const HitBitSet hbs, GLogger *log) :
 			timeWindow(tw),
 			gridStartTime(gst),
-			hitBitSet(hbs) {
+			hitBitSet(hbs)
+	{
 		log->info(1, "GReadoutSpecs: timeWindow=", timeWindow, ", gridStartTime=", gridStartTime, ", hitBitSet=", hitBitSet);
 	}
 
 public:
-
+	/**
+	 * \brief Retrieves the hit bitset.
+	 *
+	 * \return The HitBitSet defining the stored hit information.
+	 */
 	inline const HitBitSet getHitBitSet() const { return hitBitSet; }
 
-	// for readout detectors, return the index time cell in the timewindow
+	/**
+	 * \brief Computes the time cell index for a given time.
+	 *
+	 * For readout detectors, this function calculates the cell index within the
+	 * electronic time window. The formula used is:
+	 * \f[
+	 * \text{cell index} = \left\lfloor \frac{\text{time} - \text{gridStartTime}}{\text{timeWindow}} \right\rfloor + 1
+	 * \f]
+	 *
+	 * \param time The time value (e.g., global time from the simulation).
+	 * \return The computed time cell index as an integer.
+	 */
 	inline int timeCellIndex(float time) const {
-		return (int) (floor((time - gridStartTime) / timeWindow) + 1);
+		return static_cast<int>(std::floor((time - gridStartTime) / timeWindow) + 1);
 	}
-	
 };
-
 
 #endif

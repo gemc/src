@@ -13,9 +13,9 @@ public:
     // constructor not needed
 
     // mandatory readout specs definitions
-	bool defineReadoutSpecs();
+	bool defineReadoutSpecsImpl() override;
 
-	bool loadConstants(int runno, string variation);
+	bool loadConstantsImpl(int runno, string const &variation) override;
 
 private:
 

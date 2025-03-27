@@ -5,7 +5,7 @@
 using namespace std;
 
 
-bool GPlugin_test_example::defineReadoutSpecs() {
+bool GPlugin_test_example::defineReadoutSpecsImpl() {
 	check_if_log_defined();
 
     float timeWindow = 10;                  // electronic readout time-window of the detector
@@ -18,7 +18,7 @@ bool GPlugin_test_example::defineReadoutSpecs() {
 }
 
 
-bool GPlugin_test_example::loadConstants(int runno, [[maybe_unused]] string variation) {
+bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] string const &variation) {
 	check_if_log_defined();
 
     var1 = 2.0;
