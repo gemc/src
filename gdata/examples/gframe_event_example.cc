@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 	GOptions *gopts = new GOptions(argc, argv, gdata::defineOptions());
 
 	// Create a logger for the gdata module.
-	GLogger *log = new GLogger(gopts, "gdata");
+	GLogger *log = new GLogger(gopts, DATA_LOGGER);
 
 	// Define a frame with a frame ID and frame duration.
 	long int frameID = 1;

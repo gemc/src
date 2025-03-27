@@ -23,10 +23,10 @@ LD += {
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
         'test_gdata_event' : [files('examples/gdata_event_example.cc'), ''],
-        'test_gdata_event_debug' : [files('examples/gdata_event_example.cc'), '-debug.gdata=1', '-debug.gtouchable=1'],
-        'test_gdata_event_verbosity' : [files('examples/gdata_event_example.cc'), '-verbosity.gdata=1', '-verbosity.gtouchable=1'],
+        'test_gdata_event_debug' : [files('examples/gdata_event_example.cc'), '-debug.gdata=true', '-debug.gtouchable=true'],
+        'test_gdata_event_verbosity' : [files('examples/gdata_event_example.cc'), '-verbosity.gdata=2', '-verbosity.gtouchable=2'],
         'test_gframe_event' : [files('examples/gframe_event_example.cc'), ''],
-        'test_gframe_event_debug' : [files('examples/gframe_event_example.cc'), '-debug.gdata=1', '-debug.gtouchable=1'],
-        'test_gframe_event_verbosity' : [files('examples/gframe_event_example.cc'), '-verbosity.gdata=1', '-verbosity.gtouchable=1']
+        'test_gframe_event_debug' : [files('examples/gframe_event_example.cc'), '-debug.gdata=true', '-debug.gtouchable=true'],
+        'test_gframe_event_verbosity' : [files('examples/gframe_event_example.cc'), '-verbosity.gdata=2', '-verbosity.gtouchable=2']
     }
 }

@@ -1,5 +1,5 @@
 /**
- * \file gdata_options.cpp
+ * \file gdata_options.cc
  * \brief Implementation of GData options definitions.
  *
  * This file implements the function that creates and aggregates the options for
@@ -12,7 +12,7 @@
 namespace gdata {
 
 GOptions defineOptions() {
-	GOptions goptions("gdata");
+	GOptions goptions(DATA_LOGGER);
 	goptions += gtouchable::defineOptions();
 	return goptions;
 }

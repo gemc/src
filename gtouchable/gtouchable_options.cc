@@ -6,7 +6,7 @@ namespace gtouchable {
 // returns array of options definitions
 GOptions defineOptions() {
 
-	GOptions goptions("gtouchable");
+	GOptions goptions(TOUCHABLE_LOGGER);
 
 	return goptions;
 }

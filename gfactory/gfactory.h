@@ -60,21 +60,18 @@ private:
      */
     void registerDL(std::string name) {
         // PRAGMA TODO: make it OS independent?
-        dlMap[name] = new DynamicLib(gopts, name + ".gplugin");
-		log.debug(NORMAL, "Loading DL ", name);
+        dlMap[name] = new DynamicLib(log, name + ".gplugin");
+		log->debug(NORMAL, "Loading DL ", name);
 	}
 
-	GOptions *gopts;
-	GLogger log;
+	GLogger const *log;
 
 public:
     /**
-     @param v verbosity.
-     - 0: no not print any log
-     - 1: print gmanager registering and instantiating classes
+     @param log pointer to the logger for plugins
      */
-    GManager(GOptions* g, std::string name) :gname(name),  gopts(g), log(g, "plugins") {
-		log.debug(CONSTRUCTOR, "Instantiating ", gname);
+    GManager(GLogger const *logger, std::string name) : gname(name), log(logger)  {
+		log->debug(CONSTRUCTOR, "Instantiating ", gname);
 	}
 
 public:
@@ -89,7 +86,7 @@ public:
     template<class Derived>
     void RegisterObjectFactory(std::string name) {
         factoryMap[name] = new GFactory<Derived>();
-		log.debug(NORMAL, "Registering ", name, "into factory Map");
+		log->debug(NORMAL, "Registering ", name, "into factory Map");
 
 	}
 
@@ -108,10 +105,10 @@ public:
         auto factory = factoryMap.find(name);
 
         if (factory == factoryMap.end()) {
-			log.error(EC__FACTORYNOTFOUND, "couldn't find factory ", name, " in factory Map.");
+			log->error(EC__FACTORYNOTFOUND, "couldn't find factory ", name, " in factory Map.");
         }
 
-		log.debug(NORMAL, "Creating instance of ", name, " factory.");
+		log->debug(NORMAL, "Creating instance of ", name, " factory.");
         return static_cast<Base *>(factory->second->Create());
     }
 
@@ -137,7 +134,7 @@ public:
             }
         } else {
             // warning message already given if plugin not found
-			log.error(EC__DLHANDLENOTFOUND, "plugin ", name, " could not be loaded.");
+			log->error(EC__DLHANDLENOTFOUND, "plugin ", name, " could not be loaded.");
         }
         return nullptr;
     }

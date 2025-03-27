@@ -6,7 +6,7 @@ namespace gtranslationTable {
 // returns array of options definitions
 GOptions defineOptions() {
 
-	GOptions goptions("gtranslationTable");
+	GOptions goptions(TRANSLATIONTABLE_LOGGER);
 
 	return goptions;
 }

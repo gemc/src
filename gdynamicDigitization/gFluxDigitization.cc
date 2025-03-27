@@ -4,9 +4,8 @@ bool GFluxDigitization::defineReadoutSpecs() {
 	float     timeWindow = 10;                  // electronic readout time-window of the detector
 	float     gridStartTime = 0;                // defines the windows grid
 	HitBitSet hitBitSet = HitBitSet("000001");  // defines what information to be stored in the hit
-	bool      verbosity = true;
 
-	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, verbosity);
+	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger.value());
 
 	return true;
 }
@@ -18,7 +17,7 @@ GDigitizedData* GFluxDigitization::digitizeHit(GHit *ghit, size_t hitn) {
 	// ghit->getGID() must have a single entry
 	GIdentifier identity = ghit->getGID().front();
 
-	GDigitizedData* gdata = new GDigitizedData(ghit);
+	GDigitizedData* gdata = new GDigitizedData(ghit, data_logger.value());
 
 	gdata->includeVariable(identity.getName(), identity.getValue()             );
 	gdata->includeVariable("hitn",             (int) hitn                      );

@@ -6,16 +6,22 @@ LD += {
         'gFluxDigitization.cc',
         'gParticleCounterDigitization.cc',
         'gDosimeterDigitization.cc',
+        'gdynamicdigitization_options.cc'
     ),
     'headers' : files(
+        'gdynamicdigitization_options.h',
         'ginternalDigitization.h',
         'greadoutSpecs.h'
     ),
-    'dependencies' : [clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'plugins' : {
-        'gplugin_test_example' : [files('examples/gplugin_test_example.cc'), true],
+        'test_gdynamic_plugin' : [files('examples/gplugin_test_example.cc'), true],
     },
     'examples' : {
-        'test_gdynamic_plugin_load' : [files('examples/plugin_load_example.cc'), '']
+        'test_gdynamic_plugin_load' : [files('examples/plugin_load_example.cc'), ''],
+        'test_gdynamic_plugin_load_verbose' : [files('examples/plugin_load_example.cc'), '-verbosity.gdata=2', '-verbosity.plugins=2', '-verbosity.gtranslationTable=2', '-verbosity.gdigitization=2'],
+        'test_gdynamic_plugin_load_debug' : [files('examples/plugin_load_example.cc'), '-debug.gdata=true', '-debug.plugins=true', '-debug.gtranslationTable=true', '-debug.gdigitization=true']
     }
 }
+
+install_subdir(meson.current_source_dir() + '/dosimeterData', install_dir : '.')

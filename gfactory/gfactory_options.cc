@@ -6,7 +6,7 @@ namespace gfactory {
 // returns array of options definitions
 GOptions defineOptions() {
 
-	GOptions goptions("plugins");
+	GOptions goptions(PLUGIN_LOGGER);
 
 	return goptions;
 }

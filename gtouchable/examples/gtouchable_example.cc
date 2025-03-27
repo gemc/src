@@ -10,7 +10,7 @@ using namespace std;
 int main(int argc, char *argv[]) {
 
 	GOptions *gopts = new GOptions(argc, argv, gtouchable::defineOptions());
-	GLogger *log = new GLogger(gopts, "gtouchable");
+	GLogger *log = new GLogger(gopts, TOUCHABLE_LOGGER);
 
 	string first_identity = "sector: 98, paddle: 98";
 	vector<double> first_dimensions = {1.0, 20.0, 98.0};

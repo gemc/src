@@ -8,7 +8,7 @@
 int main(int argc, char *argv[]) {
 
 	GOptions *gopts = new GOptions(argc, argv, gtranslationTable::defineOptions());
-	GLogger *log = new GLogger(gopts, "gtranslationTable");
+	GLogger *log = new GLogger(gopts, TRANSLATIONTABLE_LOGGER);
 
 	vector<int> element1 = {1, 2, 3, 4, 5};
 	vector<int> element2 = {2, 2, 3, 4, 5};

@@ -1,218 +1,140 @@
-#!/usr/bin/python -B   # -B prevents writing .pyc compiled versions of each module
+#!/usr/bin/env python3
+"""
+Script to generate plugin C++ source and header files based on given system name and routines.
+"""
 
-# TODO: use argparse for options
-# TODO: add sconstruct
-# TODO: 
+import argparse
 
-import sys, getopt, string
+# Define valid routine names and their descriptions
+VALID_ROUTINE_NAMES = ["constants", "loadTT", "processID", "hitDigitization", "all"]
+VALID_ROUTINE_DESCR = {
+	"constants": "loads constants",
+	"loadTT": "loads translation table",
+	"processID": "manipulate/create new ID",
+	"hitDigitization": "digitizes a hit",
+	"all": "write all routines"
+}
 
-validRoutineNames = ["constants",       "loadTT",                 "processID",                "hitDigitization",  "all"]
-validRoutineDescr = ["loads constants", "loat translation table", "manipulate/create new ID", "digitize a hit",   "write all routines"]
+def get_arguments():
+	parser = argparse.ArgumentParser(
+		description="Generate system routine files.",
+		epilog=f"Example: %(prog)s -s driftChamber -r constants hitDigitization\n"
+			   f"Available routines: {', '.join(VALID_ROUTINE_NAMES)}"
+	)
+	parser.add_argument(
+		'-s', '--system',
+		required=True,
+		help="Name of the system (e.g., driftChamber)"
+	)
+	parser.add_argument(
+		'-r', '--routines',
+		nargs='+',
+		required=True,
+		choices=VALID_ROUTINE_NAMES,
+		help="List of routine names to generate. Choices: " + ", ".join(VALID_ROUTINE_NAMES)
+	)
+	return parser.parse_args()
 
-def printHelp():
-	print()
-	print 'Usage:'
-	print()
-	print 'createSystemRoutine.py -s <systemName> -r [routineNames]'
-	print '[routineNames] is a vector of names separated by space'
-	print()
-	print 'Example: createSystemRoutine.py -s driftChamber -r constants touchable'
-	print()
-	print 'Available routines:'
-	for n in range(len(validRoutineNames)):
-		print '-', validRoutineNames[n], ':',validRoutineDescr[n]
-	print()
+def write_header(system, routines):
+	filename = f"{system}.h"
+	with open(filename, "w") as header:
+		header.write(f"#ifndef {system.upper()}PLUGIN\n")
+		header.write(f"#define {system.upper()}PLUGIN 1\n\n")
+		header.write("// glibrary\n")
+		header.write('#include "gdynamicdigitization.h"\n')
+		header.write('#include "gutsConventions.h"\n\n')
+		header.write(f"class {system}Plugin : public GDynamicDigitization {{\n\n")
+		header.write("public:\n\n")
+		header.write("\t// mandatory readout specs definitions\n")
+		header.write("\tbool defineReadoutSpecs();\n")
+		if "constants" in routines or "all" in routines:
+			header.write("\n\t// loads digitization constants\n")
+			header.write("\tbool loadConstants(int runno, string variation);\n")
+		if "loadTT" in routines or "all" in routines:
+			header.write("\n\t// loads the translation table\n")
+			header.write("\tbool loadTT(int runno, string variation);\n")
+		if "hitDigitization" in routines or "all" in routines:
+			header.write("\n\t// digitizes the hit\n")
+			header.write("\tGDigitizedData* digitizeHit(GHit *ghit, int hitn);\n")
+		header.write("\nprivate:\n\n")
+		header.write("\t// constants definitions\n\n")
+		header.write("};\n\n")
+		header.write("#endif\n")
 
+def write_load_constants(system):
+	filename = "loadConstants.cc"
+	with open(filename, "w") as f:
+		f.write(f'#include "{system}.h"\n\n')
+		f.write(f"bool {system}Plugin::loadConstants(int runno, string variation)\n")
+		f.write("{\n")
+		f.write("\n\t// TODO: add constants loading implementation\n\n")
+		f.write("\treturn true;\n")
+		f.write("}\n")
 
-def parseSystem(argv):
-	sysName = "none"
-	try:
-		opts, args = getopt.getopt(argv,"h:s:r:h")
-	except getopt.GetoptError:
-		printHelp()
-		sys.exit(2)
-	for opt, arg in opts:
-		if opt == '-h':
-			printHelp()
-			sys.exit()
-		elif opt == "-s":
-			sysName = arg
-       		return sysName
-	return sysName
+def write_load_tt(system):
+	filename = "loadTT.cc"
+	with open(filename, "w") as f:
+		f.write(f'#include "{system}.h"\n\n')
+		f.write(f"bool {system}Plugin::loadTT(int runno, string variation)\n")
+		f.write("{\n")
+		f.write("\n\t// TODO: add translation table loading implementation\n")
+		f.write("\ttranslationTable = new GTranslationTable();\n\n")
+		f.write("\treturn true;\n")
+		f.write("}\n")
 
-def parseRNames(argv):
-	opts, args = getopt.getopt(argv,"h:s:r")
-	rNames = [""]
-	for opt, arg in opts:
-		if opt == "-r":
-			rNames = args
-			return rNames
-	return rNames
+def write_hit_digitization(system):
+	filename = "hitDigitization.cc"
+	with open(filename, "w") as f:
+		f.write(f'#include "{system}.h"\n\n')
+		f.write(f"GDigitizedData* {system}Plugin::digitizeHit(GHit *ghit, int hitn)\n")
+		f.write("{\n")
+		f.write("\tGDigitizedData* gdata = new GDigitizedData();\n")
+		f.write("\n\t// TODO: add hit digitization implementation\n")
+		f.write('\tgdata->includeVariable("hitn", hitn);\n')
+		f.write("\treturn gdata;\n")
+		f.write("}\n")
 
-def validateOptions(system, routines):
-	if system == 'none':
-		print()
-		print 'Error: system not given, use -s to define it'
-		printHelp()
-		sys.exit()
-	for roname in routines:
-		if not roname in validRoutineNames :
-			print()
-			print 'Error: ', roname, ' is not a vaild routine name'
-			printHelp()
-			sys.exit()
+def write_readout_specs(system):
+	filename = "readoutSpecs.cc"
+	with open(filename, "w") as f:
+		f.write(f'#include "{system}.h"\n\n')
+		f.write(f"bool {system}Plugin::defineReadoutSpecs()\n")
+		f.write("{\n")
+		f.write("\tfloat timeWindow = 10;                  // electronic readout time-window of the detector\n")
+		f.write("\tfloat gridStartTime = 0;                // defines the window's grid start time\n")
+		f.write('\tHitBitSet hitBitSet = HitBitSet("000000");  // defines what information to be stored in the hit\n')
+		f.write("\tbool verbosity = true;\n\n")
+		f.write("\treadoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, verbosity);\n\n")
+		f.write("\treturn true;\n")
+		f.write("}\n\n")
+		f.write(f"// DO NOT EDIT BELOW THIS LINE: defines how to create the <{system}Plugin>\n")
+		f.write('extern "C" GDynamicDigitization* GDynamicFactory(void) {\n')
+		f.write(f"\treturn static_cast<GDynamicDigitization*>(new {system}Plugin);\n")
+		f.write("}\n")
 
+def write_sconstruct(system, routines):
+	filename = "SConstruct"
+	with open(filename, "w") as f:
+		f.write("# SConstruct file placeholder\n")
+		f.write("# TODO: implement SConstruct content\n")
 
-def writeHeader(sName, routines):
-	headerFileName = sName + '.h'
-	headerFile = open(headerFileName, 'w')
-	headerFile.write('#ifndef ' + sName.upper() + 'PLUGIN\n')
-	headerFile.write('#define ' + sName.upper() + 'PLUGIN 1\n')
-	headerFile.write('\n')
-	headerFile.write('// glibrary\n')
-	headerFile.write('#include "gdynamicdigitization.h"\n')
-	headerFile.write('#include "gutsConventions.h"\n')
-	headerFile.write('\n')
-	headerFile.write('class ' + sName + 'Plugin : public GDynamicDigitization {\n')
-	headerFile.write('\n')
-	headerFile.write('public:\n')
-	headerFile.write('\n')
+def main():
+	args = get_arguments()
+	system = args.system
+	routines = args.routines
 
-	headerFile.write('\t// mandatory readout specs definitions\n')
-	headerFile.write('\tbool defineReadoutSpecs();\n')
+	write_header(system, routines)
+	write_readout_specs(system)
 
-	if 'constants' in routines:
-		headerFile.write('\n')
-		headerFile.write('\t// loads digitization constants\n')
-		headerFile.write('\tbool loadConstants(int runno, string variation);\n')
+	if "constants" in routines or "all" in routines:
+		write_load_constants(system)
+	if "loadTT" in routines or "all" in routines:
+		write_load_tt(system)
+	if "hitDigitization" in routines or "all" in routines:
+		write_hit_digitization(system)
 
-	if 'loadTT' in routines:
-		headerFile.write('\n')
-		headerFile.write('\t// loads the translation table\n')
-		headerFile.write('\tbool loadTT(int runno, string variation);\n')
+	# If you decide to support SConstruct generation unconditionally or conditionally:
+	write_sconstruct(system, routines)
 
-	if 'hitDigitization' in routines:
-		headerFile.write('\n')
-		headerFile.write('\t// digitized the hit\n')
-		headerFile.write('\tGDigitizedData* digitizeHit(GHit *ghit, int hitn);\n')
-
-	headerFile.write('\n')
-	headerFile.write('private:\n')
-	headerFile.write('\n')
-	headerFile.write('\t// constants definitions\n')
-	headerFile.write('\n')
-	headerFile.write('};\n')
-	headerFile.write('\n')
-	headerFile.write('#endif\n')
-	headerFile.write('\n')
-	headerFile.close()
-
-
-# PRAGMA TODO: add comments/documentation
-# PRAGMA TODO: add commented example
-def writeLoadConstants(sName):
-	constantsFile = open('loadConstants.cc', 'w')
-	constantsFile.write('#include "' + sName + '.h"\n')
-	constantsFile.write('\n')
-	constantsFile.write('bool ' + sName + 'Plugin::loadConstants(int runno, string variation)\n')
-	constantsFile.write('{\n')
-	constantsFile.write('\n')
-	constantsFile.write('\n')
-	constantsFile.write('\n')
-	constantsFile.write('\treturn true;\n')
-	constantsFile.write('}\n')
-
-# PRAGMA TODO: add comments/documentation
-# PRAGMA TODO: add commented example
-def writeLoadTT(sName):
-	constantsFile = open('loadTT.cc', 'w')
-	constantsFile.write('#include "' + sName + '.h"\n')
-	constantsFile.write('\n')
-	constantsFile.write('bool ' + sName + 'Plugin::loadTT(int runno, string variation)\n')
-	constantsFile.write('{\n')
-	constantsFile.write('\n')
-	constantsFile.write('\ttranslationTable = new GTranslationTable();\n')
-	constantsFile.write('\n')
-	constantsFile.write('\n')
-	constantsFile.write('\treturn true;\n')
-	constantsFile.write('}\n')
-
-
-# PRAGMA TODO: add comments/documentation
-# PRAGMA TODO: add commented example
-def writeHitDigitization(sName):
-	constantsFile = open('hitDigitization.cc', 'w')
-	constantsFile.write('#include "' + sName + '.h"\n')
-	constantsFile.write('\n')
-	constantsFile.write('GDigitizedData* ' + sName + 'Plugin::digitizeHit(GHit *ghit, int hitn)\n')
-	constantsFile.write('{\n')
-	constantsFile.write('\tGDigitizedData* gdata = new GDigitizedData();\n')
-	constantsFile.write('\n')
-	constantsFile.write('\n')
-	constantsFile.write('\n')
-	constantsFile.write('\n')
-	constantsFile.write('\n')
-	constantsFile.write('\n')
-	constantsFile.write('\n')
-	constantsFile.write('\tgdata->includeVariable("hitn",  hitn);\n')
-	constantsFile.write('\treturn gdata;\n')
-	constantsFile.write('}\n')
-
-
-# PRAGMA TODO: load the file existing in the directory
-def writeSConstruct(sName, routines):
-	sconsFile = open('SConstruct', 'w')
-	sconsFile.write('\n')
-	sconsFile.write('\n')
-	sconsFile.write('\n')
-	sconsFile.write('\n')
-	sconsFile.write('\n')
-	sconsFile.write('\n')
-	sconsFile.write('\n')
-	sconsFile.write('\n')
-	sconsFile.write('\n')
-
-# PRAGMA TODO: add comments/documentation
-# PRAGMA TODO: add commented example
-def writeReadoutSpects(sName):
-	readoutSpecs = open('readoutSpecs.cc', 'w')
-	readoutSpecs.write('#include "' + sName + '.h"\n')
-	readoutSpecs.write('\n')
-	readoutSpecs.write('bool ' + sName + 'Plugin::defineReadoutSpecs()\n')
-	readoutSpecs.write('{\n')
-	readoutSpecs.write('\tfloat     timeWindow = 10;                  // electronic readout time-window of the detector\n')
-	readoutSpecs.write('\tfloat     gridStartTime = 0;                // defines the windows grid\n')
-	readoutSpecs.write('\tHitBitSet hitBitSet = HitBitSet("000000");  // defines what information to be stored in the hit\n')
-	readoutSpecs.write('\tbool      verbosity = true;\n')
-	readoutSpecs.write('\n')
-	readoutSpecs.write('\treadoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, verbosity);\n')
-	readoutSpecs.write('\n')
-	readoutSpecs.write('\treturn true;\n')
-	readoutSpecs.write('}\n')
-	readoutSpecs.write('\n')
-	readoutSpecs.write('\n')
-	readoutSpecs.write('// DO NOT EDIT BELOW THIS LINE: defines how to create the <' + sName + 'Plugin>\n')
-	readoutSpecs.write('extern "C" GDynamicDigitization* GDynamicFactory(void) {\n')
-	readoutSpecs.write('\treturn static_cast<GDynamicDigitization*>(new ' + sName + 'Plugin);\n')
-	readoutSpecs.write('}\n')
-	readoutSpecs.write('\n')
-
-
-# parsing and writing sources
-systemName = parseSystem(sys.argv[1:])
-routines   = parseRNames(sys.argv[1:])
-
-validateOptions(systemName, routines)
-
-# or use createNewHeader function
-writeHeader(systemName, routines)
-writeReadoutSpects(systemName)
-
-if 'constants' in routines or 'all' in routines:
-	writeLoadConstants(systemName)
-
-if 'loadTT' in routines or 'all' in routines:
-	writeLoadTT(systemName)
-
-if 'hitDigitization' in routines or 'all' in routines:
-	writeHitDigitization(systemName)
+if __name__ == "__main__":
+	main()

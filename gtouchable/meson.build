@@ -17,7 +17,7 @@ LD += {
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
         'test_gtouchable_example' : [files('examples/gtouchable_example.cc'), ''],
-        'test_gtouchable_example_debug' : [files('examples/gtouchable_example.cc'), '-debug.gtouchable=1'],
-        'test_gtouchable_example_verbosity' : [files('examples/gtouchable_example.cc'), '-verbosity.gtouchable=1']
+        'test_gtouchable_example_debug' : [files('examples/gtouchable_example.cc'), '-debug.gtouchable=true'],
+        'test_gtouchable_example_verbosity' : [files('examples/gtouchable_example.cc'), '-verbosity.gtouchable=2']
     }
 }

@@ -14,6 +14,7 @@
 #include <utility>
 
 
+
 enum debug_type { NORMAL, CONSTRUCTOR, DESTRUCTOR };
 
 /**
@@ -35,12 +36,15 @@ public:
 			: name(std::move(vname)), log_counter(0) {
 		verbosity_level = gopts->getVerbosityFor(name);
 		debug_level = gopts->getDebugFor(name);
+		debug(CONSTRUCTOR, "GLOGGER");
 	}
 
 	// default constructor
 	GLogger() = default;
 
-	~GLogger() = default;
+	~GLogger() {
+		debug(DESTRUCTOR, "GLogger");
+	}
 
 	/**
 	 * @brief Logs a debug message, if debug level is set.
@@ -138,7 +142,7 @@ public:
 	[[noreturn]] void error(int exit_code, Args&&... args) const {
 		std::ostringstream oss;
 		(oss << ... << std::forward<Args>(args));
-		G4cerr << FATALERRORL << header_string() << GWARNING << oss.str() << RST << G4endl;
+		G4cerr << FATALERRORL << header_string() << KRED << oss.str() << RST << G4endl;
 		std::exit(exit_code);
 	}
 

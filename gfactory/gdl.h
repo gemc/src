@@ -40,41 +40,41 @@ private:
 		return (stat(name.c_str(), &buffer) == 0);
 	}
 
-	GLogger log;
+	GLogger const *log;
 
 public:
 	// default constructor
 	DynamicLib() = default;
 
 	// path here is the filename
-	DynamicLib(GOptions *g, std::string path) : dlFileName(path), log(g, "plugins"), handle(nullptr) {
+	DynamicLib(	GLogger const *logger, std::string path) : dlFileName(path), log(logger), handle(nullptr) {
 
-		log.debug(CONSTRUCTOR, "Instantiating ", path);
-		log.debug(NORMAL, "Trying ", dlFileName);
+		log->debug(CONSTRUCTOR, "Instantiating ", path);
+		log->debug(NORMAL, "Trying ", dlFileName);
 
 		// trying $GEMC/lib/ + path if not found
 		if (!doesFileExists(dlFileName)) {
-			log.debug(NORMAL, dlFileName, "Not found...");
+			log->debug(NORMAL, dlFileName, "Not found...");
 			dlFileName = std::string(getenv("GEMC")) + "/lib/" + path;
-			log.debug(NORMAL, "Trying ", dlFileName);
+			log->debug(NORMAL, "Trying ", dlFileName);
 		}
 
 		// trying $GEMC/lib64/ + path if not found
 		if (!doesFileExists(dlFileName)) {
-			log.debug(NORMAL, dlFileName, "Not found...");
+			log->debug(NORMAL, dlFileName, "Not found...");
 			dlFileName = std::string(getenv("GEMC")) + "/lib64/" + path;
-			log.debug(NORMAL, "Trying ", dlFileName);
+			log->debug(NORMAL, "Trying ", dlFileName);
 		}
 
 		if (doesFileExists(dlFileName)) {
 			handle = load_lib(dlFileName);
-			log.info(0, "Loaded ", dlFileName);
+			log->info(0, "Loaded ", dlFileName);
 			if (handle == nullptr) {
 				char const *const dlopen_error = dlerror();
-				log.error(EC__DLHANDLENOTFOUND, "File ", dlFileName, " found, but handle is null. Error: ", dlopen_error);
+				log->error(EC__DLHANDLENOTFOUND, "File ", dlFileName, " found, but handle is null. Error: ", dlopen_error);
 			}
 		} else {
-			log.error(EC__DLNOTFOUND, "could not find ", dlFileName);
+			log->error(EC__DLNOTFOUND, "could not find ", dlFileName);
 		}
 	}
 
@@ -83,7 +83,7 @@ public:
 	~DynamicLib() {
 		if (handle != nullptr) {
 			close_lib(handle);
-			log.debug(DESTRUCTOR, "Destroying ", dlFileName);
+			log->debug(DESTRUCTOR, "Destroying ", dlFileName);
 		}
 	}
 

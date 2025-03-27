@@ -1,8 +1,9 @@
 #ifndef  GREADOUTSPECS_H
 #define  GREADOUTSPECS_H 1
 
-// glibrary
+// gemc for HitBitSet
 #include "ghitConventions.h"
+#include "glogger.h"
 
 #include <math.h>  /* floor */
 
@@ -15,18 +16,15 @@ private:
 	float timeWindow;       // electronic readout time-window of the detector
 	float gridStartTime;    // defines the windows grid
 	HitBitSet hitBitSet;        // defines what information to be stored in the hit
-	bool verbosity;
 
 public:
 
 	// constructor set by plugins
-	GReadoutSpecs(const float tw, const float gst, const HitBitSet hbs, bool v = false) :
+	GReadoutSpecs(const float tw, const float gst, const HitBitSet hbs, GLogger *log) :
 			timeWindow(tw),
 			gridStartTime(gst),
-			hitBitSet(hbs),
-			verbosity(v) {
-		if (verbosity) {
-		}
+			hitBitSet(hbs) {
+		log->info(1, "GReadoutSpecs: timeWindow=", timeWindow, ", gridStartTime=", gridStartTime, ", hitBitSet=", hitBitSet);
 	}
 
 public:
@@ -37,12 +35,7 @@ public:
 	inline int timeCellIndex(float time) const {
 		return (int) (floor((time - gridStartTime) / timeWindow) + 1);
 	}
-
-//	vector<string> showParameters() {
-//		vector<string> messages;
-//		messages.push_back(" Time Window: " + to_string(timeWindow));
-//		return messages;
-//	}
+	
 };
 
 

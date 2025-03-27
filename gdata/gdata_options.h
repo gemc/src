@@ -11,6 +11,9 @@
 
 #include "goptions.h"
 
+constexpr const char* DATA_LOGGER = "gdata";
+
+
 namespace gdata {
 
 /**

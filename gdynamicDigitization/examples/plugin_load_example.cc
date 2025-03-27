@@ -4,9 +4,11 @@
 
 // gdynamic
 #include "gdynamicdigitization.h"
+#include "gdynamicdigitization_options.h"
 
-// gfactory
+// gemc
 #include "gfactory.h"
+#include "gfactory_options.h"
 
 // c++
 #include <iostream>
@@ -14,31 +16,43 @@
 using namespace std;
 
 
-//! example of main declaring GOptions
-//int main(int argc, char *argv[]) {
-int main() {
+int main(int argc, char *argv[]) {
+	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
+	auto *gopts = new GOptions(argc, argv, gdynamicdigitization::defineOptions());
 
-    GManager manager("example", 10);
+	// Create loggers: one for gdata and one for gtouchable.
+	auto *log = new GLogger(gopts, GDIGITIZATION_LOGGER);
+	auto *plugin_log = new GLogger(gopts, PLUGIN_LOGGER);
+
+    GManager manager(plugin_log, GDIGITIZATION_LOGGER);
 
     // using dynamicRoutines map
     map < string, GDynamicDigitization * > dynamicRoutines;
-    dynamicRoutines["ctof"] = manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("gplugin_test_example");
+    dynamicRoutines["ctof"] = manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin");
+	dynamicRoutines["ctof"]->set_loggers(gopts);
 
     // using shared_ptr
-    shared_ptr <GDynamicDigitization> globalCtof1(manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("gplugin_test_example"));
-    shared_ptr <GDynamicDigitization> globalCtof2(manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("gplugin_test_example"));
+    shared_ptr <GDynamicDigitization> globalCtof1(manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin"));
+    shared_ptr <GDynamicDigitization> globalCtof2(manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin"));
+	globalCtof1->set_loggers(gopts);
+	globalCtof2->set_loggers(gopts);
 
     // increments reference count
     // to be used in the local thread
     auto globalCtof3(globalCtof2);
+	globalCtof3->set_loggers(gopts);
 
-    cout << dynamicRoutines["ctof"] << " " << globalCtof1 << " " << globalCtof2 << " " << globalCtof3 << endl;
 
-    dynamicRoutines["ctof"]->loadConstants(1, "original");
+	log->info(0, "globalCtof1: ", globalCtof1, ", globalCtof2: ", globalCtof3, ", dynamicRoutines[\"ctof\"]: ", dynamicRoutines["ctof"]);
 
-    globalCtof1->loadConstants(1, "original");
-    globalCtof2->loadConstants(1, "original");
-    globalCtof3->loadConstants(1, "original");
+    dynamicRoutines["ctof"]->loadConstants(1, "default");
+    globalCtof1->loadConstants(2, "default");
+    globalCtof2->loadConstants(3, "target_shift");
+    globalCtof3->loadConstants(4, "no_magnet");
 
+	// clean up
+	delete plugin_log;
+	delete log;
+	delete gopts;
     return EXIT_SUCCESS;
 }

@@ -13,8 +13,10 @@ using std::endl;
 // notice: if the energy deposited is very low (~50eV)
 // the rounding error on the averave calculations could be up to 10^-3
 GTrueInfoData *GDynamicDigitization::collectTrueInformation(GHit *ghit, size_t hitn) {
-    GTrueInfoData *trueInfoData = new GTrueInfoData(ghit);
 
+	check_if_log_defined();
+
+    GTrueInfoData *trueInfoData = new GTrueInfoData(ghit, data_logger.value());
 
     vector <GIdentifier> identities = ghit->getGID();
 
@@ -42,7 +44,6 @@ GTrueInfoData *GDynamicDigitization::collectTrueInformation(GHit *ghit, size_t h
     trueInfoData->includeVariable("avglz", avgLocalPos.getZ());
     trueInfoData->includeVariable("hitn", hitn);
 
-
     // bit 1:
     trueInfoData->includeVariable("processName", ghit->getProcessName());
 
@@ -57,8 +58,7 @@ void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, GHit *ghit, 
 
     // gexit if translation table not defined
     if (translationTable == nullptr) {
-        cerr << FATALERRORL << "Translation Table not found" << endl;
-        gexit(EC__TTNOTFOUNDINTT);
+		tt_logger.value()->error(EC__TTNOTFOUNDINTT, "Translation Table not found");
 
     } else {
 
@@ -67,8 +67,7 @@ void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, GHit *ghit, 
 
         // gexit if ghit haddress not initialized
         if (haddress.front() == UNINITIALIZEDNUMBERQUANTITY) {
-            cerr << FATALERRORL << "Translation Table found, but haddress was not initialized." << endl;
-            gexit(EC__GIDENTITYNOTFOUNDINTT);
+			tt_logger.value()->error(EC__GIDENTITYNOTFOUNDINTT, "Translation Table found, but haddress was not initialized");
         } else {
 
             // everything is good.

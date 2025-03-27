@@ -3,14 +3,20 @@
 
 // dynamic digitization
 #include "greadoutSpecs.h"
+#include "gfactory_options.h"
 
-// glibrary
+// gemc
 #include "gdl.h"
 #include "gtouchable.h"
 #include "ghit.h"
 #include "gDigitizedData.h"
 #include "gTrueInfoData.h"
 #include "gtranslationTable.h"
+#include "gfactory_options.h"
+#include "gtranslationTable_options.h"
+#include "gdata_options.h"
+#include "gdynamicdigitization_options.h"
+
 
 // c++
 #include <vector>
@@ -22,8 +28,7 @@
 class GTouchableModifiers {
 
 public:
-    // abstract destructor
-    GTouchableModifiers(vector <string> touchableNames);
+    explicit GTouchableModifiers(vector <string> touchableNames);
 
 private:
     // only one of these maps can be filled with values:
@@ -47,17 +52,17 @@ public:
     void assignOverallWeight(string touchableName, double totalWeight);
 
     inline bool isWeightsOnly() {
-        return modifierWeightsMap.size() > 0;
+        return !modifierWeightsMap.empty();
     }
 
     // get vectors from modifierWeightsMap using touchableName
-    inline vector<double> getModifierWeightsVector(string touchableName) {
+    inline vector<double> getModifierWeightsVector(const string& touchableName) {
         // this will crash if user request a key not declared in the constructor
         return modifierWeightsMap[touchableName];
     }
 
     // get vectors from modifierWeightsAndTimesMap using touchableName
-    inline vector<double> getModifierWeightsAndTimeVector(string touchableName) {
+    inline vector<double> getModifierWeightsAndTimeVector(const string& touchableName) {
         // this will crash if user request a key not declared in the constructor
         return modifierWeightsAndTimesMap[touchableName];
     }
@@ -132,13 +137,31 @@ public:
         return func();
     }
 
-private:
-    // logging
-    void gDLogMessage(std::string message) {
-        gLogMessage("   ⎍ " + message);
-    }
+	void set_loggers(GOptions *const g) {
+		gopts = g;
+		data_logger = new GLogger(gopts.value(), DATA_LOGGER);
+		tt_logger = new GLogger(gopts.value(), TRANSLATIONTABLE_LOGGER);
+		digi_logger = new GLogger(gopts.value(), GDIGITIZATION_LOGGER);
+	}
+
+protected:
+
+	std::optional<GOptions *> gopts;
+	std::optional<GLogger *> data_logger;
+	std::optional<GLogger *> tt_logger;
+	std::optional<GLogger *> digi_logger;
+
+	// should be able to remove this once we verify that the logger is set
+	void check_if_log_defined() {
+		if ( !gopts.has_value() || !data_logger.has_value() || !tt_logger.has_value() || !digi_logger.has_value() ) {
+			std::cerr << KRED << "Fatal Error: GDynamicDigitization: goption is not set for this plugin." << std::endl;
+			std::cerr << "The set_loggers function need to be called. " << std::endl;
+			std::cerr << "For example: dynamicRoutines[\"ctof\"]->set_loggers(gopts); " << RST << std::endl;
+			exit(1);
+		}
+	}
+
 
 };
-
 
 #endif

@@ -28,6 +28,7 @@
 
 // gemc
 #include "glogger.h"
+#include "gtouchable_options.h"
 
 using namespace std;
 
@@ -38,8 +39,8 @@ int main(int argc, char *argv[]) {
 	GOptions *gopts = new GOptions(argc, argv, gdata::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	GLogger *log = new GLogger(gopts, "gdata");
-	GLogger *logt = new GLogger(gopts, "gtouchable");
+	GLogger *log = new GLogger(gopts, DATA_LOGGER);
+	GLogger *logt = new GLogger(gopts, TOUCHABLE_LOGGER);
 
 	int nevents = 10;
 
@@ -100,6 +101,6 @@ int main(int argc, char *argv[]) {
 	// deleting log here gives error on linux. should be investigated
 	delete runData;
 	delete gopts;
-	
+
 	return EXIT_SUCCESS;
 }

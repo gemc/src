@@ -6,19 +6,21 @@ using namespace std;
 
 
 bool GPlugin_test_example::defineReadoutSpecs() {
+	check_if_log_defined();
 
     float timeWindow = 10;                  // electronic readout time-window of the detector
     float gridStartTime = 0;                // defines the windows grid
     HitBitSet hitBitSet = HitBitSet("100000");  // defines what information to be stored in the hit
-    bool verbosity = true;
 
-    readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, verbosity);
+    readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger.value());
 
     return true;
 }
 
 
 bool GPlugin_test_example::loadConstants(int runno, [[maybe_unused]] string variation) {
+	check_if_log_defined();
+
     var1 = 2.0;
     var2[0] = 1;
     var2[0] = 2;
@@ -30,7 +32,7 @@ bool GPlugin_test_example::loadConstants(int runno, [[maybe_unused]] string vari
 
     var4 = "hello";
 
-    cout << " Constants loaded for run number " << runno << " for ctof! var1  is " << var1 << " var2 pointer is " << var2 << endl;
+	digi_logger.value()->info(0, " Constants loaded for run number ", runno, " for ctof. var1  is ", var1, " var2 pointer is ", var2, "variation is", variation);
 
     return true;
 }

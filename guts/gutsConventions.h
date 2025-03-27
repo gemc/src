@@ -77,7 +77,7 @@
 #define BOLD(x) KBOLD x RST ///< Macro to wrap text in bold.
 #define UNDL(x) "\x1B[4m" x RST ///< Macro to wrap text with underline.
 
-#define FATALERRORL BOLD(FRED("Error: ")) ///< Fatal error label.
+#define FATALERRORL BOLD(FRED("Fatal Error: ")) ///< Fatal error label.
 #define GWARNING BOLD(FYEL("Warning: "))  ///< Warning label.
 
 #define CONSTRUCTORLOG "↑"  ///< Log symbol for constructor.

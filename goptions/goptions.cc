@@ -65,7 +65,7 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 	help = "Debug information Types: \n \n";
 	help += " - false: (default): do not print debug information\n";
 	help += " - true: print debug information\n\n";
-	help += "Example: -debug.general=1 \n \n";
+	help += "Example: -debug.general=true \n \n";
 	help += "This option can be repeated.\n \n";
 	defineOption("debug", "Sets the debug level for various classes", option_verbosity_names, help);
 
@@ -482,8 +482,6 @@ int GOptions::getVerbosityFor(const std::string &tag) const {
 			return v.begin()->second.as<int>();
 		}
 	}
-
-	std::cout << " HELLO tag <" << tag << ">,  node: " << verbosity_node << endl;
 
 	// not found. error
 	std::cerr << KRED << " Invalid verbosity or debug requested: " << tag << RST << std::endl;

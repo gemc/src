@@ -1,5 +1,5 @@
 /**
- * \file GDigitizedData.cpp
+ * \file GDigitizedData.cc
  * \brief Implementation of the GDigitizedData class.
  */
 
