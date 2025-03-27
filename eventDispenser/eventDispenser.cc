@@ -1,210 +1,199 @@
-// eventDispenser 
+/**
+ * \file eventDispenser.cpp
+ * \brief Implements the EventDispenser class which distributes events among runs.
+ *
+ * \mainpage Event Dispenser Module
+ *
+ * \section intro_sec Introduction
+ * The Event Dispenser module is responsible for distributing simulation events
+ * among different runs based on a user–defined weighting scheme. It reads run weight
+ * information from a file (if provided) or uses options provided via GOptions. It then
+ * randomly assigns events to runs and executes them using Geant4 commands.
+ *
+ * \section details_sec Details
+ * The module initializes the run weight maps, distributes events randomly based on the weights,
+ * and processes events by calling Geant4 UI commands (e.g., /run/beamOn). The class also logs
+ * progress and summary information.
+ *
+ * \section usage_sec Usage
+ * To use the EventDispenser, instantiate it with a pointer to GOptions and a global map of
+ * GDynamicDigitization plugins. Call processEvents() to run the events.
+ *
+ * \author Your Name
+ * \date YYYY-MM-DD
+ */
+
 #include "eventDispenserConventions.h"
+#include "eventDispenser_options.h"
 #include "eventDispenser.h"
 
 // c++
 #include <fstream>
 #include <random>
-using namespace std;
 
-// glibrary
+// gemc
 #include "textProgressBar.h"
 
 // geant4
 #include "G4UImanager.hh"
 
+using namespace std;
 
-EventDispenser::EventDispenser(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal) : gDigitizationGlobal(gDDGlobal) {
+//
+// Constructor: Initializes the EventDispenser using options from GOptions and a pointer to the global
+// GDynamicDigitization plugins map.
+//
+EventDispenser::EventDispenser(GOptions *gopt, map<string, GDynamicDigitization *> *gDDGlobal)
+		: log(new GLogger(gopt, EVENTDISPENSER_LOGGER)), gDigitizationGlobal(gDDGlobal) {
 
-    verbosity = gopt->getVerbosityFor("gevent_dispenser");
-	string filename  = gopt->getScalarString("wdbfile");
-	userRunno        = gopt->getScalarInt("runno");
-	nEventBuffer     = gopt->getScalarInt("n_event_buffer");
+	log->debug(CONSTRUCTOR, "EventDispenser");
+
+	// Retrieve configuration parameters from GOptions.
+	string filename = gopt->getScalarString("run_weights");
+	userRunno = gopt->getScalarInt("run");
+	nEventBuffer = gopt->getScalarInt("n_event_buffer");
 	neventsToProcess = gopt->getScalarInt("n");
 
-	// nothing to do here
-	if(neventsToProcess == 0) return;
+	log->debug(NORMAL, "EventDispenser: run_weights = >", filename, "<");
 
-	// no filename
-	// run number from options
-	// number of events from options
-	if(filename == UNINITIALIZEDSTRINGQUANTITY && neventsToProcess > 0 ) {
-		// only one run, defined in the option
+	// If there are no events to process, nothing more to do.
+	if (neventsToProcess == 0) return;
+
+	// If no file is provided, use the user-specified run number.
+	if (filename == UNINITIALIZEDSTRINGQUANTITY && neventsToProcess > 0) {
+		// Only one run is defined via the option.
 		runEvents[userRunno] = neventsToProcess;
 		return;
 	} else {
-		// filename specified, reading it
+		// A filename was specified; attempt to open the run weights input file.
 		ifstream in(filename.c_str());
-		if(!in) {
-			cerr << EVENTDISPENSERLOGMSGITEM << " Error: can't open run weights input file " << filename << ". Check your spelling. Exiting. " << endl;
-			gexit(EC__EVENTDISTRIBUTIONFILENOTFOUND);
+		if (!in) {
+			log->error(EC__EVENTDISTRIBUTIONFILENOTFOUND, "Error: can't open run weights input file ", filename, ". Check your spelling. Exiting.");
 		} else {
-			if(verbosity >= GVERBOSITY_SUMMARY) {
-				cout << EVENTDISPENSERLOGMSGITEM << " Loading run weights from " << filename << endl;
-			}
-			// filling weight map
-			while (!in.eof()) {
-				int run;
-				double weight;
-				in >> run >> weight;
+			log->info(1, "Loading run weights from ", filename);
+			// Fill the run weight map by reading each line from the file.
+			int run;
+			double weight;
+			// Use a robust loop to read pairs from the file.
+			while (in >> run >> weight) {
 				listOfRuns.push_back(run);
 				runWeights[run] = weight;
 				runEvents[run] = 0;
 			}
-			// distribute events according to weights
+			// Distribute the total number of events among the runs according to the weights.
 			distributeEvents(neventsToProcess);
 		}
 		in.close();
 
-		if(verbosity >= GVERBOSITY_SUMMARY) {
-			printRunsDetails(neventsToProcess);
+		// Log summary information.
+		log->info(0, "EventDispenser initialized with ", neventsToProcess, " events distributed among ", runWeights.size(), " runs:");
+		log->info(0, " run\t weight\t  n. events");
+		for (const auto &weight: runWeights) {
+			log->info(0, " ", weight.first, "\t ", weight.second, "\t  ", runEvents[weight.first]);
 		}
 	}
 }
 
+//
+// Sets the total number of events to process. Clears previous run events and assigns all events to the user run.
+//
 void EventDispenser::setNumberOfEvents(int nevents_to_process) {
 	runEvents.clear();
 	runEvents[userRunno] = nevents_to_process;
 }
 
+//
+// Randomly distributes events among runs according to the weights read from the input file.
+//
+void EventDispenser::distributeEvents(int nevents_to_process) {
+	// Initialize a progress bar for visual feedback.
+	//TextProgressBar bar(50, string(EVENTDISPENSERLOGMSGITEM) + " Distributing events according to run weights ", 0, nevents_to_process);
 
-void EventDispenser::distributeEvents(int nevents_to_process)
-{
-	// now randomizing the run of each event
-	TextProgressBar bar(50, string(EVENTDISPENSERLOGMSGITEM) + " Distributing events according to run weights ", 0, nevents_to_process);
-
-	// generating random number
-	// reference: http://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
+	// Set up a random number generator.
 	random_device randomDevice;
 	mt19937 generator(randomDevice());
 	uniform_real_distribution<> randomDistribution(0, 1);
 
-	for(int i=0; i<nevents_to_process; i++) {
+	// Loop over each event and assign it to a run based on the cumulative weight.
+	for (int i = 0; i < nevents_to_process; i++) {
 		double randomNumber = randomDistribution(generator);
 
-		double ww = 0;
-		for(const auto &weight : runWeights) {
-			ww += weight.second;
-			if(randomNumber <= ww) {
+		double cumulativeWeight = 0;
+		for (const auto &weight: runWeights) {
+			cumulativeWeight += weight.second;
+			if (randomNumber <= cumulativeWeight) {
 				runEvents[weight.first]++;
 				break;
 			}
 		}
-		bar.setProgress(i);
+	//	bar.setProgress(i);
 	}
 }
 
-// TODO: fix this as ntot is not used
-void EventDispenser::printRunsDetails(int nevents_to_process)
-{
-	//	int ntot = 0;
-
-	cout << EVENTDISPENSERLOGMSGITEM << " EventDispenser initialized with " << nevents_to_process << " events distributed among " << runWeights.size() << " runs:" << endl;
-
-	if(verbosity >= GVERBOSITY_SUMMARY) {
-
-		for(const auto &weight : runWeights) {
-			cout << GTAB << EVENTDISPENSERLOGMSGITEM << " run: " << weight.first << "\t weight: " << runWeights[weight.first] ;
-			cout << "\t  n. events: " << runEvents[weight.first] << endl;
-			//			ntot += runEvents[weight.first];
-		}
+//
+// Sums the number of events assigned to all runs.
+//
+int EventDispenser::getTotalNumberOfEvents() {
+	int totalEvents = 0;
+	for (auto rEvents: runEvents) {
+		totalEvents += rEvents.second;
 	}
+	return totalEvents;
 }
 
-// sums number of events across all runs
-int EventDispenser::getTotalNumberOfEvents()
-{
-	int n = 0;
-
-	for(auto rEvents : runEvents) {
-		n += rEvents.second;
-	}
-
-	return n;
-}
-
-
-// this will:
-// initiate all available gdynamic plugins for each run
-// execute run/beamOn for each run
-// log on screen infos if enough verbosity
-int EventDispenser::processEvents()
-{
+//
+// Processes events by iterating over runs, initializing plugins, and executing Geant4 commands.
+//
+int EventDispenser::processEvents() {
+	// Get the Geant4 UI manager pointer.
 	G4UImanager *g4uim = G4UImanager::GetUIpointer();
+	// Set the progress print command based on the elog level.
 	g4uim->ApplyCommand("/run/printProgress " + to_string(elog));
 
-	for(auto &run : runEvents) {
-
+	// Iterate over each run in the run events map.
+	for (auto &run: runEvents) {
 		int runNumber = run.first;
-		int nevents   = run.second;
+		int nevents = run.second;
 
-		// loads the constants
-		if ( runNumber != currentRunno ) {
-			for(auto [digitizationName, digiRoutine]: (*gDigitizationGlobal)) {
-				if(verbosity >= GVERBOSITY_DETAILS) {
-					gLogMessage(string(EVENTDISPENSERLOGMSGITEM) + " Calling " + string(KMAG) + digitizationName  +  string(RST) + " digitization loadConstants for run " + to_string(runNumber));
-				}
+		// Load constants and translation table if the run number has changed.
+		if (runNumber != currentRunno) {
+			for (auto [digitizationName, digiRoutine] : (*gDigitizationGlobal)) {
+				log->debug(NORMAL, "Calling ", digitizationName, " loadConstants for run ", runNumber);
 				digiRoutine->loadConstants(runNumber, variation);
-				if(verbosity >= GVERBOSITY_DETAILS) {
-					gLogMessage(string(EVENTDISPENSERLOGMSGITEM) + " Calling " + string(KMAG) + digitizationName  +  string(RST) + " digitization loadTT for run " + to_string(runNumber));
-				}
+
+				log->debug(NORMAL, "Calling ", digitizationName, " loadTT for run ", runNumber);
 				digiRoutine->loadTT(runNumber, variation);
 			}
 			currentRunno = runNumber;
 		}
 
-		if(verbosity >= GVERBOSITY_SUMMARY) {
-			gLogMessage(string(EVENTDISPENSERLOGMSGITEM) + " Starting " + string(KBLU) + " Run Number "  +  to_string(runNumber) + string(RST) + ", event buffer is: " + to_string(nEventBuffer));
-		}
+		log->info(1, "Starting run ", runNumber, " with ", nevents, " events. Event buffer is ", nEventBuffer);
 
-		if ( nevents <= nEventBuffer) {
-			if(verbosity >= GVERBOSITY_SUMMARY) {
-				gLogMessage("  " + string(EVENTDISPENSERLOGMSGITEM) + " Processing " + to_string(nevents) + " events");
-			}
+		// If events are fewer than the buffer size, process all in one go.
+		if (nevents <= nEventBuffer) {
+			log->info(1, "Processing ", nevents, " events in one go");
 			g4uim->ApplyCommand("/run/initialize");
 			g4uim->ApplyCommand("/run/beamOn " + to_string(nevents));
 		} else {
-			int nsubRuns = nevents / nEventBuffer ;
+			// Otherwise, process events in sub-runs.
+			int nsubRuns = nevents / nEventBuffer;
 			int totalSoFar = 0;
-			int lastSubRunNEvents = nevents%nEventBuffer;
-			int ntotalSubRuns = ( lastSubRunNEvents > 0 ? nsubRuns + 1 : nsubRuns);
-			for ( int s = 0; s < nsubRuns; s++ ) {
-				if(verbosity >= GVERBOSITY_SUMMARY) {
-                    // int upToNevents = totalSoFar + nEventBuffer;
-					string log = "  " + string(EVENTDISPENSERLOGMSGITEM) + " Sub run: " + to_string(s+1) + "/" + to_string(ntotalSubRuns)
-					+ ", processing events " + to_string(totalSoFar) + " → " + to_string(totalSoFar);
-					gLogMessage(log);
-				}
+			int lastSubRunNEvents = nevents % nEventBuffer;
+			int ntotalSubRuns = (lastSubRunNEvents > 0 ? nsubRuns + 1 : nsubRuns);
+			for (int s = 0; s < nsubRuns; s++) {
+				log->info(1, "Processing sub run ", s + 1, " out of ", ntotalSubRuns, " with ", nEventBuffer, " events. Total events so far: ", totalSoFar);
 				g4uim->ApplyCommand("/run/initialize");
 				g4uim->ApplyCommand("/run/beamOn " + to_string(nEventBuffer));
 				totalSoFar += nEventBuffer;
 			}
-			if ( lastSubRunNEvents > 0 ) {
-				if(verbosity >= GVERBOSITY_SUMMARY) {
-					string log = "  " + string(EVENTDISPENSERLOGMSGITEM) + " Sub run: " + to_string(nsubRuns + 1) + "/" + to_string(nsubRuns + 1)
-					                  + ", processing events " + to_string(totalSoFar) + " → " + to_string(lastSubRunNEvents);
-					gLogMessage(log);
-				}
+			if (lastSubRunNEvents > 0) {
+				log->info(1, "Processing sub run ", nsubRuns + 1, " with ", lastSubRunNEvents, " events");
 				g4uim->ApplyCommand("/run/beamOn " + to_string(lastSubRunNEvents));
 			}
 		}
 
-		if(verbosity >= GVERBOSITY_SUMMARY) {
-			gLogMessage(string(EVENTDISPENSERLOGMSGITEM) + string(KBLU) + " Run Number "  +  to_string(runNumber) + string(RST) + " done with " + to_string(nevents) + " events" );
-		}
+		log->info(1, "Run ", runNumber, " done with ", nevents, " events");
 	}
 
 	return 1;
-}
-
-
-// show digitization constants and parameters
-void EventDispenser::showDigitizationParameters(string system, vector<string> digiConstants, vector<string> digiPars)
-{
-	for(auto dc: digiConstants) {
-		cout << "  " << EVENTDISPENSERLOGMSGITEM << " " << system << ": " << dc << endl;
-	}
-	for(auto dp: digiPars) {
-		cout << "  " << EVENTDISPENSERLOGMSGITEM << " " << system << ": " << dp << endl;
-	}
 }

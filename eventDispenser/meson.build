@@ -3,15 +3,17 @@ LD += {
     'name' : sub_dir_name,
     'sources' : files(
         'eventDispenser.cc',
-        'eventDispenserOptions.cc'
+        'eventDispenser_options.cc'
     ),
     'headers' : files(
         'eventDispenser.h',
-        'eventDispenserOptions.h',
+        'eventDispenser_options.h',
         'eventDispenserConventions.h'
     ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'test_basic_event_dispenser' : [files('examples/simple.cc'), meson.current_source_dir() + '/examples/simple.yaml' ]
+        'test_event_dispenser' : [files('examples/event_dispenser_example.cc'), ['-run_weights=' + meson.current_source_dir() + '/examples/runWeights.txt', '-n=1000', ]],
+        'test_event_dispenser_with_file' : [files('examples/event_dispenser_example.cc'), ['-run_weights=' + meson.current_source_dir() + '/examples/runWeights.txt', '-n=1000']],
+        'test_event_dispenser_with_file_debug' : [files('examples/event_dispenser_example.cc'), ['-run_weights=' + meson.current_source_dir() + '/examples/runWeights.txt', '-n=1000', '-verbosity.eventdispenser=2', '-debug.eventdispenser=true']]
     }
 }

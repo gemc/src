@@ -1,5 +1,5 @@
 // eventDispenser
-#include "eventDispenserOptions.h"
+#include "eventDispenser_options.h"
 
 // gemc
 #include "gutsConventions.h"
@@ -11,16 +11,15 @@ namespace eventDispenser {
 // returns array of options definitions
     GOptions defineOptions() {
 
-        GOptions goptions;
+        GOptions goptions(EVENTDISPENSER_LOGGER);
 
         string help = "Example: -n=200\n";
         goptions.defineOption(GVariable("n", 0, "number of events to process"), help);
 
-        // runno: 12,
+        // runno: 12
         help = "Not to be confused with the geant4 run number - g4runno is set automatically \n \n";
-        help += "Example: -runno=12\n";
-        goptions.defineOption(GVariable("runno", 1, "sets run number"), help);
-
+        help += "Example: -run=12\n";
+        goptions.defineOption(GVariable("run", 1, "sets run number"), help);
 
         help = "Text file with run number and their weights.\n \n";
         help += GTAB;
@@ -35,7 +34,7 @@ namespace eventDispenser {
         help += "13 0.2\n \n";
         help += GTAB;
         help += "will simulate 10% of events with run number 11 conditions, 70% for run 12 and 20% for run 13.\n";
-        goptions.defineOption(GVariable("wdbfile", "na", "File with run number and weights"), help);
+        goptions.defineOption(GVariable("run_weights", UNINITIALIZEDSTRINGQUANTITY, "File with run number and weights"), help);
 
         help = "Max number of events  to buffer before they're written out.\n \n";
         help += "Example: -n_event_buffer=12\n";

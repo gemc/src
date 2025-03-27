@@ -1,69 +1,113 @@
-#ifndef  EVENTDISPENSER_H
-#define  EVENTDISPENSER_H  1
+#ifndef EVENTDISPENSER_H
+#define EVENTDISPENSER_H 1
 
-
-// glibrary
 #include "goptions.h"
 #include "gdynamicdigitization.h"
 
-// TODO: make actual use of changing the constants in gDDGlobal
-class  EventDispenser
-{
+#include <map>
+#include <vector>
+#include <string>
+
+/**
+ * \class EventDispenser
+ * \brief Distributes events among runs and manages dynamic digitization plugins.
+ *
+ * This class reads run configurations and distributes events according to weighted
+ * runs. It also initializes and calls GDynamicDigitization plugins for each run, logs
+ * useful information, and provides an API to query run event data.
+ */
+class EventDispenser {
 public:
-	EventDispenser(GOptions* gopt, map<string, GDynamicDigitization*> *gDDGlobal);
+	/**
+	 * \brief Constructs an EventDispenser.
+	 *
+	 * \param gopt Pointer to a GOptions object containing configuration parameters.
+	 * \param gDDGlobal Pointer to a map of GDynamicDigitization plugins keyed by a string.
+	 */
+	EventDispenser(GOptions *gopt, std::map<std::string, GDynamicDigitization *> *gDDGlobal);
+
+	/**
+	 * \brief Destructor for EventDispenser.
+	 *
+	 * Logs a debug message upon destruction.
+	 */
+	~EventDispenser() {
+		log->debug(DESTRUCTOR, "EventDispenser");
+		delete log;
+	}
 
 private:
-	// from GOptions
-	int verbosity;
-	int neventsToProcess;
-	int userRunno;
-	int nEventBuffer;
-	int currentRunno = -1;
-	int elog;
-	string variation;
+	GLogger *const log;  ///< Logger instance obtained from GOptions.
 
-	// internal use
-	// map of runs with weights as coming from the file
-	map<int, double> runWeights;
+	// Parameters extracted from GOptions:
+	int neventsToProcess;  ///< Total number of events to process.
+	int userRunno;         ///< User-defined run number.
+	int nEventBuffer;      ///< Number of events stored in the buffer.
+	int currentRunno = -1; ///< Current run number being processed.
+	int elog;              ///< Logging level for events.
+	std::string variation; ///< Variation string for configuration.
 
-	// map with numnber of events for each run, based on weight map
-	map<int, int> runEvents;
+	// Internal data structures:
+	std::map<int, double> runWeights;  ///< Map of run numbers with associated weights.
+	std::map<int, int> runEvents;        ///< Map of number of events per run (derived from weights).
+	std::vector<int> listOfRuns;         ///< List of run numbers to process.
 
-	vector<int> listOfRuns;
-
-	// fill the number of events map
+	/**
+	 * \brief Fills the runEvents map based on the number of events to process.
+	 *
+	 * \param nevents_to_process Total number of events that need to be processed.
+	 */
 	void distributeEvents(int nevents_to_process);
 
-	void printRunsDetails(int nevents_to_process);
+	int currentRunIndex; ///< Index for the current run in listOfRuns.
 
-	int currentRunIndex;
+	std::map<std::string, GDynamicDigitization *> *gDigitizationGlobal; ///< Pointer to global dynamic digitization plugins.
 
-	map<string, GDynamicDigitization*> *gDigitizationGlobal;
-
-	// show digitization constants and parameters
-	void showDigitizationParameters(string system, vector<string> digiConstants, vector<string> digiPars);
-
-	// increase run index
-	void setNextRun() {currentRunIndex++;}
+	/**
+	 * \brief Increments the current run index.
+	 */
+	void setNextRun() { currentRunIndex++; }
 
 public:
-	// public api
-	map<int, int> getRunEvents() {return runEvents;}
-	int getCurrentRun()          {return listOfRuns[currentRunIndex];}
+	/**
+	 * \brief Returns the map of run events.
+	 *
+	 * \return A map where keys are run numbers and values are the number of events for each run.
+	 */
+	std::map<int, int> getRunEvents() { return runEvents; }
 
-	// return sums of number of events across all runs
+	/**
+	 * \brief Returns the current run number.
+	 *
+	 * \return The current run number from the list of runs.
+	 */
+	int getCurrentRun() { return listOfRuns[currentRunIndex]; }
+
+	/**
+	 * \brief Computes and returns the total number of events across all runs.
+	 *
+	 * \return The sum of events across all runs.
+	 */
 	int getTotalNumberOfEvents();
 
-	// this will:
-	// initiate all available gdynamic plugins for each run
-	// run beamOn for each run
-	// log on screen infos if enough verbosity
+	/**
+	 * \brief Processes events by initializing dynamic digitization plugins and running simulations.
+	 *
+	 * This method initiates all available GDynamicDigitization plugins for each run,
+	 * performs the simulation (e.g., beamOn) for each run, and logs detailed information
+	 * if verbosity is enabled.
+	 *
+	 * \return An integer status code indicating the result of event processing.
+	 */
 	int processEvents();
 
+	/**
+	 * \brief Sets the total number of events to process.
+	 *
+	 * This method is public because it can be set by the GUI
+	 * \param nevts The total number of events.
+	 */
 	void setNumberOfEvents(int nevts);
-
-
 };
-
 
 #endif

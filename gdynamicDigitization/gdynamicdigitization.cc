@@ -32,7 +32,7 @@ using std::endl;
  * \return Pointer to a newly allocated GTrueInfoData object.
  */
 GTrueInfoData *GDynamicDigitization::collectTrueInformationImpl(GHit *ghit, size_t hitn) {
-	GTrueInfoData *trueInfoData = new GTrueInfoData(ghit, data_logger.value());
+	auto *trueInfoData = new GTrueInfoData(ghit, data_logger.value());
 	std::vector<GIdentifier> identities = ghit->getGID();
 
 	// Loop over all identities and include them in the true info data.

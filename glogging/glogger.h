@@ -13,9 +13,13 @@
 #include <sstream>
 #include <utility>
 
-
-
-enum debug_type { NORMAL, CONSTRUCTOR, DESTRUCTOR };
+/**
+ * \enum debug_type
+ * \brief Enumerates debug message types.
+ *
+ * Used to indicate whether a debug message is normal, or corresponds to a constructor or destructor.
+ */
+ enum debug_type { NORMAL, CONSTRUCTOR, DESTRUCTOR };
 
 /**
  * @class GLogger
@@ -47,12 +51,14 @@ public:
 	}
 
 	/**
-	 * @brief Logs a debug message, if debug level is set.
+	 * \brief Logs a debug message if the debug level is nonzero.
 	 *
-	 * @tparam Args Variadic template parameters, representing any streamable types.
-	 * @param type The debug type (1 = normal, 10 = constructor, -10 = destructor).
-	 * @param args Arguments to be forwarded and streamed into the log message.
+	 * Uses variadic templates with perfect forwarding and fold expressions to construct
+	 * the log message.
 	 *
+	 * \tparam Args Variadic template parameters representing any streamable types.
+	 * \param type The debug message type (NORMAL, CONSTRUCTOR, or DESTRUCTOR).
+	 * \param args The message components.
 	 * @details This method uses:
 	 * - **Variadic templates** to accept any number of arguments.
 	 * - **Perfect forwarding** with `std::forward` to preserve value categories.
@@ -79,13 +85,13 @@ public:
 	}
 
 	/**
-	 * @brief Logs an info message, conditionally based on verbosity level.
+	 * \brief Logs an info message, conditionally based on verbosity level.
 	 *
-	 * @tparam Args Variadic template parameters for any streamable types.
-	 * @param level The importance level (0 = always, 1 = only if verbosity > 0).
-	 * @param args Streamable message components.
+	 * \tparam Args Variadic template parameters for any streamable types.
+	 * \param level The importance level (0 = always, 1 = only if verbosity > 0, 2 = more detailed).
+	 * \param args Message components to log.
 	 *
-	 * @details Uses fold expressions and perfect forwarding to build the message.
+	 * If an invalid verbosity level is requested, logs an error and exits.
 	 */
 	template <typename... Args>
 	void info(int level, Args&&... args) const {
@@ -96,7 +102,7 @@ public:
 			exit(EC_WRONG_VERBOSITY_LEVEL);
 		}
 
-		if (level == 0 || (level == 1 && verbosity_level > 0)) {
+		if (level == 0 || (level == 1 && verbosity_level > 0) || (level == 2 && verbosity_level > 1)) {
 			std::ostringstream oss;
 			(oss << ... << std::forward<Args>(args));
 			G4cout << header_string() << oss.str() << G4endl;
@@ -167,10 +173,11 @@ private:
 	mutable std::atomic<int> log_counter; ///< Thread-safe counter for messages
 
 	/**
-	 * @brief Constructs a formatted log header with a running counter.
-	 * @return A unique string prepended to each log message.
+	 * \brief Constructs a header string that is prepended to each log message.
 	 *
-	 * @note Uses atomic increment to ensure thread safety.
+	 * Uses an atomic counter to ensure thread safety.
+	 *
+	 * \return A string in the format "name [counter] ".
 	 */
 	[[nodiscard]] std::string header_string() const {
 		log_counter++;

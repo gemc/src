@@ -1,13 +1,12 @@
 // gemc
-#include "gutsConventions.h"
 #include "goptions.h"
 #include "gemcOptions.h"
 
 // options definitions
-#include "gfactory_options.h"
 #include "gtouchable_options.h"
 #include "gtranslationTable_options.h"
 #include "gdata_options.h"
+#include "gdynamicdigitization_options.h"
 
 
 #include "eventDispenserOptions.h"
@@ -23,7 +22,7 @@ namespace gemc {
 
     // returns array of options definitions
     GOptions defineOptions() {
-        GOptions goptions;
+        GOptions goptions(GENERAL_LOGGER);
 
         // switches
         goptions.defineSwitch("stream", "Activate Streaming ReadOut");
@@ -70,7 +69,7 @@ namespace gemc {
 		// load other
 		goptions += gfactory::defineOptions();
 		goptions += gtranslationTable::defineOptions();
-		goptions += gdata::defineOptions(); // includes gtouchable
+		goptions += gdynamicdigitization::defineOptions(); // includes gdata, which includes gtouchable. also includes gtranslationTable, gfactory
 
 
 
