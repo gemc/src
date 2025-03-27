@@ -1,0 +1,28 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Selected state container background with white outline -->
+    <rect x="4" y="4" width="40" height="40" rx="4" fill="#aaddff" stroke="currentColor" stroke-width="1"/>
+
+    <!-- Detector Grid (3 rows x 4 columns) shifted down by 4 units -->
+    <!-- Row 0 -->
+    <rect x="10.5" y="8" width="6" height="6" fill="#FFFFFF"/>
+    <rect x="17.5" y="8" width="6" height="6" fill="#FFFFFF"/>
+    <rect x="24.5" y="8" width="6" height="6" fill="#CCCCCC"/>
+    <rect x="31.5" y="8" width="6" height="6" fill="#FFFFFF"/>
+
+    <!-- Row 1 -->
+    <rect x="10.5" y="15" width="6" height="6" fill="#FFFFFF"/>
+    <rect x="17.5" y="15" width="6" height="6" fill="#CCCCCC"/>
+    <rect x="24.5" y="15" width="6" height="6" fill="#FFFFFF"/>
+    <rect x="31.5" y="15" width="6" height="6" fill="#FFFFFF"/>
+
+    <!-- Row 2 -->
+    <rect x="10.5" y="22" width="6" height="6" fill="#FFFFFF"/>
+    <rect x="17.5" y="22" width="6" height="6" fill="#FFFFFF"/>
+    <rect x="24.5" y="22" width="6" height="6" fill="#FFFFFF"/>
+    <rect x="31.5" y="22" width="6" height="6" fill="#CCCCCC"/>
+
+    <!-- Centered text label "Setup" -->
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">
+        Setup
+    </text>
+</svg>

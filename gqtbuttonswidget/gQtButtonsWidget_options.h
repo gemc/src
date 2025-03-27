@@ -1,10 +1,12 @@
 #ifndef  GQTBUTTONSWIDGET_H_OPTIONS
 #define  GQTBUTTONSWIDGET_H_OPTIONS 1
 
-// glibrary
+// gemc
 #include "goptions.h"
 
-namespace gQtButtonsWidget {
+constexpr const char *GQTBUTTONS_LOGGER = "qtbuttons";
+
+namespace gqtbuttonswidget {
 
     GOptions defineOptions();
 

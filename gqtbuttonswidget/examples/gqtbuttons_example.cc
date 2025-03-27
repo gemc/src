@@ -1,7 +1,7 @@
 // gQtButtonsWidget
 #include "qapplication.h"
 #include "gQtButtonsWidget.h"
-#include "gQtButtonsWidgetOptions.h"
+#include "gQtButtonsWidget_options.h"
 
 // c++
 #include <iostream>
@@ -10,7 +10,8 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    GOptions *gopts = new GOptions(argc, argv, gQtButtonsWidget::defineOptions());
+	// options not used
+    GOptions *gopts = new GOptions(argc, argv, gqtbuttonswidget::defineOptions());
 
     QApplication app(argc, argv);
 

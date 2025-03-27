@@ -54,8 +54,6 @@ EventDispenser::EventDispenser(GOptions *gopt, map<string, GDynamicDigitization 
 	nEventBuffer = gopt->getScalarInt("n_event_buffer");
 	neventsToProcess = gopt->getScalarInt("n");
 
-	log->debug(NORMAL, "EventDispenser: run_weights = >", filename, "<");
-
 	// If there are no events to process, nothing more to do.
 	if (neventsToProcess == 0) return;
 

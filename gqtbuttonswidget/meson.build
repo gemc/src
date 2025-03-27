@@ -2,12 +2,12 @@ sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
 sources = files(
     'gQtButtonsWidget.cc',
-    'gQtButtonsWidgetOptions.cc',
+    'gQtButtonsWidget_options.cc',
 )
 
 headers = files(
     'gQtButtonsWidget.h',
-    'gQtButtonsWidgetOptions.h',
+    'gQtButtonsWidget_options.h',
 )
 
 moc_headers = files(
@@ -19,7 +19,7 @@ qrc_examples_sources = files(
 )
 
 examples = {
-    'test_gqtbuttons_widget' : [files('examples/example.cc'), ['-gui']],
+    'test_gqtbuttons_widget' : [files('examples/gqtbuttons_example.cc'), ['-gui']],
 }
 
 if get_option('i_test')

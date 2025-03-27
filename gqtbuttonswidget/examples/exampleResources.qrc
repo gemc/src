@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+	<qresource>
+		<file>images/firstButton_1.svg</file>
+		<file>images/firstButton_2.svg</file>
+		<file>images/secondButton_1.svg</file>
+		<file>images/secondButton_2.svg</file>
+	</qresource>
+</RCC>
