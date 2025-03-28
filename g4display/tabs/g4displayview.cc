@@ -10,6 +10,17 @@ using namespace g4display;
 using namespace std;
 using namespace gutilities;
 
+/**
+ * @brief Constructs the G4DisplayView widget.
+ *
+ * Retrieves initial camera settings from GOptions, sets up the UI elements (toggle buttons,
+ * camera and light direction sliders, slice controls, and field precision input), arranges them
+ * with appropriate layouts, and connects UI signals to the corresponding slots.
+ *
+ * @param gopts Pointer to the GOptions object containing initial configuration.
+ * @param logger Pointer to the shared GLogger instance for logging.
+ * @param parent Optional pointer to the parent QWidget.
+ */
 G4DisplayView::G4DisplayView(GOptions* gopts, GLogger* const logger, QWidget* parent) : QWidget(parent), log(logger) {
 	log->debug(CONSTRUCTOR, "G4DisplayView");
 
@@ -214,21 +225,42 @@ G4DisplayView::G4DisplayView(GOptions* gopts, GLogger* const logger, QWidget* pa
 	setLayout(mainLayout);
 }
 
+/**
+ * @brief Slot triggered when camera direction sliders change.
+ *
+ * Constructs and sends the Geant4 command to update the viewpoint based on the
+ * current theta and phi values from the camera sliders.
+ */
 void G4DisplayView::changeCameraDirection() {
+	// Construct the command using the current slider values.
 	string command = "/vis/viewer/set/viewpointThetaPhi " +
-		to_string(cameraTheta->value()) + " " +
-		to_string(cameraPhi->value());
+					 to_string(cameraTheta->value()) + " " +
+					 to_string(cameraPhi->value());
+	// Send the command to the Geant4 UImanager.
 	G4UImanager::GetUIpointer()->ApplyCommand(command);
 }
 
+/**
+ * @brief Slot triggered when light direction sliders change.
+ *
+ * Constructs and sends the Geant4 command to update the light direction based on
+ * the current theta and phi values from the light sliders.
+ */
 void G4DisplayView::changeLightDirection() {
 	string command = "/vis/viewer/set/lightsThetaPhi " +
-		to_string(lightTheta->value()) + " " +
-		to_string(lightPhi->value());
+					 to_string(lightTheta->value()) + " " +
+					 to_string(lightPhi->value());
 	G4UImanager::GetUIpointer()->ApplyCommand(command);
 }
 
 
+/**
+ * @brief Slot that applies slice settings to the Geant4 visualization.
+ *
+ * Clears existing cutaway planes, sets the cutaway mode based on the radio buttons,
+ * and then adds new cutaway planes for each active slice control (X, Y, Z) with the
+ * appropriate normal vector (inverted if needed).
+ */
 void G4DisplayView::slice() {
 	G4UImanager* g4uim = G4UImanager::GetUIpointer();
 	if (g4uim == nullptr) { return; }
@@ -271,11 +303,25 @@ void G4DisplayView::slice() {
 }
 
 
+/**
+ * @brief Slot triggered by the "Clear Slices" button.
+ *
+ * Clears all cutaway planes and resets the X slice activation checkbox.
+ */
 void G4DisplayView::clearSlices() {
 	G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/clearCutawayPlanes");
 	sliceXActi->setChecked(false);
 }
 
+/**
+ * @brief Slot that applies toggle button settings.
+ *
+ * Responds to changes in the toggle button group (buttons_set1) by sending the
+ * appropriate Geant4 commands based on the toggled button's index and state.
+ *
+ * @param index The index of the toggled button:
+ *        0: Hidden Lines, 1: Anti-Aliasing, 2: Auxiliary Edges, 3: Field Lines.
+ */
 void G4DisplayView::apply_buttons_set1(int index) {
 	G4UImanager* g4uim = G4UImanager::GetUIpointer();
 	if (g4uim == nullptr) { return; }
@@ -320,6 +366,12 @@ void G4DisplayView::apply_buttons_set1(int index) {
 	}
 }
 
+/**
+ * @brief Slot triggered by changes in the field precision QLineEdit.
+ *
+ * Reads the new field point value from the line edit, updates the internal variable,
+ * and if the field lines are currently active, reconfigures the magnetic field visualization.
+ */
 void G4DisplayView::field_precision_changed() {
 	G4UImanager* g4uim = G4UImanager::GetUIpointer();
 	if (g4uim == nullptr) { return; }

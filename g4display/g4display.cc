@@ -1,15 +1,46 @@
-// g4display
-#include "g4display.h"
-#include "g4display_options.h"
-#include "tabs/g4displayview.h"
-#include "tabs/g4displayutilities.h"
+// gemc
+#include "g4display.h"           // Class definition
+#include "g4display_options.h" // Provides G4DISPLAY_LOGGER constant and option definitions
+#include "tabs/g4displayview.h"      // View control tab
+#include "tabs/g4displayutilities.h" // Utilities tab
 
-G4Display::G4Display(GOptions* gopt, QWidget* parent) : QTabWidget(parent), log(new GLogger(gopt, G4DISPLAY_LOGGER)) {
+// Qt
+#include <QtWidgets/QTabBar> // To style the QTabBar
 
-	setStyleSheet("QTabBar::tab       { background-color: #ACB6B6;}"
-	              "QTabBar::tab:focus { color: #000011; }");
+// G4Display Constructor
+// Initializes the QTabWidget base class and the unique_ptr for the logger.
+// Creates and adds the specific control tabs.
+G4Display::G4Display(GOptions* gopt, QWidget* parent) :
+    QTabWidget(parent), log(std::make_unique<GLogger>(gopt, G4DISPLAY_LOGGER))
+{
+    // Log the construction event using the newly created logger.
+    // Use level 0 info for general construction messages.
+	log->debug(CONSTRUCTOR, "G4Display");
 
-	addTab(new G4DisplayView(gopt, log, this), "View");
-	addTab(new G4DisplayUtilities(gopt, log, this), "Utilities");
+    // Apply custom stylesheet for the tab bar appearance.
+    // Using QStringLiteral for compile-time string construction.
+    setStyleSheet(QStringLiteral(
+                      "QTabBar::tab       { background-color: #ACB6B6; }"
+                      "QTabBar::tab:focus { color: #000011; }" // Note: :focus might not be the most intuitive state, :selected might be better?
+                      //"QTabBar::tab:selected { color: #000011; font-weight: bold; }" // Alternative styling
+                  ));
 
+    // Create and add the 'View' tab.
+    // Pass the GOptions, the logger instance (retrieved via log.get()), and this widget as the parent.
+    addTab(new G4DisplayView(gopt, log.get(), this), tr("View"));
+
+    // Create and add the 'Utilities' tab.
+    // Pass the GOptions, the logger instance, and this widget as the parent.
+    addTab(new G4DisplayUtilities(gopt, log.get(), this), tr("Utilities"));
+
+    // Optional: Log successful initialization
+    log->debug(NORMAL, "View and Utilities tabs added.");
+}
+
+// G4Display Destructor
+// The unique_ptr 'log' will automatically delete the GLogger instance here.
+G4Display::~G4Display() {
+    // Log the destruction event. Use the logger before it's destroyed.
+	log->debug(DESTRUCTOR, "G4Display");
+    // No explicit 'delete log;' needed due to std::unique_ptr.
 }
