@@ -2,9 +2,9 @@
 
 
 bool GParticleCounterDigitization::defineReadoutSpecsImpl() {
-	float     timeWindow = 10;                  // electronic readout time-window of the detector
-	float     gridStartTime = 0;                // defines the windows grid
-	auto hitBitSet = HitBitSet("000000");  // defines what information to be stored in the hit
+	float timeWindow    = 10;                  // electronic readout time-window of the detector
+	float gridStartTime = 0;                   // defines the windows grid
+	auto  hitBitSet     = HitBitSet("000000"); // defines what information to be stored in the hit
 
 	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger.value());
 
@@ -13,21 +13,18 @@ bool GParticleCounterDigitization::defineReadoutSpecsImpl() {
 
 
 // digitized the hit
-GDigitizedData* GParticleCounterDigitization::digitizeHitImpl(GHit *ghit, size_t hitn) {
-
+GDigitizedData* GParticleCounterDigitization::digitizeHitImpl(GHit* ghit, size_t hitn) {
 	// ghit->getGID() must have a single entry
 	GIdentifier identity = ghit->getGID().front();
 
-	auto* gdata = new GDigitizedData(ghit, data_logger.value());
+	auto gdata = new GDigitizedData(ghit, data_logger.value());
 
-	gdata->includeVariable(identity.getName(), identity.getValue()             );
-	gdata->includeVariable("hitn",             (int) hitn                      );
-	gdata->includeVariable("totEdep",          ghit->getTotalEnergyDeposited() );
-	gdata->includeVariable("time",             ghit->getAverageTime()          );
-	gdata->includeVariable("pid",              ghit->getPid()                  );
-	gdata->includeVariable("totalE",           ghit->getE()                    );
+	gdata->includeVariable(identity.getName(), identity.getValue());
+	gdata->includeVariable("hitn", static_cast<int> (hitn) );
+	gdata->includeVariable("totEdep", ghit->getTotalEnergyDeposited());
+	gdata->includeVariable("time", ghit->getAverageTime());
+	gdata->includeVariable("pid", ghit->getPid());
+	gdata->includeVariable("totalE", ghit->getE());
 
 	return gdata;
 }
-
-

@@ -1,5 +1,5 @@
 #include "g4displayview.h"
-#include "../g4displayOptions.h"
+#include "../g4display_options.h"
 #include "gutilities.h"
 
 using namespace g4display;
@@ -10,18 +10,19 @@ using namespace g4display;
 using namespace std;
 using namespace gutilities;
 
-G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent) {
+G4DisplayView::G4DisplayView(GOptions* gopts, GLogger* const logger, QWidget* parent) : QWidget(parent), log(logger) {
+	log->debug(CONSTRUCTOR, "G4DisplayView");
 
 	G4Camera jcamera = getG4Camera(gopts);
 
 	double thetaValue = getG4Number(jcamera.theta);
 	double phiValue = getG4Number(jcamera.phi);
 
-	vector <string> toggle_button_titles;
-	toggle_button_titles.push_back("Hidden\nLines");
-	toggle_button_titles.push_back("Anti\nAliasing");
-	toggle_button_titles.push_back("Auxiliary\nEdges");
-	toggle_button_titles.push_back("Field\nLines");
+	vector<string> toggle_button_titles;
+	toggle_button_titles.emplace_back("Hidden\nLines");
+	toggle_button_titles.emplace_back("Anti\nAliasing");
+	toggle_button_titles.emplace_back("Auxiliary\nEdges");
+	toggle_button_titles.emplace_back("Field\nLines");
 
 
 	buttons_set1 = new GQTToggleButtonWidget(80, 80, 20, toggle_button_titles, false, this);
@@ -32,9 +33,9 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 	cameraTheta->setRange(0, 180);
 	cameraTheta->setSingleStep(1);
 	cameraTheta->setValue(thetaValue);
-	QLabel *cameraThetaLabel = new QLabel(tr("θ"));
+	auto cameraThetaLabel = new QLabel(tr("θ"));
 
-	QHBoxLayout *cameraThetaLayout = new QHBoxLayout;
+	auto cameraThetaLayout = new QHBoxLayout;
 	cameraThetaLayout->addWidget(cameraThetaLabel);
 	cameraThetaLayout->addWidget(cameraTheta);
 
@@ -42,18 +43,18 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 	cameraPhi->setRange(0, 360);
 	cameraPhi->setSingleStep(1);
 	cameraPhi->setValue(phiValue);
-	QLabel *cameraPhiLabel = new QLabel(tr("ɸ"));
+	auto cameraPhiLabel = new QLabel(tr("ɸ"));
 
-	QHBoxLayout *cameraPhiLayout = new QHBoxLayout;
+	auto cameraPhiLayout = new QHBoxLayout;
 	cameraPhiLayout->addWidget(cameraPhiLabel);
 	cameraPhiLayout->addWidget(cameraPhi);
 
-	QVBoxLayout *cameraDirectionLayout = new QVBoxLayout;
+	QVBoxLayout* cameraDirectionLayout = new QVBoxLayout;
 	cameraDirectionLayout->addLayout(cameraThetaLayout);
 	cameraDirectionLayout->addSpacing(12);
 	cameraDirectionLayout->addLayout(cameraPhiLayout);
 
-	QGroupBox *cameraAnglesGroup = new QGroupBox(tr("Camera Direction"));
+	QGroupBox* cameraAnglesGroup = new QGroupBox(tr("Camera Direction"));
 	cameraAnglesGroup->setLayout(cameraDirectionLayout);
 
 	connect(cameraTheta, &QSlider::valueChanged, this, &G4DisplayView::changeCameraDirection);
@@ -64,9 +65,9 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 	lightTheta->setRange(0, 180);
 	lightTheta->setSingleStep(1);
 	lightTheta->setValue(thetaValue);
-	QLabel *lightThetaLabel = new QLabel(tr("θ"));
+	auto lightThetaLabel = new QLabel(tr("θ"));
 
-	QHBoxLayout *lightThetaLayout = new QHBoxLayout;
+	auto lightThetaLayout = new QHBoxLayout;
 	lightThetaLayout->addWidget(lightThetaLabel);
 	lightThetaLayout->addWidget(lightTheta);
 
@@ -74,18 +75,18 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 	lightPhi->setRange(0, 360);
 	lightPhi->setSingleStep(1);
 	lightPhi->setValue(phiValue);
-	QLabel *lightPhiLabel = new QLabel(tr("ɸ"));
+	auto lightPhiLabel = new QLabel(tr("ɸ"));
 
-	QHBoxLayout *lightPhiLayout = new QHBoxLayout;
+	auto lightPhiLayout = new QHBoxLayout;
 	lightPhiLayout->addWidget(lightPhiLabel);
 	lightPhiLayout->addWidget(lightPhi);
 
-	QVBoxLayout *lightDirectionLayout = new QVBoxLayout;
+	auto lightDirectionLayout = new QVBoxLayout;
 	lightDirectionLayout->addLayout(lightThetaLayout);
 	lightDirectionLayout->addSpacing(12);
 	lightDirectionLayout->addLayout(lightPhiLayout);
 
-	QGroupBox *lightAnglesGroup = new QGroupBox(tr("Light Direction"));
+	QGroupBox* lightAnglesGroup = new QGroupBox(tr("Light Direction"));
 	lightAnglesGroup->setLayout(lightDirectionLayout);
 
 	connect(lightTheta, &QSlider::valueChanged, this, &G4DisplayView::changeLightDirection);
@@ -98,7 +99,7 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 	sliceXActi->setChecked(false);
 	sliceXInve = new QCheckBox(tr("&Flip"));
 	sliceXInve->setChecked(false);
-	QHBoxLayout *sliceXLayout = new QHBoxLayout;
+	auto sliceXLayout = new QHBoxLayout;
 	sliceXLayout->addWidget(new QLabel(tr("X: ")));
 	sliceXLayout->addWidget(sliceXEdit);
 	sliceXLayout->addStretch(1);
@@ -114,7 +115,7 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 	sliceYActi->setChecked(false);
 	sliceYInve = new QCheckBox(tr("&Flip"));
 	sliceYInve->setChecked(false);
-	QHBoxLayout *sliceYLayout = new QHBoxLayout;
+	auto sliceYLayout = new QHBoxLayout;
 	sliceYLayout->addWidget(new QLabel(tr("Y: ")));
 	sliceYLayout->addWidget(sliceYEdit);
 	sliceYLayout->addStretch(1);
@@ -129,7 +130,7 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 	sliceZActi->setChecked(false);
 	sliceZInve = new QCheckBox(tr("&Flip"));
 	sliceZInve->setChecked(false);
-	QHBoxLayout *sliceZLayout = new QHBoxLayout;
+	auto sliceZLayout = new QHBoxLayout;
 	sliceZLayout->addWidget(new QLabel(tr("Z: ")));
 	sliceZLayout->addWidget(sliceZEdit);
 	sliceZLayout->addStretch(1);
@@ -138,15 +139,15 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 	sliceZLayout->addStretch(1);
 
 	// clear sice button
-	QPushButton *clearSliceButton = new QPushButton(tr("Clear Slices"));
+	QPushButton* clearSliceButton = new QPushButton(tr("Clear Slices"));
 	clearSliceButton->setToolTip("Clear Slice Planes");
 	clearSliceButton->setIcon(QIcon::fromTheme("edit-clear"));
-	clearSliceButton->setIconSize(QSize(16, 16));  // Adjust as necessary
+	clearSliceButton->setIconSize(QSize(16, 16)); // Adjust as necessary
 
 	connect(clearSliceButton, &QPushButton::clicked, this, &G4DisplayView::clearSlices);
 
 	// slice style: Intersection or Union
-	QGroupBox *sliceChoiceBox = new QGroupBox(tr("Slices Style"));
+	QGroupBox* sliceChoiceBox = new QGroupBox(tr("Slices Style"));
 	sliceSectn = new QRadioButton(tr("&Intersection"), sliceChoiceBox);
 	sliceUnion = new QRadioButton(tr("&Union"), sliceChoiceBox);
 	sliceSectn->setChecked(true);
@@ -154,14 +155,14 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 	connect(sliceSectn, &QRadioButton::toggled, this, &G4DisplayView::slice);
 	connect(sliceUnion, &QRadioButton::toggled, this, &G4DisplayView::slice);
 
-	QHBoxLayout *sliceChoiceLayout = new QHBoxLayout;
+	auto sliceChoiceLayout = new QHBoxLayout;
 	sliceChoiceLayout->addWidget(sliceSectn);
 	sliceChoiceLayout->addWidget(sliceUnion);
 	sliceChoiceBox->setLayout(sliceChoiceLayout);
 
 
 	// slices layout
-	QVBoxLayout *sliceLayout = new QVBoxLayout;
+	auto sliceLayout = new QVBoxLayout;
 	sliceLayout->addLayout(sliceXLayout);
 	sliceLayout->addLayout(sliceYLayout);
 	sliceLayout->addLayout(sliceZLayout);
@@ -183,7 +184,7 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 	connect(sliceZInve, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
 
 
-	QGroupBox *fieldPrecisionBox = new QGroupBox(tr("Number of Field Points"));
+	QGroupBox* fieldPrecisionBox = new QGroupBox(tr("Number of Field Points"));
 	field_npoints = new QLineEdit(QString::number(field_NPOINTS), this);
 	field_npoints->setMaximumWidth(40);
 
@@ -193,11 +194,11 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 	connect(field_npoints, &QLineEdit::returnPressed, this, &G4DisplayView::field_precision_changed);
 
 	// buttons + field line number
-	QHBoxLayout *fieldPointsHBox = new QHBoxLayout;
+	auto fieldPointsHBox = new QHBoxLayout;
 	fieldPointsHBox->addWidget(field_npoints);
 	fieldPrecisionBox->setLayout(fieldPointsHBox);
 
-	QHBoxLayout *buttons_field_HBox = new QHBoxLayout;
+	auto buttons_field_HBox = new QHBoxLayout;
 	buttons_field_HBox->addWidget(buttons_set1);
 	buttons_field_HBox->addWidget(fieldPrecisionBox);
 	fieldPrecisionBox->setMaximumHeight(3 * buttons_set1->height());
@@ -205,7 +206,7 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 
 
 	// All layouts together
-	QVBoxLayout *mainLayout = new QVBoxLayout;
+	auto mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(buttons_field_HBox);
 	mainLayout->addWidget(cameraAnglesGroup);
 	mainLayout->addWidget(lightAnglesGroup);
@@ -215,64 +216,58 @@ G4DisplayView::G4DisplayView(GOptions *gopts, QWidget *parent) : QWidget(parent)
 
 void G4DisplayView::changeCameraDirection() {
 	string command = "/vis/viewer/set/viewpointThetaPhi " +
-					 to_string(cameraTheta->value()) + " " +
-					 to_string(cameraPhi->value());
+		to_string(cameraTheta->value()) + " " +
+		to_string(cameraPhi->value());
 	G4UImanager::GetUIpointer()->ApplyCommand(command);
 }
 
 void G4DisplayView::changeLightDirection() {
 	string command = "/vis/viewer/set/lightsThetaPhi " +
-					 to_string(lightTheta->value()) + " " +
-					 to_string(lightPhi->value());
+		to_string(lightTheta->value()) + " " +
+		to_string(lightPhi->value());
 	G4UImanager::GetUIpointer()->ApplyCommand(command);
 }
 
 
 void G4DisplayView::slice() {
-	G4UImanager *g4uim = G4UImanager::GetUIpointer();
-	if (g4uim == nullptr) {
-		return;
-	}
+	G4UImanager* g4uim = G4UImanager::GetUIpointer();
+	if (g4uim == nullptr) { return; }
 
 	// can't have a mix of wireframe / solid when doing a slice.
 	// forcing all to be solid
-//	if(!solidVis) {
-//		g4uim->ApplyCommand("/vis/geometry/set/forceSolid all -1 1");
-//	}
+	//	if(!solidVis) {
+	//		g4uim->ApplyCommand("/vis/geometry/set/forceSolid all -1 1");
+	//	}
 
 	g4uim->ApplyCommand("/vis/viewer/clearCutawayPlanes");
 
-	if (sliceSectn->isChecked()) {
-		g4uim->ApplyCommand("/vis/viewer/set/cutawayMode intersection");
-	} else if (sliceUnion->isChecked()) {
-		g4uim->ApplyCommand("/vis/viewer/set/cutawayMode union");
-	}
+	if (sliceSectn->isChecked()) { g4uim->ApplyCommand("/vis/viewer/set/cutawayMode intersection"); }
+	else if (sliceUnion->isChecked()) { g4uim->ApplyCommand("/vis/viewer/set/cutawayMode union"); }
 
 	g4uim->ApplyCommand("/vis/viewer/clearCutawayPlanes");
 
 	if (sliceXActi->isChecked()) {
 		string command = "/vis/viewer/addCutawayPlane " + sliceXEdit->text().toStdString() + " 0  0 mm " +
-						 to_string(sliceXInve->isChecked() ? -1 : 1) + " 0 0 ";
+			to_string(sliceXInve->isChecked() ? -1 : 1) + " 0 0 ";
 		cout << "X " << command << endl;
 		g4uim->ApplyCommand(command);
 	}
 
 	if (sliceYActi->isChecked()) {
 		string command = "/vis/viewer/addCutawayPlane 0 " + sliceYEdit->text().toStdString() + " 0 mm 0 " +
-						 to_string(sliceYInve->isChecked() ? -1 : 1) + " 0 ";
+			to_string(sliceYInve->isChecked() ? -1 : 1) + " 0 ";
 		cout << "Y " << command << endl;
 		g4uim->ApplyCommand(command);
 	}
 
 	if (sliceZActi->isChecked()) {
 		string command = "/vis/viewer/addCutawayPlane 0 0 " + sliceZEdit->text().toStdString() + " mm 0 0 " +
-						 to_string(sliceZInve->isChecked() ? -1 : 1);
+			to_string(sliceZInve->isChecked() ? -1 : 1);
 		cout << "Z " << command << endl;
 		g4uim->ApplyCommand(command);
 	}
 
 	//solidVis = true;
-
 }
 
 
@@ -282,11 +277,8 @@ void G4DisplayView::clearSlices() {
 }
 
 void G4DisplayView::apply_buttons_set1(int index) {
-
-	G4UImanager *g4uim = G4UImanager::GetUIpointer();
-	if (g4uim == nullptr) {
-		return;
-	}
+	G4UImanager* g4uim = G4UImanager::GetUIpointer();
+	if (g4uim == nullptr) { return; }
 
 	bool button_state = buttons_set1->lastButtonState();
 
@@ -294,30 +286,33 @@ void G4DisplayView::apply_buttons_set1(int index) {
 		string command = string("/vis/viewer/set/hiddenEdge") + (button_state ? " 1" : " 0");
 		g4uim->ApplyCommand(command);
 		g4uim->ApplyCommand("/vis/viewer/flush");
-	} else if (index == 1) {
+	}
+	else if (index == 1) {
 		if (button_state == 0) {
 			glDisable(GL_LINE_SMOOTH);
 			glDisable(GL_POLYGON_SMOOTH);
-		} else {
+		}
+		else {
 			glEnable(GL_LINE_SMOOTH);
 			glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 			glEnable(GL_POLYGON_SMOOTH);
 			glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
 		}
-	} else if (index == 2) {
+	}
+	else if (index == 2) {
 		string command = string("/vis/viewer/set/auxiliaryEdge") + (button_state ? " 1" : " 0");
 		g4uim->ApplyCommand(command);
 		command = string("/vis/viewer/set/hiddenEdge") + (button_state ? " 1" : " 0");
 		g4uim->ApplyCommand(command);
-		if (buttons_set1->buttonStatus(0) != button_state) {
-			buttons_set1->toggleButton(0);
-		}
-	} else if (index == 3) {
+		if (buttons_set1->buttonStatus(0) != button_state) { buttons_set1->toggleButton(0); }
+	}
+	else if (index == 3) {
 		if (button_state == 0) {
 			string command = string("vis/scene/activateModel Field 0");
 			g4uim->ApplyCommand(command);
 			g4uim->ApplyCommand("/vis/scene/removeModel Field");
-		} else {
+		}
+		else {
 			string npoints = to_string(field_NPOINTS);
 			string command = string("/vis/scene/add/magneticField ") + npoints;
 			g4uim->ApplyCommand(command);
@@ -326,10 +321,8 @@ void G4DisplayView::apply_buttons_set1(int index) {
 }
 
 void G4DisplayView::field_precision_changed() {
-	G4UImanager *g4uim = G4UImanager::GetUIpointer();
-	if (g4uim == nullptr) {
-		return;
-	}
+	G4UImanager* g4uim = G4UImanager::GetUIpointer();
+	if (g4uim == nullptr) { return; }
 	field_NPOINTS = field_npoints->text().toInt();
 	if (buttons_set1->buttonStatus(3) == 1) {
 		string command = string("vis/scene/activateModel Field 0");

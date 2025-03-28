@@ -13,5 +13,4 @@ g4text:
       x: 0.2
       color: green
 
-verbosity:
-  - g4display: 2
+

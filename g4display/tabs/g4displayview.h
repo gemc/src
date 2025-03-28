@@ -5,7 +5,7 @@
 #include <QtWidgets>
 
 // gemc
-#include "goptions.h"
+#include "glogger.h"
 #include "gQtButtonsWidget.h"
 
 // Geant4
@@ -15,14 +15,14 @@ class G4DisplayView : public QWidget {
 	Q_OBJECT
 
 public:
-	G4DisplayView(GOptions *gopts, QWidget *parent = nullptr);
+	G4DisplayView(GOptions* gopts, GLogger* logger, QWidget* parent = nullptr);
 
-	~G4DisplayView() override {}
+	~G4DisplayView() override { log->debug(DESTRUCTOR, "G4DisplayView"); }
 
 private:
-	QLineEdit *field_npoints;
+	QLineEdit* field_npoints;
 
-	GQTToggleButtonWidget *buttons_set1;
+	GQTToggleButtonWidget* buttons_set1;
 	QSlider *cameraTheta, *cameraPhi;
 	QSlider *lightTheta, *lightPhi;
 
@@ -33,6 +33,8 @@ private:
 	QRadioButton *sliceSectn, *sliceUnion;
 
 	int field_NPOINTS = 5;
+
+	GLogger* const log;
 
 private slots:
 	void changeCameraDirection();

@@ -1,5 +1,4 @@
 // g4display
-#include "g4SceneProperties.h"
 #include "g4Text.h"
 
 // c++
