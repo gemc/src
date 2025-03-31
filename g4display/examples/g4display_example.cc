@@ -21,10 +21,10 @@ using namespace std;
 #include <QMainWindow>
 
 int main(int argc, char* argv[]) {
-	auto gopts = new GOptions(argc, argv, g4display::defineOptions());
-	auto log = new GLogger(gopts, G4DISPLAY_LOGGER);
-	log->info(0, "g4display", "Starting g4display example...");
 
+	auto gopts = new GOptions(argc, argv, g4display::defineOptions());
+	auto log   = new GLogger(gopts, G4DISPLAY_LOGGER);
+	log->info(0, "g4display", "Starting g4display example...");
 
 	QApplication app(argc, argv);
 

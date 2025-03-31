@@ -40,14 +40,14 @@ public:
 			: name(std::move(vname)), log_counter(0) {
 		verbosity_level = gopts->getVerbosityFor(name);
 		debug_level = gopts->getDebugFor(name);
-		debug(CONSTRUCTOR, "GLOGGER");
+		debug(CONSTRUCTOR,name, " logger");
 	}
 
 	// default constructor
 	GLogger() = default;
 
 	~GLogger() {
-		debug(DESTRUCTOR, "GLogger");
+		debug(DESTRUCTOR, name, " logger");
 	}
 
 	/**

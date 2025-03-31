@@ -8,7 +8,7 @@
 #include "G4UImanager.hh"
 #include "G4UIcommandTree.hh"
 
-class G4Commands : public QTabWidget {
+class G4Commands : public QWidget {
 
     Q_OBJECT
 

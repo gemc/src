@@ -5,6 +5,7 @@
 // This can be a potential problem in the future.
 
 #include <vector>
+#include <string>
 
 
 #define GDEFAULTVIEWERDRIVER  "TOOLSSG_QT_GLES"

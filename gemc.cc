@@ -40,14 +40,14 @@ int main(int argc, char *argv[]) {
 	GLogger log(gopts, "gemc", "general");
 
 	// splash screen
-	GSplash *gemcSplash = nullptr;
+	auto  gemcSplash = nullptr;
 
 	// createQtApplication returns a QApplication if gui is not zero
 	// otherwise it returns a QCoreApplication
 	// QScopedPointer os smart pointer in Qt that manages the lifetime of a QCoreApplication
 	QScopedPointer <QCoreApplication> gApp(createQtApplication(argc, argv, gui));
 
-	G4UImanager *UIM = G4UImanager::GetUIpointer();
+	auto UIM = G4UImanager::GetUIpointer();
 	if (gui) {
 		gemcSplash = new GSplash("gemcArchitecture");
 	} else {
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 	map < string, GDynamicDigitization * > *globalDigitizationMap = new map<string, GDynamicDigitization *>;
 
 	// GDetectorConstruction will run Construct() and load the digitization plugins
-	GDetectorConstruction *gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
+	auto gDetectorGlobal = new GDetectorConstruction(gopts, globalDigitizationMap);
 	runManager->SetUserInitialization(gDetectorGlobal);
 
 	// starting gphysics
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
 
 	// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance
 	// notice we initialize this in batch mode as well
-	G4VisManager *visManager = new G4VisExecutive("Quiet");
+	auto visManager = new G4VisExecutive("Quiet");
 	visManager->Initialize();
 
 	auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
 
 		// initializing G4UIQt session.
 		// Notice g4SceneProperties has to be declared after this, so we have to duplicate it for batch mode
-		G4UIsession *uiQtSession = new G4UIQt(1, argv);
+		auto uiQtSession = new G4UIQt(1, argv);
 		G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
 
 		// passing executable to retrieve full path
@@ -135,10 +135,10 @@ int main(int argc, char *argv[]) {
 		delete uiQtSession;
 
 	} else {
-		G4UIsession *session = new G4UIterminal(new G4UItcsh);
+		auto session = new G4UIterminal(new G4UItcsh);
 
 		// set display properties in batch mode
-		G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
+		auto g4SceneProperties = new G4SceneProperties(gopts);
 		applyInitialUIManagerCommands(false, checkForOverlaps, verbosity);
 
 		if (interactive) { session->SessionStart(); }

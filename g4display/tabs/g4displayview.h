@@ -9,19 +9,10 @@
 #include "gQtButtonsWidget.h" // Custom toggle button widget
 #include "goptions.h"         // Forward GOptions type
 
-// Forward declaration for GOptions if full header isn't needed here
-// class GOptions;
 
 // Geant4
 #include "G4UImanager.hh" // Geant4 UI manager access
 
-// Forward declarations for Qt classes used as pointers
-QT_BEGIN_NAMESPACE
-class QLineEdit;
-class QSlider;
-class QCheckBox;
-class QRadioButton;
-QT_END_NAMESPACE
 
 /**
  * @class G4DisplayView

@@ -22,7 +22,7 @@
  * lighting, slicing, and other utilities. It owns the primary logger instance
  * for the display module.
  */
-class G4Display : public QTabWidget {
+class G4Display : public QWidget {
 
 public:
     /**

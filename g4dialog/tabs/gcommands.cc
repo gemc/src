@@ -4,7 +4,7 @@ using namespace std;
 // G4Dialog
 #include "gcommands.h"
 
-G4Commands::G4Commands(QWidget *parent) : QTabWidget(parent) {
+G4Commands::G4Commands(QWidget *parent) : QWidget(parent) {
 
 	//  + +-------------------+ +
 	//  | |    > Search       | |
@@ -61,7 +61,7 @@ G4Commands::G4Commands(QWidget *parent) : QTabWidget(parent) {
 	// putting all together
 	commands_help_splitter->setSizes(QList<int>() << 300 << 800);
 
-	QVBoxLayout *v_layout = new QVBoxLayout(parent);
+	QVBoxLayout *v_layout = new QVBoxLayout(this);
 	v_layout->addWidget(new QLabel("Search Commands"));
 	v_layout->addWidget(w_search);
 	v_layout->addWidget(commands_help_splitter, /* stretch factor */  2);

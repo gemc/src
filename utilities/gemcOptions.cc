@@ -70,11 +70,11 @@ namespace gemc {
 		goptions += gfactory::defineOptions();
 		goptions += gtranslationTable::defineOptions();
 		goptions += gdynamicdigitization::defineOptions(); // includes gdata, which includes gtouchable. also includes gtranslationTable, gfactory
+    	goptions += eventDispenser::defineOptions();
+    	goptions += g4display::defineOptions();
+    	goptions += g4dialog::defineOptions();
 
 
-
-		goptions += eventDispenser::defineOptions();
-        goptions += g4display::defineOptions();
         goptions += g4system::defineOptions();
         goptions += gfields::defineOptions();
         goptions += gparticle::defineOptions();

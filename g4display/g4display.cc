@@ -11,27 +11,25 @@
 // Initializes the QTabWidget base class and the unique_ptr for the logger.
 // Creates and adds the specific control tabs.
 G4Display::G4Display(GOptions* gopt, QWidget* parent) :
-    QTabWidget(parent), log(std::make_unique<GLogger>(gopt, G4DISPLAY_LOGGER))
+		QWidget(parent), log(std::make_unique<GLogger>(gopt, G4DISPLAY_LOGGER))
 {
     // Log the construction event using the newly created logger.
     // Use level 0 info for general construction messages.
 	log->debug(CONSTRUCTOR, "G4Display");
 
-    // Apply custom stylesheet for the tab bar appearance.
-    // Using QStringLiteral for compile-time string construction.
-    setStyleSheet(QStringLiteral(
-                      "QTabBar::tab       { background-color: #ACB6B6; }"
-                      "QTabBar::tab:focus { color: #000011; }" // Note: :focus might not be the most intuitive state, :selected might be better?
-                      //"QTabBar::tab:selected { color: #000011; font-weight: bold; }" // Alternative styling
-                  ));
+	auto dialogTabs = new QTabWidget;
 
     // Create and add the 'View' tab.
     // Pass the GOptions, the logger instance (retrieved via log.get()), and this widget as the parent.
-    addTab(new G4DisplayView(gopt, log.get(), this), tr("View"));
+	dialogTabs->addTab(new G4DisplayView(gopt, log.get(), this), tr("View"));
 
     // Create and add the 'Utilities' tab.
     // Pass the GOptions, the logger instance, and this widget as the parent.
-    addTab(new G4DisplayUtilities(gopt, log.get(), this), tr("Utilities"));
+	dialogTabs->addTab(new G4DisplayUtilities(gopt, log.get(), this), tr("Utilities"));
+
+	QVBoxLayout *mainLayout = new QVBoxLayout;
+	mainLayout->addWidget(dialogTabs);
+	setLayout(mainLayout);
 
     // Optional: Log successful initialization
     log->debug(NORMAL, "View and Utilities tabs added.");
