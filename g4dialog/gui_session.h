@@ -41,6 +41,7 @@ public:
 private:
 	GBoard* board;
     GLogger * const log;
+	QString ansiToHtml(const QString &ansiText);
 };
 
 #endif // GUI_SESSION_H

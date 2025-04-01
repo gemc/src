@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 	window->setCentralWidget(g4dialog);
 
 
-	log->info(0, "g4 dialog : GUI_Session created");
+	log->info(0, "g4 dialog example started");
 
 	if (gopts->getSwitch("gui")) {
 		window->show();
