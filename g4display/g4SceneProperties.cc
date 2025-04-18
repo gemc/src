@@ -1,5 +1,5 @@
 /*!
- * \file g4display.cpp
+ * \file g4SceneProperties.cc
  * \brief Implementation of the G4SceneProperties class for GEANT4 scene visualization.
  *
  * This file contains the implementation of the G4SceneProperties class which is responsible

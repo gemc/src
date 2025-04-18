@@ -10,7 +10,6 @@
  */
 
 #include "glogger.h"
-#include <iostream>
 #include <vector>
 
 struct GIntegralPayload {
@@ -24,23 +23,25 @@ public:
 	 * \param t Time value.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	GIntegralPayload(int c, int s, int ch, int q, int t, GLogger *const logger)
-			: log(logger), crate(c), slot(s), channel(ch), charge(q), time(t) {
-		log->debug(CONSTRUCTOR, "GIntegralPayload crate ", crate, " slot ", slot, " channel ", channel, " charge ", charge, " time ", time);
+	GIntegralPayload(int c, int s, int ch, int q, int t, std::shared_ptr<GLogger> logger)
+		: log(std::move(logger)), crate(c), slot(s), channel(ch), charge(q), time(t) {
+		log->debug(CONSTRUCTOR, "GIntegralPayload crate ", crate, " slot ", slot, " channel ", channel, " charge ",
+		           charge, " time ", time);
 	}
 
 	/**
 	 * \brief Destructor for GIntegralPayload.
 	 */
 	~GIntegralPayload() {
-		log->debug(DESTRUCTOR, "GIntegralPayload crate ", crate, " slot ", slot, " channel ", channel, " charge ", charge, " time ", time);
+		log->debug(DESTRUCTOR, "GIntegralPayload crate ", crate, " slot ", slot, " channel ", channel, " charge ",
+		           charge, " time ", time);
 	}
 
 	/**
 	 * \brief Returns the payload as a vector of integers.
 	 * \return A vector containing crate, slot, channel, charge, and time.
 	 */
-	std::vector<int> getPayload() {
+	[[nodiscard]] std::vector<int> getPayload() const {
 		std::vector<int> payload;
 		payload.push_back(crate);
 		payload.push_back(slot);
@@ -51,12 +52,12 @@ public:
 	}
 
 private:
-	GLogger *const log;  ///< Logger instance.
-	int crate;           ///< Crate number.
-	int slot;            ///< Slot number.
-	int channel;         ///< Channel number.
-	int charge;          ///< Charge value.
-	int time;            ///< Time value.
+	std::shared_ptr<GLogger> log;     ///< Logger instance
+	int                      crate;   ///< Crate number.
+	int                      slot;    ///< Slot number.
+	int                      channel; ///< Channel number.
+	int                      charge;  ///< Charge value.
+	int                      time;    ///< Time value.
 };
 
 #endif

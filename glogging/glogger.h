@@ -17,7 +17,7 @@
  * \enum debug_type
  * \brief Enumerates debug message types.
  *
- * Used to indicate whether a debug message is normal, or corresponds to a constructor or destructor.
+ * Used to indicate whether a debug message is normal or corresponds to a constructor or destructor.
  */
  enum debug_type { NORMAL, CONSTRUCTOR, DESTRUCTOR };
 
@@ -34,7 +34,7 @@ public:
 	/**
 	 * @brief Constructs a GLogger instance.
 	 * @param gopts Pointer to GOptions instance used for verbosity/debug lookup.
-	 * @param name The verbosity or debyg name is a string used to identify the logger and as header for all messages
+	 * @param vname The verbosity or debyg name is a string used to identify the logger and as header for all messages
 	 */
 	explicit GLogger(GOptions* gopts, std::string vname)
 			: name(std::move(vname)), log_counter(0) {
@@ -167,10 +167,10 @@ public:
 
 private:
 	std::string name;       ///< Prefix for all messages
-	int verbosity_level;          ///< Verbosity level (0 = low, >0 = detailed)
-	int debug_level;              ///< Debug level: 0 = off, 1 = normal, 10/-10 = ctor/dtor
+	int verbosity_level{};          ///< Verbosity level (0 = low, >0 = detailed)
+	int debug_level{};              ///< Debug level: 0 = off, 1 = normal, 10/-10 = ctor/dtor
 
-	mutable std::atomic<int> log_counter; ///< Thread-safe counter for messages
+	mutable std::atomic<int> log_counter{}; ///< Thread-safe counter for messages
 
 	/**
 	 * \brief Constructs a header string that is prepended to each log message.

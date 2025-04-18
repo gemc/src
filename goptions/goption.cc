@@ -17,7 +17,7 @@ using namespace std;
 void GOption::set_scalar_value(const string &v) {
 	if (v.empty()) return;
 	string value_to_set = gutilities::replaceCharInStringWithChars(v, ",", "");
-	string key = value.begin()->first.as<string>();
+	auto key = value.begin()->first.as<string>();
 	value[key] = value_to_set;
 }
 
@@ -45,13 +45,13 @@ void GOption::set_value(const YAML::Node &v) {
 		for (const auto &map_element_in_default_value : default_value_node) {
 			for (auto default_value_iterator = map_element_in_default_value.begin();
 				 default_value_iterator != map_element_in_default_value.end(); ++default_value_iterator) {
-				string default_key = default_value_iterator->first.as<string>();
+				auto default_key = default_value_iterator->first.as<string>();
 				auto default_value = default_value_iterator->second;
 				for (auto map_element_in_value : value[name]) {
 					bool key_found = false;
 					for (auto value_iterator = map_element_in_value.begin();
 						 value_iterator != map_element_in_value.end(); ++value_iterator) {
-						string value_key = value_iterator->first.as<string>();
+						auto value_key = value_iterator->first.as<string>();
 						if (default_key == value_key) {
 							key_found = true;
 							break;
@@ -70,8 +70,8 @@ void GOption::set_value(const YAML::Node &v) {
 				for (auto existing_map : value[name]) {
 					for (auto existing_map_iterator = existing_map.begin();
 						 existing_map_iterator != existing_map.end(); ++existing_map_iterator) {
-						string first_key = existing_map_iterator->first.as<string>();
-						string second_key = desired_value_iterator->first.as<string>();
+						auto first_key = existing_map_iterator->first.as<string>();
+						auto second_key = desired_value_iterator->first.as<string>();
 						if (first_key == second_key) {
 							existing_map[existing_map_iterator->first] = desired_value_iterator->second;
 						}
@@ -88,7 +88,7 @@ void GOption::set_value(const YAML::Node &v) {
  * @param v The YAML node to check.
  * @return True if all mandatory keys are present; false otherwise.
  */
-bool GOption::does_the_option_set_all_necessary_values(YAML::Node v) {
+bool GOption::does_the_option_set_all_necessary_values(const YAML::Node& v) {
 	vector<string> this_keys;
 	if (v.Type() == YAML::NodeType::Map) {
 		for (const auto &it : v) {
@@ -151,7 +151,7 @@ void GOption::printHelp(bool detailed) const {
  * @return A string with detailed help information.
  */
 string GOption::detailedHelp() const {
-	string newHelp = "";
+	string newHelp;
 	YAML::Node yvalues = defaultValue.begin()->second;
 	if (yvalues.IsSequence()) {
 		newHelp += "\n";
@@ -165,7 +165,7 @@ string GOption::detailedHelp() const {
 	}
 	newHelp += "\n";
 	vector<string> help_lines = gutilities::getStringVectorFromStringWithDelimiter(help, "\n");
-	for (auto line : help_lines) {
+	for (const auto& line : help_lines) {
 		newHelp += GTAB + line + "\n";
 	}
 	return newHelp;

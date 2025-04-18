@@ -6,13 +6,10 @@
 #include "gutilities.h"
 #include "gutsConventions.h"
 
-using namespace std;
-
-
 // constructor from digitization and gidentity strings
 // called in GDetectorConstruction::ConstructSDandField
-GTouchable::GTouchable(const std::string &digitization, const std::string &gidentityString, const std::vector<double> &dimensions, GLogger * const logger) :
-		log(logger),
+GTouchable::GTouchable(const std::string &digitization, const std::string &gidentityString, const std::vector<double> &dimensions, std::shared_ptr<GLogger> logger) :
+		log(std::move(logger)),
 		trackId(0),
 		eMultiplier(1),
 		stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),
@@ -39,10 +36,10 @@ GTouchable::GTouchable(const std::string &digitization, const std::string &giden
 		std::vector<std::string> identifier = gutilities::getStringVectorFromStringWithDelimiter(gid, ":");
 
 		// Note: In production, consider adding try-catch here to handle conversion errors.
-		std::string idName = identifier[0];
+		const std::string& idName = identifier[0];
 		int idValue = std::stoi(identifier[1]);
 
-		gidentity.push_back(GIdentifier(idName, idValue));
+		gidentity.emplace_back(idName, idValue);
 	}
 
 }
@@ -113,7 +110,7 @@ bool GTouchable::operator==(const GTouchable &that) const {
 }
 
 // ostream GTouchable
-ostream &operator<<(ostream &stream, const GTouchable &gtouchable) {
+std::ostream &operator<<(std::ostream &stream, const GTouchable &gtouchable) {
 
 	stream << " GTouchable: ";
 	for (auto &gid: gtouchable.gidentity) {
@@ -144,7 +141,7 @@ ostream &operator<<(ostream &stream, const GTouchable &gtouchable) {
 }
 
 /// Overloaded output operator for GIdentifier.
-ostream &operator<<(ostream &stream, const GIdentifier &gidentifier) {
+std::ostream &operator<<(std::ostream &stream, const GIdentifier &gidentifier) {
 	stream << gidentifier.idName << ": " << gidentifier.idValue;
 	return stream;
 }

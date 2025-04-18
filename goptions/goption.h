@@ -180,7 +180,7 @@ private:
 	 * @param v The YAML node to check.
 	 * @return True if all mandatory keys are present; false otherwise.
 	 */
-	bool does_the_option_set_all_necessary_values(YAML::Node v);
+	bool does_the_option_set_all_necessary_values(const YAML::Node& v);
 
 	friend class GOptions; ///< Grants GOptions access to private members.
 };

@@ -19,8 +19,8 @@ void GHit::calculateInfosForBit(int bit) {
 	if (bit == 0) {
 		double tote = getTotalEnergyDeposited();
 
-		float avgx = 0, avgy = 0, avgz = 0;
-		float avglx = 0, avgly = 0, avglz = 0;
+		double avgx = 0, avgy = 0, avgz = 0;
+		double avglx = 0, avgly = 0, avglz = 0;
 		averageTime = 0;
 
 		auto nsteps = edeps.size();
@@ -73,9 +73,9 @@ void GHit::calculateInfosForBit(int bit) {
  * \return The total energy deposited.
  */
 // Then in getTotalEnergyDeposited():
-float GHit::getTotalEnergyDeposited() {
+double GHit::getTotalEnergyDeposited() {
 	if (!totalEnergyDeposited.has_value()) {
-		float sum = 0;
+		double sum = 0;
 		for (const auto &ei: edeps) {
 			sum += ei;
 		}
@@ -84,7 +84,7 @@ float GHit::getTotalEnergyDeposited() {
 	return totalEnergyDeposited.value();
 }
 
-float GHit::getAverageTime() {
+double GHit::getAverageTime() {
 	if (averageTime == UNINITIALIZEDNUMBERQUANTITY) {
 
 		double tote = getTotalEnergyDeposited();
@@ -118,7 +118,7 @@ G4ThreeVector GHit::getAvgGlobaPosition() {
 
 		double tote = getTotalEnergyDeposited();
 
-		float avgx = 0, avgy = 0, avgz = 0;
+		double avgx = 0, avgy = 0, avgz = 0;
 
 		auto nsteps = edeps.size();
 		for (size_t s = 0; s < nsteps; s++) {
@@ -151,7 +151,7 @@ G4ThreeVector GHit::getAvgLocalPosition() {
 
 		double tote = getTotalEnergyDeposited();
 
-		float avgx = 0, avgy = 0, avgz = 0;
+		double avgx = 0, avgy = 0, avgz = 0;
 
 		auto nsteps = edeps.size();
 		for (size_t s = 0; s < nsteps; s++) {

@@ -64,7 +64,6 @@ public:
 	inline int getValue() const { return idValue; }
 
 
-
 private:
 	string idName;
 	int idValue;
@@ -99,7 +98,8 @@ public:
 	* @param dimensions The physical dimensions of the detector element.
 	* @param logger Pointer to the GLogger instance for logging messages.
 	*/
-	GTouchable(const std::string &digitization, const std::string &gidentityString, const std::vector<double> &dimensions, GLogger * const logger);
+	GTouchable(const std::string &digitization, const std::string &gidentityString,
+			   const std::vector<double> &dimensions, std::shared_ptr<GLogger> logger);
 
 
 	/**
@@ -170,7 +170,7 @@ public:
 	 */
 
 	bool exists_in_vector(const std::vector<GTouchable> &v) const {
-		for (const auto &gt : v) {
+		for (const auto &gt: v) {
 			if (*this == gt) {
 				log->info("GTouchable", this, " exists in vector.");
 				return true;
@@ -182,9 +182,9 @@ public:
 	}
 
 private:
-	GLogger * const log;                           ///< Logger instance (assumed to be managed externally; consider using a smart pointer if ownership semantics change).
+	std::shared_ptr<GLogger> log;           ///< Logger instance
 	GTouchableType gType;                   ///< The type of the touchable element.
-	std::vector <GIdentifier> gidentity;     ///< Unique identifiers for the detector element.
+	std::vector<GIdentifier> gidentity;     ///< Unique identifiers for the detector element.
 	int trackId;                            ///< Track id (used in flux and dosimeter types). Assigned in sensitiveDetector::ProcessHit
 	float eMultiplier;                      ///< Energy multiplier for energy sharing. Set by processGTouchable in the digitization plugin. Defaulted to 1. Used to share energy / create new hits.
 	int stepTimeAtElectronicsIndex;         ///< Used to determine if a hit is within an existing detector readout electronic time window. Set by the digitization plugin using the readout specs.

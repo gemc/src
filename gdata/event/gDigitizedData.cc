@@ -5,20 +5,18 @@
 
 #include "gDigitizedData.h"
 #include "../gdataConventions.h"
-#include "gutilities.h"
 #include <string>
 #include <map>
 #include <vector>
-using namespace std;
 
-GDigitizedData::GDigitizedData(GHit *ghit, GLogger * const logger) : log(logger) {
+GDigitizedData::GDigitizedData(GHit *ghit, const std::shared_ptr<GLogger>& logger) : log(std::move(logger)) {
 	log->debug(CONSTRUCTOR, "GDigitizedData");
 	gidentity = ghit->getGID();
 }
 
-std::map<std::string, int> const GDigitizedData::getIntObservablesMap(int which) const {
+std::map<std::string, int> GDigitizedData::getIntObservablesMap(int which) const {
 	std::map<std::string, int> filteredIntObservablesMap;
-	for (auto [varName, value] : intObservablesMap) {
+	for (const auto& [varName, value] : intObservablesMap) {
 		if (validVarName(varName, which)) {
 			filteredIntObservablesMap[varName] = value;
 		}
@@ -27,18 +25,18 @@ std::map<std::string, int> const GDigitizedData::getIntObservablesMap(int which)
 	return filteredIntObservablesMap;
 }
 
-std::map<std::string, float> const GDigitizedData::getFltObservablesMap(int which) const {
+std::map<std::string, float> GDigitizedData::getFltObservablesMap(int which) const {
 	std::map<std::string, float> filteredFltObservablesMap;
-	for (auto [varName, value] : fltObservablesMap) {
+	for (const auto& [varName, value] : doubleObservablesMap) {
 		if (validVarName(varName, which)) {
 			filteredFltObservablesMap[varName] = value;
 		}
 	}
-	log->debug(NORMAL, " getting ", which, " from fltObservablesMap.");
+	log->debug(NORMAL, " getting ", which, " from doubleObservablesMap.");
 	return filteredFltObservablesMap;
 }
 
-bool GDigitizedData::validVarName(std::string varName, int which) const {
+bool GDigitizedData::validVarName(const std::string& varName, int which) const {
 	bool isSROVar = (varName == CRATESTRINGID || varName == SLOTSTRINGID || varName == CHANNELSTRINGID ||
 					 varName == CHARGEATELECTRONICS || varName == TIMEATELECTRONICS);
 	if (which == 0) {
@@ -53,14 +51,14 @@ bool GDigitizedData::validVarName(std::string varName, int which) const {
 	return true;
 }
 
-void GDigitizedData::includeVariable(std::string vname, int value) {
+void GDigitizedData::includeVariable(const std::string& vname, int value) {
 	log->debug(NORMAL, "Including int variable ", vname, " with value ", value);
 	intObservablesMap[vname] = value;
 }
 
-void GDigitizedData::includeVariable(std::string vname, float value) {
+void GDigitizedData::includeVariable(const std::string& vname, double value) {
 	log->debug(NORMAL, "Including float variable ", vname, " with value ", value);
-	fltObservablesMap[vname] = value;
+	doubleObservablesMap[vname] = value;
 }
 
 int GDigitizedData::getTimeAtElectronics() {
@@ -79,10 +77,10 @@ int GDigitizedData::getIntObservable(std::string varName) {
 }
 
 float GDigitizedData::getFltObservable(std::string varName) {
-	if (fltObservablesMap.find(varName) == fltObservablesMap.end()) {
-		log->error(EC__VARIABLENOTFOUND, "variable name <" + varName + "> not found in GDigitizedData::fltObservablesMap");
+	if (doubleObservablesMap.find(varName) == doubleObservablesMap.end()) {
+		log->error(EC__VARIABLENOTFOUND, "variable name <" + varName + "> not found in GDigitizedData::doubleObservablesMap");
 	}
-	return fltObservablesMap[varName];
+	return doubleObservablesMap[varName];
 }
 
 std::string GDigitizedData::getIdentityString() {

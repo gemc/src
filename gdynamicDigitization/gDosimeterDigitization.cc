@@ -44,7 +44,7 @@ bool GDosimeterDigitization::defineReadoutSpecsImpl() {
 	auto hitBitSet = HitBitSet("000001");  // defines what information to be stored in the hit
 
 	// Create a new GReadoutSpecs object with the specified parameters.
-	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger.value());
+	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger);
 
 	return true;
 }
@@ -71,7 +71,7 @@ GDigitizedData *GDosimeterDigitization::digitizeHitImpl(GHit *ghit, size_t hitn)
 	GIdentifier identity = ghit->getGID().front();
 
 	// Create a new GDigitizedData object for this hit.
-	auto *gdata = new GDigitizedData(ghit, data_logger.value());
+	auto *gdata = new GDigitizedData(ghit, data_logger);
 
 	// Include basic hit variables.
 	gdata->includeVariable(identity.getName(), identity.getValue());
@@ -83,7 +83,7 @@ GDigitizedData *GDosimeterDigitization::digitizeHitImpl(GHit *ghit, size_t hitn)
 	auto pids = ghit->getPids();
 	auto pEnergies = ghit->getEs();
 
-	float nielWeight = 0;
+	double nielWeight = 0;
 	// Loop over each step.
 	for (size_t stepIndex = 0; stepIndex < pids.size(); stepIndex++) {
 		// Use absolute value so negative particle IDs (e.g. -11) are handled.
@@ -92,7 +92,7 @@ GDigitizedData *GDosimeterDigitization::digitizeHitImpl(GHit *ghit, size_t hitn)
 		// Process only for specific particle types.
 		if (pid == 11 || pid == 211 || pid == 2212 || pid == 2112) {
 			// Compute effective energy by subtracting the particle mass.
-			float E = pEnergies[stepIndex] - pMassMeV[pid];
+			double E = pEnergies[stepIndex] - pMassMeV[pid];
 			// Accumulate NIEL weight using linear interpolation of the NIEL factor.
 			nielWeight += getNielFactorForParticleAtEnergy(pid, E);
 		}
@@ -133,10 +133,10 @@ bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int runno, [[may
 
 		ifstream inputfile(dataFileWithPath);
 		if (!inputfile) {
-			digi_logger.value()->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
+			digi_logger->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
 		}
 
-		digi_logger.value()->info(0, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
+		digi_logger->info(0, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
 
 		double p0, p1;
 		// Use proper loop condition to read pairs until failure.
@@ -197,7 +197,7 @@ float GDosimeterDigitization::getNielFactorForParticleAtEnergy(int pid, float en
 		value = nielfactorMap[pid].back();
 	}
 
-	digi_logger.value()->debug(NORMAL, " pid: ", pid, ", j: ", j, ", value: ", value, ", energy: ", energyMeV);
+	digi_logger->debug(NORMAL, " pid: ", pid, ", j: ", j, ", value: ", value, ", energy: ", energyMeV);
 
 	return value;
 }

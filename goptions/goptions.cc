@@ -96,7 +96,7 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 	// Parse command-line arguments (supports both standard YAML–style and dot–notation).
 	for (int i = 1; i < argc; i++) {
 		string candidate = argv[i];
-		if (candidate == "") continue;
+		if (candidate.empty()) continue;
 		if (find(yaml_files.begin(), yaml_files.end(), candidate) != yaml_files.end()) continue;
 		if (candidate[0] == '-') {
 			string argStr = candidate.substr(1);
@@ -127,7 +127,7 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 				}
 			} else {
 				// Treat as a switch.
-				string possibleSwitch = argStr;
+				const string& possibleSwitch = argStr;
 				if (switches.find(possibleSwitch) != switches.end()) {
 					switches[possibleSwitch].turnOn();
 				} else {
@@ -179,7 +179,7 @@ void GOptions::defineOption(const GVariable &gvar, const std::string &help) {
 				  << " option is already present." << std::endl;
 		exit(EC__DEFINED_OPTION_ALREADY_PRESENT);
 	} else {
-		goptions.push_back(GOption(gvar, help));
+		goptions.emplace_back(gvar, help);
 	}
 }
 
@@ -198,7 +198,7 @@ void GOptions::defineOption(const std::string &name, const std::string &descript
 				  << " option is already present." << std::endl;
 		exit(EC__DEFINED_OPTION_ALREADY_PRESENT);
 	} else {
-		goptions.push_back(GOption(name, description, g_vars, help));
+		goptions.emplace_back(name, description, g_vars, help);
 	}
 }
 
@@ -310,13 +310,12 @@ vector <string> GOptions::findYamls(int argc, char *argv[]) {
 
 // checks if the option exists
 bool GOptions::doesOptionExist(const std::string &tag) const {
-	for (const auto &goption: goptions) {
-		// Use const auto& to avoid copying and to ensure const-correctness
-		if (goption.name == tag) {
-			return true;
-		}
-	}
-	return false;
+
+	// [&tag] ensures we're referencing the original tag passed to the function
+	return std::any_of(goptions.begin(), goptions.end(),
+	[&tag](const auto& option) {
+		return option.name == tag;
+	});
 }
 
 /**
@@ -337,7 +336,7 @@ void GOptions::setOptionsValuesFromYamlFile(const std::string &yaml) {
 	}
 
 	for (auto it = config.begin(); it != config.end(); ++it) {
-		string option_name = it->first.as<std::string>();
+		auto option_name = it->first.as<std::string>();
 		auto option_it = getOptionIterator(option_name);
 		if (option_it == goptions.end()) {
 			if (switches.find(option_name) == switches.end()) {
@@ -420,7 +419,6 @@ bool GOptions::getSwitch(const std::string &tag) const {
 				  << " was not found." << std::endl;
 		exit(EC__NOOPTIONFOUND);
 	}
-	return false;
 }
 
 /**
@@ -430,7 +428,7 @@ bool GOptions::getSwitch(const std::string &tag) const {
  * @param map_key The key to look up within the option.
  * @return The YAML::Node corresponding to the specified map key.
  */
-YAML::Node GOptions::getOptionMapInNode(string option_name, string map_key) {
+YAML::Node GOptions::getOptionMapInNode(string option_name, string map_key) const {
 	auto sequence_node = getOptionNode(option_name);
 	for (auto seq_item : sequence_node) {
 		for (auto map_item = seq_item.begin(); map_item != seq_item.end(); ++map_item) {

@@ -124,7 +124,7 @@ public:
 	 * @param map_key The key within the option.
 	 * @return The YAML::Node corresponding to the specified map key.
 	 */
-	YAML::Node getOptionMapInNode(string option_name, string map_key);
+	YAML::Node getOptionMapInNode(string option_name, string map_key) const;
 
 	/**
 	 * @brief Retrieves the verbosity level for the specified tag.

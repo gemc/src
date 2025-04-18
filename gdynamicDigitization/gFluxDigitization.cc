@@ -22,7 +22,7 @@ bool GFluxDigitization::defineReadoutSpecsImpl() {
 
 	// Create a new GReadoutSpecs object using the provided parameters.
 	// The digi_logger (obtained via set_loggers()) is used for logging.
-	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger.value());
+	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger);
 
 	return true;
 }
@@ -48,7 +48,7 @@ GDigitizedData* GFluxDigitization::digitizeHitImpl(GHit *ghit, size_t hitn) {
 	GIdentifier identity = ghit->getGID().front();
 
 	// Create a new GDigitizedData object using the hit and the data_logger.
-	auto gdata = new GDigitizedData(ghit, data_logger.value());
+	auto gdata = new GDigitizedData(ghit, data_logger);
 
 	// Include digitized variables into the GDigitizedData object:
 	// 1. Use the identifier's name and value.

@@ -4,10 +4,8 @@
 // conventions
 #include "gsystemConventions.h"
 
-// glibrary, namespace for the inline functions below
+// namespace needed for the inline functions below
 #include "gutilities.h"
-
-using namespace gutilities;
 
 // c++
 #include <string>
@@ -89,7 +87,7 @@ public:
     inline vector<double> getDetectorDimensions() const {
         if (parameters == UNINITIALIZEDSTRINGQUANTITY) {
             return {0};
-        } else { return getG4NumbersFromString(parameters); }
+        } else { return gutilities::getG4NumbersFromString(parameters); }
     }
 
     inline const string getType() const { return type; }

@@ -44,7 +44,7 @@ private:
 	int userRunno;         ///< User-defined run number.
 	int nEventBuffer;      ///< Number of events stored in the buffer.
 	int currentRunno = -1; ///< Current run number being processed.
-	int elog;              ///< Logging level for events.
+	int elog{};              ///< Logging level for events.
 	std::string variation; ///< Variation string for configuration.
 
 	// Internal data structures:
@@ -59,7 +59,7 @@ private:
 	 */
 	void distributeEvents(int nevents_to_process);
 
-	int currentRunIndex; ///< Index for the current run in listOfRuns.
+	int currentRunIndex{}; ///< Index for the current run in listOfRuns.
 
 	std::map<std::string, GDynamicDigitization *> *gDigitizationGlobal; ///< Pointer to global dynamic digitization plugins.
 
@@ -81,7 +81,7 @@ public:
 	 *
 	 * \return The current run number from the list of runs.
 	 */
-	int getCurrentRun() { return listOfRuns[currentRunIndex]; }
+	int getCurrentRun() const { return listOfRuns[currentRunIndex]; }
 
 	/**
 	 * \brief Computes and returns the total number of events across all runs.

@@ -4,7 +4,6 @@
 // conventions
 #include "gsystemConventions.h"
 
-// glibrary
 #include "gutilities.h"
 
 using namespace gutilities;

@@ -23,8 +23,8 @@ void GHit::addHitInfosForBitset(const HitBitSet hbs, const G4Step *thisStep) {
 	localPositions.push_back(xyzL);
 
 	// Retrieve energy deposition and time information.
-	float edep = (thisStep->GetTotalEnergyDeposit()) * (gtouchable->getEnergyMultiplier());
-	float time = poststep->GetGlobalTime();
+	double edep = (thisStep->GetTotalEnergyDeposit()) * (gtouchable->getEnergyMultiplier());
+	double time = poststep->GetGlobalTime();
 	edeps.push_back(edep);
 	times.push_back(time);
 

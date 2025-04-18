@@ -9,7 +9,6 @@
 #include "goptions.h" // Provides application options/configuration
 
 // qt
-#include <QtWidgets/QTabWidget> // Base class for the display widget
 #include <QtWidgets/QWidget>   // Required for QWidget parent parameter
 
 
@@ -37,20 +36,17 @@ public:
      */
     ~G4Display() override; // Use override for virtual destructors
 
-    // Making the logger accessible (e.g., to child widgets) might be useful,
-    // but passing it during construction (as currently done) is often cleaner.
-    // If access is needed later, provide a getter:
-    // GLogger* getLogger() const { return log.get(); }
+	// Disable copy constructor and assignment operator to prevent slicing
+	// and issues with unique_ptr ownership.
+	G4Display(const G4Display&) = delete;
+	G4Display& operator=(const G4Display&) = delete;
 
 private:
     // Using a smart pointer (unique_ptr) for automatic memory management of the logger.
     // This follows the RAII (Resource Acquisition Is Initialization) principle.
     std::unique_ptr<GLogger> log;
 
-    // Disable copy constructor and assignment operator to prevent slicing
-    // and issues with unique_ptr ownership.
-    G4Display(const G4Display&) = delete;
-    G4Display& operator=(const G4Display&) = delete;
+
 };
 
 #endif // G4DISPLAY_H

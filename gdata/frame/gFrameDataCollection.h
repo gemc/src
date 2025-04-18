@@ -21,8 +21,8 @@ public:
 	 * \param header Pointer to a GFrameDataCollectionHeader.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	GFrameDataCollection(GFrameDataCollectionHeader *header, GLogger *const logger)
-			: log(logger), gheader(header)  {
+	GFrameDataCollection(GFrameDataCollectionHeader* header, std::shared_ptr<GLogger> logger)
+		: log(std::move(logger)), gheader(header) {
 		log->debug(CONSTRUCTOR, "GFrameDataCollection");
 		integralPayloads = new std::vector<GIntegralPayload*>();
 	}
@@ -33,9 +33,7 @@ public:
 	~GFrameDataCollection() {
 		log->debug(DESTRUCTOR, "GFrameDataCollection");
 		delete gheader;
-		for (auto *payload : *integralPayloads) {
-			delete payload;
-		}
+		for (auto* payload : *integralPayloads) { delete payload; }
 		delete integralPayloads;
 	}
 
@@ -48,7 +46,7 @@ public:
 	 *
 	 * \param payload A vector of integers representing the payload.
 	 */
-	void addIntegralPayload(std::vector<int> payload) {
+	void addIntegralPayload(std::vector<int> payload) const {
 		if (payload.size() == 5) {
 			int crate   = payload[0];
 			int slot    = payload[1];
@@ -57,42 +55,42 @@ public:
 			int time    = payload[4];
 
 			// Use 'log' as the logger for GIntegralPayload.
-			GIntegralPayload *gpayload = new GIntegralPayload(crate, slot, channel, charge, time, log);
+			auto gpayload = new GIntegralPayload(crate, slot, channel, charge, time, log);
 			integralPayloads->push_back(gpayload);
-			log->debug(NORMAL, " adding integral payload for crate ", crate, " slot ", slot, " channel ", channel, " charge ", charge, " time ", time);
-		} else {
-			log->error(EC__WRONGPAYLOAD, "payload size is not 5 but ", payload.size());
+			log->debug(NORMAL, " adding integral payload for crate ", crate, " slot ", slot, " channel ", channel,
+			           " charge ", charge, " time ", time);
 		}
+		else { log->error(EC__WRONGPAYLOAD, "payload size is not 5 but ", payload.size()); }
 	}
 
 	// Placeholder: Add event-specific data.
 	void addEvent(int evn);
 
 	// Placeholder: Determine if the frame should be written.
-	bool shouldWriteFrame() const;
+	[[nodiscard]] bool shouldWriteFrame() const;
 
 	/**
 	 * \brief Gets the frame header.
 	 * \return Pointer to the frame header.
 	 */
-	inline const GFrameDataCollectionHeader *getHeader() const { return gheader; }
+	[[nodiscard]] inline const GFrameDataCollectionHeader* getHeader() const { return gheader; }
 
 	/**
 	 * \brief Gets the integral payloads.
 	 * \return Pointer to a vector of GIntegralPayload pointers.
 	 */
-	inline const std::vector<GIntegralPayload*> *getIntegralPayload() const { return integralPayloads; }
+	[[nodiscard]] inline const std::vector<GIntegralPayload*>* getIntegralPayload() const { return integralPayloads; }
 
 	/**
 	 * \brief Gets the frame ID.
 	 * \return The frame ID.
 	 */
-	inline long int getFrameID() const { return gheader->getFrameID(); }
+	[[nodiscard]] inline long int getFrameID() const { return gheader->getFrameID(); }
 
 private:
-	GLogger *const log;                             ///< Logger instance.
-	GFrameDataCollectionHeader *gheader = nullptr;    ///< Frame header.
-	std::vector<GIntegralPayload*> *integralPayloads; ///< Vector of integral payloads.
+	std::shared_ptr<GLogger>        log;               ///< Logger instance
+	GFrameDataCollectionHeader*     gheader = nullptr; ///< Frame header.
+	std::vector<GIntegralPayload*>* integralPayloads;  ///< Vector of integral payloads.
 };
 
 #endif

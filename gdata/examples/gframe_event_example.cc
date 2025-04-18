@@ -1,5 +1,5 @@
 /**
- * \file frame_data_example.cpp
+ * \file gfrane_event_example.cpp
  * \brief Example to test frame data features.
  *
  * \mainpage Frame Data Example
@@ -25,6 +25,7 @@
 
 // gemc
 #include "glogger.h"
+#include <gtouchable_options.h>
 
 // c++
 #include <iostream>
@@ -35,20 +36,20 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 	// Create GOptions using gdata's defineOptions.
-	GOptions *gopts = new GOptions(argc, argv, gdata::defineOptions());
+	auto gopts = new GOptions(argc, argv, gdata::defineOptions());
 
-	// Create a logger for the gdata module.
-	GLogger *log = new GLogger(gopts, DATA_LOGGER);
+	auto log = std::make_shared<GLogger>(gopts, DATA_LOGGER);
+	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER);
 
 	// Define a frame with a frame ID and frame duration.
 	long int frameID = 1;
 	float frameDuration = 33.33; // Example frame duration (units could be ms or other)
 
 	// Create a frame header. The header logs its construction.
-	GFrameDataCollectionHeader *frameHeader = new GFrameDataCollectionHeader(frameID, frameDuration, log);
+	auto frameHeader = new GFrameDataCollectionHeader(frameID, frameDuration, log);
 
 	// Create the frame data collection using the header and logger.
-	GFrameDataCollection *frameData = new GFrameDataCollection(frameHeader, log);
+	auto frameData = new GFrameDataCollection(frameHeader, log);
 
 	// Create several integral payloads.
 	// Each payload vector must contain exactly 5 integers: [crate, slot, channel, charge, time]

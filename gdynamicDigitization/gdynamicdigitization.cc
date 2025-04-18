@@ -1,5 +1,5 @@
 /**
- * \file gdynamicdigitization.cpp
+ * \file gdynamicdigitization.cc
  * \brief Implementation of the GDynamicDigitization interface and related classes.
  *
  * This file implements methods for processing digitization steps, collecting true hit information,
@@ -32,7 +32,7 @@ using std::endl;
  * \return Pointer to a newly allocated GTrueInfoData object.
  */
 GTrueInfoData *GDynamicDigitization::collectTrueInformationImpl(GHit *ghit, size_t hitn) {
-	auto *trueInfoData = new GTrueInfoData(ghit, data_logger.value());
+	auto trueInfoData = new GTrueInfoData(ghit, data_logger);
 	std::vector<GIdentifier> identities = ghit->getGID();
 
 	// Loop over all identities and include them in the true info data.
@@ -76,13 +76,13 @@ void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, GHit *ghit, 
 	check_if_log_defined();
 	// Exit if translation table is not defined.
 	if (translationTable == nullptr) {
-		tt_logger.value()->error(EC__TTNOTFOUNDINTT, "Translation Table not found");
+		tt_logger->error(EC__TTNOTFOUNDINTT, "Translation Table not found");
 	} else {
 		// Obtain the hardware address (crate, slot, channel) from the translation table.
 		std::vector<int> haddress = translationTable->getElectronics(ghit->getTTID()).getHAddress();
 		// Exit if the hardware address is not properly initialized.
 		if (haddress.front() == UNINITIALIZEDNUMBERQUANTITY) {
-			tt_logger.value()->error(EC__GIDENTITYNOTFOUNDINTT, "Translation Table found, but haddress was not initialized");
+			tt_logger->error(EC__GIDENTITYNOTFOUNDINTT, "Translation Table found, but haddress was not initialized");
 		} else {
 			// Include hardware address, time, and charge into the digitized data.
 			gdata->includeVariable(CRATESTRINGID, haddress[0]);

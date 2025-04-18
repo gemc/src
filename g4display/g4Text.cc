@@ -38,7 +38,7 @@ namespace g4display {
 
         // g4text
         help = "If the z coordinate is specified, the text is considered 2D. \n \n";
-        help = "Example to add two texts: \n \n";
+        help += "Example to add two texts: \n \n";
         help += "-g4text=\"[{text: hello, x: -100}, {text: there, x: 100}]\"\n";
         vector <GVariable> g4text = {
                 {"text",  goptions::NODFLT,        "string with the text to be displayed"},

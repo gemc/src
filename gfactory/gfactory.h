@@ -64,13 +64,13 @@ private:
 		log->debug(NORMAL, "Loading DL ", name);
 	}
 
-	GLogger const *log;
+	std::shared_ptr<GLogger> log;
 
 public:
     /**
      @param log pointer to the logger for plugins
      */
-    GManager(GLogger const *logger, std::string name) : gname(name), log(logger)  {
+    GManager(std::shared_ptr<GLogger> logger, std::string name) : gname(name), log(std::move(logger))  {
 		log->debug(CONSTRUCTOR, "Instantiating ", gname);
 	}
 

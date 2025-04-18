@@ -6,7 +6,7 @@ LD += {
                           'gmaterial.cc',
                           'gsystem.cc',
                           'gworld.cc',
-                          'gsystemOptions.cc',
+                          'gsystem_options.cc',
                           'gsystemFactories/text/systemTextFactory.cc',
                           'gsystemFactories/text/loadMaterials.cc',
                           'gsystemFactories/text/loadGeometry.cc',
@@ -25,7 +25,7 @@ LD += {
                           'gmaterial.h',
                           'gsystem.h',
                           'gworld.h',
-                          'gsystemOptions.h',
+                          'gsystem_options.h',
                           'gsystemConventions.h',
                           'gsystemFactories/systemFactory.h',
                           'gsystemFactories/systemDynamicFactory.h',
@@ -34,13 +34,13 @@ LD += {
                           'gsystemFactories/gdml/systemGdmlFactory.h',
                           'gsystemFactories/sqlite/systemSqliteFactory.h',
                       ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps, sqlite_dep],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'additional_includes' : ['gsystem/gsystemFactories',
                              'gsystem/gsystemFactories/cad',
                              'gsystem/gsystemFactories/gdml',
                              'gsystem/gsystemFactories/sqlite',
                              'gsystem/gsystemFactories/text'],
     'examples' : {
-        'test_basic_gsystem' : [files('examples/example.cc'), meson.current_source_dir() + '/examples/example.yaml']
+        'test_gsystem' : [files('examples/gsystem_example.cc'), meson.current_source_dir() + '/examples/example.yaml']
     }
 }

@@ -58,7 +58,7 @@ sqlite_dep = dependency('sqlite3',
 
 cmake = import('cmake')
 opt_var = cmake.subproject_options()
-opt_var.add_cmake_defines({ 'BUILD_SHARED_LIBS' : 'OFF', 'BUILD_STATIC_LIBS' : 'ON' })
+opt_var.add_cmake_defines({ 'BUILD_SHARED_LIBS' : 'OFF', 'BUILD_STATIC_LIBS' : 'ON', 'CMAKE_POLICY_VERSION_MINIMUM' : '3.5' })
 opt_var.append_compile_args('cpp', '-Wno-shadow')
 
 assimp_proj = cmake.subproject('assimp', options : opt_var)

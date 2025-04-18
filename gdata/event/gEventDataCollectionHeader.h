@@ -9,9 +9,7 @@
  * thread ID, and a timestamp. It is used by the GEventDataCollection class.
  */
 
-#include "../gdataConventions.h"
 #include "glogger.h"
-#include <ctime>
 #include <string>
 
 class GEventDataCollectionHeader {
@@ -25,7 +23,8 @@ public:
 	 * \param tid The thread ID.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	GEventDataCollectionHeader(int n, int tid, GLogger *logger) : g4localEventNumber(n), threadID(tid), log(logger) {
+	GEventDataCollectionHeader(int n, int tid, std::shared_ptr<GLogger> logger) : g4localEventNumber(n), threadID(tid),
+		log(std::move(logger)) {
 		timeStamp = assignTimeStamp();
 		log->debug(CONSTRUCTOR, "GEventDataCollectionHeader");
 		log->info(1, TPOINTITEM, " Event Number:  ", g4localEventNumber);
@@ -36,32 +35,30 @@ public:
 	/**
 	 * \brief Destructor for GEventDataCollectionHeader.
 	 */
-	~GEventDataCollectionHeader() {
-		log->debug(DESTRUCTOR, "GEventDataCollectionHeader");
-	}
+	~GEventDataCollectionHeader() { log->debug(DESTRUCTOR, "GEventDataCollectionHeader"); }
 
 	/**
 	 * \brief Gets the timestamp.
 	 * \return The timestamp as a string.
 	 */
-	inline std::string const getTimeStamp() const { return timeStamp; }
+	[[nodiscard]] inline std::string getTimeStamp() const { return timeStamp; }
 
 	/**
 	 * \brief Gets the local event number.
 	 * \return The event number.
 	 */
-	inline int getG4LocalEvn() const { return g4localEventNumber; }
+	[[nodiscard]] inline int getG4LocalEvn() const { return g4localEventNumber; }
 
 	/**
 	 * \brief Gets the thread ID.
 	 * \return The thread ID.
 	 */
-	inline int getThreadID() const { return threadID; }
+	[[nodiscard]] inline int getThreadID() const { return threadID; }
 
 private:
-	int g4localEventNumber;  ///< G4Run-local event number.
-	int threadID;            ///< Thread ID.
-	GLogger * const log;     ///< Logger instance.
+	int                      g4localEventNumber; ///< G4Run-local event number.
+	int                      threadID;           ///< Thread ID.
+	std::shared_ptr<GLogger> log;                ///< Logger instance
 
 	/**
 	 * \brief Assigns a timestamp using the local time.
@@ -71,15 +68,15 @@ private:
 	 * \return A string representing the timestamp.
 	 */
 	std::string assignTimeStamp() {
-		time_t now = time(NULL);
-		struct tm *ptm = localtime(&now);
-		char buffer[32];
+		time_t     now = time(nullptr);
+		struct tm* ptm = localtime(&now);
+		char       buffer[32];
 		// Format: Mo, 15.06.2009 20:20:00
 		strftime(buffer, 32, "%a, %m.%d.%Y %H:%M:%S", ptm);
-		return std::string(buffer);
+		return {buffer};
 	}
 
-	std::string timeStamp;  ///< The timestamp.
+	std::string timeStamp; ///< The timestamp.
 };
 
 #endif

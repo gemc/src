@@ -22,14 +22,12 @@ public:
 	 * \param ghit Pointer to the GHit from which identity information is extracted.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	GDigitizedData(GHit *ghit, GLogger * const logger);
+	GDigitizedData(GHit* ghit, const std::shared_ptr<GLogger>& logger);
 
 	/**
 	 * \brief Destructor for GDigitizedData.
 	 */
-	~GDigitizedData() {
-		log->debug(DESTRUCTOR, "GDigitizedData");
-	}
+	~GDigitizedData() { log->debug(DESTRUCTOR, "GDigitizedData"); }
 
 	/**
 	 * \brief Returns a string representation of the hit identity.
@@ -38,24 +36,24 @@ public:
 	std::string getIdentityString();
 
 	// Public interface to add data to a hit:
-	void includeVariable(std::string vname, int value);
-	void includeVariable(std::string vname, float value);
-	void includeVariable(std::string vname, std::vector<int> values);
-	void includeVariable(std::string vname, std::vector<float> values);
+	void includeVariable(const std::string& vname, int value);
+	void includeVariable(const std::string& vname, double value);
+	// void includeVariable(std::string vname, std::vector<int> values);
+	// void includeVariable(std::string vname, std::vector<float> values);
 
 	/**
 	 * \brief Returns the filtered map of integer observables.
 	 * \param which 0: returns non-streaming variables; 1: returns streaming variables.
 	 * \return A map of variable names to integer values.
 	 */
-	const std::map<std::string, int> getIntObservablesMap(int which) const;
+	[[nodiscard]] std::map<std::string, int> getIntObservablesMap(int which) const;
 
 	/**
 	 * \brief Returns the filtered map of float observables.
 	 * \param which 0: returns non-streaming variables; 1: returns streaming variables.
 	 * \return A map of variable names to float values.
 	 */
-	const std::map<std::string, float> getFltObservablesMap(int which) const;
+	[[nodiscard]] std::map<std::string, float> getFltObservablesMap(int which) const;
 
 	/**
 	 * \brief Gets the time at electronics.
@@ -66,29 +64,33 @@ public:
 	 */
 	int getTimeAtElectronics();
 
-	int getIntObservable(std::string varName);
+	int   getIntObservable(std::string varName);
 	float getFltObservable(std::string varName);
 
 	/**
 	 * \brief Returns the map of integer array observables.
 	 * \return A map of variable names to vectors of integers.
 	 */
-	inline const std::map<std::string, std::vector<int>> getArrayIntObservablesMap() const { return arrayIntObservablesMap; }
+	[[nodiscard]] inline std::map<std::string, std::vector<int>> getArrayIntObservablesMap() const {
+		return arrayIntObservablesMap;
+	}
 
 	/**
 	 * \brief Returns the map of float array observables.
 	 * \return A map of variable names to vectors of floats.
 	 */
-	inline const std::map<std::string, std::vector<float>> getArrayFltObservablesMap() const { return arrayFltObservablesMap; }
+	[[nodiscard]] inline std::map<std::string, std::vector<double>> getArrayFltObservablesMap() const {
+		return arrayDoubleObservablesMap;
+	}
 
 private:
-	std::map<std::string, int> intObservablesMap;    ///< Map of integer observables.
-	std::map<std::string, float> fltObservablesMap;    ///< Map of float observables.
-	std::map<std::string, std::vector<int>> arrayIntObservablesMap;   ///< Map of integer array observables.
-	std::map<std::string, std::vector<float>> arrayFltObservablesMap; ///< Map of float array observables.
-	std::vector<GIdentifier> gidentity;  ///< Identity extracted from the hit.
-	bool validVarName(std::string varName, int which) const; ///< Validates variable names.
-	GLogger * const log; ///< Logger instance.
+	std::map<std::string, int> intObservablesMap; ///< Map of integer observables.
+	std::map<std::string, double> doubleObservablesMap; ///< Map of float observables.
+	std::map<std::string, std::vector<int>> arrayIntObservablesMap; ///< Map of integer array observables.
+	std::map<std::string, std::vector<double>> arrayDoubleObservablesMap; ///< Map of float array observables.
+	std::vector<GIdentifier> gidentity; ///< Identity extracted from the hit.
+	[[nodiscard]] bool validVarName(const std::string& varName, int which) const; ///< Validates variable names.
+	std::shared_ptr<GLogger> log; ///< Logger instance
 };
 
 #endif

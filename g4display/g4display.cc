@@ -4,9 +4,6 @@
 #include "tabs/g4displayview.h"      // View control tab
 #include "tabs/g4displayutilities.h" // Utilities tab
 
-// Qt
-#include <QtWidgets/QTabBar> // To style the QTabBar
-
 // G4Display Constructor
 // Initializes the QTabWidget base class and the unique_ptr for the logger.
 // Creates and adds the specific control tabs.

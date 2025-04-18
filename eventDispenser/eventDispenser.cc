@@ -1,5 +1,5 @@
 /**
- * \file eventDispenser.cpp
+ * \file eventDispenser.cc
  * \brief Implements the EventDispenser class which distributes events among runs.
  *
  * \mainpage Event Dispenser Module
@@ -30,9 +30,6 @@
 // c++
 #include <fstream>
 #include <random>
-
-// gemc
-#include "textProgressBar.h"
 
 // geant4
 #include "G4UImanager.hh"

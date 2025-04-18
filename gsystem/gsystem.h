@@ -5,94 +5,144 @@
 #include "gvolume.h"
 #include "gmaterial.h"
 
+// gemc
+#include "glogger.h"
+
 // c++
 #include <map>
+#include <string>
 
-using std::map;
-
-// a single GSystem is a collection of volumes that refers to a single detector system
-// for example: a calorimeter; a drift chamber; a time-of-flight
+/**
+ * @class GSystem
+ * @brief Represents a single detector system (e.g., calorimeter, tracker).
+ *
+ * A GSystem acts as a container for a set of GVolume objects and their
+ * corresponding GMaterial definitions. It groups components belonging to the
+ * same logical detector part and manages their retrieval. Each system is
+ * identified by a name, factory, variation, and run number.
+ */
 class GSystem {
 
 public:
 
-    // constructor, from command line or jcard
-    GSystem(string givenname,
-            string factory,
-            string variation,
-            int verbosity,
-            int runno = 0,
-            string annotations = "none");
+	/**
+	 * @brief Constructs a GSystem instance.
+	 * @param systemFullName Absolute or relative path including the system name (e.g., "detectors/ecal").
+	 *                       The name and path will be parsed from this string.
+	 * @param factory The name of the factory responsible for building this system (e.g., "TEXT", "GDML").
+	 * @param variation The variation identifier for this system configuration (e.g., "default", "v2").
+	 * @param run The run number this configuration applies to.
+	 * @param annotations Optional descriptive annotations (e.g., "mats_only").
+	 * @param logger A shared pointer to the logging facility.
+	 */
+	GSystem(std::shared_ptr<GLogger> logger,
+			const std::string &givenname,
+			std::string factory,
+			std::string variation,
+			int runno = 0,
+			std::string annotations = "none"
+	);
 
-    // default copy constructor
-    //GSystem(const GSystem &other) = default;
+	/**
+	 * @brief Constructs a GSystem instance from another GSystem.
+	 * @param gsystem The GSystem to copy.
+	 */
+	GSystem(const GSystem &gsystem) = default;
+
+
+	~GSystem() {
+		log->debug(DESTRUCTOR, "GSystem");
+	}
 
 private:
 
-    // MARK: class vars
-    string name;                    // System name
-    string path;                    // Absolute/relative path
-    string factoryName;             // Name of factory that builds the detector
-    string variation = "default";   // Variation of the detector. Default is "default"
-    int runno;                      // Run number
-    string annotations;             // Annotations of the detector. "mats_only" means that only materials are loaded.
+	std::string name;                    ///< System name.
+	std::string path;                    ///< Absolute/relative path.
+	std::string factoryName;             ///< Name of factory that builds the detector.
+	std::string variation;               ///< Variation of the detector. Default is "default".
+	int runno;                           ///< Run number.
+	std::string annotations;             ///< Annotations (e.g., "mats_only" means only materials are loaded).
 
-    // map containing the volumes
-    // the key is system + volume name;
-    // the names must be unique in each system
-    // name must be unique
-    map<string, GVolume *> *gvolumesMap;
+	/// Map containing the volumes.
+	/// The key is a unique volume name (system + volume name).
+	std::map<std::string, std::unique_ptr<GVolume>> gvolumesMap;
 
-    // materials are part of a system and cannot be shared among systems
-    // (for that, the G4 Material database should be sufficient
-    map<string, GMaterial *> *gmaterialsMap;
 
-	// dbhost, if sqlite or mysql is the same for all systems
-	string dbhost;
+	/// Map containing the materials for the system.
+	std::map<std::string, std::unique_ptr<GMaterial>> gmaterialsMap;
+
+	std::string dbhost;                  ///< Database host (if using sqlite or mysql).
+	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 
 public:
-    inline const string getName() const { return name; }
+	/// \brief Gets the system name.
+	[[nodiscard]] inline std::string getName() const { return name; }
 
-    inline const string getFactoryName() const { return factoryName; }
+	/// \brief Gets the factory name.
+	[[nodiscard]]    inline std::string getFactoryName() const { return factoryName; }
 
-    inline const string getVariation() const { return variation; }
+	/// \brief Gets the detector variation.
+	[[nodiscard]] inline std::string getVariation() const { return variation; }
 
-    const string getFilePath() ;
+	/**
+	 * \brief Gets the full file path of the system.
+	 * \return The concatenated path and file name.
+	 */
+	std::string getFilePath();
 
-    inline const string getAnnotations() const { return annotations; }
+	/// \brief Gets the annotations.
+	[[nodiscard]] inline std::string getAnnotations() const { return annotations; }
 
-    inline int getRunno() const { return runno; }
+	/// \brief Gets the run number.
+	[[nodiscard]]    inline int getRunno() const { return runno; }
 
-	inline string get_dbhost() const { return dbhost; }
+	/// \brief Gets the database host.
+	[[nodiscard]] inline  std::string get_dbhost() const { return dbhost; }
 
-	inline void set_dbhost(string dbhost) { this->dbhost = dbhost; }
+	/// \brief Sets the database host.
+	inline void set_dbhost(const std::string &dbh) { this->dbhost = dbh; }
 
+	/**
+	 * \brief Adds a ROOT volume to the system.
+	 * \param rootVolumeDefinition The definition string for the ROOT volume.
+	 */
+	void addROOTVolume(const std::string &rootVolumeDefinition);
 
-    // MARK: GVOLUMES
+	/**
+	 * \brief Adds a GVolume to the system using a set of parameters.
+	 * \param pars A vector of strings representing volume parameters.
+	 */
+	void addGVolume(std::vector<std::string> pars);
 
-    // add root rootVolumeDefinition
-    void addROOTVolume(string rootVolumeDefinition);
+	/**
+	 * \brief Adds a volume from a file (e.g., CAD or GDML).
+	 * \param importType The type of import.
+	 * \param filename The file containing the volume definition.
+	 */
+	void addVolumeFromFile(const std::string &importType, const std::string &filename);
 
-    // add gvolume using parameters (TEXT or MYSQL factories)
-    void addGVolume(vector <string> pars, int verbosity);
+	/**
+	 * \brief Retrieves a GVolume by its volume name.
+	 * \param volumeName The name of the volume.
+	 * \return Pointer to the GVolume if found, or nullptr otherwise.
+	 */
+	[[nodiscard]] GVolume *getGVolume(const std::string &volumeName) const;
 
-    // add gvolume from file (CAD or GDML factories)
-    void addVolumeFromFile(string importType, string filename, int verbosity);
+	/// \brief Returns the map of volumes.
+	[[nodiscard]] inline const std::map<std::string, std::unique_ptr<GVolume>> &getGVolumesMap() const { return gvolumesMap; }
 
-    // need to filter system name from key
-    GVolume *getGVolume(string volumeName) const;
+	/**
+	 * \brief Adds a GMaterial to the system using a set of parameters.
+	 * \param pars A vector of strings representing material parameters.
+	 */
+	void addGMaterial(std::vector<std::string> pars);
 
-    inline const map<string, GVolume *> *getGVolumesMap() const { return gvolumesMap; }
-
-
-    // MARK: GMATERIALS
-
-    // add gmaterial using parameters (TEXT or MYSQL factories)
-    void addGMaterial(vector <string> pars, int verbosity);
-
-    const GMaterial *getMaterialForGVolume(string volumeName) const;
-
-    inline const map<string, GMaterial *> *getGMaterialMap() const { return gmaterialsMap; }
+	/**
+	 * \brief Retrieves the material associated with a given volume.
+	 * \param volumeName The name of the volume.
+	 * \return Pointer to the GMaterial if found, or nullptr otherwise.
+	 */
+	[[nodiscard]] const GMaterial *getMaterialForGVolume(const std::string &volumeName) const;
 
 
 };

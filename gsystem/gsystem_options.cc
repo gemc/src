@@ -1,5 +1,5 @@
 // gsystem
-#include "gsystemOptions.h"
+#include "gsystem_options.h"
 
 // project goption to a system
 namespace gsystem {
@@ -31,7 +31,6 @@ vector <GSystem> getSystems(GOptions *gopts) {
 vector <GModifier> getModifiers(GOptions *gopts) {
 
 	vector <GModifier> gmods;
-	int verbosity = gopts->getVerbosityFor("gsystem");
 
 	auto gmodifier_node = gopts->getOptionNode("gmodifier");
 
@@ -41,9 +40,7 @@ vector <GModifier> getModifiers(GOptions *gopts) {
 				gopts->get_variable_in_option<string>(gmodifier_item, "name", goptions::NODFLT),
 				gopts->get_variable_in_option<string>(gmodifier_item, "shift", GSYSTEMNOMODIFIER),
 				gopts->get_variable_in_option<string>(gmodifier_item, "tilt", GSYSTEMNOMODIFIER),
-				gopts->get_variable_in_option<bool>(gmodifier_item, "isPresent", true),
-				verbosity
-		));
+				gopts->get_variable_in_option<bool>(gmodifier_item, "isPresent", true)));
 	}
 
 	return gmods;
@@ -52,7 +49,7 @@ vector <GModifier> getModifiers(GOptions *gopts) {
 
 // returns array of options definitions
 GOptions defineOptions() {
-	GOptions goptions;
+	GOptions goptions(GSYSTEM_LOGGER);
 
 	// System
 	string help;

@@ -45,9 +45,9 @@
 class GReadoutSpecs {
 
 private:
-	float timeWindow;      ///< Electronic readout time-window of the detector.
-	float gridStartTime;   ///< The start time of the time grid.
-	HitBitSet hitBitSet;   ///< Defines which hit information to be stored.
+	float     timeWindow;    ///< Electronic readout time-window of the detector.
+	float     gridStartTime; ///< The start time of the time grid.
+	HitBitSet hitBitSet;     ///< Defines which hit information to be stored.
 
 public:
 	/**
@@ -60,12 +60,12 @@ public:
 	 * \param hbs The hit bitset defining what information to store.
 	 * \param log Pointer to a GLogger instance for logging.
 	 */
-	GReadoutSpecs(const float tw, const float gst, const HitBitSet hbs, GLogger *log) :
-			timeWindow(tw),
-			gridStartTime(gst),
-			hitBitSet(hbs)
-	{
-		log->info(1, "GReadoutSpecs: timeWindow=", timeWindow, ", gridStartTime=", gridStartTime, ", hitBitSet=", hitBitSet);
+	GReadoutSpecs(const float tw, const float gst, const HitBitSet hbs, const std::shared_ptr<GLogger>& log) :
+		timeWindow(tw),
+		gridStartTime(gst),
+		hitBitSet(hbs) {
+		log->info(1, "GReadoutSpecs: timeWindow=", timeWindow, ", gridStartTime=", gridStartTime, ", hitBitSet=",
+		          hitBitSet);
 	}
 
 public:
@@ -74,7 +74,7 @@ public:
 	 *
 	 * \return The HitBitSet defining the stored hit information.
 	 */
-	inline const HitBitSet getHitBitSet() const { return hitBitSet; }
+	[[nodiscard]] inline HitBitSet getHitBitSet() const { return hitBitSet; }
 
 	/**
 	 * \brief Computes the time cell index for a given time.
@@ -88,7 +88,7 @@ public:
 	 * \param time The time value (e.g., global time from the simulation).
 	 * \return The computed time cell index as an integer.
 	 */
-	inline int timeCellIndex(float time) const {
+	[[nodiscard]] inline int timeCellIndex(float time) const {
 		return static_cast<int>(std::floor((time - gridStartTime) / timeWindow) + 1);
 	}
 };

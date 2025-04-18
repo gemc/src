@@ -18,8 +18,6 @@ static dlhandle load_lib(const std::string &path);
 
 static void close_lib(dlhandle handle);
 
-#define PLUGINITEM   " ⎆"
-
 // exit codes: 1000s
 #define EC__DLNOTFOUND       1001
 #define EC__FACTORYNOTFOUND  1002
@@ -40,14 +38,14 @@ private:
 		return (stat(name.c_str(), &buffer) == 0);
 	}
 
-	GLogger const *log;
+	std::shared_ptr<GLogger> log;
 
 public:
 	// default constructor
 	DynamicLib() = default;
 
 	// path here is the filename
-	DynamicLib(	GLogger const *logger, std::string path) : dlFileName(path), log(logger), handle(nullptr) {
+	DynamicLib(std::shared_ptr<GLogger> logger, std::string path) : dlFileName(path), log(std::move(logger)), handle(nullptr) {
 
 		log->debug(CONSTRUCTOR, "Instantiating ", path);
 		log->debug(NORMAL, "Trying ", dlFileName);
@@ -71,7 +69,8 @@ public:
 			log->info(0, "Loaded ", dlFileName);
 			if (handle == nullptr) {
 				char const *const dlopen_error = dlerror();
-				log->error(EC__DLHANDLENOTFOUND, "File ", dlFileName, " found, but handle is null. Error: ", dlopen_error);
+				log->error(EC__DLHANDLENOTFOUND, "File ", dlFileName, " found, but handle is null. Error: ",
+						   dlopen_error);
 			}
 		} else {
 			log->error(EC__DLNOTFOUND, "could not find ", dlFileName);

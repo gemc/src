@@ -1,6 +1,5 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-#include "gutilities.h"
 #include "gworld.h"
 #include "goptions.h"
 
@@ -13,6 +12,7 @@ using namespace std;
 //		runno: 22
 
 int main(int argc, char *argv[]) {
+
 	GOptions *gopts = new GOptions(argc, argv, gsystem::defineOptions());
 
 	GWorld *world = new GWorld(gopts);

@@ -21,8 +21,8 @@
 #define EC__GMATERIALNOTFOUND                207
 #define EC__GVOLUMENAMECONTAINSINVALID       208
 #define EC__GSQLITEERROR                     209
+#define EC__GMATERIALALREADYPRESENT          210
 
-#define GSYSTEMLOGHEADER           " ❖ GSystem ▸ "
 #define GSYSTEMNOMODIFIER          "noModifier"
 
 #define GEMCDB_ENV           "GEMCDB_ENV"

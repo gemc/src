@@ -1,4 +1,4 @@
-// glibrary
+// gemc
 #include "gfactory.h"
 #include "gutilities.h"
 
@@ -19,14 +19,15 @@ using std::cerr;
 using std::cout;
 using std::endl;
 
-GWorld::GWorld(GOptions *g) : gopts(g) {
+GWorld::GWorld(GOptions *g) : gopts(g), log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER)) {
+	log->debug(CONSTRUCTOR, "GWorld");
+
 	// Allocate the systems map.
 	gsystemsMap = new map<string, GSystem *>;
-	verbosity = gopts->getVerbosityFor("gsystem");
 	string dbhost = gopts->getScalarString("sql");
 
 	// Load GSystems into gsystemsMap.
-	for (auto &gsystem : gsystem::getSystems(gopts)) {
+	for (auto &gsystem: gsystem::getSystems(gopts)) {
 		string keyName = gutilities::getFileFromPath(gsystem.getName());
 		(*gsystemsMap)[keyName] = new GSystem(gsystem);
 		(*gsystemsMap)[keyName]->set_dbhost(dbhost);
@@ -47,7 +48,7 @@ GWorld::GWorld(GOptions *g, vector<GSystem> gsystems) : gopts(g) {
 	gsystemsMap = new map<string, GSystem *>;
 
 	// Load GSystems from the provided vector.
-	for (auto &gsystem : gsystems) {
+	for (auto &gsystem: gsystems) {
 		string keyName = gutilities::getFileFromPath(gsystem.getName());
 		(*gsystemsMap)[keyName] = new GSystem(gsystem);
 	}
@@ -63,15 +64,17 @@ GWorld::GWorld(GOptions *g, vector<GSystem> gsystems) : gopts(g) {
 }
 
 GWorld::~GWorld() {
+	log->debug(DESTRUCTOR, "GWorld");
+
 	// Delete allocated GSystem objects.
-	if(gsystemsMap) {
-		for (auto &pair : *gsystemsMap) {
+	if (gsystemsMap) {
+		for (auto &pair: *gsystemsMap) {
 			delete pair.second;
 		}
 		delete gsystemsMap;
 	}
 	// Delete allocated GModifier objects.
-	for (auto &pair : gmodifiersMap) {
+	for (auto &pair: gmodifiersMap) {
 		delete pair.second;
 	}
 }
@@ -80,7 +83,7 @@ GWorld::~GWorld() {
  * createSystemFactory creates a local GManager, registers the required system factories,
  * clears its DL map, and returns a pointer to a map of factory names to GSystemFactory pointers.
  */
-map<string, GSystemFactory *> *GWorld::createSystemFactory(map<string, GSystem *> *gsystemsMap, int verbosity) {
+map<string, GSystemFactory *> *GWorld::createSystemFactory(map<string, GSystem *> *gsystemsMap) {
 
 	// Create a local GManager.
 	GManager manager("GSystemManager", verbosity);
@@ -90,13 +93,12 @@ map<string, GSystemFactory *> *GWorld::createSystemFactory(map<string, GSystem *
 	manager.RegisterObjectFactory<GSystemTextFactory>(GSYSTEMASCIIFACTORYLABEL);
 	GSystemFactory *textFactory = manager.CreateObject<GSystemFactory>(GSYSTEMASCIIFACTORYLABEL);
 	if (!textFactory) {
-		cerr << FATALERRORL << "Failed to create text factory for label " << GSYSTEMASCIIFACTORYLABEL << endl;
-		gexit(EC__FACTORYNOTFOUND);
+		log->error(EC__FACTORYNOTFOUND, "Failed to create text factory for factory <", GSYSTEMASCIIFACTORYLABEL, ">");
 	}
 	(*systemFactory)[GSYSTEMASCIIFACTORYLABEL] = textFactory;
 
 	// Loop over all systems and register additional factories as needed.
-	for (auto &[gsystemName, gsystem] : *gsystemsMap) {
+	for (auto &[gsystemName, gsystem]: *gsystemsMap) {
 		string factoryName = gsystem->getFactoryName();
 		if (factoryName.empty()) {
 			cerr << "WARNING: System <" << gsystemName << "> has an empty factory name." << endl;
@@ -111,13 +113,14 @@ map<string, GSystemFactory *> *GWorld::createSystemFactory(map<string, GSystem *
 			} else if (factoryName == GSYSTEMSQLITETFACTORYLABEL) {
 				manager.RegisterObjectFactory<GSystemSQLiteFactory>(factoryName);
 			} else {
-				cerr << "WARNING: Unrecognized factory name <" << factoryName << "> for system <" << gsystemName << ">." << endl;
+				cerr << "WARNING: Unrecognized factory name <" << factoryName << "> for system <" << gsystemName << ">."
+					 << endl;
 				continue;
 			}
 			GSystemFactory *fac = manager.CreateObject<GSystemFactory>(factoryName);
 			if (!fac) {
-				cerr << FATALERRORL << "Failed to create factory for label <" << factoryName << "> for system <" << gsystemName << ">." << endl;
-				gexit(EC__FACTORYNOTFOUND);
+				log->error(EC__FACTORYNOTFOUND, "Failed to create text factory for factory <", factoryName,
+						   "> for system <", gsystemName, ">");
 			}
 			(*systemFactory)[factoryName] = fac;
 		}
@@ -131,25 +134,24 @@ map<string, GSystemFactory *> *GWorld::createSystemFactory(map<string, GSystem *
 
 
 GVolume *GWorld::searchForVolume(string volumeName, string purpose) const {
-	for (auto &systemPair : *gsystemsMap) {
+	for (auto &systemPair: *gsystemsMap) {
 		GVolume *thisVolume = systemPair.second->getGVolume(volumeName);
 		if (thisVolume != nullptr) {
-			if (verbosity == GVERBOSITY_DETAILS) {
-				cout << GSYSTEMLOGHEADER << " gvolume named <" << volumeName << "> found with purpose: " << purpose << endl;
-			}
+			log->info(1, "gvolume named <", volumeName, "> found with purpose: ", purpose);
 			return thisVolume;
 		}
 	}
 	// If volume not found, print error and exit.
-	cerr << FATALERRORL << "gvolume named <" << volumeName << "> (" << purpose << ") not found in gsystemsMap " << endl;
-	gexit(EC__GVOLUMENOTFOUND);
+	log->error(EC__GVOLUMENOTFOUND,
+			   "gvolume named <", volumeName, "> (", purpose, ") not found in gsystemsMap ", purpose);
+
 	return nullptr;  // Unreachable.
 }
 
 vector<string> GWorld::getSensitiveDetectorsList() {
 	vector<string> snames;
-	for (auto &systemPair : *gsystemsMap) {
-		for (auto &gvolumePair : *systemPair.second->getGVolumesMap()) {
+	for (auto &systemPair: *gsystemsMap) {
+		for (auto &gvolumePair: *systemPair.second->getGVolumesMap()) {
 			string digitization = gvolumePair.second->getDigitization();
 			if (digitization != UNINITIALIZEDSTRINGQUANTITY) {
 				if (find(snames.begin(), snames.end(), digitization) == snames.end())
@@ -165,27 +167,25 @@ vector<string> GWorld::getSensitiveDetectorsList() {
  */
 void GWorld::load_systems() {
 	// Create system factories.
-	map<string, GSystemFactory *> *systemFactory = createSystemFactory(gsystemsMap, verbosity);
+	map<string, GSystemFactory *> *systemFactory = createSystemFactory(gsystemsMap);
 
 	if (!systemFactory) {
-		cerr << FATALERRORL << "Failed to create system factories." << endl;
-		gexit(EC__FACTORYNOTFOUND);
+		log->error(EC__FACTORYNOTFOUND, "Failed to create GWorldGSystemFactory.");
 	}
 
 	// Log the number of YAML files available.
 	auto yamlFiles = gopts->getYamlFiles();
 
 	// Loop over all systems in the map.
-	for (auto &[gsystemName, gsystem] : *gsystemsMap) {
+	for (auto &[gsystemName, gsystem]: *gsystemsMap) {
 		string factory = gsystem->getFactoryName();
 		if (factory.empty()) {
-			cerr << FATALERRORL << "Factory name for system <" << gsystemName << "> is empty!" << endl;
-			gexit(EC__FACTORYNOTFOUND);
+			log->error(EC__FACTORYNOTFOUND, "Factory name for system <", gsystemName, "> is empty!");
 		}
 		if (systemFactory->find(factory) != systemFactory->end()) {
 
 			// For each YAML file, add its directory to the possible file locations.
-			for (auto &yaml_file : yamlFiles) {
+			for (auto &yaml_file: yamlFiles) {
 				string dir = getDirFromPath(yaml_file);
 				// You might add a check that 'dir' is nonempty.
 				if (dir.empty()) {
@@ -199,12 +199,12 @@ void GWorld::load_systems() {
 				systemFactory->at(factory)->loadSystem(gsystem, verbosity);
 				systemFactory->at(factory)->closeSystem();
 			} else {
-				cerr << FATALERRORL << "systemFactory->at(" << factory << ") returned nullptr for system <" << gsystemName << ">" << endl;
-				gexit(EC__FACTORYNOTFOUND);
+				log->error(EC__FACTORYNOTFOUND,
+						   "systemFactory->at(", factory, ") returned nullptr for system <", gsystemName, ">");
 			}
 		} else {
-			cerr << FATALERRORL << "systemFactory factory <" << factory << "> not found for " << gsystemName << endl;
-			gexit(EC__FACTORYNOTFOUND);
+			log->error(EC__FACTORYNOTFOUND,
+					   "systemFactory factory <", factory, "> not found for system <", gsystemName, ">");
 		}
 	}
 
@@ -214,14 +214,15 @@ void GWorld::load_systems() {
 	if (gsystemsMap->find(ROOTWORLDGVOLUMENAME) != gsystemsMap->end()) {
 		cerr << "WARNING: ROOT world volume already exists in gsystemsMap." << endl;
 	} else {
-		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(ROOTWORLDGVOLUMENAME, GSYSTEMSQLITETFACTORYLABEL, "default", verbosity);
+		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(ROOTWORLDGVOLUMENAME, GSYSTEMSQLITETFACTORYLABEL, "default",
+														   verbosity);
 		(*gsystemsMap)[ROOTWORLDGVOLUMENAME]->addROOTVolume(worldVolumeDefinition);
 	}
 
 	// Optionally log volume definitions.
 	if (verbosity == GVERBOSITY_DETAILS) {
-		for (auto &[gsystemName, gsystem] : *gsystemsMap) {
-			for (auto &[volumeName, gvolume] : *gsystem->getGVolumesMap()) {
+		for (auto &[gsystemName, gsystem]: *gsystemsMap) {
+			for (auto &[volumeName, gvolume]: *gsystem->getGVolumesMap()) {
 				cout << GSYSTEMLOGHEADER << "System <" << gsystemName << "> volume " << volumeName << endl;
 			}
 		}
@@ -237,12 +238,12 @@ void GWorld::load_systems() {
  */
 void GWorld::load_gmodifiers() {
 	// Load GModifiers into gmodifiersMap.
-	for (auto &gmodifier : gsystem::getModifiers(gopts)) {
+	for (auto &gmodifier: gsystem::getModifiers(gopts)) {
 		gmodifiersMap[gmodifier.getName()] = new GModifier(gmodifier);
 	}
 
 	// Apply modifiers to the volumes.
-	for (auto &[volumeNameToModify, gmodifier] : gmodifiersMap) {
+	for (auto &[volumeNameToModify, gmodifier]: gmodifiersMap) {
 		GVolume *thisVolume = searchForVolume(volumeNameToModify, " is marked for modifications");
 		if (thisVolume != nullptr) {
 			thisVolume->applyShift(gmodifier->getShift());
@@ -261,8 +262,8 @@ void GWorld::load_gmodifiers() {
  * assignG4Names assigns Geant4 volume names based on the system and volume information.
  */
 void GWorld::assignG4Names() {
-	for (auto &systemPair : *gsystemsMap) {
-		for (auto &[volumeName, gvolume] : *systemPair.second->getGVolumesMap()) {
+	for (auto &systemPair: *gsystemsMap) {
+		for (auto &[volumeName, gvolume]: *systemPair.second->getGVolumesMap()) {
 			// Skip if the volume's mother is "MOTHEROFUSALL".
 			string motherVolumeName = gvolume->getMotherName();
 			if (motherVolumeName != MOTHEROFUSALL) {

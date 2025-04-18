@@ -1,4 +1,7 @@
 name: Sanitize
+permissions:
+  contents: read
+  pull-requests: write
 
 # Controls when the workflow will run
 on:
@@ -10,11 +13,8 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-permissions:
-  actions: read
-
 jobs:
-  build_and_test:
+  build-with-sanitizer:
     strategy:
       # max-parallel: 4
       matrix:
@@ -49,3 +49,18 @@ jobs:
       - name: Build ${{ matrix.sanitize }}
         run: |
           ./ci/build.sh ${{ matrix.sanitize }}
+
+  build_with_sanitizert-final:
+    needs:
+      - build-with-sanitizer
+    runs-on: ubuntu-latest
+    steps:
+      - name: fail
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}
+        run: |
+          echo "### Some tests failed." >> $GITHUB_STEP_SUMMARY
+          exit 1
+      - name: pass
+        run: |
+          echo "### All tests passed." >> $GITHUB_STEP_SUMMARY
+          exit 0

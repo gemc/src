@@ -3,10 +3,10 @@
 
 bool GParticleCounterDigitization::defineReadoutSpecsImpl() {
 	float timeWindow    = 10;                  // electronic readout time-window of the detector
-	float gridStartTime = 0;                   // defines the windows grid
+	float gridStartTime = 0;                   // defines the window grid
 	auto  hitBitSet     = HitBitSet("000000"); // defines what information to be stored in the hit
 
-	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger.value());
+	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger);
 
 	return true;
 }
@@ -17,7 +17,7 @@ GDigitizedData* GParticleCounterDigitization::digitizeHitImpl(GHit* ghit, size_t
 	// ghit->getGID() must have a single entry
 	GIdentifier identity = ghit->getGID().front();
 
-	auto gdata = new GDigitizedData(ghit, data_logger.value());
+	auto gdata = new GDigitizedData(ghit, data_logger);
 
 	gdata->includeVariable(identity.getName(), identity.getValue());
 	gdata->includeVariable("hitn", static_cast<int> (hitn) );

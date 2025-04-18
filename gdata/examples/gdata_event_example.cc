@@ -1,5 +1,5 @@
 /**
- * \file event_data_example.cpp
+ * \file gdata_event_example.cpp
  * \brief Example demonstrating event data collection in the GData library.
  *
  * \mainpage GData Event Data Example
@@ -25,52 +25,49 @@
 // gdata
 #include "event/gEventDataCollection.h"
 #include "gdata_options.h"
+#include "gdataConventions.h"
 
 // gemc
 #include "glogger.h"
-#include "gtouchable_options.h"
-
-using namespace std;
+#include <gtouchable_options.h>
 
 // emulation of a run of 10 events
-int main(int argc, char *argv[]) {
-
+int main(int argc, char* argv[]) {
 	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
-	GOptions *gopts = new GOptions(argc, argv, gdata::defineOptions());
+	auto gopts = new GOptions(argc, argv, gdata::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	GLogger *log = new GLogger(gopts, DATA_LOGGER);
-	GLogger *logt = new GLogger(gopts, TOUCHABLE_LOGGER);
+	auto log  = std::make_shared<GLogger>(gopts, DATA_LOGGER);
+	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER);
 
 	int nevents = 10;
 
 	// A run is a collection of events. Here we use a vector to hold pointers to event data collections.
-	vector < GEventDataCollection * > *runData = new vector<GEventDataCollection *>;
+	auto runData = new vector<GEventDataCollection*>;
 
 	for (int evn = 1; evn <= nevents; evn++) {
-
 		// Create an event header for this event.
 		// The thread ID is emulated by evn % 3 for demonstration.
-		GEventDataCollectionHeader *gheader = new GEventDataCollectionHeader(evn, evn % 3, log);
+		auto gheader = new GEventDataCollectionHeader(evn, evn % 3, log);
 
 		// Create the event data collection using the header.
-		GEventDataCollection *eventData = new GEventDataCollection(gheader, log);
+		auto eventData = new GEventDataCollection(gheader, log);
 
 		// Create a HitBitSet for the hit. In this example, all bits are off ("000000").
 		HitBitSet hitBitSet("000000");
 
 		// Create an identity string for the GTouchable.
-		string identity = "sector: " + to_string(evn) + ", paddle: " + to_string(evn);
+		string identity = "sector: " + std::to_string(evn) + ", paddle: " + std::to_string(evn);
 		// Define detector dimensions.
 		vector<double> dimensions = {1.0, 20.0, evn * 1.0};
 
 		// Create a GTouchable for the hit.
-		GTouchable *ctof = new GTouchable("readout", identity, dimensions, logt);
+		auto ctof = new GTouchable("readout", identity, dimensions, logt);
 		// Create a GHit using the GTouchable and the HitBitSet.
-		GHit *hit = new GHit(ctof, hitBitSet);
+		auto hit = new GHit(ctof, hitBitSet);
 
 		// Create digitized hit data based on the hit.
-		GDigitizedData *thisHitData = new GDigitizedData(hit, log);
+		auto thisHitData = new GDigitizedData(hit, log);
 		// Include some digitized variables.
 		thisHitData->includeVariable(CRATESTRINGID, evn);
 		thisHitData->includeVariable(SLOTSTRINGID, 2 * evn);
@@ -94,9 +91,7 @@ int main(int argc, char *argv[]) {
 		log->info(" > Event ", i + 1, " collected with event number: ", runData->at(i)->getEventNumber());
 	}
 
-	for (auto event : *runData) {
-		delete event;
-	}
+	for (auto event : *runData) { delete event; }
 	// cleanup
 	// deleting log here gives error on linux. should be investigated
 	delete runData;

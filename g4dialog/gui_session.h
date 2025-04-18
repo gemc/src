@@ -15,6 +15,7 @@ class GUI_Session : public G4UIsession {
 public:
 	/**
 	 * @brief Constructs a new GUI_Session object.
+	 * @param gopt Pointer to the GOptions object containing configuration parameters.
 	 * @param board Pointer to the GBoard widget that will display the messages.
 	 */
 	GUI_Session(GOptions* gopt,  GBoard* board);

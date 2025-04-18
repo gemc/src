@@ -8,7 +8,7 @@ class Ford : public Car
 public:
 	Ford();
 	void go();
-	float fordVar[2];
+	float fordVar[2]{};
 };
 
 extern "C" Car* CarFactory(void) {
