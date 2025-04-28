@@ -1,33 +1,28 @@
 // gsystem
 #include "systemTextFactory.h"
 
+void GSystemTextFactory::loadMaterials(GSystem* system, std::shared_ptr<GLogger> log) {
 
-void GSystemTextFactory::loadMaterials(GSystem *system, int verbosity) {
+	// will continue if not found
+	auto IN = gSystemTextFileStream(system, GTEXTMATSTYPE, log);
 
-    // will continue if not found
-    ifstream *IN = gSystemTextFileStream(system, GTEXTMATSTYPE, verbosity);
+	if (IN != nullptr) {
+		log->info(1, "Loading materials for system ", system->getName(),
+		          " using factory ", system->getFactoryName());
 
-    if (IN != nullptr) {
+		// loading volumes
+		while (!IN->eof()) {
+			string dbline;
+			getline(*IN, dbline);
 
-        if (verbosity >= GVERBOSITY_SUMMARY) {
-            cout << GSYSTEMLOGHEADER << "Loading " << YELLOWHHL << "text" << RSTHHR << " materials for " << BOLDWHHL << system->getName() << RSTHHR << endl;
+			if (dbline.empty()) { continue; }
 
-        }
+			// extract gvolume parameters
+			vector<string> gmaterialsPars =
+				gutilities::getStringVectorFromStringWithDelimiter(dbline, "|");
+			system->addGMaterial(gmaterialsPars);
+		}
 
-        // loading volumes
-        while (!IN->eof()) {
-
-            string dbline;
-            getline(*IN, dbline);
-
-            if (!dbline.size())
-                continue;
-
-            // extract gvolume parameters
-            vector <string> gmaterialsPars = gutilities::getStringVectorFromStringWithDelimiter(dbline, "|");
-            system->addGMaterial(gmaterialsPars, verbosity);
-        }
-
-        IN->close();
-    }
+		IN->close();
+	}
 }

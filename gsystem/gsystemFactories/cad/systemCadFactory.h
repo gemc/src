@@ -8,15 +8,13 @@
 class GSystemCADFactory : GSystemFactory {
 
 public:
-
-    // constructor will load the possible location(s) of the geometry and material databases
-    GSystemCADFactory();
+	// constructor will load the possible location(s) of the geometry and material databases
+	GSystemCADFactory();
 
 private:
+	void loadMaterials(GSystem* system, std::shared_ptr<GLogger> log) override;
 
-    virtual void loadMaterials(GSystem *system, int verbosity);
-
-    virtual void loadGeometry(GSystem *system, int verbosity);
+	void loadGeometry(GSystem* system, std::shared_ptr<GLogger> log) override;
 
 };
 

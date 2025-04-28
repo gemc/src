@@ -6,13 +6,39 @@
 using namespace std;
 
 
+GSystem::GSystem(const GSystem& other)
+	: log(other.log),
+	  dbhost(other.dbhost),
+	  name(other.name),
+	  path(other.path),
+	  factoryName(other.factoryName),
+	  variation(other.variation),
+	  runno(other.runno),
+	  annotations(other.annotations)
+// shared_ptr: shallow copy is OK
+{
+	// Deep copy the gvolumesMap
+	for (const auto& [key, volumePtr] : other.gvolumesMap) {
+		if (volumePtr) {
+			gvolumesMap[key] = volumePtr->clone(); // Use the clone method
+		}
+	}
+
+	// Deep copy the gmaterialsMap
+	for (const auto& [key, materialPtr] : other.gmaterialsMap) {
+		if (materialPtr) {
+			gmaterialsMap[key] = materialPtr->clone(); // Use the clone method
+		}
+	}
+}
+
+
 /**
  * \file gsystem.cc
  * \brief Implementation of the GSystem class.
  *
  * \details This file contains the definitions for the GSystem class member functions.
  */
-
 
 
 /**
@@ -22,21 +48,27 @@ using namespace std;
  * If no directory is present, the path is set to an empty string.
  *
  * \param n The name (or full path) of the detector system.
- * \param f The factory name.
- * \param v The detector variation.
- * \param r The run number.
+ * \param factory The factory name.
+ * \param variation The detector variation.
+ * \param runno The run number.
  * \param notes Additional annotations.
  * \param logger Shared pointer to a logger for outputting messages.
  */
-GSystem::GSystem(std::shared_ptr<GLogger> logger,
-				 const std::string &n,
-				 std::string f,
-				 std::string v,
-				 int r,
-				 std::string notes)
-		:   factoryName(std::move(f)), variation(std::move(v)), runno(r), annotations(std::move(notes)), log(std::move(logger)) {
-	// Extract directory and file name from the provided path.
-	path = gutilities::getDirFromPath(n);
+GSystem::GSystem(const std::shared_ptr<GLogger>& logger,
+                 std::string                     n,
+                 std::string                     factory,
+                 std::string                     variation,
+                 int                             runno,
+                 std::string                     notes) // 'notes' parameter
+	: log(logger),
+	  name(std::move(n)),
+	  path(gutilities::getDirFromPath(n)), // Initialize 'path' directly
+	  factoryName(std::move(factory)),
+	  variation(std::move(variation)),
+	  runno(runno),
+	  annotations(std::move(notes)) // Use 'notes' directly
+{
+	// Set the name after extracting file name from 'n'
 	name = gutilities::getFileFromPath(n);
 
 	// If the provided name does not include a directory, set the path to empty.
@@ -44,11 +76,13 @@ GSystem::GSystem(std::shared_ptr<GLogger> logger,
 		path = "";
 		if (log)
 			log->info(1, "Instantiating GSystem ", name);
-	} else {
+	}
+	else {
 		if (log)
 			log->info(1, "Instantiating GSystem ", name, " using path ", path);
 	}
 }
+
 
 // MARK: GVOLUMES
 
@@ -70,14 +104,13 @@ void GSystem::addGVolume(vector<string> pars) {
 	// Check if the volume already exists in the map.
 	if (gvolumesMap.find(volume_name) == gvolumesMap.end()) {
 		// Create and add new GVolume to the map.
-		gvolumesMap[volume_name] = std::make_unique<GVolume>(name, pars);
+		gvolumesMap[volume_name] = std::make_unique<GVolume>(log, name, pars);
 		log->info(1, "Adding gVolume <" + volume_name + "> to gvolumesMap.");
 		log->info(2, *gvolumesMap[volume_name]);
-
-	} else {
-		log->error(EC__GVOLUMEALREADYPRESENT,
-				   "gVolume <" + volume_name + "> already exists in gvolumesMap.");
-
+	}
+	else {
+		log->error(ERR_GVOLUMEALREADYPRESENT,
+		           "gVolume <" + volume_name + "> already exists in gvolumesMap.");
 	}
 }
 
@@ -89,7 +122,7 @@ void GSystem::addGVolume(vector<string> pars) {
  *
  * \param rootVolumeDefinition The definition string for the ROOT volume.
  */
-void GSystem::addROOTVolume(const string &rootVolumeDefinition) {
+void GSystem::addROOTVolume(const string& rootVolumeDefinition) {
 	log->info(1, "Adding ROOT volume <" + rootVolumeDefinition + "> to gvolumesMap.");
 	// ROOTWORLDGVOLUMENAME is assumed to be defined in gsystemConventions.h.
 	gvolumesMap[ROOTWORLDGVOLUMENAME] = std::make_unique<GVolume>(rootVolumeDefinition);
@@ -111,36 +144,37 @@ namespace fs = std::filesystem;
  * \param importType The type of import.
  * \param filename The file that contains the volume definition.
  */
-void GSystem::addVolumeFromFile(const string &importType, const string &filename) {
+void GSystem::addVolumeFromFile(const string& importType, const string& filename) {
 	vector<string> pars;
 
 	// Extract filename (without the path) and split by delimiter.
-	vector<string> gvpaths = getStringVectorFromStringWithDelimiter(fs::path(filename).filename().string(), ".");
+	vector<string> gvpaths = gutilities::getStringVectorFromStringWithDelimiter(fs::path(filename).filename().string(),
+		                                                                            ".");
 
 	// Use the first item as the volume name.
 	const string& gvolumeName = gvpaths.front();
 
 	// Order is defined in gvolume.cc:
 	// 01: name, 03: type, 04: parameters, 05: material, 02: mother, etc.
-	pars.emplace_back(gvolumeName);                           // 01 name
-	pars.emplace_back(importType);                            // 03 type
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY);           // 04 parameters
-	pars.emplace_back("G4_AIR");                              // 05 material: default is air
-	pars.emplace_back(ROOTWORLDGVOLUMENAME);                  // 02 mother: default is ROOTWORLDGVOLUMENAME
-	pars.emplace_back("0*cm, 0*cm, 0*cm");                    // 06 position
-	pars.emplace_back("0*deg, 0*deg, 0*deg");                 // 07 rotation
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY);           // 08 electromagnetic field
-	pars.emplace_back("1");                                   // 09 visible
-	pars.emplace_back("1");                                   // 10 style
-	pars.emplace_back("999999");                              // 11 color
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY);           // 12 digitization
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY);           // 13 gidentity
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY);           // 14 copyOf
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY);           // 15 replicaOf
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY);           // 16 solidsOpr
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY);           // 17 mirrot
-	pars.emplace_back("1");                                   // 18 exist
-	pars.emplace_back(filename);                              // 19 description: contains full path
+	pars.emplace_back(gvolumeName);                 // 01 name
+	pars.emplace_back(importType);                  // 03 type
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 04 parameters
+	pars.emplace_back("G4_AIR");                    // 05 material: default is air
+	pars.emplace_back(ROOTWORLDGVOLUMENAME);        // 02 mother: default is ROOTWORLDGVOLUMENAME
+	pars.emplace_back("0*cm, 0*cm, 0*cm");          // 06 position
+	pars.emplace_back("0*deg, 0*deg, 0*deg");       // 07 rotation
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 08 electromagnetic field
+	pars.emplace_back("1");                         // 09 visible
+	pars.emplace_back("1");                         // 10 style
+	pars.emplace_back("999999");                    // 11 color
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 12 digitization
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 13 gidentity
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 14 copyOf
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 15 replicaOf
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 16 solidsOpr
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 17 mirrot
+	pars.emplace_back("1");                         // 18 exist
+	pars.emplace_back(filename);                    // 19 description: contains full path
 
 	addGVolume(pars);
 }
@@ -152,7 +186,7 @@ void GSystem::addVolumeFromFile(const string &importType, const string &filename
  * \param volumeName The name of the volume.
  * \return A pointer to the GVolume if it exists, or nullptr otherwise.
  */
-GVolume *GSystem::getGVolume(const string &volumeName) const {
+GVolume* GSystem::getGVolume(const string& volumeName) const {
 	auto it = gvolumesMap.find(volumeName);
 	if (it != gvolumesMap.end())
 		return it->second.get();
@@ -174,37 +208,35 @@ void GSystem::addGMaterial(vector<string> pars) {
 	string materialName = pars[0];
 
 	if (gmaterialsMap.find(materialName) == gmaterialsMap.end()) {
-		gmaterialsMap[materialName] = std::make_unique<GMaterial>(name, pars);
+		gmaterialsMap[materialName] = std::make_unique<GMaterial>(name, pars, log);
 		log->info(1, "Adding gMaterial <" + materialName + "> to gmaterialsMap.");
 		log->info(2, *gmaterialsMap[materialName]);
-
-	} else {
-		log->error(EC__GMATERIALALREADYPRESENT,
-				   "gMaterial <" + materialName + "> already exists in gmaterialsMap.");
-
+	}
+	else {
+		log->error(ERR__GMATERIALALREADYPRESENT,
+		           "gMaterial <" + materialName + "> already exists in gmaterialsMap.");
 	}
 }
 
 /**
  * \brief Retrieves the material associated with a given volume.
  *
- * The function first retrieves the GVolume from the gvolumesMap and then obtains its material name.
+ * The function first retrieves the GVolume from the gvolumesMap and then gets its material name.
  * It then searches the gmaterialsMap for the corresponding material.
  *
  * \param volumeName The name of the volume.
  * \return A pointer to the GMaterial if found, or nullptr otherwise.
  */
-const GMaterial *GSystem::getMaterialForGVolume(const string &volumeName) const {
+const GMaterial* GSystem::getMaterialForGVolume(const string& volumeName) const {
 	auto it = gvolumesMap.find(volumeName);
 	if (it != gvolumesMap.end()) {
 		string materialName = it->second->getMaterial();
-		auto matIt = gmaterialsMap.find(materialName);
+		auto   matIt        = gmaterialsMap.find(materialName);
 		if (matIt != gmaterialsMap.end())
 			return matIt->second.get();
 		else {
-			log->error(EC__GMATERIALNOTFOUND,
-					   "gMaterial <" + materialName + "> not found for volume <" + volumeName + ">");
-
+			log->error(ERR__GMATERIALNOTFOUND,
+			           "gMaterial <" + materialName + "> not found for volume <" + volumeName + ">");
 		}
 	}
 	return nullptr;

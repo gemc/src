@@ -10,24 +10,20 @@ using namespace gutilities;
 using namespace std;
 
 
-GSystemSQLiteFactory::GSystemSQLiteFactory() {
-
-}
+GSystemSQLiteFactory::GSystemSQLiteFactory() = default;
 
 
-void GSystemSQLiteFactory::initialize_sqlite_db(GSystem *system, int verbosity) {
+void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system, std::shared_ptr<GLogger>& log) {
 	// Save parameters from the system.
 	system_name = system->getName();
-	variation = system->getVariation();
-	runno = system->getRunno();
+	variation   = system->getVariation();
+	runno       = system->getRunno();
 
 	// Use system's dbhost if not already set.
-	if (dbhost == "na") {
-		dbhost = system->get_dbhost();
-	}
+	if (dbhost == "na") { dbhost = system->get_dbhost(); }
 
 	// Attempt to open the primary database file.
-	int rc = sqlite3_open_v2(dbhost.c_str(), &db, SQLITE_OPEN_READWRITE, NULL);
+	int rc = sqlite3_open_v2(dbhost.c_str(), &db, SQLITE_OPEN_READWRITE, nullptr);
 	if (rc != SQLITE_OK) {
 		// If opening failed, close the handle (if non-null) and set it to nullptr.
 		if (db) {
@@ -35,18 +31,16 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem *system, int verbosity) 
 			db = nullptr;
 		}
 		// Try alternative locations from possibleLocationOfFiles.
-		for (auto trialLocation : possibleLocationOfFiles) {
+		for (const auto& trialLocation : possibleLocationOfFiles) {
 			string newName = trialLocation + "/" + dbhost;
-			if (verbosity == GVERBOSITY_DETAILS) {
-				cout << GSYSTEMLOGHEADER << "Trying sqlite file " << newName << endl;
-			}
-			rc = sqlite3_open_v2(newName.c_str(), &db, SQLITE_OPEN_READWRITE, NULL);
+			log->info(1, "Trying sqlite file ", newName);
+
+			rc = sqlite3_open_v2(newName.c_str(), &db, SQLITE_OPEN_READWRITE, nullptr);
 			if (rc == SQLITE_OK) {
-				if (verbosity >= GVERBOSITY_SUMMARY) {
-					cout << GSYSTEMLOGHEADER << "Sqlite file >" << KGRN << newName << RST << "< opened successfully" << endl;
-				}
+				log->info(1, "Sqlite file >" + newName + "< opened successfully");
 				return;
-			} else {
+			}
+			else {
 				// Close and reset db if open failed.
 				if (db) {
 					sqlite3_close(db);
@@ -54,24 +48,22 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem *system, int verbosity) 
 				}
 			}
 		}
-	} else {
-		cout << GSYSTEMLOGHEADER << "Sqlite file >" << KGRN << dbhost << RST << "< opened successfully" << endl;
+	}
+	else {
+		log->info(1, "Sqlite file >" + dbhost + "< opened successfully");
 		return;
 	}
 
 	// If we are here, no valid database file was found.
-	cerr << GSYSTEMLOGHEADER << "Sqlite database >" << dbhost << "< not found" << endl;
-	gexit(EC__GSETUPFILENOTOFOUND);
+	log->error(ERR__GSETUPFILENOTOFOUND, "Sqlite database >" + dbhost + "< not found");
 }
 
 
-void GSystemSQLiteFactory::closeSystem() {
-
+void GSystemSQLiteFactory::closeSystem( std::shared_ptr<GLogger>& log) {
 	if (db) {
 		sqlite3_close(db);
-		db = nullptr;  // Reset the pointer after closing
+		db = nullptr; // Reset the pointer after closing
 	}
 	possibleLocationOfFiles.clear();
-    cout << GSYSTEMLOGHEADER << "Sqlite database >" << KGRN << dbhost << RST << "<  closed successfully" << endl;
-
+	log->info(1, "Closing sqlite database >", dbhost, "<");
 }

@@ -1,21 +1,26 @@
 // gsystem
 #include "gvolume.h"
 
-// c++
-#include <iostream>
+#include <utility>
+#include "gsystemConventions.h"
 
 using namespace std;
+using namespace gutilities;
 
 // need to set pCopyNo with unique identifier
 // see c++ thread safe ID generation function
-GVolume::GVolume(string s, vector <string> pars, string importPath) : system(s) {
+GVolume::GVolume(const std::shared_ptr<GLogger>& log, string s, vector <string> pars, string importPath) : system(std::move(s)) {
+
     if (pars.size() != GVOLUMENUMBEROFPARS) {
-        cerr << FATALERRORL << "incorrect number of system parameters (" << pars.size() << ") for " << pars[0];
-        for (auto &parameter: pars) {
-            cerr << " par " << parameter << endl;
-        }
-        cerr << " It should be " << GVOLUMENUMBEROFPARS << endl;
-        gexit(EC__GWRONGNUMBEROFPARS);
+
+		for (auto &parameter: pars) {
+		    cerr << " par " << parameter << endl;
+			log->warning(" - parameter ", parameter);
+		}
+
+    	log->error(ERR__GWRONGNUMBEROFPARS,
+		           "Incorrect number of system parameters for GVolume: ", pars.size(), ", it should be ", GVOLUMENUMBEROFPARS);
+
     } else {
         // size is already checked in addVolume, the only interface to volume
         int i = 0;
@@ -24,8 +29,9 @@ GVolume::GVolume(string s, vector <string> pars, string importPath) : system(s) 
 
         // checking that name does not contain GSYSTEM_DELIMITER
         if (name.find(GSYSTEM_DELIMITER) != string::npos) {
-            cerr << FATALERRORL << "the gVolume name <" << name << "> contains the invalid characther: <" << GSYSTEM_DELIMITER << ">. Exiting." << endl;
-            gexit(EC__GVOLUMENAMECONTAINSINVALID);
+
+        	log->error(ERR__GVOLUMENAMECONTAINSINVALID,
+			           "the gVolume name <", name, "> contains the invalid character: <", GSYSTEM_DELIMITER, ">. Exiting.");
         }
 
         type = removeAllSpacesFromString(pars[i++]);
@@ -61,12 +67,12 @@ GVolume::GVolume(string s, vector <string> pars, string importPath) : system(s) 
         tilt = GSYSTEMNOMODIFIER;
 
         // set file with path if it's a CAD/GDML import
-        importFilename = importPath;
+        importFilename = std::move(importPath);
     }
 }
 
 
-ostream &operator<<(ostream &stream, GVolume gVol) {
+ostream &operator<<(ostream &stream, const GVolume& gVol) {
     string style = "unknown";
     if (gVol.style == 0) {
         style = "wireframe";
@@ -98,10 +104,10 @@ ostream &operator<<(ostream &stream, GVolume gVol) {
 }
 
 
-GVolume::GVolume(string rootVolumeDefinition) {
+GVolume::GVolume(const string& rootVolumeDefinition) {
 
     vector <string> rootDefinitions = getStringVectorFromStringWithDelimiter(rootVolumeDefinition, " ");
-    string volumeParameters = "";
+    string volumeParameters;
 
     for (size_t i = 1; i < rootDefinitions.size() - 1; i++) {
         volumeParameters += ", " + rootDefinitions[i];
@@ -124,7 +130,7 @@ GVolume::GVolume(string rootVolumeDefinition) {
     replicaOf = UNINITIALIZEDSTRINGQUANTITY;
     solidsOpr = UNINITIALIZEDSTRINGQUANTITY;
     mirror = UNINITIALIZEDSTRINGQUANTITY;
-    exist = 1;
+    exist = true;
 
     description = "root volume";
 

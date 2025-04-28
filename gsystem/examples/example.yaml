@@ -1,12 +1,10 @@
-gsystem:
-  - name: clas12Target
-    factory: ascii
-    variation: lh2
-
-gmodifier:
-  - name: target
-    shift: "0*cm, 0*cm, -100*cm"
+experiment: examples
 
 verbosity:
   - gsystem: 2
-  - g4system: 2
+
+gsystem:
+  - name: b1
+    runno: 1
+
+

@@ -61,6 +61,13 @@ opt_var = cmake.subproject_options()
 opt_var.add_cmake_defines({ 'BUILD_SHARED_LIBS' : 'OFF', 'BUILD_STATIC_LIBS' : 'ON', 'CMAKE_POLICY_VERSION_MINIMUM' : '3.5' })
 opt_var.append_compile_args('cpp', '-Wno-shadow')
 
+# TODO: remove temp workaround for _LIBCPP_ENABLE_ASSERTIONS deprecation
+opt_var.append_compile_args('cpp',
+                            '-Wno-shadow',
+                            '-U_LIBCPP_ENABLE_ASSERTIONS',
+                            '-D_LIBCPP_HARDENING_MODE_DEBUG=true',
+)
+
 assimp_proj = cmake.subproject('assimp', options : opt_var)
 assimp_dep = assimp_proj.dependency('assimp')
 

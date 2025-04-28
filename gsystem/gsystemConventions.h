@@ -12,16 +12,16 @@
 #define DEFAULTROTATION       "0*deg, 0*deg, 0*deg";
 
 // exit codes: 200s
-#define EC__GVOLUMEALREADYPRESENT            201
-#define EC__GWRONGNUMBEROFPARS               202
-#define EC__GSETUPFILENOTOFOUND              203
-#define EC__GVOLUMENOTFOUND                  204
-#define EC__GDIRNOTFOUND                     205
-#define EC__GMATERIALOPTICALPROPERTYMISMATCH 206
-#define EC__GMATERIALNOTFOUND                207
-#define EC__GVOLUMENAMECONTAINSINVALID       208
-#define EC__GSQLITEERROR                     209
-#define EC__GMATERIALALREADYPRESENT          210
+#define ERR_GVOLUMEALREADYPRESENT             201
+#define ERR__GWRONGNUMBEROFPARS               202
+#define ERR__GSETUPFILENOTOFOUND              203
+#define ERR__GVOLUMENOTFOUND                  204
+#define ERR__GDIRNOTFOUND                     205
+#define ERR__GMATERIALOPTICALPROPERTYMISMATCH 206
+#define ERR__GMATERIALNOTFOUND                207
+#define ERR__GVOLUMENAMECONTAINSINVALID       208
+#define ERR__GSQLITEERROR                     209
+#define ERR__GMATERIALALREADYPRESENT          210
 
 #define GSYSTEMNOMODIFIER          "noModifier"
 

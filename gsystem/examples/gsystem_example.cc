@@ -13,9 +13,9 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-	GOptions *gopts = new GOptions(argc, argv, gsystem::defineOptions());
+	auto gopts = new GOptions(argc, argv, gsystem::defineOptions());
 
-	GWorld *world = new GWorld(gopts);
+	auto world = new GWorld(gopts);
 	delete world;
 
 	return EXIT_SUCCESS;

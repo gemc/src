@@ -28,7 +28,7 @@ jobs:
       actions: read
       contents: read
 
-    container: jeffersonlab/geant4:g4v11.3.0-almalinux94
+    container: jeffersonlab/geant4:g4v11.3.1-almalinux94
 
     strategy:
       fail-fast: false
@@ -84,7 +84,7 @@ jobs:
       run: |
         echo "Starting manual build for CodeQL..."
         chmod +x ./ci/build_gemc.sh
-        ./ci/build_gemc.sh
+        ./ci/build.sh
 
         echo "Manual build finished."
 

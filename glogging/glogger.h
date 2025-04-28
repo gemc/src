@@ -9,7 +9,6 @@
 #include "G4UIsession.hh"
 #include <atomic>
 #include <string>
-#include <cstdlib>
 #include <sstream>
 #include <utility>
 
@@ -149,6 +148,7 @@ public:
 		std::ostringstream oss;
 		(oss << ... << std::forward<Args>(args));
 		G4cerr << FATALERRORL << header_string() << KRED << oss.str() << RST << G4endl;
+		G4cerr << FATALERRORL << header_string() << KRED << "Exit Code: " << exit_code << RST << G4endl;
 		std::exit(exit_code);
 	}
 
@@ -177,7 +177,7 @@ private:
 	 *
 	 * Uses an atomic counter to ensure thread safety.
 	 *
-	 * \return A string in the format "name [counter] ".
+	 * \return A string in the format: "name [counter]".
 	 */
 	[[nodiscard]] std::string header_string() const {
 		log_counter++;

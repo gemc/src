@@ -7,30 +7,30 @@
 // c++
 #include <iostream>
 
-void GSystemTextFactory::loadGeometry(GSystem *system, int verbosity) {
-    // will exit if not found
-    ifstream *IN = gSystemTextFileStream(system, GTEXTGEOMTYPE, verbosity);
+void GSystemTextFactory::loadGeometry(GSystem* system, std::shared_ptr<GLogger> log) {
 
-    if (IN != nullptr) {
+	// will exit if not found
+	auto IN = gSystemTextFileStream(system, GTEXTGEOMTYPE, log);
 
-        if (verbosity >= GVERBOSITY_SUMMARY) {
-            cout << GSYSTEMLOGHEADER << "Loading " << YELLOWHHL << "text" << RSTHHR << " geometry for " << BOLDWHHL << system->getName() << RSTHHR << endl;
-        }
+	if (IN != nullptr) {
+		log->info(1, "Loading geometry for system ", system->getName(),
+		          " using factory ", system->getFactoryName()
+		         );
 
-        // loading volumes
-        while (!IN->eof()) {
+		// loading volumes
+		while (!IN->eof()) {
+			string dbline;
+			getline(*IN, dbline);
 
-            string dbline;
-            getline(*IN, dbline);
+			if (dbline.empty())
+				continue;
 
-            if (!dbline.size())
-                continue;
+			// extract gvolume parameters
+			vector<string> gvolumePars =
+				gutilities::getStringVectorFromStringWithDelimiter(dbline, "|");
+			system->addGVolume(gvolumePars);
+		}
 
-            // extract gvolume parameters
-            vector <string> gvolumePars = gutilities::getStringVectorFromStringWithDelimiter(dbline, "|");
-            system->addGVolume(gvolumePars, verbosity);
-        }
-
-        IN->close();
-    }
+		IN->close();
+	}
 }

@@ -1,11 +1,8 @@
 #ifndef SYSTEMDFACTORY_H
 #define SYSTEMDFACTORY_H 1
 
-// c++
-#include <string>
-#include <vector>
 
-// glibrary
+// gemc
 #include "goptions.h"
 
 // system plugin factory

@@ -35,7 +35,7 @@ public:
 	 * @param gopts Pointer to options.
 	 */
 	explicit GWorld(GOptions *gopts);
-	GWorld(GOptions *gopts, vector<GSystem> gsystems);
+	GWorld(GOptions *gopts, const vector<GSystem>& gsystems);
 
 	~GWorld();
 
@@ -57,7 +57,7 @@ private:
 
 	// Searches for a volume among the systems in gsystemsMap.
 	// Used in the constructor to apply modifiers.
-	[[nodiscard]] GVolume *searchForVolume(string volumeName, string purpose) const;
+	[[nodiscard]] GVolume *searchForVolume(const string& volumeName, const string& purpose) const;
 
 	/**
 	 * Creates and initializes the system factory map.

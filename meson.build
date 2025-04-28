@@ -4,6 +4,13 @@ project('gemc3', 'cpp',
         version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip(),
         meson_version : '>= 1.6.0'
 )
+
+# TODO: remove temp workaround for _LIBCPP_ENABLE_ASSERTIONS deprecation
+add_project_arguments(
+    '-U_LIBCPP_ENABLE_ASSERTIONS',      # <-- Unset the deprecated macro
+    '-D_LIBCPP_HARDENING_MODE_DEBUG=true',
+    language: 'cpp'
+)
 project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 
 # init lists
@@ -33,7 +40,7 @@ subdir('eventDispenser')
 subdir('gqtbuttonswidget')
 subdir('g4display')
 subdir('g4dialog')
-#subdir('gsystem')
+subdir('gsystem')
 #subdir('g4system')
 #subdir('gparticle')
 #subdir('gphysics')
