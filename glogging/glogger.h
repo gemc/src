@@ -18,7 +18,7 @@
  *
  * Used to indicate whether a debug message is normal or corresponds to a constructor or destructor.
  */
- enum debug_type { NORMAL, CONSTRUCTOR, DESTRUCTOR };
+enum debug_type { NORMAL, CONSTRUCTOR, DESTRUCTOR };
 
 /**
  * @class GLogger
@@ -36,18 +36,16 @@ public:
 	 * @param vname The verbosity or debyg name is a string used to identify the logger and as header for all messages
 	 */
 	explicit GLogger(GOptions* gopts, std::string vname)
-			: name(std::move(vname)), log_counter(0) {
+		: name(vname), log_counter{0} {
 		verbosity_level = gopts->getVerbosityFor(name);
-		debug_level = gopts->getDebugFor(name);
-		debug(CONSTRUCTOR,name, " logger");
+		debug_level     = gopts->getDebugFor(name);
+		debug(CONSTRUCTOR, name, " logger");
 	}
 
 	// default constructor
 	GLogger() = default;
 
-	~GLogger() {
-		debug(DESTRUCTOR, name, " logger");
-	}
+	~GLogger() { debug(DESTRUCTOR, name, " logger"); }
 
 	/**
 	 * \brief Logs a debug message if the debug level is nonzero.
@@ -71,15 +69,17 @@ public:
 		(oss << ... << std::forward<Args>(args));
 
 		switch (type) {
-			case NORMAL:
-				G4cout << KYEL << header_string() << oss.str() << RST << G4endl;
-				break;
-			case CONSTRUCTOR:
-				G4cout << KCYN << header_string() << CONSTRUCTORLOG << " constructor " << CONSTRUCTORLOG << " " << RST << oss.str() << G4endl;
-				break;
-			case DESTRUCTOR:
-				G4cout << KCYN << header_string() << DESTRUCTORLOG << " destructor " << DESTRUCTORLOG << " " << RST << oss.str() << G4endl;
-				break;
+		case NORMAL:
+			G4cout << KMAG << header_string() << oss.str() << RST << G4endl;
+			break;
+		case CONSTRUCTOR:
+			G4cout << KCYN << header_string() << CONSTRUCTORLOG << " constructor " << CONSTRUCTORLOG << " " << RST <<
+				oss.str() << G4endl;
+			break;
+		case DESTRUCTOR:
+			G4cout << KCYN << header_string() << DESTRUCTORLOG << " destructor " << DESTRUCTORLOG << " " << RST << oss.
+				str() << G4endl;
+			break;
 		}
 	}
 
@@ -94,10 +94,10 @@ public:
 	 */
 	template <typename... Args>
 	void info(int level, Args&&... args) const {
-
 		// error if level is not 0, 1 or 2
-		if (level != 0 && level != 1  && level != 2 ) {
-			G4cerr << FATALERRORL << header_string() << GWARNING <<  " Invalid verbosity level requested: " << level << RST << G4endl;
+		if (level != 0 && level != 1 && level != 2) {
+			G4cerr << FATALERRORL << header_string() << GWARNING << " Invalid verbosity level requested: " << level <<
+				RST << G4endl;
 			exit(EC_WRONG_VERBOSITY_LEVEL);
 		}
 
@@ -115,9 +115,7 @@ public:
 	 * @param args Streamable message components.
 	 */
 	template <typename... Args>
-	void info(Args&&... args) const {
-		info(0, std::forward<Args>(args)...);
-	}
+	void info(Args&&... args) const { info(0, std::forward<Args>(args)...); }
 
 	/**
 	 * @brief Logs a warning message.
@@ -166,9 +164,9 @@ public:
 	}
 
 private:
-	std::string name;       ///< Prefix for all messages
-	int verbosity_level{};          ///< Verbosity level (0 = low, >0 = detailed)
-	int debug_level{};              ///< Debug level: 0 = off, 1 = normal, 10/-10 = ctor/dtor
+	std::string name;              ///< Prefix for all messages
+	int         verbosity_level{}; ///< Verbosity level (0 = low, >0 = detailed)
+	int         debug_level{};     ///< Debug level: 0 = off, 1 = normal, 10/-10 = ctor/dtor
 
 	mutable std::atomic<int> log_counter{}; ///< Thread-safe counter for messages
 

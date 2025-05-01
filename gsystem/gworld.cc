@@ -211,7 +211,9 @@ void GWorld::load_systems() {
 		           "ROOT world volume already exists in gsystemsMap. Check your configuration.");
 	}
 	else {
-		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(log, ROOTWORLDGVOLUMENAME, GSYSTEMSQLITETFACTORYLABEL,
+		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(log, GSYSTEMSQLITETFACTORYLABEL, ROOTWORLDGVOLUMENAME,
+		                                                   "all",
+		                                                   0,
 		                                                   "default");
 		(*gsystemsMap)[ROOTWORLDGVOLUMENAME]->addROOTVolume(worldVolumeDefinition);
 	}

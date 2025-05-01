@@ -53,7 +53,7 @@ public:
      * \param logger Pointer to the shared GLogger instance for logging.
      * \param parent Optional parent QWidget.
      */
-    G4DisplayUtilities(GOptions* gopt, GLogger* const logger, QWidget* parent = nullptr);
+    G4DisplayUtilities(GOptions* gopt, std::shared_ptr<GLogger> logger, QWidget* parent = nullptr);
 
     /**
      * \brief Destructor.
@@ -62,11 +62,10 @@ public:
      */
     ~G4DisplayUtilities() {
 	    log->debug(DESTRUCTOR, "G4DisplayUtilities");
-    	delete log;
     }
 
 private:
-    GLogger* const log; ///< Logger instance used for this widget.
+	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 };
 
 #endif

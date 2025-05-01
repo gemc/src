@@ -42,10 +42,7 @@ public:
 	G4Display& operator=(const G4Display&) = delete;
 
 private:
-    // Using a smart pointer (unique_ptr) for automatic memory management of the logger.
-    // This follows the RAII (Resource Acquisition Is Initialization) principle.
-    std::unique_ptr<GLogger> log;
-
+	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 
 };
 

@@ -1,5 +1,5 @@
 g4view:
-    driver: OpenGLImmediateQt
+    driver: TOOLSSG_QT_GLES
     segsPerCircle: 100
 
 g4camera:

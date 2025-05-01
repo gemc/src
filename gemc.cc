@@ -31,7 +31,7 @@ using namespace std;
 #include "glogger.h"
 
 int main(int argc, char *argv[]) {
-	GOptions *gopts = new GOptions(argc, argv, gemc::defineOptions());
+	auto gopts = new GOptions(argc, argv, gemc::defineOptions());
 
 	bool gui = gopts->getSwitch("gui");
 	bool interactive = gopts->getSwitch("i");

@@ -72,7 +72,7 @@ public:
     std::vector<std::string> addSceneTexts(GOptions *gopts);
 
 private:
-    GLogger * const log; ///< Logger instance used for logging scene properties.
+	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 };
 
 #endif

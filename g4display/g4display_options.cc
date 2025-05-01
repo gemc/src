@@ -10,25 +10,22 @@ namespace g4display {
 // full list from /vis/list
 // TODO: lets get that programmatically
 // ASCIITree ATree DAWNFILE G4HepRepFile HepRepFile RayTracer VRML2FILE gMocrenFile OpenGLImmediateQt OGLIQt OGLI OpenGLStoredQt OGLSQt OGL OGLS
-vector<string> AVAILABLEG4VIEWERS = {
-	"TOOLSSG_QT_GLES",
-	"OpenGLImmediateQt",
-	"OGLIQt",
-	"OGLI",
-	"OpenGLStoredQt",
-	"OGLSQt",
-	"OGL",
-	"OGLS"
-};
+// vector<string> AVAILABLEG4VIEWERS = {
+// 	"TOOLSSG_QT_GLES",
+// 	"OpenGLImmediateQt",
+// 	"OGLIQt",
+// 	"OGLI",
+// 	"OpenGLStoredQt",
+// 	"OGLSQt",
+// 	"OGL",
+// 	"OGLS"
+// };
 
 // read g4view option and return G4View struct
-G4View getG4View(const GOptions* gopts) {
-	// getting json detector from option
-	auto driver = gopts->getOptionMapInNode("g4view", "driver").as<string>();
-
+G4View getG4View(GOptions* gopts) {
 	// projecting it onto G4View structure
 	G4View g4view;
-	g4view.viewer        = driver;
+	g4view.driver        = gopts->getOptionMapInNode("g4view", "driver").as<string>();;
 	g4view.dimension     = gopts->getOptionMapInNode("g4view", "dimension").as<string>();
 	g4view.position      = gopts->getOptionMapInNode("g4view", "position").as<string>();
 	g4view.segsPerCircle = gopts->getOptionMapInNode("g4view", "segsPerCircle").as<int>();
@@ -37,7 +34,7 @@ G4View getG4View(const GOptions* gopts) {
 }
 
 // read g4camera option and return G4Camera struct
-G4Camera getG4Camera(const GOptions* gopts) {
+G4Camera getG4Camera(GOptions* gopts) {
 	G4Camera gcamera;
 	gcamera.phi   = gopts->getOptionMapInNode("g4camera", "phi").as<string>();
 	gcamera.theta = gopts->getOptionMapInNode("g4camera", "theta").as<string>();
@@ -46,7 +43,7 @@ G4Camera getG4Camera(const GOptions* gopts) {
 }
 
 // read dawn option and return G4Dawn struct
-G4Dawn getG4Dawn(const GOptions* gopts) {
+G4Dawn getG4Dawn(GOptions* gopts) {
 	G4Dawn gdawn;
 
 	auto phi   = gopts->getOptionMapInNode("dawn", "phi").as<string>();
@@ -64,12 +61,13 @@ G4Dawn getG4Dawn(const GOptions* gopts) {
 
 // returns array of options definitions
 GOptions defineOptions() {
+
 	GOptions goptions(G4DISPLAY_LOGGER);
 	string   help;
 
 	// g4display
-	string VIEWERCHOICES = "g4 viewer. Available choices:\n\n";
-	for (const auto& c : AVAILABLEG4VIEWERS) { VIEWERCHOICES += "\t\t\t\t- " + c + "\n"; }
+	// string VIEWERCHOICES = "g4 viewer. Available choices:\n\n";
+	// for (const auto& c : AVAILABLEG4VIEWERS) { VIEWERCHOICES += "\t\t\t\t- " + c + "\n"; }
 
 	vector<GVariable> g4view = {
 		{"driver", string(GDEFAULTVIEWERDRIVER), "Geant4 vis driver"},

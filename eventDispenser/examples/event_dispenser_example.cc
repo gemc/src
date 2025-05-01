@@ -34,14 +34,14 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 	// Create GOptions using eventDispenser::defineOptions() to aggregate options.
-	GOptions *gopts = new GOptions(argc, argv, eventDispenser::defineOptions());
+	auto gopts = new GOptions(argc, argv, eventDispenser::defineOptions());
 
 	// Create a logger for the EventDispenser module.
-	GLogger *log = new GLogger(gopts, EVENTDISPENSER_LOGGER);
+	auto log = new GLogger(gopts, EVENTDISPENSER_LOGGER);
 
 	// For demonstration, create an empty global map of dynamic digitization plugins.
 	// In a full simulation, this map would be populated with actual GDynamicDigitization plugins.
-	map<string, GDynamicDigitization *> *gDynamicMap = new map<string, GDynamicDigitization *>();
+	auto gDynamicMap = new map<string, GDynamicDigitization *>();
 
 	// Instantiate the EventDispenser with the GOptions and the global digitization map.
 	EventDispenser eventDisp(gopts, gDynamicMap);

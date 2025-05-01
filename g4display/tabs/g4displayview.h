@@ -35,7 +35,7 @@ public:
      * @param logger Pointer to the GLogger instance for logging messages. Must not be null. Passed from parent G4Display.
      * @param parent Optional parent QWidget for Qt's memory management.
      */
-	G4DisplayView(GOptions* gopts, GLogger* logger, QWidget* parent = nullptr);
+	G4DisplayView(GOptions* gopts,	std::shared_ptr<GLogger>, QWidget* parent = nullptr);
 
     /**
      * @brief Destructor. Logs the destruction event using the provided logger.
@@ -99,7 +99,7 @@ private:
      * This logger is typically created and owned by the parent G4Display widget and passed
      * during construction. It must remain valid for the lifetime of this G4DisplayView object.
      */
-	GLogger* const log;
+	std::shared_ptr<GLogger> log;
 
 private slots:
     /**

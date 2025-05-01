@@ -1,5 +1,4 @@
 examples_dir = get_option('prefix') + '/examples/'
-run_command('rm', '-rf', examples_dir, check: true)  # Remove dir first
 python_exe = import('python').find_installation('python3')
 
 install_subdir(meson.current_source_dir(), install_dir : '.')

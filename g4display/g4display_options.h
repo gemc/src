@@ -12,7 +12,7 @@ namespace g4display {
 
 // G4View
 struct G4View {
-	string viewer;
+	string driver;
 	string dimension;
 	string position;
 	int    segsPerCircle;

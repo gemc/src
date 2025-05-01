@@ -5,22 +5,23 @@
 // project goption to a system
 namespace gsystem {
 
-// ADD EXPERIMENT, RUN NUMBER options read from general options
-
 
 // method to return a vector of GSystem from the options
 vector<GSystem> getSystems(GOptions* gopts, const std::shared_ptr<GLogger>& log) {
 	vector<GSystem> systems;
 
 	auto gsystem_node = gopts->getOptionNode("gsystem");
+	auto exp          = gopts->getScalarString("experiment");
+	auto run          = gopts->getScalarInt("runno");
 
 	for (auto gsystem_item : gsystem_node) {
 		systems.emplace_back(
 		                     log,
 		                     gopts->get_variable_in_option<string>(gsystem_item, "name", goptions::NODFLT),
-		                     gopts->get_variable_in_option<string>(gsystem_item, "factory", "ascii"),
+		                     gopts->get_variable_in_option<string>(gsystem_item, "factory", "sqlite"),
+		                     exp,
+		                     run,
 		                     gopts->get_variable_in_option<string>(gsystem_item, "variation", "default"),
-		                     gopts->get_variable_in_option<int>(gsystem_item, "runno", 1),
 		                     gopts->get_variable_in_option<string>(gsystem_item, "annotations",
 		                                                           UNINITIALIZEDSTRINGQUANTITY)
 		                    );
@@ -56,13 +57,12 @@ GOptions defineOptions() {
 	string help;
 	help = "A system definition includes the geometry location, factory and variation \n \n";
 	help +=
-		R"RAWS(Example: +gsystem={detector: "experiments/clas12/targets", factory: "TEXT", variation: "bonus"})RAWS";
+		R"RAWS(Example: -gsystem="[{name: b1}]")RAWS";
 
 	vector<GVariable> gsystem = {
 		{"name", goptions::NODFLT, "system name (mandatory). For ascii factories, it may include the path to the file"},
-		{"factory", "sqlite", "factory name. Possible choices: ascii, CAD, GDML, sqlite. Default is ascii"},
-		{"variation", "default", "geometry variation, default is \"default\")"},
-		{"runno", 1, "runno, default is 1)"},
+		{"factory", "sqlite", "factory name. Possible choices: ascii, CAD, GDML, sqlite. Default is sqlite"},
+		{"variation", "default", "geometry variation)"},
 		{"annotations", UNINITIALIZEDSTRINGQUANTITY, "optional system annotations. Examples: \"mats_only\" "}
 	};
 	goptions.defineOption("gsystem", "defines the group of volumes in a system", gsystem, help);

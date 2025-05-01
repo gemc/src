@@ -27,18 +27,20 @@ public:
 	/**
 	 * @brief Constructs a GSystem instance.
 	 * @param logger A shared pointer to the logging facility.
-	 * @param givenname Absolute or relative path including the system name (e.g., "detectors/ecal").
+	 * @param sname Absolute or relative path including the system name (e.g., "detectors/ecal").
 	 *                       The name and path will be parsed from this string.
 	 * @param factory The name of the factory responsible for building this system (e.g., "TEXT", "GDML").
+	 * @param experiment The name of the experiment (e.g., "clas12").
 	 * @param variation The variation identifier for this system configuration (e.g., "default", "v2").
 	 * @param runno The run number this configuration applies to.
 	 * @param annotations Optional descriptive annotations (e.g., "mats_only").
 	 */
 	GSystem(const std::shared_ptr<GLogger>& logger,
-	        std::string                     givenname,
+	        const std::string&              sname,
 	        std::string                     factory,
+	        std::string                     experiment,
+	        int                             runno,
 	        std::string                     variation,
-	        int                             runno       = 0,
 	        std::string                     annotations = "none"
 	);
 
@@ -73,8 +75,9 @@ private:
 	std::string              name;        ///< System name.
 	std::string              path;        ///< Absolute/relative path.
 	std::string              factoryName; ///< Name of factory that builds the detector.
-	std::string              variation;   ///< Variation of the detector. Default is "default".
+	std::string              experiment;  ///< Experiment name (e.g., "clas12").
 	int                      runno;       ///< Run number.
+	std::string              variation;   ///< Variation of the detector.
 	std::string              annotations; ///< Annotations (e.g., "mats_only" means only materials are loaded).
 
 	/// Map containing the volumes.
@@ -94,6 +97,9 @@ public:
 
 	/// \brief Gets the detector variation.
 	[[nodiscard]] inline std::string getVariation() const { return variation; }
+
+	/// \brief Gets the experiment name.
+	[[nodiscard]] inline std::string getExperiment() const { return experiment; }
 
 	/**
 	 * \brief Gets the full file path of the system.

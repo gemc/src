@@ -41,7 +41,7 @@ using namespace std;
 // GDynamicDigitization plugins map.
 //
 EventDispenser::EventDispenser(GOptions *gopt, map<string, GDynamicDigitization *> *gDDGlobal)
-		: log(new GLogger(gopt, EVENTDISPENSER_LOGGER)), gDigitizationGlobal(gDDGlobal) {
+		: log(std::make_shared<GLogger>(gopt, EVENTDISPENSER_LOGGER)) , gDigitizationGlobal(gDDGlobal) {
 
 	log->debug(CONSTRUCTOR, "EventDispenser");
 

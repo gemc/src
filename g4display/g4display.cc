@@ -8,7 +8,7 @@
 // Initializes the QTabWidget base class and the unique_ptr for the logger.
 // Creates and adds the specific control tabs.
 G4Display::G4Display(GOptions* gopt, QWidget* parent) :
-		QWidget(parent), log(std::make_unique<GLogger>(gopt, G4DISPLAY_LOGGER))
+		QWidget(parent), log(std::make_shared<GLogger>(gopt, G4DISPLAY_LOGGER))
 {
     // Log the construction event using the newly created logger.
     // Use level 0 info for general construction messages.
@@ -18,11 +18,11 @@ G4Display::G4Display(GOptions* gopt, QWidget* parent) :
 
     // Create and add the 'View' tab.
     // Pass the GOptions, the logger instance (retrieved via log.get()), and this widget as the parent.
-	dialogTabs->addTab(new G4DisplayView(gopt, log.get(), this), tr("View"));
+	dialogTabs->addTab(new G4DisplayView(gopt, log, this), tr("View"));
 
     // Create and add the 'Utilities' tab.
     // Pass the GOptions, the logger instance, and this widget as the parent.
-	dialogTabs->addTab(new G4DisplayUtilities(gopt, log.get(), this), tr("Utilities"));
+	dialogTabs->addTab(new G4DisplayUtilities(gopt, log, this), tr("Utilities"));
 
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addWidget(dialogTabs);
@@ -35,7 +35,5 @@ G4Display::G4Display(GOptions* gopt, QWidget* parent) :
 // G4Display Destructor
 // The unique_ptr 'log' will automatically delete the GLogger instance here.
 G4Display::~G4Display() {
-    // Log the destruction event. Use the logger before it's destroyed.
 	log->debug(DESTRUCTOR, "G4Display");
-    // No explicit 'delete log;' needed due to std::unique_ptr.
 }

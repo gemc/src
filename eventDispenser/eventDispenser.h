@@ -33,11 +33,11 @@ public:
 	 */
 	~EventDispenser() {
 		log->debug(DESTRUCTOR, "EventDispenser");
-		delete log;
+	//	delete log;
 	}
 
 private:
-	GLogger *const log;  ///< Logger instance obtained from GOptions.
+	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 
 	// Parameters extracted from GOptions:
 	int neventsToProcess;  ///< Total number of events to process.

@@ -31,10 +31,13 @@ using namespace std;
  *
  * \param gopts Pointer to the global options object.
  */
-G4SceneProperties::G4SceneProperties(GOptions* gopts): log(new GLogger(gopts, G4DISPLAY_LOGGER)) {
-    bool gui = gopts->getSwitch("gui");
+G4SceneProperties::G4SceneProperties(GOptions* gopts): log(std::make_shared<GLogger>(gopts, G4DISPLAY_LOGGER)) {
 
-    G4UImanager* g4uim = G4UImanager::GetUIpointer();
+	log->debug(CONSTRUCTOR, "G4SceneProperties");
+
+	bool gui = gopts->getSwitch("gui");
+
+    auto g4uim = G4UImanager::GetUIpointer();
 
     // Projecting options onto G4View and G4Camera structs
     G4View g4view = getG4View(gopts);
@@ -54,7 +57,7 @@ G4SceneProperties::G4SceneProperties(GOptions* gopts): log(new GLogger(gopts, G4
     }
 
     if (gui) {
-        commands.emplace_back("/vis/open " + g4view.viewer + " " + g4view.dimension + g4view.position);
+        commands.emplace_back("/vis/open " + g4view.driver + " " + g4view.dimension + g4view.position);
     }
 
     // Disable auto refresh and quieten vis messages whilst scene is established:

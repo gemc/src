@@ -25,7 +25,8 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system, std::shared_ptr<GLogge
 	sqlite3_finalize(count_stmt);
 
 	if (count == 0) {
-		log->info(1, "Table 'materials' is empty for system <", system_name, ">, variation <", variation, ">, run ", runno, ". Returning.");
+		log->warning("Table 'materials' is empty for system <", system_name, ">, variation <", variation, ">, "
+		             "run ", runno, ". This may be ok if the materials are from the Geant4 database.");
 		return;
 	}
 
@@ -57,12 +58,10 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system, std::shared_ptr<GLogge
 		}
 		system->addGMaterial(gmaterialPars);
 		gmaterialPars.clear();
-
 	}
 	if (rc != SQLITE_DONE) {
 		log->error(ERR__GSQLITEERROR, "Sqlite database error in loadMaterials: ",
 		           sqlite3_errmsg(db), " (", rc, ")");
-
 	}
 	sqlite3_finalize(stmt);
 }

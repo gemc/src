@@ -5,15 +5,16 @@
 // Use the std namespace in this implementation file.
 using namespace std;
 
-
+// explicit copy constructor
 GSystem::GSystem(const GSystem& other)
 	: log(other.log),
 	  dbhost(other.dbhost),
 	  name(other.name),
 	  path(other.path),
 	  factoryName(other.factoryName),
-	  variation(other.variation),
+	  experiment(other.experiment),
 	  runno(other.runno),
+	  variation(other.variation),
 	  annotations(other.annotations)
 // shared_ptr: shallow copy is OK
 {
@@ -40,37 +41,22 @@ GSystem::GSystem(const GSystem& other)
  * \details This file contains the definitions for the GSystem class member functions.
  */
 
-
-/**
- * \brief Constructs a GSystem object.
- *
- * This constructor extracts the directory and file name from the provided name/path.
- * If no directory is present, the path is set to an empty string.
- *
- * \param n The name (or full path) of the detector system.
- * \param factory The factory name.
- * \param variation The detector variation.
- * \param runno The run number.
- * \param notes Additional annotations.
- * \param logger Shared pointer to a logger for outputting messages.
- */
 GSystem::GSystem(const std::shared_ptr<GLogger>& logger,
-                 std::string                     n,
+                 const std::string&              sname,
                  std::string                     factory,
+                 std::string                     exp,
+                 int                             run,
                  std::string                     variation,
-                 int                             runno,
-                 std::string                     notes) // 'notes' parameter
+                 std::string                     notes)
 	: log(logger),
-	  name(std::move(n)),
-	  path(gutilities::getDirFromPath(n)), // Initialize 'path' directly
+	  name(gutilities::getFileFromPath(sname)),
+	  path(gutilities::getDirFromPath(sname)), // Initialize 'path' directly
 	  factoryName(std::move(factory)),
+	  experiment(std::move(exp)),
+	  runno(run),
 	  variation(std::move(variation)),
-	  runno(runno),
 	  annotations(std::move(notes)) // Use 'notes' directly
 {
-	// Set the name after extracting file name from 'n'
-	name = gutilities::getFileFromPath(n);
-
 	// If the provided name does not include a directory, set the path to empty.
 	if (name == path) {
 		path = "";

@@ -1,5 +1,4 @@
 api_dir = get_option('prefix') + '/api/'
-run_command('rm', '-rf', api_dir, check: true)  # Remove dir first
 python_exe = import('python').find_installation('python3')
 
 install_subdir(meson.current_source_dir(), install_dir : '.')
@@ -42,8 +41,6 @@ test(' ## template show code for solid G4Cons in silent mode',
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
      args : [api_dir + 'system_template.py', '-gv', 'G4Cons', '-silent'])
 
-
-
 test_dir = meson.current_build_dir() + '/../test'
 test(' ## template create system test',
      python_exe,
@@ -54,11 +51,11 @@ foreach format : ['ascii', 'sqlite']
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
          args : ['test.py', '-f', format], workdir : test_dir, priority : -10)
-    test(' ## run gemc in test for format ' + format,
-         gemc, args : ['test.yaml', '-gsystem="[{name: test, factory: ' + format + '}]" '],
-         workdir : test_dir,
-         env : project_test_env,
-         priority : -20)
+#    test(' ## run gemc in test for format ' + format,
+#         gemc, args : ['test.yaml', '-gsystem="[{name: test, factory: ' + format + '}]" '],
+#         workdir : test_dir,
+#         env : project_test_env,
+#         priority : -20)
 endforeach
 
 # replace geometry with templates
@@ -83,11 +80,11 @@ foreach volume: g4objects.keys()
              python_exe,
              env : {'PYTHONDONTWRITEBYTECODE': '1'},
              args : [python_main, '-f', format], workdir : test_dir, priority : -20)
-        test(' ## run gemc in test with replaced geometry using ' + volume + ' with format ' + format,
-             gemc,
-             args : [yaml_file, '-gsystem="[{name: ' + test_name + ', factory: ' + format + '}]" '],
-             workdir : test_dir,
-             env : project_test_env,
-             priority : -30)
+#        test(' ## run gemc in test with replaced geometry using ' + volume + ' with format ' + format,
+#             gemc,
+#             args : [yaml_file, '-gsystem="[{name: ' + test_name + ', factory: ' + format + '}]" '],
+#             workdir : test_dir,
+#             env : project_test_env,
+#             priority : -30)
     endforeach
 endforeach

@@ -83,7 +83,7 @@ jobs:
       shell: bash
       run: |
         echo "Starting manual build for CodeQL..."
-        chmod +x ./ci/build_gemc.sh
+        chmod +x ./ci/build.sh
         ./ci/build.sh
 
         echo "Manual build finished."

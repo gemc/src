@@ -7,9 +7,9 @@ project('gemc3', 'cpp',
 
 # TODO: remove temp workaround for _LIBCPP_ENABLE_ASSERTIONS deprecation
 add_project_arguments(
-    '-U_LIBCPP_ENABLE_ASSERTIONS',      # <-- Unset the deprecated macro
+    '-U_LIBCPP_ENABLE_ASSERTIONS', # <-- Unset the deprecated macro
     '-D_LIBCPP_HARDENING_MODE_DEBUG=true',
-    language: 'cpp'
+    language : 'cpp'
 )
 project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 
@@ -20,9 +20,12 @@ all_libs = []
 all_includes = []
 empty_dict = { 'na' : [''] }
 all_lib_names = []  # Store library names as linker flags
+python_exe = import('python').find_installation('python3')
+
 
 subdir('meson')
 add_project_arguments('-Wno-shadow', language : ['cpp'])
+
 
 # Fill dictionary
 #################
@@ -40,7 +43,8 @@ subdir('eventDispenser')
 subdir('gqtbuttonswidget')
 subdir('g4display')
 subdir('g4dialog')
-subdir('gsystem')
+subdir('api')
+subdir('gsystem') # uses api for testing
 #subdir('g4system')
 #subdir('gparticle')
 #subdir('gphysics')
@@ -62,6 +66,7 @@ foreach L : LD
     sources = L.get('sources', [''])
     headers = L.get('headers', [''])
     examples = L.get('examples', empty_dict)
+    geo_build = L.get('geo_build', empty_dict)
     this_deps = L.get('dependencies', [])
     plugins = L.get('plugins', empty_dict)
     additional_includes = L.get('additional_includes', [''])
@@ -128,8 +133,30 @@ foreach L : LD
         endforeach
     endif
 
+
     # examples
     if examples != empty_dict
+
+        # examples geometry, higher priority
+        if geo_build != empty_dict
+            foreach name, geo_python_script : geo_build
+                examples_dir = get_option('prefix') + '/test/' + this_lib_name
+                source_subdir = this_lib_name + '/examples/'
+                install_subdir(source_subdir,
+                               install_dir : examples_dir,
+                               strip_directory : true,
+                               follow_symlinks : true)
+
+                test(' ## ' + examples_dir + ' test ##  >>  ' + name,
+                     python_exe,
+                     args : [geo_python_script],
+                     workdir : examples_dir,
+                     env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
+                     priority : 10)
+            endforeach
+        endif
+
+        # example executables, lower priority so it's executed after build geometry
         if not qrc_examples_sources.contains('')
             qrc_examples_compiled_sources = qt6.compile_resources(sources : qrc_examples_sources)
         endif
@@ -145,13 +172,14 @@ foreach L : LD
                 dependencies : this_deps,
                 include_directories : all_includes + this_lib_name + additional_includes,
                 link_with : all_libs,
-                #link_args : all_lib_names
+                # link_args : all_lib_names
                 override_options : ['b_pie=true']
             )
             test(' ## ' + this_lib_name + ' test ##  >>  ' + name,
                  exe,
                  env : project_test_env,
-                 args : arguments)
+                 args : arguments,
+                 priority : -10)
         endforeach
     endif
     foreach include_dir : additional_includes
@@ -159,7 +187,7 @@ foreach L : LD
             all_includes += include_dir
         endif
     endforeach
-    if not all_includes.contains(this_lib_name) and not ( sources.contains('') and headers.contains('') )
+    if not all_includes.contains(this_lib_name) and not (sources.contains('') and headers.contains(''))
         all_includes += this_lib_name
     endif
 endforeach
@@ -167,6 +195,7 @@ endforeach
 # compile gemc
 qrc_gemc_sources = qt6.compile_resources(sources : 'qtresources.qrc')
 
+# TODO: MOVE THE API GEMC TESTS HERE
 #gemc = executable(
 #    'gemc',
 #    ['gemc.cc'] + qrc_gemc_sources + qrc_compiled_sources,
@@ -179,10 +208,9 @@ qrc_gemc_sources = qt6.compile_resources(sources : 'qtresources.qrc')
 #)
 
 
-#subdir('api')
 #subdir('examples')
 
-post_install = run_command('echo', 'Installation completed!', check: true)
+post_install = run_command('echo', 'Installation completed!', check : true)
 
 # generate pkg-config file
 # needs testing - add libraries?
