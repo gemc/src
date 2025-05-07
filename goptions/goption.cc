@@ -1,10 +1,16 @@
 #include "goption.h"
 #include "goptionsConventions.h"
 #include "gutilities.h"
+
+
 #include <iostream>
 #include <algorithm>
+#include <functional>
 
-using namespace std;
+using std::cerr;
+using std::endl;
+using std::cout;
+using std::left;
 
 /**
  * @brief Sets the value of the scalar option.

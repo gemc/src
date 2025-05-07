@@ -33,6 +33,6 @@ LD += {
         'test_g4system' : [files('examples/g4system_example.cc'), [gsystem, dbhost]],
         'test_g4system_verbosity' : [files('examples/g4system_example.cc'), [gsystem, dbhost, '-verbosity.g4system=2']],
         'test_g4system_debug' : [files('examples/g4system_example.cc'), [gsystem, dbhost, '-debug.g4system=true']],
-        'test_g4system_overlaps_switch' : [files('examples/g4system_example.cc'), [gsystem, dbhost, '-checkOverlaps=true']]
+        'test_g4system_overlaps_switch' : [files('examples/g4system_example.cc'), [gsystem, dbhost, '-check_overlaps=1']]
     }
 }
