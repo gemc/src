@@ -3,11 +3,11 @@ LD += {
     'name' : sub_dir_name,
     'sources' : files(
                           'gparticle.cc',
-                          'gparticleOptions.cc'
+                          'gparticle_options.cc'
                       ),
     'headers' : files(
                           'gparticle.h',
-                          'gparticleOptions.h',
+                          'gparticle_options.h',
                           'gparticleConventions.h'
                       ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],

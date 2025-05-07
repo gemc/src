@@ -1,5 +1,4 @@
-#ifndef  GHIT_H
-#define  GHIT_H 1
+#pragma once
 
 // HitBitSet definition
 #include "ghitConventions.h"
@@ -218,5 +217,3 @@ inline void GHit::operator delete(void* hit) {
 	GHitAllocator->FreeSingle((GHit*)hit);
 }
 
-
-#endif

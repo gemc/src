@@ -1,5 +1,4 @@
-#ifndef SYSTEMCADFACTORY_H
-#define SYSTEMCADFACTORY_H 1
+#pragma once
 
 // gsystem
 #include "systemFactory.h"
@@ -18,4 +17,3 @@ private:
 
 };
 
-#endif

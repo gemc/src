@@ -45,7 +45,7 @@ subdir('g4display')
 subdir('g4dialog')
 subdir('api')
 subdir('gsystem') # uses api for testing
-#subdir('g4system')
+subdir('g4system')
 #subdir('gparticle')
 #subdir('gphysics')
 #subdir('gsplash')
@@ -175,6 +175,7 @@ foreach L : LD
                 # link_args : all_lib_names
                 override_options : ['b_pie=true']
             )
+            message(' Testing Executable ' + name)
             test(' ## ' + this_lib_name + ' test ##  >>  ' + name,
                  exe,
                  env : project_test_env,

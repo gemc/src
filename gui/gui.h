@@ -1,5 +1,4 @@
-#ifndef GEMCGUI_H
-#define GEMCGUI_H 1
+#pragma once
 
 // c++
 #include <string>
@@ -61,4 +60,4 @@ private slots:
     void change_page(QListWidgetItem *current, QListWidgetItem *previous);
 };
 
-#endif
+

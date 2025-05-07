@@ -6,7 +6,7 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system, std::shared_ptr<GLogger
 	if (db == nullptr) { initialize_sqlite_db(system, log); }
 
 	// Check that db is valid.
-	if (db == nullptr) { log->error(ERR__GSQLITEERROR, "Database pointer is still null after initialization."); }
+	if (db == nullptr) { log->error(ERR_GSQLITEERROR, "Database pointer is still null after initialization."); }
 
 
 	const char* sql_query =
@@ -14,7 +14,7 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system, std::shared_ptr<GLogger
 	sqlite3_stmt* stmt = nullptr;
 	int           rc   = sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(ERR__GSQLITEERROR, "Sqlite error preparing count query in loadGeometry: ",
+		log->error(ERR_GSQLITEERROR, "Sqlite error preparing count query in loadGeometry: ",
 		           sqlite3_errmsg(db), " (", rc, ") using query: ", sql_query);
 	}
 
@@ -26,19 +26,19 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system, std::shared_ptr<GLogger
 
 	rc = sqlite3_bind_text(stmt, 1, experiment.c_str(), -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
-		log->error(ERR__GSQLITEERROR, "Error binding experiment: >", experiment, "<, ", sqlite3_errmsg(db));
+		log->error(ERR_GSQLITEERROR, "Error binding experiment: >", experiment, "<, ", sqlite3_errmsg(db));
 	}
 	rc = sqlite3_bind_text(stmt, 2, system_name.c_str(), -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
-		log->error(ERR__GSQLITEERROR, "Error binding system name: >", system_name, "<, ", sqlite3_errmsg(db));
+		log->error(ERR_GSQLITEERROR, "Error binding system name: >", system_name, "<, ", sqlite3_errmsg(db));
 	}
 	rc = sqlite3_bind_text(stmt, 3, variation.c_str(), -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
-		log->error(ERR__GSQLITEERROR, "Error binding variation: >", variation, "<, ", sqlite3_errmsg(db));
+		log->error(ERR_GSQLITEERROR, "Error binding variation: >", variation, "<, ", sqlite3_errmsg(db));
 	}
 	rc = sqlite3_bind_int(stmt, 4, runno);
 	if (rc != SQLITE_OK) {
-		log->error(ERR__GSQLITEERROR, "Error binding run number: >", runno, "<, ", sqlite3_errmsg(db));
+		log->error(ERR_GSQLITEERROR, "Error binding run number: >", runno, "<, ", sqlite3_errmsg(db));
 	}
 
 	if (auto sql = sqlite3_expanded_sql(stmt)) { // returns char*
@@ -67,7 +67,7 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system, std::shared_ptr<GLogger
 	}
 
 	if (rc != SQLITE_DONE) {
-		log->error(ERR__GSQLITEERROR, "Sqlite database error in loadGeometry: ",
+		log->error(ERR_GSQLITEERROR, "Sqlite database error in loadGeometry: ",
 		           sqlite3_errmsg(db), " (", rc, ")");
 	}
 

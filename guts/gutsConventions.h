@@ -1,5 +1,4 @@
-#ifndef GUTS_CONVENTIONS_H
-#define GUTS_CONVENTIONS_H 1
+#pragma once
 
 #include <string>
 
@@ -11,7 +10,7 @@
 /**
  * @brief Represents an uninitialized string quantity.
  */
-#define UNINITIALIZEDSTRINGQUANTITY "unititializedString"
+#define UNINITIALIZEDSTRINGQUANTITY "na"
 
 // Exit codes for various error scenarios.
 #define EC__FILENOTFOUND 301    ///< File not found error code.
@@ -139,5 +138,3 @@
 #define YELLOWHHL KYEL HHL     ///< Yellow highlight left.
 #define BOLDWHHL BOLD(HHL)     ///< Bold white highlight left.
 
-
-#endif // GUTS_CONVENTIONS_H

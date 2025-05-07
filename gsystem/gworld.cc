@@ -11,13 +11,6 @@
 #include "gsystemFactories/gdml/systemGdmlFactory.h"
 #include "gsystemFactories/sqlite/systemSqliteFactory.h"
 
-// c++ standard
-#include <iostream>
-#include <cstdlib> // for exit()
-
-using std::cerr;
-using std::cout;
-using std::endl;
 
 GWorld::GWorld(GOptions* g) : gopts(g), log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER)) {
 	log->debug(CONSTRUCTOR, "GWorld");
@@ -30,7 +23,6 @@ GWorld::GWorld(GOptions* g) : gopts(g), log(std::make_shared<GLogger>(g, GSYSTEM
 	for (auto& gsystem : gsystem::getSystems(gopts, log)) {
 		string keyName          = gutilities::getFileFromPath(gsystem.getName());
 		(*gsystemsMap)[keyName] = new GSystem(gsystem);
-		(*gsystemsMap)[keyName]->set_dbhost(dbhost);
 	}
 
 	// Create and initialize system factories and load volume definitions.
@@ -81,24 +73,24 @@ GWorld::~GWorld() {
  */
 map<string, GSystemFactory*>* GWorld::createSystemFactory(map<string, GSystem*>* gsystemsMap) {
 	// Create a local GManager.
-	GManager manager(log, GSYSTEM_LOGGER);
+	GManager manager(log, "GWorld Manager");
 	auto     systemFactory = new map<string, GSystemFactory*>;
 
-	// Register and create the text factory (needed for ROOT volume creation).
-	manager.RegisterObjectFactory<GSystemTextFactory>(GSYSTEMASCIIFACTORYLABEL);
-	auto textFactory = manager.CreateObject<GSystemFactory>(GSYSTEMASCIIFACTORYLABEL);
+	// Register and create the default sqlite factory (needed for ROOT volume creation).
+	manager.RegisterObjectFactory<GSystemSQLiteFactory>(GSYSTEMSQLITETFACTORYLABEL);
+	auto textFactory = manager.CreateObject<GSystemFactory>(GSYSTEMSQLITETFACTORYLABEL);
 
 	if (!textFactory) {
-		log->error(EC__FACTORYNOTFOUND, "Failed to create text factory for factory <", GSYSTEMASCIIFACTORYLABEL, ">");
+		log->error(EC__FACTORYNOTFOUND, "Failed to create text factory for factory <", GSYSTEMSQLITETFACTORYLABEL, ">");
 	}
-	(*systemFactory)[GSYSTEMASCIIFACTORYLABEL] = textFactory;
+	(*systemFactory)[GSYSTEMSQLITETFACTORYLABEL] = textFactory;
 
 	// Loop over all systems and register additional factories as needed.
 	for (auto& [gsystemName, gsystem] : *gsystemsMap) {
 		string factoryName = gsystem->getFactoryName();
 		if (factoryName.empty()) {
-			cerr << "WARNING: System <" << gsystemName << "> has an empty factory name." << endl;
-			continue;
+			log->error(EC__FACTORYNOTFOUND,
+			           "Factory name for system <", gsystemName, "> is empty! This system will not be loaded.");
 		}
 		// If we haven't already created this factory, register it.
 		if (systemFactory->find(factoryName) == systemFactory->end()) {
@@ -111,14 +103,17 @@ map<string, GSystemFactory*>* GWorld::createSystemFactory(map<string, GSystem*>*
 			else if (factoryName == GSYSTEMSQLITETFACTORYLABEL) {
 				manager.RegisterObjectFactory<GSystemSQLiteFactory>(factoryName);
 			}
-			else {
-				cerr << "WARNING: Unrecognized factory name <" << factoryName << "> for system <" << gsystemName << ">."
-					<< endl;
-				continue;
+			else if (factoryName == GSYSTEMASCIIFACTORYLABEL) {
+				manager.RegisterObjectFactory<GSystemTextFactory>(factoryName);
 			}
+			else {
+				log->error(EC__FACTORYNOTFOUND,
+				           "Unrecognized factory name <", factoryName, "> for system <", gsystemName, ">");
+			}
+
 			auto fac = manager.CreateObject<GSystemFactory>(factoryName);
 			if (!fac) {
-				log->error(EC__FACTORYNOTFOUND, "Failed to create text factory for factory <", factoryName,
+				log->error(EC__FACTORYNOTFOUND, "Failed to create factory <", factoryName,
 				           "> for system <", gsystemName, ">");
 			}
 			(*systemFactory)[factoryName] = fac;
@@ -127,7 +122,6 @@ map<string, GSystemFactory*>* GWorld::createSystemFactory(map<string, GSystem*>*
 
 	// Clear the dynamic library map before returning.
 	manager.clearDLMap();
-
 	return systemFactory;
 }
 
@@ -141,7 +135,7 @@ GVolume* GWorld::searchForVolume(const string& volumeName, const string& purpose
 		}
 	}
 	// If volume not found, print error and exit.
-	log->error(ERR__GVOLUMENOTFOUND,
+	log->error(ERR_GVOLUMENOTFOUND,
 	           "gvolume named <", volumeName, "> (", purpose, ") not found in gsystemsMap ", purpose);
 }
 
@@ -163,8 +157,29 @@ vector<string> GWorld::getSensitiveDetectorsList() {
  * load_systems creates and initializes system factories and loads volume definitions.
  */
 void GWorld::load_systems() {
+	string dbhost = gopts->getScalarString("sql");
+
 	// Create system factories.
 	map<string, GSystemFactory*>* systemFactory = createSystemFactory(gsystemsMap);
+
+	// Add the ROOT world volume.
+	string worldVolumeDefinition = gopts->getScalarString(ROOTWORLDGVOLUMENAME);
+	// Check if ROOTWORLDGVOLUMENAME already exists, if so, warn.
+	if (gsystemsMap->find(ROOTWORLDGVOLUMENAME) != gsystemsMap->end()) {
+		log->error(ERR_GVOLUMEALREADYPRESENT,
+		           "ROOT world volume already exists in gsystemsMap. Check your configuration.");
+	}
+	else {
+		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(log,
+		                                                   dbhost,
+		                                                   ROOTWORLDGVOLUMENAME,
+		                                                   GSYSTEMSQLITETFACTORYLABEL,
+		                                                   "all",
+		                                                   1,
+		                                                   "default");
+		(*gsystemsMap)[ROOTWORLDGVOLUMENAME]->addROOTVolume(worldVolumeDefinition);
+	}
+
 
 	// Log the number of YAML files available.
 	auto yamlFiles = gopts->getYamlFiles();
@@ -180,9 +195,7 @@ void GWorld::load_systems() {
 			for (auto& yaml_file : yamlFiles) {
 				string dir = gutilities::getDirFromPath(yaml_file);
 				// You might add a check that 'dir' is nonempty.
-				if (dir.empty()) {
-					cerr << "WARNING: Directory extracted from YAML file " << yaml_file << " is empty." << endl;
-				}
+				if (dir.empty()) { log->warning("Directory extracted from YAML file <", yaml_file, "> is empty."); }
 				systemFactory->at(factory)->addPossibleFileLocation(dir);
 			}
 
@@ -200,22 +213,6 @@ void GWorld::load_systems() {
 			log->error(EC__FACTORYNOTFOUND,
 			           "systemFactory factory <", factory, "> not found for system <", gsystemName, ">");
 		}
-	}
-
-	// Add the ROOT world volume.
-	string worldVolumeDefinition = gopts->getScalarString(ROOTWORLDGVOLUMENAME);
-	// Check if ROOTWORLDGVOLUMENAME already exists, if so, warn.
-	if (gsystemsMap->find(ROOTWORLDGVOLUMENAME) != gsystemsMap->end()) {
-		cerr << "WARNING: ROOT world volume already exists in gsystemsMap." << endl;
-		log->error(ERR_GVOLUMEALREADYPRESENT,
-		           "ROOT world volume already exists in gsystemsMap. Check your configuration.");
-	}
-	else {
-		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = new GSystem(log, GSYSTEMSQLITETFACTORYLABEL, ROOTWORLDGVOLUMENAME,
-		                                                   "all",
-		                                                   0,
-		                                                   "default");
-		(*gsystemsMap)[ROOTWORLDGVOLUMENAME]->addROOTVolume(worldVolumeDefinition);
 	}
 
 	// Optionally log volume definitions.

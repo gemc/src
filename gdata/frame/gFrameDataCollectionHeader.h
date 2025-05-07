@@ -1,5 +1,4 @@
-#ifndef GFRAMEHEADER_H
-#define GFRAMEHEADER_H 1
+#pragma once
 
 /**
  * \file GFrameDataCollectionHeader.h
@@ -54,4 +53,3 @@ private:
 	[[nodiscard]] long int time_ns() const { return frameID * frameDuration; }
 };
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef  EVENTDISPENSER_H_OPTIONS
-#define  EVENTDISPENSER_H_OPTIONS 1
+#pragma once
 
 // glibrary
 #include "goptions.h"
@@ -13,4 +12,3 @@ GOptions defineOptions();
 
 }
 
-#endif

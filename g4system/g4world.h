@@ -1,83 +1,135 @@
-#ifndef  G4WORLD_H
-#define  G4WORLD_H 1
+#pragma once
+/**
+ * @file   g4world.h
+ * @ingroup Geometry
+ * @brief  Builds the complete Geant4 “world” from a GEMC `GWorld`.
+ *
+ * A **G4World** orchestrating:
+ *  1.  Loading materials into the Geant4 NIST table.
+ *  2.  Converting every `GVolume` into a `G4Volume` through factories
+ *      (`G4NativeSystemFactory`, `G4CadSystemFactory`, …).
+ *  3.  Maintaining maps so later stages (e.g., field assignment) can look
+ *      volumes up by name.
+ *
+ * All pointers inside the maps are *owned by Geant4* once registered; this
+ * wrapper merely tracks them.
+ */
 
-// glibrary
+// gemc
 #include "gworld.h"
 
 // g4system
 #include "g4volume.h"
+#include "g4objectsFactories/g4objectsFactory.h"
+#include "g4system/g4systemConventions.h"
+
+// c++
+#include <memory>
+#include <string>
+#include <unordered_map>
 
 // geant4
 #include "G4NistManager.hh"
 
-// a world is a collection of GSystem, their
+/**
+ * @class G4World
+ * @brief High‑level builder that turns a GEMC `GWorld` into Geant4 geometry.
+ *
+ * Public helpers let clients:
+ *  * query a `G4Volume*` by name,
+ *  * attach a `G4FieldManager` to a whole volume subtree,
+ *  * ask how many volumes were produced.
+ */
 class G4World {
 public:
-    // constructor from a GWorld, using verbosity
-    G4World(GWorld *gworld, GOptions *gopts);
+	/**
+	 * @brief Construct the world from a GEMC world description.
+	 * @param gworld Pointer to the GEMC world object.
+	 * @param gopts  Global options (verbosity, backup material, overlaps…).
+	 */
+	G4World(const GWorld* gworld, GOptions* gopts);
 
-    ~G4World() {
-        // the deletion of g4 volumes and materials
-        // is done by G4RunManager, we should not do it in the destructor
-        //		for (auto& [keys, values]: (*g4volumesMap) ) {
-        //			delete values;
-        //		}
+	/** Destructor – shutdown; no manual deletion needed. */
+	~G4World() { log->debug(DESTRUCTOR, "G4World"); }
 
-        delete g4volumesMap;
-        delete g4materialsMap;
-    }
+	// ────── lookup / mutators ────────────────────────────────────────
+	/**
+	 * @brief Return the `G4Volume*` for @p volumeName or `nullptr`.
+	 */
+	[[nodiscard]] const G4Volume* getG4Volume(const std::string& volumeName) const;
 
-private:
-    // the key has the form gsystem/gvolumename
-    map<string, G4Volume *> *g4volumesMap;
+	/**
+	 * @brief Attach a `G4FieldManager` to the logical volume of @p volumeName.
+	 * @param volumeName           Name of the volume.
+	 * @param fm                    Field manager pointer.
+	 * @param forceToAllDaughters   Propagate to daughters.
+	 */
+	void setFieldManagerForVolume(const std::string& volumeName,
+	                              G4FieldManager*    fm,
+	                              bool               forceToAllDaughters);
 
-    // the point in filling the map is to create the g4materials
-    // so they are available in G4NistManager
-    map<string, G4Material *> *g4materialsMap;
+	/**
+	 * @brief Check if no volumes were built.
+	 */
+	[[nodiscard]] bool is_empty() const noexcept { return g4volumesMap.empty(); }
 
+	/**
+	 * @brief Number of volumes stored so far.
+	 */
+	[[nodiscard]] std::size_t number_of_volumes() const noexcept { return g4volumesMap.size(); }
 
-    string g4FactoryNameFromSystemFactory(string factory);
-
-    // return false if the material cannot be added
-    // for example, if the components to do exist G4NistManager
-    bool createG4Material(const GMaterial *gmaterial, int verbosity);
-
-    void buildDefaultMaterialsElementsAndIsotopes(int verbosity);
-
-	G4Element *Deuterium;
-	G4Element *Helium3;
-	G4Element *Tritium;
-
-public:
-    inline const G4Volume *getG4Volume(string volumeName) const {
-
-        if (g4volumesMap->find(volumeName) != g4volumesMap->end()) {
-            return (*g4volumesMap)[volumeName];
-        }
-        return nullptr;
-    }
-
-    inline void setFieldManagerForVolume(string volumeName, G4FieldManager *fm, bool forceToAllDaughters) {
-        if (g4volumesMap->find(volumeName) != g4volumesMap->end()) {
-            (*g4volumesMap)[volumeName]->setFieldManager(fm, forceToAllDaughters);
-        }
-    }
-
-    bool is_empty() const {
-		// print out the volumes
-		for (auto& [keys, values]: (*g4volumesMap) ) {
-			std::cout << " G4Volume: " << keys << 	std::endl;
+	[[nodiscard]] G4ObjectsFactory* get_factory(const std::string& factoryName) {
+		auto it = g4systemFactory.find(factoryName);
+		if (it != g4systemFactory.end()) return it->second;
+		else {
+			log->error(ERR_G4SYSTEMFACTORYNOTFOUND,
+			           "G4World: factory <", factoryName, "> not found.");
 		}
-
-        return g4volumesMap->size() == 1;
-    }
-
-	int get_number_of_volumes() const {
-		return g4volumesMap->size();
 	}
 
+private:
+	// ────── helper functions ─────────────────────────────────────────
+	std::string g4FactoryNameFromSystemFactory(const std::string& factory) const;
+
+	bool createG4Material(const std::unique_ptr<GMaterial>& gmaterial);
+	void buildDefaultMaterialsElementsAndIsotopes();
+	void buildMaterials(map<string, GSystem*>* system_map);
+
+	// dependency helpers
+	G4Element* Deuterium = nullptr;
+	G4Element* Helium3   = nullptr;
+	G4Element* Tritium   = nullptr;
+
+	// ────── data members ────────────────────────────────────────────
+	std::unordered_map<string, G4ObjectsFactory*> g4systemFactory;
+
+	/** Map "gsystem/volumeName" → G4Volume*. */
+	std::unordered_map<std::string, G4Volume*> g4volumesMap;
+
+	/**
+	 * Map "materialName" → `G4Material*`.
+	 * The sole purpose is to keep the pointer around for later queries.
+	 */
+	std::unordered_map<std::string, G4Material*> g4materialsMap;
+
+	/** Shared logger (verbosity controlled via `GOptions`). */
+	std::shared_ptr<GLogger> log;
+
+	/**
+	 * Creates and initializes the system factory map.
+	 *
+	 * This method internally creates a GManager, registers the required factories,
+	 * clears the DL map, and returns a pointer to a map (factory name → GSystemFactory pointer).
+	 *
+	 * @param gsystemsMap Pointer to the map of GSystem objects.
+	 * @param backup_material Name of the backup material to use if the requested one is missing.
+	 * @param check_overlaps Flag to enable or disable overlap checking.
+	 * @return Pointer to the created system factory map.
+	 */
+	void createG4SystemFactory(map<string, GSystem*>* gsystemsMap,
+	                           const string&          backup_material,
+	                           int                    check_overlaps);
+
+	bool build_g4volume(const GVolume* s, G4ObjectsFactory* objectFactory);
 
 };
-
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef GSTREAMERJSROFACTORY_H
-#define GSTREAMERJSROFACTORY_H 1
+#pragma once
 
 // gstreamer
 #include "gstreamer.h"
@@ -51,9 +50,6 @@ private:
 	ofstream *ofile = nullptr;
 	vector<unsigned int> frame_data;
 };
-
-#endif // GSTREAMERJSROFACTORY_H
-
 
 
 /**

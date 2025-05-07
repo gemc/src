@@ -1,5 +1,4 @@
-#ifndef SYSTEMTEXTFACTORY_H
-#define SYSTEMTEXTFACTORY_H 1
+#pragma once
 
 // gsystem
 #include "systemFactory.h"
@@ -29,4 +28,3 @@ private:
       const std::shared_ptr<GLogger> &log); // SYTEMTYPE one of file types above
 };
 
-#endif

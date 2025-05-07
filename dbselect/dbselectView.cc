@@ -461,7 +461,7 @@ vector<GSystem> DBSelectView::get_gsystems() {
 				string variation = varItem->data(Qt::EditRole).toString().toStdString();
 				int run = runItem->data(Qt::EditRole).toInt();
 				GSystem updatedSystem(systemName, GSYSTEMSQLITETFACTORYLABEL, variation, /*verbosity*/ 0, run);
-				updatedSystem.set_dbhost(dbhost);
+				// updatedSystem.set_dbhost(dbhost); only set at command line?
 				updatedSystems.push_back(updatedSystem);
 			}
 		}

@@ -1,13 +1,13 @@
 #pragma once
 
+// gemc
 #include "goptions.h"
 
-constexpr const char* TOUCHABLE_LOGGER = "gtouchable";
+constexpr const char* G4SYSTEM_LOGGER = "g4system";
 
-namespace gtouchable {
+namespace g4system {
 
 // returns array of options definitions
 GOptions defineOptions();
 
 }
-

@@ -1,5 +1,4 @@
-#ifndef  GSYSTEM_H
-#define  GSYSTEM_H 1
+#pragma once
 
 // gsystem
 #include "gvolume.h"
@@ -27,6 +26,7 @@ public:
 	/**
 	 * @brief Constructs a GSystem instance.
 	 * @param logger A shared pointer to the logging facility.
+	 * @param dbhost The database host (e.g., "gemc.db" or "localhost").
 	 * @param sname Absolute or relative path including the system name (e.g., "detectors/ecal").
 	 *                       The name and path will be parsed from this string.
 	 * @param factory The name of the factory responsible for building this system (e.g., "TEXT", "GDML").
@@ -36,6 +36,7 @@ public:
 	 * @param annotations Optional descriptive annotations (e.g., "mats_only").
 	 */
 	GSystem(const std::shared_ptr<GLogger>& logger,
+	        const std::string&              dbhost,
 	        const std::string&              sname,
 	        std::string                     factory,
 	        std::string                     experiment,
@@ -76,7 +77,7 @@ private:
 	std::string              path;        ///< Absolute/relative path.
 	std::string              factoryName; ///< Name of factory that builds the detector.
 	std::string              experiment;  ///< Experiment name (e.g., "clas12").
-	int                      runno;       ///< Run number.
+	int                      runno{};       ///< Run number.
 	std::string              variation;   ///< Variation of the detector.
 	std::string              annotations; ///< Annotations (e.g., "mats_only" means only materials are loaded).
 
@@ -116,7 +117,7 @@ public:
 	/// \brief Gets the database host.
 	[[nodiscard]] inline std::string get_dbhost() const { return dbhost; }
 
-	/// \brief Sets the database host.
+	/// \brief Sets the database host. For example the GUI can reset this
 	inline void set_dbhost(const std::string& dbh) { this->dbhost = dbh; }
 
 	/**
@@ -150,6 +151,12 @@ public:
 		return gvolumesMap;
 	}
 
+	/// \brief Returns the map of materials.
+	[[nodiscard]] inline const std::map<std::string, std::unique_ptr<GMaterial>>& getGMaterialMap() const {
+		return gmaterialsMap;
+	}
+
+
 	/**
 	 * \brief Adds a GMaterial to the system using a set of parameters.
 	 * \param pars A vector of strings representing material parameters.
@@ -165,6 +172,3 @@ public:
 
 
 };
-
-
-#endif

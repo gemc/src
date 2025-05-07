@@ -1,166 +1,133 @@
-#ifndef  GFACTORY_H
-#define  GFACTORY_H 1
+#pragma once
+/**
+ * @file gfactory.h
+ * @brief Generic factory/manager for GEMC plugin objects.
+ *
+ * @ingroup Factory
+ */
 
-// c++
-#include <map>
+#include <memory>
 #include <string>
+#include <string_view>
+#include <unordered_map>
 
-// dynamic loading
 #include "gdl.h"
+#include "glogger.h"
 
-/*
+
+/**
  * @class GFactoryBase
- * @brief Base class. Use polymorphism to run Create on the
- * derived classes
+ * @brief Abstract creator used by GManager through type‑erased pointers.
  */
 class GFactoryBase {
 public:
-    /**
-     @brief Pure virtual method. Derived classes use this to instantiate themselves
-     */
-    virtual void *Create() = 0;
+	virtual ~GFactoryBase() = default;
+	/// Pure virtual instantiation hook implemented by the templated concrete factory.
+	[[nodiscard]] virtual void* Create() = 0;
 };
 
 /**
- * @brief Derived from GFactoryBase, implements Create to
- * instantiate the derived classes
+ * @brief Concrete factory that creates objects of type @p T.
+ * @tparam T The derived type to instantiate via <code>new T()</code>.
  */
-template<class T>
-class GFactory : public GFactoryBase {
-    /**
-     @fn Create
-     @brief Instantiate new client class
-     */
-    virtual void *Create() override {
-        return new T();
-    }
+template <class T>
+class GFactory final : public GFactoryBase {
+public:
+	[[nodiscard]] void* Create() override { return new T(); }
 };
 
 /**
- * @brief Instantiates derived classes either statically or dynamically
+ * @class GManager
+ * @brief Owns factories and dynamically‑loaded libraries, providing run‑time creation.
+ *
+ * Usage pattern:
+ * ```
+ * gemc::GManager mgr(log, "ShapeManager");
+ * mgr.RegisterObjectFactory<Circle>("circle");
+ * auto* c = mgr.CreateObject<Shape>("circle");
+ * delete c;
+ * ```
+ *
+ * @ingroup Factory
  */
 class GManager {
+public:
+	/// Construct with logger and a human‑readable name.
+	explicit GManager(std::shared_ptr<GLogger> logger, std::string name);
+
+	/// No copy – the manager owns unique resources.
+	GManager(const GManager&)            = delete;
+	GManager& operator=(const GManager&) = delete;
+	/// Allow move for container support.
+	GManager(GManager&&) noexcept            = default;
+	GManager& operator=(GManager&&) noexcept = default;
+
+	~GManager();
+
+	/// Register a concrete factory under @p name.
+	template <class Derived>
+	void RegisterObjectFactory(std::string_view name);
+
+	/// Create an instance of previously‑registered factory as @c Base*.
+	template <class Base>
+	[[nodiscard]] Base* CreateObject(std::string_view name) const;
+
+	/// Load a shared library, look up its instantiate symbol, and return object.
+	template <class T>
+	[[nodiscard]] T* LoadAndRegisterObjectFromLibrary(std::string_view name);
+
+	/// Explicit cleanup (also called by destructor) – idempotent.
+	void clearDLMap() noexcept;
+
 private:
+	void registerDL(std::string_view name);
 
-    // the map of GFactoryBase is kept on GManager
-    std::map<std::string, GFactoryBase *> factoryMap;
+	std::unordered_map<std::string, std::unique_ptr<GFactoryBase>> factoryMap_;
+	std::unordered_map<std::string, std::unique_ptr<DynamicLib>>   dlMap_;
 
-    // the reason to keep this map is to keep the (DynamicLib?) pointers in memory
-    // for some reason declaring a dynamic_lib local variable in LoadAndRegisterObjectFromLibrary
-    // scope does not work
-    std::map<std::string, DynamicLib *> dlMap;
-
-    std::string gname; // manager name
-
-    /**
-     * @fn registerDL
-     * @param name base name of the dynamic library to be registered
-     *
-     * The full filename is OS dependent
-     */
-    void registerDL(std::string name) {
-        // PRAGMA TODO: make it OS independent?
-        dlMap[name] = new DynamicLib(log, name + ".gplugin");
-		log->debug(NORMAL, "Loading DL ", name);
-	}
-
-	std::shared_ptr<GLogger> log;
-
-public:
-    /**
-     @param log pointer to the logger for plugins
-     */
-    GManager(std::shared_ptr<GLogger> logger, std::string name) : gname(name), log(std::move(logger))  {
-		log->debug(CONSTRUCTOR, "Instantiating ", gname);
-	}
-
-public:
-    /**
-     * @param name name under which the factory is registered
-     *
-     * Before instantiating the wanted class we need to register
-     * it (as Derived) in the manager first using RegisterObjectFactory.\n
-     * Derived is the derived class, i.e. "Triangle" : "Shape".\n
-     * The client knows about the derived class (through header)
-     */
-    template<class Derived>
-    void RegisterObjectFactory(std::string name) {
-        factoryMap[name] = new GFactory<Derived>();
-		log->debug(NORMAL, "Registering ", name, "into factory Map");
-
-	}
-
-    /**
-     * @fn CreateObject
-     * @param name name under which the factory is registered
-     *
-     * After registration we can create the object using CreateObject.\n
-     * Notice that Base here is the client base class.\n
-     * c++ polymorphism is used to called the client methods derived
-     * from the base pure virtual methods.
-     */
-    template<class Base>
-    Base *CreateObject(std::string name) const {
-
-        auto factory = factoryMap.find(name);
-
-        if (factory == factoryMap.end()) {
-			log->error(EC__FACTORYNOTFOUND, "couldn't find factory ", name, " in factory Map.");
-        }
-
-		log->debug(NORMAL, "Creating instance of ", name, " factory.");
-        return static_cast<Base *>(factory->second->Create());
-    }
-
-
-    /**
-     * @fn LoadAndRegisterObjectFromLibrary
-     * @param name name under which the factory is registered
-     *
-     * Instantiate client derived class.\n
-     * Notice the base class must have the static method instantiate
-     */
-    template<class T>
-    T *LoadAndRegisterObjectFromLibrary(std::string name) {
-
-        registerDL(name);
-
-        // will return nullptr if handle is null
-        DynamicLib *dynamicLib = dlMap[name];
-        if (dynamicLib != nullptr) {
-            dlhandle thisDLHandle = dynamicLib->handle;
-            if (thisDLHandle != nullptr) {
-                return T::instantiate(thisDLHandle);
-            }
-        } else {
-            // warning message already given if plugin not found
-			log->error(EC__DLHANDLENOTFOUND, "plugin ", name, " could not be loaded.");
-        }
-        return nullptr;
-    }
-
-    /**
-     * @fn destroyObject
-     * @param object class type of the instance to be deleted
-     *
-     * Delete the instance pointer
-     */
-    //	template <class T> void destroyObject(T* object) {
-    //		delete object;
-    //	}
-
-    /**
-     * @fn clearDLMap
-     *
-     * Delete the various dynamic libraries handle
-     * This should be done at the end of the program
-     */
-    void clearDLMap() {
-        for (auto &i: dlMap) {
-            delete i.second;
-        }
-    }
-
+	std::string              gname_;
+	std::shared_ptr<GLogger> log_;
 };
 
-#endif
+
+inline GManager::GManager(std::shared_ptr<GLogger> logger, std::string name)
+	: gname_(std::move(name)), log_(std::move(logger)) { log_->debug(CONSTRUCTOR,  gname_); }
+
+inline GManager::~GManager() {
+	log_->debug(DESTRUCTOR, gname_);
+	clearDLMap();
+}
+
+inline void GManager::clearDLMap() noexcept { dlMap_.clear(); }
+
+inline void GManager::registerDL(std::string_view name) {
+	const std::string filename = std::string{name} + ".gplugin";
+	dlMap_.emplace(std::string{name},
+	               std::make_unique<DynamicLib>(log_, filename));
+	log_->debug(NORMAL, "Loading DL ", name);
+}
+
+template <class Derived>
+void GManager::RegisterObjectFactory(std::string_view name) {
+	factoryMap_.emplace(std::string{name}, std::make_unique<GFactory<Derived>>());
+	log_->debug(NORMAL, "Registering ", name, " into factory map");
+}
+
+template <class Base>
+Base* GManager::CreateObject(std::string_view name) const {
+	auto it = factoryMap_.find(std::string{name});
+	if (it == factoryMap_.end()) {
+		log_->error(EC__FACTORYNOTFOUND,
+		            "Couldn't find factory <", name, "> in factory map.");
+	}
+	log_->debug(NORMAL, "Creating instance of <", name, "> factory.");
+	return static_cast<Base*>(it->second->Create());
+}
+
+template <class T>
+T* GManager::LoadAndRegisterObjectFromLibrary(std::string_view name) {
+	registerDL(name);
+	auto& dynamicLib = dlMap_.at(std::string{name});
+	if (dynamicLib && dynamicLib->handle) { return T::instantiate(dynamicLib->handle); }
+	log_->error(EC__DLHANDLENOTFOUND, "Plugin ", name, " could not be loaded.");
+}

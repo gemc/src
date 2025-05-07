@@ -1,5 +1,4 @@
-#ifndef  GPHYSICS_H
-#define  GPHYSICS_H  1
+#pragma once
 
 // glibrary
 #include "goptions.h"
@@ -26,4 +25,3 @@ private:
 };
 
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef GWORLD_H
-#define GWORLD_H 1
+#pragma once
 
 // gsystem
 #include "gsystem.h"
@@ -66,7 +65,6 @@ private:
 	 * clears the DL map, and returns a pointer to a map (factory name → GSystemFactory pointer).
 	 *
 	 * @param gsystemsMap Pointer to the map of GSystem objects.
-	 * @param verbosity Verbosity level for logging.
 	 * @return Pointer to the created system factory map.
 	 */
 	map<string, GSystemFactory *> *createSystemFactory(map<string, GSystem *> *gsystemsMap);
@@ -83,5 +81,3 @@ private:
 	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 
 };
-
-#endif

@@ -19,8 +19,11 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system, std::shared_ptr
 	variation   = system->getVariation();
 	runno       = system->getRunno();
 
-	// Use system's dbhost if not already set.
-	if (dbhost == "na") { dbhost = system->get_dbhost(); }
+	// Use system dbhost if not already set.
+	if (dbhost == "na") {
+		dbhost = system->get_dbhost();
+	}
+	log->info(1, "GSystemSQLiteFactory: dbhost set to <", dbhost, ">");
 
 	// Attempt to open the primary database file.
 	int rc = sqlite3_open_v2(dbhost.c_str(), &db, SQLITE_OPEN_READWRITE, nullptr);
@@ -55,7 +58,7 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system, std::shared_ptr
 	}
 
 	// If we are here, no valid database file was found.
-	log->error(ERR__GSETUPFILENOTOFOUND, "Sqlite database >" + dbhost + "< not found");
+	log->error(ERR_GSETUPFILENOTOFOUND, "Sqlite database >" + dbhost + "< not found");
 }
 
 

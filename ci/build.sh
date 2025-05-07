@@ -3,9 +3,9 @@
 # Purpose: compiles gemc with sanitizers
 
 # Container run:
-# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.0-almalinux94 sh
-# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.0-ubuntu24 sh
-# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.0-fedora36 sh
+# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.1-almalinux94 sh
+# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.1-ubuntu24 sh
+# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.1-fedora36 sh
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # ./ci/build.sh none
 

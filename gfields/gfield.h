@@ -1,5 +1,4 @@
-#ifndef  GFIELDS_H
-#define  GFIELDS_H  1
+#pragma once
 
 // G4 headers
 #include "G4MagneticField.hh"
@@ -147,6 +146,3 @@ public:
         return func();
     }
 };
-
-
-#endif

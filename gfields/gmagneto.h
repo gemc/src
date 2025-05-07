@@ -1,5 +1,4 @@
-#ifndef  GMAGNETO_H
-#define  GMAGNETO_H 1
+#pragma once
 
 // gemc
 #include "gfield.h"
@@ -76,5 +75,3 @@ public:
 
 };
 
-
-#endif

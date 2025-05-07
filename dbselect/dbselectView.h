@@ -1,5 +1,4 @@
-#ifndef DBSELECT_H
-#define DBSELECT_H 1
+#pragma once
 
 // gemc
 #include "gsystem.h"
@@ -151,4 +150,4 @@ public:
 	}
 };
 
-#endif
+

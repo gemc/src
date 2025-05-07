@@ -1,5 +1,4 @@
-#ifndef  GHIT_H_CONVENTIONS
-#define  GHIT_H_CONVENTIONS 1
+#pragma once
 
 // c++
 #include <bitset>
@@ -26,5 +25,3 @@ using HitBitSet = std::bitset<NHITBITS> ;
 // 4th bit 001000: meta information: magnetic field. process id name that created the particle
 // 5th bit 010000: optical photon only: wavelength, momentum, vertex, track id
 
-
-#endif

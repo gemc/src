@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 
 	bool gui = gopts->getSwitch("gui");
 	bool interactive = gopts->getSwitch("i");
-	int checkForOverlaps = gopts->getScalarInt("checkOverlaps");
+	bool checkForOverlaps = gopts->getSwitch("checkOverlaps");
 
 	GLogger log(gopts, "gemc", "general");
 

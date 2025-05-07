@@ -1,5 +1,4 @@
-#ifndef  GSENSITIVEDETECTOR_H
-#define  GSENSITIVEDETECTOR_H 1
+#pragma once
 
 // c++
 #include <set>
@@ -93,4 +92,4 @@ public:
 
 };
 
-#endif
+

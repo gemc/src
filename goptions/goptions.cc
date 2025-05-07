@@ -29,6 +29,7 @@ using namespace std;
 GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options) {
 
 	executableName = gutilities::getFileFromPath(argv[0]);
+	executableCallingDir = gutilities::getDirFromPath(argv[0]);
 	cout << endl;
 
 	// Add user-defined options.
@@ -591,9 +592,10 @@ void GOptions::print_version() {
 	string asterisks = "**************************************************************";
 	cout << endl << asterisks << endl;
 	cout << " " << KGRN << KBOLD << executableName << RST << "  version: " << KGRN << gversion << RST << endl;
+	cout << " Executed from: " << KGRN << "<" <<  executableCallingDir << ">" << RST << endl;
 	cout << " Released on: " << KGRN << grelease_date << RST << endl;
-	cout << " Reference: " << KGRN << greference << RST << endl;
-	cout << " Homepage: " << KGRN << gweb << RST << endl;
+	cout << " GEMC Reference: " << KGRN << greference << RST << endl;
+	cout << " GEMC Homepage: " << KGRN << gweb << RST << endl;
 	cout << " Author: " << KGRN << gauthor << RST << endl << endl;
 	cout << asterisks << endl << endl;
 }

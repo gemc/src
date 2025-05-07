@@ -1,5 +1,4 @@
-#ifndef  GSYSTEMOPTIONS_H
-#define  GSYSTEMOPTIONS_H 1
+#pragma once
 
 // gemc
 #include "goptions.h"
@@ -22,5 +21,3 @@ vector<GModifier> getModifiers(GOptions *gopts);
 
 }
 
-
-#endif

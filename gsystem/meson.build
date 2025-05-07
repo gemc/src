@@ -1,6 +1,8 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 # notice the test run on the installation dir, which does has 'examples' stripped from the path
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
+dbhost = '-sql=' + examples_dir + '/gemc.db'
+gsystem = '-gsystem="[{name: b1}]"'
 LD += {
     'name' : sub_dir_name,
     'sources' : files(
@@ -46,9 +48,9 @@ LD += {
         'test_gsystem_geo' : [files('examples/example.py')]
     },
     'examples' : {
-        'test_gsystem' : [files('examples/gsystem_example.cc'), '-gsystem="[{name: b1}]"'],
-        'test_gsystem_verbosity' : [files('examples/gsystem_example.cc'), ['-gsystem="[{name: b1}]"', '-verbosity.gsystem=2']],
-        'test_gsystem_debug' : [files('examples/gsystem_example.cc'), ['-gsystem="[{name: b1}]"', '-debug.gsystem=true']]
+        'test_gsystem' : [files('examples/gsystem_example.cc'), [gsystem, dbhost]],
+        'test_gsystem_verbosity' : [files('examples/gsystem_example.cc'), [gsystem, dbhost, '-verbosity.gsystem=2']],
+        'test_gsystem_debug' : [files('examples/gsystem_example.cc'), [gsystem, dbhost, '-debug.gsystem=true']]
     }
 
 }

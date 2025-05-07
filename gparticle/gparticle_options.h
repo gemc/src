@@ -5,6 +5,8 @@
 #include "goptions.h"
 #include "gparticle.h"
 
+constexpr const char* GPARTICLE_LOGGER = "gparticle";
+
 namespace gparticle {
 
     // returns array of options definitions

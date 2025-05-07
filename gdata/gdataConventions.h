@@ -1,5 +1,4 @@
-#ifndef GDATA_H_CONVENTIONS
-#define GDATA_H_CONVENTIONS 1
+#pragma once
 
 /**
  * \file gdataConventions.h
@@ -30,4 +29,3 @@ constexpr const char* CHARGEATELECTRONICS   = "chargeAtElectronics";  ///< Ident
 constexpr const char* TIMEATELECTRONICS     = "timeAtElectronics";    ///< Identifier for time at electronics.
 constexpr int         TIMEATELECTRONICSNOTDEFINED = -123456;         ///< Default value for undefined time at electronics.
 
-#endif

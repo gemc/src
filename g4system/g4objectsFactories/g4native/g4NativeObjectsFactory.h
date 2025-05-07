@@ -1,55 +1,65 @@
-#ifndef G4NATIVESYSTEMFACTORY_H
-#define G4NATIVESYSTEMFACTORY_H 1
+#pragma once
+/**
+ * @file   g4NativeObjectsFactory.h
+ * @ingroup Geometry
+ * @brief  Factory that builds Geant4 *native primitive* solids
+ *         (`G4Box`, `G4Cons`, `G4Trap`, …) from GEMC `GVolume` records.
+ *
+ * Concrete detector systems can register this factory in a `GManager`
+ * so that run‑time construction happens via plug‑ins.
+ */
+
+#include <set>            // std::set  (parameter‑count tables)
+#include <vector>         // std::vector
+#include <unordered_map>  // std::unordered_map
 
 // g4system
-#include "../../g4systemConventions.h"
-#include "../g4objectsFactory.h"
+#include "g4NativeObjectsFactory.h"      // self include‑guard pattern
 
+// gemc utility helpers
 #include "gutilities.h"
 
-// system factory
-class G4NativeSystemFactory : G4ObjectsFactory
-{
+#include "g4objectsFactory.h"
+
+/**
+ * @class G4NativeSystemFactory
+ * @brief Implements @c buildSolid for the Geant4 CSG primitives and validates
+ *        constructor parameter counts via @c checkAndReturnParameters.
+ */
+class G4NativeSystemFactory final : public G4ObjectsFactory {
 public:
-	bool loadG4System(GOptions* gopt, GVolume *s, map<string, G4Volume*> *g4s) {
+	/** Default constructor/destructor. */
+	G4NativeSystemFactory()           = default;
+	~G4NativeSystemFactory() override = default;
 
-		int verbosity = gopt->getVerbosityFor("g4system");
-		string vname = s->getG4Name();
+	/**
+	 * @brief Human‑readable name used by the base class for logging.
+	 * @return `"G4NativeSystemFactory"`.
+	 */
+	[[nodiscard]] std::string_view className() const override { return "G4NativeSystemFactory"; }
 
-		if(verbosity >= GVERBOSITY_DETAILS) {
-			G4cout << G4SYSTEMLOGHEADER << "Building geant4 volume originating from <" << vname << ">" << G4endl;
-		}
+protected:
+	/**
+	 * @brief Main dispatcher that creates a solid based on `s->getType()`.
+	 * @copydetails G4ObjectsFactory::buildSolid
+	 */
+	G4VSolid* buildSolid(const GVolume*                              s,
+	                     std::unordered_map<std::string, G4Volume*>* g4s) override;
 
-		G4VSolid*          sbuild = buildSolid(gopt, s, g4s);
-		G4LogicalVolume*   lbuild = buildLogical(gopt, s, g4s);
-		if ( lbuild != nullptr) {
-			lbuild->SetVisAttributes(createVisualAttributes(s));
-		}
-		G4VPhysicalVolume* pbuild = buildPhysical(gopt, s, g4s);
-
-		if(verbosity >= GVERBOSITY_DETAILS) {
-			string solid = sbuild != nullptr ? " solid "    + string(KGRN) + "build," + string(RST) : " solid "   + string(KRED) + "not build," + string(RST);
-			string logic = lbuild != nullptr ? " logical "  + string(KGRN) + "build," + string(RST) : " logical " + string(KRED) + "not build," + string(RST);
-			string physi = pbuild != nullptr ? " physical " + string(KGRN) + "build," + string(RST) : " physical "+ string(KRED) + "not build," + string(RST);
-			G4cout << G4SYSTEMLOGHEADER << "g4volume <" << vname << "> " << solid << logic << physi << " with pointers: " << sbuild << ", " << lbuild << ", " << pbuild << G4endl;
-		}
-
-		if(sbuild && lbuild && pbuild) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-private:
-	G4VSolid*          buildSolid(   GOptions* gopt, GVolume *s, map<string, G4Volume*> *g4s);
-	G4LogicalVolume*   buildLogical( GOptions* gopt, GVolume *s, map<string, G4Volume*> *g4s);
-	G4VPhysicalVolume* buildPhysical(GOptions* gopt, GVolume *s, map<string, G4Volume*> *g4s);
-
-	// solid
-	vector<string> descriptionsOfParameters(GVolume *s); // returns description of geant4 constructor parameters
-	vector<double> checkAndReturnParameters(GVolume *s); // checks and returns the number of parameters matches the geant4 constructor
+	/**
+	 * @brief Validate the *number* of parameters against the Geant4 constructor
+	 *        requirements and return them as a numeric vector.
+	 *
+	 * @param s Pointer to the GEMC volume record whose `getParameters()` string
+	 *          is to be parsed.
+	 * @return A `std::vector<double>` holding the converted values.
+	 *
+	 * If the parameter count is invalid, the function logs an error and
+	 * terminates (via the logger’s error helper).  Special rules apply for
+	 * polycones, polyhedra, and twisted solids, as documented in the code.
+	 *
+	 * @note This is **protected** because subclasses could reuse the checker
+	 *       if they add support for additional primitives.
+	 */
+	std::vector<double> checkAndReturnParameters(const GVolume* s);
 };
-
-
-#endif

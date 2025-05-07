@@ -1,5 +1,4 @@
-#ifndef GSPLASH_H
-#define GSPLASH_H 1
+#pragma once
 
 // gsplash
 #include "gsplash.h"
@@ -42,7 +41,5 @@ public:
 	}
 
 };
-
-#endif
 
 

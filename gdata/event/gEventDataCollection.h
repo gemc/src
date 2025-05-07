@@ -1,5 +1,4 @@
-#ifndef GEVENTDATA_H
-#define GEVENTDATA_H 1
+#pragma once
 
 /**
  * \file GEventDataCollection.h
@@ -95,4 +94,3 @@ private:
 	std::map<std::string, GDataCollection*>* gdataCollectionMap; ///< Map of data collections keyed by detector name.
 };
 
-#endif

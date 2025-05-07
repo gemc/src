@@ -1,5 +1,4 @@
-#ifndef  GEMC_DOXY_H
-#define  GEMC_DOXY_H  1
+#pragma once
 
 // Make sure that the next strig after subsubsection or subsection is indexed correctly
 
@@ -22,6 +21,4 @@
  * \author e-mail ungaro@jlab.org
  * \n
  */
-
-#endif
 

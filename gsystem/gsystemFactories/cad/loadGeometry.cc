@@ -69,6 +69,6 @@ void GSystemCADFactory::loadGeometry(GSystem* s, std::shared_ptr<GLogger> log) {
 		}
 	}
 	else {
-		log->error(ERR__GDIRNOTFOUND, "CAD Directory >" + s->getFilePath() + "< not found.");
+		log->error(ERR_GDIRNOTFOUND, "CAD Directory >" + s->getFilePath() + "< not found.");
 	}
 }

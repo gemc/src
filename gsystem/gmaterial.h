@@ -1,6 +1,4 @@
-#ifndef  GMATERIAL_H
-#define  GMATERIAL_H 1
-
+#pragma once
 
 // gemc
 #include "glogger.h"
@@ -130,5 +128,3 @@ public:
 
 };
 
-
-#endif

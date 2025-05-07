@@ -1,5 +1,4 @@
-#ifndef  GMODIFIER_H
-#define  GMODIFIER_H 1
+#pragma once
 
 // c++
 #include <iostream>
@@ -41,5 +40,3 @@ public:
 	bool getExistence() { return isPresent; }
 
 };
-
-#endif

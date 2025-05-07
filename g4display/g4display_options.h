@@ -1,5 +1,4 @@
-#ifndef  G4DISPLAY_H_OPTIONS
-#define  G4DISPLAY_H_OPTIONS 1
+#pragma once
 
 // gemc
 #include "goptions.h"
@@ -40,4 +39,3 @@ G4Dawn getG4Dawn(GOptions* gopts);
 GOptions defineOptions();
 }
 
-#endif

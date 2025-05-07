@@ -1,5 +1,4 @@
-#ifndef GDIALOG_BOARD_H
-#define GDIALOG_BOARD_H 1
+#pragma once
 
 // gemc
 #include "glogger.h"
@@ -72,4 +71,3 @@ private:
 
 };
 
-#endif

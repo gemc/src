@@ -1,6 +1,4 @@
-#ifndef  GVOLUME_H
-#define  GVOLUME_H 1
-
+#pragma once
 
 // namespace needed for the inline functions below
 #include "gutilities.h"
@@ -13,6 +11,7 @@
 #include <utility>
 
 using std::string;
+using std::string_view;
 using std::ostream;
 using std::vector;
 
@@ -23,7 +22,7 @@ public:
 	explicit GVolume(const string& rootVolumeDefinition); // special constructor for root volume
 
 	// Define a virtual clone method to be used in the copy constructor
-	virtual std::unique_ptr<GVolume> clone() const {
+	[[nodiscard]] virtual std::unique_ptr<GVolume> clone() const {
 		return std::make_unique<GVolume>(*this);  // Make a copy of the current object
 	}
 
@@ -45,7 +44,7 @@ private:
 	// solid visualization style
 	bool   visible; // visibility of the detector: 0=invisible 1=visible
 	int    style;   // Visual style: 0=wireframe 1=solid
-	string color;   // 6(7) digits colors in RRGGBB format. Last optional digit is transparency
+	string color;   // 6(7) digits colors in RRGGBB format. The last optional digit is transparency
 
 	// logical attributes
 	string material; // Volume Material name.
@@ -106,7 +105,7 @@ public:
 
 	[[nodiscard]] inline int getPCopyNo() const { return pCopyNo; }
 
-	[[nodiscard]] inline string getColor() const { return color; }
+	[[nodiscard]] inline string_view getColor() const { return color; }
 
 	[[nodiscard]] inline string getEMField() const { return emfield; }
 
@@ -165,5 +164,3 @@ public:
 
 };
 
-
-#endif

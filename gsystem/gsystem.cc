@@ -18,6 +18,8 @@ GSystem::GSystem(const GSystem& other)
 	  annotations(other.annotations)
 // shared_ptr: shallow copy is OK
 {
+	log->debug(CONSTRUCTOR, "GSystem");
+
 	// Deep copy the gvolumesMap
 	for (const auto& [key, volumePtr] : other.gvolumesMap) {
 		if (volumePtr) {
@@ -42,6 +44,7 @@ GSystem::GSystem(const GSystem& other)
  */
 
 GSystem::GSystem(const std::shared_ptr<GLogger>& logger,
+                 const std::string&              dbh,
                  const std::string&              sname,
                  std::string                     factory,
                  std::string                     exp,
@@ -49,6 +52,7 @@ GSystem::GSystem(const std::shared_ptr<GLogger>& logger,
                  std::string                     variation,
                  std::string                     notes)
 	: log(logger),
+	  dbhost(dbh),
 	  name(gutilities::getFileFromPath(sname)),
 	  path(gutilities::getDirFromPath(sname)), // Initialize 'path' directly
 	  factoryName(std::move(factory)),
@@ -58,14 +62,13 @@ GSystem::GSystem(const std::shared_ptr<GLogger>& logger,
 	  annotations(std::move(notes)) // Use 'notes' directly
 {
 	// If the provided name does not include a directory, set the path to empty.
-	if (name == path) {
+	if (name == path || factoryName == GSYSTEMSQLITETFACTORYLABEL) {
 		path = "";
-		if (log)
-			log->info(1, "Instantiating GSystem ", name);
+		log->info(1, "Instantiating GSystem <", name, "> using factory <", factoryName, ">");
 	}
 	else {
-		if (log)
-			log->info(1, "Instantiating GSystem ", name, " using path ", path);
+		log->info(1, "Instantiating GSystem <", name, "> using path <", path, "> ",
+		          "and factory <", factoryName, ">");
 	}
 }
 
@@ -75,7 +78,7 @@ GSystem::GSystem(const std::shared_ptr<GLogger>& logger,
 /**
  * \brief Builds and adds a GVolume to the system.
  *
- * This function appends the current variation and run number to the parameters,
+ * This function appends the current variation and runs number to the parameters,
  * checks for duplicate volume names, and adds a new GVolume to the gvolumesMap.
  *
  * \param pars A vector of strings containing volume parameters.
@@ -199,7 +202,7 @@ void GSystem::addGMaterial(vector<string> pars) {
 		log->info(2, *gmaterialsMap[materialName]);
 	}
 	else {
-		log->error(ERR__GMATERIALALREADYPRESENT,
+		log->error(ERR_GMATERIALALREADYPRESENT,
 		           "gMaterial <" + materialName + "> already exists in gmaterialsMap.");
 	}
 }
@@ -221,7 +224,7 @@ const GMaterial* GSystem::getMaterialForGVolume(const string& volumeName) const 
 		if (matIt != gmaterialsMap.end())
 			return matIt->second.get();
 		else {
-			log->error(ERR__GMATERIALNOTFOUND,
+			log->error(ERR_GMATERIALNOTFOUND,
 			           "gMaterial <" + materialName + "> not found for volume <" + volumeName + ">");
 		}
 	}

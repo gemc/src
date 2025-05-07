@@ -1,5 +1,4 @@
-#ifndef GDIGITIZEDHIT_H
-#define GDIGITIZEDHIT_H 1
+#pragma once
 
 /**
  * \file GDigitizedData.h
@@ -92,5 +91,3 @@ private:
 	[[nodiscard]] bool validVarName(const std::string& varName, int which) const; ///< Validates variable names.
 	std::shared_ptr<GLogger> log; ///< Logger instance
 };
-
-#endif

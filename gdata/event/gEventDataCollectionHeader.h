@@ -1,5 +1,4 @@
-#ifndef GEVENTHEADER_H
-#define GEVENTHEADER_H 1
+#pragma once
 
 /**
  * \file GEventDataCollectionHeader.h
@@ -79,4 +78,3 @@ private:
 	std::string timeStamp; ///< The timestamp.
 };
 
-#endif

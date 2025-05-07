@@ -1,5 +1,4 @@
-#ifndef GLOGGER_H
-#define GLOGGER_H
+#pragma once
 
 // Color conventions and logging macros
 #include "gutsConventions.h"
@@ -183,4 +182,3 @@ private:
 	}
 };
 
-#endif // GLOGGER_H

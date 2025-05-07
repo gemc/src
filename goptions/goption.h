@@ -1,5 +1,4 @@
-#ifndef GOPTION_H
-#define GOPTION_H 1
+#pragma once
 
 // goption
 #include "goptionsConventions.h"
@@ -184,5 +183,3 @@ private:
 
 	friend class GOptions; ///< Grants GOptions access to private members.
 };
-
-#endif

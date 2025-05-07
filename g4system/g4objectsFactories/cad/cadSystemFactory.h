@@ -1,52 +1,50 @@
-#ifndef G4CADSYSTEMFACTORY_H
-#define G4CADSYSTEMFACTORY_H 1
+#pragma once
+/**
+ * @file   cadSystemFactory.h
+ * @ingroup Geometry
+ * @brief  Factory that converts a CAD file (PLY / STL) into a Geant4
+ *         tessellated solid via the **CADMesh** single‑header library.
+ *
+ * Requirements:
+ * * `CADMesh.hh` must be available on the include path.
+ * * Define `USE_CADMESH_ASSIMP_READER` *before* including the header
+ *   if you need the Assimp I/O backend (enabled below).
+ */
 
-// g4system
-#include "../../g4systemConventions.h"
-#include "../g4objectsFactory.h"
+#include <unordered_map>
+#include <string>
+#include <vector>
 
-#include "gutilities.h"
+#include "g4objectsFactory.h"
 
-// system factory
-class G4CadSystemFactory : G4ObjectsFactory
+/**
+ * @class G4CadSystemFactory
+ * @brief Builds a `G4TessellatedSolid` from PLY/STL CAD files.
+ *
+ * The factory relies on *CADMesh* — a header‑only helper that parses CAD
+ * formats and produces Geant4 tessellated meshes.
+ */
+class G4CadSystemFactory final : public G4ObjectsFactory
 {
 public:
-	bool loadG4System(GOptions* gopt, GVolume *s, map<string, G4Volume*> *g4s) {
+	/** Default constructor / destructor. */
+	G4CadSystemFactory()  = default;
+	~G4CadSystemFactory() override = default;
 
-        int verbosity = gopt->getVerbosityFor("g4system");
-		string vname = s->getG4Name();
+	/**
+	 * @copydoc G4ObjectsFactory::className
+	 * @return `"G4CadSystemFactory"`.
+	 */
+	[[nodiscard]] std::string_view className() const override
+	{ return "G4CadSystemFactory"; }
 
-		if(verbosity >= GVERBOSITY_DETAILS) {
-			G4cout << G4SYSTEMLOGHEADER << "Importing cad volumes <" << vname << ">" << G4endl;
-		}
-
-		G4VSolid*          sbuild = buildSolid(gopt, s, g4s);
-		G4LogicalVolume*   lbuild = buildLogical(gopt, s, g4s);
-		if ( lbuild != nullptr) {
-			lbuild->SetVisAttributes(createVisualAttributes(s));
-		}
-		G4VPhysicalVolume* pbuild = buildPhysical(gopt, s, g4s);
-
-		if(verbosity >= GVERBOSITY_DETAILS) {
-			string solid = sbuild != nullptr ? " solid "    + string(KGRN) + "build," + string(RST) : " solid "   + string(KRED) + "not build," + string(RST);
-			string logic = lbuild != nullptr ? " logical "  + string(KGRN) + "build," + string(RST) : " logical " + string(KRED) + "not build," + string(RST);
-			string physi = pbuild != nullptr ? " physical " + string(KGRN) + "build," + string(RST) : " physical "+ string(KRED) + "not build," + string(RST);
-			G4cout << G4SYSTEMLOGHEADER << "g4volume <" << vname << "> " << solid << logic << physi << " with pointers: " << sbuild << ", " << lbuild << ", " << pbuild << G4endl;
-		}
-
-		if(sbuild && lbuild && pbuild) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-private:
-	G4VSolid*          buildSolid(   GOptions* gopt, GVolume *s, map<string, G4Volume*> *g4s);
-	G4LogicalVolume*   buildLogical( GOptions* gopt, GVolume *s, map<string, G4Volume*> *g4s);
-	G4VPhysicalVolume* buildPhysical(GOptions* gopt, GVolume *s, map<string, G4Volume*> *g4s);
-
+protected:
+	/**
+	 * @brief Create (or fetch) a tessellated solid from a CAD file.
+	 *
+	 * Recognised extensions: **`.ply`** and **`.stl`**.  All other types
+	 * return `nullptr`.
+	 */
+	G4VSolid* buildSolid(const GVolume*                                   s,
+						 std::unordered_map<std::string, G4Volume*>*      g4s) override;
 };
-
-
-#endif

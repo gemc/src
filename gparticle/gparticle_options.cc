@@ -12,7 +12,6 @@ namespace gparticle {
     vector <Gparticle> getGParticles(GOptions *gopts) {
 
         vector <Gparticle> gparticles;
-        int verbosity = gopts->getVerbosityFor("gparticle");
 
         auto gparticle_node = gopts->getOptionNode("gparticle");
 
@@ -42,7 +41,6 @@ namespace gparticle {
                     gopts->get_variable_in_option<string>(gparticle_item, "vunit", "cm"),
 
                     gopts->get_variable_in_option<string>(gparticle_item, "randomVertexModel", "uniform"),
-                    verbosity
             ));
         }
 
@@ -53,7 +51,7 @@ namespace gparticle {
     // returns array of options definitions
     GOptions defineOptions() {
 
-        GOptions goptions;
+        GOptions goptions(GPARTICLE_LOGGER);
 
         string help;
         help = "Adds a particle to the event generator \n ";

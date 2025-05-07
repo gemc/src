@@ -1,5 +1,4 @@
-#ifndef GPRIMARYGENERATORACTION_H
-#define GPRIMARYGENERATORACTION_H 1
+#pragma once
 
 // gemc
 #include "goptions.h"
@@ -29,4 +28,3 @@ private:
 };
 
 
-#endif

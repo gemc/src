@@ -10,7 +10,7 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system, std::shared_ptr<GLogge
 	if (db == nullptr) { initialize_sqlite_db(system, log); }
 
 	// Check that db is valid.
-	if (db == nullptr) { log->error(ERR__GSQLITEERROR, "Database pointer is still null after initialization."); }
+	if (db == nullptr) { log->error(ERR_GSQLITEERROR, "Database pointer is still null after initialization."); }
 
 	// Check if the materials table has any rows
 	int           count       = 0;
@@ -18,14 +18,15 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system, std::shared_ptr<GLogge
 	sqlite3_stmt* count_stmt  = nullptr;
 	int           rc          = sqlite3_prepare_v2(db, count_query, -1, &count_stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(ERR__GSQLITEERROR, "Sqlite error preparing count query in loadMaterials: ",
+		log->error(ERR_GSQLITEERROR, "Sqlite error preparing count query in loadMaterials: ",
 		           sqlite3_errmsg(db), " (", rc, ") using query: ", count_query);
 	}
 	if (sqlite3_step(count_stmt) == SQLITE_ROW) { count = sqlite3_column_int(count_stmt, 0); }
 	sqlite3_finalize(count_stmt);
 
+
 	if (count == 0) {
-		log->warning("Table 'materials' is empty for system <", system_name, ">, variation <", variation, ">, "
+		log->info(2, "Table 'materials' is empty for system <", system_name, ">, variation <", variation, ">, "
 		             "run ", runno, ". This may be ok if the materials are from the Geant4 database.");
 		return;
 	}
@@ -36,7 +37,7 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system, std::shared_ptr<GLogge
 	sqlite3_stmt* stmt      = nullptr;
 	rc                      = sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(ERR__GSQLITEERROR, "Sqlite database error in loadMaterials: ",
+		log->error(ERR_GSQLITEERROR, "Sqlite database error in loadMaterials: ",
 		           sqlite3_errmsg(db), " (", rc, ") using query: ", sql_query);
 	}
 
@@ -60,7 +61,7 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system, std::shared_ptr<GLogge
 		gmaterialPars.clear();
 	}
 	if (rc != SQLITE_DONE) {
-		log->error(ERR__GSQLITEERROR, "Sqlite database error in loadMaterials: ",
+		log->error(ERR_GSQLITEERROR, "Sqlite database error in loadMaterials: ",
 		           sqlite3_errmsg(db), " (", rc, ")");
 	}
 	sqlite3_finalize(stmt);

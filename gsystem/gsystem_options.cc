@@ -13,12 +13,14 @@ vector<GSystem> getSystems(GOptions* gopts, const std::shared_ptr<GLogger>& log)
 	auto gsystem_node = gopts->getOptionNode("gsystem");
 	auto exp          = gopts->getScalarString("experiment");
 	auto run          = gopts->getScalarInt("runno");
+	auto dbhost       = gopts->getScalarString("sql");
 
 	for (auto gsystem_item : gsystem_node) {
 		systems.emplace_back(
 		                     log,
+		                     dbhost,
 		                     gopts->get_variable_in_option<string>(gsystem_item, "name", goptions::NODFLT),
-		                     gopts->get_variable_in_option<string>(gsystem_item, "factory", "sqlite"),
+		                     gopts->get_variable_in_option<string>(gsystem_item, "factory", GSYSTEMSQLITETFACTORYLABEL),
 		                     exp,
 		                     run,
 		                     gopts->get_variable_in_option<string>(gsystem_item, "variation", "default"),
@@ -56,12 +58,17 @@ GOptions defineOptions() {
 	// System
 	string help;
 	help = "A system definition includes the geometry location, factory and variation \n \n";
+	help += "Possible factories are: \n";
+	help += " - " + string(GSYSTEMASCIIFACTORYLABEL) + "\n";
+	help += " - " + string(GSYSTEMSQLITETFACTORYLABEL) + "\n";
+	help += " - " + string(GSYSTEMMYSQLTFACTORYLABEL) + "\n";
+	help += " - " + string(GSYSTEMCADTFACTORYLABEL) + "\n";
 	help +=
 		R"RAWS(Example: -gsystem="[{name: b1}]")RAWS";
 
 	vector<GVariable> gsystem = {
 		{"name", goptions::NODFLT, "system name (mandatory). For ascii factories, it may include the path to the file"},
-		{"factory", "sqlite", "factory name. Possible choices: ascii, CAD, GDML, sqlite. Default is sqlite"},
+		{"factory", GSYSTEMSQLITETFACTORYLABEL, "factory name."},
 		{"variation", "default", "geometry variation)"},
 		{"annotations", UNINITIALIZEDSTRINGQUANTITY, "optional system annotations. Examples: \"mats_only\" "}
 	};
@@ -91,7 +98,7 @@ GOptions defineOptions() {
 	                      help);
 
 	// add the experiment option to define the experiment, common for all systems
-	goptions.defineOption(GVariable("experiment", "examples", "Experiment selection"),
+	goptions.defineOption(GVariable("experiment", "examples", "experiment selection"),
 	                      "Each experiment have a subset of unique systems");
 
 	// add run number options, common for all systems

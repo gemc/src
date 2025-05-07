@@ -1,5 +1,4 @@
-#ifndef GDATA_OPTIONS_H
-#define GDATA_OPTIONS_H 1
+#pragma once
 
 /**
  * \file gdata_options.h
@@ -28,4 +27,3 @@ GOptions defineOptions();
 
 } // namespace gdata
 
-#endif

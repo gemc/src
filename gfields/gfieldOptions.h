@@ -1,5 +1,4 @@
-#ifndef  GFIELDOPTIONS_H
-#define  GFIELDOPTIONS_H 1
+#pragma once
 
 // glibrary
 #include "goptions.h"
@@ -13,4 +12,4 @@ namespace gfields {
 }
 
 
-#endif
+

@@ -1,6 +1,4 @@
-#ifndef  GSD_DOXY_H
-#define  GSD_DOXY_H  1
-
+#pragma once
 // Make sure that the next strig after subsubsection or subsection is indexed correctly
 
 /**
@@ -25,5 +23,5 @@
  * \n
  */
 
-#endif
+
 

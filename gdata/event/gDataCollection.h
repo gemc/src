@@ -1,5 +1,4 @@
-#ifndef GHITSCOLLECTION_H
-#define GHITSCOLLECTION_H 1
+#pragma once
 
 /**
  * \file GDataCollection.h
@@ -74,4 +73,3 @@ private:
 	std::shared_ptr<GLogger>      log;                     ///< Logger instance
 };
 
-#endif

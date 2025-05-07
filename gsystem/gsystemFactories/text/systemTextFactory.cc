@@ -57,7 +57,7 @@ ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const strin
 			log->info(1, "File ", fname, " not found, but this is ok because the system annotation is 'mats_only'");
 			return nullptr;
 		}
-		log->error(ERR__GSETUPFILENOTOFOUND, "File ", fname, " not found.");
+		log->error(ERR_GSETUPFILENOTOFOUND, "File ", fname, " not found.");
 	}
 
 	// file was not found

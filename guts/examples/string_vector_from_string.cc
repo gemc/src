@@ -1,12 +1,9 @@
 // gutilities
 #include "gutilities.h"
-
-using namespace gutilities;
-
+#include "gutsConventions.h"
 
 // c++
 #include <iostream>
-
 using namespace std;
 
 
@@ -18,7 +15,7 @@ int main(int argc, char *argv[]) {
 
     } else {
         string test = argv[1];
-        vector <string> testResult = getStringVectorFromString(test);
+        vector <string> testResult = gutilities::getStringVectorFromString(test);
 
         cout << " Original String: " << test << endl;
         cout << " List of items in string: " << endl;

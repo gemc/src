@@ -53,6 +53,13 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+    - name: Fix Ownership
+      run: |
+        # recent versions of Git refuse to touch a repository whose on-disk owner 
+        # doesn’t match the UID that is running the command
+        # mark the workspace (and any nested path) as safe
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"/src
 
     # Add any setup steps before running the `GitHub/codeql-action/init` action.
     # This includes steps like installing compilers or runtimes (`actions/setup-node`

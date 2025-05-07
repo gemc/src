@@ -1,81 +1,74 @@
+/**
+ * @file   cadSystemFactory.cc
+ * @ingroup Geometry
+ * @brief  Implementation of the CAD‑mesh solid builder.
+ */
+
+// gemc
+#include "gutilities.h"
+
 // g4system
 #include "cadSystemFactory.h"
 
-// Cadmesh single header library
+// ───────────────── CADMesh single‑header library ────────────────
 // https://github.com/christopherpoole/CADMesh
-// Modifications: had to mark these 2 classes 'final'
-// - BuiltInReader
-// - TessellatedMesh
-// https://en.cppreference.com/w/cpp/language/final
-// and why: https://devblogs.microsoft.com/oldnewthing/20200619-00/?p=103877
-
-// added USE_CADMESH_ASSIMP_READER as per Christophe README Optional Dependencies
-
-
-//// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
-//// !!! SET THIS BEFORE INCLUDING CADMESH.HH TO USE THE ASSIMP READER !!! //
-//// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
-#define USE_CADMESH_ASSIMP_READER
 //
-//// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
-//// !!! SET THIS IF YOU WANT ASSIMP TO BE THE DEFAULT READER !!! //
-//// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! //
-//#define CADMESH_DEFAULT_READER ASSIMP
+// *Modifications applied to the vendor header:*
+//   - Marked the following classes `final`
+//       • BuiltInReader
+//       • TessellatedMesh
+//   - Reason: https://devblogs.microsoft.com/oldnewthing/20200619-00/?p=103877
+//
+// *Optional Dependencies*
+//   Define `USE_CADMESH_ASSIMP_READER` **before** including `CADMesh.hh`
+//   to enable Assimp‑based file loading.
+//
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!! SET THIS BEFORE INCLUDING CADMESH.HH TO USE THE ASSIMP READER
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#define USE_CADMESH_ASSIMP_READER
+// If you want Assimp to be the default reader, uncomment:
+// #define CADMESH_DEFAULT_READER ASSIMP
 
 #include "CADMesh.hh"
 
-G4VSolid *G4CadSystemFactory::buildSolid(GOptions *gopt, GVolume *s, map<string, G4Volume *> *g4s) {
+// Geant4 units
+#include "CLHEP/Units/SystemOfUnits.h"
 
-    string g4name = s->getG4Name();
-    bool verbosity = getVerbosity(gopt, g4name);
+G4VSolid* G4CadSystemFactory::buildSolid(const GVolume* s,
+                                         std::unordered_map<std::string,
+                                                            G4Volume*>* g4s) {
+	std::string g4name = s->getG4Name();
 
-    // check dependencies first
-    if (!checkSolidDependencies(verbosity, s, g4s)) return nullptr;
+	/*────────── dependency check ──────────*/
+	if (!checkSolidDependencies(s, g4s)) return nullptr;
 
-    // if the g4volume doesn't exist, create one and add it to the map
-    G4Volume *thisG4Volume = nullptr;
+	/*────────── locate or allocate G4Volume ──────────*/
+	auto thisG4Volume = getOrCreateG4Volume(g4name, g4s);
+	if (thisG4Volume->getSolid() != nullptr) return thisG4Volume->getSolid();
 
-    // check if g4s already exists
-    if (g4s->find(g4name) != g4s->end()) {
-        thisG4Volume = (*g4s)[g4name];
-        // if the solid is already built, returning it
-        if (thisG4Volume->getSolid() != nullptr) return thisG4Volume->getSolid();
-    } else {
-        thisG4Volume = new G4Volume();
-        // adding volume to the map
-        (*g4s)[g4name] = thisG4Volume;
-    }
+	/*────────── CAD file handling ──────────*/
+	std::string fileName   = s->getDescription(); // full file path from DB
+	G4String    g4filename = fileName;
 
-    string fileName = s->getDescription();
-    G4String g4filename = fileName;
+	// file extension
+	std::string extension =
+		gutilities::getStringVectorFromStringWithDelimiter(fileName, ".").back();
 
-    auto extension = getStringVectorFromStringWithDelimiter(fileName, ".").back();
+	/*──── PLY / STL via CADMesh & Assimp reader ────*/
+	if (extension == "ply" || extension == "stl") {
+		auto mesh = CADMesh::TessellatedMesh::From(g4filename,
+		                                           CADMesh::File::ASSIMP());
 
+		mesh->SetScale(CLHEP::mm); // keep geometry in Geant4 length units
+		mesh->SetReverse(false);   // vertex winding not flipped
 
-    if (extension == "ply") {
-        // auto mesh = CADMesh::TessellatedMesh::FromPLY(g4filename);
+		thisG4Volume->setSolid(mesh->GetSolid(), log);
+		return thisG4Volume->getSolid();
+	}
 
-        auto mesh = CADMesh::TessellatedMesh::From(g4filename, CADMesh::File::ASSIMP());
-
-        mesh->SetScale(CLHEP::mm);
-        mesh->SetReverse(false);
-
-        thisG4Volume->setSolid(mesh->GetSolid(), verbosity);
-        return thisG4Volume->getSolid();
-
-    } else if (extension == "stl") {
-
-        // auto mesh = CADMesh::TessellatedMesh::FromSTL(g4filename);
-
-        auto mesh = CADMesh::TessellatedMesh::From(g4filename, CADMesh::File::ASSIMP());
-
-        mesh->SetScale(CLHEP::mm);
-        mesh->SetReverse(false);
-        thisG4Volume->setSolid(mesh->GetSolid(), verbosity);
-        return thisG4Volume->getSolid();
-    }
-
-
-    return nullptr;
-
+	/*──── unsupported extension ────*/
+	log->warning("G4CadSystemFactory: file <", fileName,
+	             "> has unsupported extension <", extension, ">");
+	return nullptr;
 }

@@ -1,5 +1,4 @@
-#ifndef EVENTDISPENSER_H
-#define EVENTDISPENSER_H 1
+#pragma once
 
 #include "goptions.h"
 #include "gdynamicdigitization.h"
@@ -110,4 +109,3 @@ public:
 	void setNumberOfEvents(int nevts);
 };
 
-#endif
