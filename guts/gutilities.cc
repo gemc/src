@@ -14,6 +14,7 @@
 #include <fstream>
 #include <vector>
 #include <charconv>
+#include <filesystem>
 
 namespace gutilities {
 
@@ -47,6 +48,52 @@ string getDirFromPath(const std::string& path) {
 	auto lastSlash = path.find_last_of('/');
 	if (lastSlash == std::string::npos) return ".";
 	return path.substr(0, lastSlash);
+}
+
+namespace fs = std::filesystem;
+
+/**
+ * Resolve the absolute, canonical location of the executable based on the
+ * string you normally get in argv[0].
+ *
+ * Rules
+ *  ─  If arg0 is already absolute, return canonical(arg0).
+ *  ─  If arg0 contains a path separator, treat it as a relative path:
+ *       cwd / arg0  →  canonical.
+ *  ─  Otherwise treat it as a bare filename; search it along PATH.
+ *
+ * Throws std::runtime_error if the executable cannot be located.
+ */
+string getFullPathFromPath(const std::string& path) {
+	namespace fs = std::filesystem;
+	fs::path p(path); // convert the argument to fs::path
+
+	/* 1) Already absolute ------------------------------------------------- */
+	if (p.is_absolute())
+		return fs::weakly_canonical(p);
+
+	/* 2) Relative path (contains a slash) --------------------------------- */
+	if (p.has_parent_path()) // e.g. "./prog" or "bin/prog"
+		return fs::weakly_canonical(fs::current_path() / p);
+
+	/* 3) Bare filename: search PATH -------------------------------------- */
+	const char* env_path = std::getenv("PATH");
+	if (env_path) {
+#if defined(_WIN32)
+			const char delim = ';';
+#else
+		const char delim = ':';
+#endif
+		std::stringstream ss(env_path);
+		std::string       dir;
+		while (std::getline(ss, dir, delim)) {
+			fs::path candidate = fs::path(dir) / p;
+			if (fs::exists(candidate))
+				return fs::weakly_canonical(candidate);
+		}
+	}
+
+	throw std::runtime_error("cannot resolve executable path from '" + path + "'");
 }
 
 vector<std::string> getStringVectorFromString(const std::string& input) {
@@ -363,10 +410,9 @@ randomModel stringToRandomModel(const std::string& str) {
 }
 
 
-G4Colour makeColour(std::string_view code)
-{
-	if (code.empty())                throw std::invalid_argument("empty colour string");
-	if (code.front() == '#')         code.remove_prefix(1);
+G4Colour makeColour(std::string_view code) {
+	if (code.empty()) throw std::invalid_argument("empty colour string");
+	if (code.front() == '#') code.remove_prefix(1);
 	if (code.size() != 6 && code.size() != 7)
 		throw std::invalid_argument("colour must have 6 or 7 hex digits");
 
@@ -380,19 +426,19 @@ G4Colour makeColour(std::string_view code)
 	// ---- parse RRGGBB ----
 	unsigned rgb = 0;
 	for (int i = 0; i < 6; ++i)
-		rgb = (rgb << 4) | hexNibble(code[i]);
+		rgb    = (rgb << 4) | hexNibble(code[i]);
 
-	auto byteToFloat = [](unsigned byte) { return byte / 255.0; };
-	double r = byteToFloat((rgb >> 16) & 0xFF);
-	double g = byteToFloat((rgb >>  8) & 0xFF);
-	double b = byteToFloat( rgb        & 0xFF);
+	auto   byteToFloat = [](unsigned byte) { return byte / 255.0; };
+	double r           = byteToFloat((rgb >> 16) & 0xFF);
+	double g           = byteToFloat((rgb >> 8) & 0xFF);
+	double b           = byteToFloat(rgb & 0xFF);
 
 	// ---- optional transparency nibble ----
 	double a = 1.0;
 	if (code.size() == 7)
 		a = hexNibble(code[6]) / 15.0;
 
-	return {r, g, b, a};   // G4Colour
+	return {r, g, b, a}; // G4Colour
 }
 
 

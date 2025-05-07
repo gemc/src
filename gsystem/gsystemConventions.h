@@ -1,5 +1,4 @@
-#ifndef  GSYSTEM_CONVENTIONS_H
-#define  GSYSTEM_CONVENTIONS_H  1
+#pragma once
 
 // Assumptions:
 // The volumes and materials in each system must have an unique name
@@ -40,4 +39,4 @@
 #define GSYSTEMSQLITETFACTORYLABEL  "sqlite"
 #define GSYSTEMSQLITETDEFAULTFILE   "gemc.db"
 
-#endif
+

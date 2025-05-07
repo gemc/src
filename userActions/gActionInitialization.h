@@ -1,5 +1,4 @@
-#ifndef GACTIONINITIALIZATION_H
-#define GACTIONINITIALIZATION_H 1
+#pragma once
 
 // geant4
 #include "G4VUserActionInitialization.hh"
@@ -46,4 +45,4 @@ private:
 };
 
 
-#endif
+

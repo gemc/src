@@ -1,5 +1,4 @@
-#ifndef SYSTEMFACTORY_H
-#define SYSTEMFACTORY_H 1
+#pragma once
 
 // gemc
 #include "goptions.h"
@@ -56,5 +55,3 @@ public:
     void addPossibleFileLocation(const string& fl) {  possibleLocationOfFiles.push_back(fl); }
 
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef GFRAMEDATA_H
-#define GFRAMEDATA_H 1
+#pragma once
 
 /**
  * \file GFrameDataCollection.h
@@ -93,4 +92,4 @@ private:
 	std::vector<GIntegralPayload*>* integralPayloads;  ///< Vector of integral payloads.
 };
 
-#endif
+

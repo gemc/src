@@ -1,5 +1,4 @@
-#ifndef GDIALOG_COMMANDS_H
-#define GDIALOG_COMMANDS_H 1
+#pragma once
 
 // qt
 #include <QtWidgets>
@@ -42,5 +41,3 @@ private slots:
     void create_geant4_commands_widget();
 
 };
-
-#endif

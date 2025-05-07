@@ -22,6 +22,7 @@ def build_geometry(configuration):
 	shape1_phimax = 360.0
 
 	gvolume = GVolume('Shape1')
+	gvolume.mother = 'Envelope'
 	gvolume.description = 'B1 Shape1'
 	gvolume.make_cons(shape1_rmina, shape1_rmaxa, shape1_rminb, shape1_rmaxb, shape1_hz, shape1_phimin, shape1_phimax)
 	gvolume.material = 'G4_A-150_TISSUE'
@@ -36,6 +37,7 @@ def build_geometry(configuration):
 	shape2_dz = 60/2
 
 	gvolume = GVolume('Shape2')
+	gvolume.mother = 'Envelope'
 	gvolume.description = 'B1 Shape2'
 	gvolume.make_trapezoid(shape2_dxa, shape2_dxb, shape2_dya, shape2_dyb, shape2_dz)
 	gvolume.material = 'G4_BONE_COMPACT_ICRU'

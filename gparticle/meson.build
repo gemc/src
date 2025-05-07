@@ -12,6 +12,6 @@ LD += {
                       ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'test_gparticle_single' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/point_particle.yaml']],
+        'test_gparticle_single' : [files('examples/gparticle_example.cc'), [meson.current_source_dir() + '/examples/point_particle.yaml']],
     }
 }

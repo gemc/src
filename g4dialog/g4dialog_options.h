@@ -1,5 +1,4 @@
-#ifndef  G4DIALOGOPTIONS_H
-#define  G4DIALOGOPTIONS_H 1
+#pragma once
 
 // glibrary
 #include "goptions.h"
@@ -12,4 +11,3 @@ GOptions defineOptions();
 
 }
 
-#endif

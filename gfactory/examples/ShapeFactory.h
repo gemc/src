@@ -1,5 +1,4 @@
-#ifndef FIRSTFACTORY_H
-#define FIRSTFACTORY_H 1
+#pragma once
 
 class Shape {
 public:
@@ -19,5 +18,3 @@ public:
 	void Area();
 };
 
-
-#endif // FIRSTFACTORY_H

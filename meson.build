@@ -46,7 +46,7 @@ subdir('g4dialog')
 subdir('api')
 subdir('gsystem') # uses api for testing
 subdir('g4system')
-#subdir('gparticle')
+subdir('gparticle')
 #subdir('gphysics')
 #subdir('gsplash')
 #subdir('gstreamer')
@@ -96,7 +96,6 @@ foreach L : LD
         if not all_libs.contains(this_library)
             all_libs += this_library
             all_lib_names += 'lib' + this_lib_name + '.a' # Add as linker flag
-            message(' Adding Library ' + this_lib_name)
         endif
     endif
 
@@ -175,7 +174,6 @@ foreach L : LD
                 # link_args : all_lib_names
                 override_options : ['b_pie=true']
             )
-            message(' Testing Executable ' + name)
             test(' ## ' + this_lib_name + ' test ##  >>  ' + name,
                  exe,
                  env : project_test_env,

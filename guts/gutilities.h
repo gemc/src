@@ -57,6 +57,17 @@ std::string getFileFromPath(const std::string& path);
 std::string getDirFromPath(const std::string& path);
 
 /**
+* @brief Extracts the full directory path from a given file path.
+*
+* This function extracts and returns the directory path from a given POSIX file path.
+*
+* @param path The input file path.
+* @return The directory path extracted from the path.
+*/
+// TODO this function doesn't work
+std::string getFullPathFromPath(const char* arg0);
+
+/**
 * @brief Splits a string into a vector of strings using spaces as delimiters.
 *
 * This function splits the input string into a vector of strings, using spaces as the delimiter,

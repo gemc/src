@@ -8,6 +8,7 @@ namespace gsystem {
 
 // method to return a vector of GSystem from the options
 vector<GSystem> getSystems(GOptions* gopts, const std::shared_ptr<GLogger>& log) {
+
 	vector<GSystem> systems;
 
 	auto gsystem_node = gopts->getOptionNode("gsystem");

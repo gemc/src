@@ -1,5 +1,4 @@
-#ifndef GINTEGRALPAYLOAD_H
-#define GINTEGRALPAYLOAD_H 1
+#pragma once
 
 /**
  * \file GIntegralPayload.h
@@ -60,4 +59,4 @@ private:
 	int                      time;    ///< Time value.
 };
 
-#endif
+

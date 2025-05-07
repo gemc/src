@@ -1,9 +1,11 @@
-#ifndef  GPARTICLE_H_OPTIONS
-#define  GPARTICLE_H_OPTIONS 1
+#pragma once
 
-// glibrary
-#include "goptions.h"
+// gparticle
 #include "gparticle.h"
+
+
+// gemc
+#include "goptions.h"
 
 constexpr const char* GPARTICLE_LOGGER = "gparticle";
 
@@ -13,9 +15,7 @@ namespace gparticle {
     GOptions defineOptions();
 
     // method to return a vector of JSystem from a structured option
-    vector <Gparticle> getGParticles(GOptions *gopts);
+    vector <Gparticle> getGParticles(GOptions *gopts, const std::shared_ptr<GLogger>& log);
 
 }
 
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef  GDYNAMICLIB_H
-#define  GDYNAMICLIB_H  1
+#pragma once
 
 #include "glogger.h"
 
@@ -102,4 +101,4 @@ static void close_lib(dlhandle handle) {
 	dlclose(handle);
 }
 
-#endif
+

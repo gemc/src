@@ -1,5 +1,4 @@
-#ifndef GUI_SESSION_H
-#define GUI_SESSION_H 1
+#pragma once
 
 #include "G4UIsession.hh"
 #include "gboard.h"
@@ -44,5 +43,3 @@ private:
     GLogger * const log;
 	QString ansiToHtml(const QString &ansiText);
 };
-
-#endif // GUI_SESSION_H

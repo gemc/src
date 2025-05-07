@@ -591,8 +591,8 @@ void GOptions::saveOptions() const {
 void GOptions::print_version() {
 	string asterisks = "**************************************************************";
 	cout << endl << asterisks << endl;
-	cout << " " << KGRN << KBOLD << executableName << RST << "  version: " << KGRN << gversion << RST << endl;
-	cout << " Executed from: " << KGRN << "<" <<  executableCallingDir << ">" << RST << endl;
+	cout << " " << KGRN << KBOLD << executableName << RST << "  version: " << KGRN << gversion << RST;
+	cout << ", executed from: " << KGRN <<  executableCallingDir << RST << endl;
 	cout << " Released on: " << KGRN << grelease_date << RST << endl;
 	cout << " GEMC Reference: " << KGRN << greference << RST << endl;
 	cout << " GEMC Homepage: " << KGRN << gweb << RST << endl;

@@ -1,5 +1,4 @@
-#ifndef GTRUEINFOHIT_H
-#define GTRUEINFOHIT_H 1
+#pragma once
 
 /**
  * \file gTrueInfoData.h
@@ -72,4 +71,3 @@ private:
 	std::shared_ptr<GLogger>           log;                         ///< Logger instance
 };
 
-#endif

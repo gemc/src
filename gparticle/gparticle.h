@@ -1,8 +1,8 @@
-#ifndef  GPARTICLE_H
-#define  GPARTICLE_H  1
+#pragma once
 
 // gemc
 #include "glogger.h"
+#include "gutilities.h"
 
 // geant4
 #include "G4ThreeVector.hh"
@@ -17,27 +17,27 @@ class Gparticle {
 
 public:
 	// Constructor based on parameters
-	Gparticle(std::string name,
-	          int         multiplicity,
-	          float       p,
-	          float       delta_p,
-	          std::string punit,
-	          std::string randomMomentumModel,
-	          float       theta,
-	          float       delta_theta,
-	          std::string thetaModel,
-	          float       phi,
-	          float       delta_phi,
-	          std::string aunit,
-	          float       avx,
-	          float       avy,
-	          float       avz,
-	          float       adelta_vx,
-	          float       adelta_vy,
-	          float       adelta_vz,
-	          std::string vunit,
-	          std::string randomVertexModel,
-	          std::shared_ptr<GLogger> log) ;
+	Gparticle(std::string                     name,
+	          int                             multiplicity,
+	          double                          p,
+	          double                          delta_p,
+	          const std::string&              punit,
+	          const std::string&              randomMomentumModel,
+	          double                          theta,
+	          double                          delta_theta,
+	          const std::string&              thetaModel,
+	          double                          phi,
+	          double                          delta_phi,
+	          const std::string&              aunit,
+	          double                          avx,
+	          double                          avy,
+	          double                          avz,
+	          double                          adelta_vx,
+	          double                          adelta_vy,
+	          double                          adelta_vz,
+	          const std::string&              vunit,
+	          const std::string&              randomVertexModel,
+	          const std::shared_ptr<GLogger>& log);
 
 private:
 	// PDG Monte Carlo Particle Numbering Scheme:
@@ -47,16 +47,16 @@ private:
 	int         multiplicity;
 
 	// assigned momentum and distributions. See particle options for description
-	float                   p;
-	float                   delta_p;
+	double                  p;
+	double                  delta_p;
 	gutilities::randomModel randomMomentumModel;
 
-	float                   theta;
-	float                   delta_theta;
+	double                  theta;
+	double                  delta_theta;
 	gutilities::randomModel randomThetaModel;
 
-	float phi;
-	float delta_phi;
+	double phi;
+	double delta_phi;
 
 	G4ThreeVector           v;
 	G4ThreeVector           delta_v;
@@ -68,23 +68,20 @@ private:
 	friend std::ostream& operator<<(std::ostream& stream, Gparticle); // Logs infos on screen.
 
 public:
-	void shootParticle(G4ParticleGun* particleGun, G4Event* anEvent, std::shared_ptr<GLogger> log);
+	void shootParticle(G4ParticleGun* particleGun, G4Event* anEvent, const std::shared_ptr<GLogger>& log);
 
 private:
-	// if this is used somewhere else it should be moved to gutilities (it does require geant4)
-	float randomizeNumberFromSigmaWithModel(float center, float delta, gutilities::randomModel model);
+	// if this is used somewhere else, it should be moved to gutilities (it does require geant4)
+	double randomizeNumberFromSigmaWithModel(double center, double delta, gutilities::randomModel model) const;
 
-	float calculateMomentum();
+	double calculateMomentum();
 
-	float calculateKinEnergy(float mass);
+	double calculateKinEnergy(double mass);
 
 	G4ThreeVector calculateBeamDirection();
 
 	G4ThreeVector calculateVertex();
 
 	// utility methods
-	int get_pdg_id(std::shared_ptr<GLogger> log);
+	int get_pdg_id(const std::shared_ptr<GLogger>& log);
 };
-
-
-#endif

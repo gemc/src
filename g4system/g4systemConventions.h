@@ -1,7 +1,4 @@
-#ifndef  G4VOLUMESCONVENTIONS_H
-#define  G4VOLUMESCONVENTIONS_H 1
-
-
+#pragma once
 
 #define G4SYSTEMNATFACTORY "native"
 #define G4SYSTEMCADFACTORY "cad"
@@ -34,4 +31,4 @@
 #define TRITIUM_ELEMENT       "Tritium"
 #define TRITIUMGAS_MATERIAL   "H3Gas"
 
-#endif
+
