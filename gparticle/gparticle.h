@@ -65,7 +65,7 @@ private:
 
 	double get_mass();
 
-	friend std::ostream& operator<<(std::ostream& stream, Gparticle); // Logs infos on screen.
+	friend std::ostream& operator<<(std::ostream& os, Gparticle& gp);
 
 public:
 	void shootParticle(G4ParticleGun* particleGun, G4Event* anEvent, const std::shared_ptr<GLogger>& log);

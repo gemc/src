@@ -1,14 +1,23 @@
 // gparticle
 #include "gparticle_options.h"
 
-// c++
-#include <iostream>
-using namespace std;
-
-int main(int argc, char *argv[]) {
-
-    auto gopts = new GOptions(argc, argv, gparticle::defineOptions());
+// geant4
+#include "G4RunManagerFactory.hh"
+#include "QBBC.hh"
 
 
-    return EXIT_SUCCESS;
+int main(int argc, char* argv[]) {
+	auto gopts = new GOptions(argc, argv, gparticle::defineOptions());
+	auto log   = std::make_shared<GLogger>(gopts, GPARTICLE_LOGGER);
+
+	auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+	auto physicsList = new QBBC;
+	runManager->SetUserInitialization(physicsList);
+
+	auto particles = gparticle::getGParticles(gopts, log);
+
+	delete runManager;
+	delete gopts;
+
+	return EXIT_SUCCESS;
 }

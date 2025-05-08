@@ -1,8 +1,6 @@
 // c++
 #include <iostream>
 
-using namespace std;
-
 // geant4
 #include "G4UImanager.hh"
 #include "G4UIsession.hh"

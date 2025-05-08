@@ -63,7 +63,7 @@ Gparticle::Gparticle(string                          aname,
 	pid = get_pdg_id(log);
 
 	// print particle with ostream operator
-	log->info(2, this);
+	log->info(2, *this);
 }
 
 
@@ -71,11 +71,9 @@ Gparticle::Gparticle(string                          aname,
 // https://geant4.kek.jp/lxr/source/event/include/G4ParticleGun.hh
 // https://geant4.kek.jp/lxr/source/event/src/G4ParticleGun.cc
 void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent, const std::shared_ptr<GLogger>& log) {
-
 	auto particleTable = G4ParticleTable::GetParticleTable();
 
 	if (particleTable) {
-
 		auto particleDef = particleTable->FindParticle(name);
 
 		if (particleDef) {
@@ -198,25 +196,92 @@ double Gparticle::randomizeNumberFromSigmaWithModel(double center, double delta,
 	}
 }
 
-ostream& operator<<(ostream& stream, Gparticle gparticle) {
-	stream << "Gparticle: " << endl;
+// ---------------------------------------------------------------------------
+//  pretty printer
+// ---------------------------------------------------------------------------
+std::ostream& operator<<(std::ostream& os, Gparticle& gp)
+{
+    using std::left;
+    using std::right;
+    using std::setw;
 
-	stream << "  name: " << gparticle.name << " (pid: " << gparticle.pid << ")" << endl;
-	stream << "  multiplicity: " << gparticle.multiplicity << endl;
-	stream << "  mass: " << gparticle.get_mass() << endl;
-	stream << "  p: " << gparticle.p << endl;
-	stream << "  delta_p: " << gparticle.delta_p / CLHEP::MeV << " MeV" << endl;
-	stream << "  randomMomentumModel: " << gparticle.randomMomentumModel << endl;
-	stream << "  theta: " << gparticle.theta / CLHEP::deg << " deg" << endl;
-	stream << "  delta_theta: " << gparticle.delta_theta / CLHEP::deg << " deg" << endl;
-	stream << "  randomThetaModel: " << gparticle.randomThetaModel << endl;
-	stream << "  phi: " << gparticle.phi / CLHEP::deg << "deg" << endl;
-	stream << "  delta_phi: " << gparticle.delta_phi / CLHEP::deg << "deg" << endl;
-	stream << "  v: " << gparticle.v << endl;
-	stream << "  delta_v: " << gparticle.delta_v << endl;
-	stream << "  randomVertexModel: " << gparticle.randomVertexModel << endl;
+    constexpr int label_w = 15;   // width for the field name (with ':')
+    constexpr int value_w = 12;   // width for the main column
 
-	return stream;
+    // helper: plain value
+    auto show = [&](const std::string& label, const auto& value) {
+        os << left << setw(label_w) << label << ' '
+           << right << setw(value_w) << value << '\n';
+    };
+
+    // helper: floating‑point value with N decimals
+    auto showf = [&](const std::string& label, double value, int prec = 3) {
+        std::streamsize old_prec = os.precision();          // save current
+        auto old_flags = os.flags();                        // save flags
+
+        os << left << setw(label_w) << label << ' '
+           << right << setw(value_w) << std::fixed
+           << std::setprecision(prec) << value << '\n';
+
+        os.precision(old_prec);                             // restore
+        os.flags(old_flags);
+    };
+
+    // helper: value ± error (both doubles)
+    auto show_pm = [&](const std::string& label,
+                       double val, double err,
+                       int prec = 3) {
+        std::streamsize old_prec = os.precision();
+        auto old_flags = os.flags();
+
+        os << left << setw(label_w) << label << ' '
+           << right << setw(value_w) << std::fixed
+           << std::setprecision(prec) << val
+           << "  ± " << std::setprecision(prec) << err << '\n';
+
+        os.precision(old_prec);
+        os.flags(old_flags);
+    };
+
+    // -----------------------------------------------------------------------
+    //  header block
+    // -----------------------------------------------------------------------
+    os << '\n'
+       << "┌─────────────────────────────────────────────────┐\n"
+       << "│ GParticle                                       │\n"
+       << "└─────────────────────────────────────────────────┘\n";
+
+    // -----------------------------------------------------------------------
+    //  fields
+    // -----------------------------------------------------------------------
+    os << left << setw(label_w) << "name:" << ' '
+       << gp.name << "  (pid " << gp.pid << ")\n";
+
+    show("multiplicity:", std::to_string(gp.multiplicity));
+    showf("mass [MeV]:",  gp.get_mass());
+
+    show_pm("p [MeV]:",
+            gp.p,
+            gp.delta_p / CLHEP::MeV);
+
+    show("p model:", to_string(gp.randomMomentumModel));
+
+    show_pm("theta [deg]:",
+            gp.theta / CLHEP::deg,
+            gp.delta_theta / CLHEP::deg);
+
+    show("theta model:", to_string(gp.randomThetaModel));
+
+    show_pm("phi  [deg]:",
+            gp.phi / CLHEP::deg,
+            gp.delta_phi / CLHEP::deg);
+
+    os << left << setw(label_w) << "vertex [cm]:" << ' '
+       << gp.v << "  ± " << gp.delta_v << '\n';
+
+    show("vertex model:", to_string(gp.randomVertexModel));
+
+    return os;
 }
 
 

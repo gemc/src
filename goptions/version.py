@@ -23,7 +23,7 @@ def generate_header_file(version, release_date):
 const char* gversion = "{version}";
 const char* grelease_date = "{release_date}";
 const char* greference = "Nucl. Instrum. Meth. A, Volume 959, 163422 (2020)";
-const char* gweb = "https://gemc.github.io/home/";
+const char* gweb = "https://gemc.github.io/home";
 const char* gauthor = "Maurizio Ungaro, ungaro@jlab.org";
 
 #endif // VERSION_H

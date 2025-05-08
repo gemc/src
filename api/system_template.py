@@ -238,7 +238,7 @@ def write_templates(system, variations):
 
 	# ask_to_overwrite_file(readme)
 	with open(f'{readme}', 'w') as rm:
-		gemc = '[GEMC: Monte Carlo Particles and Hardware Simulator](https://gemc.github.io/home/)'
+		gemc = '[GEMC: Monte Carlo Particles and Hardware Simulator](https://gemc.github.io/home)'
 		rm.write('\n')
 		"""write 20 spaces then system name then 20 spaces"""
 		rm.write(f'|{" " * 20}{gemc}{" " * 20}|\n')

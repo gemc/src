@@ -291,6 +291,16 @@ enum randomModel {
 */
 randomModel stringToRandomModel(const std::string& str);
 
+inline constexpr const char* to_string(randomModel m) noexcept {
+	switch (m) {
+	case uniform: return "uniform";
+	case gaussian: return "gaussian";
+	case cosine: return "cosine";
+	case sphere: return "sphere";
+	}
+	return "<unknown>";
+}
+
 /**
  * @brief Convert a hex colour string to G4Colour.
  *
