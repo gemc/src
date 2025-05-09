@@ -40,7 +40,7 @@ G4World::G4World(const GWorld* gworld, GOptions* gopts)
 		           "G4World: ROOT system <", ROOTWORLDGVOLUMENAME, "> not found in the map");
 	}
 	else { log->info(2, "G4World: ROOT system <", rootSystemIt->first, "> found in the map"); }
-	auto rootSystem     = rootSystemIt->second;
+	auto rootSystem     = rootSystemIt->second.get();
 	auto objectsFactory = get_factory(G4SYSTEMNATFACTORY);
 
 	for (auto& [volumeName, gvolumePtr] : rootSystem->getGVolumesMap()) {
@@ -63,8 +63,8 @@ G4World::G4World(const GWorld* gworld, GOptions* gopts)
 
 		// loop over systems in the gsystemsMap
 		for (auto& [systemName, gsystem] : *gsystemMap) {
-			string g4Factory      = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
-			auto   objectsFactory = get_factory(g4Factory);
+			string g4Factory = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
+			objectsFactory   = get_factory(g4Factory);
 
 			for (auto& [volumeName, gvolumePtr] : gsystem->getGVolumesMap()) {
 				auto* gvolume = gvolumePtr.get();;
@@ -216,9 +216,7 @@ bool G4World::createG4Material(const std::unique_ptr<GMaterial>& gmaterial) {
 
 	if (isChemical) {
 		log->info(2, "Building material <", materialName, "> with components:");
-		for (size_t i = 0; i < components.size(); i++) {
-			log->info(2, "element <", components[i], "> with amount: ", amounts[i]);
-		}
+		for (size_t i = 0; i < components.size(); i++) { log->info(2, "element <", components[i], "> with amount: ", amounts[i]); }
 
 		for (size_t i = 0; i < components.size(); i++) {
 			auto element = NISTman->FindOrBuildElement(components[i]);
@@ -227,9 +225,7 @@ bool G4World::createG4Material(const std::unique_ptr<GMaterial>& gmaterial) {
 	}
 	else {
 		log->info(2, "Building material <", materialName, "> with components:");
-		for (size_t i = 0; i < components.size(); i++) {
-			log->info(2, "material <", components[i], "> with fractional mass: ", amounts[i]);
-		}
+		for (size_t i = 0; i < components.size(); i++) { log->info(2, "material <", components[i], "> with fractional mass: ", amounts[i]); }
 
 		for (size_t i = 0; i < components.size(); i++) {
 			auto material = NISTman->FindOrBuildMaterial(components[i]);
@@ -403,9 +399,9 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 }
 
 
-void G4World::createG4SystemFactory(map<string, GSystem*>* gsystemsMap,
-                                    const string&          backup_material,
-                                    int                    check_overlaps) {
+void G4World::createG4SystemFactory(SystemMap*    gsystemsMap,
+                                    const string& backup_material,
+                                    int           check_overlaps) {
 	// instantiating gSystemManager
 	GManager manager(log, "G4World Manager");
 
@@ -426,15 +422,11 @@ void G4World::createG4SystemFactory(map<string, GSystem*>* gsystemsMap,
 		if (factory == GSYSTEMASCIIFACTORYLABEL || factory == GSYSTEMSQLITETFACTORYLABEL ||
 		    factory == GSYSTEMMYSQLTFACTORYLABEL) {
 			// if factory not found, registering it in the manager and loading it into the map
-			if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) {
-				manager.RegisterObjectFactory<G4NativeSystemFactory>(g4Factory);
-			}
+			if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) { manager.RegisterObjectFactory<G4NativeSystemFactory>(g4Factory); }
 		}
 		else if (factory == GSYSTEMCADTFACTORYLABEL) {
 			// if factory not found, registering it in the manager and loading it into the map
-			if (g4systemFactory.find(GSYSTEMCADTFACTORYLABEL) == g4systemFactory.end()) {
-				manager.RegisterObjectFactory<G4CadSystemFactory>(g4Factory);
-			}
+			if (g4systemFactory.find(GSYSTEMCADTFACTORYLABEL) == g4systemFactory.end()) { manager.RegisterObjectFactory<G4CadSystemFactory>(g4Factory); }
 		}
 
 		// factories are registered, creating them
@@ -448,8 +440,8 @@ void G4World::createG4SystemFactory(map<string, GSystem*>* gsystemsMap,
 	manager.clearDLMap();
 }
 
-void G4World::buildMaterials(map<string, GSystem*>* system_map) {
-	// looping over gsystem in the gsystemsMap
+void G4World::buildMaterials(SystemMap* system_map) {
+	// looping over gsystem in the gsystemsMap,
 	// every GMaterial that is not built (due to dependencies) increments allRemainingMaterials
 	vector<GMaterial*> thisIterationRemainingMaterials;
 	unsigned long      allRemainingMaterials = 0;
@@ -459,9 +451,7 @@ void G4World::buildMaterials(map<string, GSystem*>* system_map) {
 		for (const auto& [systemName, system] : *system_map) {
 			// looping over getGVolumesMap in that system
 			for (const auto& [gmaterialName, gmaterialPtr] : system->getGMaterialMap()) {
-				if (createG4Material(gmaterialPtr) == false) {
-					thisIterationRemainingMaterials.push_back(gmaterialPtr.get());
-				}
+				if (createG4Material(gmaterialPtr) == false) { thisIterationRemainingMaterials.push_back(gmaterialPtr.get()); }
 			}
 		}
 

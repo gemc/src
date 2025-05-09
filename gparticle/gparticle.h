@@ -17,27 +17,34 @@ class Gparticle {
 
 public:
 	// Constructor based on parameters
-	Gparticle(std::string                     name,
-	          int                             multiplicity,
-	          double                          p,
-	          double                          delta_p,
-	          const std::string&              punit,
-	          const std::string&              randomMomentumModel,
-	          double                          theta,
-	          double                          delta_theta,
-	          const std::string&              thetaModel,
-	          double                          phi,
-	          double                          delta_phi,
-	          const std::string&              aunit,
-	          double                          avx,
-	          double                          avy,
-	          double                          avz,
-	          double                          adelta_vx,
-	          double                          adelta_vy,
-	          double                          adelta_vz,
-	          const std::string&              vunit,
-	          const std::string&              randomVertexModel,
-	          const std::shared_ptr<GLogger>& log);
+	Gparticle(std::string                    name,
+	          int                            multiplicity,
+	          double                         p,
+	          double                         delta_p,
+	          const std::string&             punit,
+	          const std::string&             randomMomentumModel,
+	          double                         theta,
+	          double                         delta_theta,
+	          const std::string&             thetaModel,
+	          double                         phi,
+	          double                         delta_phi,
+	          const std::string&             aunit,
+	          double                         avx,
+	          double                         avy,
+	          double                         avz,
+	          double                         adelta_vx,
+	          double                         adelta_vy,
+	          double                         adelta_vz,
+	          const std::string&             vunit,
+	          const std::string&             randomVertexModel,
+	          std::shared_ptr<GLogger>& logger);
+
+	// explicitly delete the copy constructor/ assignment,
+	// we only move unique pointers to Gparticles
+	Gparticle(const Gparticle&)            = delete;
+	Gparticle& operator=(const Gparticle&) = delete;
+
+	~Gparticle() { log->debug(DESTRUCTOR, "Gparticle"); }
 
 private:
 	// PDG Monte Carlo Particle Numbering Scheme:
@@ -63,16 +70,17 @@ private:
 	gutilities::randomModel randomVertexModel;
 
 
-	double get_mass();
+	[[nodiscard]] double get_mass() const;
 
-	friend std::ostream& operator<<(std::ostream& os, Gparticle& gp);
+	friend std::ostream& operator<<(std::ostream& os, const Gparticle& gp);
+	std::shared_ptr<GLogger>& log;
 
 public:
 	void shootParticle(G4ParticleGun* particleGun, G4Event* anEvent, const std::shared_ptr<GLogger>& log);
 
 private:
 	// if this is used somewhere else, it should be moved to gutilities (it does require geant4)
-	double randomizeNumberFromSigmaWithModel(double center, double delta, gutilities::randomModel model) const;
+	[[nodiscard]] double randomizeNumberFromSigmaWithModel(double center, double delta, gutilities::randomModel model) const;
 
 	double calculateMomentum();
 

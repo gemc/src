@@ -10,10 +10,10 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 
-using std::string;
-using std::vector;
-using std::map;
+using SystemMap = std::map<std::string, SystemPtr>;
+
 
 /**
  * GWorld is a collection of GSystem objects and their associated modifiers.
@@ -33,30 +33,30 @@ public:
 	 *
 	 * @param gopts Pointer to options.
 	 */
-	explicit GWorld(GOptions *gopts);
-	GWorld(GOptions *gopts, const vector<GSystem>& gsystems);
+	explicit GWorld(GOptions* gopts);
+	GWorld(GOptions* g, SystemList systems);
 
 	~GWorld();
 
 	/// Returns the map of GSystem objects.
-	[[nodiscard]] map<string, GSystem *> *getSystemsMap() const { return gsystemsMap; }
+	[[nodiscard]] SystemMap* getSystemsMap() const { return gsystemsMap.get(); }
 
 	/// Returns the number of volumes (systems) in the world.
-	[[nodiscard]] int get_number_of_volumes() const { return gsystemsMap->size(); }
+	[[nodiscard]] int get_number_of_volumes() const { return static_cast<int>(gsystemsMap->size()); }
 
 	/// Returns a list of sensitive detector names.
 	vector<string> getSensitiveDetectorsList();
 
 private:
-	GOptions *gopts;
+	GOptions* gopts;
 	// Map of system name to GSystem pointers.
-	map<string, GSystem *> *gsystemsMap = nullptr;
+    std::unique_ptr<SystemMap>              gsystemsMap = std::make_unique<SystemMap>();
 	// Map of volume name to GModifier pointers.
-	map<string, GModifier *> gmodifiersMap = {};
+	std::map<std::string, std::unique_ptr<GModifier>> gmodifiersMap;
 
 	// Searches for a volume among the systems in gsystemsMap.
 	// Used in the constructor to apply modifiers.
-	[[nodiscard]] GVolume *searchForVolume(const string& volumeName, const string& purpose) const;
+	[[nodiscard]] GVolume* searchForVolume(const string& volumeName, const string& purpose) const;
 
 	/**
 	 * Creates and initializes the system factory map.
@@ -67,7 +67,7 @@ private:
 	 * @param gsystemsMap Pointer to the map of GSystem objects.
 	 * @return Pointer to the created system factory map.
 	 */
-	map<string, GSystemFactory *> *createSystemFactory(map<string, GSystem *> *gsystemsMap);
+	std::map<std::string, std::unique_ptr<GSystemFactory>> createSystemFactory(SystemMap* gsystemsMap);
 
 	// Create and initialize system factories, and load volume definitions.
 	void load_systems();
@@ -78,6 +78,6 @@ private:
 	// assign G4 names for all volumes in every system.
 	void assignG4Names();
 
-	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
+	std::shared_ptr<GLogger> log; ///< Logger instance for logging messages.
 
 };

@@ -93,7 +93,7 @@ private:
 
 	bool createG4Material(const std::unique_ptr<GMaterial>& gmaterial);
 	void buildDefaultMaterialsElementsAndIsotopes();
-	void buildMaterials(map<string, GSystem*>* system_map);
+	void buildMaterials(SystemMap* system_map);
 
 	// dependency helpers
 	G4Element* Deuterium = nullptr;
@@ -126,9 +126,9 @@ private:
 	 * @param check_overlaps Flag to enable or disable overlap checking.
 	 * @return Pointer to the created system factory map.
 	 */
-	void createG4SystemFactory(map<string, GSystem*>* gsystemsMap,
-	                           const string&          backup_material,
-	                           int                    check_overlaps);
+	void createG4SystemFactory(SystemMap*    gsystemsMap,
+	                           const string& backup_material,
+	                           int           check_overlaps);
 
 	bool build_g4volume(const GVolume* s, G4ObjectsFactory* objectFactory);
 

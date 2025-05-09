@@ -61,6 +61,8 @@ GSystem::GSystem(const std::shared_ptr<GLogger>& logger,
 	  variation(std::move(variation)),
 	  annotations(std::move(notes)) // Use 'notes' directly
 {
+	log->debug(CONSTRUCTOR, "GSystem");
+
 	// If the provided name does not include a directory, set the path to empty.
 	if (name == path || factoryName == GSYSTEMSQLITETFACTORYLABEL) {
 		path = "";

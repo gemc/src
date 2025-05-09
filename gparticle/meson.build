@@ -1,6 +1,6 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-single = '-sql=' + examples_dir + '/gemc.db'
-gsystem = '-gsystem="[{name: b1}]"'
+single = '-gparticle="[{name: e-, p: 2300, theta: 23.0}"'
+double = '-gparticle="[{name: e-, p: 2300, theta: 23.0}, {name: proton, multiplicity: 2, p: 1200, theta: 14.0, delta_theta: 10}]"'
 LD += {
     'name' : sub_dir_name,
     'sources' : files(
@@ -14,9 +14,9 @@ LD += {
                       ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'test_gparticle_single' : [files('examples/gparticle_example.cc'), [meson.current_source_dir() + '/examples/point_particle.yaml']],
-        'test_gparticle_many' : [files('examples/gparticle_example.cc'), [meson.current_source_dir() + '/examples/point_particle.yaml']],
-        'test_gparticle_many_verbosity' : [files('examples/gparticle_example.cc'), [meson.current_source_dir() + '/examples/point_particle.yaml']],
-        'test_gparticle_many_debug' : [files('examples/gparticle_example.cc'), [meson.current_source_dir() + '/examples/point_particle.yaml']],
+        'test_gparticle_single' : [files('examples/gparticle_example.cc'), [single]],
+        'test_gparticle_double' : [files('examples/gparticle_example.cc'),[double]],
+        'test_gparticle_double_verbosity' : [files('examples/gparticle_example.cc'), [double, '-verbosity.gparticle=2']],
+        'test_gparticle_double_debug' : [files('examples/gparticle_example.cc'), [double, '-debug.gparticle=true']],
     }
 }

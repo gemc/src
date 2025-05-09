@@ -2,46 +2,45 @@
 #include "gparticle_options.h"
 #include "gparticleConventions.h"
 
-#include <iostream>
-using namespace std;
-
 // namespace to define options
 namespace gparticle {
 
 // method to return a vector of GParticles from the options
-vector<Gparticle> getGParticles(GOptions* gopts, const std::shared_ptr<GLogger>& log) {
-	vector<Gparticle> gparticles;
-
+vector<GparticlePtr> getGParticles(GOptions* gopts, std::shared_ptr<GLogger>& logger) {
 	auto gparticle_node = gopts->getOptionNode("gparticle");
 
+	vector<GparticlePtr> gparticles;
+	gparticles.reserve(gparticle_node.size()); // no reallocations ⇒ no moves
+
+
 	for (auto gparticle_item : gparticle_node) {
-		gparticles.push_back(Gparticle(
-		                               gopts->get_variable_in_option<string>(gparticle_item, "name", goptions::NODFLT),
-		                               gopts->get_variable_in_option<int>(gparticle_item, "multiplicity", 1),
-		                               gopts->get_variable_in_option<float>(gparticle_item, "p", GPARTICLENOTDEFINED),
-		                               gopts->get_variable_in_option<float>(gparticle_item, "delta_p", 0),
-		                               gopts->get_variable_in_option<string>(gparticle_item, "punit", "MeV"),
-		                               gopts->get_variable_in_option<string>(gparticle_item, "randomMomentumModel", "uniform"),
+		gparticles.emplace_back(std::make_unique<Gparticle>(
+		                                                    gopts->get_variable_in_option<string>(gparticle_item, "name", goptions::NODFLT),
+		                                                    gopts->get_variable_in_option<int>(gparticle_item, "multiplicity", 1),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "p", GPARTICLENOTDEFINED),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "delta_p", 0),
+		                                                    gopts->get_variable_in_option<string>(gparticle_item, "punit", "MeV"),
+		                                                    gopts->get_variable_in_option<string>(gparticle_item, "randomMomentumModel", "uniform"),
 
-		                               gopts->get_variable_in_option<float>(gparticle_item, "theta", 0),
-		                               gopts->get_variable_in_option<float>(gparticle_item, "delta_theta", 0),
-		                               gopts->get_variable_in_option<string>(gparticle_item, "randomThetaModel", "uniform"),
-		                               gopts->get_variable_in_option<float>(gparticle_item, "phi", 0),
-		                               gopts->get_variable_in_option<float>(gparticle_item, "delta_phi", 0),
-		                               gopts->get_variable_in_option<string>(gparticle_item, "aunit", "deg"),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "theta", 0),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "delta_theta", 0),
+		                                                    gopts->get_variable_in_option<string>(gparticle_item, "randomThetaModel", "uniform"),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "phi", 0),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "delta_phi", 0),
+		                                                    gopts->get_variable_in_option<string>(gparticle_item, "aunit", "deg"),
 
-		                               gopts->get_variable_in_option<float>(gparticle_item, "vx", 0),
-		                               gopts->get_variable_in_option<float>(gparticle_item, "vy", 0),
-		                               gopts->get_variable_in_option<float>(gparticle_item, "vz", 0),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "vx", 0),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "vy", 0),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "vz", 0),
 
-		                               gopts->get_variable_in_option<float>(gparticle_item, "delta_vx", 0),
-		                               gopts->get_variable_in_option<float>(gparticle_item, "delta_vy", 0),
-		                               gopts->get_variable_in_option<float>(gparticle_item, "delta_vz", 0),
-		                               gopts->get_variable_in_option<string>(gparticle_item, "vunit", "cm"),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "delta_vx", 0),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "delta_vy", 0),
+		                                                    gopts->get_variable_in_option<float>(gparticle_item, "delta_vz", 0),
+		                                                    gopts->get_variable_in_option<string>(gparticle_item, "vunit", "cm"),
 
-		                               gopts->get_variable_in_option<string>(gparticle_item, "randomVertexModel", "uniform"),
-		                               log
-		                              ));
+		                                                    gopts->get_variable_in_option<string>(gparticle_item, "randomVertexModel", "uniform"),
+		                                                    logger
+		                                                   ));
 	}
 
 	return gparticles;

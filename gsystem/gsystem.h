@@ -45,28 +45,26 @@ public:
 	        std::string                     annotations = "none"
 	);
 
-	/**
-	 * @brief Default constructor
-	 */
-	GSystem() = default;
+
 
 	/**
-	 * @brief Deep copy constructor
+	 * @brief Deep copy constructor (used only by clone())
 	 */
 	GSystem(const GSystem& other); // copy constructor
 
 
-	/**
-	 * @brief Default move constructor
-	 * Needed because we are moving the unique pointers GVolume (unique cannot be copied)
-	 */
-	GSystem(GSystem&&) = default;
+	// move operations: defaulted
+	GSystem(GSystem&&) noexcept            = default;
+	GSystem& operator=(GSystem&&) noexcept = default;
 
-	/**
-     * @brief Default Move assignment operator
-     */
-	GSystem& operator=(GSystem&&) = default;
+	// **disable copying**
+	GSystem& operator=(const GSystem&) = delete;
 
+	// simple deep‑copy helper
+	[[nodiscard]] std::unique_ptr<GSystem> clone() const
+	{
+		return std::make_unique<GSystem>(*this);   // invokes copy‑ctor
+	}
 
 	~GSystem() { log->debug(DESTRUCTOR, "GSystem"); }
 

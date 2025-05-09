@@ -1,2 +1,0 @@
-- fix GParticle stream output, not working in MT. Maybe should be StateMessage?
-- add CI for spread of momentum, theta, phi, vertexes using all available combinations

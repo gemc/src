@@ -5,8 +5,6 @@
 // glibrary
 #include "gutilities.h"
 
-using namespace gutilities;
-
 // geant4 version
 #include "G4Version.hh"
 

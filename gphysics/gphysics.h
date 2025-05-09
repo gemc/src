@@ -11,7 +11,7 @@
 class GPhysics {
 public:
 
-    GPhysics(GOptions *gopts);
+    GPhysics(GOptions *gopts, std::shared_ptr<GLogger> log);
 
     ~GPhysics();
 
@@ -19,7 +19,7 @@ public:
 
 private:
     // logs physics modules and constructors
-    void printAvailable();
+    void printAvailable(std::shared_ptr<GLogger> log);
 
     G4VModularPhysicsList *physList;
 };

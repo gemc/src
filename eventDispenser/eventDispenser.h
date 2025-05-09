@@ -32,7 +32,6 @@ public:
 	 */
 	~EventDispenser() {
 		log->debug(DESTRUCTOR, "EventDispenser");
-	//	delete log;
 	}
 
 private:

@@ -1,12 +1,13 @@
-#ifndef  GPHYSICS_H_OPTIONS
-#define  GPHYSICS_H_OPTIONS 1
+#pragma once
 
 // glibrary
 #include "goptions.h"
+
+constexpr const char* GPHYSICS_LOGGER = "gphysics";
 
 namespace gphysics {
 
     GOptions defineOptions();
 
 }
-#endif
+

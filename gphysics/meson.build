@@ -3,11 +3,11 @@ LD += {
     'name' : sub_dir_name,
     'sources' : files(
                           'gphysics.cc',
-                          'gphysicsOptions.cc'
+                          'gphysics_options.cc'
                       ),
     'headers' : files(
                           'gphysics.h',
-                          'gphysicsOptions.h',
+                          'gphysics_options.h',
                           'gphysicsConventions.h'
                       ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps, ogl_deps, sqlite_dep, expat_dep],
