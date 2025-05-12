@@ -1,5 +1,4 @@
-#ifndef G4DISPLAY_H
-#define G4DISPLAY_H 1
+#pragma once
 
 // Standard Library
 #include <memory> // Required for std::unique_ptr
@@ -45,5 +44,3 @@ private:
 	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 
 };
-
-#endif // G4DISPLAY_H

@@ -14,7 +14,7 @@
 
 GWorld::GWorld(GOptions* g)
     : gopts(g),
-      log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER)) {
+      log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER, "GWorld [new]")) {
     log->debug(CONSTRUCTOR, "GWorld");
 
     //------------------------------------------------------------------
@@ -41,7 +41,7 @@ GWorld::GWorld(GOptions* g)
 GWorld::GWorld(GOptions* g, SystemList systems)
 	: gopts(g),
 	  gsystemsMap(std::make_unique<SystemMap>()),
-	  log(std::make_shared<GLogger>(g, "GWorld")) {
+	  log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER, "GWorld [update]")) {
 	//------------------------------------------------------------------
 	// Move each unique_ptr<GSystem> from the vector into the map
 	//------------------------------------------------------------------

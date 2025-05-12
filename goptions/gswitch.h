@@ -1,5 +1,4 @@
-#ifndef GSWITCH_H
-#define GSWITCH_H 1
+#pragma once
 
 #include <string>
 
@@ -76,4 +75,3 @@ private:
 
 };
 
-#endif

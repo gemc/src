@@ -18,7 +18,7 @@
 int main(int argc, char* argv[]) {
 	// Initialize options and logging
 	auto gopts = new GOptions(argc, argv, g4display::defineOptions());
-	auto log   = new GLogger(gopts, G4DISPLAY_LOGGER);
+	auto log   = new GLogger(gopts, G4DISPLAY_LOGGER, "g4display example");
 	log->info(0, "g4display", "Starting g4display example...", gopts);
 
 	// Optional GUI setup (only if --gui is passed)

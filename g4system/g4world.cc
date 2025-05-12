@@ -20,7 +20,8 @@
 
 
 G4World::G4World(const GWorld* gworld, GOptions* gopts)
-	: log(std::make_shared<GLogger>(gopts, G4SYSTEM_LOGGER)) {
+	: log(std::make_shared<GLogger>(gopts, GSYSTEM_LOGGER, "G4World Constructor")) {
+
 	log->debug(CONSTRUCTOR, "G4World");
 
 	auto gsystemMap = gworld->getSystemsMap();
@@ -101,30 +102,12 @@ G4World::G4World(const GWorld* gworld, GOptions* gopts)
 		}
 		else { allRemainingVolumes = thisIterationRemainingVolumes.size(); }
 	}
-	while
-	(
-		!
-		thisIterationRemainingVolumes
-		.
-		empty()
-	);
+	while (!thisIterationRemainingVolumes.empty());
 
 
-	if
-	(gopts
-		->
-		getSwitch(
-		          "showPredefinedMaterials"
-		         )
-	) { G4NistManager::Instance()->ListMaterials("all"); }
+	if (gopts->getSwitch("showPredefinedMaterials")) { G4NistManager::Instance()->ListMaterials("all"); }
 
-	if
-	(gopts
-		->
-		getSwitch(
-		          "printSystemsMaterials"
-		         )
-	) {
+	if (gopts->getSwitch("printSystemsMaterials")) {
 		auto matTable = (G4MaterialTable*)G4Material::GetMaterialTable();
 		for (auto thisMat : *matTable) {
 			log->info(0, 2, "G4World: GEMC Material: <", thisMat->GetName(), ">, density: ",

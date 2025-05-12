@@ -15,8 +15,6 @@ GTouchable::GTouchable(const std::string &digitization, const std::string &giden
 		stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),
 		detectorDimensions(dimensions) {
 
-	log->debug(NORMAL, "GTouchable constructor: ", digitization, " ", gidentityString);
-
 	// Determine the type based on the digitization string.
 	if (digitization == FLUXNAME) {
 		gType = flux;
@@ -41,6 +39,7 @@ GTouchable::GTouchable(const std::string &digitization, const std::string &giden
 
 		gidentity.emplace_back(idName, idValue);
 	}
+	log->debug(CONSTRUCTOR, "GTouchable", to_string(gType), " ",  getIdentityString());
 
 }
 
@@ -48,12 +47,16 @@ GTouchable::GTouchable(const std::string &digitization, const std::string &giden
 // Copy constructor to create a new hit, in case the time indices differ.
 // Used in the non-overloaded processTouchable when time indices differ.
 GTouchable::GTouchable(const GTouchable *baseGT, int newTimeIndex) : log(baseGT->log)  {
+
 	gType = baseGT->gType;
 	gidentity = baseGT->gidentity;
 	trackId = baseGT->trackId;
 	eMultiplier = baseGT->eMultiplier;
 	detectorDimensions = baseGT->detectorDimensions;
 	stepTimeAtElectronicsIndex = newTimeIndex;
+
+	log->debug(CONSTRUCTOR, "GTouchable", to_string(gType), " ",  getIdentityString());
+
 }
 
 // Overloaded "==" operator for the class 'GTouchable'

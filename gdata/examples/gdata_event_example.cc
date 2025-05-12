@@ -37,8 +37,8 @@ int main(int argc, char* argv[]) {
 	auto gopts = new GOptions(argc, argv, gdata::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	auto log  = std::make_shared<GLogger>(gopts, DATA_LOGGER);
-	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER);
+	auto log  = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gdata example GEventDataCollection");
+	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gdata example GTouchable");
 
 	int nevents = 10;
 
@@ -93,7 +93,6 @@ int main(int argc, char* argv[]) {
 
 	for (auto event : *runData) { delete event; }
 	// cleanup
-	// deleting log here gives error on linux. should be investigated
 	delete runData;
 	delete gopts;
 

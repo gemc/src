@@ -9,7 +9,7 @@
 int main(int argc, char *argv[]) {
 
 	auto gopts = new GOptions(argc, argv, gtouchable::defineOptions());
-	auto log = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER);
+	auto log = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "ghit_example");
 
 	HitBitSet hitBitSet;
 

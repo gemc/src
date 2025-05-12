@@ -1,17 +1,10 @@
 // geant4
 #include "G4VisExecutive.hh"
 #include "G4RunManagerFactory.hh"
-#include "FTFP_BERT.hh"
-#include "G4StepLimiterPhysics.hh"
 
 // g4dialog
 #include "g4dialog.h"
 #include "g4dialog_options.h"
-#include "gui_session.h"
-
-// c++
-#include <iostream>
-using namespace std;
 
 // qt
 #include <QApplication>
@@ -20,7 +13,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
 
 	auto gopts = new GOptions(argc, argv, g4dialog::defineOptions());
-	auto log = new GLogger(gopts, G4DIALOG_LOGGER);
+	auto log = std::make_shared<GLogger>(gopts, G4DIALOG_LOGGER, "g4dialog example");
 
 	QApplication app(argc, argv);
 
@@ -47,5 +40,7 @@ int main(int argc, char* argv[]) {
 	delete window;
 	delete visManager;
 	delete gopts;
+
 	return EXIT_SUCCESS;
+
 }

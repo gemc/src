@@ -1,5 +1,4 @@
-#ifndef  G4DIALOG_H
-#define  G4DIALOG_H  1
+#pragma once
 
 // g4dialog
 #include "tabs/gboard.h"
@@ -19,14 +18,11 @@ public:
     ~G4Dialog() override {
 		log->debug(DESTRUCTOR, "G4Dialog");
 		delete gboard;
-		delete log;
 	}
 
 private:
-	GLogger * const log;
+	std::shared_ptr<GLogger> log;
 	GBoard* gboard;
 	GUI_Session *gui_session;
 };
 
-
-#endif

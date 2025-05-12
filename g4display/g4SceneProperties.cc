@@ -31,7 +31,7 @@ using namespace std;
  *
  * \param gopts Pointer to the global options object.
  */
-G4SceneProperties::G4SceneProperties(GOptions* gopts): log(std::make_shared<GLogger>(gopts, G4DISPLAY_LOGGER)) {
+G4SceneProperties::G4SceneProperties(GOptions* gopts): log(std::make_shared<GLogger>(gopts, G4DISPLAY_LOGGER, "G4SceneProperties")) {
 
 	log->debug(CONSTRUCTOR, "G4SceneProperties");
 

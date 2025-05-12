@@ -1,5 +1,4 @@
-#ifndef GTRANSLATIONTABLE_H
-#define GTRANSLATIONTABLE_H  1
+#pragma once
 
 // gemc
 #include "gelectronic.h"
@@ -23,7 +22,7 @@ public:
 	 * \brief Constructor.
 	 * \param logger Pointer to a logger instance for logging messages.
 	 */
-	GTranslationTable(GLogger *logger) : log(logger) {
+	GTranslationTable(std::shared_ptr<GLogger> logger) : log(logger) {
 		log->debug(CONSTRUCTOR, "GTranslationTable");
 	}
 
@@ -66,9 +65,8 @@ private:
 	std::string formTTKey(const std::vector<int>& identity) const;
 
 	/// Pointer to a logger instance for logging messages.
-	GLogger * const log;
+	std::shared_ptr<GLogger> log;
 
 };
 
 
-#endif

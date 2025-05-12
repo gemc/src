@@ -34,17 +34,17 @@ public:
 	 * @param gopts Pointer to GOptions instance used for verbosity/debug lookup.
 	 * @param vname The verbosity or debyg name is a string used to identify the logger and as header for all messages
 	 */
-	explicit GLogger(GOptions* gopts, std::string vname)
-		: name(vname), log_counter{0} {
-		verbosity_level = gopts->getVerbosityFor(name);
-		debug_level     = gopts->getDebugFor(name);
-		debug(CONSTRUCTOR, name, " logger");
+	explicit GLogger(GOptions* gopts, std::string vname, std::string cc)
+		: verbosity_name(std::move(vname)), calling_class(std::move(cc)), log_counter{0} {
+		verbosity_level = gopts->getVerbosityFor(verbosity_name);
+		debug_level     = gopts->getDebugFor(verbosity_name);
+		debug(CONSTRUCTOR, calling_class, " logger");
 	}
 
 	// default constructor
 	GLogger() = default;
 
-	~GLogger() { debug(DESTRUCTOR, name, " logger"); }
+	~GLogger() { debug(DESTRUCTOR, calling_class, " logger"); }
 
 	/**
 	 * \brief Logs a debug message if the debug level is nonzero.
@@ -69,15 +69,15 @@ public:
 
 		switch (type) {
 		case NORMAL:
-			G4cout << KMAG << header_string() << oss.str() << RST << G4endl;
+			G4cout << KMAG << header_string() << "DEBUG " << oss.str() << RST << G4endl;
 			break;
 		case CONSTRUCTOR:
-			G4cout << KCYN << header_string() << CONSTRUCTORLOG << " constructor " << CONSTRUCTORLOG << " " << RST <<
-				oss.str() << G4endl;
+			G4cout << KCYN << header_string() << "CONSTRUCTOR " <<
+				CONSTRUCTORLOG << oss.str() << CONSTRUCTORLOG << RST << G4endl;
 			break;
 		case DESTRUCTOR:
-			G4cout << KCYN << header_string() << DESTRUCTORLOG << " destructor " << DESTRUCTORLOG << " " << RST << oss.
-				str() << G4endl;
+			G4cout << KCYN << header_string() << "DESTRUCTOR " <<
+				DESTRUCTORLOG << oss.str() << DESTRUCTORLOG << RST << G4endl;
 			break;
 		}
 	}
@@ -103,7 +103,7 @@ public:
 		if (level == 0 || (level == 1 && verbosity_level > 0) || (level == 2 && verbosity_level > 1)) {
 			std::ostringstream oss;
 			(oss << ... << std::forward<Args>(args));
-			G4cout << header_string() << oss.str() << G4endl;
+			G4cout  << header_string() <<  "INFO L" << level << " " << oss.str() << G4endl;
 		}
 	}
 
@@ -163,7 +163,8 @@ public:
 	}
 
 private:
-	std::string name;              ///< Prefix for all messages
+	std::string verbosity_name;    ///< Verbosity name
+	std::string calling_class;     ///< Class name calling the logger constructor
 	int         verbosity_level{}; ///< Verbosity level (0 = low, >0 = detailed)
 	int         debug_level{};     ///< Debug level: 0 = off, 1 = normal, 10/-10 = ctor/dtor
 
@@ -178,7 +179,6 @@ private:
 	 */
 	[[nodiscard]] std::string header_string() const {
 		log_counter++;
-		return name + " [" + std::to_string(log_counter.load()) + "] ";
+		return calling_class + " [" + std::to_string(log_counter.load()) + "]: ";
 	}
 };
-

@@ -24,9 +24,7 @@
 #include "eventDispenser.h"
 #include "eventDispenser_options.h"
 #include "goptions.h"
-#include "glogger.h"
 
-#include <iostream>
 #include <map>
 #include <string>
 
@@ -37,7 +35,7 @@ int main(int argc, char *argv[]) {
 	auto gopts = new GOptions(argc, argv, eventDispenser::defineOptions());
 
 	// Create a logger for the EventDispenser module.
-	auto log = new GLogger(gopts, EVENTDISPENSER_LOGGER);
+	auto log = std::make_unique<GLogger>(gopts, EVENTDISPENSER_LOGGER, "eventDispenser example");
 
 	// For demonstration, create an empty global map of dynamic digitization plugins.
 	// In a full simulation, this map would be populated with actual GDynamicDigitization plugins.
@@ -54,7 +52,6 @@ int main(int argc, char *argv[]) {
 
 	// Cleanup: delete dynamically allocated objects.
 	delete gopts;
-	delete log;
 	delete gDynamicMap;
 
 	return EXIT_SUCCESS;

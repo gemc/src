@@ -8,7 +8,7 @@
 int main(int argc, char* argv[]) {
 
     auto gopts = new GOptions(argc, argv, g4system::defineOptions());
-	auto log   = std::make_shared<GLogger>(gopts, G4SYSTEM_LOGGER);
+	auto log   = std::make_shared<GLogger>(gopts, G4SYSTEM_LOGGER, "g4system_example");
 
 	auto gworld = new GWorld(gopts);
 	auto g4world = new G4World(gworld, gopts);

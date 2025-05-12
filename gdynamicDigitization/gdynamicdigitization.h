@@ -294,9 +294,9 @@ public:
 	 */
 	void set_loggers(GOptions* const g) {
 		gopts       = g;
-		data_logger = std::make_shared<GLogger>(gopts.value(), DATA_LOGGER);
-		tt_logger   = std::make_shared<GLogger>(gopts.value(), TRANSLATIONTABLE_LOGGER);
-		digi_logger = std::make_shared<GLogger>(gopts.value(), GDIGITIZATION_LOGGER);
+		data_logger = std::make_shared<GLogger>(gopts.value(), DATA_LOGGER, "data logger");
+		tt_logger   = std::make_shared<GLogger>(gopts.value(), TRANSLATIONTABLE_LOGGER, "tt logger");
+		digi_logger = std::make_shared<GLogger>(gopts.value(), GDIGITIZATION_LOGGER, "digi logger");
 	}
 
 protected:

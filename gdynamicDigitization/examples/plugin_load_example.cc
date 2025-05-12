@@ -16,8 +16,8 @@ int main(int argc, char *argv[]) {
 	auto gopts = new GOptions(argc, argv, gdynamicdigitization::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	auto log = new GLogger(gopts, GDIGITIZATION_LOGGER);
-	auto plugin_log = std::make_shared<GLogger>(gopts, PLUGIN_LOGGER);
+	auto log = new GLogger(gopts, GDIGITIZATION_LOGGER, "plugin_load_example: main");
+	auto plugin_log = std::make_shared<GLogger>(gopts, PLUGIN_LOGGER, "plugin_load_example: plugin manager");
 
     GManager manager(plugin_log, GDIGITIZATION_LOGGER);
 

@@ -1,5 +1,4 @@
-#ifndef CAR_H
-#define CAR_H 1
+#pragma once
 
 #include "gdl.h"
 
@@ -32,5 +31,3 @@ public:
     }
 };
 
-
-#endif // CAR_H

@@ -1,5 +1,4 @@
-#ifndef SECONDFACTORY_H
-#define SECONDFACTORY_H 1
+#pragma once
 
 #include "Car.h"
 
@@ -15,5 +14,3 @@ extern "C" Car* CarFactory(void) {
 	return static_cast<Car*>(new Tesla);
 }
 
-
-#endif // SECONDFACTORY_H

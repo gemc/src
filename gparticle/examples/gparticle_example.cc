@@ -8,7 +8,7 @@
 
 int main(int argc, char* argv[]) {
 	auto gopts = new GOptions(argc, argv, gparticle::defineOptions());
-	auto log   = std::make_shared<GLogger>(gopts, GPARTICLE_LOGGER);
+	auto log   = std::make_shared<GLogger>(gopts, GPARTICLE_LOGGER, "gparticle example: main");
 
 	auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 	auto physicsList = new QBBC;

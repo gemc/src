@@ -3,7 +3,7 @@
 
 #include <QRegularExpression>
 
-GUI_Session::GUI_Session(GOptions *gopt, GBoard* b) : board(b), log(new GLogger(gopt, G4DIALOG_LOGGER)) {
+GUI_Session::GUI_Session(GOptions *gopt, GBoard* b) : board(b), log(new GLogger(gopt, G4DIALOG_LOGGER, "GUI_Session")) {
 
   	log->debug(CONSTRUCTOR, "GUI_Session");
 	log->info(0, " g4 dialog : GUI_Session created");

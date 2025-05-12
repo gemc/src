@@ -1,6 +1,4 @@
-#ifndef  GFIELDS_H_CONVENTIONS
-#define  GFIELDS_H_CONVENTIONS 1
-
+#pragma once
 
 #define GFIELD_DEFAULT_INTEGRATION_STEPPER "G4DormandPrince745"
 #define GFIELD_DEFAULT_MINIMUM_STEP "1.0*mm"
@@ -22,7 +20,3 @@
 #define EC__WRONG_POLE_NUMBER 1204
 
 
-#define GFIELDLOGHEADER  "   🧲 GField ▸ "
-
-
-#endif

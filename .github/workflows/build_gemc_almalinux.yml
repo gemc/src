@@ -16,7 +16,7 @@ on:
 jobs:
   build-on-almalinux:
     runs-on: ubuntu-latest
-    container: jeffersonlab/geant4:g4v11.3.0-almalinux94
+    container: jeffersonlab/geant4:g4v11.3.1-almalinux94
 
     steps:
       - name: Checkout

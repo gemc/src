@@ -1,5 +1,4 @@
-#ifndef GFIELD_MULTIPOLES_FACTORY_H
-#define GFIELD_MULTIPOLES_FACTORY_H 1
+#pragma once
 
 // gemc
 #include "gfield.h"
@@ -37,4 +36,4 @@ private:
 
 };
 
-#endif
+

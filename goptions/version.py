@@ -17,8 +17,7 @@ def get_git_version():
 
 def generate_header_file(version, release_date):
     header_content = f"""\
-#ifndef VERSION_H
-#define VERSION_H
+#pragma once
 
 const char* gversion = "{version}";
 const char* grelease_date = "{release_date}";
@@ -26,7 +25,6 @@ const char* greference = "Nucl. Instrum. Meth. A, Volume 959, 163422 (2020)";
 const char* gweb = "https://gemc.github.io/home";
 const char* gauthor = "Maurizio Ungaro, ungaro@jlab.org";
 
-#endif // VERSION_H
 """
     with open('gversion.h', 'w') as header_file:
         header_file.write(header_content)

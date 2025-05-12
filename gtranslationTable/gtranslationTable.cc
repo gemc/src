@@ -3,12 +3,6 @@
 #include "gtranslationTableConventions.h"
 
 
-// c++
-#include <iostream>
-
-using namespace std;
-
-
 /**
  * \brief Forms the translation table key from the given identity vector.
  *
@@ -58,7 +52,7 @@ void GTranslationTable::addGElectronicWithIdentity(const std::vector<int> &ident
 
 	log->debug(NORMAL, "Translation Table:");
 	for (auto &thisItem: tt) {
-		log->debug(NORMAL, GTAB, "<", thisItem.first, "> ", thisItem.second);
+		log->debug(NORMAL, GTAB, "<", thisItem.first, ">  ⇢ ", thisItem.second);
 	}
 }
 

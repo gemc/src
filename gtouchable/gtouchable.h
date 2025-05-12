@@ -4,9 +4,9 @@
 #include "glogger.h"
 
 // c++
+#include <utility>
 #include <vector>
 #include <string>
-#include <iostream>
 
 // - readout: electronic Time Window is the discriminating factor.
 //   parameters and hitBitSet determined by defineReadoutSpecs in the plugin
@@ -17,7 +17,7 @@
 
 
 /**
- * @brief Enumeration representing the type of a GTouchable element.
+ * @brief Enumeration representing the type of GTouchable element.
  *
  * Defines different types of sensitive detector elements.
  */
@@ -27,6 +27,20 @@ enum GTouchableType {
 	particleCounter,  ///< No additional discriminating factors.
 	dosimeter         ///< Radiation digitization using track id.
 };
+
+// ------------------------------------------------------------------------
+// Convert enum to string for logging / debugging.
+// ------------------------------------------------------------------------
+inline const char* to_string(GTouchableType t)
+{
+	switch (t) {
+	case GTouchableType::readout:          return "readout";
+	case GTouchableType::flux:             return "flux";
+	case GTouchableType::particleCounter:  return "particleCounter";
+	case GTouchableType::dosimeter:        return "dosimeter";
+	default:                               return "unknown‑gtouchable";
+	}
+}
 
 /**
  * @brief Represents a unique identifier for a sensitive detector element.
@@ -42,7 +56,7 @@ public:
 	 * @param n The identifier name.
 	 * @param v The identifier value.
 	 */
-	GIdentifier(std::string n, int v) : idName{n}, idValue{v} {}
+	GIdentifier(std::string n, int v) : idName{std::move(n)}, idValue{v} {}
 
 	/**
 	 * @brief Equality operator comparing only the identifier value.
@@ -55,13 +69,13 @@ public:
 	 * @brief Gets the identifier name.
 	 * @return The identifier name.
 	 */
-	inline std::string getName() const { return idName; }
+	[[nodiscard]] inline std::string getName() const { return idName; }
 
 	/**
 	 * @brief Gets the identifier value.
 	 * @return The identifier value.
 	 */
-	inline int getValue() const { return idValue; }
+	[[nodiscard]] inline int getValue() const { return idValue; }
 
 
 private:
@@ -113,7 +127,7 @@ public:
 	GTouchable(const GTouchable *baseGT, int newTimeIndex);
 
 	~GTouchable() {
-		log->debug(DESTRUCTOR, "GTouchable");
+		log->debug(DESTRUCTOR, "GTouchable", to_string(gType), " ", getIdentityString());
 	}
 
 	/**
@@ -137,7 +151,7 @@ public:
 	* @brief Gets the energy multiplier.
  	* @return The energy multiplier.
  	*/
-	inline float getEnergyMultiplier() const { return eMultiplier; }
+	[[nodiscard]] inline float getEnergyMultiplier() const { return eMultiplier; }
 
 	/**
  	* @brief Assigns the step time index used in electronics.
@@ -149,19 +163,31 @@ public:
 	* @brief Gets the electronics time index.
 	* @return The step time index.
 	*/
-	inline int getStepTimeAtElectronicsIndex() const { return stepTimeAtElectronicsIndex; }
+	[[nodiscard]] inline int getStepTimeAtElectronicsIndex() const { return stepTimeAtElectronicsIndex; }
 
 	/**
 	* @brief Returns the identifier vector.
 	* @return A vector of GIdentifier objects.
 	*/
-	inline const std::vector<GIdentifier> getIdentity() const { return gidentity; }
+	[[nodiscard]] inline std::vector<GIdentifier> getIdentity() const { return gidentity; }
+
+	/**
+	* @brief Returns a string formed by all identifiers.
+	* @return A vector of GIdentifier objects.
+	*/
+	[[nodiscard]] inline std::string getIdentityString() const {
+		std::string idString;
+		for (const auto &id: gidentity) {
+			idString += id.getName() + ": " + std::to_string(id.getValue()) + " ";
+		}
+		return idString;
+	}
 
 	/**
 	* @brief Returns the detector dimensions.
 	* @return A vector containing the dimensions.
 	*/
-	inline const std::vector<double> getDetectorDimensions() const { return detectorDimensions; }
+	[[nodiscard]] inline  std::vector<double> getDetectorDimensions() const { return detectorDimensions; }
 
 	/**
 	 * @brief Checks if the GTouchable is found in a vector of GTouchable objects.
@@ -169,7 +195,7 @@ public:
 	 * @return True if the GTouchable is found in the vector.
 	 */
 
-	bool exists_in_vector(const std::vector<GTouchable> &v) const {
+	[[nodiscard]] bool exists_in_vector(const std::vector<GTouchable> &v) const {
 		for (const auto &gt: v) {
 			if (*this == gt) {
 				log->info("GTouchable", this, " exists in vector.");

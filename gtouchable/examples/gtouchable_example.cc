@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[]) {
 	auto gopts = new GOptions(argc, argv, gtouchable::defineOptions());
-	auto log   = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER);
+	auto log   = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gtouchable example");
 
 	string         first_identity   = "sector: 98, paddle: 98";
 	vector<double> first_dimensions = {1.0, 20.0, 98.0};
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
 		if (i % 10 == 0) { log->info(" GTouchable: ", ctof, " is equal: ", is_equal); }
 	}
 
-	// clean up
+	// clean up,
 	// deleting log here gives error on linux. should be investigated
 	delete gopts;
 

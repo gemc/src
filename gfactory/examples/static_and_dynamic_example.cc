@@ -9,10 +9,9 @@
 int main(int argc, char *argv[]) {
 
 	auto gopts = new GOptions(argc, argv, gfactory::defineOptions());
+	auto log = std::make_shared<GLogger>(gopts, PLUGIN_LOGGER, "plugin_example");
 
-	auto log = std::make_shared<GLogger>(gopts, PLUGIN_LOGGER);
-
-	GManager managerAV(log, "exampleAV");    // no verbosity
+	GManager managerAV(log, "GManager Static");
 	managerAV.RegisterObjectFactory<Triangle>("triangle");
 	managerAV.RegisterObjectFactory<Box>("box1");
 	managerAV.RegisterObjectFactory<Box>("box2");
@@ -41,7 +40,7 @@ int main(int argc, char *argv[]) {
 	// B manages Cars. Notice, we do not need the derived class headers here!
 	// PRAGMA: These two names must match in registerDL and in LoadAndRegisterObjectFromLibrary:
 	// that's ok but need to spit error if that doesn't happen
-	GManager managerB(log, "exampleB");
+	GManager managerB(log, "GManager Dynamic");
 
 	map<string, Car *> ggg;
 	ggg["tesla"] = managerB.LoadAndRegisterObjectFromLibrary<Car>("test_dyn_factory1");

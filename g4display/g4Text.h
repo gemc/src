@@ -1,5 +1,4 @@
-#ifndef  G4TEXT_H_OPTIONS
-#define  G4TEXT_H_OPTIONS 1
+#pragma once
 
 // g4display
 #include "g4displayConventions.h"
@@ -27,5 +26,3 @@ namespace g4display {
     GOptions addSceneTextsOptions();
 
 }
-
-#endif

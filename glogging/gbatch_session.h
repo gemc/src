@@ -1,5 +1,4 @@
-#ifndef GSESSION_H
-#define GSESSION_H 1
+#pragma once
 
 // geant4
 #include "G4UIsession.hh"
@@ -38,4 +37,3 @@ private:
 	std::ofstream errFile;
 };
 
-#endif

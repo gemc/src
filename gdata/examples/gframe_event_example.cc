@@ -38,8 +38,8 @@ int main(int argc, char *argv[]) {
 	// Create GOptions using gdata's defineOptions.
 	auto gopts = new GOptions(argc, argv, gdata::defineOptions());
 
-	auto log = std::make_shared<GLogger>(gopts, DATA_LOGGER);
-	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER);
+	auto log = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gdata example: GFrameDataCollection");
+	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gdata example: GTouchable");
 
 	// Define a frame with a frame ID and frame duration.
 	long int frameID = 1;

@@ -12,7 +12,7 @@
 #include <QTextBlock>
 
 GBoard::GBoard(GOptions *gopt, QWidget *parent)
-		: QWidget(parent), log(new GLogger(gopt, G4DIALOG_LOGGER)) {
+		: QWidget(parent), log(new GLogger(gopt, G4DIALOG_LOGGER, "GBoard")) {
 
 	log->debug(CONSTRUCTOR, "GBoard");
 
