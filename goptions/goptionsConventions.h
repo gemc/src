@@ -1,5 +1,4 @@
-#ifndef  GOPTIONS_CONVENTIONS_H
-#define  GOPTIONS_CONVENTIONS_H  1
+#pragma once
 
 #define HELPFILLSPACE "                               "
 
@@ -20,5 +19,3 @@ namespace goptions {
     const std::string NODFLT = "NODFLT";
 }
 
-
-#endif

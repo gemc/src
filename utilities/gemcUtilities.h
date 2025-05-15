@@ -1,5 +1,4 @@
-#ifndef GEMCUTILITIES_H
-#define GEMCUTILITIES_H 1
+#pragma once
 
 // qt
 #include <QApplication>
@@ -31,5 +30,3 @@ vector<string> startingUIMCommands(bool gui, int checkForOverlaps);
 void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity);
 
 void startRandomEngine(GOptions* gopts);
-
-#endif

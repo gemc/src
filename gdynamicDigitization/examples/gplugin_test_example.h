@@ -1,5 +1,4 @@
-#ifndef GPLUGIN_TEST_EXAMPLE
-#define GPLUGIN_TEST_EXAMPLE 1
+#pragma once
 
 // gdynamic
 #include "gdynamicdigitization.h"
@@ -29,4 +28,3 @@ extern "C" GDynamicDigitization* GDynamicDigitizationFactory(void) {
     return static_cast<GDynamicDigitization*>(new GPlugin_test_example);
 }
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef GRUN_H
-#define GRUN_H 1
+#pragma once
 
 // geant4
 #include "G4Run.hh"
@@ -41,6 +40,3 @@ public:
 	inline vector<GEventDataCollection*> getRunData() const {return runData;}
 
 };
-
-
-#endif

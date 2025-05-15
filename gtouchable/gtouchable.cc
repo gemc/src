@@ -56,7 +56,6 @@ GTouchable::GTouchable(const GTouchable *baseGT, int newTimeIndex) : log(baseGT-
 	stepTimeAtElectronicsIndex = newTimeIndex;
 
 	log->debug(CONSTRUCTOR, "GTouchable", to_string(gType), " ",  getIdentityString());
-
 }
 
 // Overloaded "==" operator for the class 'GTouchable'
@@ -108,7 +107,6 @@ bool GTouchable::operator==(const GTouchable &that) const {
 			log->debug(NORMAL, "    Touchable type is particleCounter. No additional comparison needed, returning true  ✅");
 			break;
 	}
-
 	return typeComparison;
 }
 

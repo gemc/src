@@ -1,5 +1,4 @@
-#ifndef DEFINEOPTIONS_H
-#define DEFINEOPTIONS_H 1
+#pragma once
 
 // glibrary
 #include "goptions.h"
@@ -14,4 +13,3 @@ namespace gemc {
 }
 
 
-#endif

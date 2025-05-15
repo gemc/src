@@ -1,5 +1,4 @@
-#ifndef  GTRANSLATIONTABLE_OPTIONS_H
-#define  GTRANSLATIONTABLE_OPTIONS_H 1
+#pragma once
 
 #include "goptions.h"
 
@@ -11,5 +10,3 @@ namespace gtranslationTable {
 GOptions defineOptions();
 
 }
-
-#endif

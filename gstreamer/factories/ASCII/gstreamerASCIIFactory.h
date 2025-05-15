@@ -1,5 +1,4 @@
-#ifndef GSTREAMERTXTFACTORY_H
-#define GSTREAMERTXTFACTORY_H 1
+#pragma once
 
 // gstreamer
 #include "gstreamer.h"
@@ -39,6 +38,4 @@ private:
 private:
 	ofstream *ofile = nullptr;
 };
-
-#endif // GSTREAMERTXTFACTORY_H
 

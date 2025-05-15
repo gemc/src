@@ -1,5 +1,4 @@
-#ifndef GREADOUTSPECS_H
-#define GREADOUTSPECS_H 1
+#pragma once
 
 /**
  * \file GReadoutSpecs.h
@@ -93,4 +92,4 @@ public:
 	}
 };
 
-#endif
+

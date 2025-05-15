@@ -1,5 +1,4 @@
-#ifndef GDYNAMICDIGITIZATION_OPTIONS_H
-#define GDYNAMICDIGITIZATION_OPTIONS_H 1
+#pragma once
 
 /**
  * \file gdynamicdigitization_options.h
@@ -27,4 +26,3 @@ GOptions defineOptions();
 
 } // namespace gdynamicdigitization
 
-#endif

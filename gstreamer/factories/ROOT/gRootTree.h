@@ -1,5 +1,4 @@
-#ifndef GROOTTREE_H
-#define GROOTTREE_H 1
+#pragma once
 
 // c++
 #include <map>
@@ -57,6 +56,4 @@ private:
 	void registerVariable(const string varname, const string value);
 
 };
-
-#endif // GROOTTREE_H
 

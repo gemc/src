@@ -49,8 +49,7 @@ LD += {
     },
     'examples' : {
         'test_gsystem' : [files('examples/gsystem_example.cc'), [gsystem, dbhost]],
-        'test_gsystem_verbosity' : [files('examples/gsystem_example.cc'), [gsystem, dbhost, '-verbosity.gsystem=2']],
-        'test_gsystem_debug' : [files('examples/gsystem_example.cc'), [gsystem, dbhost, '-debug.gsystem=true']]
+        'test_gsystem_verbose' : [files('examples/gsystem_example.cc'), [gsystem, dbhost, '-verbosity.gsystem=2', '-debug.gsystem=true']],
     }
 
 }

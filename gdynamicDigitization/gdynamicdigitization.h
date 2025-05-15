@@ -1,6 +1,4 @@
-#ifndef GDYNAMICDIGITIZATION_H
-#define GDYNAMICDIGITIZATION_H 1
-
+#pragma once
 
 #include "greadoutSpecs.h"
 #include "gfactory_options.h"
@@ -324,4 +322,3 @@ protected:
 	}
 };
 
-#endif

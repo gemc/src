@@ -1,6 +1,7 @@
 # Notice: if both static and dynamic libraries are present, the dynamic library will be used
+# Forcing suffix lib instead of variants like lib64
 project('gemc3', 'cpp',
-        default_options : ['cpp_std=c++20', 'default_library=static', 'default_both_libraries=static'],
+        default_options : ['cpp_std=c++20', 'default_library=static', 'default_both_libraries=static', 'libdir=lib'],
         version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip(),
         meson_version : '>= 1.6.0'
 )
@@ -62,7 +63,6 @@ subdir('gparticle')
 foreach L : LD
 
     this_lib_name = L['name'] # key name must be present
-
     sources = L.get('sources', [''])
     headers = L.get('headers', [''])
     examples = L.get('examples', empty_dict)

@@ -1,5 +1,4 @@
-#ifndef G4SCENE_PROPERTIES
-#define G4SCENE_PROPERTIES 1
+#pragma once
 
 /**
  * \file G4SceneProperties.h
@@ -75,4 +74,3 @@ private:
 	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 };
 
-#endif

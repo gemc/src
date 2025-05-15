@@ -1,5 +1,4 @@
-#ifndef G4DISPLAYUTILITIES_H
-#define G4DISPLAYUTILITIES_H 1
+#pragma once
 
 /**
  * \file g4displayutilities.h
@@ -68,4 +67,3 @@ private:
 	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 };
 
-#endif

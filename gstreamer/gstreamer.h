@@ -1,5 +1,4 @@
-#ifndef  GSTREAMER_H
-#define  GSTREAMER_H  1
+#pragma once
 
 // glibrary
 #include "event/gEventDataCollection.h"
@@ -106,5 +105,3 @@ public:
 
 };
 
-
-#endif

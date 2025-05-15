@@ -1,5 +1,4 @@
-#ifndef  GSTREAMEROPTIONS_H
-#define  GSTREAMEROPTIONS_H 1
+#pragma once
 
 // gstreamer
 #include "gstreamer.h"
@@ -16,5 +15,3 @@ namespace gstreamer {
     GOptions defineOptions();
 }
 
-
-#endif

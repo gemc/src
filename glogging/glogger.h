@@ -69,15 +69,15 @@ public:
 
 		switch (type) {
 		case NORMAL:
-			G4cout << KMAG << header_string() << "DEBUG " << oss.str() << RST << G4endl;
+			G4cout << KCYN << header_string() << "DEBUG " << oss.str() << RST << G4endl;
 			break;
 		case CONSTRUCTOR:
-			G4cout << KCYN << header_string() << "CONSTRUCTOR " <<
-				CONSTRUCTORLOG << oss.str() << CONSTRUCTORLOG << RST << G4endl;
+			G4cout << KCYN << header_string() << "DEBUG " <<
+				CONSTRUCTORLOG << " " << oss.str() << CONSTRUCTORLOG << RST << G4endl;
 			break;
 		case DESTRUCTOR:
-			G4cout << KCYN << header_string() << "DESTRUCTOR " <<
-				DESTRUCTORLOG << oss.str() << DESTRUCTORLOG << RST << G4endl;
+			G4cout << KCYN << header_string() << "DEBUG " <<
+				DESTRUCTORLOG << " " << oss.str() << DESTRUCTORLOG << RST << G4endl;
 			break;
 		}
 	}

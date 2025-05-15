@@ -1,3 +1,4 @@
+# expat needed because g4processes
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 LD += {
     'name' : sub_dir_name,
@@ -10,7 +11,7 @@ LD += {
                           'gphysics_options.h',
                           'gphysicsConventions.h'
                       ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps, ogl_deps, sqlite_dep, expat_dep],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps, expat_dep],
     'examples' : {
         'test_gphysics' : [files('examples/example.cc'), [meson.current_source_dir() + '/examples/example.yaml']],
     }

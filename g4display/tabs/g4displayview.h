@@ -1,5 +1,4 @@
-#ifndef G4DISPLAYVIEW_H
-#define G4DISPLAYVIEW_H 1
+#pragma once
 
 // Qt
 #include <QtWidgets> // Includes necessary Qt Widget headers
@@ -151,4 +150,3 @@ private slots:
 	void field_precision_changed();
 };
 
-#endif // G4DISPLAYVIEW_H

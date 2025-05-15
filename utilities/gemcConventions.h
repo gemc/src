@@ -1,5 +1,4 @@
-#ifndef  GEMC_CONVENTIONS_H
-#define  GEMC_CONVENTIONS_H  1
+#pragma once
 
 // this gemc version
 #define GEMCLOGMSGITEM  " ⌘ "
@@ -11,4 +10,3 @@
 constexpr const char* GENERAL_LOGGER = "general";
 
 
-#endif

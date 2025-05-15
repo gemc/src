@@ -17,10 +17,12 @@ expat_dep = dependency('expat', required: true)
 # pkg-config --cflags --libs zlib
 zlib_dep = dependency('zlib', static: false, required: true)  # Use shared libz.so instead of libz.a
 
+# sqlite
+sqlite_dep = dependency('sqlite3', required: true)
+
 # clhep: pkg-config
 clhep_deps = dependency('clhep',
                         version : '>=2.4.7.1',
-                        include_type : 'preserve'
 )
 
 # install root.pc, geant4.pc if not found
@@ -38,7 +40,6 @@ endif
 if get_option('use_root')
     root_deps = dependency('root',
                            version : '>=6.28/02',
-                           include_type : 'preserve'
     )
 endif
 #root_deps = dependency('root', method: 'cmake')
@@ -46,15 +47,10 @@ endif
 # geant4: pkg-config created manually by ./meson/install_geant4_root_pkgconfig.py
 geant4_deps = dependency('geant4',
                          version : '>=11.3.0',
-                         include_type : 'preserve'
 )
 # this also works,but ONLY if the dynamic libraries are present
 # geant4_deps = dependency('Geant4', method : 'cmake', static : true)
 
-
-# sqlite
-sqlite_dep = dependency('sqlite3',
-                        include_type : 'preserve')
 
 cmake = import('cmake')
 opt_var = cmake.subproject_options()

@@ -1,5 +1,4 @@
-#ifndef  GQTBUTTONSWIDGET_H_OPTIONS
-#define  GQTBUTTONSWIDGET_H_OPTIONS 1
+#pragma once
 
 // gemc
 #include "goptions.h"
@@ -11,5 +10,3 @@ namespace gqtbuttonswidget {
     GOptions defineOptions();
 
 }
-
-#endif

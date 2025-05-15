@@ -1,5 +1,4 @@
-#ifndef  TEXTPROGRESSBAR_H
-#define  TEXTPROGRESSBAR_H  1
+#pragma once
 
 #include "textProgressBarConventions.h"
 
@@ -35,5 +34,3 @@ private:
 
 };
 
-
-#endif

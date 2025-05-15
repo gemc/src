@@ -85,7 +85,7 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
         manager.CreateObject<GSystemFactory>(GSYSTEMSQLITETFACTORYLABEL));
 
     if (!sqliteFactory) {
-        log->error(EC__FACTORYNOTFOUND,
+        log->error(ERR_FACTORYNOTFOUND,
                    "Failed to create factory <", GSYSTEMSQLITETFACTORYLABEL, ">");
     }
     factoryMap.emplace(GSYSTEMSQLITETFACTORYLABEL, std::move(sqliteFactory));
@@ -97,7 +97,7 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
         const std::string& facName = sysPtr->getFactoryName();
 
         if (facName.empty()) {
-            log->error(EC__FACTORYNOTFOUND,
+            log->error(ERR_FACTORYNOTFOUND,
                        "Factory name for system <", sysName,
                        "> is empty!  This system will not be loaded.");
         }
@@ -115,7 +115,7 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
         else if (facName == GSYSTEMASCIIFACTORYLABEL)
             manager.RegisterObjectFactory<GSystemTextFactory>(facName);
         else {
-            log->error(EC__FACTORYNOTFOUND,
+            log->error(ERR_FACTORYNOTFOUND,
                        "Unrecognized factory name <", facName,
                        "> for system <", sysName, ">");
         }
@@ -125,7 +125,7 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
             manager.CreateObject<GSystemFactory>(facName));
 
         if (!facPtr) {
-            log->error(EC__FACTORYNOTFOUND,
+            log->error(ERR_FACTORYNOTFOUND,
                        "Failed to create factory <", facName,
                        "> for system <", sysName, ">");
         }
@@ -221,19 +221,19 @@ void GWorld::load_systems() {
 		const std::string& factoryName = sysPtr->getFactoryName();
 
 		if (factoryName.empty()) {
-			log->error(EC__FACTORYNOTFOUND,
+			log->error(ERR_FACTORYNOTFOUND,
 			           "Factory name for system <", sysName, "> is empty!");
 		}
 
 		auto facIt = systemFactories.find(factoryName);
 		if (facIt == systemFactories.end()) {
-			log->error(EC__FACTORYNOTFOUND,
+			log->error(ERR_FACTORYNOTFOUND,
 			           "Factory <", factoryName, "> not found for system <", sysName, ">");
 		}
 
 		auto& factory = facIt->second; // std::unique_ptr<GSystemFactory>&
 		if (!factory) {
-			log->error(EC__FACTORYNOTFOUND,
+			log->error(ERR_FACTORYNOTFOUND,
 			           "Factory pointer <", factoryName, "> is nullptr");
 		}
 

@@ -1,5 +1,4 @@
-#ifndef  GPARTICLE_H_CONVENTIONS
-#define  GPARTICLE_H_CONVENTIONS 1
+#pragma once
 
 #define GPARTICLENOTDEFINED (-999)
 
@@ -9,5 +8,3 @@
 #define ERR_GPARTICLETABLENOTFOUND   903
 
 #define GPARTICLELOGHEADER           " ・ GParticle ▸ "
-
-#endif

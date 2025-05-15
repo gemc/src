@@ -29,7 +29,7 @@ qrc_examples_sources = files(
 
 examples = {
     'test_g4display' : [files('examples/g4display_example.cc'),       [meson.current_source_dir() + '/examples/example.yaml', '-gui']],
-    'test_g4display_debug' : [files('examples/g4display_example.cc'), [meson.current_source_dir() + '/examples/example.yaml', '-gui', '-verbosity.g4display=2', '-debug.g4display=true']]
+    'test_g4display_verbose' : [files('examples/g4display_example.cc'), [meson.current_source_dir() + '/examples/example.yaml', '-gui', '-verbosity.g4display=2', '-debug.g4display=true']]
 }
 
 if get_option('i_test')

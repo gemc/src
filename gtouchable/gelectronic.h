@@ -1,5 +1,4 @@
-#ifndef GELECTRONIC_H
-#define GELECTRONIC_H  1
+#pragma once
 
 #include <ostream>
 #include <vector>
@@ -80,5 +79,3 @@ private:
 
 };
 
-
-#endif

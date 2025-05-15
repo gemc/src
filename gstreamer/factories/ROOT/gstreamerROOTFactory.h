@@ -1,5 +1,4 @@
-#ifndef GSTREAMERROOTFACTORY_H
-#define GSTREAMERROOTFACTORY_H 1
+#pragma once
 
 // gstreamer
 #include "gstreamer.h"
@@ -54,6 +53,4 @@ private:
 	map<string, GRootTree*> *gRootTrees;
 
 };
-
-#endif // GSTREAMERTXTFACTORY_H
 

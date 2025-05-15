@@ -117,7 +117,7 @@ template <class Base>
 Base* GManager::CreateObject(std::string_view name) const {
 	auto it = factoryMap_.find(std::string{name});
 	if (it == factoryMap_.end()) {
-		log_->error(EC__FACTORYNOTFOUND,
+		log_->error(ERR_FACTORYNOTFOUND,
 		            "Couldn't find factory <", name, "> in factory map.");
 	}
 	log_->debug(NORMAL, "Creating instance of <", name, "> factory.");
@@ -129,5 +129,5 @@ T* GManager::LoadAndRegisterObjectFromLibrary(std::string_view name) {
 	registerDL(name);
 	auto& dynamicLib = dlMap_.at(std::string{name});
 	if (dynamicLib && dynamicLib->handle) { return T::instantiate(dynamicLib->handle); }
-	log_->error(EC__DLHANDLENOTFOUND, "Plugin ", name, " could not be loaded.");
+	log_->error(ERR_DLHANDLENOTFOUND, "Plugin ", name, " could not be loaded.");
 }

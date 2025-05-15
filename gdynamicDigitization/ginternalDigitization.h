@@ -1,5 +1,4 @@
-#ifndef GINTERNALDIGITIZATION
-#define GINTERNALDIGITIZATION 1
+#pragma once
 
 /**
  * \file ginternalDigitization.h
@@ -135,4 +134,3 @@ private:
 	float getNielFactorForParticleAtEnergy(int pid, float energy);
 };
 
-#endif

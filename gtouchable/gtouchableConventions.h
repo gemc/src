@@ -1,5 +1,4 @@
-#ifndef  GTOUCHABLE_H_CONVENTIONS
-#define  GTOUCHABLE_H_CONVENTIONS 1
+#pragma once
 
 // - flux: track id is the discriminating factor, standard true infos variable
 // - particleCounter: no other discriminating factors, standard true infos variable
@@ -10,4 +9,3 @@
 #define DOSIMETERNAME "dosimeter"
 #define GTOUCHABLEUNSETTIMEINDEX -1
 
-#endif

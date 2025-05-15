@@ -1,5 +1,4 @@
-#ifndef GRUNACTION_H
-#define GRUNACTION_H 1
+#pragma once
 
 // geant4
 #include "G4UserRunAction.hh"
@@ -59,8 +58,3 @@ private:
 	vector<int> formPayload(GDigitizedData* digitizedData);
 
 };
-
-
-
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef GQTBUTTONSWIDGET_H
-#define GQTBUTTONSWIDGET_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -169,4 +168,3 @@ private slots:
 			void setButtonPressed(int index);
 };
 
-#endif // GQTBUTTONSWIDGET_H

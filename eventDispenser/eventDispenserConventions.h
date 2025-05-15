@@ -1,9 +1,8 @@
-#ifndef  EVENTDISPENSER_H_CONVENTIONS
-#define  EVENTDISPENSER_H_CONVENTIONS 1
+#pragma once
 
 #define EVENTDISPENSERLOGMSGITEM  " ⋿"
 
 // error codes in the 700s
 #define EC__EVENTDISTRIBUTIONFILENOTFOUND 701
 
-#endif
+

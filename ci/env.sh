@@ -17,10 +17,6 @@ function show_installation {
     echo "- Content of \$GEMC/lib=$GEMC/lib"
     ls -lrt $GEMC/lib
   fi
-  if [ -d $GEMC/lib64 ]; then
-    echo "- Content of \$GEMC/lib64=$GEMC/lib64"
-    ls -lrt $GEMC/lib64
-  fi
 }
 
 function sanitize_options {

@@ -19,8 +19,9 @@ LD += {
     },
     'examples' : {
         'test_gdynamic_plugin_load' : [files('examples/plugin_load_example.cc'), ''],
-        'test_gdynamic_plugin_load_verbose' : [files('examples/plugin_load_example.cc'), '-verbosity.gdata=2', '-verbosity.plugins=2', '-verbosity.gtranslationTable=2', '-verbosity.gdigitization=2'],
-        'test_gdynamic_plugin_load_debug' : [files('examples/plugin_load_example.cc'), '-debug.gdata=true', '-debug.plugins=true', '-debug.gtranslationTable=true', '-debug.gdigitization=true']
+        'test_gdynamic_plugin_load_verbose' : [files('examples/plugin_load_example.cc'),
+                                                 '-verbosity.gdata=2', '-verbosity.plugins=2', '-verbosity.gtranslationTable=2', '-verbosity.gdigitization=2',
+                                                 '-debug.gdata=true', '-debug.plugins=true', '-debug.gtranslationTable=true', '-debug.gdigitization=true'],
     }
 }
 

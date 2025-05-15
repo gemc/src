@@ -21,7 +21,7 @@ moc_headers = files(
 
 examples = {
     'test_g4dialog' : [files('examples/g4dialog_example.cc'), ['-gui']],
-    'test_g4dialog_debug' : [files('examples/g4dialog_example.cc'), ['-gui', '-debug.g4dialog=true', '-verbosity.g4dialog=2']],
+    'test_g4dialog_verbose' : [files('examples/g4dialog_example.cc'), ['-gui', '-debug.g4dialog=true', '-verbosity.g4dialog=2']],
 }
 
 

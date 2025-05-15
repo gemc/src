@@ -1,5 +1,4 @@
-#ifndef  GTOUCHABLE_H
-#define  GTOUCHABLE_H 1
+#pragma once
 
 #include "glogger.h"
 
@@ -221,5 +220,3 @@ private:
 	friend std::ostream &operator<<(std::ostream &stream, const GTouchable &gtouchable);
 
 };
-
-#endif

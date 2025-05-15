@@ -1,5 +1,4 @@
-#ifndef GEVENTACTION_H
-#define GEVENTACTION_H 1
+#pragma once
 
 // geant4
 #include "G4UserEventAction.hh"
@@ -29,6 +28,3 @@ private:
     // logs event statistics
     void event_print_stats(const G4Event* event, bool start);
 };
-
-
-#endif

@@ -13,7 +13,6 @@ LD += {
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
         'test_translation_table' : [files('examples/tt_example.cc'), ''],
-        'test_translation_table_debug' : [files('examples/tt_example.cc'), '-debug.gtranslationTable=true'],
-        'test_translation_table_verbosity' : [files('examples/tt_example.cc'), '-verbosity.gtranslationTable=2']
+        'test_translation_table_verbose' : [files('examples/tt_example.cc'), '-verbosity.gtranslationTable=2', '-debug.gtranslationTable=true']
     }
 }

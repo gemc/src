@@ -1,5 +1,4 @@
-#ifndef GDETECTORCONSTRUCTION_H
-#define GDETECTORCONSTRUCTION_H 1
+#pragma once
 
 // geant4
 #include "G4VUserDetectorConstruction.hh"
@@ -71,4 +70,4 @@ private:
 	vector<GSystem> gsystems;
 };
 
-#endif
+

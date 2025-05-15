@@ -13,7 +13,6 @@ LD += {
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
         'test_ghit' : [files('examples/ghit_example.cc'), ''],
-        'test_ghit_debug' : [files('examples/ghit_example.cc'), '-debug.gtouchable=true'],
-        'test_ghit_verbosity' : [files('examples/ghit_example.cc'), '-verbosity.gtouchable=2']
+        'test_ghit_verbose' : [files('examples/ghit_example.cc'), '-verbosity.gtouchable=2', '-debug.gtouchable=true']
     }
 }
