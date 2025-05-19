@@ -48,7 +48,7 @@ subdir('api')
 subdir('gsystem') # uses api for testing
 subdir('g4system')
 subdir('gparticle')
-#subdir('gphysics')
+subdir('gphysics')
 #subdir('gsplash')
 #subdir('gstreamer')
 #subdir('gsd')
@@ -102,7 +102,6 @@ foreach L : LD
     # header files
     if not headers.contains('')
         install_headers(headers)
-        message(' Adding Headers for' + this_lib_name)
     endif
 
     #  plugins

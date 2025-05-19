@@ -164,7 +164,7 @@ public:
 
 private:
 	std::string verbosity_name;    ///< Verbosity name
-	std::string calling_class;     ///< Class name calling the logger constructor
+	std::string calling_class;     ///< Name of class/method calling the logger constructor
 	int         verbosity_level{}; ///< Verbosity level (0 = low, >0 = detailed)
 	int         debug_level{};     ///< Debug level: 0 = off, 1 = normal, 10/-10 = ctor/dtor
 

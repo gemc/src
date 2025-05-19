@@ -25,13 +25,10 @@ jobs:
             image: jeffersonlab/geant4:g4v11.3.1-fedora36
           - name: almalinux93
             image: jeffersonlab/geant4:g4v11.3.1-almalinux94
-        # to be revisited
-        # NOTE1: `b_sanitize=memory` is not used because `libc++` needs to be re-compiled with `-fsanitize=memory`, otherwise
-        #        we are bothered by false positives (e.g., from `std::map` insertion)
-        # NOTE2: additional packages needed for the sanitizer: libasan libubsan libtsan
-        # NOTE3: address, thread, leak: some examples are not working. Need to investigate.
-        sanitize: [ none, address, thread, undefined, memory, leak ]
-        #sanitize: [ standard, undefined ]
+        # NOTE: additional packages needed for the sanitizer: libasan libubsan libtsan
+        # MacOS: address, thread, undefined
+        # Linux: address, hwaddress, leak, undefined, integer, thread, cfi, kcfi, shadowcallstack
+        sanitize: [ none, address, hwaddress, leak, undefined, integer, thread, cfi, kcfi, shadowcallstack ]
     runs-on: ubuntu-latest
     continue-on-error: true
     container: ${{ matrix.container.image }}

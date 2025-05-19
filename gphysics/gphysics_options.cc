@@ -140,8 +140,8 @@ GOptions defineOptions() {
 	physicsListHelp += string(HELPFILLSPACE) + " - G4WeightWindowBiasing\n";
 	goptions.defineOption(GVariable("phys_list", DEFAULTPHYSICSLIST, "Select Physics List"), physicsListHelp);
 
-	goptions.defineSwitch("showAvailablePhysics", "Log Geant4 Physics Modules that can be used with the \\\"physicsList\\\" option");
-	goptions.defineSwitch("showAvailablePhysicsX", "Log Geant4 Physics Modules that can be used with the \\\"physicsList\\\" option and exit");
+	goptions.defineSwitch("showAvailablePhysics", "Log Geant4 Physics Modules that can be used with the \"phys_list\" option");
+	goptions.defineSwitch("showAvailablePhysicsX", "Log Geant4 Physics Modules that can be used with the \"phys_list\" option and exit");
 
 	return goptions;
 }

@@ -2,6 +2,6 @@
 
 #define DEFAULTPHYSICSLIST "FTFP_BERT"
 
-#define EC__PHYSLISTERROR 401
+#define ERR_PHYSLISTERROR 401
 
-#endif
+

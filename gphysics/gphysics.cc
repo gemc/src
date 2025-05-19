@@ -2,14 +2,12 @@
 #include "gphysics.h"
 #include "gphysicsConventions.h"
 
-// glibrary
+// gemc
 #include "gutilities.h"
 
 // geant4 version
 #include "G4Version.hh"
 
-// c++
-using namespace std;
 
 // geant4
 
@@ -29,8 +27,8 @@ using namespace std;
 #include "G4PhysicsConstructorFactory.hh"
 
 
-GPhysics::GPhysics(GOptions *gopts) : physList(nullptr) {
-
+GPhysics::GPhysics(GOptions *gopts, std::shared_ptr<GLogger> logger) : physList(nullptr), log(logger) {
+	log->debug(CONSTRUCTOR, "GPhysics");
 
     bool showPhys = gopts->getSwitch("showAvailablePhysics");
     bool showPhysX = gopts->getSwitch("showAvailablePhysicsX");
@@ -50,31 +48,35 @@ GPhysics::GPhysics(GOptions *gopts) : physList(nullptr) {
     // would make this a drop-in replacement, but we'll list the explicit
     // namespace here just for clarity
     g4alt::G4PhysListFactory factory;
-    string g4physList = removeAllSpacesFromString(gphysList);
+    string g4physList = gutilities::removeAllSpacesFromString(gphysList);
 
     physList = factory.GetReferencePhysList(g4physList);
 
     if (!physList) {
-        cerr << FATALERRORL << "physics list <" << gphysList << "> could not be loaded." << endl;
-        gexit(EC__PHYSLISTERROR);
+    	log->error(ERR_PHYSLISTERROR, "physics list <" + gphysList + "> could not be loaded.");
     }
 
-    cout << GPHYSLOGHEADER << "Geant4 physics list: <" << g4physList << ">" << endl;
+	log->info(0, "G4PhysListFactory: <" + g4physList + "> loaded.");
 }
 
-GPhysics::~GPhysics() {}
+GPhysics::~GPhysics() {
+	log->debug(DESTRUCTOR, "GPhysics");
+}
 
 
 // calls PrintAvailablePhysLists
 // if verbosity is > 0 calls PrintAvailablePhysicsConstructors
 void GPhysics::printAvailable() {
 
-    cout << endl << "Geant4 Version " << replaceCharInStringWithChars(G4Version, "$", "") << "  " << G4Date << endl << endl;
+	string g4ver = gutilities::replaceCharInStringWithChars(G4Version, "$", "");
+
+	log->info(0, "Geant4 Version ", g4ver, " ", G4Date);;
 
     g4alt::G4PhysListFactory factory;
     factory.PrintAvailablePhysLists();
 
-    G4cout << GPHYSLOGHEADER << " Geant4 available physics constructor that can be added to physicsList:" << G4endl;
+	log->info(0, "Available Geant4 Physics Lists:");
+
     G4PhysicsConstructorRegistry *g4pctorFactory = G4PhysicsConstructorRegistry::Instance();
     g4pctorFactory->PrintAvailablePhysicsConstructors();
 
