@@ -49,7 +49,7 @@ subdir('gsystem') # uses api for testing
 subdir('g4system')
 subdir('gparticle')
 subdir('gphysics')
-#subdir('gsplash')
+subdir('gsplash')
 #subdir('gstreamer')
 #subdir('gsd')
 #subdir('gfields')

@@ -1,5 +1,4 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-
 sources = files(
     'gsplash.cc'
 )
@@ -13,7 +12,7 @@ qrc_examples_sources = files(
 )
 
 examples = {
-    'test_gsplash' : [files('examples/example.cc'), '-gui']
+    'test_gsplash' : [files('examples/gsplash_example.cc'), '-gui']
 }
 
 
@@ -23,7 +22,7 @@ if get_option('i_test')
         'sources' : sources,
         'headers' : headers,
         'qrc_examples_sources' : qrc_examples_sources,
-        'dependencies' : [yaml_cpp_dep, qt6_deps],
+        'dependencies' : [yaml_cpp_dep, qt6_deps, geant4_deps, expat_dep],
         'examples' : examples
     }
 else
@@ -32,6 +31,6 @@ else
         'sources' : sources,
         'headers' : headers,
         'qrc_examples_sources' : qrc_examples_sources,
-        'dependencies' : [yaml_cpp_dep, qt6_deps]
+        'dependencies' : [yaml_cpp_dep, qt6_deps, geant4_deps, expat_dep]
     }
 endif

@@ -1,14 +1,7 @@
 #pragma once
 
-// gsplash
-#include "gsplash.h"
-
-// gutilities for the exit codes
-#include "gutilities.h"
-
-// c++
-#include <string>
-using std::string;
+// gemc
+#include "glogger.h"
 
 // Qt
 #include <QtWidgets>
@@ -17,29 +10,28 @@ using std::string;
 #define NOSPLASHIMAGESELECTED "NOSPLASHIMAGESELECTED"
 
 // exit codes: 190s
-#define EC__NOSPLASHENVFOUND  191
+#define ERR_NOSPLASHENVFOUND  191
 
-class GSplash
-{
+constexpr const char* GSPLASH_LOGGER = "gsplash";
+
+namespace gsplash {
+inline GOptions defineOptions() { return GOptions(GSPLASH_LOGGER); }
+}
+
+class GSplash {
 private:
-	QSplashScreen *splash;
+	QSplashScreen*           splash;
+	std::shared_ptr<GLogger> log;
 
 public:
+	explicit GSplash(std::shared_ptr<GLogger> logger, const string& imageName = NOSPLASHIMAGESELECTED);
 
-	GSplash(string imageName = NOSPLASHIMAGESELECTED);
-	
-	~GSplash() {}
+	~GSplash();
 
-	void message(string message);
+	void message(const string& message);
 
 	// called in program using GSplash
 	// returns focus to program window
-	void finish(QWidget *callingWindow) {
-		if(splash != nullptr) {
-			splash->finish(callingWindow);
-		}
-	}
+	void finish(QWidget* callingWindow) { if (splash != nullptr) { splash->finish(callingWindow); } }
 
 };
-
-
