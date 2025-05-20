@@ -13,7 +13,7 @@
  * ~~~
  *
  * \subsection subsection1 Simple GOption
- * A simple GOption is associated with a single value, which can be an integer, float, double, or string.
+ * A simple GOption is associated with a single value, which can be an integer, double, or string.
  * It is represented as follows in a YAML configuration file:
  * ~~~yaml
  * runno: 12

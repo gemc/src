@@ -217,7 +217,7 @@ std::ostream& operator<<(std::ostream& os, const Gparticle& gp) {
 			<< right << setw(value_w) << value << '\n';
 	};
 
-	// helper: floating‑point value with N decimals
+	// helper: double value with N decimals
 	auto showf = [&](const std::string& label, double value, int prec = 3) {
 		std::streamsize old_prec  = os.precision(); // save current
 		auto            old_flags = os.flags();     // save flags

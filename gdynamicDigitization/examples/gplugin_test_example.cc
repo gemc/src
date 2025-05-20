@@ -4,8 +4,8 @@
 bool GPlugin_test_example::defineReadoutSpecsImpl() {
 	check_if_log_defined();
 
-    float timeWindow = 10;                  // electronic readout time-window of the detector
-    float gridStartTime = 0;                // defines the windows grid
+    double timeWindow = 10;                  // electronic readout time-window of the detector
+    double gridStartTime = 0;                // defines the windows grid
     auto hitBitSet = HitBitSet("100000");  // defines what information to be stored in the hit
 
     readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger);

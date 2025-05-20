@@ -9,7 +9,7 @@
 // constructor from digitization and gidentity strings
 // called in GDetectorConstruction::ConstructSDandField
 GTouchable::GTouchable(const std::string &digitization, const std::string &gidentityString, const std::vector<double> &dimensions, std::shared_ptr<GLogger> logger) :
-		log(std::move(logger)),
+		log(logger),
 		trackId(0),
 		eMultiplier(1),
 		stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),

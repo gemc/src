@@ -1,17 +1,17 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
 ascii_plugin_files = [files(
-                         'factories/ASCII/gstreamerASCIIFactory.cc',
-                         'factories/ASCII/gstreamerASCIIConnection.cc',
-                         'factories/ASCII/event/event.cc',
-                         'factories/ASCII/event/eventHeader.cc',
-                         'factories/ASCII/event/publishTrueInfo.cc',
-                         'factories/ASCII/event/publishDigitized.cc',
-                         'factories/ASCII/stream/stream.cc',
-                         'factories/ASCII/stream/frameHeader.cc',
-                         'factories/ASCII/stream/publishPayload.cc'
-                     ),
-                     true]
+                          'factories/ASCII/gstreamerASCIIFactory.cc',
+                          'factories/ASCII/gstreamerASCIIConnection.cc',
+                          'factories/ASCII/event/event.cc',
+                          'factories/ASCII/event/eventHeader.cc',
+                          'factories/ASCII/event/publishTrueInfo.cc',
+                          'factories/ASCII/event/publishDigitized.cc',
+                          'factories/ASCII/stream/stream.cc',
+                          'factories/ASCII/stream/frameHeader.cc',
+                          'factories/ASCII/stream/publishPayload.cc'
+                      ),
+                      true]
 
 jlab_sro_plugin_files = [files(
                              'factories/JLABSRO/gstreamerJLABSROFactory.cc',
@@ -59,16 +59,16 @@ LD += {
     'name' : sub_dir_name,
     'sources' : files(
         'gstreamer.cc',
-        'gstreamerOptions.cc'
+        'gstreamer_options.cc'
     ),
     'headers' : files(
         'gstreamer.h',
         'gstreamerConventions.h',
-        'gstreamerOptions.h'
+        'gstreamer_options.h'
     ),
     'plugins' : streamer_plugins,
     'dependencies' : streamer_dependencies,
     'examples' : {
-        'test_gstreamer' : [files('examples/example.cc'), ['']],
+        'test_gstreamer' : [files('examples/gstreamer_example.cc'), ['']],
     }
 }

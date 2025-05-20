@@ -14,9 +14,9 @@ bool GFluxDigitization::defineReadoutSpecsImpl() {
 	check_if_log_defined();
 
 	// Define the electronic readout time-window for the detector.
-	float timeWindow = 10;                  // electronic readout time-window of the detector
+	double timeWindow = 10;                  // electronic readout time-window of the detector
 	// Define the start time for the time grid.
-	float gridStartTime = 0;                // defines the windows grid
+	double gridStartTime = 0;                // defines the windows grid
 	// Define the hit bitset: "000001" indicates which information to store in the hit.
 	HitBitSet hitBitSet("000001");
 

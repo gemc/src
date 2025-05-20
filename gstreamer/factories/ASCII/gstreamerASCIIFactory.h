@@ -3,39 +3,40 @@
 // gstreamer
 #include "gstreamer.h"
 
+// c++
 #include <fstream>
-using std::ofstream;
 
-class GstreamerTextFactory : public GStreamer
-{
+class GstreamerTextFactory : public GStreamer {
 public:
-	GstreamerTextFactory() {}
+	GstreamerTextFactory() = default;
 
 private:
 	// open and close the output media
-	bool openConnection();
-	bool closeConnection();
+	bool openConnection(const std::shared_ptr<GLogger>& log) override;
+	bool closeConnection(const std::shared_ptr<GLogger>& log) override;
 
 	// event streams
 	// start and end each event
-	bool startEvent(const GEventDataCollection* eventData);
-	bool endEvent(const GEventDataCollection* eventData);
+	bool startEvent(const GEventDataCollection* eventData, const std::shared_ptr<GLogger>& log) override;
+	bool endEvent(const GEventDataCollection* eventData, const std::shared_ptr<GLogger>& log) override;
 
 	// write the header
-	bool publishEventHeader(const GEventDataCollectionHeader *gheader);
+	bool publishEventHeader(const GEventDataCollectionHeader* gheader, std::shared_ptr<GLogger>& log) override;
 
 	// vector index is hit number
-	bool publishEventTrueInfoData( const string detectorName, const vector<GTrueInfoData*>*  trueInfoData);
-	bool publishEventDigitizedData(const string detectorName, const vector<GDigitizedData*>* digitizedData);
+	bool publishEventTrueInfoData(string                        detectorName,
+	                              const vector<GTrueInfoData*>* trueInfoData,
+	                              std::shared_ptr<GLogger>&     log) override;
+	bool publishEventDigitizedData(string                         detectorName,
+	                               const vector<GDigitizedData*>* digitizedData,
+	                               std::shared_ptr<GLogger>&      log) override;
 
 	// frame streams
-	bool startStream(const GFrameDataCollection* frameRunData);
-	bool endStream(const GFrameDataCollection* frameRunData);
-	bool publishFrameHeader(const GFrameDataCollectionHeader *gframeHeader);
-	bool publishPayload(const vector<GIntegralPayload*> *payload);
-
+	bool startStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
+	bool endStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
+	bool publishFrameHeader(const GFrameDataCollectionHeader* gframeHeader, const std::shared_ptr<GLogger>& log) override;
+	bool publishPayload(const vector<GIntegralPayload*>* payload, const std::shared_ptr<GLogger>& log) override;
 
 private:
-	ofstream *ofile = nullptr;
+	std::ofstream* ofile = nullptr;
 };
-

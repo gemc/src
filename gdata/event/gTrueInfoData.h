@@ -35,11 +35,11 @@ public:
 	std::string getIdentityString();
 
 	/**
-	 * \brief Includes a float variable in the true hit data.
+	 * \brief Includes a double variable in the true hit data.
 	 * \param varName The variable name.
-	 * \param var The float value.
+	 * \param var The double value.
 	 */
-	void includeVariable(const std::string& varName, float var);
+	void includeVariable(const std::string& varName, double var);
 
 	/**
 	 * \brief Includes a string variable in the true hit data.
@@ -49,10 +49,10 @@ public:
 	void includeVariable(const std::string& varName, std::string var);
 
 	/**
-	 * \brief Returns the map of float variables.
-	 * \return A map from variable names to float values.
+	 * \brief Returns the map of double variables.
+	 * \return A map from variable names to double values.
 	 */
-	[[nodiscard]] inline std::map<std::string, double> getFloatVariablesMap() const {
+	[[nodiscard]] inline std::map<std::string, double> getDoubleVariablesMap() const {
 		return trueInfoDoublesVariablesMap;
 	}
 

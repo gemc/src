@@ -3,14 +3,11 @@
 // gstreamer
 #include "gstreamer.h"
 
-#include <random>
-#include <iostream>
+// c++
 #include <fstream>
-using std::ofstream;
 
 #pragma pack(push, 1)
-struct DataFrameHeader
-{
+struct DataFrameHeader {
 	uint32_t source_id;
 	uint32_t total_length;
 	uint32_t payload_length;
@@ -24,31 +21,27 @@ struct DataFrameHeader
 };
 #pragma pack(pop)
 
-class GstreamerJSROFactory : public GStreamer
-{
+class GstreamerJSROFactory : public GStreamer {
 public:
-	GstreamerJSROFactory() {}
-	
+	GstreamerJSROFactory() = default;
+
 private:
 	// open and close the output media
-	bool openConnection();
-	bool closeConnection();
-	
+	bool openConnection(const std::shared_ptr<GLogger>& log) override;
+	bool closeConnection(const std::shared_ptr<GLogger>& log) override;
+
 	// frame streams
-	bool startStream(const GFrameDataCollection* frameRunData);
-	bool endStream(const GFrameDataCollection* frameRunData);
-	bool publishFrameHeader(const GFrameDataCollectionHeader *gframeHeader);
-	bool publishPayload(const vector<GIntegralPayload*> *payload);
-	
+	bool startStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
+	bool endStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
+	bool publishFrameHeader(const GFrameDataCollectionHeader* gframeHeader, const std::shared_ptr<GLogger>& log) override;
+	bool publishPayload(const vector<GIntegralPayload*>* payload, const std::shared_ptr<GLogger>& log) override;
+
 	// JLAB specific
-	inline std::uint64_t llswap(unsigned long long val) {
-		return (val >> 32) | (val << 32);
-	}
-	
-	
+	static inline std::uint64_t llswap(unsigned long long val) { return (val >> 32) | (val << 32); }
+
 private:
-	ofstream *ofile = nullptr;
-	vector<unsigned int> frame_data;
+	std::ofstream*       ofile = nullptr;
+	vector<unsigned int> frame_data{};
 };
 
 

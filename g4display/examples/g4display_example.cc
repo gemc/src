@@ -1,7 +1,6 @@
 // geant4
 #include "G4VisExecutive.hh"
 #include "G4RunManagerFactory.hh"
-#include "FTFP_BERT.hh"
 
 // g4display
 #include "g4SceneProperties.h"
@@ -14,8 +13,10 @@
 // qt
 #include <QApplication>
 #include <QMainWindow>
+#include <QTimer>
 
 int main(int argc, char* argv[]) {
+
 	// Initialize options and logging
 	auto gopts = new GOptions(argc, argv, g4display::defineOptions());
 	auto log   = new GLogger(gopts, G4DISPLAY_LOGGER, "g4display example");
@@ -24,7 +25,6 @@ int main(int argc, char* argv[]) {
 	// Optional GUI setup (only if --gui is passed)
 	QApplication* app = nullptr;
 	QMainWindow* window = nullptr;
-	G4Display* g4display = nullptr;
 
 	if (gopts->getSwitch("gui")) {
 		log->info(0, "g4display", "Running in GUI mode...");
@@ -38,19 +38,25 @@ int main(int argc, char* argv[]) {
 
 	auto g4SceneProperties = new G4SceneProperties(gopts);
 
-	// If GUI, show window and run Qt loop
+	// If GUI, show the window and run Qt loop
 	if (gopts->getSwitch("gui")) {
 
-		g4display = new G4Display(gopts, window);
+		auto g4display = new G4Display(gopts, window);
 		window->setCentralWidget(g4display);
 		window->show();
+
+		/* ---------- quit after 0.5 s ---------- */
+		QTimer::singleShot(500, []
+		{
+			QCoreApplication::quit();          // stop the event loop
+		});
+
 		int appResult = QApplication::exec();
 
 		// Clean up GUI resources
 		delete g4display;
 		delete window;
 		delete app;
-		app = nullptr;
 
 		// Clean up Geant4 and custom logic
 		delete g4SceneProperties;

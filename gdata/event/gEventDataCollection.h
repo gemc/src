@@ -22,7 +22,7 @@ public:
 	 * \param header Pointer to the event header.
 	 * \param logger Pointer to a GLogger instance (using the 'gdata' name).
 	 */
-	GEventDataCollection(GEventDataCollectionHeader* header, std::shared_ptr<GLogger> logger) : log(std::move(logger)),
+	GEventDataCollection(GEventDataCollectionHeader* header, std::shared_ptr<GLogger> logger) : log(logger),
 		gheader(header) {
 		log->debug(CONSTRUCTOR, "GEventDataCollection");
 		gdataCollectionMap = new std::map<std::string, GDataCollection*>();

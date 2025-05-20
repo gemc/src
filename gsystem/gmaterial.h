@@ -58,8 +58,8 @@ private:
 	// A list of the fast component relative spectra values evaluated at the energies in photonEnergy
 	double scintillationyield; // Characteristic light yield in photons/MeV e-, given as a single number
 	double resolutionscale;    // Resolution scale broadens the statistical distribution of generated photons
-	double fasttimeconstant;   // FIX ME believe this is related to the scintillator pulse rise time.
-	double slowtimeconstant;   // FIX ME believe this is related to scintillator slow decay timefloat
+	double fasttimeconstant;   // FIX ME believe this is related to the scintillator pulse rise time
+	double slowtimeconstant;   // FIX ME believe this is related to scintillator slow decay time
 	double yieldratio;
 	// Relative strength of the fast component as a fraction of total scintillation yield, given as a single number
 	double birkConstant; //  FIX ME

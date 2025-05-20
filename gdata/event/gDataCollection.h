@@ -18,7 +18,7 @@ public:
 	 * \brief Constructs a GDataCollection.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	explicit GDataCollection(std::shared_ptr<GLogger> logger) : log(std::move(logger)) {
+	explicit GDataCollection(std::shared_ptr<GLogger> logger) : log(logger) {
 		log->debug(CONSTRUCTOR, "GDataCollection");
 		trueInfosData = new std::vector<GTrueInfoData*>;
 		digitizedData = new std::vector<GDigitizedData*>;

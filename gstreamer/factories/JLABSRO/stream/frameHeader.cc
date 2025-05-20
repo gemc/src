@@ -1,13 +1,13 @@
 // gstreamer
 #include "../gstreamerJLABSROFactory.h"
+#include "gstreamerConventions.h"
 
 // c++
 #include<vector>
-#include <iostream>
 
-bool GstreamerJSROFactory::publishFrameHeader([[maybe_unused]] const GFrameDataCollectionHeader *gframeHeader)
+bool GstreamerJSROFactory::publishFrameHeader([[maybe_unused]] const GFrameDataCollectionHeader *gframeHeader, const std::shared_ptr<GLogger>& log)
 {
-	if(ofile == nullptr) return false;
+	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 	
 	// fill dataFrameHeader here or in startStream
 	//vector<unsigned int> frame_data;

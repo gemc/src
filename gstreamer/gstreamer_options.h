@@ -3,8 +3,10 @@
 // gstreamer
 #include "gstreamer.h"
 
-// glibrary
-#include "goptions.h"
+// gemc
+#include "glogger.h"
+
+constexpr const char* GSTREAMER_LOGGER = "gstreamer";
 
 namespace gstreamer {
 

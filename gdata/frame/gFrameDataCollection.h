@@ -21,7 +21,7 @@ public:
 	 * \param logger Pointer to a GLogger instance.
 	 */
 	GFrameDataCollection(GFrameDataCollectionHeader* header, std::shared_ptr<GLogger> logger)
-		: log(std::move(logger)), gheader(header) {
+		: log(logger), gheader(header) {
 		log->debug(CONSTRUCTOR, "GFrameDataCollection");
 		integralPayloads = new std::vector<GIntegralPayload*>();
 	}

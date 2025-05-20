@@ -1,12 +1,10 @@
 // gstreamer
 #include "../gstreamerJLABSROFactory.h"
+#include "gstreamerConventions.h"
 
-bool GstreamerJSROFactory::startStream(const GFrameDataCollection *frameRunData) {
+bool GstreamerJSROFactory::startStream(const GFrameDataCollection *frameRunData, const std::shared_ptr<GLogger>& log) {
 
-    if (ofile == nullptr) {
-        cout << "ofile == nullptr" << endl;
-        return false;
-    }
+	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
     static constexpr int header_offset = sizeof(DataFrameHeader) / 4;
     const GFrameDataCollectionHeader *header = frameRunData->getHeader();
@@ -87,9 +85,8 @@ bool GstreamerJSROFactory::startStream(const GFrameDataCollection *frameRunData)
 }
 
 
-bool GstreamerJSROFactory::endStream([[maybe_unused]] const GFrameDataCollection *frameRunData) {
-    if (ofile == nullptr) return false;
-
+bool GstreamerJSROFactory::endStream([[maybe_unused]] const GFrameDataCollection *frameRunData, const std::shared_ptr<GLogger>& log) {
+	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
     return true;
 }

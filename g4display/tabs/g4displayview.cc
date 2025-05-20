@@ -21,13 +21,13 @@ using namespace gutilities;
  * @param logger Pointer to the shared GLogger instance for logging.
  * @param parent Optional pointer to the parent QWidget.
  */
-G4DisplayView::G4DisplayView(GOptions* gopts, 	std::shared_ptr<GLogger> logger, QWidget* parent) : QWidget(parent), log(logger) {
+G4DisplayView::G4DisplayView(GOptions* gopts, std::shared_ptr<GLogger> logger, QWidget* parent) : QWidget(parent), log(logger) {
 	log->debug(CONSTRUCTOR, "G4DisplayView");
 
 	G4Camera jcamera = getG4Camera(gopts);
 
 	double thetaValue = getG4Number(jcamera.theta);
-	double phiValue = getG4Number(jcamera.phi);
+	double phiValue   = getG4Number(jcamera.phi);
 
 	vector<string> toggle_button_titles;
 	toggle_button_titles.emplace_back("Hidden\nLines");
@@ -159,8 +159,8 @@ G4DisplayView::G4DisplayView(GOptions* gopts, 	std::shared_ptr<GLogger> logger, 
 
 	// slice style: Intersection or Union
 	QGroupBox* sliceChoiceBox = new QGroupBox(tr("Slices Style"));
-	sliceSectn = new QRadioButton(tr("&Intersection"), sliceChoiceBox);
-	sliceUnion = new QRadioButton(tr("&Union"), sliceChoiceBox);
+	sliceSectn                = new QRadioButton(tr("&Intersection"), sliceChoiceBox);
+	sliceUnion                = new QRadioButton(tr("&Union"), sliceChoiceBox);
 	sliceSectn->setChecked(true);
 
 	connect(sliceSectn, &QRadioButton::toggled, this, &G4DisplayView::slice);
@@ -186,17 +186,17 @@ G4DisplayView::G4DisplayView(GOptions* gopts, 	std::shared_ptr<GLogger> logger, 
 	connect(sliceYEdit, &QLineEdit::returnPressed, this, &G4DisplayView::slice);
 	connect(sliceZEdit, &QLineEdit::returnPressed, this, &G4DisplayView::slice);
 
-	connect(sliceXActi, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
-	connect(sliceYActi, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
-	connect(sliceZActi, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
+	connect(sliceXActi, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
+	connect(sliceYActi, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
+	connect(sliceZActi, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
 
-	connect(sliceXInve, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
-	connect(sliceYInve, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
-	connect(sliceZInve, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
+	connect(sliceXInve, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
+	connect(sliceYInve, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
+	connect(sliceZInve, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
 
 
 	QGroupBox* fieldPrecisionBox = new QGroupBox(tr("Number of Field Points"));
-	field_npoints = new QLineEdit(QString::number(field_NPOINTS), this);
+	field_npoints                = new QLineEdit(QString::number(field_NPOINTS), this);
 	field_npoints->setMaximumWidth(40);
 
 	QFont font = field_npoints->font();
@@ -234,8 +234,8 @@ G4DisplayView::G4DisplayView(GOptions* gopts, 	std::shared_ptr<GLogger> logger, 
 void G4DisplayView::changeCameraDirection() {
 	// Construct the command using the current slider values.
 	string command = "/vis/viewer/set/viewpointThetaPhi " +
-					 to_string(cameraTheta->value()) + " " +
-					 to_string(cameraPhi->value());
+	                 to_string(cameraTheta->value()) + " " +
+	                 to_string(cameraPhi->value());
 	// Send the command to the Geant4 UImanager.
 	G4UImanager::GetUIpointer()->ApplyCommand(command);
 }
@@ -248,8 +248,8 @@ void G4DisplayView::changeCameraDirection() {
  */
 void G4DisplayView::changeLightDirection() {
 	string command = "/vis/viewer/set/lightsThetaPhi " +
-					 to_string(lightTheta->value()) + " " +
-					 to_string(lightPhi->value());
+	                 to_string(lightTheta->value()) + " " +
+	                 to_string(lightPhi->value());
 	G4UImanager::GetUIpointer()->ApplyCommand(command);
 }
 
@@ -280,21 +280,21 @@ void G4DisplayView::slice() {
 
 	if (sliceXActi->isChecked()) {
 		string command = "/vis/viewer/addCutawayPlane " + sliceXEdit->text().toStdString() + " 0  0 mm " +
-			to_string(sliceXInve->isChecked() ? -1 : 1) + " 0 0 ";
+		                 to_string(sliceXInve->isChecked() ? -1 : 1) + " 0 0 ";
 		cout << "X " << command << endl;
 		g4uim->ApplyCommand(command);
 	}
 
 	if (sliceYActi->isChecked()) {
 		string command = "/vis/viewer/addCutawayPlane 0 " + sliceYEdit->text().toStdString() + " 0 mm 0 " +
-			to_string(sliceYInve->isChecked() ? -1 : 1) + " 0 ";
+		                 to_string(sliceYInve->isChecked() ? -1 : 1) + " 0 ";
 		cout << "Y " << command << endl;
 		g4uim->ApplyCommand(command);
 	}
 
 	if (sliceZActi->isChecked()) {
 		string command = "/vis/viewer/addCutawayPlane 0 0 " + sliceZEdit->text().toStdString() + " mm 0 0 " +
-			to_string(sliceZInve->isChecked() ? -1 : 1);
+		                 to_string(sliceZInve->isChecked() ? -1 : 1);
 		cout << "Z " << command << endl;
 		g4uim->ApplyCommand(command);
 	}
@@ -382,7 +382,7 @@ void G4DisplayView::field_precision_changed() {
 		g4uim->ApplyCommand("/vis/scene/removeModel Field");
 
 		string npoints = to_string(field_NPOINTS);
-		command = string("/vis/scene/add/magneticField ") + npoints;
+		command        = string("/vis/scene/add/magneticField ") + npoints;
 		G4UImanager::GetUIpointer()->ApplyCommand(command);
 	}
 }

@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 
 	// Define a frame with a frame ID and frame duration.
 	long int frameID = 1;
-	float frameDuration = 33.33; // Example frame duration (units could be ms or other)
+	double frameDuration = 33.33; // Example frame duration (units could be ms or other)
 
 	// Create a frame header. The header logs its construction.
 	auto frameHeader = new GFrameDataCollectionHeader(frameID, frameDuration, log);

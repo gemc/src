@@ -1,24 +1,30 @@
 // gstreamer
 #include "gstreamerROOTFactory.h"
+#include "gstreamerConventions.h"
 
-bool GstreamerRootFactory::openConnection()
+bool GstreamerRootFactory::openConnection(const std::shared_ptr<GLogger>& log)
 {
 	rootfile = new TFile(string(gstreamer_definitions.name).c_str(), "RECREATE");
 	gRootTrees = new map<string, GRootTree*>;
 
+	if (!rootfile->IsOpen()) {
+		log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: could not open file " + gstreamer_definitions.name);
+	}
 
-	// PRAGMA: need to check if file opened successfully
 	return true;
 }
 
-bool GstreamerRootFactory::closeConnection()
+bool GstreamerRootFactory::closeConnection(const std::shared_ptr<GLogger>& log)
 {
 	rootfile->Write();
 	rootfile->Close();
 
+	if (!rootfile->IsOpen()) {
+		log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: could not clos file " + gstreamer_definitions.name);
+	}
+
 	delete rootfile;
 	delete gRootTrees;
 	
-	// PRAGMA: need to check if file closed successfully
 	return true;
 }

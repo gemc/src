@@ -20,7 +20,7 @@ private:
 
 	double var1;
 	int var2[2];
-	vector<float> var3;
+	vector<double> var3;
 	string var4;
 };
 

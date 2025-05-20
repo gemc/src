@@ -1,5 +1,5 @@
 /**
- * \file gdosimeterDigitization.cpp
+ * \file gDosimeterDigitization.cc
  * \brief Implementation of GDosimeterDigitization methods.
  *
  * \mainpage Dosimeter Digitization Module
@@ -39,9 +39,9 @@ using namespace std;
  * \return True if the readout specifications are successfully defined.
  */
 bool GDosimeterDigitization::defineReadoutSpecsImpl() {
-	float timeWindow = 10;                  // electronic readout time-window of the detector
-	float gridStartTime = 0;                // defines the windows grid
-	auto hitBitSet = HitBitSet("000001");  // defines what information to be stored in the hit
+	double timeWindow    = 10;                  // electronic readout time-window of the detector
+	double gridStartTime = 0;                   // defines the windows grid
+	auto   hitBitSet     = HitBitSet("000001"); // defines what information to be stored in the hit
 
 	// Create a new GReadoutSpecs object with the specified parameters.
 	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger);
@@ -63,7 +63,7 @@ bool GDosimeterDigitization::defineReadoutSpecsImpl() {
  * \param hitn The hit index.
  * \return Pointer to the newly created GDigitizedData object.
  */
-GDigitizedData *GDosimeterDigitization::digitizeHitImpl(GHit *ghit, size_t hitn) {
+GDigitizedData* GDosimeterDigitization::digitizeHitImpl(GHit* ghit, size_t hitn) {
 	// Ensure that required loggers and options are defined.
 	check_if_log_defined();
 
@@ -71,7 +71,7 @@ GDigitizedData *GDosimeterDigitization::digitizeHitImpl(GHit *ghit, size_t hitn)
 	GIdentifier identity = ghit->getGID().front();
 
 	// Create a new GDigitizedData object for this hit.
-	auto *gdata = new GDigitizedData(ghit, data_logger);
+	auto* gdata = new GDigitizedData(ghit, data_logger);
 
 	// Include basic hit variables.
 	gdata->includeVariable(identity.getName(), identity.getValue());
@@ -80,7 +80,7 @@ GDigitizedData *GDosimeterDigitization::digitizeHitImpl(GHit *ghit, size_t hitn)
 	gdata->includeVariable("time", ghit->getAverageTime());
 
 	// Retrieve per-step particle IDs and energies.
-	auto pids = ghit->getPids();
+	auto pids      = ghit->getPids();
 	auto pEnergies = ghit->getEs();
 
 	double nielWeight = 0;
@@ -116,11 +116,11 @@ GDigitizedData *GDosimeterDigitization::digitizeHitImpl(GHit *ghit, size_t hitn)
  * \param variation Variation string (unused).
  * \return True if the constants are successfully loaded.
  */
-bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] string const &variation) {
+bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] string const& variation) {
 	// NIEL Data: map from particle ID (PID) to file name.
 	map<int, string> nielDataFiles;
-	nielDataFiles[11] = "niel_electron.txt";
-	nielDataFiles[211] = "niel_pion.txt";
+	nielDataFiles[11]   = "niel_electron.txt";
+	nielDataFiles[211]  = "niel_pion.txt";
 	nielDataFiles[2112] = "niel_neutron.txt";
 	nielDataFiles[2212] = "niel_proton.txt";
 
@@ -132,9 +132,7 @@ bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int runno, [[may
 		string dataFileWithPath = pluginPath + "/dosimeterData/Niel/" + filename;
 
 		ifstream inputfile(dataFileWithPath);
-		if (!inputfile) {
-			digi_logger->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
-		}
+		if (!inputfile) { digi_logger->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath); }
 
 		digi_logger->info(0, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
 
@@ -148,8 +146,8 @@ bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int runno, [[may
 	}
 
 	// Load particle masses (in MeV) for calibration.
-	pMassMeV[11] = 0.510;
-	pMassMeV[211] = 139.570;
+	pMassMeV[11]   = 0.510;
+	pMassMeV[211]  = 139.570;
 	pMassMeV[2112] = 939.565;
 	pMassMeV[2212] = 938.272;
 
@@ -168,10 +166,10 @@ bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int runno, [[may
  * \param energyMeV Effective energy (in MeV) after subtracting particle mass.
  * \return The interpolated NIEL factor.
  */
-float GDosimeterDigitization::getNielFactorForParticleAtEnergy(int pid, float energyMeV) {
+double GDosimeterDigitization::getNielFactorForParticleAtEnergy(int pid, double energyMeV) {
 	// Number of NIEL data points available for this particle.
 	auto niel_N = nielfactorMap[pid].size();
-	auto j = niel_N;
+	auto j      = niel_N;
 
 	// Find the first index for which the energy is below the threshold.
 	for (size_t i = 0; i < niel_N; i++) {
@@ -184,15 +182,17 @@ float GDosimeterDigitization::getNielFactorForParticleAtEnergy(int pid, float en
 	double value;
 	if (j > 0 && j < niel_N) {
 		// Perform linear interpolation between indices j-1 and j.
-		auto nielfactor_low = nielfactorMap[pid][j - 1];
+		auto nielfactor_low  = nielfactorMap[pid][j - 1];
 		auto nielfactor_high = nielfactorMap[pid][j];
-		auto energy_low = E_nielfactorMap[pid][j - 1];
-		auto energy_high = E_nielfactorMap[pid][j];
-		value = nielfactor_low + (nielfactor_high - nielfactor_low) / (energy_high - energy_low) * (energyMeV - energy_low);
-	} else if (j == 0) {
+		auto energy_low      = E_nielfactorMap[pid][j - 1];
+		auto energy_high     = E_nielfactorMap[pid][j];
+		value                = nielfactor_low + (nielfactor_high - nielfactor_low) / (energy_high - energy_low) * (energyMeV - energy_low);
+	}
+	else if (j == 0) {
 		// Energy is below the first threshold.
 		value = nielfactorMap[pid].front();
-	} else {
+	}
+	else {
 		// Energy is above the last threshold.
 		value = nielfactorMap[pid].back();
 	}

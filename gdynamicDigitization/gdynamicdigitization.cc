@@ -164,7 +164,7 @@ void GTouchableModifiers::assignOverallWeight(std::string tname, double totalWei
  * \param thisStep Pointer to the current G4Step.
  * \return The global time.
  */
-float GDynamicDigitization::processStepTimeImpl([[maybe_unused]] GTouchable *gTouchID, [[maybe_unused]] G4Step *thisStep) {
+double GDynamicDigitization::processStepTimeImpl([[maybe_unused]] GTouchable *gTouchID, [[maybe_unused]] G4Step *thisStep) {
 	return thisStep->GetPostStepPoint()->GetGlobalTime();
 }
 
@@ -180,8 +180,8 @@ float GDynamicDigitization::processStepTimeImpl([[maybe_unused]] GTouchable *gTo
  * \return A vector of GTouchable pointers.
  */
 std::vector<GTouchable *> GDynamicDigitization::processTouchableImpl(GTouchable *gTouchID, G4Step *thisStep) {
-	float stepTimeAtElectronics = processStepTime(gTouchID, thisStep);
-	float stepTimeAtElectronicsIndex = readoutSpecs->timeCellIndex(stepTimeAtElectronics);
+	double stepTimeAtElectronics = processStepTime(gTouchID, thisStep);
+	double stepTimeAtElectronicsIndex = readoutSpecs->timeCellIndex(stepTimeAtElectronics);
 	if (stepTimeAtElectronicsIndex == gTouchID->getStepTimeAtElectronicsIndex() ||
 		gTouchID->getStepTimeAtElectronicsIndex() == GTOUCHABLEUNSETTIMEINDEX) {
 		gTouchID->assignStepTimeAtElectronicsIndex(stepTimeAtElectronicsIndex);

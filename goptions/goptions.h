@@ -75,12 +75,6 @@ public:
 	 */
 	int getScalarInt(const string& tag) const;
 
-	/**
-	 * @brief Retrieves the value of a scalar float option.
-	 * @param tag The name of the option.
-	 * @return The float value.
-	 */
-	float getScalarFloat(const string& tag) const;
 
 	/**
 	 * @brief Retrieves the value of a scalar double option.

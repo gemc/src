@@ -14,30 +14,28 @@
 // - dosimeter: track id is the discriminating factor, radiation digitization
 
 
-
 /**
  * @brief Enumeration representing the type of GTouchable element.
  *
  * Defines different types of sensitive detector elements.
  */
 enum GTouchableType {
-	readout,          ///< Electronic readout with time window discrimination.
-	flux,             ///< Track-based discrimination.
-	particleCounter,  ///< No additional discriminating factors.
-	dosimeter         ///< Radiation digitization using track id.
+	readout,         ///< Electronic readout with time window discrimination.
+	flux,            ///< Track-based discrimination.
+	particleCounter, ///< No additional discriminating factors.
+	dosimeter        ///< Radiation digitization using track id.
 };
 
 // ------------------------------------------------------------------------
 // Convert enum to string for logging / debugging.
 // ------------------------------------------------------------------------
-inline const char* to_string(GTouchableType t)
-{
+inline const char* to_string(GTouchableType t) {
 	switch (t) {
-	case GTouchableType::readout:          return "readout";
-	case GTouchableType::flux:             return "flux";
-	case GTouchableType::particleCounter:  return "particleCounter";
-	case GTouchableType::dosimeter:        return "dosimeter";
-	default:                               return "unknown‑gtouchable";
+	case GTouchableType::readout: return "readout";
+	case GTouchableType::flux: return "flux";
+	case GTouchableType::particleCounter: return "particleCounter";
+	case GTouchableType::dosimeter: return "dosimeter";
+	default: return "unknown‑gtouchable";
 	}
 }
 
@@ -49,20 +47,20 @@ inline const char* to_string(GTouchableType t)
 struct GIdentifier {
 
 public:
-
 	/**
 	 * @brief Constructs a GIdentifier.
 	 * @param n The identifier name.
 	 * @param v The identifier value.
 	 */
-	GIdentifier(std::string n, int v) : idName{std::move(n)}, idValue{v} {}
+	GIdentifier(std::string n, int v) : idName{std::move(n)}, idValue{v} {
+	}
 
 	/**
 	 * @brief Equality operator comparing only the identifier value.
 	 * @param gid The GIdentifier to compare.
 	 * @return True if the identifier values are equal.
 	 */
-	bool operator==(const GIdentifier &gid) const { return this->idValue == gid.idValue; }
+	bool operator==(const GIdentifier& gid) const { return this->idValue == gid.idValue; }
 
 	/**
 	 * @brief Gets the identifier name.
@@ -76,13 +74,12 @@ public:
 	 */
 	[[nodiscard]] inline int getValue() const { return idValue; }
 
-
 private:
 	string idName;
-	int idValue;
+	int    idValue;
 
 	/// Overloaded output operator for GIdentifier.
-	friend std::ostream &operator<<(std::ostream &stream, const GIdentifier &gidentifier);
+	friend std::ostream& operator<<(std::ostream& stream, const GIdentifier& gidentifier);
 
 };
 
@@ -111,8 +108,8 @@ public:
 	* @param dimensions The physical dimensions of the detector element.
 	* @param logger Pointer to the GLogger instance for logging messages.
 	*/
-	GTouchable(const std::string &digitization, const std::string &gidentityString,
-			   const std::vector<double> &dimensions, std::shared_ptr<GLogger> logger);
+	GTouchable(const std::string&         digitization, const std::string&     gidentityString,
+	           const std::vector<double>& dimensions, std::shared_ptr<GLogger> logger);
 
 
 	/**
@@ -123,11 +120,9 @@ public:
 	* @param baseGT Pointer to the base GTouchable.
 	* @param newTimeIndex The new electronics time index.
 	*/
-	GTouchable(const GTouchable *baseGT, int newTimeIndex);
+	GTouchable(const GTouchable* baseGT, int newTimeIndex);
 
-	~GTouchable() {
-		log->debug(DESTRUCTOR, "GTouchable", to_string(gType), " ", getIdentityString());
-	}
+	~GTouchable() { log->debug(DESTRUCTOR, "GTouchable", to_string(gType), " ", getIdentityString()); }
 
 	/**
 	* @brief Equality operator comparing two GTouchable objects.
@@ -137,7 +132,7 @@ public:
 	* @param gtouchable The GTouchable to compare with.
 	* @return True if the objects are considered equal.
 	*/
-	bool operator==(const GTouchable &gtouchable) const;
+	bool operator==(const GTouchable& gtouchable) const;
 
 	/**
 	* @brief Assigns a track identifier.
@@ -150,7 +145,7 @@ public:
 	* @brief Gets the energy multiplier.
  	* @return The energy multiplier.
  	*/
-	[[nodiscard]] inline float getEnergyMultiplier() const { return eMultiplier; }
+	[[nodiscard]] inline double getEnergyMultiplier() const { return eMultiplier; }
 
 	/**
  	* @brief Assigns the step time index used in electronics.
@@ -176,9 +171,7 @@ public:
 	*/
 	[[nodiscard]] inline std::string getIdentityString() const {
 		std::string idString;
-		for (const auto &id: gidentity) {
-			idString += id.getName() + ": " + std::to_string(id.getValue()) + " ";
-		}
+		for (const auto& id : gidentity) { idString += id.getName() + ": " + std::to_string(id.getValue()) + " "; }
 		return idString;
 	}
 
@@ -186,7 +179,7 @@ public:
 	* @brief Returns the detector dimensions.
 	* @return A vector containing the dimensions.
 	*/
-	[[nodiscard]] inline  std::vector<double> getDetectorDimensions() const { return detectorDimensions; }
+	[[nodiscard]] inline std::vector<double> getDetectorDimensions() const { return detectorDimensions; }
 
 	/**
 	 * @brief Checks if the GTouchable is found in a vector of GTouchable objects.
@@ -194,8 +187,8 @@ public:
 	 * @return True if the GTouchable is found in the vector.
 	 */
 
-	[[nodiscard]] bool exists_in_vector(const std::vector<GTouchable> &v) const {
-		for (const auto &gt: v) {
+	[[nodiscard]] bool exists_in_vector(const std::vector<GTouchable>& v) const {
+		for (const auto& gt : v) {
 			if (*this == gt) {
 				log->info("GTouchable", this, " exists in vector.");
 				return true;
@@ -207,16 +200,17 @@ public:
 	}
 
 private:
-	std::shared_ptr<GLogger> log;           ///< Logger instance
-	GTouchableType gType;                   ///< The type of the touchable element.
-	std::vector<GIdentifier> gidentity;     ///< Unique identifiers for the detector element.
-	int trackId;                            ///< Track id (used in flux and dosimeter types). Assigned in sensitiveDetector::ProcessHit
-	float eMultiplier;                      ///< Energy multiplier for energy sharing. Set by processGTouchable in the digitization plugin. Defaulted to 1. Used to share energy / create new hits.
-	int stepTimeAtElectronicsIndex;         ///< Used to determine if a hit is within an existing detector readout electronic time window. Set by the digitization plugin using the readout specs.
+	std::shared_ptr<GLogger> log; ///< Logger instance
+	GTouchableType gType; ///< The type of the touchable element.
+	std::vector<GIdentifier> gidentity; ///< Unique identifiers for the detector element.
+	int trackId; ///< Track id (used in flux and dosimeter types). Assigned in sensitiveDetector::ProcessHit
+	double eMultiplier; ///< Energy multiplier for energy sharing. Set by processGTouchable in the digitization plugin. Defaulted to 1. Used to share energy / create new hits.
+	int stepTimeAtElectronicsIndex;
+	///< Used to determine if a hit is within an existing detector readout electronic time window. Set by the digitization plugin using the readout specs.
 	std::vector<double> detectorDimensions; ///< Physical dimensions of the detector element. Saved to be used in GDynamicDigitization if needed
 
 
 	/// Overloaded output operator for GTouchable.
-	friend std::ostream &operator<<(std::ostream &stream, const GTouchable &gtouchable);
+	friend std::ostream& operator<<(std::ostream& stream, const GTouchable& gtouchable);
 
 };

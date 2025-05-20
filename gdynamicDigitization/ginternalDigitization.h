@@ -131,6 +131,6 @@ private:
 	 * \param energy The energy value.
 	 * \return The NIEL factor as a double.
 	 */
-	float getNielFactorForParticleAtEnergy(int pid, float energy);
+	double getNielFactorForParticleAtEnergy(int pid, double energy);
 };
 

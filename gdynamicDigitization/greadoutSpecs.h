@@ -44,8 +44,8 @@
 class GReadoutSpecs {
 
 private:
-	float     timeWindow;    ///< Electronic readout time-window of the detector.
-	float     gridStartTime; ///< The start time of the time grid.
+	double    timeWindow;    ///< Electronic readout time-window of the detector.
+	double    gridStartTime; ///< The start time of the time grid.
 	HitBitSet hitBitSet;     ///< Defines which hit information to be stored.
 
 public:
@@ -59,7 +59,7 @@ public:
 	 * \param hbs The hit bitset defining what information to store.
 	 * \param log Pointer to a GLogger instance for logging.
 	 */
-	GReadoutSpecs(const float tw, const float gst, const HitBitSet hbs, const std::shared_ptr<GLogger>& log) :
+	GReadoutSpecs(const double tw, const double gst, const HitBitSet hbs, const std::shared_ptr<GLogger>& log) :
 		timeWindow(tw),
 		gridStartTime(gst),
 		hitBitSet(hbs) {
@@ -87,9 +87,5 @@ public:
 	 * \param time The time value (e.g., global time from the simulation).
 	 * \return The computed time cell index as an integer.
 	 */
-	[[nodiscard]] inline int timeCellIndex(float time) const {
-		return static_cast<int>(std::floor((time - gridStartTime) / timeWindow) + 1);
-	}
+	[[nodiscard]] inline int timeCellIndex(double time) const { return static_cast<int>(std::floor((time - gridStartTime) / timeWindow) + 1); }
 };
-
-

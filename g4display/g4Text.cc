@@ -19,9 +19,9 @@ namespace g4display {
 
             st_item.text = gopts->get_variable_in_option<string>(g4t_item, "text", goptions::NODFLT);
             st_item.color = gopts->get_variable_in_option<string>(g4t_item, "color", "black");
-            st_item.x = gopts->get_variable_in_option<float>(g4t_item, "x", 0);
-            st_item.y = gopts->get_variable_in_option<float>(g4t_item, "y", 0);
-            st_item.z = gopts->get_variable_in_option<float>(g4t_item, "z", GNOT_SPECIFIED_SCENE_TEXT_Z);
+            st_item.x = gopts->get_variable_in_option<double>(g4t_item, "x", 0);
+            st_item.y = gopts->get_variable_in_option<double>(g4t_item, "y", 0);
+            st_item.z = gopts->get_variable_in_option<double>(g4t_item, "z", GNOT_SPECIFIED_SCENE_TEXT_Z);
             st_item.size = gopts->get_variable_in_option<double>(g4t_item, "size", 24.0);
             st.push_back(st_item);
         }

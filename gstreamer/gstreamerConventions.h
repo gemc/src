@@ -1,10 +1,7 @@
 #pragma once
 
 // exit codes: 800s
-#define EC__GSTREAMERFACTORYNOTFOUND  801
-#define EC__GSTREAMERVARIABLEEXISTS   802
-
-#define EVTLOGHEADER   " ⊳ "
-#define SROLOGHEADER   " ⊪ "
-
-
+#define ERR_GSTREAMERFACTORYNOTFOUND  801
+#define ERR_GSTREAMERVARIABLEEXISTS   802
+#define ERR_CANTOPENOUTPUT            803
+#define ERR_CANTCLOSEOUTPUT           804

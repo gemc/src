@@ -43,7 +43,7 @@ public:
 	DynamicLib() = default;
 
 	// path here is the filename
-	DynamicLib(std::shared_ptr<GLogger> logger, std::string path) : dlFileName(path), log(std::move(logger)), handle(nullptr) {
+	DynamicLib(std::shared_ptr<GLogger> logger, std::string path) : dlFileName(path), log(logger), handle(nullptr) {
 		log->debug(CONSTRUCTOR, "Instantiating ", path);
 		log->debug(NORMAL, "Trying ", dlFileName);
 

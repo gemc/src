@@ -1,23 +1,20 @@
 // gstreamer
 #include "../gstreamerASCIIFactory.h"
+#include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::startStream([[maybe_unused]] const GFrameDataCollection* frameRunData)
-{
-	if(ofile == nullptr) return false;
+bool GstreamerTextFactory::startStream([[maybe_unused]] const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) {
+	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
-	*ofile  << "Frame {" << endl;
+	*ofile << "Frame {" << std::endl;
 
 	return true;
 }
 
 
+bool GstreamerTextFactory::endStream([[maybe_unused]] const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) {
+	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
-
-bool GstreamerTextFactory::endStream([[maybe_unused]]  const GFrameDataCollection* frameRunData)
-{
-	if(ofile == nullptr) return false;
-
-	*ofile  << "}" << endl;
+	*ofile << "}" << std::endl;
 
 	return true;
 }

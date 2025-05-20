@@ -9,6 +9,7 @@
 // qt
 #include <QApplication>
 #include <QMainWindow>
+#include <QTimer>
 
 int main(int argc, char* argv[]) {
 
@@ -20,20 +21,22 @@ int main(int argc, char* argv[]) {
 	auto visManager = new G4VisExecutive;
 	visManager->Initialize();
 
-	// main window
+    // main window and controls
 	auto window = new QMainWindow();
 	window->setWindowTitle(QString::fromUtf8("displayUI example"));
-
-	// controls
 	auto g4dialog = new G4Dialog(gopts, window);
 	window->setCentralWidget(g4dialog);
 
-
 	log->info(0, "g4 dialog example started");
+	int ret = EXIT_SUCCESS;
 
 	if (gopts->getSwitch("gui")) {
 		window->show();
-		return app.exec();
+
+		// --- quit after 0.5 s ---
+		QTimer::singleShot(500, &app, &QCoreApplication::quit);  // ⬅️ key line :contentReference[oaicite:0]{index=0}
+
+		ret = QApplication::exec();    // returns when the timer fires
 	}
 
 	delete g4dialog;
@@ -41,6 +44,6 @@ int main(int argc, char* argv[]) {
 	delete visManager;
 	delete gopts;
 
-	return EXIT_SUCCESS;
+	return ret;
 
 }

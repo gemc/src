@@ -13,9 +13,9 @@ namespace g4display {
     struct G4SceneText {
         string text;
         string color;
-        float x;
-        float y;
-        float z = GNOT_SPECIFIED_SCENE_TEXT_Z;
+        double x;
+        double y;
+        double z = GNOT_SPECIFIED_SCENE_TEXT_Z;
         int size;
     };
 

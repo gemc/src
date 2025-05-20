@@ -23,7 +23,7 @@ public:
 	 * \param logger Pointer to a GLogger instance.
 	 */
 	GIntegralPayload(int c, int s, int ch, int q, int t, std::shared_ptr<GLogger> logger)
-		: log(std::move(logger)), crate(c), slot(s), channel(ch), charge(q), time(t) {
+		: log(logger), crate(c), slot(s), channel(ch), charge(q), time(t) {
 		log->debug(CONSTRUCTOR, "GIntegralPayload crate ", crate, " slot ", slot, " channel ", channel, " charge ",
 		           charge, " time ", time);
 	}

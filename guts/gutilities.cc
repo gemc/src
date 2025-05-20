@@ -160,9 +160,7 @@ double getG4Number(const string& v, bool warnIfNotUnit) {
 
 	// If no '*' is found, the input is assumed to be a number without units
 	if (value.find('*') == string::npos) {
-		if (!value.empty() && warnIfNotUnit && stod(value) != 0) {
-			std::cerr << " ! Warning: value " << v << " does not contain units." << std::endl;
-		}
+		if (!value.empty() && warnIfNotUnit && stod(value) != 0) { std::cerr << " ! Warning: value " << v << " does not contain units." << std::endl; }
 
 		try { return stod(value); }
 		catch (const std::exception& e) {
@@ -217,9 +215,7 @@ double getG4Number(const string& v, bool warnIfNotUnit) {
 
 		auto it = unitConversion.find(units);
 		if (it != unitConversion.end()) { answer *= it->second; }
-		else {
-			std::cerr << GWARNING << ">" << units << "<: unit not recognized for string <" << v << ">" << std::endl;
-		}
+		else { std::cerr << GWARNING << ">" << units << "<: unit not recognized for string <" << v << ">" << std::endl; }
 
 		return answer;
 	}
@@ -428,10 +424,10 @@ G4Colour makeColour(std::string_view code) {
 	for (int i = 0; i < 6; ++i)
 		rgb    = (rgb << 4) | hexNibble(code[i]);
 
-	auto   byteToFloat = [](unsigned byte) { return byte / 255.0; };
-	double r           = byteToFloat((rgb >> 16) & 0xFF);
-	double g           = byteToFloat((rgb >> 8) & 0xFF);
-	double b           = byteToFloat(rgb & 0xFF);
+	auto   byteToDouble = [](unsigned byte) { return byte / 255.0; };
+	double r           = byteToDouble((rgb >> 16) & 0xFF);
+	double g           = byteToDouble((rgb >> 8) & 0xFF);
+	double b           = byteToDouble(rgb & 0xFF);
 
 	// ---- optional transparency nibble ----
 	double a = 1.0;

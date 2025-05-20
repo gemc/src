@@ -19,10 +19,8 @@ public:
 	 * \param frameDuration_ The frame duration.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	GFrameDataCollectionHeader(long int frameID_, float frameDuration_, std::shared_ptr<GLogger> logger)
-		: log(std::move(logger)), frameID(frameID_), frameDuration(frameDuration_) {
-		log->debug(CONSTRUCTOR, "GFrameHeader id ", frameID);
-	}
+	GFrameDataCollectionHeader(long int frameID_, double frameDuration_, std::shared_ptr<GLogger> logger)
+		: log(logger), frameID(frameID_), frameDuration(frameDuration_) { log->debug(CONSTRUCTOR, "GFrameHeader id ", frameID); }
 
 	/**
 	 * \brief Destructor for GFrameDataCollectionHeader.
@@ -42,9 +40,9 @@ public:
 	[[nodiscard]] inline long int getTime() const { return time_ns(); }
 
 private:
-	std::shared_ptr<GLogger> log;           ///< Logger instance
+	std::shared_ptr<GLogger> log{};           ///< Logger instance
 	long int                 frameID;       ///< Frame ID.
-	float                    frameDuration; ///< Frame duration.
+	double                   frameDuration; ///< Frame duration.
 
 	/**
 	 * \brief Computes a time value based on frame ID and duration.
@@ -52,4 +50,3 @@ private:
 	 */
 	[[nodiscard]] long int time_ns() const { return frameID * frameDuration; }
 };
-

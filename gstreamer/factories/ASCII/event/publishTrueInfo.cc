@@ -1,30 +1,25 @@
 // gstreamer
 #include "../gstreamerASCIIFactory.h"
+#include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::publishEventTrueInfoData(const string detectorName, const vector<GTrueInfoData*>* trueInfoData) {
+bool GstreamerTextFactory::publishEventTrueInfoData(const string                  detectorName,
+                                                    const vector<GTrueInfoData*>* trueInfoData,
+                                                    std::shared_ptr<GLogger>&     log) {
+	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
-	if(ofile == nullptr) return false;
-	
-	*ofile << GTAB << "Detector <" <<  detectorName << "> True Info Bank {" << endl;
+	*ofile << GTAB << "Detector <" << detectorName << "> True Info Bank {" << std::endl;
 
-	for ( auto trueInfoHit: *trueInfoData ) {
-
+	for (auto trueInfoHit : *trueInfoData) {
 		string identifierString = trueInfoHit->getIdentityString();
 
-		*ofile << GTABTAB << "Hit address: " << identifierString << " {" << endl;
+		*ofile << GTABTAB << "Hit address: " << identifierString << " {" << std::endl;
 
-		for ( auto [variableName, value]: trueInfoHit->getFloatVariablesMap() ) {
-			*ofile << GTABTABTAB << variableName << ": " << value << endl;
-		}
-		for ( auto [variableName, value]: trueInfoHit->getStringVariablesMap() ) {
-			*ofile << GTABTABTAB << variableName << ": " << value << endl;
-		}
+		for (const auto& [variableName, value] : trueInfoHit->getDoubleVariablesMap()) { *ofile << GTABTABTAB << variableName << ": " << value << std::endl; }
+		for (const auto& [variableName, value] : trueInfoHit->getStringVariablesMap()) { *ofile << GTABTABTAB << variableName << ": " << value << std::endl; }
 
-		*ofile << GTABTAB << "}" << endl;
-
-
+		*ofile << GTABTAB << "}" << std::endl;
 	}
-	*ofile << GTAB << "}" << endl;
+	*ofile << GTAB << "}" << std::endl;
 
 
 	return true;

@@ -38,7 +38,6 @@ public:
 	void includeVariable(const std::string& vname, int value);
 	void includeVariable(const std::string& vname, double value);
 	// void includeVariable(std::string vname, std::vector<int> values);
-	// void includeVariable(std::string vname, std::vector<float> values);
 
 	/**
 	 * \brief Returns the filtered map of integer observables.
@@ -48,11 +47,11 @@ public:
 	[[nodiscard]] std::map<std::string, int> getIntObservablesMap(int which) const;
 
 	/**
-	 * \brief Returns the filtered map of float observables.
+	 * \brief Returns the filtered map of double observables.
 	 * \param which 0: returns non-streaming variables; 1: returns streaming variables.
-	 * \return A map of variable names to float values.
+	 * \return A map of variable names to double values.
 	 */
-	[[nodiscard]] std::map<std::string, float> getFltObservablesMap(int which) const;
+	[[nodiscard]] std::map<std::string, double> getDblObservablesMap(int which) const;
 
 	/**
 	 * \brief Gets the time at electronics.
@@ -63,31 +62,27 @@ public:
 	 */
 	int getTimeAtElectronics();
 
-	int   getIntObservable(std::string varName);
-	float getFltObservable(std::string varName);
+	int    getIntObservable(const std::string& varName);
+	double getDblObservable(const std::string& varName);
 
 	/**
 	 * \brief Returns the map of integer array observables.
 	 * \return A map of variable names to vectors of integers.
 	 */
-	[[nodiscard]] inline std::map<std::string, std::vector<int>> getArrayIntObservablesMap() const {
-		return arrayIntObservablesMap;
-	}
+	[[nodiscard]] inline std::map<std::string, std::vector<int>> getArrayIntObservablesMap() const { return arrayIntObservablesMap; }
 
 	/**
-	 * \brief Returns the map of float array observables.
-	 * \return A map of variable names to vectors of floats.
+	 * \brief Returns the map of double array observables.
+	 * \return A map of variable names to vectors of double.
 	 */
-	[[nodiscard]] inline std::map<std::string, std::vector<double>> getArrayFltObservablesMap() const {
-		return arrayDoubleObservablesMap;
-	}
+	[[nodiscard]] inline std::map<std::string, std::vector<double>> getArrayDblObservablesMap() const { return arrayDoubleObservablesMap; }
 
 private:
-	std::map<std::string, int> intObservablesMap; ///< Map of integer observables.
-	std::map<std::string, double> doubleObservablesMap; ///< Map of float observables.
-	std::map<std::string, std::vector<int>> arrayIntObservablesMap; ///< Map of integer array observables.
-	std::map<std::string, std::vector<double>> arrayDoubleObservablesMap; ///< Map of float array observables.
-	std::vector<GIdentifier> gidentity; ///< Identity extracted from the hit.
-	[[nodiscard]] bool validVarName(const std::string& varName, int which) const; ///< Validates variable names.
-	std::shared_ptr<GLogger> log; ///< Logger instance
+	std::map<std::string, int>                 intObservablesMap;                                   ///< Map of integer observables.
+	std::map<std::string, double>              doubleObservablesMap;                                ///< Map of double observables.
+	std::map<std::string, std::vector<int>>    arrayIntObservablesMap;                              ///< Map of integer array observables.
+	std::map<std::string, std::vector<double>> arrayDoubleObservablesMap;                           ///< Map of double array observables.
+	std::vector<GIdentifier>                   gidentity;                                           ///< Identity extracted from the hit.
+	[[nodiscard]] static bool                  validVarName(const std::string& varName, int which); ///< Validates variable names.
+	std::shared_ptr<GLogger>                   log;                                                 ///< Logger instance
 };

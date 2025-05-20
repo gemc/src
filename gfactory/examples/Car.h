@@ -8,7 +8,7 @@ public:
 
     virtual ~Car() = default;
 
-    float generalCarVar = 44;
+    double generalCarVar = 44;
 
     // method to dynamically load factories
     static Car *instantiate(const dlhandle handle) {

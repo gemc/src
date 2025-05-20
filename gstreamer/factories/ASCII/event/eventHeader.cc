@@ -1,17 +1,17 @@
 // gstreamer
 #include "../gstreamerASCIIFactory.h"
+#include "gstreamerConventions.h"
 
-
-bool GstreamerTextFactory::publishEventHeader(const GEventDataCollectionHeader *gheader)
+bool GstreamerTextFactory::publishEventHeader(const GEventDataCollectionHeader *gheader, std::shared_ptr<GLogger>& log)
 {
-	if(ofile == nullptr) return false;
+	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 	
-	*ofile << GTAB << "Header Bank {" << endl;
-	*ofile << GTABTAB << " time: " << gheader->getTimeStamp() << endl;
-	*ofile << GTABTAB << " g4run-local event number: " << gheader->getG4LocalEvn() << endl;
-	*ofile << GTABTAB << " thread id: " << gheader->getThreadID() << endl;
+	*ofile << GTAB << "Header Bank {" << std::endl;
+	*ofile << GTABTAB << " time: " << gheader->getTimeStamp() << std::endl;
+	*ofile << GTABTAB << " g4run-local event number: " << gheader->getG4LocalEvn() << std::endl;
+	*ofile << GTABTAB << " thread id: " << gheader->getThreadID() << std::endl;
 //	*ofile << GTABTAB << " random status: " << gh->getG4Rnd() << endl;
-	*ofile << GTAB << "}" << endl;
+	*ofile << GTAB << "}" << std::endl;
 
 	return true;
 }

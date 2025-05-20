@@ -91,7 +91,7 @@ private:
 
 
 inline GManager::GManager(std::shared_ptr<GLogger> logger, std::string name)
-	: gname_(std::move(name)), log_(std::move(logger)) { log_->debug(CONSTRUCTOR,  gname_); }
+	: gname_(std::move(name)), log_(logger) { log_->debug(CONSTRUCTOR,  gname_); }
 
 inline GManager::~GManager() {
 	log_->debug(DESTRUCTOR, gname_);

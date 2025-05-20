@@ -170,7 +170,7 @@ void GRunAction::EndOfRunAction(const G4Run *aRun) {
 
 // determine the frame ID based on event number, eventDuration, frameDuration and number of threads
 // add frameData to frameRunData if it's not present
-int GRunAction::eventFrameIndex(int eventNumber, float timeAtElectronics) {
+int GRunAction::eventFrameIndex(int eventNumber, double timeAtElectronics) {
 
     int absoluteHitTime = eventNumber * eventDuration + timeAtElectronics;
     int frameID = absoluteHitTime / frameDuration + 1;

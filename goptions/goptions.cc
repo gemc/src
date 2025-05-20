@@ -220,22 +220,6 @@ int GOptions::getScalarInt(const std::string &tag) const {
 }
 
 /**
- * @brief Retrieves the value of a scalar float option.
- *
- * @param tag The name of the option.
- * @return The float value.
- */
-float GOptions::getScalarFloat(const std::string &tag) const {
-	auto it = getOptionIterator(tag);
-	if (it == goptions.end()) {
-		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR
-			 << " was not found." << endl;
-		exit(EC__NOOPTIONFOUND);
-	}
-	return it->value.begin()->second.as<float>();
-}
-
-/**
  * @brief Retrieves the value of a scalar double option.
  *
  * @param tag The name of the option.
@@ -463,7 +447,6 @@ T GOptions::get_variable_in_option(const YAML::Node &node, const std::string &va
 
 // Explicit template instantiations.
 template int GOptions::get_variable_in_option<int>(const YAML::Node &node, const std::string &variable_name, const int &default_value);
-template float GOptions::get_variable_in_option<float>(const YAML::Node &node, const std::string &variable_name, const float &default_value);
 template double GOptions::get_variable_in_option<double>(const YAML::Node &node, const std::string &variable_name, const double &default_value);
 template string GOptions::get_variable_in_option<string>(const YAML::Node &node, const std::string &variable_name, const string &default_value);
 template bool GOptions::get_variable_in_option<bool>(const YAML::Node &node, const std::string &variable_name, const bool &default_value);

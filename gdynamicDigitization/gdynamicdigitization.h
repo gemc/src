@@ -123,13 +123,13 @@ public:
 	 * \param thisStep Pointer to the current G4Step.
 	 * \return The global time.
 	 */
-	float processStepTime(GTouchable* gTouchID, G4Step* thisStep) {
+	double processStepTime(GTouchable* gTouchID, G4Step* thisStep) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::process step time");
 		return processStepTimeImpl(gTouchID, thisStep);
 	}
 
-	virtual float processStepTimeImpl(GTouchable* gTouchID, G4Step* thisStep);
+	virtual double processStepTimeImpl(GTouchable* gTouchID, G4Step* thisStep);
 
 
 	/**

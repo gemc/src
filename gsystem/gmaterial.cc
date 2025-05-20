@@ -14,7 +14,7 @@ using namespace gutilities;
 using namespace std;
 
 
-GMaterial::GMaterial(string s, vector<string> pars, shared_ptr<GLogger> logger) : system(std::move(s)), log(std::move(logger)) {
+GMaterial::GMaterial(string s, vector<string> pars, shared_ptr<GLogger> logger) : system(std::move(s)), log(logger) {
 	if (pars.size() != GMATERIALNUMBEROFPARS) {
 		log->error(ERR_GWRONGNUMBEROFPARS,
 		           "Incorrect number of material parameters for ", pars[0], ". Expected ",

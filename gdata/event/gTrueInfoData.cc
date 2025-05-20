@@ -7,12 +7,12 @@
 #include <string>
 #include <utility>
 
-GTrueInfoData::GTrueInfoData(GHit* ghit, std::shared_ptr<GLogger> logger) : log(std::move(logger)) {
+GTrueInfoData::GTrueInfoData(GHit* ghit, std::shared_ptr<GLogger> logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GTrueInfoData");
 	gidentity = ghit->getGID();
 }
 
-void GTrueInfoData::includeVariable(const std::string& varName, float var) {
+void GTrueInfoData::includeVariable(const std::string& varName, double var) {
 	log->debug(NORMAL, " including ", varName, " in trueInfoDoublesVariablesMap.");
 	trueInfoDoublesVariablesMap[varName] = var;
 }

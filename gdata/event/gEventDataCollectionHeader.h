@@ -23,7 +23,7 @@ public:
 	 * \param logger Pointer to a GLogger instance.
 	 */
 	GEventDataCollectionHeader(int n, int tid, std::shared_ptr<GLogger> logger) : g4localEventNumber(n), threadID(tid),
-		log(std::move(logger)) {
+		log(logger) {
 		timeStamp = assignTimeStamp();
 		log->debug(CONSTRUCTOR, "GEventDataCollectionHeader");
 		log->info(1, TPOINTITEM, " Event Number:  ", g4localEventNumber);
