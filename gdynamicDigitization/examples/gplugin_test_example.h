@@ -14,14 +14,14 @@ public:
     // mandatory readout specs definitions
 	bool defineReadoutSpecsImpl() override;
 
-	bool loadConstantsImpl(int runno, string const &variation) override;
+	bool loadConstantsImpl(int runno, std::string const &variation) override;
 
 private:
 
 	double var1;
 	int var2[2];
-	vector<double> var3;
-	string var4;
+	std::vector<double> var3;
+	std::string var4;
 };
 
 extern "C" GDynamicDigitization* GDynamicDigitizationFactory(void) {

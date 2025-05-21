@@ -5,6 +5,9 @@
 // gemc
 #include "glogger.h"
 
+using std::string;
+using std::vector;
+
 int main(int argc, char* argv[]) {
 	auto gopts = new GOptions(argc, argv, gtouchable::defineOptions());
 	auto log   = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gtouchable example");

@@ -25,13 +25,13 @@ class GRootTree {
 public:
 	// types of TTree
 	GRootTree(const GEventDataCollectionHeader* gheader, std::shared_ptr<GLogger>& log);
-	GRootTree(const string& detectorName, const GTrueInfoData* gdata, std::shared_ptr<GLogger>& log);
-	GRootTree(const string& detectorName, const GDigitizedData* gdata, std::shared_ptr<GLogger>& log);
+	GRootTree(const std::string& detectorName, const GTrueInfoData* gdata, std::shared_ptr<GLogger>& log);
+	GRootTree(const std::string& detectorName, const GDigitizedData* gdata, std::shared_ptr<GLogger>& log);
 
 	// filling trees
 	bool fillTree(const GEventDataCollectionHeader* gheader);
-	bool fillTree(const vector<GTrueInfoData*>* trueInfoData);
-	bool fillTree(const vector<GDigitizedData*>* digitizedData);
+	bool fillTree(const std::vector<GTrueInfoData*>* trueInfoData);
+	bool fillTree(const std::vector<GDigitizedData*>* digitizedData);
 
 	// clear variables map below
 	bool initTreeForTheEvent();
@@ -41,15 +41,15 @@ private:
 
 	// variable maps
 	// index is hit number
-	map<string, vector<int>*>    intVarsMap;
-	map<string, vector<double>*> doubleVarsMap;
-	map<string, vector<string>*> stringVarsMap;
+	std::map<std::string, std::vector<int>*>    intVarsMap;
+	std::map<std::string, std::vector<double>*> doubleVarsMap;
+	std::map<std::string, std::vector<std::string>*> stringVarsMap;
 
 
 	// the second argument is needed to select the VarsMap type and its content
-	void registerVariable(const string& varname, int value);
-	void registerVariable(const string& varname, double value);
-	void registerVariable(const string& varname, const string& value);
+	void registerVariable(const std::string& varname, int value);
+	void registerVariable(const std::string& varname, double value);
+	void registerVariable(const std::string& varname, const std::string& value);
 
 	std::shared_ptr<GLogger>& log;
 };

@@ -25,14 +25,14 @@ private:
 	bool publishEventHeader(const GEventDataCollectionHeader* gheader, std::shared_ptr<GLogger>& log) override;
 
 	// vector index is hit number
-	bool publishEventTrueInfoData(const string detectorName, const vector<GTrueInfoData*>* trueInfoData,  std::shared_ptr<GLogger>& log) override;
-	bool publishEventDigitizedData(const string detectorName, const vector<GDigitizedData*>* digitizedData,  std::shared_ptr<GLogger>& log) override;
+	bool publishEventTrueInfoData(const std::string detectorName, const std::vector<GTrueInfoData*>* trueInfoData,  std::shared_ptr<GLogger>& log) override;
+	bool publishEventDigitizedData(const std::string detectorName, const std::vector<GDigitizedData*>* digitizedData,  std::shared_ptr<GLogger>& log) override;
 
 	// frame streams
 	bool startStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
 	bool endStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
 	bool publishFrameHeader(const GFrameDataCollectionHeader* gframeHeader, const std::shared_ptr<GLogger>& log) override;
-	bool publishPayload(const vector<GIntegralPayload*>* payload, const std::shared_ptr<GLogger>& logs) override;
+	bool publishPayload(const std::vector<GIntegralPayload*>* payload, const std::shared_ptr<GLogger>& logs) override;
 
 private:
 	TFile* rootfile = nullptr; // ROOT file pointer
@@ -40,10 +40,10 @@ private:
 	// return the header tree from the map. If it's not there, initialize it.
 	// executed at startEvent
 	GRootTree* getOrInstantiateHeaderTree(const GEventDataCollectionHeader* gheader, std::shared_ptr<GLogger>& log);
-	GRootTree* getOrInstantiateTrueInfoDataTree(const string& detectorName, const GTrueInfoData* gdata, std::shared_ptr<GLogger>& log);
-	GRootTree* getOrInstantiateDigitizedDataTree(const string& detectorName, const GDigitizedData* gdata, std::shared_ptr<GLogger>& log);
+	GRootTree* getOrInstantiateTrueInfoDataTree(const std::string& detectorName, const GTrueInfoData* gdata, std::shared_ptr<GLogger>& log);
+	GRootTree* getOrInstantiateDigitizedDataTree(const std::string& detectorName, const GDigitizedData* gdata, std::shared_ptr<GLogger>& log);
 
 	// instantiated (and their variable maps) during the first event in startEvent
-	map<string, GRootTree*>* gRootTrees;
+	std::map<std::string, GRootTree*>* gRootTrees;
 
 };

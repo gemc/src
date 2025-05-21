@@ -1,6 +1,8 @@
 // splash
 #include "gsplash.h"
 
+using std::string;
+
 GSplash::GSplash(std::shared_ptr<GLogger> logger, const string& imageName) : splash(nullptr), log(logger) {
 	log->debug(CONSTRUCTOR, "GSplash");
 

@@ -2,22 +2,17 @@
 
 // goption
 #include "goptionsConventions.h"
-// gemc
-#include "gutsConventions.h"
+
 // c++
 #include <map>
 #include <fstream>
 #include <vector>
 #include <string>
-#include <iostream>
 #include <algorithm>
 
 // yaml-cpp
 #include "yaml-cpp/yaml.h"
 
-using std::string;
-using std::map;
-using std::vector;
 
 /**
  * @struct GVariable
@@ -27,9 +22,9 @@ using std::vector;
  * variables, with overloaded constructors to support strings, integers, doubles, and booleans.
  */
 struct GVariable {
-	string name;        ///< The name of the variable.
-	string value;       ///< The value of the variable, stored as a string.
-	string description; ///< A brief description of the variable.
+	std::string name;        ///< The name of the variable.
+	std::string value;       ///< The value of the variable, stored as a string.
+	std::string description; ///< A brief description of the variable.
 
 	/**
 	 * @brief Constructor for initializing a variable with a string value.
@@ -37,8 +32,9 @@ struct GVariable {
 	 * @param val Value of the variable.
 	 * @param d Description of the variable.
 	 */
-	GVariable(string n, string val, string d)
-			: name(std::move(n)), value(std::move(val)), description(std::move(d)) {}
+	GVariable(std::string n, std::string val, std::string d)
+		: name(std::move(n)), value(std::move(val)), description(std::move(d)) {
+	}
 
 	/**
 	 * @brief Constructor for initializing a variable with a double value.
@@ -46,8 +42,8 @@ struct GVariable {
 	 * @param val Value of the variable.
 	 * @param d Description of the variable.
 	 */
-	GVariable(string n, double val, string d)
-			: name(std::move(n)), description(std::move(d)) { value = std::to_string(val); }
+	GVariable(std::string n, double val, std::string d)
+		: name(std::move(n)), description(std::move(d)) { value = std::to_string(val); }
 
 	/**
 	 * @brief Constructor for initializing a variable with a const char* value.
@@ -55,8 +51,9 @@ struct GVariable {
 	 * @param val Value of the variable.
 	 * @param d Description of the variable.
 	 */
-	GVariable(string n, const char *val, string d)
-			: name(std::move(n)), value(val), description(std::move(d)) {}
+	GVariable(std::string n, const char* val, std::string d)
+		: name(std::move(n)), value(val), description(std::move(d)) {
+	}
 
 	/**
 	 * @brief Constructor for initializing a variable with an integer value.
@@ -64,8 +61,8 @@ struct GVariable {
 	 * @param val Value of the variable.
 	 * @param d Description of the variable.
 	 */
-	GVariable(string n, int val, string d)
-			: name(std::move(n)), description(std::move(d)) { value = std::to_string(val); }
+	GVariable(std::string n, int val, std::string d)
+		: name(std::move(n)), description(std::move(d)) { value = std::to_string(val); }
 
 	/**
 	 * @brief Constructor for initializing a variable with a boolean value.
@@ -73,8 +70,8 @@ struct GVariable {
 	 * @param val Boolean value of the variable.
 	 * @param d Description of the variable.
 	 */
-	GVariable(string n, bool val, string d)
-			: name(std::move(n)), description(std::move(d)) { value = val ? "true" : "false"; }
+	GVariable(std::string n, bool val, std::string d)
+		: name(std::move(n)), description(std::move(d)) { value = val ? "true" : "false"; }
 };
 
 /**
@@ -92,9 +89,9 @@ public:
 	 * @param dv A GVariable containing the name, default value, and description of the option.
 	 * @param h Help text for the option.
 	 */
-	GOption(GVariable dv, string h) : name(dv.name), description(dv.description), help(h) {
+	GOption(GVariable dv, std::string h) : name(dv.name), description(dv.description), help(h) {
 		defaultValue = YAML::Load(name + ": " + dv.value);
-		value = defaultValue;
+		value        = defaultValue;
 	}
 
 	/**
@@ -104,10 +101,10 @@ public:
 	 * @param dv Vector of GVariable objects representing each element's default value and description.
 	 * @param h Help text for the option.
 	 */
-	GOption(string n, string desc, vector<GVariable> dv, string h)
-			: name(n), description(desc), help(h) {
+	GOption(std::string n, std::string desc, std::vector<GVariable> dv, std::string h)
+		: name(n), description(desc), help(h) {
 		YAML::Node nodes;
-		for (const auto &v : dv) {
+		for (const auto& v : dv) {
 			YAML::Node this_node = YAML::Load(v.name + ": " + v.value);
 			nodes.push_back(this_node);
 			gvar_descs.push_back(v.description);
@@ -117,9 +114,7 @@ public:
 			}
 		}
 		defaultValue[n] = nodes;
-		if (!isCumulative) {
-			value = defaultValue;
-		}
+		if (!isCumulative) { value = defaultValue; }
 	}
 
 	/**
@@ -131,24 +126,24 @@ public:
 	 * @param subkey The sub–option key to update.
 	 * @param subvalue The new value for the sub–option, given as a string.
 	 */
-	void set_sub_option_value(const string &subkey, const string &subvalue);
+	void set_sub_option_value(const std::string& subkey, const std::string& subvalue);
 
 private:
-	bool isCumulative = false;          ///< Indicates whether the option is cumulative (sequence).
-	const string name;                  ///< The name of the option.
-	const string description;           ///< A summary description of the option.
-	const string help;                  ///< Help text for the option.
+	bool              isCumulative = false; ///< Indicates whether the option is cumulative (sequence).
+	const std::string name;                 ///< The name of the option.
+	const std::string description;          ///< A summary description of the option.
+	const std::string help;                 ///< Help text for the option.
 
-	YAML::Node value;                   ///< The current value(s) of the option.
-	YAML::Node defaultValue;            ///< The default value(s) of the option.
-	vector<string> gvar_descs;          ///< Descriptions for each element in a sequence option.
-	vector<string> mandatory_keys;      ///< Keys that must be provided for a valid option.
+	YAML::Node               value;          ///< The current value(s) of the option.
+	YAML::Node               defaultValue;   ///< The default value(s) of the option.
+	std::vector<std::string> gvar_descs;     ///< Descriptions for each element in a sequence option.
+	std::vector<std::string> mandatory_keys; ///< Keys that must be provided for a valid option.
 
 	/**
 	 * @brief Saves the current option value to a YAML configuration file.
 	 * @param yamlConf Pointer to the output file stream.
 	 */
-	void saveOption(std::ofstream *yamlConf) const;
+	void saveOption(std::ofstream* yamlConf) const;
 
 	/**
 	 * @brief Prints the help information for the option.
@@ -160,19 +155,19 @@ private:
 	 * @brief Returns detailed help text for the option.
 	 * @return A string containing detailed help information.
 	 */
-	string detailedHelp() const;
+	std::string detailedHelp() const;
 
 	/**
 	 * @brief Sets the value of a scalar option based on a command-line string.
 	 * @param v The input string to be set as the option’s value.
 	 */
-	void set_scalar_value(const string &v);
+	void set_scalar_value(const std::string& v);
 
 	/**
 	 * @brief Sets the option value based on a parsed YAML node.
 	 * @param v The YAML node containing the new value(s).
 	 */
-	void set_value(const YAML::Node &v);
+	void set_value(const YAML::Node& v);
 
 	/**
 	 * @brief Checks if all mandatory keys (marked with NODFLT) are present in the YAML node.

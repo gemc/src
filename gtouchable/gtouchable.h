@@ -75,8 +75,8 @@ public:
 	[[nodiscard]] inline int getValue() const { return idValue; }
 
 private:
-	string idName;
-	int    idValue;
+	std::string idName;
+	int         idValue;
 
 	/// Overloaded output operator for GIdentifier.
 	friend std::ostream& operator<<(std::ostream& stream, const GIdentifier& gidentifier);

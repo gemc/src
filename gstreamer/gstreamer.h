@@ -16,14 +16,14 @@ struct GStreamerDefinition {
 	// default constructor
 	GStreamerDefinition() = default;
 
-	GStreamerDefinition(string f, string n, string t) : format(std::move(f)), name(std::move(n)), type(std::move(t)) {
+	GStreamerDefinition(std::string f, std::string n, std::string t) : format(std::move(f)), name(std::move(n)), type(std::move(t)) {
 	}
 
-	string format;
-	string name;
-	string type;
+	std::string format;
+	std::string name;
+	std::string type;
 
-	[[nodiscard]] string gstreamerPluginName() const { return "gstreamer" + format + "Factory"; }
+	[[nodiscard]] std::string gstreamerPluginName() const { return "gstreamer" + format + "Factory"; }
 };
 
 class GStreamer {
@@ -37,18 +37,18 @@ public:
 	// called in GRunAction::EndOfRunAction
 	// runs the protected virtual methods below to write events from a run to file
 	// the key is the routine name and sensitive detector name
-	map<string, bool> publishEventRunData(std::shared_ptr<GLogger>& log, const vector<GEventDataCollection*>& runData);
+	std::map<std::string, bool> publishEventRunData(std::shared_ptr<GLogger>& log, const std::vector<GEventDataCollection*>& runData);
 
 	// called in GRunAction::EndOfRunAction
 	// runs the protected virtual methods below to write frames from a run to file
 	// the key is the routine name and frame streamer id
-	map<string, bool> publishFrameRunData(const std::shared_ptr<GLogger>& log, const GFrameDataCollection* frameRunData);
+	std::map<std::string, bool> publishFrameRunData(const std::shared_ptr<GLogger>& log, const GFrameDataCollection* frameRunData);
 
-	[[nodiscard]] inline string getStreamType() const { return gstreamer_definitions.type; }
+	[[nodiscard]] inline std::string getStreamType() const { return gstreamer_definitions.type; }
 	inline void                 define_gstreamer(GStreamerDefinition gstreamerDefinition) { gstreamer_definitions = std::move(gstreamerDefinition); }
 
-	static const vector<string> supported_formats;
-	static bool                 is_valid_format(const string& format);
+	static const std::vector<std::string> supported_formats;
+	static bool                 is_valid_format(const std::string& format);
 
 protected:
 	GStreamerDefinition gstreamer_definitions;
@@ -64,13 +64,13 @@ protected:
 
 	// vector index is hit number
 	virtual bool
-	publishEventTrueInfoData([[maybe_unused]] const string                  detectorName,
-	                         [[maybe_unused]] const vector<GTrueInfoData*>* trueInfoData,
+	publishEventTrueInfoData([[maybe_unused]] const std::string                  detectorName,
+	                         [[maybe_unused]] const std::vector<GTrueInfoData*>* trueInfoData,
 	                         [[maybe_unused]] std::shared_ptr<GLogger>&     log) { return false; }
 
 	virtual bool
-	publishEventDigitizedData([[maybe_unused]] const string                   detectorName,
-	                          [[maybe_unused]] const vector<GDigitizedData*>* digitizedData,
+	publishEventDigitizedData([[maybe_unused]] const std::string                   detectorName,
+	                          [[maybe_unused]] const std::vector<GDigitizedData*>* digitizedData,
 	                          [[maybe_unused]] std::shared_ptr<GLogger>&      log) { return false; }
 
 	virtual bool endEvent([[maybe_unused]] const GEventDataCollection*     eventData,
@@ -83,7 +83,7 @@ protected:
 	virtual bool publishFrameHeader([[maybe_unused]] const GFrameDataCollectionHeader* gframeHeader,
 	                                [[maybe_unused]] const std::shared_ptr<GLogger>&   log) { return false; }
 
-	virtual bool publishPayload([[maybe_unused]] const vector<GIntegralPayload*>* payload,
+	virtual bool publishPayload([[maybe_unused]] const std::vector<GIntegralPayload*>* payload,
 	                            [[maybe_unused]] const std::shared_ptr<GLogger>&  log) { return false; }
 
 	virtual bool endStream([[maybe_unused]] const GFrameDataCollection*     frameRunData,

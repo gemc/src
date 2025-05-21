@@ -17,6 +17,6 @@ namespace gparticle {
 GOptions defineOptions();
 
 // method to return a vector of JSystem from a structured option
-vector<GparticlePtr> getGParticles(GOptions* gopts, std::shared_ptr<GLogger>& logger);
+std::vector<GparticlePtr> getGParticles(GOptions* gopts, std::shared_ptr<GLogger>& logger);
 
 }

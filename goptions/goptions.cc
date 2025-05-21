@@ -42,6 +42,10 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 			GVariable("conf_yaml", "saved_configuration", "the prefix for filename that store the used options"),
 			"The default value appends \"_saved_configuration\" to the executable name.");
 
+	// add test timeout for the tests
+	defineOption(GVariable("tt", 500, "tests timeout (ms)"),
+						  "Timeout in milliseconds for the code tests that have GUI. ");
+
 	// version is a special option, not settable by the user
 	// it is set by the gversion.h file
 	// we add it here so it can be saved to the yaml file
@@ -413,7 +417,7 @@ bool GOptions::getSwitch(const std::string &tag) const {
  * @param map_key The key to look up within the option.
  * @return The YAML::Node corresponding to the specified map key.
  */
-YAML::Node GOptions::getOptionMapInNode(string option_name, string map_key) const {
+YAML::Node GOptions::getOptionMapInNode(const string& option_name, const string& map_key) const {
 	auto sequence_node = getOptionNode(option_name);
 	for (auto seq_item : sequence_node) {
 		for (auto map_item = seq_item.begin(); map_item != seq_item.end(); ++map_item) {
@@ -425,7 +429,6 @@ YAML::Node GOptions::getOptionMapInNode(string option_name, string map_key) cons
 	cerr << FATALERRORL << "The key " << YELLOWHHL << map_key << RSTHHR
 		 << " was not found in " << YELLOWHHL << option_name << RSTHHR << endl;
 	exit(EC__NOOPTIONFOUND);
-	return sequence_node;
 }
 
 /**
@@ -484,7 +487,7 @@ int GOptions::getDebugFor(const std::string &tag) const {
 		if (d.begin()->first.as<string>() == tag) {
 			YAML::Node valNode = d.begin()->second;
 			if (valNode.IsScalar()) {
-				string s = valNode.as<string>();
+				auto s = valNode.as<string>();
 				if (s == "true") return 1;
 				if (s == "false") return 0;
 			}

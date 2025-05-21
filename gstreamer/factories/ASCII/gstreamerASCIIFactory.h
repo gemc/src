@@ -24,18 +24,18 @@ private:
 	bool publishEventHeader(const GEventDataCollectionHeader* gheader, std::shared_ptr<GLogger>& log) override;
 
 	// vector index is hit number
-	bool publishEventTrueInfoData(string                        detectorName,
-	                              const vector<GTrueInfoData*>* trueInfoData,
+	bool publishEventTrueInfoData(std::string                        detectorName,
+	                              const std::vector<GTrueInfoData*>* trueInfoData,
 	                              std::shared_ptr<GLogger>&     log) override;
-	bool publishEventDigitizedData(string                         detectorName,
-	                               const vector<GDigitizedData*>* digitizedData,
+	bool publishEventDigitizedData(std::string                         detectorName,
+	                               const std::vector<GDigitizedData*>* digitizedData,
 	                               std::shared_ptr<GLogger>&      log) override;
 
 	// frame streams
 	bool startStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
 	bool endStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
 	bool publishFrameHeader(const GFrameDataCollectionHeader* gframeHeader, const std::shared_ptr<GLogger>& log) override;
-	bool publishPayload(const vector<GIntegralPayload*>* payload, const std::shared_ptr<GLogger>& log) override;
+	bool publishPayload(const std::vector<GIntegralPayload*>* payload, const std::shared_ptr<GLogger>& log) override;
 
 private:
 	std::ofstream* ofile = nullptr;

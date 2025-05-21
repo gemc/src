@@ -2,7 +2,7 @@
 #include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::publishPayload(const vector<GIntegralPayload*> *payload, const std::shared_ptr<GLogger>& log)
+bool GstreamerTextFactory::publishPayload(const std::vector<GIntegralPayload*> *payload, const std::shared_ptr<GLogger>& log)
 {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 

@@ -14,7 +14,7 @@ bool GPlugin_test_example::defineReadoutSpecsImpl() {
 }
 
 
-bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] string const &variation) {
+bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] std::string const &variation) {
 	check_if_log_defined();
 
     var1 = 2.0;

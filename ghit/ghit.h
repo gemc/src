@@ -34,12 +34,12 @@ public:
 	 * \param hbs Bitset selecting which hit information to record.
 	 * \param cScheme Color schema for visualization (default is "default").
 	 */
-	GHit(GTouchable* gt, HitBitSet hbs, const G4Step* thisStep = nullptr, string cScheme = "default");
+	GHit(GTouchable* gt, HitBitSet hbs, const G4Step* thisStep = nullptr, std::string cScheme = "default");
 
 	/**
 	 * \brief Destructor for GHit.
 	 */
-	~GHit() = default;
+	~GHit() override = default;
 
 	/**
 	 * \brief Overloaded new operator using G4Allocator.
@@ -69,31 +69,31 @@ private:
 
 	bool setColorSchema();
 
-	string colorSchema;
+	std::string colorSchema;
 
 	// GTouchable saved here so it can be used in the overloaded == function
 	GTouchable* gtouchable;
 
 	// hit data, selected by HitBitSet, to be collected for each step
 	// always present:
-	vector<double>         edeps, times;
-	vector<G4ThreeVector> globalPositions;
-	vector<G4ThreeVector> localPositions;
+	std::vector<double>        edeps, times;
+	std::vector<G4ThreeVector> globalPositions;
+	std::vector<G4ThreeVector> localPositions;
 
 	// bit 1
-	vector<int>    pids;
-	vector<double>  Es;
-	vector<string> processNames;
+	std::vector<int>         pids;
+	std::vector<double>      Es;
+	std::vector<std::string> processNames;
 
 	// bit 2
-	vector<double> stepSize;
+	std::vector<double> stepSize;
 
 	// calculated/single quantities
 	std::optional<double> totalEnergyDeposited;
 	double                averageTime;
-	G4ThreeVector        avgGlobalPosition;
-	G4ThreeVector        avgLocalPosition;
-	string               processName;
+	G4ThreeVector         avgGlobalPosition;
+	G4ThreeVector         avgLocalPosition;
+	std::string           processName;
 
 	// build hit information based on the bit index and the touchable
 	bool addHitInfosForBitIndex(size_t bitIndex, bool test, const G4Step* thisStep);
@@ -104,31 +104,31 @@ public:
 	   * \brief Gets the energy depositions from each step.
 	   * \return A vector of energy deposition values.
 	   */
-	[[nodiscard]] inline vector<double> getEdeps() const { return edeps; }
+	[[nodiscard]] inline std::vector<double> getEdeps() const { return edeps; }
 
 	/**
 	 * \brief Gets the time stamps for each step.
 	 * \return A vector of time values.
 	 */
-	[[nodiscard]] inline vector<double> getTimes() const { return times; }
+	[[nodiscard]] inline std::vector<double> getTimes() const { return times; }
 
 	/**
 	 * \brief Gets the global positions recorded for the hit.
 	 * \return A vector of G4ThreeVector representing global positions.
 	 */
-	[[nodiscard]] inline vector<G4ThreeVector> getGlobalPositions() const { return globalPositions; }
+	[[nodiscard]] inline std::vector<G4ThreeVector> getGlobalPositions() const { return globalPositions; }
 
 	/**
 	  * \brief Gets the local positions recorded for the hit.
 	  * \return A vector of G4ThreeVector representing local positions.
 	  */
-	[[nodiscard]] inline vector<G4ThreeVector> getLocalPositions() const { return localPositions; }
+	[[nodiscard]] inline std::vector<G4ThreeVector> getLocalPositions() const { return localPositions; }
 
 	/**
 	 * \brief Gets the particle IDs recorded for the hit.
 	 * \return A vector of integer particle IDs.
 	 */
-	[[nodiscard]] inline vector<int> getPids() const { return pids; }
+	[[nodiscard]] inline std::vector<int> getPids() const { return pids; }
 
 	/**
 	 * \brief Returns the first particle ID.
@@ -141,7 +141,7 @@ public:
 	 * \brief Gets the energy values recorded in bit 1.
 	 * \return A vector of energy values.
 	 */
-	[[nodiscard]] inline vector<double> getEs() const { return Es; }
+	[[nodiscard]] inline std::vector<double> getEs() const { return Es; }
 
 	/**
 	 * \brief Returns the first energy value.
@@ -154,7 +154,7 @@ public:
 	 * \brief Gets the process name associated with the hit.
 	 * \return The process name string.
 	 */
-	[[nodiscard]] inline string getProcessName() const { return processName; }
+	[[nodiscard]] inline std::string getProcessName() const { return processName; }
 
 	/**
    * \brief Returns the GTouchable associated with the hit.
@@ -166,13 +166,13 @@ public:
 	 * \brief Returns the detector element identity.
 	 * \return A vector of GIdentifier.
 	 */
-	[[nodiscard]] inline vector<GIdentifier> getGID() const { return gtouchable->getIdentity(); }
+	[[nodiscard]] inline std::vector<GIdentifier> getGID() const { return gtouchable->getIdentity(); }
 
 	/**
      * \brief Returns the dimensions of the detector element.
      * \return A vector of double containing the dimensions.
      */
-	[[nodiscard]] inline vector<double> getDetectorDimensions() const { return gtouchable->getDetectorDimensions(); }
+	[[nodiscard]] inline std::vector<double> getDetectorDimensions() const { return gtouchable->getDetectorDimensions(); }
 
 	// calculated quantities
 	void calculateInfosForBit(int bit);
@@ -187,7 +187,7 @@ public:
 
 	// gemc api
 	// build hit information based on the G4Step
-	void addHitInfosForBitset( HitBitSet hbs, const G4Step* thisStep);
+	void addHitInfosForBitset(HitBitSet hbs, const G4Step* thisStep);
 
 
 	/**
@@ -197,7 +197,7 @@ public:
 	 *
 	 * \return A vector of integer identity values.
 	 */
-	vector<int> getTTID();
+	std::vector<int> getTTID();
 
 };
 
@@ -216,4 +216,3 @@ inline void GHit::operator delete(void* hit) {
 
 	GHitAllocator->FreeSingle((GHit*)hit);
 }
-

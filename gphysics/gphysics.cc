@@ -8,6 +8,7 @@
 // geant4 version
 #include "G4Version.hh"
 
+using std::string;
 
 // geant4
 
@@ -21,7 +22,7 @@
 
 // allow ourselves to extend the short names for physics ctor addition/replace
 // along the same lines as EMX, EMY, etc
-#include "G4PhysListRegistry.hh"
+// #include "G4PhysListRegistry.hh"
 
 // allow ourselves to give the user extra info about available physics constructors (ctors)
 #include "G4PhysicsConstructorFactory.hh"

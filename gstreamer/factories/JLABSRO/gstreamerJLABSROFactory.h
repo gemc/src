@@ -34,14 +34,14 @@ private:
 	bool startStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
 	bool endStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
 	bool publishFrameHeader(const GFrameDataCollectionHeader* gframeHeader, const std::shared_ptr<GLogger>& log) override;
-	bool publishPayload(const vector<GIntegralPayload*>* payload, const std::shared_ptr<GLogger>& log) override;
+	bool publishPayload(const std::vector<GIntegralPayload*>* payload, const std::shared_ptr<GLogger>& log) override;
 
 	// JLAB specific
 	static inline std::uint64_t llswap(unsigned long long val) { return (val >> 32) | (val << 32); }
 
 private:
 	std::ofstream*       ofile = nullptr;
-	vector<unsigned int> frame_data{};
+	std::vector<unsigned int> frame_data{};
 };
 
 

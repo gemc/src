@@ -5,6 +5,8 @@
 // gemc
 #include "glogger.h"
 
+using std::vector;
+
 int main(int argc, char *argv[]) {
 
 	auto gopts = new GOptions(argc, argv, gtranslationTable::defineOptions());

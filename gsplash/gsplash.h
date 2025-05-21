@@ -24,11 +24,11 @@ private:
 	std::shared_ptr<GLogger> log;
 
 public:
-	explicit GSplash(std::shared_ptr<GLogger> logger, const string& imageName = NOSPLASHIMAGESELECTED);
+	explicit GSplash(std::shared_ptr<GLogger> logger, const std::string& imageName = NOSPLASHIMAGESELECTED);
 
 	~GSplash();
 
-	void message(const string& message);
+	void message(const std::string& message);
 
 	// called in program using GSplash
 	// returns focus to program window

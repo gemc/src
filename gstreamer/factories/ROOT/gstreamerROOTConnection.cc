@@ -4,8 +4,8 @@
 
 bool GstreamerRootFactory::openConnection(const std::shared_ptr<GLogger>& log)
 {
-	rootfile = new TFile(string(gstreamer_definitions.name).c_str(), "RECREATE");
-	gRootTrees = new map<string, GRootTree*>;
+	rootfile = new TFile(std::string(gstreamer_definitions.name).c_str(), "RECREATE");
+	gRootTrees = new std::map<std::string, GRootTree*>;
 
 	if (!rootfile->IsOpen()) {
 		log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: could not open file " + gstreamer_definitions.name);

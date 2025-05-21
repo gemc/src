@@ -4,6 +4,10 @@
 // glibrary
 #include "gutilities.h"
 
+using std::string;
+using std::vector;
+using std::map;
+
 const vector<string> GStreamer::supported_formats = {"jlabsro", "root", "text"};
 
 bool GStreamer::is_valid_format(const string& format) {

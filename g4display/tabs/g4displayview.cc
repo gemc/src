@@ -186,13 +186,22 @@ G4DisplayView::G4DisplayView(GOptions* gopts, std::shared_ptr<GLogger> logger, Q
 	connect(sliceYEdit, &QLineEdit::returnPressed, this, &G4DisplayView::slice);
 	connect(sliceZEdit, &QLineEdit::returnPressed, this, &G4DisplayView::slice);
 
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)          // Qt ≤6.6
+	connect(sliceXActi, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
+	connect(sliceYActi, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
+	connect(sliceZActi, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
+	connect(sliceXInve, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
+	connect(sliceYInve, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
+	connect(sliceZInve, &QCheckBox::stateChanged, this, &G4DisplayView::slice);
+#else                                               // Qt≥6.7
 	connect(sliceXActi, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
 	connect(sliceYActi, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
 	connect(sliceZActi, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
-
 	connect(sliceXInve, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
 	connect(sliceYInve, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
 	connect(sliceZInve, &QCheckBox::checkStateChanged, this, &G4DisplayView::slice);
+#endif
 
 
 	QGroupBox* fieldPrecisionBox = new QGroupBox(tr("Number of Field Points"));

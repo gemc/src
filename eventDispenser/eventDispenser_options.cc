@@ -3,17 +3,15 @@
 
 // gemc
 #include "gutsConventions.h"
-#include "goptionsConventions.h"
 
 // namespace to define options
 namespace eventDispenser {
 
 // returns array of options definitions
 GOptions defineOptions() {
-
 	GOptions goptions(EVENTDISPENSER_LOGGER);
 
-	string help = "Example: -n=200\n";
+	std::string help = "Example: -n=200\n";
 	goptions.defineOption(GVariable("n", 0, "number of events to process"), help);
 
 	// runno: 12
@@ -35,7 +33,7 @@ GOptions defineOptions() {
 	help += GTAB;
 	help += "will simulate 10% of events with run number 11 conditions, 70% for run 12 and 20% for run 13.\n";
 	goptions.defineOption(GVariable("run_weights", UNINITIALIZEDSTRINGQUANTITY, "File with run number and weights"),
-						  help);
+	                      help);
 
 	help = "Max number of events  to buffer before they're written out.\n \n";
 	help += "Example: -n_event_buffer=12\n";

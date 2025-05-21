@@ -16,7 +16,7 @@
 using std::to_string;
 using std::ostream;
 using std::endl;
-
+using std::string;
 
 // Constructor based on parameters
 Gparticle::Gparticle(string                    aname,

@@ -3,6 +3,10 @@
 #include "ShapeFactory.h"
 #include "Car.h"
 
+// c++
+using std::map;
+using std::string;
+
 // managerA: loads known classes Triangle and Box from the base Shape, in ShapeFactory.h
 // managerB: loads DLL that instantiate derived factories - we only know of the base class, in this case "Car"
 

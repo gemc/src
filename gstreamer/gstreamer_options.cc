@@ -5,6 +5,9 @@
 // namespace to define options
 namespace gstreamer {
 
+using std::string;
+using std::vector;
+
 vector<GStreamerDefinition> getGStreamerDefinition(GOptions* gopts) {
 	vector<GStreamerDefinition> goutputs;
 

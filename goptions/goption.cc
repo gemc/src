@@ -2,6 +2,8 @@
 #include "goptionsConventions.h"
 #include "gutilities.h"
 
+// gemc
+#include "gutsConventions.h"
 
 #include <iostream>
 #include <algorithm>
@@ -11,6 +13,8 @@ using std::cerr;
 using std::endl;
 using std::cout;
 using std::left;
+using std::string;
+using std::vector;
 
 /**
  * @brief Sets the value of the scalar option.
@@ -117,7 +121,7 @@ void GOption::saveOption(std::ofstream* yamlConf) const
 	// recursive lambda: returns a *new* node with nulls → "not provided"
 	// --------------------------------------------------------------------
 	std::function<YAML::Node(YAML::Node, std::string)> clean =
-		[&](YAML::Node n, std::string path) -> YAML::Node
+		[&](YAML::Node n, const std::string& path) -> YAML::Node
 		{
 			if (n.IsNull()) {
 				missing.push_back(path.empty() ? name : path);

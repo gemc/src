@@ -11,10 +11,10 @@ namespace g4display {
 
 // G4View
 struct G4View {
-	string driver;
-	string dimension;
-	string position;
-	int    segsPerCircle;
+	std::string driver;
+	std::string dimension;
+	std::string position;
+	int         segsPerCircle;
 };
 
 G4View getG4View(GOptions* gopts);
@@ -22,20 +22,19 @@ G4View getG4View(GOptions* gopts);
 
 // G4Camera
 struct G4Camera {
-	string phi;
-	string theta;
+	std::string phi;
+	std::string theta;
 };
 
 G4Camera getG4Camera(GOptions* gopts);
 
 // Dawn
 struct G4Dawn {
-	string phi;
-	string theta;
+	std::string phi;
+	std::string theta;
 };
 
 G4Dawn getG4Dawn(GOptions* gopts);
 
 GOptions defineOptions();
 }
-

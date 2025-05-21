@@ -2,8 +2,8 @@
 #include "../gstreamerROOTFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerRootFactory::publishEventTrueInfoData(const string                    detectorName,
-                                                    const vector<GTrueInfoData*>*   trueInfoData,
+bool GstreamerRootFactory::publishEventTrueInfoData(const std::string                    detectorName,
+                                                    const std::vector<GTrueInfoData*>*   trueInfoData,
                                                     std::shared_ptr<GLogger>& log) {
 	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
 

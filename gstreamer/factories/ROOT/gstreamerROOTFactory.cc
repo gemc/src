@@ -2,6 +2,8 @@
 #include "gRootTree.h"
 #include "gstreamerROOTFactory.h"
 
+using std::string;
+
 // Return the header tree from the map. If it's not there, initialize it.
 GRootTree* GstreamerRootFactory::getOrInstantiateHeaderTree(const GEventDataCollectionHeader* gheader,
                                                              std::shared_ptr<GLogger>&   log) {

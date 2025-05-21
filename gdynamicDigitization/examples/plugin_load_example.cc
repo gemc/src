@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     GManager manager(plugin_log, GDIGITIZATION_LOGGER);
 
     // using dynamicRoutines map
-    map < string, GDynamicDigitization * > dynamicRoutines;
+    std::map < std::string, GDynamicDigitization * > dynamicRoutines;
     dynamicRoutines["ctof"] = manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin");
 	dynamicRoutines["ctof"]->set_loggers(gopts);
 

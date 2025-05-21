@@ -6,6 +6,9 @@
 // ghit
 #include "ghit.h"
 
+using std::string;
+using std::vector;
+
 int main(int argc, char *argv[]) {
 
 	auto gopts = new GOptions(argc, argv, gtouchable::defineOptions());

@@ -8,8 +8,11 @@
 // namespace to define options
 namespace gphysics {
 
+using std::string;
+
 // returns array of options definitions
 GOptions defineOptions() {
+
 
 	GOptions goptions(GPHYSICS_LOGGER);
 

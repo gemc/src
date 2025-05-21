@@ -2,15 +2,15 @@
 #include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::publishEventDigitizedData(const string                   detectorName,
-                                                     const vector<GDigitizedData*>* digitizedData,
+bool GstreamerTextFactory::publishEventDigitizedData(const std::string                   detectorName,
+                                                     const std::vector<GDigitizedData*>* digitizedData,
                                                      std::shared_ptr<GLogger>&      log) {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
 	*ofile << GTAB << "Detector <" << detectorName << "> Digitized Bank {" << std::endl;
 
 	for (auto dgtzHit : *digitizedData) {
-		string identifierString = dgtzHit->getIdentityString();
+		std::string identifierString = dgtzHit->getIdentityString();
 
 		*ofile << GTABTAB << "Hit address: " << identifierString << " {" << std::endl;
 

@@ -51,7 +51,7 @@ bool GstreamerJSROFactory::startStream(const GFrameDataCollection *frameRunData,
         for (unsigned int hit = 0; hit < intPayloadvec->size(); ++hit) {
 
             GIntegralPayload *intpayload = intPayloadvec->at(hit);
-            vector<int> payload = intpayload->getPayload();
+            std::vector<int> payload = intpayload->getPayload();
             crate = payload[0];
             slot = payload[1];
             channel = payload[2];

@@ -1,6 +1,9 @@
 #include "gRootTree.h"
 #include "gstreamerConventions.h"
 
+using std::string;
+using std::vector;
+
 // clears the maps vectors
 bool GRootTree::initTreeForTheEvent() {
 	for (auto v : stringVarsMap) { v.second->clear(); }

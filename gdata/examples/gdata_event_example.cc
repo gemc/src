@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 	int nevents = 10;
 
 	// A run is a collection of events. Here we use a vector to hold pointers to event data collections.
-	auto runData = new vector<GEventDataCollection*>;
+	auto runData = new std::vector<GEventDataCollection*>;
 
 	for (int evn = 1; evn <= nevents; evn++) {
 		// Create an event header for this event.
@@ -57,9 +57,9 @@ int main(int argc, char* argv[]) {
 		HitBitSet hitBitSet("000000");
 
 		// Create an identity string for the GTouchable.
-		string identity = "sector: " + std::to_string(evn) + ", paddle: " + std::to_string(evn);
+		std::string identity = "sector: " + std::to_string(evn) + ", paddle: " + std::to_string(evn);
 		// Define detector dimensions.
-		vector<double> dimensions = {1.0, 20.0, evn * 1.0};
+		std::vector<double> dimensions = {1.0, 20.0, evn * 1.0};
 
 		// Create a GTouchable for the hit.
 		auto ctof = new GTouchable("readout", identity, dimensions, logt);

@@ -1,6 +1,8 @@
 // ghit
 #include "ghit.h"
 
+#include <utility>
+
 // glibrary
 #include "gutsConventions.h"
 
@@ -9,12 +11,15 @@
 #include "G4Circle.hh"
 #include "G4VisAttributes.hh"
 
+using std::string;
+using std::vector;
+
 // MT definitions, as from:
 // https://twiki.cern.ch/twiki/bin/view/Geant4/QuickMigrationGuideForGeant4V10
 G4ThreadLocal G4Allocator<GHit>* GHitAllocator = nullptr;
 
 GHit::GHit(GTouchable *gt, const HitBitSet hbs,  const G4Step *thisStep, string cScheme) : G4VHit(),
-																						  colorSchema(cScheme),
+																						  colorSchema(std::move(cScheme)),
 																						  gtouchable(gt) {
 
 	// initialize quantities based on HitBitSet, like globalPositions
@@ -38,6 +43,7 @@ vector<int> GHit::getTTID() {
 	vector<int> ttid;
 	// Retrieve the identity vector from the associated GTouchable.
 	vector <GIdentifier> gids = getGID();
+	ttid.reserve(gids.size());
 	for (auto &gid: gids) {
 		// Push back the integer value of each identifier.
 		ttid.push_back(gid.getValue());

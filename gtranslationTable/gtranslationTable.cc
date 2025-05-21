@@ -38,7 +38,7 @@ std::string GTranslationTable::formTTKey(const std::vector<int> &identity) const
  * \param gtron The GElectronic object to be added.
  */
 void GTranslationTable::addGElectronicWithIdentity(const std::vector<int> &identity, const GElectronic &gtron) {
-	string ttKey = formTTKey(identity);
+	std::string ttKey = formTTKey(identity);
 	auto search = tt.find(ttKey);
 
 	if (search == tt.end()) {
@@ -66,7 +66,7 @@ void GTranslationTable::addGElectronicWithIdentity(const std::vector<int> &ident
  * \return The GElectronic object if found; otherwise, a default GElectronic.
  */
 GElectronic GTranslationTable::getElectronics(const std::vector<int> &identity) const {
-	string ttKey = formTTKey(identity);
+	std::string ttKey = formTTKey(identity);
 	auto search = tt.find(ttKey);
 
 	if (search != tt.end()) {
@@ -75,7 +75,5 @@ GElectronic GTranslationTable::getElectronics(const std::vector<int> &identity) 
 	} else {
 		log->error(EC__TTNOTFOUNDINTT, "Key <", ttKey, "> not found in TT map");
 	}
-
-	return GElectronic();
 }
 

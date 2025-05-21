@@ -2,7 +2,7 @@
 #include "../gstreamerROOTFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerRootFactory::publishEventDigitizedData(const string detectorName, const vector<GDigitizedData *> *digitizedData, std::shared_ptr<GLogger>& log) {
+bool GstreamerRootFactory::publishEventDigitizedData(const std::string detectorName, const std::vector<GDigitizedData *> *digitizedData, std::shared_ptr<GLogger>& log) {
 
 	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
 

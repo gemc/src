@@ -5,6 +5,9 @@
 // namespace to define options
 namespace gparticle {
 
+using std::string;
+using std::vector;
+
 // method to return a vector of GParticles from the options
 vector<GparticlePtr> getGParticles(GOptions* gopts, std::shared_ptr<GLogger>& logger) {
 	auto gparticle_node = gopts->getOptionNode("gparticle");
@@ -51,13 +54,12 @@ vector<GparticlePtr> getGParticles(GOptions* gopts, std::shared_ptr<GLogger>& lo
 GOptions defineOptions() {
 	GOptions goptions(GPARTICLE_LOGGER);
 
-	string help;
-	help = "Adds a particle to the event generator \n ";
+	string help = "Adds a particle to the event generator \n ";
 	help += "The particle is generated with a fixed or randomized momentum, angles, and vertex.  \n \n";
 	help += "Examples: \n";
 	help += "• 5 GeV electron along z: \n";
 	help += "-gparticle=\"[{pname: e-, p: 5000}]\" \n \n";
-	help = "•  three particles, one electron and two protons, identical except spread in theta: \n \n";
+	help += "• three particles, one electron and two protons, identical except spread in theta: \n \n";
 	help += "-gparticle=\"[{name: e-, p: 2300, theta: 23.0}, {name: proton, multiplicity: 2, p: 1200, theta: 14.0, delta_theta: 10}]\"\n";
 
 	vector<GVariable> gparticle_v = {
