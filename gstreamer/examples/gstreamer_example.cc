@@ -1,13 +1,11 @@
 // gstreamer
 #include "gstreamer.h"
+#include "gstreamer_options.h"
 
-// c++
-#include <iostream>
-using namespace std;
+// gemc
+#include "glogger.h"
 
-
-int main()
-{
+int main(int argc, char* argv[]) {
 
 
 	return EXIT_SUCCESS;

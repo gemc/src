@@ -1,5 +1,5 @@
 /**
- * \file gdata_event_example.cpp
+ * \file gdata_event_example.cc
  * \brief Example demonstrating event data collection in the GData library.
  *
  * \mainpage GData Event Data Example
@@ -79,13 +79,11 @@ int main(int argc, char* argv[]) {
 		// Add the event data collection to the run.
 		runData->push_back(eventData);
 
-		// Cleanup temporary objects (these are managed by the eventData now or no longer needed).
+		// Clean up temporary objects (these are managed by the eventData now or no longer needed).
 		delete hit;
 		delete ctof;
 	}
 
-	// we probably want to print events here
-	// At this point, one could iterate over runData and print or process events.
 	// For demonstration, we'll simply print the event numbers.
 	for (size_t i = 0; i < runData->size(); i++) {
 		log->info(" > Event ", i + 1, " collected with event number: ", runData->at(i)->getEventNumber());
