@@ -23,23 +23,19 @@ int main(int argc, char *argv[]) {
 
     // using dynamicRoutines map
     std::map < std::string, GDynamicDigitization * > dynamicRoutines;
-    dynamicRoutines["ctof"] = manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin");
-	dynamicRoutines["ctof"]->set_loggers(gopts);
+    dynamicRoutines["test"] = manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin", gopts);
 
     // using shared_ptr
-    std::shared_ptr <GDynamicDigitization> globalCtof1(manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin"));
-	std::shared_ptr <GDynamicDigitization> globalCtof2(manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin"));
-	globalCtof1->set_loggers(gopts);
-	globalCtof2->set_loggers(gopts);
+    std::shared_ptr <GDynamicDigitization> globalCtof1(manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin", gopts));
+	std::shared_ptr <GDynamicDigitization> globalCtof2(manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin", gopts));
 
     // increments reference count
     // to be used in the local thread
     auto globalCtof3(globalCtof2);
-	globalCtof3->set_loggers(gopts);
 
-	log->info(0, "globalCtof1: ", globalCtof1, ", globalCtof2: ", globalCtof3, ", dynamicRoutines[\"ctof\"]: ", dynamicRoutines["ctof"]);
+	log->info(0, "globalCtof1: ", globalCtof1, ", globalCtof2: ", globalCtof3, ", dynamicRoutines[\"ctof\"]: ", dynamicRoutines["test"]);
 
-    dynamicRoutines["ctof"]->loadConstants(1, "default");
+    dynamicRoutines["test"]->loadConstants(1, "default");
     globalCtof1->loadConstants(2, "default");
     globalCtof2->loadConstants(3, "target_shift");
     globalCtof3->loadConstants(4, "no_magnet");

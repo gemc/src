@@ -33,6 +33,7 @@
 
 // emulation of a run of 10 events
 int main(int argc, char* argv[]) {
+
 	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
 	auto gopts = new GOptions(argc, argv, gdata::defineOptions());
 

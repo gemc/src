@@ -28,7 +28,8 @@ public:
 	 *
 	 * Creates an empty GOptions object, typically used for defining user–defined options.
 	 */
-	GOptions() {};
+	GOptions() {
+	};
 
 	/**
 	 * @brief Constructor for verbosity and debug options.
@@ -41,13 +42,22 @@ public:
 	 * @brief Library–based constructor.
 	 *
 	 * Constructs a GOptions object by initializing built–in options and switches,
-	 * loading user–defined options, parsing YAML files, and processing command–line arguments.
+	 * loading user-defined options, parsing YAML files, and processing command line arguments.
 	 *
 	 * @param argc Number of command–line arguments.
 	 * @param argv Array of command–line argument strings.
 	 * @param user_defined_options A GOptions object containing user–defined options.
 	 */
 	GOptions(int argc, char* argv[], const GOptions& user_defined_options = GOptions());
+
+
+	~GOptions() {
+		if (yamlConf != nullptr) {
+			if (yamlConf->is_open()) { yamlConf->close(); }
+			delete yamlConf;
+			yamlConf = nullptr;
+		}
+	}
 
 	/**
 	 * @brief Defines and adds a command–line switch.
@@ -108,7 +118,7 @@ public:
 	 * @param tag The name of the option.
 	 * @return The YAML::Node containing the option's value.
 	 */
-	[[nodiscard]] inline  YAML::Node getOptionNode(const std::string& tag) const {
+	[[nodiscard]] inline YAML::Node getOptionNode(const std::string& tag) const {
 		if (!doesOptionExist(tag)) {
 			std::cerr << "Option " << tag << " does not exist. Exiting." << std::endl;
 			exit(EC__NOOPTIONFOUND);
@@ -139,36 +149,36 @@ public:
 	 * @param tag The name of the debug option.
 	 * @return The debug level as an integer.
 	 */
-	[[nodiscard]] int getDebugFor(const 	std::string& tag) const;
+	[[nodiscard]] int getDebugFor(const std::string& tag) const;
 
 	/**
 	 * @brief Returns the list of defined options.
 	 * @return A vector of GOption objects.
 	 */
-	const std::vector<GOption>& getOptions() const { return goptions; }
+	[[nodiscard]] const std::vector<GOption>& getOptions() const { return goptions; }
 
 	/**
 	 * @brief Returns the map of defined switches.
 	 * @return A map of switches.
 	 */
-	const std::map<std::string, GSwitch>& getSwitches() const { return switches; }
+	[[nodiscard]] const std::map<std::string, GSwitch>& getSwitches() const { return switches; }
 
 	/**
 	 * @brief Adds options from another GOptions object.
 	 * @param goptions_to_add The GOptions object to add.
 	 */
 	inline void addGOptions(const GOptions& goptions_to_add) {
-		for (auto gopt : goptions_to_add.getOptions()) { goptions.push_back(gopt); }
-		for (auto sw : goptions_to_add.getSwitches()) { switches.insert(sw); }
+		for (const auto& gopt : goptions_to_add.getOptions()) { goptions.push_back(gopt); }
+		for (const auto& sw : goptions_to_add.getSwitches()) { switches.insert(sw); }
 		for (auto& gvar : goptions_to_add.option_verbosity_names) { option_verbosity_names.push_back(gvar); }
 	}
 
 	std::string            option_verbosity_name{UNINITIALIZEDSTRINGQUANTITY};
 	std::vector<GVariable> option_verbosity_names;
 
-	inline void addOptionTitle(std::string name) {
+	inline void addOptionTitle(const std::string& name) {
 		std::string option_verbosity_name_desc = name + " verbosity level or debug switch";
-		option_verbosity_names.push_back(GVariable(name, 0, option_verbosity_name_desc));
+		option_verbosity_names.emplace_back(name, 0, option_verbosity_name_desc);
 	}
 
 	/**
@@ -186,14 +196,14 @@ public:
 	 * @brief Retrieves the list of YAML file paths.
 	 * @return A vector of YAML file paths as strings.
 	 */
-	std::vector<std::string> getYamlFiles() const { return yaml_files; }
+	[[nodiscard]] std::vector<std::string> getYamlFiles() const { return yaml_files; }
 
 	/**
 	 * @brief Checks if the specified option exists.
 	 * @param tag The name of the option.
 	 * @return True if the option exists; false otherwise.
 	 */
-	bool doesOptionExist(const std::string& tag) const;
+	[[nodiscard]] bool doesOptionExist(const std::string& tag) const;
 
 private:
 	std::vector<GOption>           goptions;             ///< Array of GOption objects.
@@ -236,7 +246,7 @@ private:
 	 * @param name The name of the option.
 	 * @return A const iterator to the option.
 	 */
-	std::vector<GOption>::const_iterator getOptionIterator(const std::string& name) const;
+	[[nodiscard]] std::vector<GOption>::const_iterator getOptionIterator(const std::string& name) const;
 
 	/**
 	 * @brief Prints help information for a specific option or switch.

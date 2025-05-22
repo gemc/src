@@ -1,5 +1,7 @@
 // gstreamer
 #include "gstreamer_options.h"
+
+#include "gdynamicdigitization_options.h"
 #include "gstreamer.h"
 
 // namespace to define options
@@ -49,6 +51,7 @@ GOptions defineOptions() {
 
 	goptions.defineOption(GSTREAMER_LOGGER, "define a gstreamer output", gstreamer, help);
 
+	goptions += gdynamicdigitization::defineOptions();
 
 	return goptions;
 }

@@ -8,6 +8,8 @@ public:
 
     virtual ~Car() = default;
 
+	void set_loggers([[ maybe_unused ]] GOptions* const g) {}
+
     double generalCarVar = 44;
 
     // method to dynamically load factories

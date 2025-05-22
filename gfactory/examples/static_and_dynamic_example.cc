@@ -47,8 +47,8 @@ int main(int argc, char *argv[]) {
 	GManager managerB(log, "GManager Dynamic");
 
 	map<string, Car *> ggg;
-	ggg["tesla"] = managerB.LoadAndRegisterObjectFromLibrary<Car>("test_dyn_factory1");
-	ggg["ford"] = managerB.LoadAndRegisterObjectFromLibrary<Car>("test_dyn_factory2");
+	ggg["tesla"] = managerB.LoadAndRegisterObjectFromLibrary<Car>("test_dyn_factory1", gopts);
+	ggg["ford"] = managerB.LoadAndRegisterObjectFromLibrary<Car>("test_dyn_factory2", gopts);
 	Car *aCar = ggg["ford"];
 
 
@@ -61,5 +61,4 @@ int main(int argc, char *argv[]) {
 
 	// clearing the map - this should be done in classes destructors
 	managerB.clearDLMap();
-
 }

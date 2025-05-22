@@ -73,11 +73,11 @@ public:
 			break;
 		case CONSTRUCTOR:
 			G4cout << KCYN << header_string() << "DEBUG " <<
-				CONSTRUCTORLOG << " " << oss.str() << CONSTRUCTORLOG << RST << G4endl;
+				CONSTRUCTORLOG << " " << oss.str() << " " << CONSTRUCTORLOG << RST << G4endl;
 			break;
 		case DESTRUCTOR:
 			G4cout << KCYN << header_string() << "DEBUG " <<
-				DESTRUCTORLOG << " " << oss.str() << DESTRUCTORLOG << RST << G4endl;
+				DESTRUCTORLOG << " " << oss.str() << " " << DESTRUCTORLOG << RST << G4endl;
 			break;
 		}
 	}
@@ -161,6 +161,9 @@ public:
 		(oss << ... << std::forward<Args>(args));
 		G4cout << KBOLD << header_string() << RST << oss.str() << G4endl;
 	}
+
+
+	std::string get_verbosity_name() const { return verbosity_name; }
 
 private:
 	std::string verbosity_name;    ///< Verbosity name

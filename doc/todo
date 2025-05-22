@@ -1,33 +1,26 @@
+# Put all these in gemc3 project
+
 working on gemc:
 
-The following 3 may be solved by inheriting from GStateMessage.
-- put the verbosity string options into conventions, like GSENSITIVITYVERBOSITY = "gsensitivity"
-- use logMessage (g4) and glogMessage (internam cout with mutex log) consistently
-- something not working with tlog / thread_log etc. everything better be consistent
-- use G4debug instead?
 
 - nthreads not working?
 - add system/detector browser
 - add hipo output
 - do we need gFieldManager.clearDLMap(); ?
-- gext with message (and threadlock) so we don't have to use cerr or G4cerr
-- any level of optimization higher than 0 cause some exit failure, gexit misses. why?
+- any level of optimization higher than 0 cause some exit failure?
 
 
 In General:
 
 - event reproducibility: write random engine status in output stream
-- keep chasing using namespace;
 - rule of 5.
-- go over constructors: is it move, copy, construct from scratch?
 - examples/advanced/doiPET/README
 - add display goodies like gemc2++
-- standardize log colors
 
 
 Gemc Details:
 
-- catalogue exit codes across libraries: find in project #define EC__
+- catalogue exit codes across libraries: find in project #define ERR_
 - use gConstruct gDestruct;
 - later down the road: compare map vs unordered_map speed and memory usage.
 - gopts must be shared ptr so it can be used in the local threads
