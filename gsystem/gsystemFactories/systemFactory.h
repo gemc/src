@@ -7,7 +7,6 @@
 
 // gsystem
 #include "../gsystem.h"
-#include "../gsystemConventions.h"
 
 
 // system factory
@@ -21,17 +20,9 @@ public:
 
         possibleLocationOfFiles.emplace_back(".");
 
-        // environment for cad
-        auto gtextEnv = getenv(GEMCDB_ENV); // char*
-        if (gtextEnv != nullptr) {
-            vector <string> dirsDB = gutilities::getStringVectorFromString(gtextEnv);
+    	std::filesystem::path gemcRoot = gutilities::gemc_root();
+    	possibleLocationOfFiles.push_back( gemcRoot.string());
 
-            if (!dirsDB.empty()) {
-                for (auto &dirDB: dirsDB) {
-                    possibleLocationOfFiles.push_back(dirDB);
-                }
-            }
-        }
 
         loadMaterials(system, log);
         loadGeometry(system, log);

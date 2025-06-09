@@ -19,53 +19,44 @@ function show_installation {
   fi
 }
 
-function sanitize_options {
+function meson_options {
     # valid options: address, thread, undefined, memory, leak
 
-    sanitize_option=""
-    pgo=""
+    meson_options=""
     buildtype=" -Dbuildtype=debug "
 
     case $1 in
         "address")
-            sanitize_option="-Db_sanitize=address"
+            meson_options="-Db_sanitize=address"
             ;;
         "thread")
-            sanitize_option="-Db_sanitize=thread"
+            meson_options="-Db_sanitize=thread"
             ;;
         "undefined")
-            sanitize_option="-Db_sanitize=undefined"
+            meson_options="-Db_sanitize=undefined"
             ;;
         "memory")
-            sanitize_option="-Db_sanitize=memory"
+            meson_options="-Db_sanitize=memory"
             ;;
         "leak")
-            sanitize_option="-Db_sanitize=leak"
+            meson_options="-Db_sanitize=leak"
+            ;;
+        "profile")
+            meson_options=""
             ;;
         "none")
-            sanitize_option=""
-            if [ -f /etc/os-release ]; then
-              if grep -q "Ubuntu" /etc/os-release; then
-                sanitize_option="-Db_sanitize=undefined"
-              fi
-            fi
-
+            meson_options=""
+            buildtype=" -Dbuildtype=release "
             ;;
         *)
-            sanitize_option=""
+            meson_options=""
+            buildtype=" -Dbuildtype=release "
             ;;
     esac
 
-    # if on ubuntu, use pgo generate
-    # suspended while investigating differences between fedora and ubuntu
-    #    if [ -f /etc/os-release ]; then
-    #        if grep -q "Ubuntu" /etc/os-release; then
-    #            pgo=" -Db_pgo=generate "
-    #        fi
-    #    fi
-
-    echo $sanitize_option $pgo $buildtype
+    echo $meson_options $buildtype
 }
+
 
 function max_j {
     max_threads=$(($(nproc) / 2))
@@ -73,11 +64,17 @@ function max_j {
 }
 
 
+	# recent versions of Git refuse to touch a repository whose on-disk owner
+	# doesn’t match the UID that is running the command
+	# mark the workspace (and any nested path) as safe
+	echo "Marking workspace as safe for Git"
+	git config --global --add safe.directory '*'
+
 is_shallow=$(git rev-parse --is-shallow-repository)
-echo "Repository is_shallow: $is_shallow"
 
 if [ "$is_shallow" = "true" ]; then
-    echo " > Fetching all tags"
+  echo "Repository is_shallow: $is_shallow"
+  echo " > Fetching all tags"
   git fetch --tags --unshallow
 fi
 
@@ -105,3 +102,4 @@ fi
 # since the pkgconfig files are installed after the module loads, we need to reload the modules
 module unload gemc
 module load gemc/dev3
+

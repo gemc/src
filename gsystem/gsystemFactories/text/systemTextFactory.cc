@@ -1,23 +1,20 @@
 // string for gexit
 #include "gutilities.h"
 
-using namespace gutilities;
-
 // gsystem
 #include "systemTextFactory.h"
+#include "../gsystemConventions.h"
 
-// c++
-using namespace std;
-
+// cpp
+#include <fstream>
 
 GSystemTextFactory::GSystemTextFactory() = default;
-
 
 // returns the file stream, checking all possible directories.
 // SYSTEMTYPE can be:
 // - GTEXTGEOMTYPE (mandatory, exit if not found)
 // - GTEXTMATSTYPE
-ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const string& SYSTEMTYPE, const std::shared_ptr<GLogger>& log) {
+std::ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const string& SYSTEMTYPE, const std::shared_ptr<GLogger>& log) {
 	string fileName  = system->getFilePath();
 	string variation = system->getVariation();
 
@@ -27,7 +24,7 @@ ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const strin
 	log->info(0, "gSystemTextFileStream filename is: ", fname);
 
 	// default dir is "."
-	auto IN = new ifstream(fname.c_str());
+	auto IN = new std::ifstream(fname.c_str());
 
 	if (IN->good()) {
 		log->info(1, "Trying file ", fname);

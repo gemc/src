@@ -3,6 +3,7 @@
 #include "gutilities.h"
 
 // gsystem
+#include "gsystemConventions.h"
 #include "gworld.h"
 #include "gmodifier.h"
 #include "gsystemFactories/systemFactory.h"

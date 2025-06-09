@@ -26,14 +26,13 @@ clhep_deps = dependency('clhep',
 )
 
 # install root.pc, geant4.pc if not found
-python_exe = import('python').find_installation('python3')
 fs = import('fs')
-geant4_path = get_option('prefix')
-geant4_pc = geant4_path / 'lib/pkgconfig/geant4.pc'
+gemc_prefix = get_option('prefix')
+geant4_pc = gemc_prefix / 'lib/pkgconfig/geant4.pc'
 script_path = meson.project_source_root() / 'meson/install_geant4_root_pkgconfig.py'
 if not fs.exists(geant4_pc)
     message('geant4.pc not found in ' + geant4_pc + ', running install script...')
-    run_command(python_exe, script_path)
+    run_command(script_path, gemc_prefix, check : true)
 endif
 
 # root: pkg-config created manually by./meson/install_geant4_root_pkgconfig.py
@@ -54,7 +53,7 @@ geant4_deps = dependency('geant4',
 
 cmake = import('cmake')
 opt_var = cmake.subproject_options()
-opt_var.add_cmake_defines({ 'BUILD_SHARED_LIBS' : 'OFF', 'BUILD_STATIC_LIBS' : 'ON', 'CMAKE_POLICY_VERSION_MINIMUM' : '3.5' })
+opt_var.add_cmake_defines({ 'BUILD_SHARED_LIBS' : 'OFF', 'BUILD_STATIC_LIBS' : 'ON', 'CMAKE_POLICY_VERSION_MINIMUM' : '4.0' })
 opt_var.append_compile_args('cpp', '-Wno-shadow')
 
 # TODO: remove temp workaround for _LIBCPP_ENABLE_ASSERTIONS deprecation

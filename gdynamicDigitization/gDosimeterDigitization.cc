@@ -25,9 +25,7 @@
 
 #include "ginternalDigitization.h"
 #include <fstream>
-#include <cstdlib>  // for getenv
 
-using namespace std;
 
 /**
  * \brief Defines the readout specifications for dosimeter digitization.
@@ -116,22 +114,23 @@ GDigitizedData* GDosimeterDigitization::digitizeHitImpl(GHit* ghit, size_t hitn)
  * \param variation Variation string (unused).
  * \return True if the constants are successfully loaded.
  */
-bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] string const& variation) {
+bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
 	// NIEL Data: map from particle ID (PID) to file name.
-	map<int, string> nielDataFiles;
+	std::map<int, std::string> nielDataFiles;
 	nielDataFiles[11]   = "niel_electron.txt";
 	nielDataFiles[211]  = "niel_pion.txt";
 	nielDataFiles[2112] = "niel_neutron.txt";
 	nielDataFiles[2212] = "niel_proton.txt";
 
 	// Construct plugin path from the GEMC environment variable.
-	string pluginPath = string(getenv("GEMC")) + "/data/";
+	std::filesystem::path gemcRoot = gutilities::gemc_root();
+	std::string pluginPath = gemcRoot.string() + "/dosimeterData/";
 
 	// Loop over each particle type and load its NIEL data.
 	for (const auto& [pid, filename] : nielDataFiles) {
-		string dataFileWithPath = pluginPath + "/dosimeterData/Niel/" + filename;
+		std::string dataFileWithPath = pluginPath + "/dosimeterData/Niel/" + filename;
 
-		ifstream inputfile(dataFileWithPath);
+		std::ifstream inputfile(dataFileWithPath);
 		if (!inputfile) { digi_logger->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath); }
 
 		digi_logger->info(0, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);

@@ -30,6 +30,7 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 
 	executableName = gutilities::getFileFromPath(argv[0]);
 	executableCallingDir = gutilities::getDirFromPath(argv[0]);
+	installDir = gutilities::gemc_root();
 	cout << endl;
 
 	// Add user-defined options.
@@ -575,10 +576,11 @@ void GOptions::saveOptions() const {
  * @brief Prints the version information of the executable.
  */
 void GOptions::print_version() {
-	string asterisks = "**************************************************************";
+	string asterisks = "*******************************************************************";
 	cout << endl << asterisks << endl;
-	cout << " " << KGRN << KBOLD << executableName << RST << "  version: " << KGRN << gversion << RST;
-	cout << ", executed from: " << KGRN <<  executableCallingDir << RST << endl;
+	cout << " " << KGRN << KBOLD << executableName << RST << "  version: " << KGRN << gversion << RST << endl;
+	cout << " Called from: " << KGRN <<  executableCallingDir << RST << endl;
+	cout << " Executed from: " << KGRN <<  installDir << "/bin" << RST << endl;
 	cout << " Released on: " << KGRN << grelease_date << RST << endl;
 	cout << " GEMC Reference: " << KGRN << greference << RST << endl;
 	cout << " GEMC Homepage: " << KGRN << gweb << RST << endl;

@@ -39,10 +39,11 @@ jobs:
         uses: actions/checkout@main
       - name: Fix Ownership
         run: |
-          # this is to fix GIT not liking owner of the checkout dir
-          #chown -R $(id -u):$(id -g) $PWD
-          #git fetch --prune --unshallow --tags
-          git config --global --add safe.directory '*'
+          # recent versions of Git refuse to touch a repository whose on-disk owner 
+          # doesn’t match the UID that is running the command
+          # mark the workspace (and any nested path) as safe
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"/src
       - name: Build ${{ matrix.sanitize }}
         run: |
           ./ci/build.sh ${{ matrix.sanitize }}

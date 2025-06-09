@@ -38,8 +38,8 @@ int main(int argc, char* argv[]) {
 	auto gopts = new GOptions(argc, argv, gdata::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	auto log  = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gdata example GEventDataCollection");
-	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gdata example GTouchable");
+	auto log  = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gdata example: GEventDataCollection");
+	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gdata example: GTouchable");
 
 	int nevents = 10;
 

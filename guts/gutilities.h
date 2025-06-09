@@ -56,16 +56,6 @@ std::string getFileFromPath(const std::string& path);
 */
 std::string getDirFromPath(const std::string& path);
 
-/**
-* @brief Extracts the full directory path from a given file path.
-*
-* This function extracts and returns the directory path from a given POSIX file path.
-*
-* @param path The input file path.
-* @return The directory path extracted from the path.
-*/
-// TODO this function doesn't work
-std::string getFullPathFromPath(const char* arg0);
 
 /**
 * @brief Splits a string into a vector of strings using spaces as delimiters.
@@ -313,3 +303,72 @@ inline constexpr const char* to_string(randomModel m) noexcept {
 G4Colour makeColour(std::string_view code);
 
 };
+
+
+#include <filesystem>
+
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>   // _NSGetExecutablePath
+#elif defined(__linux__)
+#include <unistd.h>        // readlink
+#include <limits.h>
+#elif defined(_WIN32)
+#include <windows.h>
+#include <vector>
+#else
+#error "Unsupported platform"
+#endif
+
+namespace gutilities {
+
+
+inline std::filesystem::path executable_path() {
+#if defined(__APPLE__)
+	char     buf[PATH_MAX];
+	uint32_t sz = sizeof(buf);
+	if (_NSGetExecutablePath(buf, &sz) != 0) { // buffer too small
+		std::string big(sz, '\0');
+		if (_NSGetExecutablePath(big.data(), &sz) != 0)
+			throw std::runtime_error("_NSGetExecutablePath failed");
+		return std::filesystem::canonical(big);
+	}
+	return std::filesystem::canonical(buf);
+
+#elif defined(__linux__)
+	char buf[PATH_MAX];
+	ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf)-1);
+	if (len == -1)
+		throw std::runtime_error("readlink(/proc/self/exe) failed");
+	buf[len] = '\0';
+	return std::filesystem::canonical(buf);
+
+#elif defined(_WIN32)
+	std::wstring buf(MAX_PATH, L'\0');
+	DWORD len = ::GetModuleFileNameW(nullptr, buf.data(), buf.size());
+	if (len == 0)
+		throw std::runtime_error("GetModuleFileNameW failed");
+	// If the path is longer than MAX_PATH the buffer is truncated;
+	// do a second call with the returned length to get the full path.
+	if (len == buf.size()) {
+		buf.resize(len * 2);
+		len = ::GetModuleFileNameW(nullptr, buf.data(), buf.size());
+	}
+	buf.resize(len);
+	return std::filesystem::canonical(std::filesystem::path(buf));
+#endif
+}
+
+inline std::filesystem::path gemc_root() {
+
+	auto exe_dir   = executable_path().parent_path(); // where the executable is installed
+	auto gemc_root = exe_dir.parent_path();           // one dir up
+
+	// Sanity‑check api dir
+	if (!std::filesystem::exists(gemc_root / "api"))
+		throw std::runtime_error("Cannot locate directory >api< check directory layout");
+
+	return gemc_root;
+}
+
+
+}

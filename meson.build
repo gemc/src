@@ -12,6 +12,14 @@ add_project_arguments(
     '-D_LIBCPP_HARDENING_MODE_DEBUG=true',
     language : 'cpp'
 )
+
+# additional debug options useful for profiling
+if get_option('buildtype') == 'debug'
+    add_project_arguments('-fno-omit-frame-pointer', language : 'cpp')
+    add_project_arguments('-fno-optimize-sibling-calls', language : 'cpp')
+    add_project_arguments('-O2', language : 'cpp')
+endif
+
 project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 
 # init lists

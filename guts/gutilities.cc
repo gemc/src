@@ -52,49 +52,6 @@ string getDirFromPath(const std::string& path) {
 
 namespace fs = std::filesystem;
 
-/**
- * Resolve the absolute, canonical location of the executable based on the
- * string you normally get in argv[0].
- *
- * Rules
- *  ─  If arg0 is already absolute, return canonical(arg0).
- *  ─  If arg0 contains a path separator, treat it as a relative path:
- *       cwd / arg0  →  canonical.
- *  ─  Otherwise treat it as a bare filename; search it along PATH.
- *
- * Throws std::runtime_error if the executable cannot be located.
- */
-string getFullPathFromPath(const std::string& path) {
-	namespace fs = std::filesystem;
-	fs::path p(path); // convert the argument to fs::path
-
-	/* 1) Already absolute ------------------------------------------------- */
-	if (p.is_absolute())
-		return fs::weakly_canonical(p);
-
-	/* 2) Relative path (contains a slash) --------------------------------- */
-	if (p.has_parent_path()) // e.g. "./prog" or "bin/prog"
-		return fs::weakly_canonical(fs::current_path() / p);
-
-	/* 3) Bare filename: search PATH -------------------------------------- */
-	const char* env_path = std::getenv("PATH");
-	if (env_path) {
-#if defined(_WIN32)
-			const char delim = ';';
-#else
-		const char delim = ':';
-#endif
-		std::stringstream ss(env_path);
-		std::string       dir;
-		while (std::getline(ss, dir, delim)) {
-			fs::path candidate = fs::path(dir) / p;
-			if (fs::exists(candidate))
-				return fs::weakly_canonical(candidate);
-		}
-	}
-
-	throw std::runtime_error("cannot resolve executable path from '" + path + "'");
-}
 
 vector<std::string> getStringVectorFromString(const std::string& input) {
 	std::vector<std::string> pvalues;
@@ -425,9 +382,9 @@ G4Colour makeColour(std::string_view code) {
 		rgb    = (rgb << 4) | hexNibble(code[i]);
 
 	auto   byteToDouble = [](unsigned byte) { return byte / 255.0; };
-	double r           = byteToDouble((rgb >> 16) & 0xFF);
-	double g           = byteToDouble((rgb >> 8) & 0xFF);
-	double b           = byteToDouble(rgb & 0xFF);
+	double r            = byteToDouble((rgb >> 16) & 0xFF);
+	double g            = byteToDouble((rgb >> 8) & 0xFF);
+	double b            = byteToDouble(rgb & 0xFF);
 
 	// ---- optional transparency nibble ----
 	double a = 1.0;
@@ -439,3 +396,4 @@ G4Colour makeColour(std::string_view code) {
 
 
 }
+

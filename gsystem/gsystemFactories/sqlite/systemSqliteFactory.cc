@@ -1,17 +1,12 @@
 // string for gexit
 #include "gutilities.h"
 
-using namespace gutilities;
-
 // gsystem
 #include "systemSqliteFactory.h"
-
-// c++
-using namespace std;
+#include "../gsystemConventions.h"
 
 
 GSystemSQLiteFactory::GSystemSQLiteFactory() = default;
-
 
 void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system, std::shared_ptr<GLogger>& log) {
 	// Save parameters from the system.

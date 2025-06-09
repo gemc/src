@@ -211,6 +211,7 @@ private:
 	std::ofstream*                 yamlConf{};           ///< YAML configuration file stream.
 	std::string                    executableName;       ///< Executable name.
 	std::string                    executableCallingDir; ///< Executable calling dir
+	std::string                    installDir;           ///< Executable installation dir
 	std::vector<std::string>       yaml_files;           ///< List of YAML file paths.
 
 	/**

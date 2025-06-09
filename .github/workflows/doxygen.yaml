@@ -4,13 +4,9 @@ permissions:
   pull-requests: write
 
 on:
-  # Triggers the workflow on all pushes
-  push:
-  pull_request:
-    types:
-      # Only run workflow when a commit is pushed to a PR branch
-      # Instead of running for all other PR events
-      - synchronize
+  schedule:
+    # every day at 2:44 am
+    - cron: '44 2 * * *'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

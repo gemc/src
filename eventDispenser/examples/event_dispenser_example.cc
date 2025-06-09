@@ -47,7 +47,6 @@ int main(int argc, char *argv[]) {
 	// Retrieve and display the run events distribution.
 	map<int, int> runEvents = eventDisp.getRunEvents();
 
-
 	eventDisp.processEvents();
 
 	// Cleanup: delete dynamically allocated objects.

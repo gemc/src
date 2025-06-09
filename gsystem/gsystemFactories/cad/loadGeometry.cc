@@ -1,5 +1,6 @@
 // gsystem
 #include "systemCadFactory.h"
+#include "../gsystemConventions.h"
 
 // gemc
 #include "gutilities.h"

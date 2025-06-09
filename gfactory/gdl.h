@@ -1,6 +1,8 @@
 #pragma once
 
+// geomc
 #include "glogger.h"
+#include "gutilities.h"
 
 // c++ plugin loading functions
 // documentation: http://www.faqs.org/docs/Linux-mini/C++-dlopen.html
@@ -47,10 +49,13 @@ public:
 		log->debug(CONSTRUCTOR, "Instantiating ", path);
 		log->debug(NORMAL, "Trying ", dlFileName);
 
-		// trying $GEMC/lib/ + path if not found
+		// trying installation path + lib if not found
 		if (!doesFileExists(dlFileName)) {
 			log->debug(NORMAL, dlFileName, " not found...");
-			dlFileName = std::string(getenv("GEMC")) + "/lib/" + path;
+
+			std::filesystem::path gemcRoot = gutilities::gemc_root();
+			dlFileName = gemcRoot.string() + "/lib/" + path;
+
 			log->debug(NORMAL, "Trying ", dlFileName);
 		}
 

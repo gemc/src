@@ -1,20 +1,18 @@
 #!/usr/bin/env zsh
 
-# Purpose: compiles gemc with sanitizers
+# Purpose: compiles gemc with optional sanitizers or debugging options.
 
 # Container run:
 # docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.1-almalinux94 sh
-# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.1-ubuntu24 sh
-# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.1-fedora36 sh
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # ./ci/build.sh none
 
 source ci/env.sh
 
-sanitize_option=$(sanitize_options $1)
+meson_option=$(meson_options $1)
 max_threads=$(max_j)
 
-setup_options=" --native-file=core.ini -Duse_root=true $sanitize_option -Dprefix=$GEMC --wipe "
+setup_options=" --native-file=core.ini -Duse_root=true $meson_option -Dprefix=$GEMC --wipe "
 
 echo " > Running build Configure with setup build options: $setup_options"
 meson setup build $=setup_options || exit 1
@@ -33,8 +31,19 @@ meson install  || exit 1
 echo " > $GEMC recursive content:"
 ls -lR $GEMC || exit 1
 
+echo
 echo " ldd of $GEMC/bin/gemc:"
-# ldd $GEMC/bin/gemc || exit 1
+
+# if on unix, use ldd , if on mac, use otool -L
+if [[ "$(uname)" == "Darwin" ]]; then
+  otool -L $GEMC/bin/gemc || exit 1
+else
+  ldd $GEMC/bin/gemc || exit 1
+fi
+
+
+
+echo
 
 # if $1 is NOT one of sanitize option, run meson test
 if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
