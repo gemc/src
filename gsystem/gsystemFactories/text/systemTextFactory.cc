@@ -3,7 +3,7 @@
 
 // gsystem
 #include "systemTextFactory.h"
-#include "../gsystemConventions.h"
+#include "gsystemConventions.h"
 
 // cpp
 #include <fstream>

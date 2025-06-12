@@ -10,6 +10,7 @@
 #include "G4VVisManager.hh"
 #include "G4Circle.hh"
 #include "G4VisAttributes.hh"
+#include "Randomize.hh"
 
 using std::string;
 using std::vector;
@@ -18,6 +19,21 @@ using std::vector;
 // https://twiki.cern.ch/twiki/bin/view/Geant4/QuickMigrationGuideForGeant4V10
 G4ThreadLocal G4Allocator<GHit>* GHitAllocator = nullptr;
 
+void GHit::randomizeHitForTesting(int nsteps) {
+	// This function is for testing purposes only.
+	// It randomizes the hit's global position and energy deposition.
+	// It should not be used in production code.
+	for (int i = 0; i < nsteps; ++i) {
+		globalPositions.push_back(G4ThreeVector(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100));
+		localPositions.push_back(G4ThreeVector(G4UniformRand() * 10, G4UniformRand() * 10, G4UniformRand() * 10));
+		times.push_back(G4UniformRand() * 100);
+		edeps.push_back(G4UniformRand() * 10);
+		pids.push_back(static_cast<int>(G4UniformRand() * 1000)); // Random particle ID
+	}
+}
+
+
+
 GHit::GHit(GTouchable *gt, const HitBitSet hbs,  const G4Step *thisStep, string cScheme) : G4VHit(),
 																						  colorSchema(std::move(cScheme)),
 																						  gtouchable(gt) {
@@ -25,7 +41,7 @@ GHit::GHit(GTouchable *gt, const HitBitSet hbs,  const G4Step *thisStep, string 
 	// initialize quantities based on HitBitSet, like globalPositions
 	if (thisStep) { addHitInfosForBitset(hbs, thisStep); }
 
-	// unitialized quantities. To be calculated at the end of the steps by collectTrueInformation
+	// unitialized quantities, to be calculated at the end of the steps by collectTrueInformation
 	// bit 0: always there
 	averageTime = UNINITIALIZEDNUMBERQUANTITY;
 	avgGlobalPosition = G4ThreeVector(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY);

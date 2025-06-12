@@ -1,5 +1,5 @@
 #include "g4displayview.h"
-#include "../g4display_options.h"
+#include "g4display_options.h"
 #include "gutilities.h"
 
 using namespace g4display;

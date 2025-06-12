@@ -98,6 +98,7 @@ private:
 	// build hit information based on the bit index and the touchable
 	bool addHitInfosForBitIndex(size_t bitIndex, bool test, const G4Step* thisStep);
 
+
 public:
 	// inline getters for hit information:
 	/**
@@ -188,6 +189,8 @@ public:
 	// gemc api
 	// build hit information based on the G4Step
 	void addHitInfosForBitset(HitBitSet hbs, const G4Step* thisStep);
+
+	void randomizeHitForTesting(int nsteps);
 
 
 	/**

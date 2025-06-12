@@ -4,7 +4,7 @@
  */
 
 #include "gDigitizedData.h"
-#include "../gdataConventions.h"
+#include "gdataConventions.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -71,14 +71,14 @@ int GDigitizedData::getTimeAtElectronics() {
 
 int GDigitizedData::getIntObservable(const std::string& varName) {
 	if (intObservablesMap.find(varName) == intObservablesMap.end()) {
-		log->error(EC__VARIABLENOTFOUND, "variable name <" + varName + "> not found in GDigitizedData::intObservablesMap");
+		log->error(ERR_VARIABLENOTFOUND, "variable name <" + varName + "> not found in GDigitizedData::intObservablesMap");
 	}
 	return intObservablesMap[varName];
 }
 
 double GDigitizedData::getDblObservable(const std::string& varName) {
 	if (doubleObservablesMap.find(varName) == doubleObservablesMap.end()) {
-		log->error(EC__VARIABLENOTFOUND, "variable name <" + varName + "> not found in GDigitizedData::doubleObservablesMap");
+		log->error(ERR_VARIABLENOTFOUND, "variable name <" + varName + "> not found in GDigitizedData::doubleObservablesMap");
 	}
 	return doubleObservablesMap[varName];
 }

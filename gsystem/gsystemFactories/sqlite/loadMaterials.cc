@@ -1,6 +1,6 @@
 // gsystem
 #include "systemSqliteFactory.h"
-#include "../gsystemConventions.h"
+#include "gsystemConventions.h"
 
 // c++
 using namespace std;

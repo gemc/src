@@ -1,6 +1,6 @@
 // gsystem
 #include "systemSqliteFactory.h"
-#include "../gsystemConventions.h"
+#include "gsystemConventions.h"
 
 void GSystemSQLiteFactory::loadGeometry(GSystem* system, std::shared_ptr<GLogger> log) {
 	// Initialize the DB if needed.

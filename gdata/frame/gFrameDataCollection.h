@@ -9,7 +9,7 @@
 
 #include "gFrameDataCollectionHeader.h"
 #include "gIntegralPayload.h"
-#include "../gdataConventions.h"
+#include "gdataConventions.h"
 #include <vector>
 #include <string>
 
@@ -59,7 +59,7 @@ public:
 			log->debug(NORMAL, " adding integral payload for crate ", crate, " slot ", slot, " channel ", channel,
 			           " charge ", charge, " time ", time);
 		}
-		else { log->error(EC__WRONGPAYLOAD, "payload size is not 5 but ", payload.size()); }
+		else { log->error(ERR_WRONGPAYLOAD, "payload size is not 5 but ", payload.size()); }
 	}
 
 	// Placeholder: Add event-specific data.

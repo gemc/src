@@ -90,9 +90,7 @@ public:
 	 *
 	 * \note This function will crash if the key is not declared.
 	 */
-	inline std::vector<double> getModifierWeightsVector(const std::string& touchableName) {
-		return modifierWeightsMap[touchableName];
-	}
+	inline std::vector<double> getModifierWeightsVector(const std::string& touchableName) { return modifierWeightsMap[touchableName]; }
 
 	/**
 	 * \brief Gets the modifier weights and time vector for a given touchable.
@@ -101,9 +99,7 @@ public:
 	 *
 	 * \note This function will crash if the key is not declared.
 	 */
-	inline std::vector<double> getModifierWeightsAndTimeVector(const std::string& touchableName) {
-		return modifierWeightsAndTimesMap[touchableName];
-	}
+	inline std::vector<double> getModifierWeightsAndTimeVector(const std::string& touchableName) { return modifierWeightsAndTimesMap[touchableName]; }
 };
 
 /// Abstract base class for dynamic digitization functionality.
@@ -123,13 +119,13 @@ public:
 	 * \param thisStep Pointer to the current G4Step.
 	 * \return The global time.
 	 */
-	double processStepTime(GTouchable* gTouchID, G4Step* thisStep) {
+	[[nodiscard]] double processStepTime(GTouchable* gTouchID, G4Step* thisStep) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::process step time");
 		return processStepTimeImpl(gTouchID, thisStep);
 	}
 
-	virtual double processStepTimeImpl(GTouchable* gTouchID, G4Step* thisStep);
+	[[nodiscard]] virtual double processStepTimeImpl(GTouchable* gTouchID, G4Step* thisStep);
 
 
 	/**
@@ -142,13 +138,13 @@ public:
 	 * \param thisStep Pointer to the current G4Step.
 	 * \return A vector of GTouchable pointers.
 	 */
-	std::vector<GTouchable*> processTouchable(GTouchable* gTouchID, G4Step* thisStep) {
+	[[nodiscard]] std::vector<GTouchable*> processTouchable(GTouchable* gTouchID, G4Step* thisStep) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::process gtouchable");
 		return processTouchableImpl(gTouchID, thisStep);
 	}
 
-	virtual std::vector<GTouchable*> processTouchableImpl(GTouchable* gTouchID, G4Step* thisStep);
+	[[nodiscard]] virtual std::vector<GTouchable*> processTouchableImpl(GTouchable* gTouchID, G4Step* thisStep);
 
 	/**
 	 * \brief Processes touchable modifiers.
@@ -159,7 +155,7 @@ public:
 	 * \param gmods A GTouchableModifiers object.
 	 * \return A vector of modified GTouchable pointers.
 	 */
-	std::vector<GTouchable*> processGTouchableModifiers(GTouchable* gTouchID, GTouchableModifiers gmods) {
+	[[nodiscard]] std::vector<GTouchable*> processGTouchableModifiers(GTouchable* gTouchID, GTouchableModifiers gmods) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::process gtouchable modifiers");
 		return processGTouchableModifiersImpl(gTouchID, std::move(gmods));
@@ -176,13 +172,13 @@ public:
 	 * \param hitn Hit index.
 	 * \return A pointer to a newly created GTrueInfoData object.
 	 */
-	GTrueInfoData* collectTrueInformation(GHit* ghit, size_t hitn) {
+	[[nodiscard]] GTrueInfoData* collectTrueInformation(GHit* ghit, size_t hitn) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::collect true information");
 		return collectTrueInformationImpl(ghit, hitn);
 	}
 
-	virtual GTrueInfoData* collectTrueInformationImpl(GHit* ghit, size_t hitn);
+	[[nodiscard]] virtual GTrueInfoData* collectTrueInformationImpl(GHit* ghit, size_t hitn);
 
 	/**
 	 * \brief Digitizes hit information into a GDigitizedData object.
@@ -191,15 +187,13 @@ public:
 	 * \param hitn Hit index.
 	 * \return A pointer to a GDigitizedData object, or nullptr if not implemented.
 	 */
-	GDigitizedData* digitizeHit([[maybe_unused]] GHit* ghit, [[maybe_unused]] size_t hitn) {
+	[[nodiscard]] GDigitizedData* digitizeHit([[maybe_unused]] GHit* ghit, [[maybe_unused]] size_t hitn) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::digitize hit");
 		return digitizeHitImpl(ghit, hitn);
 	}
 
-	virtual GDigitizedData* digitizeHitImpl([[maybe_unused]] GHit* ghit, [[maybe_unused]] size_t hitn) {
-		return nullptr;
-	}
+	[[nodiscard]] virtual GDigitizedData* digitizeHitImpl([[maybe_unused]] GHit* ghit, [[maybe_unused]] size_t hitn) { return nullptr; }
 
 	/**
 	 * \brief Loads digitization constants.
@@ -208,15 +202,13 @@ public:
 	 * \param variation Variation string.
 	 * \return True if successful, false otherwise.
 	 */
-	bool loadConstants([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
+	[[nodiscard]] bool loadConstants([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::load constants");
 		return loadConstantsImpl(runno, variation);
 	}
 
-	virtual bool loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
-		return false;
-	}
+	[[nodiscard]] virtual bool loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return false; }
 
 	/**
 	 * \brief Loads the translation table.
@@ -225,13 +217,13 @@ public:
 	 * \param variation Variation string.
 	 * \return True if successful, false otherwise.
 	 */
-	bool loadTT([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
+	[[nodiscard]] bool loadTT([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::load Translation Table");
 		return loadTTImpl(runno, variation);
 	}
 
-	virtual bool loadTTImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return false; }
+	[[nodiscard]] virtual bool loadTTImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return false; }
 
 	/**
 	 * \brief Sets hardware-level charge and time information in the digitized data.
@@ -254,12 +246,12 @@ public:
 	 *
 	 * \return True if initialization is successful, false otherwise.
 	 */
-	bool defineReadoutSpecs() {
+	[[nodiscard]] bool defineReadoutSpecs() {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::define readout specs");
 		return defineReadoutSpecsImpl();
 	};
-	virtual bool defineReadoutSpecsImpl() = 0;
+	[[nodiscard]] virtual bool defineReadoutSpecsImpl() = 0;
 
 	/// Pointer to the readout specifications.
 	GReadoutSpecs* readoutSpecs = nullptr;
@@ -321,4 +313,3 @@ protected:
 		}
 	}
 };
-

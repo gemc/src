@@ -1,7 +1,7 @@
 // G4Dialog
 #include "gboard.h"
-#include "../gui_session.h"
-#include "../g4dialog_options.h" // Provides G4DIALOG_LOGGER constant and option definitions
+#include "gui_session.h"
+#include "g4dialog_options.h" // Provides G4DIALOG_LOGGER constant and option definitions
 
 
 

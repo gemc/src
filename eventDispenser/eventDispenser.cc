@@ -26,6 +26,8 @@
 #include "eventDispenserConventions.h"
 #include "eventDispenser_options.h"
 #include "eventDispenser.h"
+#include "gdynamicdigitizationConventions.h"
+
 
 // c++
 #include <fstream>
@@ -63,7 +65,7 @@ EventDispenser::EventDispenser(GOptions *gopt, map<string, GDynamicDigitization 
 		// A filename was specified; attempt to open the run weights input file.
 		ifstream in(filename.c_str());
 		if (!in) {
-			log->error(EC__EVENTDISTRIBUTIONFILENOTFOUND, "Error: can't open run weights input file ", filename, ". Check your spelling. Exiting.");
+			log->error(ERR_EVENTDISTRIBUTIONFILENOTFOUND, "Error: can't open run weights input file ", filename, ". Check your spelling. Exiting.");
 		} else {
 			log->info(1, "Loading run weights from ", filename);
 			// Fill the run weight map by reading each line from the file.
@@ -154,10 +156,14 @@ int EventDispenser::processEvents() {
 		if (runNumber != currentRunno) {
 			for (auto [digitizationName, digiRoutine] : (*gDigitizationGlobal)) {
 				log->debug(NORMAL, "Calling ", digitizationName, " loadConstants for run ", runNumber);
-				digiRoutine->loadConstants(runNumber, variation);
+				if (digiRoutine->loadConstants(runNumber, variation) == false) {
+					log->error(ERR_LOADCONSTANTFAIL, "Failed to load constants for ", digitizationName, " for run ", runNumber, " with variation ", variation);
+				}
 
 				log->debug(NORMAL, "Calling ", digitizationName, " loadTT for run ", runNumber);
-				digiRoutine->loadTT(runNumber, variation);
+				if (digiRoutine->loadTT(runNumber, variation) == false) {
+					log->error(ERR_LOADTTFAIL, "Failed to load translation table for ", digitizationName, " for run ", runNumber, " with variation ", variation);
+				}
 			}
 			currentRunno = runNumber;
 		}

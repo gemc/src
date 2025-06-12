@@ -6,7 +6,7 @@
 #include "gutilities.h"
 
 // gsystem
-#include "../gsystem.h"
+#include "gsystem.h"
 
 
 // system factory

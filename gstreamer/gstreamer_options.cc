@@ -16,11 +16,11 @@ vector<GStreamerDefinition> getGStreamerDefinition(GOptions* gopts) {
 	auto goutput_node = gopts->getOptionNode("gstreamer");
 
 	for (auto goutput_item : goutput_node) {
-		goutputs.emplace_back(GStreamerDefinition(
-		                                          gopts->get_variable_in_option<string>(goutput_item, "format", goptions::NODFLT),
-		                                          gopts->get_variable_in_option<string>(goutput_item, "filename", goptions::NODFLT),
-		                                          gopts->get_variable_in_option<string>(goutput_item, "type", "event")
-		                                         ));
+		goutputs.emplace_back(
+		                      gopts->get_variable_in_option<string>(goutput_item, "format", goptions::NODFLT),
+		                      gopts->get_variable_in_option<string>(goutput_item, "filename", goptions::NODFLT),
+		                      gopts->get_variable_in_option<string>(goutput_item, "type", "event")
+		                     );
 	}
 
 	return goutputs;

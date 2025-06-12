@@ -18,9 +18,9 @@
  * The constants below are used for error reporting and as string identifiers in various modules.
  */
 
-constexpr int EC__GSDETECTORNOTFOUND = 601;    ///< Exit code when a detector is not found.
-constexpr int EC__VARIABLENOTFOUND   = 602;      ///< Exit code when a variable is not found.
-constexpr int EC__WRONGPAYLOAD       = 603;      ///< Exit code when a payload is of the wrong size.
+constexpr int ERR_GSDETECTORNOTFOUND = 601;    ///< Exit code when a detector is not found.
+constexpr int ERR_VARIABLENOTFOUND   = 602;      ///< Exit code when a variable is not found.
+constexpr int ERR_WRONGPAYLOAD       = 603;      ///< Exit code when a payload is of the wrong size.
 
 constexpr const char* CRATESTRINGID         = "crate";                ///< Identifier for crate.
 constexpr const char* SLOTSTRINGID          = "slot";                 ///< Identifier for slot.

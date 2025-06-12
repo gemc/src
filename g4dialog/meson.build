@@ -32,7 +32,7 @@ if get_option('i_test')
         'headers' : headers,
         'moc_headers' : moc_headers,
         'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
-        'additional_includes' : ['g4dialog/tabs'],
+        'additional_includes' : ['g4dialog', 'g4dialog/tabs'],
         'examples' : examples
     }
 else
@@ -42,6 +42,6 @@ else
         'headers' : headers,
         'moc_headers' : moc_headers,
         'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
-        'additional_includes' : ['g4dialog/tabs']
+        'additional_includes' : ['g4dialog', 'g4dialog/tabs'],
     }
 endif

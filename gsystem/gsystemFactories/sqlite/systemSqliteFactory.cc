@@ -3,7 +3,7 @@
 
 // gsystem
 #include "systemSqliteFactory.h"
-#include "../gsystemConventions.h"
+#include "gsystemConventions.h"
 
 
 GSystemSQLiteFactory::GSystemSQLiteFactory() = default;
