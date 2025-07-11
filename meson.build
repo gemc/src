@@ -142,7 +142,6 @@ foreach L : LD
 
     # examples
     if examples != empty_dict
-
         # examples geometry, higher priority
         if geo_build != empty_dict
             foreach name, geo_python_script : geo_build
@@ -153,7 +152,7 @@ foreach L : LD
                                strip_directory : true,
                                follow_symlinks : true)
 
-                test(' ## ' + examples_dir + ' test ##  >>  ' + name,
+                test(name,
                      python_exe,
                      args : [geo_python_script],
                      workdir : examples_dir,
@@ -181,7 +180,7 @@ foreach L : LD
                 # link_args : all_lib_names
                 override_options : ['b_pie=true']
             )
-            test(' ## ' + this_lib_name + ' test ##  >>  ' + name,
+            test(name,
                  exe,
                  env : project_test_env,
                  args : arguments,

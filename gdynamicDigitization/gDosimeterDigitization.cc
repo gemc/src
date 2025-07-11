@@ -42,7 +42,7 @@ bool GDosimeterDigitization::defineReadoutSpecsImpl() {
 	auto   hitBitSet     = HitBitSet("000001"); // defines what information to be stored in the hit
 
 	// Create a new GReadoutSpecs object with the specified parameters.
-	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, digi_logger);
 
 	return true;
 }

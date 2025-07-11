@@ -6,7 +6,7 @@ bool GParticleCounterDigitization::defineReadoutSpecsImpl() {
 	double gridStartTime = 0;                   // defines the window grid
 	auto  hitBitSet     = HitBitSet("000000"); // defines what information to be stored in the hit
 
-	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, digi_logger);
 
 	return true;
 }

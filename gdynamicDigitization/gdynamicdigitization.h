@@ -253,10 +253,9 @@ public:
 	};
 	[[nodiscard]] virtual bool defineReadoutSpecsImpl() = 0;
 
-	/// Pointer to the readout specifications.
-	GReadoutSpecs* readoutSpecs = nullptr;
-	/// Pointer to the translation table.
-	GTranslationTable* translationTable = nullptr;
+	/// After init, we never mutate these:
+	std::shared_ptr<const GReadoutSpecs>  readoutSpecs;
+	std::shared_ptr<const GTranslationTable> translationTable;
 
 	/**
 	 * \brief Dynamically instantiates a GDynamicDigitization object from a dynamic library.
@@ -292,7 +291,7 @@ public:
 protected:
 	/// Optional pointer to GOptions.
 	std::optional<GOptions*> gopts;
-	/// Data, Translation Tables and digitization loggers.
+	/// Data, Translation Tables, and digitization loggers.
 	std::shared_ptr<GLogger> data_logger, tt_logger, digi_logger;
 
 	/**

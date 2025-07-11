@@ -72,7 +72,7 @@ LD += {
     'examples' : {
         'test_gstreamer' : [files('examples/gstreamer_example.cc'), ['']],
         'test_gstreamer_verbose' : [files('examples/gstreamer_example.cc'),
-                                    '-verbosity.gdata=2', '-verbosity.plugins=2', '-verbosity.gtranslationTable=2', '-verbosity.gdigitization=2', '-debug.gtouchable=2',
+                                    '-verbosity.gdata=2', '-verbosity.plugins=2', '-verbosity.gtranslationTable=2', '-verbosity.gdigitization=2', '-verbosity.gtouchable=2',
                                     '-debug.gdata=true', '-debug.plugins=true', '-debug.gtranslationTable=true', '-debug.gdigitization=true', '-debug.gtouchable=true'],
     }
 }

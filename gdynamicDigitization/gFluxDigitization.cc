@@ -22,7 +22,7 @@ bool GFluxDigitization::defineReadoutSpecsImpl() {
 
 	// Create a new GReadoutSpecs object using the provided parameters.
 	// The digi_logger (obtained via set_loggers()) is used for logging.
-	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, digi_logger);
 
 	return true;
 }

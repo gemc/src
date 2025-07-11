@@ -97,9 +97,14 @@
 #define REDARROWITEM BOLD(FRED(ARROWITEM)) ///< Red arrow item.
 
 // Tab spacing for indentation
-#define GTAB "   "              ///< One tab spacing.
-#define GTABTAB GTAB GTAB       ///< Two tab spacing.
-#define GTABTABTAB GTAB GTAB GTAB ///< Three tab spacing.
+#define GTAB "   "
+#define GTABTAB GTAB GTAB
+#define GTABTABTAB GTAB GTAB GTAB
+#define GTABX4 GTABTABTAB GTAB
+#define GTABX5 GTABX4 GTAB
+#define GTABX6 GTABX5 GTAB
+#define GTABX7 GTABX6 GTAB
+#define GTABX8 GTABX7 GTAB
 
 // Single tab list items
 #define TPOINTITEM GTAB POINTITEM       ///< Point item with single tab.
@@ -137,4 +142,3 @@
 #define REDHHL KRED HHL        ///< Red highlight left.
 #define YELLOWHHL KYEL HHL     ///< Yellow highlight left.
 #define BOLDWHHL BOLD(HHL)     ///< Bold white highlight left.
-

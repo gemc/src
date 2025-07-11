@@ -3,12 +3,12 @@ python_exe = import('python').find_installation('python3')
 
 install_subdir(meson.current_source_dir(), install_dir : '.')
 
-test(' ## templates help',
+test('api_template_help',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
      args : [api_dir + 'system_template.py', '-h'])
 
-test(' ## templates show solid creators',
+test('api_show_solid _creators',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
      args : [api_dir + 'system_template.py', '-sl'])
@@ -26,28 +26,28 @@ g4objects = {
 
 foreach volume: g4objects.keys()
     pars = g4objects[volume]
-    test(' ## template show code for volume ' + volume,
+    test('api_show_template_code_for_' + volume,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
          args : [api_dir + 'system_template.py', '-gv', volume])
-    test(' ## template show code for volume ' + volume + ' with parameters ' + pars,
+    test('api_template_show_code_for_volume' + volume + '_with_parameters_' + pars,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
          args : [api_dir + 'system_template.py', '-gv', volume, '-gvp', pars])
 endforeach
 
-test(' ## template show code for solid G4Cons in silent mode',
+test('api_show_template_code_for_G4Cons',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
      args : [api_dir + 'system_template.py', '-gv', 'G4Cons', '-silent'])
 
 test_dir = meson.current_build_dir() + '/../test'
-test(' ## template create system test',
+test('api_create_system',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
      args : [api_dir + 'system_template.py', '-s', 'test'], priority : 10)
 foreach format : ['ascii', 'sqlite']
-    test(' ## template build geometry in test for format ' + format,
+    test('api_template_build_geometry_in_test_for_format_' + format,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
          args : ['test.py', '-f', format], workdir : test_dir, priority : -10)
@@ -67,16 +67,16 @@ foreach volume: g4objects.keys()
     geo_py = '-write_to=geometry_test_' + volume + '.py'
     test_dir = meson.current_build_dir() + '/../' + test_name
     pars = g4objects[volume]
-    test(' ## template create system test for volume' + volume,
+    test('api_create_template_system_with' + volume,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
          args : [api_dir + 'system_template.py', '-s', test_name], priority : 10)
-    test(' ## template replace geometry in test with ' + volume,
+    test('api_template_replace_geometry_with' + volume,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
          args: [api_dir + 'system_template.py', '-gv', volume, '-gvp', pars, geo_py, sub_name], workdir : test_dir, priority : -10)
     foreach format : ['ascii', 'sqlite']
-        test(' ## template build geometry in test of replacing geometry with ' + volume + ' with format ' + format,
+        test('api_template_build_geometry_in_test_of_replacing_geometry_with' + volume + '_with_format' + format,
              python_exe,
              env : {'PYTHONDONTWRITEBYTECODE': '1'},
              args : [python_main, '-f', format], workdir : test_dir, priority : -20)

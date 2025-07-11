@@ -8,7 +8,7 @@ bool GPlugin_test_example::defineReadoutSpecsImpl() {
 	double gridStartTime = 0;                   // defines the windows grid
 	auto   hitBitSet     = HitBitSet("100000"); // defines what information to be stored in the hit
 
-	readoutSpecs = new GReadoutSpecs(timeWindow, gridStartTime, hitBitSet, digi_logger);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, digi_logger);
 
 	return true;
 }
@@ -27,7 +27,8 @@ bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] std::st
 
 	var4 = "hello";
 
-	digi_logger->info(0, " Constants loaded for run number ", runno, " for ctof. var1  is ", var1, " var2 pointer is ", var2, "variation is", variation);
+	digi_logger->info(0, " Constants loaded for run number ", runno, " for ctof. var1  is ", var1,
+		", var2 pointer is ", var2, ", variation is ", variation);
 
 	return true;
 }
