@@ -2,7 +2,7 @@
 #include "../gstreamerJLABSROFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerJSROFactory::startStream(const GFrameDataCollection *frameRunData, const std::shared_ptr<GLogger>& log) {
+bool GstreamerJSROFactory::startStreamImpl(const GFrameDataCollection *frameRunData) {
 
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
@@ -32,10 +32,7 @@ bool GstreamerJSROFactory::startStream(const GFrameDataCollection *frameRunData,
 
     //make payload data
     unsigned int crate = 0;
-    unsigned int slot;
-    unsigned int channel;
-    unsigned int charge;
-    unsigned int time;
+    unsigned int slot, channel, charge, time;
     unsigned int slots = 16;
 
     frame_data.resize(header_offset);
@@ -85,7 +82,7 @@ bool GstreamerJSROFactory::startStream(const GFrameDataCollection *frameRunData,
 }
 
 
-bool GstreamerJSROFactory::endStream([[maybe_unused]] const GFrameDataCollection *frameRunData, const std::shared_ptr<GLogger>& log) {
+bool GstreamerJSROFactory::endStreamImpl([[maybe_unused]] const GFrameDataCollection *frameRunData) {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
     return true;

@@ -2,7 +2,7 @@
 #include "../gstreamerROOTFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerRootFactory::startEvent(const GEventDataCollection* eventData, const std::shared_ptr<GLogger>& log) {
+bool GstreamerRootFactory::startEventImpl(const GEventDataCollection* eventData) {
 	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
 
 	log->info(2, "Start of event ", eventData->getHeader()->getG4LocalEvn(),
@@ -14,7 +14,7 @@ bool GstreamerRootFactory::startEvent(const GEventDataCollection* eventData, con
 }
 
 
-bool GstreamerRootFactory::endEvent(const GEventDataCollection* eventData, const std::shared_ptr<GLogger>& log) {
+bool GstreamerRootFactory::endEventImpl(const GEventDataCollection* eventData) {
 	log->info(2, "End of event ", eventData->getHeader()->getG4LocalEvn(), " in ", gstreamer_definitions.name);
 
 	return true;

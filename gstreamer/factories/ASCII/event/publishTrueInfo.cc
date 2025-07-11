@@ -2,9 +2,8 @@
 #include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::publishEventTrueInfoData(const std::string                  detectorName,
-                                                    const std::vector<GTrueInfoData*>* trueInfoData,
-                                                    std::shared_ptr<GLogger>&     log) {
+bool GstreamerTextFactory::publishEventTrueInfoDataImpl(const std::string                  detectorName,
+                                                        const std::vector<GTrueInfoData*>* trueInfoData) {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
 	*ofile << GTAB << "Detector <" << detectorName << "> True Info Bank {" << std::endl;

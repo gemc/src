@@ -5,7 +5,7 @@
 // c++
 #include<vector>
 
-bool GstreamerJSROFactory::publishFrameHeader([[maybe_unused]] const GFrameDataCollectionHeader *gframeHeader, const std::shared_ptr<GLogger>& log)
+bool GstreamerJSROFactory::publishFrameHeaderImpl([[maybe_unused]] const GFrameDataCollectionHeader *gframeHeader)
 {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 	

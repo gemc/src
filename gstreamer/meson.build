@@ -1,4 +1,13 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+verbosities = ['-verbosity.plugins=2',
+               '-verbosity.gdigitization=2',
+               '-verbosity.gtouchable=2',
+               '-verbosity.gstreamer=2',
+               '-debug.plugins=true',
+               '-debug.gtouchable=true',
+               '-debug.gstreamer=true',
+               '-gstreamer=[{format: root, filename: out.root}]']
+
 
 ascii_plugin_files = [files(
                           'factories/ASCII/gstreamerASCIIFactory.cc',
@@ -36,21 +45,21 @@ root_plugin_files = [files(
                      ),
                      true]
 
-
+# TODO: just detect if root is available
 if get_option('use_root')
     if root_deps.found()
         streamer_plugins = {
-            'gstreamerASCIIFactory' : ascii_plugin_files,
-            'gstreamerJLABSROFactory' : jlab_sro_plugin_files,
-            'gstreamerROOTFactory' : root_plugin_files
+            'gstreamer_ascii_plugin' : ascii_plugin_files,
+            'gstreamer_jlabsro_plugin' : jlab_sro_plugin_files,
+            'gstreamer_root_plugin' : root_plugin_files
         }
         streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_deps, root_deps]
 
     endif
 else
     streamer_plugins = {
-        'gstreamerASCIIFactory' : ascii_plugin_files,
-        'gstreamerJLABSROFactory' : jlab_sro_plugin_files
+        'gstreamer_ascii_plugin' : ascii_plugin_files,
+        'gstreamer_jlabsro_plugin' : jlab_sro_plugin_files
     }
     streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_deps]
 endif
@@ -71,8 +80,7 @@ LD += {
     'additional_includes' : ['gstreamer', 'gstreamer/factories/ROOT', 'gstreamer/factories/ASCII', 'gstreamer/factories/JLABSRO'],
     'examples' : {
         'test_gstreamer' : [files('examples/gstreamer_example.cc'), ['']],
-        'test_gstreamer_verbose' : [files('examples/gstreamer_example.cc'),
-                                    '-verbosity.gdata=2', '-verbosity.plugins=2', '-verbosity.gtranslationTable=2', '-verbosity.gdigitization=2', '-verbosity.gtouchable=2',
-                                    '-debug.gdata=true', '-debug.plugins=true', '-debug.gtranslationTable=true', '-debug.gdigitization=true', '-debug.gtouchable=true'],
+        'test_gstreamer_verbose' : [files('examples/gstreamer_example.cc'), verbosities],
+        'test_gstreamer_root' : [files('examples/gstreamer_example.cc'), ['-gstreamer="[{format: root, filename: out.root}]"']],
     }
 }

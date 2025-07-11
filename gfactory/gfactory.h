@@ -135,7 +135,7 @@ T* GManager::LoadAndRegisterObjectFromLibrary(std::string_view name, GOptions *g
 		auto factory = T::instantiate(dynamicLib->handle);
 		// in c++20 it is possible to use introspection with concept thuse removing the
 		// need of having to define a set_loggers function
-		// it didn't work on 5/21/2025 so for now the function is required
+		// it didn't work on 5/21/2025 so for now the function is required to be defined
 		factory->set_loggers(gopts);
 		return factory;
 	}

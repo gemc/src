@@ -5,8 +5,7 @@
 using std::string;
 
 // Return the header tree from the map. If it's not there, initialize it.
-GRootTree* GstreamerRootFactory::getOrInstantiateHeaderTree(const GEventDataCollectionHeader* gheader,
-                                                             std::shared_ptr<GLogger>&   log) {
+GRootTree* GstreamerRootFactory::getOrInstantiateHeaderTree(const GEventDataCollectionHeader* gheader) {
 	// the tree is not found, initialize it
 	if (gRootTrees->find(HEADERTREENAME) == gRootTrees->end()) {
 		log->info(2, "GstreamerRootFactory", "Creating ROOT header tree");
@@ -16,9 +15,8 @@ GRootTree* GstreamerRootFactory::getOrInstantiateHeaderTree(const GEventDataColl
 }
 
 // gdata passed here is guaranteed not a nullptr
-GRootTree* GstreamerRootFactory::getOrInstantiateTrueInfoDataTree(const string&                    detectorName,
-                                                                  const GTrueInfoData*            gdata,
-                                                                   std::shared_ptr<GLogger>& log) {
+GRootTree* GstreamerRootFactory::getOrInstantiateTrueInfoDataTree(const string&        detectorName,
+                                                                  const GTrueInfoData* gdata) {
 	string treeName = detectorName + TRUEINFONAMEPREFIX;
 
 	// the tree is not found, initialize it
@@ -31,9 +29,8 @@ GRootTree* GstreamerRootFactory::getOrInstantiateTrueInfoDataTree(const string& 
 }
 
 // gdata passed here is guaranteed not a nullptr
-GRootTree* GstreamerRootFactory::getOrInstantiateDigitizedDataTree(const string&                    detectorName,
-                                                                   const GDigitizedData*           gdata,
-                                                                    std::shared_ptr<GLogger>& log) {
+GRootTree* GstreamerRootFactory::getOrInstantiateDigitizedDataTree(const string&         detectorName,
+                                                                   const GDigitizedData* gdata) {
 	string treeName = detectorName + DIGITIZEDNAMEPREFIX;
 
 	// the tree is not found, initialize it

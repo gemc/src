@@ -2,7 +2,7 @@
 #include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::publishEventHeader(const GEventDataCollectionHeader *gheader, std::shared_ptr<GLogger>& log)
+bool GstreamerTextFactory::publishEventHeaderImpl(const GEventDataCollectionHeader *gheader)
 {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 	

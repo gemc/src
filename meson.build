@@ -167,6 +167,7 @@ foreach L : LD
         endif
         foreach name, sources_and_arguments : examples
             # concatenate the items in sources_and_arguments[1] to a string
+
             example_sources = sources_and_arguments[0] + qrc_examples_compiled_sources
             arguments = sources_and_arguments[1]
 

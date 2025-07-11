@@ -89,3 +89,10 @@ public:
 	 */
 	[[nodiscard]] inline int timeCellIndex(double time) const { return static_cast<int>(std::floor((time - gridStartTime) / timeWindow) + 1); }
 };
+
+
+#include <type_traits>
+
+// At compile time, make sure GReadoutSpecs has trivial destructors,
+static_assert(std::is_trivially_destructible_v<GReadoutSpecs>);
+

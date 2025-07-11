@@ -2,9 +2,8 @@
 #include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::publishEventDigitizedData(const std::string                   detectorName,
-                                                     const std::vector<GDigitizedData*>* digitizedData,
-                                                     std::shared_ptr<GLogger>&      log) {
+bool GstreamerTextFactory::publishEventDigitizedDataImpl(const std::string                   detectorName,
+                                                     const std::vector<GDigitizedData*>* digitizedData) {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
 	*ofile << GTAB << "Detector <" << detectorName << "> Digitized Bank {" << std::endl;

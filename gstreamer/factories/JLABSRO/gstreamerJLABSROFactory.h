@@ -27,14 +27,14 @@ public:
 
 private:
 	// open and close the output media
-	bool openConnection(const std::shared_ptr<GLogger>& log) override;
-	bool closeConnection(const std::shared_ptr<GLogger>& log) override;
+	bool openConnectionImpl() override;
+	bool closeConnectionImpl() override;
 
 	// frame streams
-	bool startStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
-	bool endStream(const GFrameDataCollection* frameRunData, const std::shared_ptr<GLogger>& log) override;
-	bool publishFrameHeader(const GFrameDataCollectionHeader* gframeHeader, const std::shared_ptr<GLogger>& log) override;
-	bool publishPayload(const std::vector<GIntegralPayload*>* payload, const std::shared_ptr<GLogger>& log) override;
+	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;
+	bool endStreamImpl(const GFrameDataCollection* frameRunData) override;
+	bool publishFrameHeaderImpl(const GFrameDataCollectionHeader* gframeHeader) override;
+	bool publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) override;
 
 	// JLAB specific
 	static inline std::uint64_t llswap(unsigned long long val) { return (val >> 32) | (val << 32); }

@@ -40,7 +40,7 @@ GOptions defineOptions() {
 	help += "\n";
 	help += " - event: write events\n";
 	help += " - stream: write frame stream\n";
-	help += "-gstreamer=\"[{format: root, filename: output}, {format: jlabsro, filename: output}}]\"\n";
+	help += "-gstreamer=\"[{format: root, filename: out.root}, {format: jlabsro, filename: out.ev}}]\"\n";
 
 	vector<GVariable> gstreamer = {
 		{"filename", goptions::NODFLT, "name of output file"},

@@ -2,7 +2,7 @@
 #include "../gstreamerJLABSROFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerJSROFactory::publishPayload([[maybe_unused]] const std::vector<GIntegralPayload*>* payload, const std::shared_ptr<GLogger>& log) {
+bool GstreamerJSROFactory::publishPayloadImpl([[maybe_unused]] const std::vector<GIntegralPayload*>* payload) {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
 	static constexpr int header_offset = sizeof(DataFrameHeader) / 4;

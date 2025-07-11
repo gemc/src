@@ -1,12 +1,12 @@
 // gstreamer
-#include "gstreamer_options.h"
+#include "gstreamer.h"
 
 // gemc
 #include "glogger.h"
 #include "gdynamicdigitization.h"
 #include "gutilities.h"
 #include "gdata_options.h"
-#include <gtouchable_options.h>
+#include "gtouchable_options.h"
 
 // this example uses the gplugin  built by gdynamicDigitization example
 const std::string plugin_name = "gplugin_test_example";
@@ -20,22 +20,6 @@ const std::string plugin_name = "gplugin_test_example";
 #include <vector>
 #include <memory>         // smart pointers
 #include <unordered_map>
-
-// -----------------------------------------------------------------------------
-// Shared state (visible to all threads)
-// -----------------------------------------------------------------------------
-
-// runData holds the finished events.  We store them as *unique_ptr* because
-// each event is owned by the container and *only* by the container (single
-// ownership → choose unique_ptr, not shared_ptr).
-inline std::vector<std::unique_ptr<GEventDataCollection>> runData;
-
-// Protect runData from concurrent push_back calls.  Only the push itself is
-// guarded; building events happens outside the critical section.
-inline std::mutex runDataMtx;
-
-// If loggers / dynamicRoutines themselves are *not* thread-safe you would
-// add their own mutexes here (omitted for brevity).
 
 // ===== portable jthread-like wrapper =========================================
 // If real std::jthread is present, use it. Otherwise, define a minimal shim
@@ -62,10 +46,10 @@ public:
 // Build a single event and hand back exclusive ownership
 // Trailing-return syntax: auto f(args) -> ReturnType
 // -----------------------------------------------------------------------------
-auto build_event(int                             evn,
-                 const std::shared_ptr<GLogger>& loge,
-                 const std::shared_ptr<GLogger>& logt,
-                 std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutines) -> std::unique_ptr<GEventDataCollection> {
+auto build_event(int                                                                    evn,
+                 const std::shared_ptr<GLogger>&                                        loge,
+                 const std::shared_ptr<GLogger>&                                        logt,
+                 std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutinesMap) -> std::unique_ptr<GEventDataCollection> {
 	// --------- Header construction ------------------------------------------
 	// unique_ptr means *exactly one* owner.  We start as the owner and later
 	// transfer ownership to eventData (see release() below).
@@ -113,12 +97,12 @@ auto build_event(int                             evn,
 	hit1->randomizeHitForTesting(10);
 	hit2->randomizeHitForTesting(5);
 
-	// dynamicRoutines assumed thread-safe
-	auto truedata1 = dynamicRoutines[plugin_name]->collectTrueInformation(hit1.get(), 1);
-	auto truedata2 = dynamicRoutines[plugin_name]->collectTrueInformation(hit2.get(), 2);
+	// dynamicRoutinesMap assumed thread-safe
+	auto truedata1 = dynamicRoutinesMap[plugin_name]->collectTrueInformation(hit1.get(), 1);
+	auto truedata2 = dynamicRoutinesMap[plugin_name]->collectTrueInformation(hit2.get(), 2);
 
-	auto digi1 = dynamicRoutines[plugin_name]->digitizeHit(hit1.get(), 1);
-	auto digi2 = dynamicRoutines[plugin_name]->digitizeHit(hit2.get(), 2);
+	auto digi1 = dynamicRoutinesMap[plugin_name]->digitizeHit(hit1.get(), 1);
+	auto digi2 = dynamicRoutinesMap[plugin_name]->digitizeHit(hit2.get(), 2);
 
 	eventData->addDetectorDigitizedData(plugin_name, digi1);
 	eventData->addDetectorDigitizedData(plugin_name, digi2);
@@ -136,7 +120,9 @@ void run_simulation(int                                                         
                     int                                                                    nthreads,
                     const std::shared_ptr<GLogger>&                                        loge,
                     const std::shared_ptr<GLogger>&                                        logt,
-                    std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutines) {
+                    std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutinesMap,
+                    std::vector<std::unique_ptr<GEventDataCollection>>&                    runData,
+                    std::mutex&                                                            runDataMtx) {
 	// thread-safe integer counter starts at 1.
 	// fetch_add returns the old value *and* bumps.
 	// Zero contention: each thread fetches the next free event number.
@@ -172,7 +158,7 @@ void run_simulation(int                                                         
 				int evn = next.fetch_add(1, std::memory_order_relaxed); // atomically returns the current value and increments it by 1.
 				if (evn > nevents) break;                               // exit the while loop
 
-				auto event = build_event(evn, loge, logt, dynamicRoutines);
+				auto event = build_event(evn, loge, logt, dynamicRoutinesMap);
 
 				// ---- Critical section: push into the shared vector ----------
 				// std::scoped_lock locks *all* mutexes passed to it and unlocks
@@ -197,49 +183,69 @@ void run_simulation(int                                                         
 }
 
 int main(int argc, char* argv[]) {
+	// runData holds the finished events.  We store them as *unique_ptr* because
+	// each event is owned by the container and *only* by the container (single
+	// ownership → choose unique_ptr, not shared_ptr).
+	std::vector<std::unique_ptr<GEventDataCollection>> runData;
+
+	// Protect runData from concurrent push_back calls.  Only the push itself is
+	// guarded; building events happens outside the critical section.
+	std::mutex runDataMtx;
+
 	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
 	auto gopts = new GOptions(argc, argv, gstreamer::defineOptions());
 
-	auto log        = new GLogger(gopts, GSTREAMER_LOGGER, "gstreamer_example: main");
-	auto plugin_log = std::make_shared<GLogger>(gopts, GSTREAMER_LOGGER, "gstreamer_example: plugin manager");
-	auto loge       = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gstreamer_example example: GEventDataCollection");
-	auto logt       = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gstreamer_example example: GTouchable");
+	auto log  = std::make_shared<GLogger>(gopts, GSTREAMER_LOGGER, "gstreamer_example: main");
+	auto loge = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gstreamer_example example: GEventDataCollection");
+	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gstreamer_example example: GTouchable");
 
-	GManager manager(plugin_log);
-
-	// using dynamicRoutines map
-	std::map<std::string, GDynamicDigitization*> dynamicRoutines;
+	// Digitization plugin manager
+	GManager manager(log);
 
 	// mutable map of shared pointers to GDynamicDigitization objects
-	std::unordered_map<std::string,
-	                   std::shared_ptr<GDynamicDigitization>> dynamicRoutines2;
+	std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutinesMap;
+
+	dynamicRoutinesMap.emplace(plugin_name,
+	                           manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin", gopts));
+
+	log->info(0, "dynamicRoutinesMap[", plugin_name, "]: ", dynamicRoutinesMap[plugin_name]);
 
 
-	dynamicRoutines[plugin_name] = manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>("test_gdynamic_plugin", gopts);
-
-
-	dynamicRoutines2.emplace(plugin_name, manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(
-	                                                                                                     "test_gdynamic_plugin", gopts));
-
-	log->info(0, "dynamicRoutines[", plugin_name, "]: ", dynamicRoutines[plugin_name]);
-	log->info(0, "dynamicRoutines2[", plugin_name, "]: ", dynamicRoutines2[plugin_name]);
-
-	if (dynamicRoutines[plugin_name]->loadConstants(1, "default") == false) {
-		log->error(1, "Failed to load constants for dynamic routine 'test' for run number 1 with variation 'default'.");
-	}
-	if (dynamicRoutines2[plugin_name]->loadConstants(1, "default") == false) {
+	if (dynamicRoutinesMap[plugin_name]->loadConstants(1, "default") == false) {
 		log->error(1, "Failed to load constants for dynamic routine 'test' for run number 1 with variation 'default'.");
 	}
 
 	// Freeze the map before passing it to worker threads
 	// unordered_map is read-only the entire time the event threads run, and the C ++standard
 	// guarantees that concurrent reads on a const container are safe so long as no thread mutates it
-	const auto& dynRoutinesConst = dynamicRoutines; // const reference
+	const auto& dynRoutinesConstMap = dynamicRoutinesMap; // const reference
+
+
+	// gstreamer plugin manager
+	std::unordered_map<std::string, std::shared_ptr<GStreamer>> gstreamersMap;
+
+	auto goutput_defs = gstreamer::getGStreamerDefinition(gopts);
+
+	if (goutput_defs.size() > 0) {
+		for (auto& goutput_def : goutput_defs) {
+			std::string gstreamer_plugin = goutput_def.gstreamerPluginName();
+			gstreamersMap.emplace(gstreamer_plugin,
+			                      manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts));
+			log->info(0, "gstreamersMap[", gstreamer_plugin, "]: ", gstreamersMap[gstreamer_plugin]);
+			gstreamersMap[gstreamer_plugin]->define_gstreamer(goutput_def);
+			if (!gstreamersMap[gstreamer_plugin]->openConnection()) {
+				log->error(1, "Failed to open connection for gstreamer plugin '", gstreamer_plugin, "'.");
+				return EXIT_FAILURE;
+			}
+		}
+	}
+
+	const auto& gstreamerFactoryMap = gstreamersMap; // const reference
 
 	constexpr int nevents  = 20;
 	constexpr int nthreads = 8;
 
-	run_simulation(nevents, nthreads, loge, logt, dynamicRoutines2);
+	run_simulation(nevents, nthreads, loge, loge, dynRoutinesConstMap, runData, runDataMtx);
 
 	log->info(0, "Finished processing ", runData.size(), " events.");
 

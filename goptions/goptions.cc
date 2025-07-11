@@ -110,6 +110,12 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 			if (eqPos != string::npos) {
 				string keyPart = argStr.substr(0, eqPos);
 				string valuePart = argStr.substr(eqPos + 1);
+
+				// Strip outer quotes if present (e.g., -gstreamer="[...]")
+				if (!valuePart.empty() && valuePart.front() == '"' && valuePart.back() == '"') {
+					valuePart = valuePart.substr(1, valuePart.length() - 2);
+				}
+
 				size_t dotPos = keyPart.find('.');
 				if (dotPos != string::npos) {
 					// Dot–notation detected (e.g. "debug.general=true")

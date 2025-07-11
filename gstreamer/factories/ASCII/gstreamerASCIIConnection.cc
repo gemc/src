@@ -2,7 +2,7 @@
 #include "gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::openConnection(const std::shared_ptr<GLogger>& log) {
+bool GstreamerTextFactory::openConnectionImpl() {
 	ofile = new std::ofstream(gstreamer_definitions.name);
 
 	if (!ofile->is_open()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerTextFactory: could not open file " + gstreamer_definitions.name); }
@@ -11,7 +11,7 @@ bool GstreamerTextFactory::openConnection(const std::shared_ptr<GLogger>& log) {
 	return true;
 }
 
-bool GstreamerTextFactory::closeConnection(const std::shared_ptr<GLogger>& log) {
+bool GstreamerTextFactory::closeConnectionImpl() {
 	ofile->close();
 
 	// check if file is closed

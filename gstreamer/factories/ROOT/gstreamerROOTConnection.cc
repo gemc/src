@@ -2,7 +2,7 @@
 #include "gstreamerROOTFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerRootFactory::openConnection(const std::shared_ptr<GLogger>& log)
+bool GstreamerRootFactory::openConnectionImpl()
 {
 	rootfile = new TFile(std::string(gstreamer_definitions.name).c_str(), "RECREATE");
 	gRootTrees = new std::map<std::string, GRootTree*>;
@@ -14,7 +14,7 @@ bool GstreamerRootFactory::openConnection(const std::shared_ptr<GLogger>& log)
 	return true;
 }
 
-bool GstreamerRootFactory::closeConnection(const std::shared_ptr<GLogger>& log)
+bool GstreamerRootFactory::closeConnectionImpl()
 {
 	rootfile->Write();
 	rootfile->Close();

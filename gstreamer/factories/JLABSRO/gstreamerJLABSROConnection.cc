@@ -2,7 +2,7 @@
 #include "gstreamerJLABSROFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerJSROFactory::openConnection(const std::shared_ptr<GLogger>& log)
+bool GstreamerJSROFactory::openConnectionImpl()
 {
 	ofile = new std::ofstream(gstreamer_definitions.name);
 	
@@ -12,7 +12,7 @@ bool GstreamerJSROFactory::openConnection(const std::shared_ptr<GLogger>& log)
 	return true;
 }
 
-bool GstreamerJSROFactory::closeConnection(const std::shared_ptr<GLogger>& log)
+bool GstreamerJSROFactory::closeConnectionImpl()
 {
 	ofile->close();
 	if (!ofile->is_open()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerJSROFactory: could not close file " + gstreamer_definitions.name); }

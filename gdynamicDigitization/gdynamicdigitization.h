@@ -49,7 +49,7 @@ private:
 
 public:
 	/**
-	 * \brief Inserts a new (id, weight) pair for a given touchable.
+	 * \brief Inserts a new (id, weight) pair for given touchable.
 	 * \param touchableName The name of the touchable.
 	 * \param idValue The identifier value.
 	 * \param weight The weight.
@@ -57,7 +57,7 @@ public:
 	void insertIdAndWeight(std::string touchableName, int idValue, double weight);
 
 	/**
-	 * \brief Inserts a new (id, weight, time) triplet for a given touchable.
+	 * \brief Inserts a new (id, weight, time) triplet for given touchable.
 	 * \param touchableName The name of the touchable.
 	 * \param idValue The identifier value.
 	 * \param weight The weight.
@@ -207,8 +207,7 @@ public:
 		digi_logger->debug(NORMAL, "GDynamicDigitization::load constants");
 		return loadConstantsImpl(runno, variation);
 	}
-
-	[[nodiscard]] virtual bool loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return false; }
+	virtual bool loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return false; }
 
 	/**
 	 * \brief Loads the translation table.
@@ -223,7 +222,7 @@ public:
 		return loadTTImpl(runno, variation);
 	}
 
-	[[nodiscard]] virtual bool loadTTImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return false; }
+	virtual bool loadTTImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return false; }
 
 	/**
 	 * \brief Sets hardware-level charge and time information in the digitized data.
@@ -251,7 +250,7 @@ public:
 		digi_logger->debug(NORMAL, "GDynamicDigitization::define readout specs");
 		return defineReadoutSpecsImpl();
 	};
-	[[nodiscard]] virtual bool defineReadoutSpecsImpl() = 0;
+	virtual bool defineReadoutSpecsImpl() = 0;
 
 	/// After init, we never mutate these:
 	std::shared_ptr<const GReadoutSpecs>  readoutSpecs;
@@ -283,9 +282,9 @@ public:
 	 */
 	void set_loggers(GOptions* const g) {
 		gopts       = g;
-		data_logger = std::make_shared<GLogger>(gopts.value(), DATA_LOGGER, "data logger");
-		tt_logger   = std::make_shared<GLogger>(gopts.value(), TRANSLATIONTABLE_LOGGER, "tt logger");
-		digi_logger = std::make_shared<GLogger>(gopts.value(), GDIGITIZATION_LOGGER, "digi logger");
+		data_logger = std::make_shared<GLogger>(gopts.value(), DATA_LOGGER, "data");
+		tt_logger   = std::make_shared<GLogger>(gopts.value(), TRANSLATIONTABLE_LOGGER, "translation table");
+		digi_logger = std::make_shared<GLogger>(gopts.value(), GDIGITIZATION_LOGGER, "digitization");
 	}
 
 protected:

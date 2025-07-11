@@ -7,6 +7,7 @@
 // c++
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 /**
@@ -22,7 +23,7 @@ public:
 	 * \brief Constructor.
 	 * \param logger Pointer to a logger instance for logging messages.
 	 */
-	GTranslationTable(std::shared_ptr<GLogger> logger) : log(logger) {
+	explicit GTranslationTable(std::shared_ptr<GLogger> logger) : log(std::move(logger)) {
 		log->debug(CONSTRUCTOR, "GTranslationTable");
 	}
 
@@ -48,7 +49,7 @@ public:
 	 * \param identity A vector of integers representing the unique identity.
 	 * \return The GElectronic object corresponding to the identity.
 	 */
-	GElectronic getElectronics(const std::vector<int>& identity) const;
+	[[nodiscard]] GElectronic getElectronics(const std::vector<int>& identity) const;
 
 private:
 	// the map uses a string formed by the vector<int> identity as its key
@@ -62,11 +63,9 @@ private:
 	 * \param identity A vector of integers representing the identity.
 	 * \return A string key representing the identity.
 	 */
-	std::string formTTKey(const std::vector<int>& identity) const;
+	[[nodiscard]] std::string formTTKey(const std::vector<int>& identity) const;
 
 	/// Pointer to a logger instance for logging messages.
 	std::shared_ptr<GLogger> log;
 
 };
-
-
