@@ -37,4 +37,7 @@ private:
 
 private:
 	std::ofstream* ofile = nullptr;
+	std::string filename() const override {
+		return gstreamer_definitions.rootname + ".txt";
+	}
 };

@@ -32,7 +32,9 @@ GOptions defineOptions() {
 	GOptions goptions(GSTREAMER_LOGGER);
 
 	string help = "Define a Output format and name\n";
+	help += "This option defines a GStreamer output. It can be used to write events or frame streams.\n";
 	help += "\n";
+	help += "The file extension is added automatically based on the format.\n";
 	help += "Supported formats:\n";
 	for (auto& format : GStreamer::supported_formats) { help += " - " + format + "\n"; }
 	help += "\n";
@@ -40,7 +42,10 @@ GOptions defineOptions() {
 	help += "\n";
 	help += " - event: write events\n";
 	help += " - stream: write frame stream\n";
-	help += "-gstreamer=\"[{format: root, filename: out.root}, {format: jlabsro, filename: out.ev}}]\"\n";
+	help += "\n";
+	help += "Example that defines two gstreamer outputs:\n";
+	help += "-gstreamer=\"[{format: root, filename: out}, {format: jlabsro, filename: out}}]\"\n";
+
 
 	vector<GVariable> gstreamer = {
 		{"filename", goptions::NODFLT, "name of output file"},

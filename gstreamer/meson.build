@@ -6,8 +6,9 @@ verbosities = ['-verbosity.plugins=2',
                '-debug.plugins=true',
                '-debug.gtouchable=true',
                '-debug.gstreamer=true',
-               '-gstreamer=[{format: root, filename: out.root}]']
-
+               ]
+root = ['-gstreamer="[{format: root, filename: out.root}]"']
+ascii =[ '-gstreamer="[{format: ascii, filename: out.txt}]"']
 
 ascii_plugin_files = [files(
                           'factories/ASCII/gstreamerASCIIFactory.cc',
@@ -81,6 +82,9 @@ LD += {
     'examples' : {
         'test_gstreamer' : [files('examples/gstreamer_example.cc'), ['']],
         'test_gstreamer_verbose' : [files('examples/gstreamer_example.cc'), verbosities],
-        'test_gstreamer_root' : [files('examples/gstreamer_example.cc'), ['-gstreamer="[{format: root, filename: out.root}]"']],
+        'test_gstreamer_root' : [files('examples/gstreamer_example.cc'), root],
+        'test_gstreamer_root_verbose' : [files('examples/gstreamer_example.cc'), root + verbosities],
+        'test_gstreamer_ascii' : [files('examples/gstreamer_example.cc'), ascii],
+        'test_gstreamer_ascii_verbose' : [files('examples/gstreamer_example.cc'), ascii + verbosities],
     }
 }

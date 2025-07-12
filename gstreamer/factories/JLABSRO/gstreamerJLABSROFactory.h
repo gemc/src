@@ -42,6 +42,10 @@ private:
 private:
 	std::ofstream*       ofile = nullptr;
 	std::vector<unsigned int> frame_data{};
+	std::string filename() const override {
+		return gstreamer_definitions.rootname + ".ev";
+	}
+
 };
 
 

@@ -4,7 +4,8 @@
 #include "gfactory_options.h"
 
 // gemc
-#include "gdl.h"
+//#include "gdl.h"
+#include "gfactory.h"
 #include "gtouchable.h"
 #include "ghit.h"
 #include "gDigitizedData.h"
@@ -207,6 +208,7 @@ public:
 		digi_logger->debug(NORMAL, "GDynamicDigitization::load constants");
 		return loadConstantsImpl(runno, variation);
 	}
+
 	virtual bool loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return false; }
 
 	/**
@@ -253,7 +255,7 @@ public:
 	virtual bool defineReadoutSpecsImpl() = 0;
 
 	/// After init, we never mutate these:
-	std::shared_ptr<const GReadoutSpecs>  readoutSpecs;
+	std::shared_ptr<const GReadoutSpecs>     readoutSpecs;
 	std::shared_ptr<const GTranslationTable> translationTable;
 
 	/**
@@ -311,3 +313,31 @@ protected:
 		}
 	}
 };
+
+
+namespace gdynamicdigitization {
+
+inline std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutinesMap(const std::vector<std::string> plugin_names,
+                                                                                                 GOptions*                      gopts,
+                                                                                                 std::shared_ptr<GLogger>       log) {
+	GManager manager(log);
+
+	std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutinesMap;
+
+	for (const auto& plugin : plugin_names) {
+		dynamicRoutinesMap.emplace(plugin,
+		                           manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin, gopts));
+
+		log->info(0, "dynamicRoutinesMap[", plugin, "]: ", dynamicRoutinesMap[plugin]);
+	}
+
+	// Freeze the map before passing it to worker threads
+	// unordered_map is read-only the entire time the event threads run, and the C ++standard
+	// guarantees that concurrent reads on a const container are safe so long as no thread mutates it
+	const auto& dynamicRoutinesConstMap = dynamicRoutinesMap; // const reference
+
+	return dynamicRoutinesConstMap;
+}
+
+
+} // namespace gstreamer

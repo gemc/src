@@ -11,8 +11,6 @@
 
 // c++
 #include <string>
-#include <utility>
-
 
 class GStreamer {
 
@@ -20,14 +18,14 @@ public:
 	virtual ~GStreamer() = default;
 
 	[[nodiscard]] bool openConnection() {
-		log->debug(NORMAL, "GStreamer::openConnection");
+		log->debug(NORMAL, "GStreamer::openConnection -> ", filename());
 		return openConnectionImpl();
 	}
 
 	virtual bool openConnectionImpl() { return false; }
 
 	[[nodiscard]] bool closeConnection() {
-		log->debug(NORMAL, "GStreamer::closeConnection");
+		log->debug(NORMAL, "GStreamer::closeConnection <- ", filename());
 		return closeConnectionImpl();
 	}
 
@@ -44,7 +42,7 @@ public:
 	std::map<std::string, bool> publishFrameRunData(const std::shared_ptr<GLogger>& log, const GFrameDataCollection* frameRunData);
 
 	[[nodiscard]] inline std::string getStreamType() const { return gstreamer_definitions.type; }
-	inline void                      define_gstreamer(GStreamerDefinition gstreamerDefinition) { gstreamer_definitions = std::move(gstreamerDefinition); }
+	inline void define_gstreamer(const GStreamerDefinition& gstreamerDefinition, int tid = -1) { gstreamer_definitions = GStreamerDefinition(gstreamerDefinition, tid); }
 
 	static const std::vector<std::string> supported_formats;
 	static bool                           is_valid_format(const std::string& format);
@@ -76,7 +74,7 @@ protected:
 
 	// vector index is hit number
 
-	[[nodiscard]] bool publishEventTrueInfoData([[maybe_unused]] const std::string                  detectorName,
+	[[nodiscard]] bool publishEventTrueInfoData([[maybe_unused]] const std::string&                 detectorName,
 	                                            [[maybe_unused]] const std::vector<GTrueInfoData*>* trueInfoData) {
 		log->debug(NORMAL, "GStreamer::publishEventTrueInfoData for detector ", detectorName);
 		return publishEventTrueInfoDataImpl(detectorName, trueInfoData);
@@ -86,7 +84,7 @@ protected:
 	                                          [[maybe_unused]] const std::vector<GTrueInfoData*>* trueInfoData) { return false; }
 
 
-	[[nodiscard]] bool publishEventDigitizedData([[maybe_unused]] const std::string                   detectorName,
+	[[nodiscard]] bool publishEventDigitizedData([[maybe_unused]] const std::string&                  detectorName,
 	                                             [[maybe_unused]] const std::vector<GDigitizedData*>* digitizedData) {
 		log->debug(NORMAL, "GStreamer::publishEventDigitizedData for detector ", detectorName);
 		return publishEventDigitizedDataImpl(detectorName, digitizedData);
@@ -132,6 +130,9 @@ protected:
 
 	virtual bool endStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) { return false; }
 
+private:
+	[[nodiscard]] virtual std::string filename() const = 0; // must be implemented in derived classes
+
 public:
 	// method to dynamically load factories
 	static GStreamer* instantiate(const dlhandle handle) {
@@ -152,5 +153,38 @@ public:
 		return func();
 	}
 
-
 };
+
+namespace gstreamer {
+
+inline std::unordered_map<std::string, std::shared_ptr<GStreamer>> gstreamersMap(const std::vector<GStreamerDefinition>& goutput_defs,
+                                                                                 int                                     tid,
+                                                                                 GOptions*                               gopts,
+                                                                                 std::shared_ptr<GLogger>                log) {
+	GManager manager(log);
+
+	std::unordered_map<std::string, std::shared_ptr<GStreamer>> gstreamersMap;
+
+	for (const auto& goutput_def : goutput_defs) {
+
+		auto        goutput_def_thread = GStreamerDefinition(goutput_def, tid);
+		std::string gstreamer_plugin   = goutput_def_thread.gstreamerPluginName();
+
+		gstreamersMap.emplace(gstreamer_plugin,
+		                      manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts));
+		gstreamersMap[gstreamer_plugin]->define_gstreamer(goutput_def_thread);
+		if (!gstreamersMap[gstreamer_plugin]->openConnection()) {
+			log->error(1, "Failed to open connection for GStreamer ", gstreamer_plugin, " in thread ", tid);
+		}
+	}
+
+	// Freeze the map before passing it to worker threads
+	// unordered_map is read-only the entire time the event threads run, and the C ++standard
+	// guarantees that concurrent reads on a const container are safe so long as no thread mutates it
+	const auto& gstreamerConstMap = gstreamersMap; // const reference
+
+	return gstreamerConstMap;
+}
+
+
+} // namespace gstreamer

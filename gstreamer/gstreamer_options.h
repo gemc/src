@@ -15,11 +15,19 @@ struct GStreamerDefinition {
 	GStreamerDefinition() = default;
 
 	GStreamerDefinition(std::string f, std::string n, std::string t) :
-		format(std::move(f)), name(std::move(n)), type(std::move(t)) {
+		format(std::move(f)), rootname(std::move(n)), type(std::move(t)) {
+	}
+
+	// constructor based on a GStreamerDefinition + tid
+	GStreamerDefinition(const GStreamerDefinition& other, int tid) :
+		format(other.format), rootname(other.rootname + "_t" + std::to_string(tid)), type(other.type) {
+		if (tid < 0) {
+			rootname = other.rootname; // if tid is negative, use the original rootname
+		}
 	}
 
 	std::string format;
-	std::string name;
+	std::string rootname;
 	std::string type;
 
 	[[nodiscard]] std::string gstreamerPluginName() const { return "gstreamer_" + format + "_plugin"; }

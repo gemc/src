@@ -35,7 +35,7 @@ private:
 	bool publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) override;
 
 private:
-	TFile* rootfile = nullptr; // ROOT file pointer
+	std::unique_ptr<TFile> rootfile; // ROOT file pointer
 
 	// return the header tree from the map. If it's not there, initialize it.
 	// executed at startEvent
@@ -46,4 +46,7 @@ private:
 	// instantiated (and their variable maps) during the first event in startEvent
 	std::map<std::string, GRootTree*>* gRootTrees;
 
+	std::string filename() const override {
+		return gstreamer_definitions.rootname + ".root";
+	}
 };
