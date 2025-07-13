@@ -49,4 +49,6 @@ private:
 	std::string filename() const override {
 		return gstreamer_definitions.rootname + ".root";
 	}
+
+	static std::once_flag rootInitFlag;
 };

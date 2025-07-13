@@ -155,6 +155,8 @@ public:
 
 };
 
+
+
 namespace gstreamer {
 
 inline std::unordered_map<std::string, std::shared_ptr<GStreamer>> gstreamersMap(const std::vector<GStreamerDefinition>& goutput_defs,
@@ -186,5 +188,18 @@ inline std::unordered_map<std::string, std::shared_ptr<GStreamer>> gstreamersMap
 	return gstreamerConstMap;
 }
 
+// returns a vector of identical gstreamersMap the size of the number of threads
+inline std::vector<std::unordered_map<std::string, std::shared_ptr<GStreamer>>> gstreamersMapVector(const std::vector<GStreamerDefinition>& goutput_defs,
+																										   int                                     nthreads,
+																										   GOptions*                               gopts,
+																										   std::shared_ptr<GLogger>                log) {
+	std::vector<std::unordered_map<std::string, std::shared_ptr<GStreamer>>> gstreamersMaps;
+
+	for (int tid = 0; tid < nthreads; ++tid) {
+		gstreamersMaps.emplace_back(gstreamersMap(goutput_defs, tid, gopts, log));
+	}
+
+	return gstreamersMaps;
+}
 
 } // namespace gstreamer

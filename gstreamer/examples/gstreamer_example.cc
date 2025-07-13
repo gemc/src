@@ -117,15 +117,15 @@ auto build_event(int                                                            
 // Multithreaded driver
 // Each thread repeatedly grabs the next event number from an atomic counter
 // -----------------------------------------------------------------------------
-void run_simulation(int                                                                           nevents,
-                    int                                                                           nthreads,
-                    const std::shared_ptr<GLogger>&                                               logs,
-                    const std::shared_ptr<GLogger>&                                               loge,
-                    const std::shared_ptr<GLogger>&                                               logt,
-                    const std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>& dynamicRoutinesMap,
-                    GOptions*                                                                     gopt,
-                    std::vector<std::unique_ptr<GEventDataCollection>>&                           runData,
-                    std::mutex&                                                                   runDataMtx) {
+void run_simulation(int                                                                            nevents,
+                    int                                                                            nthreads,
+                    const std::shared_ptr<GLogger>&                                                logs,
+                    const std::shared_ptr<GLogger>&                                                loge,
+                    const std::shared_ptr<GLogger>&                                                logt,
+                    const std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>&  dynamicRoutinesMap,
+                    const std::vector<std::unordered_map<std::string, std::shared_ptr<GStreamer>>> streamers,
+                    std::vector<std::unique_ptr<GEventDataCollection>>&                            runData,
+                    std::mutex&                                                                    runDataMtx) {
 	// thread-safe integer counter starts at 1.
 	// fetch_add returns the old value *and* bumps.
 	// Zero contention: each thread fetches the next free event number.
@@ -155,12 +155,11 @@ void run_simulation(int                                                         
 			logs->info(0, "worker ", tid, " started");
 
 			int localCount = 0; // events built by *this* worker
+			// get streamer for this thread
+			const auto& streamersMap = streamers[tid]; // get the map of gstreamers for this thread
 
-			auto gstreamer_defs = gstreamer::getGStreamerDefinition(gopt); // get the vector of GStreamerDefinition from options
-			const auto& streamers = gstreamer::gstreamersMap(gstreamer_defs, tid, gopt, logs ); // all gstreamers for this thread
 
 			while (true) {
-
 				// repeatedly asks the shared atomic counter for “the next unclaimed event
 				// number,” processes that event, stores the result, and goes back for more.
 				// memory_order_relaxed: we only need *atomicity*, no ordering
@@ -200,16 +199,10 @@ void run_simulation(int                                                         
 }
 
 
-#include "TROOT.h"
-#include "TSystem.h"
 
 // notice runData is not really used here, but we keep the code as reference on how to accumulate
 // events in a thread-safe way into a shared vector.
 int main(int argc, char* argv[]) {
-
-	// Trigger interpreter and global dictionary setup
-	TClass::GetClass("TObject");  // this is a safe no-op that triggers interpreter init
-	gSystem->Load("libCore");     // optional: explicitly load libraries
 
 	// runData holds the finished events.  We store them as *unique_ptr* because
 	// each event is owned by the container and *only* by the container (single
@@ -239,9 +232,12 @@ int main(int argc, char* argv[]) {
 	constexpr int nevents  = 200;
 	constexpr int nthreads = 8;
 
+	auto        gstreamer_defs = gstreamer::getGStreamerDefinition(gopts);                              // get the vector of GStreamerDefinition from options
+	const auto& streamers= gstreamer::gstreamersMapVector(gstreamer_defs, nthreads, gopts, logs); // all gstreamers for this thread
+
 	run_simulation(nevents, nthreads, logs, loge, loge,
 	               dynRoutinesConstMap,
-	               gopts,
+	               streamers,
 	               runData,
 	               runDataMtx);
 
