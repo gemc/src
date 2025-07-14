@@ -3,52 +3,32 @@
 #include "gstreamerConventions.h"
 
 // root
-#include "TROOT.h"
-#include "TSystem.h"
+#include <TFile.h>
 
-// c__
-#include <mutex> // for once_flag
-
-// Static member definition
-std::once_flag GstreamerRootFactory::rootInitFlag;
-
-bool GstreamerRootFactory::openConnectionImpl() {
-
-	// Trigger interpreter and global dictionary setup
-	// this needs to be called in the main thread before any ROOT objects are created
-	std::call_once(rootInitFlag, []() {
-		TClass::GetClass("TObject"); // triggers interpreter
-		gSystem->Load("libCore");    // optional
-		// log->info(0, "GstreamerRootFactory: ROOT interpreter initialized");
-	});
-
+bool GstreamerRootFactory::openConnection() {
+	log->debug(NORMAL, "GstreamerRootFactory::openConnection -> opening file " + filename());
 	rootfile = std::make_unique<TFile>(filename().c_str(), "RECREATE");
-	rootfile->cd();
-	TDirectory::TContext ctx(rootfile.get()); // thread-local context
 
-	gRootTrees = new std::map<std::string, GRootTree*>;
-
-	if (!rootfile->IsOpen()) {
-		log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: could not open file " + filename());
-	}
-	else {
-		log->info(0, "GstreamerRootFactory: opened file " + filename());
-	}
+	if (rootfile->IsZombie()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: could not create file " + filename() + " (file is a zombie)"); }
+	else { log->info(0, "GstreamerRootFactory: opened file " + filename()); }
 
 	return true;
 }
 
-bool GstreamerRootFactory::closeConnectionImpl() {
-	TDirectory::TContext ctx(rootfile.get()); // thread-local context
+bool GstreamerRootFactory::closeConnection() {
+	flushEventBuffer(); // calls base version, or override if needed
 
-	if (rootfile->IsOpen()) {
+	if (rootfile && rootfile->IsOpen()) {
+		rootfile->cd();
+
+		// write all trees to file
+		for (auto& [name, tree] : gRootTrees) { if (tree != nullptr) { tree->writeToFile(); } }
+
 		rootfile->Write();
 		rootfile->Close();
 	}
 
-	if (rootfile->IsOpen()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: could not close file " + filename()); }
-
-	delete gRootTrees;
+	if (rootfile->IsZombie()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is a zombie"); }
 
 	return true;
 }

@@ -1,7 +1,11 @@
 #pragma once
 
+
+# define DEFAULT_GSTREAMER_BUFFER_FLUSH_LIMIT 100
+
 // exit codes: 800s
 #define ERR_GSTREAMERFACTORYNOTFOUND  801
 #define ERR_GSTREAMERVARIABLEEXISTS   802
 #define ERR_CANTOPENOUTPUT            803
 #define ERR_CANTCLOSEOUTPUT           804
+#define ERR_PUBLISH_ERROR             805

@@ -22,10 +22,11 @@ public:
 	 * \param header Pointer to the event header.
 	 * \param logger Pointer to a GLogger instance (using the 'gdata' name).
 	 */
-	GEventDataCollection(GEventDataCollectionHeader* header, std::shared_ptr<GLogger> logger) : log(logger),
-		gheader(header) {
+
+	GEventDataCollection(std::unique_ptr<GEventDataCollectionHeader> header, std::shared_ptr<GLogger> logger)
+		: log(logger), gheader(std::move(header)) {
+
 		log->debug(CONSTRUCTOR, "GEventDataCollection");
-		gdataCollectionMap = new std::map<std::string, GDataCollection*>();
 	}
 
 	/**
@@ -33,12 +34,7 @@ public:
 	 *
 	 * Deletes the event header, the data collection map (and its contents), and the logger.
 	 */
-	~GEventDataCollection() {
-		log->debug(DESTRUCTOR, "GEventDataCollection");
-		for (auto& [keys, values] : (*gdataCollectionMap)) { delete values; }
-		delete gheader;
-		delete gdataCollectionMap;
-	}
+	~GEventDataCollection() { log->debug(DESTRUCTOR, "GEventDataCollection"); }
 
 	/**
 	 * \brief Adds true hit information data for a detector.
@@ -58,13 +54,13 @@ public:
 	 * \brief Gets the event header.
 	 * \return Pointer to the event header.
 	 */
-	[[nodiscard]] inline const GEventDataCollectionHeader* getHeader() const { return gheader; }
+	[[nodiscard]] inline const GEventDataCollectionHeader* getHeader() const { return gheader.get(); }
 
 	/**
 	 * \brief Gets the map of data collections.
 	 * \return Pointer to the map from detector names to GDataCollection.
 	 */
-	[[nodiscard]] inline const std::map<std::string, GDataCollection*>* getDataCollectionMap() const {
+	[[nodiscard]] inline const std::map<std::string, std::unique_ptr<GDataCollection>>& getDataCollectionMap() const {
 		return gdataCollectionMap;
 	}
 
@@ -89,8 +85,8 @@ public:
 	[[nodiscard]] const std::vector<GDigitizedData*>* getDigitizedDataForDetector(std::string detector) const;
 
 private:
-	std::shared_ptr<GLogger>                 log;                ///< Logger instance
-	GEventDataCollectionHeader*              gheader = nullptr;  ///< Event header.
-	std::map<std::string, GDataCollection*>* gdataCollectionMap; ///< Map of data collections keyed by detector name.
-};
+	std::shared_ptr<GLogger>                                log; ///< Logger instance
+	std::unique_ptr<GEventDataCollectionHeader>             gheader;
+	std::map<std::string, std::unique_ptr<GDataCollection>> gdataCollectionMap;
 
+};

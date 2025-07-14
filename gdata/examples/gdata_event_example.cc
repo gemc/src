@@ -44,15 +44,16 @@ int main(int argc, char* argv[]) {
 	int nevents = 10;
 
 	// A run is a collection of events. Here we use a vector to hold pointers to event data collections.
-	auto runData = new std::vector<GEventDataCollection*>;
+	std::vector<std::unique_ptr<GEventDataCollection>> runData;
 
 	for (int evn = 1; evn <= nevents; evn++) {
 		// Create an event header for this event.
 		// The thread ID is emulated by evn % 3 for demonstration.
-		auto gheader = new GEventDataCollectionHeader(evn, evn % 3, log);
+		auto gheader = std::make_unique<GEventDataCollectionHeader>(evn, evn % 3, log);
 
-		// Create the event data collection using the header.
-		auto eventData = new GEventDataCollection(gheader, log);
+		// eventData needs a raw pointer, so we pass gheader.get().
+		auto eventData = std::make_unique<GEventDataCollection>(std::move(gheader), log);
+
 
 		// Create a HitBitSet for the hit. In this example, all bits are off ("000000").
 		HitBitSet hitBitSet("000000");
@@ -78,7 +79,7 @@ int main(int argc, char* argv[]) {
 		eventData->addDetectorDigitizedData("dc", thisHitData);
 
 		// Add the event data collection to the run.
-		runData->push_back(eventData);
+		runData.emplace_back(std::move(eventData));
 
 		// Clean up temporary objects (these are managed by the eventData now or no longer needed).
 		delete hit;
@@ -86,13 +87,11 @@ int main(int argc, char* argv[]) {
 	}
 
 	// For demonstration, we'll simply print the event numbers.
-	for (size_t i = 0; i < runData->size(); i++) {
-		log->info(" > Event ", i + 1, " collected with event number: ", runData->at(i)->getEventNumber());
+	for (size_t i = 0; i < runData.size(); i++) {
+		log->info(" > Event ", i + 1, " collected with event number: ", runData[i]->getEventNumber());
 	}
 
-	for (auto event : *runData) { delete event; }
 	// cleanup
-	delete runData;
 	delete gopts;
 
 	return EXIT_SUCCESS;

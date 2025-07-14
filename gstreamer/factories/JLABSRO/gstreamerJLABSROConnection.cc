@@ -2,9 +2,7 @@
 #include "gstreamerJLABSROFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerJSROFactory::openConnectionImpl()
-{
-
+bool GstreamerJSROFactory::openConnection() {
 	ofile = new std::ofstream(filename());
 	if (!ofile->is_open()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerJSROFactory: could not open file " + filename()); }
 
@@ -12,11 +10,8 @@ bool GstreamerJSROFactory::openConnectionImpl()
 	return true;
 }
 
-bool GstreamerJSROFactory::closeConnectionImpl()
-{
-	if (ofile->is_open()) {
-		ofile->close();
-	}
+bool GstreamerJSROFactory::closeConnection() {
+	if (ofile->is_open()) { ofile->close(); }
 
 	if (ofile->is_open()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerJSROFactory: could not close file " + filename()); }
 

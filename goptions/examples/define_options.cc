@@ -23,7 +23,7 @@ GOptions defineOptions() {
 
     // nthreads: 8
     help = "If not set, use all available threads. 0: use all threads\n";
-    help = "Example: -nthreads=12\n";
+    help += "Example: -nthreads=12\n";
     goptions.defineOption(GVariable("nthreads", 0, "number of threads"), help);
 
     vector <GVariable> gparticle = {

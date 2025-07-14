@@ -15,31 +15,20 @@
 class GStreamer {
 
 public:
+	// The destructor must be virtual in GStreamer to ensure that
+	// the derived constructors are called — otherwise only the base
+	// class destructor runs, leading to resource leaks or undefined behavior.
 	virtual ~GStreamer() = default;
 
-	[[nodiscard]] bool openConnection() {
-		log->debug(NORMAL, "GStreamer::openConnection -> ", filename());
-		return openConnectionImpl();
-	}
+	[[nodiscard]] virtual bool openConnection() { return false; }
 
-	virtual bool openConnectionImpl() { return false; }
+	[[nodiscard]] virtual bool closeConnection() { return false; }
 
-	[[nodiscard]] bool closeConnection() {
-		log->debug(NORMAL, "GStreamer::closeConnection <- ", filename());
-		return closeConnectionImpl();
-	}
-
-	virtual bool closeConnectionImpl() { return false; }
-
-	// called in GRunAction::EndOfRunAction
 	// runs the protected virtual methods below to write events from a run to file
-	// the key is the routine name and sensitive detector name
-	std::map<std::string, bool> publishEventRunData(const std::vector<GEventDataCollection*>& runData);
+	void publishEventData(const GEventDataCollection* event_data);
 
-	// called in GRunAction::EndOfRunAction
 	// runs the protected virtual methods below to write frames from a run to file
-	// the key is the routine name and frame streamer id
-	std::map<std::string, bool> publishFrameRunData(const std::shared_ptr<GLogger>& log, const GFrameDataCollection* frameRunData);
+	void publishFrameRunData(const std::shared_ptr<GLogger>& log, const GFrameDataCollection* frameRunData);
 
 	[[nodiscard]] inline std::string getStreamType() const { return gstreamer_definitions.type; }
 	inline void define_gstreamer(const GStreamerDefinition& gstreamerDefinition, int tid = -1) { gstreamer_definitions = GStreamerDefinition(gstreamerDefinition, tid); }
@@ -47,7 +36,10 @@ public:
 	static const std::vector<std::string> supported_formats;
 	static bool                           is_valid_format(const std::string& format);
 
-	void set_loggers(GOptions* const g) { log = std::make_shared<GLogger>(g, GSTREAMER_LOGGER, "streamer logger"); }
+	void set_loggers(GOptions* const g) {
+		bufferFlushLimit = g->getScalarInt("ebuffer");
+		log              = std::make_shared<GLogger>(g, GSTREAMER_LOGGER, "streamer logger");
+	}
 
 protected:
 	/// Data, Translation Tables, and digitization loggers.
@@ -130,8 +122,32 @@ protected:
 
 	virtual bool endStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) { return false; }
 
+
+	void flushEventBuffer() {
+		log->info(2, "GStreamer::flushEventBuffer -> flushing ", eventBuffer.size(), " events to file");
+
+		for (const auto* event : eventBuffer) {
+			log->info(2, "GStreamer::publishEventData->startEvent: ",
+			          gutilities::success_or_fail(startEvent(event)));
+			log->info(2, "GStreamer::publishEventData->publishEventHeader -> ",
+			          gutilities::success_or_fail(publishEventHeader(event->getHeader())));
+			// //
+			// // for (auto& [detectorName, gDataCollection] : *event->getDataCollectionMap()) {
+			// // 	log->info(2, "GStreamer::publishEventData->publishEventTrueInfoData for detector -> ", detectorName,
+			// // 		gutilities::success_or_fail(gDataCollection->getTrueInfoData() ) );
+			// // 	log->info(2, "GStreamer::publishEventData->publishEventDigitizedData for detector -> ", detectorName,
+			// // 		gutilities::success_or_fail(gDataCollection->getDigitizedData() ) );
+			// // }
+			// log->info(2, "GStreamer::endEvent -> ", gutilities::success_or_fail(endEvent(event)));
+		}
+		eventBuffer.clear();
+	}
+
 private:
 	[[nodiscard]] virtual std::string filename() const = 0; // must be implemented in derived classes
+
+	std::vector<const GEventDataCollection*> eventBuffer;
+	size_t                                   bufferFlushLimit = 10; // default; can be overridden
 
 public:
 	// method to dynamically load factories
@@ -156,50 +172,39 @@ public:
 };
 
 
-
 namespace gstreamer {
 
-inline std::unordered_map<std::string, std::shared_ptr<GStreamer>> gstreamersMap(const std::vector<GStreamerDefinition>& goutput_defs,
-                                                                                 int                                     tid,
-                                                                                 GOptions*                               gopts,
-                                                                                 std::shared_ptr<GLogger>                log) {
+// this run in a worker thread, so each thread gets its own map of gstreamers
+inline std::unordered_map<std::string, std::shared_ptr<GStreamer>> gstreamersMap(GOptions* gopts,
+                                                                                 int       thread_id) {
+
+	auto log = std::make_shared<GLogger>(gopts, GSTREAMER_LOGGER, "gstreamersMap worker for thread id" + std::to_string(thread_id));
+
 	GManager manager(log);
 
 	std::unordered_map<std::string, std::shared_ptr<GStreamer>> gstreamersMap;
 
-	for (const auto& goutput_def : goutput_defs) {
-
-		auto        goutput_def_thread = GStreamerDefinition(goutput_def, tid);
-		std::string gstreamer_plugin   = goutput_def_thread.gstreamerPluginName();
+	for (const auto& gstreamer_def : gstreamer::getGStreamerDefinition(gopts)) {
+		auto        gstreamer_def_thread = GStreamerDefinition(gstreamer_def, thread_id);
+		std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
 
 		gstreamersMap.emplace(gstreamer_plugin,
 		                      manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts));
-		gstreamersMap[gstreamer_plugin]->define_gstreamer(goutput_def_thread);
+
+		gstreamersMap[gstreamer_plugin]->define_gstreamer(gstreamer_def_thread);
 		if (!gstreamersMap[gstreamer_plugin]->openConnection()) {
-			log->error(1, "Failed to open connection for GStreamer ", gstreamer_plugin, " in thread ", tid);
+			log->error(1, "Failed to open connection for GStreamer ", gstreamer_plugin, " in thread ", gstreamer_def_thread.tid);
 		}
 	}
+
 
 	// Freeze the map before passing it to worker threads
 	// unordered_map is read-only the entire time the event threads run, and the C ++standard
 	// guarantees that concurrent reads on a const container are safe so long as no thread mutates it
-	const auto& gstreamerConstMap = gstreamersMap; // const reference
+	const auto gstreamerConstMap = gstreamersMap; // const reference
 
 	return gstreamerConstMap;
 }
 
-// returns a vector of identical gstreamersMap the size of the number of threads
-inline std::vector<std::unordered_map<std::string, std::shared_ptr<GStreamer>>> gstreamersMapVector(const std::vector<GStreamerDefinition>& goutput_defs,
-																										   int                                     nthreads,
-																										   GOptions*                               gopts,
-																										   std::shared_ptr<GLogger>                log) {
-	std::vector<std::unordered_map<std::string, std::shared_ptr<GStreamer>>> gstreamersMaps;
-
-	for (int tid = 0; tid < nthreads; ++tid) {
-		gstreamersMaps.emplace_back(gstreamersMap(goutput_defs, tid, gopts, log));
-	}
-
-	return gstreamersMaps;
-}
 
 } // namespace gstreamer

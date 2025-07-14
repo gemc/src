@@ -1,55 +1,39 @@
 // gstreamer 
 #include "gstreamer.h"
 
-// glibrary
+// gemc
 #include "gutilities.h"
 
-using std::string;
-using std::vector;
-using std::map;
 
-const vector<string> GStreamer::supported_formats = {"jlabsro", "root", "ascii"};
+const std::vector<std::string> GStreamer::supported_formats = {"jlabsro", "root", "ascii"};
 
-bool GStreamer::is_valid_format(const string& format) {
-    vector < string > supported = GStreamer::supported_formats;
-    return std::find(supported.begin(), supported.end(), gutilities::convertToLowercase(format)) != supported.end();
+bool GStreamer::is_valid_format(const std::string& format) {
+	std::vector<std::string> supported = GStreamer::supported_formats;
+	return std::find(supported.begin(), supported.end(), gutilities::convertToLowercase(format)) != supported.end();
 }
 
 // pragma todo: pass someting like map<string, bitset> to each detector to decide which data to publish
-map<string, bool> GStreamer::publishEventRunData(const vector<GEventDataCollection *>& runData) {
+void GStreamer::publishEventData(const GEventDataCollection* event_data) {
 
-    map<string, bool> gstreamReport;
+	eventBuffer.push_back(event_data);
+	if (eventBuffer.size() >= bufferFlushLimit) {
+		flushEventBuffer(); // or call virtual flushImpl() if you want customization
+	}
 
-	// looping over events
-    for (auto eventDataCollection: runData) {
-
-        gstreamReport["Event Stream report #1 <startEvent>: "] = startEvent(eventDataCollection);
-        gstreamReport["Event Stream report #2 <header>: "] = publishEventHeader(eventDataCollection->getHeader());
-
-        for (auto &[detectorName, gDataCollection]: *eventDataCollection->getDataCollectionMap()) {
-            // publish true info
-            string reportName = "Event Stream report #3 <" + detectorName + "__TrueInfo>: ";
-            gstreamReport[reportName] = publishEventTrueInfoData(detectorName, gDataCollection->getTrueInfoData());
-
-            // publish digitized data
-            reportName = "Event Stream report #4: <" + detectorName + "__Digitized>: ";
-            gstreamReport[reportName] = publishEventDigitizedData(detectorName, gDataCollection->getDigitizedData());
-        }
-        gstreamReport["Event Stream report #5 <endEvent>: "] = endEvent(eventDataCollection);
-    }
-
-    return gstreamReport;
 }
 
 
 // stream an individual frame
-map<string, bool> GStreamer::publishFrameRunData(const std::shared_ptr<GLogger>& log, const GFrameDataCollection *frameRunData) {
-    map<string, bool> gstreamReport;
+void GStreamer::publishFrameRunData(const std::shared_ptr<GLogger>& log, const GFrameDataCollection* frameRunData) {
+	// TODO: add more infor like frame number or number of entries in paylod
 
-    gstreamReport["Frame Stream report #1 <startStream>: "] = startStream(frameRunData);
-    gstreamReport["Frame Stream report #2 <frameHeader>: "] = publishFrameHeader(frameRunData->getHeader());
-    gstreamReport["Frame Stream report #3 <payload>: "] = publishPayload(frameRunData->getIntegralPayload());
-    gstreamReport["Frame Stream report #4 <endStream>: "] = endStream(frameRunData);
+	log->info(2, "GStreamer::publishFrameRunData:  ",
+		gutilities::success_or_fail(startStream(frameRunData)));
+	log->info(2, "GStreamer::publishFrameHeader:  ",
+		gutilities::success_or_fail(publishFrameHeader(frameRunData->getHeader())));
+	log->info(2, "GStreamer::publishPayload:  ",
+		gutilities::success_or_fail(publishPayload(frameRunData->getIntegralPayload())));
+	log->info(2, "GStreamer::endStream:  ",
+		gutilities::success_or_fail(endStream(frameRunData)));
 
-    return gstreamReport;
 }

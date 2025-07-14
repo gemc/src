@@ -8,7 +8,7 @@ bool GstreamerRootFactory::publishEventDigitizedDataImpl(const std::string detec
 
     // get or instantiate root tree from the map
     if (digitizedData->size()) {
-        GRootTree *digitizedDataTree = getOrInstantiateDigitizedDataTree(detectorName, digitizedData->front());
+        	auto digitizedDataTree = getOrInstantiateDigitizedDataTree(detectorName, digitizedData->front());
 
         return digitizedDataTree->fillTree(digitizedData);
     }

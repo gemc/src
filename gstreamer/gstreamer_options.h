@@ -19,8 +19,8 @@ struct GStreamerDefinition {
 	}
 
 	// constructor based on a GStreamerDefinition + tid
-	GStreamerDefinition(const GStreamerDefinition& other, int tid) :
-		format(other.format), rootname(other.rootname + "_t" + std::to_string(tid)), type(other.type) {
+	GStreamerDefinition(const GStreamerDefinition& other, int t) :
+		format(other.format), rootname(other.rootname + "_t" + std::to_string(t)), type(other.type), tid(t) {
 		if (tid < 0) {
 			rootname = other.rootname; // if tid is negative, use the original rootname
 		}
@@ -29,6 +29,7 @@ struct GStreamerDefinition {
 	std::string format;
 	std::string rootname;
 	std::string type;
+	int tid = -1;
 
 	[[nodiscard]] std::string gstreamerPluginName() const { return "gstreamer_" + format + "_plugin"; }
 };

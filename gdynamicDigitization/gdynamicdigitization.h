@@ -318,8 +318,10 @@ protected:
 namespace gdynamicdigitization {
 
 inline std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutinesMap(const std::vector<std::string> plugin_names,
-                                                                                                 GOptions*                      gopts,
-                                                                                                 std::shared_ptr<GLogger>       log) {
+                                                                                                 GOptions*                      gopts) {
+
+	auto log = std::make_shared<GLogger>(gopts, GDIGITIZATION_LOGGER, "dynamicRoutinesMap loader");
+
 	GManager manager(log);
 
 	std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutinesMap;

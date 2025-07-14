@@ -5,6 +5,7 @@
 
 // ROOT
 #include "TTree.h"
+#include "ROOT/TThreadedObject.hxx"
 
 // gemc
 #include "event/gEventDataCollection.h"
@@ -33,17 +34,25 @@ public:
 	bool fillTree(const std::vector<GTrueInfoData*>* trueInfoData);
 	bool fillTree(const std::vector<GDigitizedData*>* digitizedData);
 
-	// clear variables map below
-	bool initTreeForTheEvent();
+	// write ROOT tree to file
+	void writeToFile() {
+		if (root_tree->GetDirectory() == nullptr) {
+			log->warning(1, "ROOT tree ", root_tree->GetName(), " has no directory. Skipping Write().");
+			return;
+		}
+
+		if (root_tree) root_tree->Write();
+	}
 
 private:
-	TTree* rootTree = nullptr;
+	std::unique_ptr<TTree> root_tree;
+
 
 	// variable maps
 	// index is hit number
-	std::map<std::string, std::vector<int>*>    intVarsMap;
-	std::map<std::string, std::vector<double>*> doubleVarsMap;
-	std::map<std::string, std::vector<std::string>*> stringVarsMap;
+	std::map<std::string, std::vector<int>>         intVarsMap;
+	std::map<std::string, std::vector<double>>      doubleVarsMap;
+	std::map<std::string, std::vector<std::string>> stringVarsMap;
 
 
 	// the second argument is needed to select the VarsMap type and its content

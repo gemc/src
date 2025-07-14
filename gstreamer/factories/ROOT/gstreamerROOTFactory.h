@@ -11,10 +11,14 @@ class GstreamerRootFactory : public GStreamer {
 public:
 	GstreamerRootFactory() = default;
 
+// 	~GstreamerRootFactory() override {
+// //		log->debug(NORMAL, "~GstreamerRootFactory");
+// 	}
+
 private:
 	// open and close the output media
-	bool openConnectionImpl() override;
-	bool closeConnectionImpl() override;
+	bool openConnection() override;
+	bool closeConnection() override;
 
 	// event streams
 	// start and end each event
@@ -25,8 +29,8 @@ private:
 	bool publishEventHeaderImpl(const GEventDataCollectionHeader* gheader) override;
 
 	// vector index is hit number
-	bool publishEventTrueInfoDataImpl(const std::string detectorName, const std::vector<GTrueInfoData*>* trueInfoData) override;
-	bool publishEventDigitizedDataImpl(const std::string detectorName, const std::vector<GDigitizedData*>* digitizedData) override;
+	bool publishEventTrueInfoDataImpl(std::string detectorName, const std::vector<GTrueInfoData*>* trueInfoData) override;
+	bool publishEventDigitizedDataImpl(std::string detectorName, const std::vector<GDigitizedData*>* digitizedData) override;
 
 	// frame streams
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;
@@ -35,20 +39,16 @@ private:
 	bool publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) override;
 
 private:
-	std::unique_ptr<TFile> rootfile; // ROOT file pointer
 
-	// return the header tree from the map. If it's not there, initialize it.
-	// executed at startEvent
+	// returning raw pointers for access
 	GRootTree* getOrInstantiateHeaderTree(const GEventDataCollectionHeader* gheader);
 	GRootTree* getOrInstantiateTrueInfoDataTree(const std::string& detectorName, const GTrueInfoData* gdata);
 	GRootTree* getOrInstantiateDigitizedDataTree(const std::string& detectorName, const GDigitizedData* gdata);
 
-	// instantiated (and their variable maps) during the first event in startEvent
-	std::map<std::string, GRootTree*>* gRootTrees;
+	// key is detectr name + prefix for true info or digitized data, or "header" for the header tree
+	std::unordered_map<std::string, std::unique_ptr<GRootTree>> gRootTrees;
+	std::unique_ptr<TFile> rootfile{}; // ROOT file pointer
 
-	std::string filename() const override {
-		return gstreamer_definitions.rootname + ".root";
-	}
+	[[nodiscard]] std::string filename() const override { return gstreamer_definitions.rootname + ".root"; }
 
-	static std::once_flag rootInitFlag;
 };

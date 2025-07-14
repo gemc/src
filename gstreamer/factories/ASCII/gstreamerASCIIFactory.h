@@ -2,6 +2,7 @@
 
 // gstreamer
 #include "gstreamer.h"
+#include "gstreamerConventions.h"
 
 // c++
 #include <fstream>
@@ -10,10 +11,12 @@ class GstreamerTextFactory : public GStreamer {
 public:
 	GstreamerTextFactory() = default;
 
+	~GstreamerTextFactory() override { log->debug(NORMAL, "~GstreamerTextFactory"); }
+
 private:
 	// open and close the output media
-	bool openConnectionImpl() override;
-	bool closeConnectionImpl() override;
+	bool openConnection() override;
+	bool closeConnection() override;
 
 	// event streams
 	// start and end each event
@@ -37,7 +40,5 @@ private:
 
 private:
 	std::ofstream* ofile = nullptr;
-	std::string filename() const override {
-		return gstreamer_definitions.rootname + ".txt";
-	}
+	std::string    filename() const override { return gstreamer_definitions.rootname + ".txt"; }
 };

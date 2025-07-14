@@ -320,8 +320,6 @@ G4Colour makeColour(std::string_view code);
 #endif
 
 namespace gutilities {
-
-
 inline std::filesystem::path executable_path() {
 #if defined(__APPLE__)
 	char     buf[PATH_MAX];
@@ -359,7 +357,6 @@ inline std::filesystem::path executable_path() {
 }
 
 inline std::filesystem::path gemc_root() {
-
 	auto exe_dir   = executable_path().parent_path(); // where the executable is installed
 	auto gemc_root = exe_dir.parent_path();           // one dir up
 
@@ -370,5 +367,6 @@ inline std::filesystem::path gemc_root() {
 	return gemc_root;
 }
 
+inline std::string success_or_fail(bool condition) { return condition ? "success" : "fail"; }
 
 }

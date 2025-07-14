@@ -1,5 +1,6 @@
 // gstreamer
 #include "gstreamer_options.h"
+#include "gstreamerConventions.h"
 
 #include "gdynamicdigitization_options.h"
 #include "gstreamer.h"
@@ -46,6 +47,8 @@ GOptions defineOptions() {
 	help += "Example that defines two gstreamer outputs:\n";
 	help += "-gstreamer=\"[{format: root, filename: out}, {format: jlabsro, filename: out}}]\"\n";
 
+	// buffer
+	goptions.defineOption(GVariable("ebuffer", DEFAULT_GSTREAMER_BUFFER_FLUSH_LIMIT, "number of events kept in memory before flushing them to the filestream"), help);
 
 	vector<GVariable> gstreamer = {
 		{"filename", goptions::NODFLT, "name of output file"},

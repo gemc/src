@@ -2,7 +2,7 @@
 #include "gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::openConnectionImpl() {
+bool GstreamerTextFactory::openConnection() {
 	ofile = new std::ofstream(filename());
 
 	if (!ofile->is_open()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerTextFactory: could not open file " + filename()); }
@@ -11,11 +11,11 @@ bool GstreamerTextFactory::openConnectionImpl() {
 	return true;
 }
 
-bool GstreamerTextFactory::closeConnectionImpl() {
+bool GstreamerTextFactory::closeConnection() {
 
-	if (ofile->is_open()) {
-		ofile->close();
-	}
+	flushEventBuffer();
+
+	if (ofile->is_open()) { ofile->close(); }
 
 	if (ofile->is_open()) { log->error(ERR_CANTCLOSEOUTPUT, "GstreamerTextFactory: could not close file " + filename()); }
 

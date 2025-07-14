@@ -2,6 +2,7 @@
 
 // gstreamer
 #include "gstreamer.h"
+#include "gstreamerConventions.h"
 
 // c++
 #include <fstream>
@@ -25,10 +26,12 @@ class GstreamerJSROFactory : public GStreamer {
 public:
 	GstreamerJSROFactory() = default;
 
+	~GstreamerJSROFactory() override { log->debug(NORMAL, "~GstreamerJSROFactory"); }
+
 private:
 	// open and close the output media
-	bool openConnectionImpl() override;
-	bool closeConnectionImpl() override;
+	bool openConnection() override;
+	bool closeConnection() override;
 
 	// frame streams
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;
@@ -40,11 +43,9 @@ private:
 	static inline std::uint64_t llswap(unsigned long long val) { return (val >> 32) | (val << 32); }
 
 private:
-	std::ofstream*       ofile = nullptr;
+	std::ofstream*            ofile = nullptr;
 	std::vector<unsigned int> frame_data{};
-	std::string filename() const override {
-		return gstreamer_definitions.rootname + ".ev";
-	}
+	std::string               filename() const override { return gstreamer_definitions.rootname + ".ev"; }
 
 };
 

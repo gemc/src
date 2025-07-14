@@ -8,7 +8,7 @@ bool GstreamerRootFactory::publishEventTrueInfoDataImpl(const std::string       
 
 	// get or instantiate root tree from the map
 	if (trueInfoData->size()) {
-		GRootTree* trueInforDataTree = getOrInstantiateTrueInfoDataTree(detectorName, trueInfoData->front());
+			auto trueInforDataTree = getOrInstantiateTrueInfoDataTree(detectorName, trueInfoData->front());
 
 		return trueInforDataTree->fillTree(trueInfoData);
 	}
