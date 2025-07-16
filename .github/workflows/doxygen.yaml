@@ -14,7 +14,7 @@ on:
 jobs:
   build-doxygen:
     runs-on: ubuntu-latest
-    container: jeffersonlab/base:fedora36
+    container: jeffersonlab/base:fedora40
     steps:
       - name: Checkout
         uses: actions/checkout@main

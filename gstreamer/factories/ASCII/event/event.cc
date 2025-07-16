@@ -3,6 +3,7 @@
 #include "gstreamerConventions.h"
 
 bool GstreamerTextFactory::startEventImpl(const GEventDataCollection* eventData) {
+
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
 	auto eventNumber = eventData->getHeader()->getG4LocalEvn();

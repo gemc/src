@@ -36,7 +36,7 @@ private:
 	// frame streams
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;
 	bool endStreamImpl(const GFrameDataCollection* frameRunData) override;
-	bool publishFrameHeaderImpl(const GFrameDataCollectionHeader* gframeHeader) override;
+	bool publishFrameHeaderImpl(const GFrameHeader* gframeHeader) override;
 	bool publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) override;
 
 	// JLAB specific

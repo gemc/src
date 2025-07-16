@@ -13,10 +13,10 @@ LD += {
         'event/gDigitizedData.h',
         'event/gTrueInfoData.h',
         'event/gDataCollection.h',
-        'event/gEventDataCollectionHeader.h',
+        'event/gEventHeader.h',
         'event/gEventDataCollection.h',
         'frame/gIntegralPayload.h',
-        'frame/gFrameDataCollectionHeader.h',
+        'frame/gFrameHeader.h',
         'frame/gFrameDataCollection.h'
     ),
     'additional_includes' : ['gdata', 'gdata/event'],

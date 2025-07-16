@@ -103,7 +103,7 @@ public:
 		if (level == 0 || (level == 1 && verbosity_level > 0) || (level == 2 && verbosity_level > 1)) {
 			std::ostringstream oss;
 			(oss << ... << std::forward<Args>(args));
-			G4cout  << header_string() <<  "INFO L" << level << " " << oss.str() << G4endl;
+			G4cout << header_string() << "INFO L" << level << " " << oss.str() << G4endl;
 		}
 	}
 
@@ -163,7 +163,7 @@ public:
 	}
 
 
-	std::string get_verbosity_name() const { return verbosity_name; }
+	[[nodiscard]] std::string get_verbosity_name() const { return verbosity_name; }
 
 private:
 	std::string verbosity_name;    ///< Verbosity name

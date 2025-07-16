@@ -2,7 +2,7 @@
 #include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::publishEventHeaderImpl(const GEventDataCollectionHeader *gheader)
+bool GstreamerTextFactory::publishEventHeaderImpl(const GEventHeader *gheader)
 {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 	

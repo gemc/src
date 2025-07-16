@@ -1,7 +1,7 @@
 #pragma once
 
 /**
- * \file GEventDataCollectionHeader.h
+ * \file GEventHeader.h
  * \brief Defines the header for event data collection.
  *
  * This header contains event-related information such as the event number,
@@ -9,9 +9,10 @@
  */
 
 #include "glogger.h"
+#include <atomic>
 #include <string>
 
-class GEventDataCollectionHeader {
+class GEventHeader {
 public:
 	/**
 	 * \brief Constructs a GEventDataCollectionHeader.
@@ -22,7 +23,7 @@ public:
 	 * \param tid The thread ID.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	GEventDataCollectionHeader(int n, int tid, std::shared_ptr<GLogger> logger) : g4localEventNumber(n), threadID(tid),
+	GEventHeader(int n, int tid, std::shared_ptr<GLogger> logger) : g4localEventNumber(n), threadID(tid),
 	                                                                              log(logger) {
 		timeStamp = assignTimeStamp();
 		log->debug(CONSTRUCTOR, "GEventDataCollectionHeader");
@@ -35,7 +36,18 @@ public:
 	/**
 	 * \brief Destructor for GEventDataCollectionHeader.
 	 */
-	~GEventDataCollectionHeader() { log->debug(DESTRUCTOR, "GEventDataCollectionHeader"); }
+	~GEventHeader() { if (log) log->debug(DESTRUCTOR, "GEventHeader"); }
+
+	/**
+	 * \brief Factory method to create a GEventDataCollectionHeader with a unique event number.
+	 * \param logger A shared pointer to the logger.
+	 * \return A unique_ptr to the created GEventDataCollectionHeader.
+	 */
+	static std::unique_ptr<GEventHeader> create(std::shared_ptr<GLogger> logger) {
+		int eventNumber = globalEventHeaderCounter.fetch_add(1, std::memory_order_relaxed);
+		int threadID    = eventNumber % 3; // Example: cycle through 3 thread IDs
+		return std::make_unique<GEventHeader>(eventNumber, threadID, logger);
+	}
 
 	/**
 	 * \brief Gets the timestamp.
@@ -67,7 +79,7 @@ private:
 	 *
 	 * \return A string representing the timestamp.
 	 */
-	std::string assignTimeStamp() {
+	static std::string assignTimeStamp() {
 		time_t     now = time(nullptr);
 		struct tm* ptm = localtime(&now);
 		char       buffer[32];
@@ -76,5 +88,8 @@ private:
 		return {buffer};
 	}
 
-	std::string timeStamp; ///< The timestamp.
+	std::string timeStamp; ///< The timestamp
+
+	/// Static thread-safe event counter - used for testing only
+	static std::atomic<int> globalEventHeaderCounter;
 };

@@ -20,7 +20,7 @@
 
 // gdata
 #include "frame/gFrameDataCollection.h"
-#include "frame/gFrameDataCollectionHeader.h"
+#include "frame/GFrameHeader.h"
 #include "gdata_options.h"
 
 // gemc
@@ -34,6 +34,8 @@
 
 using namespace std;
 
+
+// TODO: run this in multiple threads and collect results in frames like in runAction
 int main(int argc, char *argv[]) {
 	// Create GOptions using gdata's defineOptions.
 	auto gopts = new GOptions(argc, argv, gdata::defineOptions());
@@ -46,7 +48,7 @@ int main(int argc, char *argv[]) {
 	double frameDuration = 33.33; // Example frame duration (units could be ms or other)
 
 	// Create a frame header. The header logs its construction.
-	auto frameHeader = new GFrameDataCollectionHeader(frameID, frameDuration, log);
+	auto frameHeader = new GFrameHeader(frameID, frameDuration, log);
 
 	// Create the frame data collection using the header and logger.
 	auto frameData = new GFrameDataCollection(frameHeader, log);

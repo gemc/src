@@ -8,9 +8,8 @@
  * It holds an event header and a map of GDataCollection pointers for each detector.
  */
 
-#include "gEventDataCollectionHeader.h"
+#include "gEventHeader.h"
 #include "gDataCollection.h"
-#include <vector>
 #include <map>
 #include <string>
 
@@ -23,38 +22,35 @@ public:
 	 * \param logger Pointer to a GLogger instance (using the 'gdata' name).
 	 */
 
-	GEventDataCollection(std::unique_ptr<GEventDataCollectionHeader> header, std::shared_ptr<GLogger> logger)
-		: log(logger), gheader(std::move(header)) {
-
-		log->debug(CONSTRUCTOR, "GEventDataCollection");
-	}
+	GEventDataCollection(std::unique_ptr<GEventHeader> header, std::shared_ptr<GLogger> logger)
+		: log(logger), gheader(std::move(header)) { log->debug(CONSTRUCTOR, "GEventDataCollection"); }
 
 	/**
 	 * \brief Destructor for GEventDataCollection.
 	 *
 	 * Deletes the event header, the data collection map (and its contents), and the logger.
 	 */
-	~GEventDataCollection() { log->debug(DESTRUCTOR, "GEventDataCollection"); }
+	~GEventDataCollection() { if (log) log->debug(DESTRUCTOR, "GEventDataCollection"); }
 
 	/**
 	 * \brief Adds true hit information data for a detector.
 	 * \param sdName The sensitive detector name.
 	 * \param data Pointer to GTrueInfoData.
 	 */
-	void addDetectorTrueInfoData(std::string sdName, GTrueInfoData* data);
+	void addDetectorTrueInfoData(std::string sdName, std::unique_ptr<GTrueInfoData> data);
 
 	/**
 	 * \brief Adds digitized hit data for a detector.
 	 * \param sdName The sensitive detector name.
 	 * \param data Pointer to GDigitizedData.
 	 */
-	void addDetectorDigitizedData(std::string sdName, GDigitizedData* data);
+	void addDetectorDigitizedData(std::string sdName, std::unique_ptr<GDigitizedData> data);
 
 	/**
 	 * \brief Gets the event header.
 	 * \return Pointer to the event header.
 	 */
-	[[nodiscard]] inline const GEventDataCollectionHeader* getHeader() const { return gheader.get(); }
+	[[nodiscard]] inline const std::unique_ptr<GEventHeader>& getHeader() const { return gheader; }
 
 	/**
 	 * \brief Gets the map of data collections.
@@ -70,23 +66,26 @@ public:
 	 */
 	[[nodiscard]] inline int getEventNumber() const { return gheader->getG4LocalEvn(); }
 
-	/**
-	 * \brief Gets the true hit information data for a specific detector.
-	 * \param detector The detector name.
-	 * \return Pointer to a vector of GTrueInfoData pointers, or nullptr if not found.
-	 */
-	[[nodiscard]] const std::vector<GTrueInfoData*>* getTrueInfoDataForDetector(std::string detector) const;
 
-	/**
-	 * \brief Gets the digitized hit data for a specific detector.
-	 * \param detector The detector name.
-	 * \return Pointer to a vector of GDigitizedData pointers, or nullptr if not found.
-	 */
-	[[nodiscard]] const std::vector<GDigitizedData*>* getDigitizedDataForDetector(std::string detector) const;
+	static std::unique_ptr<GEventDataCollection> create(std::shared_ptr<GLogger> logger) {
+		auto header = GEventHeader::create(logger);
+
+		auto digi_data = GDigitizedData::create(logger);
+		auto true_data = GTrueInfoData::create(logger);
+
+		auto edc = std::make_unique<GEventDataCollection>(std::move(header), logger);
+		edc->addDetectorDigitizedData("ctof", std::move(digi_data));
+		edc->addDetectorTrueInfoData("ctof", std::move(true_data));
+
+		return edc;
+	}
 
 private:
 	std::shared_ptr<GLogger>                                log; ///< Logger instance
-	std::unique_ptr<GEventDataCollectionHeader>             gheader;
+	std::unique_ptr<GEventHeader>                           gheader;
 	std::map<std::string, std::unique_ptr<GDataCollection>> gdataCollectionMap;
+
+	/// Static thread-safe event counter - used for testing only
+	static std::atomic<int> globalEventDataCollectionCounter;
 
 };

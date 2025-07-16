@@ -24,7 +24,7 @@ private:
 	bool endEventImpl(const GEventDataCollection* eventData) override;
 
 	// write the header
-	bool publishEventHeaderImpl(const GEventDataCollectionHeader* gheader) override;
+	bool publishEventHeaderImpl(const GEventHeader* gheader) override;
 
 	// vector index is hit number
 	bool publishEventTrueInfoDataImpl(std::string                        detectorName,
@@ -35,7 +35,7 @@ private:
 	// frame streams
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;
 	bool endStreamImpl(const GFrameDataCollection* frameRunData) override;
-	bool publishFrameHeaderImpl(const GFrameDataCollectionHeader* gframeHeader) override;
+	bool publishFrameHeaderImpl(const GFrameHeader* gframeHeader) override;
 	bool publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) override;
 
 private:

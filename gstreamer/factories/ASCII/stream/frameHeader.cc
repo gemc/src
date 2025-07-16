@@ -2,7 +2,7 @@
 #include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::publishFrameHeaderImpl(const GFrameDataCollectionHeader *gframeHeader)
+bool GstreamerTextFactory::publishFrameHeaderImpl(const GFrameHeader *gframeHeader)
 {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 

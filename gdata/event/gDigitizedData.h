@@ -8,20 +8,25 @@
  * It maintains maps for single-value and array observables keyed by variable names.
  */
 
+// c++
 #include <string>
 #include <map>
 #include <vector>
+#include <atomic>
+
+// gemc
 #include "ghit.h"
 #include "glogger.h"
+#include "gdataConventions.h"
 
 class GDigitizedData {
 public:
 	/**
 	 * \brief Constructs a GDigitizedData object from a GHit.
-	 * \param ghit Pointer to the GHit from which identity information is extracted.
+	 * \param ghit unique_ptr GHit from which identity information is extracted.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	GDigitizedData(GHit* ghit, const std::shared_ptr<GLogger>& logger);
+	GDigitizedData(const std::unique_ptr<GHit>& ghit, const std::shared_ptr<GLogger>& logger);
 
 	/**
 	 * \brief Destructor for GDigitizedData.
@@ -77,6 +82,20 @@ public:
 	 */
 	[[nodiscard]] inline std::map<std::string, std::vector<double>> getArrayDblObservablesMap() const { return arrayDoubleObservablesMap; }
 
+
+	static std::unique_ptr<GDigitizedData> create(std::shared_ptr<GLogger> logger) {
+		auto hit       = GHit::create(logger);
+		auto digi_data = std::make_unique<GDigitizedData>(hit, logger);
+		auto counter   = globalDigitizedDataCounter.fetch_add(1, std::memory_order_relaxed);
+
+		digi_data->includeVariable(CRATESTRINGID, counter % 10);
+		digi_data->includeVariable(SLOTSTRINGID, counter % 20);
+		digi_data->includeVariable(CHANNELSTRINGID, counter);
+		digi_data->includeVariable(TIMEATELECTRONICS, counter * 5);
+		digi_data->includeVariable("adc", counter * 0.1);
+		return digi_data;
+	}
+
 private:
 	std::map<std::string, int>                 intObservablesMap;                                   ///< Map of integer observables.
 	std::map<std::string, double>              doubleObservablesMap;                                ///< Map of double observables.
@@ -85,4 +104,7 @@ private:
 	std::vector<GIdentifier>                   gidentity;                                           ///< Identity extracted from the hit.
 	[[nodiscard]] static bool                  validVarName(const std::string& varName, int which); ///< Validates variable names.
 	std::shared_ptr<GLogger>                   log;                                                 ///< Logger instance
+
+	/// Static thread-safe event counter - used for testing only
+	static std::atomic<int> globalDigitizedDataCounter;
 };

@@ -25,12 +25,12 @@
 class GRootTree {
 public:
 	// types of TTree
-	GRootTree(const GEventDataCollectionHeader* gheader, std::shared_ptr<GLogger>& log);
+	GRootTree(const GEventHeader* gheader, std::shared_ptr<GLogger>& log);
 	GRootTree(const std::string& detectorName, const GTrueInfoData* gdata, std::shared_ptr<GLogger>& log);
 	GRootTree(const std::string& detectorName, const GDigitizedData* gdata, std::shared_ptr<GLogger>& log);
 
 	// filling trees
-	bool fillTree(const GEventDataCollectionHeader* gheader);
+	bool fillTree(const GEventHeader* gheader);
 	bool fillTree(const std::vector<GTrueInfoData*>* trueInfoData);
 	bool fillTree(const std::vector<GDigitizedData*>* digitizedData);
 

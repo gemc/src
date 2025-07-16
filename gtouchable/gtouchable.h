@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <memory>
 
 // - readout: electronic Time Window is the discriminating factor.
 //   parameters and hitBitSet determined by defineReadoutSpecs in the plugin
@@ -52,7 +53,7 @@ public:
 	 * @param n The identifier name.
 	 * @param v The identifier value.
 	 */
-	GIdentifier(std::string n, int v) : idName{std::move(n)}, idValue{v} {
+	GIdentifier(const std::string& n, int v) : idName{std::move(n)}, idValue{v} {
 	}
 
 	/**
@@ -122,7 +123,7 @@ public:
 	*/
 	GTouchable(const GTouchable* baseGT, int newTimeIndex);
 
-	~GTouchable() { log->debug(DESTRUCTOR, "GTouchable", to_string(gType), " ", getIdentityString()); }
+	~GTouchable() { if (log) log->debug(DESTRUCTOR, "GTouchable", to_string(gType), " ", getIdentityString()); }
 
 	/**
 	* @brief Equality operator comparing two GTouchable objects.
@@ -199,6 +200,17 @@ public:
 		return false;
 	}
 
+	// create fake gtouchable for testing purposes, using sector and fake dimensions
+	static std::unique_ptr<GTouchable> create(std::shared_ptr<GLogger> logger) {
+		int touchableNumber = globalGTouchableCounter.fetch_add(1, std::memory_order_relaxed);
+		int sector          = (touchableNumber % 6) + 1;
+		int paddle         = (touchableNumber % 20) + 1;
+		std::string identity    = "sector: " + std::to_string(sector) + ", paddle: " + std::to_string(paddle);
+		std::vector<double> dimensions = {10.0, 20.0, 30.0};
+
+		return std::make_unique<GTouchable>("readout", identity, dimensions, logger);
+	}
+
 private:
 	std::shared_ptr<GLogger> log; ///< Logger instance
 	GTouchableType gType; ///< The type of the touchable element.
@@ -213,4 +225,6 @@ private:
 	/// Overloaded output operator for GTouchable.
 	friend std::ostream& operator<<(std::ostream& stream, const GTouchable& gtouchable);
 
+	/// Static thread-safe event counter - used for testing only
+	static std::atomic<int> globalGTouchableCounter;
 };

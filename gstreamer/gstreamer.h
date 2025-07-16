@@ -2,6 +2,7 @@
 
 // gstreamer
 #include "gstreamer_options.h"
+#include "gstreamerConventions.h"
 
 // gemc
 #include "event/gEventDataCollection.h"
@@ -25,7 +26,7 @@ public:
 	[[nodiscard]] virtual bool closeConnection() { return false; }
 
 	// runs the protected virtual methods below to write events from a run to file
-	void publishEventData(const GEventDataCollection* event_data);
+	void publishEventData(std::shared_ptr<GEventDataCollection> event_data);
 
 	// runs the protected virtual methods below to write frames from a run to file
 	void publishFrameRunData(const std::shared_ptr<GLogger>& log, const GFrameDataCollection* frameRunData);
@@ -51,18 +52,23 @@ protected:
 	// --------------------------------------------------------
 
 	[[nodiscard]] bool startEvent([[maybe_unused]] const GEventDataCollection* eventData) {
+
+		if (!eventData) { log->error(ERR_PUBLISH_ERROR, "eventData is null in GStreamer::startEvent"); }
+		if (!eventData->getHeader()) { log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::startEvent"); }
+
 		log->debug(NORMAL, "GStreamer::startEvent");
 		return startEventImpl(eventData);
 	}
 
 	virtual bool startEventImpl([[maybe_unused]] const GEventDataCollection* eventData) { return false; }
 
-	[[nodiscard]] bool publishEventHeader([[maybe_unused]] const GEventDataCollectionHeader* gheader) {
+	[[nodiscard]] bool publishEventHeader([[maybe_unused]] const GEventHeader* gheader) {
+		if (!gheader) { log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::publishEventHeader"); }
 		log->debug(NORMAL, "GStreamer::publishEventHeader");
 		return publishEventHeaderImpl(gheader);
 	}
 
-	virtual bool publishEventHeaderImpl([[maybe_unused]] const GEventDataCollectionHeader* gheader) { return false; }
+	virtual bool publishEventHeaderImpl([[maybe_unused]] const GEventHeader* gheader) { return false; }
 
 	// vector index is hit number
 
@@ -101,12 +107,12 @@ protected:
 
 	virtual bool startStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) { return false; }
 
-	[[nodiscard]] bool publishFrameHeader([[maybe_unused]] const GFrameDataCollectionHeader* gframeHeader) {
+	[[nodiscard]] bool publishFrameHeader([[maybe_unused]] const GFrameHeader* gframeHeader) {
 		log->debug(NORMAL, "GStreamer::publishFrameHeader");
 		return publishFrameHeaderImpl(gframeHeader);
 	}
 
-	virtual bool publishFrameHeaderImpl([[maybe_unused]] const GFrameDataCollectionHeader* gframeHeader) { return false; }
+	virtual bool publishFrameHeaderImpl([[maybe_unused]] const GFrameHeader* gframeHeader) { return false; }
 
 	[[nodiscard]] bool publishPayload([[maybe_unused]] const std::vector<GIntegralPayload*>* payload) {
 		log->debug(NORMAL, "GStreamer::publishPayload");
@@ -123,31 +129,13 @@ protected:
 	virtual bool endStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) { return false; }
 
 
-	void flushEventBuffer() {
-		log->info(2, "GStreamer::flushEventBuffer -> flushing ", eventBuffer.size(), " events to file");
-
-		for (const auto* event : eventBuffer) {
-			log->info(2, "GStreamer::publishEventData->startEvent: ",
-			          gutilities::success_or_fail(startEvent(event)));
-			log->info(2, "GStreamer::publishEventData->publishEventHeader -> ",
-			          gutilities::success_or_fail(publishEventHeader(event->getHeader())));
-			// //
-			// // for (auto& [detectorName, gDataCollection] : *event->getDataCollectionMap()) {
-			// // 	log->info(2, "GStreamer::publishEventData->publishEventTrueInfoData for detector -> ", detectorName,
-			// // 		gutilities::success_or_fail(gDataCollection->getTrueInfoData() ) );
-			// // 	log->info(2, "GStreamer::publishEventData->publishEventDigitizedData for detector -> ", detectorName,
-			// // 		gutilities::success_or_fail(gDataCollection->getDigitizedData() ) );
-			// // }
-			// log->info(2, "GStreamer::endEvent -> ", gutilities::success_or_fail(endEvent(event)));
-		}
-		eventBuffer.clear();
-	}
+	void flushEventBuffer();
 
 private:
 	[[nodiscard]] virtual std::string filename() const = 0; // must be implemented in derived classes
 
-	std::vector<const GEventDataCollection*> eventBuffer;
-	size_t                                   bufferFlushLimit = 10; // default; can be overridden
+	std::vector<std::shared_ptr<GEventDataCollection>> eventBuffer;
+	size_t                                             bufferFlushLimit = 10; // default; can be overridden
 
 public:
 	// method to dynamically load factories
@@ -177,7 +165,6 @@ namespace gstreamer {
 // this run in a worker thread, so each thread gets its own map of gstreamers
 inline std::unordered_map<std::string, std::shared_ptr<GStreamer>> gstreamersMap(GOptions* gopts,
                                                                                  int       thread_id) {
-
 	auto log = std::make_shared<GLogger>(gopts, GSTREAMER_LOGGER, "gstreamersMap worker for thread id" + std::to_string(thread_id));
 
 	GManager manager(log);

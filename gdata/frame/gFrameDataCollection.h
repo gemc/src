@@ -7,11 +7,10 @@
  * This class collects integral payloads for a frame and is associated with a frame header.
  */
 
-#include "gFrameDataCollectionHeader.h"
+#include "gFrameHeader.h"
 #include "gIntegralPayload.h"
 #include "gdataConventions.h"
 #include <vector>
-#include <string>
 
 class GFrameDataCollection {
 public:
@@ -20,7 +19,7 @@ public:
 	 * \param header Pointer to a GFrameDataCollectionHeader.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	GFrameDataCollection(GFrameDataCollectionHeader* header, std::shared_ptr<GLogger> logger)
+	GFrameDataCollection(GFrameHeader* header, std::shared_ptr<GLogger> logger)
 		: log(logger), gheader(header) {
 		log->debug(CONSTRUCTOR, "GFrameDataCollection");
 		integralPayloads = new std::vector<GIntegralPayload*>();
@@ -72,7 +71,7 @@ public:
 	 * \brief Gets the frame header.
 	 * \return Pointer to the frame header.
 	 */
-	[[nodiscard]] inline const GFrameDataCollectionHeader* getHeader() const { return gheader; }
+	[[nodiscard]] inline const GFrameHeader* getHeader() const { return gheader; }
 
 	/**
 	 * \brief Gets the integral payloads.
@@ -88,7 +87,7 @@ public:
 
 private:
 	std::shared_ptr<GLogger>        log;               ///< Logger instance
-	GFrameDataCollectionHeader*     gheader = nullptr; ///< Frame header.
+	GFrameHeader*     gheader = nullptr; ///< Frame header.
 	std::vector<GIntegralPayload*>* integralPayloads;  ///< Vector of integral payloads.
 };
 

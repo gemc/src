@@ -15,6 +15,8 @@
 using std::string;
 using std::vector;
 
+std::atomic<int> GHit::globalHitCounter{0};
+
 // MT definitions, as from:
 // https://twiki.cern.ch/twiki/bin/view/Geant4/QuickMigrationGuideForGeant4V10
 G4ThreadLocal G4Allocator<GHit>* GHitAllocator = nullptr;
@@ -24,43 +26,38 @@ void GHit::randomizeHitForTesting(int nsteps) {
 	// It randomizes the hit's global position and energy deposition.
 	// It should not be used in production code.
 	for (int i = 0; i < nsteps; ++i) {
-		globalPositions.push_back(G4ThreeVector(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100));
-		localPositions.push_back(G4ThreeVector(G4UniformRand() * 10, G4UniformRand() * 10, G4UniformRand() * 10));
-		times.push_back(G4UniformRand() * 100);
-		edeps.push_back(G4UniformRand() * 10);
-		pids.push_back(static_cast<int>(G4UniformRand() * 1000)); // Random particle ID
+		globalPositions.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
+		localPositions.emplace_back(G4UniformRand() * 10, G4UniformRand() * 10, G4UniformRand() * 10);
+		times.emplace_back(G4UniformRand() * 100);
+		edeps.emplace_back(G4UniformRand() * 10);
+		pids.emplace_back(static_cast<int>(G4UniformRand() * 1000)); // Random particle ID
 	}
 }
 
 
-
-GHit::GHit(GTouchable *gt, const HitBitSet hbs,  const G4Step *thisStep, string cScheme) : G4VHit(),
-																						  colorSchema(std::move(cScheme)),
-																						  gtouchable(gt) {
-
+GHit::GHit(std::unique_ptr<GTouchable> gt, const HitBitSet hbs, const G4Step* thisStep, string cScheme) : G4VHit(),
+                                                                                                          colorSchema(std::move(cScheme)),
+                                                                                                          gtouchable(std::move(gt)) {
 	// initialize quantities based on HitBitSet, like globalPositions
 	if (thisStep) { addHitInfosForBitset(hbs, thisStep); }
 
 	// unitialized quantities, to be calculated at the end of the steps by collectTrueInformation
 	// bit 0: always there
-	averageTime = UNINITIALIZEDNUMBERQUANTITY;
+	averageTime       = UNINITIALIZEDNUMBERQUANTITY;
 	avgGlobalPosition = G4ThreeVector(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY);
-	avgLocalPosition = G4ThreeVector(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY);
-	processName = UNINITIALIZEDSTRINGQUANTITY;
-
+	avgLocalPosition  = G4ThreeVector(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY);
+	processName       = UNINITIALIZEDSTRINGQUANTITY;
 }
 
-bool GHit::is_same_hit(GHit *hit) {
-	return (*gtouchable) == (*hit->getGTouchable());
-}
+bool GHit::is_same_hit(const std::unique_ptr<GHit>& hit) const { return *gtouchable == *(hit->getGTouchable()); }
 
 
-vector<int> GHit::getTTID() {
+vector<int> GHit::getTTID() const {
 	vector<int> ttid;
 	// Retrieve the identity vector from the associated GTouchable.
-	vector <GIdentifier> gids = getGID();
+	vector<GIdentifier> gids = getGID();
 	ttid.reserve(gids.size());
-	for (auto &gid: gids) {
+	for (auto& gid : gids) {
 		// Push back the integer value of each identifier.
 		ttid.push_back(gid.getValue());
 	}
@@ -75,8 +72,8 @@ vector<int> GHit::getTTID() {
  * Uses a G4Circle to represent the hit position. If the globalPositions vector is empty,
  * the method exits safely.
  */
- void GHit::Draw() {
-	G4VVisManager *pVVisManager = G4VVisManager::GetConcreteInstance();
+void GHit::Draw() {
+	G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
 
 	// only care about schema if we are interactive
 	if (pVVisManager) {
@@ -93,7 +90,8 @@ vector<int> GHit::getTTID() {
 		if (etot > 0) {
 			circle.SetScreenSize(10);
 			circle.SetVisAttributes(G4VisAttributes(colour_hit));
-		} else if (etot == 0) {
+		}
+		else if (etot == 0) {
 			circle.SetScreenSize(8);
 			circle.SetVisAttributes(G4VisAttributes(colour_passby));
 		}
@@ -111,7 +109,7 @@ vector<int> GHit::getTTID() {
  */
 bool GHit::setColorSchema() {
 	// For now, hard-code the color schema.
-	colour_hit = G4Colour(1.0, 0.0, 0.0);      // Red for hits with energy.
-	colour_passby = G4Colour(0.0, 1.0, 0.0);     // Green for pass-by.
+	colour_hit    = G4Colour(1.0, 0.0, 0.0); // Red for hits with energy.
+	colour_passby = G4Colour(0.0, 1.0, 0.0); // Green for pass-by.
 	return false;
 }

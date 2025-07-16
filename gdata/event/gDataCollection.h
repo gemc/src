@@ -10,7 +10,11 @@
 
 #include "gTrueInfoData.h"
 #include "gDigitizedData.h"
+
+// c++
+#include <memory>
 #include <vector>
+
 
 class GDataCollection {
 public:
@@ -18,58 +22,60 @@ public:
 	 * \brief Constructs a GDataCollection.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	explicit GDataCollection(std::shared_ptr<GLogger> logger) : log(logger) {
-		log->debug(CONSTRUCTOR, "GDataCollection");
-		trueInfosData = new std::vector<GTrueInfoData*>;
-		digitizedData = new std::vector<GDigitizedData*>;
-	}
+	explicit GDataCollection(std::shared_ptr<GLogger> logger)
+		: log(logger) { log->debug(CONSTRUCTOR, "GDataCollection"); }
 
 	/**
 	 * \brief Destructor for GDataCollection.
 	 *
-	 * Deletes all stored hit data and the associated containers.
+	 * Smart pointers clean up automatically.
 	 */
-	~GDataCollection() {
-		for (auto* hit : (*trueInfosData)) { delete hit; }
-		for (auto* hit : (*digitizedData)) { delete hit; }
-		log->debug(DESTRUCTOR, "GDataCollection");
-		delete trueInfosData;
-		delete digitizedData;
-	}
+	~GDataCollection() { if (log) log->debug(DESTRUCTOR, "GDataCollection"); }
 
 	/**
 	 * \brief Adds true hit information data.
-	 * \param data Pointer to GTrueInfoData.
+	 * \param data Unique pointer to GTrueInfoData.
 	 */
-	void addTrueInfoData(GTrueInfoData* data) const {
+	void addTrueInfoData(std::unique_ptr<GTrueInfoData> data) {
 		log->debug(NORMAL, " adding hit to trueInfosData with identity: ", data->getIdentityString());
-		trueInfosData->push_back(data);
+		trueInfosData.push_back(std::move(data)); // taking ownership of the unique_ptr
 	}
 
 	/**
 	 * \brief Adds digitized hit data.
-	 * \param data Pointer to GDigitizedData.
+	 * \param data Unique pointer to GDigitizedData.
 	 */
-	void addDigitizedData(GDigitizedData* data) const {
+	void addDigitizedData(std::unique_ptr<GDigitizedData> data) {
 		log->debug(NORMAL, " adding hit to digitizedData with identity: ", data->getIdentityString());
-		digitizedData->push_back(data);
+		digitizedData.push_back(std::move(data)); // taking ownership of the unique_ptr
 	}
 
 	/**
-	 * \brief Returns the vector of true hit information data.
-	 * \return Pointer to the vector of GTrueInfoData pointers.
+	 * \brief Provides read-only access to the stored true hit data.
+	 *
+	 * Returns a constant reference to the internal vector of unique pointers
+	 * to GTrueInfoData objects. Ownership of the data remains with this class.
+	 * Callers may inspect the data via the pointers but must not modify or
+	 * take ownership of them.
+	 *
+	 * \return Const reference to the vector of unique_ptr<GTrueInfoData>.
 	 */
-	[[nodiscard]] inline const std::vector<GTrueInfoData*>* getTrueInfoData() const { return trueInfosData; }
+	[[nodiscard]] inline const std::vector<std::unique_ptr<GTrueInfoData>>& getTrueInfoData() const { return trueInfosData; }
 
 	/**
-	 * \brief Returns the vector of digitized hit data.
-	 * \return Pointer to the vector of GDigitizedData pointers.
+	 * \brief Provides read-only access to the stored digitized hit data.
+	 *
+	 * Returns a constant reference to the internal vector of unique pointers
+	 * to GDigitizedData objects. Ownership of the data remains with this class.
+	 * Callers may read the data but must not modify or transfer ownership.
+	 *
+	 * \return Const reference to the vector of unique_ptr<GDigitizedData>.
 	 */
-	[[nodiscard]] inline const std::vector<GDigitizedData*>* getDigitizedData() const { return digitizedData; }
+	[[nodiscard]] inline const std::vector<std::unique_ptr<GDigitizedData>>& getDigitizedData() const { return digitizedData; }
 
 private:
-	std::vector<GTrueInfoData*>*  trueInfosData = nullptr; ///< Vector of true hit data.
-	std::vector<GDigitizedData*>* digitizedData = nullptr; ///< Vector of digitized hit data.
-	std::shared_ptr<GLogger>      log;                     ///< Logger instance
-};
+	std::vector<std::unique_ptr<GTrueInfoData>>  trueInfosData; ///< Vector of true hit data.
+	std::vector<std::unique_ptr<GDigitizedData>> digitizedData; ///< Vector of digitized hit data.
+	std::shared_ptr<GLogger>                     log;           ///< Logger instance
 
+};

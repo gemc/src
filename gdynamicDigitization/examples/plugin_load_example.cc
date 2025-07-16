@@ -1,4 +1,4 @@
-/// \file example.cc
+/// \file plugin_load_example.cc
 
 // example on how to use the gdynamic library
 

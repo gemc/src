@@ -21,10 +21,10 @@ const std::string plugin_name = "test_gdynamic_plugin";
 #include <memory>         // smart pointers
 #include <unordered_map>
 
+// TODO: remove when C++20 is widely available
 // ===== portable jthread-like wrapper =========================================
 // If real std::jthread is present, use it. Otherwise, define a minimal shim
 // that joins in the destructor (no stop_token support, but good enough here).
-
 #if defined(__cpp_lib_jthread)   // header exists
 #include <jthread>
 using jthread_alias = std::jthread;
@@ -49,12 +49,11 @@ public:
 auto build_event(int                                                                           evn,
                  const std::shared_ptr<GLogger>&                                               loge,
                  const std::shared_ptr<GLogger>&                                               logt,
-                 const std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>& dynamicRoutinesMap) -> std::unique_ptr<GEventDataCollection> {
-
+                 const std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>& dynamicRoutinesMap) -> std::shared_ptr<GEventDataCollection> {
 	// --------- Header construction ------------------------------------------
 	// unique_ptr means *exactly one* owner.  We start as the owner and later
-	auto gheader = std::make_unique<GEventDataCollectionHeader>(evn, evn % 3, loge);
-	auto eventData = std::make_unique<GEventDataCollection>(std::move(gheader), loge);
+	auto gheader   = std::make_unique<GEventHeader>(evn, evn % 3, loge);
+	auto eventData = std::make_shared<GEventDataCollection>(std::move(gheader), loge);
 
 
 	// --------- Rest of the event payload ------------------------------------
@@ -167,7 +166,7 @@ void run_simulation(int                                                         
 
 				for (const auto& [name, gstreamer] : streamers) {
 					// publish the event to the gstreamer
-					gstreamer->publishEventData(event.get());
+					gstreamer->publishEventData(std::move(event));
 				}
 
 				// ---- Critical section: push into the shared vector ----------
@@ -208,6 +207,8 @@ void run_simulation(int                                                         
 int main(int argc, char* argv[]) {
 	ROOT::EnableThreadSafety();
 
+
+
 	// runData holds the finished events.  We store them as *unique_ptr* because
 	// each event is owned by the container and *only* by the container (single
 	// ownership → choose unique_ptr, not shared_ptr).
@@ -216,6 +217,8 @@ int main(int argc, char* argv[]) {
 	// Protect runData from concurrent push_back calls.  Only the push itself is
 	// guarded; building events happens outside the critical section.
 	std::mutex runDataMtx;
+
+
 
 	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
 	auto gopts = new GOptions(argc, argv, gstreamer::defineOptions());

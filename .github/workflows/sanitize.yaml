@@ -21,9 +21,9 @@ jobs:
         container:
           - name: ubuntu24
             image: jeffersonlab/geant4:g4v11.3.1-ubuntu24
-          - name: fedora36
-            image: jeffersonlab/geant4:g4v11.3.1-fedora36
-          - name: almalinux93
+          - name: fedora40
+            image: jeffersonlab/geant4:g4v11.3.1-fedora40
+          - name: almalinux94
             image: jeffersonlab/geant4:g4v11.3.1-almalinux94
         # NOTE: additional packages needed for the sanitizer: libasan libubsan libtsan
         # MacOS: address, thread, undefined

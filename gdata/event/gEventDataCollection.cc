@@ -4,28 +4,20 @@
  */
 
 #include "gEventDataCollection.h"
+#include "gEventHeader.h"
 
-void GEventDataCollection::addDetectorTrueInfoData(std::string sdName, GTrueInfoData* data) {
+std::atomic<int> GEventDataCollection::globalEventDataCollectionCounter{1};
+std::atomic<int> GEventHeader::globalEventHeaderCounter{1};
+
+void GEventDataCollection::addDetectorTrueInfoData(std::string sdName, std::unique_ptr<GTrueInfoData> data) {
 	if (gdataCollectionMap.find(sdName) == gdataCollectionMap.end()) { gdataCollectionMap[sdName] = std::make_unique<GDataCollection>(log); }
-	gdataCollectionMap[sdName]->addTrueInfoData(data);
+	gdataCollectionMap[sdName]->addTrueInfoData(std::move(data));
 	log->info(2, "GEventDataCollection: added new detector TrueInfoData for ", sdName);
 }
 
-void GEventDataCollection::addDetectorDigitizedData(std::string sdName, GDigitizedData* data) {
+void GEventDataCollection::addDetectorDigitizedData(std::string sdName, std::unique_ptr<GDigitizedData> data) {
 	if (gdataCollectionMap.find(sdName) == gdataCollectionMap.end()) { gdataCollectionMap[sdName] = std::make_unique<GDataCollection>(log); }
-	gdataCollectionMap[sdName]->addDigitizedData(data);
+	gdataCollectionMap[sdName]->addDigitizedData(std::move(data));
 	log->info(2, "GEventDataCollection: added new detector DigitizedData for ", sdName);
 }
 
-
-const std::vector<GTrueInfoData*>* GEventDataCollection::getTrueInfoDataForDetector(std::string detector) const {
-	auto it = gdataCollectionMap.find(detector);
-	if (it != gdataCollectionMap.end()) { return it->second->getTrueInfoData(); }
-	return nullptr;
-}
-
-const std::vector<GDigitizedData*>* GEventDataCollection::getDigitizedDataForDetector(std::string detector) const {
-	auto it = gdataCollectionMap.find(detector);
-	if (it != gdataCollectionMap.end()) { return it->second->getDigitizedData(); }
-	return nullptr;
-}

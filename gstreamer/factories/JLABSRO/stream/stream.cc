@@ -7,7 +7,7 @@ bool GstreamerJSROFactory::startStreamImpl(const GFrameDataCollection *frameRunD
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
     static constexpr int header_offset = sizeof(DataFrameHeader) / 4;
-    const GFrameDataCollectionHeader *header = frameRunData->getHeader();
+    const GFrameHeader *header = frameRunData->getHeader();
     long int frameID = header->getFrameID();
     const std::vector<GIntegralPayload *> *intPayloadvec = frameRunData->getIntegralPayload();
 

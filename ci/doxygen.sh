@@ -3,7 +3,7 @@
 # Purpose: creates the doxygen documentation for the selected classes
 
 # Container run:
-# docker_run_image jeffersonlab/base:fedora36
+# docker_run_image jeffersonlab/base:fedora40
 #
 # local build:
 # git clone http://github.com/gemc/src /root/src && cd /root/src

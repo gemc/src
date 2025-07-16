@@ -6,7 +6,7 @@ using std::vector;
 
 
 // return header tree with initialized leafs
-GRootTree::GRootTree(const GEventDataCollectionHeader* gheader, std::shared_ptr<GLogger>& logger) : log(logger) {
+GRootTree::GRootTree(const GEventHeader* gheader, std::shared_ptr<GLogger>& logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree header");
 
 	root_tree = std::make_unique<TTree>(HEADERTREENAME, HEADERTREENAMESUFFIX);
@@ -16,7 +16,8 @@ GRootTree::GRootTree(const GEventDataCollectionHeader* gheader, std::shared_ptr<
 	registerVariable("timeStamp", gheader->getTimeStamp());
 }
 
-bool GRootTree::fillTree(const GEventDataCollectionHeader* gheader) {
+bool GRootTree::fillTree(const GEventHeader* gheader) {
+
 	intVarsMap["g4localEventNumber"].push_back(gheader->getG4LocalEvn());
 	intVarsMap["threadID"].push_back(gheader->getThreadID());
 	stringVarsMap["timeStamp"].push_back(gheader->getTimeStamp());

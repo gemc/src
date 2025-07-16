@@ -36,7 +36,7 @@ bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] std::st
 GDigitizedData* GPlugin_test_example::digitizeHitImpl([[maybe_unused]] GHit* ghit, [[maybe_unused]] size_t hitn) {
 
 	// return a new GDigitizedData object with some dummy data derived from the hit
-	auto digitizedData = new GDigitizedData(ghit, digi_logger);
+	auto digitizedData = std::make_unique<GDigitizedData>(ghit, digi_logger);
 
 	auto edep = ghit->getTotalEnergyDeposited();
 

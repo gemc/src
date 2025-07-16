@@ -13,15 +13,36 @@ bool GStreamer::is_valid_format(const std::string& format) {
 }
 
 // pragma todo: pass someting like map<string, bitset> to each detector to decide which data to publish
-void GStreamer::publishEventData(const GEventDataCollection* event_data) {
+void GStreamer::publishEventData(std::shared_ptr<GEventDataCollection> event_data) {
 
+	// release ownership to the buffer
 	eventBuffer.push_back(event_data);
+
 	if (eventBuffer.size() >= bufferFlushLimit) {
-		flushEventBuffer(); // or call virtual flushImpl() if you want customization
+		flushEventBuffer();
 	}
 
 }
 
+void GStreamer::flushEventBuffer() {
+	log->info(2, "GStreamer::flushEventBuffer -> flushing ", eventBuffer.size(), " events to file");
+
+	for (const auto& event : eventBuffer) {
+		log->info(2, "GStreamer::publishEventData->startEvent: ",
+				  gutilities::success_or_fail(startEvent( event.get() )));
+		log->info(2, "GStreamer::publishEventData->publishEventHeader -> ",
+				  gutilities::success_or_fail(publishEventHeader(event->getHeader())));
+		// //
+		// // for (auto& [detectorName, gDataCollection] : *event->getDataCollectionMap()) {
+		// // 	log->info(2, "GStreamer::publishEventData->publishEventTrueInfoData for detector -> ", detectorName,
+		// // 		gutilities::success_or_fail(gDataCollection->getTrueInfoData() ) );
+		// // 	log->info(2, "GStreamer::publishEventData->publishEventDigitizedData for detector -> ", detectorName,
+		// // 		gutilities::success_or_fail(gDataCollection->getDigitizedData() ) );
+		// // }
+		// log->info(2, "GStreamer::endEvent -> ", gutilities::success_or_fail(endEvent(event)));
+	}
+	eventBuffer.clear();
+}
 
 // stream an individual frame
 void GStreamer::publishFrameRunData(const std::shared_ptr<GLogger>& log, const GFrameDataCollection* frameRunData) {

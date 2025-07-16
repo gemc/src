@@ -4,8 +4,18 @@
 
 using std::string;
 
+std::mutex gRootTreesMtx;
+
 // Return the header tree from the map. If it's not there, initialize it.
-GRootTree* GstreamerRootFactory::getOrInstantiateHeaderTree(const GEventDataCollectionHeader* gheader) {
+GRootTree* GstreamerRootFactory::getOrInstantiateHeaderTree(const GEventHeader* gheader) {
+	std::scoped_lock lock(gRootTreesMtx);  // ensures thread-safe map access
+
+	if (!log) { 	std::cerr << "FATAL: log is null in GstreamerRootFactory::getOrInstantiateHeaderTree" << std::endl;
+		std::terminate(); }
+
+	if (!gheader) { log->error(ERR_PUBLISH_ERROR, "event header is null in GstreamerRootFactory::getOrInstantiateHeaderTree"); }
+
+
 	// the tree is not found, initialize it
 	if (gRootTrees.find(HEADERTREENAME) == gRootTrees.end()) {
 		log->info(2, "GstreamerRootFactory", "Creating ROOT header tree");
