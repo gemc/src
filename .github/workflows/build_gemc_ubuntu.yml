@@ -16,7 +16,7 @@ on:
 jobs:
   build-on-ubuntu:
     runs-on: ubuntu-latest
-    container:  jeffersonlab/geant4:g4v11.3.1-ubuntu24
+    container:  jeffersonlab/geant4:g4v11.3.3-ubuntu24
 
     steps:
       - name: Checkout

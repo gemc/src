@@ -12,14 +12,25 @@ import subprocess
 import shutil
 import sys
 from pathlib import Path
+from typing import List, Optional
+
+print(f"[debug] Python version: {sys.version}")
+print(f"[debug] Python executable: {sys.executable}")
 
 
 # ────────────────────────── helpers ──────────────────────────
 def run_config(command: str, option: str) -> str:
-	"""Run <command> <option> and return its stdout."""
-	result = subprocess.run([command, option],
-							capture_output=True, text=True, check=True)
-	return result.stdout.strip()
+	try:
+		result = subprocess.run([command, option], capture_output=True, text=True, check=True)
+		return result.stdout.strip()
+	except FileNotFoundError:
+		print(f"[FATAL] Command not found: {command}")
+		raise
+	except subprocess.CalledProcessError as e:
+		print(f"[ERROR] Command failed: {command} {option}")
+		print(f"stdout:\n{e.stdout}")
+		print(f"stderr:\n{e.stderr}")
+		raise
 
 
 def filter_unwanted_flags(flags: str) -> str:
@@ -42,12 +53,12 @@ def generate_pkgconfig(install_prefix: Path,
 					   output_filename: str,
 					   name: str,
 					   description: str,
-					   root_lbs: list[str] | None = None) -> None:
+					   root_lbs: Optional[List[str]] = None) -> None:
 	"""Create <install_prefix>/lib/pkgconfig/<output_filename>."""
-	prefix   = run_config(config_cmd, "--prefix")
-	libs     = filter_unwanted_flags(run_config(config_cmd, "--libs"))
-	cflags   = filter_unwanted_flags(run_config(config_cmd, "--cflags"))
-	version  = run_config(config_cmd, "--version")
+	prefix = run_config(config_cmd, "--prefix")
+	libs = filter_unwanted_flags(run_config(config_cmd, "--libs"))
+	cflags = filter_unwanted_flags(run_config(config_cmd, "--cflags"))
+	version = run_config(config_cmd, "--version")
 
 	if config_cmd == "root-config" and root_lbs:
 		libs = filter_root_flags(libs, root_lbs)
