@@ -14,11 +14,13 @@
 namespace gdynamicdigitization {
 
 GOptions defineOptions() {
+
 	GOptions goptions(GDIGITIZATION_LOGGER);
 	goptions += gdata::defineOptions();
 	goptions += gtranslationTable::defineOptions();
 	goptions += gfactory::defineOptions();
 	return goptions;
+
 }
 
 } // namespace gdata

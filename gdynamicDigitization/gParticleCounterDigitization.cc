@@ -13,11 +13,11 @@ bool GParticleCounterDigitization::defineReadoutSpecsImpl() {
 
 
 // digitized the hit
-GDigitizedData* GParticleCounterDigitization::digitizeHitImpl(GHit* ghit, size_t hitn) {
+std::unique_ptr<GDigitizedData> GParticleCounterDigitization::digitizeHitImpl(const std::unique_ptr<GHit>& ghit, size_t hitn) {
 	// ghit->getGID() must have a single entry
 	GIdentifier identity = ghit->getGID().front();
 
-	auto gdata = new GDigitizedData(ghit, data_logger);
+	auto gdata = std::make_unique<GDigitizedData>(ghit, data_logger);
 
 	gdata->includeVariable(identity.getName(), identity.getValue());
 	gdata->includeVariable("hitn", static_cast<int> (hitn) );

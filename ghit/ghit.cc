@@ -25,11 +25,13 @@ void GHit::randomizeHitForTesting(int nsteps) {
 	// This function is for testing purposes only.
 	// It randomizes the hit's global position and energy deposition.
 	// It should not be used in production code.
-	for (int i = 0; i < nsteps; ++i) {
+	for (int i = 0; i < nsteps + 1; ++i) {
 		globalPositions.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
 		localPositions.emplace_back(G4UniformRand() * 10, G4UniformRand() * 10, G4UniformRand() * 10);
 		times.emplace_back(G4UniformRand() * 100);
 		edeps.emplace_back(G4UniformRand() * 10);
+		Es.emplace_back(G4UniformRand() * 10);
+
 		pids.emplace_back(static_cast<int>(G4UniformRand() * 1000)); // Random particle ID
 	}
 }

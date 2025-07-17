@@ -60,9 +60,9 @@ GOptions::GOptions(int argc, char *argv[], const GOptions &user_defined_options)
 	defineOption(GVERSION_STRING, "version information", version, "Version information. Not settable by user.");
 
 	string help = "Levels: \n \n";
-	help += " - 0: (default) shush\n";
-	help += " - 1: normal information\n";
-	help += " - 2: detailed information\n \n";
+	help += " - 0: (default) = shush\n";
+	help += " - 1: log detailed information\n";
+	help += " - 2: log extra detailed information\n \n";
 	help += "Example: -verbosity.general=1 \n \n";
 	help += "This option can be repeated.\n \n";
 	defineOption("verbosity", "Sets the log verbosity for various classes", option_verbosity_names, help);

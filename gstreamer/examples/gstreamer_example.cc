@@ -92,6 +92,7 @@ auto build_event(int                                                            
 
 	// not using dynamicRoutinesMap[key] because it modifies the map if the key is not found
 	const auto& droutine  = dynamicRoutinesMap.at(plugin_name);
+
 	auto        truedata1 = droutine->collectTrueInformation(hit1.get(), 1);
 	auto        truedata2 = droutine->collectTrueInformation(hit2.get(), 2);
 

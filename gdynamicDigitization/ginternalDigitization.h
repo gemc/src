@@ -53,7 +53,7 @@ public:
 	 * \param hitn The hit index.
 	 * \return Pointer to a newly created GDigitizedData object.
 	 */
-	GDigitizedData* digitizeHitImpl(GHit *ghit, size_t hitn) override;
+	std::unique_ptr<GDigitizedData> digitizeHitImpl(const std::unique_ptr<GHit>& ghit, size_t hitn) override;
 };
 
 /// Class for particle counter digitization. Inherits from GDynamicDigitization.
@@ -77,7 +77,7 @@ public:
 	 * \param hitn The hit index.
 	 * \return Pointer to a newly created GDigitizedData object.
 	 */
-	GDigitizedData* digitizeHitImpl(GHit *ghit, size_t hitn) override;
+	std::unique_ptr<GDigitizedData> digitizeHitImpl(const std::unique_ptr<GHit>& ghit, size_t hitn) override;
 };
 
 /// Class for dosimeter digitization. Inherits from GDynamicDigitization.
@@ -101,7 +101,7 @@ public:
 	 * \param hitn The hit index.
 	 * \return Pointer to a newly created GDigitizedData object.
 	 */
-	GDigitizedData* digitizeHitImpl(GHit *ghit, size_t hitn) override;
+	std::unique_ptr<GDigitizedData> digitizeHitImpl(const std::unique_ptr<GHit>& ghit, size_t hitn) override;
 
 	/**
 	 * \brief Loads digitization constants for dosimeter digitization.

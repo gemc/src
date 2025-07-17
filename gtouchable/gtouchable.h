@@ -121,7 +121,7 @@ public:
 	* @param baseGT Pointer to the base GTouchable.
 	* @param newTimeIndex The new electronics time index.
 	*/
-	GTouchable(const GTouchable* baseGT, int newTimeIndex);
+	GTouchable(const std::unique_ptr<GTouchable>& baseGT, int newTimeIndex);
 
 	~GTouchable() { if (log) log->debug(DESTRUCTOR, "GTouchable", to_string(gType), " ", getIdentityString()); }
 

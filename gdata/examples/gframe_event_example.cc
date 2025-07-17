@@ -20,7 +20,7 @@
 
 // gdata
 #include "frame/gFrameDataCollection.h"
-#include "frame/GFrameHeader.h"
+#include "frame/gFrameHeader.h"
 #include "gdata_options.h"
 
 // gemc

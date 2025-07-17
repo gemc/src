@@ -61,7 +61,7 @@ bool GDosimeterDigitization::defineReadoutSpecsImpl() {
  * \param hitn The hit index.
  * \return Pointer to the newly created GDigitizedData object.
  */
-GDigitizedData* GDosimeterDigitization::digitizeHitImpl(GHit* ghit, size_t hitn) {
+std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(const std::unique_ptr<GHit>& ghit, size_t hitn) {
 	// Ensure that required loggers and options are defined.
 	check_if_log_defined();
 
@@ -69,7 +69,7 @@ GDigitizedData* GDosimeterDigitization::digitizeHitImpl(GHit* ghit, size_t hitn)
 	GIdentifier identity = ghit->getGID().front();
 
 	// Create a new GDigitizedData object for this hit.
-	auto* gdata = new GDigitizedData(ghit, data_logger);
+	auto gdata = std::make_unique<GDigitizedData>(ghit, data_logger);
 
 	// Include basic hit variables.
 	gdata->includeVariable(identity.getName(), identity.getValue());

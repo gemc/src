@@ -36,7 +36,7 @@ public:
 	 *
 	 * \param touchableNames A vector of touchable names.
 	 */
-	explicit GTouchableModifiers(std::vector<std::string> touchableNames);
+	explicit GTouchableModifiers(const std::vector<std::string>& touchableNames);
 
 private:
 	// Only one of these maps can be filled with values:
@@ -55,7 +55,7 @@ public:
 	 * \param idValue The identifier value.
 	 * \param weight The weight.
 	 */
-	void insertIdAndWeight(std::string touchableName, int idValue, double weight);
+	void insertIdAndWeight(const std::string& touchableName, int idValue, double weight);
 
 	/**
 	 * \brief Inserts a new (id, weight, time) triplet for given touchable.
@@ -64,7 +64,7 @@ public:
 	 * \param weight The weight.
 	 * \param time The time.
 	 */
-	void insertIdWeightAndTime(std::string touchableName, int idValue, double weight, double time);
+	void insertIdWeightAndTime(const std::string& touchableName, int idValue, double weight, double time);
 
 	/**
 	 * \brief Normalizes the modifier weights using a total weight.
@@ -75,7 +75,7 @@ public:
 	 * \param touchableName The name of the touchable.
 	 * \param totalWeight The total weight used for normalization.
 	 */
-	void assignOverallWeight(std::string touchableName, double totalWeight);
+	void assignOverallWeight(const std::string& touchableName, double totalWeight);
 
 	/**
 	 * \brief Checks whether only weight modifiers (without time) are defined.
@@ -120,13 +120,13 @@ public:
 	 * \param thisStep Pointer to the current G4Step.
 	 * \return The global time.
 	 */
-	[[nodiscard]] double processStepTime(GTouchable* gTouchID, G4Step* thisStep) {
+	[[nodiscard]] double processStepTime(const std::unique_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::process step time");
 		return processStepTimeImpl(gTouchID, thisStep);
 	}
 
-	[[nodiscard]] virtual double processStepTimeImpl(GTouchable* gTouchID, G4Step* thisStep);
+	[[nodiscard]] virtual double processStepTimeImpl(const std::unique_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep);
 
 
 	/**
@@ -139,13 +139,13 @@ public:
 	 * \param thisStep Pointer to the current G4Step.
 	 * \return A vector of GTouchable pointers.
 	 */
-	[[nodiscard]] std::vector<GTouchable*> processTouchable(GTouchable* gTouchID, G4Step* thisStep) {
+	[[nodiscard]] std::vector<std::unique_ptr<GTouchable>> processTouchable(std::unique_ptr<GTouchable> gTouchID, G4Step* thisStep) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::process gtouchable");
-		return processTouchableImpl(gTouchID, thisStep);
+		return processTouchableImpl(std::move(gTouchID), thisStep);
 	}
 
-	[[nodiscard]] virtual std::vector<GTouchable*> processTouchableImpl(GTouchable* gTouchID, G4Step* thisStep);
+	[[nodiscard]] virtual std::vector<std::unique_ptr<GTouchable>> processTouchableImpl(std::unique_ptr<GTouchable> gTouchID, G4Step* thisStep);
 
 	/**
 	 * \brief Processes touchable modifiers.
@@ -156,13 +156,13 @@ public:
 	 * \param gmods A GTouchableModifiers object.
 	 * \return A vector of modified GTouchable pointers.
 	 */
-	[[nodiscard]] std::vector<GTouchable*> processGTouchableModifiers(GTouchable* gTouchID, GTouchableModifiers gmods) {
+	[[nodiscard]] std::vector<std::unique_ptr<GTouchable>> processGTouchableModifiers(const std::unique_ptr<GTouchable>& gTouchID, GTouchableModifiers gmods) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::process gtouchable modifiers");
 		return processGTouchableModifiersImpl(gTouchID, std::move(gmods));
 	}
 
-	virtual std::vector<GTouchable*> processGTouchableModifiersImpl(GTouchable* gTouchID, GTouchableModifiers gmods);
+	virtual std::vector<std::unique_ptr<GTouchable>> processGTouchableModifiersImpl(const std::unique_ptr<GTouchable>& gTouchID, GTouchableModifiers gmods);
 
 	/**
 	 * \brief Collects true hit information into a GTrueInfoData object.
@@ -173,13 +173,13 @@ public:
 	 * \param hitn Hit index.
 	 * \return A pointer to a newly created GTrueInfoData object.
 	 */
-	[[nodiscard]] GTrueInfoData* collectTrueInformation(GHit* ghit, size_t hitn) {
+	[[nodiscard]] std::unique_ptr<GTrueInfoData> collectTrueInformation(const std::unique_ptr<GHit>& ghit, size_t hitn) {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, "GDynamicDigitization::collect true information");
+		digi_logger->info(2, "GDynamicDigitization::collect true information for hit number ", hitn, " with size ", ghit->nsteps(), " steps");
 		return collectTrueInformationImpl(ghit, hitn);
 	}
 
-	[[nodiscard]] virtual GTrueInfoData* collectTrueInformationImpl(GHit* ghit, size_t hitn);
+	[[nodiscard]] virtual std::unique_ptr<GTrueInfoData> collectTrueInformationImpl(const std::unique_ptr<GHit>& ghit, size_t hitn);
 
 	/**
 	 * \brief Digitizes hit information into a GDigitizedData object.
@@ -188,13 +188,13 @@ public:
 	 * \param hitn Hit index.
 	 * \return A pointer to a GDigitizedData object, or nullptr if not implemented.
 	 */
-	[[nodiscard]] GDigitizedData* digitizeHit([[maybe_unused]] GHit* ghit, [[maybe_unused]] size_t hitn) {
+	[[nodiscard]] std::unique_ptr<GDigitizedData> digitizeHit(const std::unique_ptr<GHit>& ghit, [[maybe_unused]] size_t hitn) {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, "GDynamicDigitization::digitize hit");
+		digi_logger->info(2, "GDynamicDigitization::digitize  hit number ", hitn, " with size ", ghit->nsteps(), " steps");
 		return digitizeHitImpl(ghit, hitn);
 	}
 
-	[[nodiscard]] virtual GDigitizedData* digitizeHitImpl([[maybe_unused]] GHit* ghit, [[maybe_unused]] size_t hitn) { return nullptr; }
+	[[nodiscard]] virtual std::unique_ptr<GDigitizedData> digitizeHitImpl([[maybe_unused]] const std::unique_ptr<GHit>& ghit, [[maybe_unused]] size_t hitn) { return nullptr; }
 
 	/**
 	 * \brief Loads digitization constants.
@@ -236,9 +236,9 @@ public:
 	 * \param time Time value (ns).
 	 * \param q Charge value.
 	 * \param ghit Pointer to the GHit.
-	 * \param gdata Pointer to the GDigitizedData.
+	 * \param gdata Pointer to the GDigitizedData - caller keeps ownership.
 	 */
-	void chargeAndTimeAtHardware(int time, int q, GHit* ghit, GDigitizedData* gdata);
+	void chargeAndTimeAtHardware(int time, int q, const std::unique_ptr<GHit>& ghit, GDigitizedData& gdata);
 
 	/**
 	 * \brief Pure virtual function to initialize readout specifications.
@@ -317,28 +317,38 @@ protected:
 
 namespace gdynamicdigitization {
 
-inline std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutinesMap(const std::vector<std::string> plugin_names,
-                                                                                                 GOptions*                      gopts) {
+// inline std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutinesMapOriginal(const std::vector<std::string>& plugin_names,
+//                                                                                                  GOptions*                       gopts) {
+// 	auto log = std::make_shared<GLogger>(gopts, GDIGITIZATION_LOGGER, "dynamicRoutinesMap loader");
+//
+// 	GManager manager(log);
+//
+// 	std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutinesMap;
+//
+// 	for (const auto& plugin : plugin_names) {
+// 		dynamicRoutinesMap.emplace(plugin,
+// 		                           manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin, gopts));
+//
+// 		log->info(0, "dynamicRoutinesMap[", plugin, "]: ", dynamicRoutinesMap[plugin]);
+// 	}
+//
+// 	return dynamicRoutinesMap;
+// }
 
-	auto log = std::make_shared<GLogger>(gopts, GDIGITIZATION_LOGGER, "dynamicRoutinesMap loader");
+using dRoutinesMap = std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>;
 
+//  the returned map is shared and immutable
+inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<std::string>& plugin_names, GOptions* gopts) {
+	auto     log = std::make_shared<GLogger>(gopts, GDIGITIZATION_LOGGER, "loader");
 	GManager manager(log);
-
-	std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>> dynamicRoutinesMap;
+	auto     routines = std::make_shared<dRoutinesMap>();
 
 	for (const auto& plugin : plugin_names) {
-		dynamicRoutinesMap.emplace(plugin,
-		                           manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin, gopts));
-
-		log->info(0, "dynamicRoutinesMap[", plugin, "]: ", dynamicRoutinesMap[plugin]);
+		routines->emplace(plugin, manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin, gopts));
+		log->info(0, "dynamicRoutinesMap[", plugin, "]: ", (*routines)[plugin]);
 	}
 
-	// Freeze the map before passing it to worker threads
-	// unordered_map is read-only the entire time the event threads run, and the C ++standard
-	// guarantees that concurrent reads on a const container are safe so long as no thread mutates it
-	const auto& dynamicRoutinesConstMap = dynamicRoutinesMap; // const reference
-
-	return dynamicRoutinesConstMap;
+	return routines; // shared_ptr<const ...> prevents mutation
 }
 
 

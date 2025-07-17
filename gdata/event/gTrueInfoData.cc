@@ -15,12 +15,12 @@ GTrueInfoData::GTrueInfoData(const std::unique_ptr<GHit>& ghit, std::shared_ptr<
 }
 
 void GTrueInfoData::includeVariable(const std::string& varName, double var) {
-	log->debug(NORMAL, " including ", varName, " in trueInfoDoublesVariablesMap.");
+	log->info(2, " including ", varName, " in trueInfoDoublesVariablesMap.");
 	trueInfoDoublesVariablesMap[varName] = var;
 }
 
 void GTrueInfoData::includeVariable(const std::string& varName, std::string var) {
-	log->debug(NORMAL, " including ", varName, " in trueInfoStringVariablesMap.");
+	log->info(2, " including ", varName, " in trueInfoStringVariablesMap.");
 	trueInfoStringVariablesMap[varName] = std::move(var);
 }
 

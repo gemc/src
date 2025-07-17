@@ -40,7 +40,7 @@ bool GFluxDigitization::defineReadoutSpecsImpl() {
  * \param hitn The hit index (used to label the hit).
  * \return A pointer to the newly created GDigitizedData object.
  */
-GDigitizedData* GFluxDigitization::digitizeHitImpl(GHit *ghit, size_t hitn) {
+	std::unique_ptr<GDigitizedData> GFluxDigitization::digitizeHitImpl(const std::unique_ptr<GHit>& ghit, size_t hitn) {
 	// Ensure all required loggers and options are set.
 	check_if_log_defined();
 
@@ -48,7 +48,7 @@ GDigitizedData* GFluxDigitization::digitizeHitImpl(GHit *ghit, size_t hitn) {
 	GIdentifier identity = ghit->getGID().front();
 
 	// Create a new GDigitizedData object using the hit and the data_logger.
-	auto gdata = new GDigitizedData(ghit, data_logger);
+	auto gdata = std::make_unique<GDigitizedData>(ghit, data_logger);
 
 	// Include digitized variables into the GDigitizedData object:
 	// 1. Use the identifier's name and value.

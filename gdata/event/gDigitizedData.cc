@@ -21,14 +21,14 @@ GDigitizedData::GDigitizedData(const std::unique_ptr<GHit>& ghit, const std::sha
 std::map<std::string, int> GDigitizedData::getIntObservablesMap(int which) const {
 	std::map<std::string, int> filteredIntObservablesMap;
 	for (const auto& [varName, value] : intObservablesMap) { if (validVarName(varName, which)) { filteredIntObservablesMap[varName] = value; } }
-	log->debug(NORMAL, " getting ", which, " from intObservablesMap.");
+	log->info(2, " getting ", which, " from intObservablesMap.");
 	return filteredIntObservablesMap;
 }
 
 std::map<std::string, double> GDigitizedData::getDblObservablesMap(int which) const {
 	std::map<std::string, double> filteredDblObservablesMap;
 	for (const auto& [varName, value] : doubleObservablesMap) { if (validVarName(varName, which)) { filteredDblObservablesMap[varName] = value; } }
-	log->debug(NORMAL, " getting ", which, " from doubleObservablesMap.");
+	log->info(2, " getting ", which, " from doubleObservablesMap.");
 	return filteredDblObservablesMap;
 }
 
@@ -41,18 +41,18 @@ bool GDigitizedData::validVarName(const std::string& varName, int which) {
 }
 
 void GDigitizedData::includeVariable(const std::string& vname, int value) {
-	log->debug(NORMAL, "Including int variable ", vname, " with value ", value);
+	log->info(2, "Including int variable ", vname, " with value ", value);
 	intObservablesMap[vname] = value;
 }
 
 void GDigitizedData::includeVariable(const std::string& vname, double value) {
-	log->debug(NORMAL, "double variable ", vname, " with value ", value);
+	log->info(2, "double variable ", vname, " with value ", value);
 	doubleObservablesMap[vname] = value;
 }
 
 int GDigitizedData::getTimeAtElectronics() {
 	if (intObservablesMap.find(TIMEATELECTRONICS) == intObservablesMap.end()) { return TIMEATELECTRONICSNOTDEFINED; }
-	log->debug(NORMAL, "Getting TIMEATELECTRONICS from intObservablesMap.");
+	log->info(2, "Getting TIMEATELECTRONICS from intObservablesMap.");
 	return intObservablesMap[TIMEATELECTRONICS];
 }
 

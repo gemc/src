@@ -154,6 +154,10 @@ public:
 	 */
 	[[nodiscard]] inline double getE() const { return Es.front(); }
 
+
+	[[nodiscard]] inline int nsteps() const { return Es.size(); }
+
+
 	/**
 	 * \brief Gets the process name associated with the hit.
 	 * \return The process name string.

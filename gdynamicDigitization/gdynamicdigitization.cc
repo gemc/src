@@ -31,19 +31,19 @@ using std::endl;
  * \param hitn Hit index.
  * \return Pointer to a newly allocated GTrueInfoData object.
  */
-GTrueInfoData *GDynamicDigitization::collectTrueInformationImpl(GHit *ghit, size_t hitn) {
-	auto trueInfoData = new GTrueInfoData(ghit, data_logger);
+
+std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(const std::unique_ptr<GHit>& ghit, size_t hitn) {
+	auto trueInfoData = std::make_unique<GTrueInfoData>(ghit, data_logger);
+
 	std::vector<GIdentifier> identities = ghit->getGID();
 
 	// Loop over all identities and include them in the true info data.
-	for (auto &identity: identities) {
-		trueInfoData->includeVariable(identity.getName(), identity.getValue());
-	}
+	for (auto& identity : identities) { trueInfoData->includeVariable(identity.getName(), identity.getValue()); }
 
 	// Process bit 0: always present values.
 	ghit->calculateInfosForBit(0);
 	G4ThreeVector avgGlobalPos = ghit->getAvgGlobaPosition();
-	G4ThreeVector avgLocalPos = ghit->getAvgLocalPosition();
+	G4ThreeVector avgLocalPos  = ghit->getAvgLocalPosition();
 
 	trueInfoData->includeVariable("totalEDeposited", ghit->getTotalEnergyDeposited());
 	trueInfoData->includeVariable("avgTime", ghit->getAverageTime());
@@ -72,24 +72,22 @@ GTrueInfoData *GDynamicDigitization::collectTrueInformationImpl(GHit *ghit, size
  * \param ghit Pointer to the GHit.
  * \param gdata Pointer to the GDigitizedData.
  */
-void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, GHit *ghit, GDigitizedData *gdata) {
+void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, const std::unique_ptr<GHit>& ghit, GDigitizedData& gdata) {
 	check_if_log_defined();
 	// Exit if translation table is not defined.
-	if (translationTable == nullptr) {
-		tt_logger->error(EC__TTNOTFOUNDINTT, "Translation Table not found");
-	} else {
+	if (translationTable == nullptr) { tt_logger->error(EC__TTNOTFOUNDINTT, "Translation Table not found"); }
+	else {
 		// Obtain the hardware address (crate, slot, channel) from the translation table.
 		std::vector<int> haddress = translationTable->getElectronics(ghit->getTTID()).getHAddress();
 		// Exit if the hardware address is not properly initialized.
-		if (haddress.front() == UNINITIALIZEDNUMBERQUANTITY) {
-			tt_logger->error(EC__GIDENTITYNOTFOUNDINTT, "Translation Table found, but haddress was not initialized");
-		} else {
+		if (haddress.front() == UNINITIALIZEDNUMBERQUANTITY) { tt_logger->error(EC__GIDENTITYNOTFOUNDINTT, "Translation Table found, but haddress was not initialized"); }
+		else {
 			// Include hardware address, time, and charge into the digitized data.
-			gdata->includeVariable(CRATESTRINGID, haddress[0]);
-			gdata->includeVariable(SLOTSTRINGID, haddress[1]);
-			gdata->includeVariable(CHANNELSTRINGID, haddress[2]);
-			gdata->includeVariable(TIMEATELECTRONICS, time);
-			gdata->includeVariable(CHARGEATELECTRONICS, q);
+			gdata.includeVariable(CRATESTRINGID, haddress[0]);
+			gdata.includeVariable(SLOTSTRINGID, haddress[1]);
+			gdata.includeVariable(CHANNELSTRINGID, haddress[2]);
+			gdata.includeVariable(TIMEATELECTRONICS, time);
+			gdata.includeVariable(CHARGEATELECTRONICS, q);
 		}
 	}
 }
@@ -101,11 +99,7 @@ void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, GHit *ghit, 
  *
  * \param touchableNames A vector of touchable names.
  */
-GTouchableModifiers::GTouchableModifiers(std::vector<std::string> touchableNames) {
-	for (auto tname : touchableNames) {
-		modifierWeightsMap[tname] = {};
-	}
-}
+GTouchableModifiers::GTouchableModifiers(const std::vector<std::string>& touchableNames) { for (const auto& tname : touchableNames) { modifierWeightsMap[tname] = {}; } }
 
 /**
  * \brief Inserts an (id, weight) pair for a given touchable.
@@ -114,7 +108,7 @@ GTouchableModifiers::GTouchableModifiers(std::vector<std::string> touchableNames
  * \param idValue The identifier value.
  * \param weight The weight.
  */
-void GTouchableModifiers::insertIdAndWeight(std::string touchableName, int idValue, double weight) {
+void GTouchableModifiers::insertIdAndWeight(const std::string& touchableName, int idValue, double weight) {
 	modifierWeightsMap[touchableName].push_back(idValue);
 	modifierWeightsMap[touchableName].push_back(weight);
 }
@@ -127,7 +121,7 @@ void GTouchableModifiers::insertIdAndWeight(std::string touchableName, int idVal
  * \param weight The weight.
  * \param time The time.
  */
-void GTouchableModifiers::insertIdWeightAndTime(std::string touchableName, int idValue, double weight, double time) {
+void GTouchableModifiers::insertIdWeightAndTime(const std::string& touchableName, int idValue, double weight, double time) {
 	modifierWeightsAndTimesMap[touchableName].push_back(idValue);
 	modifierWeightsAndTimesMap[touchableName].push_back(weight);
 	modifierWeightsAndTimesMap[touchableName].push_back(time);
@@ -143,11 +137,9 @@ void GTouchableModifiers::insertIdWeightAndTime(std::string touchableName, int i
  * \param tname The touchable name.
  * \param totalWeight The total weight to use for normalization.
  */
-void GTouchableModifiers::assignOverallWeight(std::string tname, double totalWeight) {
+void GTouchableModifiers::assignOverallWeight(const std::string& tname, double totalWeight) {
 	size_t countWeights = modifierWeightsMap[tname].size() / 2;
-	for (size_t h = 0; h < countWeights; h++) {
-		modifierWeightsMap[tname][h * 2 + 1] = modifierWeightsMap[tname][h * 2 + 1] / totalWeight;
-	}
+	for (size_t h = 0; h < countWeights; h++) { modifierWeightsMap[tname][h * 2 + 1] = modifierWeightsMap[tname][h * 2 + 1] / totalWeight; }
 	size_t countWeightsAndTimes = modifierWeightsAndTimesMap[tname].size() / 3; // Triplets: (id, weight, time)
 	for (size_t h = 0; h < countWeightsAndTimes; h++) {
 		// Normalize the weight in each triplet (index: h*3 + 1).
@@ -164,7 +156,7 @@ void GTouchableModifiers::assignOverallWeight(std::string tname, double totalWei
  * \param thisStep Pointer to the current G4Step.
  * \return The global time.
  */
-double GDynamicDigitization::processStepTimeImpl([[maybe_unused]] GTouchable *gTouchID, [[maybe_unused]] G4Step *thisStep) {
+double GDynamicDigitization::processStepTimeImpl([[maybe_unused]] const std::unique_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep) {
 	return thisStep->GetPostStepPoint()->GetGlobalTime();
 }
 
@@ -179,16 +171,28 @@ double GDynamicDigitization::processStepTimeImpl([[maybe_unused]] GTouchable *gT
  * \param thisStep Pointer to the current G4Step.
  * \return A vector of GTouchable pointers.
  */
-std::vector<GTouchable *> GDynamicDigitization::processTouchableImpl(GTouchable *gTouchID, G4Step *thisStep) {
-	double stepTimeAtElectronics = processStepTime(gTouchID, thisStep);
-	double stepTimeAtElectronicsIndex = readoutSpecs->timeCellIndex(stepTimeAtElectronics);
+std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processTouchableImpl(std::unique_ptr<GTouchable> gTouchID, G4Step* thisStep) {
+	double stepTimeAtElectronics      = processStepTime(gTouchID, thisStep);
+	int    stepTimeAtElectronicsIndex = readoutSpecs->timeCellIndex(stepTimeAtElectronics);
 	if (stepTimeAtElectronicsIndex == gTouchID->getStepTimeAtElectronicsIndex() ||
-		gTouchID->getStepTimeAtElectronicsIndex() == GTOUCHABLEUNSETTIMEINDEX) {
+	    gTouchID->getStepTimeAtElectronicsIndex() == GTOUCHABLEUNSETTIMEINDEX) {
 		gTouchID->assignStepTimeAtElectronicsIndex(stepTimeAtElectronicsIndex);
-		return {gTouchID};
-	} else {
+
+		// std::initializer_list requires copyable elements so we need to create the vector first
+		std::vector<std::unique_ptr<GTouchable>> result;
+		result.emplace_back(std::move(gTouchID));
+		return result;
+	}
+	else {
 		// Create a new GTouchable with the updated time index.
-		return {gTouchID, new GTouchable(gTouchID, stepTimeAtElectronicsIndex)};
+		auto cloned = std::make_unique<GTouchable>(gTouchID, stepTimeAtElectronicsIndex);
+
+		// release ownership of the original touchable and return both.
+		// std::initializer_list requires copyable elements so we need to create the vector first
+		std::vector<std::unique_ptr<GTouchable>> result;
+		result.emplace_back(std::move(gTouchID));
+		result.emplace_back(std::move(cloned));
+		return result;
 	}
 }
 
@@ -201,8 +205,10 @@ std::vector<GTouchable *> GDynamicDigitization::processTouchableImpl(GTouchable 
  * \param gmods A GTouchableModifiers object.
  * \return An empty vector of GTouchable pointers.
  */
-std::vector<GTouchable *> GDynamicDigitization::processGTouchableModifiersImpl([[maybe_unused]] GTouchable *gTouchID,
-																		   [[maybe_unused]] GTouchableModifiers gmods) {
-	std::vector<GTouchable *> touchables;
+// TODO: are we using this anywhere? pass readonly touchId or move it?
+std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processGTouchableModifiersImpl([[maybe_unused]] const std::unique_ptr<GTouchable>& gTouchID,
+                                                                                              [[maybe_unused]] GTouchableModifiers                gmods) {
+	std::vector<std::unique_ptr<GTouchable>> touchables;
+
 	return touchables;
 }

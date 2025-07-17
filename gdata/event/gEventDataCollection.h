@@ -68,6 +68,7 @@ public:
 
 
 	static std::unique_ptr<GEventDataCollection> create(std::shared_ptr<GLogger> logger) {
+
 		auto header = GEventHeader::create(logger);
 
 		auto digi_data = GDigitizedData::create(logger);
