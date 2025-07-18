@@ -2,7 +2,7 @@
 #include "eventDispenser_options.h"
 
 // gemc
-#include "gutsConventions.h"
+#include "gdynamicdigitization_options.h"
 
 // namespace to define options
 namespace eventDispenser {
@@ -43,6 +43,8 @@ GOptions defineOptions() {
 	// help = "By default gemc writes one output file / thread. If the 'stream' swith is enabled, .\n \n";
 	// help += "Example: -n_event_buffer=12\n";
 	// goptions.defineOption(GVariable("n_event_buffer", 0, "Buffer events and write them out in one file"), help);
+
+	goptions += gdynamicdigitization::defineOptions();
 
 
 	return goptions;

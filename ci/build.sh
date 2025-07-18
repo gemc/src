@@ -35,6 +35,14 @@ echo " > $GEMC recursive content:"
 ls -lR $GEMC || exit 1
 
 echo
+
+# if $1 is NOT one of sanitize option, run meson test
+if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
+    echo " > Running meson test"
+    meson test -v -j 1 || exit 1
+fi
+
+echo
 echo " ldd of $GEMC/bin/gemc:"
 
 # if on unix, use ldd , if on mac, use otool -L
@@ -43,14 +51,3 @@ if [[ "$(uname)" == "Darwin" ]]; then
 else
   ldd $GEMC/bin/gemc || exit 1
 fi
-
-
-
-echo
-
-# if $1 is NOT one of sanitize option, run meson test
-if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
-    echo " > Running meson test"
-    meson test -v -j 1 || exit 1
-fi
-

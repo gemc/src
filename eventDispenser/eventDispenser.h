@@ -21,9 +21,9 @@ public:
 	 * \brief Constructs an EventDispenser.
 	 *
 	 * \param gopt Pointer to a GOptions object containing configuration parameters.
-	 * \param gDDGlobal Pointer to a map of GDynamicDigitization plugins keyed by a string.
+	 * \param gdynamicDigitizationMap unordered_map<std::string, shared_ptr<GDynamicDigitization>>
 	 */
-	EventDispenser(GOptions *gopt, std::map<std::string, GDynamicDigitization *> *gDDGlobal);
+	EventDispenser(GOptions *gopt, std::shared_ptr<const gdynamicdigitization::dRoutinesMap> gdynamicDigitizationMap);
 
 	/**
 	 * \brief Destructor for EventDispenser.
@@ -42,7 +42,7 @@ private:
 	int userRunno;         ///< User-defined run number.
 	int nEventBuffer;      ///< Number of events stored in the buffer.
 	int currentRunno = -1; ///< Current run number being processed.
-	int elog{};              ///< Logging level for events.
+	// int elog{};              ///< Logging level for events.
 	std::string variation; ///< Variation string for configuration.
 
 	// Internal data structures:
@@ -59,7 +59,7 @@ private:
 
 	int currentRunIndex{}; ///< Index for the current run in listOfRuns.
 
-	std::map<std::string, GDynamicDigitization *> *gDigitizationGlobal; ///< Pointer to global dynamic digitization plugins.
+	 std::shared_ptr<const gdynamicdigitization::dRoutinesMap> gDigitizationMap; ///< map of shared pointers to GDynamicDigitization plugins.
 
 	/**
 	 * \brief Increments the current run index.
@@ -79,14 +79,14 @@ public:
 	 *
 	 * \return The current run number from the list of runs.
 	 */
-	int getCurrentRun() const { return listOfRuns[currentRunIndex]; }
+	[[nodiscard]] int getCurrentRun() const { return listOfRuns[currentRunIndex]; }
 
 	/**
 	 * \brief Computes and returns the total number of events across all runs.
 	 *
 	 * \return The sum of events across all runs.
 	 */
-	int getTotalNumberOfEvents();
+	int getTotalNumberOfEvents() const;
 
 	/**
 	 * \brief Processes events by initializing dynamic digitization plugins and running simulations.

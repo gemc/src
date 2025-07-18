@@ -2,7 +2,6 @@
 
 
 bool GPlugin_test_example::defineReadoutSpecsImpl() {
-	check_if_log_defined();
 
 	double timeWindow    = 10;                     // electronic readout time-window of the detector
 	double gridStartTime = 0;                      // defines the window grid
@@ -15,6 +14,7 @@ bool GPlugin_test_example::defineReadoutSpecsImpl() {
 
 
 bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] std::string const& variation) {
+
 	var1    = 2.0;
 	var2[0] = 1;
 	var2[0] = 2;
@@ -31,6 +31,29 @@ bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] std::st
 
 	return true;
 }
+
+
+bool GPlugin_test_example::loadTTImpl(int runno, [[maybe_unused]] std::string const& variation) {
+
+	std::vector<int> element1 = {1, 2, 3, 4, 5};
+	std::vector<int> element2 = {2, 2, 3, 4, 5};
+
+	GElectronic crate1(2, 1, 3, 2);
+	GElectronic crate2(2, 1, 4, 2);
+
+	translationTable = std::make_shared<GTranslationTable>(tt_logger);
+
+	translationTable->addGElectronicWithIdentity(element1, crate1);
+	translationTable->addGElectronicWithIdentity(element2, crate2);
+
+	GElectronic retrievedElectronic = translationTable->getElectronics(element1);
+
+	tt_logger->info(0, "Retrieved electronic: ", retrievedElectronic);
+
+	return true;
+}
+
+
 
 [[nodiscard]] std::unique_ptr<GDigitizedData> GPlugin_test_example::digitizeHitImpl(const std::unique_ptr<GHit>& ghit, [[maybe_unused]] size_t hitn) {
 	// return a new GDigitizedData object with some data derived from the hit

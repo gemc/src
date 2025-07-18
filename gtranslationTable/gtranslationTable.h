@@ -23,7 +23,7 @@ public:
 	 * \brief Constructor.
 	 * \param logger Pointer to a logger instance for logging messages.
 	 */
-	explicit GTranslationTable(std::shared_ptr<GLogger> logger) : log(std::move(logger)) {
+	explicit GTranslationTable(std::shared_ptr<GLogger> logger) : log(logger) {
 		log->debug(CONSTRUCTOR, "GTranslationTable");
 	}
 

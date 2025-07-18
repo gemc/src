@@ -32,6 +32,7 @@
 // c++
 #include <fstream>
 #include <random>
+#include <utility>
 
 // geant4
 #include "G4UImanager.hh"
@@ -42,15 +43,14 @@ using namespace std;
 // Constructor: Initializes the EventDispenser using options from GOptions and a pointer to the global
 // GDynamicDigitization plugins map.
 //
-EventDispenser::EventDispenser(GOptions *gopt, map<string, GDynamicDigitization *> *gDDGlobal)
-		: log(std::make_shared<GLogger>(gopt, EVENTDISPENSER_LOGGER, "EventDispenser")) , gDigitizationGlobal(gDDGlobal) {
-
+EventDispenser::EventDispenser(GOptions* gopt, std::shared_ptr<const gdynamicdigitization::dRoutinesMap> gdynamicDigitizationMap)
+	: log(std::make_shared<GLogger>(gopt, EVENTDISPENSER_LOGGER, "EventDispenser")), gDigitizationMap(gdynamicDigitizationMap) {
 	log->debug(CONSTRUCTOR, "EventDispenser");
 
 	// Retrieve configuration parameters from GOptions.
-	string filename = gopt->getScalarString("run_weights");
-	userRunno = gopt->getScalarInt("run");
-	nEventBuffer = gopt->getScalarInt("n_event_buffer");
+	string filename  = gopt->getScalarString("run_weights");
+	userRunno        = gopt->getScalarInt("run");
+	nEventBuffer     = gopt->getScalarInt("n_event_buffer");
 	neventsToProcess = gopt->getScalarInt("n");
 
 	// If there are no events to process, nothing more to do.
@@ -61,21 +61,21 @@ EventDispenser::EventDispenser(GOptions *gopt, map<string, GDynamicDigitization 
 		// Only one run is defined via the option.
 		runEvents[userRunno] = neventsToProcess;
 		return;
-	} else {
+	}
+	else {
 		// A filename was specified; attempt to open the run weights input file.
 		ifstream in(filename.c_str());
-		if (!in) {
-			log->error(ERR_EVENTDISTRIBUTIONFILENOTFOUND, "Error: can't open run weights input file ", filename, ". Check your spelling. Exiting.");
-		} else {
+		if (!in) { log->error(ERR_EVENTDISTRIBUTIONFILENOTFOUND, "Error: can't open run weights input file ", filename, ". Check your spelling. Exiting."); }
+		else {
 			log->info(1, "Loading run weights from ", filename);
 			// Fill the run weight map by reading each line from the file.
-			int run;
+			int    run;
 			double weight;
 			// Use a robust loop to read pairs from the file.
 			while (in >> run >> weight) {
 				listOfRuns.push_back(run);
 				runWeights[run] = weight;
-				runEvents[run] = 0;
+				runEvents[run]  = 0;
 			}
 			// Distribute the total number of events among the runs according to the weights.
 			distributeEvents(neventsToProcess);
@@ -85,9 +85,7 @@ EventDispenser::EventDispenser(GOptions *gopt, map<string, GDynamicDigitization 
 		// Log summary information.
 		log->info(0, "EventDispenser initialized with ", neventsToProcess, " events distributed among ", runWeights.size(), " runs:");
 		log->info(0, " run\t weight\t  n. events");
-		for (const auto &weight: runWeights) {
-			log->info(0, " ", weight.first, "\t ", weight.second, "\t  ", runEvents[weight.first]);
-		}
+		for (const auto& weight : runWeights) { log->info(0, " ", weight.first, "\t ", weight.second, "\t  ", runEvents[weight.first]); }
 	}
 }
 
@@ -104,11 +102,11 @@ void EventDispenser::setNumberOfEvents(int nevents_to_process) {
 //
 void EventDispenser::distributeEvents(int nevents_to_process) {
 	// Initialize a progress bar for visual feedback.
-	//TextProgressBar bar(50, string(EVENTDISPENSERLOGMSGITEM) + " Distributing events according to run weights ", 0, nevents_to_process);
+	// TextProgressBar bar(50, string(EVENTDISPENSERLOGMSGITEM) + " Distributing events according to run weights ", 0, nevents_to_process);
 
 	// Set up a random number generator.
-	random_device randomDevice;
-	mt19937 generator(randomDevice());
+	random_device               randomDevice;
+	mt19937                     generator(randomDevice());
 	uniform_real_distribution<> randomDistribution(0, 1);
 
 	// Loop over each event and assign it to a run based on the cumulative weight.
@@ -116,25 +114,23 @@ void EventDispenser::distributeEvents(int nevents_to_process) {
 		double randomNumber = randomDistribution(generator);
 
 		double cumulativeWeight = 0;
-		for (const auto &weight: runWeights) {
+		for (const auto& weight : runWeights) {
 			cumulativeWeight += weight.second;
 			if (randomNumber <= cumulativeWeight) {
 				runEvents[weight.first]++;
 				break;
 			}
 		}
-	//	bar.setProgress(i);
+		//	bar.setProgress(i);
 	}
 }
 
 //
 // Sums the number of events assigned to all runs.
 //
-int EventDispenser::getTotalNumberOfEvents() {
+int EventDispenser::getTotalNumberOfEvents() const {
 	int totalEvents = 0;
-	for (auto rEvents: runEvents) {
-		totalEvents += rEvents.second;
-	}
+	for (auto rEvents : runEvents) { totalEvents += rEvents.second; }
 	return totalEvents;
 }
 
@@ -143,26 +139,32 @@ int EventDispenser::getTotalNumberOfEvents() {
 //
 int EventDispenser::processEvents() {
 	// Get the Geant4 UI manager pointer.
-	G4UImanager *g4uim = G4UImanager::GetUIpointer();
+	G4UImanager* g4uim = G4UImanager::GetUIpointer();
+
 	// Set the progress print command based on the elog level.
-	g4uim->ApplyCommand("/run/printProgress " + to_string(elog));
+	// g4uim->ApplyCommand("/run/printProgress " + to_string(elog));
 
 	// Iterate over each run in the run events map.
-	for (auto &run: runEvents) {
+	for (auto& run : runEvents) {
 		int runNumber = run.first;
-		int nevents = run.second;
+		int nevents   = run.second;
 
 		// Load constants and translation table if the run number has changed.
 		if (runNumber != currentRunno) {
-			for (auto [digitizationName, digiRoutine] : (*gDigitizationGlobal)) {
-				log->debug(NORMAL, "Calling ", digitizationName, " loadConstants for run ", runNumber);
+			// read-only loop over the map of shared pointers to GDynamicDigitization
+			// plugin is a const std::string&
+			// routine is a std::shared_ptr<GDynamicDigitization>
+			// *dmap dereferences the shared_ptr to access the underlying const std::unordered_map.
+			for (const auto& [plugin, digiRoutine] : *gDigitizationMap) {
+
+				log->debug(NORMAL, "Calling ", plugin, " loadConstants for run ", runNumber);
 				if (digiRoutine->loadConstants(runNumber, variation) == false) {
-					log->error(ERR_LOADCONSTANTFAIL, "Failed to load constants for ", digitizationName, " for run ", runNumber, " with variation ", variation);
+					log->error(ERR_LOADCONSTANTFAIL, "Failed to load constants for ", plugin, " for run ", runNumber, " with variation ", variation);
 				}
 
-				log->debug(NORMAL, "Calling ", digitizationName, " loadTT for run ", runNumber);
+				log->debug(NORMAL, "Calling ", plugin, " loadTT for run ", runNumber);
 				if (digiRoutine->loadTT(runNumber, variation) == false) {
-					log->error(ERR_LOADTTFAIL, "Failed to load translation table for ", digitizationName, " for run ", runNumber, " with variation ", variation);
+					log->error(ERR_LOADTTFAIL, "Failed to load translation table for ", plugin, " for run ", runNumber, " with variation ", variation);
 				}
 			}
 			currentRunno = runNumber;
@@ -175,12 +177,13 @@ int EventDispenser::processEvents() {
 			log->info(1, "Processing ", nevents, " events in one go");
 			g4uim->ApplyCommand("/run/initialize");
 			g4uim->ApplyCommand("/run/beamOn " + to_string(nevents));
-		} else {
+		}
+		else {
 			// Otherwise, process events in sub-runs.
-			int nsubRuns = nevents / nEventBuffer;
-			int totalSoFar = 0;
+			int nsubRuns          = nevents / nEventBuffer;
+			int totalSoFar        = 0;
 			int lastSubRunNEvents = nevents % nEventBuffer;
-			int ntotalSubRuns = (lastSubRunNEvents > 0 ? nsubRuns + 1 : nsubRuns);
+			int ntotalSubRuns     = (lastSubRunNEvents > 0 ? nsubRuns + 1 : nsubRuns);
 			for (int s = 0; s < nsubRuns; s++) {
 				log->info(1, "Processing sub run ", s + 1, " out of ", ntotalSubRuns, " with ", nEventBuffer, " events. Total events so far: ", totalSoFar);
 				g4uim->ApplyCommand("/run/initialize");

@@ -220,7 +220,7 @@ public:
 	 */
 	[[nodiscard]] bool loadTT([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, "GDynamicDigitization::load Translation Table");
+		digi_logger->debug(NORMAL, "GDynamicDigitization::load Translation Table for run ", runno, " with variation ", variation);
 		return loadTTImpl(runno, variation);
 	}
 

@@ -28,7 +28,8 @@
 #include <map>
 #include <string>
 
-using namespace std;
+
+const std::string plugin_name = "test_gdynamic_plugin";
 
 int main(int argc, char *argv[]) {
 	// Create GOptions using eventDispenser::defineOptions() to aggregate options.
@@ -39,19 +40,17 @@ int main(int argc, char *argv[]) {
 
 	// For demonstration, create an empty global map of dynamic digitization plugins.
 	// In a full simulation, this map would be populated with actual GDynamicDigitization plugins.
-	auto gDynamicMap = new map<string, GDynamicDigitization *>();
+	auto dynamicRoutinesMap = gdynamicdigitization::dynamicRoutinesMap({plugin_name}, gopts);
 
 	// Instantiate the EventDispenser with the GOptions and the global digitization map.
-	EventDispenser eventDisp(gopts, gDynamicMap);
+	EventDispenser eventDisp(gopts, dynamicRoutinesMap);
 
 	// Retrieve and display the run events distribution.
-	map<int, int> runEvents = eventDisp.getRunEvents();
-
+	std::map<int, int> runEvents = eventDisp.getRunEvents();
 	eventDisp.processEvents();
 
 	// Cleanup: delete dynamically allocated objects.
 	delete gopts;
-	delete gDynamicMap;
 
 	return EXIT_SUCCESS;
 }
