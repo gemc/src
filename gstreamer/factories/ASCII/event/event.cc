@@ -2,7 +2,7 @@
 #include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerTextFactory::startEventImpl(const GEventDataCollection* eventData) {
+bool GstreamerTextFactory::startEventImpl([[maybe_unused]]  const std::unique_ptr<GEventDataCollection>& eventData) {
 
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
@@ -13,7 +13,7 @@ bool GstreamerTextFactory::startEventImpl(const GEventDataCollection* eventData)
 }
 
 
-bool GstreamerTextFactory::endEventImpl(const GEventDataCollection* eventData) {
+bool GstreamerTextFactory::endEventImpl([[maybe_unused]]  const std::unique_ptr<GEventDataCollection>& eventData) {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
 	int eventNumber = eventData->getHeader()->getG4LocalEvn();

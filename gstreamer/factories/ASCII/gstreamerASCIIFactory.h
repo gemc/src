@@ -20,17 +20,17 @@ private:
 
 	// event streams
 	// start and end each event
-	bool startEventImpl(const GEventDataCollection* eventData) override;
-	bool endEventImpl(const GEventDataCollection* eventData) override;
+	bool startEventImpl([[maybe_unused]]  const std::unique_ptr<GEventDataCollection>& eventData) override;
+	bool endEventImpl([[maybe_unused]]  const std::unique_ptr<GEventDataCollection>& eventData) override;
 
 	// write the header
-	bool publishEventHeaderImpl(const GEventHeader* gheader) override;
+	bool publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) override;
 
 	// vector index is hit number
-	bool publishEventTrueInfoDataImpl(std::string                        detectorName,
-	                                  const std::vector<GTrueInfoData*>* trueInfoData) override;
-	bool publishEventDigitizedDataImpl(std::string                         detectorName,
-	                                   const std::vector<GDigitizedData*>* digitizedData) override;
+	// bool publishEventTrueInfoDataImpl(std::string                        detectorName,
+	//                                   const std::vector<GTrueInfoData*>* trueInfoData) override;
+	// bool publishEventDigitizedDataImpl(std::string                         detectorName,
+	//                                    const std::vector<GDigitizedData*>* digitizedData) override;
 
 	// frame streams
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;

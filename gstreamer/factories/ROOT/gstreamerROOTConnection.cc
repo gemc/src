@@ -6,7 +6,9 @@
 #include <TFile.h>
 
 bool GstreamerRootFactory::openConnection() {
+
 	log->debug(NORMAL, "GstreamerRootFactory::openConnection -> opening file " + filename());
+
 	rootfile = std::make_unique<TFile>(filename().c_str(), "RECREATE");
 
 	if (rootfile->IsZombie()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: could not create file " + filename() + " (file is a zombie)"); }
@@ -16,19 +18,21 @@ bool GstreamerRootFactory::openConnection() {
 }
 
 bool GstreamerRootFactory::closeConnection() {
-	flushEventBuffer(); // calls base version, or override if needed
+
+	// in case there are still events in the buffer
+	flushEventBuffer(); // base version
 
 	if (rootfile && rootfile->IsOpen()) {
 		rootfile->cd();
-
 		// write all trees to file
-		for (auto& [name, tree] : gRootTrees) { if (tree != nullptr) { tree->writeToFile(); } }
+		for (auto& [name, groottree] : gRootTrees) { if (groottree != nullptr) { groottree->writeToFile(); } }
 
-		rootfile->Write();
-		rootfile->Close();
 	}
-
-	if (rootfile->IsZombie()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is a zombie"); }
+	// 	rootfile->Write();
+	// 	rootfile->Close();
+	// }
+	//
+	// if (rootfile->IsZombie()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is a zombie"); }
 
 	return true;
 }

@@ -42,6 +42,9 @@ if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
     meson test -v -j 1 || exit 1
 fi
 
+# temp exit until gemc build is resumed
+exit
+
 echo
 echo " ldd of $GEMC/bin/gemc:"
 

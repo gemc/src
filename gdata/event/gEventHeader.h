@@ -43,9 +43,13 @@ public:
 	 * \param logger A shared pointer to the logger.
 	 * \return A unique_ptr to the created GEventDataCollectionHeader.
 	 */
-	static std::unique_ptr<GEventHeader> create(std::shared_ptr<GLogger> logger) {
+	static std::unique_ptr<GEventHeader> create(std::shared_ptr<GLogger> logger, int tid = -1) {
 		int eventNumber = globalEventHeaderCounter.fetch_add(1, std::memory_order_relaxed);
-		int threadID    = eventNumber % 3; // Example: cycle through 3 thread IDs
+		int threadID    = tid; // Example: cycle through 3 thread IDs
+		if (threadID < 0) {
+			threadID = eventNumber%8;  // default to 8 threads if not provided
+		}
+
 		return std::make_unique<GEventHeader>(eventNumber, threadID, logger);
 	}
 

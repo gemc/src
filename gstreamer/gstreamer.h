@@ -12,6 +12,9 @@
 
 // c++
 #include <string>
+#include <vector>
+#include <map>
+
 
 class GStreamer {
 
@@ -26,10 +29,11 @@ public:
 	[[nodiscard]] virtual bool closeConnection() { return false; }
 
 	// runs the protected virtual methods below to write events from a run to file
-	void publishEventData(std::shared_ptr<GEventDataCollection> event_data);
+	// release GEventDataCollection ownership to the buffer
+	void publishEventData(std::unique_ptr<GEventDataCollection> event_data);
 
 	// runs the protected virtual methods below to write frames from a run to file
-	void publishFrameRunData(const std::shared_ptr<GLogger>& log, const GFrameDataCollection* frameRunData);
+	void publishFrameRunData(const std::unique_ptr<GFrameDataCollection>& frameRunData);
 
 	[[nodiscard]] inline std::string getStreamType() const { return gstreamer_definitions.type; }
 	inline void define_gstreamer(const GStreamerDefinition& gstreamerDefinition, int tid = -1) { gstreamer_definitions = GStreamerDefinition(gstreamerDefinition, tid); }
@@ -51,8 +55,7 @@ protected:
 	// event virtual methods called by publishRunData, in order
 	// --------------------------------------------------------
 
-	[[nodiscard]] bool startEvent([[maybe_unused]] const GEventDataCollection* eventData) {
-
+	[[nodiscard]] bool startEvent([[maybe_unused]] const std::unique_ptr<GEventDataCollection>& eventData) {
 		if (!eventData) { log->error(ERR_PUBLISH_ERROR, "eventData is null in GStreamer::startEvent"); }
 		if (!eventData->getHeader()) { log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::startEvent"); }
 
@@ -60,44 +63,44 @@ protected:
 		return startEventImpl(eventData);
 	}
 
-	virtual bool startEventImpl([[maybe_unused]] const GEventDataCollection* eventData) { return false; }
+	virtual bool startEventImpl([[maybe_unused]] const std::unique_ptr<GEventDataCollection>& eventData) { return false; }
 
-	[[nodiscard]] bool publishEventHeader([[maybe_unused]] const GEventHeader* gheader) {
+	[[nodiscard]] bool publishEventHeader([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) {
 		if (!gheader) { log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::publishEventHeader"); }
 		log->debug(NORMAL, "GStreamer::publishEventHeader");
 		return publishEventHeaderImpl(gheader);
 	}
 
-	virtual bool publishEventHeaderImpl([[maybe_unused]] const GEventHeader* gheader) { return false; }
+	virtual bool publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) { return false; }
 
 	// vector index is hit number
 
-	[[nodiscard]] bool publishEventTrueInfoData([[maybe_unused]] const std::string&                 detectorName,
-	                                            [[maybe_unused]] const std::vector<GTrueInfoData*>* trueInfoData) {
+	[[nodiscard]] bool publishEventTrueInfoData([[maybe_unused]] const std::string&                                        detectorName,
+	                                            [[maybe_unused]] const std::vector<const std::unique_ptr<GTrueInfoData>&>& trueInfoData) {
 		log->debug(NORMAL, "GStreamer::publishEventTrueInfoData for detector ", detectorName);
 		return publishEventTrueInfoDataImpl(detectorName, trueInfoData);
 	}
 
-	virtual bool publishEventTrueInfoDataImpl([[maybe_unused]] const std::string                  detectorName,
-	                                          [[maybe_unused]] const std::vector<GTrueInfoData*>* trueInfoData) { return false; }
+	virtual bool publishEventTrueInfoDataImpl([[maybe_unused]] const std::string                                         detectorName,
+	                                          [[maybe_unused]] const std::vector<const std::unique_ptr<GTrueInfoData>&>& trueInfoData) { return false; }
 
 
-	[[nodiscard]] bool publishEventDigitizedData([[maybe_unused]] const std::string&                  detectorName,
-	                                             [[maybe_unused]] const std::vector<GDigitizedData*>* digitizedData) {
+	[[nodiscard]] bool publishEventDigitizedData([[maybe_unused]] const std::string&                                         detectorName,
+	                                             [[maybe_unused]] const std::vector<const std::unique_ptr<GDigitizedData>&>& digitizedData) {
 		log->debug(NORMAL, "GStreamer::publishEventDigitizedData for detector ", detectorName);
 		return publishEventDigitizedDataImpl(detectorName, digitizedData);
 	}
 
-	virtual bool publishEventDigitizedDataImpl([[maybe_unused]] const std::string                   detectorName,
-	                                           [[maybe_unused]] const std::vector<GDigitizedData*>* digitizedData) { return false; }
+	virtual bool publishEventDigitizedDataImpl([[maybe_unused]] const std::string                                          detectorName,
+	                                           [[maybe_unused]] const std::vector<const std::unique_ptr<GDigitizedData>&>& digitizedData) { return false; }
 
 
-	[[nodiscard]] bool endEvent([[maybe_unused]] const GEventDataCollection* eventData) {
+	[[nodiscard]] bool endEvent([[maybe_unused]] const std::unique_ptr<GEventDataCollection>& eventData) {
 		log->debug(NORMAL, "GStreamer::endEvent");
 		return endEventImpl(eventData);
 	}
 
-	virtual bool endEventImpl([[maybe_unused]] const GEventDataCollection* eventData) { return false; }
+	virtual bool endEventImpl([[maybe_unused]] const std::unique_ptr<GEventDataCollection>& eventData) { return false; }
 
 	// stream virtual methods
 	[[nodiscard]] bool startStream([[maybe_unused]] const GFrameDataCollection* frameRunData) {
@@ -134,7 +137,8 @@ protected:
 private:
 	[[nodiscard]] virtual std::string filename() const = 0; // must be implemented in derived classes
 
-	std::vector<std::shared_ptr<GEventDataCollection>> eventBuffer;
+	// data ownership is released here
+	std::vector<std::unique_ptr<GEventDataCollection>> eventBuffer;
 	size_t                                             bufferFlushLimit = 10; // default; can be overridden
 
 public:
@@ -162,35 +166,34 @@ public:
 
 namespace gstreamer {
 
+using gstreamersMap = std::unordered_map<std::string, std::shared_ptr<GStreamer>>;
+
+
 // this run in a worker thread, so each thread gets its own map of gstreamers
-inline std::unordered_map<std::string, std::shared_ptr<GStreamer>> gstreamersMap(GOptions* gopts,
-                                                                                 int       thread_id) {
-	auto log = std::make_shared<GLogger>(gopts, GSTREAMER_LOGGER, "gstreamersMap worker for thread id" + std::to_string(thread_id));
+inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(std::shared_ptr<GOptions> gopts,
+                                                             int                       thread_id) {
+	auto log = std::make_shared<GLogger>(gopts.get(), GSTREAMER_LOGGER, "gstreamersMap worker for thread id" + std::to_string(thread_id));
 
 	GManager manager(log);
 
-	std::unordered_map<std::string, std::shared_ptr<GStreamer>> gstreamersMap;
 
-	for (const auto& gstreamer_def : gstreamer::getGStreamerDefinition(gopts)) {
+	auto gstreamers = std::make_shared<gstreamersMap>();
+
+	for (const auto& gstreamer_def : gstreamer::getGStreamerDefinition(gopts.get())) {
 		auto        gstreamer_def_thread = GStreamerDefinition(gstreamer_def, thread_id);
 		std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
 
-		gstreamersMap.emplace(gstreamer_plugin,
-		                      manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts));
+		gstreamers->emplace(gstreamer_plugin,
+		                    manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts.get()));
 
-		gstreamersMap[gstreamer_plugin]->define_gstreamer(gstreamer_def_thread);
-		if (!gstreamersMap[gstreamer_plugin]->openConnection()) {
+		gstreamers->at(gstreamer_plugin)->define_gstreamer(gstreamer_def_thread);
+		if (!gstreamers->at(gstreamer_plugin)->openConnection()) {
 			log->error(1, "Failed to open connection for GStreamer ", gstreamer_plugin, " in thread ", gstreamer_def_thread.tid);
 		}
 	}
 
 
-	// Freeze the map before passing it to worker threads
-	// unordered_map is read-only the entire time the event threads run, and the C ++standard
-	// guarantees that concurrent reads on a const container are safe so long as no thread mutates it
-	const auto gstreamerConstMap = gstreamersMap; // const reference
-
-	return gstreamerConstMap;
+	return gstreamers;
 }
 
 

@@ -11,7 +11,6 @@
 #include "event/gEventDataCollection.h"
 #include "gdata_options.h"
 
-
 // TODO: remove when C++20 is widely available
 // ===== portable jthread-like wrapper =========================================
 // If real std::jthread is present, use it. Otherwise, define a minimal shim
@@ -38,7 +37,7 @@ const std::string plugin_name = "test_gdynamic_plugin";
 auto run_simulation_in_threads(int                                                       nevents,
                                int                                                       nthreads,
                                const std::shared_ptr<GLogger>&                           log,
-                               std::shared_ptr<const gdynamicdigitization::dRoutinesMap> dynamicRoutinesMap) -> std::vector<std::unique_ptr<GEventDataCollection>> {
+                               const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& dynamicRoutinesMap) -> std::vector<std::unique_ptr<GEventDataCollection>> {
 	std::mutex                                         collectorMtx;
 	std::vector<std::unique_ptr<GEventDataCollection>> collected;
 
@@ -56,7 +55,7 @@ auto run_simulation_in_threads(int                                              
 	pool.reserve(nthreads);
 
 	for (int tid = 0; tid < nthreads; ++tid) {
-		// The capture [&, tid] gives the thread references to variables like next, nevents, runDataMtx, etc.
+		// The capture [&, tid] gives the thread references to variables like tid
 		pool.emplace_back([&, tid] // capture tid *by value*
 		{
 			// start thread with a lambda
@@ -95,7 +94,11 @@ auto run_simulation_in_threads(int                                              
 			// braces to locks the mutex when it's constructed and unlocks when it is destroyed
 			{
 				std::scoped_lock lk(collectorMtx);
-				for (auto& evt : localRunData) { collected.emplace_back(std::move(evt)); }
+				for (auto& evt : localRunData) {
+					// only collect 2 events total so that the log doesn't go crazy with the destructor
+					if (collected.size() >= 2) break;
+					collected.emplace_back(std::move(evt));
+				}
 				localRunData.clear();
 			}
 

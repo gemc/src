@@ -1,8 +1,7 @@
 // gstreamer
 #include "../gstreamerROOTFactory.h"
 
-bool GstreamerRootFactory::startEventImpl(const GEventDataCollection* eventData) {
-
+bool GstreamerRootFactory::startEventImpl([[maybe_unused]]  const std::unique_ptr<GEventDataCollection>& eventData) {
 
 	log->info(2, "Start of event ", eventData->getHeader()->getG4LocalEvn(),
 	          " in ", filename(), ": initializing trees");
@@ -11,7 +10,7 @@ bool GstreamerRootFactory::startEventImpl(const GEventDataCollection* eventData)
 }
 
 
-bool GstreamerRootFactory::endEventImpl(const GEventDataCollection* eventData) {
+bool GstreamerRootFactory::endEventImpl([[maybe_unused]]  const std::unique_ptr<GEventDataCollection>& eventData) {
 
 	log->info(2, "End of event ", eventData->getHeader()->getG4LocalEvn(), " in ", filename());
 
