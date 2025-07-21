@@ -37,7 +37,7 @@ public:
 	 * \brief Returns a string representation of the hit identity.
 	 * \return A string representing the identity.
 	 */
-	std::string getIdentityString();
+	std::string getIdentityString() const;
 
 	// Public interface to add data to a hit:
 	void includeVariable(const std::string& vname, int value);

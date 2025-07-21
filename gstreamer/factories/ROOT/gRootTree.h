@@ -35,8 +35,8 @@ public:
 
 	// filling trees
 	bool fillTree(const std::unique_ptr<GEventHeader>& gheader);
-	// bool fillTree(const std::vector<GTrueInfoData*>* trueInfoData);
-	// bool fillTree(const std::vector<GDigitizedData*>* digitizedData);
+	bool fillTree(const std::vector<const GTrueInfoData*>& trueInfoData);
+	bool fillTree(const std::vector<const GDigitizedData*>& digitizedData);
 
 private:
 	std::unique_ptr<TTree> root_tree;

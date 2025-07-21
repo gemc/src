@@ -27,10 +27,8 @@ private:
 	bool publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) override;
 
 	// vector index is hit number
-	// bool publishEventTrueInfoDataImpl(std::string                        detectorName,
-	//                                   const std::vector<GTrueInfoData*>* trueInfoData) override;
-	// bool publishEventDigitizedDataImpl(std::string                         detectorName,
-	//                                    const std::vector<GDigitizedData*>* digitizedData) override;
+	bool publishEventTrueInfoDataImpl(const std::string& detectorName, const std::vector<const GTrueInfoData*>& trueInfoData) override;
+	bool publishEventDigitizedDataImpl(const std::string& detectorName, const std::vector<const GDigitizedData*>& digitizedData) override;
 
 	// frame streams
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;

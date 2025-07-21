@@ -36,7 +36,7 @@ public:
 	 * \brief Returns a string representation of the identity.
 	 * \return A string representing the hit identity.
 	 */
-	std::string getIdentityString();
+	std::string getIdentityString() const;
 
 	/**
 	 * \brief Includes a double variable in the true hit data.

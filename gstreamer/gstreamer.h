@@ -28,7 +28,7 @@ public:
 
 	[[nodiscard]] bool closeConnection() {
 		flushEventBuffer();
-		closeConnectionImpl();
+		return closeConnectionImpl();
 	}
 
 	[[nodiscard]] virtual bool closeConnectionImpl() { return false; }
@@ -78,14 +78,13 @@ protected:
 	virtual bool publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) { return false; }
 
 	// vector index is hit number
-
 	[[nodiscard]] bool publishEventTrueInfoData([[maybe_unused]] const std::string&                       detectorName,
 	                                            [[maybe_unused]] const std::vector<const GTrueInfoData*>& trueInfoData) {
 		log->debug(NORMAL, "GStreamer::publishEventTrueInfoData for detector ", detectorName);
 		return publishEventTrueInfoDataImpl(detectorName, trueInfoData);
 	}
 
-	virtual bool publishEventTrueInfoDataImpl([[maybe_unused]] const std::string                        detectorName,
+	virtual bool publishEventTrueInfoDataImpl([[maybe_unused]] const std::string&                       detectorName,
 	                                          [[maybe_unused]] const std::vector<const GTrueInfoData*>& trueInfoData) { return false; }
 
 
@@ -95,7 +94,7 @@ protected:
 		return publishEventDigitizedDataImpl(detectorName, digitizedData);
 	}
 
-	virtual bool publishEventDigitizedDataImpl([[maybe_unused]] const std::string                         detectorName,
+	virtual bool publishEventDigitizedDataImpl([[maybe_unused]] const std::string&                        detectorName,
 	                                           [[maybe_unused]] const std::vector<const GDigitizedData*>& digitizedData) { return false; }
 
 
@@ -175,8 +174,8 @@ using gstreamersMap = std::unordered_map<std::string, std::shared_ptr<GStreamer>
 
 
 // this run in a worker thread, so each thread gets its own map of gstreamers
-inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(std::shared_ptr<GOptions> gopts,
-                                                             int                       thread_id) {
+inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_ptr<GOptions>& gopts,
+                                                             int                              thread_id) {
 	auto log = std::make_shared<GLogger>(gopts.get(), GSTREAMER_LOGGER, "gstreamersMap worker for thread id" + std::to_string(thread_id));
 
 	GManager manager(log);

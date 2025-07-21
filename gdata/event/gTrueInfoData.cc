@@ -24,7 +24,7 @@ void GTrueInfoData::includeVariable(const std::string& varName, std::string var)
 	trueInfoStringVariablesMap[varName] = std::move(var);
 }
 
-std::string GTrueInfoData::getIdentityString() {
+std::string GTrueInfoData::getIdentityString() const  {
 	std::string identifierString;
 	for (size_t i = 0; i < gidentity.size() - 1; i++) { identifierString += gidentity[i].getName() + "->" + std::to_string(gidentity[i].getValue()) + ", "; }
 	identifierString += gidentity.back().getName() + "->" + std::to_string(gidentity.back().getValue());

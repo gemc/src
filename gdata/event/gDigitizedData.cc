@@ -70,7 +70,7 @@ double GDigitizedData::getDblObservable(const std::string& varName) {
 	return doubleObservablesMap[varName];
 }
 
-std::string GDigitizedData::getIdentityString() {
+std::string GDigitizedData::getIdentityString() const {
 	std::string identifierString;
 	for (size_t i = 0; i < gidentity.size() - 1; i++) { identifierString += gidentity[i].getName() + "->" + std::to_string(gidentity[i].getValue()) + ", "; }
 	identifierString += gidentity.back().getName() + "->" + std::to_string(gidentity.back().getValue());

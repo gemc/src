@@ -31,13 +31,26 @@ void GStreamer::flushEventBuffer() {
 		log->info(2, "GStreamer::publishEventData->publishEventHeader -> ",
 		          gutilities::success_or_fail(publishEventHeader(eventData->getHeader())));
 
-		// //
-		// // for (auto& [detectorName, gDataCollection] : *event->getDataCollectionMap()) {
-		// // 	log->info(2, "GStreamer::publishEventData->publishEventTrueInfoData for detector -> ", detectorName,
-		// // 		gutilities::success_or_fail(gDataCollection->getTrueInfoData() ) );
-		// // 	log->info(2, "GStreamer::publishEventData->publishEventDigitizedData for detector -> ", detectorName,
-		// // 		gutilities::success_or_fail(gDataCollection->getDigitizedData() ) );
-		// // }
+
+		for (const auto& [detectorName, gDataCollection] : eventData->getDataCollectionMap()) {
+			const GDataCollection* tdptr = gDataCollection.get();
+
+			// extract the vector of raw pointers to publish
+			std::vector<const GTrueInfoData*>  trueInfoPtrs;
+			std::vector<const GDigitizedData*> digitizedPtrs;
+			trueInfoPtrs.reserve(tdptr->getTrueInfoData().size());
+			digitizedPtrs.reserve(tdptr->getDigitizedData().size());
+
+			for (const auto& hit : tdptr->getTrueInfoData()) { trueInfoPtrs.push_back(hit.get()); }
+			for (const auto& hit : tdptr->getDigitizedData()) { digitizedPtrs.push_back(hit.get()); }
+
+
+			log->info(2, "GStreamer::publishEventData->publishEventTrueInfoData for detector -> ", detectorName,
+			          gutilities::success_or_fail(publishEventTrueInfoData(detectorName, trueInfoPtrs)));
+
+			log->info(2, "GStreamer::publishEventData->publishEventDigitizedData for detector -> ", detectorName,
+			          gutilities::success_or_fail(publishEventDigitizedData(detectorName, digitizedPtrs)));
+		}
 
 		log->info(2, "GStreamer::endEvent -> ", gutilities::success_or_fail(endEvent(eventData)));
 	}
