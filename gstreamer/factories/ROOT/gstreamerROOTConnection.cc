@@ -5,8 +5,8 @@
 // root
 #include <TFile.h>
 
+// thread local
 bool GstreamerRootFactory::openConnection() {
-
 	log->debug(NORMAL, "GstreamerRootFactory::openConnection -> opening file " + filename());
 
 	rootfile = std::make_unique<TFile>(filename().c_str(), "RECREATE");
@@ -17,22 +17,11 @@ bool GstreamerRootFactory::openConnection() {
 	return true;
 }
 
-bool GstreamerRootFactory::closeConnection() {
+bool GstreamerRootFactory::closeConnectionImpl() {
 
-	// in case there are still events in the buffer
-	flushEventBuffer(); // base version
-
-	if (rootfile && rootfile->IsOpen()) {
-		rootfile->cd();
-		// write all trees to file
-		for (auto& [name, groottree] : gRootTrees) { if (groottree != nullptr) { groottree->writeToFile(); } }
-
-	}
-	// 	rootfile->Write();
-	// 	rootfile->Close();
-	// }
-	//
-	// if (rootfile->IsZombie()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is a zombie"); }
+	rootfile->Write();
+	gRootTrees.clear(); // clear all trees to detach from the file. W/o this we have crash on exit
+	rootfile->Close();
 
 	return true;
 }

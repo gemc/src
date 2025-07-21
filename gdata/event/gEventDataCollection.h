@@ -67,14 +67,15 @@ public:
 	[[nodiscard]] inline int getEventNumber() const { return gheader->getG4LocalEvn(); }
 
 
-	static std::unique_ptr<GEventDataCollection> create(std::shared_ptr<GLogger> logger) {
+	// returning shared here as GEventDataCollection may be used by multiple streams and also collected in a runData vector
+	static std::shared_ptr<GEventDataCollection> create(std::shared_ptr<GLogger> logger) {
 
 		auto header = GEventHeader::create(logger);
 
 		auto digi_data = GDigitizedData::create(logger);
 		auto true_data = GTrueInfoData::create(logger);
 
-		auto edc = std::make_unique<GEventDataCollection>(std::move(header), logger);
+		auto edc = std::make_shared<GEventDataCollection>(std::move(header), logger);
 		edc->addDetectorDigitizedData("ctof", std::move(digi_data));
 		edc->addDetectorTrueInfoData("ctof", std::move(true_data));
 

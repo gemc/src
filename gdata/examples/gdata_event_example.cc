@@ -54,9 +54,9 @@ public:
 
 auto run_simulation_in_threads(int                             nevents,
                                int                             nthreads,
-                               const std::shared_ptr<GLogger>& log) -> std::vector<std::unique_ptr<GEventDataCollection>> {
+                               const std::shared_ptr<GLogger>& log) -> std::vector<std::shared_ptr<GEventDataCollection>> {
 	std::mutex                                         collectorMtx;
-	std::vector<std::unique_ptr<GEventDataCollection>> collected;
+	std::vector<std::shared_ptr<GEventDataCollection>> collected;
 
 	// thread-safe integer counter starts at 1.
 	// fetch_add returns the old value *and* bumps.
@@ -79,7 +79,7 @@ auto run_simulation_in_threads(int                             nevents,
 			log->info(0, "worker ", tid, " started");
 
 			int                                                             localCount = 0; // events built by *this* worker
-			thread_local std::vector<std::unique_ptr<GEventDataCollection>> localRunData;
+			thread_local std::vector<std::shared_ptr<GEventDataCollection>> localRunData;
 
 			while (true) {
 				// repeatedly asks the shared atomic counter for “the next unclaimed event
@@ -89,14 +89,15 @@ auto run_simulation_in_threads(int                             nevents,
 				if (evn > nevents) break;                               // exit the while loop
 
 				auto event_data_collection = GEventDataCollection::create(log);
-				localRunData.emplace_back(std::move(event_data_collection));
+				localRunData.emplace_back(event_data_collection);
+
 				++localCount; // tally for this worker
 			}
 
 			// braces to locks the mutex when it's constructed and unlocks when it is destroyed
 			{
 				std::scoped_lock lk(collectorMtx);
-				for (auto& evt : localRunData) { collected.emplace_back(std::move(evt)); }
+				for (auto& evt : localRunData) { collected.emplace_back(evt); }
 				localRunData.clear();
 			}
 

@@ -13,26 +13,17 @@ public:
 
 	~GstreamerRootFactory() override {
 		if (log) log->debug(NORMAL, "~GstreamerRootFactory");
-
-		try {
-			log->debug(NORMAL, "~GstreamerRootFactory: clearing gRootTrees");
-			gRootTrees.clear();  // explicitly clear before destructor
-		} catch (const std::exception& e) {
-			std::cerr << "Exception in ~GstreamerRootFactory(): " << e.what() << std::endl;
-		} catch (...) {
-			std::cerr << "Unknown exception in ~GstreamerRootFactory()" << std::endl;
-		}
 	}
 
 private:
 	// open and close the output media
 	bool openConnection() override;
-	bool closeConnection() override;
+	bool closeConnectionImpl() override;
 
 	// event streams
 	// start and end each event
-	bool startEventImpl([[maybe_unused]] const std::unique_ptr<GEventDataCollection>& eventData) override;
-	bool endEventImpl([[maybe_unused]] const std::unique_ptr<GEventDataCollection>& eventData) override;
+	bool startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) override;
+	bool endEventImpl([[maybe_unused]]const std::shared_ptr<GEventDataCollection>& event_data) override;
 
 	// write the header
 	bool publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) override;

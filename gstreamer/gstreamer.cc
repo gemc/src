@@ -13,27 +13,23 @@ bool GStreamer::is_valid_format(const std::string& format) {
 }
 
 // pragma todo: pass someting like map<string, bitset> to each detector to decide which data to publish
-void GStreamer::publishEventData(std::unique_ptr<GEventDataCollection> event_data) {
-
-	// release ownership to the buffer
-	eventBuffer.emplace_back(std::move(event_data));
-
-	if (eventBuffer.size() >= bufferFlushLimit) {
-		flushEventBuffer();
-	}
-
+void GStreamer::publishEventData(const std::shared_ptr<GEventDataCollection>& event_data) {
+	// add to the buffer
+	eventBuffer.emplace_back(event_data);
+	// flush if the buffer is full
+	if (eventBuffer.size() >= bufferFlushLimit) { flushEventBuffer(); }
 }
 
 void GStreamer::flushEventBuffer() {
 	log->info(2, "GStreamer::flushEventBuffer -> flushing ", eventBuffer.size(), " events to file");
 
 	// events are read only by the streamer
-	for (const auto& event : eventBuffer) {
+	for (const auto& eventData : eventBuffer) {
 		log->info(2, "GStreamer::publishEventData->startEvent: ",
-				  gutilities::success_or_fail(startEvent( event )));
+		          gutilities::success_or_fail(startEvent(eventData)));
 
 		log->info(2, "GStreamer::publishEventData->publishEventHeader -> ",
-				  gutilities::success_or_fail(publishEventHeader(event->getHeader())));
+		          gutilities::success_or_fail(publishEventHeader(eventData->getHeader())));
 
 		// //
 		// // for (auto& [detectorName, gDataCollection] : *event->getDataCollectionMap()) {
@@ -43,15 +39,14 @@ void GStreamer::flushEventBuffer() {
 		// // 		gutilities::success_or_fail(gDataCollection->getDigitizedData() ) );
 		// // }
 
-
-		// log->info(2, "GStreamer::endEvent -> ", gutilities::success_or_fail(endEvent(event)));
+		log->info(2, "GStreamer::endEvent -> ", gutilities::success_or_fail(endEvent(eventData)));
 	}
+
 	eventBuffer.clear();
 }
 
 // stream an individual frame
-void GStreamer::publishFrameRunData(const std::unique_ptr<GFrameDataCollection>& frameRunData) {
-
+void GStreamer::publishFrameRunData(const std::shared_ptr<GFrameDataCollection>& frameRunData) {
 	// TODO: add more infor like frame number or number of entries in paylod
 
 	// log->info(2, "GStreamer::publishFrameRunData:  ",
@@ -62,5 +57,4 @@ void GStreamer::publishFrameRunData(const std::unique_ptr<GFrameDataCollection>&
 	// 	gutilities::success_or_fail(publishPayload(frameRunData->getIntegralPayload())));
 	// log->info(2, "GStreamer::endStream:  ",
 	// 	gutilities::success_or_fail(endStream(frameRunData)));
-
 }

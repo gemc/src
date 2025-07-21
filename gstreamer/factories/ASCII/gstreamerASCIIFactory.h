@@ -16,12 +16,12 @@ public:
 private:
 	// open and close the output media
 	bool openConnection() override;
-	bool closeConnection() override;
+	bool closeConnectionImpl() override;
 
 	// event streams
 	// start and end each event
-	bool startEventImpl([[maybe_unused]]  const std::unique_ptr<GEventDataCollection>& eventData) override;
-	bool endEventImpl([[maybe_unused]]  const std::unique_ptr<GEventDataCollection>& eventData) override;
+	bool startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) override;
+	bool endEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) override;
 
 	// write the header
 	bool publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) override;

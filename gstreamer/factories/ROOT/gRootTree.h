@@ -26,11 +26,7 @@
 // connection between gdata and root
 class GRootTree {
 public:
-
-	~GRootTree() {
-		if (log) log->debug(NORMAL, "~GRootTree");
-	}
-
+	~GRootTree() { if (log) log->debug(NORMAL, "~GRootTree"); }
 
 	// types of TTree
 	GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader, std::shared_ptr<GLogger>& log);
@@ -42,19 +38,7 @@ public:
 	// bool fillTree(const std::vector<GTrueInfoData*>* trueInfoData);
 	// bool fillTree(const std::vector<GDigitizedData*>* digitizedData);
 
-	// write ROOT tree to file
-	void writeToFile() {
-
-		if (root_tree->GetDirectory() == nullptr) {
-			log->warning(1, "ROOT tree ", root_tree->GetName(), " has no directory. Skipping Write().");
-			return;
-		}
-
-		if (root_tree) root_tree->Write();
-	}
-
 private:
-
 	std::unique_ptr<TTree> root_tree;
 
 	// variable maps

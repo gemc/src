@@ -78,7 +78,7 @@ void run_simulation_in_threads(int                                              
 				if (evn > nevents) break;                               // exit the while loop
 
 				auto gheader   = GEventHeader::create(log, tid);
-				auto eventData = std::make_unique<GEventDataCollection>(std::move(gheader), log);
+				auto eventData = std::make_shared<GEventDataCollection>(std::move(gheader), log);
 
 				// each event has 10 hits
 				for (unsigned i = 1; i < 11; i++) {
@@ -93,16 +93,9 @@ void run_simulation_in_threads(int                                              
 				log->info(0, "worker ", tid, " event ", evn, " has ", eventData->getDataCollectionMap().at("ctof")->getDigitizedData().size(), " digitized hits");
 
 				for (const auto& [name, gstreamer] : *gstreamerMapPtr) {
+
 					// publish the event to the gstreamer
-					gstreamer->publishEventData(std::move(eventData));
-
-					// TODO: need to clone data because we may have multiple streamers
-					// and here we move the unique_ptr to the first streamer
-
-					log->info(0, "TODO: need to clone data because we may have multiple streamers and here we move the unique_ptr to the first streamer");
-					log->info(0, "TODO: Check why we have so many events in the output file");
-					log->info(0, "TODO: move output file in groottree and close it properly");
-
+					gstreamer->publishEventData(eventData);
 				}
 
 				++localCount; // tally for this worker
@@ -112,8 +105,6 @@ void run_simulation_in_threads(int                                              
 			for (const auto& [name, gstreamer] : *gstreamerMapPtr) {
 				if (!gstreamer->closeConnection()) { log->error(1, "Failed to close connection for GStreamer ", name, " in thread ", tid); }
 			}
-			gstreamerMapPtr.reset(); // explicitly destroy before thread exit in case of thread_local
-
 
 			log->info(0, "worker ", tid, " processed ", localCount, " events");
 		}); // jthread constructor launches the thread immediately
@@ -125,7 +116,6 @@ void run_simulation_in_threads(int                                              
 // emulation of a run of events, collecting and publish data in separate threads
 int main(int argc, char* argv[]) {
 	ROOT::EnableThreadSafety();
-
 
 	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
 	auto gopts = std::make_shared<GOptions>(argc, argv, gstreamer::defineOptions());

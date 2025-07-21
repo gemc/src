@@ -10,7 +10,7 @@ bool GstreamerJSROFactory::openConnection() {
 	return true;
 }
 
-bool GstreamerJSROFactory::closeConnection() {
+bool GstreamerJSROFactory::closeConnectionImpl() {
 	if (ofile->is_open()) { ofile->close(); }
 
 	if (ofile->is_open()) { log->error(ERR_CANTOPENOUTPUT, "GstreamerJSROFactory: could not close file " + filename()); }

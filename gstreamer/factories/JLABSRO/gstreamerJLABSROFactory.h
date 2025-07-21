@@ -31,7 +31,7 @@ public:
 private:
 	// open and close the output media
 	bool openConnection() override;
-	bool closeConnection() override;
+	bool closeConnectionImpl() override;
 
 	// frame streams
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;

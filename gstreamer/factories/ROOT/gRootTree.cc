@@ -12,14 +12,24 @@ GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& ghead
 
 	root_tree = std::make_unique<TTree>(HEADERTREENAME, HEADERTREENAMESUFFIX);
 
+	// AUTO FLUSH AND AUTOSAVE
+	root_tree->SetAutoFlush(20 * 1024 * 1024);  // write root data buffers to disk automatically once their in-memory size exceeds 20 MB
+	root_tree->SetAutoSave(50 * 1024 * 1024);  // save a snapshot of the entire tree (including metadata), useful for recovery after a crash
+
 	registerVariable("g4localEventNumber", gheader->getG4LocalEvn());
 	registerVariable("threadID", gheader->getThreadID());
 	registerVariable("timeStamp", gheader->getTimeStamp());
 }
 
+// fill the header tree
 bool GRootTree::fillTree(const std::unique_ptr<GEventHeader>& gheader) {
 
-	log->info(0, "Filling header tree for event ", gheader->getG4LocalEvn(), " threadID ", gheader->getThreadID());
+	log->info(0, "Filling header tree for local event n. ", gheader->getG4LocalEvn(), " threadID ", gheader->getThreadID());
+
+	// clearing previous header info
+	intVarsMap["g4localEventNumber"].clear();
+	intVarsMap["threadID"].clear();
+	stringVarsMap["timeStamp"].clear();
 
 	intVarsMap["g4localEventNumber"].emplace_back(gheader->getG4LocalEvn());
 	intVarsMap["threadID"].emplace_back(gheader->getThreadID());

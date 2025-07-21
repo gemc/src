@@ -7,7 +7,7 @@ bool GstreamerRootFactory::publishEventHeaderImpl([[maybe_unused]] const std::un
 
 	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
 
-    // get or instantiate root tree from the map
+    // get or instantiate the root tree from the map
 	auto headerTree = getOrInstantiateHeaderTree(gheader);
 
 	// fill variables and tree

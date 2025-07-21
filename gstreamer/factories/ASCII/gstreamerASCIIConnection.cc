@@ -11,7 +11,7 @@ bool GstreamerTextFactory::openConnection() {
 	return true;
 }
 
-bool GstreamerTextFactory::closeConnection() {
+bool GstreamerTextFactory::closeConnectionImpl() {
 
 	flushEventBuffer();
 

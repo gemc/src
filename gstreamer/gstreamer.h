@@ -26,14 +26,18 @@ public:
 
 	[[nodiscard]] virtual bool openConnection() { return false; }
 
-	[[nodiscard]] virtual bool closeConnection() { return false; }
+	[[nodiscard]] bool closeConnection() {
+		flushEventBuffer();
+		closeConnectionImpl();
+	}
+
+	[[nodiscard]] virtual bool closeConnectionImpl() { return false; }
 
 	// runs the protected virtual methods below to write events from a run to file
-	// release GEventDataCollection ownership to the buffer
-	void publishEventData(std::unique_ptr<GEventDataCollection> event_data);
+	void publishEventData(const std::shared_ptr<GEventDataCollection>& event_data);
 
 	// runs the protected virtual methods below to write frames from a run to file
-	void publishFrameRunData(const std::unique_ptr<GFrameDataCollection>& frameRunData);
+	void publishFrameRunData(const std::shared_ptr<GFrameDataCollection>& frameRunData);
 
 	[[nodiscard]] inline std::string getStreamType() const { return gstreamer_definitions.type; }
 	inline void define_gstreamer(const GStreamerDefinition& gstreamerDefinition, int tid = -1) { gstreamer_definitions = GStreamerDefinition(gstreamerDefinition, tid); }
@@ -53,17 +57,17 @@ protected:
 	GStreamerDefinition gstreamer_definitions;
 
 	// event virtual methods called by publishRunData, in order
-	// --------------------------------------------------------
+	// notice here we pass const raw pointers to the event data
 
-	[[nodiscard]] bool startEvent([[maybe_unused]] const std::unique_ptr<GEventDataCollection>& eventData) {
-		if (!eventData) { log->error(ERR_PUBLISH_ERROR, "eventData is null in GStreamer::startEvent"); }
-		if (!eventData->getHeader()) { log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::startEvent"); }
+	[[nodiscard]] bool startEvent([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
+		if (!event_data) { log->error(ERR_PUBLISH_ERROR, "eventData is null in GStreamer::startEvent"); }
+		if (!event_data->getHeader()) { log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::startEvent"); }
 
 		log->debug(NORMAL, "GStreamer::startEvent");
-		return startEventImpl(eventData);
+		return startEventImpl(event_data);
 	}
 
-	virtual bool startEventImpl([[maybe_unused]] const std::unique_ptr<GEventDataCollection>& eventData) { return false; }
+	virtual bool startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) { return false; }
 
 	[[nodiscard]] bool publishEventHeader([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) {
 		if (!gheader) { log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::publishEventHeader"); }
@@ -75,35 +79,36 @@ protected:
 
 	// vector index is hit number
 
-	[[nodiscard]] bool publishEventTrueInfoData([[maybe_unused]] const std::string&                                        detectorName,
-	                                            [[maybe_unused]] const std::vector<const std::unique_ptr<GTrueInfoData>&>& trueInfoData) {
+	[[nodiscard]] bool publishEventTrueInfoData([[maybe_unused]] const std::string&                       detectorName,
+	                                            [[maybe_unused]] const std::vector<const GTrueInfoData*>& trueInfoData) {
 		log->debug(NORMAL, "GStreamer::publishEventTrueInfoData for detector ", detectorName);
 		return publishEventTrueInfoDataImpl(detectorName, trueInfoData);
 	}
 
-	virtual bool publishEventTrueInfoDataImpl([[maybe_unused]] const std::string                                         detectorName,
-	                                          [[maybe_unused]] const std::vector<const std::unique_ptr<GTrueInfoData>&>& trueInfoData) { return false; }
+	virtual bool publishEventTrueInfoDataImpl([[maybe_unused]] const std::string                        detectorName,
+	                                          [[maybe_unused]] const std::vector<const GTrueInfoData*>& trueInfoData) { return false; }
 
 
-	[[nodiscard]] bool publishEventDigitizedData([[maybe_unused]] const std::string&                                         detectorName,
-	                                             [[maybe_unused]] const std::vector<const std::unique_ptr<GDigitizedData>&>& digitizedData) {
+	[[nodiscard]] bool publishEventDigitizedData([[maybe_unused]] const std::string&                        detectorName,
+	                                             [[maybe_unused]] const std::vector<const GDigitizedData*>& digitizedData) {
 		log->debug(NORMAL, "GStreamer::publishEventDigitizedData for detector ", detectorName);
 		return publishEventDigitizedDataImpl(detectorName, digitizedData);
 	}
 
-	virtual bool publishEventDigitizedDataImpl([[maybe_unused]] const std::string                                          detectorName,
-	                                           [[maybe_unused]] const std::vector<const std::unique_ptr<GDigitizedData>&>& digitizedData) { return false; }
+	virtual bool publishEventDigitizedDataImpl([[maybe_unused]] const std::string                         detectorName,
+	                                           [[maybe_unused]] const std::vector<const GDigitizedData*>& digitizedData) { return false; }
 
 
-	[[nodiscard]] bool endEvent([[maybe_unused]] const std::unique_ptr<GEventDataCollection>& eventData) {
+	[[nodiscard]] bool endEvent([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 		log->debug(NORMAL, "GStreamer::endEvent");
-		return endEventImpl(eventData);
+		return endEventImpl(event_data);
 	}
 
-	virtual bool endEventImpl([[maybe_unused]] const std::unique_ptr<GEventDataCollection>& eventData) { return false; }
+	virtual bool endEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) { return false; }
 
 	// stream virtual methods
 	[[nodiscard]] bool startStream([[maybe_unused]] const GFrameDataCollection* frameRunData) {
+		flushEventBuffer();
 		log->debug(NORMAL, "GStreamer::startStream");
 		return startStreamImpl(frameRunData);
 	}
@@ -137,8 +142,8 @@ protected:
 private:
 	[[nodiscard]] virtual std::string filename() const = 0; // must be implemented in derived classes
 
-	// data ownership is released here
-	std::vector<std::unique_ptr<GEventDataCollection>> eventBuffer;
+	// storing raw pointers here
+	std::vector<std::shared_ptr<GEventDataCollection>> eventBuffer;
 	size_t                                             bufferFlushLimit = 10; // default; can be overridden
 
 public:

@@ -5,6 +5,8 @@
 // Return the header tree pointer from the map. If it's not there, initialize the smart pointer.
 GRootTree* GstreamerRootFactory::getOrInstantiateHeaderTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) {
 
+	rootfile->cd();
+
 	if (!log) {
 		std::cerr << "FATAL: log is null in GstreamerRootFactory::getOrInstantiateHeaderTree" << std::endl;
 		std::terminate();
@@ -15,7 +17,7 @@ GRootTree* GstreamerRootFactory::getOrInstantiateHeaderTree([[maybe_unused]] con
 	}
 
 	// If the key does not exist, this inserts a new entry with default value
-	// (nullptr for the unique_ptr) and returns a reference to it.
+	// and returns a reference to it.
 	auto& treePtr = gRootTrees[HEADERTREENAME];
 	if (!treePtr) {
 		log->info(2, "GstreamerRootFactory", "Creating ROOT", HEADERTREENAME, " tree");
