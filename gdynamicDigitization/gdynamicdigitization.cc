@@ -11,15 +11,13 @@
 
 #include "gdynamicdigitization.h"
 
-// glibrary
+// gemc
 #include "gtranslationTableConventions.h"
 #include "gdataConventions.h"
 #include "gtouchableConventions.h"
 
 // c++
 #include <iostream>
-using std::cerr;
-using std::endl;
 
 /**
  * \brief Collects true hit information from a GHit.
@@ -171,26 +169,27 @@ double GDynamicDigitization::processStepTimeImpl([[maybe_unused]] const std::uni
  * \param thisStep Pointer to the current G4Step.
  * \return A vector of GTouchable pointers.
  */
-std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processTouchableImpl(std::unique_ptr<GTouchable> gTouchID, G4Step* thisStep) {
-	double stepTimeAtElectronics      = processStepTime(gTouchID, thisStep);
+std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processTouchableImpl(std::unique_ptr<GTouchable> gtouchable, G4Step* thisStep) {
+	double stepTimeAtElectronics      = processStepTime(gtouchable, thisStep);
 	int    stepTimeAtElectronicsIndex = readoutSpecs->timeCellIndex(stepTimeAtElectronics);
-	if (stepTimeAtElectronicsIndex == gTouchID->getStepTimeAtElectronicsIndex() ||
-	    gTouchID->getStepTimeAtElectronicsIndex() == GTOUCHABLEUNSETTIMEINDEX) {
-		gTouchID->assignStepTimeAtElectronicsIndex(stepTimeAtElectronicsIndex);
+
+	if (stepTimeAtElectronicsIndex == gtouchable->getStepTimeAtElectronicsIndex() ||
+	    gtouchable->getStepTimeAtElectronicsIndex() == GTOUCHABLEUNSETTIMEINDEX) {
+
+		gtouchable->assignStepTimeAtElectronicsIndex(stepTimeAtElectronicsIndex);
 
 		// std::initializer_list requires copyable elements so we need to create the vector first
 		std::vector<std::unique_ptr<GTouchable>> result;
-		result.emplace_back(std::move(gTouchID));
+		result.emplace_back(std::move(gtouchable));
 		return result;
-	}
-	else {
+	} else {
 		// Create a new GTouchable with the updated time index.
-		auto cloned = std::make_unique<GTouchable>(gTouchID, stepTimeAtElectronicsIndex);
+		auto cloned = std::make_unique<GTouchable>(*gtouchable, stepTimeAtElectronicsIndex);
 
 		// release ownership of the original touchable and return both.
 		// std::initializer_list requires copyable elements so we need to create the vector first
 		std::vector<std::unique_ptr<GTouchable>> result;
-		result.emplace_back(std::move(gTouchID));
+		result.emplace_back(std::move(gtouchable));
 		result.emplace_back(std::move(cloned));
 		return result;
 	}
@@ -206,9 +205,11 @@ std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processTouchableI
  * \return An empty vector of GTouchable pointers.
  */
 // TODO: are we using this anywhere? pass readonly touchId or move it?
-std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processGTouchableModifiersImpl([[maybe_unused]] const std::unique_ptr<GTouchable>& gTouchID,
-                                                                                              [[maybe_unused]] GTouchableModifiers                gmods) {
+std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processGTouchableModifiersImpl(const std::unique_ptr<GTouchable>&   gTouchID,
+                                                                                              [[maybe_unused]] const GTouchableModifiers& gmods) {
 	std::vector<std::unique_ptr<GTouchable>> touchables;
+
+	// touchables.emplace_back(std::make_unique<GTouchable>(*gTouchID, 1)); // Ensure we have a valid touchable to return
 
 	return touchables;
 }

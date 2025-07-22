@@ -139,13 +139,13 @@ public:
 	 * \param thisStep Pointer to the current G4Step.
 	 * \return A vector of GTouchable pointers.
 	 */
-	[[nodiscard]] std::vector<std::unique_ptr<GTouchable>> processTouchable(std::unique_ptr<GTouchable> gTouchID, G4Step* thisStep) {
+	[[nodiscard]] std::vector<std::unique_ptr<GTouchable>> processTouchable(std::unique_ptr<GTouchable> gtouchable, G4Step* thisStep) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::process gtouchable");
-		return processTouchableImpl(std::move(gTouchID), thisStep);
+		return processTouchableImpl(std::move(gtouchable), thisStep);
 	}
 
-	[[nodiscard]] virtual std::vector<std::unique_ptr<GTouchable>> processTouchableImpl(std::unique_ptr<GTouchable> gTouchID, G4Step* thisStep);
+	[[nodiscard]] virtual std::vector<std::unique_ptr<GTouchable>> processTouchableImpl(std::unique_ptr<GTouchable> gtouchable, G4Step* thisStep);
 
 	/**
 	 * \brief Processes touchable modifiers.
@@ -162,7 +162,7 @@ public:
 		return processGTouchableModifiersImpl(gTouchID, std::move(gmods));
 	}
 
-	virtual std::vector<std::unique_ptr<GTouchable>> processGTouchableModifiersImpl(const std::unique_ptr<GTouchable>& gTouchID, GTouchableModifiers gmods);
+	virtual std::vector<std::unique_ptr<GTouchable>> processGTouchableModifiersImpl(const std::unique_ptr<GTouchable>& gTouchID, [[maybe_unused]] const GTouchableModifiers& gmods);
 
 	/**
 	 * \brief Collects true hit information into a GTrueInfoData object.
@@ -275,6 +275,16 @@ public:
 		return func();
 	}
 
+	// decides if the hit should be processed or not
+	virtual bool decisionToSkipHit(double energy) {
+		if ( energy == 0 && !recordZeroEdep ) {
+			return true;
+		}
+
+		return false;
+	}
+
+
 	/**
 	 * \brief Sets the loggers for the digitization process.
 	 *
@@ -289,8 +299,10 @@ public:
 		digi_logger = std::make_shared<GLogger>(gopts.value(), GDIGITIZATION_LOGGER, "digitization");
 	}
 
-protected:
+private:
+	bool recordZeroEdep = false;
 
+protected:
 	/// Optional pointer to GOptions.
 	std::optional<GOptions*> gopts;
 	/// Data, Translation Tables, and digitization loggers.

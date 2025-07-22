@@ -16,6 +16,9 @@ namespace gdynamicdigitization {
 GOptions defineOptions() {
 
 	GOptions goptions(GDIGITIZATION_LOGGER);
+
+	goptions.defineSwitch("recordZeroEdep", "Record particle even if they do not deposit energy in the sensitive volumes");
+
 	goptions += gdata::defineOptions();
 	goptions += gtranslationTable::defineOptions();
 	goptions += gfactory::defineOptions();
