@@ -184,7 +184,7 @@ std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processTouchableI
 		return result;
 	} else {
 		// Create a new GTouchable with the updated time index.
-		auto cloned = std::make_unique<GTouchable>(*gtouchable, stepTimeAtElectronicsIndex);
+		auto cloned = std::make_unique<GTouchable>(gtouchable, stepTimeAtElectronicsIndex);
 
 		// release ownership of the original touchable and return both.
 		// std::initializer_list requires copyable elements so we need to create the vector first
@@ -205,7 +205,7 @@ std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processTouchableI
  * \return An empty vector of GTouchable pointers.
  */
 // TODO: are we using this anywhere? pass readonly touchId or move it?
-std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processGTouchableModifiersImpl(const std::unique_ptr<GTouchable>&   gTouchID,
+std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processGTouchableModifiersImpl([[maybe_unused]] const std::unique_ptr<GTouchable>&   gTouchID,
                                                                                               [[maybe_unused]] const GTouchableModifiers& gmods) {
 	std::vector<std::unique_ptr<GTouchable>> touchables;
 

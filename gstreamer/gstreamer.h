@@ -135,7 +135,7 @@ protected:
 
 	virtual bool endStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) { return false; }
 
-
+	// flush the event buffer, writing all events to file
 	void flushEventBuffer();
 
 private:

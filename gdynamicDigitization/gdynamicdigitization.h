@@ -162,7 +162,7 @@ public:
 		return processGTouchableModifiersImpl(gTouchID, std::move(gmods));
 	}
 
-	virtual std::vector<std::unique_ptr<GTouchable>> processGTouchableModifiersImpl(const std::unique_ptr<GTouchable>& gTouchID, [[maybe_unused]] const GTouchableModifiers& gmods);
+	virtual std::vector<std::unique_ptr<GTouchable>> processGTouchableModifiersImpl([[maybe_unused]] const std::unique_ptr<GTouchable>& gTouchID, [[maybe_unused]] const GTouchableModifiers& gmods);
 
 	/**
 	 * \brief Collects true hit information into a GTrueInfoData object.
