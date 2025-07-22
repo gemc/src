@@ -33,7 +33,7 @@ bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] std::st
 }
 
 
-bool GPlugin_test_example::loadTTImpl(int runno, [[maybe_unused]] std::string const& variation) {
+bool GPlugin_test_example::loadTTImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
 
 	std::vector<int> element1 = {1, 2, 3, 4, 5};
 	std::vector<int> element2 = {2, 2, 3, 4, 5};

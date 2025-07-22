@@ -5,19 +5,48 @@ using std::string;
 using std::vector;
 
 
-// return header tree with initialized leafs
+// Return Header Tree with initialized leafs
 GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader, std::shared_ptr<GLogger>& logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree header");
 
-	root_tree = std::make_unique<TTree>(HEADERTREENAME, HEADERTREENAMESUFFIX);
-
-	// AUTO FLUSH AND AUTOSAVE
+	// With AUTO FLUSH AND AUTOSAVE
+	root_tree = std::make_unique<TTree>(HEADERTREENAME, HEADERTREENAMEDESC);
 	root_tree->SetAutoFlush(20 * 1024 * 1024); // write root data buffers to disk automatically once their in-memory size exceeds 20 MB
 	root_tree->SetAutoSave(50 * 1024 * 1024);  // save a snapshot of the entire tree (including metadata), useful for recovery after a crash
 
 	registerVariable("g4localEventNumber", gheader->getG4LocalEvn());
 	registerVariable("threadID", gheader->getThreadID());
 	registerVariable("timeStamp", gheader->getTimeStamp());
+}
+
+
+
+
+// Return True Info Tree with initialized leafs
+GRootTree::GRootTree(const string& treeName, const GTrueInfoData* gdata, std::shared_ptr<GLogger>& logger) : log(logger) {
+	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree True Info");
+
+	// With AUTO FLUSH AND AUTOSAVE
+	root_tree = std::make_unique<TTree>(treeName.c_str(), TRUEINFOTREENAMEDESC);
+	root_tree->SetAutoFlush(20 * 1024 * 1024); // write root data buffers to disk automatically once their in-memory size exceeds 20 MB
+	root_tree->SetAutoSave(50 * 1024 * 1024);  // save a snapshot of the entire tree (including metadata), useful for recovery after a crash
+
+	for (auto& [varname, value] : gdata->getDoubleVariablesMap()) { registerVariable(varname, value); }
+	for (auto& [varname, value] : gdata->getStringVariablesMap()) { registerVariable(varname, value); }
+}
+
+
+// Return Digitized Data Tree with initialized leafs
+GRootTree::GRootTree(const string& treeName, const GDigitizedData* gdata, std::shared_ptr<GLogger>& logger) : log(logger) {
+	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree Digitized Data");
+
+	// With AUTO FLUSH AND AUTOSAVE
+	root_tree = std::make_unique<TTree>(treeName.c_str(), DIGITIZEDTREENAMEDESC);
+	root_tree->SetAutoFlush(20 * 1024 * 1024); // write root data buffers to disk automatically once their in-memory size exceeds 20 MB
+	root_tree->SetAutoSave(50 * 1024 * 1024);  // save a snapshot of the entire tree (including metadata), useful for recovery after a crash
+
+	for (auto& [varname, value] : gdata->getIntObservablesMap(0)) { registerVariable(varname, value); }
+	for (auto& [varname, value] : gdata->getDblObservablesMap(0)) { registerVariable(varname, value); }
 }
 
 // fill the header tree
@@ -38,37 +67,16 @@ bool GRootTree::fillTree(const std::unique_ptr<GEventHeader>& gheader) {
 	return true;
 }
 
-
-// True Info
-GRootTree::GRootTree(const string& detectorName, const GTrueInfoData* gdata, std::shared_ptr<GLogger>& logger) : log(logger) {
-	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree True Info");
-
-	string treeName    = TRUEINFONAMEPREFIX + detectorName;
-	string description = detectorName + " GTrueInfoData tree";
-
-	root_tree = std::make_unique<TTree>(treeName.c_str(), description.c_str());
-
-	for (auto& [varname, value] : gdata->getDoubleVariablesMap()) { registerVariable(varname, value); }
-	for (auto& [varname, value] : gdata->getStringVariablesMap()) { registerVariable(varname, value); }
-}
-
-
-// Digitized Data
-GRootTree::GRootTree(const string& detectorName, const GDigitizedData* gdata, std::shared_ptr<GLogger>& logger) : log(logger) {
-	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree Digitized Data");
-
-	string treeName    = DIGITIZEDNAMEPREFIX + detectorName;
-	string description = detectorName + " GDigitizedData tree";
-
-	root_tree = std::make_unique<TTree>(treeName.c_str(), description.c_str());
-
-	for (auto& [varname, value] : gdata->getIntObservablesMap(0)) { registerVariable(varname, value); }
-	for (auto& [varname, value] : gdata->getDblObservablesMap(0)) { registerVariable(varname, value); }
-}
-
-
+// fill the True Info Tree
 bool GRootTree::fillTree(const vector<const GTrueInfoData*>& trueInfoData) {
+
+	// clearing previous true info
+	for (auto& [varname, values] : doubleVarsMap) { values.clear(); }
+	for (auto& [varname, values] : stringVarsMap) { values.clear(); }
+
+
 	for (auto& dataHits : trueInfoData) {
+
 		// double true info
 		for (auto& [varname, value] : dataHits->getDoubleVariablesMap()) { doubleVarsMap[varname].push_back(value); }
 
@@ -81,18 +89,24 @@ bool GRootTree::fillTree(const vector<const GTrueInfoData*>& trueInfoData) {
 	return true;
 }
 
+// fill the Digitized Data Tree
 bool GRootTree::fillTree(const vector<const GDigitizedData*>& digitizedData) {
+
+	// clearing previous digitized data
+	for (auto& [varname, values] : intVarsMap) { values.clear(); }
+	for (auto& [varname, values] : doubleVarsMap) { values.clear(); }
+
 	for (auto& dataHits : digitizedData) {
+		// int digitized data
 		for (auto& [varname, value] : dataHits->getIntObservablesMap(0)) { intVarsMap[varname].push_back(value); }
 
+		// double digitized data
 		for (auto& [varname, value] : dataHits->getDblObservablesMap(0)) { doubleVarsMap[varname].push_back(value); }
 	}
 	root_tree->Fill();
 
 	return true;
 }
-
-// MARK: Variable Registrations
 
 
 // instantiate new map entry with its proper type vector and assign it to the root tree branch

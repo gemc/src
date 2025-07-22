@@ -12,16 +12,15 @@
 
 #include "gstreamerConventions.h"
 
-#define TRUEINFONAMEPREFIX   "trueInfo_"
+#define HEADERTREENAME "event_header"
+#define TRUEINFONAMEPREFIX   "true_info_"
 #define DIGITIZEDNAMEPREFIX  "digitized_"
 
 #define ERR_GSTREAMERROOTTREENOTFOUND   850
 
-#define HEADERTREENAME "header"
-
-#define HEADERTREENAMESUFFIX    "GEMC Root Event Header"
-#define TRUEINFOTREENAMESUFFIX  "True Info Data Root Tree"
-#define DIGITIZEDTREENAMESUFFIX "Digitized Data Root Tree"
+#define HEADERTREENAMEDESC    "Event Header"
+#define TRUEINFOTREENAMEDESC  "True Info Data"
+#define DIGITIZEDTREENAMEDESC "Digitized Data"
 
 // connection between gdata and root
 class GRootTree {

@@ -38,8 +38,8 @@ private:
 
 	// returning raw pointers for access
 	const std::unique_ptr<GRootTree>& getOrInstantiateHeaderTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader);
-	const std::unique_ptr<GRootTree>& getOrInstantiateTrueInfoDataTree(const std::string& detectorName, const GTrueInfoData* gdata);
-	const std::unique_ptr<GRootTree>& getOrInstantiateDigitizedDataTree(const std::string& detectorName, const GDigitizedData* gdata);
+	const std::unique_ptr<GRootTree>& getOrInstantiateTrueInfoDataTree(const std::string& treeName, const GTrueInfoData* gdata);
+	const std::unique_ptr<GRootTree>& getOrInstantiateDigitizedDataTree(const std::string& treeName, const GDigitizedData* gdata);
 
 	// key is detectr prefix and name for true info or digitized data, or "header" for the header tree
 	std::unordered_map<std::string, std::unique_ptr<GRootTree>> gRootTrees;

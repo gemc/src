@@ -3,7 +3,7 @@
 # Purpose: compiles gemc with optional sanitizers or debugging options.
 
 # Container run:
-# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.1-almalinux94 sh
+# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.2-almalinux94 sh
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # ./ci/build.sh none
 
