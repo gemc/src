@@ -56,13 +56,15 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 
 	// get the vector of GTouchables returned by gDynamicDigitization
 	// if not defined by the plugin, base class will return a vector with one element (the input)
-	std::vector<std::unique_ptr<GTouchable>> thisStepProcessedTouchables = gDynamicDigitization->processTouchable(getGTouchable(thisStep), thisStep);
+	std::vector<std::shared_ptr<GTouchable>> thisStepProcessedTouchables = gDynamicDigitization->processTouchable(getGTouchable(thisStep), thisStep);
 
 	log->info(2, "GSensitiveDetector::ProcessHits for " + GetName() +
 	             " with " + std::to_string(thisStepProcessedTouchables.size()) + " touchable(s) for step pointer " + std::to_string(reinterpret_cast<uintptr_t>(thisStep)) +
 	             ", edep: " + std::to_string(depe) + ", Hit collection size: " + std::to_string(gHitsCollection->GetSize()));
 
 
+	// if a new touchable is created, create a new GHit
+	// otherwise, set the hit hitbitset
 	for (const auto& thisGTouchable : thisStepProcessedTouchables) {
 		// assign track id
 		thisGTouchable->assignTrackId(thisStep->GetTrack()->GetTrackID());
@@ -70,7 +72,7 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 		if (isThisANewTouchable(thisGTouchable)) {
 			// new ghit, insert in gHitsCollection
 			// the constructor takes care of the filling the hit step infos according to gHitBitSet
-			gHitsCollection->insert(new GHit(thisGTouchable.get(), gHitBitSet, thisStep));
+			gHitsCollection->insert(new GHit(thisGTouchable, gHitBitSet, thisStep));
 		}
 		else {
 			// not a new touchable, must be in the hit collection
@@ -84,7 +86,7 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 }
 
 // checking if it is present in the map. If not, add it.
-bool GSensitiveDetector::isThisANewTouchable(const std::unique_ptr<GTouchable>& thisTouchable) {
+bool GSensitiveDetector::isThisANewTouchable(const std::shared_ptr<GTouchable>& thisTouchable) {
 	log->info(2, "GSensitiveDetector::isThisANewTouchable for " + GetName(),
 	          " with touchable: " + thisTouchable->getIdentityString());
 
@@ -103,10 +105,10 @@ bool GSensitiveDetector::isThisANewTouchable(const std::unique_ptr<GTouchable>& 
 // replaced by exists_in_vector in gtouchable
 
 
-GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(const std::unique_ptr<GTouchable>& gtouchable) {
+GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(const std::shared_ptr<GTouchable>& gtouchable) {
 	for (unsigned int i = 0; i < gHitsCollection->GetSize(); i++) {
-		GHit*             thisHit           = (*gHitsCollection)[i];
-		const GTouchable* thisHitGTouchable = thisHit->getGTouchable();
+		GHit*                              thisHit           = (*gHitsCollection)[i];
+		const std::shared_ptr<GTouchable>& thisHitGTouchable = thisHit->getGTouchable();
 
 		if (*gtouchable == *thisHitGTouchable) {
 			log->info(2, "GSensitiveDetector::getHitInHitCollectionUsingTouchable for " + GetName() +

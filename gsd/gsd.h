@@ -20,16 +20,16 @@ using GHitsCollection = G4THitsCollection<GHit>;
 class GSensitiveDetector : public G4VSensitiveDetector {
 
 public:
-	GSensitiveDetector(const std::string&                                        sdName,
-	                   const std::shared_ptr<GOptions>&                          goptions,
+	GSensitiveDetector(const std::string&                                               sdName,
+	                   const std::shared_ptr<GOptions>&                                 goptions,
 	                   const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& dynamicRoutinesMap);
 
-	~GSensitiveDetector() { log->debug(DESTRUCTOR, "GSensitiveDetector"); }
+	~GSensitiveDetector() override { log->debug(DESTRUCTOR, "GSensitiveDetector"); }
 
 	// G4VSensitiveDetector geant4 methods to be overloaded
-	virtual void   Initialize(G4HCofThisEvent* g4hc);                       // Beginning of sensitive Hit
-	virtual G4bool ProcessHits(G4Step* thisStep, G4TouchableHistory* g4th); // Process Step, add new hit to gHitsCollection or new step to a ghit
-	virtual void   EndOfEvent(G4HCofThisEvent* g4HitCollection);            // End of sensitive Hit
+	void   Initialize(G4HCofThisEvent* g4hc) override;                       // Beginning of sensitive Hit
+	G4bool ProcessHits(G4Step* thisStep, G4TouchableHistory* g4th) override; // Process Step, add new hit to gHitsCollection or new step to a ghit
+	void   EndOfEvent(G4HCofThisEvent* g4HitCollection) override;            // End of sensitive Hit
 
 
 private:
@@ -44,21 +44,19 @@ private:
 
 	// map of touchables. one entry per gvolume
 	// used to retrieve the touchable from the geant4 volume in which the step occurs during processHit
-	// the map is populated (registered) at detector construction (GDetectorConstruction::ConstructSDandField)
-	// using the public function registerGVolumeTouchable
-	std::map<std::string, std::unique_ptr<GTouchable>> gTouchableMap;
+	std::map<std::string, std::shared_ptr<GTouchable>> gTouchableMap;
 
 	// retrieve GTouchable from map
-	// gTouchableMap[vname] is guaranteed to exist because vname is g4sensitive
-	inline std::unique_ptr<GTouchable> getGTouchable(const G4Step* thisStep) {
+	// gTouchableMap[vname] is guaranteed to exist because
+	// the map is populated (registered) at detector construction (GDetectorConstruction::ConstructSDandField)
+	// using the public function registerGVolumeTouchable
+	inline std::shared_ptr<GTouchable> getGTouchable(const G4Step* thisStep) {
 		std::string vname = thisStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName();
 
 		auto it = gTouchableMap.find(vname);
-		if (it != gTouchableMap.end()) {
-			return std::move(it->second); // return pointer to GTouchable
-		} else {
-			log->error(ERR_DYNAMICPLUGINNOTFOUND, "GTouchable for volume " + vname + " not found in gTouchableMap");
-		}
+		if (it != gTouchableMap.end()) { return it->second; }
+		// if not found, log an error
+		log->error(ERR_DYNAMICPLUGINNOTFOUND, "GTouchable for volume " + vname + " not found in gTouchableMap");
 	}
 
 	// GTouchable vector, reset each event,
@@ -66,7 +64,7 @@ private:
 	std::vector<GTouchable> touchableVector;
 
 	// checking if it is present in the map. If not, add it
-	bool isThisANewTouchable(const std::unique_ptr<GTouchable>& thisTouchable);
+	bool isThisANewTouchable(const std::shared_ptr<GTouchable>& thisTouchable);
 
 	// GHitsCollection is G4THitsCollection<GHit>
 	// GHit is a G4VHit. Its thread memory management comes with geant4
@@ -74,18 +72,16 @@ private:
 	GHitsCollection* gHitsCollection;
 
 	// retrieve hit with existing gtouchable
-	GHit* getHitInHitCollectionUsingTouchable(const std::unique_ptr<GTouchable>& gtouchable);
+	GHit* getHitInHitCollectionUsingTouchable(const std::shared_ptr<GTouchable>& gtouchable);
 
 public:
 	// register GTouchable in gTouchableMap
 
 	// used in GDetectorConstruction::ConstructSDandField()
-	inline void registerGVolumeTouchable(const std::string& name,  std::unique_ptr<GTouchable> gt) {
+	inline void registerGVolumeTouchable(const std::string& name, std::shared_ptr<GTouchable> gt) {
+		log->info(2, "Registering touchable gvolume <" + name + "> with value: " + gt->getIdentityString());
 
-		log->info(2, "Registering touchable gvolume <" + name + "> with value: " + gt->getIdentityString() );
-
-		gTouchableMap[name] = std::move(gt); // store the GTouchable in the map
-
+		gTouchableMap[name] = gt; // store the GTouchable in the map, we own it now
 	}
 
 

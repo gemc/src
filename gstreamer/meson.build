@@ -6,9 +6,10 @@ verbosities = ['-verbosity.plugins=2',
                '-debug.plugins=true',
                '-debug.gtouchable=true',
                '-debug.gstreamer=true',
-               ]
+]
 root = ['-gstreamer="[{format: root, filename: out}]"']
-ascii =[ '-gstreamer="[{format: ascii, filename: out}]"']
+ascii = ['-gstreamer="[{format: ascii, filename: out}]"']
+ascii_root = ['-gstreamer="[{format: ascii, filename: out}, {format: root, filename: out}]"']
 buffer = ['-ebuffer=20']
 
 ascii_plugin_files = [files(
@@ -83,9 +84,11 @@ LD += {
     'examples' : {
         'test_gstreamer' : [files('examples/gstreamer_example.cc'), buffer],
         'test_gstreamer_verbose' : [files('examples/gstreamer_example.cc'), buffer + verbosities],
-        'test_gstreamer_root' : [files('examples/gstreamer_example.cc'), root + buffer],
-        'test_gstreamer_root_verbose' : [files('examples/gstreamer_example.cc'), root + buffer + verbosities],
-        'test_gstreamer_ascii' : [files('examples/gstreamer_example.cc'), ascii + buffer],
-        'test_gstreamer_ascii_verbose' : [files('examples/gstreamer_example.cc'), ascii + buffer + verbosities],
+        'test_gstreamer_root' : [files('examples/gstreamer_example.cc'), buffer + root],
+        'test_gstreamer_root_verbose' : [files('examples/gstreamer_example.cc'),  buffer + root + verbosities],
+        'test_gstreamer_ascii' : [files('examples/gstreamer_example.cc'),  buffer + ascii],
+        'test_gstreamer_ascii_verbose' : [files('examples/gstreamer_example.cc'),  buffer + ascii + verbosities],
+        'test_gstreamer_ascii_root' : [files('examples/gstreamer_example.cc'),  buffer + ascii_root],
+        'test_gstreamer_ascii_root_verbose' : [files('examples/gstreamer_example.cc'),  buffer + ascii_root + verbosities]
     }
 }

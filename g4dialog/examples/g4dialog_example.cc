@@ -12,11 +12,10 @@
 #include <QTimer>
 
 int main(int argc, char* argv[]) {
+	QApplication app(argc, argv);
 
 	auto gopts = new GOptions(argc, argv, g4dialog::defineOptions());
 	auto log = std::make_shared<GLogger>(gopts, G4DIALOG_LOGGER, "g4dialog example");
-
-	QApplication app(argc, argv);
 
 	auto visManager = new G4VisExecutive;
 	visManager->Initialize();

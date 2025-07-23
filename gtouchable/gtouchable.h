@@ -121,7 +121,7 @@ public:
 	* @param baseGT Pointer to the base GTouchable.
 	* @param newTimeIndex The new electronics time index.
 	*/
-	GTouchable(const std::unique_ptr<GTouchable>& baseGT, int newTimeIndex);
+	GTouchable(std::shared_ptr<GTouchable> baseGT, int newTimeIndex);
 
 	~GTouchable() { if (log) log->debug(DESTRUCTOR, "GTouchable", to_string(gType), " ", getIdentityString()); }
 
@@ -201,7 +201,7 @@ public:
 	}
 
 	// create fake gtouchable for testing purposes, using sector and fake dimensions
-	static std::unique_ptr<GTouchable> create(std::shared_ptr<GLogger> logger) {
+	static std::shared_ptr<GTouchable> create(std::shared_ptr<GLogger> logger) {
 		int touchableNumber = globalGTouchableCounter.fetch_add(1, std::memory_order_relaxed);
 		int sector          = (touchableNumber % 6) + 1;
 		int paddle         = (touchableNumber % 20) + 1;

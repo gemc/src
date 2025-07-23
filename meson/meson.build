@@ -35,7 +35,7 @@ if not fs.exists(geant4_pc)
     run_command(script_path, gemc_prefix, check : true)
 endif
 
-# root: pkg-config created manually by./meson/install_geant4_root_pkgconfig.py
+# root: pkg-config created manually by ./meson/install_geant4_root_pkgconfig.py
 if get_option('use_root')
     root_deps = dependency('root',
                            version : '>=6.28/02',

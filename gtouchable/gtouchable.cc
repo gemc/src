@@ -42,7 +42,7 @@ GTouchable::GTouchable(const std::string& digitization, const std::string& giden
 
 // Copy constructor to create a new hit, in case the time indices differ.
 // Used in the non-overloaded processTouchable when time indices differ.
-GTouchable::GTouchable(const std::unique_ptr<GTouchable>& baseGT, int newTimeIndex) : log(baseGT->log) {
+GTouchable::GTouchable(std::shared_ptr<GTouchable> baseGT, int newTimeIndex) : log(baseGT->log) {
 
 	gType                      = baseGT->gType;
 	gidentity                  = baseGT->gidentity;

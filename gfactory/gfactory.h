@@ -74,16 +74,22 @@ public:
 
 	/// Load a shared library, look up its instantiate symbol, and return object.
 	template <class T>
-	[[nodiscard]] T* LoadAndRegisterObjectFromLibrary(std::string_view name, GOptions *gopts);
+	[[nodiscard]] T* LoadAndRegisterObjectFromLibrary(std::string_view name, GOptions* gopts);
 
 	/// Explicit cleanup (also called by destructor) – idempotent.
 	void clearDLMap() noexcept;
+
+	std::shared_ptr<DynamicLib> getDLHandle(std::string_view name) const {
+		auto it = dlMap_.find(std::string{name});
+		if (it != dlMap_.end()) return it->second;
+		return nullptr;
+	}
 
 private:
 	void registerDL(std::string_view name);
 
 	std::unordered_map<std::string, std::unique_ptr<GFactoryBase>> factoryMap_;
-	std::unordered_map<std::string, std::unique_ptr<DynamicLib>>   dlMap_;
+	std::unordered_map<std::string, std::shared_ptr<DynamicLib>>   dlMap_;
 
 	std::string              gname;
 	std::shared_ptr<GLogger> log;
@@ -106,7 +112,7 @@ inline void GManager::clearDLMap() noexcept { dlMap_.clear(); }
 inline void GManager::registerDL(std::string_view name) {
 	const std::string filename = std::string{name} + ".gplugin";
 	dlMap_.emplace(std::string{name},
-	               std::make_unique<DynamicLib>(log, filename));
+	               std::make_shared<DynamicLib>(log, filename));
 	log->debug(NORMAL, "Loading DL ", name);
 }
 
@@ -128,7 +134,7 @@ Base* GManager::CreateObject(std::string_view name) const {
 }
 
 template <class T>
-T* GManager::LoadAndRegisterObjectFromLibrary(std::string_view name, GOptions *gopts) {
+T* GManager::LoadAndRegisterObjectFromLibrary(std::string_view name, GOptions* gopts) {
 	registerDL(name);
 	auto& dynamicLib = dlMap_.at(std::string{name});
 	if (dynamicLib && dynamicLib->handle) {

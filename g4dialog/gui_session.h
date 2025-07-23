@@ -14,14 +14,13 @@ class GUI_Session : public G4UIsession {
 public:
 	/**
 	 * @brief Constructs a new GUI_Session object.
-	 * @param gopt Pointer to the GOptions object containing configuration parameters.
+	 * @param logger Shared pointer to a GLogger for debug/verbosity messages.
 	 * @param board Pointer to the GBoard widget that will display the messages.
 	 */
-	GUI_Session(GOptions* gopt,  GBoard* board);
+	GUI_Session(GOptions *gopt,  std::shared_ptr<GBoard> board);
 
 	~GUI_Session() override {
-	//	log->debug(DESTRUCTOR, "GUI_Session");
-		delete log;
+		if (log) log->debug(DESTRUCTOR, "GUI_Session");
 	}
 
 	/**
@@ -39,7 +38,7 @@ public:
 	G4int ReceiveG4cerr(const G4String &cerrString) override;
 
 private:
-	GBoard* board;
-    GLogger * const log;
+	std::shared_ptr<GBoard> board;
+	std::unique_ptr<GLogger> log;
 	QString ansiToHtml(const QString &ansiText);
 };

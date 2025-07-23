@@ -37,9 +37,12 @@ void GHit::randomizeHitForTesting(int nsteps) {
 }
 
 
-GHit::GHit(std::unique_ptr<GTouchable> gt, const HitBitSet hbs, const G4Step* thisStep, string cScheme) : G4VHit(),
-                                                                                                          colorSchema(std::move(cScheme)),
-                                                                                                          gtouchable(std::move(gt)) {
+GHit::GHit(std::shared_ptr<GTouchable> gt,
+           const HitBitSet             hbs,
+           const G4Step*               thisStep,
+           string                      cScheme) : G4VHit(),
+                                                  colorSchema(std::move(cScheme)),
+                                                  gtouchable(gt) {
 	// initialize quantities based on HitBitSet, like globalPositions
 	if (thisStep) { addHitInfosForBitset(hbs, thisStep); }
 
@@ -52,7 +55,6 @@ GHit::GHit(std::unique_ptr<GTouchable> gt, const HitBitSet hbs, const G4Step* th
 }
 
 bool GHit::is_same_hit(const std::unique_ptr<GHit>& hit) const { return *gtouchable == *(hit->getGTouchable()); }
-
 
 vector<int> GHit::getTTID() const {
 	vector<int> ttid;

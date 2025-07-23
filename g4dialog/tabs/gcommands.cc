@@ -4,8 +4,7 @@ using namespace std;
 // G4Dialog
 #include "gcommands.h"
 
-G4Commands::G4Commands(QWidget *parent) : QWidget(parent) {
-
+G4Commands::G4Commands(QWidget* parent) : QWidget(parent) {
 	//  + +-------------------+ +
 	//  | |    > Search       | |
 	//  + +-------------------+ +
@@ -34,8 +33,8 @@ G4Commands::G4Commands(QWidget *parent) : QWidget(parent) {
 	connect(w_search, &QLineEdit::textChanged, this, &G4Commands::filterTreeItems);
 
 	// commands tree and help
-	QSplitter *commands_help_splitter = new QSplitter(Qt::Horizontal);
-	QVBoxLayout *commands_help_layout = new QVBoxLayout(commands_help_splitter);
+	QSplitter*   commands_help_splitter = new QSplitter(Qt::Horizontal);
+	QVBoxLayout* commands_help_layout   = new QVBoxLayout(commands_help_splitter);
 
 	// Left: the commands tree
 	create_geant4_commands_widget();
@@ -61,27 +60,26 @@ G4Commands::G4Commands(QWidget *parent) : QWidget(parent) {
 	// putting all together
 	commands_help_splitter->setSizes(QList<int>() << 300 << 800);
 
-	QVBoxLayout *v_layout = new QVBoxLayout(this);
+	QVBoxLayout* v_layout = new QVBoxLayout(this);
 	v_layout->addWidget(new QLabel("Search Commands"));
 	v_layout->addWidget(w_search);
-	v_layout->addWidget(commands_help_splitter, /* stretch factor */  2);
+	v_layout->addWidget(commands_help_splitter, /* stretch factor */ 2);
 	v_layout->addWidget(new QLabel("History"));
 	v_layout->addWidget(w_history);
 	v_layout->addWidget(new QLabel("Enter Command"));
 	v_layout->addWidget(w_command);
-
 }
 
 void G4Commands::create_geant4_commands_widget() {
 	// Print search text on screen for debugging
 	QString search_text = w_search->text();
 
-	G4UImanager *ui_manager = G4UImanager::GetUIpointer();
-	G4UIcommandTree *g4_commands_tree = ui_manager->GetTree();
+	G4UImanager*     ui_manager       = G4UImanager::GetUIpointer();
+	G4UIcommandTree* g4_commands_tree = ui_manager->GetTree();
 
 	// Create model for QTreeView
-	QStandardItemModel *model = new QStandardItemModel();
-	w_commands = new QTreeView();
+	QStandardItemModel* model = new QStandardItemModel();
+	w_commands                = new QTreeView();
 	w_commands->setModel(model);
 	w_commands->setSelectionMode(QAbstractItemView::SingleSelection);
 
@@ -91,8 +89,8 @@ void G4Commands::create_geant4_commands_widget() {
 	// Add commands to the model
 	G4int g4_commands_tree_size = g4_commands_tree->GetTreeEntry();
 	for (int a = 0; a < g4_commands_tree_size; a++) {
-		QStandardItem *newItem = new QStandardItem(
-				QString((char *) g4_commands_tree->GetTree(a + 1)->GetPathName().data()).trimmed());
+		QStandardItem* newItem = new QStandardItem(
+		                                           QString((char*)g4_commands_tree->GetTree(a + 1)->GetPathName().data()).trimmed());
 		model->appendRow(newItem);
 
 		// Add child commands
@@ -103,34 +101,32 @@ void G4Commands::create_geant4_commands_widget() {
 	w_commands->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 	connect(w_commands->selectionModel(), &QItemSelectionModel::selectionChanged, this,
-			&G4Commands::display_help_from_selection);
+	        &G4Commands::display_help_from_selection);
 	connect(w_commands, &QTreeView::doubleClicked, this, &G4Commands::paste_help_selection_item);
 }
 
 
 void G4Commands::filterTreeItems() {
-	QString search_text = w_search->text().trimmed();
-	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(w_commands->model());
+	QString             search_text = w_search->text().trimmed();
+	QStandardItemModel* model       = qobject_cast<QStandardItemModel*>(w_commands->model());
 	if (!model) return;
 
 	for (int i = 0; i < model->rowCount(); ++i) {
-		QStandardItem *item = model->item(i);
-		bool showItem = filterItem(item, search_text);
+		QStandardItem* item     = model->item(i);
+		bool           showItem = filterItem(item, search_text);
 		w_commands->setRowHidden(i, QModelIndex(), !showItem);
 	}
 }
 
 
-bool G4Commands::filterItem(QStandardItem *item, const QString &search_text) {
-	bool matches = item->text().contains(search_text, Qt::CaseInsensitive);
+bool G4Commands::filterItem(QStandardItem* item, const QString& search_text) {
+	bool matches      = item->text().contains(search_text, Qt::CaseInsensitive);
 	bool childMatches = false;
 
 	// Check child items recursively
 	for (int i = 0; i < item->rowCount(); ++i) {
-		QStandardItem *childItem = item->child(i);
-		if (filterItem(childItem, search_text)) {
-			childMatches = true;
-		}
+		QStandardItem* childItem = item->child(i);
+		if (filterItem(childItem, search_text)) { childMatches = true; }
 	}
 
 	// Show this item if it matches or has a matching child
@@ -141,21 +137,21 @@ bool G4Commands::filterItem(QStandardItem *item, const QString &search_text) {
 }
 
 
-void G4Commands::create_child_help_tree(QStandardItem *parent, G4UIcommandTree *aCommandTree) {
+void G4Commands::create_child_help_tree(QStandardItem* parent, G4UIcommandTree* aCommandTree) {
 	if (parent == nullptr || aCommandTree == nullptr) return;
 
 	// Add child directories
 	for (int a = 0; a < aCommandTree->GetTreeEntry(); a++) {
-		QStandardItem *newItem = new QStandardItem(
-				QString((char *) (aCommandTree->GetTree(a + 1)->GetPathName()).data()).trimmed());
+		QStandardItem* newItem = new QStandardItem(
+		                                           QString((char*)(aCommandTree->GetTree(a + 1)->GetPathName()).data()).trimmed());
 		parent->appendRow(newItem);
 		create_child_help_tree(newItem, aCommandTree->GetTree(a + 1));
 	}
 
 	// Add commands
 	for (int a = 0; a < aCommandTree->GetCommandEntry(); a++) {
-		QStandardItem *newItem = new QStandardItem(
-				QString((char *) (aCommandTree->GetCommand(a + 1)->GetCommandPath()).data()).trimmed());
+		QStandardItem* newItem = new QStandardItem(
+		                                           QString((char*)(aCommandTree->GetCommand(a + 1)->GetCommandPath()).data()).trimmed());
 		parent->appendRow(newItem);
 	}
 }
@@ -167,7 +163,7 @@ void G4Commands::execute_command() {
 	QString command = w_command->text().trimmed();
 	if (command.isEmpty()) return;
 
-	G4UImanager *ui_manager = G4UImanager::GetUIpointer();
+	G4UImanager* ui_manager = G4UImanager::GetUIpointer();
 	ui_manager->ApplyCommand(command.toStdString().c_str());
 
 	// Avoid duplicate history entries
@@ -179,17 +175,13 @@ void G4Commands::execute_command() {
 		}
 	}
 
-	if (!exists) {
-		w_history->addItem(command);
-	}
+	if (!exists) { w_history->addItem(command); }
 
 	w_command->clear();
 }
 
 
-
-
-void G4Commands::recall_history_item_on_double_click(QListWidgetItem *item) {
+void G4Commands::recall_history_item_on_double_click(QListWidgetItem* item) {
 	if (!item) return;
 
 	// Set the command line input to the selected history item
@@ -204,24 +196,21 @@ void G4Commands::display_help_from_selection() {
 	QModelIndexList selectedIndexes = w_commands->selectionModel()->selectedIndexes();
 	if (selectedIndexes.isEmpty()) return;
 
-	QModelIndex index = selectedIndexes.first();
-	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(w_commands->model());
+	QModelIndex         index = selectedIndexes.first();
+	QStandardItemModel* model = qobject_cast<QStandardItemModel*>(w_commands->model());
 	if (!model) return;
 
-	QStandardItem *item = model->itemFromIndex(index);
+	QStandardItem* item = model->itemFromIndex(index);
 	if (!item) return;
 
-	std::string itemText = item->text().toStdString();
-	G4UIcommandTree *treeTop = G4UImanager::GetUIpointer()->GetTree();
-	G4UIcommand *command = treeTop->FindPath(itemText.c_str());
+	std::string      itemText = item->text().toStdString();
+	G4UIcommandTree* treeTop  = G4UImanager::GetUIpointer()->GetTree();
+	G4UIcommand*     command  = treeTop->FindPath(itemText.c_str());
 
-	if (command) {
-		w_help->setText(get_command_g4help(command));
-	} else {
-		G4UIcommandTree *path = treeTop->FindCommandTree(itemText.c_str());
-		if (path) {
-			w_help->setText(QString::fromStdString(path->GetTitle()));
-		}
+	if (command) { w_help->setText(get_command_g4help(command)); }
+	else {
+		G4UIcommandTree* path = treeTop->FindCommandTree(itemText.c_str());
+		if (path) { w_help->setText(QString::fromStdString(path->GetTitle())); }
 	}
 }
 
@@ -231,28 +220,20 @@ void G4Commands::paste_help_selection_item() {
 	// Display help from the selection
 	display_help_from_selection();
 
-	if (!w_commands || !w_help) {
-		return;
-	}
+	if (!w_commands || !w_help) { return; }
 
 	// Get the selected items from the selection model of QTreeView
 	QModelIndexList selectedIndexes = w_commands->selectionModel()->selectedIndexes();
-	if (selectedIndexes.isEmpty()) {
-		return;
-	}
+	if (selectedIndexes.isEmpty()) { return; }
 
 	// Assuming the first selected item is the one to retrieve
-	QModelIndex index = selectedIndexes.first();
-	QStandardItemModel *model = qobject_cast<QStandardItemModel *>(w_commands->model());
-	if (!model) {
-		return;
-	}
+	QModelIndex         index = selectedIndexes.first();
+	QStandardItemModel* model = qobject_cast<QStandardItemModel*>(w_commands->model());
+	if (!model) { return; }
 
 	// Retrieve the item at the given index
-	QStandardItem *item = model->itemFromIndex(index);
-	if (!item) {
-		return;
-	}
+	QStandardItem* item = model->itemFromIndex(index);
+	if (!item) { return; }
 
 	// Clear the command input field and set the selected item's text
 	w_command->clear();
@@ -260,62 +241,41 @@ void G4Commands::paste_help_selection_item() {
 }
 
 
-QString G4Commands::get_command_g4help(const G4UIcommand *aCommand) {
-
+QString G4Commands::get_command_g4help(const G4UIcommand* aCommand) {
 	QString txt = "";
 	if (aCommand == nullptr)
 		return txt;
 
-	G4String commandPath = aCommand->GetCommandPath();
-	G4String rangeString = aCommand->GetRange();
-	G4int n_guidanceEntry = aCommand->GetGuidanceEntries();
-	G4int n_parameterEntry = aCommand->GetParameterEntries();
+	G4String commandPath      = aCommand->GetCommandPath();
+	G4String rangeString      = aCommand->GetRange();
+	G4int    n_guidanceEntry  = aCommand->GetGuidanceEntries();
+	G4int    n_parameterEntry = aCommand->GetParameterEntries();
 
-	if ((commandPath == "") && (rangeString == "") && (n_guidanceEntry == 0) && (n_parameterEntry == 0)) {
-		return txt;
-	}
+	if ((commandPath == "") && (rangeString == "") && (n_guidanceEntry == 0) && (n_parameterEntry == 0)) { return txt; }
 
-	if ((commandPath.length() - 1) != '/') {
-		txt += "Command " + QString((char *) (commandPath).data()) + "\n";
-	}
+	if ((commandPath.length() - 1) != '/') { txt += "Command " + QString((char*)(commandPath).data()) + "\n"; }
 	txt += "Guidance :\n";
 
-	for (G4int i_thGuidance = 0; i_thGuidance < n_guidanceEntry; i_thGuidance++) {
-		txt += QString((char *) (aCommand->GetGuidanceLine(i_thGuidance)).data()) + "\n";
-	}
-	if (rangeString != "") {
-		txt += " Range of parameters : " + QString((char *) (rangeString).data()) + "\n";
-	}
+	for (G4int i_thGuidance = 0; i_thGuidance < n_guidanceEntry; i_thGuidance++) { txt += QString((char*)(aCommand->GetGuidanceLine(i_thGuidance)).data()) + "\n"; }
+	if (rangeString != "") { txt += " Range of parameters : " + QString((char*)(rangeString).data()) + "\n"; }
 	if (n_parameterEntry > 0) {
-		G4UIparameter *param;
+		G4UIparameter* param;
 
 		// Re-implementation from G4UIparameter.cc
 		for (G4int i_thParameter = 0; i_thParameter < n_parameterEntry; i_thParameter++) {
 			param = aCommand->GetParameter(i_thParameter);
-			txt += "\nParameter : " + QString((char *) (param->GetParameterName()).data()) + "\n";
-			if (param->GetParameterGuidance() != "") {
-				txt += QString((char *) (param->GetParameterGuidance()).data()) + "\n";
-			}
+			txt += "\nParameter : " + QString((char*)(param->GetParameterName()).data()) + "\n";
+			if (param->GetParameterGuidance() != "") { txt += QString((char*)(param->GetParameterGuidance()).data()) + "\n"; }
 			txt += " Parameter type  : " + QString(QChar(param->GetParameterType())) + "\n";
-			if (param->IsOmittable()) {
-				txt += " Omittable       : True\n";
-			} else {
-				txt += " Omittable       : False\n";
-			}
+			if (param->IsOmittable()) { txt += " Omittable       : True\n"; }
+			else { txt += " Omittable       : False\n"; }
 
-			if (param->GetCurrentAsDefault()) {
-				txt += " Default value   : taken from the current value\n";
-			} else if (param->GetDefaultValue() != "") {
-				txt += " Default value   : " + QString((char *) (param->GetDefaultValue()).data()) + "\n";
-			}
+			if (param->GetCurrentAsDefault()) { txt += " Default value   : taken from the current value\n"; }
+			else if (param->GetDefaultValue() != "") { txt += " Default value   : " + QString((char*)(param->GetDefaultValue()).data()) + "\n"; }
 
-			if (param->GetParameterRange() != "") {
-				txt += " Parameter range : " + QString((char *) (param->GetParameterRange()).data()) + "\n";
-			}
+			if (param->GetParameterRange() != "") { txt += " Parameter range : " + QString((char*)(param->GetParameterRange()).data()) + "\n"; }
 
-			if (param->GetParameterCandidates() != "") {
-				txt += " Candidates      : " + QString((char *) (param->GetParameterCandidates()).data()) + "\n";
-			}
+			if (param->GetParameterCandidates() != "") { txt += " Candidates      : " + QString((char*)(param->GetParameterCandidates()).data()) + "\n"; }
 		}
 	}
 	return txt;

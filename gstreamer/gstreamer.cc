@@ -14,8 +14,13 @@ bool GStreamer::is_valid_format(const std::string& format) {
 
 // pragma todo: pass someting like map<string, bitset> to each detector to decide which data to publish
 void GStreamer::publishEventData(const std::shared_ptr<GEventDataCollection>& event_data) {
+	// event_data and its header must not be null
+	if (!event_data) { log->error(ERR_PUBLISH_ERROR, "event data is null in GStreamer::publishEventData"); }
+	if (!event_data->getHeader()) { log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::publishEventData"); }
+
 	// add to the buffer
 	eventBuffer.emplace_back(event_data);
+
 	// flush if the buffer is full
 	if (eventBuffer.size() >= bufferFlushLimit) { flushEventBuffer(); }
 }
@@ -25,6 +30,7 @@ void GStreamer::flushEventBuffer() {
 
 	// events are read only by the streamer
 	for (const auto& eventData : eventBuffer) {
+
 		log->info(2, "GStreamer::publishEventData->startEvent: ",
 		          gutilities::success_or_fail(startEvent(eventData)));
 

@@ -15,39 +15,35 @@
  * to write the log to disk. The log messages are maintained in a QStringList to support filtering.
  */
 class GBoard : public QWidget {
-Q_OBJECT
+	Q_OBJECT
 
 public:
 	/**
 	 * @brief Constructs a new GBoard widget.
-	 * @param log A unique pointer to a GLogger for debug messages.
+	 * @param logger Shared pointer to a GLogger for debug messages.
 	 * @param parent The parent widget (default is nullptr).
 	 */
-	explicit GBoard(GOptions *gopt, QWidget *parent = nullptr);
+	explicit GBoard(GOptions *gopt, QWidget* parent = nullptr);
 
 	/**
 	 * @brief Destructor.
 	 */
 	~GBoard() override {
-		if (log) { // Check if log is not null before using
-			log->debug(DESTRUCTOR, "GBoard");
-			delete log;
-		}
+		log->debug(DESTRUCTOR, "GBoard");
 	}
 
 	/**
 	 * @brief Appends a log message to the log tab.
 	 * @param text The log message text.
 	 */
-	void appendLog(const QString &text);
+	void appendLog(const QString& text);
 
 private slots:
-
 	/**
 	 * @brief Filters the displayed log lines based on the search text.
 	 * @param filterText The text used to filter log lines.
 	 */
-	void filterLog(const QString &filterText);
+	void filterLog(const QString& filterText);
 
 	/**
 	 * @brief Clears all log messages.
@@ -60,14 +56,13 @@ private slots:
 	void saveLog();
 
 private:
-	GLogger *const log;
-	QLineEdit *searchLineEdit;  ///< Input field for search/filter text
-	QToolButton *clearButton;   ///< Button to clear the log
-	QToolButton *saveButton;    ///< Button to save the log
-	QTextEdit *logTextEdit;     ///< The main text area for displaying logs
+	std::unique_ptr<GLogger> log;
+	QLineEdit*     searchLineEdit{}; ///< Input field for search/filter text
+	QToolButton*   clearButton{};    ///< Button to clear the log
+	QToolButton*   saveButton{};     ///< Button to save the log
+	QTextEdit*     logTextEdit{};    ///< The main text area for displaying logs
 
 	// Maintains all log lines for filtering purposes.
-	QString currentFilterText;
+	QString currentFilterText{};
 
 };
-

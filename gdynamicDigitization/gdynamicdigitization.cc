@@ -51,7 +51,7 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 	trueInfoData->includeVariable("avglx", avgLocalPos.getX());
 	trueInfoData->includeVariable("avgly", avgLocalPos.getY());
 	trueInfoData->includeVariable("avglz", avgLocalPos.getZ());
-	trueInfoData->includeVariable("hitn", hitn);
+	trueInfoData->includeVariable("hitn", static_cast<int>(hitn)); // reasonable to assume hitn is less than INT_MAX
 
 	// Process bit 1: include process name.
 	trueInfoData->includeVariable("processName", ghit->getProcessName());
@@ -154,7 +154,7 @@ void GTouchableModifiers::assignOverallWeight(const std::string& tname, double t
  * \param thisStep Pointer to the current G4Step.
  * \return The global time.
  */
-double GDynamicDigitization::processStepTimeImpl([[maybe_unused]] const std::unique_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep) {
+double GDynamicDigitization::processStepTimeImpl([[maybe_unused]] const std::shared_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep) {
 	return thisStep->GetPostStepPoint()->GetGlobalTime();
 }
 
@@ -169,30 +169,30 @@ double GDynamicDigitization::processStepTimeImpl([[maybe_unused]] const std::uni
  * \param thisStep Pointer to the current G4Step.
  * \return A vector of GTouchable pointers.
  */
-std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processTouchableImpl(std::unique_ptr<GTouchable> gtouchable, G4Step* thisStep) {
+std::vector<std::shared_ptr<GTouchable>> GDynamicDigitization::processTouchableImpl(std::shared_ptr<GTouchable> gtouchable, G4Step* thisStep) {
 	double stepTimeAtElectronics      = processStepTime(gtouchable, thisStep);
 	int    stepTimeAtElectronicsIndex = readoutSpecs->timeCellIndex(stepTimeAtElectronics);
 
+	std::vector<std::shared_ptr<GTouchable>> result;
+
 	if (stepTimeAtElectronicsIndex == gtouchable->getStepTimeAtElectronicsIndex() ||
 	    gtouchable->getStepTimeAtElectronicsIndex() == GTOUCHABLEUNSETTIMEINDEX) {
-
 		gtouchable->assignStepTimeAtElectronicsIndex(stepTimeAtElectronicsIndex);
 
 		// std::initializer_list requires copyable elements so we need to create the vector first
-		std::vector<std::unique_ptr<GTouchable>> result;
-		result.emplace_back(std::move(gtouchable));
-		return result;
-	} else {
+		result.emplace_back(gtouchable);
+	}
+	else {
 		// Create a new GTouchable with the updated time index.
-		auto cloned = std::make_unique<GTouchable>(gtouchable, stepTimeAtElectronicsIndex);
+		auto cloned = std::make_shared<GTouchable>(gtouchable, stepTimeAtElectronicsIndex);
 
 		// release ownership of the original touchable and return both.
 		// std::initializer_list requires copyable elements so we need to create the vector first
-		std::vector<std::unique_ptr<GTouchable>> result;
-		result.emplace_back(std::move(gtouchable));
-		result.emplace_back(std::move(cloned));
-		return result;
+		result.emplace_back(gtouchable);
+		result.emplace_back(cloned);
 	}
+
+	return result;
 }
 
 /**
@@ -205,9 +205,9 @@ std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processTouchableI
  * \return An empty vector of GTouchable pointers.
  */
 // TODO: are we using this anywhere? pass readonly touchId or move it?
-std::vector<std::unique_ptr<GTouchable>> GDynamicDigitization::processGTouchableModifiersImpl([[maybe_unused]] const std::unique_ptr<GTouchable>&   gTouchID,
-                                                                                              [[maybe_unused]] const GTouchableModifiers& gmods) {
-	std::vector<std::unique_ptr<GTouchable>> touchables;
+std::vector<std::shared_ptr<GTouchable>> GDynamicDigitization::processGTouchableModifiersImpl([[maybe_unused]] const std::shared_ptr<GTouchable>& gTouchID,
+                                                                                              [[maybe_unused]] const GTouchableModifiers&         gmods) {
+	std::vector<std::shared_ptr<GTouchable>> touchables;
 
 	// touchables.emplace_back(std::make_unique<GTouchable>(*gTouchID, 1)); // Ensure we have a valid touchable to return
 

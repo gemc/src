@@ -172,7 +172,6 @@ namespace gstreamer {
 
 using gstreamersMap = std::unordered_map<std::string, std::shared_ptr<GStreamer>>;
 
-
 // this run in a worker thread, so each thread gets its own map of gstreamers
 inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_ptr<GOptions>& gopts,
                                                              int                              thread_id) {
@@ -180,22 +179,27 @@ inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_p
 
 	GManager manager(log);
 
-
 	auto gstreamers = std::make_shared<gstreamersMap>();
 
 	for (const auto& gstreamer_def : gstreamer::getGStreamerDefinition(gopts.get())) {
 		auto        gstreamer_def_thread = GStreamerDefinition(gstreamer_def, thread_id);
 		std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
 
-		gstreamers->emplace(gstreamer_plugin,
-		                    manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts.get()));
+		auto gstr_ptr =  manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts.get());
+		auto pluginLib   = manager.getDLHandle(gstreamer_plugin);  // this is to keep the plugin opened in the thread
+
+		auto streamer = std::shared_ptr<GStreamer>(gstr_ptr, [pluginLib](GStreamer* ptr) {
+			delete ptr;
+			// pluginLib is captured by value — ensures .so isn't unloaded until this lambda ends
+		});
+
+		gstreamers->emplace(gstreamer_plugin,streamer);
 
 		gstreamers->at(gstreamer_plugin)->define_gstreamer(gstreamer_def_thread);
 		if (!gstreamers->at(gstreamer_plugin)->openConnection()) {
 			log->error(1, "Failed to open connection for GStreamer ", gstreamer_plugin, " in thread ", gstreamer_def_thread.tid);
 		}
 	}
-
 
 	return gstreamers;
 }

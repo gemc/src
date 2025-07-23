@@ -120,13 +120,13 @@ public:
 	 * \param thisStep Pointer to the current G4Step.
 	 * \return The global time.
 	 */
-	[[nodiscard]] double processStepTime(const std::unique_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep) {
+	[[nodiscard]] double processStepTime(const std::shared_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::process step time");
 		return processStepTimeImpl(gTouchID, thisStep);
 	}
 
-	[[nodiscard]] virtual double processStepTimeImpl(const std::unique_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep);
+	[[nodiscard]] virtual double processStepTimeImpl(const std::shared_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep);
 
 
 	/**
@@ -139,13 +139,13 @@ public:
 	 * \param thisStep Pointer to the current G4Step.
 	 * \return A vector of GTouchable pointers.
 	 */
-	[[nodiscard]] std::vector<std::unique_ptr<GTouchable>> processTouchable(std::unique_ptr<GTouchable> gtouchable, G4Step* thisStep) {
+	[[nodiscard]] std::vector<std::shared_ptr<GTouchable>> processTouchable(std::shared_ptr<GTouchable> gtouchable, G4Step* thisStep) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::process gtouchable");
 		return processTouchableImpl(std::move(gtouchable), thisStep);
 	}
 
-	[[nodiscard]] virtual std::vector<std::unique_ptr<GTouchable>> processTouchableImpl(std::unique_ptr<GTouchable> gtouchable, G4Step* thisStep);
+	[[nodiscard]] virtual std::vector<std::shared_ptr<GTouchable>> processTouchableImpl(std::shared_ptr<GTouchable> gtouchable, G4Step* thisStep);
 
 	/**
 	 * \brief Processes touchable modifiers.
@@ -156,13 +156,13 @@ public:
 	 * \param gmods A GTouchableModifiers object.
 	 * \return A vector of modified GTouchable pointers.
 	 */
-	[[nodiscard]] std::vector<std::unique_ptr<GTouchable>> processGTouchableModifiers(const std::unique_ptr<GTouchable>& gTouchID, GTouchableModifiers gmods) {
+	[[nodiscard]] std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiers(const std::shared_ptr<GTouchable>& gTouchID, GTouchableModifiers gmods) {
 		check_if_log_defined();
 		digi_logger->debug(NORMAL, "GDynamicDigitization::process gtouchable modifiers");
 		return processGTouchableModifiersImpl(gTouchID, std::move(gmods));
 	}
 
-	virtual std::vector<std::unique_ptr<GTouchable>> processGTouchableModifiersImpl([[maybe_unused]] const std::unique_ptr<GTouchable>& gTouchID, [[maybe_unused]] const GTouchableModifiers& gmods);
+	virtual std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiersImpl([[maybe_unused]] const std::shared_ptr<GTouchable>& gTouchID, [[maybe_unused]] const GTouchableModifiers& gmods);
 
 	/**
 	 * \brief Collects true hit information into a GTrueInfoData object.

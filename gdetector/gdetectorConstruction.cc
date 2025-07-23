@@ -105,7 +105,8 @@ void GDetectorConstruction::ConstructSDandField() {
 				// Register the volume touchable with the sensitive detector.
 				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(
 						g4name,
-						new GTouchable(digitizationName, gvolume->getGIdentity(), gvolume->getDetectorDimensions(), touchableVerbosity)
+						// this will also release the ownership of the GTouchable to the GSD map
+						std::make_unique<GTouchable>(digitizationName, gvolume->getGIdentity(), gvolume->getDetectorDimensions(), touchableVerbosity)
 				);
 				SetSensitiveDetector(g4name, sensitiveDetectorsMap[digitizationName]);
 			}

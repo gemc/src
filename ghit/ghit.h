@@ -35,7 +35,7 @@ public:
 	 * \param hbs Bitset selects which hit information to record.
 	 * \param cScheme Color schema for visualization (default is "default").
 	 */
-	GHit(std::unique_ptr<GTouchable>, HitBitSet hbs, const G4Step* thisStep = nullptr, std::string cScheme = "default");
+	GHit(std::shared_ptr<GTouchable> gt, HitBitSet hbs, const G4Step* thisStep = nullptr, std::string cScheme = "default");
 
 	/**
 	 * \brief Destructor for GHit.
@@ -63,7 +63,7 @@ public:
 	 * @param hit
 	 * @return Returns true if this gtouchable is the same as the one in the hit.
 	 */
-	bool is_same_hit(const std::unique_ptr<GHit>& hit) const;
+	[[nodiscard]] bool is_same_hit(const std::unique_ptr<GHit>& hit) const;
 
 private:
 	G4Colour colour_touch, colour_hit, colour_passby;
@@ -73,7 +73,7 @@ private:
 	std::string colorSchema;
 
 	// GTouchable saved here, so it can be used in the overloaded == function
-	std::unique_ptr<GTouchable> gtouchable;
+	std::shared_ptr<GTouchable> gtouchable;
 
 	// hit data, selected by HitBitSet, to be collected for each step
 	// always present:
@@ -155,7 +155,7 @@ public:
 	[[nodiscard]] inline double getE() const { return Es.front(); }
 
 
-	[[nodiscard]] inline int nsteps() const { return Es.size(); }
+	[[nodiscard]] inline size_t nsteps() const { return Es.size(); }
 
 
 	/**
@@ -168,7 +168,7 @@ public:
 	 * \brief Returns a const reference to the unique_ptr managing the GTouchable.
 	 * \return A const reference to the unique_ptr<GTouchable>.
 	 */
-	[[nodiscard]] inline const std::unique_ptr<GTouchable>& getGTouchable() const { return gtouchable; }
+	[[nodiscard]] inline std::shared_ptr<GTouchable> getGTouchable() const { return gtouchable; }
 
 	/**
 	 * \brief Returns the detector element identity.
@@ -207,14 +207,14 @@ public:
 	 *
 	 * \return A vector of integer identity values.
 	 */
-	std::vector<int> getTTID() const;
+	[[nodiscard]] std::vector<int> getTTID() const;
 
 
 	// create fake GHit for testing purposes, using sector and fake dimensions
 	static std::unique_ptr<GHit> create(std::shared_ptr<GLogger> logger) {
 		HitBitSet hitBitSet;
-		auto      gt = GTouchable::create(logger);
-		auto hit =  std::make_unique<GHit>(std::move(gt), hitBitSet);
+		auto      gt  = GTouchable::create(logger);
+		auto      hit = std::make_unique<GHit>(std::move(gt), hitBitSet);
 		hit->randomizeHitForTesting(1 + globalHitCounter.fetch_add(1, std::memory_order_relaxed) % 10);
 		return hit;
 	}
