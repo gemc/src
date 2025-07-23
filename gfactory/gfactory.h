@@ -74,16 +74,10 @@ public:
 
 	/// Load a shared library, look up its instantiate symbol, and return object.
 	template <class T>
-	[[nodiscard]] T* LoadAndRegisterObjectFromLibrary(std::string_view name, GOptions* gopts);
+	[[nodiscard]] std::shared_ptr<T> LoadAndRegisterObjectFromLibrary(std::string_view name, GOptions* gopts);
 
 	/// Explicit cleanup (also called by destructor) – idempotent.
 	void clearDLMap() noexcept;
-
-	std::shared_ptr<DynamicLib> getDLHandle(std::string_view name) const {
-		auto it = dlMap_.find(std::string{name});
-		if (it != dlMap_.end()) return it->second;
-		return nullptr;
-	}
 
 private:
 	void registerDL(std::string_view name);
@@ -134,16 +128,22 @@ Base* GManager::CreateObject(std::string_view name) const {
 }
 
 template <class T>
-T* GManager::LoadAndRegisterObjectFromLibrary(std::string_view name, GOptions* gopts) {
+std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view name, GOptions* gopts) {
 	registerDL(name);
-	auto& dynamicLib = dlMap_.at(std::string{name});
-	if (dynamicLib && dynamicLib->handle) {
-		auto factory = T::instantiate(dynamicLib->handle);
-		// in c++20 it is possible to use introspection with concept thuse removing the
-		// need of having to define a set_loggers function
-		// it didn't work on 5/21/2025 so for now the function is required to be defined
-		factory->set_loggers(gopts);
-		return factory;
+	auto pluginName = std::string{name};
+	auto pluginLib = dlMap_.at(pluginName); // shared_ptr<DynamicLib>
+
+	if (pluginLib && pluginLib->handle) {
+		T* raw = T::instantiate(pluginLib->handle);
+		raw->set_loggers(gopts);
+
+		// return shared_ptr<T> with deleter that captures pluginLib
+		return std::shared_ptr<T>(raw, [pluginLib](T* ptr) {
+			delete ptr;
+			// pluginLib keeps .so alive until ptr is destroyed
+		});
 	}
+
 	log->error(ERR_DLHANDLENOTFOUND, "Plugin ", name, " could not be loaded.");
+	return nullptr;
 }

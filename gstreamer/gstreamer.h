@@ -186,14 +186,10 @@ inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_p
 		std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
 
 		auto gstr_ptr =  manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts.get());
-		auto pluginLib   = manager.getDLHandle(gstreamer_plugin);  // this is to keep the plugin opened in the thread
 
-		auto streamer = std::shared_ptr<GStreamer>(gstr_ptr, [pluginLib](GStreamer* ptr) {
-			delete ptr;
-			// pluginLib is captured by value — ensures .so isn't unloaded until this lambda ends
-		});
+		auto streamer = manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts.get());
+		gstreamers->emplace(gstreamer_plugin, streamer);
 
-		gstreamers->emplace(gstreamer_plugin,streamer);
 
 		gstreamers->at(gstreamer_plugin)->define_gstreamer(gstreamer_def_thread);
 		if (!gstreamers->at(gstreamer_plugin)->openConnection()) {

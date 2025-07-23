@@ -46,10 +46,10 @@ int main(int argc, char *argv[]) {
 	// that's ok but need to spit error if that doesn't happen
 	GManager managerB(log, "GManager Dynamic");
 
-	map<string, Car *> ggg;
+	map<string, std::shared_ptr<Car>> ggg;
 	ggg["tesla"] = managerB.LoadAndRegisterObjectFromLibrary<Car>("test_dyn_factory1", gopts);
 	ggg["ford"] = managerB.LoadAndRegisterObjectFromLibrary<Car>("test_dyn_factory2", gopts);
-	Car *aCar = ggg["ford"];
+	auto aCar = ggg["ford"];
 
 
 	// calling base and derived method
