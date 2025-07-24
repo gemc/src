@@ -145,5 +145,4 @@ std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view n
 	}
 
 	log->error(ERR_DLHANDLENOTFOUND, "Plugin ", name, " could not be loaded.");
-	return nullptr;
 }

@@ -46,7 +46,6 @@ public:
 	);
 
 
-
 	/**
 	 * @brief Deep copy constructor (used only by clone())
 	 */
@@ -61,9 +60,8 @@ public:
 	GSystem& operator=(const GSystem&) = delete;
 
 	// simple deep‑copy helper
-	[[nodiscard]] std::unique_ptr<GSystem> clone() const
-	{
-		return std::make_unique<GSystem>(*this);   // invokes copy‑ctor
+	[[nodiscard]] std::unique_ptr<GSystem> clone() const {
+		return std::make_unique<GSystem>(*this); // invokes copy‑ctor
 	}
 
 	~GSystem() { log->debug(DESTRUCTOR, "GSystem"); }
@@ -75,7 +73,7 @@ private:
 	std::string              path;        ///< Absolute/relative path.
 	std::string              factoryName; ///< Name of factory that builds the detector.
 	std::string              experiment;  ///< Experiment name (e.g., "clas12").
-	int                      runno{};       ///< Run number.
+	int                      runno{};     ///< Run number.
 	std::string              variation;   ///< Variation of the detector.
 	std::string              annotations; ///< Annotations (e.g., "mats_only" means only materials are loaded).
 
@@ -145,14 +143,10 @@ public:
 	[[nodiscard]] GVolume* getGVolume(const std::string& volumeName) const;
 
 	/// \brief Returns the map of volumes.
-	[[nodiscard]] inline const std::map<std::string, std::unique_ptr<GVolume>>& getGVolumesMap() const {
-		return gvolumesMap;
-	}
+	[[nodiscard]] inline const std::map<std::string, std::unique_ptr<GVolume>>& getGVolumesMap() const { return gvolumesMap; }
 
 	/// \brief Returns the map of materials.
-	[[nodiscard]] inline const std::map<std::string, std::unique_ptr<GMaterial>>& getGMaterialMap() const {
-		return gmaterialsMap;
-	}
+	[[nodiscard]] inline const std::map<std::string, std::unique_ptr<GMaterial>>& getGMaterialMap() const { return gmaterialsMap; }
 
 
 	/**

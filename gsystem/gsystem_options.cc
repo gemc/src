@@ -8,29 +8,28 @@ namespace gsystem {
 
 // method to return a vector of GSystem from the options
 SystemList getSystems(GOptions* gopts, const std::shared_ptr<GLogger>& log) {
-
 	auto gsystem_node = gopts->getOptionNode("gsystem");
 
 	SystemList systems;
 	systems.reserve(gsystem_node.size());
 
 
-	auto exp          = gopts->getScalarString("experiment");
-	auto run          = gopts->getScalarInt("runno");
-	auto dbhost       = gopts->getScalarString("sql");
+	auto exp    = gopts->getScalarString("experiment");
+	auto run    = gopts->getScalarInt("runno");
+	auto dbhost = gopts->getScalarString("sql");
 
 	for (auto gsystem_item : gsystem_node) {
 		systems.emplace_back(std::make_unique<GSystem>(
-		                     log,
-		                     dbhost,
-		                     gopts->get_variable_in_option<string>(gsystem_item, "name", goptions::NODFLT),
-		                     gopts->get_variable_in_option<string>(gsystem_item, "factory", GSYSTEMSQLITETFACTORYLABEL),
-		                     exp,
-		                     run,
-		                     gopts->get_variable_in_option<string>(gsystem_item, "variation", "default"),
-		                     gopts->get_variable_in_option<string>(gsystem_item, "annotations",
-		                                                           UNINITIALIZEDSTRINGQUANTITY)
-		                    ));
+		                                               log,
+		                                               dbhost,
+		                                               gopts->get_variable_in_option<string>(gsystem_item, "name", goptions::NODFLT),
+		                                               gopts->get_variable_in_option<string>(gsystem_item, "factory", GSYSTEMSQLITETFACTORYLABEL),
+		                                               exp,
+		                                               run,
+		                                               gopts->get_variable_in_option<string>(gsystem_item, "variation", "default"),
+		                                               gopts->get_variable_in_option<string>(gsystem_item, "annotations",
+		                                                                                     UNINITIALIZEDSTRINGQUANTITY)
+		                                              ));
 	}
 
 	return systems;

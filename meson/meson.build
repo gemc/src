@@ -53,11 +53,16 @@ geant4_deps = dependency('geant4',
 
 cmake = import('cmake')
 opt_var = cmake.subproject_options()
-opt_var.add_cmake_defines({ 'BUILD_SHARED_LIBS' : 'OFF', 'BUILD_STATIC_LIBS' : 'ON', 'CMAKE_POLICY_VERSION_MINIMUM' : '4.0' })
+opt_var.add_cmake_defines({
+                              'BUILD_SHARED_LIBS' : 'OFF',
+                              'BUILD_STATIC_LIBS' : 'ON',
+                              'CMAKE_POLICY_VERSION_MINIMUM' : '4.0'
+                          })
 opt_var.append_compile_args('cpp', '-Wno-shadow')
 
 # TODO: remove temp workaround for _LIBCPP_ENABLE_ASSERTIONS deprecation
 opt_var.append_compile_args('cpp',
+                            '-fPIC',
                             '-Wno-shadow',
                             '-U_LIBCPP_ENABLE_ASSERTIONS',
                             '-D_LIBCPP_HARDENING_MODE_DEBUG=true',

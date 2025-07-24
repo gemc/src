@@ -23,7 +23,7 @@ extern "C" GField *GFieldFactory(void) {
 
 // for now this implementation follows gemc
 // reference of this implementation: https://uspas.fnal.gov/materials/12MSU/magnet_elements.pdf
-void GField_MultipolesFactory::GetFieldValue(const G4double pos[4], G4double *bfield) const {
+void GField_MultipolesFactory::GetFieldValue(const double pos[3], G4double *bfield) const {
 
     G4ThreeVector x0(pos[0], pos[1], pos[2]);
     G4ThreeVector x1(origin[0], origin[1], origin[2]);
@@ -54,8 +54,7 @@ void GField_MultipolesFactory::GetFieldValue(const G4double pos[4], G4double *bf
         B_local.setY(strength * pow(r / CLHEP::m, a) * cos(a * phi));
         B_local.setZ(0);
     } else {
-        cout << GFIELDLOGHEADER << "GField_MultipolesFactory::GetFieldValue: Pole number " + to_string(pole_number) + " not supported. Exiting." << endl;
-        exit(EC__WRONG_POLE_NUMBER);
+    	log->error(ERR_WRONG_POLE_NUMBER, "GField_MultipolesFactory::GetFieldValue: Pole number " + to_string(pole_number) + " not supported. Exiting.");
     }
 
     G4ThreeVector B_lab = B_local;
@@ -67,18 +66,12 @@ void GField_MultipolesFactory::GetFieldValue(const G4double pos[4], G4double *bf
     bfield[1] =  B_lab.y();
     bfield[2] =  B_lab.z();
 
-//    cout << " Pole number: " << pole_number << endl;
-//    cout << " Strength: " << strength << endl;
-//    cout << " Origin: " << origin[0] << " " << origin[1] << " " << origin[2] << endl;
-//    cout << " Rotation angle: " << rotation_angle << endl;
-//    cout << " Rotation axis: " << rotaxis << endl;
-//    cout << "B_lab.x() = " << B_lab.x() << endl;
-//    cout << "B_lab.y() = " << B_lab.y() << endl;
-//    cout << "B_lab.z() = " << B_lab.z() << endl;
-//    cout << " B Field x = " << bfield[0] << endl;
-//    cout << " B Field y = " << bfield[1] << endl;
-//    cout << " B Field z = " << bfield[2] << endl;
-
+	log->info(2, "Pole Number: ", pole_number,
+		", Strength: ", strength,
+		", Requested at: (", pos[0], ", ", pos[1], ", ", pos[2], ")",
+		", Rotation angle: ", rotation_angle,
+		", Rotation axis: ", rotaxis,
+		", Field: (", bfield[0], ", ", bfield[1], ", ", bfield[2], ")");
 }
 
 void GField_MultipolesFactory::load_field_definitions(GFieldDefinition gfd) {
@@ -96,8 +89,7 @@ void GField_MultipolesFactory::load_field_definitions(GFieldDefinition gfd) {
     } else if( gfield_definitions.field_parameters["rotaxis"] == "Z") {
         rotaxis = 2;
     } else {
-        cout << GFIELDLOGHEADER << "GField_MultipolesFactory::load_field_definitions: Rotation axis " + gfield_definitions.field_parameters["rotaxis"] + " not supported. Exiting." << endl;
-        exit(EC__WRONG_FIELD_ROTATION);
+    	log->error(ERR_WRONG_FIELD_ROTATION, "GField_MultipolesFactory::load_field_definitions: Rotation axis " + gfield_definitions.field_parameters["rotaxis"] + " not supported. Exiting.");
     }
     strength = get_field_parameter_double("strength");
 }

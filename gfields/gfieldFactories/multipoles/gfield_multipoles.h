@@ -15,14 +15,14 @@ public:
     /**
      * @brief Default constructor for the GField_MultipolesFactory class.
      */
-    GField_MultipolesFactory() {}
+    GField_MultipolesFactory() = default;
 
     /**
      * @brief Calculates the magnetic field at a given position.
      * @param pos Array containing the position (x, y, z, time).
      * @param bfield Output array to store the magnetic field vector (Bx, By, Bz).
      */
-    void GetFieldValue(const G4double pos[4], G4double *bfield) const override;
+    void GetFieldValue(const double pos[3], G4double *bfield) const override;
 
     void load_field_definitions(GFieldDefinition gfd) override;
 

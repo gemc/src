@@ -19,7 +19,7 @@
 class GStreamer {
 
 public:
-	// The destructor must be virtual in GStreamer to ensure that
+	// The destructor must be virtual to ensure that
 	// the derived constructors are called — otherwise only the base
 	// class destructor runs, leading to resource leaks or undefined behavior.
 	virtual ~GStreamer() = default;
@@ -189,7 +189,6 @@ inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_p
 
 		auto streamer = manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts.get());
 		gstreamers->emplace(gstreamer_plugin, streamer);
-
 
 		gstreamers->at(gstreamer_plugin)->define_gstreamer(gstreamer_def_thread);
 		if (!gstreamers->at(gstreamer_plugin)->openConnection()) {

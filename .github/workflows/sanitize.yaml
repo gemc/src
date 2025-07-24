@@ -20,11 +20,11 @@ jobs:
       matrix:
         container:
           - name: ubuntu24
-            image: jeffersonlab/geant4:g4v11.3.1-ubuntu24
+            image: jeffersonlab/geant4:g4v11.3.2-ubuntu24
           - name: fedora40
-            image: jeffersonlab/geant4:g4v11.3.1-fedora40
+            image: jeffersonlab/geant4:g4v11.3.2-fedora40
           - name: almalinux94
-            image: jeffersonlab/geant4:g4v11.3.1-almalinux94
+            image: jeffersonlab/geant4:g4v11.3.2-almalinux94
         # NOTE: additional packages needed for the sanitizer: libasan libubsan libtsan
         # MacOS: address, thread, undefined
         # Linux: address, hwaddress, leak, undefined, integer, thread, cfi, kcfi, shadowcallstack

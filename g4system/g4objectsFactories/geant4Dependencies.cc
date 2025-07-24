@@ -15,7 +15,7 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
 	std::string replicaOf = s->getReplicaOf();
 	std::string solidsOpr = s->getSolidsOpr();
 
-	string message;
+	std::string message;
 	if (copyOf != UNINITIALIZEDSTRINGQUANTITY) {
 		message = ", copyOf: " + copyOf;
 	}

@@ -1,17 +1,12 @@
 #pragma once
 
-// c++
 #include <iostream>
-
-using std::string;
-using std::cout;
-using std::endl;
 
 class GModifier {
 
 public:
 
-	GModifier(string n, string s, string t, bool existence) :
+	GModifier(const std::string& n, const std::string& s, const std::string& t, bool existence) :
 			name(n),
 			shift(s),
 			tilts(t),
@@ -20,23 +15,23 @@ public:
 	GModifier(const GModifier &other) = default;
 
 private:
-	string name;  // volume name
-	string shift;
-	string tilts;
+	std::string name;  // volume name
+	std::string shift;
+	std::string tilts;
 	bool isPresent; // true by default
-	friend ostream &operator<<(ostream &stream, GModifier gm) {
+	friend std::ostream &operator<<(std::ostream &stream, const GModifier& gm) {
 		stream << "GModifier: " << gm.name << " shift: " << gm.shift << " tilts: " << gm.tilts << " isPresent: "
 			   << gm.isPresent;
 		return stream;
 	}
 
 public:
-	string getName() { return name; }
+	std::string getName() { return name; }
 
-	string getShift() { return shift; }
+	std::string getShift() { return shift; }
 
-	string getTilts() { return tilts; }
+	std::string getTilts() { return tilts; }
 
-	bool getExistence() { return isPresent; }
+	[[nodiscard]] bool getExistence() const { return isPresent; }
 
 };

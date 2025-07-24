@@ -63,7 +63,7 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
  * \brief Sets charge and time information at the hardware level in a GDigitizedData object.
  *
  * Checks that the translation table is defined and that the hardware address (from the GHit's TTID)
- * is initialized. Then, it includes the crate, slot, channel, time, and charge into the digitized data.
+ * is initialized. Then, it includes the crate, slot, channel, time, and charge in the digitized data.
  *
  * \param time Time value (assumed unit: ns).
  * \param q Charge value.
@@ -80,7 +80,7 @@ void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, const std::u
 		// Exit if the hardware address is not properly initialized.
 		if (haddress.front() == UNINITIALIZEDNUMBERQUANTITY) { tt_logger->error(EC__GIDENTITYNOTFOUNDINTT, "Translation Table found, but haddress was not initialized"); }
 		else {
-			// Include hardware address, time, and charge into the digitized data.
+			// Include hardware address, time, and charge in the digitized data.
 			gdata.includeVariable(CRATESTRINGID, haddress[0]);
 			gdata.includeVariable(SLOTSTRINGID, haddress[1]);
 			gdata.includeVariable(CHANNELSTRINGID, haddress[2]);
@@ -165,7 +165,7 @@ double GDynamicDigitization::processStepTimeImpl([[maybe_unused]] const std::sha
  * index is equal to the current touchable's index (or if not set), assigns it and returns the original touchable.
  * Otherwise, returns a vector with the original touchable and a new one with the updated index.
  *
- * \param gTouchID Pointer to the original GTouchable.
+ * \param gtouchable Pointer to the original GTouchable.
  * \param thisStep Pointer to the current G4Step.
  * \return A vector of GTouchable pointers.
  */
@@ -187,7 +187,7 @@ std::vector<std::shared_ptr<GTouchable>> GDynamicDigitization::processTouchableI
 		auto cloned = std::make_shared<GTouchable>(gtouchable, stepTimeAtElectronicsIndex);
 
 		// release ownership of the original touchable and return both.
-		// std::initializer_list requires copyable elements so we need to create the vector first
+		// std::initializer_list requires copyable elements, so we need to create the vector first
 		result.emplace_back(gtouchable);
 		result.emplace_back(cloned);
 	}

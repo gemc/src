@@ -1,30 +1,31 @@
-// glibrary
+// gemc
 #include "gfactory.h"
 
-// gsystem
+// gfields
 #include "gmagneto.h"
+#include "gfield_options.h"
 
-using namespace std;
 
-GMagneto::GMagneto(GOptions *gopts) : GStateMessage(gopts, "GMagneto", "gfield") {
+GMagneto::GMagneto(std::shared_ptr<GOptions> gopts) : log(std::make_shared<GLogger>(gopts, GFIELD_LOGGER, "GMagneto")){
 
-    gFieldMap = new map<string, GField *>;
-    gFieldMgrMap = new map<string, G4FieldManager *>;
+	fields_map = std::make_shared<gFieldMap>();
+	fields_manager = std::make_shared<gFieldMgrMap>();
 
-    GManager gFieldManager("GMagneto", verbosity);
+	log->debug(CONSTRUCTOR, "GMagneto");
 
-    // TODO: this should be done in gemc instead and passed to gmagneto, same as gopts.
-    vector <GFieldDefinition> field_definition_array = gfields::get_GFieldDefinition(gopts);
+	GManager gFieldManager(log, "GMagneto");
+
+    // TODO: this should be done in gemc instead and passed to gmagneto? could be kept here
+    std::vector <GFieldDefinition> field_definition_array = gfields::get_GFieldDefinition(gopts.get());
 
     for (auto &field_definition: field_definition_array) {
-        string name = field_definition.name;
+        std::string name = field_definition.name;
+    	log->info(1, field_definition);
 
-		if (verbosity >= GVERBOSITY_SUMMARY) { G4cout << field_definition << G4endl; }
-
-        if (gFieldMap->find(name) == gFieldMap->end()) {
-            (*gFieldMap)[name] = gFieldManager.LoadAndRegisterObjectFromLibrary<GField>( field_definition.gfieldPluginName());
-            (*gFieldMap)[name]->load_field_definitions(field_definition);
-            (*gFieldMgrMap)[name] = (*gFieldMap)[name]->create_FieldManager();
+        if (fields_map->find(name) == fields_map->end()) {
+            fields_map->emplace(name, gFieldManager.LoadAndRegisterObjectFromLibrary<GField>(field_definition.gfieldPluginName(), gopts.get()));
+        	fields_map->at(name)->load_field_definitions(field_definition);
+        	fields_manager->emplace(name, fields_map->at(name)->create_FieldManager());
         }
     }
 

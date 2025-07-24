@@ -59,9 +59,8 @@ subdir('gparticle')
 subdir('gphysics')
 subdir('gsplash')
 subdir('gstreamer')
-subdir('gsd')
-
-#subdir('gfields')
+subdir('gsd') # TODO: example
+subdir('gfields')
 #subdir('utilities')
 #subdir('gdetector')
 #subdir('userActions')
@@ -202,7 +201,7 @@ endforeach
 # compile gemc
 qrc_gemc_sources = qt6.compile_resources(sources : 'qtresources.qrc')
 
-# TODO: MOVE THE API GEMC TESTS HERE
+# TODO: MOVE THE API GEMC TESTS HERE - but why?
 #gemc = executable(
 #    'gemc',
 #    ['gemc.cc'] + qrc_gemc_sources + qrc_compiled_sources,

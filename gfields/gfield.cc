@@ -15,18 +15,19 @@
 
 // gfield
 #include "gfield.h"
+#include "gfieldConventions.h"
 
 
 // notice: we are always using G4Mag_UsualEqRhs here
 G4FieldManager *GField::create_FieldManager() {
 
-    string integration_stepper = gfield_definitions.integration_stepper;
+    std::string integration_stepper = gfield_definitions.integration_stepper;
     double minimum_step = gfield_definitions.minimum_step;
 
     G4Mag_UsualEqRhs *iEquation = new G4Mag_UsualEqRhs(this);
 
     if (std::find(SUPPORTED_STEPPERS.begin(), SUPPORTED_STEPPERS.end(), integration_stepper) == SUPPORTED_STEPPERS.end()) {
-        gFLogMessage("Integration Stepper " + integration_stepper + " not supported. Using default: " + GFIELD_DEFAULT_INTEGRATION_STEPPER);
+    	log->info(0, "Integration Stepper ", integration_stepper, " not supported. Using default: ", GFIELD_DEFAULT_INTEGRATION_STEPPER);
         integration_stepper = GFIELD_DEFAULT_INTEGRATION_STEPPER;
     }
 
@@ -57,14 +58,10 @@ G4FieldManager *GField::create_FieldManager() {
         mag_int_stepper = new G4ExplicitEuler(iEquation);
     } else {
         // error, exit
-        gFLogMessage("Integration Stepper " + integration_stepper + " not supported. Exiting.");
-        exit(EC__STEPPER_NOT_FOUND);
+    	log->error(ERR_STEPPER_NOT_FOUND, "Integration Stepper ", integration_stepper, " not found. Exiting.");
     }
 
     G4ChordFinder *fChordFinder = new G4ChordFinder(this, minimum_step, mag_int_stepper);
-
-	// TODO: need to control tis with verbosity
-	// gFLogMessage("Loaded Integration Stepper: " + integration_stepper);
 
     return new G4FieldManager(this, fChordFinder);
 
