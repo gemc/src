@@ -61,6 +61,7 @@ int main(int argc, char *argv[]) {
 
 	// instantiating pointer to global digitization map
 	// the map is also used by eventDispenser to reload constants at every run number
+	// make this belong to gdetectorconstruction and pass it around from detector construction
 	map < string, GDynamicDigitization * > *globalDigitizationMap = new map<string, GDynamicDigitization *>;
 
 	// GDetectorConstruction will run Construct() and load the digitization plugins
@@ -107,8 +108,7 @@ int main(int argc, char *argv[]) {
 	visManager->Initialize();
 
 	auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
-	log.critical("Tally summary: ", gDetectorGlobal->get_number_of_volumes(), " volumes, ",
-				 gDetectorGlobal->get_number_of_g4_volumes(), " geant4 built volumes", RST, endl, endl);
+
 
 
 	if (gui) {

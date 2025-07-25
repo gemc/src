@@ -101,7 +101,7 @@ private:
 	G4Element* Tritium   = nullptr;
 
 	// ────── data members ────────────────────────────────────────────
-	std::unordered_map<string, G4ObjectsFactory*> g4systemFactory;
+	std::unordered_map<std::string, G4ObjectsFactory*> g4systemFactory;
 
 	/** Map "gsystem/volumeName" → G4Volume*. */
 	std::unordered_map<std::string, G4Volume*> g4volumesMap;
@@ -127,7 +127,7 @@ private:
 	 * @return Pointer to the created system factory map.
 	 */
 	void createG4SystemFactory(SystemMap*    gsystemsMap,
-	                           const string& backup_material,
+	                           const std::string& backup_material,
 	                           int           check_overlaps);
 
 	bool build_g4volume(const GVolume* s, G4ObjectsFactory* objectFactory);

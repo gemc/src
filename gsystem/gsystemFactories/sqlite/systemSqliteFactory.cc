@@ -30,7 +30,7 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system, std::shared_ptr
 		}
 		// Try alternative locations from possibleLocationOfFiles.
 		for (const auto& trialLocation : possibleLocationOfFiles) {
-			string newName = trialLocation + "/" + dbhost;
+			std::string newName = trialLocation + "/" + dbhost;
 			log->info(1, "Trying sqlite file ", newName);
 
 			rc = sqlite3_open_v2(newName.c_str(), &db, SQLITE_OPEN_READWRITE, nullptr);

@@ -11,14 +11,7 @@ GOptions defineOptions() {
 	GOptions goptions(G4SYSTEM_LOGGER);
 	goptions += gsystem::defineOptions();
 
-	string help;
-
-	// help = "All information related to the volume will be logged. \n \n";
-	// help += "Example: -logVolume=ctof\n";
-	// goptions.defineOption(GVariable("logVolume", goptions::NODFLT, "log all information for volume"), help);
-
-
-	help =
+	std::string help =
 		"Material to be used if some volume requested a non-defined material.  \n \n";
 	help += "By default gemc will exit with error.\n";
 	help += "Example: -useBackupMaterial=G4_Air\n";

@@ -20,9 +20,9 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system, std::shared_ptr<GLogger
 	}
 
 	// Bind parameters.
-	string experiment  = system->getExperiment();
-	string system_name = system->getName();
-	string variation   = system->getVariation();
+	std::string experiment  = system->getExperiment();
+	std::string system_name = system->getName();
+	std::string variation   = system->getVariation();
 	int    runno       = system->getRunno();
 
 	rc = sqlite3_bind_text(stmt, 1, experiment.c_str(), -1, SQLITE_STATIC);
@@ -47,7 +47,7 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system, std::shared_ptr<GLogger
 		sqlite3_free(sql); // need to free the expanded SQL string
 	}
 
-	vector<string> gvolumePars;
+	std::vector<std::string> gvolumePars;
 	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
 		int colCount = sqlite3_column_count(stmt);
 		for (int i = 0; i < colCount; i++) {

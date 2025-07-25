@@ -19,14 +19,14 @@ void GSystemTextFactory::loadGeometry(GSystem* system, std::shared_ptr<GLogger> 
 
 		// loading volumes
 		while (!IN->eof()) {
-			string dbline;
+			std::string dbline;
 			getline(*IN, dbline);
 
 			if (dbline.empty())
 				continue;
 
 			// extract gvolume parameters
-			vector<string> gvolumePars =
+			std::vector<std::string> gvolumePars =
 				gutilities::getStringVectorFromStringWithDelimiter(dbline, "|");
 			system->addGVolume(gvolumePars);
 		}

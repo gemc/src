@@ -64,23 +64,17 @@ namespace gemc {
         goptions.defineOption(GVariable("seed", SEEDNOTSET, "randomEngineName"), help);
 
 
-
-
 		// load other
 		goptions += gfactory::defineOptions();
-		goptions += gtranslationTable::defineOptions();
 		goptions += gdynamicdigitization::defineOptions(); // includes gdata, which includes gtouchable. also includes gtranslationTable, gfactory
     	goptions += eventDispenser::defineOptions();
     	goptions += g4display::defineOptions();
     	goptions += g4dialog::defineOptions();
-
-
-        goptions += g4system::defineOptions();
-        goptions += gfields::defineOptions();
+        goptions += g4system::defineOptions(); // include gsystem
+    	goptions += ghit::defineOptions();
         goptions += gparticle::defineOptions();
         goptions += gphysics::defineOptions();
         goptions += gstreamer::defineOptions();
-        goptions += gsystem::defineOptions();
 
         return goptions;
     }

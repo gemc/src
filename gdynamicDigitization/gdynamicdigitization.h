@@ -4,7 +4,6 @@
 #include "gfactory_options.h"
 
 // gemc
-//#include "gdl.h"
 #include "gfactory.h"
 #include "gtouchable.h"
 #include "ghit.h"
@@ -331,6 +330,12 @@ protected:
 namespace gdynamicdigitization {
 
 using dRoutinesMap = std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>;
+
+inline std::shared_ptr<GDynamicDigitization> load_dynamicRoutine(const std::string& plugin_name, GOptions* gopts) {
+	auto     log = std::make_shared<GLogger>(gopts, GDIGITIZATION_LOGGER, "loader");
+	GManager manager(log);
+	return manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin_name, gopts);
+}
 
 //  the returned map is shared and immutable
 inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<std::string>& plugin_names, GOptions* gopts) {

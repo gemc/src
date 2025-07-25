@@ -18,7 +18,6 @@
 // c++
 #include <vector>
 
-
 G4World::G4World(const GWorld* gworld, GOptions* gopts)
 	: log(std::make_shared<GLogger>(gopts, GSYSTEM_LOGGER, "G4World Constructor")) {
 
@@ -64,7 +63,7 @@ G4World::G4World(const GWorld* gworld, GOptions* gopts)
 
 		// loop over systems in the gsystemsMap
 		for (auto& [systemName, gsystem] : *gsystemMap) {
-			string g4Factory = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
+			std::string g4Factory = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
 			objectsFactory   = get_factory(g4Factory);
 
 			for (auto& [volumeName, gvolumePtr] : gsystem->getGVolumesMap()) {
@@ -132,12 +131,12 @@ G4World::G4World(const GWorld* gworld, GOptions* gopts)
 
 /*──────────────────────── look‑ups ──────────────────────────*/
 
-const G4Volume* G4World::getG4Volume(const string& volumeName) const {
+const G4Volume* G4World::getG4Volume(const std::string& volumeName) const {
 	auto it = g4volumesMap.find(volumeName);
 	return (it != g4volumesMap.end()) ? it->second : nullptr;
 }
 
-void G4World::setFieldManagerForVolume(const string&   volumeName,
+void G4World::setFieldManagerForVolume(const std::string&   volumeName,
                                        G4FieldManager* fm,
                                        bool            forceToAllDaughters) {
 	auto it = g4volumesMap.find(volumeName);
@@ -147,7 +146,7 @@ void G4World::setFieldManagerForVolume(const string&   volumeName,
 /*──────────────────────── helper bodies (UNCHANGED LOGIC, pointer replaced) ───────────────────*/
 
 // ---- g4FactoryNameFromSystemFactory -----------------------------------------------------------
-string G4World::g4FactoryNameFromSystemFactory(const string& factory) const {
+std::string G4World::g4FactoryNameFromSystemFactory(const std::string& factory) const {
 	if (factory == GSYSTEMASCIIFACTORYLABEL || factory == GSYSTEMSQLITETFACTORYLABEL ||
 	    factory == GSYSTEMMYSQLTFACTORYLABEL) { return G4SYSTEMNATFACTORY; }
 	else if (factory == GSYSTEMCADTFACTORYLABEL) { return G4SYSTEMCADFACTORY; }
@@ -383,20 +382,22 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 
 
 void G4World::createG4SystemFactory(SystemMap*    gsystemsMap,
-                                    const string& backup_material,
+                                    const std::string& backup_material,
                                     int           check_overlaps) {
 	// instantiating gSystemManager
 	GManager manager(log, "G4World Manager");
 
 	// Creating the native factory no matter what
 	log->info(2, "G4World: registering default factory <", G4SYSTEMNATFACTORY, ">");
+
+
 	manager.RegisterObjectFactory<G4NativeSystemFactory>(G4SYSTEMNATFACTORY);
 
 	// registering factories in the manager
 	// and adding them to g4systemFactory
 	for (auto& [gsystemName, gsystem] : *gsystemsMap) {
-		string factory   = gsystem->getFactoryName();
-		string g4Factory = g4FactoryNameFromSystemFactory(factory);
+		std::string factory   = gsystem->getFactoryName();
+		std::string g4Factory = g4FactoryNameFromSystemFactory(factory);
 
 		log->info(2, "G4World: creating factory <", g4Factory, "> to for system <", gsystemName, ">");
 
@@ -419,14 +420,12 @@ void G4World::createG4SystemFactory(SystemMap*    gsystemsMap,
 		}
 	}
 
-	// done with manager
-	manager.clearDLMap();
 }
 
 void G4World::buildMaterials(SystemMap* system_map) {
 	// looping over gsystem in the gsystemsMap,
 	// every GMaterial that is not built (due to dependencies) increments allRemainingMaterials
-	vector<GMaterial*> thisIterationRemainingMaterials;
+	std::vector<GMaterial*> thisIterationRemainingMaterials;
 	unsigned long      allRemainingMaterials = 0;
 	do {
 		thisIterationRemainingMaterials.clear();

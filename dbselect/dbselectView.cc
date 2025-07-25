@@ -424,8 +424,9 @@ void DBSelectView::onItemChanged(QStandardItem* item) {
 	updateModifiedUI();
 }
 
-vector<GSystem> DBSelectView::get_gsystems() {
-	vector<GSystem> updatedSystems;
+SystemList DBSelectView::get_gsystems() {
+	SystemList> updatedSystems;
+
 	for (int i = 0; i < experimentModel->rowCount(); i++) {
 		QStandardItem* expItem = experimentModel->item(i, 0);
 		if (!expItem)
@@ -443,7 +444,7 @@ vector<GSystem> DBSelectView::get_gsystems() {
 				int     run        = runItem->data(Qt::EditRole).toInt();
 				GSystem updatedSystem(systemName, GSYSTEMSQLITETFACTORYLABEL, variation, /*verbosity*/ 0, run);
 				// updatedSystem.set_dbhost(dbhost); only set at command line?
-				updatedSystems.push_back(updatedSystem);
+				updatedSystems.emplace_back(updatedSystem);
 			}
 		}
 	}

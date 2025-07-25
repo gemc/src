@@ -3,11 +3,11 @@ LD += {
     'name' : sub_dir_name,
     'sources' : files(
         'gemcUtilities.cc',
-        'gemcOptions.cc',
+        'gemc_options.cc',
     ),
     'headers' : files(
         'gemcUtilities.h',
-        'gemcOptions.h',
+        'gemc_options.h',
     ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, qt6_deps, geant4_deps],
 }

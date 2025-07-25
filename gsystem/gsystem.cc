@@ -140,7 +140,7 @@ void GSystem::addVolumeFromFile(const string& importType, const string& filename
 
 	// Extract filename (without the path) and split by delimiter.
 	vector<string> gvpaths = gutilities::getStringVectorFromStringWithDelimiter(fs::path(filename).filename().string(),
-		                                                                            ".");
+	                                                                            ".");
 
 	// Use the first item as the volume name.
 	const string& gvolumeName = gvpaths.front();

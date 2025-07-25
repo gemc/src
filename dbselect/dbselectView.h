@@ -34,7 +34,7 @@ public:
 	~DBSelectView() override;
 
 	/// Returns the updated list of GSystem objects.
-	vector<GSystem> get_gsystems();
+	SystemList get_gsystems();
 
 private:
 	// UI setup and update methods.

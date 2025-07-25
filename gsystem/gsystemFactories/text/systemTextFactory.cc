@@ -14,11 +14,11 @@ GSystemTextFactory::GSystemTextFactory() = default;
 // SYSTEMTYPE can be:
 // - GTEXTGEOMTYPE (mandatory, exit if not found)
 // - GTEXTMATSTYPE
-std::ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const string& SYSTEMTYPE, const std::shared_ptr<GLogger>& log) {
-	string fileName  = system->getFilePath();
-	string variation = system->getVariation();
+std::ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const std::string& SYSTEMTYPE, const std::shared_ptr<GLogger>& log) {
+	std::string fileName  = system->getFilePath();
+	std::string variation = system->getVariation();
 
-	string fname = fileName + SYSTEMTYPE + variation + ".txt";
+	std::string fname = fileName + SYSTEMTYPE + variation + ".txt";
 
 
 	log->info(0, "gSystemTextFileStream filename is: ", fname);
@@ -33,7 +33,7 @@ std::ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const 
 	else {
 		// file not good, now trying other locations
 		for (const auto& trialLocation : possibleLocationOfFiles) {
-			string newName = trialLocation + "/" + fname;
+			std::string newName = trialLocation + "/" + fname;
 
 			log->info(1, "Trying file ", newName);
 

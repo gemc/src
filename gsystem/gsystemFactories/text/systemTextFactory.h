@@ -24,7 +24,7 @@ private:
   // returns the requested system file stream, checking all
   // possibleLocationOfFiles
   std::ifstream *gSystemTextFileStream(
-      GSystem *system, const string &SYSTEMTYPE,
+      GSystem *system, const std::string &SYSTEMTYPE,
       const std::shared_ptr<GLogger> &log); // SYTEMTYPE one of file types above
 };
 

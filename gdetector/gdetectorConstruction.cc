@@ -1,8 +1,10 @@
-// gemc
+// gdetectorConstruction
 #include "gdetectorConstruction.h"
-#include "g4systemConventions.h"
+
+// gemc
 #include "gtouchableConventions.h"
 #include "ginternalDigitization.h"
+#include "gsystemConventions.h"
 
 // geant4
 #include "G4SDManager.hh"
@@ -12,154 +14,137 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4ReflectionFactory.hh"
 #include "G4RunManager.hh"
+#include "gdynamicdigitizationConventions.h"
 
-#include <iostream>
-#include <cstdlib>
+G4ThreadLocal std::unique_ptr<GMagneto> GDetectorConstruction::gmagneto = nullptr;
 
-using std::cerr;
-using std::cout;
-using std::endl;
-
-G4ThreadLocal GMagneto *GDetectorConstruction::gmagneto = nullptr;
-
-GDetectorConstruction::GDetectorConstruction(GOptions *gopts,
-											 map<string, GDynamicDigitization *> *gDDGlobal)
-		: G4VUserDetectorConstruction(),                                // Geant4 base class.
-		  GStateMessage(gopts, "GDetectorConstruction", "g4system"),     // GEMC state message.
-		  gopt(gopts),
-		  gDynamicDigitizationMapGlobalInstance(gDDGlobal)
-{
-	// Ensure the local GSystem vector is empty at start.
-	gsystems.clear();
-}
+GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions>                           gopts,
+                                             std::shared_ptr<gdynamicdigitization::dRoutinesMap> digiRoutinesMap)
+	: G4VUserDetectorConstruction(), // Geant4 base class.
+	  gopt(gopts),                   // need this in Construct and ConstructSDandField
+	  log(std::make_shared<GLogger>(gopts, "GDetectorConstruction", "GDetectorConstruction")),
+	  digitizationRoutinesMap(digiRoutinesMap) { log->debug(CONSTRUCTOR, "GDetectorConstruction"); }
 
 GDetectorConstruction::~GDetectorConstruction() {
 	// Clean up the GEMC and Geant4 world objects.
-	delete gworld;
-	delete g4world;
-	delete gmagneto;
+	log->debug(DESTRUCTOR, "GDetectorConstruction");
 }
 
-G4VPhysicalVolume *GDetectorConstruction::Construct() {
-	logSummary("GDetectorConstruction::Construct");
-
+G4VPhysicalVolume* GDetectorConstruction::Construct() {
 	// Clean any old geometry.
 	G4GeometryManager::GetInstance()->OpenGeometry();
-	G4PhysicalVolumeStore::GetInstance()->Clean();
+	G4PhysicalVolumeStore::Clean();
 	G4LogicalVolumeStore::GetInstance()->Clean();
 	G4SolidStore::GetInstance()->Clean();
 	G4ReflectionFactory::Instance()->Clean();
 
-	// Delete old geometry objects if they exist.
-	if (gworld) { delete gworld; gworld = nullptr; }
-	if (g4world) { delete g4world; g4world = nullptr; }
+	// Delete old geometry objects if they exist
+	gworld.reset();
+	g4world.reset();
 
-	// Build GEMC world: if no systems are provided, create from options; otherwise, use existing systems.
-	if (gsystems.empty()) {
-		gworld = new GWorld(gopt);
-	} else {
-		gworld = new GWorld(gopt, gsystems);
-	}
+	// - if no systems are provided, we just launched gemc: create from options
+	// - otherwise, it's a geometry re-load. use existing systems.
+	if (gsystems.empty()) { gworld = std::make_shared<GWorld>(gopt.get()); }
+	else { gworld = std::make_shared<GWorld>(gopt.get(), std::move(gsystems)); }
 
 	// Build Geant4 world (solids, logical and physical volumes) based on the GEMC world.
-	g4world = new G4World(gworld, gopt);
+	g4world = std::make_shared<G4World>(gworld.get(), gopt.get());
 
 	// Return the physical volume for the ROOT world volume.
 	return g4world->getG4Volume(ROOTWORLDGVOLUMENAME)->getPhysical();
 }
 
 void GDetectorConstruction::ConstructSDandField() {
-	logSummary("GDetectorConstruction::ConstructSDandField");
-
-	bool touchableVerbosity = (gopt->getVerbosityFor("gsensitivity") >= GVERBOSITY_DETAILS);
-
-	// Create a local map to hold sensitive detectors.
-	map<string, GSensitiveDetector *> sensitiveDetectorsMap;
+	log->debug(NORMAL, "GDetectorConstruction::ConstructSDandField");
 
 	// Loop over all systems and their volumes.
-	for (auto [systemName, gsystem] : *gworld->getSystemsMap()) {
-		for (auto [volumeName, gvolume] : *gsystem->getGVolumesMap()) {
-			string digitizationName = gvolume->getDigitization();
-			string g4name = gvolume->getG4Name();
+	for (const auto& [systemName, gsystemPtr] : *gworld->getSystemsMap()) {
+		for (const auto& [volumeName, gvolumePtr] : gsystemPtr->getGVolumesMap()) {
+			auto const& digitizationName = gvolumePtr->getDigitization();
+			auto const& g4name           = gvolumePtr->getG4Name();
 
 			// Ensure the Geant4 logical volume exists.
 			if (g4world->getG4Volume(g4name) == nullptr) {
-				G4cerr << FATALERRORL << " Error: <" << g4name
-					   << "> logical volume not built? This should never happen." << G4endl;
-				exit(99);
+				log->error(ERR_GVOLUMENOTFOUND, "GDetectorConstruction::ConstructSDandField", "Logical volume <" + g4name + "> not found.");
 			}
 
 			// Skip volumes with no digitization.
 			if (digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
 				// Create the sensitive detector if it does not exist yet.
 				if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
-					logSummary("Sensitive detector <" + digitizationName + "> doesn't exist for <" + g4name + ">. Creating it.");
-					sensitiveDetectorsMap[digitizationName] = new GSensitiveDetector(digitizationName, gopt, gDynamicDigitizationMapGlobalInstance);
+					log->info(2, "Creating new sensitive detector <" + digitizationName + "> for volume <" + g4name + ">");
+					sensitiveDetectorsMap[digitizationName] = std::make_shared<GSensitiveDetector>(digitizationName, gopt, digitizationRoutinesMap);
+
 					auto sdManager = G4SDManager::GetSDMpointer();
 					sdManager->SetVerboseLevel(10);
-					sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName]);
-				} else {
-					logDetail("Sensitive detector <" + digitizationName + "> exists for <" + volumeName + ">");
+					sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName].get());
 				}
+				else { log->info(2, "Sensitive detector <" + digitizationName + "> is already created and available for volume <" + g4name + ">"); }
 
-				// Register the volume touchable with the sensitive detector.
-				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(
-						g4name,
-						// this will also release the ownership of the GTouchable to the GSD map
-						std::make_unique<GTouchable>(digitizationName, gvolume->getGIdentity(), gvolume->getDetectorDimensions(), touchableVerbosity)
-				);
-				SetSensitiveDetector(g4name, sensitiveDetectorsMap[digitizationName]);
+				// Register the volume touchable with the sensitive detector
+				const auto& vdimensions     = gvolumePtr->getDetectorDimensions();
+				const auto& identity        = gvolumePtr->getGIdentity();
+				auto        this_gtouchable = std::make_shared<GTouchable>(digitizationName, identity, vdimensions, log);
+				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name, this_gtouchable);
+				SetSensitiveDetector(g4name, sensitiveDetectorsMap[digitizationName].get());
 			}
 
 			// Process electromagnetic fields.
-			string field_name = gvolume->getEMField();
+			const auto& field_name = gvolumePtr->getEMField();
 			if (field_name != UNINITIALIZEDSTRINGQUANTITY) {
-				if (gmagneto == nullptr) {
-					gmagneto = new GMagneto(gopt);
-				}
-				logDetail("Volume <" + volumeName + "> has field: <" + field_name + ">. Looking into field map definitions.");
-				logDetail("Setting field manager for volume <" + g4name + "> with field <" + field_name + ">");
-				g4world->setFieldManagerForVolume(g4name, gmagneto->getFieldMgr(field_name), true);
+				if (gmagneto == nullptr) { gmagneto = std::make_unique<GMagneto>(gopt); }
+				log->info(2, "Volume <" + volumeName + "> has field: <" + field_name + ">. Looking into field map definitions.");
+				log->info(2, "Setting field manager for volume <" + g4name + "> with field <" + field_name + ">");
+				g4world->setFieldManagerForVolume(g4name, gmagneto->getFieldMgr(field_name).get(), true);
 			}
 		}
 	}
 
 	// Load digitization plugins after constructing sensitive detectors.
 	loadDigitizationPlugins();
+
+
+	// tally with number :
+	log->info(0, "Tally summary: \n - ", gworld->get_number_of_volumes(), " volumes\n - ",
+	          g4world->number_of_volumes(), "geant4 built volumes");
 }
 
 void GDetectorConstruction::loadDigitizationPlugins() {
-	vector<string> sdetectors = gworld->getSensitiveDetectorsList();
-	int verbosity = gopt->getVerbosityFor("gsensitivity");
+	const auto sdetectors = gworld->getSensitiveDetectorsList();
 
-	for (auto &sdname : sdetectors) {
+	for (auto& sdname : sdetectors) {
 		if (sdname == FLUXNAME) {
-			(*gDynamicDigitizationMapGlobalInstance)[sdname] = new GFluxDigitization();
-			(*gDynamicDigitizationMapGlobalInstance)[sdname]->defineReadoutSpecs();
-		} else if (sdname == COUNTERNAME) {
-			(*gDynamicDigitizationMapGlobalInstance)[sdname] = new GParticleCounterDigitization();
-			(*gDynamicDigitizationMapGlobalInstance)[sdname]->defineReadoutSpecs();
-		} else if (sdname == DOSIMETERNAME) {
-			(*gDynamicDigitizationMapGlobalInstance)[sdname] = new GDosimeterDigitization();
-			(*gDynamicDigitizationMapGlobalInstance)[sdname]->defineReadoutSpecs();
+			log->info(1, "Loading flux digitization plugin for routine <" + sdname + ">");
+			digitizationRoutinesMap->emplace(sdname, std::make_shared<GFluxDigitization>());
+		}
+		else if (sdname == COUNTERNAME) {
+			log->info(1, "Loading particle counter digitization plugin for routine <" + sdname + ">");
+			digitizationRoutinesMap->emplace(sdname, std::make_shared<GParticleCounterDigitization>());
+		}
+		else if (sdname == DOSIMETERNAME) {
+			log->info(1, "Loading dosimeter digitization plugin for routine <" + sdname + ">");
+			digitizationRoutinesMap->emplace(sdname, std::make_shared<GDosimeterDigitization>());
+		}
+		else {
+			// if it's not in the map already, add it
+			if (digitizationRoutinesMap->find(sdname) == digitizationRoutinesMap->end()) {
+				log->info(0, "Loading new digitization plugin for routine <" + sdname + ">");
+				digitizationRoutinesMap->emplace(sdname, gdynamicdigitization::load_dynamicRoutine(sdname, gopt.get()));
+			}
+		}
+
+		if ( digitizationRoutinesMap->at(sdname)->defineReadoutSpecs() ) {
+			log->info(1, "Digitization routine <" + sdname + "> has been successfully defined.");
 		} else {
-			if (verbosity >= GVERBOSITY_SUMMARY) {
-				cout << "Loading plugins from file " << sdname << endl;
-			}
-			GManager sdPluginManager(sdname + " GSensitiveDetector", verbosity);
-			if (gDynamicDigitizationMapGlobalInstance->find(sdname) == gDynamicDigitizationMapGlobalInstance->end()) {
-				(*gDynamicDigitizationMapGlobalInstance)[sdname] = sdPluginManager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(sdname);
-				(*gDynamicDigitizationMapGlobalInstance)[sdname]->defineReadoutSpecs();
-			}
-			// Optionally clear the plugin manager's DL map:
-			// sdPluginManager.clearDLMap();
+			log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">");
 		}
 	}
 }
 
-void GDetectorConstruction::reload_geometry(vector<GSystem> gs) {
+
+void GDetectorConstruction::reload_geometry(SystemList&& sl) {
 	// Use vector assignment to update the local systems.
-	gsystems = gs;
+	gsystems = std::move(sl);
 	// Reconstruct the geometry and update the world volume.
 	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
 }

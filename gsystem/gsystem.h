@@ -11,6 +11,7 @@
 #include <map>
 #include <string>
 
+
 /**
  * @class GSystem
  * @brief Represents a single detector system (e.g., calorimeter, tracker).
@@ -50,7 +51,6 @@ public:
 	 * @brief Deep copy constructor (used only by clone())
 	 */
 	GSystem(const GSystem& other); // copy constructor
-
 
 	// move operations: defaulted
 	GSystem(GSystem&&) noexcept            = default;
@@ -164,3 +164,9 @@ public:
 
 
 };
+
+// using unique pointers to move GSystem to avoid unnecessary copies
+using SystemPtr  = std::unique_ptr<GSystem>;
+using SystemMap  = std::map<std::string, SystemPtr>;
+using SystemList = std::vector<SystemPtr>;
+

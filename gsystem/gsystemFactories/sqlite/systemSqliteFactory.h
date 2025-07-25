@@ -25,9 +25,9 @@ private:
 	void initialize_sqlite_db(GSystem* system, std::shared_ptr<GLogger>& log);
 
 	sqlite3* db          = nullptr;
-	string   system_name = "na";
-	string   dbhost      = "na";
-	string   variation   = "default";
+	std::string   system_name = "na";
+	std::string   dbhost      = "na";
+	std::string   variation   = "default";
 	int      runno       = 0;
 
 

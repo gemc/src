@@ -12,7 +12,7 @@
 #include "gsystemFactories/gdml/systemGdmlFactory.h"
 #include "gsystemFactories/sqlite/systemSqliteFactory.h"
 
-
+// TODO: have getSystems returns the map directly instead of going through the vector
 GWorld::GWorld(GOptions* g)
     : gopts(g),
       log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER, "GWorld [new]")) {
@@ -30,7 +30,6 @@ GWorld::GWorld(GOptions* g)
     }
     systems.clear();   // optional: emphasise vector is now empty
 
-    //------------------------------------------------------------------
     // 2.  Finish world construction
     //------------------------------------------------------------------
     load_systems();     // build factories, load volumes
@@ -39,13 +38,13 @@ GWorld::GWorld(GOptions* g)
 }
 
 
-GWorld::GWorld(GOptions* g, SystemList systems)
+// Constructor with rvalue reference: perfect for taking ownership of move-only types
+GWorld::GWorld(GOptions* g, SystemList&& systems)
 	: gopts(g),
 	  gsystemsMap(std::make_unique<SystemMap>()),
 	  log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER, "GWorld [update]")) {
-	//------------------------------------------------------------------
+
 	// Move each unique_ptr<GSystem> from the vector into the map
-	//------------------------------------------------------------------
 	for (auto& sysPtr : systems) { // sysPtr is a UNIQUE_PTR&
 		std::string key =
 			gutilities::getFileFromPath(sysPtr->getName());
@@ -55,9 +54,7 @@ GWorld::GWorld(GOptions* g, SystemList systems)
 	}
 	systems.clear(); // optional: make intent explicit
 
-	//------------------------------------------------------------------
 	// Finish world construction
-	//------------------------------------------------------------------
 	load_systems();    // instantiate factories, load volumes
 	load_gmodifiers(); // load modifiers
 	assignG4Names();   // apply modifiers & set G4 names
@@ -145,7 +142,7 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 
 
 
-GVolume* GWorld::searchForVolume(const string& volumeName, const string& purpose) const {
+GVolume* GWorld::searchForVolume(const std::string& volumeName, const std::string& purpose) const {
 	for (auto& systemPair : *gsystemsMap) {
 		GVolume* thisVolume = systemPair.second->getGVolume(volumeName);
 		if (thisVolume != nullptr) {
@@ -158,11 +155,11 @@ GVolume* GWorld::searchForVolume(const string& volumeName, const string& purpose
 	           "gvolume named <", volumeName, "> (", purpose, ") not found in gsystemsMap ", purpose);
 }
 
-vector<string> GWorld::getSensitiveDetectorsList() {
-	vector<string> snames;
+std::vector<std::string> GWorld::getSensitiveDetectorsList() {
+	std::vector<std::string> snames;
 	for (auto& systemPair : *gsystemsMap) {
 		for (auto& gvolumePair : systemPair.second->getGVolumesMap()) {
-			string digitization = gvolumePair.second->getDigitization();
+			std::string digitization = gvolumePair.second->getDigitization();
 			if (digitization != UNINITIALIZEDSTRINGQUANTITY) {
 				if (find(snames.begin(), snames.end(), digitization) == snames.end())
 					snames.push_back(digitization);
@@ -303,11 +300,11 @@ void GWorld::assignG4Names() {
 	for (auto& systemPair : *gsystemsMap) {
 		for (auto& [volumeName, gvolume] : systemPair.second->getGVolumesMap()) {
 			// Skip if the volume's mother is "MOTHEROFUSALL".
-			string motherVolumeName = gvolume->getMotherName();
+			std::string motherVolumeName = gvolume->getMotherName();
 			if (motherVolumeName != MOTHEROFUSALL) {
 				auto   motherVolume = searchForVolume(motherVolumeName, "mother of <" + gvolume->getName() + ">");
-				string g4name       = gvolume->getSystem() + GSYSTEM_DELIMITER + volumeName;
-				string g4motherName = motherVolume->getSystem() + GSYSTEM_DELIMITER + motherVolumeName;
+				std::string g4name       = gvolume->getSystem() + GSYSTEM_DELIMITER + volumeName;
+				std::string g4motherName = motherVolume->getSystem() + GSYSTEM_DELIMITER + motherVolumeName;
 				if (motherVolumeName == ROOTWORLDGVOLUMENAME) { g4motherName = ROOTWORLDGVOLUMENAME; }
 				gvolume->assignG4Names(g4name, g4motherName);
 			}

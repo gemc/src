@@ -41,7 +41,6 @@ public:
 	 */
 	bool isField(const std::string& name) const { return fields_map->find(name) != fields_map->end(); }
 
-
 	/**
 	 * @brief Retrieves a GField object by its name.
 	 * @param name Name of the field to retrieve.

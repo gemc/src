@@ -3,7 +3,6 @@
 #include "glogger.h"
 
 // c++
-#include <utility>
 #include <vector>
 #include <string>
 #include <memory>
@@ -53,7 +52,7 @@ public:
 	 * @param n The identifier name.
 	 * @param v The identifier value.
 	 */
-	GIdentifier(const std::string& n, int v) : idName{std::move(n)}, idValue{v} {
+	GIdentifier(const std::string& n, int v) : idName{n}, idValue{v} {
 	}
 
 	/**
@@ -202,13 +201,13 @@ public:
 
 	// create fake gtouchable for testing purposes, using sector and fake dimensions
 	static std::shared_ptr<GTouchable> create(std::shared_ptr<GLogger> logger) {
-		int touchableNumber = globalGTouchableCounter.fetch_add(1, std::memory_order_relaxed);
-		int sector          = (touchableNumber % 6) + 1;
-		int paddle         = (touchableNumber % 20) + 1;
-		std::string identity    = "sector: " + std::to_string(sector) + ", paddle: " + std::to_string(paddle);
-		std::vector<double> dimensions = {10.0, 20.0, 30.0};
+		int         touchableNumber = globalGTouchableCounter.fetch_add(1, std::memory_order_relaxed);
+		int         sector          = (touchableNumber % 6) + 1;
+		int         paddle          = (touchableNumber % 20) + 1;
+		std::string identity        = "sector: " + std::to_string(sector) + ", paddle: " + std::to_string(paddle);
+		const auto& dimensions      = {10.0, 20.0, 30.0};
 
-		return std::make_unique<GTouchable>("readout", identity, dimensions, logger);
+		return std::make_shared<GTouchable>("readout", identity, dimensions, logger);
 	}
 
 private:

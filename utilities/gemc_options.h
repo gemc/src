@@ -1,6 +1,6 @@
 #pragma once
 
-// glibrary
+// gemc
 #include "goptions.h"
 
 #define DEFAULT_RANDOM_ENGINE   "RanluxEngine"

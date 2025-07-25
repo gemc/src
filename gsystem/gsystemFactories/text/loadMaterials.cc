@@ -12,13 +12,13 @@ void GSystemTextFactory::loadMaterials(GSystem* system, std::shared_ptr<GLogger>
 
 		// loading volumes
 		while (!IN->eof()) {
-			string dbline;
+			std::string dbline;
 			getline(*IN, dbline);
 
 			if (dbline.empty()) { continue; }
 
 			// extract gvolume parameters
-			vector<string> gmaterialsPars =
+			std::vector<std::string> gmaterialsPars =
 				gutilities::getStringVectorFromStringWithDelimiter(dbline, "|");
 			system->addGMaterial(gmaterialsPars);
 		}

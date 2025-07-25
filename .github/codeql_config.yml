@@ -1,0 +1,8 @@
+name: "Custom CodeQL Config"
+
+paths-ignore:
+  - subprojects/**
+
+# Optional: define queries (if customizing)
+# queries:
+#   - uses: security-and-quality
