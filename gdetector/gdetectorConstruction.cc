@@ -1,5 +1,6 @@
 // gdetectorConstruction
 #include "gdetectorConstruction.h"
+#include "gdetector_options.h"
 
 // gemc
 #include "gtouchableConventions.h"
@@ -18,12 +19,10 @@
 
 G4ThreadLocal std::unique_ptr<GMagneto> GDetectorConstruction::gmagneto = nullptr;
 
-GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions>                           gopts,
-                                             std::shared_ptr<gdynamicdigitization::dRoutinesMap> digiRoutinesMap)
+GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
 	: G4VUserDetectorConstruction(), // Geant4 base class.
 	  gopt(gopts),                   // need this in Construct and ConstructSDandField
-	  log(std::make_shared<GLogger>(gopts, "GDetectorConstruction", "GDetectorConstruction")),
-	  digitizationRoutinesMap(digiRoutinesMap) { log->debug(CONSTRUCTOR, "GDetectorConstruction"); }
+	  log(std::make_shared<GLogger>(gopts, GDETECTOR_LOGGER, "GDetectorConstruction")) { log->debug(CONSTRUCTOR, "GDetectorConstruction"); }
 
 GDetectorConstruction::~GDetectorConstruction() {
 	// Clean up the GEMC and Geant4 world objects.
@@ -34,8 +33,8 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 	// Clean any old geometry.
 	G4GeometryManager::GetInstance()->OpenGeometry();
 	G4PhysicalVolumeStore::Clean();
-	G4LogicalVolumeStore::GetInstance()->Clean();
-	G4SolidStore::GetInstance()->Clean();
+	G4LogicalVolumeStore::Clean();
+	G4SolidStore::Clean();
 	G4ReflectionFactory::Instance()->Clean();
 
 	// Delete old geometry objects if they exist
@@ -72,14 +71,16 @@ void GDetectorConstruction::ConstructSDandField() {
 			if (digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
 				// Create the sensitive detector if it does not exist yet.
 				if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
-					log->info(2, "Creating new sensitive detector <" + digitizationName + "> for volume <" + g4name + ">");
-					sensitiveDetectorsMap[digitizationName] = std::make_shared<GSensitiveDetector>(digitizationName, gopt, digitizationRoutinesMap);
+					log->info(2, "Creating new sensitive detector <", digitizationName, "> for volume <", g4name, ">");
+					// notice here digitization_routine is still nullptr
+					// it will be assigned later on
+					sensitiveDetectorsMap[digitizationName] = std::make_shared<GSensitiveDetector>(digitizationName, gopt, digitization_routine);
 
 					auto sdManager = G4SDManager::GetSDMpointer();
 					sdManager->SetVerboseLevel(10);
 					sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName].get());
 				}
-				else { log->info(2, "Sensitive detector <" + digitizationName + "> is already created and available for volume <" + g4name + ">"); }
+				else { log->info(2, "Sensitive detector <", digitizationName, "> is already created and available for volume <", g4name, ">"); }
 
 				// Register the volume touchable with the sensitive detector
 				const auto& vdimensions     = gvolumePtr->getDetectorDimensions();
@@ -93,8 +94,8 @@ void GDetectorConstruction::ConstructSDandField() {
 			const auto& field_name = gvolumePtr->getEMField();
 			if (field_name != UNINITIALIZEDSTRINGQUANTITY) {
 				if (gmagneto == nullptr) { gmagneto = std::make_unique<GMagneto>(gopt); }
-				log->info(2, "Volume <" + volumeName + "> has field: <" + field_name + ">. Looking into field map definitions.");
-				log->info(2, "Setting field manager for volume <" + g4name + "> with field <" + field_name + ">");
+				log->info(2, "Volume <", volumeName, "> has field: <", field_name, ">. Looking into field map definitions.");
+				log->info(2, "Setting field manager for volume <", g4name, "> with field <", field_name, ">");
 				g4world->setFieldManagerForVolume(g4name, gmagneto->getFieldMgr(field_name).get(), true);
 			}
 		}
@@ -115,29 +116,24 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 	for (auto& sdname : sdetectors) {
 		if (sdname == FLUXNAME) {
 			log->info(1, "Loading flux digitization plugin for routine <" + sdname + ">");
-			digitizationRoutinesMap->emplace(sdname, std::make_shared<GFluxDigitization>());
+			digitization_routine = std::make_shared<GFluxDigitization>();
 		}
 		else if (sdname == COUNTERNAME) {
 			log->info(1, "Loading particle counter digitization plugin for routine <" + sdname + ">");
-			digitizationRoutinesMap->emplace(sdname, std::make_shared<GParticleCounterDigitization>());
+			digitization_routine = std::make_shared<GParticleCounterDigitization>();
 		}
 		else if (sdname == DOSIMETERNAME) {
 			log->info(1, "Loading dosimeter digitization plugin for routine <" + sdname + ">");
-			digitizationRoutinesMap->emplace(sdname, std::make_shared<GDosimeterDigitization>());
+			digitization_routine = std::make_shared<GDosimeterDigitization>();
 		}
 		else {
 			// if it's not in the map already, add it
-			if (digitizationRoutinesMap->find(sdname) == digitizationRoutinesMap->end()) {
-				log->info(0, "Loading new digitization plugin for routine <" + sdname + ">");
-				digitizationRoutinesMap->emplace(sdname, gdynamicdigitization::load_dynamicRoutine(sdname, gopt.get()));
-			}
+			log->info(0, "Loading new digitization plugin for routine <" + sdname + ">");
+			digitization_routine = gdynamicdigitization::load_dynamicRoutine(sdname, gopt.get());
 		}
 
-		if ( digitizationRoutinesMap->at(sdname)->defineReadoutSpecs() ) {
-			log->info(1, "Digitization routine <" + sdname + "> has been successfully defined.");
-		} else {
-			log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">");
-		}
+		if (digitization_routine->defineReadoutSpecs()) { log->info(1, "Digitization routine <" + sdname + "> has been successfully defined."); }
+		else { log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">"); }
 	}
 }
 

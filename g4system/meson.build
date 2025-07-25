@@ -1,7 +1,9 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
 dbhost = '-sql=' + examples_dir + '/gemc.db'
 gsystem = '-gsystem="[{name: b1}]"'
+
 LD += {
     'name' : sub_dir_name,
     'sources' : files(
@@ -27,7 +29,7 @@ LD += {
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps, assimp_dep],
     'additional_includes' : ['g4system/g4objectsFactories', 'g4system/g4objectsFactories/g4native', 'g4system/g4objectsFactories/cad'],
     'geo_build' : {
-        'test_gsystem_geo' : [files('examples/example.py')]
+        'test_g4system_geo' : [files('examples/example.py')]
     },
     'examples' : {
         'test_g4system' : [files('examples/g4system_example.cc'), [gsystem, dbhost]],

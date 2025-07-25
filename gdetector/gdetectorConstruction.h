@@ -22,17 +22,16 @@ public:
 	/**
 	 * Constructor.
 	 * @param gopts Pointer to GEMC options.
-	 * @param digiRoutinesMap Pointer to the global map of GDynamicDigitization objects.
 	 */
-	GDetectorConstruction(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digiRoutinesMap);
+	explicit GDetectorConstruction(std::shared_ptr<GOptions> gopts);
 
 	/// Destructor.
-	virtual ~GDetectorConstruction();
+	~GDetectorConstruction() override;
 
 public:
 	// Geant4 virtual methods.
-	virtual G4VPhysicalVolume* Construct();
-	virtual void               ConstructSDandField();
+	virtual G4VPhysicalVolume* Construct() override;
+	virtual void               ConstructSDandField() override;
 
 	// Accessor methods.
 	bool is_empty() const { return g4world->is_empty(); }
@@ -50,8 +49,9 @@ private:
 	std::shared_ptr<G4World>  g4world;
 	std::unordered_map<std::string,  std::shared_ptr<GSensitiveDetector>> sensitiveDetectorsMap; // keeping GSensitiveDetector on scope until geometry is destroyed
 
-	// The global map of dynamic digitization plugins (shared with event dispenser).
-	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitizationRoutinesMap;
+
+	// thread local - digitization for this sensitive detector
+	std::shared_ptr<GDynamicDigitization> digitization_routine;
 
 	// Contains fields and field managers.
 	static G4ThreadLocal std::unique_ptr<GMagneto> gmagneto;

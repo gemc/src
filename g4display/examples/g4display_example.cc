@@ -18,9 +18,10 @@
 int main(int argc, char* argv[]) {
 
 	// Initialize options and logging
-	auto gopts = new GOptions(argc, argv, g4display::defineOptions());
-	auto log   = new GLogger(gopts, G4DISPLAY_LOGGER, "g4display example");
-	log->info(0, "g4display", "Starting g4display example...", gopts);
+	auto gopts = std::make_shared<GOptions>(argc, argv, g4display::defineOptions());
+	auto log   =  std::make_shared<GLogger>(gopts, G4DISPLAY_LOGGER, "g4display example");
+
+	log->info(0, "Starting g4display example...", gopts);
 
 	// Optional GUI setup (only if --gui is passed)
 	QApplication* app = nullptr;
@@ -36,17 +37,17 @@ int main(int argc, char* argv[]) {
 	auto visManager = new G4VisExecutive;
 	visManager->Initialize();
 
-	auto g4SceneProperties = new G4SceneProperties(gopts);
+	auto g4SceneProperties = new G4SceneProperties(gopts.get());
 
 	// If GUI, show the window and run Qt loop
 	if (gopts->getSwitch("gui")) {
 
-		auto g4display = new G4Display(gopts, window);
+		auto g4display = new G4Display(gopts.get(), window);
 		window->setCentralWidget(g4display);
 		window->show();
 
-		/* ---------- quit after 0.5 s ---------- */
-		QTimer::singleShot(500, []
+		/* ---------- quit after 0.5s ---------- */
+		QTimer::singleShot(5000, []
 		{
 			QCoreApplication::quit();          // stop the event loop
 		});
@@ -61,22 +62,16 @@ int main(int argc, char* argv[]) {
 		// Clean up Geant4 and custom logic
 		delete g4SceneProperties;
 		delete visManager;
-		delete log;
-		delete gopts;
 
 		return appResult;
 	}
 
 	// CLI mode
-	log->info(0, "g4display", "Running in command line mode...");
+	log->info(0, "Running g4display in command line mode...");
 
-	// (Optionally) Add custom CLI execution logic here
 
-	// Clean up (CLI path)
 	delete g4SceneProperties;
 	delete visManager;
-	delete log;
-	delete gopts;
 
 	return EXIT_SUCCESS;
 }

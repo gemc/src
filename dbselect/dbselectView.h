@@ -1,13 +1,20 @@
 #pragma once
 
 // gemc
-#include "gsystem.h"
 #include "gdetectorConstruction.h"
 #include "goptions.h"
 
 // qt
-#include <QtWidgets>
+#include <QWidget>
+#include <QTreeView>
+#include <QStandardItem>
+#include <QLabel>
+#include <QPushButton>
+#include <QIcon>
+#include <QComboBox>
+#include <QStyledItemDelegate>
 
+// c++
 #include <sqlite3.h>
 #include <string>
 #include <vector>
@@ -28,7 +35,7 @@ public:
 	 * @param dc Pointer to the detector construction (used to reload geometry).
 	 * @param parent Parent widget.
 	 */
-	DBSelectView(GOptions *gopts, GDetectorConstruction *dc, QWidget *parent = nullptr);
+	DBSelectView(std::shared_ptr<GOptions> gopts, GDetectorConstruction *dc, QWidget *parent = nullptr);
 
 	/// Destructor.
 	~DBSelectView() override;
@@ -74,14 +81,19 @@ private:
 	// Helper functions.
 	QIcon createStatusIcon(const QColor &color);
 	bool isGeometryTableValid(sqlite3 *db);
-	void applyGSystemSelections(GOptions *gopts);
+	void applyGSystemSelections(std::shared_ptr<GOptions> gopts);
 
 	// Pointer to the detector construction (geometry reloading).
 	GDetectorConstruction *gDetectorConstruction;
 
+	// logger
+	std::shared_ptr<GLogger> log; ///< Logger instance for logging messages.
+
 private slots:
 	/// Slot called when an item in the tree is changed.
 	void onItemChanged(QStandardItem *item);
+
+public slots:
 
 	/// Slot for the Reload button. Currently empty except for resetting the modified flag.
 	void reload_geometry();
@@ -93,7 +105,7 @@ private slots:
 class ComboDelegate : public QStyledItemDelegate {
 	Q_OBJECT
 public:
-	ComboDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
+	explicit ComboDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
 
 	/**
 	 * createEditor creates a QComboBox editor.
@@ -104,7 +116,7 @@ public:
 						  const QModelIndex &index) const override {
 		Q_UNUSED(option);
 		Q_UNUSED(index);
-		QComboBox *editor = new QComboBox(parent);
+		auto editor = new QComboBox(parent);
 		return editor;
 	}
 
@@ -112,7 +124,7 @@ public:
 	 * setEditorData populates the QComboBox with data from the model.
 	 */
 	void setEditorData(QWidget *editor, const QModelIndex &index) const override {
-		QComboBox *combo = qobject_cast<QComboBox*>(editor);
+		auto combo = qobject_cast<QComboBox*>(editor);
 		if (!combo)
 			return;
 		// Retrieve list from UserRole.
@@ -131,7 +143,7 @@ public:
 	 */
 	void setModelData(QWidget *editor, QAbstractItemModel *model,
 					  const QModelIndex &index) const override {
-		QComboBox *combo = qobject_cast<QComboBox*>(editor);
+		auto combo = qobject_cast<QComboBox*>(editor);
 		if (!combo)
 			return;
 		QString value = combo->currentText();

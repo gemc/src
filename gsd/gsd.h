@@ -20,9 +20,9 @@ using GHitsCollection = G4THitsCollection<GHit>;
 class GSensitiveDetector : public G4VSensitiveDetector {
 
 public:
-	GSensitiveDetector(const std::string&                                               sdName,
-	                   const std::shared_ptr<GOptions>&                                 goptions,
-	                   const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& dynamicRoutinesMap);
+	GSensitiveDetector(const std::string&                    sdName,
+	                   const std::shared_ptr<GOptions>&      goptions,
+	                   std::shared_ptr<GDynamicDigitization> d_routine);
 
 	~GSensitiveDetector() override { log->debug(DESTRUCTOR, "GSensitiveDetector"); }
 
@@ -35,8 +35,8 @@ public:
 private:
 	std::shared_ptr<GLogger> log;
 
-	// thread local
-	std::shared_ptr<GDynamicDigitization> gDynamicDigitization;
+	// thread local - digitization for this sensitive detector
+	std::shared_ptr<GDynamicDigitization> digitization_routine;
 
 	// defines what information to be stored in the hit
 	// set at construction, so we do not spend time retrieving it

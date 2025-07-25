@@ -1,8 +1,10 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+
 # notice the test run on the installation dir, which does has 'examples' stripped from the path
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
 dbhost = '-sql=' + examples_dir + '/gemc.db'
 gsystem = '-gsystem="[{name: b1}]"'
+
 LD += {
     'name' : sub_dir_name,
     'sources' : files(

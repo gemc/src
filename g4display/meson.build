@@ -1,5 +1,10 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
+with_gui = ''
+if get_option('i_test')
+    with_gui = '-gui'
+endif
+
 sources = files(
     'g4display_options.cc',
     'g4SceneProperties.cc',
@@ -28,28 +33,18 @@ qrc_examples_sources = files(
 )
 
 examples = {
-    'test_g4display' : [files('examples/g4display_example.cc'),       [meson.current_source_dir() + '/examples/example.yaml', '-gui']],
-    'test_g4display_verbose' : [files('examples/g4display_example.cc'), [meson.current_source_dir() + '/examples/example.yaml', '-gui', '-verbosity.g4display=2', '-debug.g4display=true']]
+    'test_g4display' : [files('examples/g4display_example.cc'), [meson.current_source_dir() + '/examples/example.yaml', with_gui]],
+    'test_g4display_verbose' : [files('examples/g4display_example.cc'), [meson.current_source_dir() + '/examples/example.yaml', with_gui, '-verbosity.g4display=2', '-debug.g4display=true']]
 }
 
-if get_option('i_test')
-    LD += {
-        'name' : sub_dir_name,
-        'sources' : sources,
-        'headers' : headers,
-        'moc_headers' : moc_headers,
-        'qrc_examples_sources' : qrc_examples_sources,
-        'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, sqlite_dep],
-        'additional_includes' : ['g4display', 'g4display/tabs'],
-        'examples' : examples
-    }
-else
-    LD += {
-        'name' : sub_dir_name,
-        'sources' : sources,
-        'headers' : headers,
-        'moc_headers' : moc_headers,
-        'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, sqlite_dep],
-        'additional_includes' : ['g4display', 'g4display/tabs'],
-    }
-endif
+LD += {
+    'name' : sub_dir_name,
+    'sources' : sources,
+    'headers' : headers,
+    'moc_headers' : moc_headers,
+    'qrc_examples_sources' : qrc_examples_sources,
+    'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, sqlite_dep],
+    'additional_includes' : ['g4display', 'g4display/tabs'],
+    'examples' : examples
+}
+

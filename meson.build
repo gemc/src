@@ -62,9 +62,9 @@ subdir('gstreamer')
 subdir('gsd') # TODO: example
 subdir('gfields')
 subdir('gdetector')
+subdir('dbselect')
 #subdir('userActions')
 #subdir('utilities')
-#subdir('dbselect')
 #subdir('gui')
 
 # compilation loop
@@ -200,6 +200,7 @@ endforeach
 
 # compile gemc
 qrc_gemc_sources = qt6.compile_resources(sources : 'qtresources.qrc')
+
 
 # TODO: MOVE THE API GEMC TESTS HERE - but why?
 #gemc = executable(

@@ -1,10 +1,24 @@
+// dbselect
 #include "dbselectView.h"
-#include "gsystemConventions.h"
-#include "gsystemOptions.h"
-#include "gsystemConventions.h"
-#include <iostream>
+#include "dbselect_options.h"
 
-using namespace std;
+// gemc
+#include "gsystemConventions.h"
+
+// qt
+#include <QHBoxLayout>
+#include <QStandardItemModel>
+#include <QHeaderView>
+#include <QStyleOptionViewItem>
+#include <QModelIndex>
+#include <QVariant>
+#include <QStringList>
+#include <QFont>
+#include <QPixmap>
+#include <QColor>
+#include <QSizePolicy>
+#include <QAbstractItemView>
+
 
 // Checks that the database has a non-empty "geometry" table.
 bool DBSelectView::isGeometryTableValid(sqlite3* db) {
@@ -31,8 +45,8 @@ bool DBSelectView::isGeometryTableValid(sqlite3* db) {
 }
 
 // Applies selections from the GSystem vector to update the UI.
-void DBSelectView::applyGSystemSelections(GOptions* gopts) {
-	vector<GSystem> gsystems = gsystem::getSystems(gopts); // Get vector of GSystem objects.
+void DBSelectView::applyGSystemSelections(std::shared_ptr<GOptions> gopts) {
+	auto gsystems = gsystem::getSystems(gopts.get(), log); // Get vector of GSystem objects.
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
 		QStandardItem* expItem = experimentModel->item(i, 0);
 		if (!expItem) continue;
@@ -46,19 +60,19 @@ void DBSelectView::applyGSystemSelections(GOptions* gopts) {
 			if (!sysItem || !varItem || !runItem) continue;
 			string sysName     = sysItem->text().toStdString();
 			bool   systemFound = false;
-			for (const GSystem& gsys : gsystems) {
-				if (gsys.getName() == sysName) {
+			for (auto const& gsys : gsystems) {
+				if (gsys->getName() == sysName) {
 					systemFound = true;
 					sysItem->setCheckState(Qt::Checked);
 					QStringList availableVariations = getAvailableVariations(sysName);
-					QString     selectedVar         = QString::fromStdString(gsys.getVariation());
+					QString     selectedVar         = QString::fromStdString(gsys->getVariation());
 					if (availableVariations.contains(selectedVar))
 						varItem->setData(selectedVar, Qt::EditRole);
 					else if (!availableVariations.isEmpty())
 						varItem->setData(availableVariations.first(), Qt::EditRole);
 					varItem->setData(availableVariations, Qt::UserRole);
 					QStringList availableRuns = getAvailableRuns(sysName);
-					QString     selectedRun   = QString::number(gsys.getRunno());
+					QString     selectedRun   = QString::number(gsys->getRunno());
 					if (availableRuns.contains(selectedRun))
 						runItem->setData(selectedRun, Qt::EditRole);
 					else if (!availableRuns.isEmpty())
@@ -74,8 +88,11 @@ void DBSelectView::applyGSystemSelections(GOptions* gopts) {
 }
 
 // Constructor. Initializes the widget, opens the database and sets up the UI.
-DBSelectView::DBSelectView(GOptions* gopts, GDetectorConstruction* dc, QWidget* parent)
-	: QWidget(parent), db(nullptr), m_ignoreItemChange(false), gDetectorConstruction(dc) {
+DBSelectView::DBSelectView(std::shared_ptr<GOptions> gopts, GDetectorConstruction* dc, QWidget* parent)
+	: QWidget(parent),
+	  db(nullptr),
+	  gDetectorConstruction(dc),
+	  log(std::make_shared<GLogger>(gopts, DBSELECT_LOGGER, "DBSelectView")) {
 	// Open the database.
 	dbhost     = gopts->getScalarString("sql");
 	experiment = gopts->getScalarString("experiment");
@@ -150,15 +167,15 @@ DBSelectView::~DBSelectView() { if (db) sqlite3_close(db); }
  * - The experiment tree is added below the header.
  */
 void DBSelectView::setupUI() {
-	QVBoxLayout* mainLayout = new QVBoxLayout(this);
+	auto mainLayout = new QVBoxLayout(this);
 	mainLayout->setContentsMargins(10, 10, 10, 10);
 	mainLayout->setSpacing(10);
 
 	// Header layout: left side holds labels, right side holds the Reload button.
-	QHBoxLayout* headerLayout = new QHBoxLayout();
+	auto headerLayout = new QHBoxLayout();
 
 	// Vertical layout for the two labels.
-	QVBoxLayout* labelLayout = new QVBoxLayout();
+	auto labelLayout = new QVBoxLayout();
 	// Title label: displays "Experiment Selection" (will be updated if modified).
 	titleLabel = new QLabel("Experiment Selection", this);
 	QFont titleFont("Avenir", 20, QFont::Bold);
@@ -220,14 +237,14 @@ void DBSelectView::loadExperiments() {
 	while (sqlite3_step(stmt) == SQLITE_ROW) {
 		const char* expText = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
 		if (expText) {
-			QString        expName = QString::fromUtf8(expText);
-			QStandardItem* expItem = new QStandardItem(expName);
+			QString expName = QString::fromUtf8(expText);
+			auto*   expItem = new QStandardItem(expName);
 			expItem->setFlags(expItem->flags() & ~Qt::ItemIsEditable);
 			expItem->setCheckable(true);
 			expItem->setCheckState(Qt::Unchecked);
-			QStandardItem* dummyEntries = new QStandardItem("");
-			QStandardItem* dummyVar     = new QStandardItem("");
-			QStandardItem* dummyRun     = new QStandardItem("");
+			auto* dummyEntries = new QStandardItem("");
+			auto* dummyVar     = new QStandardItem("");
+			auto* dummyRun     = new QStandardItem("");
 			loadSystemsForExperiment(expItem, expName.toStdString());
 			experimentModel->appendRow(QList<QStandardItem*>() << expItem << dummyEntries << dummyVar << dummyRun);
 		}
@@ -243,21 +260,21 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem, const
 		while (sqlite3_step(stmt) == SQLITE_ROW) {
 			const char* sysText = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
 			if (sysText) {
-				QStandardItem* sysItem = new QStandardItem(QString::fromUtf8(sysText));
+				auto* sysItem = new QStandardItem(QString::fromUtf8(sysText));
 				sysItem->setFlags(sysItem->flags() & ~Qt::ItemIsEditable);
 				sysItem->setCheckable(true);
 				sysItem->setCheckState(Qt::Unchecked);
-				QStandardItem* entriesItem = new QStandardItem("");
-				QStandardItem* varItem     = new QStandardItem();
-				QStringList    varList     = getAvailableVariations(sysText);
+				auto*       entriesItem = new QStandardItem("");
+				auto*       varItem     = new QStandardItem();
+				QStringList varList     = getAvailableVariations(sysText);
 				if (!varList.isEmpty())
 					varItem->setData(varList.first(), Qt::EditRole);
 				else
 					varItem->setData("", Qt::EditRole);
 				varItem->setData(varList, Qt::UserRole);
 				varItem->setBackground(QColor("lightblue"));
-				QStandardItem* runItem = new QStandardItem();
-				QStringList    runList = getAvailableRuns(sysText);
+				auto*       runItem = new QStandardItem();
+				QStringList runList = getAvailableRuns(sysText);
 				if (!runList.isEmpty())
 					runItem->setData(runList.first(), Qt::EditRole);
 				else
@@ -424,8 +441,10 @@ void DBSelectView::onItemChanged(QStandardItem* item) {
 	updateModifiedUI();
 }
 
+// create a vector of unique_ptr to be passed to gDetectorConstruction
+// assigning GSYSTEMSQLITETFACTORYLABEL
 SystemList DBSelectView::get_gsystems() {
-	SystemList> updatedSystems;
+	SystemList updatedSystems;
 
 	for (int i = 0; i < experimentModel->rowCount(); i++) {
 		QStandardItem* expItem = experimentModel->item(i, 0);
@@ -439,12 +458,11 @@ SystemList DBSelectView::get_gsystems() {
 				continue;
 
 			if (sysItem->checkState() == Qt::Checked) {
-				string  systemName = sysItem->text().toStdString();
-				string  variation  = varItem->data(Qt::EditRole).toString().toStdString();
-				int     run        = runItem->data(Qt::EditRole).toInt();
-				GSystem updatedSystem(systemName, GSYSTEMSQLITETFACTORYLABEL, variation, /*verbosity*/ 0, run);
-				// updatedSystem.set_dbhost(dbhost); only set at command line?
-				updatedSystems.emplace_back(updatedSystem);
+				string systemName = sysItem->text().toStdString();
+				string variation  = varItem->data(Qt::EditRole).toString().toStdString();
+				int    run        = runItem->data(Qt::EditRole).toInt();
+				auto   thisSystem = std::make_unique<GSystem>(log, dbhost, systemName, GSYSTEMSQLITETFACTORYLABEL, experiment, run, variation);
+				updatedSystems.emplace_back(std::move(thisSystem));
 			}
 		}
 	}

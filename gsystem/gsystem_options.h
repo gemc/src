@@ -8,7 +8,6 @@
 
 constexpr const char* GSYSTEM_LOGGER = "gsystem";
 
-
 namespace gsystem {
 
 // method to return a vector of GSystem from the options

@@ -5,23 +5,18 @@
 #include "G4SDManager.hh"
 
 // this is thread-local
-GSensitiveDetector::GSensitiveDetector(const std::string&                                               sdName,
-                                       const std::shared_ptr<GOptions>&                                 goptions,
-                                       const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& dynamicRoutinesMap) :
+GSensitiveDetector::GSensitiveDetector(const std::string&                    sdName,
+                                       const std::shared_ptr<GOptions>&      goptions,
+                                       std::shared_ptr<GDynamicDigitization> d_routine) :
 	G4VSensitiveDetector(sdName), // geant4 derived
-	gHitsCollection(nullptr) {
+	gHitsCollection(nullptr),
+	digitization_routine(d_routine) {
 	log = std::make_shared<GLogger>(goptions, GSTREAMER_LOGGER, "GSensitiveDetector for " + sdName);
 
 	// collectionName is a G4VSensitiveDetector G4CollectionNameVector
 	// not really used in gemc, using it here to mimic the examples
 	std::string hitCollectionName = sdName + "__HitCollection";
 	collectionName.insert(hitCollectionName);
-
-	gDynamicDigitization = dynamicRoutinesMap->at(sdName);
-
-	if (!gDynamicDigitization) { log->error(ERR_DYNAMICPLUGINNOTFOUND, " gDynamicDigitization for " + sdName + " not found"); }
-
-	gHitBitSet = gDynamicDigitization->readoutSpecs->getHitBitSet();
 
 	log->debug(CONSTRUCTOR, "GSensitiveDetector constructor for " + sdName);
 }
@@ -32,6 +27,8 @@ GSensitiveDetector::GSensitiveDetector(const std::string&                       
 void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc) {
 	std::string sdName = GetName();
 	log->info(1, "GSensitiveDetector::Initializing " + sdName);
+
+	gHitBitSet = digitization_routine->readoutSpecs->getHitBitSet();
 
 	// clearing touchableVector at the start of the event
 	touchableVector.clear();
@@ -52,11 +49,11 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc) {
 G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4TouchableHistory* g4th) {
 	// if there is a decision to skip this event based on depe, return
 	double depe = thisStep->GetTotalEnergyDeposit();
-	if (gDynamicDigitization->decisionToSkipHit(depe)) { return true; }
+	if (digitization_routine->decisionToSkipHit(depe)) { return true; }
 
 	// get the vector of GTouchables returned by gDynamicDigitization
 	// if not defined by the plugin, base class will return a vector with one element (the input)
-	std::vector<std::shared_ptr<GTouchable>> thisStepProcessedTouchables = gDynamicDigitization->processTouchable(getGTouchable(thisStep), thisStep);
+	std::vector<std::shared_ptr<GTouchable>> thisStepProcessedTouchables = digitization_routine->processTouchable(getGTouchable(thisStep), thisStep);
 
 	log->info(2, "GSensitiveDetector::ProcessHits for " + GetName() +
 	             " with " + std::to_string(thisStepProcessedTouchables.size()) + " touchable(s) for step pointer " + std::to_string(reinterpret_cast<uintptr_t>(thisStep)) +

@@ -1,12 +1,22 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
+examples_dir = get_option('prefix') + '/test/' + sub_dir_name
+dbhost = '-sql=' + examples_dir + '/gemc.db'
+gsystem = '-gsystem="[{name: b1}]"'
+
+with_gui = ''
+if get_option('i_test')
+    with_gui = '-gui'
+endif
+
+
 sources = files(
-    'dbselectOptions.cc',
+    'dbselect_options.cc',
     'dbselectView.cc',
 )
 
 headers = files(
-    'dbselectOptions.h',
+    'dbselect_options.h',
     'dbselectView.h',
 )
 
@@ -14,31 +24,26 @@ moc_headers = files(
     'dbselectView.h',
 )
 
-
 qrc_examples_sources = files(
     'dbqt_resources.qrc'
 )
 
-examples = {
-    'test_db_select' : [files('examples/example.cc'), ['-gui']],
+geo_build = {
+    'test_dbselect_geo' : [files('examples/example.py')]
 }
 
-if get_option('i_test')
-    LD += {
-        'name' : sub_dir_name,
-        'sources' : sources,
-        'headers' : headers,
-        'moc_headers' : moc_headers,
-        'qrc_examples_sources' : qrc_examples_sources,
-        'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, sqlite_dep],
-        'examples' : examples
-    }
-else
-    LD += {
-        'name' : sub_dir_name,
-        'sources' : sources,
-        'headers' : headers,
-        'moc_headers' : moc_headers,
-        'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, sqlite_dep],
-    }
-endif
+examples = {
+    'test_db_select' : [files('examples/test_dbselect.cc'), [with_gui, dbhost, gsystem]],
+}
+
+LD += {
+    'name' : sub_dir_name,
+    'sources' : sources,
+    'headers' : headers,
+    'moc_headers' : moc_headers,
+    'qrc_examples_sources' : qrc_examples_sources,
+    'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, sqlite_dep],
+    'geo_build' : geo_build,
+    'examples' : examples
+}
+
