@@ -46,20 +46,20 @@ GSystem::GSystem(const GSystem& other)
 GSystem::GSystem(const std::shared_ptr<GLogger>& logger,
                  const std::string&              dbh,
                  const std::string&              sname,
-                 std::string                     factory,
-                 std::string                     exp,
+                 const std::string&              factory,
+                 const std::string&              exp,
                  int                             run,
-                 std::string                     variation,
-                 std::string                     notes)
+                 const std::string&              variation,
+                 const std::string&              notes)
 	: log(logger),
 	  dbhost(dbh),
 	  name(gutilities::getFileFromPath(sname)),
 	  path(gutilities::getDirFromPath(sname)), // Initialize 'path' directly
-	  factoryName(std::move(factory)),
-	  experiment(std::move(exp)),
+	  factoryName(factory),
+	  experiment(exp),
 	  runno(run),
-	  variation(std::move(variation)),
-	  annotations(std::move(notes)) // Use 'notes' directly
+	  variation(variation),
+	  annotations(notes) // Use 'notes' directly
 {
 	log->debug(CONSTRUCTOR, "GSystem");
 

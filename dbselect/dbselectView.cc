@@ -461,8 +461,8 @@ SystemList DBSelectView::get_gsystems() {
 				string systemName = sysItem->text().toStdString();
 				string variation  = varItem->data(Qt::EditRole).toString().toStdString();
 				int    run        = runItem->data(Qt::EditRole).toInt();
-				auto   thisSystem = std::make_unique<GSystem>(log, dbhost, systemName, GSYSTEMSQLITETFACTORYLABEL, experiment, run, variation);
-				updatedSystems.emplace_back(std::move(thisSystem));
+				auto   thisSystem = std::make_shared<GSystem>(log, dbhost, systemName, GSYSTEMSQLITETFACTORYLABEL, experiment, run, variation);
+				updatedSystems.emplace_back(thisSystem);
 			}
 		}
 	}

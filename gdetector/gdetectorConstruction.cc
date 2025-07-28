@@ -44,7 +44,7 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 	// - if no systems are provided, we just launched gemc: create from options
 	// - otherwise, it's a geometry re-load. use existing systems.
 	if (gsystems.empty()) { gworld = std::make_shared<GWorld>(gopt.get()); }
-	else { gworld = std::make_shared<GWorld>(gopt.get(), std::move(gsystems)); }
+	else { gworld = std::make_shared<GWorld>(gopt.get(), gsystems); }
 
 	// Build Geant4 world (solids, logical and physical volumes) based on the GEMC world.
 	g4world = std::make_shared<G4World>(gworld.get(), gopt.get());
@@ -138,9 +138,14 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 }
 
 
-void GDetectorConstruction::reload_geometry(SystemList&& sl) {
+void GDetectorConstruction::reload_geometry(SystemList sl) {
 	// Use vector assignment to update the local systems.
-	gsystems = std::move(sl);
-	// Reconstruct the geometry and update the world volume.
-	G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
+	gsystems = sl;
+
+	// Reconstruct the geometry and update the world volume - if the run manager exists
+	if (G4RunManager::GetRunManager()) {
+		G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
+	} else {
+		log->error(1, "GDetectorConstruction::reload_geometry", "Geant4 Run manager not found.");
+	}
 }

@@ -39,11 +39,11 @@ public:
 	GSystem(const std::shared_ptr<GLogger>& logger,
 	        const std::string&              dbhost,
 	        const std::string&              sname,
-	        std::string                     factory,
-	        std::string                     experiment,
+	        const std::string&              factory,
+	        const std::string&              experiment,
 	        int                             runno,
-	        std::string                     variation,
-	        std::string                     annotations = "none"
+	        const std::string&              variation,
+	        const std::string&              annotations = "none"
 	);
 
 
@@ -165,8 +165,8 @@ public:
 
 };
 
-// using unique pointers to move GSystem to avoid unnecessary copies
-using SystemPtr  = std::unique_ptr<GSystem>;
+// using shared pointers as GSystem could be created from the main
+// thread (in dbselect) then dispatched to g4 threads
+using SystemPtr  = std::shared_ptr<GSystem>;
 using SystemMap  = std::map<std::string, SystemPtr>;
 using SystemList = std::vector<SystemPtr>;
-

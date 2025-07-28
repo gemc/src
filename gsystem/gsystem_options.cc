@@ -20,7 +20,7 @@ SystemList getSystems(GOptions* gopts, const std::shared_ptr<GLogger>& log) {
 
 	for (auto gsystem_item : gsystem_node) {
 		systems.emplace_back(
-		                     std::make_unique<GSystem>(
+		                     std::make_shared<GSystem>(
 		                                               log,
 		                                               dbhost,
 		                                               gopts->get_variable_in_option<std::string>(gsystem_item, "name", goptions::NODFLT),

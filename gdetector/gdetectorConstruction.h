@@ -13,6 +13,7 @@
 #include <vector>
 
 
+
 /**
  * GDetectorConstruction builds the Geant4 geometry based on GEMC world definitions.
  * It also constructs sensitive detectors, fields, and digitization plugins.
@@ -40,7 +41,7 @@ public:
 	 * Reloads the geometry using a new vector of GSystem objects.
 	 * @param gs New vector of GSystem objects.
 	 */
-	void reload_geometry(SystemList&& sl);
+	void reload_geometry(SystemList sl);
 
 private:
 	std::shared_ptr<GOptions> gopt;    // need options inside Constructs() methods

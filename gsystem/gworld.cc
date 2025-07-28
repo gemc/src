@@ -18,20 +18,11 @@ GWorld::GWorld(GOptions* g)
       log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER, "GWorld [new]")) {
     log->debug(CONSTRUCTOR, "GWorld");
 
-    //------------------------------------------------------------------
-    // 1.  Load every GSystem and move it into the map
-    //------------------------------------------------------------------
-    auto systems = gsystem::getSystems(gopts, log);   // keeps vector alive
-
-    for (auto& sysPtr : systems) {                    // unique_ptr<GSystem>&
-        std::string key = gutilities::getFileFromPath(sysPtr->getName());
-
-        gsystemsMap->emplace(key, std::move(sysPtr)); // transfer ownership
-    }
-    systems.clear();   // optional: emphasise vector is now empty
+    // Load gsystems and create the gsystem map
+    auto gsystems = gsystem::getSystems(gopts, log);
+	create_gsystemsMap(gsystems);
 
     // 2.  Finish world construction
-    //------------------------------------------------------------------
     load_systems();     // build factories, load volumes
     load_gmodifiers();  // load & apply modifiers
     assignG4Names();    // final bookkeeping
@@ -39,20 +30,12 @@ GWorld::GWorld(GOptions* g)
 
 
 // Constructor with rvalue reference: perfect for taking ownership of move-only types
-GWorld::GWorld(GOptions* g, SystemList&& systems)
+GWorld::GWorld(GOptions* g, SystemList gsystems)
 	: gopts(g),
-	  gsystemsMap(std::make_unique<SystemMap>()),
 	  log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER, "GWorld [update]")) {
 
-	// Move each unique_ptr<GSystem> from the vector into the map
-	for (auto& sysPtr : systems) { // sysPtr is a UNIQUE_PTR&
-		std::string key =
-			gutilities::getFileFromPath(sysPtr->getName());
-
-		// transfer ownership; sysPtr becomes nullptr
-		(*gsystemsMap)[key] = std::move(sysPtr);
-	}
-	systems.clear(); // optional: make intent explicit
+    // create the gsystem map
+	create_gsystemsMap(gsystems);
 
 	// Finish world construction
 	load_systems();    // instantiate factories, load volumes
@@ -66,7 +49,7 @@ GWorld::~GWorld() { log->debug(DESTRUCTOR, "GWorld"); }
  * createSystemFactory creates a local GManager, registers the required system factories,
  * clears its DL map, and returns a pointer to a map of factory names to GSystemFactory pointers.
  */
-std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFactory(SystemMap* gsystemsMap) {
+std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFactory() {
     //----------------------------------------------------------------------
     // 0.  Local RAII manager
     //----------------------------------------------------------------------
@@ -74,9 +57,7 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 
     std::map<std::string, std::unique_ptr<GSystemFactory>> factoryMap;
 
-    //----------------------------------------------------------------------
-    // 1.  Always register & create the SQLite factory (needed for ROOT volumes)
-    //----------------------------------------------------------------------
+    // Always register & create the SQLite factory (needed for ROOT volumes)
     manager.RegisterObjectFactory<GSystemSQLiteFactory>(GSYSTEMSQLITETFACTORYLABEL);
 
     auto sqliteFactory = std::unique_ptr<GSystemFactory>(
@@ -88,9 +69,8 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
     }
     factoryMap.emplace(GSYSTEMSQLITETFACTORYLABEL, std::move(sqliteFactory));
 
-    //----------------------------------------------------------------------
-    // 2.  Scan all systems and create any missing factories
-    //----------------------------------------------------------------------
+
+    // Scan all systems and create any missing factories
     for (auto& [sysName, sysPtr] : *gsystemsMap) {
         const std::string& facName = sysPtr->getFactoryName();
 
@@ -131,12 +111,10 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
         factoryMap.emplace(facName, std::move(facPtr));
     }
 
-    //----------------------------------------------------------------------
-    // 3.  Clean up any temporarily loaded shared libraries
-    //----------------------------------------------------------------------
+    // Clean up any temporarily loaded shared libraries
     manager.clearDLMap();
 
-    // 4.  Return by value (NRVO/move) – no leaks, no manual delete
+    // Return by value (NRVO/move) – no leaks, no manual delete
     return factoryMap;
 }
 
@@ -169,6 +147,17 @@ std::vector<std::string> GWorld::getSensitiveDetectorsList() {
 	return snames;
 }
 
+
+void  GWorld::create_gsystemsMap(SystemList systems) {
+	for (auto& sysPtr : systems) {                    // unique_ptr<GSystem>&
+		std::string key = gutilities::getFileFromPath(sysPtr->getName());
+
+		gsystemsMap->emplace(key, sysPtr);
+	}
+	systems.clear();   // optional: emphasise vector is now empty
+}
+
+
 /**
  * load_systems creates and initializes system factories and loads volume definitions.
  */
@@ -178,15 +167,10 @@ void GWorld::load_systems() {
 	//------------------------------------------------------------------
 	const std::string dbhost = gopts->getScalarString("sql");
 
-	/*  createSystemFactory() now RETURNS the map by value:
-	 *      std::map<std::string,std::unique_ptr<GSystemFactory>>
-	 *  NRVO / move makes this cheap.  No raw `new`, no manual delete.
-	 */
-	auto systemFactories = createSystemFactory(gsystemsMap.get());
 
-	//------------------------------------------------------------------
-	// 1.  Inject the ROOT “world” volume, if not already present
-	//------------------------------------------------------------------
+	auto systemFactories = createSystemFactory();
+
+	// Inject the ROOT “world” volume, if not already present
 	const std::string worldVolumeDefinition =
 		gopts->getScalarString(ROOTWORLDGVOLUMENAME);
 
@@ -263,19 +247,15 @@ void GWorld::load_systems() {
  * load_gmodifiers loads the GModifier objects into the modifier map and applies modifications.
  */
 void GWorld::load_gmodifiers() {
-	//------------------------------------------------------------------
-	// 1.  Build the map <volumeName → unique_ptr<GModifier>>
-	//------------------------------------------------------------------
+
+	// Build the map <volumeName → shared_ptr<GModifier>>
 	for (const auto& mod : gsystem::getModifiers(gopts))               // returns vector<GModifier>
 	{
-		// Deep‑copy each modifier into a unique_ptr and move into the map
-		auto modPtr = std::make_unique<GModifier>(mod);
-		gmodifiersMap.emplace(modPtr->getName(), std::move(modPtr));
+		auto modPtr = std::make_shared<GModifier>(mod);
+		gmodifiersMap.emplace(modPtr->getName(), modPtr);
 	}
 
-	//------------------------------------------------------------------
-	// 2.  Apply every modifier to its target volume
-	//------------------------------------------------------------------
+	// Apply every modifier to its target volume
 	for (auto& [volumeName, modPtr] : gmodifiersMap)                   // modPtr is unique_ptr<GModifier>&
 	{
 		// Will exit if not found:

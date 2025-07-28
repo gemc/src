@@ -32,7 +32,7 @@ public:
 	 * @param gopts Pointer to options.
 	 */
 	explicit GWorld(GOptions* gopts);
-	GWorld(GOptions* g, SystemList&& systems);
+	GWorld(GOptions* g, SystemList systems);
 
 	~GWorld();
 
@@ -47,10 +47,12 @@ public:
 
 private:
 	GOptions* gopts;
-	// Map of system name to GSystem pointers.
+	// Map of system name to GSystem pointers
 	std::unique_ptr<SystemMap> gsystemsMap = std::make_unique<SystemMap>();
+	void create_gsystemsMap(SystemList systems);
+
 	// Map of volume name to GModifier pointers.
-	std::map<std::string, std::unique_ptr<GModifier>> gmodifiersMap;
+	std::map<std::string, std::shared_ptr<GModifier>> gmodifiersMap;
 
 	// Searches for a volume among the systems in gsystemsMap.
 	// Used in the constructor to apply modifiers.
@@ -65,7 +67,9 @@ private:
 	 * @param gsystemsMap Pointer to the map of GSystem objects.
 	 * @return Pointer to the created system factory map.
 	 */
-	std::map<std::string, std::unique_ptr<GSystemFactory>> createSystemFactory(SystemMap* gsystemsMap);
+	std::map<std::string, std::unique_ptr<GSystemFactory>> createSystemFactory();
+
+
 
 	// Create and initialize system factories, and load volume definitions.
 	void load_systems();

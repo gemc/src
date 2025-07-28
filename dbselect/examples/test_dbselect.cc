@@ -7,6 +7,12 @@
 #include <QMainWindow>
 #include <QTimer>
 
+
+// geant4
+#include "G4RunManagerFactory.hh"
+#include "QBBC.hh"
+
+
 int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, dbselect::defineOptions());
 	auto log   = std::make_shared<GLogger>(gopts, DBSELECT_LOGGER, "dbselect example");
@@ -17,6 +23,10 @@ int main(int argc, char* argv[]) {
 	QApplication* app    = nullptr;
 	QMainWindow*  window = nullptr;
 
+	auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+	auto physicsList = new QBBC;
+	runManager->SetUserInitialization(physicsList);
+	
 	if (gopts->getSwitch("gui")) {
 		log->info(0, "Running dbselect in GUI mode...");
 		app    = new QApplication(argc, argv);
@@ -60,7 +70,6 @@ int main(int argc, char* argv[]) {
 
 	// CLI mode
 	log->info(0, "Running dbselect in command line mode...");
-
 
 	return EXIT_SUCCESS;
 }

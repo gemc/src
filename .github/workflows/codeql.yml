@@ -97,5 +97,7 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
+      env:
+        LD_PRELOAD: ""        # suppress trace‑library warning
       with:
         category: "/language:${{matrix.language}}"
