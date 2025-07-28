@@ -1,4 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+
 verbosities = ['-verbosity.plugins=2',
                '-verbosity.gdigitization=2',
                '-verbosity.gtouchable=2',
@@ -7,10 +8,13 @@ verbosities = ['-verbosity.plugins=2',
                '-debug.gtouchable=true',
                '-debug.gstreamer=true',
 ]
+
 root = ['-gstreamer="[{format: root, filename: out}]"']
 ascii = ['-gstreamer="[{format: ascii, filename: out}]"']
 ascii_root = ['-gstreamer="[{format: ascii, filename: out}, {format: root, filename: out}]"']
 buffer = ['-ebuffer=20']
+
+example_source = files('examples/gstreamer_example.cc')
 
 ascii_plugin_files = [files(
                           'factories/ASCII/gstreamerASCIIFactory.cc',
@@ -82,13 +86,13 @@ LD += {
     'dependencies' : streamer_dependencies,
     'additional_includes' : ['gstreamer', 'gstreamer/factories/ROOT', 'gstreamer/factories/ASCII', 'gstreamer/factories/JLABSRO'],
     'examples' : {
-        'test_gstreamer' : [files('examples/gstreamer_example.cc'), buffer],
-        'test_gstreamer_verbose' : [files('examples/gstreamer_example.cc'), buffer + verbosities],
-        'test_gstreamer_root' : [files('examples/gstreamer_example.cc'), buffer + root],
-        'test_gstreamer_root_verbose' : [files('examples/gstreamer_example.cc'),  buffer + root + verbosities],
-        'test_gstreamer_ascii' : [files('examples/gstreamer_example.cc'),  buffer + ascii],
-        'test_gstreamer_ascii_verbose' : [files('examples/gstreamer_example.cc'),  buffer + ascii + verbosities],
-        'test_gstreamer_ascii_root' : [files('examples/gstreamer_example.cc'),  buffer + ascii_root],
-        'test_gstreamer_ascii_root_verbose' : [files('examples/gstreamer_example.cc'),  buffer + ascii_root + verbosities]
+        'test_gstreamer' : [example_source, buffer],
+        'test_gstreamer_verbose' : [example_source, buffer + verbosities],
+        'test_gstreamer_root' : [example_source, buffer + root],
+        'test_gstreamer_root_verbose' : [example_source,  buffer + root + verbosities],
+        'test_gstreamer_ascii' : [example_source,  buffer + ascii],
+        'test_gstreamer_ascii_verbose' : [example_source,  buffer + ascii + verbosities],
+        'test_gstreamer_ascii_root' : [example_source,  buffer + ascii_root],
+        'test_gstreamer_ascii_root_verbose' : [example_source,  buffer + ascii_root + verbosities]
     }
 }

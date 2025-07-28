@@ -16,7 +16,6 @@ using namespace std;
 
 GActionInitialization::GActionInitialization(GOptions *gopts, map<string, GDynamicDigitization *> *gDDGlobal) :
         G4VUserActionInitialization(),
-        GStateMessage(gopts, "GActionInitialization", "general"),  // GStateMessage derived
         goptions(gopts),
         gDigitizationGlobalMap(gDDGlobal) {
     logSummary("Instantiating GActionInitialization ");

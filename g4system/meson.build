@@ -1,8 +1,12 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
+example_source = files('examples/g4system_example.cc')
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
-dbhost = '-sql=' + examples_dir + '/gemc.db'
-gsystem = '-gsystem="[{name: b1}]"'
+
+dbhost = ['-sql=' + examples_dir + '/gemc.db']
+gsystem = ['-gsystem="[{name: b1}]"']
+verbosities = ['-verbosity.g4system=2', '-debug.g4system=true']
+overlaps = ['-check_overlaps=1']
 
 LD += {
     'name' : sub_dir_name,
@@ -32,8 +36,8 @@ LD += {
         'test_g4system_geo' : [files('examples/example.py')]
     },
     'examples' : {
-        'test_g4system' : [files('examples/g4system_example.cc'), [gsystem, dbhost]],
-        'test_g4system_verbose' : [files('examples/g4system_example.cc'), [gsystem, dbhost, '-verbosity.g4system=2', '-debug.g4system=true']],
-        'test_g4system_overlaps_switch' : [files('examples/g4system_example.cc'), [gsystem, dbhost, '-check_overlaps=1']]
+        'test_g4system' : [example_source, gsystem + dbhost],
+        'test_g4system_verbose' : [example_source, gsystem + dbhost + verbosities],
+        'test_g4system_overlaps_switch' : [example_source, gsystem + dbhost + verbosities + overlaps]
     }
 }

@@ -5,13 +5,11 @@
 #include "G4SDManager.hh"
 
 // this is thread-local
-GSensitiveDetector::GSensitiveDetector(const std::string&                    sdName,
-                                       const std::shared_ptr<GOptions>&      goptions,
-                                       std::shared_ptr<GDynamicDigitization> d_routine) :
+GSensitiveDetector::GSensitiveDetector(const std::string&               sdName,
+                                       const std::shared_ptr<GOptions>& goptions) :
 	G4VSensitiveDetector(sdName), // geant4 derived
-	gHitsCollection(nullptr),
-	digitization_routine(d_routine) {
-	log = std::make_shared<GLogger>(goptions, GSTREAMER_LOGGER, "GSensitiveDetector for " + sdName);
+	gHitsCollection(nullptr) {
+	log = std::make_shared<GLogger>(goptions, GDIGITIZATION_LOGGER, "GSensitiveDetector for " + sdName);
 
 	// collectionName is a G4VSensitiveDetector G4CollectionNameVector
 	// not really used in gemc, using it here to mimic the examples
@@ -27,6 +25,7 @@ GSensitiveDetector::GSensitiveDetector(const std::string&                    sdN
 void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc) {
 	std::string sdName = GetName();
 	log->info(1, "GSensitiveDetector::Initializing " + sdName);
+
 
 	gHitBitSet = digitization_routine->readoutSpecs->getHitBitSet();
 

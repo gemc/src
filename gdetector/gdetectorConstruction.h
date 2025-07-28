@@ -12,8 +12,6 @@
 // c++
 #include <vector>
 
-
-
 /**
  * GDetectorConstruction builds the Geant4 geometry based on GEMC world definitions.
  * It also constructs sensitive detectors, fields, and digitization plugins.
@@ -31,17 +29,25 @@ public:
 
 public:
 	// Geant4 virtual methods.
-	virtual G4VPhysicalVolume* Construct() override;
-	virtual void               ConstructSDandField() override;
+	G4VPhysicalVolume* Construct() override;
+	void               ConstructSDandField() override;
 
 	// Accessor methods.
-	bool is_empty() const { return g4world->is_empty(); }
+	[[nodiscard]] bool is_empty() const { return g4world->is_empty(); }
 
 	/**
 	 * Reloads the geometry using a new vector of GSystem objects.
-	 * @param gs New vector of GSystem objects.
+	 * @param sl new vector of gsystem pointers.
 	 */
-	void reload_geometry(SystemList sl);
+	void reload_geometry(SystemList sl = {nullptr});
+
+	std::shared_ptr<GDynamicDigitization> get_digitization_routines_for_sdname(const std::string &sd_name) const {
+		return digitization_routines_map->at(sd_name);
+	}
+
+	std::shared_ptr<gdynamicdigitization::dRoutinesMap> get_digitization_routines_map() const {
+		return digitization_routines_map;
+	}
 
 private:
 	std::shared_ptr<GOptions> gopt;    // need options inside Constructs() methods
@@ -51,8 +57,8 @@ private:
 	std::unordered_map<std::string,  std::shared_ptr<GSensitiveDetector>> sensitiveDetectorsMap; // keeping GSensitiveDetector on scope until geometry is destroyed
 
 
-	// thread local - digitization for this sensitive detector
-	std::shared_ptr<GDynamicDigitization> digitization_routine;
+	// digitization map for all sensitive detectors
+	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;
 
 	// Contains fields and field managers.
 	static G4ThreadLocal std::unique_ptr<GMagneto> gmagneto;
@@ -63,3 +69,4 @@ private:
 	// Collection of GSystem objects. If empty, geometry is built from options.
 	SystemList gsystems;
 };
+

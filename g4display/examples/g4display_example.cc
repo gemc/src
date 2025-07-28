@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 		window->show();
 
 		/* ---------- quit after 0.5s ---------- */
-		QTimer::singleShot(5000, []
+		QTimer::singleShot(500, []
 		{
 			QCoreApplication::quit();          // stop the event loop
 		});

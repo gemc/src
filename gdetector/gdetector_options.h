@@ -3,7 +3,7 @@
 // gemc
 #include "goptions.h"
 
-constexpr const char* GDETECTOR_LOGGER = "dbselect";
+constexpr const char* GDETECTOR_LOGGER = "gdetector";
 
 namespace gdetector {
 

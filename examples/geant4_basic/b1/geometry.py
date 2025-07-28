@@ -43,4 +43,6 @@ def build_geometry(configuration):
 	gvolume.material = 'G4_BONE_COMPACT_ICRU'
 	gvolume.color = 'ddffff'
 	gvolume.set_position(0, -10, 70)
+	gvolume.digitization = 'flux'     # temp assigning flux for testing digitization routines
+	gvolume.set_identifier('box', 2)
 	gvolume.publish(configuration)

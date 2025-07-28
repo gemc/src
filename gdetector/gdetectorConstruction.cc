@@ -30,6 +30,8 @@ GDetectorConstruction::~GDetectorConstruction() {
 }
 
 G4VPhysicalVolume* GDetectorConstruction::Construct() {
+	log->debug(NORMAL, "GDetectorConstruction::Construct");
+
 	// Clean any old geometry.
 	G4GeometryManager::GetInstance()->OpenGeometry();
 	G4PhysicalVolumeStore::Clean();
@@ -48,6 +50,10 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 
 	// Build Geant4 world (solids, logical and physical volumes) based on the GEMC world.
 	g4world = std::make_shared<G4World>(gworld.get(), gopt.get());
+
+	// tally with number :
+	log->info(0, "Tally summary: \n - ", gworld->get_number_of_volumes(), " volumes\n - ",
+			  g4world->number_of_volumes(), " geant4 built volumes");
 
 	// Return the physical volume for the ROOT world volume.
 	return g4world->getG4Volume(ROOTWORLDGVOLUMENAME)->getPhysical();
@@ -72,9 +78,8 @@ void GDetectorConstruction::ConstructSDandField() {
 				// Create the sensitive detector if it does not exist yet.
 				if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
 					log->info(2, "Creating new sensitive detector <", digitizationName, "> for volume <", g4name, ">");
-					// notice here digitization_routine is still nullptr
-					// it will be assigned later on
-					sensitiveDetectorsMap[digitizationName] = std::make_shared<GSensitiveDetector>(digitizationName, gopt, digitization_routine);
+
+					sensitiveDetectorsMap[digitizationName] = std::make_shared<GSensitiveDetector>(digitizationName, gopt);
 
 					auto sdManager = G4SDManager::GetSDMpointer();
 					sdManager->SetVerboseLevel(10);
@@ -104,48 +109,57 @@ void GDetectorConstruction::ConstructSDandField() {
 	// Load digitization plugins after constructing sensitive detectors.
 	loadDigitizationPlugins();
 
-
-	// tally with number :
-	log->info(0, "Tally summary: \n - ", gworld->get_number_of_volumes(), " volumes\n - ",
-	          g4world->number_of_volumes(), "geant4 built volumes");
 }
 
 void GDetectorConstruction::loadDigitizationPlugins() {
+
+	digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>();
+
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
 
 	for (auto& sdname : sdetectors) {
+
 		if (sdname == FLUXNAME) {
 			log->info(1, "Loading flux digitization plugin for routine <" + sdname + ">");
-			digitization_routine = std::make_shared<GFluxDigitization>();
+			digitization_routines_map->emplace(sdname, std::make_shared<GFluxDigitization>());
 		}
 		else if (sdname == COUNTERNAME) {
 			log->info(1, "Loading particle counter digitization plugin for routine <" + sdname + ">");
-			digitization_routine = std::make_shared<GParticleCounterDigitization>();
+			digitization_routines_map->emplace(sdname, std::make_shared<GParticleCounterDigitization>());
 		}
 		else if (sdname == DOSIMETERNAME) {
 			log->info(1, "Loading dosimeter digitization plugin for routine <" + sdname + ">");
-			digitization_routine = std::make_shared<GDosimeterDigitization>();
+			digitization_routines_map->emplace(sdname, std::make_shared<GDosimeterDigitization>());
 		}
 		else {
 			// if it's not in the map already, add it
 			log->info(0, "Loading new digitization plugin for routine <" + sdname + ">");
-			digitization_routine = gdynamicdigitization::load_dynamicRoutine(sdname, gopt.get());
+			digitization_routines_map->emplace(sdname, gdynamicdigitization::load_dynamicRoutine(sdname, gopt.get()));
 		}
+		digitization_routines_map->at(sdname)->set_loggers(gopt.get());
 
-		if (digitization_routine->defineReadoutSpecs()) { log->info(1, "Digitization routine <" + sdname + "> has been successfully defined."); }
+		if (digitization_routines_map->at(sdname)->defineReadoutSpecs()) { log->info(1, "Digitization routine <" + sdname + "> has been successfully defined."); }
 		else { log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">"); }
+
+		sensitiveDetectorsMap[sdname]->assign_digi_routine(digitization_routines_map->at(sdname));
 	}
 }
 
 
 void GDetectorConstruction::reload_geometry(SystemList sl) {
-	// Use vector assignment to update the local systems.
-	gsystems = sl;
+
+	// it could be empty for tests
+	if (sl.empty()) {
+		// Use vector assignment to update the local systems.
+		gsystems = sl;
+	}
 
 	// Reconstruct the geometry and update the world volume - if the run manager exists
-	if (G4RunManager::GetRunManager()) {
-		G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
-	} else {
-		log->error(1, "GDetectorConstruction::reload_geometry", "Geant4 Run manager not found.");
-	}
+	auto rm =  G4RunManager::GetRunManager();
+
+	// TODO: not sure if DefineWorldVolume also call ConstructSDandField automatically?
+	// is this all there is to do here to reload a geometry?
+	if (rm) { rm->DefineWorldVolume(Construct());  ConstructSDandField(); }
+
+	else { log->error(1, "GDetectorConstruction::reload_geometry", "Geant4 Run manager not found."); }
 }

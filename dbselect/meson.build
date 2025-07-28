@@ -1,12 +1,13 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
+example_source = files('examples/test_dbselect.cc')
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
-dbhost = '-sql=' + examples_dir + '/gemc.db'
-gsystem = '-gsystem="[{name: b1}]"'
+dbhost = ['-sql=' + examples_dir + '/gemc.db']
+gsystem = ['-gsystem="[{name: b1}]"']
 
-with_gui = ''
+with_gui = ['']
 if get_option('i_test')
-    with_gui = '-gui'
+    with_gui = ['-gui']
 endif
 
 
@@ -33,7 +34,7 @@ geo_build = {
 }
 
 examples = {
-    'test_db_select' : [files('examples/test_dbselect.cc'), [with_gui, dbhost, gsystem]],
+    'test_db_select' : [example_source, with_gui + dbhost + gsystem],
 }
 
 LD += {

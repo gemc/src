@@ -8,6 +8,8 @@ verbosities = [
     '-debug.gdigitization=true',
 ]
 
+example_source = files('examples/plugin_load_example.cc')
+
 LD += {
     'name' : sub_dir_name,
     'sources' : files(
@@ -27,8 +29,8 @@ LD += {
         'test_gdynamic_plugin' : [files('examples/gplugin_test_example.cc'), true],
     },
     'examples' : {
-        'test_gdynamic_plugin_load' : [files('examples/plugin_load_example.cc'), ''],
-        'test_gdynamic_plugin_load_verbose' : [files('examples/plugin_load_example.cc'), verbosities],
+        'test_gdynamic_plugin_load' : [example_source, ''],
+        'test_gdynamic_plugin_load_verbose' : [example_source, verbosities],
     }
 }
 

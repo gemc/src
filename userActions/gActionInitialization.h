@@ -5,9 +5,9 @@
 
 // gemc
 #include "goptions.h"
+#include "glogger.h"
 #include "gdynamicdigitization.h"
 #include "gstreamer.h"
-#include "gStateMessage.h"
 
 // G4VUserActionInitialization is a newly introduced class for the user to instantiate
 // user action classes (both mandatory and optional).
@@ -23,26 +23,22 @@
 // - BuildForMaster() should be used for defining only the UserRunAction for the master thread.
 
 
-class GActionInitialization : public G4VUserActionInitialization, public GStateMessage {
+class GActionInitialization : public G4VUserActionInitialization {
 public:
-    GActionInitialization(GOptions *gopt, map<string, GDynamicDigitization *> *gDDGlobal);
+	GActionInitialization(std::shared_ptr<GOptions> gopt, gdynamicdigitization::dRoutinesMap digi_map);
 
-    virtual ~GActionInitialization();
+	virtual ~GActionInitialization();
 
-    virtual void Build() const;
+	virtual void Build() const;
 
-    virtual void BuildForMaster() const;
+	virtual void BuildForMaster() const;
 
 private:
-    GOptions *goptions;
+	std::shared_ptr<goptions> goptions; // keeping option pointer to construct the other actions
+	std::shared_ptr<GLogger>  log;
 
-    // digitization map, loaded in main(), passed here
-    map<string, GDynamicDigitization *> *gDigitizationGlobalMap;
-
-    // output factories map, loaded in the constructor
-    map<string, GStreamer *> *gstreamerFactoryMap;
+	// digitization map, loaded in main(), passed here
+	gdynamicdigitization::dRoutinesMap digitization_routines_map;
+	std::shared_ptr<const dRoutinesMap>
 
 };
-
-
-

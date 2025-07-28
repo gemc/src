@@ -1,35 +1,21 @@
-/**
- * \file gdata_event_example.cc
- * \brief Example demonstrating event data collection in the GData library.
- *
- * \mainpage GData Event Data Example
- *
- * \section intro_sec Introduction
- * This example emulates a run of 10 events, where each event collects digitized hit data.
- * For each event:
- *  - A GEventDataCollectionHeader is created.
- *  - A GEventDataCollection is instantiated.
- *  - A single hit is created using a GTouchable and a default HitBitSet.
- *  - Digitized data is produced and added to the event's data collection.
- *
- * \section usage_sec Usage
- * Compile and run this example along with the GData library components (GEventDataCollection,
- * GTrueInfoData, GDigitizedData, etc.) and the associated logging and options modules.
- *
- * \n\n
- * \author \n &copy; Maurizio Ungaro
- * \author e-mail: ungaro@jlab.org
- * \n\n\n
- */
-
-// gdata
-#include "event/gEventDataCollection.h"
-#include "gdata_options.h"
+// gdetector
+#include "gdetectorConstruction.h"
+#include "gdetector_options.h"
 
 // gemc
 #include "glogger.h"
-#include <gtouchable_options.h>
+#include "event/gEventDataCollection.h"
 
+// geant4
+#include "G4RunManagerFactory.hh"
+#include "QBBC.hh"
+
+// c++
+#include <atomic>         // std::atomic<T>: lock-free, thread-safe integers, flags…
+//#include <jthread>      // C++20 std::jthread: joins automatically in its dtor (destructor)
+#include <thread>         // replaces <jthread> until C++20 is widely available. remove this line when <jthread> is available.
+#include <vector>
+#include <memory>         // smart pointers
 
 // TODO: remove when C++20 is widely available
 // ===== portable jthread-like wrapper =========================================
@@ -52,9 +38,13 @@ public:
 };
 #endif
 
-auto run_simulation_in_threads(int                             nevents,
-                               int                             nthreads,
-                               const std::shared_ptr<GLogger>& log) -> std::vector<std::shared_ptr<GEventDataCollection>> {
+const std::string plugin_name = "test_gdynamic_plugin";
+
+auto run_simulation_in_threads(int                                                 nevents,
+                               int                                                 nthreads,
+                               const std::shared_ptr<GLogger>&                     log,
+                               const std::shared_ptr<const GDetectorConstruction>& gdetector,
+                               const std::shared_ptr<GOptions>                     gopts) -> std::vector<std::shared_ptr<GEventDataCollection>> {
 	std::mutex                                         collectorMtx;
 	std::vector<std::shared_ptr<GEventDataCollection>> collected;
 
@@ -72,7 +62,7 @@ auto run_simulation_in_threads(int                             nevents,
 	pool.reserve(nthreads);
 
 	for (int tid = 0; tid < nthreads; ++tid) {
-		// The capture [&, tid] gives the thread references to variables like next, nevents, runDataMtx, etc.
+		// The capture [&, tid] gives the thread references to variables like tid
 		pool.emplace_back([&, tid] // capture tid *by value*
 		{
 			// start thread with a lambda
@@ -88,8 +78,27 @@ auto run_simulation_in_threads(int                             nevents,
 				int evn = next.fetch_add(1, std::memory_order_relaxed); // atomically returns the current value and increments it by 1.
 				if (evn > nevents) break;                               // exit the while loop
 
-				auto event_data_collection = GEventDataCollection::create(log);
-				localRunData.emplace_back(event_data_collection);
+				auto gheader      = GEventHeader::create(log, tid);
+				auto eventData    = std::make_shared<GEventDataCollection>(std::move(gheader), log);
+				auto digi_routine = gdetector->get_digitization_routines_for_sdname("flux");
+
+				// each event has 10 hits
+				for (unsigned i = 1; i < 11; i++) {
+					auto hit       = GHit::create(log);
+					auto true_data = digi_routine->collectTrueInformation(hit, i);
+					auto digi_data = digi_routine->digitizeHit(hit, i);
+
+					eventData->addDetectorDigitizedData("flux", std::move(digi_data));
+					eventData->addDetectorTrueInfoData("flux", std::move(true_data));
+				}
+
+				const auto& flux_data_it = eventData->getDataCollectionMap().find("flux");
+
+
+				if (flux_data_it != eventData->getDataCollectionMap().end()) {
+					const auto& digitized_data = flux_data_it->second->getDigitizedData();
+					log->info(0, "worker ", tid, " event ", evn, " has ", digitized_data.size(), " digitized hits");
+				}
 
 				++localCount; // tally for this worker
 			}
@@ -101,6 +110,7 @@ auto run_simulation_in_threads(int                             nevents,
 				localRunData.clear();
 			}
 
+
 			log->info(0, "worker ", tid, " processed ", localCount, " events");
 		}); // jthread constructor launches the thread immediately
 	}       // pool’s destructor blocks until every jthread has joined
@@ -108,27 +118,26 @@ auto run_simulation_in_threads(int                             nevents,
 }
 
 
-// emulation of a run of events, collecting data in separate threads
-
+// emulation of a run of events, collecting and publish data in separate threads
 int main(int argc, char* argv[]) {
-
 	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
-	auto gopts = new GOptions(argc, argv, gdata::defineOptions());
+	auto gopts = std::make_shared<GOptions>(argc, argv, gdetector::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	auto log  = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gdata example");
-	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "GTouchable");
+	auto log = std::make_shared<GLogger>(gopts.get(), GDETECTOR_LOGGER, "gdetector_example: main");
 
-	constexpr int nevents  = 200;
-	constexpr int nthreads = 8;
+	constexpr int nevents  = 20;
+	constexpr int nthreads = 2;
 
-	auto runData = run_simulation_in_threads(nevents, nthreads, log);
+	auto runManager  = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
+	auto physicsList = new QBBC;
 
-	// For demonstration, we'll simply print the event numbers.
-	for (size_t i = 0; i < runData.size(); i++) { log->info(" > Event ", i + 1, " collected with local event number: ", runData[i]->getEventNumber()); }
+	runManager->SetUserInitialization(physicsList);
 
-	// cleanup
-	delete gopts;
+	auto gdetector = std::make_shared<GDetectorConstruction>(gopts);
+	gdetector->reload_geometry();
+
+	auto runDat = run_simulation_in_threads(nevents, nthreads, log, gdetector, gopts);
 
 	return EXIT_SUCCESS;
 }

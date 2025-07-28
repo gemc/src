@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 	auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 	auto physicsList = new QBBC;
 	runManager->SetUserInitialization(physicsList);
-	
+
 	if (gopts->getSwitch("gui")) {
 		log->info(0, "Running dbselect in GUI mode...");
 		app    = new QApplication(argc, argv);
@@ -37,11 +37,11 @@ int main(int argc, char* argv[]) {
 	// building detector
 	// this is global, changed at main scope
 	// this will also load the digitization plugins
-	auto gdetectors = new GDetectorConstruction(gopts);
+	auto gdetector = new GDetectorConstruction(gopts);
 
 	// If GUI, show the window and run Qt loop
 	if (gopts->getSwitch("gui")) {
-		auto dbselect = new DBSelectView(gopts, gdetectors, window);
+		auto dbselect = new DBSelectView(gopts, gdetector, window);
 		window->setCentralWidget(dbselect);
 		window->show();
 
