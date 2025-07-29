@@ -55,7 +55,7 @@ bool GPlugin_test_example::loadTTImpl([[maybe_unused]] int runno, [[maybe_unused
 
 
 
-[[nodiscard]] std::unique_ptr<GDigitizedData> GPlugin_test_example::digitizeHitImpl(const std::unique_ptr<GHit>& ghit, [[maybe_unused]] size_t hitn) {
+[[nodiscard]] std::unique_ptr<GDigitizedData> GPlugin_test_example::digitizeHitImpl(GHit* ghit, [[maybe_unused]] size_t hitn) {
 	// return a new GDigitizedData object with some data derived from the hit
 	auto digitizedData = std::make_unique<GDigitizedData>(ghit, digi_logger);
 

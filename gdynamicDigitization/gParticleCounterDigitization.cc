@@ -13,7 +13,7 @@ bool GParticleCounterDigitization::defineReadoutSpecsImpl() {
 
 
 // digitized the hit
-std::unique_ptr<GDigitizedData> GParticleCounterDigitization::digitizeHitImpl(const std::unique_ptr<GHit>& ghit, size_t hitn) {
+std::unique_ptr<GDigitizedData> GParticleCounterDigitization::digitizeHitImpl(GHit* ghit, size_t hitn) {
 	// ghit->getGID() must have a single entry
 	GIdentifier identity = ghit->getGID().front();
 

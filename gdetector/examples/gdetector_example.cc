@@ -85,8 +85,8 @@ auto run_simulation_in_threads(int                                              
 				// each event has 10 hits
 				for (unsigned i = 1; i < 11; i++) {
 					auto hit       = GHit::create(log);
-					auto true_data = digi_routine->collectTrueInformation(hit, i);
-					auto digi_data = digi_routine->digitizeHit(hit, i);
+					auto true_data = digi_routine->collectTrueInformation(hit.get(), i);
+					auto digi_data = digi_routine->digitizeHit(hit.get(), i);
 
 					eventData->addDetectorDigitizedData("flux", std::move(digi_data));
 					eventData->addDetectorTrueInfoData("flux", std::move(true_data));

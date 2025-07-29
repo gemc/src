@@ -2,17 +2,19 @@
 
 // gemc
 #include "goptions.h"
-#include "gparticle.h"
-#include "gparticleConventions.h"
+#include "gparticle_options.h"
 
 // geant4
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "G4ParticleGun.hh"
 
+constexpr const char* GPRIMARYGENERATORACTION_LOGGER = "GPrimaryGeneratorAction";
+
+
 class GPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
 public:
-	GPrimaryGeneratorAction(GOptions* gopts);
+	GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts);
 	~GPrimaryGeneratorAction();
 
 public:
@@ -20,10 +22,11 @@ public:
 
 private:
 
-    int verbosity;
 	G4ParticleGun* gparticleGun;
 
-	vector<Gparticle> gparticles;
+	std::vector<GparticlePtr> gparticles;
+
+	std::shared_ptr<GLogger>  log;
 
 };
 

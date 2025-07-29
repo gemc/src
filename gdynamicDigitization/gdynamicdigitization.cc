@@ -30,7 +30,7 @@
  * \return Pointer to a newly allocated GTrueInfoData object.
  */
 
-std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(const std::unique_ptr<GHit>& ghit, size_t hitn) {
+std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(GHit* ghit, size_t hitn) {
 	auto trueInfoData = std::make_unique<GTrueInfoData>(ghit, data_logger);
 
 	std::vector<GIdentifier> identities = ghit->getGID();
@@ -70,9 +70,9 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
  * \param ghit Pointer to the GHit.
  * \param gdata Pointer to the GDigitizedData.
  */
-void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, const std::unique_ptr<GHit>& ghit, GDigitizedData& gdata) {
+void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, const GHit* ghit, GDigitizedData& gdata) {
 	check_if_log_defined();
-	// Exit if translation table is not defined.
+	// Exit if the translation table is not defined.
 	if (translationTable == nullptr) { tt_logger->error(EC__TTNOTFOUNDINTT, "Translation Table not found"); }
 	else {
 		// Obtain the hardware address (crate, slot, channel) from the translation table.

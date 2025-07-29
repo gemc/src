@@ -14,9 +14,9 @@ bool GFluxDigitization::defineReadoutSpecsImpl() {
 	check_if_log_defined();
 
 	// Define the electronic readout time-window for the detector.
-	double timeWindow = 10;                  // electronic readout time-window of the detector
+	double timeWindow = 10; // electronic readout time-window of the detector
 	// Define the start time for the time grid.
-	double gridStartTime = 0;                // defines the windows grid
+	double gridStartTime = 0; // defines the windows grid
 	// Define the hit bitset: "000001" indicates which information to store in the hit.
 	HitBitSet hitBitSet("000001");
 
@@ -40,7 +40,7 @@ bool GFluxDigitization::defineReadoutSpecsImpl() {
  * \param hitn The hit index (used to label the hit).
  * \return A pointer to the newly created GDigitizedData object.
  */
-	std::unique_ptr<GDigitizedData> GFluxDigitization::digitizeHitImpl(const std::unique_ptr<GHit>& ghit, size_t hitn) {
+std::unique_ptr<GDigitizedData> GFluxDigitization::digitizeHitImpl(GHit* ghit, size_t hitn) {
 	// Ensure all required loggers and options are set.
 	check_if_log_defined();
 

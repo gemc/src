@@ -13,7 +13,7 @@
 
 std::atomic<int> GDigitizedData::globalDigitizedDataCounter{0};
 
-GDigitizedData::GDigitizedData(const std::unique_ptr<GHit>& ghit, const std::shared_ptr<GLogger>& logger) : log(logger) {
+GDigitizedData::GDigitizedData(const GHit* ghit, const std::shared_ptr<GLogger>& logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GDigitizedData");
 	gidentity = ghit->getGID();
 }

@@ -11,6 +11,18 @@
 #include <sstream>
 #include <utility>
 
+
+// cross platform function to return the function name
+#if defined(__clang__) || defined(__GNUC__)
+  #define FUNCTION_NAME __PRETTY_FUNCTION__
+#elif defined(_MSC_VER)
+  #define FUNCTION_NAME __FUNCSIG__
+#else
+  #define FUNCTION_NAME __func__ // fallback
+#endif
+
+
+
 /**
  * \enum debug_type
  * \brief Enumerates debug message types.

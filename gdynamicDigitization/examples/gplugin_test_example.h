@@ -17,7 +17,7 @@ public:
 	bool loadConstantsImpl(int runno, std::string const &variation) override;
 	bool loadTTImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) override;
 
-	[[nodiscard]]std::unique_ptr<GDigitizedData> digitizeHitImpl(const std::unique_ptr<GHit>& ghit, [[maybe_unused]] size_t hitn) override;
+	[[nodiscard]]std::unique_ptr<GDigitizedData> digitizeHitImpl( GHit* ghit, [[maybe_unused]] size_t hitn) override;
 
 private:
 

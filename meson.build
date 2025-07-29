@@ -61,9 +61,9 @@ subdir('gsplash')
 subdir('gstreamer')
 subdir('gsd') # TODO: example
 subdir('gfields')
-subdir('gdetector') # TODO: example
+subdir('gdetector')
 subdir('dbselect')
-#subdir('userActions') # TODO: example
+subdir('actions') # TODO: example
 #subdir('utilities')
 #subdir('gui')
 

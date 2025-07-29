@@ -26,7 +26,7 @@ public:
 	 * \param ghit unique_ptr GHit from which identity information is extracted.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	GDigitizedData(const std::unique_ptr<GHit>& ghit, const std::shared_ptr<GLogger>& logger);
+	GDigitizedData(const GHit* ghit, const std::shared_ptr<GLogger>& logger);
 
 	/**
 	 * \brief Destructor for GDigitizedData.
@@ -85,7 +85,7 @@ public:
 
 	static std::unique_ptr<GDigitizedData> create(std::shared_ptr<GLogger> logger) {
 		auto hit       = GHit::create(logger);
-		auto digi_data = std::make_unique<GDigitizedData>(hit, logger);
+		auto digi_data = std::make_unique<GDigitizedData>(hit.get(), logger);
 		auto counter   = globalDigitizedDataCounter.fetch_add(1, std::memory_order_relaxed);
 
 		digi_data->includeVariable(CRATESTRINGID, counter % 10);

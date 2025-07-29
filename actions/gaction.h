@@ -4,7 +4,6 @@
 #include "G4VUserActionInitialization.hh"
 
 // gemc
-#include "goptions.h"
 #include "glogger.h"
 #include "gdynamicdigitization.h"
 #include "gstreamer.h"
@@ -22,23 +21,23 @@
 //   as well as for the sequential mode.
 // - BuildForMaster() should be used for defining only the UserRunAction for the master thread.
 
+constexpr const char* GACTION_LOGGER = "gaction";
 
-class GActionInitialization : public G4VUserActionInitialization {
+class GAction : public G4VUserActionInitialization {
 public:
-	GActionInitialization(std::shared_ptr<GOptions> gopt, gdynamicdigitization::dRoutinesMap digi_map);
+	GAction(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
 
-	virtual ~GActionInitialization();
+	~GAction() override;
 
-	virtual void Build() const;
+	void Build() const override;
 
-	virtual void BuildForMaster() const;
+	void BuildForMaster() const override;
 
 private:
-	std::shared_ptr<goptions> goptions; // keeping option pointer to construct the other actions
+	std::shared_ptr<GOptions> goptions; // keeping the goption pointer to construct the other actions
 	std::shared_ptr<GLogger>  log;
 
-	// digitization map, loaded in main(), passed here
-	gdynamicdigitization::dRoutinesMap digitization_routines_map;
-	std::shared_ptr<const dRoutinesMap>
+	// digitization map, populated in ConstructSDandField
+	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;
 
 };

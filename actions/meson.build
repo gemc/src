@@ -2,15 +2,14 @@ sub_dir_name = meson.current_source_dir().split('/').get(-1)
 LD += {
     'name' : sub_dir_name,
     'sources' : files(
-                          'gActionInitialization.cc',
+                          'gaction.cc',
                           'event/gEventAction.cc',
-                          'event/gEventActionLog.cc',
                           'generator/gPrimaryGeneratorAction.cc',
                           'run/gRunAction.cc',
                           'run/gRun.cc'
                       ),
     'headers' : files(
-                          'gActionInitialization.h',
+                          'gaction.h',
                           'event/gEventAction.h',
                           'generator/gPrimaryGeneratorAction.h',
                           'run/gRunAction.h',

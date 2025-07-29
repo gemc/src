@@ -161,7 +161,8 @@ public:
 		return processGTouchableModifiersImpl(gTouchID, std::move(gmods));
 	}
 
-	virtual std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiersImpl([[maybe_unused]] const std::shared_ptr<GTouchable>& gTouchID, [[maybe_unused]] const GTouchableModifiers& gmods);
+	virtual std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiersImpl([[maybe_unused]] const std::shared_ptr<GTouchable>& gTouchID,
+	                                                                                [[maybe_unused]] const GTouchableModifiers&         gmods);
 
 	/**
 	 * \brief Collects true hit information into a GTrueInfoData object.
@@ -172,13 +173,13 @@ public:
 	 * \param hitn Hit index.
 	 * \return A pointer to a newly created GTrueInfoData object.
 	 */
-	[[nodiscard]] std::unique_ptr<GTrueInfoData> collectTrueInformation(const std::unique_ptr<GHit>& ghit, size_t hitn) {
+	[[nodiscard]] std::unique_ptr<GTrueInfoData> collectTrueInformation(GHit* ghit, size_t hitn) {
 		check_if_log_defined();
 		digi_logger->info(2, "GDynamicDigitization::collect true information for hit number ", hitn, " with size ", ghit->nsteps(), " steps");
 		return collectTrueInformationImpl(ghit, hitn);
 	}
 
-	[[nodiscard]] virtual std::unique_ptr<GTrueInfoData> collectTrueInformationImpl(const std::unique_ptr<GHit>& ghit, size_t hitn);
+	[[nodiscard]] virtual std::unique_ptr<GTrueInfoData> collectTrueInformationImpl(GHit* ghit, size_t hitn);
 
 	/**
 	 * \brief Digitizes hit information into a GDigitizedData object.
@@ -187,13 +188,13 @@ public:
 	 * \param hitn Hit index.
 	 * \return A pointer to a GDigitizedData object, or nullptr if not implemented.
 	 */
-	[[nodiscard]] std::unique_ptr<GDigitizedData> digitizeHit(const std::unique_ptr<GHit>& ghit, [[maybe_unused]] size_t hitn) {
+	[[nodiscard]] std::unique_ptr<GDigitizedData> digitizeHit(GHit* ghit, [[maybe_unused]] size_t hitn) {
 		check_if_log_defined();
 		digi_logger->info(2, "GDynamicDigitization::digitize  hit number ", hitn, " with size ", ghit->nsteps(), " steps");
 		return digitizeHitImpl(ghit, hitn);
 	}
 
-	[[nodiscard]] virtual std::unique_ptr<GDigitizedData> digitizeHitImpl([[maybe_unused]] const std::unique_ptr<GHit>& ghit, [[maybe_unused]] size_t hitn) { return nullptr; }
+	[[nodiscard]] virtual std::unique_ptr<GDigitizedData> digitizeHitImpl([[maybe_unused]] GHit* ghit, [[maybe_unused]] size_t hitn) { return nullptr; }
 
 	/**
 	 * \brief Loads digitization constants.
@@ -237,7 +238,7 @@ public:
 	 * \param ghit Pointer to the GHit.
 	 * \param gdata Pointer to the GDigitizedData - caller keeps ownership.
 	 */
-	void chargeAndTimeAtHardware(int time, int q, const std::unique_ptr<GHit>& ghit, GDigitizedData& gdata);
+	void chargeAndTimeAtHardware(int time, int q, const GHit* ghit, GDigitizedData& gdata);
 
 	/**
 	 * \brief Pure virtual function to initialize readout specifications.
@@ -276,9 +277,7 @@ public:
 
 	// decides if the hit should be processed or not
 	virtual bool decisionToSkipHit(double energy) {
-		if ( energy == 0 && !recordZeroEdep ) {
-			return true;
-		}
+		if (energy == 0 && !recordZeroEdep) { return true; }
 
 		return false;
 	}
