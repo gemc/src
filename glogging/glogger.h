@@ -43,17 +43,10 @@ class GLogger {
 public:
 	/**
 	 * @brief Constructs a GLogger instance.
-	 * @param gopts Pointer to GOptions instance used for verbosity/debug lookup.
+	 * @param gopts Shared Pointer to GOptions instance used for verbosity/debug lookup.
 	 * @param vname The verbosity or debug name is a string used to identify the logger and as header for all messages
 	 * @param cc The calling class name, used to identify the source of the log messages.
 	 */
-	explicit GLogger(const GOptions* gopts, const std::string& vname, const std::string& cc)
-		: verbosity_name(vname), calling_class(cc), log_counter{0} {
-		verbosity_level = gopts->getVerbosityFor(verbosity_name);
-		debug_level     = gopts->getDebugFor(verbosity_name);
-		debug(CONSTRUCTOR, calling_class, " logger");
-	}
-
 	explicit GLogger(const std::shared_ptr<GOptions>& gopts, const std::string& vname, const std::string& cc)
 	: verbosity_name(vname), calling_class(cc), log_counter{0} {
 		verbosity_level = gopts->getVerbosityFor(verbosity_name);

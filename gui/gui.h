@@ -1,63 +1,65 @@
 #pragma once
 
-// c++
-#include <string>
-
 // qt
-#include <QtWidgets>
+#include <QStackedWidget>   // rightContent
+#include <QLineEdit>        // nEvents
+#include <QLabel>           // eventNumberLabel
+#include <QTimer>           // gtimer
+#include <QHBoxLayout>      // createTopButtons
 
 // gemc
-#include "gStateMessage.h"
 #include "gQtButtonsWidget.h"
-#include "goptions.h"
+#include "glogger.h"
 #include "eventDispenser.h"
 #include "gdetectorConstruction.h"
 
-class GemcGUI : public QWidget, public GStateMessage {
-    // metaobject required for non-qt slots
-    Q_OBJECT
+class GemcGUI : public QWidget {
+
+	// metaobject required for non-qt slots
+	Q_OBJECT
 
 public:
-    GemcGUI(string qtResourceFile, GOptions *gopts, EventDispenser *ed, GDetectorConstruction *dc, QWidget *parent = nullptr);
+	GemcGUI(std::string                            qtResourceFile,
+	        std::shared_ptr<GOptions>              gopts,
+	        std::shared_ptr<EventDispenser>        ed,
+	        std::shared_ptr<GDetectorConstruction> dc,
+	        QWidget*                               parent = nullptr);
 
-    ~GemcGUI();
-
-
-private:
-    GQTButtonsWidget *leftButtons;  // buttons
-    QStackedWidget *rightContent;
-    QLineEdit *nEvents;
-    QLabel *eventNumberLabel;
-    QTimer *gtimer;       // for cycling events
-
-    // EventDispenser to run beamOn
-    EventDispenser *eventDispenser;
-
+	~GemcGUI() override;
 
 private:
-    void createLeftButtons();
+	GQTButtonsWidget* leftButtons;  // left bar buttons
+	QStackedWidget*   rightContent; // pages controlled by left bar buttons
+	QLineEdit*        nEvents;
+	QLabel*           eventNumberLabel;
+	QTimer*           gtimer; // for cycling events
 
-    void createRightContent(GOptions *gopts, GDetectorConstruction *dc);
+	// EventDispenser to run beamOn
+	std::shared_ptr<EventDispenser> eventDispenser;
 
-    void createTopButtons(QHBoxLayout *topLayout);
+private:
+	void createLeftButtons();
 
-    void updateGui();
+	void createRightContent(std::shared_ptr<GOptions>              gopts,
+	                        std::shared_ptr<GDetectorConstruction> dc);
+
+	void createTopButtons(QHBoxLayout* topLayout);
+
+	void updateGui();
 
 private slots:
-    // defined in topLayout.cc
-    // beamOn() causes workers to update the screen
-    // from a sub-thread
-    void neventsChanged();
+	// defined in topLayout.cc
+	// beamOn() causes workers to update the screen
+	// from a sub-thread
+	void neventsChanged();
 
-    void beamOn();
+	void beamOn();
 
-    void cycleBeamOn();
+	void cycleBeamOn();
 
-    void stopCycleBeamOn();
+	void stopCycleBeamOn();
 
-    void gquit();
+	void gquit();
 
-    void change_page(QListWidgetItem *current, QListWidgetItem *previous);
+	void change_page(QListWidgetItem* current, QListWidgetItem* previous);
 };
-
-

@@ -45,7 +45,7 @@ public:
 	static const std::vector<std::string> supported_formats;
 	static bool                           is_valid_format(const std::string& format);
 
-	void set_loggers(GOptions* const g) {
+	void set_loggers(const std::shared_ptr<GOptions>& g) {
 		bufferFlushLimit = g->getScalarInt("ebuffer");
 		log              = std::make_shared<GLogger>(g, GSTREAMER_LOGGER, "streamer logger");
 	}
@@ -175,19 +175,19 @@ using gstreamersMap = std::unordered_map<std::string, std::shared_ptr<GStreamer>
 // this run in a worker thread, so each thread gets its own map of gstreamers
 inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_ptr<GOptions>& gopts,
                                                              int                              thread_id) {
-	auto log = std::make_shared<GLogger>(gopts.get(), GSTREAMER_LOGGER, "gstreamersMap worker for thread id" + std::to_string(thread_id));
+	auto log = std::make_shared<GLogger>(gopts, GSTREAMER_LOGGER, "gstreamersMap worker for thread id" + std::to_string(thread_id));
 
 	GManager manager(log);
 
 	auto gstreamers = std::make_shared<gstreamersMap>();
 
-	for (const auto& gstreamer_def : gstreamer::getGStreamerDefinition(gopts.get())) {
+	for (const auto& gstreamer_def : gstreamer::getGStreamerDefinition(gopts)) {
 		auto        gstreamer_def_thread = GStreamerDefinition(gstreamer_def, thread_id);
 		std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
 
-		auto gstr_ptr =  manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts.get());
+		auto gstr_ptr =  manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts);
 
-		auto streamer = manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts.get());
+		auto streamer = manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts);
 		gstreamers->emplace(gstreamer_plugin, streamer);
 
 		gstreamers->at(gstreamer_plugin)->define_gstreamer(gstreamer_def_thread);

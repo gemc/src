@@ -38,7 +38,7 @@ using namespace std;
 // TODO: run this in multiple threads and collect results in frames like in runAction
 int main(int argc, char *argv[]) {
 	// Create GOptions using gdata's defineOptions.
-	auto gopts = new GOptions(argc, argv, gdata::defineOptions());
+	auto gopts =std::make_shared<GOptions>(argc, argv, gdata::defineOptions());
 
 	auto log = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gdata example: GFrameDataCollection");
 	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gdata example: GTouchable");
@@ -84,7 +84,6 @@ int main(int argc, char *argv[]) {
 
 	// Cleanup: Delete frame data and options.
 	delete frameData;  // This deletes the header and all integral payloads inside.
-	delete gopts;      // Logger deletion is handled by frame data and others as needed.
 
 	return EXIT_SUCCESS;
 }

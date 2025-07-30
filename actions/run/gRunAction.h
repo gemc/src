@@ -10,8 +10,11 @@
 #include "gstreamer.h"
 #include "frame/gFrameDataCollection.h"
 
-
 constexpr const char* GRUNACTION_LOGGER = "grunaction";
+namespace grunaction {
+inline GOptions defineOptions() { return GOptions(GRUNACTION_LOGGER); }
+}
+
 
 class GRunAction : public G4UserRunAction {
 public:

@@ -46,7 +46,7 @@ bool DBSelectView::isGeometryTableValid(sqlite3* db) {
 
 // Applies selections from the GSystem vector to update the UI.
 void DBSelectView::applyGSystemSelections(std::shared_ptr<GOptions> gopts) {
-	auto gsystems = gsystem::getSystems(gopts.get(), log); // Get vector of GSystem objects.
+	auto gsystems = gsystem::getSystems(gopts, log); // Get vector of GSystem objects.
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
 		QStandardItem* expItem = experimentModel->item(i, 0);
 		if (!expItem) continue;

@@ -36,7 +36,7 @@ GTouchable::GTouchable(const std::string& digitization, const std::string& giden
 
 		gidentity.emplace_back(idName, idValue);
 	}
-	log->debug(CONSTRUCTOR, "GTouchable", to_string(gType), " ", getIdentityString());
+	log->debug(CONSTRUCTOR, "GTouchable", gtouchable::to_string(gType), " ", getIdentityString());
 }
 
 
@@ -51,7 +51,7 @@ GTouchable::GTouchable(std::shared_ptr<GTouchable> baseGT, int newTimeIndex) : l
 	detectorDimensions         = baseGT->detectorDimensions;
 	stepTimeAtElectronicsIndex = newTimeIndex;
 
-	log->debug(CONSTRUCTOR, "GTouchable", to_string(gType), " ", getIdentityString());
+	log->debug(CONSTRUCTOR, "GTouchable", gtouchable::to_string(gType), " ", getIdentityString());
 }
 
 // Overloaded "==" operator for the class 'GTouchable'

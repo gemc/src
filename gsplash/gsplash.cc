@@ -1,38 +1,44 @@
 // splash
 #include "gsplash.h"
-
 using std::string;
 
-GSplash::GSplash(std::shared_ptr<GLogger> logger, const string& imageName) : splash(nullptr), log(logger) {
+std::unique_ptr<GSplash> GSplash::create(
+	const std::shared_ptr<GOptions>& gopts,
+	const string& img) {
+
+	if (!gopts || !gopts->getSwitch("gui"))
+		return nullptr; // head‑less run → no splash
+	return std::unique_ptr<GSplash>(new GSplash(gopts, img));
+}
+
+GSplash::GSplash(const std::shared_ptr<GOptions>& gopts, const string& imageName)
+	: log(std::make_shared<GLogger>(gopts, GSPLASH_LOGGER, "gsplash")) {
+	
 	log->debug(CONSTRUCTOR, "GSplash");
 
-	// no argument, imageName is defaulted at NOSPLASHIMAGESELECTED
-	if (imageName == NOSPLASHIMAGESELECTED) {
-		auto filename = getenv(GSPLASHENVIRONMENT); // char*
+	QPixmap pixmap;
 
-		if (filename != nullptr) {
-			// pixmap is empty if the filename doesn't exist.
-			QPixmap pixmap(filename);
-			splash = new QSplashScreen(pixmap);
+	if (imageName == NOSPLASHIMAGESELECTED) {
+		if (const char* filename = std::getenv(GSPLASHENVIRONMENT); filename) {
+			pixmap.load(filename); // loads or leaves null
 		}
-		else { log->error(ERR_NOSPLASHENVFOUND, "environment variable ", GSPLASHENVIRONMENT, " must point to an image file."); }
+		else {
+			log->error(ERR_NOSPLASHENVFOUND,
+			           "Environment variable ", GSPLASHENVIRONMENT,
+			           " must point to an image file.");
+		}
 	}
 	else {
-		string resourceImage = ":" + imageName;
-
-		QPixmap pixmap(resourceImage.c_str());
-
-		// check that the image exists
-		if (pixmap.isNull()) { log->error(ERR_NOSPLASHENVFOUND, "Image ", imageName, " not found."); }
-		splash = new QSplashScreen(pixmap);
+		pixmap.load((":" + imageName).c_str());
+		if (pixmap.isNull())
+			log->error(ERR_NOSPLASHENVFOUND, "Image ", imageName, " not found.");
 	}
 
-	splash->show();
+	if (!pixmap.isNull()) {
+		splash = std::make_unique<QSplashScreen>(pixmap);
+		splash->show();
+	}
+	// else splash remains null; caller can check isActive() if you expose one
 }
 
-void GSplash::message(const string& msg) { if (splash != nullptr) { splash->showMessage(msg.c_str(), Qt::AlignLeft, Qt::black); } }
-
-GSplash::~GSplash() {
-	log->debug(DESTRUCTOR, "GSplash");
-	delete splash;
-}
+void GSplash::message(const string& msg) { if (splash) splash->showMessage(msg.c_str(), Qt::AlignLeft, Qt::black); }

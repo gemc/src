@@ -44,7 +44,7 @@ void run_simulation_in_threads(int                                              
                                int                                                              nthreads,
                                const std::shared_ptr<GLogger>&                                  log,
                                const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& dynamicRoutinesMap,
-                               const std::shared_ptr<GOptions>                                  gopts) {
+                               const std::shared_ptr<GOptions>&                                 gopts) {
 	// thread-safe integer counter starts at 1.
 	// fetch_add returns the old value *and* bumps.
 	// zero contention: each thread fetches the next free event number.
@@ -93,7 +93,6 @@ void run_simulation_in_threads(int                                              
 				log->info(0, "worker ", tid, " event ", evn, " has ", eventData->getDataCollectionMap().at("ctof")->getDigitizedData().size(), " digitized hits");
 
 				for (const auto& [name, gstreamer] : *gstreamerMapPtr) {
-
 					// publish the event to the gstreamer
 					gstreamer->publishEventData(eventData);
 				}
@@ -121,12 +120,12 @@ int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, gstreamer::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	auto log = std::make_shared<GLogger>(gopts.get(), DATA_LOGGER, "gstreamer_example: main");
+	auto log = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gstreamer_example: main");
 
 	constexpr int nevents  = 200;
 	constexpr int nthreads = 2;
 
-	auto dynamicRoutinesMap = gdynamicdigitization::dynamicRoutinesMap({plugin_name}, gopts.get());
+	auto dynamicRoutinesMap = gdynamicdigitization::dynamicRoutinesMap({plugin_name}, gopts);
 	if (dynamicRoutinesMap->at(plugin_name)->loadConstants(1, "default") == false) {
 		log->error(1, "Failed to load constants for dynamic routine", plugin_name, "for run number 1 with variation 'default'.");
 	}

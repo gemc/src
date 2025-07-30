@@ -13,7 +13,7 @@
 #include "gsystemFactories/sqlite/systemSqliteFactory.h"
 
 // TODO: have getSystems returns the map directly instead of going through the vector
-GWorld::GWorld(GOptions* g)
+GWorld::GWorld(const std::shared_ptr<GOptions>&  g)
 	: gopts(g),
 	  log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER, "GWorld [new]")) {
 	log->debug(CONSTRUCTOR, "GWorld");
@@ -30,9 +30,9 @@ GWorld::GWorld(GOptions* g)
 
 
 // Constructor with rvalue reference: perfect for taking ownership of move-only types
-GWorld::GWorld(GOptions* g, SystemList gsystems)
+GWorld::GWorld(const std::shared_ptr<GOptions>& g, SystemList gsystems)
 	: gopts(g),
-	  log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER, "GWorld [update]")) {
+	  log(std::make_shared<GLogger>(gopts, GSYSTEM_LOGGER, "GWorld [update]")) {
 	// create the gsystem map
 	create_gsystemsMap(gsystems);
 
@@ -147,7 +147,6 @@ std::vector<std::string> GWorld::getSensitiveDetectorsList() {
 
 
 void GWorld::create_gsystemsMap(SystemList systems) {
-
 	// clearing the map before using
 	gsystemsMap->clear();
 
@@ -163,7 +162,6 @@ void GWorld::create_gsystemsMap(SystemList systems) {
  * load_systems creates and initializes system factories and loads volume definitions.
  */
 void GWorld::load_systems() {
-
 	const std::string dbhost = gopts->getScalarString("sql");
 
 

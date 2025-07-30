@@ -74,7 +74,7 @@ public:
 
 	/// Load a shared library, look up its instantiate symbol, and return object.
 	template <class T>
-	[[nodiscard]] std::shared_ptr<T> LoadAndRegisterObjectFromLibrary(std::string_view name, GOptions* gopts);
+	[[nodiscard]] std::shared_ptr<T> LoadAndRegisterObjectFromLibrary(std::string_view name, const std::shared_ptr<GOptions>& gopts);
 
 	/// Explicit cleanup (also called by destructor) – idempotent.
 	void clearDLMap() noexcept;
@@ -128,7 +128,7 @@ Base* GManager::CreateObject(std::string_view name) const {
 }
 
 template <class T>
-std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view name, GOptions* gopts) {
+std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view name, const std::shared_ptr<GOptions>& gopts) {
 	registerDL(name);
 	auto pluginName = std::string{name};
 	auto pluginLib = dlMap_.at(pluginName); // shared_ptr<DynamicLib>

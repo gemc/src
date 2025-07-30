@@ -52,7 +52,7 @@ public:
      * \param logger Pointer to the shared GLogger instance for logging.
      * \param parent Optional parent QWidget.
      */
-    G4DisplayUtilities(GOptions* gopt, std::shared_ptr<GLogger> logger, QWidget* parent = nullptr);
+    G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt, std::shared_ptr<GLogger> logger, QWidget* parent = nullptr);
 
     /**
      * \brief Destructor.

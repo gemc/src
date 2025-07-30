@@ -8,6 +8,9 @@
 
 constexpr const char* EVENTACTION_LOGGER = "EventAction";
 
+namespace geventaction {
+inline GOptions defineOptions() { return GOptions(EVENTACTION_LOGGER); }
+}
 
 // Local thread classes
 class GEventAction : public G4UserEventAction {

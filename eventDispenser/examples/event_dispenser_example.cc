@@ -33,7 +33,7 @@ const std::string plugin_name = "test_gdynamic_plugin";
 
 int main(int argc, char *argv[]) {
 	// Create GOptions using eventDispenser::defineOptions() to aggregate options.
-	auto gopts = new GOptions(argc, argv, eventDispenser::defineOptions());
+	auto gopts =std::make_shared<GOptions>(argc, argv, eventDispenser::defineOptions());
 
 	// Create a logger for the EventDispenser module.
 	auto log = std::make_unique<GLogger>(gopts, EVENTDISPENSER_LOGGER, "eventDispenser example");
@@ -48,9 +48,6 @@ int main(int argc, char *argv[]) {
 	// Retrieve and display the run events distribution.
 	std::map<int, int> runEvents = eventDisp.getRunEvents();
 	eventDisp.processEvents();
-
-	// Cleanup: delete dynamically allocated objects.
-	delete gopts;
 
 	return EXIT_SUCCESS;
 }

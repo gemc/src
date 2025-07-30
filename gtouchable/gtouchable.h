@@ -29,6 +29,7 @@ enum GTouchableType {
 // ------------------------------------------------------------------------
 // Convert enum to string for logging / debugging.
 // ------------------------------------------------------------------------
+namespace gtouchable {
 inline const char* to_string(GTouchableType t) {
 	switch (t) {
 	case GTouchableType::readout: return "readout";
@@ -37,6 +38,7 @@ inline const char* to_string(GTouchableType t) {
 	case GTouchableType::dosimeter: return "dosimeter";
 	default: return "unknown‑gtouchable";
 	}
+}
 }
 
 /**
@@ -122,7 +124,7 @@ public:
 	*/
 	GTouchable(std::shared_ptr<GTouchable> baseGT, int newTimeIndex);
 
-	~GTouchable() { if (log) log->debug(DESTRUCTOR, "GTouchable", to_string(gType), " ", getIdentityString()); }
+	~GTouchable() { if (log) log->debug(DESTRUCTOR, "GTouchable", gtouchable::to_string(gType), " ", getIdentityString()); }
 
 	/**
 	* @brief Equality operator comparing two GTouchable objects.

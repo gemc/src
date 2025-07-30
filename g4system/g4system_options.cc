@@ -36,7 +36,7 @@ GOptions defineOptions() {
 	help += "Possibles values are:\n";
 	help += " - 0 (default): no check.\n";
 	help += " - 1: check for overlaps at physical volume construction.\n";
-	help += " - 2: use the geant4 overlap validator with 10,000 points on the surface\n";
+	help += " - 2: use the geant4 overlap validator with the default number of points on the surface\n";
 	help += " - Any N greater than 100 : use the geant4 overlap validator with N points on the surface";
 	goptions.defineOption(GVariable("check_overlaps", 0, "check overlaps"), help);
 

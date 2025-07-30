@@ -43,7 +43,7 @@ using namespace std;
 // Constructor: Initializes the EventDispenser using options from GOptions and a pointer to the global
 // GDynamicDigitization plugins map.
 //
-EventDispenser::EventDispenser(GOptions* gopt, std::shared_ptr<const gdynamicdigitization::dRoutinesMap> gdynamicDigitizationMap)
+EventDispenser::EventDispenser(const std::shared_ptr<GOptions>& gopt, std::shared_ptr<const gdynamicdigitization::dRoutinesMap> gdynamicDigitizationMap)
 	: log(std::make_shared<GLogger>(gopt, EVENTDISPENSER_LOGGER, "EventDispenser")), gDigitizationMap(gdynamicDigitizationMap) {
 	log->debug(CONSTRUCTOR, "EventDispenser");
 

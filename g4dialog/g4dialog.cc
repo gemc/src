@@ -8,7 +8,7 @@
 #include "G4UImanager.hh"
 
 
-G4Dialog::G4Dialog(GOptions *gopt, QWidget *parent) : QWidget(parent), log(std::make_unique<GLogger>(gopt, G4DIALOG_LOGGER, "G4Dialog")) {
+G4Dialog::G4Dialog(const std::shared_ptr<GOptions>& gopt, QWidget *parent) : QWidget(parent), log(std::make_unique<GLogger>(gopt, G4DIALOG_LOGGER, "G4Dialog")) {
 
     log->debug(CONSTRUCTOR, "G4Dialog");
 

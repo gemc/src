@@ -8,7 +8,7 @@ GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts
 	log(std::make_shared<GLogger>(gopts, GPRIMARYGENERATORACTION_LOGGER, "GPrimaryGeneratorAction")) {
  log->debug(CONSTRUCTOR, FUNCTION_NAME);
 	gparticleGun = new G4ParticleGun();
-	gparticles   = gparticle::getGParticles(gopts.get(), log);
+	gparticles   = gparticle::getGParticles(gopts, log);
 }
 
 GPrimaryGeneratorAction::~GPrimaryGeneratorAction() {

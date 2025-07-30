@@ -37,12 +37,12 @@ int main(int argc, char* argv[]) {
 	auto visManager = new G4VisExecutive;
 	visManager->Initialize();
 
-	auto g4SceneProperties = new G4SceneProperties(gopts.get());
+	auto g4SceneProperties = new G4SceneProperties(gopts);
 
 	// If GUI, show the window and run Qt loop
 	if (gopts->getSwitch("gui")) {
 
-		auto g4display = new G4Display(gopts.get(), window);
+		auto g4display = new G4Display(gopts, window);
 		window->setCentralWidget(g4display);
 		window->show();
 

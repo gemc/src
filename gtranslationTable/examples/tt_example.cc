@@ -9,7 +9,7 @@ using std::vector;
 
 int main(int argc, char *argv[]) {
 
-	auto gopts = new GOptions(argc, argv, gtranslationTable::defineOptions());
+	auto gopts =std::make_shared<GOptions>(argc, argv, gtranslationTable::defineOptions());
 	auto log = std::make_shared<GLogger>(gopts, TRANSLATIONTABLE_LOGGER, "translationTable example");
 
 	vector<int> element1 = {1, 2, 3, 4, 5};
@@ -26,10 +26,6 @@ int main(int argc, char *argv[]) {
 	GElectronic retrievedElectronic = translationTable.getElectronics(element1);
 
 	log->info(0, "Retrieved electronic: ", retrievedElectronic);
-
-	// cleanup
-	// deleting log here gives error on linux. should be investigated
-	delete gopts;
 
 	return EXIT_SUCCESS;
 }

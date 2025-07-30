@@ -165,12 +165,34 @@ public:
 
 	/**
 	 * @brief Adds options from another GOptions object.
-	 * @param goptions_to_add The GOptions object to add.
+	 * @param src The GOptions object to add.
 	 */
-	inline void addGOptions(const GOptions& goptions_to_add) {
-		for (const auto& gopt : goptions_to_add.getOptions()) { goptions.push_back(gopt); }
-		for (const auto& sw : goptions_to_add.getSwitches()) { switches.insert(sw); }
-		for (auto& gvar : goptions_to_add.option_verbosity_names) { option_verbosity_names.push_back(gvar); }
+	inline void addGOptions(const GOptions& src)
+	{
+		// 1.  Options – check by option name
+		for (const auto& opt : src.getOptions()) {
+			auto already = std::find_if(
+				goptions.begin(), goptions.end(),
+				[&opt](const GOption& o) { return o.name == opt.name; });
+
+			if (already == goptions.end())
+				goptions.push_back(opt);             // add only if absent
+		}
+
+		// 2.  Switches – std::map::insert does the uniqueness check for us
+		for (const auto& sw : src.getSwitches()) {
+			switches.insert(sw);                     // ignored if key already exists
+		}
+
+		// 3.  Verbosity/debug variable names – store each only once
+		for (const auto& v : src.option_verbosity_names) {
+			auto same = std::find_if(
+				option_verbosity_names.begin(), option_verbosity_names.end(),
+				[&v](const GVariable& existing) { return existing.name == v.name; });
+
+			if (same == option_verbosity_names.end())
+				option_verbosity_names.push_back(v);
+		}
 	}
 
 	std::string            option_verbosity_name{UNINITIALIZEDSTRINGQUANTITY};

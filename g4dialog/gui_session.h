@@ -17,7 +17,7 @@ public:
 	 * @param logger Shared pointer to a GLogger for debug/verbosity messages.
 	 * @param board Pointer to the GBoard widget that will display the messages.
 	 */
-	GUI_Session(GOptions *gopt,  std::shared_ptr<GBoard> board);
+	GUI_Session(const std::shared_ptr<GOptions>& gopt,  std::shared_ptr<GBoard> board);
 
 	~GUI_Session() override {
 		if (log) log->debug(DESTRUCTOR, "GUI_Session");

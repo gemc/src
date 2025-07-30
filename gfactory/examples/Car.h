@@ -8,7 +8,7 @@ public:
 
     virtual ~Car() = default;
 
-	void set_loggers([[ maybe_unused ]] GOptions* const g) {}
+	void set_loggers([[ maybe_unused ]] const std::shared_ptr<GOptions>&  g) {}
 
     double generalCarVar = 44;
 

@@ -290,11 +290,11 @@ public:
 	 *
 	 * \param g Pointer to GOptions.
 	 */
-	void set_loggers(GOptions* const g) {
+	void set_loggers(const std::shared_ptr<GOptions>& g) {
 		gopts       = g;
-		data_logger = std::make_shared<GLogger>(gopts.value(), DATA_LOGGER, "data");
-		tt_logger   = std::make_shared<GLogger>(gopts.value(), TRANSLATIONTABLE_LOGGER, "translation table");
-		digi_logger = std::make_shared<GLogger>(gopts.value(), GDIGITIZATION_LOGGER, "digitization");
+		data_logger = std::make_shared<GLogger>(gopts, DATA_LOGGER, "data");
+		tt_logger   = std::make_shared<GLogger>(gopts, TRANSLATIONTABLE_LOGGER, "translation table");
+		digi_logger = std::make_shared<GLogger>(gopts, GDIGITIZATION_LOGGER, "digitization");
 	}
 
 private:
@@ -302,7 +302,7 @@ private:
 
 protected:
 	/// Optional pointer to GOptions.
-	std::optional<GOptions*> gopts;
+	std::shared_ptr<GOptions> gopts;
 	/// Data, Translation Tables, and digitization loggers.
 	std::shared_ptr<GLogger> data_logger, tt_logger, digi_logger;
 
@@ -312,8 +312,7 @@ protected:
 	 * If any required logger is missing, prints an error message and exits.
 	 */
 	void check_if_log_defined() const {
-		if (!gopts.has_value() || !gopts.value() || data_logger == nullptr || tt_logger == nullptr || digi_logger ==
-		    nullptr) {
+		if (gopts == nullptr || data_logger == nullptr || tt_logger == nullptr || digi_logger == nullptr) {
 			std::cerr << KRED <<
 				"Fatal Error: GDynamicDigitization: goption is not set for this plugin or one of the loggers is null."
 				<< std::endl;
@@ -330,14 +329,14 @@ namespace gdynamicdigitization {
 
 using dRoutinesMap = std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>;
 
-inline std::shared_ptr<GDynamicDigitization> load_dynamicRoutine(const std::string& plugin_name, GOptions* gopts) {
+inline std::shared_ptr<GDynamicDigitization> load_dynamicRoutine(const std::string& plugin_name, const std::shared_ptr<GOptions>& gopts) {
 	auto     log = std::make_shared<GLogger>(gopts, GDIGITIZATION_LOGGER, "loader");
 	GManager manager(log);
 	return manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin_name, gopts);
 }
 
 //  the returned map is shared and immutable
-inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<std::string>& plugin_names, GOptions* gopts) {
+inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<std::string>& plugin_names, const std::shared_ptr<GOptions>& gopts) {
 	auto     log = std::make_shared<GLogger>(gopts, GDIGITIZATION_LOGGER, "loader");
 	GManager manager(log);
 

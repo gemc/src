@@ -9,7 +9,7 @@
 
 namespace gfields {
 
-std::vector<GFieldDefinition> get_GFieldDefinition(GOptions * gopts);
+std::vector<GFieldDefinition> get_GFieldDefinition(const std::shared_ptr<GOptions>& gopts);
 
 GOptions defineOptions();
 

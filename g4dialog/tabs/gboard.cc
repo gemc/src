@@ -10,7 +10,7 @@
 #include <QString>
 #include <QTextBlock>
 
-GBoard::GBoard(GOptions* gopt, QWidget* parent)
+GBoard::GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
 	: QWidget(parent), log(std::make_unique<GLogger>(gopt, G4DIALOG_LOGGER, "GBoard")) {
 	log->debug(CONSTRUCTOR, "GBoard");
 

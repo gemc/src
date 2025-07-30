@@ -14,7 +14,7 @@
 int main(int argc, char* argv[]) {
 	QApplication app(argc, argv);
 
-	auto gopts = new GOptions(argc, argv, g4dialog::defineOptions());
+	auto gopts =std::make_shared<GOptions>(argc, argv, g4dialog::defineOptions());
 	auto log = std::make_shared<GLogger>(gopts, G4DIALOG_LOGGER, "g4dialog example");
 
 	auto visManager = new G4VisExecutive;
@@ -41,7 +41,6 @@ int main(int argc, char* argv[]) {
 	delete g4dialog;
 	delete window;
 	delete visManager;
-	delete gopts;
 
 	return ret;
 

@@ -113,7 +113,7 @@ auto run_simulation_in_threads(int                             nevents,
 int main(int argc, char* argv[]) {
 
 	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
-	auto gopts = new GOptions(argc, argv, gdata::defineOptions());
+	auto gopts =std::make_shared<GOptions>(argc, argv, gdata::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
 	auto log  = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gdata example");
@@ -126,9 +126,6 @@ int main(int argc, char* argv[]) {
 
 	// For demonstration, we'll simply print the event numbers.
 	for (size_t i = 0; i < runData.size(); i++) { log->info(" > Event ", i + 1, " collected with local event number: ", runData[i]->getEventNumber()); }
-
-	// cleanup
-	delete gopts;
 
 	return EXIT_SUCCESS;
 }

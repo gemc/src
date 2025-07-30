@@ -3,8 +3,7 @@
 // gemc
 #include "goptions.h"
 
-#define DEFAULT_RANDOM_ENGINE   "RanluxEngine"
-#define SEEDNOTSET -1234
+constexpr const char* GENERAL_LOGGER = "gemc";
 
 namespace gemc {
 

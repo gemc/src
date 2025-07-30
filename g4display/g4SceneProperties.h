@@ -53,7 +53,7 @@ public:
      *
      * \param gopts Pointer to the GOptions object containing configuration parameters.
      */
-    explicit G4SceneProperties(GOptions *gopts);
+    explicit G4SceneProperties(const std::shared_ptr<GOptions>& gopts);
 
     /// Default destructor.
     ~G4SceneProperties() = default;
@@ -68,7 +68,7 @@ public:
      * \param gopts Pointer to the GOptions object containing scene text configuration.
      * \return A vector of strings representing the scene text commands.
      */
-    std::vector<std::string> addSceneTexts(GOptions *gopts);
+    std::vector<std::string> addSceneTexts(const std::shared_ptr<GOptions>& gopts);
 
 private:
 	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.

@@ -63,9 +63,9 @@ subdir('gsd') # TODO: example
 subdir('gfields')
 subdir('gdetector')
 subdir('dbselect')
+subdir('gui')
 subdir('actions') # TODO: example
-#subdir('utilities')
-#subdir('gui')
+subdir('utilities')
 
 # compilation loop
 foreach L : LD
@@ -201,18 +201,58 @@ endforeach
 # compile gemc
 qrc_gemc_sources = qt6.compile_resources(sources : 'qtresources.qrc')
 
+gemc_sources = ['gemc.cc', 'gemc_options.cc']
+gemc = executable(
+    'gemc',
+    gemc_sources + qrc_gemc_sources + qrc_compiled_sources,
+    install : true,
+    dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, sqlite_dep, expat_dep, assimp_dep],
+    include_directories : all_includes,
+    link_with : all_libs,
+    link_args : all_lib_names,
+    override_options : ['b_pie=true']
+)
 
-# TODO: MOVE THE API GEMC TESTS HERE - but why?
-#gemc = executable(
-#    'gemc',
-#    ['gemc.cc'] + qrc_gemc_sources + qrc_compiled_sources,
-#    install : true,
-#    dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, sqlite_dep, expat_dep, assimp_dep],
-#    include_directories : all_includes,
-#    link_with : all_libs,
-#    link_args : all_lib_names,
-#    override_options : ['b_pie=true']
-#)
+# test gemc options
+example_test_dir = 'gsystem'
+examples_dir = get_option('prefix') + '/test/' + example_test_dir
+dbhost = ['-sql=' + examples_dir + '/gemc.db']
+gsystem = ['-gsystem="[{name: b1}]"']
+gemc_test_sqlite = dbhost + gsystem
+test_options = [
+    { 'default' : [''] },
+    { 'show_phys' : ['-showPhysics'] },
+    { 'phys_verbose' : ['-verbosity.gphysics=2', '-debug.gphysics=true'] },
+    { 'dbselect_verbose' : ['-verbosity.dbselect=2', '-debug.dbselect=true'] },
+    { 'gdetector_verbose' : ['-verbosity.gdetector=2', '-debug.gdetector=true'] },
+    { 'gsystem_verbose' : ['-verbosity.gsystem=2', '-debug.gsystem=true'] },
+    { 'g4system_verbose' : ['-verbosity.g4system=2', '-debug.g4system=true'] },
+    { 'gdigitization_verbose'
+      : ['-verbosity.gdigitization=2', '-debug.gdigitization=true'] },
+    { 'gdata_verbose' : ['-verbosity.gdata=2', '-debug.gdata=true'] },
+    { 'gtouchable_verbose' : ['-verbosity.gtouchable=2', '-debug.gtouchable=true'] },
+    { 'gtranslation_verbose'
+      : ['-verbosity.gtranslationTable=2', '-debug.gtranslationTable=true'] },
+    { 'plugins_verbose' : ['-verbosity.plugins=2', '-debug.plugins=true'] },
+    { 'gstreamer_verbose' : ['-verbosity.gstreamer=2', '-debug.gstreamer=true'] },
+    { 'gsplash_verbose' : ['-verbosity.gsplash=2', '-debug.gsplash=true'] },
+]
+
+
+
+foreach opt_dict : test_options
+    foreach key, value : opt_dict            # each dict has exactly one entry
+        test_name = 'gemc_' + key            # => gemc_default, gemc_show_pys
+        test_arguments = value
+        test(
+            test_name,
+            gemc,
+            args : test_arguments + gemc_test_sqlite,
+            suite : 'gemc',
+            timeout : 60          # adjust as needed
+        )
+    endforeach
+endforeach
 
 
 #subdir('examples')

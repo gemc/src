@@ -23,7 +23,7 @@ public:
 	 * \param gopt Pointer to a GOptions object containing configuration parameters.
 	 * \param gdynamicDigitizationMap unordered_map<std::string, shared_ptr<GDynamicDigitization>>
 	 */
-	EventDispenser(GOptions *gopt, std::shared_ptr<const gdynamicdigitization::dRoutinesMap> gdynamicDigitizationMap);
+	EventDispenser(const std::shared_ptr<GOptions>& gopt, std::shared_ptr<const gdynamicdigitization::dRoutinesMap> gdynamicDigitizationMap);
 
 	/**
 	 * \brief Destructor for EventDispenser.

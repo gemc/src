@@ -6,16 +6,15 @@
 #include "g4dialog.h"
 #include "dbselectView.h"
 
-void GemcGUI::createRightContent(GOptions *gopts, GDetectorConstruction *dc) {
+void GemcGUI::createRightContent(std::shared_ptr<GOptions>              gopts,
+                                 std::shared_ptr<GDetectorConstruction> dc) {
+	rightContent = new QStackedWidget;
 
-    rightContent = new QStackedWidget;
+	rightContent->addWidget(new G4Display(gopts));
+	rightContent->addWidget(new G4Dialog(gopts));
+	rightContent->addWidget(new DBSelectView(gopts, dc.get()));
 
-    rightContent->addWidget(new G4Display(gopts));
-    rightContent->addWidget(new G4Dialog(gopts));
-	rightContent->addWidget(new DBSelectView(gopts, dc));
-
-    // set content and press button to highlight it
-    rightContent->setCurrentIndex(0);
-    leftButtons->press_button(0);
-
+	// set content and press the button to highlight it
+	rightContent->setCurrentIndex(0);
+	leftButtons->press_button(0);
 }

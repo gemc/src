@@ -28,7 +28,7 @@ public:
      * @param gopt Pointer to the GOptions object containing application settings. Used to configure the logger.
      * @param parent Optional parent QWidget for Qt's memory management.
      */
-    explicit G4Display(GOptions *gopt, QWidget *parent = nullptr);
+    explicit G4Display(const std::shared_ptr<GOptions>& gopt, QWidget *parent = nullptr);
 
     /**
      * @brief Destructor. Manages the lifetime of owned resources (like the logger).

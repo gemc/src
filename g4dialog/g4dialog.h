@@ -13,7 +13,7 @@
 class G4Dialog : public QWidget {
 
 public:
-	explicit G4Dialog(GOptions *gopt, QWidget *parent = nullptr);
+	explicit G4Dialog(const std::shared_ptr<GOptions>& gopt, QWidget *parent = nullptr);
 
 	// TODO:
 	// logger life cycle management: this will not be called

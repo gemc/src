@@ -10,7 +10,7 @@
 
 int main(int argc, char* argv[]) {
 	// options not used
-	auto gopts = new GOptions(argc, argv, gqtbuttonswidget::defineOptions());
+	auto gopts =std::make_shared<GOptions>(argc, argv, gqtbuttonswidget::defineOptions());
 	auto timeout = gopts->getScalarDouble("tt");
 
 	QApplication app(argc, argv);

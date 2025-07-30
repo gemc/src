@@ -1,202 +1,208 @@
-// Qt
-#include <QtWidgets>
+#include "gemcUtilities.h"
+#include "gemcConventions.h"
 
 // geant4 headers
 #include "G4Threading.hh"
 #include "G4UImanager.hh"
 
-// c++
-#include <iostream>
-
-using namespace std;
-
 // gemc
-#include "goptions.h"
-#include "gemcConventions.h"
-#include "gemcUtilities.h"
+#include "glogger.h"
+#include "gtouchable.h"
 
-// distinguishing between graphical and batch mode
-QCoreApplication *createQtApplication(int &argc, char *argv[], bool gui) {
-    if (gui) {
-        return new QApplication(argc, argv);
-    } else {
-        return new QCoreApplication(argc, argv);
-    }
+namespace gemc {
+
+
+// return the number of cores from options.
+// if 0 is given, returns max number of available cores
+int get_nthreads(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
+	int useThreads = gopts->getScalarInt("nthreads");
+
+	int allThreads = G4Threading::G4GetNumberOfCores();
+	if (useThreads == 0) useThreads = allThreads;
+
+	log->info(0, "Using ", useThreads, " threads out of ", allThreads, " available.");
+
+	return useThreads;
 }
 
-// return number of cores from options. If 0 or none given,
-// returns max number of available cores
-int getNumberOfThreads(GOptions *gopts) {
-    int useThreads = gopts->getScalarInt("nthreads");
+std::vector<std::string> verbosity_commands([[maybe_unused]] const std::shared_ptr<GOptions>& gopts, [[maybe_unused]] const std::shared_ptr<GLogger>& log) {
+	std::vector<std::string> cmds;
 
-    int allThreads = G4Threading::G4GetNumberOfCores();
-    if (useThreads == 0) useThreads = allThreads;
+	// --- Always‑quiet commands ---
+	cmds.emplace_back("/control/verbose 0");
 
-    int verbosity = gopts->getVerbosityFor("general");
+	cmds.emplace_back("/process/verbose 0");
+	cmds.emplace_back("/process/setVerbose 0 all");
+	cmds.emplace_back("/process/had/verbose 0");
+	cmds.emplace_back("/process/had/deex/verbose 0");
+	cmds.emplace_back("/process/had/cascade 0");
+	cmds.emplace_back("/process/em/verbose 0");
+	cmds.emplace_back("/process/eLoss/verbose 0");
 
-    // global log screen
-    if (verbosity >= GVERBOSITY_SUMMARY) {
-        cout << GEMCLOGMSGITEM << "G4MTRunManager: using " << useThreads << " threads out of " << allThreads << " available." << endl;
-    }
+	cmds.emplace_back("/particle/process/verbose 0");
+	cmds.emplace_back("/particle/verbose 0");
 
-    return useThreads;
+	cmds.emplace_back("/tracking/verbose 0");
+	cmds.emplace_back("/geometry/navigator/verbose 0");
+
+	cmds.emplace_back("/event/verbose 0");
+	cmds.emplace_back("/event/stack/verbose 0");
+
+	cmds.emplace_back("/cuts/verbose 0");
+
+	cmds.emplace_back("/run/particle/verbose 0");
+	cmds.emplace_back("/run/verbose 0");
+
+	cmds.emplace_back("/material/verbose 0");
+//	cmds.emplace_back("/vis/verbose 0");
+
+	return cmds; // RVO / move‑return → zero extra copies
 }
 
-// initialize G4MTRunManager
-void initGemcG4RunManager(G4RunManager *grm, GOptions *gopts) {
 
-    G4UImanager *g4uim = G4UImanager::GetUIpointer();
-	// this will cause all thread to write each to a log file
-	// usually turned off in the examples, not sure why we'd ever need this
-  	// g4uim->ApplyCommand("/control/cout/setCoutFile .log");
+std::vector<std::string> init_commands([[maybe_unused]] const std::shared_ptr<GOptions>& gopts, [[maybe_unused]] const std::shared_ptr<GLogger>& log) {
 
-	g4uim->ApplyCommand("/control/cout/ignoreThreadsExcept 1");
-	g4uim->ApplyCommand("/control/cout/ignoreInitializationCout");
+	auto check_overlaps = gopts->getScalarInt("check_overlaps"); 	// notice: from g4system options
+	auto gui            = gopts->getSwitch("gui");
 
-	// Geant4 verbosity. TODO: these should go to common options
-	g4uim->ApplyCommand("/control/verbose 0"); // Applied command will also be shown on screen
+	std::vector<std::string> cmds;
 
-	g4uim->ApplyCommand("/process/verbose 0"); // Set Verbose Level for Process Table
-	g4uim->ApplyCommand("/process/setVerbose 0 all"); // Set verbose level for processes
-	g4uim->ApplyCommand("/process/had/verbose 0");
-	g4uim->ApplyCommand("/process/had/deex/verbose 0");
-	g4uim->ApplyCommand("/process/had/cascade/verbose 0");
-	g4uim->ApplyCommand("/process/em/verbose 0");
-	g4uim->ApplyCommand("/process/eLoss/verbose 0");
+	if (check_overlaps == 2) {
+		log->info(0, "Running /geometry/test/run with 50 points.");
+		cmds.emplace_back("/geometry/test/resolution 50");
+		cmds.emplace_back("/geometry/test/run");
+	}
+	else if (check_overlaps >= 100) {
+		log->info(0, "Running /geometry/test/run with ", check_overlaps, " points.");
+		cmds.emplace_back("/geometry/test/resolution " + std::to_string(check_overlaps));
+		cmds.emplace_back("/geometry/test/run");
+	}
+	if (!gui) return cmds;
 
-	g4uim->ApplyCommand("/particle/process/verbose 0");
-	g4uim->ApplyCommand("/particle/verbose 0");
 
-	g4uim->ApplyCommand("/tracking/verbose 0");
+	cmds.emplace_back("/vis/viewer/set/autoRefresh false");
+	cmds.emplace_back("/vis/viewer/set/viewpointVector -1 0 0");
+	cmds.emplace_back("/vis/viewer/set/lightsVector -1 0 0");
 
-	g4uim->ApplyCommand("/geometry/navigator/verbose 0");
-
-	g4uim->ApplyCommand("/event/verbose 0");
-	g4uim->ApplyCommand("/event/stack/verbose 0");
-
-	g4uim->ApplyCommand("/cuts/verbose 0");
-
-	g4uim->ApplyCommand("/run/particle/verbose 0");
-	g4uim->ApplyCommand("/run/verbose 0");
-
-	g4uim->ApplyCommand("/material/verbose 0");
-
-	g4uim->ApplyCommand("/vis/verbose 0");
-
-	// initialize run manager
-    grm->Initialize();
-}
-
-vector <string> startingUIMCommands(bool gui, int checkForOverlaps) {
-
-    vector <string> commands;
-
-    // added additional overlaps check if set to 2
-    // if set to a number greater than 100
-    if (checkForOverlaps == 2) {
-        cout << GEMCLOGMSGITEM << "Running /geometry/test/run with 50 points. NOTICE: currently this fails" << endl;
-        commands.push_back("/geometry/test/resolution 50");
-        commands.push_back("/geometry/test/run");
-    } else if (checkForOverlaps >= 100) {
-        cout << GEMCLOGMSGITEM << "Running /geometry/test/run with " << to_string(checkForOverlaps) << " points. NOTICE: currently this fails. " << endl;
-        commands.push_back("/geometry/test/resolution " + to_string(checkForOverlaps));
-        commands.push_back("/geometry/test/run");
-    }
-
-    // not in gui mode, return batch only
-    if (!gui) return commands;
-
-    // define gui commands
-    // all this needs to go in scene properties
-    // and gui needs not to be passed here
-	commands.push_back("/vis/viewer/set/autoRefresh false");
-	commands.push_back("/vis/viewer/set/viewpointVector -1 0 0");
-	commands.push_back("/vis/viewer/set/lightsVector -1 0 0");
-
-	commands.push_back("/vis/scene/add/trajectories rich smooth");
-    commands.push_back("/vis/scene/add/hits");
-    commands.push_back("/vis/scene/endOfEventAction accumulate 10000");        // for some reason refresh (default) won't work here
-    commands.push_back("/vis/viewer/set/culling coveredDaughters true");
+	cmds.emplace_back("/vis/scene/add/trajectories rich smooth");
+	cmds.emplace_back("/vis/scene/add/hits");
+	cmds.emplace_back("/vis/scene/endOfEventAction accumulate 10000"); // for some reason refresh (default) won't work here
+	cmds.emplace_back("/vis/viewer/set/culling coveredDaughters true");
 
 	// background colors and root volume are the same
 	//commands.push_back("/vis/viewer/set/background 1 1 1 1");
-	commands.push_back("/vis/geometry/set/colour root 0 0 0 0");
-	commands.push_back("/vis/geometry/set/colour root 0 0 0 0");
+	cmds.emplace_back("/vis/geometry/set/colour root 0 0 0 0");
+	cmds.emplace_back("/vis/geometry/set/colour root 0 0 0 0");
 
-    // commands.push_back("/vis/scene/add/magneticField 10");
-	commands.push_back("/vis/viewer/set/autoRefresh true");
+	// commands.push_back("/vis/scene/add/magneticField 10");
+	cmds.emplace_back("/vis/viewer/set/autoRefresh true");
 
-
-    return commands;
+	return cmds; // RVO / move‑return → zero extra copies
 }
+
+// initialize G4MTRunManager
+void init_run_manager(G4RunManager* grm, const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
+
+	auto* g4uim = G4UImanager::GetUIpointer();
+
+	log->info(0, "Initializing G4MTRunManager");
+
+	auto init_cmds   = verbosity_commands(gopts, log) ;
+
+	// for (auto& cmd : init_commands(gopts, log)) {
+	// 	init_cmds.emplace_back(cmd);
+	// }
+
+	for (const auto& cmd : init_cmds) {
+		log->info(2, "Executing UIManager command: ", cmd);
+		g4uim->ApplyCommand(cmd);
+	}
+
+	grm->Initialize();
+}
+
 
 // apply UIM commands
-void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity) {
-    G4UImanager *g4uim = G4UImanager::GetUIpointer();
+// void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity) {
+// 	G4UImanager* g4uim = G4UImanager::GetUIpointer();
+//
+// 	vector<string> commands = startingUIMCommands(gui, checkForOverlaps);
+//
+// 	for (auto& c : commands) {
+// 		if (verbosity > GVERBOSITY_SUMMARY) { cout << GEMCLOGMSGITEM << "Executing UIManager command \"" << c << "\"" << endl; }
+// 		g4uim->ApplyCommand(c.c_str());
+// 	}
+// }
 
-    vector <string> commands = startingUIMCommands(gui, checkForOverlaps);
+//
+#include <unistd.h>  // needed for get_pid
+// #include "CLHEP/Random/DRand48Engine.h"
+// #include "CLHEP/Random/DualRand.h"
+// #include "CLHEP/Random/Hurd160Engine.h"
+// #include "CLHEP/Random/Hurd288Engine.h"
+// #include "CLHEP/Random/JamesRandom.h"
+// #include "CLHEP/Random/MixMaxRng.h"
+// #include "CLHEP/Random/MTwistEngine.h"
+// #include "CLHEP/Random/RandEngine.h"
+// #include "CLHEP/Random/RanecuEngine.h"
+// #include "CLHEP/Random/RanluxEngine.h"
+// #include "CLHEP/Random/Ranlux64Engine.h"
+// #include "CLHEP/Random/RanluxppEngine.h"
+// #include "CLHEP/Random/RanshiEngine.h"
+// #include "CLHEP/Random/TripleRand.h"
+//
+void start_random_engine(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
+	auto randomEngineName = gopts->getScalarString("randomEngine");
+	auto seed             = gopts->getScalarInt("seed");
 
-    for (auto &c: commands) {
-        if (verbosity > GVERBOSITY_SUMMARY) {
-            cout << GEMCLOGMSGITEM << "Executing UIManager command \"" << c << "\"" << endl;
-        }
-        g4uim->ApplyCommand(c.c_str());
-    }
+	if (seed == SEEDNOTSET) {
+		auto timed   = time(NULL);
+		auto clockd  = clock();
+		auto getpidi = getpid();
+		seed         = (G4int)(timed - clockd - getpidi);
+	}
+
+	log->info(0, "Starting random engine ", randomEngineName, " with seed ", seed);
+
 }
 
 
-#include <unistd.h>  // needed for get_pid
-#include "CLHEP/Random/DRand48Engine.h"
-#include "CLHEP/Random/DualRand.h"
-#include "CLHEP/Random/Hurd160Engine.h"
-#include "CLHEP/Random/Hurd288Engine.h"
-#include "CLHEP/Random/JamesRandom.h"
-#include "CLHEP/Random/MixMaxRng.h"
-#include "CLHEP/Random/MTwistEngine.h"
-#include "CLHEP/Random/RandEngine.h"
-#include "CLHEP/Random/RanecuEngine.h"
-#include "CLHEP/Random/RanluxEngine.h"
-#include "CLHEP/Random/Ranlux64Engine.h"
-#include "CLHEP/Random/RanluxppEngine.h"
-#include "CLHEP/Random/RanshiEngine.h"
-#include "CLHEP/Random/TripleRand.h"
+//
+// 	// the names come from the CLHEP library, can be found with
+// 	// grep ": public HepRandomEngine" *.h $CLHEP_BASE_DIR/include/CLHEP/Random/* | awk -Fclass '{print $2}' | awk -F: '{print $1}'
+// 	if (randomEngineName == "DRand48Engine")
+// 		G4Random::setTheEngine(new CLHEP::DRand48Engine(seed));
+// 	else if (randomEngineName == "DualRand")
+// 		G4Random::setTheEngine(new CLHEP::DualRand);
+// 	else if (randomEngineName == "Hurd288Engine")
+// 		G4Random::setTheEngine(new CLHEP::Hurd160Engine);
+// 	else if (randomEngineName == "HepJamesRandom")
+// 		G4Random::setTheEngine(new CLHEP::HepJamesRandom);
+// 	else if (randomEngineName == "MTwistEngine")
+// 		G4Random::setTheEngine(new CLHEP::MTwistEngine);
+// 	else if (randomEngineName == "MixMaxRng")
+// 		G4Random::setTheEngine(new CLHEP::MixMaxRng(seed));
+// 	else if (randomEngineName == "RandEngine")
+// 		G4Random::setTheEngine(new CLHEP::RandEngine);
+// 	else if (randomEngineName == "RanecuEngine")
+// 		G4Random::setTheEngine(new CLHEP::RanecuEngine);
+// 	else if (randomEngineName == "Ranlux64Engine")
+// 		G4Random::setTheEngine(new CLHEP::Ranlux64Engine);
+// 	else if (randomEngineName == "RanluxEngine")
+// 		G4Random::setTheEngine(new CLHEP::RanluxEngine);
+// 	else if (randomEngineName == "RanshiEngine")
+// 		G4Random::setTheEngine(new CLHEP::RanshiEngine);
+// 	else if (randomEngineName == "Hurd288Engine")
+// 		G4Random::setTheEngine(new CLHEP::Hurd288Engine);
+// 	else if (randomEngineName == "TripleRand")
+// 		G4Random::setTheEngine(new CLHEP::TripleRand);
+// 	else {
+// 		cout << FATALERRORL << " Random engine >" << randomEngineName << "< not found. Exiting." << endl;
+// 		gexit(EC__RANDOMENGINENOTFOUND);
+// 	}
+//
+// 	G4Random::setTheSeed(seed);
+// }
 
-void startRandomEngine(GOptions *gopts) {
-
-    string randomEngineName = gopts->getScalarString("randomEngineName");
-    int seed = gopts->getScalarInt("seed");
-    if (seed == SEEDNOTSET) {
-        double timed = time(NULL);
-        double clockd = clock();
-        double getpidi = (double) getpid();
-        seed = (G4int)(timed - clockd - getpidi);
-    }
-
-    cout << GEMCLOGMSGITEM << "Starting random engine: >"
-         << KGRN << randomEngineName << RST
-         << "< using seed: " << KGRN << seed << RST << endl;
-
-
-    // the names come from the CLHEP library, can be found with
-    // grep ": public HepRandomEngine" *.h $CLHEP_BASE_DIR/include/CLHEP/Random/* | awk -Fclass '{print $2}' | awk -F: '{print $1}'
-    if      ( randomEngineName == "DRand48Engine")  G4Random::setTheEngine(new CLHEP::DRand48Engine(seed));
-    else if ( randomEngineName == "DualRand")       G4Random::setTheEngine(new CLHEP::DualRand);
-    else if ( randomEngineName == "Hurd288Engine")  G4Random::setTheEngine(new CLHEP::Hurd160Engine);
-    else if ( randomEngineName == "HepJamesRandom") G4Random::setTheEngine(new CLHEP::HepJamesRandom);
-    else if ( randomEngineName == "MTwistEngine")   G4Random::setTheEngine(new CLHEP::MTwistEngine);
-    else if ( randomEngineName == "MixMaxRng")      G4Random::setTheEngine(new CLHEP::MixMaxRng(seed));
-    else if ( randomEngineName == "RandEngine")     G4Random::setTheEngine(new CLHEP::RandEngine);
-    else if ( randomEngineName == "RanecuEngine")   G4Random::setTheEngine(new CLHEP::RanecuEngine);
-    else if ( randomEngineName == "Ranlux64Engine") G4Random::setTheEngine(new CLHEP::Ranlux64Engine);
-    else if ( randomEngineName == "RanluxEngine")   G4Random::setTheEngine(new CLHEP::RanluxEngine);
-    else if ( randomEngineName == "RanshiEngine")   G4Random::setTheEngine(new CLHEP::RanshiEngine);
-    else if ( randomEngineName == "Hurd288Engine")  G4Random::setTheEngine(new CLHEP::Hurd288Engine);
-    else if ( randomEngineName == "TripleRand")     G4Random::setTheEngine(new CLHEP::TripleRand);
-    else {
-        cout << FATALERRORL << " Random engine >" << randomEngineName << "< not found. Exiting." << endl;
-        gexit(EC__RANDOMENGINENOTFOUND);
-    }
-
-    G4Random::setTheSeed(seed);
 
 }

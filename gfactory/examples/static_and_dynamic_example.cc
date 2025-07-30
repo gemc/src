@@ -12,7 +12,7 @@ using std::string;
 
 int main(int argc, char *argv[]) {
 
-	auto gopts = new GOptions(argc, argv, gfactory::defineOptions());
+	auto gopts =std::make_shared<GOptions>(argc, argv, gfactory::defineOptions());
 	auto log = std::make_shared<GLogger>(gopts, PLUGIN_LOGGER, "plugin_example");
 
 	GManager managerAV(log, "GManager Static");

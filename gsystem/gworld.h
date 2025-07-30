@@ -31,8 +31,8 @@ public:
 	 *
 	 * @param gopts Pointer to options.
 	 */
-	explicit GWorld(GOptions* gopts);
-	GWorld(GOptions* g, SystemList systems);
+	explicit GWorld(const std::shared_ptr<GOptions>& gopts);
+	GWorld(const std::shared_ptr<GOptions>& gopts, SystemList systems);
 
 	~GWorld();
 
@@ -46,7 +46,8 @@ public:
 	std::vector<std::string> getSensitiveDetectorsList();
 
 private:
-	GOptions* gopts;
+	std::shared_ptr<GOptions> gopts;
+
 	// Map of system name to GSystem pointers
 	std::unique_ptr<SystemMap> gsystemsMap = std::make_unique<SystemMap>();
 	void create_gsystemsMap(SystemList systems);

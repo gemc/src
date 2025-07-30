@@ -9,7 +9,7 @@ using std::string;
 using std::vector;
 
 // method to return a vector of GParticles from the options
-vector<GparticlePtr> getGParticles(GOptions* gopts, std::shared_ptr<GLogger>& logger) {
+vector<GparticlePtr> getGParticles(const std::shared_ptr<GOptions>& gopts, std::shared_ptr<GLogger>& logger) {
 	auto gparticle_node = gopts->getOptionNode("gparticle");
 
 	vector<GparticlePtr> gparticles;

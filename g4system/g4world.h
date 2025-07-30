@@ -47,7 +47,7 @@ public:
 	 * @param gworld Pointer to the GEMC world object.
 	 * @param gopts  Global options (verbosity, backup material, overlaps…).
 	 */
-	G4World(const GWorld* gworld, GOptions* gopts);
+	G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts);
 
 	/** Destructor – shutdown; no manual deletion needed. */
 	~G4World() { log->debug(DESTRUCTOR, "G4World"); }

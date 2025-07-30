@@ -21,7 +21,7 @@ using namespace gutilities;
  * @param logger Pointer to the shared GLogger instance for logging.
  * @param parent Optional pointer to the parent QWidget.
  */
-G4DisplayView::G4DisplayView(GOptions* gopts, std::shared_ptr<GLogger> logger, QWidget* parent) : QWidget(parent), log(logger) {
+G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts, std::shared_ptr<GLogger> logger, QWidget* parent) : QWidget(parent), log(logger) {
 	log->debug(CONSTRUCTOR, "G4DisplayView");
 
 	G4Camera jcamera = getG4Camera(gopts);

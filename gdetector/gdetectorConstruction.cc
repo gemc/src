@@ -22,7 +22,13 @@ G4ThreadLocal std::unique_ptr<GMagneto> GDetectorConstruction::gmagneto = nullpt
 GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
 	: G4VUserDetectorConstruction(), // Geant4 base class.
 	  gopt(gopts),                   // need this in Construct and ConstructSDandField
-	  log(std::make_shared<GLogger>(gopts, GDETECTOR_LOGGER, "GDetectorConstruction")) { log->debug(CONSTRUCTOR, "GDetectorConstruction"); }
+	  log(std::make_shared<GLogger>(gopts, GDETECTOR_LOGGER, "GDetectorConstruction")) {
+	log->debug(CONSTRUCTOR, "GDetectorConstruction");
+	digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>();
+
+	log->info(0, "map 0: ", digitization_routines_map);
+
+}
 
 GDetectorConstruction::~GDetectorConstruction() {
 	// Clean up the GEMC and Geant4 world objects.
@@ -45,11 +51,11 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 
 	// - if no systems are provided, we just launched gemc: create from options
 	// - otherwise, it's a geometry re-load. use existing systems.
-	if (gsystems.empty()) { gworld = std::make_shared<GWorld>(gopt.get()); }
-	else { gworld = std::make_shared<GWorld>(gopt.get(), gsystems); }
+	if (gsystems.empty()) { gworld = std::make_shared<GWorld>(gopt); }
+	else { gworld = std::make_shared<GWorld>(gopt, gsystems); }
 
 	// Build Geant4 world (solids, logical and physical volumes) based on the GEMC world.
-	g4world = std::make_shared<G4World>(gworld.get(), gopt.get());
+	g4world = std::make_shared<G4World>(gworld.get(), gopt);
 
 	// tally with number :
 	log->info(0, "Tally summary: \n - ", gworld->get_number_of_volumes(), " volumes\n - ",
@@ -113,7 +119,7 @@ void GDetectorConstruction::ConstructSDandField() {
 
 void GDetectorConstruction::loadDigitizationPlugins() {
 
-	digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>();
+	//digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>();
 
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
 
@@ -134,9 +140,11 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 		else {
 			// if it's not in the map already, add it
 			log->info(0, "Loading new digitization plugin for routine <" + sdname + ">");
-			digitization_routines_map->emplace(sdname, gdynamicdigitization::load_dynamicRoutine(sdname, gopt.get()));
+			digitization_routines_map->emplace(sdname, gdynamicdigitization::load_dynamicRoutine(sdname, gopt));
 		}
-		digitization_routines_map->at(sdname)->set_loggers(gopt.get());
+		digitization_routines_map->at(sdname)->set_loggers(gopt);
+
+		log->info(0, "map 2: ", digitization_routines_map);
 
 		if (digitization_routines_map->at(sdname)->defineReadoutSpecs()) { log->info(1, "Digitization routine <" + sdname + "> has been successfully defined."); }
 		else { log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">"); }

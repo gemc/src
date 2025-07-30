@@ -23,7 +23,7 @@ public:
 	 * @param logger Shared pointer to a GLogger for debug messages.
 	 * @param parent The parent widget (default is nullptr).
 	 */
-	explicit GBoard(GOptions *gopt, QWidget* parent = nullptr);
+	explicit GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent = nullptr);
 
 	/**
 	 * @brief Destructor.

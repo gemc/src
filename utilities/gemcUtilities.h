@@ -1,32 +1,51 @@
 #pragma once
 
 // qt
-#include <QApplication>
-
-// gemc
-#include "gemcOptions.h"
+#include <QCoreApplication>
 
 // geant4
 #include "G4MTRunManager.hh"
+#include "G4UImanager.hh"
 
-// distinguishing between graphical and batch mode
-QCoreApplication* createQtApplication(int &argc, char *argv[], bool gui);
+// cpp
+#include <memory>
 
-// return number of cores from options. If 0 or none given,
-// returns max number of available cores
-int getNumberOfThreads(GOptions* gopts);
+// gemc
+#include "glogger.h"
+#include "gsplash.h"
+#include "gbatch_session.h"
+
+
+namespace gemc {
+
+
+inline std::unique_ptr<QCoreApplication>
+makeQtApplication(int& argc, char* argv[], bool gui) {
+
+	if (!gui) {
+		auto gbatch = std::make_unique<GBatch_Session>();
+		G4UImanager::GetUIpointer()->SetCoutDestination(gbatch.release()); // release ownership to Geant4
+
+		return std::make_unique<QCoreApplication>(argc, argv);
+	}
+	return std::make_unique<QApplication>(argc, argv);
+}
+
+// return the number of cores from options.
+// if 0 is given, returns max number of available cores
+int get_nthreads(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
+
+std::vector<std::string> verbosity_commands(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
+std::vector<std::string> initi_commands(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
 
 // initialize G4MTRunManager
-void initGemcG4RunManager(G4RunManager *grm, GOptions* gopt);
-
-// Starting commands
-// - batch
-// - gui (if needed), include the commands in batch mode
-vector<string> startingUIMCommands(bool gui, int checkForOverlaps);
+void init_run_manager(G4RunManager* grm, const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
 
 // apply initial UIM commands coming from, in order:
 // - startingUIMCommands
 // - PRAGMA TODO macro file
-void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity);
+//void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity);
 
-void startRandomEngine(GOptions* gopts);
+void start_random_engine(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
+
+}

@@ -7,7 +7,7 @@ namespace gsystem {
 
 
 // method to return a vector of GSystem from the options
-SystemList getSystems(GOptions* gopts, const std::shared_ptr<GLogger>& log) {
+SystemList getSystems(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
 	auto gsystem_node = gopts->getOptionNode("gsystem");
 
 	SystemList systems;
@@ -38,7 +38,7 @@ SystemList getSystems(GOptions* gopts, const std::shared_ptr<GLogger>& log) {
 
 
 // method to return a vector of GModifier from the options
-std::vector<GModifier> getModifiers(GOptions* gopts) {
+std::vector<GModifier> getModifiers(const std::shared_ptr<GOptions>& gopts) {
 	std::vector<GModifier> gmods;
 
 	auto gmodifier_node = gopts->getOptionNode("gmodifier");

@@ -31,7 +31,7 @@ using namespace std;
  *
  * \param gopts Pointer to the global options object.
  */
-G4SceneProperties::G4SceneProperties(GOptions* gopts): log(std::make_shared<GLogger>(gopts, G4DISPLAY_LOGGER, "G4SceneProperties")) {
+G4SceneProperties::G4SceneProperties(const std::shared_ptr<GOptions>& gopts): log(std::make_shared<GLogger>(gopts, G4DISPLAY_LOGGER, "G4SceneProperties")) {
 
 	log->debug(CONSTRUCTOR, "G4SceneProperties");
 
@@ -103,7 +103,7 @@ G4SceneProperties::G4SceneProperties(GOptions* gopts): log(std::make_shared<GLog
  * \param gopts Pointer to the global options object.
  * \return A vector of strings containing the visualization commands for scene texts.
  */
-vector<string> G4SceneProperties::addSceneTexts(GOptions* gopts) {
+vector<string> G4SceneProperties::addSceneTexts(const std::shared_ptr<GOptions>& gopts) {
     vector<string> commands;
 
     vector<g4display::G4SceneText> text_to_add = g4display::getSceneTexts(gopts);

@@ -7,11 +7,9 @@
 
 
 int main(int argc, char* argv[]) {
-	auto gopts = new GOptions(argc, argv, gphysics::defineOptions());
-	auto log   = std::make_shared<GLogger>(gopts, GPHYSICS_LOGGER, "gphysics_example");
+	auto gopts =  std::make_shared<GOptions>(argc, argv, gphysics::defineOptions());
 
-	[[maybe_unused]] auto gphysics = new GPhysics(gopts, log);
+	[[maybe_unused]] auto gphysics = std::make_shared<GPhysics>(gopts);
 
-	delete gphysics;
 	return EXIT_SUCCESS;
 }

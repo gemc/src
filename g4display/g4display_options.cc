@@ -22,7 +22,7 @@ namespace g4display {
 // };
 
 // read g4view option and return G4View struct
-G4View getG4View(GOptions* gopts) {
+G4View getG4View(const std::shared_ptr<GOptions>& gopts) {
 	// projecting it onto G4View structure
 	G4View g4view;
 	g4view.driver        = gopts->getOptionMapInNode("g4view", "driver").as<string>();;
@@ -34,7 +34,7 @@ G4View getG4View(GOptions* gopts) {
 }
 
 // read g4camera option and return G4Camera struct
-G4Camera getG4Camera(GOptions* gopts) {
+G4Camera getG4Camera(const std::shared_ptr<GOptions>& gopts) {
 	G4Camera gcamera;
 	gcamera.phi   = gopts->getOptionMapInNode("g4camera", "phi").as<string>();
 	gcamera.theta = gopts->getOptionMapInNode("g4camera", "theta").as<string>();
@@ -43,7 +43,7 @@ G4Camera getG4Camera(GOptions* gopts) {
 }
 
 // read dawn option and return G4Dawn struct
-G4Dawn getG4Dawn(GOptions* gopts) {
+G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts) {
 	G4Dawn gdawn;
 
 	auto phi   = gopts->getOptionMapInNode("dawn", "phi").as<string>();

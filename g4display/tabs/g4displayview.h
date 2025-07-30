@@ -34,7 +34,7 @@ public:
      * @param logger Pointer to the GLogger instance for logging messages. Must not be null. Passed from parent G4Display.
      * @param parent Optional parent QWidget for Qt's memory management.
      */
-	G4DisplayView(GOptions* gopts,	std::shared_ptr<GLogger> logger, QWidget* parent = nullptr);
+	G4DisplayView(const std::shared_ptr<GOptions>& gopts,	std::shared_ptr<GLogger> logger, QWidget* parent = nullptr);
 
     /**
      * @brief Destructor. Logs the destruction event using the provided logger.

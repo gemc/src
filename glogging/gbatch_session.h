@@ -20,15 +20,15 @@ public:
 		errFile.open("gemc.err");
 	}
 
-	G4int ReceiveG4cout(const G4String &coutString) {
-		logFile << coutString << flush;
-		cout << coutString << flush;
+	G4int ReceiveG4cout(const G4String &coutString) override {
+		logFile << coutString << std::flush;
+		std::cout << coutString << std::flush;
 		return 0;
 	}
 
-	G4int ReceiveG4cerr(const G4String &cerrString) {
-		errFile << cerrString << flush;
-		cerr << cerrString << flush;
+	G4int ReceiveG4cerr(const G4String &cerrString) override {
+		errFile << cerrString << std::flush;
+		std::cerr << cerrString << std::flush;
 		return 0;
 	}
 

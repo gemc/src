@@ -38,7 +38,7 @@ struct GStreamerDefinition {
 namespace gstreamer {
 
 // method to return a vector of GStreamerDefinition from the options
-std::vector<GStreamerDefinition> getGStreamerDefinition(GOptions* gopts);
+std::vector<GStreamerDefinition> getGStreamerDefinition(const std::shared_ptr<GOptions>& gopts);
 
 // returns array of options definitions
 GOptions defineOptions();

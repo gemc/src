@@ -11,7 +11,7 @@ namespace gstreamer {
 using std::string;
 using std::vector;
 
-vector<GStreamerDefinition> getGStreamerDefinition(GOptions* gopts) {
+vector<GStreamerDefinition> getGStreamerDefinition(const std::shared_ptr<GOptions>& gopts) {
 	vector<GStreamerDefinition> goutputs;
 
 	auto goutput_node = gopts->getOptionNode("gstreamer");

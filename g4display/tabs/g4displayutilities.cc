@@ -6,7 +6,7 @@
 using namespace std;
 
 
-G4DisplayUtilities::G4DisplayUtilities([[maybe_unused]] GOptions* gopt,  	std::shared_ptr<GLogger> logger, QWidget* parent) : QWidget(parent), log(logger) {
+G4DisplayUtilities::G4DisplayUtilities([[maybe_unused]] const std::shared_ptr<GOptions>& gopt,  	std::shared_ptr<GLogger> logger, QWidget* parent) : QWidget(parent), log(logger) {
 	log->debug(CONSTRUCTOR, "G4DisplayUtilities");
 
 	// Create a QVBoxLayout for the main layout

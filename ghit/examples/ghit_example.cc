@@ -10,7 +10,7 @@ using std::string;
 using std::vector;
 
 int main(int argc, char* argv[]) {
-	auto gopts = new GOptions(argc, argv, gtouchable::defineOptions());
+	auto gopts =std::make_shared<GOptions>(argc, argv, gtouchable::defineOptions());
 	auto log   = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "ghit_example");
 
 	HitBitSet hitBitSet;
@@ -31,8 +31,6 @@ int main(int argc, char* argv[]) {
 		// observing each std::unique_ptr<GHit> without copying it.
 		for (const auto& hit_in_v : hits) { if (hit->is_same_hit(hit_in_v)) { log->info(NORMAL, (*hit->getGTouchable()), " found in hit n. ", i); } }
 	}
-
-	delete gopts;
 
 	return EXIT_SUCCESS;
 }

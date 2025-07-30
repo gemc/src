@@ -45,7 +45,7 @@ GOptions defineOptions() {
 // Define options
 int main(int argc, char *argv[]) {
 
-    GOptions *gopts = new GOptions(argc, argv, defineOptions());
+    auto gopts = std::make_shared<GOptions>(argc, argv, defineOptions());
 
     cout << " > Nthreads: " << gopts->getScalarInt("nthreads") << endl;
 

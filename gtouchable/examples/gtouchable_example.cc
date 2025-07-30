@@ -9,7 +9,7 @@ using std::string;
 using std::vector;
 
 int main(int argc, char* argv[]) {
-	auto gopts = new GOptions(argc, argv, gtouchable::defineOptions());
+	auto gopts =std::make_shared<GOptions>(argc, argv, gtouchable::defineOptions());
 	auto log   = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gtouchable example");
 
 
@@ -23,10 +23,6 @@ int main(int argc, char* argv[]) {
 		if (i % 10 == 0) { log->info(" GTouchable: ", ctof, " is equal: ", is_equal? "true" : "false"); }
 	}
 
-
-	// clean up,
-	// deleting log here gives error on linux. should be investigated
-	delete gopts;
 
 	return EXIT_SUCCESS;
 }

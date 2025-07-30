@@ -11,6 +11,10 @@
 
 constexpr const char* GRUN_LOGGER = "grun";
 
+namespace grun {
+inline GOptions defineOptions() { return GOptions(GRUN_LOGGER); }
+}
+
 
 // In Geant4 a run consists of a sequence of events and starts with BeamOn() method of G4RunManager.
 // A Geant4 run is represented by a G4Run class object.

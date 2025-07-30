@@ -44,7 +44,7 @@ auto run_simulation_in_threads(int                                              
                                int                                                 nthreads,
                                const std::shared_ptr<GLogger>&                     log,
                                const std::shared_ptr<const GDetectorConstruction>& gdetector,
-                               const std::shared_ptr<GOptions>                     gopts) -> std::vector<std::shared_ptr<GEventDataCollection>> {
+                               const std::shared_ptr<GOptions>&                    gopts) -> std::vector<std::shared_ptr<GEventDataCollection>> {
 	std::mutex                                         collectorMtx;
 	std::vector<std::shared_ptr<GEventDataCollection>> collected;
 
@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, gdetector::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	auto log = std::make_shared<GLogger>(gopts.get(), GDETECTOR_LOGGER, "gdetector_example: main");
+	auto log = std::make_shared<GLogger>(gopts, GDETECTOR_LOGGER, "gdetector_example: main");
 
 	constexpr int nevents  = 20;
 	constexpr int nthreads = 2;

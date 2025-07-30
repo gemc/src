@@ -7,7 +7,7 @@
 // G4Display Constructor
 // Initializes the QTabWidget base class and the unique_ptr for the logger.
 // Creates and adds the specific control tabs.
-G4Display::G4Display(GOptions* gopt, QWidget* parent) :
+G4Display::G4Display(const std::shared_ptr<GOptions>& gopt, QWidget* parent) :
 		QWidget(parent), log(std::make_shared<GLogger>(gopt, G4DISPLAY_LOGGER, "G4Display"))
 {
     // Log the construction event using the newly created logger.

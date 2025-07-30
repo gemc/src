@@ -7,11 +7,11 @@
 
 int main(int argc, char* argv[]) {
 
-    auto gopts = new GOptions(argc, argv, g4system::defineOptions());
+    auto gopts =std::make_shared<GOptions>(argc, argv, g4system::defineOptions());
 	auto log   = std::make_shared<GLogger>(gopts, G4SYSTEM_LOGGER, "g4system_example");
 
-	auto gworld = new GWorld(gopts);
-	auto g4world = new G4World(gworld, gopts);
+	auto gworld = std::make_shared<GWorld>(gopts);
+	auto g4world = std::make_shared<G4World>(gworld.get(), gopts);
 
 	// Print the number of volumes in the gworld
 	log->info(2, "Number of volumes in the gworld: ", gworld->get_number_of_volumes());
@@ -22,10 +22,6 @@ int main(int argc, char* argv[]) {
 		log->info(2, "Sensitive detector: ", sd);
 	}
 
-	// Clean up
-	delete g4world;
-	delete gworld;
-	delete gopts;
 
     return EXIT_SUCCESS;
 }

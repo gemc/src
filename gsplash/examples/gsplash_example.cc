@@ -6,27 +6,34 @@
 #include <QMainWindow>
 
 int main(int argc, char* argv[]) {
-	auto gopts = new GOptions(argc, argv, gsplash::defineOptions());
+
+	auto gopts = std::make_shared<GOptions>(argc, argv, gsplash::defineOptions());
 	auto log   = std::make_shared<GLogger>(gopts, GSPLASH_LOGGER, "gsplash_example");
 
 	bool gui = gopts->getSwitch("gui");
 
 	QScopedPointer<QCoreApplication> gApp(new QApplication(argc, argv));
 
+	auto gsplash = GSplash::create(gopts, "example.png");
+
 	if (gui) {
 		// create the splash screen
-		auto gsplash = new GSplash(log, "example.png"); // will delete itself later
 		gsplash->message("Some text I want to show");
 
 		auto window = new QMainWindow; // own it with Qt’s parent system
 		window->show();
 
 		/* ---- quit after 0.5s ---- */
-		QTimer::singleShot(500, [gsplash, window] {
-			gsplash->finish(window);
-			delete gsplash;                 // or gsplash->deleteLater() if GSplash inherits QObject
-			QCoreApplication::quit();       // no down‑cast, no warning
-		});
+		// need to move gsplash here because the capture is trying to copy it
+		/* ---- quit after 0.5s ---- */
+		QTimer::singleShot(
+			500, window,
+			[g = std::move(gsplash), window]() mutable   // <-- move + mutable
+			{
+				if (g) g->finish(window);                // still safely owned here
+				QCoreApplication::quit();
+			});
+
 		return QApplication::exec();
 	}
 

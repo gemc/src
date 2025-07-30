@@ -18,7 +18,7 @@
 // c++
 #include <vector>
 
-G4World::G4World(const GWorld* gworld, GOptions* gopts)
+G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 	: log(std::make_shared<GLogger>(gopts, GSYSTEM_LOGGER, "G4World Constructor")) {
 
 	log->debug(CONSTRUCTOR, "G4World");

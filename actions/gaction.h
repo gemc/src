@@ -8,6 +8,13 @@
 #include "gdynamicdigitization.h"
 #include "gstreamer.h"
 
+
+// other actions so we can define the options all at once
+#include "event/gEventAction.h"
+#include "run/gRunAction.h"
+#include "run/gRun.h"
+#include "generator/gPrimaryGeneratorAction.h"
+
 // G4VUserActionInitialization is a newly introduced class for the user to instantiate
 // user action classes (both mandatory and optional).
 //
@@ -22,6 +29,18 @@
 // - BuildForMaster() should be used for defining only the UserRunAction for the master thread.
 
 constexpr const char* GACTION_LOGGER = "gaction";
+
+namespace gaction {
+inline GOptions defineOptions() {
+	auto goptions = GOptions(GACTION_LOGGER);
+	goptions += geventaction::defineOptions();
+	goptions += grunaction::defineOptions();
+	goptions += gprimaryaction::defineOptions();
+	goptions += grun::defineOptions();
+	return goptions;
+}
+}
+
 
 class GAction : public G4VUserActionInitialization {
 public:

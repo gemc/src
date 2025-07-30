@@ -22,6 +22,7 @@ GOptions defineOptions() {
 	goptions += gdata::defineOptions();
 	goptions += gtranslationTable::defineOptions();
 	goptions += gfactory::defineOptions();
+
 	return goptions;
 
 }

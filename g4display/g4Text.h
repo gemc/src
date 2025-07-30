@@ -20,7 +20,7 @@ struct G4SceneText {
 };
 
 // method to return a vector of G4SceneText from the options
-std::vector<G4SceneText> getSceneTexts(GOptions* gopts);
+std::vector<G4SceneText> getSceneTexts(const std::shared_ptr<GOptions>& gopts);
 
 // returns the array of options definitions
 GOptions addSceneTextsOptions();

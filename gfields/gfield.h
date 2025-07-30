@@ -37,7 +37,7 @@ struct GFieldDefinition {
 	 * @brief Gets the plugin name for the field.
 	 * @return Plugin name as a string.
 	 */
-	std::string gfieldPluginName() { return "gfield" + type + "Factory"; }
+	std::string gfieldPluginName() const { return "gfield" + type + "Factory"; }
 
 	// overload << to print the field definition
 	friend std::ostream& operator<<(std::ostream& stream, GFieldDefinition gfd) {
@@ -92,7 +92,7 @@ public:
 	int    get_field_parameter_int(const std::string& key) { return stoi(gfield_definitions.field_parameters[key]); }
 	double get_field_parameter_double(const std::string& key) { return stod(gfield_definitions.field_parameters[key]); }
 
-	void set_loggers(GOptions* const g) { log = std::make_shared<GLogger>(g, GFIELD_LOGGER, "gfield logger"); }
+	void set_loggers(const std::shared_ptr<GOptions>& g) { log = std::make_shared<GLogger>(g, GFIELD_LOGGER, "gfield logger"); }
 
 private:
 	// TODO: make this list automatic

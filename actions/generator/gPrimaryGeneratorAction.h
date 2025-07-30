@@ -10,6 +10,10 @@
 
 constexpr const char* GPRIMARYGENERATORACTION_LOGGER = "GPrimaryGeneratorAction";
 
+namespace gprimaryaction {
+inline GOptions defineOptions() { return GOptions(GPRIMARYGENERATORACTION_LOGGER); }
+}
+
 
 class GPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {

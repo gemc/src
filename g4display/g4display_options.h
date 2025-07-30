@@ -17,7 +17,7 @@ struct G4View {
 	int         segsPerCircle;
 };
 
-G4View getG4View(GOptions* gopts);
+G4View getG4View(const std::shared_ptr<GOptions>& gopts);
 
 
 // G4Camera
@@ -26,7 +26,7 @@ struct G4Camera {
 	std::string theta;
 };
 
-G4Camera getG4Camera(GOptions* gopts);
+G4Camera getG4Camera(const std::shared_ptr<GOptions>& gopts);
 
 // Dawn
 struct G4Dawn {
@@ -34,7 +34,7 @@ struct G4Dawn {
 	std::string theta;
 };
 
-G4Dawn getG4Dawn(GOptions* gopts);
+G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts);
 
 GOptions defineOptions();
 }

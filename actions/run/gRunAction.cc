@@ -10,7 +10,6 @@
 
 // Constructor for workers
 GRunAction::GRunAction(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
-	G4UserRunAction(), // G4UserRunAction derived
 	goptions(gopts),
 	log(std::make_shared<GLogger>(gopts, GRUNACTION_LOGGER, "GRunAction")),
 	digitization_routines_map(digi_map) {
