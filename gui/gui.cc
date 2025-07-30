@@ -2,11 +2,10 @@
 #include "gui.h"
 
 
-GemcGUI::GemcGUI(std::string                            qtResourceFile,
-                 std::shared_ptr<GOptions>              gopts,
-                 std::shared_ptr<EventDispenser>        ed,
-                 std::shared_ptr<GDetectorConstruction> dc,
-                 QWidget*                               parent) :
+GemcGUI::GemcGUI(std::shared_ptr<GOptions>       gopts,
+                 std::shared_ptr<EventDispenser> ed,
+                 GDetectorConstruction*          dc,
+                 QWidget*                        parent) :
 	QWidget(parent),
 	eventDispenser(ed) {
 	createLeftButtons();           // instantiates leftButtons

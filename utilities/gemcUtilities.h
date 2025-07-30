@@ -36,10 +36,10 @@ makeQtApplication(int& argc, char* argv[], bool gui) {
 int get_nthreads(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
 
 std::vector<std::string> verbosity_commands(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
-std::vector<std::string> initi_commands(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
+std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
 
 // initialize G4MTRunManager
-void init_run_manager(G4RunManager* grm, const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
+void run_manager_commands(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log, const std::vector<std::string>& commands);
 
 // apply initial UIM commands coming from, in order:
 // - startingUIMCommands

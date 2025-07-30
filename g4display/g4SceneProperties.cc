@@ -2,7 +2,7 @@
  * \file g4SceneProperties.cc
  * \brief Implementation of the G4SceneProperties class for GEANT4 scene visualization.
  *
- * This file contains the implementation of the G4SceneProperties class which is responsible
+ * This file contains the implementation of the G4SceneProperties class, which is responsible
  * for setting up visualization options and commands for GEANT4 scenes using the provided global options.
  */
 
@@ -11,13 +11,8 @@
 #include "g4display_options.h"
 #include "g4Text.h"
 
-using namespace g4display;
-
 // gemc
 #include "gutilities.h"
-
-// c++
-using namespace std;
 
 // geant4
 #include "G4UImanager.hh"
@@ -40,12 +35,12 @@ G4SceneProperties::G4SceneProperties(const std::shared_ptr<GOptions>& gopts): lo
     auto g4uim = G4UImanager::GetUIpointer();
 
     // Projecting options onto G4View and G4Camera structs
-    G4View g4view = getG4View(gopts);
-    G4Camera g4camera = getG4Camera(gopts);
-    G4Dawn g4dawn = getG4Dawn(gopts);
+    auto g4view = g4display::getG4View(gopts);
+    auto g4camera = g4display::getG4Camera(gopts);
+    auto g4dawn = g4display::getG4Dawn(gopts);
     bool use_dawn = gopts->getSwitch("useDawn");
 
-    vector<string> commands;
+    std::vector<std::string> commands;
 
     commands.emplace_back("/vis/scene/create gemc");
     commands.emplace_back("/run/initialize");
@@ -65,7 +60,7 @@ G4SceneProperties::G4SceneProperties(const std::shared_ptr<GOptions>& gopts): lo
     commands.emplace_back("/vis/drawVolume");
 
     // Scene texts
-    for (const string& c : addSceneTexts(gopts)) {
+    for (const std::string& c : addSceneTexts(gopts)) {
         commands.emplace_back(c);
     }
 
@@ -73,8 +68,8 @@ G4SceneProperties::G4SceneProperties(const std::shared_ptr<GOptions>& gopts): lo
     double thetaValue = gutilities::getG4Number(g4camera.theta) * toDegrees;
     double phiValue = gutilities::getG4Number(g4camera.phi) * toDegrees;
 
-    commands.emplace_back("/vis/viewer/set/viewpointThetaPhi " + to_string(thetaValue) + " " + to_string(phiValue));
-    commands.emplace_back("/vis/viewer/set/lineSegmentsPerCircle " + to_string(g4view.segsPerCircle));
+    commands.emplace_back("/vis/viewer/set/viewpointThetaPhi " + std::to_string(thetaValue) + " " + std::to_string(phiValue));
+    commands.emplace_back("/vis/viewer/set/lineSegmentsPerCircle " + std::to_string(g4view.segsPerCircle));
     commands.emplace_back("/vis/viewer/set/autoRefresh true");
 
     if (use_dawn) {
@@ -88,7 +83,7 @@ G4SceneProperties::G4SceneProperties(const std::shared_ptr<GOptions>& gopts): lo
         }
     }
     else {
-        cout << " No UIManager found. " << endl;
+        log->error(EC__NOUIMANAGER, FUNCTION_NAME, " no UIManager found");
     }
 }
 
@@ -103,22 +98,22 @@ G4SceneProperties::G4SceneProperties(const std::shared_ptr<GOptions>& gopts): lo
  * \param gopts Pointer to the global options object.
  * \return A vector of strings containing the visualization commands for scene texts.
  */
-vector<string> G4SceneProperties::addSceneTexts(const std::shared_ptr<GOptions>& gopts) {
-    vector<string> commands;
+std::vector<std::string> G4SceneProperties::addSceneTexts(const std::shared_ptr<GOptions>& gopts) {
+    std::vector<std::string> commands;
 
-    vector<g4display::G4SceneText> text_to_add = g4display::getSceneTexts(gopts);
+    std::vector<g4display::G4SceneText> text_to_add = g4display::getSceneTexts(gopts);
 
     // Iterate over each text object to generate the corresponding visualization commands
     for (const auto& text : text_to_add) {
         commands.emplace_back("/vis/set/textColour " + text.color);
-        string position = to_string(text.x) + " " + to_string(text.y);
-        string size = " " + to_string(text.size) + " ! ! ";
+        std::string position = std::to_string(text.x) + " " + std::to_string(text.y);
+        std::string size = " " + std::to_string(text.size) + " ! ! ";
         if (text.z != GNOT_SPECIFIED_SCENE_TEXT_Z) {
-            position += " " + to_string(text.z);
-            commands.emplace_back(string("/vis/scene/add/text2D ").append(position).append(size).append(text.text));
+            position += " " + std::to_string(text.z);
+            commands.emplace_back(std::string("/vis/scene/add/text2D ").append(position).append(size).append(text.text));
         }
         else {
-            commands.emplace_back(string("/vis/scene/add/text ").append(position).append(size).append(text.text));
+            commands.emplace_back(std::string("/vis/scene/add/text ").append(position).append(size).append(text.text));
         }
 
         commands.emplace_back("/vis/set/textColour");

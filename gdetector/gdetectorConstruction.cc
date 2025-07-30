@@ -26,8 +26,6 @@ GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
 	log->debug(CONSTRUCTOR, "GDetectorConstruction");
 	digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>();
 
-	log->info(0, "map 0: ", digitization_routines_map);
-
 }
 
 GDetectorConstruction::~GDetectorConstruction() {
@@ -119,8 +117,6 @@ void GDetectorConstruction::ConstructSDandField() {
 
 void GDetectorConstruction::loadDigitizationPlugins() {
 
-	//digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>();
-
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
 
 	for (auto& sdname : sdetectors) {
@@ -143,8 +139,6 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 			digitization_routines_map->emplace(sdname, gdynamicdigitization::load_dynamicRoutine(sdname, gopt));
 		}
 		digitization_routines_map->at(sdname)->set_loggers(gopt);
-
-		log->info(0, "map 2: ", digitization_routines_map);
 
 		if (digitization_routines_map->at(sdname)->defineReadoutSpecs()) { log->info(1, "Digitization routine <" + sdname + "> has been successfully defined."); }
 		else { log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">"); }

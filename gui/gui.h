@@ -19,11 +19,10 @@ class GemcGUI : public QWidget {
 	Q_OBJECT
 
 public:
-	GemcGUI(std::string                            qtResourceFile,
-	        std::shared_ptr<GOptions>              gopts,
-	        std::shared_ptr<EventDispenser>        ed,
-	        std::shared_ptr<GDetectorConstruction> dc,
-	        QWidget*                               parent = nullptr);
+	GemcGUI(std::shared_ptr<GOptions>       gopts,
+	        std::shared_ptr<EventDispenser> ed,
+	        GDetectorConstruction*          dc,
+	        QWidget*                        parent = nullptr);
 
 	~GemcGUI() override;
 
@@ -40,8 +39,8 @@ private:
 private:
 	void createLeftButtons();
 
-	void createRightContent(std::shared_ptr<GOptions>              gopts,
-	                        std::shared_ptr<GDetectorConstruction> dc);
+	void createRightContent(std::shared_ptr<GOptions> gopts,
+	                        GDetectorConstruction*    dc);
 
 	void createTopButtons(QHBoxLayout* topLayout);
 

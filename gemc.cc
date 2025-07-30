@@ -1,21 +1,20 @@
 // geant4
-//#include "G4UIsession.hh"
 #include "G4RunManagerFactory.hh"
-//#include "G4VisExecutive.hh"
+#include "G4VisExecutive.hh"
 
 #include "G4UIterminal.hh"
 #include "G4UItcsh.hh"
 
-//#include "G4UIQt.hh"
+#include "G4UIQt.hh"
 //#include "G4TransportationParameters.hh"
 
 // gemc
 #include "gemc_options.h"
 #include "gemcUtilities.h"
-// #include "eventDispenser.h"
-// #include "g4SceneProperties.h"
+#include "eventDispenser.h"
+#include "g4SceneProperties.h"
 #include "gphysics.h"
-// #include "gui.h"
+#include "gui.h"
 #include "gdetectorConstruction.h"
 #include "gaction.h"
 
@@ -23,8 +22,7 @@ int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, gemc::defineOptions());
 	auto log   = std::make_shared<GLogger>(gopts, GENERAL_LOGGER, "main");
 
-	auto gui = gopts->getSwitch("gui");
-	//	auto interactive = gopts->getSwitch("i");
+	auto gui      = gopts->getSwitch("gui");
 	auto nthreads = gemc::get_nthreads(gopts, log);
 
 	// createQtApplication returns a QApplication if gui is true
@@ -39,25 +37,27 @@ int main(int argc, char* argv[]) {
 
 	gemc::start_random_engine(gopts, log);
 
+	// must be a raw pointer because geant4 takes ownership
 	auto gdetector = new GDetectorConstruction(gopts);
 	runManager->SetUserInitialization(gdetector);
 
 	// starting gphysics
 	// exit if phys list requested
-	auto gphysics = std::make_shared<GPhysics>(gopts);
+	auto gphysics = new GPhysics(gopts);
 	if (gopts->getSwitch("showPhysics")) {
 		delete runManager;
 		return EXIT_SUCCESS;
 	}
 	runManager->SetUserInitialization(gphysics->getPhysList());
 
-	log->info(0, "map 1: ", gdetector->get_digitization_routines_map());
 
 	// instantiate GActionInitialization and initialize the geant4 kernel
 	runManager->SetUserInitialization(new GAction(gopts, gdetector->get_digitization_routines_map()));
+	runManager->Initialize();
 
-
-	gemc::init_run_manager(runManager, gopts, log);
+	// sets verbosity commands
+	auto verbosities = gemc::verbosity_commands(gopts, log);
+	gemc::run_manager_commands(gopts, log, verbosities);
 
 	//
 	// G4double warningE = 10.0 * CLHEP::keV;
@@ -69,71 +69,63 @@ int main(int argc, char* argv[]) {
 	// transportParams->SetImportantEnergy(importantE);
 	// transportParams->SetNumberOfTrials(numTrials);
 	//
-	// // this initializes g4MTRunManager, which:
-	// // - calls Construct in GDetectorConstruction (builds gworld and g4world)
-	// // - calls ConstructSDandField in GDetectorConstruction (builds sensitive detectors)
-	// initGemcG4RunManager(runManager, gopts);
-	//
-	// // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance
-	// // notice we initialize this in batch mode as well
-	// auto visManager = new G4VisExecutive("Quiet");
-	// visManager->Initialize();
-	//
-	// auto geventDispenser = new EventDispenser(gopts, globalDigitizationMap);
-	//
 
-	auto app_result = EXIT_SUCCESS;
+
+	// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance
+	// notice we initialize this in batch mode as well
+	auto visManager = new G4VisExecutive("Quiet");
+	visManager->Initialize();
+
+	auto geventDispenser = std::make_shared<EventDispenser>(gopts, gdetector->get_digitization_routines_map());
+
+	auto app_result    = EXIT_SUCCESS;
+	auto init_commands = gemc::initial_commands(gopts, log);
 
 	if (gui) {
-		// 	// initializing qt session
+
+		// initializing qt session
 		spash_screen->message("Starting GUI");
 		QCoreApplication::processEvents();
 
-		//
-		// 	// initializing G4UIQt session.
-		// 	// Notice g4SceneProperties has to be declared after this, so we have to duplicate it for batch mode
-		// 	auto uiQtSession = new G4UIQt(1, argv);
-		// 	G4SceneProperties *g4SceneProperties = new G4SceneProperties(gopts);
-		//
-		//  passing executable to retrieve full path
-		// 	GemcGUI gemcGui(argv[0], gopts, geventDispenser, gDetectorGlobal);
-		// 	gemcGui.show();
-		// 	gemcSplash->finish(&gemcGui);
-		//
-		// 	applyInitialUIManagerCommands(true, checkForOverlaps, verbosity);
-		// 	qApp->exec();
-		//
+
+		// initializing G4UIQt session.
+		// notice g4SceneProperties has to be declared after this, so we have to duplicate it for batch mode
+		auto uiQtSession = new G4UIQt(1, argv);
+		auto g4SceneProperties = new G4SceneProperties(gopts);
+
+		GemcGUI gemcGui(gopts, geventDispenser, gdetector);
+		gemcGui.show();
+		spash_screen->finish(&gemcGui);
+
+		gemc::run_manager_commands(gopts, log, init_commands);
+
 		app_result = QApplication::exec();
 
-		// 	delete g4SceneProperties;
-		// 	delete uiQtSession;
-		//
+		delete g4SceneProperties;
+		delete uiQtSession;
 	}
 	else {
-	//	auto session = new G4UIterminal(new G4UItcsh);
-		//
-		// 	// set display properties in batch mode
-		// 	auto g4SceneProperties = new G4SceneProperties(gopts);
-		// 	applyInitialUIManagerCommands(false, checkForOverlaps, verbosity);
-		//
-		// 	if (interactive) { session->SessionStart(); }
-		//
-		// 	geventDispenser->processEvents();
-		// 	delete g4SceneProperties;
-	//	delete session;
+		auto session           = new G4UIterminal(new G4UItcsh);
+		auto g4SceneProperties = new G4SceneProperties(gopts);
+		auto interactive       = gopts->getSwitch("i");
+
+		// set display properties in batch mode
+		gemc::run_manager_commands(gopts, log, init_commands);
+
+		if (interactive) { session->SessionStart(); }
+		geventDispenser->processEvents();
+
+		delete g4SceneProperties;
+		delete session;
 	}
 
-
-	// // clearing pointers
-	// // delete visManager; deleting this cause error. Perhaps can define / delete in the functions above
-	// delete geventDispenser;
-
-	//
 	// Free the store: user actions, physics_list and detector_description are
 	// owned and deleted by the run manager
-	//delete runManager;
+	delete visManager;
+//	delete runManager;
 
 	log->info(0, "Simulation completed, arrivederci! ");
+
 
 	return app_result;
 }

@@ -218,7 +218,8 @@ example_test_dir = 'gsystem'
 examples_dir = get_option('prefix') + '/test/' + example_test_dir
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
 gsystem = ['-gsystem="[{name: b1}]"']
-gemc_test_sqlite = dbhost + gsystem
+general_gemc =  ['-verbosity.gemc=2', '-debug.gemc=true', '-check_overlaps=2']
+gemc_test_sqlite = dbhost + gsystem + general_gemc
 test_options = [
     { 'default' : [''] },
     { 'show_phys' : ['-showPhysics'] },
@@ -236,6 +237,7 @@ test_options = [
     { 'plugins_verbose' : ['-verbosity.plugins=2', '-debug.plugins=true'] },
     { 'gstreamer_verbose' : ['-verbosity.gstreamer=2', '-debug.gstreamer=true'] },
     { 'gsplash_verbose' : ['-verbosity.gsplash=2', '-debug.gsplash=true'] },
+    { 'gactions_verbose' : ['-verbosity.gaction=2', '-debug.gaction=true', '-verbosity.grunaction=2', '-debug.grunaction=true'] },
 ]
 
 

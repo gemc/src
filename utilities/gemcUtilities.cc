@@ -39,9 +39,6 @@ std::vector<std::string> verbosity_commands([[maybe_unused]] const std::shared_p
 	cmds.emplace_back("/process/em/verbose 0");
 	cmds.emplace_back("/process/eLoss/verbose 0");
 
-	cmds.emplace_back("/particle/process/verbose 0");
-	cmds.emplace_back("/particle/verbose 0");
-
 	cmds.emplace_back("/tracking/verbose 0");
 	cmds.emplace_back("/geometry/navigator/verbose 0");
 
@@ -54,15 +51,13 @@ std::vector<std::string> verbosity_commands([[maybe_unused]] const std::shared_p
 	cmds.emplace_back("/run/verbose 0");
 
 	cmds.emplace_back("/material/verbose 0");
-//	cmds.emplace_back("/vis/verbose 0");
 
 	return cmds; // RVO / move‑return → zero extra copies
 }
 
 
-std::vector<std::string> init_commands([[maybe_unused]] const std::shared_ptr<GOptions>& gopts, [[maybe_unused]] const std::shared_ptr<GLogger>& log) {
-
-	auto check_overlaps = gopts->getScalarInt("check_overlaps"); 	// notice: from g4system options
+std::vector<std::string> initial_commands([[maybe_unused]] const std::shared_ptr<GOptions>& gopts, [[maybe_unused]] const std::shared_ptr<GLogger>& log) {
+	auto check_overlaps = gopts->getScalarInt("check_overlaps"); // notice: from g4system options
 	auto gui            = gopts->getSwitch("gui");
 
 	std::vector<std::string> cmds;
@@ -78,6 +73,11 @@ std::vector<std::string> init_commands([[maybe_unused]] const std::shared_ptr<GO
 		cmds.emplace_back("/geometry/test/run");
 	}
 	if (!gui) return cmds;
+
+	// other verbosity commands
+	cmds.emplace_back("/vis/verbose 0");
+	cmds.emplace_back("/particle/process/verbose 0");
+	cmds.emplace_back("/particle/verbose 0");
 
 
 	cmds.emplace_back("/vis/viewer/set/autoRefresh false");
@@ -97,28 +97,17 @@ std::vector<std::string> init_commands([[maybe_unused]] const std::shared_ptr<GO
 	// commands.push_back("/vis/scene/add/magneticField 10");
 	cmds.emplace_back("/vis/viewer/set/autoRefresh true");
 
-	return cmds; // RVO / move‑return → zero extra copies
+	return cmds;
 }
 
 // initialize G4MTRunManager
-void init_run_manager(G4RunManager* grm, const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
-
+void run_manager_commands(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log, const std::vector<std::string>& commands) {
 	auto* g4uim = G4UImanager::GetUIpointer();
 
-	log->info(0, "Initializing G4MTRunManager");
-
-	auto init_cmds   = verbosity_commands(gopts, log) ;
-
-	// for (auto& cmd : init_commands(gopts, log)) {
-	// 	init_cmds.emplace_back(cmd);
-	// }
-
-	for (const auto& cmd : init_cmds) {
+	for (const auto& cmd : commands) {
 		log->info(2, "Executing UIManager command: ", cmd);
 		g4uim->ApplyCommand(cmd);
 	}
-
-	grm->Initialize();
 }
 
 
@@ -163,7 +152,6 @@ void start_random_engine(const std::shared_ptr<GOptions>& gopts, const std::shar
 	}
 
 	log->info(0, "Starting random engine ", randomEngineName, " with seed ", seed);
-
 }
 
 

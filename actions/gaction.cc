@@ -6,7 +6,6 @@
 
 
 GAction::GAction(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map):
-	G4VUserActionInitialization(),
 	goptions(gopts),
 	log(std::make_shared<GLogger>(gopts, GACTION_LOGGER, "GAction")),
 	digitization_routines_map(digi_map) {
@@ -20,7 +19,7 @@ GAction::~GAction() { log->debug(DESTRUCTOR, FUNCTION_NAME); }
 void GAction::BuildForMaster() const {
 	log->debug(NORMAL, FUNCTION_NAME);
 
-	//SetUserAction(new GRunAction(goptions, digitization_routines_map));
+	SetUserAction(new GRunAction(goptions, digitization_routines_map));
 }
 
 
@@ -29,7 +28,7 @@ void GAction::Build() const {
 
 	log->debug(NORMAL, FUNCTION_NAME, "thread id: " + std::to_string(thread_id));
 
-	//SetUserAction(new GPrimaryGeneratorAction(goptions));
-	//SetUserAction(new GRunAction(goptions, digitization_routines_map));
-	//SetUserAction(new GEventAction(goptions));
+	SetUserAction(new GPrimaryGeneratorAction(goptions));
+	SetUserAction(new GRunAction(goptions, digitization_routines_map));
+	SetUserAction(new GEventAction(goptions));
 }

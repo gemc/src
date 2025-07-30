@@ -14,6 +14,7 @@
 #define GNOT_SPECIFIED_SCENE_TEXT_Z (-1234.5)
 
 #define EC__VISDRIVERNOTFOUND  1301
+#define EC__NOUIMANAGER  1302
 
 extern std::vector<std::string> AVAILABLEG4VIEWERS;
 

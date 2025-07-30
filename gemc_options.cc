@@ -10,6 +10,9 @@
 #include "gphysics_options.h"
 #include "gaction.h"
 #include "gparticle_options.h"
+#include "eventDispenser_options.h"
+#include "g4display_options.h"
+#include "g4dialog_options.h"
 
 namespace gemc {
 
@@ -63,6 +66,9 @@ namespace gemc {
     	goptions += gphysics::defineOptions();
     	goptions += gaction::defineOptions();
     	goptions += gparticle::defineOptions();
+    	goptions += eventDispenser::defineOptions();
+    	goptions += g4display::defineOptions();
+    	goptions += g4dialog::defineOptions();
 
 
         return goptions;

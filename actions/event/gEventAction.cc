@@ -5,7 +5,6 @@
 
 
 GEventAction::GEventAction(std::shared_ptr<GOptions> gopt) :
-	G4UserEventAction(),
 	log(std::make_shared<GLogger>(gopt, EVENTACTION_LOGGER, "GEventAction")) { log->debug(CONSTRUCTOR, FUNCTION_NAME); }
 
 GEventAction::~GEventAction() { log->debug(DESTRUCTOR, FUNCTION_NAME); }
