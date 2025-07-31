@@ -9,6 +9,7 @@
 #include "G4Version.hh"
 #include "gphysics_options.h"
 
+
 using std::string;
 
 // geant4
@@ -21,9 +22,7 @@ using std::string;
 // providing the full class name.
 #include "G4PhysListFactoryAlt.hh"
 
-// allow ourselves to extend the short names for physics ctor addition/replace
-// along the same lines as EMX, EMY, etc
-// #include "G4PhysListRegistry.hh"
+#include "G4StepLimiterPhysics.hh"
 
 // allow ourselves to give the user extra info about available physics constructors (ctors)
 #include "G4PhysicsConstructorFactory.hh"
@@ -32,7 +31,6 @@ using std::string;
 GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 	physList(nullptr),
 	log(std::make_shared<GLogger>(gopts, GPHYSICS_LOGGER, "gphysics")) {
-
 	log->debug(CONSTRUCTOR, "GPhysics");
 
 	bool   showPhys  = gopts->getSwitch("showPhysics");
@@ -53,6 +51,9 @@ GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 	string                   g4physList = gutilities::removeAllSpacesFromString(gphysList);
 
 	physList = factory.GetReferencePhysList(g4physList);
+
+	// register step limiters
+	physList->RegisterPhysics(new G4StepLimiterPhysics());
 
 	if (!physList) { log->error(ERR_PHYSLISTERROR, "physics list <" + gphysList + "> could not be loaded."); }
 

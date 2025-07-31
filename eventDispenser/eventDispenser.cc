@@ -89,17 +89,15 @@ EventDispenser::EventDispenser(const std::shared_ptr<GOptions>& gopt, std::share
 	}
 }
 
-//
+
 // Sets the total number of events to process. Clears previous run events and assigns all events to the user run.
-//
 void EventDispenser::setNumberOfEvents(int nevents_to_process) {
 	runEvents.clear();
 	runEvents[userRunno] = nevents_to_process;
 }
 
-//
+
 // Randomly distributes events among runs according to the weights read from the input file.
-//
 void EventDispenser::distributeEvents(int nevents_to_process) {
 	// Initialize a progress bar for visual feedback.
 	// TextProgressBar bar(50, string(EVENTDISPENSERLOGMSGITEM) + " Distributing events according to run weights ", 0, nevents_to_process);
@@ -125,9 +123,8 @@ void EventDispenser::distributeEvents(int nevents_to_process) {
 	}
 }
 
-//
+
 // Sums the number of events assigned to all runs.
-//
 int EventDispenser::getTotalNumberOfEvents() const {
 	int totalEvents = 0;
 	for (auto rEvents : runEvents) { totalEvents += rEvents.second; }

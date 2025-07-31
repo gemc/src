@@ -8,8 +8,6 @@
 
 constexpr const char* GPARTICLE_LOGGER = "gparticle";
 
-// using unique pointers to move Gparticles to avoid unnecessary copies
-using GparticlePtr = std::shared_ptr<Gparticle>;
 
 namespace gparticle {
 

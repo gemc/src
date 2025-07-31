@@ -17,7 +17,7 @@ vector<GparticlePtr> getGParticles(const std::shared_ptr<GOptions>& gopts, std::
 
 
 	for (auto gparticle_item : gparticle_node) {
-		gparticles.emplace_back(std::make_unique<Gparticle>(
+		gparticles.emplace_back(std::make_shared<Gparticle>(
 		                                                    gopts->get_variable_in_option<string>(gparticle_item, "name", goptions::NODFLT),
 		                                                    gopts->get_variable_in_option<int>(gparticle_item, "multiplicity", 1),
 		                                                    gopts->get_variable_in_option<double>(gparticle_item, "p", GPARTICLENOTDEFINED),

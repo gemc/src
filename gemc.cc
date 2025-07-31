@@ -85,7 +85,6 @@ int main(int argc, char* argv[]) {
 		spash_screen->message("Starting GUI");
 		QCoreApplication::processEvents();
 
-
 		// initializing G4UIQt session.
 		// notice g4SceneProperties has to be declared after this, so we have to duplicate it for batch mode
 		auto* uiQtSession       = new G4UIQt(1, argv);

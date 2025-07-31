@@ -48,13 +48,13 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 }
 
 void GRunAction::EndOfRunAction(const G4Run* aRun) {
-	const GRun* theRun = static_cast<const GRun*>(aRun);
+//	const GRun* theRun = static_cast<const GRun*>(aRun);
 
 	int thread_id = G4Threading::G4GetThreadId();
 	int run       = aRun->GetRunID();
 
 	if (IsMaster()) {
-		int neventsThisRun = theRun->GetNumberOfEventToBeProcessed();
+		//int neventsThisRun = theRun->GetNumberOfEventToBeProcessed();
 
 		// TODO: 2 more is too much we need some calculation here
 		// int nFramesToCreate = neventsThisRun * eventDuration / frameDuration + 2;

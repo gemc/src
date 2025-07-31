@@ -218,26 +218,28 @@ example_test_dir = 'gsystem'
 examples_dir = get_option('prefix') + '/test/' + example_test_dir
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
 gsystem = ['-gsystem="[{name: b1}]"']
-general_gemc =  ['-verbosity.gemc=2', '-debug.gemc=true', '-check_overlaps=2']
+general_gemc = ['-verbosity.gemc=2', '-debug.gemc=true', '-check_overlaps=2']
 gemc_test_sqlite = dbhost + gsystem + general_gemc
 test_options = [
     { 'default' : [''] },
     { 'show_phys' : ['-showPhysics'] },
     { 'phys_verbose' : ['-verbosity.gphysics=2', '-debug.gphysics=true'] },
-    { 'dbselect_verbose' : ['-verbosity.dbselect=2', '-debug.dbselect=true'] },
-    { 'gdetector_verbose' : ['-verbosity.gdetector=2', '-debug.gdetector=true'] },
-    { 'gsystem_verbose' : ['-verbosity.gsystem=2', '-debug.gsystem=true'] },
-    { 'g4system_verbose' : ['-verbosity.g4system=2', '-debug.g4system=true'] },
-    { 'gdigitization_verbose'
-      : ['-verbosity.gdigitization=2', '-debug.gdigitization=true'] },
-    { 'gdata_verbose' : ['-verbosity.gdata=2', '-debug.gdata=true'] },
-    { 'gtouchable_verbose' : ['-verbosity.gtouchable=2', '-debug.gtouchable=true'] },
-    { 'gtranslation_verbose'
-      : ['-verbosity.gtranslationTable=2', '-debug.gtranslationTable=true'] },
-    { 'plugins_verbose' : ['-verbosity.plugins=2', '-debug.plugins=true'] },
-    { 'gstreamer_verbose' : ['-verbosity.gstreamer=2', '-debug.gstreamer=true'] },
-    { 'gsplash_verbose' : ['-verbosity.gsplash=2', '-debug.gsplash=true'] },
-    { 'gactions_verbose' : ['-verbosity.gaction=2', '-debug.gaction=true', '-verbosity.grunaction=2', '-debug.grunaction=true'] },
+    { 'gui_verbose' : ['-verbosity.dbselect=2', '-debug.dbselect=true',
+                       '-verbosity.gsplash=2', '-debug.gsplash=true'] },
+    { 'detector_verbose' : ['-verbosity.gdetector=2', '-debug.gdetector=true',
+                            '-verbosity.gsystem=2', '-debug.gsystem=true',
+                            '-verbosity.g4system=2', '-debug.g4system=true'] },
+    { 'gdigitization_verbose' : ['-verbosity.gdigitization=2', '-debug.gdigitization=true',
+                                 '-verbosity.plugins=2', '-debug.plugins=true',
+                                 '-verbosity.gtranslationTable=2', '-debug.gtranslationTable=true',
+                                 '-verbosity.gtouchable=2', '-debug.gtouchable=true'] },
+    { 'gdata_verbose' : ['-verbosity.gdata=2', '-debug.gdata=true',
+                         '-verbosity.gstreamer=2', '-debug.gstreamer=true'] },
+    { 'grun_verbose' : ['-verbosity.gaction=2', '-debug.gaction=true',
+                        '-verbosity.grunaction=2', '-debug.grunaction=true',
+                        '-verbosity.gemc=2', '-debug.gemc=true',
+                        '-check_overlaps=2', '-nthreads=2', '-n=100',
+                        '-verbosity.eventdispenser=2', '-debug.eventdispenser=true'] },
 ]
 
 

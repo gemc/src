@@ -21,8 +21,7 @@ public:
 	GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts);
 	~GPrimaryGeneratorAction();
 
-public:
-	void GeneratePrimaries(G4Event*);
+	void GeneratePrimaries(G4Event*) override;
 
 private:
 

@@ -6,7 +6,6 @@
 #include <vector>
 #include <string>
 
-
 #define GDEFAULTVIEWERDRIVER  "TOOLSSG_QT_GLES"
 #define GDEFAULTVIEWERSIZE    "1200x1200"
 #define GDEFAULTVIEWERPOS     "-400+100"

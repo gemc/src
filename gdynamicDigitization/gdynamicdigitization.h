@@ -209,7 +209,7 @@ public:
 		return loadConstantsImpl(runno, variation);
 	}
 
-	virtual bool loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return false; }
+	virtual bool loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return true; }
 
 	/**
 	 * \brief Loads the translation table.
@@ -224,7 +224,7 @@ public:
 		return loadTTImpl(runno, variation);
 	}
 
-	virtual bool loadTTImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return false; }
+	virtual bool loadTTImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return true; }
 
 	/**
 	 * \brief Sets hardware-level charge and time information in the digitized data.

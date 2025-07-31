@@ -5,6 +5,7 @@
 // gemc
 #include "glogger.h"
 #include "event/gEventDataCollection.h"
+#include "gdynamicdigitizationConventions.h"
 
 // geant4
 #include "G4RunManagerFactory.hh"
@@ -43,8 +44,7 @@ const std::string plugin_name = "test_gdynamic_plugin";
 auto run_simulation_in_threads(int                                                 nevents,
                                int                                                 nthreads,
                                const std::shared_ptr<GLogger>&                     log,
-                               const std::shared_ptr<const GDetectorConstruction>& gdetector,
-                               const std::shared_ptr<GOptions>&                    gopts) -> std::vector<std::shared_ptr<GEventDataCollection>> {
+                               const std::shared_ptr<const GDetectorConstruction>& gdetector) -> std::vector<std::shared_ptr<GEventDataCollection>> {
 	std::mutex                                         collectorMtx;
 	std::vector<std::shared_ptr<GEventDataCollection>> collected;
 
@@ -65,10 +65,10 @@ auto run_simulation_in_threads(int                                              
 		// The capture [&, tid] gives the thread references to variables like tid
 		pool.emplace_back([&, tid] // capture tid *by value*
 		{
-			// start thread with a lambda
 			log->info(0, "worker ", tid, " started");
 
-			int                                                             localCount = 0; // events built by *this* worker
+			int localCount = 0; // events built by *this* worker
+
 			thread_local std::vector<std::shared_ptr<GEventDataCollection>> localRunData;
 
 			while (true) {
@@ -78,10 +78,24 @@ auto run_simulation_in_threads(int                                              
 				int evn = next.fetch_add(1, std::memory_order_relaxed); // atomically returns the current value and increments it by 1.
 				if (evn > nevents) break;                               // exit the while loop
 
+				// flux does not need variation or run number
+				std::string sdname    = "flux";
+				int         runNumber = 1;
+				std::string variation = "default";
+
 				auto gheader      = GEventHeader::create(log, tid);
 				auto eventData    = std::make_shared<GEventDataCollection>(std::move(gheader), log);
-				auto digi_routine = gdetector->get_digitization_routines_for_sdname("flux");
+				auto digi_routine = gdetector->get_digitization_routines_for_sdname(sdname);
+				log->debug(NORMAL, "Calling ", sdname, " loadConstants for run ", runNumber);
 
+				if (digi_routine->loadConstants(runNumber, variation) == false) {
+					log->error(ERR_LOADCONSTANTFAIL, "Failed to load constants for ", sdname, " for run ", runNumber, " with variation ", variation);
+				}
+
+				log->debug(NORMAL, "Calling ", sdname, " loadTT for run ", runNumber);
+				if (digi_routine->loadTT(runNumber, variation) == false) {
+					log->error(ERR_LOADTTFAIL, "Failed to load translation table for ", sdname, " for run ", runNumber, " with variation ", variation);
+				}
 				// each event has 10 hits
 				for (unsigned i = 1; i < 11; i++) {
 					auto hit       = GHit::create(log);
@@ -137,7 +151,7 @@ int main(int argc, char* argv[]) {
 	auto gdetector = std::make_shared<GDetectorConstruction>(gopts);
 	gdetector->reload_geometry();
 
-	auto runDat = run_simulation_in_threads(nevents, nthreads, log, gdetector, gopts);
+	auto runDat = run_simulation_in_threads(nevents, nthreads, log, gdetector);
 
 	return EXIT_SUCCESS;
 }

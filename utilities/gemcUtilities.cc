@@ -52,6 +52,10 @@ std::vector<std::string> verbosity_commands([[maybe_unused]] const std::shared_p
 
 	cmds.emplace_back("/material/verbose 0");
 
+	cmds.emplace_back("/vis/verbose 0");
+	cmds.emplace_back("/particle/process/verbose 0");
+	cmds.emplace_back("/particle/verbose 0");
+
 	return cmds; // RVO / move‑return → zero extra copies
 }
 
@@ -75,10 +79,8 @@ std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts
 	if (!gui) return cmds;
 
 	// other verbosity commands
-	cmds.emplace_back("/vis/verbose 0");
-	cmds.emplace_back("/particle/process/verbose 0");
-	cmds.emplace_back("/particle/verbose 0");
 
+	// Disable auto refresh and quieten vis messages whilst scene and trajectories are established:
 	cmds.emplace_back("/vis/viewer/set/autoRefresh false");
 	cmds.emplace_back("/vis/viewer/set/viewpointVector -1 0 0");
 	cmds.emplace_back("/vis/viewer/set/lightsVector -1 0 0");
@@ -89,11 +91,9 @@ std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts
 	cmds.emplace_back("/vis/viewer/set/culling coveredDaughters true");
 
 	// background colors and root volume are the same
-	//commands.push_back("/vis/viewer/set/background 1 1 1 1");
-	cmds.emplace_back("/vis/geometry/set/colour root 0 0 0 0");
-	cmds.emplace_back("/vis/geometry/set/colour root 0 0 0 0");
+	//cmds.push_back("/vis/viewer/set/background 1 1 1 1");
+	//cmds.emplace_back("/vis/geometry/set/colour root 0 0 0 0");
 
-	// commands.push_back("/vis/scene/add/magneticField 10");
 	cmds.emplace_back("/vis/viewer/set/autoRefresh true");
 
 	return cmds;

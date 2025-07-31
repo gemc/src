@@ -9,6 +9,12 @@ GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts
 	log->debug(CONSTRUCTOR, FUNCTION_NAME);
 	gparticleGun = new G4ParticleGun();
 	gparticles   = gparticle::getGParticles(gopts, log);
+
+	if (gparticles.empty()) {
+		auto default_particle = Gparticle::create_default_gparticle(log);
+		log->info(0, "No gparticle was defined. Creating default:", *default_particle);
+		gparticles.emplace_back(default_particle);
+	}
 }
 
 GPrimaryGeneratorAction::~GPrimaryGeneratorAction() {
