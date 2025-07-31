@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 	auto spash_screen = GSplash::create(gopts, "gemcArchitecture");
 
 	// init geant4 run manager with then number of threads coming from options. always fails if unavailable
-	auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default, true, nthreads);
+	auto runManager = std::unique_ptr<G4RunManager>(G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default, true, nthreads));
 
 	gemc::start_random_engine(gopts, log);
 
@@ -41,13 +41,9 @@ int main(int argc, char* argv[]) {
 	auto gdetector = new GDetectorConstruction(gopts);
 	runManager->SetUserInitialization(gdetector);
 
-	// starting gphysics
-	// exit if phys list requested
+	// starting gphysics, exit immediately if phys list requested
 	auto gphysics = new GPhysics(gopts);
-	if (gopts->getSwitch("showPhysics")) {
-		delete runManager;
-		return EXIT_SUCCESS;
-	}
+	if (gopts->getSwitch("showPhysics")) { return EXIT_SUCCESS; }
 	runManager->SetUserInitialization(gphysics->getPhysList());
 
 
@@ -81,8 +77,10 @@ int main(int argc, char* argv[]) {
 	auto app_result    = EXIT_SUCCESS;
 	auto init_commands = gemc::initial_commands(gopts, log);
 
-	if (gui) {
+	// print init_commands
+	for (const auto& c : init_commands) { log->info(0, c); }
 
+	if (gui) {
 		// initializing qt session
 		spash_screen->message("Starting GUI");
 		QCoreApplication::processEvents();
@@ -90,14 +88,13 @@ int main(int argc, char* argv[]) {
 
 		// initializing G4UIQt session.
 		// notice g4SceneProperties has to be declared after this, so we have to duplicate it for batch mode
-		auto uiQtSession = new G4UIQt(1, argv);
-		auto g4SceneProperties = new G4SceneProperties(gopts);
+		auto* uiQtSession       = new G4UIQt(1, argv);
+		auto* g4SceneProperties = new G4SceneProperties(gopts);
 
 		GemcGUI gemcGui(gopts, geventDispenser, gdetector);
 		gemcGui.show();
-		spash_screen->finish(&gemcGui);
-
 		gemc::run_manager_commands(gopts, log, init_commands);
+		spash_screen->finish(&gemcGui);
 
 		app_result = QApplication::exec();
 
@@ -105,14 +102,14 @@ int main(int argc, char* argv[]) {
 		delete uiQtSession;
 	}
 	else {
-		auto session           = new G4UIterminal(new G4UItcsh);
-		auto g4SceneProperties = new G4SceneProperties(gopts);
-		auto interactive       = gopts->getSwitch("i");
+		auto* session           = new G4UIterminal(new G4UItcsh);
+		auto* g4SceneProperties = new G4SceneProperties(gopts);
 
 		// set display properties in batch mode
 		gemc::run_manager_commands(gopts, log, init_commands);
 
-		if (interactive) { session->SessionStart(); }
+		// start the session if interactive
+		if (gopts->getSwitch("i")) { session->SessionStart(); }
 		geventDispenser->processEvents();
 
 		delete g4SceneProperties;
@@ -122,10 +119,8 @@ int main(int argc, char* argv[]) {
 	// Free the store: user actions, physics_list and detector_description are
 	// owned and deleted by the run manager
 	delete visManager;
-//	delete runManager;
 
 	log->info(0, "Simulation completed, arrivederci! ");
-
 
 	return app_result;
 }

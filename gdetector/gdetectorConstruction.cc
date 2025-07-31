@@ -83,11 +83,11 @@ void GDetectorConstruction::ConstructSDandField() {
 				if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
 					log->info(2, "Creating new sensitive detector <", digitizationName, "> for volume <", g4name, ">");
 
-					sensitiveDetectorsMap[digitizationName] = std::make_shared<GSensitiveDetector>(digitizationName, gopt);
+					sensitiveDetectorsMap[digitizationName] = new GSensitiveDetector(digitizationName, gopt);
 
 					auto sdManager = G4SDManager::GetSDMpointer();
 					sdManager->SetVerboseLevel(10);
-					sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName].get());
+					sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName]);
 				}
 				else { log->info(2, "Sensitive detector <", digitizationName, "> is already created and available for volume <", g4name, ">"); }
 
@@ -96,7 +96,8 @@ void GDetectorConstruction::ConstructSDandField() {
 				const auto& identity        = gvolumePtr->getGIdentity();
 				auto        this_gtouchable = std::make_shared<GTouchable>(digitizationName, identity, vdimensions, log);
 				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name, this_gtouchable);
-				SetSensitiveDetector(g4name, sensitiveDetectorsMap[digitizationName].get());
+				SetSensitiveDetector(g4name, sensitiveDetectorsMap[digitizationName]);
+
 			}
 
 			// Process electromagnetic fields.

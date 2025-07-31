@@ -56,7 +56,7 @@ std::vector<std::string> verbosity_commands([[maybe_unused]] const std::shared_p
 }
 
 
-std::vector<std::string> initial_commands([[maybe_unused]] const std::shared_ptr<GOptions>& gopts, [[maybe_unused]] const std::shared_ptr<GLogger>& log) {
+std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts, [[maybe_unused]] const std::shared_ptr<GLogger>& log) {
 	auto check_overlaps = gopts->getScalarInt("check_overlaps"); // notice: from g4system options
 	auto gui            = gopts->getSwitch("gui");
 
@@ -78,7 +78,6 @@ std::vector<std::string> initial_commands([[maybe_unused]] const std::shared_ptr
 	cmds.emplace_back("/vis/verbose 0");
 	cmds.emplace_back("/particle/process/verbose 0");
 	cmds.emplace_back("/particle/verbose 0");
-
 
 	cmds.emplace_back("/vis/viewer/set/autoRefresh false");
 	cmds.emplace_back("/vis/viewer/set/viewpointVector -1 0 0");
@@ -110,36 +109,8 @@ void run_manager_commands(const std::shared_ptr<GOptions>& gopts, const std::sha
 	}
 }
 
-
-// apply UIM commands
-// void applyInitialUIManagerCommands(bool gui, int checkForOverlaps, int verbosity) {
-// 	G4UImanager* g4uim = G4UImanager::GetUIpointer();
-//
-// 	vector<string> commands = startingUIMCommands(gui, checkForOverlaps);
-//
-// 	for (auto& c : commands) {
-// 		if (verbosity > GVERBOSITY_SUMMARY) { cout << GEMCLOGMSGITEM << "Executing UIManager command \"" << c << "\"" << endl; }
-// 		g4uim->ApplyCommand(c.c_str());
-// 	}
-// }
-
-//
 #include <unistd.h>  // needed for get_pid
-// #include "CLHEP/Random/DRand48Engine.h"
-// #include "CLHEP/Random/DualRand.h"
-// #include "CLHEP/Random/Hurd160Engine.h"
-// #include "CLHEP/Random/Hurd288Engine.h"
-// #include "CLHEP/Random/JamesRandom.h"
-// #include "CLHEP/Random/MixMaxRng.h"
-// #include "CLHEP/Random/MTwistEngine.h"
-// #include "CLHEP/Random/RandEngine.h"
-// #include "CLHEP/Random/RanecuEngine.h"
-// #include "CLHEP/Random/RanluxEngine.h"
-// #include "CLHEP/Random/Ranlux64Engine.h"
-// #include "CLHEP/Random/RanluxppEngine.h"
-// #include "CLHEP/Random/RanshiEngine.h"
-// #include "CLHEP/Random/TripleRand.h"
-//
+
 void start_random_engine(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
 	auto randomEngineName = gopts->getScalarString("randomEngine");
 	auto seed             = gopts->getScalarInt("seed");
@@ -151,46 +122,41 @@ void start_random_engine(const std::shared_ptr<GOptions>& gopts, const std::shar
 		seed         = (G4int)(timed - clockd - getpidi);
 	}
 
+	// the names come from the CLHEP library, can be found with
+	// grep ": public HepRandomEngine" *.h $CLHEP_BASE_DIR/include/CLHEP/Random/* | awk -Fclass '{print $2}' | awk -F: '{print $1}'
+	if (randomEngineName == "DRand48Engine")
+		G4Random::setTheEngine(new CLHEP::DRand48Engine(seed));
+	else if (randomEngineName == "DualRand")
+		G4Random::setTheEngine(new CLHEP::DualRand);
+	else if (randomEngineName == "Hurd288Engine")
+		G4Random::setTheEngine(new CLHEP::Hurd160Engine);
+	else if (randomEngineName == "HepJamesRandom")
+		G4Random::setTheEngine(new CLHEP::HepJamesRandom);
+	else if (randomEngineName == "MTwistEngine")
+		G4Random::setTheEngine(new CLHEP::MTwistEngine);
+	else if (randomEngineName == "MixMaxRng")
+		G4Random::setTheEngine(new CLHEP::MixMaxRng(seed));
+	else if (randomEngineName == "RandEngine")
+		G4Random::setTheEngine(new CLHEP::RandEngine);
+	else if (randomEngineName == "RanecuEngine")
+		G4Random::setTheEngine(new CLHEP::RanecuEngine);
+	else if (randomEngineName == "Ranlux64Engine")
+		G4Random::setTheEngine(new CLHEP::Ranlux64Engine);
+	else if (randomEngineName == "RanluxEngine")
+		G4Random::setTheEngine(new CLHEP::RanluxEngine);
+	else if (randomEngineName == "RanshiEngine")
+		G4Random::setTheEngine(new CLHEP::RanshiEngine);
+	else if (randomEngineName == "Hurd288Engine")
+		G4Random::setTheEngine(new CLHEP::Hurd288Engine);
+	else if (randomEngineName == "TripleRand")
+		G4Random::setTheEngine(new CLHEP::TripleRand);
+	else {
+		log->error(EC__RANDOMENGINENOTFOUND, "Random engine >", randomEngineName, "< not found. Exiting.");
+	}
+
 	log->info(0, "Starting random engine ", randomEngineName, " with seed ", seed);
+	G4Random::setTheSeed(seed);
 }
-
-
-//
-// 	// the names come from the CLHEP library, can be found with
-// 	// grep ": public HepRandomEngine" *.h $CLHEP_BASE_DIR/include/CLHEP/Random/* | awk -Fclass '{print $2}' | awk -F: '{print $1}'
-// 	if (randomEngineName == "DRand48Engine")
-// 		G4Random::setTheEngine(new CLHEP::DRand48Engine(seed));
-// 	else if (randomEngineName == "DualRand")
-// 		G4Random::setTheEngine(new CLHEP::DualRand);
-// 	else if (randomEngineName == "Hurd288Engine")
-// 		G4Random::setTheEngine(new CLHEP::Hurd160Engine);
-// 	else if (randomEngineName == "HepJamesRandom")
-// 		G4Random::setTheEngine(new CLHEP::HepJamesRandom);
-// 	else if (randomEngineName == "MTwistEngine")
-// 		G4Random::setTheEngine(new CLHEP::MTwistEngine);
-// 	else if (randomEngineName == "MixMaxRng")
-// 		G4Random::setTheEngine(new CLHEP::MixMaxRng(seed));
-// 	else if (randomEngineName == "RandEngine")
-// 		G4Random::setTheEngine(new CLHEP::RandEngine);
-// 	else if (randomEngineName == "RanecuEngine")
-// 		G4Random::setTheEngine(new CLHEP::RanecuEngine);
-// 	else if (randomEngineName == "Ranlux64Engine")
-// 		G4Random::setTheEngine(new CLHEP::Ranlux64Engine);
-// 	else if (randomEngineName == "RanluxEngine")
-// 		G4Random::setTheEngine(new CLHEP::RanluxEngine);
-// 	else if (randomEngineName == "RanshiEngine")
-// 		G4Random::setTheEngine(new CLHEP::RanshiEngine);
-// 	else if (randomEngineName == "Hurd288Engine")
-// 		G4Random::setTheEngine(new CLHEP::Hurd288Engine);
-// 	else if (randomEngineName == "TripleRand")
-// 		G4Random::setTheEngine(new CLHEP::TripleRand);
-// 	else {
-// 		cout << FATALERRORL << " Random engine >" << randomEngineName << "< not found. Exiting." << endl;
-// 		gexit(EC__RANDOMENGINENOTFOUND);
-// 	}
-//
-// 	G4Random::setTheSeed(seed);
-// }
 
 
 }

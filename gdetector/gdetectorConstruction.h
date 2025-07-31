@@ -54,7 +54,9 @@ private:
 	std::shared_ptr<GLogger>  log;
 	std::shared_ptr<GWorld>   gworld;
 	std::shared_ptr<G4World>  g4world;
-	std::unordered_map<std::string,  std::shared_ptr<GSensitiveDetector>> sensitiveDetectorsMap; // keeping GSensitiveDetector on scope until geometry is destroyed
+
+	// GSensitiveDetector must be a raw pointer because geant4 takes ownership
+	std::unordered_map<std::string,  GSensitiveDetector*> sensitiveDetectorsMap; // keeping GSensitiveDetector on scope until geometry is destroyed
 
 
 	// digitization map for all sensitive detectors
