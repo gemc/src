@@ -79,11 +79,11 @@ private:
 
 	/// Map containing the volumes.
 	/// The key is a unique volume name (system + volume name).
-	std::map<std::string, std::unique_ptr<GVolume>> gvolumesMap;
+	std::map<std::string, std::shared_ptr<GVolume>> gvolumesMap;
 
 
 	/// Map containing the materials for the system.
-	std::map<std::string, std::unique_ptr<GMaterial>> gmaterialsMap;
+	std::map<std::string, std::shared_ptr<GMaterial>> gmaterialsMap;
 
 public:
 	/// \brief Gets the system name.
@@ -143,10 +143,10 @@ public:
 	[[nodiscard]] GVolume* getGVolume(const std::string& volumeName) const;
 
 	/// \brief Returns the map of volumes.
-	[[nodiscard]] inline const std::map<std::string, std::unique_ptr<GVolume>>& getGVolumesMap() const { return gvolumesMap; }
+	[[nodiscard]] inline const std::map<std::string, std::shared_ptr<GVolume>>& getGVolumesMap() const { return gvolumesMap; }
 
 	/// \brief Returns the map of materials.
-	[[nodiscard]] inline const std::map<std::string, std::unique_ptr<GMaterial>>& getGMaterialMap() const { return gmaterialsMap; }
+	[[nodiscard]] inline const std::map<std::string, std::shared_ptr<GMaterial>>& getGMaterialMap() const { return gmaterialsMap; }
 
 
 	/**

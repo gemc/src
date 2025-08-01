@@ -150,9 +150,9 @@ public:
 	std::string getImportedFile() { return importFilename; }
 
 	// assign g4names
-	inline void assignG4Names(std::string g4n, std::string g4m) {
-		g4name       = std::move(g4n);
-		g4motherName = std::move(g4m);
+	inline void assignG4Names(const std::string& g4n, const std::string& g4m) {
+		g4name       = g4n;
+		g4motherName = g4m;
 	}
 
 };
