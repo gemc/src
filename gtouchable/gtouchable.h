@@ -192,11 +192,11 @@ public:
 	[[nodiscard]] bool exists_in_vector(const std::vector<GTouchable>& v) const {
 		for (const auto& gt : v) {
 			if (*this == gt) {
-				log->info("GTouchable", this, " exists in vector.");
+				log->info(2, "GTouchable", this, " exists in vector.");
 				return true;
 			}
 		}
-		log->info("GTouchable", this, " does not exist in vector.");
+		log->info(2, "GTouchable", this, " does not exist in vector.");
 
 		return false;
 	}
