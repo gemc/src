@@ -10,7 +10,13 @@
 
 constexpr int         ERR_DYNAMICPLUGINNOTFOUND   = 2001;
 constexpr int         ERR_HITNOTFOUNDINCOLLECTION = 2002;
-constexpr const char* GSENSITIVE_LOGGER            = "gstreamer";
+constexpr int         ERR_NOCOLLECTION            = 2003;
+constexpr const char* GSENSITIVE_LOGGER            = "gsd";
+
+namespace gsensitivedetector {
+inline GOptions defineOptions() { return GOptions(GSENSITIVE_LOGGER); }
+}
+
 
 using GHitsCollection = G4THitsCollection<GHit>;
 
@@ -21,7 +27,7 @@ public:
 	GSensitiveDetector(const std::string&                    sdName,
 	                   const std::shared_ptr<GOptions>&      goptions);
 
-	~GSensitiveDetector() override { log->debug(DESTRUCTOR, "GSensitiveDetector"); }
+//	~GSensitiveDetector() override { log->debug(DESTRUCTOR, "GSensitiveDetector"); }
 
 	// G4VSensitiveDetector geant4 methods to be overloaded
 	void   Initialize(G4HCofThisEvent* g4hc) override;                       // Beginning of sensitive Hit

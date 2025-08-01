@@ -47,17 +47,17 @@ public:
 	 * @param vname The verbosity or debug name is a string used to identify the logger and as header for all messages
 	 * @param cc The calling class name, used to identify the source of the log messages.
 	 */
-	explicit GLogger(const std::shared_ptr<GOptions>& gopts, const std::string& vname, const std::string& cc)
-	: verbosity_name(vname), calling_class(cc), log_counter{0} {
+	explicit GLogger(const std::shared_ptr<GOptions>& gopts, const std::string& vname, const std::string& desc = "")
+	: verbosity_name(vname), description(desc), log_counter{0} {
 		verbosity_level = gopts->getVerbosityFor(verbosity_name);
 		debug_level     = gopts->getDebugFor(verbosity_name);
-		debug(CONSTRUCTOR, calling_class, " logger");
+		debug(CONSTRUCTOR, description, " logger");
 	}
 
 	// default constructor
 	GLogger() = default;
 
-	~GLogger() { debug(DESTRUCTOR, calling_class, " logger"); }
+	~GLogger() { debug(DESTRUCTOR, description, " logger"); }
 
 	/**
 	 * \brief Logs a debug message if the debug level is nonzero.
@@ -180,7 +180,7 @@ public:
 
 private:
 	std::string verbosity_name;    ///< Verbosity name
-	std::string calling_class;     ///< Name of class/method calling the logger constructor
+	std::string description;     ///< Name of class/method calling the logger constructor
 	int         verbosity_level{}; ///< Verbosity level (0 = low, >0 = detailed)
 	int         debug_level{};     ///< Debug level: 0 = off, 1 = normal, 10/-10 = ctor/dtor
 
@@ -195,6 +195,6 @@ private:
 	 */
 	[[nodiscard]] std::string header_string() const {
 		log_counter++;
-		return calling_class + " [" + std::to_string(log_counter.load()) + "]: ";
+		return " [" + description + "]" + " (" + std::to_string(log_counter.load()) + "): ";
 	}
 };

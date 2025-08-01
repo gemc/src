@@ -7,6 +7,8 @@
 #include "G4VHit.hh"
 #include "G4THitsCollection.hh"
 #include "G4Allocator.hh"
+#include "G4Types.hh"
+
 #include "G4ThreeVector.hh"
 #include "G4Step.hh"
 #include "G4Colour.hh"
@@ -35,23 +37,23 @@ public:
 	 * \param hbs Bitset selects which hit information to record.
 	 * \param cScheme Color schema for visualization (default is "default").
 	 */
-	GHit(std::shared_ptr<GTouchable> gt, HitBitSet hbs, const G4Step* thisStep = nullptr, std::string cScheme = "default");
+	GHit(std::shared_ptr<GTouchable> gt, HitBitSet hbs, const G4Step* thisStep = nullptr, const std::string& cScheme = "default");
 
 	/**
 	 * \brief Destructor for GHit.
 	 */
 	~GHit() override = default;
 
-	/**
-	 * \brief Overloaded new operator using G4Allocator.
-	 * \return Pointer to allocated memory.
-	 */
-	inline void* operator new(size_t);
-
-	/**
-	 * \brief Overloaded delete operator using G4Allocator.
-	 */
-	inline void operator delete(void*);
+	// /**
+	//  * \brief Overloaded new operator using G4Allocator.
+	//  * \return Pointer to allocated memory.
+	//  */
+	// inline void* operator new(size_t);
+	//
+	// /**
+	//  * \brief Overloaded delete operator using G4Allocator.
+	//  */
+	// inline void operator delete(void*);
 
 	/**
 	 * \brief Draws the hit using Geant4 visualization.
@@ -63,7 +65,7 @@ public:
 	 * @param hit
 	 * @return Returns true if this gtouchable is the same as the one in the hit.
 	 */
-	[[nodiscard]] bool is_same_hit(const std::unique_ptr<GHit>& hit) const;
+	[[nodiscard]] bool is_same_hit(const GHit* hit) const;
 
 private:
 	G4Colour colour_touch, colour_hit, colour_passby;
@@ -165,8 +167,8 @@ public:
 	[[nodiscard]] inline std::string getProcessName() const { return processName; }
 
 	/**
-	 * \brief Returns a const reference to the unique_ptr managing the GTouchable.
-	 * \return A const reference to the unique_ptr<GTouchable>.
+	 * \brief Returns a const reference to the shared_ptr managing the GTouchable.
+	 * \return A const reference to the shared_ptr<GTouchable>.
 	 */
 	[[nodiscard]] inline std::shared_ptr<GTouchable> getGTouchable() const { return gtouchable; }
 
@@ -211,10 +213,10 @@ public:
 
 
 	// create fake GHit for testing purposes, using sector and fake dimensions
-	static std::unique_ptr<GHit> create(std::shared_ptr<GLogger> logger) {
+	static GHit* create(std::shared_ptr<GLogger> logger) {
 		HitBitSet hitBitSet;
 		auto      gt  = GTouchable::create(logger);
-		auto      hit = std::make_unique<GHit>(std::move(gt), hitBitSet);
+		auto      hit = new GHit(gt, hitBitSet);
 		hit->randomizeHitForTesting(1 + globalHitCounter.fetch_add(1, std::memory_order_relaxed) % 10);
 		return hit;
 	}
@@ -223,16 +225,16 @@ public:
 
 // MT definitions, as from:
 // https://twiki.cern.ch/twiki/bin/view/Geant4/QuickMigrationGuideForGeant4V10
-extern G4ThreadLocal G4Allocator<GHit>* GHitAllocator;
-using GHitsCollection = G4THitsCollection<GHit>;
-
-inline void* GHit::operator new(size_t) {
-	if (!GHitAllocator) GHitAllocator = new G4Allocator<GHit>;
-	return (void*)GHitAllocator->MallocSingle();
-}
-
-inline void GHit::operator delete(void* hit) {
-	if (!GHitAllocator) { GHitAllocator = new G4Allocator<GHit>; }
-
-	GHitAllocator->FreeSingle((GHit*)hit);
-}
+// extern G4ThreadLocal G4Allocator<GHit>* GHitAllocator;
+// using GHitsCollection = G4THitsCollection<GHit>;
+//
+// inline void* GHit::operator new(size_t) {
+// 	if (!GHitAllocator) GHitAllocator = new G4Allocator<GHit>;
+// 	return (void*)GHitAllocator->MallocSingle();
+// }
+//
+// inline void GHit::operator delete(void* hit) {
+// 	if (!GHitAllocator) { GHitAllocator = new G4Allocator<GHit>; }
+//
+// 	GHitAllocator->FreeSingle((GHit*)hit);
+// }

@@ -16,6 +16,7 @@
  */
 void GHit::addHitInfosForBitset(const HitBitSet hbs, const G4Step *thisStep) {
 	G4StepPoint *poststep = thisStep->GetPostStepPoint();
+
 	// Get global position and transform to local coordinates.
 	G4ThreeVector xyz = poststep->GetPosition();
 	G4ThreeVector xyzL = poststep->GetTouchableHandle()->GetHistory()->GetTopTransform().TransformPoint(xyz);
@@ -47,26 +48,26 @@ void GHit::addHitInfosForBitset(const HitBitSet hbs, const G4Step *thisStep) {
  */
 bool GHit::addHitInfosForBitIndex(size_t bitIndex, const bool test, const G4Step *thisStep) {
 
-	if (!test) return false; // If the bit is not set, do nothing.
-
-	G4Track *trk = thisStep->GetTrack();
-	G4StepPoint *prestep = thisStep->GetPreStepPoint();
-
-	// For bit 0: record particle ID, energy, and process name.
-	if (bitIndex == 0) {
-		pids.push_back(trk->GetDefinition()->GetPDGEncoding());
-		Es.push_back(prestep->GetTotalEnergy());
-		if (trk->GetCreatorProcess()) {
-			processNames.push_back(trk->GetCreatorProcess()->GetProcessName());
-		}
-	} else if (bitIndex == 1) {
-		// Placeholder: record step length and track info.
-	} else if (bitIndex == 2) {
-		// Placeholder: record mother particle track information.
-	} else if (bitIndex == 3) {
-		// Placeholder: record meta information.
-	} else if (bitIndex == 4) {
-		// Placeholder: record optical photon-specific information.
-	}
+	// if (!test) return false; // If the bit is not set, do nothing.
+	//
+	// G4Track *trk = thisStep->GetTrack();
+	// G4StepPoint *prestep = thisStep->GetPreStepPoint();
+	//
+	// // For bit 0: record particle ID, energy, and process name.
+	// if (bitIndex == 0) {
+	// 	pids.push_back(trk->GetDefinition()->GetPDGEncoding());
+	// 	Es.push_back(prestep->GetTotalEnergy());
+	// 	if (trk->GetCreatorProcess()) {
+	// 		processNames.push_back(trk->GetCreatorProcess()->GetProcessName());
+	// 	}
+	// } else if (bitIndex == 1) {
+	// 	// Placeholder: record step length and track info.
+	// } else if (bitIndex == 2) {
+	// 	// Placeholder: record mother particle track information.
+	// } else if (bitIndex == 3) {
+	// 	// Placeholder: record meta information.
+	// } else if (bitIndex == 4) {
+	// 	// Placeholder: record optical photon-specific information.
+	// }
 	return true;
 }

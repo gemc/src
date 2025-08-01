@@ -8,11 +8,11 @@
 
 
 // Constructor
-GRun::GRun(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
-	G4Run(),
-	digitization_routines_map(digi_map),
-	log(std::make_shared<GLogger>(gopts, GRUN_LOGGER, "GRun")) {
-	//elog = gopt->getScalarInt("event_module_log");
+GRun::GRun(std::shared_ptr<GOptions> gopt, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
+	digitization_routines_map(digi_map) {
+	auto desc = "GRun " + std::to_string(G4Threading::G4GetThreadId());
+	log       = std::make_shared<GLogger>(gopt, GRUN_LOGGER, desc);
+
 	log->debug(CONSTRUCTOR, FUNCTION_NAME);
 }
 
@@ -51,37 +51,39 @@ void GRun::RecordEvent(const G4Event* aEvent) {
 	auto eventData = std::make_shared<GEventDataCollection>(std::move(gheader), log);
 
 	// looping over all collections
-	for (G4int hci = 0; hci < HCsThisEvent->GetNumberOfCollections(); hci++) {
-		GHitsCollection* thisGHC = (GHitsCollection*)HCsThisEvent->GetHC(hci);
+	//	for (G4int hci = 0; hci < HCsThisEvent->GetNumberOfCollections(); hci++) {
+	//	GHitsCollection* thisGHC = (GHitsCollection*)HCsThisEvent->GetHC(hci);
 
-		if (thisGHC) {
-			std::string hitCollectionSDName = thisGHC->GetSDname();
+	//	if (thisGHC) {
+	// std::string hitCollectionSDName = thisGHC->GetSDname();
+	//
+	// log->info(2, FUNCTION_NAME, " worker n. ", thread_id,
+	//           " for event number ", eventID,
+	//           " for collection number ", hci + 1,
+	//           " collection name: ", hitCollectionSDName);
+	//
+	// auto digitization_routine = digitization_routines_map->at(hitCollectionSDName);
 
-			log->info(2, FUNCTION_NAME, " worker n. ", thread_id,
-			          " for event number ", eventID,
-			          " for collection number ", hci + 1,
-			          " collection name: ", hitCollectionSDName);
 
-			auto digitization_routine = digitization_routines_map->at(hitCollectionSDName);
+	// if (digitization_routine != nullptr) {
+	// 	// looping over hits in this collection
+	// 	for (size_t hitIndex = 0; hitIndex < thisGHC->GetSize(); hitIndex++) {
+	//
+	// 		auto thisHit = (GHit*)thisGHC->GetHit(hitIndex);
+	//
+	// 		// PRAGMA TODO: switch these on/off with options
+	// 		auto true_data = digitization_routine->collectTrueInformation(thisHit, hitIndex);
+	// 		auto digi_data = digitization_routine->digitizeHit(thisHit, hitIndex);
+	//
+	// 		eventData->addDetectorDigitizedData(hitCollectionSDName, std::move(digi_data));
+	// 		eventData->addDetectorTrueInfoData(hitCollectionSDName, std::move(true_data));
+	//
+	// 	}
+	// }
 
 
-			if (digitization_routine != nullptr) {
-				// looping over hits in this collection
-				for (size_t hitIndex = 0; hitIndex < thisGHC->GetSize(); hitIndex++) {
-
-					auto thisHit = (GHit*)thisGHC->GetHit(hitIndex);
-
-					// PRAGMA TODO: switch these on/off with options
-					auto true_data = digitization_routine->collectTrueInformation(thisHit, hitIndex);
-					auto digi_data = digitization_routine->digitizeHit(thisHit, hitIndex);
-
-					eventData->addDetectorDigitizedData(hitCollectionSDName, std::move(digi_data));
-					eventData->addDetectorTrueInfoData(hitCollectionSDName, std::move(true_data));
-
-				}
-			}
-		}
-	}
+	//	}
+	//	}
 
 	//runData.push_back(eventDataCollection);
 }
@@ -101,5 +103,3 @@ void GRun::RecordEvent(const G4Event* aEvent) {
 //
 // 	G4Run::Merge(aRun);
 // }
-
-

@@ -99,6 +99,7 @@ void EventDispenser::setNumberOfEvents(int nevents_to_process) {
 
 // Randomly distributes events among runs according to the weights read from the input file.
 void EventDispenser::distributeEvents(int nevents_to_process) {
+
 	// Initialize a progress bar for visual feedback.
 	// TextProgressBar bar(50, string(EVENTDISPENSERLOGMSGITEM) + " Distributing events according to run weights ", 0, nevents_to_process);
 
@@ -131,12 +132,13 @@ int EventDispenser::getTotalNumberOfEvents() const {
 	return totalEvents;
 }
 
-//
+
 // Processes events by iterating over runs, initializing plugins, and executing Geant4 commands.
-//
 int EventDispenser::processEvents() {
+
 	// Get the Geant4 UI manager pointer.
 	G4UImanager* g4uim = G4UImanager::GetUIpointer();
+	g4uim->ApplyCommand("/run/initialize");
 
 	// Set the progress print command based on the elog level.
 	// g4uim->ApplyCommand("/run/printProgress " + to_string(elog));
@@ -172,7 +174,6 @@ int EventDispenser::processEvents() {
 		// If events are fewer than the buffer size, process all in one go.
 		if (nevents <= nEventBuffer) {
 			log->info(1, "Processing ", nevents, " events in one go");
-			g4uim->ApplyCommand("/run/initialize");
 			g4uim->ApplyCommand("/run/beamOn " + to_string(nevents));
 		}
 		else {
@@ -183,7 +184,6 @@ int EventDispenser::processEvents() {
 			int ntotalSubRuns     = (lastSubRunNEvents > 0 ? nsubRuns + 1 : nsubRuns);
 			for (int s = 0; s < nsubRuns; s++) {
 				log->info(1, "Processing sub run ", s + 1, " out of ", ntotalSubRuns, " with ", nEventBuffer, " events. Total events so far: ", totalSoFar);
-				g4uim->ApplyCommand("/run/initialize");
 				g4uim->ApplyCommand("/run/beamOn " + to_string(nEventBuffer));
 				totalSoFar += nEventBuffer;
 			}

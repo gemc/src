@@ -11,7 +11,6 @@
 
 namespace gemc {
 
-
 // return the number of cores from options.
 // if 0 is given, returns max number of available cores
 int get_nthreads(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
@@ -30,6 +29,7 @@ std::vector<std::string> verbosity_commands([[maybe_unused]] const std::shared_p
 
 	// --- Always‑quiet commands ---
 	cmds.emplace_back("/control/verbose 0");
+	cmds.emplace_back("/hit/verbose 0");
 
 	cmds.emplace_back("/process/verbose 0");
 	cmds.emplace_back("/process/setVerbose 0 all");
@@ -53,10 +53,13 @@ std::vector<std::string> verbosity_commands([[maybe_unused]] const std::shared_p
 	cmds.emplace_back("/material/verbose 0");
 
 	cmds.emplace_back("/vis/verbose 0");
-	cmds.emplace_back("/particle/process/verbose 0");
 	cmds.emplace_back("/particle/verbose 0");
 
-	return cmds; // RVO / move‑return → zero extra copies
+	// cmds.emplace_back("/control/cout/ignoreInitializationCout 1");
+	// cmds.emplace_back("/control/cout/useBuffer 1"); // keep MT output tidy?
+
+
+	return cmds;
 }
 
 
@@ -66,6 +69,7 @@ std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts
 
 	std::vector<std::string> cmds;
 
+	// batch mode: check overlaps
 	if (check_overlaps == 2) {
 		log->info(0, "Running /geometry/test/run with 50 points.");
 		cmds.emplace_back("/geometry/test/resolution 50");
@@ -78,7 +82,8 @@ std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts
 	}
 	if (!gui) return cmds;
 
-	// other verbosity commands
+
+	// gui mode
 
 	// Disable auto refresh and quieten vis messages whilst scene and trajectories are established:
 	cmds.emplace_back("/vis/viewer/set/autoRefresh false");

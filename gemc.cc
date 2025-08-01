@@ -35,6 +35,7 @@ int main(int argc, char* argv[]) {
 	// init geant4 run manager with then number of threads coming from options. always fails if unavailable
 	auto runManager = std::unique_ptr<G4RunManager>(G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default, true, nthreads));
 
+	// random engine set by options
 	gemc::start_random_engine(gopts, log);
 
 	// must be a raw pointer because geant4 takes ownership
@@ -46,10 +47,8 @@ int main(int argc, char* argv[]) {
 	if (gopts->getSwitch("showPhysics")) { return EXIT_SUCCESS; }
 	runManager->SetUserInitialization(gphysics->getPhysList());
 
-
 	// instantiate GActionInitialization and initialize the geant4 kernel
 	runManager->SetUserInitialization(new GAction(gopts, gdetector->get_digitization_routines_map()));
-	runManager->Initialize();
 
 	// sets verbosity commands
 	auto verbosities = gemc::verbosity_commands(gopts, log);
@@ -92,6 +91,7 @@ int main(int argc, char* argv[]) {
 
 		GemcGUI gemcGui(gopts, geventDispenser, gdetector);
 		gemcGui.show();
+
 		gemc::run_manager_commands(gopts, log, init_commands);
 		spash_screen->finish(&gemcGui);
 
@@ -109,14 +109,14 @@ int main(int argc, char* argv[]) {
 
 		// start the session if interactive
 		if (gopts->getSwitch("i")) { session->SessionStart(); }
+
 		geventDispenser->processEvents();
 
 		delete g4SceneProperties;
 		delete session;
 	}
 
-	// Free the store: user actions, physics_list and detector_description are
-	// owned and deleted by the run manager
+
 	delete visManager;
 
 	log->info(0, "Simulation completed, arrivederci! ");

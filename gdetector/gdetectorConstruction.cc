@@ -25,7 +25,6 @@ GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
 	  log(std::make_shared<GLogger>(gopts, GDETECTOR_LOGGER, "GDetectorConstruction")) {
 	log->debug(CONSTRUCTOR, "GDetectorConstruction");
 	digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>();
-
 }
 
 GDetectorConstruction::~GDetectorConstruction() {
@@ -34,7 +33,7 @@ GDetectorConstruction::~GDetectorConstruction() {
 }
 
 G4VPhysicalVolume* GDetectorConstruction::Construct() {
-	log->debug(NORMAL, "GDetectorConstruction::Construct");
+	log->debug(NORMAL, FUNCTION_NAME);
 
 	// Clean any old geometry.
 	G4GeometryManager::GetInstance()->OpenGeometry();
@@ -55,39 +54,43 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 	// Build Geant4 world (solids, logical and physical volumes) based on the GEMC world.
 	g4world = std::make_shared<G4World>(gworld.get(), gopt);
 
+	auto nsdetectors = gworld->getSensitiveDetectorsList().size();
+
 	// tally with number :
 	log->info(0, "Tally summary: \n - ", gworld->get_number_of_volumes(), " volumes\n - ",
-			  g4world->number_of_volumes(), " geant4 built volumes");
+	          g4world->number_of_volumes(), " geant4 built volumes\n - ",
+	          nsdetectors, " sensitive detectors\n - ");
+
 
 	// Return the physical volume for the ROOT world volume.
 	return g4world->getG4Volume(ROOTWORLDGVOLUMENAME)->getPhysical();
 }
 
 void GDetectorConstruction::ConstructSDandField() {
-	log->debug(NORMAL, "GDetectorConstruction::ConstructSDandField");
+	auto sdManager = G4SDManager::GetSDMpointer();
+	//	sdManager->SetVerboseLevel(10);
+
+	log->debug(NORMAL, FUNCTION_NAME);
+	std::unordered_map<std::string,  GSensitiveDetector*> sensitiveDetectorsMap;
 
 	// Loop over all systems and their volumes.
 	for (const auto& [systemName, gsystemPtr] : *gworld->getSystemsMap()) {
 		for (const auto& [volumeName, gvolumePtr] : gsystemPtr->getGVolumesMap()) {
 			auto const& digitizationName = gvolumePtr->getDigitization();
 			auto const& g4name           = gvolumePtr->getG4Name();
+			auto*       g4volume         = g4world->getG4Volume(g4name)->getLogical();
 
 			// Ensure the Geant4 logical volume exists.
-			if (g4world->getG4Volume(g4name) == nullptr) {
-				log->error(ERR_GVOLUMENOTFOUND, "GDetectorConstruction::ConstructSDandField", "Logical volume <" + g4name + "> not found.");
-			}
+			if (g4volume == nullptr) { log->error(ERR_GVOLUMENOTFOUND, "GDetectorConstruction::ConstructSDandField", "Logical volume <" + g4name + "> not found."); }
 
 			// Skip volumes with no digitization.
 			if (digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
+
 				// Create the sensitive detector if it does not exist yet.
 				if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
 					log->info(2, "Creating new sensitive detector <", digitizationName, "> for volume <", g4name, ">");
 
 					sensitiveDetectorsMap[digitizationName] = new GSensitiveDetector(digitizationName, gopt);
-
-					auto sdManager = G4SDManager::GetSDMpointer();
-					sdManager->SetVerboseLevel(10);
-					sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName]);
 				}
 				else { log->info(2, "Sensitive detector <", digitizationName, "> is already created and available for volume <", g4name, ">"); }
 
@@ -96,8 +99,10 @@ void GDetectorConstruction::ConstructSDandField() {
 				const auto& identity        = gvolumePtr->getGIdentity();
 				auto        this_gtouchable = std::make_shared<GTouchable>(digitizationName, identity, vdimensions, log);
 				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name, this_gtouchable);
-				SetSensitiveDetector(g4name, sensitiveDetectorsMap[digitizationName]);
 
+				sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName]);
+				g4volume->SetSensitiveDetector(sensitiveDetectorsMap[digitizationName]);
+				log->info(2, "Logical Volume  <" + g4name + "> has been successfully assigned to SD.", sensitiveDetectorsMap[digitizationName]);
 			}
 
 			// Process electromagnetic fields.
@@ -114,14 +119,17 @@ void GDetectorConstruction::ConstructSDandField() {
 	// Load digitization plugins after constructing sensitive detectors.
 	loadDigitizationPlugins();
 
+	const auto sdetectors = gworld->getSensitiveDetectorsList();
+	for (auto& sdname : sdetectors) {
+		sensitiveDetectorsMap[sdname]->assign_digi_routine(digitization_routines_map->at(sdname));
+		log->info(1, "Digitization routine <" + sdname + "> has been successfully assigned to SD.", sensitiveDetectorsMap[sdname]);
+	}
 }
 
 void GDetectorConstruction::loadDigitizationPlugins() {
-
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
 
 	for (auto& sdname : sdetectors) {
-
 		if (sdname == FLUXNAME) {
 			log->info(1, "Loading flux digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, std::make_shared<GFluxDigitization>());
@@ -143,14 +151,11 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 
 		if (digitization_routines_map->at(sdname)->defineReadoutSpecs()) { log->info(1, "Digitization routine <" + sdname + "> has been successfully defined."); }
 		else { log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">"); }
-
-		sensitiveDetectorsMap[sdname]->assign_digi_routine(digitization_routines_map->at(sdname));
 	}
 }
 
 
 void GDetectorConstruction::reload_geometry(SystemList sl) {
-
 	// it could be empty for tests
 	if (sl.empty()) {
 		// Use vector assignment to update the local systems.
@@ -158,11 +163,14 @@ void GDetectorConstruction::reload_geometry(SystemList sl) {
 	}
 
 	// Reconstruct the geometry and update the world volume - if the run manager exists
-	auto rm =  G4RunManager::GetRunManager();
+	auto rm = G4RunManager::GetRunManager();
 
 	// TODO: not sure if DefineWorldVolume also call ConstructSDandField automatically?
 	// is this all there is to do here to reload a geometry?
-	if (rm) { rm->DefineWorldVolume(Construct());  ConstructSDandField(); }
+	if (rm) {
+		rm->DefineWorldVolume(Construct());
+		ConstructSDandField();
+	}
 
 	else { log->error(1, "GDetectorConstruction::reload_geometry", "Geant4 Run manager not found."); }
 }

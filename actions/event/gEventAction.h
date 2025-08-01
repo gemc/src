@@ -6,7 +6,7 @@
 // gemc
 #include "glogger.h"
 
-constexpr const char* EVENTACTION_LOGGER = "EventAction";
+constexpr const char* EVENTACTION_LOGGER = "geventaction";
 
 namespace geventaction {
 inline GOptions defineOptions() { return GOptions(EVENTACTION_LOGGER); }

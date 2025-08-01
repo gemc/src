@@ -19,30 +19,15 @@ std::atomic<int> GHit::globalHitCounter{0};
 
 // MT definitions, as from:
 // https://twiki.cern.ch/twiki/bin/view/Geant4/QuickMigrationGuideForGeant4V10
-G4ThreadLocal G4Allocator<GHit>* GHitAllocator = nullptr;
-
-void GHit::randomizeHitForTesting(int nsteps) {
-	// This function is for testing purposes only.
-	// It randomizes the hit's global position and energy deposition.
-	// It should not be used in production code.
-	for (int i = 0; i < nsteps + 1; ++i) {
-		globalPositions.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
-		localPositions.emplace_back(G4UniformRand() * 10, G4UniformRand() * 10, G4UniformRand() * 10);
-		times.emplace_back(G4UniformRand() * 100);
-		edeps.emplace_back(G4UniformRand() * 10);
-		Es.emplace_back(G4UniformRand() * 10);
-
-		pids.emplace_back(static_cast<int>(G4UniformRand() * 1000)); // Random particle ID
-	}
-}
-
+//G4ThreadLocal G4Allocator<GHit>* GHitAllocator = nullptr;
 
 GHit::GHit(std::shared_ptr<GTouchable> gt,
            const HitBitSet             hbs,
            const G4Step*               thisStep,
-           string                      cScheme) : G4VHit(),
-                                                  colorSchema(std::move(cScheme)),
-                                                  gtouchable(gt) {
+           const string&               cScheme) :
+	G4VHit(),
+	colorSchema(cScheme),
+	gtouchable(gt) {
 	// initialize quantities based on HitBitSet, like globalPositions
 	if (thisStep) { addHitInfosForBitset(hbs, thisStep); }
 
@@ -54,7 +39,13 @@ GHit::GHit(std::shared_ptr<GTouchable> gt,
 	processName       = UNINITIALIZEDSTRINGQUANTITY;
 }
 
-bool GHit::is_same_hit(const std::unique_ptr<GHit>& hit) const { return *gtouchable == *(hit->getGTouchable()); }
+bool GHit::is_same_hit(const GHit* hit) const
+{
+	if (!hit)               // guard against nullptr
+		return false;
+
+	return *gtouchable == *(hit->getGTouchable());
+}
 
 vector<int> GHit::getTTID() const {
 	vector<int> ttid;
@@ -116,4 +107,20 @@ bool GHit::setColorSchema() {
 	colour_hit    = G4Colour(1.0, 0.0, 0.0); // Red for hits with energy.
 	colour_passby = G4Colour(0.0, 1.0, 0.0); // Green for pass-by.
 	return false;
+}
+
+
+void GHit::randomizeHitForTesting(int nsteps) {
+	// This function is for testing purposes only.
+	// It randomizes the hit's global position and energy deposition.
+	// It should not be used in production code.
+	for (int i = 0; i < nsteps + 1; ++i) {
+		globalPositions.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
+		localPositions.emplace_back(G4UniformRand() * 10, G4UniformRand() * 10, G4UniformRand() * 10);
+		times.emplace_back(G4UniformRand() * 100);
+		edeps.emplace_back(G4UniformRand() * 10);
+		Es.emplace_back(G4UniformRand() * 10);
+
+		pids.emplace_back(static_cast<int>(G4UniformRand() * 1000)); // Random particle ID
+	}
 }

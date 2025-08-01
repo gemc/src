@@ -9,11 +9,16 @@
 
 
 // Constructor for workers
-GRunAction::GRunAction(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
-	goptions(gopts),
-	log(std::make_shared<GLogger>(gopts, GRUNACTION_LOGGER, "GRunAction")),
+GRunAction::GRunAction(std::shared_ptr<GOptions> gopt, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
+	goptions(gopt),
 	digitization_routines_map(digi_map) {
+
+	auto desc =  "GRunAction " + std::to_string(G4Threading::G4GetThreadId()) ;
+
+	log = std::make_shared<GLogger>(gopt, GRUNACTION_LOGGER, desc);
+
 	log->debug(CONSTRUCTOR, FUNCTION_NAME);
+
 
 	// frameDuration = 64000;
 	// eventDuration = gutilities::getG4Number(goptions->getScalarString("eventTimeSize"));
@@ -38,7 +43,9 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 	int thread_id = G4Threading::G4GetThreadId();
 	int run       = aRun->GetRunID();
 
-	if (IsMaster()) { log->info(2, FUNCTION_NAME, " for Master for run id", run, " in thread id: ", thread_id); }
+	if (IsMaster()) {
+		log->info(2, FUNCTION_NAME, " for Master for run id", run, " in thread id: ", thread_id);
+	}
 	else {
 		log->info(2, FUNCTION_NAME, " for Workers for run id", run, " in thread id: ", thread_id);
 
@@ -79,7 +86,7 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 		// }
 
 
-		log->info(2, FUNCTION_NAME, " for Master for run id", run, " in thread id: ", thread_id);
+		log->info(2, FUNCTION_NAME, " for Master for run id ", run, " in thread id: ", thread_id);
 
 
 
@@ -134,7 +141,7 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 	else {
 
 
-		log->info(2, FUNCTION_NAME, " for Worker for run id", run, " in thread id: ", thread_id);
+		log->info(2, FUNCTION_NAME, " for Worker for run id ", run, " in thread id: ", thread_id);
 
 
 

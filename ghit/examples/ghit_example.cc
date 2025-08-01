@@ -17,11 +17,11 @@ int main(int argc, char* argv[]) {
 
 	auto a_ctof_gtouchable = GTouchable("readout", "sector: 6, paddle: 10", {10.0, 20.0, 30.0}, log);
 
-	auto a_hit = std::make_unique<GHit>(std::make_unique<GTouchable>(a_ctof_gtouchable), hitBitSet);
+	auto a_hit = new GHit(std::make_shared<GTouchable>(a_ctof_gtouchable), hitBitSet);
 
 	// emulating GHitsCollection (which is G4THitsCollection<GHit>)
-	vector<std::unique_ptr<GHit>> hits;
-	hits.emplace_back(std::move(a_hit)); // pass ownership
+	vector<GHit*> hits;
+	hits.emplace_back(a_hit); // pass ownership
 
 	for (unsigned i = 1; i < 100; i++) {
 		auto hit = GHit::create(log);

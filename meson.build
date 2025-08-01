@@ -218,7 +218,13 @@ example_test_dir = 'gsystem'
 examples_dir = get_option('prefix') + '/test/' + example_test_dir
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
 gsystem = ['-gsystem="[{name: b1}]"']
-general_gemc = ['-verbosity.gemc=2', '-debug.gemc=true', '-check_overlaps=2']
+general_gemc = ['-verbosity.gemc=2', '-debug.gemc=true', '-check_overlaps=2',
+                '-verbosity.gaction=2', '-debug.gaction=true',
+                '-verbosity.grunaction=2', '-debug.grunaction=true',
+                '-verbosity.grun=2', '-debug.grun=true',
+                '-verbosity.geventaction=2', '-debug.geventaction=true',
+                '-nthreads=2', '-n=10',
+                '-verbosity.eventdispenser=2', '-debug.eventdispenser=true']
 gemc_test_sqlite = dbhost + gsystem + general_gemc
 test_options = [
     { 'default' : [''] },
@@ -232,14 +238,11 @@ test_options = [
     { 'gdigitization_verbose' : ['-verbosity.gdigitization=2', '-debug.gdigitization=true',
                                  '-verbosity.plugins=2', '-debug.plugins=true',
                                  '-verbosity.gtranslationTable=2', '-debug.gtranslationTable=true',
+                                 '-verbosity.gsd=2', '-debug.gsd=true',
+                                 '-verbosity.gdetector=2', '-debug.gdetector=true',
                                  '-verbosity.gtouchable=2', '-debug.gtouchable=true'] },
     { 'gdata_verbose' : ['-verbosity.gdata=2', '-debug.gdata=true',
-                         '-verbosity.gstreamer=2', '-debug.gstreamer=true'] },
-    { 'grun_verbose' : ['-verbosity.gaction=2', '-debug.gaction=true',
-                        '-verbosity.grunaction=2', '-debug.grunaction=true',
-                        '-verbosity.gemc=2', '-debug.gemc=true',
-                        '-check_overlaps=2', '-nthreads=2', '-n=100',
-                        '-verbosity.eventdispenser=2', '-debug.eventdispenser=true'] },
+                         '-verbosity.gstreamer=2', '-debug.gstreamer=true'] }
 ]
 
 

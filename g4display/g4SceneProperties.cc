@@ -43,7 +43,7 @@ G4SceneProperties::G4SceneProperties(const std::shared_ptr<GOptions>& gopts): lo
     std::vector<std::string> commands;
 
     commands.emplace_back("/vis/scene/create gemc");
-    commands.emplace_back("/run/initialize");
+    //commands.emplace_back("/run/initialize");
 
     if (use_dawn) {
         commands.emplace_back("/vis/open DAWNFILE");
