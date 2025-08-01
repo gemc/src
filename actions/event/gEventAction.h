@@ -5,6 +5,7 @@
 
 // gemc
 #include "glogger.h"
+#include "../run/gRunAction.h"
 
 constexpr const char* EVENTACTION_LOGGER = "geventaction";
 
@@ -15,7 +16,7 @@ inline GOptions defineOptions() { return GOptions(EVENTACTION_LOGGER); }
 // Local thread classes
 class GEventAction : public G4UserEventAction {
 public:
-	GEventAction(std::shared_ptr<GOptions> gopt);
+	GEventAction(std::shared_ptr<GOptions> gopt, GRunAction* run_a);
 	~GEventAction() override;
 
 	void BeginOfEventAction(const G4Event* event) override;
@@ -23,5 +24,20 @@ public:
 
 private:
 	std::shared_ptr<GLogger> log;
+	GRunAction* run_action; // non-owning, valid for the thread lifetime
 
 };
+
+
+// looping over output factories
+// for (auto [factoryName, streamerFactory] : *gstreamerFactoryMap) {
+// 	if (streamerFactory->getStreamType() == "event") {
+// 		logSummary("Writing event data using streamer factory >" + factoryName + "<");
+// 		map<string, bool> streamReport = streamerFactory->publishEventRunData(goptions, theRun->getRunData());
+//
+// 		for (auto [reportName, result] : streamReport) {
+// 			string resultString = result ? " success" : " failure";
+// 			logSummary("Factory <" + factoryName + "> " + reportName + resultString);
+// 		}
+// 	}
+// }

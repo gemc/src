@@ -19,6 +19,7 @@
 #include "gaction.h"
 
 int main(int argc, char* argv[]) {
+
 	auto gopts = std::make_shared<GOptions>(argc, argv, gemc::defineOptions());
 	auto log   = std::make_shared<GLogger>(gopts, GENERAL_LOGGER, "main");
 

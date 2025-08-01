@@ -22,6 +22,14 @@ public:
 	GRunAction(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
 	~GRunAction() override;
 
+	auto get_digitization_routines_map() const -> std::shared_ptr<gdynamicdigitization::dRoutinesMap>  {
+		return digitization_routines_map;
+	}
+
+	auto get_streamer_map() const -> std::shared_ptr<const gstreamer::gstreamersMap> {
+		return gstreamer_map;
+	}
+
 private:
 
 	// virtual method from G4UserRunAction.
@@ -38,28 +46,36 @@ private:
 	// streamer map, instantiated in threads (Build)
 	std::shared_ptr<const gstreamer::gstreamersMap> gstreamer_map;
 
+};
 
-	// vector of frame data in the run (local thread, merged in GRun::Merge in the global thread)
+
+
+// vector of frame data in the run (local thread, merged in GRun::Merge in the global thread)
 //	std::vector<GFrameDataCollection*> frameRunData;
 
+//
+// double frameDuration    = UNINITIALIZEDNUMBERQUANTITY; // frame length in nanoseconds
+// double eventDuration    = UNINITIALIZEDNUMBERQUANTITY; // event duration in nanoseconds
+// int    eventIndex       = 0;                           // added to the absolute event number, increases with each run
+// int    lastFrameCreated = 0;                           // keeping track of the last frame created
+//
+// // determine the frame ID based on event number, eventDuration, frameDuration
+// // TODO: this should be in gdata?
+// int  eventFrameIndex(int eventNumber, double timeAtElectronics);
+// bool findFrameID(int fid);
+//
+// // decide whether to write or not to stream the frame based on event number, eventDuration, frameDuration and number of threads
+// // streaming the frame also deletes it from frameRunData
+// // TODO: this should be in gdata?
+// bool shouldWriteFrameID(int eventNumber, long int frameID);
+//
+// // TODO: this should be in gdata?
+// std::vector<int> formPayload(GDigitizedData* digitizedData);
 
-	//
-	// double frameDuration    = UNINITIALIZEDNUMBERQUANTITY; // frame length in nanoseconds
-	// double eventDuration    = UNINITIALIZEDNUMBERQUANTITY; // event duration in nanoseconds
-	// int    eventIndex       = 0;                           // added to the absolute event number, increases with each run
-	// int    lastFrameCreated = 0;                           // keeping track of the last frame created
-	//
-	// // determine the frame ID based on event number, eventDuration, frameDuration
-	// // TODO: this should be in gdata?
-	// int  eventFrameIndex(int eventNumber, double timeAtElectronics);
-	// bool findFrameID(int fid);
-	//
-	// // decide whether to write or not to stream the frame based on event number, eventDuration, frameDuration and number of threads
-	// // streaming the frame also deletes it from frameRunData
-	// // TODO: this should be in gdata?
-	// bool shouldWriteFrameID(int eventNumber, long int frameID);
-	//
-	// // TODO: this should be in gdata?
-	// std::vector<int> formPayload(GDigitizedData* digitizedData);
 
-};
+// in the constructur we had:
+
+// frameDuration = 64000;
+// eventDuration = gutilities::getG4Number(goptions->getScalarString("eventTimeSize"));
+
+// stream = gopt->getSwitch("stream");

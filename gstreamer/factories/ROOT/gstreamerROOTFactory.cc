@@ -2,6 +2,22 @@
 #include "gRootTree.h"
 #include "gstreamerROOTFactory.h"
 
+// keeps the include independent of TROOT
+#include <ROOT/RConfig.hxx>
+
+// enable root thread safety in a static call that
+// runs before control returns from dlopen() as soon as libGstreamerRootFactory.so is loaded.
+namespace {
+struct EnableRootTS {
+	EnableRootTS() {
+		ROOT::EnableThreadSafety();
+		std::cout << "GstreamerRootFactory: ROOT thread safety enabled" << std::endl;
+	}
+};
+
+static EnableRootTS _enableROOTLocks; // global object, static storage duration.
+} // unnamed namespace
+
 // Return the header tree pointer from the map. If it's not there, initialize the smart pointer.
 const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) {
 	rootfile->cd();

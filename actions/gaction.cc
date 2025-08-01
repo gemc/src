@@ -29,6 +29,9 @@ void GAction::Build() const {
 	log->debug(NORMAL, FUNCTION_NAME, "thread id: " + std::to_string(thread_id));
 
 	SetUserAction(new GPrimaryGeneratorAction(goptions));
-	SetUserAction(new GRunAction(goptions, digitization_routines_map));
-	SetUserAction(new GEventAction(goptions));
+
+	auto* run_action = new GRunAction(goptions, digitization_routines_map);
+	SetUserAction(run_action);
+
+	SetUserAction(new GEventAction(goptions, run_action));
 }

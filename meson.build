@@ -223,10 +223,15 @@ general_gemc = ['-verbosity.gemc=2', '-debug.gemc=true', '-check_overlaps=2',
                 '-verbosity.grunaction=2', '-debug.grunaction=true',
                 '-verbosity.grun=2', '-debug.grun=true',
                 '-verbosity.geventaction=2', '-debug.geventaction=true',
-                '-nthreads=2', '-n=10',
+                '-nthreads=4', '-n=100',
                 '-root="G4Box 25*cm 24*cm 40*cm G4_AIR"',
                 '-verbosity.eventdispenser=2', '-debug.eventdispenser=true']
+
+root = ['-gstreamer="[{format: root, filename: out}]"']
+ascii = ['-gstreamer="[{format: ascii, filename: out}]"']
+
 gemc_test_sqlite = dbhost + gsystem + general_gemc
+
 test_options = [
     { 'default' : [''] },
     { 'show_phys' : ['-showPhysics'] },
@@ -242,8 +247,9 @@ test_options = [
                                  '-verbosity.gsd=2', '-debug.gsd=true',
                                  '-verbosity.gdetector=2', '-debug.gdetector=true',
                                  '-verbosity.gtouchable=2', '-debug.gtouchable=true'] },
-    { 'gdata_verbose' : ['-verbosity.gdata=2', '-debug.gdata=true',
-                         '-verbosity.gstreamer=2', '-debug.gstreamer=true'] }
+    { 'gstreamer_verbose' : ['-verbosity.gdata=2', '-debug.gdata=true',
+                             '-verbosity.gstreamer=2', '-debug.gstreamer=true',
+                             '-gstreamer="[{format: root, filename: out}, {format: ascii, filename: out} ]"'] }
 ]
 
 foreach opt_dict : test_options

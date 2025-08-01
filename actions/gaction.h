@@ -8,8 +8,7 @@
 #include "gdynamicdigitization.h"
 #include "gstreamer.h"
 
-
-// other actions so we can define the options all at once
+// the other actions, so we can define the options all at once
 #include "event/gEventAction.h"
 #include "run/gRunAction.h"
 #include "run/gRun.h"
