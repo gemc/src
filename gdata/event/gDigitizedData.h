@@ -85,7 +85,7 @@ public:
 
 	static std::unique_ptr<GDigitizedData> create(std::shared_ptr<GLogger> logger) {
 		auto hit       = GHit::create(logger);
-		auto digi_data = std::make_unique<GDigitizedData>(hit.get(), logger);
+		auto digi_data = std::make_unique<GDigitizedData>(hit, logger);
 		auto counter   = globalDigitizedDataCounter.fetch_add(1, std::memory_order_relaxed);
 
 		digi_data->includeVariable(CRATESTRINGID, counter % 10);

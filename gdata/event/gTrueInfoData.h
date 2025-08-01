@@ -70,7 +70,7 @@ public:
 
 	static std::unique_ptr<GTrueInfoData> create(std::shared_ptr<GLogger> logger) {
 		auto hit       = GHit::create(logger);
-		auto true_info_data = std::make_unique<GTrueInfoData>(hit.get(), logger);
+		auto true_info_data = std::make_unique<GTrueInfoData>(hit, logger);
 		auto counter   = globalTrueInfoDataCounter.fetch_add(1, std::memory_order_relaxed);
 
 		true_info_data->includeVariable("totalEDeposited", counter * 0.1);
