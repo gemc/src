@@ -156,7 +156,7 @@ std::string G4World::g4FactoryNameFromSystemFactory(const std::string& factory) 
 	}
 }
 
-bool G4World::createG4Material(const std::unique_ptr<GMaterial>& gmaterial) {
+bool G4World::createG4Material(const std::shared_ptr<GMaterial>& gmaterial) {
 	auto NISTman      = G4NistManager::Instance(); // material G4 Manager
 	auto materialName = gmaterial->getName();
 

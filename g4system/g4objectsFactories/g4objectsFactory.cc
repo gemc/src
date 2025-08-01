@@ -21,10 +21,10 @@
 
 void G4ObjectsFactory::initialize_context(const std::shared_ptr<GLogger>& logger,
                                           int                             check_overlaps,
-                                          std::string                     backup_mat) {
+                                          const std::string&                     backup_mat) {
 	log             = logger;
 	checkOverlaps   = check_overlaps;
-	backupMaterial  = std::move(backup_mat);
+	backupMaterial  = backup_mat;
 	log_is_assigned = true;
 }
 

@@ -91,7 +91,7 @@ private:
 	// ────── helper functions ─────────────────────────────────────────
 	std::string g4FactoryNameFromSystemFactory(const std::string& factory) const;
 
-	bool createG4Material(const std::unique_ptr<GMaterial>& gmaterial);
+	bool createG4Material(const std::shared_ptr<GMaterial>& gmaterial);
 	void buildDefaultMaterialsElementsAndIsotopes();
 	void buildMaterials(SystemMap* system_map);
 

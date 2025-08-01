@@ -54,7 +54,7 @@ public:
 	 */
 	void initialize_context(const std::shared_ptr<GLogger>& logger,
 	                        int                            checkOverlaps,
-	                        std::string                     backupMaterial);
+	                        const std::string&                     backupMaterial);
 
 	bool has_log() const noexcept { return log_is_assigned; } ///< Check if logger is assigned
 
