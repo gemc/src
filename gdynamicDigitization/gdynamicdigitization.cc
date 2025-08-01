@@ -170,6 +170,7 @@ double GDynamicDigitization::processStepTimeImpl([[maybe_unused]] const std::sha
  * \return A vector of GTouchable pointers.
  */
 std::vector<std::shared_ptr<GTouchable>> GDynamicDigitization::processTouchableImpl(std::shared_ptr<GTouchable> gtouchable, G4Step* thisStep) {
+
 	double stepTimeAtElectronics      = processStepTime(gtouchable, thisStep);
 	int    stepTimeAtElectronicsIndex = readoutSpecs->timeCellIndex(stepTimeAtElectronics);
 
@@ -179,7 +180,6 @@ std::vector<std::shared_ptr<GTouchable>> GDynamicDigitization::processTouchableI
 	    gtouchable->getStepTimeAtElectronicsIndex() == GTOUCHABLEUNSETTIMEINDEX) {
 		gtouchable->assignStepTimeAtElectronicsIndex(stepTimeAtElectronicsIndex);
 
-		// std::initializer_list requires copyable elements so we need to create the vector first
 		result.emplace_back(gtouchable);
 	}
 	else {

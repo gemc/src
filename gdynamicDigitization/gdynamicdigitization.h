@@ -121,7 +121,7 @@ public:
 	 */
 	[[nodiscard]] double processStepTime(const std::shared_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep) {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, "GDynamicDigitization::process step time");
+		digi_logger->debug(NORMAL, FUNCTION_NAME);
 		return processStepTimeImpl(gTouchID, thisStep);
 	}
 
@@ -140,7 +140,7 @@ public:
 	 */
 	[[nodiscard]] std::vector<std::shared_ptr<GTouchable>> processTouchable(std::shared_ptr<GTouchable> gtouchable, G4Step* thisStep) {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, "GDynamicDigitization::process gtouchable");
+		digi_logger->debug(NORMAL, FUNCTION_NAME);
 		return processTouchableImpl(std::move(gtouchable), thisStep);
 	}
 
@@ -157,7 +157,7 @@ public:
 	 */
 	[[nodiscard]] std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiers(const std::shared_ptr<GTouchable>& gTouchID, GTouchableModifiers gmods) {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, "GDynamicDigitization::process gtouchable modifiers");
+		digi_logger->debug(NORMAL, FUNCTION_NAME);
 		return processGTouchableModifiersImpl(gTouchID, std::move(gmods));
 	}
 

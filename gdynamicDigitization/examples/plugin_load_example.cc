@@ -77,8 +77,8 @@ auto run_simulation_in_threads(int                                              
 				// each event has 10 hits
 				for (unsigned i = 1; i < 11; i++) {
 					auto hit = GHit::create(log);
-					auto true_data = dynamicRoutinesMap->at(plugin_name)->collectTrueInformation(hit.get(), i);
-					auto digi_data = dynamicRoutinesMap->at(plugin_name)->digitizeHit(hit.get(), i);
+					auto true_data = dynamicRoutinesMap->at(plugin_name)->collectTrueInformation(hit, i);
+					auto digi_data = dynamicRoutinesMap->at(plugin_name)->digitizeHit(hit, i);
 
 					eventData->addDetectorDigitizedData("ctof", std::move(digi_data));
 					eventData->addDetectorTrueInfoData("ctof", std::move(true_data));
