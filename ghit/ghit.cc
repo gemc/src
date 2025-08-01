@@ -19,7 +19,7 @@ std::atomic<int> GHit::globalHitCounter{0};
 
 // MT definitions, as from:
 // https://twiki.cern.ch/twiki/bin/view/Geant4/QuickMigrationGuideForGeant4V10
-//G4ThreadLocal G4Allocator<GHit>* GHitAllocator = nullptr;
+G4ThreadLocal G4Allocator<GHit>* GHitAllocator = nullptr;
 
 GHit::GHit(std::shared_ptr<GTouchable> gt,
            const HitBitSet             hbs,
@@ -28,6 +28,7 @@ GHit::GHit(std::shared_ptr<GTouchable> gt,
 	G4VHit(),
 	colorSchema(cScheme),
 	gtouchable(gt) {
+
 	// initialize quantities based on HitBitSet, like globalPositions
 	if (thisStep) { addHitInfosForBitset(hbs, thisStep); }
 
@@ -39,9 +40,8 @@ GHit::GHit(std::shared_ptr<GTouchable> gt,
 	processName       = UNINITIALIZEDSTRINGQUANTITY;
 }
 
-bool GHit::is_same_hit(const GHit* hit) const
-{
-	if (!hit)               // guard against nullptr
+bool GHit::is_same_hit(const GHit* hit) const {
+	if (!hit) // guard against nullptr
 		return false;
 
 	return *gtouchable == *(hit->getGTouchable());
@@ -68,31 +68,33 @@ vector<int> GHit::getTTID() const {
  * the method exits safely.
  */
 void GHit::Draw() {
-	G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
+	auto visManager = G4VVisManager::GetConcreteInstance();
+	if (!visManager) return;
 
 	// only care about schema if we are interactive
-	if (pVVisManager) {
-		setColorSchema();
+	setColorSchema();
 
-		// Check that globalPositions is not empty before accessing the first element.
-		if (globalPositions.empty()) return;
+	// Check that globalPositions is not empty before accessing the first element.
+	if (globalPositions.empty()) return;
 
-		G4Circle circle(globalPositions[0]);
+	G4Circle circle(globalPositions[0]);
+	circle.SetFillStyle(G4Circle::filled);
+
+
+	double etot = getTotalEnergyDeposited();
+
+	if (etot > 0) {
+		circle.SetScreenDiameter(10);
+		circle.SetVisAttributes(G4VisAttributes(colour_hit));
 		circle.SetFillStyle(G4Circle::filled);
-
-		double etot = getTotalEnergyDeposited();
-
-		if (etot > 0) {
-			circle.SetScreenSize(10);
-			circle.SetVisAttributes(G4VisAttributes(colour_hit));
-		}
-		else if (etot == 0) {
-			circle.SetScreenSize(8);
-			circle.SetVisAttributes(G4VisAttributes(colour_passby));
-		}
-
-		pVVisManager->Draw(circle);
 	}
+	else if (etot == 0) {
+		circle.SetScreenSize(8);
+		circle.SetVisAttributes(G4VisAttributes(colour_passby));
+		circle.SetFillStyle(G4Circle::hashed);
+	}
+
+	visManager->Draw(circle);
 }
 
 

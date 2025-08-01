@@ -70,6 +70,8 @@ public:
      */
     std::vector<std::string> addSceneTexts(const std::shared_ptr<GOptions>& gopts);
 
+	std::vector<std::string> scene_commands(const std::shared_ptr<GOptions>& gopts);
+
 private:
 	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 };

@@ -44,16 +44,16 @@ public:
 	 */
 	~GHit() override = default;
 
-	// /**
-	//  * \brief Overloaded new operator using G4Allocator.
-	//  * \return Pointer to allocated memory.
-	//  */
-	// inline void* operator new(size_t);
-	//
-	// /**
-	//  * \brief Overloaded delete operator using G4Allocator.
-	//  */
-	// inline void operator delete(void*);
+	/**
+	 * \brief Overloaded new operator using G4Allocator.
+	 * \return Pointer to allocated memory.
+	 */
+	inline void* operator new(size_t);
+
+	/**
+	 * \brief Overloaded delete operator using G4Allocator.
+	 */
+	inline void operator delete(void*);
 
 	/**
 	 * \brief Draws the hit using Geant4 visualization.
@@ -225,16 +225,16 @@ public:
 
 // MT definitions, as from:
 // https://twiki.cern.ch/twiki/bin/view/Geant4/QuickMigrationGuideForGeant4V10
-// extern G4ThreadLocal G4Allocator<GHit>* GHitAllocator;
-// using GHitsCollection = G4THitsCollection<GHit>;
-//
-// inline void* GHit::operator new(size_t) {
-// 	if (!GHitAllocator) GHitAllocator = new G4Allocator<GHit>;
-// 	return (void*)GHitAllocator->MallocSingle();
-// }
-//
-// inline void GHit::operator delete(void* hit) {
-// 	if (!GHitAllocator) { GHitAllocator = new G4Allocator<GHit>; }
-//
-// 	GHitAllocator->FreeSingle((GHit*)hit);
-// }
+extern G4ThreadLocal G4Allocator<GHit>* GHitAllocator;
+using GHitsCollection = G4THitsCollection<GHit>;
+
+inline void* GHit::operator new(size_t) {
+	if (!GHitAllocator) GHitAllocator = new G4Allocator<GHit>;
+	return (void*)GHitAllocator->MallocSingle();
+}
+
+inline void GHit::operator delete(void* hit) {
+	if (!GHitAllocator) { GHitAllocator = new G4Allocator<GHit>; }
+
+	GHitAllocator->FreeSingle((GHit*)hit);
+}

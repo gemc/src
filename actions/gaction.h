@@ -23,7 +23,7 @@
 // All user actions must be registered through SetUserAction() protected method defined in the
 // G4VUserActionInitialization base class.
 //
-// G4VUserActionInitialization has two virtual method to be implemented:
+// G4VUserActionInitialization has two virtual methods to be implemented:
 // - Build() should be used for defining user action classes for worker threads
 //   as well as for the sequential mode.
 // - BuildForMaster() should be used for defining only the UserRunAction for the master thread.

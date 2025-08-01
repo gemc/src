@@ -31,13 +31,14 @@ GRunAction::GRunAction(std::shared_ptr<GOptions> gopt, std::shared_ptr<gdynamicd
 GRunAction::~GRunAction() { log->debug(DESTRUCTOR, FUNCTION_NAME); }
 
 // TODO: this is not local?
+// executed after BeamOn
 G4Run* GRunAction::GenerateRun() {
 	log->debug(NORMAL, FUNCTION_NAME);
 
 	return new GRun(goptions, digitization_routines_map);
 }
 
-// executed after BeamOn
+// invoked at the beginning of BeamOn (before physics tables are computed)
 void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 
 	int thread_id = G4Threading::G4GetThreadId();
@@ -54,6 +55,7 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 	}
 }
 
+// invoked at the very end of the run processing
 void GRunAction::EndOfRunAction(const G4Run* aRun) {
 //	const GRun* theRun = static_cast<const GRun*>(aRun);
 
@@ -111,9 +113,6 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 		// 		}
 		// 	}
 		// }
-
-		// done with data, deleting it
-		// for (auto* eventDataCollection : theRun->getRunData()) { delete eventDataCollection; }
 
 
 		// now flushing all frames past eventIndex

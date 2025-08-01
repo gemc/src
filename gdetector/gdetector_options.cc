@@ -2,6 +2,7 @@
 #include "gsystem_options.h"
 #include "g4system_options.h"
 #include "gdynamicdigitization_options.h"
+#include "gsd.h"
 
 
 // namespace to define options
@@ -14,6 +15,7 @@ namespace gdetector {
 		goptions += gsystem::defineOptions();
     	goptions += g4system::defineOptions();
     	goptions += gdynamicdigitization::defineOptions();
+    	goptions += gsensitivedetector::defineOptions();
 
         return goptions;
     }

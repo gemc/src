@@ -11,8 +11,14 @@ GEventAction::GEventAction(std::shared_ptr<GOptions> gopt) {
 	log->debug(CONSTRUCTOR, FUNCTION_NAME);
 }
 
-GEventAction::~GEventAction() { log->debug(DESTRUCTOR, FUNCTION_NAME); }
+GEventAction::~GEventAction() {
+	log->debug(DESTRUCTOR, FUNCTION_NAME);
+}
 
-void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) { log->info(2, "Begin of event"); }
+void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) {
+	log->info(2, "Begin of event");
+}
 
-void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) { log->info(2, "End of event"); }
+void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
+	log->info(2, "End of event");
+}

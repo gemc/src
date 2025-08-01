@@ -14,24 +14,29 @@
  * \param hbs The HitBitSet that selects which additional information to record.
  * \param thisStep The current G4Step from which hit data is extracted.
  */
-void GHit::addHitInfosForBitset(const HitBitSet hbs, const G4Step *thisStep) {
-	G4StepPoint *poststep = thisStep->GetPostStepPoint();
+void GHit::addHitInfosForBitset(const HitBitSet hbs, const G4Step *step) {
 
-	// Get global position and transform to local coordinates.
-	G4ThreeVector xyz = poststep->GetPosition();
-	G4ThreeVector xyzL = poststep->GetTouchableHandle()->GetHistory()->GetTopTransform().TransformPoint(xyz);
+	auto preStepPoint = step->GetPreStepPoint();
+	// auto poststepPoint = step->GetPostStepPoint();
+
+	auto touchable = preStepPoint->GetTouchable();
+
+	// Get the global positions and transform to local coordinates.
+	G4ThreeVector xyz = preStepPoint->GetPosition();
+	G4ThreeVector xyzL = touchable->GetHistory()->GetTopTransform().TransformPoint(xyz);
+
 	globalPositions.push_back(xyz);
 	localPositions.push_back(xyzL);
 
 	// Retrieve energy deposition and time information.
-	double edep = (thisStep->GetTotalEnergyDeposit()) * (gtouchable->getEnergyMultiplier());
-	double time = poststep->GetGlobalTime();
+	double edep = (step->GetTotalEnergyDeposit()) * (gtouchable->getEnergyMultiplier());
+	double time = preStepPoint->GetGlobalTime();
 	edeps.push_back(edep);
 	times.push_back(time);
 
 	// Iterate over each bit and call the helper method to add extra info.
 	for (size_t hbIndex = 0; hbIndex < hbs.size(); hbIndex++) {
-		addHitInfosForBitIndex(hbIndex, hbs.test(hbIndex), thisStep);
+		addHitInfosForBitIndex(hbIndex, hbs.test(hbIndex), step);
 	}
 }
 
@@ -48,26 +53,26 @@ void GHit::addHitInfosForBitset(const HitBitSet hbs, const G4Step *thisStep) {
  */
 bool GHit::addHitInfosForBitIndex(size_t bitIndex, const bool test, const G4Step *thisStep) {
 
-	// if (!test) return false; // If the bit is not set, do nothing.
-	//
-	// G4Track *trk = thisStep->GetTrack();
-	// G4StepPoint *prestep = thisStep->GetPreStepPoint();
-	//
-	// // For bit 0: record particle ID, energy, and process name.
-	// if (bitIndex == 0) {
-	// 	pids.push_back(trk->GetDefinition()->GetPDGEncoding());
-	// 	Es.push_back(prestep->GetTotalEnergy());
-	// 	if (trk->GetCreatorProcess()) {
-	// 		processNames.push_back(trk->GetCreatorProcess()->GetProcessName());
-	// 	}
-	// } else if (bitIndex == 1) {
-	// 	// Placeholder: record step length and track info.
-	// } else if (bitIndex == 2) {
-	// 	// Placeholder: record mother particle track information.
-	// } else if (bitIndex == 3) {
-	// 	// Placeholder: record meta information.
-	// } else if (bitIndex == 4) {
-	// 	// Placeholder: record optical photon-specific information.
-	// }
+	if (!test) return false; // If the bit is not set, do nothing.
+
+	G4Track *trk = thisStep->GetTrack();
+	G4StepPoint *prestep = thisStep->GetPreStepPoint();
+
+	// For bit 0: record particle ID, energy, and process name.
+	if (bitIndex == 0) {
+		pids.push_back(trk->GetDefinition()->GetPDGEncoding());
+		Es.push_back(prestep->GetTotalEnergy());
+		if (trk->GetCreatorProcess()) {
+			processNames.push_back(trk->GetCreatorProcess()->GetProcessName());
+		}
+	} else if (bitIndex == 1) {
+		// Placeholder: record step length and track info.
+	} else if (bitIndex == 2) {
+		// Placeholder: record mother particle track information.
+	} else if (bitIndex == 3) {
+		// Placeholder: record meta information.
+	} else if (bitIndex == 4) {
+		// Placeholder: record optical photon-specific information.
+	}
 	return true;
 }

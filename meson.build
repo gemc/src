@@ -1,6 +1,6 @@
 # Notice: if both static and dynamic libraries are present, the dynamic library will be used
 # Forcing suffix lib instead of variants like lib64
-project('gemc3', 'cpp',
+project('gemc', 'cpp',
         default_options : ['cpp_std=c++20', 'default_library=static', 'default_both_libraries=static', 'libdir=lib'],
         version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip(),
         meson_version : '>= 1.6.0'
@@ -213,7 +213,7 @@ gemc = executable(
     override_options : ['b_pie=true']
 )
 
-# test gemc options
+# test gemc options. Adjust root to fit the geometry
 example_test_dir = 'gsystem'
 examples_dir = get_option('prefix') + '/test/' + example_test_dir
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
@@ -224,6 +224,7 @@ general_gemc = ['-verbosity.gemc=2', '-debug.gemc=true', '-check_overlaps=2',
                 '-verbosity.grun=2', '-debug.grun=true',
                 '-verbosity.geventaction=2', '-debug.geventaction=true',
                 '-nthreads=2', '-n=10',
+                '-root="G4Box 25*cm 24*cm 40*cm G4_AIR"',
                 '-verbosity.eventdispenser=2', '-debug.eventdispenser=true']
 gemc_test_sqlite = dbhost + gsystem + general_gemc
 test_options = [
@@ -244,8 +245,6 @@ test_options = [
     { 'gdata_verbose' : ['-verbosity.gdata=2', '-debug.gdata=true',
                          '-verbosity.gstreamer=2', '-debug.gstreamer=true'] }
 ]
-
-
 
 foreach opt_dict : test_options
     foreach key, value : opt_dict            # each dict has exactly one entry

@@ -88,11 +88,14 @@ int main(int argc, char* argv[]) {
 		// notice g4SceneProperties has to be declared after this, so we have to duplicate it for batch mode
 		auto* uiQtSession       = new G4UIQt(1, argv);
 		auto* g4SceneProperties = new G4SceneProperties(gopts);
+		auto scene_commands = g4SceneProperties->scene_commands(gopts);
 
 		GemcGUI gemcGui(gopts, geventDispenser, gdetector);
 		gemcGui.show();
 
+		gemc::run_manager_commands(gopts, log, scene_commands);
 		gemc::run_manager_commands(gopts, log, init_commands);
+
 		spash_screen->finish(&gemcGui);
 
 		app_result = QApplication::exec();
@@ -103,8 +106,10 @@ int main(int argc, char* argv[]) {
 	else {
 		auto* session           = new G4UIterminal(new G4UItcsh);
 		auto* g4SceneProperties = new G4SceneProperties(gopts);
+		auto scene_commands = g4SceneProperties->scene_commands(gopts);
 
 		// set display properties in batch mode
+		gemc::run_manager_commands(gopts, log, scene_commands);
 		gemc::run_manager_commands(gopts, log, init_commands);
 
 		// start the session if interactive

@@ -80,10 +80,15 @@ std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts
 		cmds.emplace_back("/geometry/test/resolution " + std::to_string(check_overlaps));
 		cmds.emplace_back("/geometry/test/run");
 	}
+	// need to re-initialize if:
+	// - physics changes
+	// - geometry changes
+	cmds.emplace_back("/run/initialize");
 	if (!gui) return cmds;
 
 
 	// gui mode
+	cmds.emplace_back("/vis/drawVolume");
 
 	// Disable auto refresh and quieten vis messages whilst scene and trajectories are established:
 	cmds.emplace_back("/vis/viewer/set/autoRefresh false");
@@ -91,15 +96,19 @@ std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts
 	cmds.emplace_back("/vis/viewer/set/lightsVector -1 0 0");
 
 	cmds.emplace_back("/vis/scene/add/trajectories rich smooth");
+	cmds.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true");
+	cmds.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
 	cmds.emplace_back("/vis/scene/add/hits");
-	cmds.emplace_back("/vis/scene/endOfEventAction accumulate 10000"); // for some reason refresh (default) won't work here
-	cmds.emplace_back("/vis/viewer/set/culling coveredDaughters true");
+	cmds.emplace_back("/vis/scene/endOfEventAction accumulate 10000");
+//	cmds.emplace_back("/vis/viewer/set/culling coveredDaughters true");
 
 	// background colors and root volume are the same
-	//cmds.push_back("/vis/viewer/set/background 1 1 1 1");
+	// cmds.push_back("/vis/viewer/set/background 1 1 1 1");
 	//cmds.emplace_back("/vis/geometry/set/colour root 0 0 0 0");
 
 	cmds.emplace_back("/vis/viewer/set/autoRefresh true");
+	cmds.emplace_back("/vis/viewer/flush");
+
 
 	return cmds;
 }

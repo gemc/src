@@ -33,7 +33,7 @@ G4View getG4View(const std::shared_ptr<GOptions>& gopts) {
 	return g4view;
 }
 
-// read g4camera option and return G4Camera struct
+// read the g4camera option and return a G4Camera struct
 G4Camera getG4Camera(const std::shared_ptr<GOptions>& gopts) {
 	G4Camera gcamera;
 	gcamera.phi   = gopts->getOptionMapInNode("g4camera", "phi").as<string>();
@@ -42,7 +42,7 @@ G4Camera getG4Camera(const std::shared_ptr<GOptions>& gopts) {
 	return gcamera;
 }
 
-// read dawn option and return G4Dawn struct
+// read the dawn options and return a G4Dawn struct
 G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts) {
 	G4Dawn gdawn;
 

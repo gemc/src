@@ -138,7 +138,6 @@ int EventDispenser::processEvents() {
 
 	// Get the Geant4 UI manager pointer.
 	G4UImanager* g4uim = G4UImanager::GetUIpointer();
-	g4uim->ApplyCommand("/run/initialize");
 
 	// Set the progress print command based on the elog level.
 	// g4uim->ApplyCommand("/run/printProgress " + to_string(elog));
