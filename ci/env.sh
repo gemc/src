@@ -44,9 +44,9 @@ function meson_options {
         "profile")
             meson_options=""
             ;;
-        "none")
+        "debug")
             meson_options=""
-            buildtype=" -Dbuildtype=release "
+            buildtype=" -Dbuildtype=debug "
             ;;
         *)
             meson_options=""

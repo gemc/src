@@ -34,16 +34,21 @@ meson install  || exit 1
 echo " > $GEMC recursive content:"
 ls -lR $GEMC || exit 1
 
+
 echo
+echo Reconfigure to use gemc in some tests
+meson setup build --reconfigure
+echo
+
 
 # if $1 is NOT one of sanitize option, run meson test
 if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
+  cd build  || exit 1
     echo " > Running meson test"
     meson test -v -j 1 || exit 1
 fi
 
-# temp exit until gemc build is resumed
-exit
+
 
 echo
 echo " ldd of $GEMC/bin/gemc:"
