@@ -1,6 +1,5 @@
 #pragma once
 
-constexpr const char* GFIELD_LOGGER = "gfield";
 
 #define GFIELD_DEFAULT_INTEGRATION_STEPPER "G4DormandPrince745"
 #define GFIELD_DEFAULT_MINIMUM_STEP "1.0*mm"

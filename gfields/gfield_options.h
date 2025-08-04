@@ -6,6 +6,7 @@
 // gfields
 #include "gfield.h"
 
+constexpr const char* GFIELD_LOGGER = "gfield";
 
 namespace gfields {
 

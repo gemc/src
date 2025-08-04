@@ -6,6 +6,7 @@
 
 // gfields
 #include "gfield_multipoles.h"
+#include "gfieldConventions.h"
 
 // gemv
 #include "gutilities.h"

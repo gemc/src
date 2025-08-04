@@ -8,6 +8,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+
 	// Initialize GOptions (parsed from YAML or another source)
 	auto gopts = std::make_shared<GOptions>(argc, argv, gfields::defineOptions());
 

@@ -68,7 +68,7 @@ public:
 	template <class Derived>
 	void RegisterObjectFactory(std::string_view name);
 
-	/// Create an instance of previously registered factory as @c Base*.
+	/// Create an instance of the previously registered factory
 	template <class Base>
 	[[nodiscard]] Base* CreateObject(std::string_view name) const;
 

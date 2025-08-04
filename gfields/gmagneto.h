@@ -2,6 +2,7 @@
 
 // gemc
 #include "gfield.h"
+#include "gfield_options.h"
 #include "gfieldConventions.h"
 
 /**

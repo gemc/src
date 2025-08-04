@@ -12,7 +12,7 @@
 #include <utility>
 
 
-// cross platform function to return the function name
+// cross-platform function to return the function name
 #if defined(__clang__) || defined(__GNUC__)
   #define FUNCTION_NAME __PRETTY_FUNCTION__
 #elif defined(_MSC_VER)
@@ -45,7 +45,7 @@ public:
 	 * @brief Constructs a GLogger instance.
 	 * @param gopts Shared Pointer to GOptions instance used for verbosity/debug lookup.
 	 * @param vname The verbosity or debug name is a string used to identify the logger and as header for all messages
-	 * @param cc The calling class name, used to identify the source of the log messages.
+	 * @param desc The calling class name, used to identify the source of the log messages.
 	 */
 	explicit GLogger(const std::shared_ptr<GOptions>& gopts, const std::string& vname, const std::string& desc = "")
 	: verbosity_name(vname), description(desc), log_counter{0} {
@@ -106,7 +106,7 @@ public:
 	 */
 	template <typename... Args>
 	void info(int level, Args&&... args) const {
-		// error if level is not 0, 1 or 2
+		// error if the level is not 0, 1 or 2
 		if (level != 0 && level != 1 && level != 2) {
 			G4cerr << FATALERRORL << header_string() << GWARNING << " Invalid verbosity level requested: " << level <<
 				RST << G4endl;
@@ -121,7 +121,7 @@ public:
 	}
 
 	/**
-	 * @brief Overloaded version of info() with default level = 0.
+	 * @brief Overloaded version of info() with the default level = 0.
 	 *
 	 * @tparam Args Variadic template parameters for any streamable types.
 	 * @param args Streamable message components.

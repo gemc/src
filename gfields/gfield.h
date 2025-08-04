@@ -7,8 +7,6 @@
 // gemc
 #include "gfactory.h"
 
-// gfield
-#include "gfieldConventions.h"
 
 /**
  * @brief Utility struct to load GFields from options.
@@ -92,7 +90,7 @@ public:
 	int    get_field_parameter_int(const std::string& key) { return stoi(gfield_definitions.field_parameters[key]); }
 	double get_field_parameter_double(const std::string& key) { return stod(gfield_definitions.field_parameters[key]); }
 
-	void set_loggers(const std::shared_ptr<GOptions>& g) { log = std::make_shared<GLogger>(g, GFIELD_LOGGER, "gfield logger"); }
+	void set_loggers(const std::shared_ptr<GOptions>& g);
 
 private:
 	// TODO: make this list automatic
