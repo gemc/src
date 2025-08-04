@@ -94,6 +94,17 @@ class GConfiguration:
 			else:
 				try:
 					self.sqlitedb = sqlite3.connect(sqlite_file)
+					cursor = self.sqlitedb.cursor()
+					cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='geometry'")
+					if cursor.fetchone() is None:
+						print(f"  ❖ Warning: Database exists but missing required tables")
+						self.sqlitedb.close()
+						os.remove(sqlite_file)
+						print(f"  ❖ Removed incomplete database: {sqlite_file}")
+						self.sqlitedb = sqlite3.connect(sqlite_file)
+						create_sqlite_database(self.sqlitedb)
+						print(f"  ❖ Created new SQLite database with required tables")
+
 				except sqlite3.Error as e:
 					sys.exit(f"Error connecting to SQLite database: {e}")
 

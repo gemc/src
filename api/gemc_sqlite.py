@@ -180,7 +180,8 @@ def populate_sqlite_geometry(gvolume, configuration):
 			configuration.sqlitedb.commit()
 			deleted_geometry.add(key)
 	else:
-		print("Warning: 'geometry' table does not exist. Skipping deletion.")
+		sys.exit(
+			f"{GColors.RED}Error: 'geometry' table does not exist. The database file may be corrupted or invalid.{GColors.END}")
 
 	# Updated query: Check existence based on name **AND** variation/run/experiment/system
 	sql.execute(

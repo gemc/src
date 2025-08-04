@@ -8,7 +8,7 @@ test('api_template_help',
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
      args : [api_dir + 'system_template.py', '-h'])
 
-test('api_show_solid _creators',
+test('api_show_solid_creators',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
      args : [api_dir + 'system_template.py', '-sl'])
@@ -30,10 +30,10 @@ foreach volume: g4objects.keys()
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
          args : [api_dir + 'system_template.py', '-gv', volume])
-    test('api_template_show_code_for_volume' + volume + '_with_parameters_' + pars,
+    test('api_template_show_code_for_volume' + volume + '_with_parameters_' + pars.replace(' ', ''),
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
-         args : [api_dir + 'system_template.py', '-gv', volume, '-gvp', pars])
+         args : [api_dir + 'system_template.py', '-gv', volume, '-gvp',  pars.replace(' ', '')])
 endforeach
 
 test('api_show_template_code_for_G4Cons',
