@@ -32,24 +32,22 @@ foreach branch : examples_map.keys()
                 geo_test_name = 'geo_' + branch + '_' + example + '_' + format + '_variation_' + variation
                 run_test_name_asci = 'run_asci_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
                 run_test_name_root = 'run_root_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
-                if installed_gemc.found()
-                    test(geo_test_name,
-                         python_exe,
-                         args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db', '-v', variation], # the sql flag is ignored for ascii format
-                         workdir : example_dir,
-                         env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
-                         priority : 10)
-                    test(run_test_name_asci,
-                         installed_gemc,
-                         args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', variation: ' + variation + '}]"', ascii_output, '-sql=../../gemc.db'],
-                         workdir : example_dir,
-                         priority : -10)
-                    test(run_test_name_root,
-                         installed_gemc,
-                         args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', variation: ' + variation + '}]"', root_output, '-sql=../../gemc.db'],
-                         workdir : example_dir,
-                         priority : -15)
-                endif
+                test(geo_test_name,
+                     python_exe,
+                     args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db', '-v', variation], # the sql flag is ignored for ascii format
+                     workdir : example_dir,
+                     env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
+                     priority : 10)
+                test(run_test_name_asci,
+                     gemc,
+                     args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', variation: ' + variation + '}]"', ascii_output, '-sql=../../gemc.db'],
+                     workdir : example_dir,
+                     priority : -10)
+                test(run_test_name_root,
+                     gemc,
+                     args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', variation: ' + variation + '}]"', root_output, '-sql=../../gemc.db'],
+                     workdir : example_dir,
+                     priority : -15)
             endforeach
 
             # Geometry building tests (runs loop): Loop over runs with fixed variation "default"
@@ -57,24 +55,22 @@ foreach branch : examples_map.keys()
                 geo_test_name = 'geo_' + branch + '_' + example + '_' + format + '_run_' + run_value
                 run_test_name_asci = 'run_asci_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
                 run_test_name_root = 'run_root_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
-                if installed_gemc.found()
-                    test(geo_test_name,
-                         python_exe,
-                         args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db', '-r', run_value], # the sql flag is ignored for ascii format
-                         workdir : example_dir,
-                         env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
-                         priority : 5)
-                    test(run_test_name_asci,
-                         installed_gemc,
-                         args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', runno:' + run_value + '}]"', ascii_output, '-sql=../../gemc.db'],
-                         workdir : example_dir,
-                         priority : -20)
-                    test(run_test_name_root,
-                         installed_gemc,
-                         args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', runno:' + run_value + '}]"', root_output, '-sql=../../gemc.db'],
-                         workdir : example_dir,
-                         priority : -25)
-                endif
+                test(geo_test_name,
+                     python_exe,
+                     args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db', '-r', run_value], # the sql flag is ignored for ascii format
+                     workdir : example_dir,
+                     env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
+                     priority : 5)
+                test(run_test_name_asci,
+                     gemc,
+                     args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', runno:' + run_value + '}]"', ascii_output, '-sql=../../gemc.db'],
+                     workdir : example_dir,
+                     priority : -20)
+                test(run_test_name_root,
+                     gemc,
+                     args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', runno:' + run_value + '}]"', root_output, '-sql=../../gemc.db'],
+                     workdir : example_dir,
+                     priority : -25)
             endforeach
 
         endforeach

@@ -213,16 +213,6 @@ gemc = executable(
     override_options : ['b_pie=true']
 )
 
-# Somewhere near the top-level meson.build
-prefix  = get_option('prefix')
-bindir  = get_option('bindir')
-ibin    = join_paths(prefix, bindir)
-
-# Find the installed gemc (only present after `meson install`)
-installed_gemc = find_program('gemc',
-                              dirs : [ibin],
-                              required : false)
-
 # test gemc options. Adjust root to fit the geometry
 example_test_dir = 'gsystem'
 examples_dir = get_option('prefix') + '/test/' + example_test_dir

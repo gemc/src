@@ -59,6 +59,16 @@ public:
 			log->debug(NORMAL, "Trying ", dlFileName);
 		}
 
+		// trying installation path build if not found - allows meson tests to run from the build dir
+		if (!doesFileExists(dlFileName)) {
+			log->debug(NORMAL, dlFileName, " not found...");
+
+			std::filesystem::path gemcRoot = gutilities::gemc_root();
+			dlFileName = gemcRoot.string() + "/build/" + path;
+
+			log->debug(NORMAL, "Trying ", dlFileName);
+		}
+
 		if (doesFileExists(dlFileName)) {
 			handle = load_lib(dlFileName);
 			if (handle == nullptr) {
