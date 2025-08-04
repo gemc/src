@@ -63,7 +63,8 @@ private:
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;
 
 	// Contains fields and field managers.
-	static G4ThreadLocal std::unique_ptr<GMagneto> gmagneto;
+	// this needs to be a raw pointer as its ownerwhip is passed to G4
+	static G4ThreadLocal GMagneto* gmagneto;
 
 	// Loads digitization plugins after sensitive detectors have been set up.
 	void loadDigitizationPlugins();

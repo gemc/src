@@ -17,7 +17,7 @@
 #include "G4RunManager.hh"
 #include "gdynamicdigitizationConventions.h"
 
-G4ThreadLocal std::unique_ptr<GMagneto> GDetectorConstruction::gmagneto = nullptr;
+G4ThreadLocal GMagneto* GDetectorConstruction::gmagneto = nullptr;
 
 GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
 	: G4VUserDetectorConstruction(), // Geant4 base class.
@@ -57,9 +57,9 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 	auto nsdetectors = gworld->getSensitiveDetectorsList().size();
 
 	// tally with number :
-	log->info(0, "Tally summary: \n - ", gworld->get_number_of_volumes(), " volumes\n - ",
+	log->info(0, "Tally summary: \n - ", gworld->get_number_of_volumes() - 1, " volumes\n - ",
 	          g4world->number_of_volumes(), " geant4 built volumes\n - ",
-	          nsdetectors, " sensitive detectors\n - ");
+	          nsdetectors, " sensitive detectors\n");
 
 
 	// Return the physical volume for the ROOT world volume.
@@ -68,7 +68,6 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 
 void GDetectorConstruction::ConstructSDandField() {
 	auto sdManager = G4SDManager::GetSDMpointer();
-	//	sdManager->SetVerboseLevel(10);
 
 	log->debug(NORMAL, FUNCTION_NAME);
 	std::unordered_map<std::string,  GSensitiveDetector*> sensitiveDetectorsMap;
@@ -108,7 +107,7 @@ void GDetectorConstruction::ConstructSDandField() {
 			// Process electromagnetic fields.
 			const auto& field_name = gvolumePtr->getEMField();
 			if (field_name != UNINITIALIZEDSTRINGQUANTITY) {
-				if (gmagneto == nullptr) { gmagneto = std::make_unique<GMagneto>(gopt); }
+				if (gmagneto == nullptr) { gmagneto = new GMagneto(gopt); }
 				log->info(2, "Volume <", volumeName, "> has field: <", field_name, ">. Looking into field map definitions.");
 				log->info(2, "Setting field manager for volume <", g4name, "> with field <", field_name, ">");
 				g4world->setFieldManagerForVolume(g4name, gmagneto->getFieldMgr(field_name).get(), true);
