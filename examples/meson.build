@@ -6,10 +6,14 @@ install_subdir(meson.current_source_dir(), install_dir : '.')
 # Test all solid creators
 examples_map = {
     'geant4_basic' : {
-        'b1': {'runs': ['1'], 'variations': ['default', 'test']},
-        'b2': {'runs': ['1', '11'], 'variations': ['default', 'alt']}
+        'b1' : { 'runs' : ['1'], 'variations' : ['default', 'test'] },
+        'b2' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] }
     }
 }
+
+ascii_output = '-gstreamer="[{format: ascii, filename: out}]"'
+root_output = '-gstreamer="[{format: root, filename: out}]"'
+
 
 foreach branch : examples_map.keys()
     examples = examples_map[branch]
@@ -20,38 +24,53 @@ foreach branch : examples_map.keys()
         runs = config['runs']
         variations = config['variations']
 
-        # Iterate over the formats 'ascii' and 'sqlite'
+        # Iterate over the database format 'ascii' and 'sqlite'
         foreach format : ['ascii', 'sqlite']
             # Geometry building tests (variations loop): Always use run "1"
             foreach variation : variations
-                test(' ## Building example ' + example_dir + ' geometry with format ' + format + ', default run and variation ' + variation + ' ##',
+                # form a name string with example_dir and format
+                geo_test_name = 'geo_' + branch + '_' + example + '_' + format + '_variation_' + variation
+                run_test_name_asci = 'run_asci_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
+                run_test_name_root = 'run_root_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
+                test(geo_test_name,
                      python_exe,
-                     args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db', '-v', variation],
+                     args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db', '-v', variation], # the sql flag is ignored for ascii format
                      workdir : example_dir,
-                     env : {'PYTHONDONTWRITEBYTECODE': '1'},
+                     env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
                      priority : 10)
-                test(' ## run gemc on example ' + example_dir + ' with format ' + format + ', default run  and variation default ##',
-                     gemc,
-                     args : [yaml_file, '-gsystem="[{name:' + example + ', factory: ' + format + ', variation:' +  variation + ', sql_file: ../../gemc.db}]"'],
-                     env : project_test_env,
-                     workdir : test_dir,
+                test(run_test_name_asci,
+                     installed_gemc,
+                     args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', variation: ' + variation + '}]" ' + ascii_output],
+                     workdir : example_dir,
                      priority : -10)
+                test(run_test_name_root,
+                     installed_gemc,
+                     args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', variation: ' + variation + '}]" ' + root_output],
+                     workdir : example_dir,
+                     priority : -15)
             endforeach
 
             # Geometry building tests (runs loop): Loop over runs with fixed variation "default"
             foreach run_value : runs
-                test(' ## Building example ' + example_dir + ' geometry with format ' + format + ', run ' + run_value + ' and variation default ##',
+                geo_test_name = 'geo_' + branch + '_' + example + '_' + format + '_run_' + run_value
+                run_test_name_asci = 'run_asci_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
+                run_test_name_root = 'run_root_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
+                test(geo_test_name,
                      python_exe,
-                     args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db', '-r', run_value],
+                     args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db', '-r', run_value], # the sql flag is ignored for ascii format
                      workdir : example_dir,
-                     env : {'PYTHONDONTWRITEBYTECODE': '1'},
-                     priority : 10)
-                test(' ## run gemc on example ' + example_dir + ' with format ' + format + ', run ' + run_value + ' and variation default ##',
-                     gemc,
-                     args : [yaml_file, '-gsystem="[{name:' + example + ', factory: ' + format + ', runno:' +  run_value + ',  sql_file: ../../gemc.db}]"'],
-                     env : project_test_env,
-                     workdir : test_dir,
-                     priority : -10)
+                     env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
+                     priority : 5)
+                test(run_test_name_asci,
+                     installed_gemc,
+                     args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', runno:' + run_value + ',  sql_file: ../../gemc.db}]" ' + ascii_output],
+                     workdir : example_dir,
+                     priority : -20)
+                test(run_test_name_root,
+                     installed_gemc,
+                     args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', runno:' + run_value + ',  sql_file: ../../gemc.db}]"' + root_output],
+                     workdir : example_dir,
+                     priority : -25)
             endforeach
 
         endforeach

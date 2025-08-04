@@ -12,17 +12,12 @@ gparticle:
 
 verbosity:
   - gparticle: 0
-  - g4system: 2
+  - g4system: 0
   - gfield: 0
-  - general: 0
+  - gemc: 0
 
 gsystem:
   - name: b1
 
-gstreamer:
-  - filename: b1.txt
-    format: ASCII
-
 root: G4Box, 12*cm, 12*cm, 18*cm, G4_WATER
 phys_list: QBBC
-n_event_buffer: 10000

@@ -10,26 +10,25 @@ gparticle:
     delta_phi: 18.0
     multiplicity: 1
 
-  - name: proton
-    p: 3000
 
 verbosity:
   - ghits: 0
   - gsystem: 0
-  - gfield: 0
+  - gfield: 1
   - general: 0
+
+debug:
+  - gfield: true
 
 gsystem:
   - name: b2
-    variation: default
-    run: 11
-
-gstreamer:
-  - filename: b2.txt
-    format: ASCII
+    factory: ascii
 
 gmultipoles:
   - name: dipole
     pole_number: 2
-    strength: 1.2
-    verbosity: 0
+    strength: 2
+    rotation_angle: "30*deg"
+
+root: G4Box, 12*cm, 12*cm, 18*cm, G4_WATER
+phys_list: QBBC
