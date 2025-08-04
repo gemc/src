@@ -13,7 +13,7 @@
 #include "gsystemFactories/sqlite/systemSqliteFactory.h"
 
 // TODO: have getSystems returns the map directly instead of going through the vector
-GWorld::GWorld(const std::shared_ptr<GOptions>&  g)
+GWorld::GWorld(const std::shared_ptr<GOptions>& g)
 	: gopts(g),
 	  log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER, "GWorld [new]")) {
 	log->debug(CONSTRUCTOR, "GWorld");
@@ -22,7 +22,6 @@ GWorld::GWorld(const std::shared_ptr<GOptions>&  g)
 	auto gsystems = gsystem::getSystems(gopts, log);
 	create_gsystemsMap(gsystems);
 
-	// 2.  Finish world construction
 	load_systems();    // build factories, load volumes
 	load_gmodifiers(); // load & apply modifiers
 	assignG4Names();   // final bookkeeping
@@ -49,18 +48,13 @@ GWorld::~GWorld() { log->debug(DESTRUCTOR, "GWorld"); }
  * clears its DL map, and returns a pointer to a map of factory names to GSystemFactory pointers.
  */
 std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFactory() {
-	//----------------------------------------------------------------------
-	// 0.  Local RAII manager
-	//----------------------------------------------------------------------
 	GManager manager(log, "GWorldManager");
 
 	std::map<std::string, std::unique_ptr<GSystemFactory>> factoryMap;
 
 	// Always register & create the SQLite factory (needed for ROOT volumes)
 	manager.RegisterObjectFactory<GSystemSQLiteFactory>(GSYSTEMSQLITETFACTORYLABEL);
-
-	auto sqliteFactory = std::unique_ptr<GSystemFactory>(
-	                                                     manager.CreateObject<GSystemFactory>(GSYSTEMSQLITETFACTORYLABEL));
+	auto sqliteFactory = std::unique_ptr<GSystemFactory>(manager.CreateObject<GSystemFactory>(GSYSTEMSQLITETFACTORYLABEL));
 
 	if (!sqliteFactory) {
 		log->error(ERR_FACTORYNOTFOUND,
@@ -98,8 +92,7 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 		}
 
 		//------------------ create the factory object --------------------------
-		auto facPtr = std::unique_ptr<GSystemFactory>(
-		                                              manager.CreateObject<GSystemFactory>(facName));
+		auto facPtr = std::unique_ptr<GSystemFactory>(manager.CreateObject<GSystemFactory>(facName));
 
 		if (!facPtr) {
 			log->error(ERR_FACTORYNOTFOUND,
@@ -150,7 +143,7 @@ void GWorld::create_gsystemsMap(SystemList systems) {
 	// clearing the map before using
 	gsystemsMap->clear();
 
-	for (auto& sysPtr : systems) { // unique_ptr<GSystem>&
+	for (auto& sysPtr : systems) {
 		std::string key = gutilities::getFileFromPath(sysPtr->getName());
 
 		gsystemsMap->emplace(key, sysPtr);
@@ -163,7 +156,6 @@ void GWorld::create_gsystemsMap(SystemList systems) {
  */
 void GWorld::load_systems() {
 	const std::string dbhost = gopts->getScalarString("sql");
-
 
 	auto systemFactories = createSystemFactory();
 
@@ -227,12 +219,6 @@ void GWorld::load_systems() {
 		factory->closeSystem(log);
 	}
 
-	//------------------------------------------------------------------
-	// 3.  Optional verbose dump of every volume
-	//------------------------------------------------------------------
-	for (auto& [sysName, sysPtr] : *gsystemsMap)
-		for (auto& [volName, volPtr] : sysPtr->getGVolumesMap())
-			log->info(2, *volPtr); // level‑2 info
 
 	// systemFactories goes out of scope -> all factories destroyed cleanly
 }

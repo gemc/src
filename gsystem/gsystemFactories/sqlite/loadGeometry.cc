@@ -3,6 +3,9 @@
 #include "gsystemConventions.h"
 
 void GSystemSQLiteFactory::loadGeometry(GSystem* system, std::shared_ptr<GLogger> log) {
+	// skip ROOT system
+	if (system->getName() == ROOTWORLDGVOLUMENAME) { return; }
+
 	// Initialize the DB if needed.
 	if (db == nullptr) { initialize_sqlite_db(system, log); }
 

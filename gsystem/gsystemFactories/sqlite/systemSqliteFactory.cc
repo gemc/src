@@ -9,15 +9,17 @@
 GSystemSQLiteFactory::GSystemSQLiteFactory() = default;
 
 void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system, std::shared_ptr<GLogger>& log) {
+	// skip ROOT system
+	if (system->getName() == ROOTWORLDGVOLUMENAME) { return; }
+
+
 	// Save parameters from the system.
 	system_name = system->getName();
 	variation   = system->getVariation();
 	runno       = system->getRunno();
 
 	// Use system dbhost if not already set.
-	if (dbhost == "na") {
-		dbhost = system->get_dbhost();
-	}
+	if (dbhost == "na") { dbhost = system->get_dbhost(); }
 	log->info(1, "GSystemSQLiteFactory: dbhost set to <", dbhost, ">");
 
 	// Attempt to open the primary database file.
@@ -57,11 +59,11 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system, std::shared_ptr
 }
 
 
-void GSystemSQLiteFactory::closeSystem( std::shared_ptr<GLogger>& log) {
+void GSystemSQLiteFactory::closeSystem(std::shared_ptr<GLogger>& log) {
 	if (db) {
 		sqlite3_close(db);
 		db = nullptr; // Reset the pointer after closing
+		log->info(1, "Closing sqlite database >", dbhost, "<");
 	}
 	possibleLocationOfFiles.clear();
-	log->info(1, "Closing sqlite database >", dbhost, "<");
 }

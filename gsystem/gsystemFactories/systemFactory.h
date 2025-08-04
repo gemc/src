@@ -15,6 +15,7 @@ public:
 	// calls loadGeometry and loadMaterial
 	// verbosity passed here comes from goptions gsystemv
 	void loadSystem(GSystem* system, const std::shared_ptr<GLogger>& log) {
+
 		log->info(1, "Loading system <", system->getName(), "> using factory <", system->getFactoryName(), ">");
 
 		possibleLocationOfFiles.emplace_back(".");
