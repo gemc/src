@@ -8,7 +8,7 @@
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "G4ParticleGun.hh"
 
-constexpr const char* GPRIMARYGENERATORACTION_LOGGER = "GPrimaryGeneratorAction";
+constexpr const char* GPRIMARYGENERATORACTION_LOGGER = "generator";
 
 namespace gprimaryaction {
 inline GOptions defineOptions() { return GOptions(GPRIMARYGENERATORACTION_LOGGER); }
