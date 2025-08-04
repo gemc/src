@@ -40,7 +40,6 @@ private:
 	// Parameters extracted from GOptions:
 	int neventsToProcess;  ///< Total number of events to process.
 	int userRunno;         ///< User-defined run number.
-	int nEventBuffer;      ///< Number of events stored in the buffer.
 	int currentRunno = -1; ///< Current run number being processed.
 	// int elog{};              ///< Logging level for events.
 	std::string variation; ///< Variation string for configuration.
