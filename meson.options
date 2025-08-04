@@ -1,3 +1,2 @@
 # this is an option because root has many warnings.
-option('use_root', type: 'boolean', value: false, description: 'Look for amd use root. Default: false.')
 option('i_test',   type: 'boolean', value: false, description: 'Include interactive tests')

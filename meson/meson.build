@@ -36,7 +36,8 @@ if not fs.exists(geant4_pc)
 endif
 
 # root: pkg-config created manually by ./meson/install_geant4_root_pkgconfig.py
-if get_option('use_root')
+rootcfg = find_program('root-config')
+if rootcfg.found()
     root_deps = dependency('root',
                            version : '>=6.28/02',
     )

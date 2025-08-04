@@ -15,7 +15,7 @@ max_threads=$(max_j)
 echo " > Geant-config: $(which geant4-config) : $(geant4-config --version)"
 echo " > Root-config: $(which root-config) : $(root-config --version)"
 
-setup_options=" --native-file=core.ini -Duse_root=true $meson_option -Dprefix=$GEMC --wipe "
+setup_options=" --native-file=core.ini $meson_option -Dprefix=$GEMC --wipe "
 
 echo " > Running build Configure with setup build options: $setup_options"
 meson setup build $=setup_options || exit 1

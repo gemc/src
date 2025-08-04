@@ -53,7 +53,8 @@ root_plugin_files = [files(
                      true]
 
 # TODO: just detect if root is available
-if get_option('use_root')
+rootcfg = find_program('root-config')
+if rootcfg.found()
     if root_deps.found()
         streamer_plugins = {
             'gstreamer_ascii_plugin' : ascii_plugin_files,
