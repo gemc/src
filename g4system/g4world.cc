@@ -19,7 +19,7 @@
 #include <vector>
 
 G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
-	: log(std::make_shared<GLogger>(gopts, GSYSTEM_LOGGER, "G4World Constructor")) {
+	: log(std::make_shared<GLogger>(gopts, G4SYSTEM_LOGGER, "G4World Constructor")) {
 
 	log->debug(CONSTRUCTOR, "G4World");
 
@@ -143,11 +143,11 @@ void G4World::setFieldManagerForVolume(const std::string&   volumeName,
 	if (it != g4volumesMap.end()) it->second->setFieldManager(fm, forceToAllDaughters);
 }
 
-/*──────────────────────── helper bodies (UNCHANGED LOGIC, pointer replaced) ───────────────────*/
 
 // ---- g4FactoryNameFromSystemFactory -----------------------------------------------------------
 std::string G4World::g4FactoryNameFromSystemFactory(const std::string& factory) const {
-	if (factory == GSYSTEMASCIIFACTORYLABEL || factory == GSYSTEMSQLITETFACTORYLABEL ||
+	if (factory == GSYSTEMASCIIFACTORYLABEL ||
+		factory == GSYSTEMSQLITETFACTORYLABEL ||
 	    factory == GSYSTEMMYSQLTFACTORYLABEL) { return G4SYSTEMNATFACTORY; }
 	else if (factory == GSYSTEMCADTFACTORYLABEL) { return G4SYSTEMCADFACTORY; }
 	else {
@@ -180,14 +180,14 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial>& gmaterial) {
 				log->info(2, "Element <", componentName, ">, needed by ", materialName, ",  not found yet");
 				return false;
 			}
-			else { log->info(20, "Element <", componentName, "> needed by ", materialName, " now found"); }
+			else { log->info(2, "Element <", componentName, "> needed by ", materialName, " now found"); }
 		}
 		else {
 			if (NISTman->FindOrBuildMaterial(componentName) == nullptr) {
 				log->info(2, "Material <", componentName, ">, needed by ", materialName, ",  not found yet");
 				return false;
 			}
-			else { log->info(20, "Material <", componentName, "> needed by ", materialName, " now found"); }
+			else { log->info(2, "Material <", componentName, "> needed by ", materialName, " now found"); }
 		}
 	}
 
@@ -220,8 +220,8 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial>& gmaterial) {
 
 
 void G4World::buildDefaultMaterialsElementsAndIsotopes() {
-	// isotopes not yet defined, defining them for the first time
 
+	// isotopes not yet defined, defining them for the first time
 	int    Z, N;
 	double a, d, T;
 
@@ -390,7 +390,6 @@ void G4World::createG4SystemFactory(SystemMap*    gsystemsMap,
 	// Creating the native factory no matter what
 	log->info(2, "G4World: registering default factory <", G4SYSTEMNATFACTORY, ">");
 
-
 	manager.RegisterObjectFactory<G4NativeSystemFactory>(G4SYSTEMNATFACTORY);
 
 	// registering factories in the manager
@@ -423,6 +422,7 @@ void G4World::createG4SystemFactory(SystemMap*    gsystemsMap,
 }
 
 void G4World::buildMaterials(SystemMap* system_map) {
+
 	// looping over gsystem in the gsystemsMap,
 	// every GMaterial that is not built (due to dependencies) increments allRemainingMaterials
 	std::vector<GMaterial*> thisIterationRemainingMaterials;
