@@ -21,6 +21,8 @@
   #define FUNCTION_NAME __func__ // fallback
 #endif
 
+#define SFUNCTION_NAME __func__  // Always portable and standard since C++11
+
 
 
 /**

@@ -6,19 +6,22 @@ qt6_deps = dependency('qt6',
                       include_type : 'preserve')
 
 # check system: pkg-config --cflags --libs gl
-ogl_deps = dependency('opengl', required: true)
+ogl_deps = dependency('opengl', required : true)
 
-# pkg-config --cflags --libs gl
-sqlite_dep = dependency('sqlite3', required: true)
+# pkg-config --cflags --libs gl.
+if host_machine.system() == 'darwin'
+    sqlite_dep = dependency('sqlite3', required : true)
+else
+    # no static or it will link to static system
+    sqlite_dep = dependency('sqlite3', static : false, required : true)
+endif
+
 
 # pkg-config --modversion expat
-expat_dep = dependency('expat', required: true)
+expat_dep = dependency('expat', required : true)
 
 # pkg-config --cflags --libs zlib
-zlib_dep = dependency('zlib', static: false, required: true)  # Use shared libz.so instead of libz.a
-
-# sqlite
-sqlite_dep = dependency('sqlite3', required: true)
+zlib_dep = dependency('zlib', static : false, required : true)  # Use shared libz.so instead of libz.a
 
 # clhep: pkg-config
 clhep_deps = dependency('clhep',
@@ -56,25 +59,25 @@ cmake = import('cmake')
 
 cmake_opts = cmake.subproject_options()
 cmake_opts.add_cmake_defines({
-                                  'BUILD_SHARED_LIBS': false,           # or false if you want static assimp
-                                  'BUILD_STATIC_LIBS': true,
-                                  'ZLIB_USE_STATIC_LIBS': false,        # prefer shared zlib
-                                  'CMAKE_POSITION_INDEPENDENT_CODE': true,
-                                  'CMAKE_C_STANDARD': 17,               # avoid C23 warnings in bundled zlib if you ever enable it
-                                  'CMAKE_POLICY_VERSION_MINIMUM' : '4.0',
-                              })
+                                 'BUILD_SHARED_LIBS' : false, # or false if you want static assimp
+                                 'BUILD_STATIC_LIBS' : true,
+                                 'ZLIB_USE_STATIC_LIBS' : false, # prefer shared zlib
+                                 'CMAKE_POSITION_INDEPENDENT_CODE' : true,
+                                 'CMAKE_C_STANDARD' : 17, # avoid C23 warnings in bundled zlib if you ever enable it
+                                 'CMAKE_POLICY_VERSION_MINIMUM' : '4.0',
+                             })
 
 if host_machine.system() == 'darwin'
     # there's a macro collision in Assimp’s bundled zlib on macOS.
     # Using system zlib is fine on macos
     cmake_opts.add_cmake_defines({
-                                      'ASSIMP_BUILD_ZLIB': false,
-                                  })
+                                     'ASSIMP_BUILD_ZLIB' : false,
+                                 })
 else
     # Ubuntu: zlib is not compiled with fPic on the system. Let Assimp compile it.
     cmake_opts.add_cmake_defines({
-                                      'ASSIMP_BUILD_ZLIB': true,
-                                  })
+                                     'ASSIMP_BUILD_ZLIB' : true,
+                                 })
 endif
 
 
@@ -82,10 +85,10 @@ cmake_opts.append_compile_args('cpp', '-Wno-shadow')
 
 # TODO: remove temp workaround for _LIBCPP_ENABLE_ASSERTIONS deprecation
 cmake_opts.append_compile_args('cpp',
-                            '-fPIC',
-                            '-Wno-shadow',
-                            '-U_LIBCPP_ENABLE_ASSERTIONS',
-                            '-D_LIBCPP_HARDENING_MODE_DEBUG=true',
+                               '-fPIC',
+                               '-Wno-shadow',
+                               '-U_LIBCPP_ENABLE_ASSERTIONS',
+                               '-D_LIBCPP_HARDENING_MODE_DEBUG=true',
 )
 
 assimp_proj = cmake.subproject('assimp', options : cmake_opts)
