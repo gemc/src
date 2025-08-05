@@ -234,7 +234,7 @@ def write_templates(system, variations):
 		pj.write('    factory: ascii\n\n')
 		pj.write('gstreamer:\n')
 		pj.write(f'  - filename: {system}.txt\n')
-		pj.write('    format: ASCII\n\n')
+		pj.write('    format: ascii\n\n')
 
 	# ask_to_overwrite_file(readme)
 	with open(f'{readme}', 'w') as rm:

@@ -23,17 +23,29 @@ setup_log=/root/src/logs/setup.log
 compile_log=/root/src/logs/build.log
 test_log=/root/src/logs/test.log
 
+touch $setup_log $compile_log $test_log
+
+echo Logs:
+
+ls -l $setup_log
+ls -l $compile_log
+ls -l $test_log
+
+
 echo " > Geant-config: $(which geant4-config) : $(geant4-config --version)" > $setup_log
 echo " > Root-config: $(which root-config) : $(root-config --version)" >> $setup_log
 
 setup_options=" --native-file=core.ini $meson_option -Dprefix=$GEMC --wipe "
 
 echo " > Running build Configure with setup build options: $setup_options"  >> $setup_log
-meson setup build $=setup_options
+meson setup build $=setup_options  >> $setup_log
 if [ $? -ne 0 ]; then
 	echo "Build Configure failed. Log: "
 	cat $setup_log
   exit 1
+else
+  echo Build Configure Successful
+  echo ; echo
 fi
 
 cd build  || exit 1
@@ -44,7 +56,12 @@ if [ $? -ne 0 ]; then
 	echo "Compile failed. Log: "
 	cat $compile_log
   exit 1
+else
+  echo Compile Successful
+  echo ; echo
 fi
+
+
 echo " > Current directory: $(pwd) content:"  >> $compile_log
 ls -l  >> $compile_log
 
@@ -54,18 +71,25 @@ if [ $? -ne 0 ]; then
 	echo "Install failed. Log: "
 	cat $compile_log
   exit 1
+else
+  echo Install Successful
+  echo ; echo
 fi
+
 echo " > $GEMC recursive content:"  >> $compile_log
 ls -lR $GEMC  >> $compile_log
 
 # if $1 is NOT one of sanitize option, run meson test
 if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
     echo " > Running meson test" > $test_log
-    meson test -v -j 1 >>  $test_log
+    meson test  -j 1 --print-errorlogs >>  $test_log
     if [ $? -ne 0 ]; then
     	echo "Test failed. Log: "
     	cat $test_log
       exit 1
+    else
+      echo Install Successful
+      echo ; echo
     fi
 fi
 

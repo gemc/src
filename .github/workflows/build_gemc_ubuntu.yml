@@ -30,7 +30,7 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"/src
       - name: Build gemc
         run: |
-          ./ci/build.sh none
+          ./ci/build.sh
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
