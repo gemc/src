@@ -5,6 +5,9 @@
 #include "gmagneto.h"
 #include "gfield_options.h"
 
+// #include "G4TransportationManager.hh"
+// #include "G4PropagatorInField.hh"
+
 
 GMagneto::GMagneto(std::shared_ptr<GOptions> gopts) : log(std::make_shared<GLogger>(gopts, GFIELD_LOGGER, "GMagneto")){
 
@@ -28,5 +31,10 @@ GMagneto::GMagneto(std::shared_ptr<GOptions> gopts) : log(std::make_shared<GLogg
         	fields_manager->emplace(name, fields_map->at(name)->create_FieldManager());
         }
     }
+
+	// TODO: add min and max steps
+
+//	G4TransportationManager::GetTransportationManager()->GetPropagatorInField()->SetLargestAcceptableStep(10);
+
 
 }

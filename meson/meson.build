@@ -53,26 +53,45 @@ geant4_deps = dependency('geant4',
 
 
 cmake = import('cmake')
-opt_var = cmake.subproject_options()
-opt_var.add_cmake_defines({
-                              'BUILD_SHARED_LIBS' : 'OFF',
-                              'BUILD_STATIC_LIBS' : 'ON',
-                              'CMAKE_POLICY_VERSION_MINIMUM' : '4.0'
-                          })
-opt_var.append_compile_args('cpp', '-Wno-shadow')
+
+cmake_opts = cmake.subproject_options()
+cmake_opts.add_cmake_defines({
+                                  'BUILD_SHARED_LIBS': false,           # or false if you want static assimp
+                                  'BUILD_STATIC_LIBS': true,
+                                  'ZLIB_USE_STATIC_LIBS': false,        # prefer shared zlib
+                                  'CMAKE_POSITION_INDEPENDENT_CODE': true,
+                                  'CMAKE_C_STANDARD': 17,               # avoid C23 warnings in bundled zlib if you ever enable it
+                                  'CMAKE_POLICY_VERSION_MINIMUM' : '4.0',
+                              })
+
+if host_machine.system() == 'darwin'
+    # there's a macro collision in Assimp’s bundled zlib on macOS.
+    # Using system zlib is fine on macos
+    cmake_opts.add_cmake_defines({
+                                      'ASSIMP_BUILD_ZLIB': false,
+                                  })
+else
+    # Ubuntu: zlib is not compiled with fPic on the system. Let Assimp compile it.
+    cmake_opts.add_cmake_defines({
+                                      'ASSIMP_BUILD_ZLIB': true,
+                                  })
+endif
+
+
+cmake_opts.append_compile_args('cpp', '-Wno-shadow')
 
 # TODO: remove temp workaround for _LIBCPP_ENABLE_ASSERTIONS deprecation
-opt_var.append_compile_args('cpp',
+cmake_opts.append_compile_args('cpp',
                             '-fPIC',
                             '-Wno-shadow',
                             '-U_LIBCPP_ENABLE_ASSERTIONS',
                             '-D_LIBCPP_HARDENING_MODE_DEBUG=true',
 )
 
-assimp_proj = cmake.subproject('assimp', options : opt_var)
+assimp_proj = cmake.subproject('assimp', options : cmake_opts)
 assimp_dep = assimp_proj.dependency('assimp')
 
-yaml_cpp_proj = cmake.subproject('yaml-cpp', options : opt_var)
+yaml_cpp_proj = cmake.subproject('yaml-cpp', options : cmake_opts)
 yaml_cpp_dep = yaml_cpp_proj.dependency('yaml_cpp')
 
 # sanitizer settings

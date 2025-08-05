@@ -5,9 +5,15 @@
 # Container run:
 # docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.2-almalinux94 sh
 # git clone http://github.com/gemc/src /root/src && cd /root/src
-# ./ci/build.sh none
+# ./ci/build.sh
 
 source ci/env.sh
+
+# module gemc gives $GEMC (used in meson prefix) and PKG_CONFIG_PATH
+# not strickly necessary, one could set those manually
+module load gemc/dev3
+echo GEMC for prefix set to: $GEMC
+echo
 
 meson_option=$(meson_options $1)
 max_threads=$(max_j)

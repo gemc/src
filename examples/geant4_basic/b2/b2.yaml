@@ -28,6 +28,7 @@ gmultipoles:
   - name: dipole
     pole_number: 2
     strength: 2
+    rotaxis: z
     rotation_angle: "30*deg"
 
 root: G4Box, 12*cm, 12*cm, 18*cm, G4_WATER

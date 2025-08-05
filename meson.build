@@ -112,16 +112,6 @@ foreach L : LD
         install_headers(headers)
     endif
 
-    #  plugins
-    #  explicitly tell the linker to prefer dynamic libz.so with link_args below
-    #    if host_machine.system() == 'darwin'
-    #        # macOS: Do not use -Bdynamic, it's not needed
-    #        zlib_link_args = ['-lz']
-    #    else
-    #        # Linux: Use -Bdynamic
-    #        zlib_link_args = ['-Wl,-Bdynamic', '-lz']
-    #    endif
-
     if plugins != empty_dict
         foreach name, sources : plugins
             shared_library(
@@ -134,7 +124,6 @@ foreach L : LD
                 name_suffix : 'gplugin',
                 name_prefix : '',
                 override_options : ['b_staticpic=false']
-                # link_args : all_lib_names
             )
         endforeach
     endif
@@ -142,6 +131,7 @@ foreach L : LD
 
     # examples
     if examples != empty_dict
+
         # examples geometry, higher priority
         if geo_build != empty_dict
             foreach name, geo_python_script : geo_build
@@ -214,17 +204,20 @@ gemc = executable(
 )
 
 # test gemc options. Adjust root to fit the geometry
-example_test_dir = 'gsystem'
-examples_dir = get_option('prefix') + '/test/' + example_test_dir
+examples_dir = get_option('prefix') + '/examples'
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
-gsystem = ['-gsystem="[{name: b1}]"']
+
+# TODO: change system with a custom with magnetic field, or use upcoming assign_field option
+# If I put b2 here we need to add the diole definitions
+gsystem = ['-gsystem="[{name: b2}]"']
 general_gemc = ['-verbosity.gemc=2', '-debug.gemc=true', '-check_overlaps=2',
                 '-verbosity.gaction=2', '-debug.gaction=true',
                 '-verbosity.grunaction=2', '-debug.grunaction=true',
                 '-verbosity.grun=2', '-debug.grun=true',
                 '-verbosity.geventaction=2', '-debug.geventaction=true',
-                '-nthreads=4', '-n=100',
+                '-nthreads=4', '-n=8',
                 '-root="G4Box 25*cm 24*cm 40*cm G4_AIR"',
+                '-gmultipoles="[{name: dipole, pole_number: 2, strength: 2, rotaxis: Z, longitudinal: true}]"',
                 '-verbosity.eventdispenser=2', '-debug.eventdispenser=true']
 
 root = ['-gstreamer="[{format: root, filename: out}]"']
@@ -249,7 +242,10 @@ test_options = [
                                  '-verbosity.gtouchable=2', '-debug.gtouchable=true'] },
     { 'gstreamer_verbose' : ['-verbosity.gdata=2', '-debug.gdata=true',
                              '-verbosity.gstreamer=2', '-debug.gstreamer=true',
-                             '-gstreamer="[{format: root, filename: out}, {format: ascii, filename: out} ]"'] }
+                             '-gstreamer="[{format: root, filename: out}, {format: ascii, filename: out} ]"'] },
+    { 'gfield_verbose' : ['-verbosity.gfield=1', '-debug.gfield=true',
+                          '-gmultipoles="[{name: dipole, pole_number: 2, strength: 2, rotaxis: Z, longitudinal: true}]"',
+                          '-gparticle="[{name: e-, p: 2300, theta: 23.0}]"'] }
 ]
 
 foreach opt_dict : test_options

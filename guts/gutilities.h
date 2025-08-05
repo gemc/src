@@ -358,7 +358,7 @@ inline std::filesystem::path executable_path() {
 
 inline std::filesystem::path gemc_root() {
 	auto exe_dir   = executable_path().parent_path(); // where the executable is installed
-	auto gemc_root = exe_dir.parent_path();           // one dir up
+	auto gemc_root = exe_dir.parent_path();           // one dir up. The danger here is where this is a
 
 	// Sanity‑check api dir
 	if (!std::filesystem::exists(gemc_root / "api"))

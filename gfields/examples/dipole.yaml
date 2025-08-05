@@ -2,4 +2,5 @@ gmultipoles:
   - name: dipole
     pole_number: 2
     strength: 2
+    rotaxis: z
     rotation_angle: "30*deg"

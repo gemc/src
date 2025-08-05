@@ -57,6 +57,6 @@ std::ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const 
 		log->error(ERR_GSETUPFILENOTOFOUND, "File ", fname, " not found.");
 	}
 
-	// file was not found
+	// the file was not found
 	return nullptr;
 }

@@ -2,11 +2,11 @@ sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
 # notice the test run on the installation dir, which does has 'examples' stripped from the path
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
-gsystem_sql = ['-gsystem="[{name: b1}]"', '-sql=' + examples_dir + '/gemc.db']
-gsystem_ascii = ['-gsystem="[{name: b1, factory: ascii}]"']
+gsystem_sqlite = ['-gsystem="[{name: b1}]"', '-sql=' + examples_dir + '/gemc.db']
+gsystem_ascii = ['-gsystem="[{name: b1, factory: ascii}]"', '-ascii_db='+examples_dir]
 example_pysource = files('examples/example.py')
 example_source = files('examples/gsystem_example.cc')
-verbosity = [ '-verbosity.gsystem=2', '-debug.gsystem=true']
+verbosity = ['-verbosity.gsystem=2', '-debug.gsystem=true']
 
 LD += {
     'name' : sub_dir_name,
@@ -51,15 +51,14 @@ LD += {
                              'gsystem/gsystemFactories/sqlite',
                              'gsystem/gsystemFactories/text'],
     'geo_build' : {
-        'test_gsystem_geo_sql' : [example_pysource],
-        'test_gsystem_geo_ascii' : [example_pysource, '-f ascii']
+        'test_gsystem_geo_sqlite' : [example_pysource],
+        'test_gsystem_geo_ascii' : [example_pysource, ['-f', 'ascii']]
     },
     'examples' : {
-        'test_gsystem_sql' : [example_source, gsystem_sql],
+        'test_gsystem_sqlite' : [example_source, gsystem_sqlite],
         'test_gsystem_ascii' : [example_source, gsystem_ascii],
-        'test_gsystem_sql_verbose' : [example_source, gsystem_sql + verbosity],
+        'test_gsystem_sqlite_verbose' : [example_source, gsystem_sqlite + verbosity],
         'test_gsystem_ascii_verbose' : [example_source, gsystem_ascii + verbosity],
-
     }
 
 }

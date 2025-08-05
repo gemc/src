@@ -7,11 +7,8 @@
 // other default parameters are in the form of strings
 
 // multipoles.
-#define GFIELD_DEFAULT_POLE_NUMBER "1"
 #define GFIELD_DEFAULT_VERTEX "0*mm"
 #define GFIELD_DEFAULT_ROTANGLE "0*deg"
-#define GFIELD_DEFAULT_ROTAXIS "Z"
-#define GFIELD_DEFAULT_STRENGTH "1.0"
 #define GFIELD_DEFAULT_VERBOSITY "0"
 
 // error codes in the 1200

@@ -13,18 +13,22 @@ SystemList getSystems(const std::shared_ptr<GOptions>& gopts, const std::shared_
 	SystemList systems;
 	systems.reserve(gsystem_node.size());
 
-
 	auto exp    = gopts->getScalarString("experiment");
 	auto run    = gopts->getScalarInt("runno");
 	auto dbhost = gopts->getScalarString("sql");
+	auto ascii_db = gopts->getScalarString("ascii_db");
 
 	for (auto gsystem_item : gsystem_node) {
+		auto factory = gopts->get_variable_in_option<std::string>(gsystem_item, "factory", GSYSTEMSQLITETFACTORYLABEL);
+		if (factory == GSYSTEMASCIIFACTORYLABEL ) {
+			dbhost = ascii_db;
+		}
 		systems.emplace_back(
 		                     std::make_shared<GSystem>(
 		                                               log,
 		                                               dbhost,
 		                                               gopts->get_variable_in_option<std::string>(gsystem_item, "name", goptions::NODFLT),
-		                                               gopts->get_variable_in_option<std::string>(gsystem_item, "factory", GSYSTEMSQLITETFACTORYLABEL),
+		                                               factory,
 		                                               exp,
 		                                               run,
 		                                               gopts->get_variable_in_option<std::string>(gsystem_item, "variation", "default"),
@@ -100,6 +104,11 @@ GOptions defineOptions() {
 	help = "sqlite file or sql host. Default is: " + std::string(GSYSTEMSQLITETDEFAULTFILE) + ". \n\n";
 	goptions.defineOption(GVariable("sql", GSYSTEMSQLITETDEFAULTFILE, "sql host or sqlite file"),
 	                      help);
+
+	// add ascii_db option to define an alternative search path for the ascii factory
+	help = "ascii search path. Default is: " + std::string(GSYSTEMSASCIISEARCHDIR) + ". \n\n";
+	goptions.defineOption(GVariable("ascii_db", GSYSTEMSASCIISEARCHDIR, "sql host or sqlite file"),
+						  help);
 
 	// add the experiment option to define the experiment, common for all systems
 	goptions.defineOption(GVariable("experiment", "examples", "experiment selection"),

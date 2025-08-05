@@ -586,7 +586,7 @@ void GOptions::print_version() {
 	cout << endl << asterisks << endl;
 	cout << " " << KGRN << KBOLD << executableName << RST << "  version: " << KGRN << gversion << RST << endl;
 	cout << " Called from: " << KGRN <<  executableCallingDir << RST << endl;
-	cout << " Executed from: " << KGRN <<  installDir << "/bin" << RST << endl;
+	cout << " Install: " << KGRN <<  installDir << "/bin" << RST << endl;   //
 	cout << " Released on: " << KGRN << grelease_date << RST << endl;
 	cout << " GEMC Reference: " << KGRN << greference << RST << endl;
 	cout << " GEMC Homepage: " << KGRN << gweb << RST << endl;

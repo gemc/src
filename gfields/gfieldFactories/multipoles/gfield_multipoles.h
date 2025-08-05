@@ -33,6 +33,7 @@ private:
     G4double rotation_angle; ///< Rotation angle of the field in degrees.
     int rotaxis; ///< Axis of rotation: 0 for X, 1 for Y, 2 for Z.
     G4double strength; ///< Strength of the multipole field.
+	bool longitudinal; ///< Longitudinal or transverse field.
 
 };
 

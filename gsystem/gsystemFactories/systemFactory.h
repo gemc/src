@@ -22,6 +22,7 @@ public:
 
 		std::filesystem::path gemcRoot = gutilities::gemc_root();
 		possibleLocationOfFiles.push_back(gemcRoot.string());
+		possibleLocationOfFiles.push_back(system->get_dbhost());
 
 		loadMaterials(system, log);
 		loadGeometry(system, log);
