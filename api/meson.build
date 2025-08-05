@@ -51,11 +51,11 @@ foreach format : ['ascii', 'sqlite']
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
          args : ['test.py', '-f', format], workdir : test_dir, priority : -10)
-#    test(' ## run gemc in test for format ' + format,
-#         gemc, args : ['test.yaml', '-gsystem="[{name: test, factory: ' + format + '}]" '],
-#         workdir : test_dir,
-#         env : project_test_env,
-#         priority : -20)
+    test('api_run_gemc_for_format_' + format,
+         gemc, args : ['test.yaml', '-gsystem="[{name: test, factory: ' + format + '}]" '],
+         workdir : test_dir,
+         env : project_test_env,
+         priority : -20)
 endforeach
 
 # replace geometry with templates
@@ -80,11 +80,11 @@ foreach volume: g4objects.keys()
              python_exe,
              env : {'PYTHONDONTWRITEBYTECODE': '1'},
              args : [python_main, '-f', format], workdir : test_dir, priority : -20)
-#        test(' ## run gemc in test with replaced geometry using ' + volume + ' with format ' + format,
-#             gemc,
-#             args : [yaml_file, '-gsystem="[{name: ' + test_name + ', factory: ' + format + '}]" '],
-#             workdir : test_dir,
-#             env : project_test_env,
-#             priority : -30)
+        test('api_run_gemc_with_replaced_geometry_using_' + volume + '_with_format' + format,
+             gemc,
+             args : [yaml_file, '-gsystem="[{name: ' + test_name + ', factory: ' + format + '}]" '],
+             workdir : test_dir,
+             env : project_test_env,
+             priority : -30)
     endforeach
 endforeach

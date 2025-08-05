@@ -11,8 +11,7 @@ examples_map = {
     }
 }
 
-ascii_output = '-gstreamer="[{format: ascii, filename: out}]"'
-root_output = '-gstreamer="[{format: root, filename: out}]"'
+
 
 
 foreach branch : examples_map.keys()
@@ -32,6 +31,8 @@ foreach branch : examples_map.keys()
                 geo_test_name = 'geo_' + branch + '_' + example + '_' + format + '_variation_' + variation
                 run_test_name_asci = 'run_asci_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
                 run_test_name_root = 'run_root_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
+                ascii_output = '-gstreamer="[{format: ascii, filename: out' + branch + variation + '}]"'
+                root_output = '-gstreamer="[{format: root, filename: out' + branch + variation + '}]"'
                 test(geo_test_name,
                      python_exe,
                      args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db', '-v', variation], # the sql flag is ignored for ascii format
@@ -55,6 +56,8 @@ foreach branch : examples_map.keys()
                 geo_test_name = 'geo_' + branch + '_' + example + '_' + format + '_run_' + run_value
                 run_test_name_asci = 'run_asci_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
                 run_test_name_root = 'run_root_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
+                ascii_output = '-gstreamer="[{format: ascii, filename: out' + branch + run_value + '}]"'
+                root_output = '-gstreamer="[{format: root, filename: out' + branch + run_value + '}]"'
                 test(geo_test_name,
                      python_exe,
                      args : [example_dir + example + '.py', '-f', format, '-sql', '../../gemc.db', '-r', run_value], # the sql flag is ignored for ascii format

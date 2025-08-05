@@ -18,32 +18,55 @@ echo
 meson_option=$(meson_options $1)
 max_threads=$(max_j)
 
-echo " > Geant-config: $(which geant4-config) : $(geant4-config --version)"
-echo " > Root-config: $(which root-config) : $(root-config --version)"
+mkdir -p /root/src/logs
+setup_log=/root/src/logs/setup.log
+compile_log=/root/src/logs/build.log
+test_log=/root/src/logs/test.log
+
+echo " > Geant-config: $(which geant4-config) : $(geant4-config --version)" > $setup_log
+echo " > Root-config: $(which root-config) : $(root-config --version)" >> $setup_log
 
 setup_options=" --native-file=core.ini $meson_option -Dprefix=$GEMC --wipe "
 
-echo " > Running build Configure with setup build options: $setup_options"
-meson setup build $=setup_options || exit 1
+echo " > Running build Configure with setup build options: $setup_options"  >> $setup_log
+meson setup build $=setup_options
+if [ $? -ne 0 ]; then
+	echo "Build Configure failed. Log: "
+	cat $setup_log
+  exit 1
+fi
 
 cd build  || exit 1
 
-echo " > Running meson compile -v  -j $max_threads"
-meson compile -v  -j $max_threads || exit 1
+echo " > Running meson compile -v  -j $max_threads"  > $compile_log
+meson compile -v  -j $max_threads >> $compile_log
+if [ $? -ne 0 ]; then
+	echo "Compile failed. Log: "
+	cat $compile_log
+  exit 1
+fi
+echo " > Current directory: $(pwd) content:"  >> $compile_log
+ls -l  >> $compile_log
 
-echo " > Current directory: $(pwd) content:"
-ls -l || exit 1
-
-echo " > Running meson install"
-meson install  || exit 1
-
-echo " > $GEMC recursive content:"
-ls -lR $GEMC || exit 1
+echo " > Running meson install"  >> $compile_log
+meson install   >> $compile_log
+if [ $? -ne 0 ]; then
+	echo "Install failed. Log: "
+	cat $compile_log
+  exit 1
+fi
+echo " > $GEMC recursive content:"  >> $compile_log
+ls -lR $GEMC  >> $compile_log
 
 # if $1 is NOT one of sanitize option, run meson test
 if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
-    echo " > Running meson test"
-    meson test -v -j 1 || exit 1
+    echo " > Running meson test" > $test_log
+    meson test -v -j 1 >>  $test_log
+    if [ $? -ne 0 ]; then
+    	echo "Test failed. Log: "
+    	cat $test_log
+      exit 1
+    fi
 fi
 
 echo
@@ -55,3 +78,4 @@ if [[ "$(uname)" == "Darwin" ]]; then
 else
   ldd $GEMC/bin/gemc || exit 1
 fi
+

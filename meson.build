@@ -53,7 +53,7 @@ subdir('eventDispenser')
 subdir('gqtbuttonswidget')
 subdir('g4display')
 subdir('g4dialog')
-subdir('api')
+#subdir('api')
 subdir('gsystem') # uses api for testing
 subdir('g4system')
 subdir('gparticle')
@@ -133,7 +133,7 @@ foreach L : LD
     # examples
     if examples != empty_dict
 
-        # examples geometry, higher priority
+        # geometry, higher priority so it is run before the test
         if geo_build != empty_dict
             foreach name, geo_python_script : geo_build
                 examples_dir = get_option('prefix') + '/test/' + this_lib_name
@@ -264,6 +264,7 @@ foreach opt_dict : test_options
 endforeach
 
 
+subdir('api')
 subdir('examples')
 
 post_install = run_command('echo', 'Installation completed!', check : true)
