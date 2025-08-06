@@ -35,9 +35,6 @@ int main(int argc, char *argv[]) {
 	// Create GOptions using eventDispenser::defineOptions() to aggregate options.
 	auto gopts =std::make_shared<GOptions>(argc, argv, eventDispenser::defineOptions());
 
-	// Create a logger for the EventDispenser module.
-	auto log = std::make_unique<GLogger>(gopts, EVENTDISPENSER_LOGGER, "eventDispenser example");
-
 	// For demonstration, create an empty global map of dynamic digitization plugins.
 	// In a full simulation, this map would be populated with actual GDynamicDigitization plugins.
 	auto dynamicRoutinesMap = gdynamicdigitization::dynamicRoutinesMap({plugin_name}, gopts);
