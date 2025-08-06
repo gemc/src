@@ -292,9 +292,9 @@ public:
 	 */
 	void set_loggers(const std::shared_ptr<GOptions>& g) {
 		gopts       = g;
-		data_logger = std::make_shared<GLogger>(gopts, DATA_LOGGER, "data");
-		tt_logger   = std::make_shared<GLogger>(gopts, TRANSLATIONTABLE_LOGGER, "translation table");
-		digi_logger = std::make_shared<GLogger>(gopts, GDIGITIZATION_LOGGER, "digitization");
+		data_logger = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, DATA_LOGGER);
+		tt_logger   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, TRANSLATIONTABLE_LOGGER);
+		digi_logger = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GDIGITIZATION_LOGGER);
 	}
 
 private:
@@ -330,14 +330,15 @@ namespace gdynamicdigitization {
 using dRoutinesMap = std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>;
 
 inline std::shared_ptr<GDynamicDigitization> load_dynamicRoutine(const std::string& plugin_name, const std::shared_ptr<GOptions>& gopts) {
-	auto     log = std::make_shared<GLogger>(gopts, GDIGITIZATION_LOGGER, "loader");
+
+	auto     log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GDIGITIZATION_LOGGER);
 	GManager manager(log);
 	return manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin_name, gopts);
 }
 
 //  the returned map is shared and immutable
 inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<std::string>& plugin_names, const std::shared_ptr<GOptions>& gopts) {
-	auto     log = std::make_shared<GLogger>(gopts, GDIGITIZATION_LOGGER, "loader");
+	auto     log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GDIGITIZATION_LOGGER);
 	GManager manager(log);
 
 	auto routines = std::make_shared<dRoutinesMap>();

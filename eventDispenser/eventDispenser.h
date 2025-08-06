@@ -1,6 +1,6 @@
 #pragma once
 
-#include "goptions.h"
+#include "gbase.h"
 #include "gdynamicdigitization.h"
 
 #include <map>
@@ -15,7 +15,7 @@
  * runs. It also initializes and calls GDynamicDigitization plugins for each run, logs
  * useful information, and provides an API to query run event data.
  */
-class EventDispenser {
+class EventDispenser : public GBase<EventDispenser> {
 public:
 	/**
 	 * \brief Constructs an EventDispenser.
@@ -23,19 +23,9 @@ public:
 	 * \param gopt Pointer to a GOptions object containing configuration parameters.
 	 * \param gdynamicDigitizationMap unordered_map<std::string, shared_ptr<GDynamicDigitization>>
 	 */
-	EventDispenser(const std::shared_ptr<GOptions>& gopt, std::shared_ptr<const gdynamicdigitization::dRoutinesMap> gdynamicDigitizationMap);
-
-	/**
-	 * \brief Destructor for EventDispenser.
-	 *
-	 * Logs a debug message upon destruction.
-	 */
-	~EventDispenser() {
-		log->debug(DESTRUCTOR, "EventDispenser");
-	}
+	EventDispenser(const std::shared_ptr<GOptions>& gopt, const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& gdynamicDigitizationMap);
 
 private:
-	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 
 	// Parameters extracted from GOptions:
 	int neventsToProcess;  ///< Total number of events to process.
@@ -85,7 +75,7 @@ public:
 	 *
 	 * \return The sum of events across all runs.
 	 */
-	int getTotalNumberOfEvents() const;
+	[[nodiscard]] int getTotalNumberOfEvents() const;
 
 	/**
 	 * \brief Processes events by initializing dynamic digitization plugins and running simulations.

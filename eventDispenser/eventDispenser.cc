@@ -43,9 +43,8 @@ using namespace std;
 // Constructor: Initializes the EventDispenser using options from GOptions and a pointer to the global
 // GDynamicDigitization plugins map.
 //
-EventDispenser::EventDispenser(const std::shared_ptr<GOptions>& gopt, std::shared_ptr<const gdynamicdigitization::dRoutinesMap> gdynamicDigitizationMap)
-	: log(std::make_shared<GLogger>(gopt, EVENTDISPENSER_LOGGER, "EventDispenser")), gDigitizationMap(gdynamicDigitizationMap) {
-	log->debug(CONSTRUCTOR, "EventDispenser");
+EventDispenser::EventDispenser(const std::shared_ptr<GOptions>& gopt, const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& gdynamicDigitizationMap)
+	: GBase(gopt, EVENTDISPENSER_LOGGER), gDigitizationMap(gdynamicDigitizationMap) {
 
 	// Retrieve configuration parameters from GOptions.
 	string filename  = gopt->getScalarString("run_weights");
@@ -151,12 +150,12 @@ int EventDispenser::processEvents() {
 			// routine is a std::shared_ptr<GDynamicDigitization>
 			// *dmap dereferences the shared_ptr to access the underlying const std::unordered_map.
 			for (const auto& [plugin, digiRoutine] : *gDigitizationMap) {
-				log->debug(NORMAL, "Calling ", plugin, " loadConstants for run ", runNumber);
+				log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadConstants for run ", runNumber);
 				if (digiRoutine->loadConstants(runNumber, variation) == false) {
 					log->error(ERR_LOADCONSTANTFAIL, "Failed to load constants for ", plugin, " for run ", runNumber, " with variation ", variation);
 				}
 
-				log->debug(NORMAL, "Calling ", plugin, " loadTT for run ", runNumber);
+				log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadTT for run ", runNumber);
 				if (digiRoutine->loadTT(runNumber, variation) == false) {
 					log->error(ERR_LOADTTFAIL, "Failed to load translation table for ", plugin, " for run ", runNumber, " with variation ", variation);
 				}

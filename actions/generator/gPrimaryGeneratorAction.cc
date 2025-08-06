@@ -27,6 +27,6 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 	for (auto& gparticle : gparticles) {
 		log->info(2, gparticle);
 
-		gparticle->shootParticle(gparticleGun, anEvent, log);
+		gparticle->shootParticle(gparticleGun, anEvent);
 	}
 }
