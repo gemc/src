@@ -39,7 +39,7 @@ Gparticle::Gparticle(const string&                   aname,
                      double                          adelta_vz,
                      const string&                   vunit,
                      const string&                   arandomVertexModel,
-                     const std::shared_ptr<GLogger>& logger):
+                     const std::shared_ptr<GLogger>& logger) :
 	name(aname),
 	multiplicity(amultiplicity),
 	p(gutilities::getG4Number(to_string(ap) + "*" + punit)),
@@ -62,7 +62,7 @@ Gparticle::Gparticle(const string&                   aname,
 	                     )),
 	randomVertexModel(gutilities::stringToRandomModel(arandomVertexModel)),
 	log(logger) {
-	pid = get_pdg_id(log);
+	pid = get_pdg_id();
 
 	log->debug(CONSTRUCTOR, "Gparticle");
 
@@ -74,7 +74,7 @@ Gparticle::Gparticle(const string&                   aname,
 // for G4GeneralParticleSource API check:
 // https://geant4.kek.jp/lxr/source/event/include/G4ParticleGun.hh
 // https://geant4.kek.jp/lxr/source/event/src/G4ParticleGun.cc
-void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent, const std::shared_ptr<GLogger>& log) {
+void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent) {
 	auto particleTable = G4ParticleTable::GetParticleTable();
 
 	if (particleTable) {
@@ -250,45 +250,45 @@ std::ostream& operator<<(std::ostream& os, const Gparticle& gp) {
 	//  header block
 	// -----------------------------------------------------------------------
 	os << '\n'
-		<< "┌─────────────────────────────────────────────────┐\n"
-		<< "│ GParticle                                       │\n"
-		<< "└─────────────────────────────────────────────────┘\n";
+		<< " ┌─────────────────────────────────────────────────┐\n"
+		<< " │ GParticle                                       │\n"
+		<< " └─────────────────────────────────────────────────┘\n";
 
 	// -----------------------------------------------------------------------
 	//  fields
 	// -----------------------------------------------------------------------
-	os << left << setw(label_w) << "name:" << ' '
-		<< gp.name << "  (pid " << gp.pid << ")\n";
+	os << left << setw(label_w) << " name:" << right << setw(value_w)
+		<< gp.name << "(pid " << gp.pid << ")\n";
 
-	show("multiplicity:", std::to_string(gp.multiplicity));
-	showf("mass [MeV]:", gp.get_mass());
+	show(" multiplicity:", std::to_string(gp.multiplicity));
+	showf(" mass [MeV]:", gp.get_mass());
 
-	show_pm("p [MeV]:",
+	show_pm(" p [MeV]:",
 	        gp.p,
 	        gp.delta_p / CLHEP::MeV);
 
-	show("p model:", to_string(gp.randomMomentumModel));
+	show(" p model:", to_string(gp.randomMomentumModel));
 
-	show_pm("theta [deg]:",
+	show_pm(" theta [deg]:",
 	        gp.theta / CLHEP::deg,
 	        gp.delta_theta / CLHEP::deg);
 
-	show("theta model:", to_string(gp.randomThetaModel));
+	show(" theta model:", to_string(gp.randomThetaModel));
 
-	show_pm("phi  [deg]:",
+	show_pm(" phi  [deg]:",
 	        gp.phi / CLHEP::deg,
 	        gp.delta_phi / CLHEP::deg);
 
-	os << left << setw(label_w) << "vertex [cm]:" << ' '
+	os << left << setw(label_w) << " vertex [cm]:" << ' '
 		<< gp.v << "  ± " << gp.delta_v << '\n';
 
-	show("vertex model:", to_string(gp.randomVertexModel));
+	show(" vertex model:", to_string(gp.randomVertexModel));
 
 	return os;
 }
 
 
-int Gparticle::get_pdg_id(const std::shared_ptr<GLogger>& log) {
+int Gparticle::get_pdg_id() {
 	auto particleTable = G4ParticleTable::GetParticleTable();
 
 	if (particleTable) {

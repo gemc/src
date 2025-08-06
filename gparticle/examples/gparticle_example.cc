@@ -7,8 +7,9 @@
 
 
 int main(int argc, char* argv[]) {
-	auto gopts =std::make_shared<GOptions>(argc, argv, gparticle::defineOptions());
-	auto log   = std::make_shared<GLogger>(gopts, GPARTICLE_LOGGER, "gparticle example: main");
+
+	auto gopts = std::make_shared<GOptions>(argc, argv, gparticle::defineOptions());
+	auto log   = std::make_shared<GLogger>(gopts, FUNCTION_NAME, GPARTICLE_LOGGER);
 
 	auto runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
 
