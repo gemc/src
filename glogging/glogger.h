@@ -84,14 +84,14 @@ public:
 
 		switch (type) {
 		case NORMAL:
-			G4cout << KCYN << header_string() << "DEBUG " << oss.str() << RST << G4endl;
+			G4cout << KCYN << header_string() << "DEBUG: " << oss.str() << RST << G4endl;
 			break;
 		case CONSTRUCTOR:
-			G4cout << KCYN << header_string() << "DEBUG " <<
+			G4cout << KCYN << header_string() << "DEBUG: " <<
 				CONSTRUCTORLOG << " " << oss.str() << " " << CONSTRUCTORLOG << RST << G4endl;
 			break;
 		case DESTRUCTOR:
-			G4cout << KCYN << header_string() << "DEBUG " <<
+			G4cout << KCYN << header_string() << "DEBUG: " <<
 				DESTRUCTORLOG << " " << oss.str() << " " << DESTRUCTORLOG << RST << G4endl;
 			break;
 		}
@@ -118,7 +118,7 @@ public:
 		if (level == 0 || (level == 1 && verbosity_level > 0) || (level == 2 && verbosity_level > 1)) {
 			std::ostringstream oss;
 			(oss << ... << std::forward<Args>(args));
-			G4cout << header_string() << "INFO L" << level << " " << oss.str() << G4endl;
+			G4cout << header_string() << "INFO L" << level << ": " << oss.str() << G4endl;
 		}
 	}
 
@@ -197,6 +197,6 @@ private:
 	 */
 	[[nodiscard]] std::string header_string() const {
 		log_counter++;
-		return " [" + description + "]" + " (" + std::to_string(log_counter.load()) + "): ";
+		return " [ " + description +  " - " + std::to_string(log_counter.load()) + " ] ";
 	}
 };

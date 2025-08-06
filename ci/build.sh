@@ -94,12 +94,12 @@ if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
 fi
 
 echo
-echo " ldd of $GEMC/bin/gemc:"
+echo " ldd of $GEMC/bin/gemc:" >> $compile_log | tee -a
 
 # if on unix, use ldd , if on mac, use otool -L
 if [[ "$(uname)" == "Darwin" ]]; then
   otool -L $GEMC/bin/gemc || exit 1
 else
-  ldd $GEMC/bin/gemc || exit 1
+  ldd $GEMC/bin/gemc || exit 1  >> $compile_log | tee -a
 fi
 

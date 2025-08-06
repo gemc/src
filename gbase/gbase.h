@@ -29,8 +29,8 @@ std::string demangle(const char* name) {
 template <typename Derived>
 class GBase {
 public:
-	explicit GBase(std::shared_ptr<GOptions> gopt) {
-		log = std::make_shared<GLogger>(gopt, getDerivedName(), SDERIVED_NAME);
+	explicit GBase(std::shared_ptr<GOptions> gopt, std::string option_name = "") {
+		log = std::make_shared<GLogger>(gopt, SDERIVED_NAME, option_name);
 		log->debug(CONSTRUCTOR, getDerivedName());
 	}
 
