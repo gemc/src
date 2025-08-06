@@ -14,15 +14,14 @@
 
 // cross-platform function to return the function name
 #if defined(__clang__) || defined(__GNUC__)
-  #define FUNCTION_NAME __PRETTY_FUNCTION__
+#define FUNCTION_NAME std::string(__PRETTY_FUNCTION__) + std::string(" > ")
 #elif defined(_MSC_VER)
-  #define FUNCTION_NAME __FUNCSIG__
+#define FUNCTION_NAME   __FUNCSIG__ + std::string(" > ")
 #else
-  #define FUNCTION_NAME __func__ // fallback
+#define FUNCTION_NAME   __func__ + std::string(" > ") // fallback
 #endif
 
-#define SFUNCTION_NAME __func__  // Always portable and standard since C++11
-
+#define SFUNCTION_NAME  __func__ + std::string(" > ")  // Always portable and standard since C++11
 
 
 /**
@@ -49,17 +48,17 @@ public:
 	 * @param vname The verbosity or debug name is a string used to identify the logger and as header for all messages
 	 * @param desc The calling class name, used to identify the source of the log messages.
 	 */
-	explicit GLogger(const std::shared_ptr<GOptions>& gopts, const std::string& vname, const std::string& desc = "")
-	: verbosity_name(vname), description(desc), log_counter{0} {
-		verbosity_level = gopts->getVerbosityFor(verbosity_name);
-		debug_level     = gopts->getDebugFor(verbosity_name);
-		debug(CONSTRUCTOR, description, " logger");
+	explicit GLogger(const std::shared_ptr<GOptions>& gopts, const std::string& cname, const std::string& lname = "")
+		: class_name(cname), logger_name(lname), log_counter{0} {
+		verbosity_level = gopts->getVerbosityFor(logger_name);
+		debug_level     = gopts->getDebugFor(logger_name);
+		debug(CONSTRUCTOR, logger_name, " logger");
 	}
 
 	// default constructor
 	GLogger() = default;
 
-	~GLogger() { debug(DESTRUCTOR, description, " logger"); }
+	~GLogger() { debug(DESTRUCTOR, logger_name, " logger"); }
 
 	/**
 	 * \brief Logs a debug message if the debug level is nonzero.
@@ -143,7 +142,7 @@ public:
 	void warning(Args&&... args) const {
 		std::ostringstream oss;
 		(oss << ... << std::forward<Args>(args));
-		G4cout << KYEL << header_string() << GWARNING << oss.str() << RST << G4endl;
+		G4cout << KYEL << header_string() << GWARNING << KYEL << oss.str() << RST << G4endl;
 	}
 
 	/**
@@ -178,11 +177,11 @@ public:
 	}
 
 
-	[[nodiscard]] std::string get_verbosity_name() const { return verbosity_name; }
+	[[nodiscard]] std::string get_class_name() const { return class_name; }
 
 private:
-	std::string verbosity_name;    ///< Verbosity name
-	std::string description;     ///< Name of class/method calling the logger constructor
+	std::string class_name;        ///< class name instantiating logger
+	std::string logger_name;       ///< logger name. a GOption must be built with this in other for the verbosity/debug to be found
 	int         verbosity_level{}; ///< Verbosity level (0 = low, >0 = detailed)
 	int         debug_level{};     ///< Debug level: 0 = off, 1 = normal, 10/-10 = ctor/dtor
 
@@ -197,6 +196,6 @@ private:
 	 */
 	[[nodiscard]] std::string header_string() const {
 		log_counter++;
-		return " [ " + description +  " - " + std::to_string(log_counter.load()) + " ] ";
+		return " [ " + logger_name + " - " + std::to_string(log_counter.load()) + " ] ";
 	}
 };

@@ -92,7 +92,7 @@ private:
 
 inline GManager::GManager(std::shared_ptr<GLogger> logger, std::string description)
 	: log(logger) {
-	gname = log->get_verbosity_name() + description;
+	gname = log->get_class_name() + description;
 	log->debug(CONSTRUCTOR, gname);
 }
 

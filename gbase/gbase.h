@@ -6,7 +6,6 @@
 
 #include "glogger.h"
 
-#define SDERIVED_NAME demangle(typeid(Derived).name())
 
 
 #if defined(__GNUG__)
@@ -29,13 +28,13 @@ std::string demangle(const char* name) {
 template <typename Derived>
 class GBase {
 public:
-	explicit GBase(std::shared_ptr<GOptions> gopt, std::string option_name = "") {
-		log = std::make_shared<GLogger>(gopt, SDERIVED_NAME, option_name);
+	explicit GBase(std::shared_ptr<GOptions> gopt, std::string logger_name = "") {
+		log = std::make_shared<GLogger>(gopt, getDerivedName(), logger_name);
 		log->debug(CONSTRUCTOR, getDerivedName());
 	}
 
 	~GBase() {
-		log->debug(DESTRUCTOR, SDERIVED_NAME);
+		log->debug(DESTRUCTOR, getDerivedName());
 	}
 
 private:
