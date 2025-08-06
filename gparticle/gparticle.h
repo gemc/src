@@ -83,7 +83,7 @@ private:
 	std::shared_ptr<GLogger> log;
 
 public:
-	void shootParticle(G4ParticleGun* particleGun, G4Event* anEvent, const std::shared_ptr<GLogger>& log);
+	void shootParticle(G4ParticleGun* particleGun, G4Event* anEvent);
 
 	static std::shared_ptr<Gparticle> create_default_gparticle(const std::shared_ptr<GLogger>& log) {
 		return std::make_shared<Gparticle>(
@@ -124,7 +124,7 @@ private:
 	G4ThreeVector calculateVertex();
 
 	// utility methods
-	int get_pdg_id(const std::shared_ptr<GLogger>& log);
+	int get_pdg_id();
 };
 
 // using unique pointers to move Gparticles to avoid unnecessary copies

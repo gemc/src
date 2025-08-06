@@ -10,11 +10,11 @@ using std::vector;
 
 // method to return a vector of GParticles from the options
 vector<GparticlePtr> getGParticles(const std::shared_ptr<GOptions>& gopts, std::shared_ptr<GLogger>& logger) {
+
 	auto gparticle_node = gopts->getOptionNode("gparticle");
 
 	vector<GparticlePtr> gparticles;
 	gparticles.reserve(gparticle_node.size()); // no reallocations ⇒ no moves
-
 
 	for (auto gparticle_item : gparticle_node) {
 		gparticles.emplace_back(std::make_shared<Gparticle>(
@@ -52,6 +52,7 @@ vector<GparticlePtr> getGParticles(const std::shared_ptr<GOptions>& gopts, std::
 
 // returns array of options definitions
 GOptions defineOptions() {
+
 	GOptions goptions(GPARTICLE_LOGGER);
 
 	string help = "Adds a particle to the event generator \n ";
