@@ -28,9 +28,9 @@ foreach branch : examples_map.keys()
             # Geometry building tests (variations loop): Always use run "1"
             foreach variation : variations
                 # form a name string with example_dir and format
-                geo_test_name = 'geo_' + branch + '_' + example + '_' + format + '_variation_' + variation
-                run_test_name_asci = 'run_asci_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
-                run_test_name_root = 'run_root_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
+                geo_test_name = 'examples_geo_' + branch + '_' + example + '_' + format + '_variation_' + variation
+                run_test_name_asci = 'examples_run_asci_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
+                run_test_name_root = 'examples_run_root_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
                 ascii_output = '-gstreamer="[{format: ascii, filename: out' + branch + variation + '}]"'
                 root_output = '-gstreamer="[{format: root, filename: out' + branch + variation + '}]"'
                 test(geo_test_name,
@@ -53,9 +53,9 @@ foreach branch : examples_map.keys()
 
             # Geometry building tests (runs loop): Loop over runs with fixed variation "default"
             foreach run_value : runs
-                geo_test_name = 'geo_' + branch + '_' + example + '_' + format + '_run_' + run_value
-                run_test_name_asci = 'run_asci_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
-                run_test_name_root = 'run_root_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
+                geo_test_name = 'examples_geo_' + branch + '_' + example + '_' + format + '_run_' + run_value
+                run_test_name_asci = 'examples_run_asci_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
+                run_test_name_root = 'examples_run_root_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
                 ascii_output = '-gstreamer="[{format: ascii, filename: out' + branch + run_value + '}]"'
                 root_output = '-gstreamer="[{format: root, filename: out' + branch + run_value + '}]"'
                 test(geo_test_name,
