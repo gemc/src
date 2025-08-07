@@ -9,14 +9,14 @@
 // #include "G4PropagatorInField.hh"
 
 
-GMagneto::GMagneto(std::shared_ptr<GOptions> gopts) : log(std::make_shared<GLogger>(gopts, GFIELD_LOGGER, "GMagneto")){
+GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts) : log(std::make_shared<GLogger>(gopts, GFIELD_LOGGER, "GMagneto")){
 
 	fields_map = std::make_shared<gFieldMap>();
 	fields_manager = std::make_shared<gFieldMgrMap>();
 
 	log->debug(CONSTRUCTOR, "GMagneto");
 
-	GManager gFieldManager(log, "GMagneto");
+	GManager gFieldManager(gopts);
 
     // TODO: this should be done in gemc instead and passed to gmagneto? could be kept here
     std::vector <GFieldDefinition> field_definition_array = gfields::get_GFieldDefinition(gopts);

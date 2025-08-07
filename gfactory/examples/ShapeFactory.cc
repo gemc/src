@@ -4,10 +4,10 @@
 using namespace std;
 
 void Triangle::Area() {
-	cout << " Factory shape triangle it works! " << endl;
+	cout << " Factory shape Triangle::Area() " << endl;
 }
 
 void Box::Area() {
-	cout << " Factory shape box it works! " << endl;
+	cout << " Factory shape Box::Area() " << endl;
 }
 

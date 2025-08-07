@@ -17,7 +17,7 @@ public:
 	 * @brief Constructs a GMagneto object and loads field definitions from options.
 	 * @param gopts Pointer to the GOptions object containing configuration options.
 	 */
-	explicit GMagneto(std::shared_ptr<GOptions> gopts);
+	explicit GMagneto(const std::shared_ptr<GOptions>& gopts);
 
 	/**
 	* @brief Destructor to clean up dynamically allocated memory.

@@ -20,11 +20,10 @@
 
 G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 	: log(std::make_shared<GLogger>(gopts, G4SYSTEM_LOGGER, "G4World Constructor")) {
-
 	log->debug(CONSTRUCTOR, "G4World");
 
 	auto gsystemMap = gworld->getSystemsMap();
-	createG4SystemFactory(
+	createG4SystemFactory(gopts,
 	                      gsystemMap,
 	                      gopts->getScalarString("useBackupMaterial"),
 	                      gopts->getScalarInt("check_overlaps")
@@ -64,7 +63,7 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 		// loop over systems in the gsystemsMap
 		for (auto& [systemName, gsystem] : *gsystemMap) {
 			std::string g4Factory = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
-			objectsFactory   = get_factory(g4Factory);
+			objectsFactory        = get_factory(g4Factory);
 
 			for (auto& [volumeName, gvolumePtr] : gsystem->getGVolumesMap()) {
 				auto* gvolume = gvolumePtr.get();;
@@ -136,9 +135,9 @@ const G4Volume* G4World::getG4Volume(const std::string& volumeName) const {
 	return (it != g4volumesMap.end()) ? it->second : nullptr;
 }
 
-void G4World::setFieldManagerForVolume(const std::string&   volumeName,
-                                       G4FieldManager* fm,
-                                       bool            forceToAllDaughters) {
+void G4World::setFieldManagerForVolume(const std::string& volumeName,
+                                       G4FieldManager*    fm,
+                                       bool               forceToAllDaughters) {
 	auto it = g4volumesMap.find(volumeName);
 	if (it != g4volumesMap.end()) it->second->setFieldManager(fm, forceToAllDaughters);
 }
@@ -147,7 +146,7 @@ void G4World::setFieldManagerForVolume(const std::string&   volumeName,
 // ---- g4FactoryNameFromSystemFactory -----------------------------------------------------------
 std::string G4World::g4FactoryNameFromSystemFactory(const std::string& factory) const {
 	if (factory == GSYSTEMASCIIFACTORYLABEL ||
-		factory == GSYSTEMSQLITETFACTORYLABEL ||
+	    factory == GSYSTEMSQLITETFACTORYLABEL ||
 	    factory == GSYSTEMMYSQLTFACTORYLABEL) { return G4SYSTEMNATFACTORY; }
 	else if (factory == GSYSTEMCADTFACTORYLABEL) { return G4SYSTEMCADFACTORY; }
 	else {
@@ -220,7 +219,6 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial>& gmaterial) {
 
 
 void G4World::buildDefaultMaterialsElementsAndIsotopes() {
-
 	// isotopes not yet defined, defining them for the first time
 	int    Z, N;
 	double a, d, T;
@@ -381,11 +379,12 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 }
 
 
-void G4World::createG4SystemFactory(SystemMap*    gsystemsMap,
-                                    const std::string& backup_material,
-                                    int           check_overlaps) {
+void G4World::createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
+                                    SystemMap*                       gsystemsMap,
+                                    const std::string&               backup_material,
+                                    int                              check_overlaps) {
 	// instantiating gSystemManager
-	GManager manager(log, "G4World Manager");
+	GManager manager(gopts);
 
 	// Creating the native factory no matter what
 	log->info(2, "G4World: registering default factory <", G4SYSTEMNATFACTORY, ">");
@@ -418,15 +417,13 @@ void G4World::createG4SystemFactory(SystemMap*    gsystemsMap,
 			g4systemFactory[g4Factory]->initialize_context(log, check_overlaps, backup_material);
 		}
 	}
-
 }
 
 void G4World::buildMaterials(SystemMap* system_map) {
-
 	// looping over gsystem in the gsystemsMap,
 	// every GMaterial that is not built (due to dependencies) increments allRemainingMaterials
 	std::vector<GMaterial*> thisIterationRemainingMaterials;
-	unsigned long      allRemainingMaterials = 0;
+	unsigned long           allRemainingMaterials = 0;
 	do {
 		thisIterationRemainingMaterials.clear();
 

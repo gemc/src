@@ -17,4 +17,3 @@ class Box : public Shape {
 public:
 	void Area();
 };
-

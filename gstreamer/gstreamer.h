@@ -177,7 +177,7 @@ inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_p
                                                              int                              thread_id) {
 	auto log = std::make_shared<GLogger>(gopts, GSTREAMER_LOGGER, "gstreamersMap worker for thread id" + std::to_string(thread_id));
 
-	GManager manager(log);
+	GManager manager(gopts);
 
 	auto gstreamers = std::make_shared<gstreamersMap>();
 

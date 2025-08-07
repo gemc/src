@@ -331,15 +331,14 @@ using dRoutinesMap = std::unordered_map<std::string, std::shared_ptr<GDynamicDig
 
 inline std::shared_ptr<GDynamicDigitization> load_dynamicRoutine(const std::string& plugin_name, const std::shared_ptr<GOptions>& gopts) {
 
-	auto     log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GDIGITIZATION_LOGGER);
-	GManager manager(log);
+	GManager manager(gopts);
 	return manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin_name, gopts);
 }
 
 //  the returned map is shared and immutable
 inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<std::string>& plugin_names, const std::shared_ptr<GOptions>& gopts) {
 	auto     log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GDIGITIZATION_LOGGER);
-	GManager manager(log);
+	GManager manager(gopts);
 
 	auto routines = std::make_shared<dRoutinesMap>();
 

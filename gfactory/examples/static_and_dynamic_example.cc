@@ -13,9 +13,11 @@ using std::string;
 int main(int argc, char *argv[]) {
 
 	auto gopts =std::make_shared<GOptions>(argc, argv, gfactory::defineOptions());
-	auto log = std::make_shared<GLogger>(gopts, PLUGIN_LOGGER, "plugin_example");
+	// extra plugins log in here, so we have 3 total (2 additional managers)
+	// this is ok in the example, in a practical application we would only have one manager
+	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, PLUGIN_LOGGER);
 
-	GManager managerAV(log, "GManager Static");
+	GManager managerAV(gopts);
 	managerAV.RegisterObjectFactory<Triangle>("triangle");
 	managerAV.RegisterObjectFactory<Box>("box1");
 	managerAV.RegisterObjectFactory<Box>("box2");
@@ -37,14 +39,11 @@ int main(int argc, char *argv[]) {
 
 	log->info(0, " Shape pointers from map: ", fffv["triangle"], ", from direct pointer:", aShape);
 
-	// once we're done with it
-	managerAV.clearDLMap();
-
 
 	// B manages Cars. Notice, we do not need the derived class headers here!
 	// PRAGMA: These two names must match in registerDL and in LoadAndRegisterObjectFromLibrary:
 	// that's ok but need to spit error if that doesn't happen
-	GManager managerB(log, "GManager Dynamic");
+	GManager managerB(gopts);
 
 	map<string, std::shared_ptr<Car>> ggg;
 	ggg["tesla"] = managerB.LoadAndRegisterObjectFromLibrary<Car>("test_dyn_factory1", gopts);
@@ -59,6 +58,5 @@ int main(int argc, char *argv[]) {
 	log->info(0, " Car pointers from map: ", ggg["ford"], ", from direct pointer:", aCar);
 	log->info(0, " run generalCarVar method from factory map: ", ggg["tesla"]->generalCarVar);
 
-	// clearing the map - this should be done in classes destructors
-	managerB.clearDLMap();
+	return EXIT_SUCCESS;
 }

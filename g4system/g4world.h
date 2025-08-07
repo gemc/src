@@ -126,9 +126,10 @@ private:
 	 * @param check_overlaps Flag to enable or disable overlap checking.
 	 * @return Pointer to the created system factory map.
 	 */
-	void createG4SystemFactory(SystemMap*    gsystemsMap,
-	                           const std::string& backup_material,
-	                           int           check_overlaps);
+	void createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
+	                           SystemMap*                       gsystemsMap,
+	                           const std::string&               backup_material,
+	                           int                              check_overlaps);
 
 	bool build_g4volume(const GVolume* s, G4ObjectsFactory* objectFactory);
 

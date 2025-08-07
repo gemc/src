@@ -3,7 +3,6 @@
 
 constexpr const char* G1_LOGGER = "g1detector";
 
-
 class g1 : public GBase<g1> {
 public:
 

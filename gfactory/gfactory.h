@@ -6,14 +6,16 @@
  * @ingroup Factory
  */
 
+// C++
 #include <memory>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 
+// gfactory
 #include "gdl.h"
-#include "glogger.h"
-
+#include "gbase.h"
+#include "gfactory_options.h"
 
 /**
  * @class GFactoryBase
@@ -28,7 +30,7 @@ public:
 
 /**
  * @brief Concrete factory that creates objects of type @p T.
- * @tparam T The derived type to instantiate via <code>new T()</code>.
+ * @tparam T The derived type to instantiate via <code>newT()</code>.
  */
 template <class T>
 class GFactory final : public GFactoryBase {
@@ -50,10 +52,10 @@ public:
  *
  * @ingroup Factory
  */
-class GManager {
+class GManager : public GBase<GManager> {
 public:
 	/// Construct with logger and a human‑readable name.
-	explicit GManager(std::shared_ptr<GLogger> logger, std::string description = "");
+	explicit GManager(const std::shared_ptr<GOptions>& gopt) : GBase(gopt, PLUGIN_LOGGER) {}
 
 	/// No copy – the manager owns unique resources.
 	GManager(const GManager&)            = delete;
@@ -86,18 +88,11 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<DynamicLib>>   dlMap_;
 
 	std::string              gname;
-	std::shared_ptr<GLogger> log;
 };
 
 
-inline GManager::GManager(std::shared_ptr<GLogger> logger, std::string description)
-	: log(logger) {
-	gname = log->get_class_name() + description;
-	log->debug(CONSTRUCTOR, gname);
-}
 
 inline GManager::~GManager() {
-	log->debug(DESTRUCTOR, gname);
 	clearDLMap();
 }
 
@@ -134,6 +129,7 @@ std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view n
 	auto pluginLib = dlMap_.at(pluginName); // shared_ptr<DynamicLib>
 
 	if (pluginLib && pluginLib->handle) {
+
 		T* raw = T::instantiate(pluginLib->handle);
 		raw->set_loggers(gopts);
 

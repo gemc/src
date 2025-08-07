@@ -48,7 +48,7 @@ GWorld::~GWorld() { log->debug(DESTRUCTOR, "GWorld"); }
  * clears its DL map, and returns a pointer to a map of factory names to GSystemFactory pointers.
  */
 std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFactory() {
-	GManager manager(log, "GWorldManager");
+	GManager manager(gopts);
 
 	std::map<std::string, std::unique_ptr<GSystemFactory>> factoryMap;
 
