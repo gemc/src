@@ -114,21 +114,34 @@ protected:
 	std::shared_ptr<GLogger> log;
 
 public:
-	static GField* instantiate(const dlhandle handle) {
-		if (handle == nullptr) return nullptr;
+	// static GField* instantiate(const dlhandle handle) {
+	// 	if (handle == nullptr) return nullptr;
+	//
+	// 	// must match the extern C declaration in the derived factories
+	// 	void* maker = dlsym(handle, "GFieldFactory");
+	//
+	// 	if (maker == nullptr) return nullptr;
+	//
+	// 	typedef GField*(*fptr)();
+	//
+	// 	// static_cast not allowed here
+	// 	// see http://stackoverflow.com/questions/573294/when-to-use-reinterpret-cast
+	// 	// need to run the DLL GMediaFactory function that returns the factory
+	// 	fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
+	//
+	// 	return func();
+	// }
 
-		// must match the extern C declaration in the derived factories
-		void* maker = dlsym(handle, "GFieldFactory");
+	static GField* instantiate(const dlhandle h, std::shared_ptr<GOptions> g) {
+		if (!h) return nullptr;
+		using fptr = GField* (*)(std::shared_ptr<GOptions>);
 
-		if (maker == nullptr) return nullptr;
+		// Must match the extern "C" declaration in the derived factories.
+		auto sym   = dlsym(h, "GFieldFactory");
+		if (!sym) return nullptr;
 
-		typedef GField*(*fptr)();
-
-		// static_cast not allowed here
-		// see http://stackoverflow.com/questions/573294/when-to-use-reinterpret-cast
-		// need to run the DLL GMediaFactory function that returns the factory
-		fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
-
-		return func();
+		auto func = reinterpret_cast<fptr>(sym);
+		return func(g);
 	}
+
 };

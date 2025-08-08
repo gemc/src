@@ -2,7 +2,7 @@
 
 #include "goptions.h"
 
-constexpr const char* TRANSLATIONTABLE_LOGGER = "gtranslationTable";
+constexpr const char* TRANSLATIONTABLE_LOGGER = "gtranslationtable";
 
 namespace gtranslationTable {
 

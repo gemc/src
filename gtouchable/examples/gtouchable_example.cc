@@ -9,18 +9,17 @@ using std::string;
 using std::vector;
 
 int main(int argc, char* argv[]) {
-	auto gopts =std::make_shared<GOptions>(argc, argv, gtouchable::defineOptions());
-	auto log   = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gtouchable example");
+	auto gopts = std::make_shared<GOptions>(argc, argv, gtouchable::defineOptions());
+	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, TOUCHABLE_LOGGER); // duplicate a touchable logger
 
+	auto a_ctof_gtouchable = GTouchable(gopts, "readout", "sector: 5, paddle: 5", {10.0, 20.0, 30.0});
 
-	auto a_ctof_gtouchable = GTouchable("readout",  "sector: 6, paddle: 10", {10.0, 20.0, 30.0}, log);
-
-	for (unsigned i = 1; i < 100; i++) {
+	for (unsigned i = 1; i < 10; i++) {
 		GTouchable ctof = *GTouchable::create(log);
 
 		bool is_equal = ctof == a_ctof_gtouchable;
 
-		if (i % 10 == 0) { log->info(" GTouchable: ", ctof, " is equal: ", is_equal? "true" : "false"); }
+		log->info(" GTouchable: ", ctof, " is equal: ", is_equal ? "true" : "false");
 	}
 
 

@@ -2,13 +2,15 @@
 
 // gemc
 #include "gelectronic.h"
-#include "glogger.h"
+#include "gbase.h"
 
 // c++
 #include <string>
 #include <unordered_map>
-#include <utility>
 #include <vector>
+
+// tt
+#include "gtranslationTable_options.h"
 
 /**
  * \class GTranslationTable
@@ -16,20 +18,15 @@
  *
  * This class maps a vector<int> identity (converted into a string key) to a GElectronic object.
  */
-class GTranslationTable {
+class GTranslationTable : public GBase<GTranslationTable> {
 
 public:
 	/**
 	 * \brief Constructor.
-	 * \param logger Pointer to a logger instance for logging messages.
+	 * \param gopt Pointer to GOptions
 	 */
-	explicit GTranslationTable(std::shared_ptr<GLogger> logger) : log(logger) {
-		log->debug(CONSTRUCTOR, "GTranslationTable");
-	}
+	explicit GTranslationTable(const std::shared_ptr<GOptions>& gopt) : GBase(gopt, TRANSLATIONTABLE_LOGGER) {  }
 
-	~GTranslationTable() {
-		log->debug(DESTRUCTOR, "GTranslationTable");
-	}
 
 	/**
 	 * \brief Adds a GElectronic configuration with the provided identity.
@@ -64,8 +61,5 @@ private:
 	 * \return A string key representing the identity.
 	 */
 	[[nodiscard]] std::string formTTKey(const std::vector<int>& identity) const;
-
-	/// Pointer to a logger instance for logging messages.
-	std::shared_ptr<GLogger> log;
 
 };

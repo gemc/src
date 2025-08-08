@@ -10,7 +10,6 @@
 #include "gDigitizedData.h"
 #include "gTrueInfoData.h"
 #include "gtranslationTable.h"
-#include "gtranslationTable_options.h"
 #include "gdata_options.h"
 #include "gdynamicdigitization_options.h"
 
@@ -103,8 +102,14 @@ public:
 };
 
 /// Abstract base class for dynamic digitization functionality.
-class GDynamicDigitization {
+class GDynamicDigitization : public  GBase<GDynamicDigitization> {
 public:
+	explicit GDynamicDigitization(const std::shared_ptr<GOptions>& g)
+		: GBase<GDynamicDigitization>(g, GDIGITIZATION_LOGGER) {
+		// Optionally, keep your two extra loggers if you need them:
+		data_logger = std::make_shared<GLogger>(g, SFUNCTION_NAME, DATA_LOGGER);
+	}
+
 	/**
 	 * \brief Virtual destructor.
 	 */
@@ -121,7 +126,7 @@ public:
 	 */
 	[[nodiscard]] double processStepTime(const std::shared_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep) {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, FUNCTION_NAME);
+		log->debug(NORMAL, FUNCTION_NAME);
 		return processStepTimeImpl(gTouchID, thisStep);
 	}
 
@@ -134,13 +139,13 @@ public:
 	 * If the computed time cell index matches the current one (or if it was unset),
 	 * the original touchable is returned; otherwise, a new touchable is created.
 	 *
-	 * \param gTouchID Pointer to the original GTouchable.
+	 * \param gtouchable Pointer to the original GTouchable.
 	 * \param thisStep Pointer to the current G4Step.
 	 * \return A vector of GTouchable pointers.
 	 */
 	[[nodiscard]] std::vector<std::shared_ptr<GTouchable>> processTouchable(std::shared_ptr<GTouchable> gtouchable, G4Step* thisStep) {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, FUNCTION_NAME);
+		log->debug(NORMAL, FUNCTION_NAME);
 		return processTouchableImpl(std::move(gtouchable), thisStep);
 	}
 
@@ -155,10 +160,10 @@ public:
 	 * \param gmods A GTouchableModifiers object.
 	 * \return A vector of modified GTouchable pointers.
 	 */
-	[[nodiscard]] std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiers(const std::shared_ptr<GTouchable>& gTouchID, GTouchableModifiers gmods) {
+	[[nodiscard]] std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiers(const std::shared_ptr<GTouchable>& gTouchID, const GTouchableModifiers& gmods) {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, FUNCTION_NAME);
-		return processGTouchableModifiersImpl(gTouchID, std::move(gmods));
+		log->debug(NORMAL, FUNCTION_NAME);
+		return processGTouchableModifiersImpl(gTouchID, gmods);
 	}
 
 	virtual std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiersImpl([[maybe_unused]] const std::shared_ptr<GTouchable>& gTouchID,
@@ -175,7 +180,7 @@ public:
 	 */
 	[[nodiscard]] std::unique_ptr<GTrueInfoData> collectTrueInformation(GHit* ghit, size_t hitn) {
 		check_if_log_defined();
-		digi_logger->info(2, "GDynamicDigitization::collect true information for hit number ", hitn, " with size ", ghit->nsteps(), " steps");
+		log->info(2, "GDynamicDigitization::collect true information for hit number ", hitn, " with size ", ghit->nsteps(), " steps");
 		return collectTrueInformationImpl(ghit, hitn);
 	}
 
@@ -190,7 +195,7 @@ public:
 	 */
 	[[nodiscard]] std::unique_ptr<GDigitizedData> digitizeHit(GHit* ghit, [[maybe_unused]] size_t hitn) {
 		check_if_log_defined();
-		digi_logger->info(2, "GDynamicDigitization::digitize  hit number ", hitn, " with size ", ghit->nsteps(), " steps");
+		log->info(2, "GDynamicDigitization::digitize  hit number ", hitn, " with size ", ghit->nsteps(), " steps");
 		return digitizeHitImpl(ghit, hitn);
 	}
 
@@ -205,7 +210,7 @@ public:
 	 */
 	[[nodiscard]] bool loadConstants([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, "GDynamicDigitization::load constants");
+		log->debug(NORMAL, "GDynamicDigitization::load constants");
 		return loadConstantsImpl(runno, variation);
 	}
 
@@ -220,7 +225,7 @@ public:
 	 */
 	[[nodiscard]] bool loadTT([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, "GDynamicDigitization::load Translation Table for run ", runno, " with variation ", variation);
+		log->debug(NORMAL, "GDynamicDigitization::load Translation Table for run ", runno, " with variation ", variation);
 		return loadTTImpl(runno, variation);
 	}
 
@@ -249,7 +254,7 @@ public:
 	 */
 	[[nodiscard]] bool defineReadoutSpecs() {
 		check_if_log_defined();
-		digi_logger->debug(NORMAL, "GDynamicDigitization::define readout specs");
+		log->debug(NORMAL, "GDynamicDigitization::define readout specs");
 		return defineReadoutSpecsImpl();
 	};
 	virtual bool defineReadoutSpecsImpl() = 0;
@@ -261,19 +266,32 @@ public:
 	/**
 	 * \brief Dynamically instantiates a GDynamicDigitization object from a dynamic library.
 	 *
-	 * \param handle Handle to the dynamic library.
+	 * \param h Handle to the dynamic library.
 	 * \return A pointer to a GDynamicDigitization instance, or nullptr if instantiation fails.
 	 */
-	static GDynamicDigitization* instantiate(const dlhandle handle) {
-		if (handle == nullptr) return nullptr;
+	// static GDynamicDigitization* instantiate(const dlhandle handle) {
+	// 	if (handle == nullptr) return nullptr;
+	// 	// Must match the extern "C" declaration in the derived factories.
+	// 	void* maker = dlsym(handle, "GDynamicDigitizationFactory");
+	// 	if (maker == nullptr) return nullptr;
+	// 	typedef GDynamicDigitization*(*fptr)();
+	// 	// Use reinterpret_cast as required.
+	// 	fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
+	// 	return func();
+	// }
+
+	static GDynamicDigitization* instantiate(const dlhandle h, std::shared_ptr<GOptions> g) {
+		if (!h) return nullptr;
+		using fptr = GDynamicDigitization* (*)(std::shared_ptr<GOptions>);
+
 		// Must match the extern "C" declaration in the derived factories.
-		void* maker = dlsym(handle, "GDynamicDigitizationFactory");
-		if (maker == nullptr) return nullptr;
-		typedef GDynamicDigitization*(*fptr)();
-		// Use reinterpret_cast as required.
-		fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
-		return func();
+		auto sym   = dlsym(h, "GDynamicDigitizationFactory");
+		if (!sym) return nullptr;
+
+		auto func = reinterpret_cast<fptr>(sym);
+		return func(g);
 	}
+
 
 	// decides if the hit should be processed or not
 	virtual bool decisionToSkipHit(double energy) {
@@ -286,15 +304,13 @@ public:
 	/**
 	 * \brief Sets the loggers for the digitization process.
 	 *
-	 * Initializes data_logger, tt_logger, and digi_logger based on the provided GOptions.
+	 * Initializes data_logger,  based on the provided GOptions.
 	 *
 	 * \param g Pointer to GOptions.
 	 */
 	void set_loggers(const std::shared_ptr<GOptions>& g) {
 		gopts       = g;
 		data_logger = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, DATA_LOGGER);
-		tt_logger   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, TRANSLATIONTABLE_LOGGER);
-		digi_logger = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GDIGITIZATION_LOGGER);
 	}
 
 private:
@@ -303,8 +319,9 @@ private:
 protected:
 	/// Optional pointer to GOptions.
 	std::shared_ptr<GOptions> gopts;
+
 	/// Data, Translation Tables, and digitization loggers.
-	std::shared_ptr<GLogger> data_logger, tt_logger, digi_logger;
+	std::shared_ptr<GLogger> data_logger;
 
 	/**
 	 * \brief Checks that all required loggers and options are defined.
@@ -312,7 +329,7 @@ protected:
 	 * If any required logger is missing, prints an error message and exits.
 	 */
 	void check_if_log_defined() const {
-		if (gopts == nullptr || data_logger == nullptr || tt_logger == nullptr || digi_logger == nullptr) {
+		if (gopts == nullptr || data_logger == nullptr) {
 			std::cerr << KRED <<
 				"Fatal Error: GDynamicDigitization: goption is not set for this plugin or one of the loggers is null."
 				<< std::endl;
@@ -330,7 +347,6 @@ namespace gdynamicdigitization {
 using dRoutinesMap = std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>;
 
 inline std::shared_ptr<GDynamicDigitization> load_dynamicRoutine(const std::string& plugin_name, const std::shared_ptr<GOptions>& gopts) {
-
 	GManager manager(gopts);
 	return manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin_name, gopts);
 }
@@ -351,4 +367,4 @@ inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<
 }
 
 
-} // namespace gstreamer
+} // namespace gdynamicdigitization

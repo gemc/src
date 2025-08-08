@@ -42,7 +42,7 @@ bool GDosimeterDigitization::defineReadoutSpecsImpl() {
 	auto   hitBitSet     = HitBitSet("000001"); // defines what information to be stored in the hit
 
 	// Create a new GReadoutSpecs object with the specified parameters.
-	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, digi_logger);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, log);
 
 	return true;
 }
@@ -131,9 +131,9 @@ bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int runno, [[may
 		std::string dataFileWithPath = pluginPath + "/dosimeterData/Niel/" + filename;
 
 		std::ifstream inputfile(dataFileWithPath);
-		if (!inputfile) { digi_logger->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath); }
+		if (!inputfile) { log->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath); }
 
-		digi_logger->info(0, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
+		log->info(0, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
 
 		double p0, p1;
 		// Use proper loop condition to read pairs until failure.
@@ -196,7 +196,7 @@ double GDosimeterDigitization::getNielFactorForParticleAtEnergy(int pid, double 
 		value = nielfactorMap[pid].back();
 	}
 
-	digi_logger->debug(NORMAL, " pid: ", pid, ", j: ", j, ", value: ", value, ", energy: ", energyMeV);
+	log->debug(NORMAL, " pid: ", pid, ", j: ", j, ", value: ", value, ", energy: ", energyMeV);
 
 	return value;
 }

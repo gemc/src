@@ -25,7 +25,7 @@ public:
 	 * \param ghit Pointer to the GHit from which identity information is extracted.
 	 * \param logger GLogger Shared pointer
 	 */
-	GTrueInfoData(const GHit* ghit, std::shared_ptr<GLogger> logger);
+	GTrueInfoData(const GHit* ghit, const std::shared_ptr<GLogger>& logger);
 
 	/**
 	 * \brief Destructor for GTrueInfoData.
@@ -68,7 +68,7 @@ public:
 		return trueInfoStringVariablesMap;
 	}
 
-	static std::unique_ptr<GTrueInfoData> create(std::shared_ptr<GLogger> logger) {
+	static std::unique_ptr<GTrueInfoData> create(const std::shared_ptr<GLogger>& logger) {
 		auto hit       = GHit::create(logger);
 		auto true_info_data = std::make_unique<GTrueInfoData>(hit, logger);
 		auto counter   = globalTrueInfoDataCounter.fetch_add(1, std::memory_order_relaxed);

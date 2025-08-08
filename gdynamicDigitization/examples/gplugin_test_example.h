@@ -1,7 +1,7 @@
 #pragma once
 
 // gdynamic
-#include "gdynamicdigitization.h"
+#include "../gdynamicdigitization.h"
 
 // c++
 #include <string>
@@ -9,7 +9,8 @@
 class GPlugin_test_example : public GDynamicDigitization {
 
 public:
-    // constructor is not needed
+    // inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using GDynamicDigitization::GDynamicDigitization;
 
     // mandatory readout specs definitions
 	bool defineReadoutSpecsImpl() override;
@@ -29,7 +30,7 @@ private:
 	std::shared_ptr<GTranslationTable> translationTable;
 };
 
-extern "C" GDynamicDigitization* GDynamicDigitizationFactory(void) {
-    return static_cast<GDynamicDigitization*>(new GPlugin_test_example);
-}
-
+// extern "C" GDynamicDigitization* GDynamicDigitizationFactory(void) {
+//     return static_cast<GDynamicDigitization*>(new GPlugin_test_example);
+// }
+//

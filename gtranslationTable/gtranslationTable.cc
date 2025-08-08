@@ -6,7 +6,7 @@
 /**
  * \brief Forms the translation table key from the given identity vector.
  *
- * Uses an std::ostringstream to concatenate the integer elements separated by hyphens.
+ * Uses a std::ostringstream to concatenate the integer elements separated by hyphens.
  * If the identity vector is empty, logs a warning and returns an empty string.
  *
  * \param identity A vector of integers representing the identity.
@@ -70,7 +70,7 @@ GElectronic GTranslationTable::getElectronics(const std::vector<int> &identity) 
 	auto search = tt.find(ttKey);
 
 	if (search != tt.end()) {
-		log->debug(NORMAL, "Found key <", ttKey, "> in TT map");
+		log->debug(NORMAL, "Retrieved Electronic using key <", ttKey, "> in TT map: ", search->second);
 		return search->second;
 	} else {
 		log->error(EC__TTNOTFOUNDINTT, "Key <", ttKey, "> not found in TT map");

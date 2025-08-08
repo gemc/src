@@ -7,7 +7,7 @@ bool GPlugin_test_example::defineReadoutSpecsImpl() {
 	double gridStartTime = 0;                      // defines the window grid
 	auto   hitBitSet     = HitBitSet("100000"); // defines what information to be stored in the hit
 
-	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, digi_logger);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, log);
 
 	return true;
 }
@@ -26,7 +26,7 @@ bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] std::st
 
 	var4 = "hello";
 
-	digi_logger->info(0, " Constants loaded for run number ", runno, " for ctof. var1  is ", var1,
+	log->info(0, " Constants loaded for run number ", runno, " for ctof. var1  is ", var1,
 	                  ", var2 pointer is ", var2, ", variation is ", variation);
 
 	return true;
@@ -41,14 +41,12 @@ bool GPlugin_test_example::loadTTImpl([[maybe_unused]] int runno, [[maybe_unused
 	GElectronic crate1(2, 1, 3, 2);
 	GElectronic crate2(2, 1, 4, 2);
 
-	translationTable = std::make_shared<GTranslationTable>(tt_logger);
+	translationTable = std::make_shared<GTranslationTable>(gopts);
 
 	translationTable->addGElectronicWithIdentity(element1, crate1);
 	translationTable->addGElectronicWithIdentity(element2, crate2);
 
-	GElectronic retrievedElectronic = translationTable->getElectronics(element1);
-
-	tt_logger->info(0, "Retrieved electronic: ", retrievedElectronic);
+	auto retrievedElectronic = translationTable->getElectronics(element1);
 
 	return true;
 }
@@ -57,7 +55,7 @@ bool GPlugin_test_example::loadTTImpl([[maybe_unused]] int runno, [[maybe_unused
 
 [[nodiscard]] std::unique_ptr<GDigitizedData> GPlugin_test_example::digitizeHitImpl(GHit* ghit, [[maybe_unused]] size_t hitn) {
 	// return a new GDigitizedData object with some data derived from the hit
-	auto digitizedData = std::make_unique<GDigitizedData>(ghit, digi_logger);
+	auto digitizedData = std::make_unique<GDigitizedData>(ghit, log);
 
 	auto edep = ghit->getTotalEnergyDeposited();
 
@@ -72,5 +70,10 @@ bool GPlugin_test_example::loadTTImpl([[maybe_unused]] int runno, [[maybe_unused
 }
 
 
-// tells the DLL how to create a GDynamicFactory
-extern "C" GDynamicDigitization* GDynamicFactory(void) { return static_cast<GDynamicDigitization*>(new GPlugin_test_example); }
+// tells the DLL how to create a GPlugin_test_example
+//extern "C" GDynamicDigitization* GDynamicFactory(void) { return static_cast<GDynamicDigitization*>(new GPlugin_test_example); }
+
+// in each plugin .so/.dylib
+extern "C" GDynamicDigitization* GDynamicDigitizationFactory(const std::shared_ptr<GOptions>& g) {
+	return  static_cast<GDynamicDigitization*> (new GPlugin_test_example(g));
+}

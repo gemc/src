@@ -130,7 +130,7 @@ std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view n
 
 	if (pluginLib && pluginLib->handle) {
 
-		T* raw = T::instantiate(pluginLib->handle);
+		T* raw = T::instantiate(pluginLib->handle, gopts);
 		raw->set_loggers(gopts);
 
 		// return shared_ptr<T> with deleter that captures pluginLib

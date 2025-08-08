@@ -96,7 +96,7 @@ void GDetectorConstruction::ConstructSDandField() {
 				// Register the volume touchable with the sensitive detector
 				const auto& vdimensions     = gvolumePtr->getDetectorDimensions();
 				const auto& identity        = gvolumePtr->getGIdentity();
-				auto        this_gtouchable = std::make_shared<GTouchable>(digitizationName, identity, vdimensions, log);
+				auto        this_gtouchable = std::make_shared<GTouchable>(gopt, digitizationName, identity, vdimensions);
 				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name, this_gtouchable);
 
 				sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName]);
@@ -131,15 +131,15 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 	for (auto& sdname : sdetectors) {
 		if (sdname == FLUXNAME) {
 			log->info(1, "Loading flux digitization plugin for routine <" + sdname + ">");
-			digitization_routines_map->emplace(sdname, std::make_shared<GFluxDigitization>());
+			digitization_routines_map->emplace(sdname, std::make_shared<GFluxDigitization>(gopt));
 		}
 		else if (sdname == COUNTERNAME) {
 			log->info(1, "Loading particle counter digitization plugin for routine <" + sdname + ">");
-			digitization_routines_map->emplace(sdname, std::make_shared<GParticleCounterDigitization>());
+			digitization_routines_map->emplace(sdname, std::make_shared<GParticleCounterDigitization>(gopt));
 		}
 		else if (sdname == DOSIMETERNAME) {
 			log->info(1, "Loading dosimeter digitization plugin for routine <" + sdname + ">");
-			digitization_routines_map->emplace(sdname, std::make_shared<GDosimeterDigitization>());
+			digitization_routines_map->emplace(sdname, std::make_shared<GDosimeterDigitization>(gopt));
 		}
 		else {
 			// if it's not in the map already, add it

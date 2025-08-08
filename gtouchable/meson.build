@@ -1,4 +1,11 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+
+example_source = files('examples/gtouchable_example.cc')
+
+verbosities = ['-verbosity.gtouchable=2',
+               '-debug.gtouchable=true'
+]
+
 LD += {
     'name' : sub_dir_name,
     'sources' : files(
@@ -16,7 +23,7 @@ LD += {
     ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'test_gtouchable_example' : [files('examples/gtouchable_example.cc'), ''],
-        'test_gtouchable_example_verbose' : [files('examples/gtouchable_example.cc'), '-verbosity.gtouchable=2', '-debug.gtouchable=true']
+        'test_gtouchable_example' : [example_source, ''],
+        'test_gtouchable_example_verbose' : [example_source, verbosities]
     }
 }

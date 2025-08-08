@@ -13,22 +13,34 @@ public:
 	virtual ~GSystemDynamicFactory() = default;
 
 	// this method must be present for the dynamic loaded factories
-	static GSystemDynamicFactory* instantiate(const dlhandle handle) {
-		if (handle == nullptr) return nullptr;
+	// static GSystemDynamicFactory* instantiate(const dlhandle handle) {
+	// 	if (handle == nullptr) return nullptr;
+	//
+	// 	// must match the extern C declaration in the derived factories
+	// 	void* maker = dlsym(handle, "GSystemDynamicFactory");
+	//
+	// 	if (maker == nullptr) return nullptr;
+	//
+	// 	typedef GSystemDynamicFactory*(*fptr)();
+	//
+	// 	// static_cast not allowed here
+	// 	// see http://stackoverflow.com/questions/573294/when-to-use-reinterpret-cast
+	// 	// need to run the DLL GSystemDynamicFactory function that returns the factory
+	// 	fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
+	//
+	// 	return func();
+	// }
 
-		// must match the extern C declaration in the derived factories
-		void* maker = dlsym(handle, "GSystemDynamicFactory");
+	static GSystemDynamicFactory* instantiate(const dlhandle h, std::shared_ptr<GOptions> g) {
+		if (!h) return nullptr;
+		using fptr = GSystemDynamicFactory* (*)(std::shared_ptr<GOptions>);
 
-		if (maker == nullptr) return nullptr;
+		// Must match the extern "C" declaration in the derived factories.
+		auto sym   = dlsym(h, "GSystemDynamicFactory");
+		if (!sym) return nullptr;
 
-		typedef GSystemDynamicFactory*(*fptr)();
-
-		// static_cast not allowed here
-		// see http://stackoverflow.com/questions/573294/when-to-use-reinterpret-cast
-		// need to run the DLL GSystemDynamicFactory function that returns the factory
-		fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
-
-		return func();
+		auto func = reinterpret_cast<fptr>(sym);
+		return func(g);
 	}
 
 };

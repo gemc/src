@@ -2,21 +2,23 @@
 #include "gtouchable.h"
 #include "gtouchableConventions.h"
 
-// glibrary
+// gemc
 #include "gutilities.h"
 #include "gutsConventions.h"
 
 // Define the static counter here
 std::atomic<int> GTouchable::globalGTouchableCounter{0};
 
-// constructor from digitization and gidentity strings
+// constructor from gopt, digitization and gidentity strings
 // called in GDetectorConstruction::ConstructSDandField
-GTouchable::GTouchable(const std::string& digitization, const std::string& gidentityString, const std::vector<double>& dimensions, std::shared_ptr<GLogger> logger) :
-	log(logger),
-	trackId(0),
-	eMultiplier(1),
-	stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),
-	detectorDimensions(dimensions) {
+GTouchable::GTouchable(const std::shared_ptr<GOptions>& gopt,
+                       const std::string&               digitization,
+                       const std::string&               gidentityString,
+                       const std::vector<double>&       dimensions) : GBase(gopt, TOUCHABLE_LOGGER),
+                                                                      trackId(0),
+                                                                      eMultiplier(1),
+                                                                      stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),
+                                                                      detectorDimensions(dimensions) {
 	// Determine the type based on the digitization string.
 	if (digitization == FLUXNAME) { gType = flux; }
 	else if (digitization == COUNTERNAME) { gType = particleCounter; }
@@ -39,18 +41,35 @@ GTouchable::GTouchable(const std::string& digitization, const std::string& giden
 	log->debug(CONSTRUCTOR, "GTouchable", gtouchable::to_string(gType), " ", getIdentityString());
 }
 
+// constructor from logger, digitization and gidentity strings
+// called in GDetectorConstruction::ConstructSDandField
+GTouchable::GTouchable(const std::shared_ptr<GLogger>& logger,
+					   const std::string&               digitization,
+					   const std::string&               gidentityString,
+					   const std::vector<double>&       dimensions) : GBase(logger),
+																	  trackId(0),
+																	  eMultiplier(1),
+																	  stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),
+																	  detectorDimensions(dimensions) {
+	// Determine the type based on the digitization string.
+	if (digitization == FLUXNAME) { gType = flux; }
+	else if (digitization == COUNTERNAME) { gType = particleCounter; }
+	else if (digitization == DOSIMETERNAME) { gType = dosimeter; }
+	else { gType = readout; }
 
-// Copy constructor to create a new hit, in case the time indices differ.
-// Used in the non-overloaded processTouchable when time indices differ.
-GTouchable::GTouchable(std::shared_ptr<GTouchable> baseGT, int newTimeIndex) : log(baseGT->log) {
+	// Parse the gidentity string.
+	// Expected format: "sector: 2, layer: 4, wire: 33"
+	std::vector<std::string> identity = gutilities::getStringVectorFromStringWithDelimiter(gidentityString, ",");
+	// Process each identifier (e.g., "sector: 2").
+	for (auto& gid : identity) {
+		std::vector<std::string> identifier = gutilities::getStringVectorFromStringWithDelimiter(gid, ":");
 
-	gType                      = baseGT->gType;
-	gidentity                  = baseGT->gidentity;
-	trackId                    = baseGT->trackId;
-	eMultiplier                = baseGT->eMultiplier;
-	detectorDimensions         = baseGT->detectorDimensions;
-	stepTimeAtElectronicsIndex = newTimeIndex;
+		// Note: In production, consider adding try-catch here to handle conversion errors.
+		const std::string& idName  = identifier[0];
+		int                idValue = std::stoi(identifier[1]);
 
+		gidentity.emplace_back(idName, idValue);
+	}
 	log->debug(CONSTRUCTOR, "GTouchable", gtouchable::to_string(gType), " ", getIdentityString());
 }
 

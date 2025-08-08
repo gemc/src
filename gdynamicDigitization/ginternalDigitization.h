@@ -34,6 +34,8 @@
 /// Class for flux detector digitization. Inherits from GDynamicDigitization.
 class GFluxDigitization : public GDynamicDigitization {
 public:
+	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using GDynamicDigitization::GDynamicDigitization;
 	/**
 	 * \brief Defines readout specifications for flux digitization.
 	 *
@@ -59,6 +61,8 @@ public:
 /// Class for particle counter digitization. Inherits from GDynamicDigitization.
 class GParticleCounterDigitization : public GDynamicDigitization {
 public:
+	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using GDynamicDigitization::GDynamicDigitization;
 	/**
 	 * \brief Defines readout specifications for particle counter digitization.
 	 *
@@ -83,6 +87,8 @@ public:
 /// Class for dosimeter digitization. Inherits from GDynamicDigitization.
 class GDosimeterDigitization : public GDynamicDigitization {
 public:
+	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using GDynamicDigitization::GDynamicDigitization;
 	/**
 	 * \brief Defines readout specifications for dosimeter digitization.
 	 *

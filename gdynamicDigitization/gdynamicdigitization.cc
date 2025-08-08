@@ -5,8 +5,8 @@
  * This file implements methods for processing digitization steps, collecting true hit information,
  * applying touchable modifiers, and setting hardware-level charge and time information.
  *
- * \author Your Name
- * \date YYYY-MM-DD
+ * \author Maurizio Ungaro
+ * \date 2025-08-08
  */
 
 #include "gdynamicdigitization.h"
@@ -73,12 +73,16 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, const GHit* ghit, GDigitizedData& gdata) {
 	check_if_log_defined();
 	// Exit if the translation table is not defined.
-	if (translationTable == nullptr) { tt_logger->error(EC__TTNOTFOUNDINTT, "Translation Table not found"); }
+	if (translationTable == nullptr) {
+		log->error(EC__TTNOTFOUNDINTT, "Translation Table not found");
+	}
 	else {
 		// Obtain the hardware address (crate, slot, channel) from the translation table.
 		std::vector<int> haddress = translationTable->getElectronics(ghit->getTTID()).getHAddress();
 		// Exit if the hardware address is not properly initialized.
-		if (haddress.front() == UNINITIALIZEDNUMBERQUANTITY) { tt_logger->error(EC__GIDENTITYNOTFOUNDINTT, "Translation Table found, but haddress was not initialized"); }
+		if (haddress.front() == UNINITIALIZEDNUMBERQUANTITY) {
+			log->error(EC__GIDENTITYNOTFOUNDINTT, "Translation Table found, but haddress was not initialized");
+		}
 		else {
 			// Include hardware address, time, and charge in the digitized data.
 			gdata.includeVariable(CRATESTRINGID, haddress[0]);

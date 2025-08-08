@@ -34,7 +34,16 @@ public:
 		log->debug(CONSTRUCTOR, getDerivedName());
 	}
 
+	// sharing logger for heavy creations like gtouchable
+	explicit GBase(const std::shared_ptr<GLogger>& logger) : log(logger) {}
+
 	~GBase() { log->debug(DESTRUCTOR, getDerivedName()); }
+
+	// Important: because we declared a destructor, default these explicitly.
+	GBase(const GBase&)                = default; // shallow copy of shared_ptr
+	GBase& operator=(const GBase&)     = default;
+	GBase(GBase&&) noexcept            = default; // otherwise move would be suppressed
+	GBase& operator=(GBase&&) noexcept = default;
 
 private:
 	std::string getDerivedName() const { return demangle(typeid(Derived).name()); }

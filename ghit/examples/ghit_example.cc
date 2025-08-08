@@ -11,11 +11,11 @@ using std::vector;
 
 int main(int argc, char* argv[]) {
 	auto gopts =std::make_shared<GOptions>(argc, argv, gtouchable::defineOptions());
-	auto log   = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "ghit_example");
+	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, TOUCHABLE_LOGGER); // duplicate logger
 
 	HitBitSet hitBitSet;
 
-	auto a_ctof_gtouchable = GTouchable("readout", "sector: 6, paddle: 10", {10.0, 20.0, 30.0}, log);
+	auto a_ctof_gtouchable = GTouchable(gopts, "readout", "sector: 6, paddle: 10", {10.0, 20.0, 30.0});
 
 	auto a_hit = new GHit(std::make_shared<GTouchable>(a_ctof_gtouchable), hitBitSet);
 

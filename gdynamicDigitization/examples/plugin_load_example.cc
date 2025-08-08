@@ -74,8 +74,8 @@ auto run_simulation_in_threads(int                                              
 				auto gheader = GEventHeader::create(log);
 				auto eventData = std::make_unique<GEventDataCollection>(std::move(gheader), log);
 
-				// each event has 10 hits
-				for (unsigned i = 1; i < 11; i++) {
+				// each event has 2 hits
+				for (unsigned i = 1; i < 3; i++) {
 					auto hit = GHit::create(log);
 					auto true_data = dynamicRoutinesMap->at(plugin_name)->collectTrueInformation(hit, i);
 					auto digi_data = dynamicRoutinesMap->at(plugin_name)->digitizeHit(hit, i);
@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
 	auto gopts =std::make_shared<GOptions>(argc, argv, gdynamicdigitization::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	auto log = std::make_shared<GLogger>(gopts, DATA_LOGGER, "plugin_load_example: main");
+	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, DATA_LOGGER);
 
 	constexpr int nevents  = 10;
 	constexpr int nthreads = 8;

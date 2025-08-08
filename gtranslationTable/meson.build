@@ -1,4 +1,12 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+
+example_source = files('examples/tt_example.cc')
+
+verbosities = ['-verbosity.gtranslationtable=2',
+               '-debug.gtranslationtable=true'
+]
+
+
 LD += {
     'name' : sub_dir_name,
     'sources' : files(
@@ -12,7 +20,7 @@ LD += {
     ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'test_translation_table' : [files('examples/tt_example.cc'), ''],
-        'test_translation_table_verbose' : [files('examples/tt_example.cc'), '-verbosity.gtranslationTable=2', '-debug.gtranslationTable=true']
+        'test_translation_table' : [example_source, ''],
+        'test_translation_table_verbose' : [example_source, verbosities]
     }
 }

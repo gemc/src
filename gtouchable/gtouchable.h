@@ -1,11 +1,15 @@
 #pragma once
 
-#include "glogger.h"
+// gemc
+#include "gbase.h"
 
 // c++
 #include <vector>
 #include <string>
 #include <memory>
+
+// gtouchable
+#include "gtouchable_options.h"
 
 // - readout: electronic Time Window is the discriminating factor.
 //   parameters and hitBitSet determined by defineReadoutSpecs in the plugin
@@ -96,35 +100,55 @@ private:
  *  - the gType (if the gidentity vectors are the same)
  *  The algorithm is implemented in the operator== method.
  */
-class GTouchable {
+class GTouchable : public GBase<GTouchable> {
 
 public:
+
+
+	GTouchable(const GTouchable&)            = default;
+	GTouchable& operator=(const GTouchable&) = default;
+
 	/**
 	* @brief Constructs a GTouchable from digitization and identifier strings.
 	*
 	* Called in GDetectorConstruction::ConstructSDandField to register a new
 	* GTouchable in the sensitive detector map.
 	*
+	* @param gopt: GOptions
 	* @param digitization The digitization type as a string.
 	* @param gidentityString The string specifying the gidentity (e.g., "sector: 2, layer: 4, wire: 33").
 	* @param dimensions The physical dimensions of the detector element.
-	* @param logger Pointer to the GLogger instance for logging messages.
 	*/
-	GTouchable(const std::string&         digitization, const std::string&     gidentityString,
-	           const std::vector<double>& dimensions, std::shared_ptr<GLogger> logger);
+	GTouchable(const std::shared_ptr<GOptions>& gopt,
+	           const std::string&               digitization,
+	           const std::string&               gidentityString,
+	           const std::vector<double>&       dimensions);
 
 
+	GTouchable(const std::shared_ptr<GLogger>& logger,
+		   const std::string&               digitization,
+		   const std::string&               gidentityString,
+		   const std::vector<double>&       dimensions);
 	/**
-	* @brief Copy constructor for updating the electronics time index.
+	* @brief Copy constructor for updating the electronic time index.
+	* Used to create a new hit, in case the time indices differ.
+	* Used in processTouchable when time indices differ.
 	*
 	* Used when the step time index of the hit is different from that of the GTouchable.
+	* Base: shallow or deep depending on GBase’s copy
 	*
-	* @param baseGT Pointer to the base GTouchable.
+	* @param base Pointer to the base GTouchable.
 	* @param newTimeIndex The new electronics time index.
 	*/
-	GTouchable(std::shared_ptr<GTouchable> baseGT, int newTimeIndex);
+	GTouchable(const std::shared_ptr<GTouchable>& base, int newTimeIndex)
+		: GBase<GTouchable>(*base),
+		  gType(base->gType),
+		  gidentity(base->gidentity),
+		  trackId(base->trackId),
+		  eMultiplier(base->eMultiplier),
+		  stepTimeAtElectronicsIndex(newTimeIndex) { log->debug(CONSTRUCTOR, "Copy-with-time-index", gtouchable::to_string(gType), " ", getIdentityString()); }
 
-	~GTouchable() { if (log) log->debug(DESTRUCTOR, "GTouchable", gtouchable::to_string(gType), " ", getIdentityString()); }
+	~GTouchable() { log->debug(DESTRUCTOR, gtouchable::to_string(gType), " ", getIdentityString()); }
 
 	/**
 	* @brief Equality operator comparing two GTouchable objects.
@@ -202,18 +226,28 @@ public:
 	}
 
 	// create fake gtouchable for testing purposes, using sector and fake dimensions
-	static std::shared_ptr<GTouchable> create(std::shared_ptr<GLogger> logger) {
+	static std::shared_ptr<GTouchable> create(const std::shared_ptr<GOptions>& gopt) {
 		int         touchableNumber = globalGTouchableCounter.fetch_add(1, std::memory_order_relaxed);
 		int         sector          = (touchableNumber % 6) + 1;
 		int         paddle          = (touchableNumber % 20) + 1;
 		std::string identity        = "sector: " + std::to_string(sector) + ", paddle: " + std::to_string(paddle);
 		const auto& dimensions      = {10.0, 20.0, 30.0};
 
-		return std::make_shared<GTouchable>("readout", identity, dimensions, logger);
+		return std::make_shared<GTouchable>(gopt, "readout", identity, dimensions);
+	}
+
+	// create fake gtouchable for testing purposes, using sector and fake dimensions
+	static std::shared_ptr<GTouchable> create(const std::shared_ptr<GLogger>& logger) {
+		int         touchableNumber = globalGTouchableCounter.fetch_add(1, std::memory_order_relaxed);
+		int         sector          = (touchableNumber % 6) + 1;
+		int         paddle          = (touchableNumber % 20) + 1;
+		std::string identity        = "sector: " + std::to_string(sector) + ", paddle: " + std::to_string(paddle);
+		const auto& dimensions      = {10.0, 20.0, 30.0};
+
+		return std::make_shared<GTouchable>(logger, "readout", identity, dimensions);
 	}
 
 private:
-	std::shared_ptr<GLogger> log; ///< Logger instance
 	GTouchableType gType; ///< The type of the touchable element.
 	std::vector<GIdentifier> gidentity; ///< Unique identifiers for the detector element.
 	int trackId; ///< Track id (used in flux and dosimeter types). Assigned in sensitiveDetector::ProcessHit

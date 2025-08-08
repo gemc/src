@@ -147,22 +147,34 @@ private:
 
 public:
 	// method to dynamically load factories
-	static GStreamer* instantiate(const dlhandle handle) {
-		if (handle == nullptr) return nullptr;
+	// static GStreamer* instantiate(const dlhandle handle) {
+	// 	if (handle == nullptr) return nullptr;
+	//
+	// 	// must match the extern C declaration in the derived factories
+	// 	void* maker = dlsym(handle, "GStreamerFactory");
+	//
+	// 	if (maker == nullptr) return nullptr;
+	//
+	// 	typedef GStreamer*(*fptr)();
+	//
+	// 	// static_cast not allowed here
+	// 	// see http://stackoverflow.com/questions/573294/when-to-use-reinterpret-cast
+	// 	// need to run the DLL GMediaFactory function that returns the factory
+	// 	fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
+	//
+	// 	return func();
+	// }
 
-		// must match the extern C declaration in the derived factories
-		void* maker = dlsym(handle, "GStreamerFactory");
+	static GStreamer* instantiate(const dlhandle h, std::shared_ptr<GOptions> g) {
+		if (!h) return nullptr;
+		using fptr = GStreamer* (*)(std::shared_ptr<GOptions>);
 
-		if (maker == nullptr) return nullptr;
+		// Must match the extern "C" declaration in the derived factories.
+		auto sym   = dlsym(h, "GStreamerFactory");
+		if (!sym) return nullptr;
 
-		typedef GStreamer*(*fptr)();
-
-		// static_cast not allowed here
-		// see http://stackoverflow.com/questions/573294/when-to-use-reinterpret-cast
-		// need to run the DLL GMediaFactory function that returns the factory
-		fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
-
-		return func();
+		auto func = reinterpret_cast<fptr>(sym);
+		return func(g);
 	}
 
 };

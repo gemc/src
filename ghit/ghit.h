@@ -7,7 +7,6 @@
 #include "G4VHit.hh"
 #include "G4THitsCollection.hh"
 #include "G4Allocator.hh"
-#include "G4Types.hh"
 
 #include "G4ThreeVector.hh"
 #include "G4Step.hh"
@@ -213,7 +212,7 @@ public:
 
 
 	// create fake GHit for testing purposes, using sector and fake dimensions
-	static GHit* create(std::shared_ptr<GLogger> logger) {
+	static GHit* create(const std::shared_ptr<GLogger>& logger) {
 		HitBitSet hitBitSet;
 		auto      gt  = GTouchable::create(logger);
 		auto      hit = new GHit(gt, hitBitSet);

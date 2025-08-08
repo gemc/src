@@ -9,7 +9,7 @@
 
 std::atomic<int> GTrueInfoData::globalTrueInfoDataCounter{0};
 
-GTrueInfoData::GTrueInfoData(const GHit* ghit, std::shared_ptr<GLogger> logger) : log(logger) {
+GTrueInfoData::GTrueInfoData(const GHit* ghit,const std::shared_ptr<GLogger>& logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GTrueInfoData");
 	gidentity = ghit->getGID();
 }
