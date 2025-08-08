@@ -9,7 +9,6 @@
 // gemc
 #include "gfactory.h"
 #include "event/gEventDataCollection.h"
-#include "gdata_options.h"
 
 // TODO: remove when C++20 is widely available
 // ===== portable jthread-like wrapper =========================================
@@ -34,9 +33,10 @@ public:
 
 const std::string plugin_name = "test_gdynamic_plugin";
 
-auto run_simulation_in_threads(int                                                       nevents,
-                               int                                                       nthreads,
-                               const std::shared_ptr<GLogger>&                           log,
+auto run_simulation_in_threads(int                                                              nevents,
+                               int                                                              nthreads,
+                               const std::shared_ptr<GOptions>&                                 gopt,
+                               const std::shared_ptr<GLogger>&                                  log,
                                const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& dynamicRoutinesMap) -> std::vector<std::unique_ptr<GEventDataCollection>> {
 	std::mutex                                         collectorMtx;
 	std::vector<std::unique_ptr<GEventDataCollection>> collected;
@@ -71,12 +71,12 @@ auto run_simulation_in_threads(int                                              
 				int evn = next.fetch_add(1, std::memory_order_relaxed); // atomically returns the current value and increments it by 1.
 				if (evn > nevents) break;                               // exit the while loop
 
-				auto gheader = GEventHeader::create(log);
-				auto eventData = std::make_unique<GEventDataCollection>(std::move(gheader), log);
+				auto gheader   = GEventHeader::create(gopt);
+				auto eventData = std::make_unique<GEventDataCollection>(gopt, std::move(gheader));
 
 				// each event has 2 hits
 				for (unsigned i = 1; i < 3; i++) {
-					auto hit = GHit::create(log);
+					auto hit       = GHit::create(gopt);
 					auto true_data = dynamicRoutinesMap->at(plugin_name)->collectTrueInformation(hit, i);
 					auto digi_data = dynamicRoutinesMap->at(plugin_name)->digitizeHit(hit, i);
 
@@ -114,10 +114,10 @@ auto run_simulation_in_threads(int                                              
 
 int main(int argc, char* argv[]) {
 	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
-	auto gopts =std::make_shared<GOptions>(argc, argv, gdynamicdigitization::defineOptions());
+	auto gopts = std::make_shared<GOptions>(argc, argv, gdynamicdigitization::defineOptions());
 
-	// Create loggers: one for gdata and one for gtouchable.
-	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, DATA_LOGGER);
+	// duplicate plugin logger here
+	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, PLUGIN_LOGGER);
 
 	constexpr int nevents  = 10;
 	constexpr int nthreads = 8;
@@ -127,11 +127,10 @@ int main(int argc, char* argv[]) {
 		log->error(1, "Failed to load constants for dynamic routine", plugin_name, "for run number 1 with variation 'default'.");
 	}
 
-	auto runData = run_simulation_in_threads(nevents, nthreads, log, dynamicRoutinesMap);
+	auto runData = run_simulation_in_threads(nevents, nthreads, gopts, log, dynamicRoutinesMap);
 
 	// For demonstration, we'll simply print the event numbers.
 	for (size_t i = 0; i < runData.size(); i++) { log->info(" > Event ", i + 1, " collected with local event number: ", runData[i]->getEventNumber()); }
 
 	return EXIT_SUCCESS;
 }
-

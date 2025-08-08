@@ -103,8 +103,6 @@ private:
 class GTouchable : public GBase<GTouchable> {
 
 public:
-
-
 	GTouchable(const GTouchable&)            = default;
 	GTouchable& operator=(const GTouchable&) = default;
 

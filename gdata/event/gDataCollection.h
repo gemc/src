@@ -22,22 +22,19 @@ public:
 	 * \brief Constructs a GDataCollection.
 	 * \param logger Pointer to a GLogger instance.
 	 */
-	explicit GDataCollection(std::shared_ptr<GLogger> logger)
-		: log(logger) { log->debug(CONSTRUCTOR, "GDataCollection"); }
+	explicit GDataCollection(){}
 
 	/**
 	 * \brief Destructor for GDataCollection.
 	 *
 	 * Smart pointers clean up automatically.
 	 */
-	~GDataCollection() { if (log) log->debug(DESTRUCTOR, "GDataCollection"); }
 
 	/**
 	 * \brief Adds true hit information data.
 	 * \param data Unique pointer to GTrueInfoData.
 	 */
 	void addTrueInfoData(std::unique_ptr<GTrueInfoData> data) {
-		log->debug(NORMAL, " adding hit to trueInfosData with identity: ", data->getIdentityString());
 		trueInfosData.push_back(std::move(data)); // taking ownership of the unique_ptr
 	}
 
@@ -46,7 +43,6 @@ public:
 	 * \param data Unique pointer to GDigitizedData.
 	 */
 	void addDigitizedData(std::unique_ptr<GDigitizedData> data) {
-		log->debug(NORMAL, " adding hit to digitizedData with identity: ", data->getIdentityString());
 		digitizedData.push_back(std::move(data)); // taking ownership of the unique_ptr
 	}
 
@@ -76,6 +72,5 @@ public:
 private:
 	std::vector<std::unique_ptr<GTrueInfoData>>  trueInfosData; ///< Vector of true hit data.
 	std::vector<std::unique_ptr<GDigitizedData>> digitizedData; ///< Vector of digitized hit data.
-	std::shared_ptr<GLogger>                     log;           ///< Logger instance
 
 };

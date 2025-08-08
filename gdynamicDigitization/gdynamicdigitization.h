@@ -102,12 +102,9 @@ public:
 };
 
 /// Abstract base class for dynamic digitization functionality.
-class GDynamicDigitization : public  GBase<GDynamicDigitization> {
+class GDynamicDigitization : public GBase<GDynamicDigitization> {
 public:
-	explicit GDynamicDigitization(const std::shared_ptr<GOptions>& g)
-		: GBase<GDynamicDigitization>(g, GDIGITIZATION_LOGGER) {
-		// Optionally, keep your two extra loggers if you need them:
-		data_logger = std::make_shared<GLogger>(g, SFUNCTION_NAME, DATA_LOGGER);
+	explicit GDynamicDigitization(const std::shared_ptr<GOptions>& g) : GBase(g, GDIGITIZATION_LOGGER) {
 	}
 
 	/**
@@ -285,7 +282,7 @@ public:
 		using fptr = GDynamicDigitization* (*)(std::shared_ptr<GOptions>);
 
 		// Must match the extern "C" declaration in the derived factories.
-		auto sym   = dlsym(h, "GDynamicDigitizationFactory");
+		auto sym = dlsym(h, "GDynamicDigitizationFactory");
 		if (!sym) return nullptr;
 
 		auto func = reinterpret_cast<fptr>(sym);
@@ -304,14 +301,11 @@ public:
 	/**
 	 * \brief Sets the loggers for the digitization process.
 	 *
-	 * Initializes data_logger,  based on the provided GOptions.
 	 *
 	 * \param g Pointer to GOptions.
 	 */
-	void set_loggers(const std::shared_ptr<GOptions>& g) {
-		gopts       = g;
-		data_logger = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, DATA_LOGGER);
-	}
+	// TODO: REMOVE THIS EVERYWHERE also remove check_if_log_defined
+	void set_loggers(const std::shared_ptr<GOptions>& g) { gopts = g; }
 
 private:
 	bool recordZeroEdep = false;
@@ -320,16 +314,13 @@ protected:
 	/// Optional pointer to GOptions.
 	std::shared_ptr<GOptions> gopts;
 
-	/// Data, Translation Tables, and digitization loggers.
-	std::shared_ptr<GLogger> data_logger;
-
 	/**
 	 * \brief Checks that all required loggers and options are defined.
 	 *
 	 * If any required logger is missing, prints an error message and exits.
 	 */
 	void check_if_log_defined() const {
-		if (gopts == nullptr || data_logger == nullptr) {
+		if (gopts == nullptr) {
 			std::cerr << KRED <<
 				"Fatal Error: GDynamicDigitization: goption is not set for this plugin or one of the loggers is null."
 				<< std::endl;

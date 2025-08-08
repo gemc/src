@@ -11,10 +11,11 @@
 #include <map>
 #include <vector>
 
+#include "gdynamicDigitization/gdynamicdigitization_options.h"
+
 std::atomic<int> GDigitizedData::globalDigitizedDataCounter{0};
 
-GDigitizedData::GDigitizedData(const GHit* ghit, const std::shared_ptr<GLogger>& logger) : log(logger) {
-	log->debug(CONSTRUCTOR, "GDigitizedData");
+GDigitizedData::GDigitizedData(const std::shared_ptr<GOptions>& gopts, const GHit* ghit) : GBase(gopts, GDIGITIZED_DATA_LOGGER) {
 	gidentity = ghit->getGID();
 }
 

@@ -48,7 +48,7 @@ std::unique_ptr<GDigitizedData> GFluxDigitization::digitizeHitImpl(GHit* ghit, s
 	GIdentifier identity = ghit->getGID().front();
 
 	// Create a new GDigitizedData object using the hit and the data_logger.
-	auto gdata = std::make_unique<GDigitizedData>(ghit, data_logger);
+	auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);
 
 	// Include digitized variables into the GDigitizedData object:
 	// 1. Use the identifier's name and value.

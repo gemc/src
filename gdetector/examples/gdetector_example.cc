@@ -43,6 +43,7 @@ const std::string plugin_name = "test_gdynamic_plugin";
 
 auto run_simulation_in_threads(int                                                 nevents,
                                int                                                 nthreads,
+                               const std::shared_ptr<GOptions>&                    gopts,
                                const std::shared_ptr<GLogger>&                     log,
                                const std::shared_ptr<const GDetectorConstruction>& gdetector) -> std::vector<std::shared_ptr<GEventDataCollection>> {
 	std::mutex                                         collectorMtx;
@@ -83,8 +84,8 @@ auto run_simulation_in_threads(int                                              
 				int         runNumber = 1;
 				std::string variation = "default";
 
-				auto gheader      = GEventHeader::create(log, tid);
-				auto eventData    = std::make_shared<GEventDataCollection>(std::move(gheader), log);
+				auto gheader      = GEventHeader::create(gopts, tid);
+				auto eventData    = std::make_shared<GEventDataCollection>(gopts, std::move(gheader));
 				auto digi_routine = gdetector->get_digitization_routines_for_sdname(sdname);
 				log->debug(NORMAL, "Calling ", sdname, " loadConstants for run ", runNumber);
 
@@ -98,7 +99,7 @@ auto run_simulation_in_threads(int                                              
 				}
 				// each event has 10 hits
 				for (unsigned i = 1; i < 11; i++) {
-					auto hit       = GHit::create(log);
+					auto hit       = GHit::create(gopts);
 					auto true_data = digi_routine->collectTrueInformation(hit, i);
 					auto digi_data = digi_routine->digitizeHit(hit, i);
 
@@ -151,7 +152,7 @@ int main(int argc, char* argv[]) {
 	auto gdetector = std::make_shared<GDetectorConstruction>(gopts);
 	gdetector->reload_geometry();
 
-	auto runDat = run_simulation_in_threads(nevents, nthreads, log, gdetector);
+	auto runDat = run_simulation_in_threads(nevents, nthreads, gopts, log, gdetector);
 
 	return EXIT_SUCCESS;
 }

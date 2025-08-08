@@ -212,9 +212,9 @@ public:
 
 
 	// create fake GHit for testing purposes, using sector and fake dimensions
-	static GHit* create(const std::shared_ptr<GLogger>& logger) {
+	static GHit* create(const std::shared_ptr<GOptions>& gopts) {
 		HitBitSet hitBitSet;
-		auto      gt  = GTouchable::create(logger);
+		auto      gt  = GTouchable::create(gopts);
 		auto      hit = new GHit(gt, hitBitSet);
 		hit->randomizeHitForTesting(1 + globalHitCounter.fetch_add(1, std::memory_order_relaxed) % 10);
 		return hit;

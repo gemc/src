@@ -31,7 +31,7 @@
  */
 
 std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(GHit* ghit, size_t hitn) {
-	auto trueInfoData = std::make_unique<GTrueInfoData>(ghit, data_logger);
+	auto trueInfoData = std::make_unique<GTrueInfoData>(gopts, ghit);
 
 	std::vector<GIdentifier> identities = ghit->getGID();
 

@@ -16,27 +16,32 @@
 
 // gemc
 #include "ghit.h"
-#include "glogger.h"
+#include "gbase.h"
 
-class GTrueInfoData {
+constexpr const char* GTRUEDATA_LOGGER = "true_data";
+
+namespace gtrue_data {
+inline GOptions defineOptions() {
+	auto goptions = GOptions(GTRUEDATA_LOGGER);
+	return goptions;
+}
+}
+
+
+class GTrueInfoData : public GBase<GTrueInfoData> {
 public:
 	/**
 	 * \brief Constructs a GTrueInfoData object.
 	 * \param ghit Pointer to the GHit from which identity information is extracted.
-	 * \param logger GLogger Shared pointer
+	 * \param gopts GOptions Shared pointer
 	 */
-	GTrueInfoData(const GHit* ghit, const std::shared_ptr<GLogger>& logger);
-
-	/**
-	 * \brief Destructor for GTrueInfoData.
-	 */
-	~GTrueInfoData() { if (log) log->debug(DESTRUCTOR, "GTrueInfoData"); }
+	GTrueInfoData(const std::shared_ptr<GOptions>& gopts, const GHit* ghit);
 
 	/**
 	 * \brief Returns a string representation of the identity.
 	 * \return A string representing the hit identity.
 	 */
-	std::string getIdentityString() const;
+	[[nodiscard]] std::string getIdentityString() const;
 
 	/**
 	 * \brief Includes a double variable in the true hit data.
@@ -68,9 +73,9 @@ public:
 		return trueInfoStringVariablesMap;
 	}
 
-	static std::unique_ptr<GTrueInfoData> create(const std::shared_ptr<GLogger>& logger) {
-		auto hit       = GHit::create(logger);
-		auto true_info_data = std::make_unique<GTrueInfoData>(hit, logger);
+	static std::unique_ptr<GTrueInfoData> create(const std::shared_ptr<GOptions>& gopts) {
+		auto hit       = GHit::create(gopts);
+		auto true_info_data = std::make_unique<GTrueInfoData>(gopts, hit);
 		auto counter   = globalTrueInfoDataCounter.fetch_add(1, std::memory_order_relaxed);
 
 		true_info_data->includeVariable("totalEDeposited", counter * 0.1);
@@ -87,7 +92,6 @@ private:
 	std::map<std::string, double>      trueInfoDoublesVariablesMap; ///< Map of double variables.
 	std::map<std::string, std::string> trueInfoStringVariablesMap;  ///< Map of string variables.
 	std::vector<GIdentifier>           gidentity;                   ///< Vector of identifiers extracted from the hit.
-	std::shared_ptr<GLogger>           log;                         ///< Logger instance
 
 	/// Static thread-safe event counter - used for testing only
 	static std::atomic<int> globalTrueInfoDataCounter;

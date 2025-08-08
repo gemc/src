@@ -6,7 +6,6 @@
 #include "gdynamicdigitization.h"
 #include "gutilities.h"
 #include "gdata_options.h"
-#include "gtouchable_options.h"
 
 // c++
 #include <atomic>         // std::atomic<T>: lock-free, thread-safe integers, flags…
@@ -77,12 +76,12 @@ void run_simulation_in_threads(int                                              
 				int evn = next.fetch_add(1, std::memory_order_relaxed); // atomically returns the current value and increments it by 1.
 				if (evn > nevents) break;                               // exit the while loop
 
-				auto gheader   = GEventHeader::create(log, tid);
-				auto eventData = std::make_shared<GEventDataCollection>(std::move(gheader), log);
+				auto gheader   = GEventHeader::create(gopts, tid);
+				auto eventData = std::make_shared<GEventDataCollection>(gopts, std::move(gheader));
 
 				// each event has 10 hits
 				for (unsigned i = 1; i < 11; i++) {
-					auto hit       = GHit::create(log);
+					auto hit       = GHit::create(gopts);
 					auto true_data = dynamicRoutinesMap->at(plugin_name)->collectTrueInformation(hit, i);
 					auto digi_data = dynamicRoutinesMap->at(plugin_name)->digitizeHit(hit, i);
 

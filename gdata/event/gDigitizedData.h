@@ -16,28 +16,33 @@
 
 // gemc
 #include "ghit.h"
-#include "glogger.h"
+#include "gbase.h"
 #include "gdataConventions.h"
 
-class GDigitizedData {
+constexpr const char* GDIGITIZED_DATA_LOGGER = "digitized_data";
+
+namespace gdigi_data {
+inline GOptions defineOptions() {
+	auto goptions = GOptions(GDIGITIZED_DATA_LOGGER);
+	return goptions;
+}
+}
+
+
+class GDigitizedData : public GBase<GDigitizedData> {
 public:
 	/**
 	 * \brief Constructs a GDigitizedData object from a GHit.
 	 * \param ghit unique_ptr GHit from which identity information is extracted.
-	 * \param logger Pointer to a GLogger instance.
+	 * \param gopts Pointer to a GOptions instance.
 	 */
-	GDigitizedData(const GHit* ghit, const std::shared_ptr<GLogger>& logger);
-
-	/**
-	 * \brief Destructor for GDigitizedData.
-	 */
-	~GDigitizedData() { log->debug(DESTRUCTOR, "GDigitizedData"); }
+	GDigitizedData(const std::shared_ptr<GOptions>& gopts, const GHit* ghit);
 
 	/**
 	 * \brief Returns a string representation of the hit identity.
 	 * \return A string representing the identity.
 	 */
-	std::string getIdentityString() const;
+	[[nodiscard]] std::string getIdentityString() const;
 
 	// Public interface to add data to a hit:
 	void includeVariable(const std::string& vname, int value);
@@ -83,9 +88,9 @@ public:
 	[[nodiscard]] inline std::map<std::string, std::vector<double>> getArrayDblObservablesMap() const { return arrayDoubleObservablesMap; }
 
 
-	static std::unique_ptr<GDigitizedData> create(std::shared_ptr<GLogger> logger) {
-		auto hit       = GHit::create(logger);
-		auto digi_data = std::make_unique<GDigitizedData>(hit, logger);
+	static std::unique_ptr<GDigitizedData> create(const std::shared_ptr<GOptions>& gopts) {
+		auto hit       = GHit::create(gopts);
+		auto digi_data = std::make_unique<GDigitizedData>(gopts, hit);
 		auto counter   = globalDigitizedDataCounter.fetch_add(1, std::memory_order_relaxed);
 
 		digi_data->includeVariable(CRATESTRINGID, counter % 10);
@@ -103,7 +108,6 @@ private:
 	std::map<std::string, std::vector<double>> arrayDoubleObservablesMap;                           ///< Map of double array observables.
 	std::vector<GIdentifier>                   gidentity;                                           ///< Identity extracted from the hit.
 	[[nodiscard]] static bool                  validVarName(const std::string& varName, int which); ///< Validates variable names.
-	std::shared_ptr<GLogger>                   log;                                                 ///< Logger instance
 
 	/// Static thread-safe event counter - used for testing only
 	static std::atomic<int> globalDigitizedDataCounter;

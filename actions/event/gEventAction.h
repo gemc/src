@@ -16,7 +16,7 @@ inline GOptions defineOptions() { return GOptions(EVENTACTION_LOGGER); }
 // Local thread classes
 class GEventAction : public G4UserEventAction {
 public:
-	GEventAction(std::shared_ptr<GOptions> gopt, GRunAction* run_a);
+	GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a);
 	~GEventAction() override;
 
 	void BeginOfEventAction(const G4Event* event) override;
@@ -24,6 +24,7 @@ public:
 
 private:
 	std::shared_ptr<GLogger> log;
+	std::shared_ptr<GOptions> goptions; // keeping the goption pointer to construct gdata
 	GRunAction* run_action; // non-owning, valid for the thread lifetime
 
 };

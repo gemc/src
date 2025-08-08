@@ -17,7 +17,7 @@ std::unique_ptr<GDigitizedData> GParticleCounterDigitization::digitizeHitImpl(GH
 	// ghit->getGID() must have a single entry
 	GIdentifier identity = ghit->getGID().front();
 
-	auto gdata = std::make_unique<GDigitizedData>(ghit, data_logger);
+	auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);
 
 	gdata->includeVariable(identity.getName(), identity.getValue());
 	gdata->includeVariable("hitn", static_cast<int> (hitn) );

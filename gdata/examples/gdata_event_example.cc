@@ -24,11 +24,11 @@
 
 // gdata
 #include "event/gEventDataCollection.h"
-#include "gdata_options.h"
+//#include "gdata_options.h"
 
 // gemc
 #include "glogger.h"
-#include <gtouchable_options.h>
+//#include <gtouchable_options.h>
 
 
 // TODO: remove when C++20 is widely available
@@ -52,9 +52,10 @@ public:
 };
 #endif
 
-auto run_simulation_in_threads(int                             nevents,
-                               int                             nthreads,
-                               const std::shared_ptr<GLogger>& log) -> std::vector<std::shared_ptr<GEventDataCollection>> {
+auto run_simulation_in_threads(int                              nevents,
+                               int                              nthreads,
+                               const std::shared_ptr<GOptions>& gopt,
+                               const std::shared_ptr<GLogger>&  log) -> std::vector<std::shared_ptr<GEventDataCollection>> {
 	std::mutex                                         collectorMtx;
 	std::vector<std::shared_ptr<GEventDataCollection>> collected;
 
@@ -75,7 +76,7 @@ auto run_simulation_in_threads(int                             nevents,
 		// The capture [&, tid] gives the thread references to variables like next, nevents, runDataMtx, etc.
 		pool.emplace_back([&, tid] // capture tid *by value*
 		{
-			// start thread with a lambda
+			// start the thread with a lambda
 			log->info(0, "worker ", tid, " started");
 
 			int                                                             localCount = 0; // events built by *this* worker
@@ -88,13 +89,13 @@ auto run_simulation_in_threads(int                             nevents,
 				int evn = next.fetch_add(1, std::memory_order_relaxed); // atomically returns the current value and increments it by 1.
 				if (evn > nevents) break;                               // exit the while loop
 
-				auto event_data_collection = GEventDataCollection::create(log);
+				auto event_data_collection = GEventDataCollection::create(gopt);
 				localRunData.emplace_back(event_data_collection);
 
 				++localCount; // tally for this worker
 			}
 
-			// braces to locks the mutex when it's constructed and unlocks when it is destroyed
+			// braces to lock the mutex when it's constructed and unlocks when it is destroyed
 			{
 				std::scoped_lock lk(collectorMtx);
 				for (auto& evt : localRunData) { collected.emplace_back(evt); }
@@ -111,21 +112,19 @@ auto run_simulation_in_threads(int                             nevents,
 // emulation of a run of events, collecting data in separate threads
 
 int main(int argc, char* argv[]) {
-
-	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
-	auto gopts =std::make_shared<GOptions>(argc, argv, gdata::defineOptions());
+	// Create GOptions using gevent_data::defineOptions, which aggregates options from all gdata and gtouchable.
+	auto gopts = std::make_shared<GOptions>(argc, argv, gevent_data::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	auto log  = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gdata example");
-	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "GTouchable");
+	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GEVENTDATA_LOGGER);
 
-	constexpr int nevents  = 200;
+	constexpr int nevents  = 10;
 	constexpr int nthreads = 8;
 
-	auto runData = run_simulation_in_threads(nevents, nthreads, log);
+	auto runData = run_simulation_in_threads(nevents, nthreads, gopts, log);
 
 	// For demonstration, we'll simply print the event numbers.
-	for (size_t i = 0; i < runData.size(); i++) { log->info(" > Event ", i + 1, " collected with local event number: ", runData[i]->getEventNumber()); }
+	for (size_t i = 0; i < runData.size(); i++) { log->info("event n. ", i + 1, " collected with local event number: ", runData[i]->getEventNumber()); }
 
 	return EXIT_SUCCESS;
 }

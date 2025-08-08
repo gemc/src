@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 	hits.emplace_back(a_hit); // pass ownership
 
 	for (unsigned i = 1; i < 100; i++) {
-		auto hit = GHit::create(log);
+		auto hit = GHit::create(gopts);
 
 		log->info(" GHit: ", *hit->getGTouchable(), " with total Edep: ", hit->getTotalEnergyDeposited(), " MeV");
 

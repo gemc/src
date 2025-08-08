@@ -69,7 +69,7 @@ std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(GHit* gh
 	GIdentifier identity = ghit->getGID().front();
 
 	// Create a new GDigitizedData object for this hit.
-	auto gdata = std::make_unique<GDigitizedData>(ghit, data_logger);
+	auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);
 
 	// Include basic hit variables.
 	gdata->includeVariable(identity.getName(), identity.getValue());
