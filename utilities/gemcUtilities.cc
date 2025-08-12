@@ -16,10 +16,10 @@ namespace gemc {
 int get_nthreads(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
 	int useThreads = gopts->getScalarInt("nthreads");
 
-	int allThreads = G4Threading::G4GetNumberOfCores();
-	if (useThreads == 0) useThreads = allThreads;
+	int ncores = G4Threading::G4GetNumberOfCores();
+	if (useThreads == 0 || useThreads > ncores) useThreads = ncores;
 
-	log->info(0, "Using ", useThreads, " threads out of ", allThreads, " available.");
+	log->info(0, "Using ", useThreads, " threads out of ", ncores, " available cores.");
 
 	return useThreads;
 }

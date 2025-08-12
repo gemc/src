@@ -1,6 +1,7 @@
 experiment: examples
 runno: 1
 n: 1
+nthreads: 12
 
 gparticle:
   - name: e-

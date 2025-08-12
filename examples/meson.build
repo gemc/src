@@ -11,9 +11,6 @@ examples_map = {
     }
 }
 
-
-
-
 foreach branch : examples_map.keys()
     examples = examples_map[branch]
 
