@@ -5,7 +5,6 @@
 #include "glogger.h"
 #include "gdynamicdigitization.h"
 #include "gutilities.h"
-#include "gdata_options.h"
 
 // c++
 #include <atomic>         // std::atomic<T>: lock-free, thread-safe integers, flags…
@@ -119,7 +118,7 @@ int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, gstreamer::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	auto log = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gstreamer_example: main");
+	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GSTREAMER_LOGGER);
 
 	constexpr int nevents  = 200;
 	constexpr int nthreads = 4;

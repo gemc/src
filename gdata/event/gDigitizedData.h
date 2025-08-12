@@ -17,7 +17,7 @@
 // gemc
 #include "ghit.h"
 #include "gbase.h"
-#include "gdataConventions.h"
+#include "gdataConventions.h" // for CRATESTRINGID, SLOTSTRINGID, CHANNELSTRINGID, TIMEATELECTRONICS
 
 constexpr const char* GDIGITIZED_DATA_LOGGER = "digitized_data";
 
@@ -33,7 +33,7 @@ class GDigitizedData : public GBase<GDigitizedData> {
 public:
 	/**
 	 * \brief Constructs a GDigitizedData object from a GHit.
-	 * \param ghit unique_ptr GHit from which identity information is extracted.
+	 * \param ghit unique_ptr the GHit from which identity information is extracted.
 	 * \param gopts Pointer to a GOptions instance.
 	 */
 	GDigitizedData(const std::shared_ptr<GOptions>& gopts, const GHit* ghit);

@@ -19,13 +19,11 @@ verbosities = ['-verbosity.gevent_data=2',
 LD += {
     'name' : sub_dir_name,
     'sources' : files(
-        'gdata_options.cc',
         'event/gDigitizedData.cc',
         'event/gTrueInfoData.cc',
         'event/gEventDataCollection.cc'
     ),
     'headers' : files(
-        'gdata_options.h',
         'gdataConventions.h',
         'event/gDigitizedData.h',
         'event/gTrueInfoData.h',

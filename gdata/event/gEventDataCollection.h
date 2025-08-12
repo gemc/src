@@ -39,14 +39,7 @@ public:
 	 */
 
 	GEventDataCollection(const std::shared_ptr<GOptions>& gopts, std::unique_ptr<GEventHeader> header)
-		: GBase(gopts, GDATAHEADER_LOGGER), gheader(std::move(header)) { log->debug(CONSTRUCTOR, "GEventDataCollection"); }
-
-	/**
-	 * \brief Destructor for GEventDataCollection.
-	 *
-	 * Deletes the event header, the data collection map (and its contents), and the logger.
-	 */
-	~GEventDataCollection() { log->debug(DESTRUCTOR, "GEventDataCollection"); }
+		: GBase(gopts, GDATAHEADER_LOGGER), gheader(std::move(header)) { }
 
 	/**
 	 * \brief Adds true hit information data for a detector.

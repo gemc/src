@@ -10,7 +10,6 @@
 #include "gDigitizedData.h"
 #include "gTrueInfoData.h"
 #include "gtranslationTable.h"
-#include "gdata_options.h"
 #include "gdynamicdigitization_options.h"
 
 // c++

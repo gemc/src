@@ -1,5 +1,5 @@
 /**
- * \file gfrane_event_example.cpp
+ * \file gframe_event_example.cc
  * \brief Example to test frame data features.
  *
  * \mainpage Frame Data Example
@@ -9,7 +9,7 @@
  * integrated payloads. A frame header is created along with a frame data collection.
  * Several integral payloads are added and then printed.
  *
- * \section usage_sec Usage
+ * \section usage_sec Usage:
  * Compile this file along with the GFrameDataCollection, GFrameDataCollectionHeader,
  * GIntegralPayload, gdata_options, and glogger modules.
  *
@@ -21,7 +21,7 @@
 // gdata
 #include "frame/gFrameDataCollection.h"
 #include "frame/gFrameHeader.h"
-#include "gdata_options.h"
+#include "gEventDataCollection.h"
 
 // gemc
 #include "glogger.h"
@@ -37,10 +37,12 @@ using namespace std;
 
 // TODO: run this in multiple threads and collect results in frames like in runAction
 int main(int argc, char *argv[]) {
-	// Create GOptions using gdata's defineOptions.
-	auto gopts =std::make_shared<GOptions>(argc, argv, gdata::defineOptions());
+	// Create GOptions using gevent_data::defineOptions, which aggregates options from all gdata and gtouchable.
+	auto gopts = std::make_shared<GOptions>(argc, argv, gevent_data::defineOptions());
 
-	auto log = std::make_shared<GLogger>(gopts, DATA_LOGGER, "gdata example: GFrameDataCollection");
+	// Create loggers: one for gdata and one for gtouchable.
+	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GEVENTDATA_LOGGER);
+
 	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gdata example: GTouchable");
 
 	// Define a frame with a frame ID and frame duration.

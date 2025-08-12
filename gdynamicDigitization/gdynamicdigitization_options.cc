@@ -8,8 +8,8 @@
 
 #include "gdynamicdigitization_options.h"
 #include "gtranslationTable_options.h"
-#include "gdata_options.h"
 #include "gfactory_options.h"
+#include "gEventDataCollection.h"
 
 namespace gdynamicdigitization {
 
@@ -19,7 +19,7 @@ GOptions defineOptions() {
 
 	goptions.defineSwitch("recordZeroEdep", "Record particle even if they do not deposit energy in the sensitive volumes");
 
-	goptions += gdata::defineOptions();
+	goptions += gevent_data::defineOptions();
 	goptions += gtranslationTable::defineOptions();
 	goptions += gfactory::defineOptions();
 
