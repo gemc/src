@@ -1,6 +1,7 @@
 experiment: examples
 runno: 1
 n: 300
+nthreads: 12
 
 gparticle:
   - name: gamma

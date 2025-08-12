@@ -22,9 +22,11 @@ GOptions defineOptions() {
     goptions.defineOption(GVariable("runno", 1, "sets the run number"), help);
 
     // nthreads: 8
-    help = "If not set, use all available threads. 0: use all threads\n";
-    help += "Example: -nthreads=12\n";
-    goptions.defineOption(GVariable("nthreads", 0, "number of threads"), help);
+    help = "Maximum number of threads to use.\n";
+	help += "If the number of cores available ncores is less then nthreads, use ncores instead.\n";
+    help += "If not set, use all available threads. 0: use all threads\n";
+    help += "Example: -nthreads=12  : . \n";
+    goptions.defineOption(GVariable("nthreads", 0, "maximum number of threads to use"), help);
 
     vector <GVariable> gparticle = {
             {"name",         goptions::NODFLT, "particle name"},
