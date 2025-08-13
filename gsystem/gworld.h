@@ -1,12 +1,14 @@
 #pragma once
 
+
+
 // gsystem
 #include "gsystem.h"
 #include "gmodifier.h"
 #include "gsystem_options.h"
 #include "gsystemFactories/systemFactory.h"
 
-// Standard includes.
+// C++
 #include <map>
 #include <string>
 #include <vector>
@@ -18,7 +20,7 @@
  * It loads systems and modifiers, registers system factories, loads volume definitions,
  * and applies modifications.
  */
-class GWorld {
+class GWorld : public GBase<GWorld> {
 
 public:
 	/**
@@ -33,8 +35,6 @@ public:
 	 */
 	explicit GWorld(const std::shared_ptr<GOptions>& gopts);
 	GWorld(const std::shared_ptr<GOptions>& gopts, SystemList systems);
-
-	~GWorld();
 
 	/// Returns the map of GSystem objects.
 	[[nodiscard]] SystemMap* getSystemsMap() const { return gsystemsMap.get(); }
@@ -70,8 +70,6 @@ private:
 	 */
 	std::map<std::string, std::unique_ptr<GSystemFactory>> createSystemFactory();
 
-
-
 	// Create and initialize system factories, and load volume definitions.
 	void load_systems();
 
@@ -80,7 +78,5 @@ private:
 
 	// assign G4 names for all volumes in every system.
 	void assignG4Names();
-
-	std::shared_ptr<GLogger> log; ///< Logger instance for logging messages.
 
 };

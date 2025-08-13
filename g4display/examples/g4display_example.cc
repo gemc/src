@@ -19,17 +19,17 @@ int main(int argc, char* argv[]) {
 
 	// Initialize options and logging
 	auto gopts = std::make_shared<GOptions>(argc, argv, g4display::defineOptions());
-	auto log   =  std::make_shared<GLogger>(gopts, G4DISPLAY_LOGGER, "g4display example");
+	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, G4DISPLAY_LOGGER);
 
 	log->info(0, "Starting g4display example...", gopts);
 
 	// Optional GUI setup (only if --gui is passed)
-	QApplication* app = nullptr;
-	QMainWindow* window = nullptr;
+	QApplication* app    = nullptr;
+	QMainWindow*  window = nullptr;
 
 	if (gopts->getSwitch("gui")) {
 		log->info(0, "g4display", "Running in GUI mode...");
-		app = new QApplication(argc, argv);
+		app    = new QApplication(argc, argv);
 		window = new QMainWindow();
 		window->setWindowTitle(QString::fromUtf8("displayUI example"));
 	}
@@ -41,15 +41,13 @@ int main(int argc, char* argv[]) {
 
 	// If GUI, show the window and run Qt loop
 	if (gopts->getSwitch("gui")) {
-
 		auto g4display = new G4Display(gopts, window);
 		window->setCentralWidget(g4display);
 		window->show();
 
 		/* ---------- quit after 0.5s ---------- */
-		QTimer::singleShot(500, []
-		{
-			QCoreApplication::quit();          // stop the event loop
+		QTimer::singleShot(500, [] {
+			QCoreApplication::quit(); // stop the event loop
 		});
 
 		int appResult = QApplication::exec();

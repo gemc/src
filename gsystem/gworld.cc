@@ -14,12 +14,12 @@
 
 // TODO: have getSystems returns the map directly instead of going through the vector
 GWorld::GWorld(const std::shared_ptr<GOptions>& g)
-	: gopts(g),
-	  log(std::make_shared<GLogger>(g, GSYSTEM_LOGGER, "GWorld [new]")) {
-	log->debug(CONSTRUCTOR, "GWorld");
+	: GBase(g, GWORLD_LOGGER),
+	  gopts(g) {
+	log->debug(NORMAL, SFUNCTION_NAME, "New");
 
 	// Load gsystems and create the gsystem map
-	auto gsystems = gsystem::getSystems(gopts, log);
+	auto gsystems = gsystem::getSystems(gopts);
 	create_gsystemsMap(gsystems);
 
 	load_systems();    // build factories, load volumes
@@ -30,8 +30,9 @@ GWorld::GWorld(const std::shared_ptr<GOptions>& g)
 
 // Constructor with rvalue reference: perfect for taking ownership of move-only types
 GWorld::GWorld(const std::shared_ptr<GOptions>& g, SystemList gsystems)
-	: gopts(g),
-	  log(std::make_shared<GLogger>(gopts, GSYSTEM_LOGGER, "GWorld [update]")) {
+	: GBase(g, GWORLD_LOGGER),
+	  gopts(g) {
+	log->debug(NORMAL, SFUNCTION_NAME, "From SystemList");
 	// create the gsystem map
 	create_gsystemsMap(gsystems);
 
@@ -40,8 +41,6 @@ GWorld::GWorld(const std::shared_ptr<GOptions>& g, SystemList gsystems)
 	load_gmodifiers(); // load modifiers
 	assignG4Names();   // apply modifiers & set G4 names
 }
-
-GWorld::~GWorld() { log->debug(DESTRUCTOR, "GWorld"); }
 
 /**
  * createSystemFactory creates a local GManager, registers the required system factories,
@@ -170,7 +169,7 @@ void GWorld::load_systems() {
 	}
 	else {
 		auto rootSystem = std::make_unique<GSystem>(
-		                                            log, // logger
+		                                            gopts, // logger
 		                                            dbhost,
 		                                            ROOTWORLDGVOLUMENAME, // name + path
 		                                            GSYSTEMSQLITETFACTORYLABEL,

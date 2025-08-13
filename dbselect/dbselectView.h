@@ -2,7 +2,7 @@
 
 // gemc
 #include "gdetectorConstruction.h"
-#include "goptions.h"
+#include "gbase.h"
 
 // qt
 #include <QWidget>
@@ -10,7 +10,6 @@
 #include <QStandardItem>
 #include <QLabel>
 #include <QPushButton>
-#include <QIcon>
 #include <QComboBox>
 #include <QStyledItemDelegate>
 
@@ -19,14 +18,13 @@
 #include <string>
 #include <vector>
 
-using std::string;
-using std::vector;
 
 /**
  * DBSelectView is a QWidget that displays experiments and their systems.
  * It allows the user to modify selections and reload geometry.
+ * Notice GBase after QWidget derivations, otherwise moc would expect it to have a staticMetaObject
  */
-class DBSelectView : public QWidget {
+class DBSelectView : public QWidget,  public GBase<DBSelectView> {
 	Q_OBJECT
 public:
 	/**
@@ -35,7 +33,7 @@ public:
 	 * @param dc Pointer to the detector construction (used to reload geometry).
 	 * @param parent Parent widget.
 	 */
-	DBSelectView(std::shared_ptr<GOptions> gopts, GDetectorConstruction *dc, QWidget *parent = nullptr);
+	explicit DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorConstruction *dc, QWidget *parent = nullptr);
 
 	/// Destructor.
 	~DBSelectView() override;
@@ -47,12 +45,12 @@ private:
 	// UI setup and update methods.
 	void setupUI();
 	void loadExperiments();
-	void loadSystemsForExperiment(QStandardItem *experimentItem, const string &experiment);
-	QStringList getAvailableVariations(const string &system);
-	QStringList getAvailableRuns(const string &system);
-	int getGeometryCount(const string &experiment, const string &system, const string &variation, int run);
+	void loadSystemsForExperiment(QStandardItem *experimentItem, const std::string &experiment);
+	QStringList getAvailableVariations(const std::string &system);
+	QStringList getAvailableRuns(const std::string &system);
+	int getGeometryCount(const std::string &experiment, const std::string &system, const std::string &variation, int run);
 	void updateSystemItemAppearance(QStandardItem *systemItem);
-	bool systemAvailable(const string &system, const string &variation, int run);
+	bool systemAvailable(const std::string &system, const std::string &variation, int run);
 	void updateExperimentHeader();
 
 	/**
@@ -68,8 +66,8 @@ private:
 
 	// Database and experiment information.
 	sqlite3 *db;
-	string dbhost;
-	string experiment;  // Default experiment name from options.
+	std::string dbhost;
+	std::string experiment;  // Default experiment name from options.
 
 	QTreeView *experimentTree;          // Tree showing experiments and systems.
 	QStandardItemModel *experimentModel;  // Model for the tree.
@@ -87,7 +85,7 @@ private:
 	GDetectorConstruction *gDetectorConstruction;
 
 	// logger
-	std::shared_ptr<GLogger> log; ///< Logger instance for logging messages.
+	std::shared_ptr<GOptions> gopt; ///< Logger instance for logging messages.
 
 private slots:
 	/// Slot called when an item in the tree is changed.

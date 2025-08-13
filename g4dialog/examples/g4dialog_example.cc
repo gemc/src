@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
 	QApplication app(argc, argv);
 
 	auto gopts =std::make_shared<GOptions>(argc, argv, g4dialog::defineOptions());
-	auto log = std::make_shared<GLogger>(gopts, G4DIALOG_LOGGER, "g4dialog example");
+	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, G4DIALOG_LOGGER);
 
 	auto visManager = new G4VisExecutive;
 	visManager->Initialize();

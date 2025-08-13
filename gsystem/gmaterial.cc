@@ -11,14 +11,14 @@ using namespace gutilities;
 #include <sstream>
 #include <utility>
 
-using namespace std;
 
-
-GMaterial::GMaterial(string s, vector<string> pars, shared_ptr<GLogger> logger) : system(std::move(s)), log(logger) {
+GMaterial::GMaterial(const std::string& s, std::vector<std::string> pars, const std::shared_ptr<GLogger>& logger) :
+	GBase(logger),
+	system(s) {
 	if (pars.size() != GMATERIALNUMBEROFPARS) {
 		log->error(ERR_GWRONGNUMBEROFPARS,
 		           "Incorrect number of material parameters for ", pars[0], ". Expected ",
-		           to_string(GMATERIALNUMBEROFPARS), " but we got ", to_string(pars.size()));
+		           GMATERIALNUMBEROFPARS, " but we got ", pars.size());
 	}
 	else {
 		// size is already checked in addVolume, the only interface to volume
@@ -57,19 +57,19 @@ GMaterial::GMaterial(string s, vector<string> pars, shared_ptr<GLogger> logger) 
 }
 
 
-ostream& operator<<(ostream& stream, GMaterial gMat) {
-	stream << endl;
-	stream << "   - Material: " << gMat.name << "  in system  " << gMat.system << ": " << endl;
-	stream << "     Density:          " << gMat.density << endl;
+std::ostream& operator<<(std::ostream& stream, GMaterial gMat) {
+	stream << std::endl;
+	stream << "   - Material: " << gMat.name << "  in system  " << gMat.system << ": " << std::endl;
+	stream << "     Density:          " << gMat.density << std::endl;
 	if (!gMat.components.empty()) {
-		stream << "     Composition:          " << endl;
+		stream << "     Composition:          " << std::endl;
 		for (unsigned m = 0; m < gMat.components.size(); m++) {
 			string quantity = gMat.amounts[m] > 1 ? " atoms " : " fractional mass";
-			stream << "       ・ " << gMat.components[m] << quantity << " " << gMat.amounts[m] << endl;
+			stream << "       ・ " << gMat.components[m] << quantity << " " << gMat.amounts[m] << std::endl;
 		}
 	}
-	stream << "     Description: " << gMat.description << endl;
-	stream << endl;
+	stream << "     Description: " << gMat.description << std::endl;
+	stream << std::endl;
 
 	return stream;
 }
@@ -91,7 +91,7 @@ void GMaterial::getMaterialPropertyFromString(const string& parameter, const str
 	// nothing to do if the parameter is not assigned
 	if (removeLeadingAndTrailingSpacesFromString(parameter) == UNINITIALIZEDSTRINGQUANTITY) { return; }
 
-	stringstream parameterComponents(parameter);
+	std::stringstream parameterComponents(parameter);
 
 	while (!parameterComponents.eof()) {
 		string component;
@@ -124,38 +124,38 @@ void GMaterial::getMaterialPropertyFromString(const string& parameter, const str
 
 			if (!indexOfRefraction.empty() && indexOfRefraction.size() != photonEnergyVectorSize) {
 				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-					"indexOfRefraction size ", indexOfRefraction.size(), " mismatch: photonEnergy has size ",
-					photonEnergyVectorSize);
+				           "indexOfRefraction size ", indexOfRefraction.size(), " mismatch: photonEnergy has size ",
+				           photonEnergyVectorSize);
 			}
 			if (!absorptionLength.empty() && absorptionLength.size() != photonEnergyVectorSize) {
 				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-					"absorptionLength size ", absorptionLength.size(), " mismatch: photonEnergy has size ",
-					photonEnergyVectorSize);
+				           "absorptionLength size ", absorptionLength.size(), " mismatch: photonEnergy has size ",
+				           photonEnergyVectorSize);
 			}
 			if (!reflectivity.empty() && reflectivity.size() != photonEnergyVectorSize) {
 				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-					"reflectivity size ", reflectivity.size(), " mismatch: photonEnergy has size ",
-					photonEnergyVectorSize);
+				           "reflectivity size ", reflectivity.size(), " mismatch: photonEnergy has size ",
+				           photonEnergyVectorSize);
 			}
 			if (!efficiency.empty() && efficiency.size() != photonEnergyVectorSize) {
 				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-					"efficiency size ", efficiency.size(), " mismatch: photonEnergy has size ",
-					photonEnergyVectorSize);
+				           "efficiency size ", efficiency.size(), " mismatch: photonEnergy has size ",
+				           photonEnergyVectorSize);
 			}
 			if (!fastcomponent.empty() && fastcomponent.size() != photonEnergyVectorSize) {
 				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-					"fastcomponent size ", fastcomponent.size(), " mismatch: photonEnergy has size ",
-					photonEnergyVectorSize);
+				           "fastcomponent size ", fastcomponent.size(), " mismatch: photonEnergy has size ",
+				           photonEnergyVectorSize);
 			}
 			if (!slowcomponent.empty() && slowcomponent.size() != photonEnergyVectorSize) {
 				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-					"slowcomponent size ", slowcomponent.size(), " mismatch: photonEnergy has size ",
-					photonEnergyVectorSize);
+				           "slowcomponent size ", slowcomponent.size(), " mismatch: photonEnergy has size ",
+				           photonEnergyVectorSize);
 			}
 			if (!rayleigh.empty() && rayleigh.size() != photonEnergyVectorSize) {
 				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-					"rayleigh size ", rayleigh.size(), " mismatch: photonEnergy has size ",
-					photonEnergyVectorSize);
+				           "rayleigh size ", rayleigh.size(), " mismatch: photonEnergy has size ",
+				           photonEnergyVectorSize);
 			}
 		}
 	}

@@ -1,3 +1,6 @@
+// gemc
+#include "gfactory_options.h"
+
 // gsystem
 #include "gsystem_options.h"
 #include "gsystemConventions.h"
@@ -7,7 +10,7 @@ namespace gsystem {
 
 
 // method to return a vector of GSystem from the options
-SystemList getSystems(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
+SystemList getSystems(const std::shared_ptr<GOptions>& gopts) {
 	auto gsystem_node = gopts->getOptionNode("gsystem");
 
 	SystemList systems;
@@ -25,7 +28,7 @@ SystemList getSystems(const std::shared_ptr<GOptions>& gopts, const std::shared_
 		}
 		systems.emplace_back(
 		                     std::make_shared<GSystem>(
-		                                               log,
+		                                               gopts,
 		                                               dbhost,
 		                                               gopts->get_variable_in_option<std::string>(gsystem_item, "name", goptions::NODFLT),
 		                                               factory,
@@ -61,7 +64,11 @@ std::vector<GModifier> getModifiers(const std::shared_ptr<GOptions>& gopts) {
 
 // returns array of options definitions
 GOptions defineOptions() {
-	GOptions goptions(GSYSTEM_LOGGER);
+	GOptions goptions(GVOLUME_LOGGER);
+	goptions += GOptions(GMATERIAL_LOGGER);
+	goptions += GOptions(GSYSTEM_LOGGER);
+	goptions += GOptions(GWORLD_LOGGER);
+	goptions += gfactory::defineOptions();
 
 	// System
 	std::string help;

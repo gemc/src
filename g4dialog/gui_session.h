@@ -3,6 +3,9 @@
 #include "G4UIsession.hh"
 #include "gboard.h"
 
+// gemc
+#include "gbase.h"
+
 /**
  * @class GUI_Session
  * @brief Custom GEANT4 UI session that directs output to a Qt6 board widget.
@@ -10,7 +13,7 @@
  * An instance of GUI_Session is passed to the G4UImanager so that GEANT4 output is sent
  * to the board widget rather than to the terminal or log files.
  */
-class GUI_Session : public G4UIsession {
+class GUI_Session : public GBase<GUI_Session>, public G4UIsession {
 public:
 	/**
 	 * @brief Constructs a new GUI_Session object.
@@ -19,9 +22,6 @@ public:
 	 */
 	GUI_Session(const std::shared_ptr<GOptions>& gopt,  std::shared_ptr<GBoard> board);
 
-	~GUI_Session() override {
-		if (log) log->debug(DESTRUCTOR, "GUI_Session");
-	}
 
 	/**
 	 * @brief Receives standard output from GEANT4.
@@ -39,6 +39,5 @@ public:
 
 private:
 	std::shared_ptr<GBoard> board;
-	std::unique_ptr<GLogger> log;
 	QString ansiToHtml(const QString &ansiText);
 };

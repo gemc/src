@@ -1,15 +1,16 @@
 #pragma once
 
-// Standard Library
+// C++
 #include <memory> // Required for std::unique_ptr
 
 // gemc
-#include "glogger.h" // Provides logging capabilities
-#include "goptions.h" // Provides application options/configuration
+#include "gbase.h" // Provides application options/configuration
 
 // qt
 #include <QtWidgets/QWidget>   // Required for QWidget parent parameter
 
+// g4display
+#include "g4display_options.h"
 
 /**
  * @brief The main widget for controlling Geant4 visualization.
@@ -20,7 +21,7 @@
  * lighting, slicing, and other utilities. It owns the primary logger instance
  * for the display module.
  */
-class G4Display : public QWidget {
+class G4Display : public GBase<G4Display>, public QWidget  {
 
 public:
     /**
@@ -30,17 +31,11 @@ public:
      */
     explicit G4Display(const std::shared_ptr<GOptions>& gopt, QWidget *parent = nullptr);
 
-    /**
-     * @brief Destructor. Manages the lifetime of owned resources (like the logger).
-     */
-    ~G4Display() override; // Use override for virtual destructors
 
 	// Disable copy constructor and assignment operator to prevent slicing
 	// and issues with unique_ptr ownership.
 	G4Display(const G4Display&) = delete;
 	G4Display& operator=(const G4Display&) = delete;
 
-private:
-	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
 
 };

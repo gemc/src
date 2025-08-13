@@ -29,7 +29,7 @@ std::string demangle(const char* name) {
 template <typename Derived>
 class GBase {
 public:
-	explicit GBase(std::shared_ptr<GOptions> gopt, std::string logger_name = "") {
+	explicit GBase(const std::shared_ptr<GOptions>& gopt, std::string logger_name = "") {
 		log = std::make_shared<GLogger>(gopt, getDerivedName(), logger_name);
 		log->debug(CONSTRUCTOR, getDerivedName());
 	}
@@ -37,7 +37,7 @@ public:
 	// sharing logger for heavy creations like gtouchable
 	explicit GBase(const std::shared_ptr<GLogger>& logger) : log(logger) {}
 
-	~GBase() { log->debug(DESTRUCTOR, getDerivedName()); }
+	virtual ~GBase() { log->debug(DESTRUCTOR, getDerivedName()); }
 
 	// Important: because we declared a destructor, default these explicitly.
 	GBase(const GBase&)                = default; // shallow copy of shared_ptr
@@ -46,7 +46,7 @@ public:
 	GBase& operator=(GBase&&) noexcept = default;
 
 private:
-	std::string getDerivedName() const { return demangle(typeid(Derived).name()); }
+	[[nodiscard]] std::string getDerivedName() const { return demangle(typeid(Derived).name()); }
 
 protected:
 	std::shared_ptr<GLogger> log;

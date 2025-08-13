@@ -4,9 +4,6 @@
 #include "gvolume.h"
 #include "gmaterial.h"
 
-// gemc
-#include "glogger.h"
-
 // c++
 #include <map>
 #include <string>
@@ -21,12 +18,12 @@
  * same logical detector part and manages their retrieval. Each system is
  * identified by a name, factory, variation, and run number.
  */
-class GSystem {
+class GSystem : public GBase<GSystem> {
 
 public:
 	/**
 	 * @brief Constructs a GSystem instance.
-	 * @param logger A shared pointer to the logging facility.
+	 * @param gopts A shared pointer to GOptionsy.
 	 * @param dbhost The database host (e.g., "gemc.db" or "localhost").
 	 * @param sname Absolute or relative path including the system name (e.g., "detectors/ecal").
 	 *                       The name and path will be parsed from this string.
@@ -36,7 +33,7 @@ public:
 	 * @param runno The run number this configuration applies to.
 	 * @param annotations Optional descriptive annotations (e.g., "mats_only").
 	 */
-	GSystem(const std::shared_ptr<GLogger>& logger,
+	GSystem(const std::shared_ptr<GOptions>& gopts,
 	        const std::string&              dbhost,
 	        const std::string&              sname,
 	        const std::string&              factory,
@@ -64,23 +61,20 @@ public:
 		return std::make_unique<GSystem>(*this); // invokes copy‑ctor
 	}
 
-	~GSystem() { log->debug(DESTRUCTOR, "GSystem"); }
 
 private:
-	std::shared_ptr<GLogger> log;         ///< Logger instance for logging messages.
 	std::string              dbhost;      ///< Database host (if using sqlite or mysql).
 	std::string              name;        ///< System name.
 	std::string              path;        ///< Absolute/relative path.
-	std::string              factoryName; ///< Name of factory that builds the detector.
+	std::string              factoryName; ///< Name of the factory that builds the detector.
 	std::string              experiment;  ///< Experiment name (e.g., "clas12").
 	int                      runno{};     ///< Run number.
 	std::string              variation;   ///< Variation of the detector.
 	std::string              annotations; ///< Annotations (e.g., "mats_only" means only materials are loaded).
 
 	/// Map containing the volumes.
-	/// The key is a unique volume name (system + volume name).
+	/// The key is a unique volume name (system and volume name).
 	std::map<std::string, std::shared_ptr<GVolume>> gvolumesMap;
-
 
 	/// Map containing the materials for the system.
 	std::map<std::string, std::shared_ptr<GMaterial>> gmaterialsMap;
@@ -113,7 +107,7 @@ public:
 	/// \brief Gets the database host.
 	[[nodiscard]] inline std::string get_dbhost() const { return dbhost; }
 
-	/// \brief Sets the database host. For example the GUI can reset this
+	/// \brief Sets the database host. For example, the GUI can reset this
 	inline void set_dbhost(const std::string& dbh) { this->dbhost = dbh; }
 
 	/**

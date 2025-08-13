@@ -3,10 +3,10 @@
 #include "g4displayConventions.h"
 #include "g4Text.h"
 
-using namespace std;
 
 // namespace to define options
 namespace g4display {
+
 // full list from /vis/list
 // TODO: lets get that programmatically
 // ASCIITree ATree DAWNFILE G4HepRepFile HepRepFile RayTracer VRML2FILE gMocrenFile OpenGLImmediateQt OGLIQt OGLI OpenGLStoredQt OGLSQt OGL OGLS
@@ -25,9 +25,9 @@ namespace g4display {
 G4View getG4View(const std::shared_ptr<GOptions>& gopts) {
 	// projecting it onto G4View structure
 	G4View g4view;
-	g4view.driver        = gopts->getOptionMapInNode("g4view", "driver").as<string>();;
-	g4view.dimension     = gopts->getOptionMapInNode("g4view", "dimension").as<string>();
-	g4view.position      = gopts->getOptionMapInNode("g4view", "position").as<string>();
+	g4view.driver        = gopts->getOptionMapInNode("g4view", "driver").as<std::string>();;
+	g4view.dimension     = gopts->getOptionMapInNode("g4view", "dimension").as<std::string>();
+	g4view.position      = gopts->getOptionMapInNode("g4view", "position").as<std::string>();
 	g4view.segsPerCircle = gopts->getOptionMapInNode("g4view", "segsPerCircle").as<int>();
 
 	return g4view;
@@ -36,8 +36,8 @@ G4View getG4View(const std::shared_ptr<GOptions>& gopts) {
 // read the g4camera option and return a G4Camera struct
 G4Camera getG4Camera(const std::shared_ptr<GOptions>& gopts) {
 	G4Camera gcamera;
-	gcamera.phi   = gopts->getOptionMapInNode("g4camera", "phi").as<string>();
-	gcamera.theta = gopts->getOptionMapInNode("g4camera", "theta").as<string>();
+	gcamera.phi   = gopts->getOptionMapInNode("g4camera", "phi").as<std::string>();
+	gcamera.theta = gopts->getOptionMapInNode("g4camera", "theta").as<std::string>();
 
 	return gcamera;
 }
@@ -46,8 +46,8 @@ G4Camera getG4Camera(const std::shared_ptr<GOptions>& gopts) {
 G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts) {
 	G4Dawn gdawn;
 
-	auto phi   = gopts->getOptionMapInNode("dawn", "phi").as<string>();
-	auto theta = gopts->getOptionMapInNode("dawn", "theta").as<string>();
+	auto phi   = gopts->getOptionMapInNode("dawn", "phi").as<std::string>();
+	auto theta = gopts->getOptionMapInNode("dawn", "theta").as<std::string>();
 
 	if (phi == "null") phi = goptions::NODFLT;
 	if (theta == "null") theta = goptions::NODFLT;
@@ -63,16 +63,16 @@ G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts) {
 GOptions defineOptions() {
 
 	GOptions goptions(G4DISPLAY_LOGGER);
-	string   help;
 
-	// g4display
-	// string VIEWERCHOICES = "g4 viewer. Available choices:\n\n";
-	// for (const auto& c : AVAILABLEG4VIEWERS) { VIEWERCHOICES += "\t\t\t\t- " + c + "\n"; }
+	goptions += GOptions(G4SCENE_LOGGER);
+	
+	std::string   help;
 
-	vector<GVariable> g4view = {
-		{"driver", string(GDEFAULTVIEWERDRIVER), "Geant4 vis driver"},
-		{"dimension", string(GDEFAULTVIEWERSIZE), "g4 viewer dimension"},
-		{"position", string(GDEFAULTVIEWERPOS), "g4 viewer position"},
+
+	std::vector<GVariable> g4view = {
+		{"driver", std::string(GDEFAULTVIEWERDRIVER), "Geant4 vis driver"},
+		{"dimension", std::string(GDEFAULTVIEWERSIZE), "g4 viewer dimension"},
+		{"position", std::string(GDEFAULTVIEWERPOS), "g4 viewer position"},
 		{"segsPerCircle", GDEFAULTVSEGPERCIRCLE, "Number of segments per circle"}
 
 	};
@@ -88,7 +88,7 @@ GOptions defineOptions() {
 
 
 	// g4camera
-	vector<GVariable> g4camera = {
+	std::vector<GVariable> g4camera = {
 		{"phi", "0*deg", "geant4 camera phi"},
 		{"theta", "0*deg", "geant4 camera theta"}
 	};
@@ -101,7 +101,7 @@ GOptions defineOptions() {
 	// dawn
 	help = "Defines the dawn camera view point and take a dawn screenshot \n \n ";
 	help += "Example: -dawn=\"[{phi: 20*deg, theta: 15*deg}]\"  \n ";
-	vector<GVariable> dawn = {
+	std::vector<GVariable> dawn = {
 		{"phi", 30, "dawn phi"},
 		{"theta", 30, "dawn theta"}
 	};

@@ -8,7 +8,6 @@
 
 // g4display
 #include "g4SceneProperties.h"
-#include "g4display_options.h"
 #include "g4Text.h"
 
 // gemc
@@ -17,18 +16,7 @@
 // geant4
 #include "G4UImanager.hh"
 
-/*!
- * \brief Constructs a G4SceneProperties object.
- *
- * This constructor initializes the scene properties based on the provided global options.
- * It sets up visualization commands including scene creation, viewer configuration, and text annotations.
- * These commands are then executed using the GEANT4 UI manager.
- *
- * \param gopts Pointer to the global options object.
- */
-G4SceneProperties::G4SceneProperties(const std::shared_ptr<GOptions>& gopts): log(std::make_shared<GLogger>(gopts, G4DISPLAY_LOGGER, "G4SceneProperties")) {
-	log->debug(CONSTRUCTOR, "G4SceneProperties");
-}
+
 
 std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr<GOptions>& gopts) {
 	std::vector<std::string> cmds;

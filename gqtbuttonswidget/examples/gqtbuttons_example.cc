@@ -1,16 +1,17 @@
 // gQtButtonsWidget
 #include "qapplication.h"
 #include "gQtButtonsWidget.h"
-#include "gQtButtonsWidget_options.h"
+
+// gemc
+#include "goptions.h"
 
 // qt
-#include <QMainWindow>
 #include <QTimer>
 
 
 int main(int argc, char* argv[]) {
 	// options not used
-	auto gopts =std::make_shared<GOptions>(argc, argv, gqtbuttonswidget::defineOptions());
+	auto gopts =std::make_shared<GOptions>(argc, argv, GOptions("hello"));
 	auto timeout = gopts->getScalarDouble("tt");
 
 	QApplication app(argc, argv);

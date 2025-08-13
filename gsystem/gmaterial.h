@@ -1,16 +1,16 @@
 #pragma once
 
 // gemc
-#include "glogger.h"
+#include "gbase.h"
 
 // c++
 #include <string>
 #include <vector>
 #include <numeric>
 
-class GMaterial {
+class GMaterial : public GBase<GMaterial> {
 public:
-	GMaterial(std::string system, std::vector<std::string> pars, std::shared_ptr<GLogger> logger);
+	GMaterial(const std::string& system, std::vector<std::string> pars, const std::shared_ptr<GLogger>& logger);
 
 	// Define a virtual clone method to be used in the copy constructor
 	[[nodiscard]] virtual std::unique_ptr<GMaterial> clone() const {
@@ -70,8 +70,6 @@ private:
 	void getMaterialPropertyFromString(const std::string& parameter, const std::string& propertyName);
 
 	friend std::ostream& operator<<(std::ostream& stream, GMaterial); // Logs infos on screen.
-
-	std::shared_ptr<GLogger> log; ///< Logger instance for logging messages.
 
 public:
 	// getters

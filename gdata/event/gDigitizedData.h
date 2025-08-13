@@ -17,6 +17,8 @@
 // gemc
 #include "ghit.h"
 #include "gbase.h"
+
+// gdata
 #include "gdataConventions.h" // for CRATESTRINGID, SLOTSTRINGID, CHANNELSTRINGID, TIMEATELECTRONICS
 
 constexpr const char* GDIGITIZED_DATA_LOGGER = "digitized_data";

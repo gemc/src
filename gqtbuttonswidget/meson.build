@@ -2,12 +2,10 @@ sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
 sources = files(
     'gQtButtonsWidget.cc',
-    'gQtButtonsWidget_options.cc',
 )
 
 headers = files(
     'gQtButtonsWidget.h',
-    'gQtButtonsWidget_options.h',
 )
 
 moc_headers = files(

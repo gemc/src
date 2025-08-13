@@ -1,5 +1,16 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
+with_gui = ['']
+if get_option('i_test')
+    with_gui = ['-gui']
+endif
+
+example_source = files('examples/g4dialog_example.cc')
+
+
+verbosities = ['-verbosity.g4dialog=2',
+               '-debug.g4dialog=true']
+
 sources = files(
     'g4dialog.cc',
     'g4dialog_options.cc',
@@ -20,8 +31,8 @@ moc_headers = files(
 )
 
 examples = {
-    'test_g4dialog' : [files('examples/g4dialog_example.cc'), ['-gui']],
-    'test_g4dialog_verbose' : [files('examples/g4dialog_example.cc'), ['-gui', '-debug.g4dialog=true', '-verbosity.g4dialog=2']],
+    'test_g4dialog' : [example_source, with_gui],
+    'test_g4dialog_verbose' : [example_source, with_gui + verbosities]
 }
 
 

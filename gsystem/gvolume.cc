@@ -4,18 +4,18 @@
 #include <utility>
 #include "gsystemConventions.h"
 
-using namespace std;
 using namespace gutilities;
 
 // need to set pCopyNo with unique identifier
 // see c++ thread safe ID generation function
-GVolume::GVolume(const std::shared_ptr<GLogger>& log, string s, vector<string> pars,
-                 string                          importPath) : system(std::move(s)) {
+GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
+                 const std::string&              s, vector<string> pars,
+                 const std::string&              importPath) :
+	GBase(logger),
+	system(s),
+	importFilename(importPath) {
 	if (pars.size() != GVOLUMENUMBEROFPARS) {
-		for (auto& parameter : pars) {
-			cerr << " par " << parameter << endl;
-			log->warning(" - parameter ", parameter);
-		}
+		for (auto& parameter : pars) { log->warning(" - parameter ", parameter); }
 
 		log->error(ERR_GWRONGNUMBEROFPARS,
 		           "Incorrect number of system parameters for GVolume: ", pars.size(), ", it should be ",
@@ -65,42 +65,39 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& log, string s, vector<string> p
 		// modifiers - accessed through options/jcard
 		shift = GSYSTEMNOMODIFIER;
 		tilt  = GSYSTEMNOMODIFIER;
-
-		// set file with path if it's a CAD/GDML import
-		importFilename = std::move(importPath);
 	}
 }
 
 
-ostream& operator<<(ostream& stream, const GVolume& gVol) {
+std::ostream& operator<<(std::ostream& stream, const GVolume& gVol) {
 	string style = "unknown";
 	if (gVol.style == 0) { style = "wireframe"; }
 	else if (gVol.style == 1) { style = "solid"; }
 	string visibility = "yes";
 	if (!gVol.visible) { visibility = "no"; }
 
-	stream << endl;
-	stream << "   - Name:            " << gVol.name << "  -  " << gVol.description << endl;
-	stream << "   - System:       " << gVol.system << endl;
-	stream << "   - Variation:       " << gVol.variation << endl;
-	stream << "   - Run Number:      " << gVol.runno << endl;
-	stream << "   - Type:            " << gVol.type << endl;
-	stream << "   - Parameters:      " << gVol.parameters << endl;
-	stream << "   - Material:        " << gVol.material << endl;
-	stream << "   - Mother:          " << gVol.motherName << endl;
-	stream << "   - Positions:       " << gVol.pos << endl;
-	stream << "   - Rotation(s):     " << gVol.rot << endl;
-	stream << "   - E.M. Field:      " << gVol.emfield << endl;
-	stream << "   - Digitization:    " << gVol.digitization << endl;
-	stream << "   - GIdentity:       " << gVol.gidentity << endl;
-	stream << "   - Col, Vis, Style: " << gVol.color << ", " << visibility << ", " << style << endl;
-	stream << endl;
+	stream << std::endl;
+	stream << "   - Name:            " << gVol.name << "  -  " << gVol.description << std::endl;
+	stream << "   - System:       " << gVol.system << std::endl;
+	stream << "   - Variation:       " << gVol.variation << std::endl;
+	stream << "   - Run Number:      " << gVol.runno << std::endl;
+	stream << "   - Type:            " << gVol.type << std::endl;
+	stream << "   - Parameters:      " << gVol.parameters << std::endl;
+	stream << "   - Material:        " << gVol.material << std::endl;
+	stream << "   - Mother:          " << gVol.motherName << std::endl;
+	stream << "   - Positions:       " << gVol.pos << std::endl;
+	stream << "   - Rotation(s):     " << gVol.rot << std::endl;
+	stream << "   - E.M. Field:      " << gVol.emfield << std::endl;
+	stream << "   - Digitization:    " << gVol.digitization << std::endl;
+	stream << "   - GIdentity:       " << gVol.gidentity << std::endl;
+	stream << "   - Col, Vis, Style: " << gVol.color << ", " << visibility << ", " << style << std::endl;
+	stream << std::endl;
 
 	return stream;
 }
 
 
-GVolume::GVolume(const string& rootVolumeDefinition) {
+GVolume::GVolume(const string& rootVolumeDefinition, const std::shared_ptr<GLogger>& logger) : GBase(logger) {
 	vector<string> rootDefinitions = getStringVectorFromStringWithDelimiter(rootVolumeDefinition, " ");
 	string         volumeParameters;
 
@@ -133,6 +130,6 @@ GVolume::GVolume(const string& rootVolumeDefinition) {
 	shift = GSYSTEMNOMODIFIER;
 	tilt  = GSYSTEMNOMODIFIER;
 
-	// set file with path if it's a CAD/GDML import
+	// set file with its path if it's a CAD/GDML import
 	importFilename = "none";
 }

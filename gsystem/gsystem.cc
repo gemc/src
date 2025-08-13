@@ -1,13 +1,12 @@
 // gsystem
 #include "gsystem.h"
 #include "gsystemConventions.h"
+#include "gsystem_options.h"
 
-// Use the std namespace in this implementation file.
-using namespace std;
 
 // explicit copy constructor
 GSystem::GSystem(const GSystem& other)
-	: log(other.log),
+	: GBase(other.log),
 	  dbhost(other.dbhost),
 	  name(other.name),
 	  path(other.path),
@@ -43,15 +42,15 @@ GSystem::GSystem(const GSystem& other)
  * \details This file contains the definitions for the GSystem class member functions.
  */
 
-GSystem::GSystem(const std::shared_ptr<GLogger>& logger,
-                 const std::string&              dbh,
-                 const std::string&              sname,
-                 const std::string&              factory,
-                 const std::string&              exp,
-                 int                             run,
-                 const std::string&              variation,
-                 const std::string&              notes)
-	: log(logger),
+GSystem::GSystem(const std::shared_ptr<GOptions>& gopts,
+                 const std::string&               dbh,
+                 const std::string&               sname,
+                 const std::string&               factory,
+                 const std::string&               exp,
+                 int                              run,
+                 const std::string&               variation,
+                 const std::string&               notes)
+	: GBase(gopts, GSYSTEM_LOGGER),
 	  dbhost(dbh),
 	  name(gutilities::getFileFromPath(sname)),
 	  path(gutilities::getDirFromPath(sname)), // Initialize 'path' directly
@@ -80,21 +79,21 @@ GSystem::GSystem(const std::shared_ptr<GLogger>& logger,
 /**
  * \brief Builds and adds a GVolume to the system.
  *
- * This function appends the current variation and runs number to the parameters,
+ * This function appends the current variation and run number to the parameters,
  * checks for duplicate volume names, and adds a new GVolume to the gvolumesMap.
  *
  * \param pars A vector of strings containing volume parameters.
  */
-void GSystem::addGVolume(vector<string> pars) {
+void GSystem::addGVolume(std::vector<std::string> pars) {
 	// Append variation and run number to parameters.
 	pars.emplace_back(variation);
-	pars.emplace_back(to_string(runno));
+	pars.emplace_back(std::to_string(runno));
 
-	string volume_name = pars[0];
+	std::string volume_name = pars[0];
 
 	// Check if the volume already exists in the map.
 	if (gvolumesMap.find(volume_name) == gvolumesMap.end()) {
-		// Create and add new GVolume to the map.
+		// Create and add GVolume to the map.
 		gvolumesMap[volume_name] = std::make_unique<GVolume>(log, name, pars);
 		log->info(1, "Adding gVolume <" + volume_name + "> to gvolumesMap.");
 		log->info(2, *gvolumesMap[volume_name]);
@@ -113,10 +112,10 @@ void GSystem::addGVolume(vector<string> pars) {
  *
  * \param rootVolumeDefinition The definition string for the ROOT volume.
  */
-void GSystem::addROOTVolume(const string& rootVolumeDefinition) {
+void GSystem::addROOTVolume(const std::string& rootVolumeDefinition) {
 	log->info(1, "Adding ROOT volume <" + rootVolumeDefinition + "> to gvolumesMap.");
 	// ROOTWORLDGVOLUMENAME is assumed to be defined in gsystemConventions.h.
-	gvolumesMap[ROOTWORLDGVOLUMENAME] = std::make_unique<GVolume>(rootVolumeDefinition);
+	gvolumesMap[ROOTWORLDGVOLUMENAME] = std::make_unique<GVolume>(rootVolumeDefinition, log);
 }
 
 // add volume from a file (CAD or GDML factories)
@@ -135,20 +134,20 @@ namespace fs = std::filesystem;
  * \param importType The type of import.
  * \param filename The file that contains the volume definition.
  */
-void GSystem::addVolumeFromFile(const string& importType, const string& filename) {
-	vector<string> pars;
+void GSystem::addVolumeFromFile(const std::string& importType, const std::string& filename) {
+	std::vector<std::string> pars;
 
 	// Extract filename (without the path) and split by delimiter.
-	vector<string> gvpaths = gutilities::getStringVectorFromStringWithDelimiter(fs::path(filename).filename().string(),
-	                                                                            ".");
+	std::vector<std::string> gvpaths = gutilities::getStringVectorFromStringWithDelimiter(fs::path(filename).filename().string(),
+	                                                                                      ".");
 
 	// Use the first item as the volume name.
-	const string& gvolumeName = gvpaths.front();
+	const std::string& gvolumeName = gvpaths.front();
 
 	// Order is defined in gvolume.cc:
 	// 01: name, 03: type, 04: parameters, 05: material, 02: mother, etc.
-	pars.emplace_back(gvolumeName);                 // 01 name
-	pars.emplace_back(importType);                  // 03 type
+	pars.emplace_back(gvolumeName);                   // 01 name
+	pars.emplace_back(importType);                    // 03 type
 	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 04 parameters
 	pars.emplace_back("G4_AIR");                    // 05 material: default is air
 	pars.emplace_back(ROOTWORLDGVOLUMENAME);        // 02 mother: default is ROOTWORLDGVOLUMENAME
@@ -164,8 +163,8 @@ void GSystem::addVolumeFromFile(const string& importType, const string& filename
 	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 15 replicaOf
 	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 16 solidsOpr
 	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 17 mirrot
-	pars.emplace_back("1");                         // 18 exist
-	pars.emplace_back(filename);                    // 19 description: contains full path
+	pars.emplace_back("1");                         // 18 exist flag
+	pars.emplace_back(filename);                      // 19 description: contains full path
 
 	addGVolume(pars);
 }
@@ -177,7 +176,7 @@ void GSystem::addVolumeFromFile(const string& importType, const string& filename
  * \param volumeName The name of the volume.
  * \return A pointer to the GVolume if it exists, or nullptr otherwise.
  */
-GVolume* GSystem::getGVolume(const string& volumeName) const {
+GVolume* GSystem::getGVolume(const std::string& volumeName) const {
 	auto it = gvolumesMap.find(volumeName);
 	if (it != gvolumesMap.end())
 		return it->second.get();
@@ -195,8 +194,8 @@ GVolume* GSystem::getGVolume(const string& volumeName) const {
  *
  * \param pars A vector of strings containing material parameters.
  */
-void GSystem::addGMaterial(vector<string> pars) {
-	string materialName = pars[0];
+void GSystem::addGMaterial(std::vector<std::string> pars) {
+	std::string materialName = pars[0];
 
 	if (gmaterialsMap.find(materialName) == gmaterialsMap.end()) {
 		gmaterialsMap[materialName] = std::make_unique<GMaterial>(name, pars, log);
@@ -218,11 +217,11 @@ void GSystem::addGMaterial(vector<string> pars) {
  * \param volumeName The name of the volume.
  * \return A pointer to the GMaterial if found, or nullptr otherwise.
  */
-const GMaterial* GSystem::getMaterialForGVolume(const string& volumeName) const {
+const GMaterial* GSystem::getMaterialForGVolume(const std::string& volumeName) const {
 	auto it = gvolumesMap.find(volumeName);
 	if (it != gvolumesMap.end()) {
-		string materialName = it->second->getMaterial();
-		auto   matIt        = gmaterialsMap.find(materialName);
+		std::string materialName = it->second->getMaterial();
+		auto        matIt        = gmaterialsMap.find(materialName);
 		if (matIt != gmaterialsMap.end())
 			return matIt->second.get();
 		else {
@@ -240,7 +239,7 @@ const GMaterial* GSystem::getMaterialForGVolume(const string& volumeName) const 
  *
  * \return A string representing the full file path.
  */
-string GSystem::getFilePath() {
+std::string GSystem::getFilePath() {
 	if (path.empty())
 		return name;
 	return path + "/" + name;

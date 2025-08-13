@@ -9,90 +9,15 @@
 #include <QHBoxLayout>
 #include <QStandardItemModel>
 #include <QHeaderView>
-#include <QStyleOptionViewItem>
-#include <QModelIndex>
-#include <QVariant>
 #include <QStringList>
-#include <QFont>
-#include <QPixmap>
-#include <QColor>
-#include <QSizePolicy>
-#include <QAbstractItemView>
 
-
-// Checks that the database has a non-empty "geometry" table.
-bool DBSelectView::isGeometryTableValid(sqlite3* db) {
-	if (!db) return false;
-	sqlite3_stmt* stmt      = nullptr;
-	const char*   sql_query = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='geometry'";
-	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
-		std::cerr << "SQL Error: Failed to check geometry table existence: " << sqlite3_errmsg(db) << std::endl;
-		return false;
-	}
-	bool tableExists = false;
-	if (sqlite3_step(stmt) == SQLITE_ROW) { tableExists = sqlite3_column_int(stmt, 0) > 0; }
-	sqlite3_finalize(stmt);
-	if (!tableExists) return false;
-	sql_query = "SELECT COUNT(*) FROM geometry";
-	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
-		std::cerr << "SQL Error: Failed to count rows in geometry table: " << sqlite3_errmsg(db) << std::endl;
-		return false;
-	}
-	bool hasData = false;
-	if (sqlite3_step(stmt) == SQLITE_ROW) { hasData = sqlite3_column_int(stmt, 0) > 0; }
-	sqlite3_finalize(stmt);
-	return hasData;
-}
-
-// Applies selections from the GSystem vector to update the UI.
-void DBSelectView::applyGSystemSelections(std::shared_ptr<GOptions> gopts) {
-	auto gsystems = gsystem::getSystems(gopts, log); // Get vector of GSystem objects.
-	for (int i = 0; i < experimentModel->rowCount(); ++i) {
-		QStandardItem* expItem = experimentModel->item(i, 0);
-		if (!expItem) continue;
-		// Mark the default experiment as checked if it matches.
-		if (expItem->text() == QString::fromStdString(experiment)) { expItem->setCheckState(Qt::Checked); }
-		// Process each child system.
-		for (int j = 0; j < expItem->rowCount(); ++j) {
-			QStandardItem* sysItem = expItem->child(j, 0);
-			QStandardItem* varItem = expItem->child(j, 2);
-			QStandardItem* runItem = expItem->child(j, 3);
-			if (!sysItem || !varItem || !runItem) continue;
-			string sysName     = sysItem->text().toStdString();
-			bool   systemFound = false;
-			for (auto const& gsys : gsystems) {
-				if (gsys->getName() == sysName) {
-					systemFound = true;
-					sysItem->setCheckState(Qt::Checked);
-					QStringList availableVariations = getAvailableVariations(sysName);
-					QString     selectedVar         = QString::fromStdString(gsys->getVariation());
-					if (availableVariations.contains(selectedVar))
-						varItem->setData(selectedVar, Qt::EditRole);
-					else if (!availableVariations.isEmpty())
-						varItem->setData(availableVariations.first(), Qt::EditRole);
-					varItem->setData(availableVariations, Qt::UserRole);
-					QStringList availableRuns = getAvailableRuns(sysName);
-					QString     selectedRun   = QString::number(gsys->getRunno());
-					if (availableRuns.contains(selectedRun))
-						runItem->setData(selectedRun, Qt::EditRole);
-					else if (!availableRuns.isEmpty())
-						runItem->setData(availableRuns.first(), Qt::EditRole);
-					runItem->setData(availableRuns, Qt::UserRole);
-					updateSystemItemAppearance(sysItem);
-					break;
-				}
-			}
-			if (!systemFound) { sysItem->setCheckState(Qt::Unchecked); }
-		}
-	}
-}
 
 // Constructor. Initializes the widget, opens the database and sets up the UI.
-DBSelectView::DBSelectView(std::shared_ptr<GOptions> gopts, GDetectorConstruction* dc, QWidget* parent)
+DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorConstruction* dc, QWidget* parent)
 	: QWidget(parent),
+	  GBase(gopts, DBSELECT_LOGGER),
 	  db(nullptr),
-	  gDetectorConstruction(dc),
-	  log(std::make_shared<GLogger>(gopts, DBSELECT_LOGGER, "DBSelectView")) {
+	  gDetectorConstruction(dc) {
 	// Open the database.
 	dbhost     = gopts->getScalarString("sql");
 	experiment = gopts->getScalarString("experiment");
@@ -158,6 +83,74 @@ DBSelectView::DBSelectView(std::shared_ptr<GOptions> gopts, GDetectorConstructio
 
 // Destructor: Closes the database if it is open.
 DBSelectView::~DBSelectView() { if (db) sqlite3_close(db); }
+
+// Checks that the database has a non-empty "geometry" table.
+bool DBSelectView::isGeometryTableValid(sqlite3* db) {
+	if (!db) return false;
+	sqlite3_stmt* stmt      = nullptr;
+	const char*   sql_query = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='geometry'";
+	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
+		std::cerr << "SQL Error: Failed to check geometry table existence: " << sqlite3_errmsg(db) << std::endl;
+		return false;
+	}
+	bool tableExists = false;
+	if (sqlite3_step(stmt) == SQLITE_ROW) { tableExists = sqlite3_column_int(stmt, 0) > 0; }
+	sqlite3_finalize(stmt);
+	if (!tableExists) return false;
+	sql_query = "SELECT COUNT(*) FROM geometry";
+	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
+		std::cerr << "SQL Error: Failed to count rows in geometry table: " << sqlite3_errmsg(db) << std::endl;
+		return false;
+	}
+	bool hasData = false;
+	if (sqlite3_step(stmt) == SQLITE_ROW) { hasData = sqlite3_column_int(stmt, 0) > 0; }
+	sqlite3_finalize(stmt);
+	return hasData;
+}
+
+// Applies selections from the GSystem vector to update the UI.
+void DBSelectView::applyGSystemSelections(std::shared_ptr<GOptions> gopts) {
+	auto gsystems = gsystem::getSystems(gopts); // Get vector of GSystem objects.
+	for (int i = 0; i < experimentModel->rowCount(); ++i) {
+		QStandardItem* expItem = experimentModel->item(i, 0);
+		if (!expItem) continue;
+		// Mark the default experiment as checked if it matches.
+		if (expItem->text() == QString::fromStdString(experiment)) { expItem->setCheckState(Qt::Checked); }
+		// Process each child system.
+		for (int j = 0; j < expItem->rowCount(); ++j) {
+			QStandardItem* sysItem = expItem->child(j, 0);
+			QStandardItem* varItem = expItem->child(j, 2);
+			QStandardItem* runItem = expItem->child(j, 3);
+			if (!sysItem || !varItem || !runItem) continue;
+			std::string sysName     = sysItem->text().toStdString();
+			bool        systemFound = false;
+			for (auto const& gsys : gsystems) {
+				if (gsys->getName() == sysName) {
+					systemFound = true;
+					sysItem->setCheckState(Qt::Checked);
+					QStringList availableVariations = getAvailableVariations(sysName);
+					QString     selectedVar         = QString::fromStdString(gsys->getVariation());
+					if (availableVariations.contains(selectedVar))
+						varItem->setData(selectedVar, Qt::EditRole);
+					else if (!availableVariations.isEmpty())
+						varItem->setData(availableVariations.first(), Qt::EditRole);
+					varItem->setData(availableVariations, Qt::UserRole);
+					QStringList availableRuns = getAvailableRuns(sysName);
+					QString     selectedRun   = QString::number(gsys->getRunno());
+					if (availableRuns.contains(selectedRun))
+						runItem->setData(selectedRun, Qt::EditRole);
+					else if (!availableRuns.isEmpty())
+						runItem->setData(availableRuns.first(), Qt::EditRole);
+					runItem->setData(availableRuns, Qt::UserRole);
+					updateSystemItemAppearance(sysItem);
+					break;
+				}
+			}
+			if (!systemFound) { sysItem->setCheckState(Qt::Unchecked); }
+		}
+	}
+}
+
 
 /**
  * setupUI() sets up the widget's layout:
@@ -252,7 +245,7 @@ void DBSelectView::loadExperiments() {
 	sqlite3_finalize(stmt);
 }
 
-void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem, const string& experiment) {
+void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem, const std::string& experiment) {
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT DISTINCT system FROM geometry WHERE experiment = ?";
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) == SQLITE_OK) {
@@ -291,9 +284,9 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem, const
 	sqlite3_finalize(stmt);
 }
 
-int DBSelectView::getGeometryCount(const string& experiment, const string& system, const string& variation, int run) {
+int DBSelectView::getGeometryCount(const std::string& experiment, const std::string& system, const std::string& variation, int run) {
 	int           count = 0;
-	string        query = "SELECT COUNT(*) FROM geometry WHERE experiment = ? AND system = ? AND variation = ? AND run = ?";
+	std::string   query = "SELECT COUNT(*) FROM geometry WHERE experiment = ? AND system = ? AND variation = ? AND run = ?";
 	sqlite3_stmt* stmt  = nullptr;
 	if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
 		sqlite3_bind_text(stmt, 1, experiment.c_str(), -1, SQLITE_TRANSIENT);
@@ -307,7 +300,7 @@ int DBSelectView::getGeometryCount(const string& experiment, const string& syste
 	return count;
 }
 
-QStringList DBSelectView::getAvailableVariations(const string& system) {
+QStringList DBSelectView::getAvailableVariations(const std::string& system) {
 	QStringList   varList;
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT DISTINCT variation FROM geometry WHERE system = ?";
@@ -322,7 +315,7 @@ QStringList DBSelectView::getAvailableVariations(const string& system) {
 	return varList;
 }
 
-QStringList DBSelectView::getAvailableRuns(const string& system) {
+QStringList DBSelectView::getAvailableRuns(const std::string& system) {
 	QStringList   runList;
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT DISTINCT run FROM geometry WHERE system = ?";
@@ -337,8 +330,8 @@ QStringList DBSelectView::getAvailableRuns(const string& system) {
 	return runList;
 }
 
-bool DBSelectView::systemAvailable(const string& system, const string& variation, int run) {
-	string        query = "SELECT COUNT(*) FROM geometry WHERE system = ? AND variation = ? AND run = ?";
+bool DBSelectView::systemAvailable(const std::string& system, const std::string& variation, int run) {
+	std::string   query = "SELECT COUNT(*) FROM geometry WHERE system = ? AND variation = ? AND run = ?";
 	sqlite3_stmt* stmt  = nullptr;
 	if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
 		std::cerr << "systemAvailable: prepare failed: " << sqlite3_errmsg(db) << std::endl;
@@ -373,9 +366,9 @@ void DBSelectView::updateSystemItemAppearance(QStandardItem* systemItem) {
 	QString        runStr         = runItem ? runItem->data(Qt::EditRole).toString() : "";
 	int            run            = runStr.toInt();
 	QString        expStr         = parentItem->text();
-	string         experimentName = expStr.toStdString();
-	string         systemName     = systemItem->text().toStdString();
-	string         variation      = varStr.toStdString();
+	std::string    experimentName = expStr.toStdString();
+	std::string    systemName     = systemItem->text().toStdString();
+	std::string    variation      = varStr.toStdString();
 	int            count          = getGeometryCount(experimentName, systemName, variation, run);
 	QStandardItem* entriesItem    = parentItem->child(row, 1);
 	if (entriesItem) { entriesItem->setText(QString::number(count)); }
@@ -458,10 +451,10 @@ SystemList DBSelectView::get_gsystems() {
 				continue;
 
 			if (sysItem->checkState() == Qt::Checked) {
-				string systemName = sysItem->text().toStdString();
-				string variation  = varItem->data(Qt::EditRole).toString().toStdString();
-				int    run        = runItem->data(Qt::EditRole).toInt();
-				auto   thisSystem = std::make_shared<GSystem>(log, dbhost, systemName, GSYSTEMSQLITETFACTORYLABEL, experiment, run, variation);
+				std::string systemName = sysItem->text().toStdString();
+				std::string variation  = varItem->data(Qt::EditRole).toString().toStdString();
+				int         run        = runItem->data(Qt::EditRole).toInt();
+				auto        thisSystem = std::make_shared<GSystem>(gopt, dbhost, systemName, GSYSTEMSQLITETFACTORYLABEL, experiment, run, variation);
 				updatedSystems.emplace_back(thisSystem);
 			}
 		}

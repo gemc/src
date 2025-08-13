@@ -1,12 +1,18 @@
 #pragma once
 
+// C++
 #include <string>
 #include <vector>
+
+// qt
 #include <QWidget>
 #include <QListWidget>
 #include <QPushButton>
 #include <QVector>
 #include <QIcon>
+
+
+
 
 /**
  * \struct ButtonInfo

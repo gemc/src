@@ -2,18 +2,18 @@
 
 // namespace needed for the inline functions below
 #include "gutilities.h"
-#include "glogger.h"
+#include "gbase.h"
 
 // c++
 #include <string>
 #include <utility>
 
 
-class GVolume {
+class GVolume : public GBase<GVolume> {
 public:
-	GVolume(const std::shared_ptr<GLogger>& log, std::string system, std::vector<std::string> pars, std::string importPath = UNINITIALIZEDSTRINGQUANTITY);
+	GVolume(const std::shared_ptr<GLogger>& log, const std::string& system, std::vector<std::string> pars,  const std::string& importPath = UNINITIALIZEDSTRINGQUANTITY);
 
-	explicit GVolume(const std::string& rootVolumeDefinition); // special constructor for root volume
+	explicit GVolume(const std::string& rootVolumeDefinition, const std::shared_ptr<GLogger>& log); // special constructor for root volume
 
 	// Define a virtual clone method to be used in the copy constructor
 	[[nodiscard]] virtual std::unique_ptr<GVolume> clone() const {

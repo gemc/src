@@ -6,7 +6,14 @@ gsystem_sqlite = ['-gsystem="[{name: b1}]"', '-sql=' + examples_dir + '/gemc.db'
 gsystem_ascii = ['-gsystem="[{name: b1, factory: ascii}]"', '-ascii_db='+examples_dir]
 example_pysource = files('examples/example.py')
 example_source = files('examples/gsystem_example.cc')
-verbosity = ['-verbosity.gsystem=2', '-debug.gsystem=true']
+verbosity = ['-verbosity.gvolume=2',
+             '-debug.gvolume=true',
+             '-verbosity.gmaterial=2',
+             '-debug.gmaterial=true',
+             '-verbosity.gsystem=2',
+             '-debug.gsystem=true',
+             '-verbosity.gworld=2',
+             '-debug.gworld=true']
 
 LD += {
     'name' : sub_dir_name,

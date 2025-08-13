@@ -27,11 +27,16 @@
  * \n\n\n
  */
 
+// C++
 #include <string>
 #include <vector>
-#include "glogger.h"
 
-class GOptions; // Forward declaration if not already included
+// gemc
+#include "gbase.h"
+
+// g4display
+#include "g4display_options.h"
+
 
 /**
  * \class G4SceneProperties
@@ -41,7 +46,7 @@ class GOptions; // Forward declaration if not already included
  * It offers the ability to generate text commands that add labels or annotations to the scene.
  * Configuration is obtained from a GOptions instance, and logging is performed using a GLogger.
  */
-class G4SceneProperties {
+class G4SceneProperties  : public GBase<G4SceneProperties> {
 
 public:
     /**
@@ -53,10 +58,7 @@ public:
      *
      * \param gopts Pointer to the GOptions object containing configuration parameters.
      */
-    explicit G4SceneProperties(const std::shared_ptr<GOptions>& gopts);
-
-    /// Default destructor.
-    ~G4SceneProperties() = default;
+    explicit G4SceneProperties(const std::shared_ptr<GOptions>& gopts) : GBase(gopts, G4SCENE_LOGGER) {}
 
     /**
      * \brief Generates a vector of scene text commands.
@@ -72,7 +74,6 @@ public:
 
 	std::vector<std::string> scene_commands(const std::shared_ptr<GOptions>& gopts);
 
-private:
-	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
+
 };
 

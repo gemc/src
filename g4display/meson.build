@@ -1,9 +1,18 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
-with_gui = ''
+with_gui = ['']
 if get_option('i_test')
-    with_gui = '-gui'
+    with_gui = ['-gui']
 endif
+
+example_source = files('examples/g4display_example.cc')
+
+verbosities = ['-verbosity.g4display=2',
+               '-debug.g4display=true',
+               '-verbosity.g4scene=2',
+               '-debug.g4scene=true']
+
+yaml = [meson.current_source_dir() + '/examples/example.yaml']
 
 sources = files(
     'g4display_options.cc',
@@ -33,8 +42,8 @@ qrc_examples_sources = files(
 )
 
 examples = {
-    'test_g4display' : [files('examples/g4display_example.cc'), [meson.current_source_dir() + '/examples/example.yaml', with_gui]],
-    'test_g4display_verbose' : [files('examples/g4display_example.cc'), [meson.current_source_dir() + '/examples/example.yaml', with_gui, '-verbosity.g4display=2', '-debug.g4display=true']]
+    'test_g4display' : [example_source, yaml + with_gui],
+    'test_g4display_verbose' : [example_source, yaml + with_gui + verbosities]
 }
 
 LD += {
