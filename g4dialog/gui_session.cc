@@ -1,8 +1,8 @@
 #include "gui_session.h"
 #include "g4dialog_options.h" // Provides G4DIALOG_LOGGER constant and option definitions
-#include <QRegularExpression>
 
-GUI_Session::GUI_Session(const std::shared_ptr<GOptions>& gopt, std::shared_ptr<GBoard> b) :
+
+GUI_Session::GUI_Session(const std::shared_ptr<GOptions>& gopt, GBoard* b) :
 	GBase(gopt, G4DIALOG_LOGGER),
 	board(b) {
 	log->info(1, SFUNCTION_NAME," g4 dialog : GUI_Session created");

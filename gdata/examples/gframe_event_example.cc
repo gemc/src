@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 	// Create loggers: one for gdata and one for gtouchable.
 	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GEVENTDATA_LOGGER);
 
-	auto logt = std::make_shared<GLogger>(gopts, TOUCHABLE_LOGGER, "gdata example: GTouchable");
+	auto logt = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, TOUCHABLE_LOGGER);
 
 	// Define a frame with a frame ID and frame duration.
 	long int frameID = 1;

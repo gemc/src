@@ -1,5 +1,6 @@
 // gphysics 
 #include "gphysics.h"
+#include "gphysics_options.h"
 #include "gphysicsConventions.h"
 
 // gemc
@@ -7,10 +8,7 @@
 
 // geant4 version
 #include "G4Version.hh"
-#include "gphysics_options.h"
 
-
-using std::string;
 
 // geant4
 
@@ -29,12 +27,12 @@ using std::string;
 
 
 GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
-	physList(nullptr),
-	log(std::make_shared<GLogger>(gopts, GPHYSICS_LOGGER, "gphysics")) {
+	GBase(gopts, GPHYSICS_LOGGER),
+	physList(nullptr) {
 	log->debug(CONSTRUCTOR, "GPhysics");
 
-	bool   showPhys  = gopts->getSwitch("showPhysics");
-	string gphysList = gopts->getScalarString("phys_list");
+	bool        showPhys  = gopts->getSwitch("showPhysics");
+	std::string gphysList = gopts->getScalarString("phys_list");
 
 	if (showPhys) {
 		printAvailable();
@@ -48,7 +46,7 @@ GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 	// would make this a drop-in replacement, but we'll list the explicit
 	// namespace here just for clarity
 	g4alt::G4PhysListFactory factory;
-	string                   g4physList = gutilities::removeAllSpacesFromString(gphysList);
+	std::string              g4physList = gutilities::removeAllSpacesFromString(gphysList);
 
 	physList = factory.GetReferencePhysList(g4physList);
 
@@ -60,13 +58,11 @@ GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 	log->info(2, "G4PhysListFactory: <" + g4physList + "> loaded.");
 }
 
-GPhysics::~GPhysics() { log->debug(DESTRUCTOR, "GPhysics"); }
-
 
 // calls PrintAvailablePhysLists
 // if verbosity is > 0 calls PrintAvailablePhysicsConstructors
-void GPhysics::printAvailable() {
-	string g4ver = gutilities::replaceCharInStringWithChars(G4Version, "$", "");
+void GPhysics::printAvailable() const {
+	std::string g4ver = gutilities::replaceCharInStringWithChars(G4Version, "$", "");
 
 	log->info(0, "Geant4 Version ", g4ver, " ", G4Date);;
 

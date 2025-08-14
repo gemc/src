@@ -1,7 +1,6 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
 verbosities = [
-    '-verbosity.gdata=2',
     '-verbosity.plugins=2',
     '-debug.plugins=true',
     '-verbosity.gdigitization=2',

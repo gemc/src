@@ -47,6 +47,7 @@ public:
 GOptions defineOptions() {
 
 	GOptions goptions(G1_LOGGER);
+	goptions += GOptions(G2_LOGGER);
 
 	// command line switch
 	goptions.defineSwitch("light", "a switch, this is just an example.");

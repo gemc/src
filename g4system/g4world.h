@@ -40,7 +40,7 @@
  *  * attach a `G4FieldManager` to a whole volume subtree,
  *  * ask how many volumes were produced.
  */
-class G4World {
+class G4World : public GBase<G4World> {
 public:
 	/**
 	 * @brief Construct the world from a GEMC world description.
@@ -48,9 +48,6 @@ public:
 	 * @param gopts  Global options (verbosity, backup material, overlaps…).
 	 */
 	G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts);
-
-	/** Destructor – shutdown; no manual deletion needed. */
-	~G4World() { log->debug(DESTRUCTOR, "G4World"); }
 
 	// ────── lookup / mutators ────────────────────────────────────────
 	/**
@@ -111,9 +108,6 @@ private:
 	 * The sole purpose is to keep the pointer around for later queries.
 	 */
 	std::unordered_map<std::string, G4Material*> g4materialsMap;
-
-	/** Shared logger (verbosity controlled via `GOptions`). */
-	std::shared_ptr<GLogger> log;
 
 	/**
 	 * Creates and initializes the system factory map.

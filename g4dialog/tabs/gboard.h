@@ -1,7 +1,7 @@
 #pragma once
 
 // gemc
-#include "glogger.h"
+#include "gbase.h"
 
 // qt
 #include <QtWidgets>
@@ -14,7 +14,7 @@
  * GBoard contains a QLineEdit for searching, a clear (trashcan) button to remove all log entries, and a save button
  * to write the log to disk. The log messages are maintained in a QStringList to support filtering.
  */
-class GBoard : public QWidget {
+class GBoard : public QWidget, public GBase<GBoard> {
 	Q_OBJECT
 
 public:
@@ -25,12 +25,10 @@ public:
 	 */
 	explicit GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent = nullptr);
 
-	/**
-	 * @brief Destructor.
-	 */
-	~GBoard() override {
-		log->debug(DESTRUCTOR, "GBoard");
-	}
+	GBoard(const GBoard&)            = delete;
+	GBoard& operator=(const GBoard&) = delete;
+	GBoard(GBoard&&)                 = delete;
+	GBoard& operator=(GBoard&&)      = delete;
 
 	/**
 	 * @brief Appends a log message to the log tab.
@@ -56,7 +54,6 @@ private slots:
 	void saveLog();
 
 private:
-	std::unique_ptr<GLogger> log;
 	QLineEdit*     searchLineEdit{}; ///< Input field for search/filter text
 	QToolButton*   clearButton{};    ///< Button to clear the log
 	QToolButton*   saveButton{};     ///< Button to save the log

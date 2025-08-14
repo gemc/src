@@ -24,11 +24,9 @@
 
 // gdata
 #include "event/gEventDataCollection.h"
-//#include "gdata_options.h"
 
 // gemc
 #include "glogger.h"
-//#include <gtouchable_options.h>
 
 
 // TODO: remove when C++20 is widely available

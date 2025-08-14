@@ -21,7 +21,7 @@
 
 void G4ObjectsFactory::initialize_context(const std::shared_ptr<GLogger>& logger,
                                           int                             check_overlaps,
-                                          const std::string&                     backup_mat) {
+                                          const std::string&              backup_mat) {
 	log             = logger;
 	checkOverlaps   = check_overlaps;
 	backupMaterial  = backup_mat;
@@ -93,8 +93,8 @@ G4ThreeVector G4ObjectsFactory::getPosition(const GVolume* s) {
 
 G4LogicalVolume* G4ObjectsFactory::buildLogical(const GVolume*                              s,
                                                 std::unordered_map<std::string, G4Volume*>* g4s) {
-	const std::string g4name = s->getG4Name();
-	auto thisG4Volume = getOrCreateG4Volume(g4name, g4s);
+	const std::string g4name       = s->getG4Name();
+	auto              thisG4Volume = getOrCreateG4Volume(g4name, g4s);
 
 
 	if (thisG4Volume->getLogical()) return thisG4Volume->getLogical();
@@ -127,28 +127,26 @@ G4VPhysicalVolume* G4ObjectsFactory::buildPhysical(const GVolume*               
 	if (!s->getExistence()) return nullptr;
 	if (!checkPhysicalDependencies(s, g4s)) return nullptr;
 
-	const std::string g4name = s->getG4Name();
-	auto thisG4Volume = getOrCreateG4Volume(g4name, g4s);
+	const std::string g4name       = s->getG4Name();
+	auto              thisG4Volume = getOrCreateG4Volume(g4name, g4s);
 
 	if (!thisG4Volume->getPhysical()) {
 		thisG4Volume->setPhysical(new G4PVPlacement(getRotation(s),
-		                                    getPosition(s),
-		                                    thisG4Volume->getLogical(),
-		                                    g4name,
-		                                    getLogicalFromMap(s->getG4MotherName(), g4s),
-		                                    false,
-		                                    s->getPCopyNo(),
-		                                    checkOverlaps > 0),
-		                  log);
+		                                            getPosition(s),
+		                                            thisG4Volume->getLogical(),
+		                                            g4name,
+		                                            getLogicalFromMap(s->getG4MotherName(), g4s),
+		                                            false,
+		                                            s->getPCopyNo(),
+		                                            checkOverlaps > 0),
+		                          log);
 	}
 	return thisG4Volume->getPhysical();
 }
 
 
-bool G4ObjectsFactory::build_g4volume(const GVolume* s,
-                                    std::unordered_map<std::string,
-                                                       G4Volume*>* g4s) {
-
+bool G4ObjectsFactory::build_g4volume(const GVolume*                              s,
+                                      std::unordered_map<std::string, G4Volume*>* g4s) {
 	const auto name = s->getG4Name();
 	log->info(2, className(), " loadG4System: building <", name, ">");
 

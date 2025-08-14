@@ -1,6 +1,3 @@
-// cpp
-using namespace std;
-
 // G4Dialog
 #include "gcommands.h"
 

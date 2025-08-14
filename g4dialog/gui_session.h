@@ -17,10 +17,10 @@ class GUI_Session : public GBase<GUI_Session>, public G4UIsession {
 public:
 	/**
 	 * @brief Constructs a new GUI_Session object.
-	 * @param logger Shared pointer to a GLogger for debug/verbosity messages.
+	 * @param gopt Shared pointer to a GOptions
 	 * @param board Pointer to the GBoard widget that will display the messages.
 	 */
-	GUI_Session(const std::shared_ptr<GOptions>& gopt,  std::shared_ptr<GBoard> board);
+	GUI_Session(const std::shared_ptr<GOptions>& gopt, GBoard* board);
 
 
 	/**
@@ -28,16 +28,16 @@ public:
 	 * @param coutString The output string.
 	 * @return Always returns 0.
 	 */
-	G4int ReceiveG4cout(const G4String &coutString) override;
+	G4int ReceiveG4cout(const G4String& coutString) override;
 
 	/**
 	 * @brief Receives error output from GEANT4.
 	 * @param cerrString The error string.
 	 * @return Always returns 0.
 	 */
-	G4int ReceiveG4cerr(const G4String &cerrString) override;
+	G4int ReceiveG4cerr(const G4String& cerrString) override;
 
 private:
-	std::shared_ptr<GBoard> board;
-	QString ansiToHtml(const QString &ansiText);
+	GBoard* board; // let parent manage GBoard
+	QString          ansiToHtml(const QString& ansiText);
 };

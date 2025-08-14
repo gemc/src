@@ -3,16 +3,12 @@
 #include "gui_session.h"
 #include "g4dialog_options.h" // Provides G4DIALOG_LOGGER constant and option definitions
 
-
 // qt
-#include <QTextEdit>
 #include <QVBoxLayout>
-#include <QString>
-#include <QTextBlock>
+
 
 GBoard::GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
-	: QWidget(parent), log(std::make_unique<GLogger>(gopt, G4DIALOG_LOGGER, "GBoard")) {
-	log->debug(CONSTRUCTOR, "GBoard");
+	: QWidget(parent), GBase(gopt, GBOARD_LOGGER) {
 
 	// --- Create top bar widgets ---
 	searchLineEdit = new QLineEdit(this);

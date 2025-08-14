@@ -19,9 +19,7 @@
 #include <vector>
 
 G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
-	: log(std::make_shared<GLogger>(gopts, G4SYSTEM_LOGGER, "G4World Constructor")) {
-	log->debug(CONSTRUCTOR, "G4World");
-
+	: GBase(gopts, G4SYSTEM_LOGGER) {
 	auto gsystemMap = gworld->getSystemsMap();
 	createG4SystemFactory(gopts,
 	                      gsystemMap,

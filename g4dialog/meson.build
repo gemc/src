@@ -7,9 +7,11 @@ endif
 
 example_source = files('examples/g4dialog_example.cc')
 
-
-verbosities = ['-verbosity.g4dialog=2',
-               '-debug.g4dialog=true']
+verbosities = [
+    '-verbosity.g4dialog=2',
+    '-debug.g4dialog=true',
+    '-verbosity.gboard=2',
+    '-debug.gboard=true']
 
 sources = files(
     'g4dialog.cc',

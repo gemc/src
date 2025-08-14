@@ -12,9 +12,11 @@
 #include <QTimer>
 
 int main(int argc, char* argv[]) {
+
 	QApplication app(argc, argv);
 
 	auto gopts =std::make_shared<GOptions>(argc, argv, g4dialog::defineOptions());
+
 	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, G4DIALOG_LOGGER);
 
 	auto visManager = new G4VisExecutive;
@@ -23,6 +25,7 @@ int main(int argc, char* argv[]) {
     // main window and controls
 	auto window = new QMainWindow();
 	window->setWindowTitle(QString::fromUtf8("displayUI example"));
+
 	auto g4dialog = new G4Dialog(gopts, window);
 	window->setCentralWidget(g4dialog);
 

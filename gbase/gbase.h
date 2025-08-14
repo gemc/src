@@ -37,7 +37,7 @@ public:
 	// sharing logger for heavy creations like gtouchable
 	explicit GBase(const std::shared_ptr<GLogger>& logger) : log(logger) {}
 
-	virtual ~GBase() { log->debug(DESTRUCTOR, getDerivedName()); }
+	virtual ~GBase() { if (log) log->debug(DESTRUCTOR, getDerivedName()); }
 
 	// Important: because we declared a destructor, default these explicitly.
 	GBase(const GBase&)                = default; // shallow copy of shared_ptr
