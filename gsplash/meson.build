@@ -1,4 +1,16 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+
+with_gui = ['']
+if get_option('i_test')
+    with_gui = ['-gui']
+endif
+
+example_source = files('examples/gsplash_example.cc')
+
+verbosities = [
+    '-verbosity.gsplash=2',
+    '-debug.gsplash=true']
+
 sources = files(
     'gsplash.cc'
 )
@@ -12,7 +24,8 @@ qrc_examples_sources = files(
 )
 
 examples = {
-    'test_gsplash' : [files('examples/gsplash_example.cc'), '-gui']
+    'test_gsplash' : [example_source, with_gui],
+    'test_gsplash_verbose' : [example_source, with_gui + verbosities]
 }
 
 

@@ -1,7 +1,8 @@
 // gstreamer
 #include "gstreamerJLABSROFactory.h"
 
-// tells the DLL how to create a GStreamerFactory
-extern "C" GStreamer* GStreamerFactory(void) {
-	return static_cast<GStreamer*>(new GstreamerJSROFactory);
+
+// tells the DLL how to create a GStreamerFactory in each plugin .so/.dylib
+extern "C" GStreamer* GStreamerFactory(const std::shared_ptr<GOptions>& g) {
+	return  static_cast<GStreamer*> (new GstreamerJSROFactory(g));
 }

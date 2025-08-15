@@ -8,7 +8,7 @@
 int main(int argc, char* argv[]) {
 
 	auto gopts = std::make_shared<GOptions>(argc, argv, gsplash::defineOptions());
-	auto log   = std::make_shared<GLogger>(gopts, GSPLASH_LOGGER, "gsplash_example");
+	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GSPLASH_LOGGER);
 
 	bool gui = gopts->getSwitch("gui");
 

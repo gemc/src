@@ -70,10 +70,7 @@ bool GPlugin_test_example::loadTTImpl([[maybe_unused]] int runno, [[maybe_unused
 }
 
 
-// tells the DLL how to create a GPlugin_test_example
-//extern "C" GDynamicDigitization* GDynamicFactory(void) { return static_cast<GDynamicDigitization*>(new GPlugin_test_example); }
-
-// in each plugin .so/.dylib
+// tells the DLL how to create a GPlugin_test_example in each plugin .so/.dylib
 extern "C" GDynamicDigitization* GDynamicDigitizationFactory(const std::shared_ptr<GOptions>& g) {
 	return  static_cast<GDynamicDigitization*> (new GPlugin_test_example(g));
 }

@@ -8,7 +8,7 @@
 #include "event/gEventDataCollection.h"
 #include "frame/gFrameDataCollection.h"
 #include "gfactory.h"
-#include "glogger.h"
+#include "gbase.h"
 
 // c++
 #include <string>
@@ -16,13 +16,15 @@
 #include <map>
 
 
-class GStreamer {
+class GStreamer : public GBase<GStreamer>{
 
 public:
+	explicit GStreamer(const std::shared_ptr<GOptions>& g) : GBase(g, GSTREAMER_LOGGER) {}
+
 	// The destructor must be virtual to ensure that
 	// the derived constructors are called — otherwise only the base
 	// class destructor runs, leading to resource leaks or undefined behavior.
-	virtual ~GStreamer() = default;
+	 virtual ~GStreamer() = default;
 
 	[[nodiscard]] virtual bool openConnection() { return false; }
 
@@ -47,17 +49,14 @@ public:
 
 	void set_loggers(const std::shared_ptr<GOptions>& g) {
 		bufferFlushLimit = g->getScalarInt("ebuffer");
-		log              = std::make_shared<GLogger>(g, GSTREAMER_LOGGER, "streamer logger");
 	}
 
 protected:
-	/// Data, Translation Tables, and digitization loggers.
-	std::shared_ptr<GLogger> log;
 
 	GStreamerDefinition gstreamer_definitions;
 
 	// event virtual methods called by publishRunData, in order
-	// notice here we pass const raw pointers to the event data
+	// notice that here we pass const raw pointers to the event data
 
 	[[nodiscard]] bool startEvent([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 		if (!event_data) { log->error(ERR_PUBLISH_ERROR, "eventData is null in GStreamer::startEvent"); }
@@ -146,31 +145,13 @@ private:
 	size_t                                             bufferFlushLimit = 10; // default; can be overridden
 
 public:
-	// method to dynamically load factories
-	// static GStreamer* instantiate(const dlhandle handle) {
-	// 	if (handle == nullptr) return nullptr;
-	//
-	// 	// must match the extern C declaration in the derived factories
-	// 	void* maker = dlsym(handle, "GStreamerFactory");
-	//
-	// 	if (maker == nullptr) return nullptr;
-	//
-	// 	typedef GStreamer*(*fptr)();
-	//
-	// 	// static_cast not allowed here
-	// 	// see http://stackoverflow.com/questions/573294/when-to-use-reinterpret-cast
-	// 	// need to run the DLL GMediaFactory function that returns the factory
-	// 	fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
-	//
-	// 	return func();
-	// }
 
 	static GStreamer* instantiate(const dlhandle h, std::shared_ptr<GOptions> g) {
 		if (!h) return nullptr;
 		using fptr = GStreamer* (*)(std::shared_ptr<GOptions>);
 
 		// Must match the extern "C" declaration in the derived factories.
-		auto sym   = dlsym(h, "GStreamerFactory");
+		auto sym = dlsym(h, "GStreamerFactory");
 		if (!sym) return nullptr;
 
 		auto func = reinterpret_cast<fptr>(sym);
@@ -187,7 +168,7 @@ using gstreamersMap = std::unordered_map<std::string, std::shared_ptr<GStreamer>
 // this run in a worker thread, so each thread gets its own map of gstreamers
 inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_ptr<GOptions>& gopts,
                                                              int                              thread_id) {
-	auto log = std::make_shared<GLogger>(gopts, GSTREAMER_LOGGER, "gstreamersMap worker for thread id" + std::to_string(thread_id));
+	auto log = std::make_shared<GLogger>(gopts, "gstreamersMap worker for thread id" + std::to_string(thread_id), GSTREAMER_LOGGER);
 
 	GManager manager(gopts);
 
@@ -197,7 +178,7 @@ inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_p
 		auto        gstreamer_def_thread = GStreamerDefinition(gstreamer_def, thread_id);
 		std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
 
-		auto gstr_ptr =  manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts);
+		auto gstr_ptr = manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts);
 
 		auto streamer = manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts);
 		gstreamers->emplace(gstreamer_plugin, streamer);

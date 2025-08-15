@@ -108,11 +108,9 @@ void run_simulation_in_threads(int                                              
 	}       // pool’s destructor blocks until every jthread has joined
 }
 
-//#include <TROOT.h>
 
 // emulation of a run of events, collecting and publish data in separate threads
 int main(int argc, char* argv[]) {
-//	ROOT::EnableThreadSafety();
 
 	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
 	auto gopts = std::make_shared<GOptions>(argc, argv, gstreamer::defineOptions());

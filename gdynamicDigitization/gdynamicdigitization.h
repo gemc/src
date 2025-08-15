@@ -103,8 +103,7 @@ public:
 /// Abstract base class for dynamic digitization functionality.
 class GDynamicDigitization : public GBase<GDynamicDigitization> {
 public:
-	explicit GDynamicDigitization(const std::shared_ptr<GOptions>& g) : GBase(g, GDIGITIZATION_LOGGER) {
-	}
+	explicit GDynamicDigitization(const std::shared_ptr<GOptions>& g) : GBase(g, GDIGITIZATION_LOGGER) {}
 
 	/**
 	 * \brief Virtual destructor.

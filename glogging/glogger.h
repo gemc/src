@@ -45,8 +45,8 @@ public:
 	/**
 	 * @brief Constructs a GLogger instance.
 	 * @param gopts Shared Pointer to GOptions instance used for verbosity/debug lookup.
-	 * @param vname The verbosity or debug name is a string used to identify the logger and as header for all messages
-	 * @param desc The calling class name, used to identify the source of the log messages.
+	 * @param cname Not used currently: can be class name or additional info of who's calling the log
+	 * @param lname The logger name
 	 */
 	explicit GLogger(const std::shared_ptr<GOptions>& gopts, const std::string& cname, const std::string& lname = "")
 		: class_name(cname), logger_name(lname), log_counter{0} {
@@ -188,14 +188,14 @@ private:
 	mutable std::atomic<int> log_counter{}; ///< Thread-safe counter for messages
 
 	/**
-	 * \brief Constructs a header string that is prepended to each log message.
+	 * \brief Constructs a header, prepended to each log message.
 	 *
 	 * Uses an atomic counter to ensure thread safety.
 	 *
 	 * \return A string in the format: "name [counter]".
 	 */
 	[[nodiscard]] std::string header_string() const {
-		log_counter++;
+		++log_counter;
 		return " [ " + logger_name + " - " + std::to_string(log_counter.load()) + " ] ";
 	}
 };

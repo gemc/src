@@ -9,11 +9,15 @@
 
 class GstreamerTextFactory : public GStreamer {
 public:
-	GstreamerTextFactory() = default;
+//	GstreamerTextFactory() = default;
 
-	~GstreamerTextFactory() override { log->debug(NORMAL, "~GstreamerTextFactory"); }
+	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using GStreamer::GStreamer;
 
 private:
+
+
+
 	// open and close the output media
 	bool openConnection() override;
 	bool closeConnectionImpl() override;

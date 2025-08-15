@@ -4,18 +4,14 @@ using std::string;
 
 std::unique_ptr<GSplash> GSplash::create(
 	const std::shared_ptr<GOptions>& gopts,
-	const string& img) {
-
+	const string&                    img) {
 	if (!gopts || !gopts->getSwitch("gui"))
 		return nullptr; // head‑less run → no splash
 	return std::unique_ptr<GSplash>(new GSplash(gopts, img));
 }
 
 GSplash::GSplash(const std::shared_ptr<GOptions>& gopts, const string& imageName)
-	: log(std::make_shared<GLogger>(gopts, GSPLASH_LOGGER, "gsplash")) {
-	
-	log->debug(CONSTRUCTOR, "GSplash");
-
+	: GBase(gopts, GSPLASH_LOGGER) {
 	QPixmap pixmap;
 
 	if (imageName == NOSPLASHIMAGESELECTED) {

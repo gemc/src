@@ -9,9 +9,10 @@
 
 class GstreamerRootFactory : public GStreamer {
 public:
-	GstreamerRootFactory() = default;
+	//GstreamerRootFactory() = default;
 
-	~GstreamerRootFactory() override { if (log) log->debug(NORMAL, "~GstreamerRootFactory"); }
+	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using GStreamer::GStreamer;
 
 private:
 	// open and close the output media

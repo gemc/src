@@ -24,9 +24,10 @@ struct DataFrameHeader {
 
 class GstreamerJSROFactory : public GStreamer {
 public:
-	GstreamerJSROFactory() = default;
+//	GstreamerJSROFactory() = default;
 
-	~GstreamerJSROFactory() override { log->debug(NORMAL, "~GstreamerJSROFactory"); }
+	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using GStreamer::GStreamer;
 
 private:
 	// open and close the output media

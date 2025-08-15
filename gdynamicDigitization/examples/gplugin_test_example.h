@@ -30,7 +30,3 @@ private:
 	std::shared_ptr<GTranslationTable> translationTable;
 };
 
-// extern "C" GDynamicDigitization* GDynamicDigitizationFactory(void) {
-//     return static_cast<GDynamicDigitization*>(new GPlugin_test_example);
-// }
-//
