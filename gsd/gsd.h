@@ -6,12 +6,12 @@
 // gemc
 #include "goptions.h"
 #include "gdynamicdigitization.h"
-#include "glogger.h"
+#include "gbase.h"
 
 constexpr int         ERR_DYNAMICPLUGINNOTFOUND   = 2001;
 constexpr int         ERR_HITNOTFOUNDINCOLLECTION = 2002;
 constexpr int         ERR_NOCOLLECTION            = 2003;
-constexpr const char* GSENSITIVE_LOGGER            = "gsd";
+constexpr const char* GSENSITIVE_LOGGER           = "gsd";
 
 namespace gsensitivedetector {
 inline GOptions defineOptions() { return GOptions(GSENSITIVE_LOGGER); }
@@ -21,25 +21,21 @@ inline GOptions defineOptions() { return GOptions(GSENSITIVE_LOGGER); }
 using GHitsCollection = G4THitsCollection<GHit>;
 
 // this is thread-local
-class GSensitiveDetector : public G4VSensitiveDetector {
+class GSensitiveDetector : public GBase<GSensitiveDetector>, public G4VSensitiveDetector {
 
 public:
-	GSensitiveDetector(const std::string&                    sdName,
-	                   const std::shared_ptr<GOptions>&      goptions);
+	GSensitiveDetector(const std::string&               sdName,
+	                   const std::shared_ptr<GOptions>& goptions);
 
-//	~GSensitiveDetector() override { log->debug(DESTRUCTOR, "GSensitiveDetector"); }
 
 	// G4VSensitiveDetector geant4 methods to be overloaded
 	void   Initialize(G4HCofThisEvent* g4hc) override;                       // Beginning of sensitive Hit
 	G4bool ProcessHits(G4Step* thisStep, G4TouchableHistory* g4th) override; // Process Step, add new hit to gHitsCollection or new step to a ghit
 	void   EndOfEvent(G4HCofThisEvent* g4HitCollection) override;            // End of sensitive Hit
 
-	void assign_digi_routine(std::shared_ptr<GDynamicDigitization> digi_routine) {
-		digitization_routine = digi_routine;
-	}
+	void assign_digi_routine(std::shared_ptr<GDynamicDigitization> digi_routine) { digitization_routine = digi_routine; }
 
 private:
-	std::shared_ptr<GLogger> log;
 
 	// thread local - digitization for this sensitive detector
 	std::shared_ptr<GDynamicDigitization> digitization_routine;

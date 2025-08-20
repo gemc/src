@@ -7,8 +7,8 @@
 // this is thread-local
 GSensitiveDetector::GSensitiveDetector(const std::string&               sdName,
                                        const std::shared_ptr<GOptions>& goptions) :
-	G4VSensitiveDetector(sdName), // geant4 derived
-	log(std::make_shared<GLogger>(goptions, GSENSITIVE_LOGGER, "gsd")) {
+	GBase(goptions, GSENSITIVE_LOGGER),
+	G4VSensitiveDetector(sdName) {
 	log->info(2, FUNCTION_NAME, " for " + sdName);
 
 	// collectionName is a G4VSensitiveDetector G4CollectionNameVector
@@ -42,7 +42,6 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc) {
 	g4hc->AddHitsCollection(hcID, gHitsCollection);
 
 	log->info(2, "Added collection id ", hcID, " to G4HCofThisEvent");
-
 }
 
 

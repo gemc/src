@@ -20,16 +20,10 @@
 G4ThreadLocal GMagneto* GDetectorConstruction::gmagneto = nullptr;
 
 GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
-	: G4VUserDetectorConstruction(), // Geant4 base class.
-	  gopt(gopts),                   // need this in Construct and ConstructSDandField
-	  log(std::make_shared<GLogger>(gopts, GDETECTOR_LOGGER, "GDetectorConstruction")) {
-	log->debug(CONSTRUCTOR, "GDetectorConstruction");
+	: GBase(gopts, GDETECTOR_LOGGER),
+	  G4VUserDetectorConstruction(), // Geant4 base class.
+	  gopt(gopts) {
 	digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>();
-}
-
-GDetectorConstruction::~GDetectorConstruction() {
-	// Clean up the GEMC and Geant4 world objects.
-	log->debug(DESTRUCTOR, "GDetectorConstruction");
 }
 
 G4VPhysicalVolume* GDetectorConstruction::Construct() {
@@ -70,7 +64,7 @@ void GDetectorConstruction::ConstructSDandField() {
 	auto sdManager = G4SDManager::GetSDMpointer();
 
 	log->debug(NORMAL, FUNCTION_NAME);
-	std::unordered_map<std::string,  GSensitiveDetector*> sensitiveDetectorsMap;
+	std::unordered_map<std::string, GSensitiveDetector*> sensitiveDetectorsMap;
 
 	// Loop over all systems and their volumes.
 	for (const auto& [systemName, gsystemPtr] : *gworld->getSystemsMap()) {
@@ -84,7 +78,6 @@ void GDetectorConstruction::ConstructSDandField() {
 
 			// Skip volumes with no digitization.
 			if (digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
-
 				// Create the sensitive detector if it does not exist yet.
 				if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
 					log->info(2, "Creating new sensitive detector <", digitizationName, "> for volume <", g4name, ">");

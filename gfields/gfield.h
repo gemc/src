@@ -6,7 +6,11 @@
 
 // gemc
 #include "gfactory.h"
+#include "gbase.h"
 
+
+constexpr const char* GFIELD_LOGGER = "gfield";
+constexpr const char* GMAGNETO_LOGGER = "gmagneto";
 
 /**
  * @brief Utility struct to load GFields from options.
@@ -55,18 +59,14 @@ struct GFieldDefinition {
 /**
  * @brief Abstract base class representing a magnetic field.
  */
-class GField : public G4MagneticField {
+class GField : public GBase<GField>, public G4MagneticField {
 
 public:
 	/**
-	    * @brief Default constructor.
-	    */
-	GField() = default;
-
-	/**
-	 * @brief Virtual destructor.
+	 * @brief Default constructor.
 	 */
-	virtual ~GField() = default;
+	//GField() = default;
+	explicit GField(const std::shared_ptr<GOptions>& gopt) : GBase(gopt, GFIELD_LOGGER) {}
 
 	/**
 	 * @brief Pure virtual function to get the magnetic field value.
@@ -90,7 +90,8 @@ public:
 	int    get_field_parameter_int(const std::string& key) { return stoi(gfield_definitions.field_parameters[key]); }
 	double get_field_parameter_double(const std::string& key) { return stod(gfield_definitions.field_parameters[key]); }
 
-	void set_loggers(const std::shared_ptr<GOptions>& g);
+	void set_loggers([[ maybe_unused ]] const std::shared_ptr<GOptions>& g) {
+	}
 
 private:
 	// TODO: make this list automatic
@@ -110,34 +111,14 @@ private:
 
 protected:
 	GFieldDefinition gfield_definitions;
-	/// Data, Translation Tables, and digitization loggers.
-	std::shared_ptr<GLogger> log;
 
 public:
-	// static GField* instantiate(const dlhandle handle) {
-	// 	if (handle == nullptr) return nullptr;
-	//
-	// 	// must match the extern C declaration in the derived factories
-	// 	void* maker = dlsym(handle, "GFieldFactory");
-	//
-	// 	if (maker == nullptr) return nullptr;
-	//
-	// 	typedef GField*(*fptr)();
-	//
-	// 	// static_cast not allowed here
-	// 	// see http://stackoverflow.com/questions/573294/when-to-use-reinterpret-cast
-	// 	// need to run the DLL GMediaFactory function that returns the factory
-	// 	fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
-	//
-	// 	return func();
-	// }
-
 	static GField* instantiate(const dlhandle h, std::shared_ptr<GOptions> g) {
 		if (!h) return nullptr;
 		using fptr = GField* (*)(std::shared_ptr<GOptions>);
 
 		// Must match the extern "C" declaration in the derived factories.
-		auto sym   = dlsym(h, "GFieldFactory");
+		auto sym = dlsym(h, "GFieldFactory");
 		if (!sym) return nullptr;
 
 		auto func = reinterpret_cast<fptr>(sym);

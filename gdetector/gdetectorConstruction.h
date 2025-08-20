@@ -8,6 +8,7 @@
 #include "g4world.h"
 #include "gmagneto.h"
 #include "gsd.h"
+#include "gbase.h"
 
 // c++
 #include <vector>
@@ -16,7 +17,7 @@
  * GDetectorConstruction builds the Geant4 geometry based on GEMC world definitions.
  * It also constructs sensitive detectors, fields, and digitization plugins.
  */
-class GDetectorConstruction : public G4VUserDetectorConstruction {
+class GDetectorConstruction : public GBase<GDetectorConstruction>, public G4VUserDetectorConstruction {
 public:
 	/**
 	 * Constructor.
@@ -24,8 +25,7 @@ public:
 	 */
 	explicit GDetectorConstruction(std::shared_ptr<GOptions> gopts);
 
-	/// Destructor.
-	~GDetectorConstruction() override;
+
 
 public:
 	// Geant4 virtual methods.
@@ -51,13 +51,8 @@ public:
 
 private:
 	std::shared_ptr<GOptions> gopt;    // need options inside Constructs() methods
-	std::shared_ptr<GLogger>  log;
 	std::shared_ptr<GWorld>   gworld;
 	std::shared_ptr<G4World>  g4world;
-
-	// GSensitiveDetector must be a raw pointer because geant4 takes ownership
-	//std::unordered_map<std::string,  GSensitiveDetector*> sensitiveDetectorsMap; // keeping GSensitiveDetector on scope until geometry is destroyed
-
 
 	// digitization map for all sensitive detectors
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;

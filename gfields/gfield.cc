@@ -67,5 +67,3 @@ G4FieldManager *GField::create_FieldManager() {
     return new G4FieldManager(this, fChordFinder);
 
 }
-
-void GField::set_loggers(const std::shared_ptr<GOptions>& g) { log = std::make_shared<GLogger>(g, GFIELD_LOGGER, "gfields"); }

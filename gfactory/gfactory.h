@@ -55,7 +55,8 @@ public:
 class GManager : public GBase<GManager> {
 public:
 	/// Construct with logger and a human‑readable name.
-	explicit GManager(const std::shared_ptr<GOptions>& gopt) : GBase(gopt, PLUGIN_LOGGER) {}
+	explicit GManager(const std::shared_ptr<GOptions>& gopt) : GBase(gopt, PLUGIN_LOGGER) {
+	}
 
 	/// No copy – the manager owns unique resources.
 	GManager(const GManager&)            = delete;
@@ -64,7 +65,7 @@ public:
 	GManager(GManager&&) noexcept            = default;
 	GManager& operator=(GManager&&) noexcept = default;
 
-	~GManager();
+	~GManager() { clearDLMap(); }
 
 	/// Register a concrete factory under @p name.
 	template <class Derived>
@@ -87,14 +88,9 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<GFactoryBase>> factoryMap_;
 	std::unordered_map<std::string, std::shared_ptr<DynamicLib>>   dlMap_;
 
-	std::string              gname;
+	std::string gname;
 };
 
-
-
-inline GManager::~GManager() {
-	clearDLMap();
-}
 
 inline void GManager::clearDLMap() noexcept { dlMap_.clear(); }
 
@@ -126,10 +122,9 @@ template <class T>
 std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view name, const std::shared_ptr<GOptions>& gopts) {
 	registerDL(name);
 	auto pluginName = std::string{name};
-	auto pluginLib = dlMap_.at(pluginName); // shared_ptr<DynamicLib>
+	auto pluginLib  = dlMap_.at(pluginName); // shared_ptr<DynamicLib>
 
 	if (pluginLib && pluginLib->handle) {
-
 		T* raw = T::instantiate(pluginLib->handle, gopts);
 		raw->set_loggers(gopts);
 

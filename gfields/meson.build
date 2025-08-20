@@ -5,6 +5,8 @@ verbosities = ['-verbosity.gfield=2',
 ]
 input_file = [meson.current_source_dir() + '/examples/dipole.yaml']
 
+example_source = files('examples/test_gfield_dipole.cc')
+
 multipoles_files = [files(
                         'gfieldFactories/multipoles/gfield_multipoles.cc',
                     ),
@@ -30,7 +32,7 @@ LD += {
     'additional_includes' : ['gfields', 'gfields/gfieldFactories/multipoles'],
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
     'examples' : {
-        'test_gfield_dipole' : [files('examples/test_gfield_dipole.cc'), input_file],
-        'test_gfield_dipole_verbose' : [files('examples/test_gfield_dipole.cc'), input_file + verbosities],
+        'test_gfield_dipole' : [example_source, input_file],
+        'test_gfield_dipole_verbose' : [example_source, input_file + verbosities],
     }
 }

@@ -139,7 +139,7 @@ int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, gdetector::defineOptions());
 
 	// Create loggers: one for gdata and one for gtouchable.
-	auto log = std::make_shared<GLogger>(gopts, GDETECTOR_LOGGER, "gdetector_example: main");
+	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GDETECTOR_LOGGER);
 
 	constexpr int nevents  = 20;
 	constexpr int nthreads = 2;

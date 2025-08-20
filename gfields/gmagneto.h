@@ -11,7 +11,7 @@
  * GMagneto manages the lifecycle and access to magnetic field objects (`GField`) and their
  * corresponding field managers (`G4FieldManager`).
  */
-class GMagneto {
+class GMagneto : public GBase<GMagneto> {
 public:
 	/**
 	 * @brief Constructs a GMagneto object and loads field definitions from options.
@@ -19,20 +19,12 @@ public:
 	 */
 	explicit GMagneto(const std::shared_ptr<GOptions>& gopts);
 
-	/**
-	* @brief Destructor to clean up dynamically allocated memory.
-	*/
-	~GMagneto() { log->debug(DESTRUCTOR, "GMagneto"); }
-
 private:
 	using gFieldMap    = std::unordered_map<std::string, std::shared_ptr<GField>>;
 	using gFieldMgrMap = std::unordered_map<std::string, std::shared_ptr<G4FieldManager>>;
 
 	std::shared_ptr<gFieldMap>    fields_map;     ///< Map of field names to GField objects.
 	std::shared_ptr<gFieldMgrMap> fields_manager; ///< Map of field names to G4FieldManager objects.
-
-	/// Pointer to a logger instance for logging messages.
-	std::shared_ptr<GLogger> log;
 
 public:
 	/**

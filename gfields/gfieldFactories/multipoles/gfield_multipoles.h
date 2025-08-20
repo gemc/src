@@ -15,7 +15,8 @@ public:
     /**
      * @brief Default constructor for the GField_MultipolesFactory class.
      */
-    GField_MultipolesFactory() = default;
+    //GField_MultipolesFactory() = default;
+	explicit GField_MultipolesFactory(const std::shared_ptr<GOptions>& gopt) : GField(gopt) {}
 
     /**
      * @brief Calculates the magnetic field at a given position.

@@ -3,6 +3,7 @@
 
 // gemc
 #include "gutilities.h"
+#include "gfactory_options.h"
 
 // namespace to define options
 namespace gfields {
@@ -39,6 +40,9 @@ std::vector<GFieldDefinition> get_GFieldDefinition(const std::shared_ptr<GOption
 // returns array of options definitions
 GOptions defineOptions() {
 	GOptions goptions(GFIELD_LOGGER);
+	goptions += GOptions(GMAGNETO_LOGGER);
+	goptions += GOptions(PLUGIN_LOGGER);
+	
 
 	std::string help;
 	help                               = "Adds gmultipoles field(s) to the simulation \n ";
