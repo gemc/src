@@ -19,16 +19,13 @@ inline GOptions defineOptions() { return GOptions(GRUN_LOGGER); }
 // A Geant4 run is represented by a G4Run class object.
 // G4GRun is created by G4MTRunManager, initialized in gemc.cc
 // The pointers to the digitization and streamer are kept to be passed along RecordEvent (digitized event) and Merge (streams it out)
-class GRun : public G4Run {
+class GRun : public GBase<GRun>, public G4Run {
 public:
 	GRun(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
-	~GRun() override;
 
 private:
 	// digitization map, populated in ConstructSDandField
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;
-	std::shared_ptr<GLogger>  log;
-
 };
 
 // RecordEvent is called at the end of every event

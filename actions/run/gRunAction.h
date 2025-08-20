@@ -5,10 +5,10 @@
 
 
 // gemc
-#include "glogger.h"
+#include "gbase.h"
 #include "gdynamicdigitization.h"
 #include "gstreamer.h"
-#include "frame/gFrameDataCollection.h"
+// #include "frame/gFrameDataCollection.h"
 
 constexpr const char* GRUNACTION_LOGGER = "grunaction";
 namespace grunaction {
@@ -16,11 +16,10 @@ inline GOptions defineOptions() { return GOptions(GRUNACTION_LOGGER); }
 }
 
 
-class GRunAction : public G4UserRunAction {
+class GRunAction : public GBase<GRunAction>, public G4UserRunAction {
 public:
 	// constructor and destructor
 	GRunAction(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
-	~GRunAction() override;
 
 	auto get_digitization_routines_map() const -> std::shared_ptr<gdynamicdigitization::dRoutinesMap>  {
 		return digitization_routines_map;
@@ -38,7 +37,6 @@ private:
 	void   EndOfRunAction(const G4Run*) override;
 
 	std::shared_ptr<GOptions> goptions; // keeping the goption pointer to construct the other actions
-	std::shared_ptr<GLogger>  log;
 
 	// digitization map, populated in ConstructSDandField
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;

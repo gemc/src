@@ -36,7 +36,7 @@ public:
 	explicit DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorConstruction *dc, QWidget *parent = nullptr);
 
 	/// Destructor.
-	~DBSelectView() override;
+	~DBSelectView() override  { if (db) sqlite3_close(db); }
 
 	/// Returns the updated list of GSystem objects.
 	SystemList get_gsystems();
@@ -84,8 +84,8 @@ private:
 	// Pointer to the detector construction (geometry reloading).
 	GDetectorConstruction *gDetectorConstruction;
 
-	// logger
-	std::shared_ptr<GOptions> gopt; ///< Logger instance for logging messages.
+	// goption
+	std::shared_ptr<GOptions> gopt; ///< gopt instance needed to reload geometry
 
 private slots:
 	/// Slot called when an item in the tree is changed.
@@ -93,7 +93,7 @@ private slots:
 
 public slots:
 
-	/// Slot for the Reload button. Currently empty except for resetting the modified flag.
+	/// Slot for the Reload button.
 	void reload_geometry();
 };
 

@@ -9,7 +9,6 @@
 
 // gemc
 #include "gQtButtonsWidget.h"
-#include "glogger.h"
 #include "eventDispenser.h"
 #include "gdetectorConstruction.h"
 

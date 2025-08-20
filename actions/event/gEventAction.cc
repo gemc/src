@@ -7,14 +7,14 @@
 #include "event/gEventDataCollection.h"
 
 
-GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a) : goptions(gopt), run_action(run_a) {
+GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a) :
+	GBase(gopt, EVENTACTION_LOGGER),
+	goptions(gopt),
+	run_action(run_a) {
 	auto desc = "GEventAction " + std::to_string(G4Threading::G4GetThreadId());
-	log       = std::make_shared<GLogger>(gopt, EVENTACTION_LOGGER, desc);
-
-	log->debug(CONSTRUCTOR, FUNCTION_NAME);
+	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
 }
 
-GEventAction::~GEventAction() { log->debug(DESTRUCTOR, FUNCTION_NAME); }
 
 void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) {
 	int thread_id = G4Threading::G4GetThreadId();

@@ -4,7 +4,7 @@
 #include "G4VUserActionInitialization.hh"
 
 // gemc
-#include "glogger.h"
+#include "gbase.h"
 #include "gdynamicdigitization.h"
 #include "gstreamer.h"
 
@@ -41,11 +41,9 @@ inline GOptions defineOptions() {
 }
 
 
-class GAction : public G4VUserActionInitialization {
+class GAction : public GBase<GAction>, public G4VUserActionInitialization {
 public:
 	GAction(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
-
-	~GAction() override;
 
 	void Build() const override;
 
@@ -53,7 +51,6 @@ public:
 
 private:
 	std::shared_ptr<GOptions> goptions; // keeping the goption pointer to construct the other actions
-	std::shared_ptr<GLogger>  log;
 
 	// digitization map, populated in ConstructSDandField
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;

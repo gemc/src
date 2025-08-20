@@ -21,7 +21,7 @@
 int main(int argc, char* argv[]) {
 
 	auto gopts = std::make_shared<GOptions>(argc, argv, gemc::defineOptions());
-	auto log   = std::make_shared<GLogger>(gopts, GENERAL_LOGGER, "main");
+	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GENERAL_LOGGER);
 
 	auto gui      = gopts->getSwitch("gui");
 	auto nthreads = gemc::get_nthreads(gopts, log);

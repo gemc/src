@@ -9,17 +9,14 @@
 
 // Constructor for workers
 GRunAction::GRunAction(std::shared_ptr<GOptions> gopt, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
+	GBase(gopt, GRUNACTION_LOGGER),
 	goptions(gopt),
 	digitization_routines_map(digi_map) {
 	auto desc = "GRunAction " + std::to_string(G4Threading::G4GetThreadId());
-	log       = std::make_shared<GLogger>(gopt, GRUNACTION_LOGGER, desc);
 
-	log->debug(CONSTRUCTOR, FUNCTION_NAME);
+	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
 }
 
-
-// Destructor
-GRunAction::~GRunAction() { log->debug(DESTRUCTOR, FUNCTION_NAME); }
 
 // TODO: this is not local?
 // executed after BeamOn
@@ -41,7 +38,6 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 			log->info(0, " Defining gstreamers for thread id ", thread_id);
 			gstreamer_map = gstreamer::gstreamersMapPtr(goptions, thread_id);
 		}
-
 	}
 
 	std::string what_am_i = IsMaster() ? "Master" : "Worker";
@@ -57,10 +53,10 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 	int         run       = aRun->GetRunID();
 	std::string what_am_i = IsMaster() ? "Master" : "Worker";
 
-		if (!IsMaster()) {
+	if (!IsMaster()) {
 		for (const auto& [name, gstreamer] : *gstreamer_map) {
 			log->info(2, FUNCTION_NAME, " ", what_am_i, " [", thread_id, "],  for run ", run,
-					  " closing connection for gstreamer ", name);
+			          " closing connection for gstreamer ", name);
 			if (!gstreamer->closeConnection()) { log->error(1, "Failed to close connection for GStreamer ", name, " in thread ", thread_id); }
 		}
 	}

@@ -5,6 +5,11 @@ examples_dir = get_option('prefix') + '/test/' + sub_dir_name
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
 gsystem = ['-gsystem="[{name: b1}]"']
 
+verbosity = ['-verbosity.dbselect=2',
+             '-debug.dbselect=true',
+             '-verbosity.gsystem=2',
+             '-debug.gsystem=true']
+
 with_gui = ['']
 if get_option('i_test')
     with_gui = ['-gui']
@@ -35,6 +40,7 @@ geo_build = {
 
 examples = {
     'test_db_select' : [example_source, with_gui + dbhost + gsystem],
+    'test_db_select_verbose' : [example_source, with_gui + dbhost + gsystem + verbosity],
 }
 
 LD += {

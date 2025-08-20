@@ -15,7 +15,6 @@ GSystem::GSystem(const GSystem& other)
 	  runno(other.runno),
 	  variation(other.variation),
 	  annotations(other.annotations)
-// shared_ptr: shallow copy is OK
 {
 	log->debug(CONSTRUCTOR, "GSystem");
 
@@ -60,7 +59,6 @@ GSystem::GSystem(const std::shared_ptr<GOptions>& gopts,
 	  variation(variation),
 	  annotations(notes) // Use 'notes' directly
 {
-	log->debug(CONSTRUCTOR, "GSystem");
 
 	// If the provided name does not include a directory, set the path to empty.
 	if (name == path || factoryName == GSYSTEMSQLITETFACTORYLABEL) {

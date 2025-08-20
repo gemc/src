@@ -168,7 +168,7 @@ void GWorld::load_systems() {
 		           "Check your configuration.");
 	}
 	else {
-		auto rootSystem = std::make_unique<GSystem>(
+		auto rootSystem = std::make_shared<GSystem>(
 		                                            gopts, // logger
 		                                            dbhost,
 		                                            ROOTWORLDGVOLUMENAME, // name + path
@@ -179,7 +179,7 @@ void GWorld::load_systems() {
 		                                           );
 		rootSystem->addROOTVolume(worldVolumeDefinition);
 
-		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = std::move(rootSystem);
+		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = rootSystem;
 	}
 
 	// For every system, find / create its factory and load volumes

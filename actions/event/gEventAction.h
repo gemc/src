@@ -4,7 +4,7 @@
 #include "G4UserEventAction.hh"
 
 // gemc
-#include "glogger.h"
+#include "gbase.h"
 #include "../run/gRunAction.h"
 
 constexpr const char* EVENTACTION_LOGGER = "geventaction";
@@ -14,16 +14,14 @@ inline GOptions defineOptions() { return GOptions(EVENTACTION_LOGGER); }
 }
 
 // Local thread classes
-class GEventAction : public G4UserEventAction {
+class GEventAction : public GBase<GEventAction>, public G4UserEventAction {
 public:
 	GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a);
-	~GEventAction() override;
 
 	void BeginOfEventAction(const G4Event* event) override;
 	void EndOfEventAction(const G4Event* event) override;
 
 private:
-	std::shared_ptr<GLogger> log;
 	std::shared_ptr<GOptions> goptions; // keeping the goption pointer to construct gdata
 	GRunAction* run_action; // non-owning, valid for the thread lifetime
 

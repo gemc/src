@@ -17,7 +17,8 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 	: QWidget(parent),
 	  GBase(gopts, DBSELECT_LOGGER),
 	  db(nullptr),
-	  gDetectorConstruction(dc) {
+	  gDetectorConstruction(dc),
+	  gopt(gopts) {
 	// Open the database.
 	dbhost     = gopts->getScalarString("sql");
 	experiment = gopts->getScalarString("experiment");
@@ -80,9 +81,6 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 	updateModifiedUI();
 }
 
-
-// Destructor: Closes the database if it is open.
-DBSelectView::~DBSelectView() { if (db) sqlite3_close(db); }
 
 // Checks that the database has a non-empty "geometry" table.
 bool DBSelectView::isGeometryTableValid(sqlite3* db) {
@@ -454,8 +452,18 @@ SystemList DBSelectView::get_gsystems() {
 				std::string systemName = sysItem->text().toStdString();
 				std::string variation  = varItem->data(Qt::EditRole).toString().toStdString();
 				int         run        = runItem->data(Qt::EditRole).toInt();
-				auto        thisSystem = std::make_shared<GSystem>(gopt, dbhost, systemName, GSYSTEMSQLITETFACTORYLABEL, experiment, run, variation);
-				updatedSystems.emplace_back(thisSystem);
+				log->info(2, SFUNCTION_NAME, ": adding systemName: ", systemName, " , variation: ", variation, ", for run:", run);
+
+				updatedSystems.emplace_back(
+				                            std::make_shared<GSystem>(
+				                                                      gopt,
+				                                                      dbhost,
+				                                                      systemName,
+				                                                      GSYSTEMSQLITETFACTORYLABEL,
+				                                                      experiment,
+				                                                      run,
+				                                                      variation
+				                                                     ));
 			}
 		}
 	}
