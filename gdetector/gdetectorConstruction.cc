@@ -149,7 +149,7 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 
 void GDetectorConstruction::reload_geometry(SystemList sl) {
 	// it could be empty for tests
-	if (sl.empty()) {
+	if (!sl.empty()) {
 		// Use vector assignment to update the local systems.
 		gsystems = sl;
 	}

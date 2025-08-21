@@ -25,8 +25,6 @@ public:
 	 */
 	explicit GDetectorConstruction(std::shared_ptr<GOptions> gopts);
 
-
-
 public:
 	// Geant4 virtual methods.
 	G4VPhysicalVolume* Construct() override;
