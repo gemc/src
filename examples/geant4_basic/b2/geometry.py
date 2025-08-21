@@ -19,7 +19,7 @@ def build_mother_volume(configuration):
 	gvolume.digitization = 'flux'
 	gvolume.set_identifier('box', 2)  # identifier for this box
 	gvolume.style = 0
-	gvolume.mfield = 'dipole'
+	#gvolume.mfield = 'dipole'
 	gvolume.publish(configuration)
 
 
