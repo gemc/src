@@ -37,7 +37,7 @@ public:
 	 * Reloads the geometry using a new vector of GSystem objects.
 	 * @param sl new vector of gsystem pointers.
 	 */
-	void reload_geometry(SystemList sl = {nullptr});
+	void reload_geometry(SystemList sl);
 
 	std::shared_ptr<GDynamicDigitization> get_digitization_routines_for_sdname(const std::string &sd_name) const {
 		return digitization_routines_map->at(sd_name);

@@ -150,7 +150,8 @@ int main(int argc, char* argv[]) {
 	runManager->SetUserInitialization(physicsList);
 
 	auto gdetector = std::make_shared<GDetectorConstruction>(gopts);
-	gdetector->reload_geometry();
+	auto gsystems = gsystem::getSystems(gopts);
+	gdetector->reload_geometry(gsystems);
 
 	auto runDat = run_simulation_in_threads(nevents, nthreads, gopts, log, gdetector);
 

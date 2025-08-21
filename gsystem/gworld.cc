@@ -33,6 +33,7 @@ GWorld::GWorld(const std::shared_ptr<GOptions>& g, SystemList gsystems)
 	: GBase(g, GWORLD_LOGGER),
 	  gopts(g) {
 	log->debug(NORMAL, SFUNCTION_NAME, "From SystemList");
+
 	// create the gsystem map
 	create_gsystemsMap(gsystems);
 

@@ -22,9 +22,7 @@ G4ThreadLocal GMagneto* GDetectorConstruction::gmagneto = nullptr;
 GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
 	: GBase(gopts, GDETECTOR_LOGGER),
 	  G4VUserDetectorConstruction(), // Geant4 base class.
-	  gopt(gopts) {
-	digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>();
-}
+	  gopt(gopts) { digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>(); }
 
 G4VPhysicalVolume* GDetectorConstruction::Construct() {
 	log->debug(NORMAL, FUNCTION_NAME);
@@ -42,8 +40,14 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 
 	// - if no systems are provided, we just launched gemc: create from options
 	// - otherwise, it's a geometry re-load. use existing systems.
-	if (gsystems.empty()) { gworld = std::make_shared<GWorld>(gopt); }
-	else { gworld = std::make_shared<GWorld>(gopt, gsystems); }
+	if (gsystems.empty()) {
+		log->debug(NORMAL, FUNCTION_NAME, "creating world from options");
+		gworld = std::make_shared<GWorld>(gopt);
+	}
+	else {
+		log->debug(NORMAL, FUNCTION_NAME, "creating world from a gsystem vector of size ", gsystems.size());
+		gworld = std::make_shared<GWorld>(gopt, gsystems);
+	}
 
 	// Build Geant4 world (solids, logical and physical volumes) based on the GEMC world.
 	g4world = std::make_shared<G4World>(gworld.get(), gopt);
@@ -148,6 +152,7 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 
 
 void GDetectorConstruction::reload_geometry(SystemList sl) {
+
 	// it could be empty for tests
 	if (!sl.empty()) {
 		// Use vector assignment to update the local systems.
@@ -163,6 +168,5 @@ void GDetectorConstruction::reload_geometry(SystemList sl) {
 		rm->DefineWorldVolume(Construct());
 		ConstructSDandField();
 	}
-
 	else { log->error(1, "GDetectorConstruction::reload_geometry", "Geant4 Run manager not found."); }
 }

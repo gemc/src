@@ -34,7 +34,7 @@ public:
 	 * @param gopts Pointer to options.
 	 */
 	explicit GWorld(const std::shared_ptr<GOptions>& gopts);
-	GWorld(const std::shared_ptr<GOptions>& gopts, SystemList systems);
+	explicit GWorld(const std::shared_ptr<GOptions>& gopts, SystemList systems);
 
 	/// Returns the map of GSystem objects.
 	[[nodiscard]] SystemMap* getSystemsMap() const { return gsystemsMap.get(); }
