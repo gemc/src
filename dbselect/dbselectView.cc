@@ -23,7 +23,7 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 	dbhost     = gopts->getScalarString("sql");
 	experiment = gopts->getScalarString("experiment");
 
-	if (sqlite3_open(dbhost.c_str(), &db) != SQLITE_OK || !isGeometryTableValid(db)) {
+	if (sqlite3_open(dbhost.c_str(), &db) != SQLITE_OK || !isGeometryTableValid()) {
 		std::cerr << "Database Warning: Failed to open or validate database: " << dbhost << std::endl;
 		sqlite3_close(db);
 		db = nullptr;
@@ -31,7 +31,7 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 		std::filesystem::path gemcRoot = gutilities::gemc_root();
 		dbhost                         = gemcRoot.string() + "/examples/gemc.db";
 
-		if (sqlite3_open(dbhost.c_str(), &db) != SQLITE_OK || !isGeometryTableValid(db)) {
+		if (sqlite3_open(dbhost.c_str(), &db) != SQLITE_OK || !isGeometryTableValid()) {
 			std::cerr << "Database Error: Failed to open or validate backup database: " << dbhost << std::endl;
 			sqlite3_close(db);
 			db = nullptr;
@@ -62,7 +62,7 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 	}
 
 	// Apply selections from GSystem objects.
-	applyGSystemSelections(gopts);
+	applyGSystemSelections();
 
 	// Update system appearances initially.
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
@@ -83,7 +83,7 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 
 
 // Checks that the database has a non-empty "geometry" table.
-bool DBSelectView::isGeometryTableValid(sqlite3* db) {
+bool DBSelectView::isGeometryTableValid() const {
 	if (!db) return false;
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='geometry'";
@@ -107,8 +107,8 @@ bool DBSelectView::isGeometryTableValid(sqlite3* db) {
 }
 
 // Applies selections from the GSystem vector to update the UI.
-void DBSelectView::applyGSystemSelections(std::shared_ptr<GOptions> gopts) {
-	auto gsystems = gsystem::getSystems(gopts); // Get vector of GSystem objects.
+void DBSelectView::applyGSystemSelections() {
+	auto gsystems = gsystem::getSystems(gopt); // Get vector of GSystem objects.
 	for (int i = 0; i < experimentModel->rowCount(); ++i) {
 		QStandardItem* expItem = experimentModel->item(i, 0);
 		if (!expItem) continue;
@@ -162,7 +162,7 @@ void DBSelectView::setupUI() {
 	mainLayout->setContentsMargins(10, 10, 10, 10);
 	mainLayout->setSpacing(10);
 
-	// Header layout: left side holds labels, right side holds the Reload button.
+	// Header layout: the left side holds labels, the right side holds the Reload button.
 	auto headerLayout = new QHBoxLayout();
 
 	// Vertical layout for the two labels.
@@ -191,7 +191,7 @@ void DBSelectView::setupUI() {
 	reloadButton = new QPushButton("Reload", this);
 	reloadButton->setEnabled(false); // initially disabled (modified is false)
 	headerLayout->addWidget(reloadButton);
-	connect(reloadButton, &QPushButton::clicked, this, &DBSelectView::reload_geometry);
+	connect(reloadButton, &QPushButton::pressed, this, &DBSelectView::reload_geometry);
 
 	mainLayout->addLayout(headerLayout);
 
@@ -229,21 +229,22 @@ void DBSelectView::loadExperiments() {
 		const char* expText = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
 		if (expText) {
 			QString expName = QString::fromUtf8(expText);
-			auto*   expItem = new QStandardItem(expName);
+			experiment      = expName.toStdString();
+			auto* expItem   = new QStandardItem(expName);
 			expItem->setFlags(expItem->flags() & ~Qt::ItemIsEditable);
 			expItem->setCheckable(true);
 			expItem->setCheckState(Qt::Unchecked);
 			auto* dummyEntries = new QStandardItem("");
 			auto* dummyVar     = new QStandardItem("");
 			auto* dummyRun     = new QStandardItem("");
-			loadSystemsForExperiment(expItem, expName.toStdString());
+			loadSystemsForExperiment(expItem);
 			experimentModel->appendRow(QList<QStandardItem*>() << expItem << dummyEntries << dummyVar << dummyRun);
 		}
 	}
 	sqlite3_finalize(stmt);
 }
 
-void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem, const std::string& experiment) {
+void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem) {
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT DISTINCT system FROM geometry WHERE experiment = ?";
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) == SQLITE_OK) {
@@ -282,7 +283,7 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem, const
 	sqlite3_finalize(stmt);
 }
 
-int DBSelectView::getGeometryCount(const std::string& experiment, const std::string& system, const std::string& variation, int run) {
+int DBSelectView::getGeometryCount(const std::string& system, const std::string& variation, int run) const {
 	int           count = 0;
 	std::string   query = "SELECT COUNT(*) FROM geometry WHERE experiment = ? AND system = ? AND variation = ? AND run = ?";
 	sqlite3_stmt* stmt  = nullptr;
@@ -298,7 +299,7 @@ int DBSelectView::getGeometryCount(const std::string& experiment, const std::str
 	return count;
 }
 
-QStringList DBSelectView::getAvailableVariations(const std::string& system) {
+QStringList DBSelectView::getAvailableVariations(const std::string& system) const {
 	QStringList   varList;
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT DISTINCT variation FROM geometry WHERE system = ?";
@@ -357,18 +358,19 @@ void DBSelectView::updateSystemItemAppearance(QStandardItem* systemItem) {
 	QStandardItem* parentItem = systemItem->parent();
 	if (!parentItem)
 		return;
-	int            row            = systemItem->row();
-	QStandardItem* varItem        = parentItem->child(row, 2); // Variation column.
-	QStandardItem* runItem        = parentItem->child(row, 3); // Run column.
-	QString        varStr         = varItem ? varItem->data(Qt::EditRole).toString() : "";
-	QString        runStr         = runItem ? runItem->data(Qt::EditRole).toString() : "";
-	int            run            = runStr.toInt();
-	QString        expStr         = parentItem->text();
-	std::string    experimentName = expStr.toStdString();
-	std::string    systemName     = systemItem->text().toStdString();
-	std::string    variation      = varStr.toStdString();
-	int            count          = getGeometryCount(experimentName, systemName, variation, run);
-	QStandardItem* entriesItem    = parentItem->child(row, 1);
+
+	int            row         = systemItem->row();
+	QStandardItem* varItem     = parentItem->child(row, 2); // Variation column.
+	QStandardItem* runItem     = parentItem->child(row, 3); // Run column.
+	QString        varStr      = varItem ? varItem->data(Qt::EditRole).toString() : "";
+	QString        runStr      = runItem ? runItem->data(Qt::EditRole).toString() : "";
+	int            run         = runStr.toInt();
+	QString        expStr      = parentItem->text();
+	experiment                 = expStr.toStdString();
+	std::string    systemName  = systemItem->text().toStdString();
+	std::string    variation   = varStr.toStdString();
+	int            count       = getGeometryCount(systemName, variation, run);
+	QStandardItem* entriesItem = parentItem->child(row, 1);
 	if (entriesItem) { entriesItem->setText(QString::number(count)); }
 	bool   available   = (count > 0);
 	QColor statusColor = available ? QColor("green") : QColor("red");
@@ -481,6 +483,7 @@ void DBSelectView::updateModifiedUI() {
 		titleLabel->setText("Experiment Selection* (modified)");
 	else
 		titleLabel->setText("Experiment Selection");
+
 	reloadButton->setEnabled(modified);
 
 	experimentTree->resizeColumnToContents(0);
@@ -493,12 +496,19 @@ void DBSelectView::updateModifiedUI() {
 
 /**
  * reload_geometry() is the slot for the Reload button.
- * Currently it resets the modified flag and updates the UI.
+ * Currently, it resets the modified flag and updates the UI.
  * (Geometry reloading logic can be added here.)
  */
 void DBSelectView::reload_geometry() {
+	log->info(0, SFUNCTION_NAME, ": Reloading geometry...");
+
+	auto reloaded_system = get_gsystems();
+	for (auto& gsys : reloaded_system) {
+		log->info(2, SFUNCTION_NAME, ": reloaded system: ", gsys->getName());
+	}
+
 	// Reload the geometry using the updated GSystem objects.
-	gDetectorConstruction->reload_geometry(get_gsystems());
+	gDetectorConstruction->reload_geometry(reloaded_system);
 
 	// Reset the modified flag.
 	modified = false;

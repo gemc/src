@@ -45,10 +45,10 @@ private:
 	// UI setup and update methods.
 	void setupUI();
 	void loadExperiments();
-	void loadSystemsForExperiment(QStandardItem *experimentItem, const std::string &experiment);
-	QStringList getAvailableVariations(const std::string &system);
+	void loadSystemsForExperiment(QStandardItem *experimentItem);
+	QStringList getAvailableVariations(const std::string &system) const;
 	QStringList getAvailableRuns(const std::string &system);
-	int getGeometryCount(const std::string &experiment, const std::string &system, const std::string &variation, int run);
+	int getGeometryCount(const std::string &system, const std::string &variation, int run) const;
 	void updateSystemItemAppearance(QStandardItem *systemItem);
 	bool systemAvailable(const std::string &system, const std::string &variation, int run);
 	void updateExperimentHeader();
@@ -78,8 +78,8 @@ private:
 
 	// Helper functions.
 	QIcon createStatusIcon(const QColor &color);
-	bool isGeometryTableValid(sqlite3 *db);
-	void applyGSystemSelections(std::shared_ptr<GOptions> gopts);
+	bool isGeometryTableValid() const;
+	void applyGSystemSelections();
 
 	// Pointer to the detector construction (geometry reloading).
 	GDetectorConstruction *gDetectorConstruction;
@@ -92,7 +92,6 @@ private slots:
 	void onItemChanged(QStandardItem *item);
 
 public slots:
-
 	/// Slot for the Reload button.
 	void reload_geometry();
 };
