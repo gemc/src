@@ -11,7 +11,7 @@ GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts
 
 	if (gparticles.empty()) {
 		auto default_particle = Gparticle::create_default_gparticle(log);
-		log->info(0, "No gparticle was defined. Creating default:", *default_particle);
+		log->info(1, "No gparticle was defined. Creating default:", *default_particle);
 		gparticles.emplace_back(default_particle);
 	}
 }
