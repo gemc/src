@@ -11,18 +11,18 @@
 class GSystemSQLiteFactory : GSystemFactory {
 
 public:
-	// constructor will load the possible location(s) of the geometry and material databases
-	GSystemSQLiteFactory();
+	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using GSystemFactory::GSystemFactory;
 
 private:
-	void loadMaterials(GSystem* system, std::shared_ptr<GLogger> log) override;
+	void loadMaterials(GSystem* system) override;
 
-	void loadGeometry(GSystem* system, std::shared_ptr<GLogger> log) override;
+	void loadGeometry(GSystem* system) override;
 
-	void closeSystem(std::shared_ptr<GLogger>& log) override;
+	void closeSystem() override;
 
 
-	void initialize_sqlite_db(GSystem* system, std::shared_ptr<GLogger>& log);
+	void initialize_sqlite_db(GSystem* system);
 
 	sqlite3* db          = nullptr;
 	std::string   system_name = "na";

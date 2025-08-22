@@ -21,6 +21,7 @@
 #define ERR_GVOLUMENAMECONTAINSINVALID       208
 #define ERR_GSQLITEERROR                     209
 #define ERR_GMATERIALALREADYPRESENT          210
+#define ERR_EXPERIMENTNOTFOUND               211
 
 #define GSYSTEMNOMODIFIER          "noModifier"
 

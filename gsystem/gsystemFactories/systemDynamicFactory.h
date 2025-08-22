@@ -2,11 +2,12 @@
 
 // gemc
 #include "goptions.h"
+#include "gbase.h"
 
 // system plugin factory
 // this file is kept here in case in the future we'll need a gsystem plugin
 
-class GSystemDynamicFactory {
+class GSystemDynamicFactory: public GBase<GSystemDynamicFactory> {
 public:
 	virtual void loadSystem(GSystem* s, int verbosity) = 0;
 

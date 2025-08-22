@@ -13,10 +13,7 @@ void Tesla::go() {
 	cout << " generalCarVar is " << generalCarVar << endl;
 }
 
-Tesla::Tesla() {
-
-//	generalCarVar = 2;
-	
+Tesla::Tesla(const std::shared_ptr<GOptions>& gopts) : Car(gopts) {
 	autopilot[0][0] = 0;
 	autopilot[0][1] = 1;
 	autopilot[1][0] = 10;

@@ -23,22 +23,23 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 	dbhost     = gopts->getScalarString("sql");
 	experiment = gopts->getScalarString("experiment");
 
-	if (sqlite3_open(dbhost.c_str(), &db) != SQLITE_OK || !isGeometryTableValid()) {
-		std::cerr << "Database Warning: Failed to open or validate database: " << dbhost << std::endl;
+	// try local dir, gemc installation, then example dir
+	std::vector<std::string> dirs = {
+		".",
+		gutilities::gemc_root().string(),
+		(gutilities::gemc_root() / "examples").string()
+	};
+
+
+	auto dbPath = gutilities::searchForFileInLocations(dirs, dbhost);
+	if (!dbPath) { log->error(ERR_GSQLITEERROR, "Failed to find database file. Exiting."); }
+
+	if (sqlite3_open_v2(dbPath.value().c_str(), &db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK || !isGeometryTableValid()) {
 		sqlite3_close(db);
 		db = nullptr;
-
-		std::filesystem::path gemcRoot = gutilities::gemc_root();
-		dbhost                         = gemcRoot.string() + "/examples/gemc.db";
-
-		if (sqlite3_open(dbhost.c_str(), &db) != SQLITE_OK || !isGeometryTableValid()) {
-			std::cerr << "Database Error: Failed to open or validate backup database: " << dbhost << std::endl;
-			sqlite3_close(db);
-			db = nullptr;
-			std::exit(1);
-		}
-		else { std::cerr << "Database Warning: Using backup database: " << dbhost << std::endl; }
+		log->error(ERR_GSQLITEERROR, " Failed to open or validate database", dbhost);
 	}
+	log->info(1, "Opened database: " + dbhost, " found at ", dbPath.value());
 
 	setupUI();
 
@@ -56,10 +57,7 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 			break;
 		}
 	}
-	if (!expFound) {
-		std::cerr << "Error: Experiment \"" << experiment << "\" not found in database. Exiting." << std::endl;
-		std::exit(1);
-	}
+	if (!expFound) { log->error(ERR_EXPERIMENTNOTFOUND, experiment, " not found in database.", dbhost); }
 
 	// Apply selections from GSystem objects.
 	applyGSystemSelections();
@@ -88,8 +86,7 @@ bool DBSelectView::isGeometryTableValid() const {
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='geometry'";
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
-		std::cerr << "SQL Error: Failed to check geometry table existence: " << sqlite3_errmsg(db) << std::endl;
-		return false;
+		log->error(ERR_GSQLITEERROR, "SQL Error: Failed to check geometry table existence:", sqlite3_errmsg(db));
 	}
 	bool tableExists = false;
 	if (sqlite3_step(stmt) == SQLITE_ROW) { tableExists = sqlite3_column_int(stmt, 0) > 0; }
@@ -97,8 +94,7 @@ bool DBSelectView::isGeometryTableValid() const {
 	if (!tableExists) return false;
 	sql_query = "SELECT COUNT(*) FROM geometry";
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
-		std::cerr << "SQL Error: Failed to count rows in geometry table: " << sqlite3_errmsg(db) << std::endl;
-		return false;
+		log->error(ERR_GSQLITEERROR, "SQL Error: Failed to count rows in geometry table:", sqlite3_errmsg(db));
 	}
 	bool hasData = false;
 	if (sqlite3_step(stmt) == SQLITE_ROW) { hasData = sqlite3_column_int(stmt, 0) > 0; }
@@ -221,10 +217,7 @@ void DBSelectView::loadExperiments() {
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT DISTINCT experiment FROM geometry";
 	int           rc        = sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr);
-	if (rc != SQLITE_OK) {
-		std::cerr << "Failed to prepare experiment query: " << sqlite3_errmsg(db) << std::endl;
-		return;
-	}
+	if (rc != SQLITE_OK) { log->error(ERR_GSQLITEERROR, "Failed to prepare experiment query:", sqlite3_errmsg(db)); }
 	while (sqlite3_step(stmt) == SQLITE_ROW) {
 		const char* expText = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
 		if (expText) {
@@ -294,7 +287,7 @@ int DBSelectView::getGeometryCount(const std::string& system, const std::string&
 		sqlite3_bind_int(stmt, 4, run);
 		if (sqlite3_step(stmt) == SQLITE_ROW) { count = sqlite3_column_int(stmt, 0); }
 	}
-	else { std::cerr << "getGeometryCount: prepare failed: " << sqlite3_errmsg(db) << std::endl; }
+	else { log->error(ERR_GSQLITEERROR, "SQL Error: Failed togetGeometryCounte:", sqlite3_errmsg(db)); }
 	sqlite3_finalize(stmt);
 	return count;
 }
@@ -333,8 +326,7 @@ bool DBSelectView::systemAvailable(const std::string& system, const std::string&
 	std::string   query = "SELECT COUNT(*) FROM geometry WHERE system = ? AND variation = ? AND run = ?";
 	sqlite3_stmt* stmt  = nullptr;
 	if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-		std::cerr << "systemAvailable: prepare failed: " << sqlite3_errmsg(db) << std::endl;
-		return false;
+		log->error(ERR_GSQLITEERROR, "SQL Error:systemAvailable: prepare failed:e:", sqlite3_errmsg(db));
 	}
 	sqlite3_bind_text(stmt, 1, system.c_str(), -1, SQLITE_TRANSIENT);
 	sqlite3_bind_text(stmt, 2, variation.c_str(), -1, SQLITE_TRANSIENT);
@@ -503,9 +495,7 @@ void DBSelectView::reload_geometry() {
 	log->info(0, SFUNCTION_NAME, ": Reloading geometry...");
 
 	auto reloaded_system = get_gsystems();
-	for (auto& gsys : reloaded_system) {
-		log->info(2, SFUNCTION_NAME, ": reloaded system: ", gsys->getName());
-	}
+	for (auto& gsys : reloaded_system) { log->info(2, SFUNCTION_NAME, ": reloaded system: ", gsys->getName()); }
 
 	// Reload the geometry using the updated GSystem objects.
 	gDetectorConstruction->reload_geometry(reloaded_system);

@@ -62,10 +62,12 @@ std::vector<GModifier> getModifiers(const std::shared_ptr<GOptions>& gopts) {
 
 // returns array of options definitions
 GOptions defineOptions() {
+
 	GOptions goptions(GVOLUME_LOGGER);
 	goptions += GOptions(GMATERIAL_LOGGER);
 	goptions += GOptions(GSYSTEM_LOGGER);
 	goptions += GOptions(GWORLD_LOGGER);
+	goptions += GOptions(GSFACTORY_LOGGER);
 	goptions += gfactory::defineOptions();
 
 	// System

@@ -58,7 +58,7 @@ auto run_simulation_in_threads(int                                              
 		// The capture [&, tid] gives the thread references to variables like tid
 		pool.emplace_back([&, tid] // capture tid *by value*
 		{
-			// start thread with a lambda
+			// start the thread with a lambda
 			log->info(0, "worker ", tid, " started");
 
 			int                                                             localCount = 0; // events built by *this* worker
@@ -91,7 +91,7 @@ auto run_simulation_in_threads(int                                              
 				++localCount; // tally for this worker
 			}
 
-			// braces to locks the mutex when it's constructed and unlocks when it is destroyed
+			// braces: locks the mutex when it's constructed and unlocks it when destroyed
 			{
 				std::scoped_lock lk(collectorMtx);
 				for (auto& evt : localRunData) {

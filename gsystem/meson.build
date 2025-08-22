@@ -3,17 +3,21 @@ sub_dir_name = meson.current_source_dir().split('/').get(-1)
 # notice the test run on the installation dir, which does has 'examples' stripped from the path
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
 gsystem_sqlite = ['-gsystem="[{name: b1}]"', '-sql=' + examples_dir + '/gemc.db']
-gsystem_ascii = ['-gsystem="[{name: b1, factory: ascii}]"', '-ascii_db='+examples_dir]
+gsystem_ascii = ['-gsystem="[{name: b1, factory: ascii}]"', '-ascii_db=' + examples_dir]
 example_pysource = files('examples/example.py')
 example_source = files('examples/gsystem_example.cc')
-verbosity = ['-verbosity.gvolume=2',
-             '-debug.gvolume=true',
-             '-verbosity.gmaterial=2',
-             '-debug.gmaterial=true',
-             '-verbosity.gsystem=2',
-             '-debug.gsystem=true',
-             '-verbosity.gworld=2',
-             '-debug.gworld=true']
+verbosity = [
+    '-verbosity.gvolume=2',
+    '-debug.gvolume=true',
+    '-verbosity.gmaterial=2',
+    '-debug.gmaterial=true',
+    '-verbosity.gsystem=2',
+    '-debug.gsystem=true',
+    '-verbosity.gworld=2',
+    '-debug.gworld=true',
+    '-verbosity.gsfactory=2',
+    '-debug.gsfactory=true'
+]
 
 LD += {
     'name' : sub_dir_name,

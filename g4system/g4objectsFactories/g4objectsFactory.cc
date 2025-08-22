@@ -19,13 +19,10 @@
 // c++
 #include <string_view>
 
-void G4ObjectsFactory::initialize_context(const std::shared_ptr<GLogger>& logger,
-                                          int                             check_overlaps,
-                                          const std::string&              backup_mat) {
-	log             = logger;
-	checkOverlaps   = check_overlaps;
-	backupMaterial  = backup_mat;
-	log_is_assigned = true;
+void G4ObjectsFactory::initialize_context(int                check_overlaps,
+                                          const std::string& backup_mat) {
+	checkOverlaps  = check_overlaps;
+	backupMaterial = backup_mat;
 }
 
 

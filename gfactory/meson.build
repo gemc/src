@@ -2,8 +2,9 @@ sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
 example_sourcess = files('examples/static_and_dynamic_example.cc', 'examples/ShapeFactory.cc')
 
-verbosities = ['-verbosity.plugins=2',
-               '-debug.plugins=true'
+verbosities = [
+    '-verbosity.plugins=2',
+    '-debug.plugins=true'
 ]
 
 LD += {

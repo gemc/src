@@ -156,7 +156,6 @@ public:
 	 */
 	[[nodiscard]] const GMaterial* getMaterialForGVolume(const std::string& volumeName) const;
 
-
 };
 
 // using shared pointers as GSystem could be created from the main

@@ -18,9 +18,9 @@ int main(int argc, char *argv[]) {
 	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, PLUGIN_LOGGER);
 
 	GManager managerAV(gopts);
-	managerAV.RegisterObjectFactory<Triangle>("triangle");
-	managerAV.RegisterObjectFactory<Box>("box1");
-	managerAV.RegisterObjectFactory<Box>("box2");
+	managerAV.RegisterObjectFactory<Triangle>("triangle", gopts);
+	managerAV.RegisterObjectFactory<Box>("box1", gopts);
+	managerAV.RegisterObjectFactory<Box>("box2", gopts);
 
 	// putting A factory in map
 	// notice we're putting the base class in the map so we can call its virtual methods

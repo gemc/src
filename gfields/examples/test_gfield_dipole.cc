@@ -34,8 +34,6 @@ int main(int argc, char* argv[]) {
 	    		dipole_field->GetFieldValue(pos, bfield);
 
 	    	}
-
-
 	    } else {
 	        cout << "Field " << field_name << " was not found." << endl;
 	    }

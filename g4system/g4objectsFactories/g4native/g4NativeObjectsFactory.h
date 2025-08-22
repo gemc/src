@@ -14,7 +14,7 @@
 #include <unordered_map>  // std::unordered_map
 
 // g4system
-#include "g4NativeObjectsFactory.h"      // self include‑guard pattern
+#include "g4NativeObjectsFactory.h"
 
 // gemc utility helpers
 #include "gutilities.h"
@@ -28,9 +28,8 @@
  */
 class G4NativeSystemFactory final : public G4ObjectsFactory {
 public:
-	/** Default constructor/destructor. */
-	G4NativeSystemFactory()           = default;
-	~G4NativeSystemFactory() override = default;
+	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using G4ObjectsFactory::G4ObjectsFactory;
 
 	/**
 	 * @brief Human‑readable name used by the base class for logging.

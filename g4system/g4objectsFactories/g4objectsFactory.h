@@ -9,15 +9,21 @@
  * `buildPhysical()` if the defaults do not fit your detector geometry.
  */
 
+// c++
 #include <memory>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 
-#include "glogger.h"
-#include "g4system/g4volume.h"
-#include "gsystem/gvolume.h"
+// gemc
+#include "gbase.h"
+#include "gvolume.h"
 
+// g4system
+#include "g4volume.h"
+#include "g4system_options.h"
+
+// geant4
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4RotationMatrix.hh"
@@ -31,17 +37,20 @@
  *        *solid*, *logical*, and *physical* Geant4 representation.
  *
  * Call sequence inside `loadG4System()`
- * 1. `buildSolid()` ► *pure virtual* – derived class must implement.
+ * 1. `buildSolid()`► *pure virtual* –derived class must implement.
  * 2. `buildLogical()` – default uses material lookup, may be overridden.
  * 3. `buildPhysical()` – default places volume, may be overridden.
  *
  * The factory short circuits if dependencies are missing, so systems can be
  * built in any order.
  */
-class G4ObjectsFactory {
+class G4ObjectsFactory : public GBase<G4ObjectsFactory> {
 public:
-	/** Virtual destructor. */
-	virtual ~G4ObjectsFactory() = default;
+	~G4ObjectsFactory() override = default;
+
+	explicit G4ObjectsFactory(const std::shared_ptr<GOptions>& g) : GBase(g, G4SFACTORY_LOGGER) {
+	}
+
 
 	/**
 	 * @brief Provide the runtime logger, overlap‑check flag, and backup material.
@@ -52,11 +61,8 @@ public:
 	 *
 	 * Must be invoked before the first call to `loadG4System()`.
 	 */
-	void initialize_context(const std::shared_ptr<GLogger>& logger,
-	                        int                            checkOverlaps,
-	                        const std::string&                     backupMaterial);
-
-	bool has_log() const noexcept { return log_is_assigned; } ///< Check if logger is assigned
+	void initialize_context(int                checkOverlaps,
+	                        const std::string& backupMaterial);
 
 	/**
 	 * @brief Build—or retrieve—solid, logical, and physical volumes for @p s.
@@ -99,20 +105,17 @@ protected:
 	                                         std::unordered_map<std::string, G4Volume*>* g4s);
 
 
-	// ──────── static convenience helpers ───────────────────────────
-	/// Lookup solid in `g4s` map.
-	static G4VSolid* getSolidFromMap(const std::string&                          volume_name,
-	                                 std::unordered_map<std::string, G4Volume*>* g4s);
-	/// Lookup logical volume in `g4s` map.
-	static G4LogicalVolume* getLogicalFromMap(const std::string&                          volume_name,
-	                                          std::unordered_map<std::string, G4Volume*>* g4s);
-	/// Lookup physical volume in `g4s` map.
-	static G4VPhysicalVolume* getPhysicalFromMap(const std::string&                          volume_name,
-	                                             std::unordered_map<std::string, G4Volume*>* g4s);
+	/// Lookup solid in the `g4s` map.
+	static G4VSolid* getSolidFromMap(const std::string& volume_name, std::unordered_map<std::string, G4Volume*>* g4s);
 
-	// get or create new GVolume in the map
-	G4Volume* getOrCreateG4Volume(const std::string&                          volume_name,
-	                              std::unordered_map<std::string, G4Volume*>* g4s) {
+	/// Lookup logical volume in the `g4s` map.
+	static G4LogicalVolume* getLogicalFromMap(const std::string& volume_name, std::unordered_map<std::string, G4Volume*>* g4s);
+
+	/// Lookup physical volume in the `g4s` map.
+	static G4VPhysicalVolume* getPhysicalFromMap(const std::string& volume_name, std::unordered_map<std::string, G4Volume*>* g4s);
+
+	// get or create a new GVolume in the map
+	G4Volume* getOrCreateG4Volume(const std::string& volume_name, std::unordered_map<std::string, G4Volume*>* g4s) {
 		if (auto it = g4s->find(volume_name); it != g4s->end()) { return it->second; }
 		else {
 			(*g4s)[volume_name] = new G4Volume();
@@ -163,13 +166,6 @@ protected:
 	static G4RotationMatrix* getRotation(const GVolume* s); ///< Parse rotation string.
 	static G4ThreeVector     getPosition(const GVolume* s); ///< Parse position + shift.
 
-	// ──────── data members ─────────────────────────────────────────
-	/**
-	 * @brief Logger used for info/debug/error output.
-	 *
-	 * May remain `nullptr` until `assign_logger()` is called.
-	 */
-	std::shared_ptr<GLogger> log;
 
 	/** Forwarded to `G4PVPlacement` overlap‑check flag. */
 	int checkOverlaps{0};
@@ -180,8 +176,5 @@ protected:
 	 * Empty string ⇒ no fallback; material lookup failure will become fatal.
 	 */
 	std::string backupMaterial;
-
-private:
-	bool log_is_assigned{false}; ///< Flag to check if logger is assigned
 
 };

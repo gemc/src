@@ -394,6 +394,24 @@ G4Colour makeColour(std::string_view code) {
 	return {r, g, b, a}; // G4Colour
 }
 
+std::optional<std::string> searchForFileInLocations(
+	const std::vector<std::string>& locations,
+	std::string_view                filename) {
+	namespace fs = std::filesystem;
 
+	for (const auto& loc : locations) {
+		if (loc.empty()) continue;
+
+		fs::path p(loc);
+		fs::path candidate = (!filename.empty() && fs::is_directory(p))
+			                     ? (p / filename)
+			                     : p;
+
+		std::error_code ec;
+		const bool      ok = fs::exists(candidate, ec) && fs::is_regular_file(candidate, ec);
+		if (ok) return candidate.string();
+	}
+	return std::nullopt;
 }
 
+}

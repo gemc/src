@@ -1,12 +1,22 @@
 #pragma once
 
+// gemc
+#include "gbase.h"
+
+// gfactory
 #include "gdl.h"
+#include "gfactory_options.h"
 
-class Car {
+
+class Car : public GBase<Car> {
 public:
-    virtual void go() = 0;
 
-    virtual ~Car() = default;
+	~Car() override = default;
+
+	explicit Car(const std::shared_ptr<GOptions>& g) : GBase(g, PLUGIN_LOGGER) {
+	}
+
+	virtual void go() = 0;
 
 	void set_loggers([[ maybe_unused ]] const std::shared_ptr<GOptions>&  g) {}
 

@@ -387,7 +387,7 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
 	// Creating the native factory no matter what
 	log->info(2, "G4World: registering default factory <", G4SYSTEMNATFACTORY, ">");
 
-	manager.RegisterObjectFactory<G4NativeSystemFactory>(G4SYSTEMNATFACTORY);
+	manager.RegisterObjectFactory<G4NativeSystemFactory>(G4SYSTEMNATFACTORY, gopts);
 
 	// registering factories in the manager
 	// and adding them to g4systemFactory
@@ -402,17 +402,17 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
 		if (factory == GSYSTEMASCIIFACTORYLABEL || factory == GSYSTEMSQLITETFACTORYLABEL ||
 		    factory == GSYSTEMMYSQLTFACTORYLABEL) {
 			// if factory not found, registering it in the manager and loading it into the map
-			if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) { manager.RegisterObjectFactory<G4NativeSystemFactory>(g4Factory); }
+			if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) { manager.RegisterObjectFactory<G4NativeSystemFactory>(g4Factory, gopts); }
 		}
 		else if (factory == GSYSTEMCADTFACTORYLABEL) {
 			// if factory not found, registering it in the manager and loading it into the map
-			if (g4systemFactory.find(GSYSTEMCADTFACTORYLABEL) == g4systemFactory.end()) { manager.RegisterObjectFactory<G4CadSystemFactory>(g4Factory); }
+			if (g4systemFactory.find(GSYSTEMCADTFACTORYLABEL) == g4systemFactory.end()) { manager.RegisterObjectFactory<G4CadSystemFactory>(g4Factory, gopts); }
 		}
 
 		// factories are registered, creating them
 		if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) {
 			g4systemFactory[g4Factory] = manager.CreateObject<G4ObjectsFactory>(g4Factory);
-			g4systemFactory[g4Factory]->initialize_context(log, check_overlaps, backup_material);
+			g4systemFactory[g4Factory]->initialize_context(check_overlaps, backup_material);
 		}
 	}
 }

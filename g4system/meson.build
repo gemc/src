@@ -5,7 +5,12 @@ examples_dir = get_option('prefix') + '/test/' + sub_dir_name
 
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
 gsystem = ['-gsystem="[{name: b1}]"']
-verbosities = ['-verbosity.g4system=2', '-debug.g4system=true']
+verbosities = [
+    '-verbosity.g4system=2',
+    '-debug.g4system=true',
+    '-verbosity.g4sfactory=2',
+    '-debug.g4sfactory=true'
+]
 overlaps = ['-check_overlaps=1']
 
 LD += {
@@ -31,7 +36,7 @@ LD += {
         'g4objectsFactories/cad/cadSystemFactory.h',
     ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps, assimp_dep],
-    'additional_includes' : ['g4system/g4objectsFactories', 'g4system/g4objectsFactories/g4native', 'g4system/g4objectsFactories/cad'],
+    'additional_includes' : ['g4system', 'g4system/g4objectsFactories', 'g4system/g4objectsFactories/g4native', 'g4system/g4objectsFactories/cad'],
     'geo_build' : {
         'test_g4system_geo' : [files('examples/example.py')]
     },

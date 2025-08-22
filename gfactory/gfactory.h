@@ -35,7 +35,16 @@ public:
 template <class T>
 class GFactory final : public GFactoryBase {
 public:
-	[[nodiscard]] void* Create() override { return new T(); }
+	explicit GFactory(const std::shared_ptr<GOptions>& gopts)
+		: gopts_(gopts) {
+		static_assert(std::is_constructible_v<T, const std::shared_ptr<GOptions>&>,
+		              "T must be constructible from const std::shared_ptr<GOptions>&");
+	}
+
+	[[nodiscard]] void* Create() override { return static_cast<void*>(new T(gopts_)); }
+
+private:
+	std::shared_ptr<GOptions> gopts_;
 };
 
 /**
@@ -65,11 +74,14 @@ public:
 	GManager(GManager&&) noexcept            = default;
 	GManager& operator=(GManager&&) noexcept = default;
 
-	~GManager() { clearDLMap(); }
+	~GManager() override { clearDLMap(); }
 
-	/// Register a concrete factory under @p name.
+	/// Register a concrete factory under a name.
 	template <class Derived>
 	void RegisterObjectFactory(std::string_view name);
+
+	template <class Derived>
+	void RegisterObjectFactory(std::string_view name, const std::shared_ptr<GOptions>& gopts);
 
 	/// Create an instance of the previously registered factory
 	template <class Base>
@@ -104,6 +116,12 @@ inline void GManager::registerDL(std::string_view name) {
 template <class Derived>
 void GManager::RegisterObjectFactory(std::string_view name) {
 	factoryMap_.emplace(std::string{name}, std::make_unique<GFactory<Derived>>());
+	log->debug(NORMAL, "Registering ", name, " into factory map");
+}
+
+template <class Derived>
+void GManager::RegisterObjectFactory(std::string_view name, const std::shared_ptr<GOptions>& gopts) {
+	factoryMap_.emplace(std::string{name}, std::make_unique<GFactory<Derived>>(gopts));
 	log->debug(NORMAL, "Registering ", name, " into factory map");
 }
 

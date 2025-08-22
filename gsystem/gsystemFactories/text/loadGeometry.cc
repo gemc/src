@@ -7,10 +7,10 @@
 // c++
 #include <iostream>
 
-void GSystemTextFactory::loadGeometry(GSystem* system, std::shared_ptr<GLogger> log) {
+void GSystemTextFactory::loadGeometry(GSystem* system) {
 
 	// will exit if not found
-	auto IN = gSystemTextFileStream(system, GTEXTGEOMTYPE, log);
+	auto IN = gSystemTextFileStream(system, GTEXTGEOMTYPE);
 
 	if (IN != nullptr) {
 		log->info(1, "Loading geometry for system ", system->getName(),

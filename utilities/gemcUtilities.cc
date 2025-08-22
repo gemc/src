@@ -100,7 +100,7 @@ std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts
 	cmds.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
 	cmds.emplace_back("/vis/scene/add/hits");
 	cmds.emplace_back("/vis/scene/endOfEventAction accumulate 10000");
-//	cmds.emplace_back("/vis/viewer/set/culling coveredDaughters true");
+	//	cmds.emplace_back("/vis/viewer/set/culling coveredDaughters true");
 
 	// background colors and root volume are the same
 	// cmds.push_back("/vis/viewer/set/background 1 1 1 1");
@@ -164,9 +164,7 @@ void start_random_engine(const std::shared_ptr<GOptions>& gopts, const std::shar
 		G4Random::setTheEngine(new CLHEP::Hurd288Engine);
 	else if (randomEngineName == "TripleRand")
 		G4Random::setTheEngine(new CLHEP::TripleRand);
-	else {
-		log->error(EC__RANDOMENGINENOTFOUND, "Random engine >", randomEngineName, "< not found. Exiting.");
-	}
+	else { log->error(EC__RANDOMENGINENOTFOUND, "Random engine >", randomEngineName, "< not found. Exiting."); }
 
 	log->info(0, "Starting random engine ", randomEngineName, " with seed ", seed);
 	G4Random::setTheSeed(seed);

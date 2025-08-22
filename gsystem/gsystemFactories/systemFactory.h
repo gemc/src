@@ -2,19 +2,23 @@
 
 // gemc
 #include "goptions.h"
-#include "glogger.h"
+#include "gbase.h"
 #include "gutilities.h"
 
 // gsystem
-#include "gsystem.h"
+#include "gsystem_options.h"
 
 
 // system factory
-class GSystemFactory {
+class GSystemFactory: public GBase<GSystemFactory> {
 public:
+	~GSystemFactory() override = default;
+
+	explicit GSystemFactory(const std::shared_ptr<GOptions>& g) : GBase(g, GSFACTORY_LOGGER) {}
+
 	// calls loadGeometry and loadMaterial
 	// verbosity passed here comes from goptions gsystemv
-	void loadSystem(GSystem* system, const std::shared_ptr<GLogger>& log) {
+	void loadSystem(GSystem* system) {
 
 		log->info(1, "Loading system <", system->getName(), "> using factory <", system->getFactoryName(), ">");
 
@@ -24,18 +28,17 @@ public:
 		possibleLocationOfFiles.push_back(gemcRoot.string());
 		possibleLocationOfFiles.push_back(system->get_dbhost());
 
-		loadMaterials(system, log);
-		loadGeometry(system, log);
+		loadMaterials(system);
+		loadGeometry(system);
 	}
 
-	virtual void closeSystem([[maybe_unused]] std::shared_ptr<GLogger>& log) { possibleLocationOfFiles.clear(); }
+	virtual void closeSystem() { possibleLocationOfFiles.clear(); }
 
-	virtual ~GSystemFactory() = default;
 
 private:
-	virtual void loadMaterials(GSystem* system, std::shared_ptr<GLogger> log) = 0;
+	virtual void loadMaterials(GSystem* system) = 0;
 
-	virtual void loadGeometry(GSystem* system, std::shared_ptr<GLogger> log) = 0;
+	virtual void loadGeometry(GSystem* system) = 0;
 
 protected:
 	std::vector<std::string> possibleLocationOfFiles;

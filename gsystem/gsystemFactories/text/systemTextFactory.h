@@ -12,19 +12,17 @@
 class GSystemTextFactory : GSystemFactory {
 
 public:
-  // constructor will load the possible location(s) of the geometry and material
-  // databases
-  GSystemTextFactory();
+	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using GSystemFactory::GSystemFactory;
 
 private:
-  void loadMaterials(GSystem *system, std::shared_ptr<GLogger> log) override;
+  void loadMaterials(GSystem *system) override;
 
-  void loadGeometry(GSystem *system, std::shared_ptr<GLogger> log) override;
+  void loadGeometry(GSystem *system) override;
 
   // returns the requested system file stream, checking all
   // possibleLocationOfFiles
   std::ifstream *gSystemTextFileStream(
-      GSystem *system, const std::string &SYSTEMTYPE,
-      const std::shared_ptr<GLogger> &log); // SYTEMTYPE one of file types above
+      GSystem *system, const std::string &SYSTEMTYPE); // SYTEMTYPE one of file types above
 };
 

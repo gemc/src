@@ -6,12 +6,12 @@
 using namespace std;
 
 
-void GSystemSQLiteFactory::loadMaterials(GSystem* system, std::shared_ptr<GLogger> log) {
+void GSystemSQLiteFactory::loadMaterials(GSystem* system) {
 	// skip ROOT system
 	if (system->getName() == ROOTWORLDGVOLUMENAME) { return; }
 
 	// Initialize the DB if needed.
-	if (db == nullptr) { initialize_sqlite_db(system, log); }
+	if (db == nullptr) { initialize_sqlite_db(system); }
 
 	// Check that db is valid.
 	if (db == nullptr) { log->error(ERR_GSQLITEERROR, "Database pointer is still null after initialization."); }

@@ -8,7 +8,10 @@ namespace g4system {
 
 // returns array of options definitions
 GOptions defineOptions() {
+
 	GOptions goptions(G4SYSTEM_LOGGER);
+	goptions += GOptions(G4SFACTORY_LOGGER);
+
 	goptions += gsystem::defineOptions();
 
 	std::string help =

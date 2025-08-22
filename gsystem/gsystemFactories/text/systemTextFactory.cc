@@ -8,18 +8,14 @@
 // cpp
 #include <fstream>
 
-GSystemTextFactory::GSystemTextFactory() = default;
-
 // returns the file stream, checking all possible directories.
 // SYSTEMTYPE can be:
 // - GTEXTGEOMTYPE (mandatory, exit if not found)
 // - GTEXTMATSTYPE
-std::ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const std::string& SYSTEMTYPE, const std::shared_ptr<GLogger>& log) {
+std::ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const std::string& SYSTEMTYPE) {
 	std::string fileName  = system->getFilePath();
 	std::string variation = system->getVariation();
-
-	std::string fname = fileName + SYSTEMTYPE + variation + ".txt";
-
+	std::string fname     = fileName + SYSTEMTYPE + variation + ".txt";
 
 	log->info(0, "gSystemTextFileStream filename is: ", fname);
 
@@ -46,9 +42,8 @@ std::ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const 
 		}
 	}
 
-
-	// at this point file was not found
-	// this coulLd be ok if we are looking for the materials file - if the system annotation is 'mats_only'
+	// at this point the file was not found
+	// this could be ok if we are looking for the material file - if the system annotation is 'mats_only'
 	if (SYSTEMTYPE == GTEXTGEOMTYPE) {
 		if (system->getAnnotations() == "mats_only") {
 			log->info(1, "File ", fname, " not found, but this is ok because the system annotation is 'mats_only'");

@@ -10,11 +10,7 @@
 #include "g4system/g4systemConventions.h"
 
 
-
-// ────────────────────────────────────────────────────────────────
 // checkAndReturnParameters – validates & parses constructor inputs
-// ────────────────────────────────────────────────────────────────
-
 std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolume* s)
 {
     // PRAGMA TODO: check non‑zero pars for various constructor

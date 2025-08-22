@@ -77,9 +77,6 @@ int main(int argc, char* argv[]) {
 	auto app_result    = EXIT_SUCCESS;
 	auto init_commands = gemc::initial_commands(gopts, log);
 
-	// print init_commands
-	for (const auto& c : init_commands) { log->info(0, c); }
-
 	if (gui) {
 		// initializing qt session
 		spash_screen->message("Starting GUI");
@@ -90,12 +87,13 @@ int main(int argc, char* argv[]) {
 		auto* uiQtSession       = new G4UIQt(1, argv);
 		auto* g4SceneProperties = new G4SceneProperties(gopts);
 		auto scene_commands = g4SceneProperties->scene_commands(gopts);
+		// add init_commands to scene_commands
+		scene_commands.insert(scene_commands.end(), init_commands.begin(), init_commands.end());
 
 		GemcGUI gemcGui(gopts, geventDispenser, gdetector);
 		gemcGui.show();
 
 		gemc::run_manager_commands(gopts, log, scene_commands);
-		gemc::run_manager_commands(gopts, log, init_commands);
 
 		spash_screen->finish(&gemcGui);
 

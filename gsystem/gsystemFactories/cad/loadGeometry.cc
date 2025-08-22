@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void GSystemCADFactory::loadGeometry(GSystem* s, std::shared_ptr<GLogger> log) {
+void GSystemCADFactory::loadGeometry(GSystem* s) {
 	string dirLocation = gutilities::searchForDirInLocations(s->getFilePath(), possibleLocationOfFiles);
 
 	if (filesystem::exists(dirLocation)) {

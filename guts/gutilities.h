@@ -56,6 +56,9 @@ std::string getFileFromPath(const std::string& path);
 */
 std::string getDirFromPath(const std::string& path);
 
+std::optional<std::string> searchForFileInLocations(
+	const std::vector<std::string>& locations,
+	std::string_view                filename);
 
 /**
 * @brief Splits a string into a vector of strings using spaces as delimiters.
@@ -333,8 +336,8 @@ inline std::filesystem::path executable_path() {
 	return std::filesystem::canonical(buf);
 
 #elif defined(__linux__)
-	char buf[PATH_MAX];
-	ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf)-1);
+	char    buf[PATH_MAX];
+	ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf) - 1);
 	if (len == -1)
 		throw std::runtime_error("readlink(/proc/self/exe) failed");
 	buf[len] = '\0';
@@ -342,7 +345,7 @@ inline std::filesystem::path executable_path() {
 
 #elif defined(_WIN32)
 	std::wstring buf(MAX_PATH, L'\0');
-	DWORD len = ::GetModuleFileNameW(nullptr, buf.data(), buf.size());
+	DWORD        len = ::GetModuleFileNameW(nullptr, buf.data(), buf.size());
 	if (len == 0)
 		throw std::runtime_error("GetModuleFileNameW failed");
 	// If the path is longer than MAX_PATH the buffer is truncated;

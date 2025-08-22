@@ -13,7 +13,6 @@
 
 #include <unordered_map>
 #include <string>
-#include <vector>
 
 #include "g4objectsFactory.h"
 
@@ -27,9 +26,8 @@
 class G4CadSystemFactory final : public G4ObjectsFactory
 {
 public:
-	/** Default constructor / destructor. */
-	G4CadSystemFactory()  = default;
-	~G4CadSystemFactory() override = default;
+	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using G4ObjectsFactory::G4ObjectsFactory;
 
 	/**
 	 * @copydoc G4ObjectsFactory::className

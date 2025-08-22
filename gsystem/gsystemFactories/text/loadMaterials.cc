@@ -1,10 +1,10 @@
 // gsystem
 #include "systemTextFactory.h"
 
-void GSystemTextFactory::loadMaterials(GSystem* system, std::shared_ptr<GLogger> log) {
+void GSystemTextFactory::loadMaterials(GSystem* system) {
 
 	// will continue if not found
-	auto IN = gSystemTextFileStream(system, GTEXTMATSTYPE, log);
+	auto IN = gSystemTextFileStream(system, GTEXTMATSTYPE);
 
 	if (IN != nullptr) {
 		log->info(1, "Loading materials for system ", system->getName(),

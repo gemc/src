@@ -4,12 +4,12 @@
 #include "goptions.h"
 #include "gsystem.h"
 #include "gmodifier.h"
-#include "glogger.h"
 
 constexpr const char* GVOLUME_LOGGER = "gvolume";
 constexpr const char* GMATERIAL_LOGGER = "gmaterial";
 constexpr const char* GSYSTEM_LOGGER = "gsystem";
 constexpr const char* GWORLD_LOGGER = "gworld";
+constexpr const char* GSFACTORY_LOGGER = "gsfactory";
 
 namespace gsystem {
 

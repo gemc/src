@@ -53,7 +53,7 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 	std::map<std::string, std::unique_ptr<GSystemFactory>> factoryMap;
 
 	// Always register & create the SQLite factory (needed for ROOT volumes)
-	manager.RegisterObjectFactory<GSystemSQLiteFactory>(GSYSTEMSQLITETFACTORYLABEL);
+	manager.RegisterObjectFactory<GSystemSQLiteFactory>(GSYSTEMSQLITETFACTORYLABEL, gopts);
 	auto sqliteFactory = std::unique_ptr<GSystemFactory>(manager.CreateObject<GSystemFactory>(GSYSTEMSQLITETFACTORYLABEL));
 
 	if (!sqliteFactory) {
@@ -78,13 +78,13 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 
 		//------------------ register the correct concrete class ----------------
 		if (facName == GSYSTEMCADTFACTORYLABEL)
-			manager.RegisterObjectFactory<GSystemCADFactory>(facName);
+			manager.RegisterObjectFactory<GSystemCADFactory>(facName, gopts);
 		else if (facName == GSYSTEMGDMLTFACTORYLABEL)
-			manager.RegisterObjectFactory<GSystemGDMLFactory>(facName);
+			manager.RegisterObjectFactory<GSystemGDMLFactory>(facName, gopts);
 		else if (facName == GSYSTEMSQLITETFACTORYLABEL)
-			manager.RegisterObjectFactory<GSystemSQLiteFactory>(facName);
+			manager.RegisterObjectFactory<GSystemSQLiteFactory>(facName, gopts);
 		else if (facName == GSYSTEMASCIIFACTORYLABEL)
-			manager.RegisterObjectFactory<GSystemTextFactory>(facName);
+			manager.RegisterObjectFactory<GSystemTextFactory>(facName, gopts);
 		else {
 			log->error(ERR_FACTORYNOTFOUND,
 			           "Unrecognized factory name <", facName,
@@ -215,10 +215,9 @@ void GWorld::load_systems() {
 		}
 
 		// Load & close the system
-		factory->loadSystem(sysPtr.get(), log);
-		factory->closeSystem(log);
+		factory->loadSystem(sysPtr.get());
+		factory->closeSystem();
 	}
-
 
 	// systemFactories goes out of scope -> all factories destroyed cleanly
 }

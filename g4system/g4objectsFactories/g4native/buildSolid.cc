@@ -4,11 +4,10 @@
  * @brief  Implementation of G4NativeSystemFactory::buildSolid()
  */
 
-#include "g4NativeObjectsFactory.h"
 
 // g4system
-#include "g4NativeObjectsFactory.h"      // self
-#include "g4system/g4systemConventions.h"
+#include "g4NativeObjectsFactory.h"
+#include "g4systemConventions.h"
 
 // geant4
 #include "G4Box.hh"

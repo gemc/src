@@ -7,13 +7,13 @@
 class GSystemCADFactory : GSystemFactory {
 
 public:
-	// constructor will load the possible location(s) of the geometry and material databases
-	GSystemCADFactory();
+	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	using GSystemFactory::GSystemFactory;
 
 private:
-	void loadMaterials(GSystem* system, std::shared_ptr<GLogger> log) override;
+	void loadMaterials(GSystem* system) override;
 
-	void loadGeometry(GSystem* system, std::shared_ptr<GLogger> log) override;
+	void loadGeometry(GSystem* system) override;
 
 };
 
