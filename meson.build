@@ -53,7 +53,7 @@ subdir('eventDispenser')
 subdir('gqtbuttonswidget')
 subdir('g4display')
 subdir('g4dialog')
-#subdir('api')
+subdir('gboard')
 subdir('gsystem') # uses api for testing
 subdir('g4system')
 subdir('gparticle')

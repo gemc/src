@@ -1,11 +1,15 @@
 #include "gui_session.h"
-#include "g4dialog_options.h" // Provides G4DIALOG_LOGGER constant and option definitions
 
+// geant4
+#include "G4UImanager.hh"
 
 GUI_Session::GUI_Session(const std::shared_ptr<GOptions>& gopt, GBoard* b) :
-	GBase(gopt, G4DIALOG_LOGGER),
+	GBase(gopt, GBOARD_LOGGER),
 	board(b) {
-	log->info(1, SFUNCTION_NAME," g4 dialog : GUI_Session created");
+
+	G4UImanager::GetUIpointer()->SetCoutDestination(this);
+
+	log->info(1, SFUNCTION_NAME, " g4 dialog : GUI_Session created");
 }
 
 G4int GUI_Session::ReceiveG4cout(const G4String& coutString) {
@@ -50,7 +54,7 @@ G4int GUI_Session::ReceiveG4cerr(const G4String& cerrString) {
 
 // Helper function to convert ANSI escape codes to HTML
 // This version handles colors (30-37), bold (1), underline (4), and reset (0).
-// It also processes combined codes like [1;31m.
+// It also processes combined codes like [1;31m].
 QString GUI_Session::ansiToHtml(const QString& ansiText) {
 	QString htmlText;
 	htmlText.reserve(ansiText.length() * 1.2); // Pre-allocate buffer slightly larger
@@ -60,7 +64,7 @@ QString GUI_Session::ansiToHtml(const QString& ansiText) {
 	bool    isUnderlined = false;
 	QString currentColor = ""; // Store the HTML color name/code
 
-	// ANSI color code to HTML color map
+	// ANSI color code to the HTML color map
 	QMap<int, QString> colorMap;
 	colorMap[30] = "black";
 	colorMap[31] = "red";
@@ -81,7 +85,7 @@ QString GUI_Session::ansiToHtml(const QString& ansiText) {
 		QRegularExpressionMatch match      = i.next();
 		int                     currentPos = match.capturedStart();
 
-		// 1. Append text segment before the matched ANSI code, escaping it
+		// 1. Append the text segment before the matched ANSI code, escaping it
 		if (currentPos > lastPos) {
 			QString textSegment = ansiText.mid(lastPos, currentPos - lastPos);
 			// Use toHtmlEscaped for robust escaping of <, >, &
@@ -113,7 +117,8 @@ QString GUI_Session::ansiToHtml(const QString& ansiText) {
 				nextBold       = false;
 				nextUnderlined = false;
 				nextColor      = "";
-				// Important: Reset applies to *all* subsequent codes in the sequence too,
+
+				// Important: Reset applies to *all* further codes in the sequence too,
 				// so we break the inner loop after applying the effects of the reset below.
 				break;
 			}
@@ -138,7 +143,7 @@ QString GUI_Session::ansiToHtml(const QString& ansiText) {
 			// Ignore other codes (background colors 40-47, faint 2, italic 3, etc.)
 		}
 
-		// 3. Apply state changes by closing/opening tags *only* if state changed
+		// 3. Apply state changes by closing/opening tags *only* if the state changed
 
 		// Close tags in reverse order if they are being turned off or changed
 		if (isUnderlined && !nextUnderlined) { htmlText += "</u>"; }
@@ -170,7 +175,7 @@ QString GUI_Session::ansiToHtml(const QString& ansiText) {
 		isUnderlined = nextUnderlined;
 		currentColor = nextColor;
 
-		// Update position for next segment
+		// Update position for the next segment
 		lastPos = match.capturedEnd();
 	}
 
@@ -186,4 +191,14 @@ QString GUI_Session::ansiToHtml(const QString& ansiText) {
 	if (!currentColor.isEmpty()) { htmlText += "</font>"; }
 
 	return htmlText;
+}
+
+
+GUI_Session::~GUI_Session() {
+	// Detach G4 cout/cerr from our GUI session (avoid dangling callback)
+	if (auto* UIM = G4UImanager::GetUIpointer()) {
+		// If available in your G4 version, prefer checking the current destination:
+		// if (UIM->GetCoutDestination() == gui_session.get()) { ... }
+		UIM->SetCoutDestination(nullptr);
+	}
 }

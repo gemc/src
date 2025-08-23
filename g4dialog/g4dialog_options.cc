@@ -8,7 +8,6 @@ namespace g4dialog {
 GOptions defineOptions() {
 
 	GOptions goptions(G4DIALOG_LOGGER);
-	goptions += GOptions(GBOARD_LOGGER);
 
 	return goptions;
 }

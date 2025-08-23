@@ -13,6 +13,7 @@
 #include "eventDispenser_options.h"
 #include "g4display_options.h"
 #include "g4dialog_options.h"
+#include "gboard.h"
 #include "gsd.h"
 #include "gfield_options.h"
 
@@ -73,6 +74,7 @@ namespace gemc {
     	goptions += g4dialog::defineOptions();
     	goptions += gsensitivedetector::defineOptions();
     	goptions += gfields::defineOptions();
+    	goptions += gboard::defineOptions();
 
 
         return goptions;

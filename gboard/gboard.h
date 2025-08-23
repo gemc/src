@@ -7,6 +7,17 @@
 #include <QtWidgets>
 #include <memory>
 
+constexpr const char* GBOARD_LOGGER = "gboard";
+
+namespace gboard {
+
+inline GOptions defineOptions() {
+	GOptions goptions(GBOARD_LOGGER);
+	return goptions;
+}
+}
+
+
 /**
  * @class GBoard
  * @brief A widget that displays read-only log text along with a top bar for search, clear, and save actions.
@@ -19,8 +30,8 @@ class GBoard : public QWidget, public GBase<GBoard> {
 
 public:
 	/**
-	 * @brief Constructs a new GBoard widget.
-	 * @param logger Shared pointer to a GLogger for debug messages.
+	 * @brief Constructs a new GBoard widget
+	 * @param gopt Shared pointer to a GOptions
 	 * @param parent The parent widget (default is nullptr).
 	 */
 	explicit GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent = nullptr);
@@ -36,11 +47,13 @@ public:
 	 */
 	void appendLog(const QString& text);
 
-private slots:
+private
+	slots :
 	/**
 	 * @brief Filters the displayed log lines based on the search text.
 	 * @param filterText The text used to filter log lines.
 	 */
+
 	void filterLog(const QString& filterText);
 
 	/**
@@ -53,11 +66,14 @@ private slots:
 	 */
 	void saveLog();
 
+	void updateDisplay();
+
 private:
-	QLineEdit*     searchLineEdit{}; ///< Input field for search/filter text
-	QToolButton*   clearButton{};    ///< Button to clear the log
-	QToolButton*   saveButton{};     ///< Button to save the log
-	QTextEdit*     logTextEdit{};    ///< The main text area for displaying logs
+	QLineEdit*   searchLineEdit{}; ///< Input field for search/filter text
+	QToolButton* clearButton{};    ///< Button to clear the log
+	QToolButton* saveButton{};     ///< Button to save the log
+	QTextEdit*   logTextEdit{};    ///< The main text area for displaying logs
+    QStringList fullLogLines;
 
 	// Maintains all log lines for filtering purposes.
 	QString currentFilterText{};

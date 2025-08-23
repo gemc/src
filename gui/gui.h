@@ -11,6 +11,7 @@
 #include "gQtButtonsWidget.h"
 #include "eventDispenser.h"
 #include "gdetectorConstruction.h"
+#include "gboard.h"
 
 class GemcGUI : public QWidget {
 
@@ -39,7 +40,8 @@ private:
 	void createLeftButtons();
 
 	void createRightContent(std::shared_ptr<GOptions> gopts,
-	                        GDetectorConstruction*    dc);
+	                        GDetectorConstruction*    dc,
+	                        GBoard*                   gb);
 
 	void createTopButtons(QHBoxLayout* topLayout);
 

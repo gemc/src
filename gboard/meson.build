@@ -5,31 +5,29 @@ if get_option('i_test')
     with_gui = ['-gui']
 endif
 
-example_source = files('examples/g4dialog_example.cc')
+example_source = files('examples/gboard_example.cc')
 
 verbosities = [
-    '-verbosity.g4dialog=2',
-    '-debug.g4dialog=true'
-]
+    '-verbosity.gboard=2',
+    '-debug.gboard=true']
 
 sources = files(
-    'g4dialog.cc',
-    'g4dialog_options.cc',
-    'tabs/gcommands.cc',
+    'gboard.cc',
+    'gui_session.cc',
 )
 
 headers = files(
-    'g4dialog.h',
-    'g4dialog_options.h',
+    'gboard.h',
+    'gui_session.h',
 )
 
 moc_headers = files(
-    'tabs/gcommands.h',
+    'gboard.h',
 )
 
 examples = {
-    'test_g4dialog' : [example_source, with_gui],
-    'test_g4dialog_verbose' : [example_source, with_gui + verbosities]
+    'test_gboard' : [example_source, with_gui],
+    'test_gboard_verbose' : [example_source, with_gui + verbosities]
 }
 
 
@@ -40,7 +38,7 @@ if get_option('i_test')
         'headers' : headers,
         'moc_headers' : moc_headers,
         'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
-        'additional_includes' : ['g4dialog', 'g4dialog/tabs'],
+        'additional_includes' : ['gboard'],
         'examples' : examples
     }
 else
@@ -50,6 +48,6 @@ else
         'headers' : headers,
         'moc_headers' : moc_headers,
         'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
-        'additional_includes' : ['g4dialog', 'g4dialog/tabs'],
+        'additional_includes' : ['gboard'],
     }
 endif

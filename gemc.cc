@@ -88,11 +88,11 @@ int main(int argc, char* argv[]) {
 		auto* g4SceneProperties = new G4SceneProperties(gopts);
 		auto scene_commands = g4SceneProperties->scene_commands(gopts);
 		// add init_commands to scene_commands
-		scene_commands.insert(scene_commands.end(), init_commands.begin(), init_commands.end());
 
 		GemcGUI gemcGui(gopts, geventDispenser, gdetector);
 		gemcGui.show();
 
+		scene_commands.insert(scene_commands.end(), init_commands.begin(), init_commands.end());
 		gemc::run_manager_commands(gopts, log, scene_commands);
 
 		spash_screen->finish(&gemcGui);
@@ -108,8 +108,8 @@ int main(int argc, char* argv[]) {
 		auto scene_commands = g4SceneProperties->scene_commands(gopts);
 
 		// set display properties in batch mode
+		scene_commands.insert(scene_commands.end(), init_commands.begin(), init_commands.end());
 		gemc::run_manager_commands(gopts, log, scene_commands);
-		gemc::run_manager_commands(gopts, log, init_commands);
 
 		// start the session if interactive
 		if (gopts->getSwitch("i")) { session->SessionStart(); }

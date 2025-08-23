@@ -22,7 +22,6 @@ public:
 	 */
 	GUI_Session(const std::shared_ptr<GOptions>& gopt, GBoard* board);
 
-
 	/**
 	 * @brief Receives standard output from GEANT4.
 	 * @param coutString The output string.
@@ -37,7 +36,9 @@ public:
 	 */
 	G4int ReceiveG4cerr(const G4String& cerrString) override;
 
+	~GUI_Session() override ;
+
 private:
-	GBoard* board; // let parent manage GBoard
+	GBoard* board; // let parent manage GBoard, do not kill
 	QString          ansiToHtml(const QString& ansiText);
 };

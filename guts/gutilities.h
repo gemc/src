@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <string_view>
+#include <optional>
 
 // geant4
 #include "G4Colour.hh"

@@ -1,6 +1,8 @@
 // gui
 #include "gui.h"
 
+// gboard
+#include "gui_session.h"
 
 GemcGUI::GemcGUI(std::shared_ptr<GOptions>       gopts,
                  std::shared_ptr<EventDispenser> ed,
@@ -9,7 +11,10 @@ GemcGUI::GemcGUI(std::shared_ptr<GOptions>       gopts,
 	QWidget(parent),
 	eventDispenser(ed) {
 	createLeftButtons();           // instantiates leftButtons
-	createRightContent(gopts, dc); // instantiates rightContent: g4control
+	auto* gboard = new GBoard(gopts, this);
+	auto gui_session = std::make_unique<GUI_Session>(gopts, gboard);
+
+	createRightContent(gopts, dc, gboard); // instantiates rightContent: g4control, g4dialog, etc
 
 	// top rows button
 	auto* topLayout = new QHBoxLayout;
@@ -23,9 +28,11 @@ GemcGUI::GemcGUI(std::shared_ptr<GOptions>       gopts,
 	auto* mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(topLayout);
 	mainLayout->addLayout(bottomLayout);
+	mainLayout->addWidget(gboard);
+
 	setLayout(mainLayout);
 	setWindowTitle(tr("GEMC: Geant4 Monte-Carlo"));
-	setFixedWidth(1200);
+	setFixedWidth(1000);
 
 	// setting timer
 	gtimer = new QTimer(this);
@@ -59,6 +66,7 @@ GemcGUI::~GemcGUI() {
 }
 
 void GemcGUI::change_page(QListWidgetItem* current, QListWidgetItem* previous) {
+
 	if (!current)
 		current = previous;
 
