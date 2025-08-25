@@ -1,0 +1,23 @@
+FROM jeffersonlab/geant4:g4v11.3.2-fedora40
+LABEL maintainer="Maurizio Ungaro <ungaro@jlab.org>"
+
+# run shell instead of sh
+SHELL ["/bin/bash", "-c"]
+ENV AUTOBUILD 1
+
+RUN echo "module load gemc/dev3" >> /etc/profile.d/localSetup.sh
+
+
+# ceInstall update  
+RUN cd /cvmfs/oasis.opensciencegrid.org/jlab/geant4/modules \
+    &&  git pull  
+
+
+RUN source /etc/profile.d/localSetup.sh \
+    && module use /cvmfs/oasis.opensciencegrid.org/jlab/geant4/modules \
+    && module load  gemc/dev3 \
+    &&  git clone http://github.com/gemc/src /root/src \
+    && cd /root/src \
+    && ./ci/build.sh
+
+
