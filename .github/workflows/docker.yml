@@ -8,7 +8,7 @@ on:
   pull_request:            # PRs: build only (no push)
 
 concurrency:
-  group: ghcr-${{ github.ref }}   # cancel older runs on same ref
+  group: ghcr-${{ github.ref }}   # cancel older runs on the same ref
   cancel-in-progress: true
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Run the zsh discovery script which writes to $GITHUB_OUTPUT:
+      # Run the sh discovery script which writes to $GITHUB_OUTPUT:
       #   - matrix: JSON {"include":[{file,tag,os,latest},...]}
       #   - image : "ghcr.io/<owner>/gemc"
       - id: scan
@@ -39,7 +39,7 @@ jobs:
       packages: write    # needed to push to GHCR
     strategy:
       fail-fast: false
-      # Use the JSON produced by the discover job
+      # Use the JSON produced by ci/discover-docker-matrix.sh
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     steps:
       - name: Checkout repository
