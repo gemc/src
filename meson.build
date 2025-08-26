@@ -147,6 +147,7 @@ foreach L : LD
                      python_exe,
                      args : [geo_python_script],
                      workdir : examples_dir,
+                     is_parallel: false,
                      env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
                      priority : 20)
             endforeach
@@ -176,6 +177,7 @@ foreach L : LD
                  exe,
                  env : project_test_env,
                  args : arguments,
+                 is_parallel: false,
                  priority : -20)
         endforeach
     endif
@@ -259,6 +261,7 @@ foreach opt_dict : test_options
             gemc,
             args : test_arguments + gemc_test_sqlite,
             # suite : 'gemc',
+            is_parallel: false,
             timeout : 60,          # adjust as needed
             priority: -20
         )

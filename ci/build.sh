@@ -82,7 +82,7 @@ ls -lR $GEMC  >> $compile_log
 # if $1 is NOT one of sanitize option, run meson test
 if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
     echo " > Running meson test" > $test_log
-    meson test  -j 1 --print-errorlogs >>  $test_log
+    meson test  -j 1 --print-errorlogs --no-rebuild  >>  $test_log
     if [ $? -ne 0 ]; then
     	echo "Test failed. Log: "
     	cat $test_log
