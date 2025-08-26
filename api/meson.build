@@ -45,17 +45,17 @@ test_dir = meson.current_build_dir() + '/../test'
 test('api_create_system',
      python_exe,
      env : {'PYTHONDONTWRITEBYTECODE': '1'},
-     args : [api_dir + 'system_template.py', '-s', 'test'], priority : 10)
+     args : [api_dir + 'system_template.py', '-s', 'test'], priority : 5)
 foreach format : ['ascii', 'sqlite']
     test('api_template_build_geometry_in_test_for_format_' + format,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
-         args : ['test.py', '-f', format], workdir : test_dir, priority : -10)
+         args : ['test.py', '-f', format], workdir : test_dir, priority : -1)
     test('api_run_gemc_for_format_' + format,
          gemc, args : ['test.yaml', '-gsystem="[{name: test, factory: ' + format + '}]" '],
          workdir : test_dir,
          env : project_test_env,
-         priority : -20)
+         priority : -2)
 endforeach
 
 # replace geometry with templates
@@ -70,16 +70,16 @@ foreach volume: g4objects.keys()
     test('api_create_template_system_with' + volume,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
-         args : [api_dir + 'system_template.py', '-s', test_name], priority : 10)
+         args : [api_dir + 'system_template.py', '-s', test_name], priority : 4)
     test('api_template_replace_geometry_with' + volume,
          python_exe,
          env : {'PYTHONDONTWRITEBYTECODE': '1'},
-         args: [api_dir + 'system_template.py', '-gv', volume, '-gvp', pars, geo_py, sub_name], workdir : test_dir, priority : -10)
+         args: [api_dir + 'system_template.py', '-gv', volume, '-gvp', pars, geo_py, sub_name], workdir : test_dir, priority : -3)
     foreach format : ['ascii', 'sqlite']
         test('api_template_build_geometry_in_test_of_replacing_geometry_with' + volume + '_with_format' + format,
              python_exe,
              env : {'PYTHONDONTWRITEBYTECODE': '1'},
-             args : [python_main, '-f', format], workdir : test_dir, priority : -20)
+             args : [python_main, '-f', format], workdir : test_dir, priority : -4)
         test('api_run_gemc_with_replaced_geometry_using_' + volume + '_with_format' + format,
              gemc,
              args : [yaml_file, '-gsystem="[{name: ' + test_name + ', factory: ' + format + '}]" '],

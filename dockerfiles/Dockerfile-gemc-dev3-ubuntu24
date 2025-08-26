@@ -3,7 +3,7 @@ LABEL maintainer="Maurizio Ungaro <ungaro@jlab.org>"
 
 # run shell instead of sh
 SHELL ["/bin/bash", "-c"]
-ENV AUTOBUILD 1
+ENV AUTOBUILD=1
 
 RUN echo "module load gemc/dev3" >> /etc/profile.d/localSetup.sh
 

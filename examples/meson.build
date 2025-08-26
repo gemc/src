@@ -30,8 +30,8 @@ foreach branch : examples_map.keys()
                 geo_test_name = 'examples_geo_' + branch + '_' + example + '_' + format + '_variation_' + variation
                 run_test_name_asci = 'examples_run_asci_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
                 run_test_name_root = 'examples_run_root_output_' + branch + '_' + example + '_' + format + '_variation_' + variation
-                ascii_output = '-gstreamer="[{format: ascii, filename: out' + branch + variation + '}]"'
-                root_output = '-gstreamer="[{format: root, filename: out' + branch + variation + '}]"'
+                ascii_output = '-gstreamer="[{format: ascii, filename: out' + branch + variation + format + '}]"'
+                root_output = '-gstreamer="[{format: root, filename: out' + branch + variation + format + '}]"'
                 test(geo_test_name,
                      python_exe,
                      args : [example_dir + example + '.py', '-f', format, '-sql', sql_db, '-v', variation], # the sql flag is ignored for ascii format
@@ -47,7 +47,7 @@ foreach branch : examples_map.keys()
                      gemc,
                      args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', variation: ' + variation + '}]"', root_output, '-sql=' + sql_db],
                      workdir : example_dir,
-                     priority : -15)
+                     priority : -11)
             endforeach
 
             # Geometry building tests (runs loop): Loop over runs with fixed variation "default"
@@ -55,24 +55,24 @@ foreach branch : examples_map.keys()
                 geo_test_name = 'examples_geo_' + branch + '_' + example + '_' + format + '_run_' + run_value
                 run_test_name_asci = 'examples_run_asci_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
                 run_test_name_root = 'examples_run_root_output_' + branch + '_' + example + '_' + format + '_run_' + run_value
-                ascii_output = '-gstreamer="[{format: ascii, filename: out' + branch + run_value + '}]"'
-                root_output = '-gstreamer="[{format: root, filename: out' + branch + run_value + '}]"'
+                ascii_output = '-gstreamer="[{format: ascii, filename: out' + branch + run_value + format + '}]"'
+                root_output = '-gstreamer="[{format: root, filename: out' + branch + run_value + format + '}]"'
                 test(geo_test_name,
                      python_exe,
                      args : [example_dir + example + '.py', '-f', format, '-sql', sql_db, '-r', run_value], # the sql flag is ignored for ascii format
                      workdir : example_dir,
                      env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
-                     priority : 5)
+                     priority : 9)
                 test(run_test_name_asci,
                      gemc,
                      args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', runno:' + run_value + '}]"', ascii_output, '-sql=' + sql_db],
                      workdir : example_dir,
-                     priority : -22)
+                     priority : -12)
                 test(run_test_name_root,
                      gemc,
                      args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', runno:' + run_value + '}]"', root_output, '-sql=' + sql_db],
                      workdir : example_dir,
-                     priority : -27)
+                     priority : -13)
             endforeach
 
         endforeach

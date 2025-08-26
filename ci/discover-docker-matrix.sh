@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Discover dockerfiles: dockerfiles/Dockerfile-gemc-<tag>-<os>
-# Outputs for GitHub Actions:
+# Emits for GitHub Actions:
 #   - matrix: {"include":[{"file":..., "tag":..., "os":..., "latest":true|false}, ...]}
 #   - image : ghcr.io/<owner>/gemc
 # Works on macOS (BSD utils), Linux, and GHA.
@@ -20,7 +20,7 @@ IMAGE="ghcr.io/$OWNER_LOWER/gemc"
 
 TMP_TSV="$(mktemp)"
 
-# Glob-based enumeration (portable; avoids read -d / -print0)
+# Glob-based enumeration (portable)
 set -- "$DIR"/Dockerfile-gemc-*
 if [ "$1" = "$DIR/Dockerfile-gemc-*" ]; then
   echo "No matching dockerfiles found under '$DIR' (expected Dockerfile-gemc-<tag>-<os>)." >&2
@@ -56,7 +56,7 @@ if [ ! -s "$TMP_TSV" ]; then
   exit 1
 fi
 
-# Build JSON with POSIX/BSD awk
+# Build JSON with POSIX/BSD awk (avoid /\"/ to silence BSD awk warning)
 JSON=$(
   awk -F '\t' '
     BEGIN { n=0 }
@@ -70,9 +70,9 @@ JSON=$(
       for (i=1; i<=n; i++) {
         latest = (W[i] == max[ O[i] ]) ? "true" : "false"
 
-        f=F[i]; gsub(/\\/,"\\\\",f); gsub(/\"/,"\\\"",f)
-        t=T[i]; gsub(/\\/,"\\\\",t); gsub(/\"/,"\\\"",t)
-        o=O[i]; gsub(/\\/,"\\\\",o); gsub(/\"/,"\\\"",o)
+        f=F[i]; gsub(/\\/,"\\\\",f); gsub(/"/,"\\\"",f)
+        t=T[i]; gsub(/\\/,"\\\\",t); gsub(/"/,"\\\"",t)
+        o=O[i]; gsub(/\\/,"\\\\",o); gsub(/"/,"\\\"",o)
 
         printf "%s{\"file\":\"%s\",\"tag\":\"%s\",\"os\":\"%s\",\"latest\":%s}",
                (i>1?",":""), f, t, o, latest
@@ -83,7 +83,6 @@ JSON=$(
 )
 
 COUNT=$(wc -l < "$TMP_TSV" | tr -d '[:space:]')
-rm -f "$TMP_TSV"
 
 # Emit for Actions if available; else print locally
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
@@ -99,3 +98,7 @@ else
 fi
 
 echo "Discovered $COUNT dockerfile(s). Image base: $IMAGE"
+echo "Dockerfiles found:"
+awk -F '\t' '{print " - " $1}' "$TMP_TSV"
+
+rm -f "$TMP_TSV"

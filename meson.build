@@ -148,7 +148,7 @@ foreach L : LD
                      args : [geo_python_script],
                      workdir : examples_dir,
                      env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
-                     priority : 10)
+                     priority : 20)
             endforeach
         endif
 
@@ -176,7 +176,7 @@ foreach L : LD
                  exe,
                  env : project_test_env,
                  args : arguments,
-                 priority : -10)
+                 priority : -20)
         endforeach
     endif
     foreach include_dir : additional_includes
@@ -259,7 +259,8 @@ foreach opt_dict : test_options
             gemc,
             args : test_arguments + gemc_test_sqlite,
             # suite : 'gemc',
-            timeout : 60          # adjust as needed
+            timeout : 60,          # adjust as needed
+            priority: -20
         )
     endforeach
 endforeach
