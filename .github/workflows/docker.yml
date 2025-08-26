@@ -4,7 +4,7 @@ name: GHCR Images
 on:
   push:
     branches: [ main ]     # publish on main updates
-    tags:     [ 'v*' ]     # (optional) also publish on repo tags
+    tags: [ 'v*' ]     # (optional) also publish on repo tags
   pull_request:            # PRs: build only (no push)
 
 concurrency:
@@ -18,7 +18,7 @@ jobs:
     # Expose the step outputs to downstream jobs
     outputs:
       matrix: ${{ steps.scan.outputs.matrix }}
-      image:  ${{ steps.scan.outputs.image }}
+      image: ${{ steps.scan.outputs.image }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,7 +28,7 @@ jobs:
       #   - image : "ghcr.io/<owner>/gemc"
       - id: scan
         name: Build matrix
-        run: ci/discover-docker-matrix.zsh
+        run: ci/discover-docker-matrix.sh
 
   build:
     name: Build ${{ matrix.tag }} on ${{ matrix.os }}
@@ -88,3 +88,71 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # Build for PRs: single-arch, load into local Docker so we can copy logs out
+      - name: Build (PR) [load locally]
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.file }}
+          platforms: linux/amd64                # load:true only supports single arch
+          load: true                            # <-- makes the image available locally
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Build & push for main/tags: multi-arch & publish to GHCR
+      - name: Build & Push (main/tags)
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.file }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Extract logs from the built image (local on PRs, pull on main/tags)
+      - name: Extract /root/src/logs from image
+        if: ${{ always() }}
+        env:
+          IMG: ${{ needs.discover.outputs.image }}:gemc-${{ matrix.tag }}-${{ matrix.os }}
+        run: |
+          set -euo pipefail
+          mkdir -p ci-logs
+          
+          # If image isn't local (e.g., main build), try pulling it
+          if ! docker image inspect "$IMG" >/dev/null 2>&1; then
+            echo "Image not local; attempting docker pull (PRs will skip)…"
+            docker pull "$IMG" || true
+          fi
+          
+          if docker image inspect "$IMG" >/dev/null 2>&1; then
+            cid="$(docker create "$IMG" true || true)"
+            if [ -n "${cid:-}" ]; then
+              docker cp "$cid":/root/src/logs/. ci-logs/ 2>/dev/null || true
+              docker rm -v "$cid" >/dev/null 2>&1 || true
+            fi
+          else
+            echo "Image unavailable (likely build failed before image existed)."
+          fi
+          
+          ls -l ci-logs || true
+
+      - name: Upload build logs artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.tag }}-${{ matrix.os }}
+          path: |
+            ci-logs/setup.log
+            ci-logs/build.log
+            ci-logs/test.log
+          if-no-files-found: ignore
+          retention-days: 14

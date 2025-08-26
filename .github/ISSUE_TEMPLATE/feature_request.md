@@ -1,20 +1,23 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
+name: Pull Request Template
+about: Pull Request Template
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+**Description**
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+- Summary of the changes proposed in the pull request.
+- Include screenshots if applicable.
+
+**Related issue(s)**
+
+- A reference to a related issue in your repository.
 
 **Additional context**
-Add any other context or screenshots about the feature request here.
+
+- Add any other context about the pull request here.
+- @mentions of the person or team responsible for reviewing proposed changes.
