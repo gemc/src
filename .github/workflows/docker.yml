@@ -70,67 +70,62 @@ jobs:
         with:
           images: ${{ needs.discover.outputs.image }}
           tags: |
-            type=raw,value=gemc-${{ matrix.tag }}-${{ matrix.os }}
-            type=raw,value=gemc-latest-${{ matrix.os }},enable=${{ matrix.latest }}
+            type=raw,value=${{ matrix.tag }}-${{ matrix.os }}
+            type=raw,value=latest-${{ matrix.os }},enable=${{ matrix.latest }}
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
             org.opencontainers.image.description=GEMC image (${{ matrix.tag }} on ${{ matrix.os }})
 
-      # Build on PRs; Build+Push on main/tags; publish multi-arch manifest to GHCR
-      - name: Build (PR) or Build+Push (main/tags)
+      # Decide platforms per Dockerfile by inspecting its base image
+      - name: Decide platforms from Dockerfile base
+        id: plats
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="$(awk 'toupper($1)=="FROM"{print $2; exit}' "${{ matrix.file }}")"
+          echo "Base image: $BASE"
+          if docker buildx imagetools inspect "$BASE" | grep -qE 'manifest\.list|image\.index'; then
+            PLATS="linux/amd64,linux/arm64"
+          else
+            PLATS="linux/amd64"
+          fi
+          echo "platforms=$PLATS" >> "$GITHUB_OUTPUT"
+
+      # Single build step for PRs AND main/tags
+      - name: Build (PR loads; main/tags push)
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ matrix.file }}
-          platforms: linux/amd64,linux/arm64   # ← multi-arch; change to linux/amd64 if you prefer single-arch
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          platforms: ${{ github.event_name == 'pull_request' && 'linux/amd64' || steps.plats.outputs.platforms }}
+          load: ${{ github.event_name == 'pull_request' }}   # PR: load locally for log extraction
+          push: ${{ github.event_name != 'pull_request' }}   # main/tags: push to GHCR
+          tags: ${{ steps.meta.outputs.tags }}               # e.g., ghcr.io/gemc/gemc:dev3-ubuntu24
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Build for PRs: single-arch, load into local Docker so we can copy logs out
-      - name: Build (PR) [load locally]
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ${{ matrix.file }}
-          platforms: linux/amd64                # load:true only supports single arch
-          load: true                            # <-- makes the image available locally
-          push: false
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
-      # Build & push for main/tags: multi-arch & publish to GHCR
-      - name: Build & Push (main/tags)
-        if: ${{ github.event_name != 'pull_request' }}
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ${{ matrix.file }}
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
-      # Extract logs from the built image (local on PRs, pull on main/tags)
+      # Extract logs from the built image (use new tag names)
       - name: Extract /root/src/logs from image
         if: ${{ always() }}
         env:
-          IMG: ${{ needs.discover.outputs.image }}:gemc-${{ matrix.tag }}-${{ matrix.os }}
+          IMG_PRIMARY: ${{ needs.discover.outputs.image }}:${{ matrix.tag }}-${{ matrix.os }}
+          IMG_LATEST:  ${{ needs.discover.outputs.image }}:latest-${{ matrix.os }}
         run: |
           set -euo pipefail
           mkdir -p ci-logs
           
-          # If image isn't local (e.g., main build), try pulling it
+          # Prefer the primary tag; fall back to latest-<os> if needed
+          IMG="$IMG_PRIMARY"
           if ! docker image inspect "$IMG" >/dev/null 2>&1; then
-            echo "Image not local; attempting docker pull (PRs will skip)…"
-            docker pull "$IMG" || true
+            # Not local? try pull (main/tags). If still missing, try the latest alias.
+            docker pull "$IMG" >/dev/null 2>&1 || true
+            if ! docker image inspect "$IMG" >/dev/null 2>&1; then
+              IMG="$IMG_LATEST"
+              docker pull "$IMG" >/dev/null 2>&1 || true
+            fi
           fi
           
           if docker image inspect "$IMG" >/dev/null 2>&1; then
@@ -144,6 +139,7 @@ jobs:
           fi
           
           ls -l ci-logs || true
+
 
       - name: Upload build logs artifact
         if: ${{ always() }}

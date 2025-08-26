@@ -111,72 +111,155 @@ string fillDigits(const string& word, const string& c, int ndigits) {
 	return filled;
 }
 
+// add near your includes:
+#include <locale.h>   // strtod_l / _strtod_l
 
+// Parse a whole string_view as a double using the "C" numeric locale.
+// Returns true on full-consume success; false otherwise.
+static bool parse_double_clocale(std::string_view sv, double& out) {
+	std::string tmp(sv); // strtod_l needs a 0-terminated buffer
+#if defined(_WIN32)
+	_locale_t loc = _create_locale(LC_NUMERIC, "C");
+	char* end = nullptr;
+	out = _strtod_l(tmp.c_str(), &end, loc);
+	_free_locale(loc);
+	return end == tmp.c_str() + tmp.size();
+#else
+	locale_t loc = newlocale(LC_NUMERIC_MASK, "C", (locale_t)0);
+	char* end = nullptr;
+	out = strtod_l(tmp.c_str(), &end, loc);
+	freelocale(loc);
+	return end == tmp.c_str() + tmp.size();
+#endif
+}
+
+
+// --- strict, locale-independent getG4Number: only accepts '*' as unit sep ---
 double getG4Number(const string& v, bool warnIfNotUnit) {
 	string value = removeLeadingAndTrailingSpacesFromString(v);
+	if (value.empty()) {
+		std::cerr << FATALERRORL << "empty numeric string.\n";
+		exit(EC__G4NUMBERERROR);
+	}
 
-	// If no '*' is found, the input is assumed to be a number without units
+	// Normalize a single decimal comma to dot when no dot is present
+	if (value.find('.') == string::npos) {
+		size_t firstComma = value.find(',');
+		if (firstComma != string::npos && value.find(',', firstComma + 1) == string::npos) {
+			value = replaceAllStringsWithString(value, ",", ".");
+		}
+	}
+
+	const size_t starCount = static_cast<size_t>(std::count(value.begin(), value.end(), '*'));
+
+	// --- Case 1: no '*' → pure number (strictly no trailing garbage) ---
 	if (value.find('*') == string::npos) {
-		if (!value.empty() && warnIfNotUnit && stod(value) != 0) { std::cerr << " ! Warning: value " << v << " does not contain units." << std::endl; }
-
-		try { return stod(value); }
-		catch (const std::exception& e) {
-			std::cerr << FATALERRORL << "stod exception in gutilities: could not convert string to double. "
-				<< "Value: >" << v << "<, error: " << e.what() << std::endl;
+		double out = 0.0;
+		// normalize a single decimal comma to dot if needed
+		if (value.find('.') == string::npos) {
+			auto firstComma = value.find(',');
+			if (firstComma != string::npos && value.find(',', firstComma + 1) == string::npos)
+				value = replaceAllStringsWithString(value, ",", ".");
+		}
+		if (!parse_double_clocale(value, out)) {
+			std::cerr << FATALERRORL << "missing '*' before unit or invalid number in <" << v << ">.\n";
 			exit(EC__G4NUMBERERROR);
 		}
-	}
-	else {
-		// Split the input string into the numeric part and the unit part
-		size_t pos       = value.find('*');
-		string rootValue = value.substr(0, pos);
-		string units     = value.substr(pos + 1);
-
-		double answer = 0;
-		try { answer = stod(rootValue); }
-		catch (const std::exception& e) {
-			std::cerr << FATALERRORL << "stod exception in gutilities: could not convert string to double. "
-				<< "Value: >" << v << "<, error: " << e.what() << std::endl;
-			exit(EC__G4NUMBERERROR);
+		if (warnIfNotUnit && out != 0.0) {
+			std::cerr << " ! Warning: value " << v << " does not contain units." << std::endl;
 		}
-
-		// Map of unit conversions for easier lookup and maintenance
-		static const std::unordered_map<string, double> unitConversion = {
-			{"m", CLHEP::m},
-			{"cm", CLHEP::cm},
-			{"mm", CLHEP::mm},
-			{"um", 1E-6 * CLHEP::m},
-			{"fm", 1E-15 * CLHEP::m},
-			{"inches", 2.54 * CLHEP::cm},
-			{"inch", 2.54 * CLHEP::cm},
-			{"deg", CLHEP::deg},
-			{"degrees", CLHEP::deg},
-			{"arcmin", CLHEP::deg / 60.0},
-			{"rad", CLHEP::rad},
-			{"mrad", CLHEP::mrad},
-			{"eV", CLHEP::eV},
-			{"MeV", CLHEP::MeV},
-			{"KeV", 0.001 * CLHEP::MeV},
-			{"GeV", CLHEP::GeV},
-			{"T", CLHEP::tesla},
-			{"T/m", CLHEP::tesla / CLHEP::m},
-			{"Tesla", CLHEP::tesla},
-			{"gauss", CLHEP::gauss},
-			{"kilogauss", CLHEP::gauss * 1000},
-			{"s", CLHEP::s},
-			{"ns", CLHEP::ns},
-			{"ms", CLHEP::ms},
-			{"us", CLHEP::us},
-			{"counts", 1}
-		};
-
-		auto it = unitConversion.find(units);
-		if (it != unitConversion.end()) { answer *= it->second; }
-		else { std::cerr << GWARNING << ">" << units << "<: unit not recognized for string <" << v << ">" << std::endl; }
-
-		return answer;
+		return out;
 	}
+
+
+	// --- Case 2: must be exactly one '*' ---
+	if (starCount > 1) {
+		std::cerr << FATALERRORL << "multiple '*' separators are not allowed in <" << v << ">.\n";
+		exit(EC__G4NUMBERERROR);
+	}
+
+	// --- Exactly one '*' → split "<number>*<unit>" ---
+	const size_t pos = value.find('*');
+	string left  = removeLeadingAndTrailingSpacesFromString(value.substr(0, pos));
+	string right = removeLeadingAndTrailingSpacesFromString(value.substr(pos + 1));
+	if (left.empty() || right.empty()) {
+		std::cerr << FATALERRORL << "expected '<number>*<unit>', got <" << v << ">.\n";
+		exit(EC__G4NUMBERERROR);
+	}
+
+	// normalize a single decimal comma in the numeric part
+	if (left.find('.') == string::npos) {
+		auto c = left.find(',');
+		if (c != string::npos && left.find(',', c + 1) == string::npos)
+			left = replaceAllStringsWithString(left, ",", ".");
+	}
+
+	double numeric = 0.0;
+	if (!parse_double_clocale(left, numeric)) {
+		std::cerr << FATALERRORL << "invalid numeric part before '*' in <" << v << ">.\n";
+		exit(EC__G4NUMBERERROR);
+	}
+
+	// sanitize unit and proceed with your existing unit table logic...
+	right = replaceAllStringsWithString(right, "µ", "u");
+	string unit = convertToLowercase(right);
+
+	// (keep your unitConversion map and SI prefix handling as-is)
+
+
+	// Unit table (lowercase keys)
+	static const std::unordered_map<string, double> unitConversion = {
+		// length
+		{"m", CLHEP::m}, {"cm", CLHEP::cm}, {"mm", CLHEP::mm},
+		{"um", 1E-6 * CLHEP::m}, {"fm", 1E-15 * CLHEP::m},
+		{"inch", 2.54 * CLHEP::cm}, {"inches", 2.54 * CLHEP::cm},
+		// angle
+		{"deg", CLHEP::deg}, {"degrees", CLHEP::deg}, {"arcmin", CLHEP::deg / 60.0},
+		{"rad", CLHEP::rad}, {"mrad", CLHEP::mrad},
+		// energy
+		{"ev", CLHEP::eV}, {"kev", 1e3 * CLHEP::eV}, {"mev", CLHEP::MeV}, {"gev", CLHEP::GeV},
+		// magnetic field
+		{"t", CLHEP::tesla}, {"tesla", CLHEP::tesla}, {"t/m", CLHEP::tesla / CLHEP::m},
+		{"gauss", CLHEP::gauss}, {"kilogauss", 1000.0 * CLHEP::gauss},
+		// time
+		{"s", CLHEP::s}, {"ns", CLHEP::ns}, {"ms", CLHEP::ms}, {"us", CLHEP::us},
+		// dimensionless
+		{"counts", 1.0}
+	};
+
+	// Exact unit match
+	if (auto it = unitConversion.find(unit); it != unitConversion.end()) {
+		return numeric * it->second;
+	}
+
+	// SI prefix handling: mT, uT, mm, um, etc.
+	auto si_prefix_factor = [](char p) -> double {
+		switch (p) {
+			case 'Y': return 1e24;  case 'Z': return 1e21;  case 'E': return 1e18;
+			case 'P': return 1e15;  case 'T': return 1e12;  case 'G': return 1e9;
+			case 'M': return 1e6;   case 'k': return 1e3;   case 'h': return 1e2;
+			case 'd': return 1e-1;  case 'c': return 1e-2;  case 'm': return 1e-3;
+			case 'u': return 1e-6;  case 'n': return 1e-9;  case 'p': return 1e-12;
+			case 'f': return 1e-15; case 'a': return 1e-18; case 'z': return 1e-21; case 'y': return 1e-24;
+			default:  return 0.0;
+		}
+	};
+
+	if (unit.size() >= 2) {
+		const double pf = si_prefix_factor(unit.front());
+		if (pf != 0.0) {
+			const string base = unit.substr(1);
+			if (auto it2 = unitConversion.find(base); it2 != unitConversion.end()) {
+				return numeric * pf * it2->second;
+			}
+		}
+	}
+
+	// Unknown unit: warn & return numeric part (keep your legacy behavior)
+	std::cerr << GWARNING << ">" << right << "<: unit not recognized for string <" << v << ">" << std::endl;
+	return numeric;
 }
+
 
 double getG4Number(double input, const string& unit) {
 	string gnumber = std::to_string(input) + "*" + unit;

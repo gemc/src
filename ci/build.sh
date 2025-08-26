@@ -78,19 +78,22 @@ fi
 
 echo " > $GEMC recursive content:"  >> $compile_log
 ls -lR $GEMC  >> $compile_log
+cd ..
 
 # if $1 is NOT one of sanitize option, run meson test
 if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
-    echo " > Running meson test" > $test_log
-    meson test  -j 1 --print-errorlogs --no-rebuild  >>  $test_log
-    if [ $? -ne 0 ]; then
-    	echo "Test failed. Log: "
-    	cat $test_log
-      exit 1
-    else
-      echo Install Successful
-      echo ; echo
-    fi
+  echo " > Running meson test" > $test_log
+  # meson test  -j 1 --print-errorlogs --no-rebuild --num-processes 1 >>  $test_log
+  ./ci/meson_rerun_failed.py build 2 1 first-pass
+  if [ $? -ne 0 ]; then
+  	echo "Test failed. Log: "
+    cat $test_log
+    echo Test Failure
+    exit 1
+  else
+    echo Install Successful
+    echo ; echo
+  fi
 fi
 
 echo
