@@ -19,6 +19,6 @@ bool GstreamerTextFactory::closeConnectionImpl() {
 
 	if (ofile->is_open()) { log->error(ERR_CANTCLOSEOUTPUT, "GstreamerTextFactory: could not close file " + filename()); }
 
-	delete ofile;
+///	delete ofile;
 	return true;
 }

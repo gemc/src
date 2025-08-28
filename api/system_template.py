@@ -125,12 +125,12 @@ def write_templates(system, variations):
 		print(f'    * {v}')
 	print()
 
-	# create directory if not existing
+	# create the directory if not existing
 	if not os.path.exists(system):
 		os.makedirs(system)
 
 	system_script = system + '/' + system + '.py'
-	geo_script = system + '/geometry_' + system + '.py'
+	geo_script = system + '/geometry.py'
 	mat_script = system + '/materials.py'
 	yaml = system + '/' + system + '.yaml'
 	readme = system + '/README.md'
@@ -143,12 +143,12 @@ def write_templates(system, variations):
 		ps.write('from utils_api import GConfiguration\n\n')
 		ps.write(f'# {system}:\n')
 		ps.write('from materials import define_materials\n')
-		ps.write(f'from geometry import build_geometry\n\n')
+		ps.write(f'from geometry import build_{system}\n\n')
 		ps.write('def main():\n')
 		ps.write('	# Define GConfiguration name, factory and description.\n')
 		ps.write(f'	configuration = GConfiguration(\'{experiment}\', \'{system}\')\n\n')
 		ps.write('	define_materials(configuration)\n')
-		ps.write(f'	build_geometry(configuration)\n')
+		ps.write(f'	build_{system}(configuration)\n')
 		ps.write('	configuration.printC()\n\n\n')
 		ps.write('if __name__ == "__main__":\n')
 		ps.write('	main()\n\n\n')
@@ -187,54 +187,46 @@ def write_templates(system, variations):
 		pg.write('def build_mother_volume(configuration):\n')
 		pg.write('	gvolume = GVolume(\'absorber\')\n')
 		pg.write('	gvolume.description = \'scintillator box\'\n')
-		pg.write('	gvolume.make_box(100.0, 100.0, 100.0)\n')
+		pg.write('	gvolume.make_box(100.0, 100.0, 1.0)\n')
 		pg.write('	gvolume.material    = \'carbonFiber\'\n')
 		pg.write('	gvolume.color       = \'3399FF\'\n')
 		pg.write('	gvolume.digitization = \'flux\'\n')
+		pg.write('	gvolume.set_position(0, 0, 100)\n')
+		pg.write('	gvolume.style       = 1\n')
 		pg.write('	gvolume.set_identifier(\'box\', 2)  # identifier for this box\n')
-
-		pg.write('	gvolume.style       = 0\n')
 		pg.write('	gvolume.publish(configuration)\n\n')
+
 		pg.write('def build_target(configuration):\n')
 		pg.write('	gvolume = GVolume(\'target\')\n')
 		pg.write('	gvolume.description = \'epoxy target\'\n')
-		pg.write('	gvolume.mother    = \'absorber\'\n')
 		pg.write('	gvolume.make_tube(0, 20, 40, 0, 360)\n')
 		pg.write('	gvolume.material    = \'epoxy\'\n')
-		pg.write('	gvolume.color       = \'ff0000\'\n')
 		pg.write('	gvolume.publish(configuration)\n\n\n\n')
 
-	geo_main = system + '/geometry.py'
-	# ask_to_overwrite_file(geo_main)
-	with open(f'{geo_main}', 'w') as pg:
-		pg.write(f'from geometry_{system} import build_{system}\n\n')
-		pg.write(f'def build_geometry(configuration):\n')
-		pg.write(f'  build_{system}(configuration)\n')
 
 	# ask_to_overwrite_file(yaml)
 	with open(f'{yaml}', 'w') as pj:
 		pj.write('runno: 1\n')
 		pj.write('n: 10\n\n')
 		pj.write('gparticle:\n')
-		pj.write('  - name: e-\n')
-		pj.write('    p: 1500\n')
-		pj.write('    theta: 23.0\n')
-		pj.write('    delta_theta: 4.0\n')
-		pj.write('    delta_phi: 18.0\n')
-		pj.write('    multiplicity: 4\n\n')
 		pj.write('  - name: proton\n')
-		pj.write('    p: 3000\n\n')
+		pj.write('    p: 1500\n')
+		pj.write('    theta: 10.0\n')
+		pj.write('    delta_theta: 4.0\n')
+		pj.write('    delta_phi: 180.0\n')
+		pj.write('    vz: -100.0\n')
 		pj.write('verbosity:\n')
-		pj.write('  - ghits: 2\n')
-		pj.write('  - gsystem: 2\n')
-		pj.write('  - gstreamer: 2\n')
-		pj.write('  - general: 2\n\n')
+		pj.write('  - ghits: 0\n')
+		pj.write('  - gsystem: 1\n')
+		pj.write('  - gstreamer: 0\n')
+		pj.write('  - general: 1\n\n')
 		pj.write('gsystem:\n')
 		pj.write(f'  - name: {system}\n')
-		pj.write('    factory: ascii\n\n')
+		pj.write('    factory: sqlite\n\n')
 		pj.write('gstreamer:\n')
 		pj.write(f'  - filename: {system}.txt\n')
 		pj.write('    format: ascii\n\n')
+		pj.write('root: G4Box, 15*cm, 15*cm, 15*cm, G4_AIR\n')
 
 	# ask_to_overwrite_file(readme)
 	with open(f'{readme}', 'w') as rm:

@@ -113,7 +113,7 @@ GVolume::GVolume(const string& rootVolumeDefinition, const std::shared_ptr<GLogg
 	pos          = DEFAULTPOSITION;
 	rot          = DEFAULTROTATION;
 	emfield      = UNINITIALIZEDSTRINGQUANTITY;
-	visible      = true;
+	visible      = false;
 	style        = 0; // wireframe
 	color        = "ccffff";
 	digitization = UNINITIALIZEDSTRINGQUANTITY;
