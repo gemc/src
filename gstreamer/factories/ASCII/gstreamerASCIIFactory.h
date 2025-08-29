@@ -2,22 +2,22 @@
 
 // gstreamer
 #include "gstreamer.h"
-#include "gstreamerConventions.h"
 
 // c++
 #include <fstream>
 
 class GstreamerTextFactory : public GStreamer {
 public:
-//	GstreamerTextFactory() = default;
-
 	// inherit the base (const std::shared_ptr<GOptions>&) ctor
 	using GStreamer::GStreamer;
 
+	// One instance per thread: forbid copy/move to prevent accidental sharing
+	GstreamerTextFactory(const GstreamerTextFactory&)            = delete;
+	GstreamerTextFactory& operator=(const GstreamerTextFactory&) = delete;
+	GstreamerTextFactory(GstreamerTextFactory&&)                 = delete;
+	GstreamerTextFactory& operator=(GstreamerTextFactory&&)      = delete;
+
 private:
-
-
-
 	// open and close the output media
 	bool openConnection() override;
 	bool closeConnectionImpl() override;
@@ -40,7 +40,7 @@ private:
 	bool publishFrameHeaderImpl(const GFrameHeader* gframeHeader) override;
 	bool publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) override;
 
-private:
-	std::ofstream* ofile = nullptr;
-	std::string    filename() const override { return gstreamer_definitions.rootname + ".txt"; }
+	std::ofstream ofile;
+
+	[[nodiscard]] std::string filename() const override { return gstreamer_definitions.rootname + ".txt"; }
 };

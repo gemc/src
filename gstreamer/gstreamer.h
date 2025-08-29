@@ -185,10 +185,10 @@ inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_p
 
 		gstreamers->at(gstreamer_plugin)->define_gstreamer(gstreamer_def_thread);
 
-		// TODO: maybe do not do this here, should be done by API
-		if (!gstreamers->at(gstreamer_plugin)->openConnection()) {
-			log->error(1, "Failed to open connection for GStreamer ", gstreamer_plugin, " in thread ", gstreamer_def_thread.tid);
-		}
+		// // TODO: maybe do not do this here, should be done by API
+		// if (!gstreamers->at(gstreamer_plugin)->openConnection()) {
+		// 	log->error(1, "Failed to open connection for GStreamer ", gstreamer_plugin, " in thread ", gstreamer_def_thread.tid);
+		// }
 	}
 
 	return gstreamers;

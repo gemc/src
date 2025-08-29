@@ -3,18 +3,18 @@
 #include "gstreamerConventions.h"
 
 bool GstreamerTextFactory::startStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) {
-	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
+	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", filename()); }
 
-	*ofile << "Frame {" << std::endl;
+	ofile << "Frame {" << std::endl;
 
 	return true;
 }
 
 
 bool GstreamerTextFactory::endStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) {
-	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
+	if (!ofile) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", filename()); }
 
-	*ofile << "}" << std::endl;
+	ofile << "}" << std::endl;
 
 	return true;
 }

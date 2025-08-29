@@ -105,8 +105,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-
-
       # Extract logs from the built image (use new tag names)
       - name: Extract /root/src/logs from image
         if: ${{ always() }}
@@ -140,7 +138,6 @@ jobs:
           
           ls -l ci-logs || true
 
-
       - name: Upload build logs artifact
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -152,3 +149,44 @@ jobs:
             ci-logs/test.log
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Summarize image reference
+        if: ${{ always() }}
+        env:
+          IMAGE: ${{ needs.discover.outputs.image }}
+          PRIMARY_TAG: ${{ matrix.tag }}-${{ matrix.os }}
+          LATEST_TAG: latest-${{ matrix.os }}
+          IS_LATEST: ${{ matrix.latest }}
+          PUSHED: ${{ github.event_name != 'pull_request' }}
+        run: |
+          {
+            echo "## Docker Image"
+            if [ "$PUSHED" = "true" ]; then
+              echo ""
+              echo "**Primary tag:** \`$IMAGE:$PRIMARY_TAG\`"
+              if [ "$IS_LATEST" = "true" ]; then
+                echo ""
+                echo "**Alias:** \`$IMAGE:$LATEST_TAG\`"
+              fi
+              echo ""
+              echo "### Pull"
+              echo '```bash'
+              echo "docker pull $IMAGE:$PRIMARY_TAG"
+              echo '```'
+              echo "### Run"
+              echo '```bash'
+              echo "docker run --rm $IMAGE:$PRIMARY_TAG uname -m"
+              echo '```'
+            else
+              echo ""
+              echo "_PR build (image not pushed). Loaded locally on the runner with tags:_"
+              echo '```'
+              # Show every tag we applied locally (one per line)
+              printf '%s\n' "${{ steps.meta.outputs.tags }}"
+              echo '```'
+              echo "To pull later (after merge to main):"
+              echo '```bash'
+              echo "docker pull $IMAGE:$PRIMARY_TAG"
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

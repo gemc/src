@@ -99,6 +99,7 @@ int main(int argc, char* argv[]) {
 
 		app_result = QApplication::exec();
 
+		runManager.reset();
 		delete g4SceneProperties;
 		delete uiQtSession;
 	}

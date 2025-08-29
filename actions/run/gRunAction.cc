@@ -33,10 +33,17 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 	int neventsThisRun = aRun->GetNumberOfEventToBeProcessed();
 
 	// define gstreamer_map
-	if (gstreamer_map == nullptr) {
-		if (!IsMaster()) {
-			log->info(0, " Defining gstreamers for thread id ", thread_id);
-			gstreamer_map = gstreamer::gstreamersMapPtr(goptions, thread_id);
+	if (!IsMaster() && gstreamer_map == nullptr) {
+		log->info(0, " Defining gstreamers for thread id ", thread_id);
+		gstreamer_map = gstreamer::gstreamersMapPtr(goptions, thread_id);
+	}
+
+	// (re)-open for this run
+	if (!IsMaster()) {
+		for (auto& [name, gstreamer] : *gstreamer_map) {
+			if (!gstreamer->openConnection()) {
+				log->error(1, "Failed to open connection for GStreamer ", name, " in thread ", thread_id);
+			}
 		}
 	}
 

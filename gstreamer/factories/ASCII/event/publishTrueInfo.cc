@@ -2,23 +2,23 @@
 #include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
+// using \n instead of endl so flushing isn't forced at each line
 bool GstreamerTextFactory::publishEventTrueInfoDataImpl(const std::string& detectorName, const std::vector<const GTrueInfoData*>& trueInfoData) {
-	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
+	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
 
-	*ofile << GTAB << "Detector <" << detectorName << "> True Info Bank {" << std::endl;
+	ofile << GTAB << "Detector <" << detectorName << "> True Info Bank {\n";
 
 	for (auto trueInfoHit : trueInfoData) {
 		std::string identifierString = trueInfoHit->getIdentityString();
 
-		*ofile << GTABTAB << "Hit address: " << identifierString << " {" << std::endl;
+		ofile << GTABTAB << "Hit address: " << identifierString << " {\n";
 
-		for (const auto& [variableName, value] : trueInfoHit->getDoubleVariablesMap()) { *ofile << GTABTABTAB << variableName << ": " << value << std::endl; }
-		for (const auto& [variableName, value] : trueInfoHit->getStringVariablesMap()) { *ofile << GTABTABTAB << variableName << ": " << value << std::endl; }
+		for (const auto& [variableName, value] : trueInfoHit->getDoubleVariablesMap()) { ofile << GTABTABTAB << variableName << ": " << value << "\n"; }
+		for (const auto& [variableName, value] : trueInfoHit->getStringVariablesMap()) { ofile << GTABTABTAB << variableName << ": " << value << "\n"; }
 
-		*ofile << GTABTAB << "}" << std::endl;
+		ofile << GTABTAB << "}\n";
 	}
-	*ofile << GTAB << "}" << std::endl;
-
+	ofile << GTAB << "}\n";
 
 	return true;
 }

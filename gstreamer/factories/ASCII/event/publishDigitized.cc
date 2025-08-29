@@ -2,24 +2,24 @@
 #include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
+// using \n instead of endl so flushing isn't forced at each line
 bool GstreamerTextFactory::publishEventDigitizedDataImpl(const std::string& detectorName, const std::vector<const GDigitizedData*>& digitizedData) {
+	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
 
-	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
-
-	*ofile << GTAB << "Detector <" << detectorName << "> Digitized Bank {" << std::endl;
+	ofile << GTAB << "Detector <" << detectorName << "> Digitized Bank {\n";
 
 	for (auto dgtzHit : digitizedData) {
 		std::string identifierString = dgtzHit->getIdentityString();
 
-		*ofile << GTABTAB << "Hit address: " << identifierString << " {" << std::endl;
+		ofile << GTABTAB << "Hit address: " << identifierString << " {\n";
 
 		// argument passed to getter: 0 = do not get sro vars
-		for (const auto& [variableName, value] : dgtzHit->getIntObservablesMap(0)) { *ofile << GTABTABTAB << variableName << ": " << value << std::endl; }
-		for (const auto& [variableName, value] : dgtzHit->getDblObservablesMap(0)) { *ofile << GTABTABTAB << variableName << ": " << value << std::endl; }
+		for (const auto& [variableName, value] : dgtzHit->getIntObservablesMap(0)) { ofile << GTABTABTAB << variableName << ": " << value << "\n"; }
+		for (const auto& [variableName, value] : dgtzHit->getDblObservablesMap(0)) { ofile << GTABTABTAB << variableName << ": " << value << "\n"; }
 
-		*ofile << GTABTAB << "}" << std::endl;
+		ofile << GTABTAB << "}\n";
 	}
-	*ofile << GTAB << "}" << std::endl;
+	ofile << GTAB << "}\n";
 
 	return true;
 }
