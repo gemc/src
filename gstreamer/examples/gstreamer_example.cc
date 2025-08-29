@@ -66,8 +66,12 @@ void run_simulation_in_threads(int                                              
 			int                                                             localCount = 0; // events built by *this* worker
 			thread_local std::vector<std::unique_ptr<GEventDataCollection>> localRunData;
 
-			auto gstreamerMapPtr = gstreamer::gstreamersMapPtr(gopts, tid);
-
+			auto gstreamer_map = gstreamer::gstreamersMapPtr(gopts, tid);
+			for (auto& [name, gstreamer] : *gstreamer_map) {
+				if (!gstreamer->openConnection()) {
+					log->error(1, "Failed to open connection for GStreamer ", name, " in thread ", tid);
+				}
+			}
 			while (true) {
 				// repeatedly asks the shared atomic counter for “the next unclaimed event
 				// number,” processes that event, stores the result, and goes back for more.
@@ -90,7 +94,7 @@ void run_simulation_in_threads(int                                              
 
 				log->info(0, "worker ", tid, " event ", evn, " has ", eventData->getDataCollectionMap().at("ctof")->getDigitizedData().size(), " digitized hits");
 
-				for (const auto& [name, gstreamer] : *gstreamerMapPtr) {
+				for (const auto& [name, gstreamer] : *gstreamer_map) {
 					// publish the event to the gstreamer
 					gstreamer->publishEventData(eventData);
 				}
@@ -99,7 +103,7 @@ void run_simulation_in_threads(int                                              
 			}
 
 			// close streamers connections
-			for (const auto& [name, gstreamer] : *gstreamerMapPtr) {
+			for (const auto& [name, gstreamer] : *gstreamer_map) {
 				if (!gstreamer->closeConnection()) { log->error(1, "Failed to close connection for GStreamer ", name, " in thread ", tid); }
 			}
 

@@ -159,6 +159,11 @@ jobs:
           IS_LATEST: ${{ matrix.latest }}
           PUSHED: ${{ github.event_name != 'pull_request' }}
         run: |
+          PLATFORM_HINT=""
+          if [ "$SUPPORTED_PLATFORMS" = "linux/amd64" ]; then
+            # amd64-only image (e.g., Alma). Suggest --platform for Apple Silicon users.
+            PLATFORM_HINT="--platform=linux/amd64"
+          fi
           {
             echo "## Docker Image"
             if [ "$PUSHED" = "true" ]; then
@@ -175,7 +180,11 @@ jobs:
               echo '```'
               echo "### Run"
               echo '```bash'
-              echo "docker run --rm $IMAGE:$PRIMARY_TAG uname -m"
+              echo "docker run --rm -it $IMAGE:$PRIMARY_TAG bash"
+              echo '```'
+              echo "### Run (Apple Silicon Mac)"
+              echo '```bash'
+              echo "docker run --rm -it $PLATFORM_HINT $IMAGE:$PRIMARY_TAG bash"
               echo '```'
             else
               echo ""
