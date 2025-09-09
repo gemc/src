@@ -1,5 +1,5 @@
 // gstreamer
-#include "gstreamerASCIIFactory.h"
+#include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
 bool GstreamerTextFactory::startStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) {

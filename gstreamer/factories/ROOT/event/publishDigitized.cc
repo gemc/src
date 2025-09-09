@@ -1,5 +1,5 @@
 // gstreamer
-#include "../gstreamerROOTFactory.h"
+#include "gstreamerROOTFactory.h"
 #include "gstreamerConventions.h"
 
 bool GstreamerRootFactory::publishEventDigitizedDataImpl(const std::string& detectorName, const std::vector<const GDigitizedData*>& digitizedData) {

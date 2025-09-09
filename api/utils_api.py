@@ -38,7 +38,7 @@ from gemc_sqlite import create_sqlite_database
 
 def get_arguments():
 	parser = argparse.ArgumentParser(description="GEMC Configuration Utility")
-	parser.add_argument("-f", "--factory", default="sqlite", help="sqlite, sqlite")
+	parser.add_argument("-f", "--factory", default="sqlite", help="ascii, sqlite")
 	parser.add_argument("-v", "--variation", default="default", help="Set variation")
 	parser.add_argument("-r", "--run", default=1, help="Set run number")
 	parser.add_argument("-sql", "--dbhost", default='gemc.db', help="SQLite filename or MYSQL host")

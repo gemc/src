@@ -1,0 +1,24 @@
+name: Cleanup old GHCR images
+
+on:
+  schedule:
+    # every night at 1:00.
+    - cron: '00 3 * * *'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write  # needed for deletions with GITHUB_TOKEN
+
+
+jobs:
+  cleanup:
+    name: ghcr.io cleanup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          delete-untagged: true
+          older-than: 2 days

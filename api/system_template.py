@@ -39,15 +39,15 @@ def main():
 						default=False)
 	parser.add_argument('-sl', action='store_true', help='show available geant4 solids constructors')
 	parser.add_argument('-gv', metavar='volume', action='store', type=str,
-						help="show or write python code to create selected geant4 volume "
+						help="show or write template python code to create selected geant4 volume "
 							 "Use ' -sl ' to list the available types.", default=NGIVEN)
 	parser.add_argument('-gvp', metavar='parameters', action='store', type=str,
 						help="assign parameters to the geant4 volume type selected with the gv option", default=NGIVENS)
 	# code snippets loggers: material
 	parser.add_argument('-gmatFM', metavar='material', action='store', type=str,
-						help='show or write python code for a material defined using fractional masses', default=NGIVEN)
+						help='show or write template python code for a material defined using fractional masses', default=NGIVEN)
 	parser.add_argument('-gmatNA', metavar='material', action='store', type=str,
-						help='show or write python code for a material defined using number of atoms', default=NGIVEN)
+						help='show or write template python code for a material defined using number of atoms', default=NGIVEN)
 	parser.add_argument('-write_to', metavar='filename', action='store', type=str,
 						help='write code to filename instead of showing it to screen', default=NGIVEN)
 	parser.add_argument('-geo_sub', metavar='method', action='store', type=str,

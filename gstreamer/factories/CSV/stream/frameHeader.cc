@@ -1,5 +1,5 @@
 // gstreamer
-#include "gstreamerASCIIFactory.h"
+#include "../gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
 // using \n instead of endl so flushing isn't forced at each line

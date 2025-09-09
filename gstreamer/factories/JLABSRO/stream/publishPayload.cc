@@ -1,5 +1,5 @@
 // gstreamer
-#include "../gstreamerJLABSROFactory.h"
+#include "gstreamerJLABSROFactory.h"
 #include "gstreamerConventions.h"
 
 bool GstreamerJSROFactory::publishPayloadImpl([[maybe_unused]] const std::vector<GIntegralPayload*>* payload) {

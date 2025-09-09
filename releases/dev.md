@@ -1,0 +1,836 @@
+<!-- AUTO-DEVMD:START -->
+## Commits on main
+
+- 2025-08-29 **27b9adb** — minor updates _(by Maurizio Ungaro)_
+- 2025-08-29 **dbaab42** — fixed streamer examples _(by Maurizio Ungaro)_
+- 2025-08-29 **596d5c7** — improved ascii factory, not opening connection on streamer instantiation, but in begin of the run. improving system template _(by Maurizio Ungaro)_
+- 2025-08-28 **5a8de99** — adjusting template _(by Maurizio Ungaro)_
+- 2025-08-26 **137fb9a** — removing meson_rerun_failed.py _(by Maurizio Ungaro)_
+- 2025-08-26 **ca7ac29** — adding re-testing python script in case a test failed - renaming docker images _(by Maurizio Ungaro)_
+- 2025-08-26 **26b5838** — tests not in parallel and using built dir for test output _(by Maurizio Ungaro)_
+- 2025-08-26 **ef5b967** — adding format to output filename hoping to mitigate tests failures _(by Maurizio Ungaro)_
+- 2025-08-26 **63cfc66** — fixed ci/discover-docker-matrix.sh for ci actions _(by Maurizio Ungaro)_
+- 2025-08-26 **ef82c0b** — added pull_request_template.md and uploading logs to ci docker creation _(by Maurizio Ungaro)_
+- 2025-08-26 **cf478c8** — Update issue templates _(by Mauri)_
+- 2025-08-25 **c305839** — Merge branch 'main' of mauriGithub:gemc/src _(by Maurizio Ungaro)_
+- 2025-08-25 **69c3573** — added CONTRIBUTING.md and matric docker script _(by Maurizio Ungaro)_
+- 2025-08-25 **fee84d0** — Revise GEMC Security Policy document _(by Mauri)_
+- 2025-08-25 **d2a86df** — Update repository URLs in CONTRIBUTING.md _(by Mauri)_
+- 2025-08-25 **3300443** — Revise Code of Conduct to GEMC Community standards _(by Mauri)_
+- 2025-08-25 **82dfb2f** — added yaml and trying ghrc _(by Maurizio Ungaro)_
+- 2025-08-23 **a633eca** — board separate module, filter updated and dark background for log _(by Maurizio Ungaro)_
+- 2025-08-22 **9911de9** — gbase to gsfactory and g4sfactory _(by Maurizio Ungaro)_
+- 2025-08-21 **0534015** — fix reload geometry argument _(by Maurizio Ungaro)_
+- 2025-08-21 **8f22563** — removed shadowed method arguments experiments and db _(by Maurizio Ungaro)_
+- 2025-08-21 **3a2af0a** — fixed reloading of geometry for non empty gsystem _(by Maurizio Ungaro)_
+- 2025-08-21 **163a630** — smaller window _(by Maurizio Ungaro)_
+- 2025-08-21 **f74448f** — no dipole for b2 _(by Maurizio Ungaro)_
+- 2025-08-21 **9ff58dc** — higer verbosity for gparticle not defined _(by Maurizio Ungaro)_
+- 2025-08-20 **0fc4ce4** — added gbase for all classes _(by Maurizio Ungaro)_
+- 2025-08-20 **cf6a587** — added gsd gfields and gdetector _(by Maurizio Ungaro)_
+- 2025-08-15 **3db53c1** — added gbase derivation in gsplash and gstreamer _(by Maurizio Ungaro)_
+- 2025-08-14 **ab4f687** — added gbase derivation in g4system and gphysics and gboard - plus other fixes _(by Maurizio Ungaro)_
+- 2025-08-13 **302995c** — g4dialog g4display and gsystems derived from gbase _(by Maurizio Ungaro)_
+- 2025-08-12 **0548a5c** — gdata derived from gbase _(by Maurizio Ungaro)_
+- 2025-08-12 **c942de9** — Merge branch 'main' into gbase _(by Maurizio Ungaro)_
+- 2025-08-12 **f8e4fc5** — nthread is max number of threads, and setting that on the examples to avoid using too many cores _(by Maurizio Ungaro)_
+- 2025-08-08 **6cbc428** — gbase added for gdata _(by Maurizio Ungaro)_
+- 2025-08-08 **33a8800** — gdynamicDigitization using gbase, this come with new instantiate method accepting GOptions _(by Maurizio Ungaro)_
+- 2025-08-07 **8a49bd6** — added gbase to gfactory gmanager. this will breack ci for many tests due to the different logger constructors, until all classes adapt to it _(by Maurizio Ungaro)_
+- 2025-08-07 **f5d3ae5** — Merge branch 'gbase' of mauriGithub:gemc/src into gbase _(by Maurizio Ungaro)_
+- 2025-08-06 **fe2db24** — event dispenser using gbase _(by Maurizio Ungaro)_
+- 2025-08-06 **451fb01** — gparticle new logger _(by Maurizio Ungaro)_
+- 2025-08-06 **3d839f0** — logging based on class  automatic  and logger name _(by Maurizio Ungaro)_
+- 2025-08-07 **857b3f9** — explicit examples test name _(by Maurizio Ungaro)_
+- 2025-08-06 **228381c** — event dispenser using gbase _(by Maurizio Ungaro)_
+- 2025-08-06 **cc39224** — gparticle new logger _(by Maurizio Ungaro)_
+- 2025-08-06 **b4b700b** — logging based on class  automatic  and logger name _(by Maurizio Ungaro)_
+- 2025-08-06 **baed13e** — stashing gbase before new branch _(by Maurizio Ungaro)_
+- 2025-08-05 **c6950a5** — ascii plugin lowercased , only printing error logs _(by Maurizio Ungaro)_
+- 2025-08-05 **b37e836** — added logs and artifacts for compilation. using different names for example root output for concurrency _(by Maurizio Ungaro)_
+- 2025-08-05 **24898fb** — added gbase, make sqlite static false on linux _(by Maurizio Ungaro)_
+- 2025-08-05 **19bbfbe** — fixed gfield multipoles and added longitudinal option. added ascii_db option to define additional search path for ascii. using assimp internal zlib for non macos systems _(by Maurizio Ungaro)_
+- 2025-08-04 **1ca3234** — checking exe + buiild dir for plugin, allowing gemc to run in meson build dir _(by Maurizio Ungaro)_
+- 2025-08-04 **9c8999d** — using gemc installed to run certain tests _(by Maurizio Ungaro)_
+- 2025-08-04 **b6a4f48** — removed use_root option, testing root-config instead _(by Maurizio Ungaro)_
+- 2025-08-04 **b50f6f4** — fixed gfield running _(by Maurizio Ungaro)_
+- 2025-08-04 **9784417** — using installed gemc for the examples _(by Maurizio Ungaro)_
+- 2025-08-04 **56ee9b0** — skip sqlite creation for root volume, added factories examples tests _(by Maurizio Ungaro)_
+- 2025-08-04 **880c89f** — ownership of gmagneto _(by Maurizio Ungaro)_
+- 2025-08-04 **d650e0a** — fixed wrong verbosity for materials _(by Maurizio Ungaro)_
+- 2025-08-04 **64076e3** — better generator logger name _(by Maurizio Ungaro)_
+- 2025-08-04 **ceec314** — test names improvements _(by Maurizio Ungaro)_
+- 2025-08-04 **d402e56** — removing n_event_buffer options as buffers is in gdata now _(by Maurizio Ungaro)_
+- 2025-08-01 **3d92c1a** — enabled event based gstreamer including root mt thread _(by Maurizio Ungaro)_
+- 2025-08-01 **364a7a9** — ogl restored, re-adding hit infos _(by Maurizio Ungaro)_
+- 2025-08-01 **3e1f3d5** — sd working again now going to write data _(by Maurizio Ungaro)_
+- 2025-08-01 **cae6779** — fixed log calls _(by Maurizio Ungaro)_
+- 2025-08-01 **16b4cf4** — using ghit raw pointers in data constructors _(by Maurizio Ungaro)_
+- 2025-08-01 **14d427f** — using ghit raw pointers in data constructors _(by Maurizio Ungaro)_
+- 2025-08-01 **fdf38bb** — using ghit raw pointers in data constructors _(by Maurizio Ungaro)_
+- 2025-08-01 **7d1891c** — not using string move in constructor of g4system _(by Maurizio Ungaro)_
+- 2025-08-01 **2e92034** — gsystem using shared ptr for materials _(by Maurizio Ungaro)_
+- 2025-07-31 **1093c3c** — creating default gparticle if none selected. loadconstants and loadtt defaulted to return true if not defined _(by Maurizio Ungaro)_
+- 2025-07-31 **896402d** — gdetector and gsensitive raw pointers as they are passed to geant4 _(by Maurizio Ungaro)_
+- 2025-07-30 **d642f8d** — gemc with gui, still problems though _(by Maurizio Ungaro)_
+- 2025-07-30 **8c711c4** — using smart pointers for GOptions objects. instantiating digi routine map in gdetector constructor. improving several other modules _(by Maurizio Ungaro)_
+- 2025-07-29 **4063fde** — logger added to actions - these needs to be tested _(by Maurizio Ungaro)_
+- 2025-07-28 **7f257c8** — temp flux sensitivity for example b1, added gdetector examples using dyn map smart pointers. starting on actions _(by Maurizio Ungaro)_
+- 2025-07-28 **6bcea32** — using gsystem shared_ptr and logger added to dbselect _(by Maurizio Ungaro)_
+- 2025-07-25 **09c7638** — saving progress, however reload_geometry does not work _(by Maurizio Ungaro)_
+- 2025-07-25 **6fdcb5e** — added glogger to detector construction _(by Maurizio Ungaro)_
+- 2025-07-24 **cdd6ac4** — added logger to gfields _(by Maurizio Ungaro)_
+- 2025-07-23 **f68b3e0** — testing plugin life cycle on manager _(by Maurizio Ungaro)_
+- 2025-07-23 **b10524c** — hacking mechanism not to unload dyn lib before gstreamer is done. g4dialog improvements. added glogger to gsd _(by Maurizio Ungaro)_
+- 2025-07-22 **e5da6f8** — gsd mods - not final _(by Maurizio Ungaro)_
+- 2025-07-22 **2c55a95** — added decisionToSkipHit _(by Maurizio Ungaro)_
+- 2025-07-22 **cf680ce** — clearing vectors before filling the trees _(by Maurizio Ungaro)_
+- 2025-07-21 **b7b5f75** — saving changes but data vectors need to be cleared before filling the tree _(by Maurizio Ungaro)_
+- 2025-07-21 **fa76fca** — using shared ptr for eventDataCollection and fix root writing and close _(by Maurizio Ungaro)_
+- 2025-07-18 **80b17a6** — root no crash but still some details to work out _(by Maurizio Ungaro)_
+- 2025-07-18 **31fa318** — using shared pointer maps in event dispenser. fix ubuntu container. not checking gemc build in ci _(by Maurizio Ungaro)_
+- 2025-07-17 **aeac610** — debugging in ci _(by Maurizio Ungaro)_
+- 2025-07-17 **e85e13c** — using smart pointers for gdynamicDigitization _(by Maurizio Ungaro)_
+- 2025-07-16 **0d29ba9** — temp commit, saving progress on using smart pointers on data _(by Maurizio Ungaro)_
+- 2025-07-14 **15f0802** — temp saving - still root or data nightmares _(by Maurizio Ungaro)_
+- 2025-07-13 **4f14e9a** — init root files _(by Maurizio Ungaro)_
+- 2025-07-12 **70e2bab** — saving changes although code is not MT safe yet _(by Maurizio Ungaro)_
+- 2025-07-11 **f827ba8** — conforming gstreamer to gfactory class _(by Maurizio Ungaro)_
+- 2025-07-11 **e459cf3** — using direct test names so can run specific meson test. gstreamer test with 1 thread per event - no writing output yet _(by Maurizio Ungaro)_
+- 2025-06-12 **8d49a7c** — saving progress before using multithreading in gstreamer example _(by Maurizio Ungaro)_
+- 2025-06-09 **3ca7e50** — saving changes _(by Maurizio Ungaro)_
+- 2025-05-22 **6675920** — progress toward gstreamer logging, testing leak fix _(by Maurizio Ungaro)_
+- 2025-05-21 **6f6e588** — not sure why it compiled on mac but fixed getGParticles _(by Maurizio Ungaro)_
+- 2025-05-21 **825d638** — testing building for qt multiple checkbox buttons states. using std string and vectors in headers _(by Maurizio Ungaro)_
+- 2025-05-20 **b00cc2b** — exiting gui after 0.5 seconds in the examples, added logger to gstreamer but example not ready yet _(by Maurizio Ungaro)_
+- 2025-05-19 **39b1232** — added glogger to gsplash _(by Maurizio Ungaro)_
+- 2025-05-19 **efe8692** — added glogger to gphysics _(by Maurizio Ungaro)_
+- 2025-05-15 **c3a4548** — using expat lib when using geant4 physics, not given by geant4 config, forcing libdir to be lib in build system, removing lib64 references, fix plugin loading for meson testing _(by Maurizio Ungaro)_
+- 2025-05-12 **8ff588b** — better logging _(by Maurizio Ungaro)_
+- 2025-05-09 **7df480a** — glogger for gparticle, using unique pointers for gparticle and gsystem _(by Maurizio Ungaro)_
+- 2025-05-08 **62faee2** — logger added to gparticle _(by Maurizio Ungaro)_
+- 2025-05-07 **af1422f** — working on gparticle _(by Maurizio Ungaro)_
+- 2025-05-07 **3bc58ad** — fix overlaps option and missing functional include for goption.cc _(by Maurizio Ungaro)_
+- 2025-05-07 **7499b40** — added logger to g4system and several other improvements _(by Maurizio Ungaro)_
+- 2025-05-01 **1d24da4** — finally gsystem logger implemented. _(by Maurizio Ungaro)_
+- 2025-04-28 **93a4629** — temp saving working copy of gsystems _(by Maurizio Ungaro)_
+- 2025-04-21 **6eadc77** — Create codeql.yml _(by Mauri)_
+- 2025-04-21 **f66d302** — temp removing codeql _(by Maurizio Ungaro)_
+- 2025-04-18 **a8219e9** — using shared pointer for gloggers. adding codeQL workflow _(by Maurizio Ungaro)_
+- 2025-04-01 **273b224** — converting log to html for proper display in g4dialog _(by Maurizio Ungaro)_
+- 2025-03-31 **276077c** — logger on display _(by Maurizio Ungaro)_
+- 2025-03-28 **c5d7eaa** — doxygen _(by Maurizio Ungaro)_
+- 2025-03-28 **58e81eb** — doxy for g4display _(by Maurizio Ungaro)_
+- 2025-03-28 **0af0314** — added log to g4display _(by Maurizio Ungaro)_
+- 2025-03-27 **ef505b8** — restored gqtbuttonswidget _(by Maurizio Ungaro)_
+- 2025-03-27 **339032a** — added logging to eventDispenser _(by Maurizio Ungaro)_
+- 2025-03-27 **9b13154** — gdynamic doxy and using virtual function Impl suffix _(by Maurizio Ungaro)_
+- 2025-03-27 **d448640** — added logger to gdynamicDigitization _(by Maurizio Ungaro)_
+- 2025-03-26 **8974432** — doxy for gdata _(by Maurizio Ungaro)_
+- 2025-03-26 **5a7b46b** — added logger to gdata _(by Maurizio Ungaro)_
+- 2025-03-26 **67d63a7** — testing destructor on gtouchable example, part 6 _(by Maurizio Ungaro)_
+- 2025-03-26 **6d342d6** — testing destructor on gtouchable example, part 5 _(by Maurizio Ungaro)_
+- 2025-03-26 **6c21a75** — testing destructor on gtouchable example, part 4 _(by Maurizio Ungaro)_
+- 2025-03-26 **8c73a2d** — testing destructor on gtouchable example, part 3 _(by Maurizio Ungaro)_
+- 2025-03-26 **c74141a** — testing destructor on gtouchable example, part 2 _(by Maurizio Ungaro)_
+- 2025-03-26 **927096f** — testing destructor on gtouchable example _(by Maurizio Ungaro)_
+- 2025-03-26 **3bbca0b** — added gtouchable contructor and destructor log, gtranslation table uses logging _(by Maurizio Ungaro)_
+- 2025-03-25 **9596266** — forgot to include optional _(by Maurizio Ungaro)_
+- 2025-03-25 **46d5236** — adding hits and hit comparison to refurbish _(by Maurizio Ungaro)_
+- 2025-03-25 **3d8f1df** — finalized gtouchable _(by Maurizio Ungaro)_
+- 2025-03-24 **964a08e** — fix gtouchable comparison bug _(by Maurizio Ungaro)_
+- 2025-03-24 **b616260** — logger for gtouchable _(by Maurizio Ungaro)_
+- 2025-03-24 **330ee18** — added Command-line parsing that accepts both the original YAML–style syntax and dot–notation e.g. -debug.general=true _(by Maurizio Ungaro)_
+- 2025-03-24 **9d44ef3** — using GLogger in gfactory. removing obsolete xcode settings. _(by Maurizio Ungaro)_
+- 2025-03-24 **42495f1** — using GLogger in gfactory. removing obsolete xcode settings. _(by Maurizio Ungaro)_
+- 2025-03-21 **81433ad** — new logging system. ci disabled as this is a major change _(by Maurizio Ungaro)_
+- 2025-03-21 **da14c8f** — added interactive options. this is a push before a major change to the logging framework _(by Maurizio Ungaro)_
+- 2025-03-20 **dac58af** — fixes on the readme _(by Maurizio Ungaro)_
+- 2025-03-20 **ae9e536** — geo for basic b1 _(by Maurizio Ungaro)_
+- 2025-03-19 **822dfb1** — trying no parallel testing as sometimes it fails randomly - not reproducible _(by Maurizio Ungaro)_
+- 2025-03-19 **b54691b** — reload geometry mechanism _(by Maurizio Ungaro)_
+- 2025-03-19 **b4da33b** — dbselect has now access to gdetectorconstruction, in preparation for geometry re-load _(by Maurizio Ungaro)_
+- 2025-03-18 **32a7ae1** — forgot to remove file from meson build _(by Maurizio Ungaro)_
+- 2025-03-18 **a15a35b** — loadDigitizationPlugins executed in gdetectors. preparing to re-load geometry... _(by Maurizio Ungaro)_
+- 2025-03-17 **723cddd** — added 4th column for n volumes, propagating experiments from options to tree _(by Maurizio Ungaro)_
+- 2025-03-14 **04294c4** — selecting system based on gsystem map _(by Maurizio Ungaro)_
+- 2025-03-14 **5e3f5b4** — icon changes and gQtButtonsWidget.cc improvements _(by Maurizio Ungaro)_
+- 2025-03-14 **c86e3e1** — removing obsolete icons, improved db select _(by Maurizio Ungaro)_
+- 2025-03-13 **cd77b45** — checking for variation system and run both in api and code. adding runs and variations in examples. new db select view _(by Maurizio Ungaro)_
+- 2025-03-13 **a45d856** — fix streamer factory names _(by Maurizio Ungaro)_
+- 2025-03-13 **0ffdbcc** — added experiment column to sqlite db _(by Maurizio Ungaro)_
+- 2025-03-12 **b6fbe58** — de-deprecating stateChanged until qt on new images is updated _(by Maurizio Ungaro)_
+- 2025-03-12 **15f698f** — improved code for qt6 _(by Maurizio Ungaro)_
+- 2025-03-12 **fbbbf69** — build ubuntu with sanitize undefined _(by Maurizio Ungaro)_
+- 2025-03-12 **e54753c** — adding both ascii and sqlite factories in tests _(by Maurizio Ungaro)_
+- 2025-03-12 **5cd6c95** — addressing b2 test error _(by Maurizio Ungaro)_
+- 2025-03-12 **0223bb4** — trying link_with all_libs _(by Maurizio Ungaro)_
+- 2025-03-12 **1e08953** — debugging build _(by Maurizio Ungaro)_
+- 2025-03-12 **9d462cf** — fixed max_j function _(by Maurizio Ungaro)_
+- 2025-03-11 **a771f54** — gpush adding b2 for testing, other minor changes in meson build. remaining issue on ubuntu _(by Maurizio Ungaro)_
+- 2025-03-11 **6423fcc** — testing zdep for the plugins _(by Maurizio Ungaro)_
+- 2025-03-11 **5b16dc4** — testing static_pic false _(by Maurizio Ungaro)_
+- 2025-03-11 **c8ae36c** — testing no static_pic _(by Maurizio Ungaro)_
+- 2025-03-11 **10832e5** — trying dynamic libz _(by Maurizio Ungaro)_
+- 2025-03-11 **c6139d1** — Renamed temp_name to b1 _(by Maurizio Ungaro)_
+- 2025-03-11 **999d587** — Renamed B1 to temp_name _(by Maurizio Ungaro)_
+- 2025-03-11 **8d15e09** — fixed plugin loading mechanism _(by Maurizio Ungaro)_
+- 2025-03-10 **1106896** — more debugging ci _(by Maurizio Ungaro)_
+- 2025-03-10 **7a402ba** — debugging ci _(by Maurizio Ungaro)_
+- 2025-03-10 **46a3c53** — examples factory _(by Maurizio Ungaro)_
+- 2025-03-10 **7038d7c** — forgot install _(by Maurizio Ungaro)_
+- 2025-03-10 **bd360aa** — fixed testing api _(by Maurizio Ungaro)_
+- 2025-03-10 **6262660** — adding assimp to gemc executable, trying all sanitizers in ci _(by Maurizio Ungaro)_
+- 2025-03-07 **c1d9094** — added expat to dependencies _(by Maurizio Ungaro)_
+- 2025-03-07 **e9fc545** — adding ogl and sqlite3 dependencies _(by Maurizio Ungaro)_
+- 2025-03-07 **61a311a** — installling geant4 pc in meson if not there _(by Maurizio Ungaro)_
+- 2025-03-07 **11f5279** — fixing ci _(by Maurizio Ungaro)_
+- 2025-02-21 **19cd446** — improving api _(by Maurizio Ungaro)_
+- 2025-02-20 **d4382d5** — testing ci _(by Maurizio Ungaro)_
+- 2025-02-20 **05484a8** — check if root-config exists _(by Maurizio Ungaro)_
+- 2025-02-20 **e4648c0** — fixed gQtButtonsWidget/meson.build, added Geant4PackageCache.cmake installation in install_geant4_root_pkgconfig.py, added check arguments to run_command _(by Maurizio Ungaro)_
+- 2025-02-19 **0e19180** — simplified executable library dependency, adding env for python to avoid writing cache _(by Maurizio Ungaro)_
+- 2025-02-18 **811cde2** — added qt6 dependencies. TOOLSSG_QT_GLES is now default as OGL is not working. _(by Maurizio Ungaro)_
+- 2025-02-04 **d63eaea** — added script to create geant4 and root pkg-config file. finally managed to pass cmake options to subproject assimp _(by Maurizio Ungaro)_
+- 2025-01-31 **f992ae2** — moved geant4 example to proper dir name _(by Maurizio Ungaro)_
+- 2025-01-15 **09b5290** — doxygen link fix _(by Maurizio Ungaro)_
+- 2025-01-15 **0bc7fde** — doxygen link in main page _(by Maurizio Ungaro)_
+- 2024-12-06 **cae3828** — updated gitignore and better doxygen _(by Maurizio Ungaro)_
+- 2024-12-05 **3106f8c** — added multipoles implementation, field points lineedit to set its precision _(by Maurizio Ungaro)_
+- 2024-12-04 **210e83b** — loading fields but dipole not working yet _(by Maurizio Ungaro)_
+- 2024-12-02 **9aa1226** — gfields doxygen and working on multipoles definitions _(by Maurizio Ungaro)_
+- 2024-11-26 **26ce428** — added field lines _(by Maurizio Ungaro)_
+- 2024-11-21 **75ace5c** — buttons added _(by Maurizio Ungaro)_
+- 2024-11-20 **e62053c** — no news _(by Maurizio Ungaro)_
+- 2024-11-20 **fa71cd8** — fixed path for g4display icons _(by Maurizio Ungaro)_
+- 2024-11-19 **3f11fcd** — adding buttons, still not working though _(by Maurizio Ungaro)_
+- 2024-11-19 **ccdbf33** — reorg display _(by Maurizio Ungaro)_
+- 2024-11-13 **650e937** — added search functionality to g4dialog _(by Maurizio Ungaro)_
+- 2024-11-08 **4b69cac** — added g4dialog and left button icons _(by Maurizio Ungaro)_
+- 2024-11-07 **14d7589** — added g4dialog, gsplash working for gemc but not on its own example _(by Maurizio Ungaro)_
+- 2024-11-06 **d05e517** — fix utilities header define _(by Maurizio Ungaro)_
+- 2024-09-20 **0dc4a0a** — saving changes _(by mungaro)_
+- 2024-08-13 **bed6b35** — added guts doxygen documentation _(by mungaro)_
+- 2024-08-09 **1dc31da** — added guts doxy comments, improved css and doxy ci _(by mungaro)_
+- 2024-08-09 **1c8de28** — doxygen for goptions _(by mungaro)_
+- 2024-08-09 **1434723** — doxy test3 _(by mungaro)_
+- 2024-08-09 **3db7be1** — reset doxy test2 _(by mungaro)_
+- 2024-08-09 **d24f6aa** — reset doxy test1 _(by mungaro)_
+- 2024-08-09 **474cdf2** — doxy test63 _(by mungaro)_
+- 2024-08-09 **32d5cab** — doxy test61 _(by mungaro)_
+- 2024-08-09 **3f21423** — doxy test60 _(by mungaro)_
+- 2024-08-09 **fc3cb6f** — doxy test59 _(by mungaro)_
+- 2024-08-09 **7566c46** — doxy test58 _(by mungaro)_
+- 2024-08-09 **bc01b5c** — doxy test57 _(by mungaro)_
+- 2024-08-09 **1d69b5f** — doxy test56 _(by mungaro)_
+- 2024-08-09 **c3885b2** — doxy test55 _(by mungaro)_
+- 2024-08-09 **404f6d6** — doxy test54 _(by mungaro)_
+- 2024-08-09 **2ac2add** — doxy test53 _(by mungaro)_
+- 2024-08-09 **2508148** — doxy test52 _(by mungaro)_
+- 2024-08-09 **e4fc250** — doxy test51 _(by mungaro)_
+- 2024-08-09 **b386dfc** — doxy test50 _(by mungaro)_
+- 2024-08-08 **875d9a7** — doxy test49 _(by mungaro)_
+- 2024-08-08 **7576306** — doxy test49 _(by mungaro)_
+- 2024-08-08 **b926c5c** — doxy test48 _(by mungaro)_
+- 2024-08-08 **0aa4263** — doxy test47 _(by mungaro)_
+- 2024-08-08 **fc4d4a2** — doxy test46 _(by mungaro)_
+- 2024-08-08 **a5ceadc** — doxy test45 _(by mungaro)_
+- 2024-08-08 **2863410** — doxy test44 _(by mungaro)_
+- 2024-08-08 **a3b21d1** — doxy test43 _(by mungaro)_
+- 2024-08-08 **a71e1b9** — doxy test42 _(by mungaro)_
+- 2024-08-08 **7fee765** — doxy test41 _(by mungaro)_
+- 2024-08-08 **0b35edc** — doxy test40 _(by mungaro)_
+- 2024-08-08 **4a09c81** — doxy test39 _(by mungaro)_
+- 2024-08-08 **42953d2** — doxy test38 _(by mungaro)_
+- 2024-08-08 **fc355be** — doxy test37 _(by mungaro)_
+- 2024-08-08 **2e60fe2** — doxy test36 _(by mungaro)_
+- 2024-08-08 **ebb584a** — doxy test35 _(by mungaro)_
+- 2024-08-08 **96654ef** — doxy test3 _(by mungaro)_
+- 2024-08-08 **4010cb2** — doxy test33 _(by mungaro)_
+- 2024-08-08 **c90d613** — doxy test32 _(by mungaro)_
+- 2024-08-08 **24e406f** — doxy test31 _(by mungaro)_
+- 2024-08-08 **76d5039** — doxy test30 _(by mungaro)_
+- 2024-08-08 **3a0afd1** — doxy test28 _(by mungaro)_
+- 2024-08-08 **5ee3c1b** — doxy test27 _(by mungaro)_
+- 2024-08-08 **e60fbc9** — doxy test26 _(by mungaro)_
+- 2024-08-08 **419e02e** — doxy test25 _(by mungaro)_
+- 2024-08-08 **51ada9f** — doxy test24 _(by mungaro)_
+- 2024-08-08 **9186c68** — doxy test23 _(by mungaro)_
+- 2024-08-08 **1527682** — doxy test22 _(by mungaro)_
+- 2024-08-08 **05bd8cf** — doxy test21 _(by mungaro)_
+- 2024-08-08 **335bdfb** — doxy test20 _(by mungaro)_
+- 2024-08-08 **8de8ad4** — doxy test19 _(by mungaro)_
+- 2024-08-08 **f8470a4** — doxy test18 _(by mungaro)_
+- 2024-08-08 **38bd4cd** — doxy test17 _(by mungaro)_
+- 2024-08-08 **9341924** — doxy test16 _(by mungaro)_
+- 2024-08-08 **f5e17ba** — doxy test15 _(by mungaro)_
+- 2024-08-08 **79c1801** — doxy test14 _(by mungaro)_
+- 2024-08-08 **f09d7dc** — doxy test13 _(by mungaro)_
+- 2024-08-08 **aa82423** — doxy test12 _(by mungaro)_
+- 2024-08-08 **9021cc8** — doxy test11 _(by mungaro)_
+- 2024-08-08 **8b3a46a** — doxy test10 _(by mungaro)_
+- 2024-08-08 **3ca53b9** — doxy test9 _(by mungaro)_
+- 2024-08-08 **fd5d8f3** — doxy test8 _(by mungaro)_
+- 2024-08-08 **5b0c7f9** — doxy test7 _(by mungaro)_
+- 2024-08-08 **ea3667c** — doxy test6 _(by mungaro)_
+- 2024-08-08 **c8b66c1** — doxy test5 _(by mungaro)_
+- 2024-08-08 **ba3087b** — doxy test4 _(by mungaro)_
+- 2024-08-08 **fbc7804** — doxy test3 _(by mungaro)_
+- 2024-08-08 **709d4a7** — trying doxy2 _(by mungaro)_
+- 2024-08-08 **4b7c320** — trying doxy2 _(by mungaro)_
+- 2024-08-08 **bd71224** — trying doxy _(by mungaro)_
+- 2024-08-08 **f15952d** — using jlab container _(by mungaro)_
+- 2024-08-08 **9f3afe2** — ci doxygen test _(by mungaro)_
+- 2024-08-08 **f81e76a** — more reformatting and testing telemetry _(by mungaro)_
+- 2024-08-08 **0a06947** — saving progress on reformatting goptions _(by mungaro)_
+- 2024-08-08 **b81f1fe** — saving progress on reformatting goptions _(by mungaro)_
+- 2024-08-07 **0976c41** — reducing verbosity, running new container _(by mungaro)_
+- 2024-08-07 **fb4733c** — cleaning up files, adding suppress options _(by mungaro)_
+- 2024-08-06 **6a39575** — fixed shift entry in yaml _(by mungaro)_
+- 2024-08-06 **c36fbd0** — dont stop if one fail _(by mungaro)_
+- 2024-08-06 **bcbb7d1** — core options into core.ini, using sanitize in debug only _(by mungaro)_
+- 2024-08-06 **ab43054** — removed cancel in progress _(by mungaro)_
+- 2024-08-06 **b25f079** — typo on pgo, trying 6 parallel jobs _(by mungaro)_
+- 2024-08-06 **b55d7a6** — testing max n jobs and pgo on ubuntu _(by mungaro)_
+- 2024-08-06 **ddf17da** — fix typo _(by mungaro)_
+- 2024-08-06 **ce9d5dd** — only standard test _(by mungaro)_
+- 2024-08-06 **5b51418** — fix typo _(by mungaro)_
+- 2024-08-06 **b0c5207** — adding other sanitizers _(by mungaro)_
+- 2024-08-06 **cb9d1fe** — trying address sanitizer _(by mungaro)_
+- 2024-08-06 **ea669bf** — testing build _(by mungaro)_
+- 2024-08-06 **13d6324** — handling no sanitize as standard _(by mungaro)_
+- 2024-08-06 **75e1bdb** — fixed container name _(by mungaro)_
+- 2024-08-05 **3c46b1b** — ci test with matrix _(by mungaro)_
+- 2024-08-05 **867763d** — test sanitize option _(by mungaro)_
+- 2024-08-01 **94c6d52** — added some tests and more debugging for gmodifier. fixed b1 example _(by mungaro)_
+- 2024-07-31 **b37b399** — using gemc modules in ci, various improvements on logging _(by mungaro)_
+- 2024-07-30 **39b9726** — starting basic/B1 _(by mungaro)_
+- 2024-07-30 **ebc0fd5** — plugin path handled solely by gdl _(by mungaro)_
+- 2024-07-30 **48556b3** — fix ld path for ubuntu, verbosity message general 2 in template tests _(by mungaro)_
+- 2024-07-29 **49f37ee** — fixed gfactory example, retesting profile on ubuntu _(by mungaro)_
+- 2024-07-29 **8dc00a4** — fixed names and routines for some solid _(by mungaro)_
+- 2024-07-29 **00ded01** — test ubuntu specific build and other options _(by mungaro)_
+- 2024-07-26 **96eec26** — fixed gstreamer filename assignment _(by mungaro)_
+- 2024-07-26 **50dc3f0** — testing ubuntu again _(by mungaro)_
+- 2024-07-26 **e1740ee** — testing ubuntu profile speedup _(by mungaro)_
+- 2024-07-26 **11b3462** — Merge pull request #18 from maureeungaro/main _(by Mauri)_
+- 2024-07-26 **371976f** — last save on fork, will develop on origin from now on _(by mungaro)_
+- 2024-07-26 **10ed880** — fix test command and fetching tags only if necessary _(by mungaro)_
+- 2024-07-26 **0087277** — test api done with meson _(by mungaro)_
+- 2024-07-25 **1446f02** — checking ig g4world is empty _(by mungaro)_
+- 2024-07-25 **c66cba7** — renaming api files, fix particles units and spread, fixed dir names _(by mungaro)_
+- 2024-07-25 **d51ccbe** — basic api tests _(by mungaro)_
+- 2024-07-25 **68bebda** — basic api tests _(by mungaro)_
+- 2024-07-25 **5a44757** — fix function path _(by mungaro)_
+- 2024-07-25 **7df96eb** — testing _(by mungaro)_
+- 2024-07-25 **1342ca5** — testing b_pgo for ubuntu builds _(by mungaro)_
+- 2024-07-25 **1fc9ebd** — compile verbose mode to debug ubuntu problems _(by mungaro)_
+- 2024-07-24 **e258030** — trying b_lto flag _(by mungaro)_
+- 2024-07-24 **5e75b91** — added lib64 in plugin search as well _(by mungaro)_
+- 2024-07-24 **529862e** — addressing more warnings and added lib64 to lib checks _(by mungaro)_
+- 2024-07-24 **3c75251** — verbose testing and not exiting for meson errors, just gemc run _(by mungaro)_
+- 2024-07-24 **e348730** — more debugging, solution 14 _(by mungaro)_
+- 2024-07-24 **63687f9** — more debugging, solution 13 _(by mungaro)_
+- 2024-07-24 **524d0ab** — more debugging, solution 12 _(by mungaro)_
+- 2024-07-24 **ba8bcc8** — more debugging, solution 11 _(by mungaro)_
+- 2024-07-24 **2b66cb1** — more debugging, solution 10 _(by mungaro)_
+- 2024-07-24 **5d46337** — more debugging, solution 9 _(by mungaro)_
+- 2024-07-24 **59b0eef** — more debugging, solution 8 _(by mungaro)_
+- 2024-07-24 **e115fee** — more debugging, solution 7 _(by mungaro)_
+- 2024-07-24 **b40dc9b** — more debugging, solution 6 _(by mungaro)_
+- 2024-07-24 **a3bc26c** — more debugging, solution 4 _(by mungaro)_
+- 2024-07-24 **21491c7** — more debugging, solution 3 _(by mungaro)_
+- 2024-07-24 **cb51b45** — more debugging, solution 2 _(by mungaro)_
+- 2024-07-24 **c42930d** — more debugging, solution 1 _(by mungaro)_
+- 2024-07-24 **b3b0660** — more debugging _(by mungaro)_
+- 2024-07-24 **f604b85** — more debugging _(by mungaro)_
+- 2024-07-24 **729db11** — more debugging _(by mungaro)_
+- 2024-07-24 **4ab1767** — more debugging _(by mungaro)_
+- 2024-07-24 **650884b** — debugging build _(by mungaro)_
+- 2024-07-24 **e04708b** — building workflow fix, and readded algorithm include _(by mungaro)_
+- 2024-07-24 **23087ac** — using stat.h instead of filesystem, which has conflicts on linux oses. also removing -no-undefined amd -no-as-needed linking flags _(by mungaro)_
+- 2024-07-24 **b3a736d** — addressing warning on linux _(by mungaro)_
+- 2024-07-23 **984f20d** — formatting and explicit filesystem calls _(by mungaro)_
+- 2024-07-23 **debd504** — using latest assimp, and include missing vector _(by mungaro)_
+- 2024-07-23 **1e5ef55** — gemc running, saving progress _(by mungaro)_
+- 2024-07-22 **9a3dad6** — saving progress _(by mungaro)_
+- 2024-07-22 **4f44ea0** — added utilities _(by mungaro)_
+- 2024-07-19 **b85b537** — gfield compiling, missing pars loading _(by mungaro)_
+- 2024-07-18 **9bcf23c** — saving progress _(by mungaro)_
+- 2024-07-17 **01bf3e3** — saving progress _(by mungaro)_
+- 2024-07-15 **ea7ce45** — saving progress, need to work on gfield now _(by mungaro)_
+- 2024-07-15 **b7f276c** — added string util convertToLowercase and converted streamer to yaml _(by mungaro)_
+- 2024-07-13 **50ff103** — update gstreamer _(by mungaro)_
+- 2024-07-11 **b93e6ab** — saving progress _(by mungaro)_
+- 2024-07-11 **cc89740** — restored gsplash _(by mungaro)_
+- 2024-07-11 **f3fe4e0** — added gQtButtonsWidget to meson build _(by mungaro)_
+- 2024-07-11 **6c90577** — added gphysics to meson _(by mungaro)_
+- 2024-07-11 **3542c48** — gparticle ported to meson _(by mungaro)_
+- 2024-07-11 **8f8c91b** — saving partial progress _(by mungaro)_
+- 2024-07-11 **d9c41ec** — saving partial progress _(by mungaro)_
+- 2024-06-03 **228c631** — added g4system _(by mungaro)_
+- 2024-05-30 **6809580** — styles, yaml files fixes and added db for gsystem examples _(by mungaro)_
+- 2024-05-29 **e4768e0** — partial gsystem, example not working _(by mungaro)_
+- 2024-05-24 **e67bb62** — added goptions methods to retrieve nodes , g4display uses yaml options _(by mungaro)_
+- 2024-05-21 **48750aa** — working on g4display options _(by mungaro)_
+- 2024-05-21 **183b545** — added mechanism to get the verbosity sub tag _(by mungaro)_
+- 2024-05-20 **51e4365** — modifying eventDispenser options to yaml. _(by mungaro)_
+- 2024-05-16 **602c481** — goptions ready to be consumed _(by mungaro)_
+- 2024-05-16 **28d9868** — before changing values into a single item _(by mungaro)_
+- 2024-05-14 **6aa7d03** — good progress _(by mungaro)_
+- 2024-05-13 **62b4ba8** — starting file parsing _(by mungaro)_
+- 2024-05-13 **6c7f978** — output goption definitions _(by mungaro)_
+- 2024-05-10 **68f254b** — starting yaml options _(by mungaro)_
+- 2024-05-08 **9cbda1a** — release notes _(by mungaro)_
+- 2024-05-08 **165f23c** — Merge pull request #17 from maureeungaro/main _(by Mauri)_
+- 2024-05-08 **4a8997e** — Merge branch 'gemc:main' into main _(by Mauri)_
+- 2024-05-08 **1ab8244** — added magnetic field dipole _(by mungaro)_
+- 2024-05-07 **b547a1b** — progress on field, removing all scons scripts _(by mungaro)_
+- 2024-05-01 **60bda93** — continuing field implementation _(by mungaro)_
+- 2024-05-01 **2ef76ab** — removed definePluginPath, added multipoles getFieldValue, starting field map plugins in gdetectors _(by mungaro)_
+- 2024-04-30 **ac23496** — starting multipole fields implementation, better handling of root dependency, removed list from files directive _(by mungaro)_
+- 2024-04-29 **1a541fd** — assimp version degraded due to cmake requirements not satisfied in container _(by mungaro)_
+- 2024-04-29 **116b34a** — added assimp dependency and STL reader _(by mungaro)_
+- 2024-04-29 **d6b4efd** — looking in /opt/jlab_software/1.2/macosx14-clang15/gemc3/1.2/lib if a dl is not found locally _(by mungaro)_
+- 2024-04-26 **1f1bc5a** — added automatic nightly dev release _(by mungaro)_
+- 2024-04-26 **4cc00cf** — Merge pull request #16 from maureeungaro/main _(by Mauri)_
+- 2024-04-26 **9618273** — author string _(by mungaro)_
+- 2024-04-26 **8c98686** — added introspection and automatic versioning _(by mungaro)_
+- 2024-04-25 **83ba829** — converting to meson all subdirs _(by mungaro)_
+- 2024-04-25 **40e06dd** — moving glibraries to this repository, using meson instead of cmake or scons _(by mungaro)_
+- 2023-06-12 **98b6b39** — comment on running dev image _(by Maurizio Ungaro)_
+- 2023-06-12 **809fd7f** — using dev container and adding gitboard _(by Maurizio Ungaro)_
+- 2023-05-15 **a86dd66** — Merge branch 'gemc:main' into main _(by Mauri)_
+- 2023-05-05 **1269eec** — using new gemc container _(by Maurizio Ungaro)_
+- 2023-05-05 **50a66b5** — Merge pull request #15 from maureeungaro/main _(by Mauri)_
+- 2023-05-05 **fea3245** — define the random engine options, improved GTouchable debugging _(by Maurizio Ungaro)_
+- 2023-05-01 **6b4662b** — testing all sci-g examples _(by Maurizio Ungaro)_
+- 2023-05-01 **1871a17** — Merge branch 'gemc:main' into main _(by Mauri)_
+- 2023-04-28 **1b55dbe** — using gparticle verbosity _(by Maurizio Ungaro)_
+- 2023-04-26 **e28f4b5** — Merge pull request #14 from maureeungaro/main _(by Mauri)_
+- 2023-04-26 **b5bfe0a** — added release_notes dir _(by Maurizio Ungaro)_
+- 2023-04-26 **27193fb** — decreased log verbosity of GActionInitialization, added release notes, showG4ThreadsLog switch _(by Maurizio Ungaro)_
+- 2023-04-24 **204c3f7** — just indentation _(by Maurizio Ungaro)_
+- 2023-03-02 **0ca18c2** — Merge pull request #13 from maureeungaro/main _(by Mauri)_
+- 2023-03-02 **18629eb** — scig matric fix _(by maureeungaro)_
+- 2023-03-02 **9c10f76** — updating ci for new containers _(by maureeungaro)_
+- 2023-02-09 **dce8cd7** — Merge pull request #12 from maureeungaro/main _(by Mauri)_
+- 2023-01-18 **69e01b7** — gcadmesh no needed anymore _(by Maurizio Ungaro)_
+- 2022-11-16 **13b18d8** — setting external dylibs in xcode settings _(by Maurizio Ungaro)_
+- 2022-10-18 **1631a5c** — Merge pull request #11 from maureeungaro/main _(by Mauri)_
+- 2022-10-11 **0218591** — using c++20 flag and using std::vector to find gtouchable - more log if requested by verbosity _(by maureeungaro)_
+- 2022-10-10 **8b1c082** — temp commit for non working code _(by Maurizio Ungaro)_
+- 2022-10-10 **261ab4e** — fixed looking for new touchable _(by Maurizio Ungaro)_
+- 2022-10-10 **3898bb2** — fixed looking for new touchable _(by Maurizio Ungaro)_
+- 2022-09-30 **24085fd** — added verbosities for gtouchable _(by Maurizio Ungaro)_
+- 2022-09-21 **a732b26** — added privacy policy _(by maureeungaro)_
+- 2022-09-15 **70abdda** — improved notes _(by Maurizio Ungaro)_
+- 2022-09-15 **91168ca** — removed destructor log for now _(by maureeungaro)_
+- 2022-09-09 **c2786ec** — Merge pull request #10 from maureeungaro/main _(by Mauri)_
+- 2022-09-08 **6a84ede** — notes on xcode cycle _(by maureeungaro)_
+- 2022-09-08 **7aab542** — jcards modifications _(by Maurizio Ungaro)_
+- 2022-09-07 **d828631** — Merge pull request #9 from maureeungaro/main _(by Mauri)_
+- 2022-09-07 **135d201** — notes on libraries to be copied and re-copied jcards from sci-g _(by Maurizio Ungaro)_
+- 2022-09-07 **ec05ca6** — adding G4VUserActionInitialization constructor in GActionInitialization, retrieving physList from GPhysics _(by Maurizio Ungaro)_
+- 2022-09-06 **be29f1e** — better notes and phys list debugging _(by Maurizio Ungaro)_
+- 2022-09-02 **e4629a8** — using gphysics, standardizing example jcards _(by Maurizio Ungaro)_
+- 2022-08-31 **ad42a8b** — adding gphysics, using new edistv verbosity flag for the eventdistribution _(by Maurizio Ungaro)_
+- 2022-08-26 **76d02f6** — fixed gtouchable check, it was done on pointer instead of the touchable content _(by Maurizio Ungaro)_
+- 2022-08-26 **1d93321** — removing unecessary screen log, and resetting tlog to zero - all thread will log on screen _(by Maurizio Ungaro)_
+- 2022-08-25 **dd675b3** — added recordZeroEdep switch to record tracks that do not deposit energy in sensitive detectors _(by Maurizio Ungaro)_
+- 2022-08-02 **70361d1** — fixed wrong comments on some gemc options _(by maureeungaro)_
+- 2022-08-01 **ef28fac** — Merge pull request #8 from maureeungaro/main _(by Mauri)_
+- 2022-07-30 **637323a** — moving g4uim to sceneProperties in g4display, work in progress _(by maureeungaro)_
+- 2022-07-28 **d5c7f91** — adding g4DisplayProperties in batch mode as well _(by Maurizio Ungaro)_
+- 2022-07-28 **e20efac** — better env log if existing _(by maureeungaro)_
+- 2022-07-28 **8f86be1** — better env log if existing _(by maureeungaro)_
+- 2022-07-27 **7746852** — gpush env test on the ci scripts _(by Maurizio Ungaro)_
+- 2022-07-26 **3062797** — added ld and exit code try _(by maureeungaro)_
+- 2022-07-26 **a7b2a98** — added ldd to debug gplugin on github _(by maureeungaro)_
+- 2022-07-26 **f719d2b** — dawn directives commented out _(by maureeungaro)_
+- 2022-07-26 **c4a91e0** — checking value of file on gplugin _(by maureeungaro)_
+- 2022-07-26 **9742d8d** — trying to debug dlopen statement _(by maureeungaro)_
+- 2022-07-26 **f84ce1b** — trying ubuntu focal and trying and matching error code to script _(by maureeungaro)_
+- 2022-07-26 **8cf3312** — vismanager also in batch mode and added temp dawn instructions _(by Maurizio Ungaro)_
+- 2022-07-21 **b2ca601** — added log when checkForOverlaps is 2 _(by Maurizio Ungaro)_
+- 2022-07-06 **f8c621f** — Merge pull request #7 from maureeungaro/main _(by Mauri)_
+- 2022-06-16 **fb9573c** — using new log level for constructors and destructors _(by maureeungaro)_
+- 2022-06-15 **5169bf7** — Merge pull request #6 from maureeungaro/main _(by Mauri)_
+- 2022-06-15 **a7434a4** — testing build in ci _(by maureeungaro)_
+- 2022-06-14 **6c10d8b** — assign track id to GTouchable _(by maureeungaro)_
+- 2022-06-06 **3b4c7b8** — Merge pull request #5 from maureeungaro/main _(by Mauri)_
+- 2022-06-03 **b4ebc96** — use getTimeAtElectronics function to fill frame if defined _(by maureeungaro)_
+- 2022-06-02 **c8eeeb6** — Merge pull request #4 from maureeungaro/main _(by Mauri)_
+- 2022-06-02 **7b3f0ae** — Merge branch 'gemc:main' into main _(by Mauri)_
+- 2022-06-02 **6bdb0df** — clas12 test is ft not ft/ft_cal _(by maureeungaro)_
+- 2022-06-02 **52270a4** — Merge pull request #3 from maureeungaro/main _(by Mauri)_
+- 2022-06-02 **cb6aa24** — workflow names, consistent s option for test CLAS12, using sh for container run to make it identical to ci run _(by Maurizio Ungaro)_
+- 2022-06-02 **416ff8b** — workflow name small changes _(by Maurizio Ungaro)_
+- 2022-06-01 **939c5d5** — removed unecessary nthreads var _(by Maurizio Ungaro)_
+- 2022-05-31 **af4d08e** — Merge pull request #2 from maureeungaro/master _(by Mauri)_
+- 2022-05-31 **9fd8f95** — small indentation _(by maureeungaro)_
+- 2022-05-26 **e692af9** — Merge branch 'master' of mauriGithub:maureeungaro/src _(by Maurizio Ungaro)_
+- 2022-05-26 **82b589a** — Merge remote-tracking branch 'upstream/master' _(by maureeungaro)_
+- 2022-05-26 **c533763** — Merge remote-tracking branch 'upstream/master' _(by Maurizio Ungaro)_
+- 2022-05-26 **99022d6** — adjusted verbosities for detector construction _(by Maurizio Ungaro)_
+- 2022-05-25 **6b0ff6a** — updated todo _(by maureeungaro)_
+- 2022-05-19 **9db3952** — Merge pull request #1 from maureeungaro/master _(by Mauri)_
+- 2022-05-19 **4ea6de1** — workflow names and badges _(by maureeungaro)_
+- 2022-05-19 **a285133** — splitting workflows in build, test sci-g and test clas12 _(by maureeungaro)_
+- 2022-05-18 **fd75238** — using g4name for map lookup and sensitivity _(by maureeungaro)_
+- 2022-05-18 **afbe673** — adding todo _(by Maurizio Ungaro)_
+- 2022-05-02 **55e2626** — added +FRAMEWORK_SEARCH_PATHS and note on api speed _(by maureeungaro)_
+- 2022-05-02 **5398c00** — notes and working version of xcode _(by Maurizio Ungaro)_
+- 2022-04-28 **b47955c** — debugging integral payload _(by Maurizio Ungaro)_
+- 2022-04-22 **b5f81aa** — location change of sci-g in the container _(by maureeungaro)_
+- 2022-03-24 **1478b70** — added particles in dosimeter and calorimeter examples _(by maureeungaro)_
+- 2021-11-17 **7204dad** — making sure to use JLABSRO in the calorimeter example _(by maureeungaro)_
+- 2021-11-10 **99037ac** — timeAtelectronic is int. _(by maureeungaro)_
+- 2021-11-08 **a241f92** — debuging gemc compilation on GA _(by maureeungaro)_
+- 2021-11-08 **a125dc0** — added time to payload _(by maureeungaro)_
+- 2021-10-22 **6ea75d9** — using ci from sci-g for example and target tests _(by maureeungaro)_
+- 2021-10-22 **8ca4c67** — temp removal of calorimeter plugin check. fixed target validation _(by maureeungaro)_
+- 2021-10-22 **4647eba** — fixed workflow maybe _(by maureeungaro)_
+- 2021-10-22 **eba5962** — fixed workflow _(by maureeungaro)_
+- 2021-10-22 **3db99f9** — target workflow must be separate from matrix _(by maureeungaro)_
+- 2021-10-22 **d03121b** — fixed ci and added target check in workflow _(by maureeungaro)_
+- 2021-10-22 **b8d20b3** — using sci-g ci to run tests _(by maureeungaro)_
+- 2021-10-22 **193381f** — jcard comment fix _(by maureeungaro)_
+- 2021-10-22 **8d3b19b** — added switch to print non default options. added a few generator cases in simple_flux gcard _(by maureeungaro)_
+- 2021-10-21 **17e2c98** — calorimeter name mismatch _(by maureeungaro)_
+- 2021-10-21 **e92fc79** — adding calorimeter _(by maureeungaro)_
+- 2021-10-21 **9097533** — forgot script argument _(by maureeungaro)_
+- 2021-10-21 **5fc696d** — forgot script name _(by maureeungaro)_
+- 2021-10-21 **841a5b5** — buidling geo in the script _(by maureeungaro)_
+- 2021-10-21 **7a264a3** — fix ci path _(by maureeungaro)_
+- 2021-10-21 **821ade8** — new ci _(by maureeungaro)_
+- 2021-10-20 **b8da9b0** — using gparticle in gPrimaryGeneratorAction, using G4ParticleGun instead of gps which seems not to be working properly _(by maureeungaro)_
+- 2021-10-19 **2cb8b88** — using gparticle in gPrimaryGeneratorAction _(by maureeungaro)_
+- 2021-10-14 **84a1e4c** — readme with compilation badge _(by maureeungaro)_
+- 2021-10-14 **c9f82aa** — removing codeQL for now until we can instruct it to compile gemc _(by maureeungaro)_
+- 2021-10-14 **90df9ba** — Create codeql-analysis.yml _(by Mauri)_
+- 2021-10-14 **5c776a4** — Update codeql-analysis.yml _(by Mauri)_
+- 2021-10-14 **2bc32c3** — Create codeql-analysis.yml _(by Mauri)_
+- 2021-10-13 **68b83ac** — example jcard changes _(by maureeungaro)_
+- 2021-10-13 **4a33769** — moved checkoverlaps to startingUIMCommands _(by maureeungaro)_
+- 2021-10-12 **ce5077b** — fixed check of exit code for ls _(by maureeungaro)_
+- 2021-10-12 **4a6b00f** — Merge branch 'master' of mauriGithub:gemc/src _(by maureeungaro)_
+- 2021-10-12 **23ded17** — files for github actions _(by maureeungaro)_
+- 2021-10-12 **60a9f78** — Create main.yml _(by Mauri)_
+- 2021-10-12 **80f56ec** — added plugin path function to check possible locations of plugins. added checkForOverlaps at run time _(by maureeungaro)_
+- 2021-09-29 **1dcb8b3** — using GPLUGIN_PATH env as default plugin search location _(by maureeungaro)_
+- 2021-09-29 **afdf320** — using GPLUGIN_PATH env as default plugin search location _(by maureeungaro)_
+- 2021-09-10 **0aca147** — xerces c explicit need on posix _(by maureeungaro)_
+- 2021-09-10 **d6be0d0** — making gcc compiler happy _(by maureeungaro)_
+- 2021-09-10 **0e46024** — making gcc compiler happy _(by maureeungaro)_
+- 2021-09-10 **c20ccaf** — explicit atomic include _(by maureeungaro)_
+- 2021-09-10 **deef1e0** — temp mod of generator for protons _(by maureeungaro)_
+- 2021-09-07 **eba5af0** — using gcadmesh _(by maureeungaro)_
+- 2021-09-07 **ce162cf** — added tilt, rotation of cad volume example, added cadmesh dependency _(by maureeungaro)_
+- 2021-09-02 **5178f1d** — added flux, dosimeter, particlecounter digitizations _(by maureeungaro)_
+- 2021-09-02 **287f2cc** — adding internal digitizations, work in progress _(by maureeungaro)_
+- 2021-09-02 **4020454** — using plugin path for gstreamer plugins as well _(by maureeungaro)_
+- 2021-08-26 **cc5d184** — using stream type as key in gstreamer factory map, fixed gcard for multiple goutput _(by maureeungaro)_
+- 2021-08-26 **bb84ec0** — added timer cycle _(by maureeungaro)_
+- 2021-08-26 **869d49a** — using streamer verbosities _(by maureeungaro)_
+- 2021-08-26 **edaadce** — looks like frame indexing handled correctly. _(by maureeungaro)_
+- 2021-08-26 **ebc99d7** — using stream bool to stream frames still not quite creating / deleting frames correctly _(by maureeungaro)_
+- 2021-08-25 **f0ce07d** — using stream bool to stream frames _(by maureeungaro)_
+- 2021-08-25 **6c41d9a** — removed unecessary generator lines. adding frameRunData in runAction. _(by maureeungaro)_
+- 2021-08-24 **8864745** — added jsonSRO option, using UNINITIALIZEDSTRINGQUANTITY, starting to loop over event digitized data to fill frame info, _(by maureeungaro)_
+- 2021-08-24 **efd385b** — added edep conditions in sensitive detector _(by maureeungaro)_
+- 2021-08-23 **76e74c5** — removed uim commands from topLayout. added stream switch _(by maureeungaro)_
+- 2021-08-20 **5fb42a0** — minor doc, removed delete pointers from GSensitiveDetector _(by maureeungaro)_
+- 2021-08-18 **136d2a8** — loading plugins based on sdname list _(by maureeungaro)_
+- 2021-08-18 **f46641f** — write stream factory report _(by maureeungaro)_
+- 2021-08-17 **e833e4f** — using hit number in digitization and true info collection _(by maureeungaro)_
+- 2021-08-17 **a286e3a** — added detector dimensions to gtouchable _(by maureeungaro)_
+- 2021-08-17 **6211bf8** — added digitizationVariation option, renamed digitization to digitizeHit _(by maureeungaro)_
+- 2021-08-16 **45227af** — added publishRunData and proper deleting of run data _(by maureeungaro)_
+- 2021-08-16 **8310cad** — removed gstrFactory from grun. merging runs in GRun::Merge, starting using gstrFactory in runAction. _(by maureeungaro)_
+- 2021-08-13 **9120fb7** — added GDigitizedData and GTrueInfoData detectorDigitization calls _(by maureeungaro)_
+- 2021-08-13 **d318d0e** — ConstructSDandField must be run on master thread as well or processhit will not happen _(by maureeungaro)_
+- 2021-08-13 **aa40f8c** — work in progress on SD _(by maureeungaro)_
+- 2021-08-12 **49d06b5** — work in progress, processHit not working _(by maureeungaro)_
+- 2021-08-12 **6ccf978** — work in progress with digitization routines plugns _(by maureeungaro)_
+- 2021-08-11 **1d06634** — ConstructSDandField completed, however something seems off _(by maureeungaro)_
+- 2021-08-10 **850f097** — grun routines are thread local, removing statemessage dependency. starting loop to add gsensitive detectors to g4world. added initial macro commands for batch and gui. _(by maureeungaro)_
+- 2021-08-10 **f78acd5** — proper order of deleting items. adding startingUIM commands. grun not inherits from statemessage _(by maureeungaro)_
+- 2021-08-09 **ab5dc67** — proton going forward _(by maureeungaro)_
+- 2021-08-06 **fd0efea** — just semantic _(by maureeungaro)_
+- 2021-08-05 **eb19f63** — added tlog option.working userActions. added initGemcG4RunManager _(by maureeungaro)_
+- 2021-08-05 **923c9f9** — added gui, working on gActionInitialization, initializing streamer factories _(by maureeungaro)_
+- 2021-08-02 **29a30f9** — renaming eventData to eventDataCollection _(by maureeungaro)_
+- 2021-07-30 **57bd36b** — added grun, working on adding digitization and streamers calls _(by maureeungaro)_
+- 2021-07-30 **3d51698** — added event action, generator action, adding runs actions _(by maureeungaro)_
+- 2021-07-23 **e39d66f** — added temp physics list _(by maureeungaro)_
+- 2021-07-23 **be87638** — printing options at the beginning, adding verbosity argument to statemessage _(by maureeungaro)_
+- 2021-07-21 **cc60053** — using verbosity for MT message _(by maureeungaro)_
+- 2021-07-20 **81fea56** — working on building geant4 objects _(by maureeungaro)_
+- 2021-07-19 **de2e412** — instantiating GWorld in gdetector/gdetectorConstruction.cc _(by maureeungaro)_
+- 2021-07-14 **1900e60** — instantiating gdetector _(by maureeungaro)_
+- 2021-07-02 **5109592** — added gdetector _(by maureeungaro)_
+- 2021-07-01 **9a2c24b** — adding gsystem options, moving options defs to gemcOptions.h _(by maureeungaro)_
+- 2021-06-30 **dea3e64** — verbosity option help _(by maureeungaro)_
+- 2021-05-27 **ce1462d** — gsd finding existing hit, add infos, or creating new hit _(by maureeungaro)_
+- 2021-05-21 **d2bdf86** — adding content to gsd _(by maureeungaro)_
+- 2021-05-20 **0ff80de** — renamed glog gsession. adding ingredients to gsd _(by maureeungaro)_
+- 2021-05-19 **5fcd109** — added gsensitive detector module GSD _(by maureeungaro)_
+- 2021-05-06 **52826b2** — gemc option in its own namespace _(by maureeungaro)_
+- 2021-05-05 **6249db1** — fromScratch comments _(by maureeungaro)_
+- 2021-05-05 **f4689a1** — add dynamic digit map pointer _(by maureeungaro)_
+- 2021-04-30 **b8402a3** — notes and todos _(by maureeungaro)_
+- 2021-04-25 **b9108f5** — not using namespace in headers _(by maureeungaro)_
+- 2021-04-23 **0eef164** — instantiating G4MTRunManager _(by maureeungaro)_
+- 2021-04-23 **b66617a** — gsplash and qt resources _(by maureeungaro)_
+- 2021-04-21 **e304a14** — backup commit _(by maureeungaro)_
+- 2021-04-21 **e5efa52** — accessing gui switch _(by maureeungaro)_
+- 2021-04-19 **d6d420d** — better names for notes _(by maureeungaro)_
+- 2021-04-19 **d827148** — fixed doxygen. more messages for state message _(by maureeungaro)_
+- 2021-04-19 **534993c** — added README, running in xcode _(by maureeungaro)_
+- 2021-04-14 **b47396d** — added examples, more work to be done on goptions _(by maureeungaro)_
+- 2021-04-14 **6316634** — temp commit _(by maureeungaro)_
+- 2021-04-14 **683809a** — adding zsh to travis _(by maureeungaro)_
+- 2021-04-14 **df13291** — fix script name _(by maureeungaro)_
+- 2021-04-14 **5030ce6** — doxy script, using new options _(by maureeungaro)_
+- 2021-03-16 **30b3761** — added auto doxy doc link _(by Mauri Ungaro)_
+- 2020-05-05 **a521926** — dd4hep notes _(by maureeungaro)_
+- 2020-03-17 **0c67f99** — added session and state messages _(by maureeungaro)_
+- 2020-03-16 **aeca523** — added glog, but need work on goptions for help and verbosity _(by maureeungaro)_
+- 2020-03-13 **721ddc1** — just indentation _(by Maurizio Ungaro)_
+- 2020-03-13 **14c265c** — fixed doxy script again _(by Maurizio Ungaro)_
+- 2020-03-13 **1f62ebd** — fixed doxy script _(by Maurizio Ungaro)_
+- 2020-03-11 **b55e18a** — MT manager _(by maureeungaro)_
+- 2020-03-10 **1ed8781** — added G4UImanager and SetCoutDestination _(by Maurizio Ungaro)_
+- 2020-03-10 **cab380b** — starting g4 routines _(by Maurizio Ungaro)_
+- 2020-03-10 **6e3a3f9** — trying doxy fix _(by Maurizio Ungaro)_
+- 2020-03-10 **dd7bb61** — restoring default option _(by Maurizio Ungaro)_
+- 2020-03-10 **737c54f** — just porting the changes to work on laptop _(by Maurizio Ungaro)_
+- 2020-03-09 **d3b881b** — added nthread option _(by Maurizio Ungaro)_
+- 2020-03-06 **519a83d** — first g3 executable _(by Maurizio Ungaro)_
+- 2020-03-06 **9f45e4e** — more gemc options _(by Maurizio Ungaro)_
+- 2020-03-06 **d4e9a06** — adding doxy, conventions, goption files _(by Maurizio Ungaro)_
+- 2020-03-02 **dea0dab** — added dd4hep reminder _(by maureeungaro)_
+- 2020-02-19 **3ea5710** — added badge for docker automated build _(by Maurizio Ungaro)_
+- 2020-02-19 **38f2069** — added badges for travis and docker _(by Maurizio Ungaro)_
+- 2020-02-19 **7645c82** — added badges for travis and docker _(by Maurizio Ungaro)_
+- 2020-02-19 **f8983d2** — travis file and script updates _(by Maurizio Ungaro)_
+- 2020-02-19 **83ef0c6** — added travis and script file _(by Maurizio Ungaro)_
+- 2020-02-18 **7820264** — resuming gemc3 project, proting from original _(by Maurizio Ungaro)_
+- 2020-02-13 **07b39e7** — started gemc3 todo list _(by maureeungaro)_
+- 2020-02-11 **39f9850** — Initial commit _(by Mauri)_
+<!-- AUTO-DEVMD:START -->
+## Commits on main since 2024-08-09
+
+- 2025-08-29 **27b9adb** — minor updates _(by Maurizio Ungaro)_
+- 2025-08-29 **dbaab42** — fixed streamer examples _(by Maurizio Ungaro)_
+- 2025-08-29 **596d5c7** — improved ascii factory, not opening connection on streamer instantiation, but in begin of the run. improving system template _(by Maurizio Ungaro)_
+- 2025-08-28 **5a8de99** — adjusting template _(by Maurizio Ungaro)_
+- 2025-08-26 **137fb9a** — removing meson_rerun_failed.py _(by Maurizio Ungaro)_
+- 2025-08-26 **ca7ac29** — adding re-testing python script in case a test failed - renaming docker images _(by Maurizio Ungaro)_
+- 2025-08-26 **26b5838** — tests not in parallel and using built dir for test output _(by Maurizio Ungaro)_
+- 2025-08-26 **ef5b967** — adding format to output filename hoping to mitigate tests failures _(by Maurizio Ungaro)_
+- 2025-08-26 **63cfc66** — fixed ci/discover-docker-matrix.sh for ci actions _(by Maurizio Ungaro)_
+- 2025-08-26 **ef82c0b** — added pull_request_template.md and uploading logs to ci docker creation _(by Maurizio Ungaro)_
+- 2025-08-26 **cf478c8** — Update issue templates _(by Mauri)_
+- 2025-08-25 **c305839** — Merge branch 'main' of mauriGithub:gemc/src _(by Maurizio Ungaro)_
+- 2025-08-25 **69c3573** — added CONTRIBUTING.md and matric docker script _(by Maurizio Ungaro)_
+- 2025-08-25 **fee84d0** — Revise GEMC Security Policy document _(by Mauri)_
+- 2025-08-25 **d2a86df** — Update repository URLs in CONTRIBUTING.md _(by Mauri)_
+- 2025-08-25 **3300443** — Revise Code of Conduct to GEMC Community standards _(by Mauri)_
+- 2025-08-25 **82dfb2f** — added yaml and trying ghrc _(by Maurizio Ungaro)_
+- 2025-08-23 **a633eca** — board separate module, filter updated and dark background for log _(by Maurizio Ungaro)_
+- 2025-08-22 **9911de9** — gbase to gsfactory and g4sfactory _(by Maurizio Ungaro)_
+- 2025-08-21 **0534015** — fix reload geometry argument _(by Maurizio Ungaro)_
+- 2025-08-21 **8f22563** — removed shadowed method arguments experiments and db _(by Maurizio Ungaro)_
+- 2025-08-21 **3a2af0a** — fixed reloading of geometry for non empty gsystem _(by Maurizio Ungaro)_
+- 2025-08-21 **163a630** — smaller window _(by Maurizio Ungaro)_
+- 2025-08-21 **f74448f** — no dipole for b2 _(by Maurizio Ungaro)_
+- 2025-08-21 **9ff58dc** — higer verbosity for gparticle not defined _(by Maurizio Ungaro)_
+- 2025-08-20 **0fc4ce4** — added gbase for all classes _(by Maurizio Ungaro)_
+- 2025-08-20 **cf6a587** — added gsd gfields and gdetector _(by Maurizio Ungaro)_
+- 2025-08-15 **3db53c1** — added gbase derivation in gsplash and gstreamer _(by Maurizio Ungaro)_
+- 2025-08-14 **ab4f687** — added gbase derivation in g4system and gphysics and gboard - plus other fixes _(by Maurizio Ungaro)_
+- 2025-08-13 **302995c** — g4dialog g4display and gsystems derived from gbase _(by Maurizio Ungaro)_
+- 2025-08-12 **0548a5c** — gdata derived from gbase _(by Maurizio Ungaro)_
+- 2025-08-12 **c942de9** — Merge branch 'main' into gbase _(by Maurizio Ungaro)_
+- 2025-08-12 **f8e4fc5** — nthread is max number of threads, and setting that on the examples to avoid using too many cores _(by Maurizio Ungaro)_
+- 2025-08-08 **6cbc428** — gbase added for gdata _(by Maurizio Ungaro)_
+- 2025-08-08 **33a8800** — gdynamicDigitization using gbase, this come with new instantiate method accepting GOptions _(by Maurizio Ungaro)_
+- 2025-08-07 **8a49bd6** — added gbase to gfactory gmanager. this will breack ci for many tests due to the different logger constructors, until all classes adapt to it _(by Maurizio Ungaro)_
+- 2025-08-07 **f5d3ae5** — Merge branch 'gbase' of mauriGithub:gemc/src into gbase _(by Maurizio Ungaro)_
+- 2025-08-06 **fe2db24** — event dispenser using gbase _(by Maurizio Ungaro)_
+- 2025-08-06 **451fb01** — gparticle new logger _(by Maurizio Ungaro)_
+- 2025-08-06 **3d839f0** — logging based on class  automatic  and logger name _(by Maurizio Ungaro)_
+- 2025-08-07 **857b3f9** — explicit examples test name _(by Maurizio Ungaro)_
+- 2025-08-06 **228381c** — event dispenser using gbase _(by Maurizio Ungaro)_
+- 2025-08-06 **cc39224** — gparticle new logger _(by Maurizio Ungaro)_
+- 2025-08-06 **b4b700b** — logging based on class  automatic  and logger name _(by Maurizio Ungaro)_
+- 2025-08-06 **baed13e** — stashing gbase before new branch _(by Maurizio Ungaro)_
+- 2025-08-05 **c6950a5** — ascii plugin lowercased , only printing error logs _(by Maurizio Ungaro)_
+- 2025-08-05 **b37e836** — added logs and artifacts for compilation. using different names for example root output for concurrency _(by Maurizio Ungaro)_
+- 2025-08-05 **24898fb** — added gbase, make sqlite static false on linux _(by Maurizio Ungaro)_
+- 2025-08-05 **19bbfbe** — fixed gfield multipoles and added longitudinal option. added ascii_db option to define additional search path for ascii. using assimp internal zlib for non macos systems _(by Maurizio Ungaro)_
+- 2025-08-04 **1ca3234** — checking exe + buiild dir for plugin, allowing gemc to run in meson build dir _(by Maurizio Ungaro)_
+- 2025-08-04 **9c8999d** — using gemc installed to run certain tests _(by Maurizio Ungaro)_
+- 2025-08-04 **b6a4f48** — removed use_root option, testing root-config instead _(by Maurizio Ungaro)_
+- 2025-08-04 **b50f6f4** — fixed gfield running _(by Maurizio Ungaro)_
+- 2025-08-04 **9784417** — using installed gemc for the examples _(by Maurizio Ungaro)_
+- 2025-08-04 **56ee9b0** — skip sqlite creation for root volume, added factories examples tests _(by Maurizio Ungaro)_
+- 2025-08-04 **880c89f** — ownership of gmagneto _(by Maurizio Ungaro)_
+- 2025-08-04 **d650e0a** — fixed wrong verbosity for materials _(by Maurizio Ungaro)_
+- 2025-08-04 **64076e3** — better generator logger name _(by Maurizio Ungaro)_
+- 2025-08-04 **ceec314** — test names improvements _(by Maurizio Ungaro)_
+- 2025-08-04 **d402e56** — removing n_event_buffer options as buffers is in gdata now _(by Maurizio Ungaro)_
+- 2025-08-01 **3d92c1a** — enabled event based gstreamer including root mt thread _(by Maurizio Ungaro)_
+- 2025-08-01 **364a7a9** — ogl restored, re-adding hit infos _(by Maurizio Ungaro)_
+- 2025-08-01 **3e1f3d5** — sd working again now going to write data _(by Maurizio Ungaro)_
+- 2025-08-01 **cae6779** — fixed log calls _(by Maurizio Ungaro)_
+- 2025-08-01 **16b4cf4** — using ghit raw pointers in data constructors _(by Maurizio Ungaro)_
+- 2025-08-01 **14d427f** — using ghit raw pointers in data constructors _(by Maurizio Ungaro)_
+- 2025-08-01 **fdf38bb** — using ghit raw pointers in data constructors _(by Maurizio Ungaro)_
+- 2025-08-01 **7d1891c** — not using string move in constructor of g4system _(by Maurizio Ungaro)_
+- 2025-08-01 **2e92034** — gsystem using shared ptr for materials _(by Maurizio Ungaro)_
+- 2025-07-31 **1093c3c** — creating default gparticle if none selected. loadconstants and loadtt defaulted to return true if not defined _(by Maurizio Ungaro)_
+- 2025-07-31 **896402d** — gdetector and gsensitive raw pointers as they are passed to geant4 _(by Maurizio Ungaro)_
+- 2025-07-30 **d642f8d** — gemc with gui, still problems though _(by Maurizio Ungaro)_
+- 2025-07-30 **8c711c4** — using smart pointers for GOptions objects. instantiating digi routine map in gdetector constructor. improving several other modules _(by Maurizio Ungaro)_
+- 2025-07-29 **4063fde** — logger added to actions - these needs to be tested _(by Maurizio Ungaro)_
+- 2025-07-28 **7f257c8** — temp flux sensitivity for example b1, added gdetector examples using dyn map smart pointers. starting on actions _(by Maurizio Ungaro)_
+- 2025-07-28 **6bcea32** — using gsystem shared_ptr and logger added to dbselect _(by Maurizio Ungaro)_
+- 2025-07-25 **09c7638** — saving progress, however reload_geometry does not work _(by Maurizio Ungaro)_
+- 2025-07-25 **6fdcb5e** — added glogger to detector construction _(by Maurizio Ungaro)_
+- 2025-07-24 **cdd6ac4** — added logger to gfields _(by Maurizio Ungaro)_
+- 2025-07-23 **f68b3e0** — testing plugin life cycle on manager _(by Maurizio Ungaro)_
+- 2025-07-23 **b10524c** — hacking mechanism not to unload dyn lib before gstreamer is done. g4dialog improvements. added glogger to gsd _(by Maurizio Ungaro)_
+- 2025-07-22 **e5da6f8** — gsd mods - not final _(by Maurizio Ungaro)_
+- 2025-07-22 **2c55a95** — added decisionToSkipHit _(by Maurizio Ungaro)_
+- 2025-07-22 **cf680ce** — clearing vectors before filling the trees _(by Maurizio Ungaro)_
+- 2025-07-21 **b7b5f75** — saving changes but data vectors need to be cleared before filling the tree _(by Maurizio Ungaro)_
+- 2025-07-21 **fa76fca** — using shared ptr for eventDataCollection and fix root writing and close _(by Maurizio Ungaro)_
+- 2025-07-18 **80b17a6** — root no crash but still some details to work out _(by Maurizio Ungaro)_
+- 2025-07-18 **31fa318** — using shared pointer maps in event dispenser. fix ubuntu container. not checking gemc build in ci _(by Maurizio Ungaro)_
+- 2025-07-17 **aeac610** — debugging in ci _(by Maurizio Ungaro)_
+- 2025-07-17 **e85e13c** — using smart pointers for gdynamicDigitization _(by Maurizio Ungaro)_
+- 2025-07-16 **0d29ba9** — temp commit, saving progress on using smart pointers on data _(by Maurizio Ungaro)_
+- 2025-07-14 **15f0802** — temp saving - still root or data nightmares _(by Maurizio Ungaro)_
+- 2025-07-13 **4f14e9a** — init root files _(by Maurizio Ungaro)_
+- 2025-07-12 **70e2bab** — saving changes although code is not MT safe yet _(by Maurizio Ungaro)_
+- 2025-07-11 **f827ba8** — conforming gstreamer to gfactory class _(by Maurizio Ungaro)_
+- 2025-07-11 **e459cf3** — using direct test names so can run specific meson test. gstreamer test with 1 thread per event - no writing output yet _(by Maurizio Ungaro)_
+- 2025-06-12 **8d49a7c** — saving progress before using multithreading in gstreamer example _(by Maurizio Ungaro)_
+- 2025-06-09 **3ca7e50** — saving changes _(by Maurizio Ungaro)_
+- 2025-05-22 **6675920** — progress toward gstreamer logging, testing leak fix _(by Maurizio Ungaro)_
+- 2025-05-21 **6f6e588** — not sure why it compiled on mac but fixed getGParticles _(by Maurizio Ungaro)_
+- 2025-05-21 **825d638** — testing building for qt multiple checkbox buttons states. using std string and vectors in headers _(by Maurizio Ungaro)_
+- 2025-05-20 **b00cc2b** — exiting gui after 0.5 seconds in the examples, added logger to gstreamer but example not ready yet _(by Maurizio Ungaro)_
+- 2025-05-19 **39b1232** — added glogger to gsplash _(by Maurizio Ungaro)_
+- 2025-05-19 **efe8692** — added glogger to gphysics _(by Maurizio Ungaro)_
+- 2025-05-15 **c3a4548** — using expat lib when using geant4 physics, not given by geant4 config, forcing libdir to be lib in build system, removing lib64 references, fix plugin loading for meson testing _(by Maurizio Ungaro)_
+- 2025-05-12 **8ff588b** — better logging _(by Maurizio Ungaro)_
+- 2025-05-09 **7df480a** — glogger for gparticle, using unique pointers for gparticle and gsystem _(by Maurizio Ungaro)_
+- 2025-05-08 **62faee2** — logger added to gparticle _(by Maurizio Ungaro)_
+- 2025-05-07 **af1422f** — working on gparticle _(by Maurizio Ungaro)_
+- 2025-05-07 **3bc58ad** — fix overlaps option and missing functional include for goption.cc _(by Maurizio Ungaro)_
+- 2025-05-07 **7499b40** — added logger to g4system and several other improvements _(by Maurizio Ungaro)_
+- 2025-05-01 **1d24da4** — finally gsystem logger implemented. _(by Maurizio Ungaro)_
+- 2025-04-28 **93a4629** — temp saving working copy of gsystems _(by Maurizio Ungaro)_
+- 2025-04-21 **6eadc77** — Create codeql.yml _(by Mauri)_
+- 2025-04-21 **f66d302** — temp removing codeql _(by Maurizio Ungaro)_
+- 2025-04-18 **a8219e9** — using shared pointer for gloggers. adding codeQL workflow _(by Maurizio Ungaro)_
+- 2025-04-01 **273b224** — converting log to html for proper display in g4dialog _(by Maurizio Ungaro)_
+- 2025-03-31 **276077c** — logger on display _(by Maurizio Ungaro)_
+- 2025-03-28 **c5d7eaa** — doxygen _(by Maurizio Ungaro)_
+- 2025-03-28 **58e81eb** — doxy for g4display _(by Maurizio Ungaro)_
+- 2025-03-28 **0af0314** — added log to g4display _(by Maurizio Ungaro)_
+- 2025-03-27 **ef505b8** — restored gqtbuttonswidget _(by Maurizio Ungaro)_
+- 2025-03-27 **339032a** — added logging to eventDispenser _(by Maurizio Ungaro)_
+- 2025-03-27 **9b13154** — gdynamic doxy and using virtual function Impl suffix _(by Maurizio Ungaro)_
+- 2025-03-27 **d448640** — added logger to gdynamicDigitization _(by Maurizio Ungaro)_
+- 2025-03-26 **8974432** — doxy for gdata _(by Maurizio Ungaro)_
+- 2025-03-26 **5a7b46b** — added logger to gdata _(by Maurizio Ungaro)_
+- 2025-03-26 **67d63a7** — testing destructor on gtouchable example, part 6 _(by Maurizio Ungaro)_
+- 2025-03-26 **6d342d6** — testing destructor on gtouchable example, part 5 _(by Maurizio Ungaro)_
+- 2025-03-26 **6c21a75** — testing destructor on gtouchable example, part 4 _(by Maurizio Ungaro)_
+- 2025-03-26 **8c73a2d** — testing destructor on gtouchable example, part 3 _(by Maurizio Ungaro)_
+- 2025-03-26 **c74141a** — testing destructor on gtouchable example, part 2 _(by Maurizio Ungaro)_
+- 2025-03-26 **927096f** — testing destructor on gtouchable example _(by Maurizio Ungaro)_
+- 2025-03-26 **3bbca0b** — added gtouchable contructor and destructor log, gtranslation table uses logging _(by Maurizio Ungaro)_
+- 2025-03-25 **9596266** — forgot to include optional _(by Maurizio Ungaro)_
+- 2025-03-25 **46d5236** — adding hits and hit comparison to refurbish _(by Maurizio Ungaro)_
+- 2025-03-25 **3d8f1df** — finalized gtouchable _(by Maurizio Ungaro)_
+- 2025-03-24 **964a08e** — fix gtouchable comparison bug _(by Maurizio Ungaro)_
+- 2025-03-24 **b616260** — logger for gtouchable _(by Maurizio Ungaro)_
+- 2025-03-24 **330ee18** — added Command-line parsing that accepts both the original YAML–style syntax and dot–notation e.g. -debug.general=true _(by Maurizio Ungaro)_
+- 2025-03-24 **9d44ef3** — using GLogger in gfactory. removing obsolete xcode settings. _(by Maurizio Ungaro)_
+- 2025-03-24 **42495f1** — using GLogger in gfactory. removing obsolete xcode settings. _(by Maurizio Ungaro)_
+- 2025-03-21 **81433ad** — new logging system. ci disabled as this is a major change _(by Maurizio Ungaro)_
+- 2025-03-21 **da14c8f** — added interactive options. this is a push before a major change to the logging framework _(by Maurizio Ungaro)_
+- 2025-03-20 **dac58af** — fixes on the readme _(by Maurizio Ungaro)_
+- 2025-03-20 **ae9e536** — geo for basic b1 _(by Maurizio Ungaro)_
+- 2025-03-19 **822dfb1** — trying no parallel testing as sometimes it fails randomly - not reproducible _(by Maurizio Ungaro)_
+- 2025-03-19 **b54691b** — reload geometry mechanism _(by Maurizio Ungaro)_
+- 2025-03-19 **b4da33b** — dbselect has now access to gdetectorconstruction, in preparation for geometry re-load _(by Maurizio Ungaro)_
+- 2025-03-18 **32a7ae1** — forgot to remove file from meson build _(by Maurizio Ungaro)_
+- 2025-03-18 **a15a35b** — loadDigitizationPlugins executed in gdetectors. preparing to re-load geometry... _(by Maurizio Ungaro)_
+- 2025-03-17 **723cddd** — added 4th column for n volumes, propagating experiments from options to tree _(by Maurizio Ungaro)_
+- 2025-03-14 **04294c4** — selecting system based on gsystem map _(by Maurizio Ungaro)_
+- 2025-03-14 **5e3f5b4** — icon changes and gQtButtonsWidget.cc improvements _(by Maurizio Ungaro)_
+- 2025-03-14 **c86e3e1** — removing obsolete icons, improved db select _(by Maurizio Ungaro)_
+- 2025-03-13 **cd77b45** — checking for variation system and run both in api and code. adding runs and variations in examples. new db select view _(by Maurizio Ungaro)_
+- 2025-03-13 **a45d856** — fix streamer factory names _(by Maurizio Ungaro)_
+- 2025-03-13 **0ffdbcc** — added experiment column to sqlite db _(by Maurizio Ungaro)_
+- 2025-03-12 **b6fbe58** — de-deprecating stateChanged until qt on new images is updated _(by Maurizio Ungaro)_
+- 2025-03-12 **15f698f** — improved code for qt6 _(by Maurizio Ungaro)_
+- 2025-03-12 **fbbbf69** — build ubuntu with sanitize undefined _(by Maurizio Ungaro)_
+- 2025-03-12 **e54753c** — adding both ascii and sqlite factories in tests _(by Maurizio Ungaro)_
+- 2025-03-12 **5cd6c95** — addressing b2 test error _(by Maurizio Ungaro)_
+- 2025-03-12 **0223bb4** — trying link_with all_libs _(by Maurizio Ungaro)_
+- 2025-03-12 **1e08953** — debugging build _(by Maurizio Ungaro)_
+- 2025-03-12 **9d462cf** — fixed max_j function _(by Maurizio Ungaro)_
+- 2025-03-11 **a771f54** — gpush adding b2 for testing, other minor changes in meson build. remaining issue on ubuntu _(by Maurizio Ungaro)_
+- 2025-03-11 **6423fcc** — testing zdep for the plugins _(by Maurizio Ungaro)_
+- 2025-03-11 **5b16dc4** — testing static_pic false _(by Maurizio Ungaro)_
+- 2025-03-11 **c8ae36c** — testing no static_pic _(by Maurizio Ungaro)_
+- 2025-03-11 **10832e5** — trying dynamic libz _(by Maurizio Ungaro)_
+- 2025-03-11 **c6139d1** — Renamed temp_name to b1 _(by Maurizio Ungaro)_
+- 2025-03-11 **999d587** — Renamed B1 to temp_name _(by Maurizio Ungaro)_
+- 2025-03-11 **8d15e09** — fixed plugin loading mechanism _(by Maurizio Ungaro)_
+- 2025-03-10 **1106896** — more debugging ci _(by Maurizio Ungaro)_
+- 2025-03-10 **7a402ba** — debugging ci _(by Maurizio Ungaro)_
+- 2025-03-10 **46a3c53** — examples factory _(by Maurizio Ungaro)_
+- 2025-03-10 **7038d7c** — forgot install _(by Maurizio Ungaro)_
+- 2025-03-10 **bd360aa** — fixed testing api _(by Maurizio Ungaro)_
+- 2025-03-10 **6262660** — adding assimp to gemc executable, trying all sanitizers in ci _(by Maurizio Ungaro)_
+- 2025-03-07 **c1d9094** — added expat to dependencies _(by Maurizio Ungaro)_
+- 2025-03-07 **e9fc545** — adding ogl and sqlite3 dependencies _(by Maurizio Ungaro)_
+- 2025-03-07 **61a311a** — installling geant4 pc in meson if not there _(by Maurizio Ungaro)_
+- 2025-03-07 **11f5279** — fixing ci _(by Maurizio Ungaro)_
+- 2025-02-21 **19cd446** — improving api _(by Maurizio Ungaro)_
+- 2025-02-20 **d4382d5** — testing ci _(by Maurizio Ungaro)_
+- 2025-02-20 **05484a8** — check if root-config exists _(by Maurizio Ungaro)_
+- 2025-02-20 **e4648c0** — fixed gQtButtonsWidget/meson.build, added Geant4PackageCache.cmake installation in install_geant4_root_pkgconfig.py, added check arguments to run_command _(by Maurizio Ungaro)_
+- 2025-02-19 **0e19180** — simplified executable library dependency, adding env for python to avoid writing cache _(by Maurizio Ungaro)_
+- 2025-02-18 **811cde2** — added qt6 dependencies. TOOLSSG_QT_GLES is now default as OGL is not working. _(by Maurizio Ungaro)_
+- 2025-02-04 **d63eaea** — added script to create geant4 and root pkg-config file. finally managed to pass cmake options to subproject assimp _(by Maurizio Ungaro)_
+- 2025-01-31 **f992ae2** — moved geant4 example to proper dir name _(by Maurizio Ungaro)_
+- 2025-01-15 **09b5290** — doxygen link fix _(by Maurizio Ungaro)_
+- 2025-01-15 **0bc7fde** — doxygen link in main page _(by Maurizio Ungaro)_
+- 2024-12-06 **cae3828** — updated gitignore and better doxygen _(by Maurizio Ungaro)_
+- 2024-12-05 **3106f8c** — added multipoles implementation, field points lineedit to set its precision _(by Maurizio Ungaro)_
+- 2024-12-04 **210e83b** — loading fields but dipole not working yet _(by Maurizio Ungaro)_
+- 2024-12-02 **9aa1226** — gfields doxygen and working on multipoles definitions _(by Maurizio Ungaro)_
+- 2024-11-26 **26ce428** — added field lines _(by Maurizio Ungaro)_
+- 2024-11-21 **75ace5c** — buttons added _(by Maurizio Ungaro)_
+- 2024-11-20 **e62053c** — no news _(by Maurizio Ungaro)_
+- 2024-11-20 **fa71cd8** — fixed path for g4display icons _(by Maurizio Ungaro)_
+- 2024-11-19 **3f11fcd** — adding buttons, still not working though _(by Maurizio Ungaro)_
+- 2024-11-19 **ccdbf33** — reorg display _(by Maurizio Ungaro)_
+- 2024-11-13 **650e937** — added search functionality to g4dialog _(by Maurizio Ungaro)_
+- 2024-11-08 **4b69cac** — added g4dialog and left button icons _(by Maurizio Ungaro)_
+- 2024-11-07 **14d7589** — added g4dialog, gsplash working for gemc but not on its own example _(by Maurizio Ungaro)_
+- 2024-11-06 **d05e517** — fix utilities header define _(by Maurizio Ungaro)_
+- 2024-09-20 **0dc4a0a** — saving changes _(by mungaro)_
+- 2024-08-13 **bed6b35** — added guts doxygen documentation _(by mungaro)_
+
+<!-- AUTO-DEVMD:END -->

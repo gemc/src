@@ -1,5 +1,5 @@
 // gstreamer
-#include "../gstreamerROOTFactory.h"
+#include "gstreamerROOTFactory.h"
 
 bool GstreamerRootFactory::startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 

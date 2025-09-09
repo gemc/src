@@ -1,3 +1,12 @@
+---
+layout: default
+permalink: /license/
+---
+
+{% include mynotes.html %}
+
+[//]: # (Notice: I copied the content of src/LICENSE.md here to have it rendered by Jekyll)
+
 # GEMC Software License
 
 *Version 1.0, August 25, 2025*
@@ -18,13 +27,10 @@ this software, with or without modification, in source and binary forms, are
 permitted on a non-exclusive basis. Any exercise of rights by you under this
 license is subject to the following conditions:
 
-<br/>
+<br/><br/>
 
------
 
-<br/>
-
-### 1\. Redistributions
+## 1\. Redistributions
 
 Redistributions of this software, in whole or in part, with or without
 modification, must reproduce the above copyright notice and these license
@@ -33,11 +39,8 @@ other materials provided with the redistributed software.
 
 <br/>
 
------
 
-<br/>
-
-### 2\. User Documentation
+## 2\. User Documentation
 
 The user documentation, if any, included with a redistribution, must
 include the following notice:
@@ -53,11 +56,8 @@ software itself.
 
 <br/>
 
------
 
-<br/>
-
-### 3\. Scientific Citation
+## 3\. Scientific Citation
 
 Publications or presentations that use this software
 or results produced with it must include the following citation:
@@ -94,11 +94,8 @@ https://doi.org/10.1051/epjconf/202429505005
 
 <br/>
 
------
 
-<br/>
-
-### 4\. Names and Endorsement
+## 4\. Names and Endorsement
 
 The names `GEMC` and `GEMC: Geant4 Monte-Carlo` may not be used to endorse or promote
 software or products derived from this software except with prior written permission
@@ -108,11 +105,8 @@ version must be clearly distinguishable from that of this software.
 
 <br/>
 
------
 
-<br/>
-
-### 5\. Modifications
+## 5\. Modifications
 
 You are under no obligation to provide anyone with any modifications of this software
 that you may develop, including but not limited to bug fixes, patches, upgrades, or other
@@ -125,11 +119,8 @@ under the conditions of this license.
 
 <br/>
 
------
 
-<br/>
-
-### 6\. Patents
+## 6\. Patents
 
 You may not include this software, in whole or in part, in any patent o
 r patent application in respect of any modification of this software developed
@@ -137,11 +128,7 @@ by you.
 
 <br/>
 
------
-
-<br/>
-
-### 7\. Third-Party Software
+## 7\. Third-Party Software
 
 This software may be distributed with or may require third-party components (including,
 without limitation, Geant4, CLHEP, Qt, ROOT, SQLite, Assimp, and others) that are separately
@@ -151,11 +138,8 @@ license), you must reproduce the applicable notices and acknowledgments in your 
 
 <br/>
 
------
 
-<br/>
-
-### 8\. DISCLAIMER
+## 8\. DISCLAIMER
 
 **THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
@@ -166,11 +150,8 @@ TRADE SECRET, OR OTHER PROPRIETARY RIGHT.**
 
 <br/>
 
------
 
-<br/>
-
-### 9\. LIMITATION OF LIABILITY
+## 9\. LIMITATION OF LIABILITY
 
 **IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
 INDIRECT, SPECIAL, INCIDENTAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES OF ANY
@@ -182,11 +163,8 @@ OF SUCH DAMAGES.**
 
 <br/>
 
------
 
-<br/>
-
-### 10\. Termination
+## 10\. Termination
 
 This license shall terminate with immediate effect and without notice if you fail
 to comply with any of its terms, or if you institute litigation against any copyright

@@ -1,5 +1,5 @@
 // gstreamer
-#include "../gstreamerROOTFactory.h"
+#include "gstreamerROOTFactory.h"
 #include "gstreamerConventions.h"
 
 
