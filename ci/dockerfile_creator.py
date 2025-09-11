@@ -43,7 +43,7 @@ def add_load_gemc(tag: str) -> str:
 
 def install_gemc(tag: str) -> str:
 	commands = f'\nRUN source {remote_setup_filename()} \\\n'
-	commands += f'     && RUN git clone -c advice.detachedHead=false --recurse-submodules --single-branch -b {tag}  http://github.com/gemc/src  /root/src \\\n'
+	commands += f'     && git clone -c advice.detachedHead=false --recurse-submodules --single-branch -b {tag}  http://github.com/gemc/src  /root/src \\\n'
 	commands += f'     && cd /root/src \\\n'
 	commands += f'     &&  ./ci/build.sh \n'
 	return commands
