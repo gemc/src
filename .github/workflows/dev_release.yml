@@ -1,20 +1,23 @@
-# .github/workflows/dev-release.yml
+# https://github.com/marketplace/actions/automatic-releases
 name: Nightly Dev Release
+permissions:
+  contents: write
+  pull-requests: write
 
 on:
   schedule:
-    - cron: "0 3 * * *"   # every day at 03:00 UTC
-  workflow_dispatch:
+    # every day at 1:44 am
+    - cron: '44 1 * * *'
 
-permissions:
-  contents: write
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   dev-release:
     runs-on: ubuntu-latest
     env:
       DEVMD_SINCE: "2024-08-09"   # optional fixed start date
-      TAG_NAME: "dev-nightly"     # reuse the same tag each night
+      TAG_NAME: "dev"             # reuse the same tag each night
       RELEASE_TITLE: "Dev Nightly"
     steps:
       - uses: actions/checkout@v4
@@ -44,4 +47,3 @@ jobs:
           prerelease: true
           allowUpdates: true
           artifactErrorsFailBuild: false
-          # uploadAssets: "path/to/artifacts/*"   # optional

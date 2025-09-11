@@ -1,59 +1,73 @@
 # Build & Publish GitHub Container Registry (GHCR) Images
-name: Build and Test Images
+name: Build And Test Images
 
 on:
   push:
-    branches: [ main ]     # publish on main updates
-    tags: [ 'v*' ]     # (optional) also publish on repo tags
-  pull_request:            # PRs: build only (no push)
-
-concurrency:
-  group: ghcr-${{ github.ref }}   # cancel older runs on the same ref
-  cancel-in-progress: true
+    branches: [ main ]   # publish on main updates
+    tags: [ 'v*' ]       # also publish on version tags
+  pull_request:          # PRs: build only (no push)
 
 jobs:
-  discover:
-    name: Discover Dockerfiles
+  overview:
+    name: Workflow Overview
     runs-on: ubuntu-latest
-    # Expose the step outputs to downstream jobs
+    steps:
+      - name: Write overview
+        shell: bash
+        run: |
+          : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/summary.md}"
+          {
+            echo "# GEMC Images — Overview"
+            echo "Repository: [gemc images](https://github.com/gemc/src/pkgs/container/gemc)"
+            echo ""
+            echo ""
+            echo "Set these convenience variables to run docker (choose your own password)"
+            echo '```bash'
+            echo 'VPORTS=(-p 6080:6080 -p 5900:5900)'
+            echo 'VNC_PASS=(-e X11VNC_PASSWORD=change-me)'
+            echo 'VNC_BIND=(-e VNC_BIND=0.0.0.0)'
+            echo '```'
+            echo ""
+            echo "For amd64 CPUS (for example, MacOS silicon):"
+            echo '```bash'
+            echo 'VPLATFORM="--platform=linux/amd64"'
+            echo '```'
+            echo "---"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  discover:
+    name: Create Dockerfiles
+    runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.scan.outputs.matrix }}
       image: ${{ steps.scan.outputs.image }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      # Run the sh discovery script which writes to $GITHUB_OUTPUT:
-      #   - matrix: JSON {"include":[{file,tag,os,latest},...]}
-      #   - image : "ghcr.io/<owner>/gemc"
       - id: scan
         name: Build matrix
-        run: ci/discover-docker-matrix.sh
+        run: ci/distros_tags.sh
 
-  build:
-    name: Build ${{ matrix.tag }} on ${{ matrix.os }}
-    needs: discover
+  # ===========================
+  # Per-arch build jobs
+  # ===========================
+  build_amd64:
+    name: Build amd64 from ${{ matrix.image }}:${{ matrix.image_tag }}
+    needs: [ overview, discover ]
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write    # needed to push to GHCR
+      packages: write
     strategy:
       fail-fast: false
-      # Use the JSON produced by ci/discover-docker-matrix.sh
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Enable emulation so we can build for both amd64 & arm64 on x86 runners
-      - name: Enable QEMU
-        uses: docker/setup-qemu-action@v3
-
-      # Set up Buildx builder (required for multi-arch + cache)
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Auth to GHCR using GITHUB_TOKEN (no secret PAT needed)
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -61,137 +75,239 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Create the final tag list:
-      #   - gemc-<tag>-<os> (always)
-      #   - gemc-latest-<os> (only for the "latest" per-OS candidate)
       - id: meta
-        name: Generate tags & labels
+        name: Docker metadata (base tag)
         uses: docker/metadata-action@v5
         with:
           images: ${{ needs.discover.outputs.image }}
           tags: |
-            type=raw,value=${{ matrix.tag }}-${{ matrix.os }}
-            type=raw,value=latest-${{ matrix.os }},enable=${{ matrix.latest }}
+            type=raw,value=${{ format('{0}-{1}', matrix.gemc_tag, matrix.osname) }}
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
-            org.opencontainers.image.description=GEMC image (${{ matrix.tag }} on ${{ matrix.os }})
+            org.opencontainers.image.description=GEMC image (${{ matrix.gemc_tag }}, Geant4: ${{ matrix.geant4_tag }}) on  ${{ matrix.image }}): ${{ matrix.image_tag }}
 
-      # Decide platforms per Dockerfile by inspecting its base image
-      - name: Decide platforms from Dockerfile base
-        id: plats
-        shell: bash
+      - name: Generate Dockerfile
         run: |
-          set -euo pipefail
-          BASE="$(awk 'toupper($1)=="FROM"{print $2; exit}' "${{ matrix.file }}")"
-          echo "Base image: $BASE"
-          if docker buildx imagetools inspect "$BASE" | grep -qE 'manifest\.list|image\.index'; then
-            PLATS="linux/amd64,linux/arm64"
-          else
-            PLATS="linux/amd64"
-          fi
-          echo "platforms=$PLATS" >> "$GITHUB_OUTPUT"
+          python3 ci/dockerfile_creator.py \
+          -i "${{ matrix.image }}" \
+          -t "${{ matrix.image_tag }}" \
+          > Dockerfile.generated
+          cat Dockerfile.generated
 
-      # Single build step for PRs AND main/tags
-      - name: Build (PR loads; main/tags push)
-        uses: docker/build-push-action@v6
+      - name: Get upstream commit
+        run: echo "UPSTREAM_REV=$(git ls-remote https://github.com/gemc/src HEAD | cut -f1)" >> $GITHUB_ENV
+
+      - name: Build & Push (amd64 only)
+        uses: docker/build-push-action@v5
         with:
+          build-args: |
+            UPSTREAM_REV=${{ env.UPSTREAM_REV }}
           context: .
-          file: ${{ matrix.file }}
-          platforms: ${{ github.event_name == 'pull_request' && 'linux/amd64' || steps.plats.outputs.platforms }}
-          load: ${{ github.event_name == 'pull_request' }}   # PR: load locally for log extraction
-          push: ${{ github.event_name != 'pull_request' }}   # main/tags: push to GHCR
-          tags: ${{ steps.meta.outputs.tags }}               # e.g., ghcr.io/gemc/gemc:dev3-ubuntu24
+          file: ./Dockerfile.generated
+          platforms: linux/amd64
+          push: true
+          # Add -amd64 suffix to the arch-specific image tag
+          tags: ${{ steps.meta.outputs.tags }}-amd64
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64
+          cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64,mode=max
 
-      # Extract logs from the built image (use new tag names)
-      - name: Extract /root/src/logs from image
+      - name: Summary
         if: ${{ always() }}
+        shell: bash
         env:
-          IMG_PRIMARY: ${{ needs.discover.outputs.image }}:${{ matrix.tag }}-${{ matrix.os }}
-          IMG_LATEST:  ${{ needs.discover.outputs.image }}:latest-${{ matrix.os }}
+          IMAGE: ${{ needs.discover.outputs.image }}
+          TAG: ${{ format('{0}-{1}', matrix.gemc_tag, matrix.osname) }}
         run: |
-          set -euo pipefail
-          mkdir -p ci-logs
-          
-          # Prefer the primary tag; fall back to latest-<os> if needed
-          IMG="$IMG_PRIMARY"
-          if ! docker image inspect "$IMG" >/dev/null 2>&1; then
-            # Not local? try pull (main/tags). If still missing, try the latest alias.
-            docker pull "$IMG" >/dev/null 2>&1 || true
-            if ! docker image inspect "$IMG" >/dev/null 2>&1; then
-              IMG="$IMG_LATEST"
-              docker pull "$IMG" >/dev/null 2>&1 || true
-            fi
-          fi
-          
-          if docker image inspect "$IMG" >/dev/null 2>&1; then
-            cid="$(docker create "$IMG" true || true)"
-            if [ -n "${cid:-}" ]; then
-              docker cp "$cid":/root/src/logs/. ci-logs/ 2>/dev/null || true
-              docker rm -v "$cid" >/dev/null 2>&1 || true
-            fi
-          else
-            echo "Image unavailable (likely build failed before image existed)."
-          fi
-          
-          ls -l ci-logs || true
+          OUT="$RUNNER_TEMP/summary.md"
+          : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/step_summary.md}"
+          {
+            echo "## \`${TAG}\`"
+            echo ""
+            echo "### Pull"
+            echo '```bash'
+            echo "docker pull \$VPLATFORM ${IMAGE}:${TAG}"
+            echo '```'
+            echo ""
+            echo "### Run interactive shell"
+            echo '```bash'
+            echo "docker run --rm -it \$VPLATFORM ${IMAGE}:${TAG} bash -l"
+            echo '```'
+            echo ""
+            echo "### Run with VNC/noVNC"
+            echo "_VNC → localhost:5900 (password: change-me)_"
+            echo "_noVNC → http://localhost:6080/vnc.html (password: change-me)_"
+            echo '```bash'
+            echo "docker run --rm -it \$VPLATFORM \$VPORTS \$VNC_BIND \$VNC_PASS ${IMAGE}:${TAG}"
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY" > "$OUT"
 
-      - name: Upload build logs artifact
+      - name: Upload summary artifact (amd64)
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: logs-${{ matrix.tag }}-${{ matrix.os }}
-          path: |
-            ci-logs/setup.log
-            ci-logs/build.log
-            ci-logs/test.log
+          name: summary-${{ matrix.image }}-${{ matrix.image_tag }}-amd64
+          path: ${{ runner.temp }}/summary.md
           if-no-files-found: ignore
-          retention-days: 14
 
-      - name: Summarize image reference
+  # build_arm64 job header
+  build_arm64:
+    name: Build arm64 from ${{ matrix.image }}:${{ matrix.image_tag }}
+    needs: [overview, discover]
+    runs-on: ubuntu-24.04-arm   # <— use native ARM64 runner
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
+
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Optional: say why we’re skipping
+      - name: Skip note (archlinux is amd64-only)
+        if: ${{ matrix.image == 'archlinux' }}
+        run: echo "Skipping arm64 build for archlinux"
+
+      - name: Set up Buildx
+        if: ${{ matrix.image != 'archlinux' }}
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: ${{ matrix.image != 'archlinux' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        if: ${{ matrix.image != 'archlinux' }}
+        name: Docker metadata (base tag)
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ needs.discover.outputs.image }}
+          tags: |
+            type=raw,value=${{ format('{0}-{1}', matrix.gemc_tag, matrix.osname) }}
+          labels: |
+            org.opencontainers.image.source=${{ github.repository }}
+            org.opencontainers.image.description=GEMC image (${{ matrix.gemc_tag }}, Geant4: ${{ matrix.geant4_tag }}) on  ${{ matrix.image }}): ${{ matrix.image_tag }}
+
+      - name: Generate Dockerfile
+        if: ${{ matrix.image != 'archlinux' }}
+        run: |
+          python3 ci/dockerfile_creator.py \
+          -i "${{ matrix.image }}" \
+          -t "${{ matrix.image_tag }}" \
+          > Dockerfile.generated
+          cat Dockerfile.generated
+
+      - name: Get upstream commit
+        if: ${{ matrix.image != 'archlinux' }}
+        run: echo "UPSTREAM_REV=$(git ls-remote https://github.com/gemc/src HEAD | cut -f1)" >> $GITHUB_ENV
+
+      - name: Build & Push (arm64 only)
+        if: ${{ matrix.image != 'archlinux' }}
+        uses: docker/build-push-action@v5
+        with:
+          build-args: |
+            UPSTREAM_REV=${{ env.UPSTREAM_REV }}
+          context: .
+          file: ./Dockerfile.generated
+          platforms: linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}-arm64
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64
+          cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64,mode=max
+
+  # ===========================
+  # Manifest stitch (same matrix)
+  # ===========================
+  manifest:
+    name: Manifest for ${{ matrix.image }}
+    needs: [ build_amd64, build_arm64, discover ]
+    runs-on: ubuntu-latest
+    # If arm64 was skipped (e.g., archlinux), still publish amd64-only manifest.
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
+    steps:
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        name: Docker metadata (base tag)
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ needs.discover.outputs.image }}
+          tags: |
+            type=raw,value=${{ format('{0}-{1}', matrix.gemc_tag, matrix.osname) }}
+
+      - name: Create multi-arch manifest
+        shell: bash
+        run: |
+          BASE_TAG="${{ steps.meta.outputs.tags }}"
+          AMD_TAG="${BASE_TAG}-amd64"
+          ARM_TAG="${BASE_TAG}-arm64"
+
+          # If the arm64 build was skipped (e.g., archlinux), only include amd64
+          if docker buildx imagetools inspect "$ARM_TAG" >/dev/null 2>&1; then
+            docker buildx imagetools create -t "$BASE_TAG" "$AMD_TAG" "$ARM_TAG"
+          else
+            docker buildx imagetools create -t "$BASE_TAG" "$AMD_TAG"
+          fi
+
+      - name: Summary (manifest)
         if: ${{ always() }}
+        shell: bash
         env:
           IMAGE: ${{ needs.discover.outputs.image }}
-          PRIMARY_TAG: ${{ matrix.tag }}-${{ matrix.os }}
-          LATEST_TAG: latest-${{ matrix.os }}
-          IS_LATEST: ${{ matrix.latest }}
-          PUSHED: ${{ github.event_name != 'pull_request' }}
+          TAG: ${{ format('{0}-{1}-{2}', matrix.geant4_tag, matrix.image, matrix.image_tag) }}
         run: |
-          PLATFORM_HINT="--platform=linux/amd64"
+          : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/manifest_summary.md}"
           {
-            echo "## Docker Image"
-            if [ "$PUSHED" = "true" ]; then
-              echo ""
-              echo "**Primary tag:** \`$IMAGE:$PRIMARY_TAG\`"
-              if [ "$IS_LATEST" = "true" ]; then
-                echo ""
-                echo "**Alias:** \`$IMAGE:$LATEST_TAG\`"
-              fi
-              echo ""
-              echo "### Pull"
-              echo '```bash'
-              echo "docker pull $IMAGE:$PRIMARY_TAG"
-              echo '```'
-              echo "### Run"
-              echo '```bash'
-              echo "docker run --rm -it $IMAGE:$PRIMARY_TAG bash"
-              echo '```'
-              echo "### Run (Apple Silicon Mac)"
-              echo '```bash'
-              echo "docker run --rm -it $PLATFORM_HINT $IMAGE:$PRIMARY_TAG bash"
-              echo '```'
-            else
-              echo ""
-              echo "_PR build (image not pushed). Loaded locally on the runner with tags:_"
-              echo '```'
-              # Show every tag we applied locally (one per line)
-              printf '%s\n' "${{ steps.meta.outputs.tags }}"
-              echo '```'
-              echo "To pull later (after merge to main):"
-              echo '```bash'
-              echo "docker pull $IMAGE:$PRIMARY_TAG"
-              echo '```'
-            fi
+            echo "## \`${IMAGE}:${TAG}\`"
+            echo ""
+            echo "Includes:"
+            if docker buildx imagetools inspect "${IMAGE}:${TAG}-amd64" >/dev/null 2>&1; then echo "- amd64"; fi
+            if docker buildx imagetools inspect "${IMAGE}:${TAG}-arm64" >/dev/null 2>&1; then echo "- arm64"; else echo "- arm64 (skipped)"; fi
+            echo ""
+            echo "### Pull"
+            echo '```bash'
+            echo "docker pull \$VPLATFORM ${IMAGE}:${TAG}"
+            echo '```'
+            echo ""
+            echo "### Run (interactive)"
+            echo '```bash'
+            echo "docker run --rm -it \$VPLATFORM ${IMAGE}:${TAG} bash -l"
+            echo '```'
+            echo ""
+            echo "### Run with VNC/noVNC"
+            echo "_VNC → localhost:5900 (password: change-me)_"
+            echo "_noVNC → http://localhost:6080/vnc.html (password: change-me)_"
+            echo '```bash'
+            echo "docker run --rm -it \$VPLATFORM \$VPORTS \$VNC_BIND \$VNC_PASS ${IMAGE}:${TAG}"
+            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+          # Also save a copy inside the workspace for artifact upload
+          mkdir -p "$GITHUB_WORKSPACE/summaries"
+          cp "$GITHUB_STEP_SUMMARY" "$GITHUB_WORKSPACE/summaries/summary-${{ matrix.image }}-${{ matrix.image_tag }}-${{ job.status }}.md" || true
+          echo "Wrote $GITHUB_WORKSPACE/summaries/summary-${{ matrix.image }}-${{ matrix.image_tag }}.md"
+          ls -l "$GITHUB_WORKSPACE/summaries"
+
+      - name: Upload summary artifact (manifest)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: summary-${{ matrix.image }}-${{ matrix.image_tag }}-manifest
+          path: ${{ runner.temp }}/manifest_summary.md
+          if-no-files-found: ignore
