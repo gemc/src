@@ -1,16 +1,12 @@
 // gstreamer
 #include "gstreamerCSVFactory.h"
-#include "gstreamerConventions.h"
 
 // using \n instead of endl so flushing isn't forced at each line
-bool GstreamerTextFactory::publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) {
-	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
+bool GstreamerCsvFactory::publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) {
 
-	ofile << GTAB << "Header Bank {\n";
-	ofile << GTABTAB << " time: " << gheader->getTimeStamp() << "\n";
-	ofile << GTABTAB << " g4run-local event number: " << gheader->getG4LocalEvn() << "\n";;
-	ofile << GTABTAB << " thread id: " << gheader->getThreadID() << "\n";
-	ofile << GTAB << "}\n";
+	// saving header vars so we can flatten them in the publish routines
+	timestamp = gheader->getTimeStamp();
+	thread_id = gheader->getThreadID();
 
 	return true;
 }

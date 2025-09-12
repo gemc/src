@@ -1,14 +1,10 @@
 // gstreamer
-#include "../gstreamerASCIIFactory.h"
+#include "gstreamerCSVFactory.h"
 #include "gstreamerConventions.h"
 
 // using \n instead of endl so flushing isn't forced at each line
-bool GstreamerTextFactory::publishFrameHeaderImpl(const GFrameHeader* gframeHeader) {
-	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
+bool GstreamerCsvFactory::publishFrameHeaderImpl(const GFrameHeader* gframeHeader) {
 
-	ofile << GTAB << "Frame Header  {\n";
-	ofile << GTABTAB << " frameID: " << gframeHeader->getFrameID() << "\n";
-	ofile << GTAB << "}\n";
 
 	return true;
 }

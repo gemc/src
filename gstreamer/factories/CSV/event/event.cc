@@ -1,24 +1,23 @@
 // gstreamer
+#include <__math/logarithms.h>
+
 #include "gstreamerCSVFactory.h"
 #include "gstreamerConventions.h"
 
 // using \n instead of endl so flushing isn't forced at each line
-bool GstreamerTextFactory::startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
-	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
+bool GstreamerCsvFactory::startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 
-	auto eventNumber = event_data->getHeader()->getG4LocalEvn();
-	ofile << "Event n. " << eventNumber << " {\n";
+	if (!ofile_true_info.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_true_info ()); }
+	if (!ofile_digitized.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_digitized ()); }
+
+	 event_number = event_data->getHeader()->getG4LocalEvn();
 
 	return true;
 }
 
 
-bool GstreamerTextFactory::endEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
-	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
+bool GstreamerCsvFactory::endEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 
-	int eventNumber = event_data->getHeader()->getG4LocalEvn();
-
-	ofile << "} end of event " << eventNumber << "\n";
 
 	return true;
 }

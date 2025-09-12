@@ -8,7 +8,6 @@ bool GstreamerTextFactory::publishEventHeaderImpl([[maybe_unused]] const std::un
 
 	ofile << GTAB << "Header Bank {\n";
 	ofile << GTABTAB << " time: " << gheader->getTimeStamp() << "\n";
-	ofile << GTABTAB << " g4run-local event number: " << gheader->getG4LocalEvn() << "\n";;
 	ofile << GTABTAB << " thread id: " << gheader->getThreadID() << "\n";
 	ofile << GTAB << "}\n";
 

@@ -86,7 +86,7 @@ else
 	if [[ -n "${GITHUB_WORKFLOW}" ]]; then
 		echo "GITHUB_WORKFLOW: ${GITHUB_WORKFLOW}"
 	fi
-	source /etc/profile.d/localSetup.sh
+	source /etc/profile.d/local_g4setup.sh
 	echo
 fi
 

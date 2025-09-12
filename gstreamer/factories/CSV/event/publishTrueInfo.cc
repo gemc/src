@@ -3,22 +3,57 @@
 #include "gstreamerConventions.h"
 
 // using \n instead of endl so flushing isn't forced at each line
-bool GstreamerTextFactory::publishEventTrueInfoDataImpl(const std::string& detectorName, const std::vector<const GTrueInfoData*>& trueInfoData) {
-	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
+bool GstreamerCsvFactory::publishEventTrueInfoDataImpl(const std::string& detectorName, const std::vector<const GTrueInfoData*>& trueInfoData) {
+	if (!ofile_true_info.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_true_info()); }
 
-	ofile << GTAB << "Detector <" << detectorName << "> True Info Bank {\n";
+	// first event: print header from the first hit
+	if (!is_first_event_with_truedata) {
+		if (trueInfoData.size() > 0) {
+			ofile_true_info << "evn, timestamp, thread_id, detector, ";
+			auto first_hit = trueInfoData[0];
 
-	for (auto trueInfoHit : trueInfoData) {
-		std::string identifierString = trueInfoHit->getIdentityString();
+			const auto& smap = first_hit->getStringVariablesMap();
+			const auto& dmap = first_hit->getDoubleVariablesMap();
 
-		ofile << GTABTAB << "Hit address: " << identifierString << " {\n";
+			size_t total = dmap.size();
+			size_t i     = 0;
 
-		for (const auto& [variableName, value] : trueInfoHit->getDoubleVariablesMap()) { ofile << GTABTABTAB << variableName << ": " << value << "\n"; }
-		for (const auto& [variableName, value] : trueInfoHit->getStringVariablesMap()) { ofile << GTABTABTAB << variableName << ": " << value << "\n"; }
+			log->debug(NORMAL, SFUNCTION_NAME, "Writing header for event ", event_number, " with ", total, " variables");
 
-		ofile << GTABTAB << "}\n";
+			for (const auto& [name, value] : smap) { ofile_true_info << name << ", "; }
+
+			for (const auto& [name, value] : dmap) {
+				ofile_true_info << name;
+				if (++i < total) ofile_true_info << ", "; // not last, write comma
+			}
+
+			ofile_true_info << "\n";
+
+			is_first_event_with_truedata = true;
+		}
 	}
-	ofile << GTAB << "}\n";
+
+	// if is_first_event is true, we have data to write
+	if (is_first_event_with_truedata) {
+		for (auto trueInfoHit : trueInfoData) {
+			const auto& smap = trueInfoHit->getStringVariablesMap();
+			const auto& dmap = trueInfoHit->getDoubleVariablesMap();
+
+			size_t total = dmap.size();
+			size_t i     = 0;
+
+			ofile_true_info << event_number << ", " << timestamp << ", " << thread_id << ", " << detectorName << ", ";
+
+
+			for (const auto& [variableName, value] : smap) { ofile_true_info << value << ", "; }
+			for (const auto& [variableName, value] : dmap) {
+				ofile_true_info << value;
+				if (++i < total) ofile_true_info << ", "; // not last, write comma
+				else ofile_true_info << "\n";
+			}
+		}
+	}
+
 
 	return true;
 }

@@ -63,7 +63,7 @@ bool GPlugin_test_example::loadTTImpl([[maybe_unused]] int runno, [[maybe_unused
 
 	for (auto& time : ghit->getTimes()) { digi_time += time * 10; }
 
-	digitizedData->includeVariable("edep", edep);
+	digitizedData->includeVariable("voltage", edep);
 	digitizedData->includeVariable("digi_time", digi_time);
 
 	return digitizedData;

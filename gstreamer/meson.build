@@ -11,6 +11,7 @@ verbosities = ['-verbosity.plugins=2',
 
 root = ['-gstreamer="[{format: root, filename: out}]"']
 ascii = ['-gstreamer="[{format: ascii, filename: out}]"']
+csv = ['-gstreamer="[{format: csv, filename: out}]"']
 ascii_root = ['-gstreamer="[{format: ascii, filename: out}, {format: root, filename: out}]"']
 buffer = ['-ebuffer=20']
 
@@ -52,12 +53,27 @@ root_plugin_files = [files(
                      ),
                      true]
 
+
+csv_plugin_files = [files(
+                        'factories/CSV/gstreamerCSVFactory.cc',
+                        'factories/CSV/gstreamerCSVConnection.cc',
+                        'factories/CSV/event/event.cc',
+                        'factories/CSV/event/eventHeader.cc',
+                        'factories/CSV/event/publishTrueInfo.cc',
+                        'factories/CSV/event/publishDigitized.cc',
+                        'factories/CSV/stream/stream.cc',
+                        'factories/CSV/stream/frameHeader.cc',
+                        'factories/CSV/stream/publishPayload.cc'
+                    ),
+                    true]
+
 # TODO: just detect if root is available
 rootcfg = find_program('root-config')
 if rootcfg.found()
     if root_deps.found()
         streamer_plugins = {
             'gstreamer_ascii_plugin' : ascii_plugin_files,
+            'gstreamer_csv_plugin' : csv_plugin_files,
             'gstreamer_jlabsro_plugin' : jlab_sro_plugin_files,
             'gstreamer_root_plugin' : root_plugin_files
         }
@@ -67,6 +83,7 @@ if rootcfg.found()
 else
     streamer_plugins = {
         'gstreamer_ascii_plugin' : ascii_plugin_files,
+        'gstreamer_csv_plugin' : csv_plugin_files,
         'gstreamer_jlabsro_plugin' : jlab_sro_plugin_files
     }
     streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_deps]
@@ -85,15 +102,17 @@ LD += {
     ),
     'plugins' : streamer_plugins,
     'dependencies' : streamer_dependencies,
-    'additional_includes' : ['gstreamer', 'gstreamer/factories/ROOT', 'gstreamer/factories/ASCII', 'gstreamer/factories/JLABSRO'],
+    'additional_includes' : ['gstreamer', 'gstreamer/factories/ROOT', 'gstreamer/factories/ASCII', 'gstreamer/factories/CSV', 'gstreamer/factories/JLABSRO'],
     'examples' : {
         'test_gstreamer' : [example_source, buffer],
         'test_gstreamer_verbose' : [example_source, buffer + verbosities],
         'test_gstreamer_root' : [example_source, buffer + root],
-        'test_gstreamer_root_verbose' : [example_source,  buffer + root + verbosities],
-        'test_gstreamer_ascii' : [example_source,  buffer + ascii],
-        'test_gstreamer_ascii_verbose' : [example_source,  buffer + ascii + verbosities],
-        'test_gstreamer_ascii_root' : [example_source,  buffer + ascii_root],
-        'test_gstreamer_ascii_root_verbose' : [example_source,  buffer + ascii_root + verbosities]
+        'test_gstreamer_root_verbose' : [example_source, buffer + root + verbosities],
+        'test_gstreamer_ascii' : [example_source, buffer + ascii],
+        'test_gstreamer_ascii_verbose' : [example_source, buffer + ascii + verbosities],
+        'test_gstreamer_csv' : [example_source, buffer + csv],
+        'test_gstreamer_csv_verbose' : [example_source, buffer + csv + verbosities],
+        'test_gstreamer_ascii_root' : [example_source, buffer + ascii_root],
+        'test_gstreamer_ascii_root_verbose' : [example_source, buffer + ascii_root + verbosities]
     }
 }

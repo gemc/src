@@ -40,7 +40,18 @@ private:
 	bool publishFrameHeaderImpl(const GFrameHeader* gframeHeader) override;
 	bool publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) override;
 
-	std::ofstream ofile;
+	std::ofstream ofile_true_info;
+	std::ofstream ofile_digitized;
 
-	[[nodiscard]] std::string filename() const override { return gstreamer_definitions.rootname + ".txt"; }
+	[[nodiscard]] std::string filename() const override { return gstreamer_definitions.rootname + ".csv"; } // never actually called for CSV
+
+
+	[[nodiscard]] std::string filename_true_info() const { return gstreamer_definitions.rootname + "_true_info.csv"; }
+	[[nodiscard]] std::string filename_digitized() const { return gstreamer_definitions.rootname + "_digitized.csv"; }
+
+	bool is_first_event_with_truedata = false;
+	bool is_first_event_with_digidata = false;
+	std::string timestamp;
+	int event_number;
+	int thread_id;
 };
