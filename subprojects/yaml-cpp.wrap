@@ -3,6 +3,8 @@ url = https://github.com/jbeder/yaml-cpp
 revision = 0.8.0
 depth = 1
 method = cmake
+diff_files = yaml-cpp/0001-include-cstdint-emitterutils.patch
 
 [provide]
 yaml_cpp=yaml_cpp_dep
+

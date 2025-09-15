@@ -98,8 +98,8 @@ if __name__ == "__main__":
 		install_dir.mkdir(parents=True, exist_ok=True)
 
 	# --- 2. generate .pc files -----------------------------------------------
-	generate_pkgconfig(install_dir, "geant4-config",
-					   "geant4.pc", "Geant4", "Geant4 Simulation Toolkit")
+	#generate_pkgconfig(install_dir, "geant4-config",
+	#				   "geant4.pc", "Geant4", "Geant4 Simulation Toolkit")
 
 	if check_root_config():
 		generate_pkgconfig(install_dir, "root-config",

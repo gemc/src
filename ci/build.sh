@@ -3,7 +3,7 @@
 # Purpose: compiles gemc with optional sanitizers or debugging options.
 
 # Container run:
-# docker run -it --rm --platform linux/amd64 jeffersonlab/geant4:g4v11.3.2-almalinux94 sh
+# docker run -it --rm --platform linux/amd64 ghcr.io/gemc/g4install:11.3.2-archlinux-latest bash -il
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # ./ci/build.sh
 
@@ -11,7 +11,7 @@ source ci/env.sh
 
 # module gemc gives $GEMC (used in meson prefix) and PKG_CONFIG_PATH
 # not strickly necessary, one could set those manually
-module load gemc/dev3
+module load gemc/dev
 echo GEMC for prefix set to: $GEMC
 echo
 
@@ -48,8 +48,11 @@ else
   echo ; echo
 fi
 
-cd build  || exit 1
+echo " > Applying patch to version 0.8.0"  >> $setup_log
+meson subprojects update yaml-cpp --reset
+meson setup --reconfigure build
 
+cd build  || exit 1
 echo " > Running meson compile -v  -j $max_threads"  > $compile_log
 meson compile -v  -j $max_threads >> $compile_log
 if [ $? -ne 0 ]; then

@@ -1,0 +1,17 @@
+From abcdef1234567890 Mon Sep 17 00:00:00 2001
+Subject: [PATCH] emitterutils: include <cstdint> (and <utility>) for uint16_t/uint32_t
+
+diff --git a/src/emitterutils.cpp b/src/emitterutils.cpp
+index 0000000..1111111 100644
+--- a/src/emitterutils.cpp
++++ b/src/emitterutils.cpp
+@@ -9,6 +9,8 @@
+ #include "yaml-cpp/mark.h"
+ #include "yaml-cpp/null.h"
+ #include "yaml-cpp/ostream_wrapper.h"
++#include <cstdint>
++#include <utility>
+ 
+ namespace YAML {
+ namespace Utils {
+
