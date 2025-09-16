@@ -52,7 +52,7 @@ jobs:
   # Per-arch build jobs
   # ===========================
   build_amd64:
-    name: Build amd64 from ${{ matrix.image }}
+    name: Build amd64 from ${{ matrix.osname }}
     needs: [ overview, discover ]
     runs-on: ubuntu-latest
     permissions:
@@ -100,6 +100,8 @@ jobs:
       - name: Build & Push (amd64 only)
         uses: docker/build-push-action@v5
         with:
+          pull: true
+          no-cache: true
           build-args: |
             UPSTREAM_REV=${{ env.UPSTREAM_REV }}
           context: .

@@ -5,6 +5,7 @@ LD += {
         'gutilities.cc'
     ),
     'headers' : files(
+        'gthreads.h',
         'gutilities.h',
         'gutsConventions.h'
     ),

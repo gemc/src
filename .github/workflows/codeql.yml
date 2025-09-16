@@ -28,7 +28,7 @@ jobs:
       actions: read
       contents: read
 
-    container: jeffersonlab/geant4:g4v11.3.1-almalinux94
+    container: ghcr.io/gemc/g4install:11.3.2-ubuntu-24.04
 
     strategy:
       fail-fast: false

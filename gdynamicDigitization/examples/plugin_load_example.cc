@@ -9,27 +9,7 @@
 // gemc
 #include "gfactory.h"
 #include "event/gEventDataCollection.h"
-
-// TODO: remove when C++20 is widely available
-// ===== portable jthread-like wrapper =========================================
-// If real std::jthread is present, use it. Otherwise, define a minimal shim
-// that joins in the destructor (no stop_token support, but good enough here).
-#if defined(__cpp_lib_jthread)   // header exists
-#include <jthread>
-using jthread_alias = std::jthread;
-#else
-// join: pause right here until that thread is finished.
-class jthread_alias : public std::thread {
-public:
-	using std::thread::thread; // inherit all ctors
-	~jthread_alias() { if (joinable()) join(); }
-	jthread_alias(jthread_alias&&) noexcept            = default;
-	jthread_alias& operator=(jthread_alias&&) noexcept = default;
-	// no copy
-	jthread_alias(const jthread_alias&)            = delete;
-	jthread_alias& operator=(const jthread_alias&) = delete;
-};
-#endif
+#include "gthreads.h"
 
 const std::string plugin_name = "test_gdynamic_plugin";
 
