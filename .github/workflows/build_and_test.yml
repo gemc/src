@@ -111,8 +111,8 @@ jobs:
           # Add -amd64 suffix to the arch-specific image tag
           tags: ${{ steps.meta.outputs.tags }}-amd64
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64
-          cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64,mode=max
+          #cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64
+          #cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64,mode=max
 
       - name: Summary
         if: ${{ always() }}
@@ -225,8 +225,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}-arm64
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64
-          cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64,mode=max
+          #cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64
+          #cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64,mode=max
 
   # ===========================
   # Manifest stitch (same matrix)
