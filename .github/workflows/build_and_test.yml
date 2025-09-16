@@ -215,6 +215,8 @@ jobs:
         if: ${{ matrix.image != 'archlinux' }}
         uses: docker/build-push-action@v5
         with:
+          pull: true
+          no-cache: true
           build-args: |
             UPSTREAM_REV=${{ env.UPSTREAM_REV }}
           context: .
