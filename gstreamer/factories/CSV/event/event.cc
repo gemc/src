@@ -1,5 +1,4 @@
 // gstreamer
-#include <__math/logarithms.h>
 
 #include "gstreamerCSVFactory.h"
 #include "gstreamerConventions.h"
