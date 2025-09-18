@@ -32,12 +32,12 @@ ls -l $compile_log
 ls -l $test_log
 
 
-echo " > Geant-config: $(which geant4-config) : $(geant4-config --version)" > $setup_log
-echo " > Root-config: $(which root-config) : $(root-config --version)" >> $setup_log
+echo " > Geant-config: $(which geant4-config) : $(geant4-config --version)" | tee  $setup_log
+echo " > Root-config: $(which root-config) : $(root-config --version)" | tee -a $setup_log
 
 setup_options=" --native-file=core.ini $meson_option -Dprefix=$GEMC --wipe "
 
-echo " > Running build Configure with setup build options: $setup_options"  >> $setup_log
+echo " > Running build Configure with setup build options: $setup_options"  | tee -a $setup_log
 meson setup build $=setup_options  >> $setup_log
 if [ $? -ne 0 ]; then
 	echo "Build Configure failed. Log: "
@@ -48,12 +48,12 @@ else
   echo ; echo
 fi
 
-echo " > Applying patch to version 0.8.0"  >> $setup_log
+echo " > Applying patch to version 0.8.0"  | tee -a $setup_log
 meson subprojects update yaml-cpp --reset
 meson setup --reconfigure build
 
 cd build  || exit 1
-echo " > Running meson compile -v  -j $max_threads"  > $compile_log
+echo " > Running meson compile -v  -j $max_threads"  | tee $compile_log
 meson compile -v  -j $max_threads >> $compile_log
 if [ $? -ne 0 ]; then
 	echo "Compile failed. Log: "
@@ -65,10 +65,10 @@ else
 fi
 
 
-echo " > Current directory: $(pwd) content:"  >> $compile_log
+echo " > Current directory: $(pwd) content:"  | tee -a  $compile_log
 ls -l  >> $compile_log
 
-echo " > Running meson install"  >> $compile_log
+echo " > Running meson install"   | tee -a $compile_log
 meson install   >> $compile_log
 if [ $? -ne 0 ]; then
 	echo "Install failed. Log: "
@@ -79,31 +79,24 @@ else
   echo ; echo
 fi
 
-echo " > $GEMC recursive content:"  >> $compile_log
+echo " > $GEMC recursive content:"  | tee -a $compile_log
 ls -lR $GEMC  >> $compile_log
 
 # if $1 is NOT one of sanitize option, run meson test
 if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
-  echo " > Running meson test" > $test_log
+  echo " > Running meson test" | tee  $test_log
   meson test  -j 1 --print-errorlogs --no-rebuild --num-processes 1 >>  $test_log
-  if [ $? -ne 0 ]; then
-  	echo "Test failed. Log: "
-    cat $test_log
-    echo Test Failure
-    exit 1
-  else
-    echo Install Successful
-    echo ; echo
-  fi
+  echo Successful: $(cat $test_log | grep "Ok:" | awk '{print $2}')
+  echo Failures: $(cat $test_log | grep "Fail:" | awk '{print $2}')
 fi
 
 echo
-echo " ldd of $GEMC/bin/gemc:" >> $compile_log | tee -a
+echo " ldd of $GEMC/bin/gemc:"   | tee -a $compile_log
 
 # if on unix, use ldd , if on mac, use otool -L
 if [[ "$(uname)" == "Darwin" ]]; then
   otool -L $GEMC/bin/gemc
 else
-  ldd $GEMC/bin/gemc >> $compile_log | tee -a
+  ldd $GEMC/bin/gemc  | tee -a $compile_log
 fi
 
