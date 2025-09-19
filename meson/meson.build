@@ -28,24 +28,45 @@ clhep_deps = dependency('clhep',
                         version : '>=2.4.7.1',
 )
 
-# install root.pc, geant4.pc if not found
-fs = import('fs')
-gemc_prefix = get_option('prefix')
-geant4_pc = gemc_prefix / 'lib/pkgconfig/geant4.pc'
-script_path = meson.project_source_root() / 'meson/install_geant4_root_pkgconfig.py'
-if not fs.exists(geant4_pc)
-    message('geant4.pc not found in ' + geant4_pc + ', running install script...')
-    run_command(script_path, gemc_prefix, check : true)
-endif
 
 # root: pkg-config created manually by ./meson/install_geant4_root_pkgconfig.py
-rootcfg = find_program('root-config')
-if rootcfg.found()
-    root_deps = dependency('root',
-                           version : '>=6.28/02',
-    )
+# feature: feature toggle (uncomment options() above)
+root_opt = get_option('root')
+root_dep = disabler() # Always define root_dep so it exists even if not found
+
+# Only try to add ROOT if not disabled and root-config was found
+if (not root_dep.found()) and (not root_opt.disabled())
+    # Probe root-config once
+    rootcfg = find_program('root-config', required : false)
+    if rootcfg.found()
+        # install root.pc if not found
+        fs = import('fs')
+        gemc_prefix = get_option('prefix')
+        root_pc = gemc_prefix / 'lib/pkgconfig/root.pc'
+        script_path = meson.project_source_root() / 'meson/install_geant4_root_pkgconfig.py'
+        if not fs.exists(root_pc)
+            message('root.pc not found in ' + root_pc + ', running install script...')
+            run_command(script_path, gemc_prefix, check : true)
+        endif
+
+        # Try pkg-config for 'root' but make it NOT required
+        root_dep = dependency(
+            'root',
+            version : '>=6.32.16',
+            method : 'pkg-config',
+            required : false
+        )
+        #root_dep = dependency('root', method: 'cmake')
+    else
+        if root_opt.enabled()
+            warning('ROOT was explicitly enabled (-Droot=enabled) but root-config was not found.')
+            warning('ROOT-dependent features will be disabled.')
+        else
+            warning('ROOT not found; ROOT-dependent features will be disabled.')
+        endif
+    endif
 endif
-#root_deps = dependency('root', method: 'cmake')
+
 
 # geant4: pkg-config created manually by ./meson/install_geant4_root_pkgconfig.py
 #geant4_deps = dependency('geant4',
@@ -96,11 +117,11 @@ g4_all_modules = [
 
 geant4_deps = dependency(
     'Geant4',
-    method: 'cmake',
-    version: '>=11.3.0',
-   # modules: g4_all_modules,
-    static: true,      # prefer static libraries when available
-    required: true,
+    method : 'cmake',
+    version : '>=11.3.0',
+    # modules: g4_all_modules,
+    static : true, # prefer static libraries when available
+    required : true,
 )
 
 

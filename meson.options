@@ -1,1 +1,2 @@
-option('i_test',   type: 'boolean', value: false, description: 'Include interactive tests')
+option('i_test', type: 'boolean', value: false, description: 'Include interactive tests')
+option('root', type: 'feature', value: 'auto', description: 'Enable ROOT support')

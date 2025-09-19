@@ -29,21 +29,11 @@ examples = {
 }
 
 
-if get_option('i_test')
-    LD += {
-        'name' : sub_dir_name,
-        'sources' : sources,
-        'headers' : headers,
-        'qrc_examples_sources' : qrc_examples_sources,
-        'dependencies' : [yaml_cpp_dep, qt6_deps, geant4_deps, expat_dep],
-        'examples' : examples
-    }
-else
-    LD += {
-        'name' : sub_dir_name,
-        'sources' : sources,
-        'headers' : headers,
-        'qrc_examples_sources' : qrc_examples_sources,
-        'dependencies' : [yaml_cpp_dep, qt6_deps, geant4_deps, expat_dep]
-    }
-endif
+LD += {
+    'name' : sub_dir_name,
+    'sources' : sources,
+    'headers' : headers,
+    'qrc_examples_sources' : qrc_examples_sources,
+    'dependencies' : [yaml_cpp_dep, qt6_deps, geant4_deps, expat_dep],
+    'examples' : examples
+}

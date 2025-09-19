@@ -1,5 +1,10 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 
+with_gui = ['']
+if get_option('i_test')
+    with_gui = ['-gui']
+endif
+
 example_source = files('examples/test_dbselect.cc')
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
@@ -9,12 +14,6 @@ verbosity = ['-verbosity.dbselect=2',
              '-debug.dbselect=true',
              '-verbosity.gsystem=2',
              '-debug.gsystem=true']
-
-with_gui = ['']
-if get_option('i_test')
-    with_gui = ['-gui']
-endif
-
 
 sources = files(
     'dbselect_options.cc',

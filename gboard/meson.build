@@ -31,23 +31,12 @@ examples = {
 }
 
 
-if get_option('i_test')
-    LD += {
-        'name' : sub_dir_name,
-        'sources' : sources,
-        'headers' : headers,
-        'moc_headers' : moc_headers,
-        'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
-        'additional_includes' : ['gboard'],
-        'examples' : examples
-    }
-else
-    LD += {
-        'name' : sub_dir_name,
-        'sources' : sources,
-        'headers' : headers,
-        'moc_headers' : moc_headers,
-        'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
-        'additional_includes' : ['gboard'],
-    }
-endif
+LD += {
+    'name' : sub_dir_name,
+    'sources' : sources,
+    'headers' : headers,
+    'moc_headers' : moc_headers,
+    'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
+    'additional_includes' : ['gboard'],
+    'examples' : examples
+}

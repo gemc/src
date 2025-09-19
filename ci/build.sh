@@ -31,72 +31,67 @@ ls -l $setup_log
 ls -l $compile_log
 ls -l $test_log
 
-
-echo " > Geant-config: $(which geant4-config) : $(geant4-config --version)" | tee  $setup_log
+echo " > Geant-config: $(which geant4-config) : $(geant4-config --version)" | tee $setup_log
 echo " > Root-config: $(which root-config) : $(root-config --version)" | tee -a $setup_log
 
 setup_options=" --native-file=core.ini $meson_option -Dprefix=$GEMC --wipe "
 
-echo " > Running build Configure with setup build options: $setup_options"  | tee -a $setup_log
-meson setup build $=setup_options  >> $setup_log
+local mode="${1:-release}"
+local install_dir="${GEMC:?GEMC not set}"
+
+local args=(
+  "--native-file=core.ini"
+  "-Di_test=true"
+  "-Droot=enabled"
+  "-Dprefix=${install_dir}"
+)
+
+echo " > Applying patch to version 0.8.0" | tee -a $setup_log
+meson subprojects update yaml-cpp --reset
+
+echo " > Running build Configure with setup build options: ${args[@]}" | tee -a $setup_log
+	meson setup build "${args[@]}" --wipe >> $setup_log
 if [ $? -ne 0 ]; then
-	echo "Build Configure failed. Log: "
-	cat $setup_log
+  echo "Build Configure failed. Log: "
+  cat $setup_log
   exit 1
 else
   echo Build Configure Successful
-  echo ; echo
+  echo
+  echo
 fi
 
-echo " > Applying patch to version 0.8.0"  | tee -a $setup_log
-meson subprojects update yaml-cpp --reset
-meson setup --reconfigure build
 
-cd build  || exit 1
-echo " > Running meson compile -v  -j $max_threads"  | tee $compile_log
-meson compile -v  -j $max_threads >> $compile_log
+echo " > Running meson install -v  -j $max_threads" | tee $compile_log
+	meson install -C build -v -j $max_threads >> $compile_log
 if [ $? -ne 0 ]; then
-	echo "Compile failed. Log: "
-	cat $compile_log
+  echo "Compile or Install failed. Log: "
+  cat $compile_log
   exit 1
 else
   echo Compile Successful
-  echo ; echo
+  echo
+  echo
 fi
 
 
-echo " > Current directory: $(pwd) content:"  | tee -a  $compile_log
-ls -l  >> $compile_log
-
-echo " > Running meson install"   | tee -a $compile_log
-meson install   >> $compile_log
-if [ $? -ne 0 ]; then
-	echo "Install failed. Log: "
-	cat $compile_log
-  exit 1
-else
-  echo Install Successful
-  echo ; echo
-fi
-
-echo " > $GEMC recursive content:"  | tee -a $compile_log
-ls -lR $GEMC  >> $compile_log
+echo " > $GEMC recursive content:" | tee -a $compile_log
+ls -lR $GEMC >>$compile_log
 
 # if $1 is NOT one of sanitize option, run meson test
 if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
-  echo " > Running meson test" | tee  $test_log
-  meson test  -j 1 --print-errorlogs --no-rebuild --num-processes 1 >>  $test_log
+  echo " > Running meson test" | tee $test_log
+  meson test -C build  -j 1 --print-errorlogs --no-rebuild --num-processes 1 >>$test_log
   echo Successful: $(cat $test_log | grep "Ok:" | awk '{print $2}')
   echo Failures: $(cat $test_log | grep "Fail:" | awk '{print $2}')
 fi
 
 echo
-echo " ldd of $GEMC/bin/gemc:"   | tee -a $compile_log
+echo " ldd of $GEMC/bin/gemc:" | tee -a $compile_log
 
 # if on unix, use ldd , if on mac, use otool -L
 if [[ "$(uname)" == "Darwin" ]]; then
   otool -L $GEMC/bin/gemc
 else
-  ldd $GEMC/bin/gemc  | tee -a $compile_log
+  ldd $GEMC/bin/gemc | tee -a $compile_log
 fi
-
