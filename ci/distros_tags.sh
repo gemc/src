@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
 
 get_ubuntu_lts()       { echo "24.04"; }
@@ -19,7 +20,7 @@ build_matrix() {
   {"osname":"ubuntu",    "image":"$(get_geant4_tag)-ubuntu-$(get_ubuntu_lts)",          "gemc_tag":"$(get_gemc_tag)", "geant4_tag":"$(get_geant4_tag)"},
   {"osname":"fedora",    "image":"$(get_geant4_tag)-fedora-$(get_fedora_latest)",       "gemc_tag":"$(get_gemc_tag)", "geant4_tag":"$(get_geant4_tag)"},
   {"osname":"almalinux", "image":"$(get_geant4_tag)-almalinux-$(get_almalinux_latest)", "gemc_tag":"$(get_gemc_tag)", "geant4_tag":"$(get_geant4_tag)"},
-  {"osname":"debian",    "image":"$(get_geant4_tag)-debian-$(get_debian_latest)",       "gemc_tag":"$(get_gemc_tag)", "geant4_tag":"$(get_geant4_tag)"}
+  {"osname":"debian",    "image":"$(get_geant4_tag)-debian-$(get_debian_latest)",       "gemc_tag":"$(get_gemc_tag)", "geant4_tag":"$(get_geant4_tag)"},
   {"osname":"archlinux", "image":"$(get_geant4_tag)-archlinux-$(get_archlinux_latest)", "gemc_tag":"$(get_gemc_tag)", "geant4_tag":"$(get_geant4_tag)"}
 ]}
 EOF
