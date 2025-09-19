@@ -159,7 +159,7 @@ jobs:
   # build_arm64 job header
   build_arm64:
     name: Build arm64 from ${{ matrix.image }}
-    needs: [overview, discover]
+    needs: [ overview, discover ]
     runs-on: ubuntu-24.04-arm   # <— use native ARM64 runner
     permissions:
       contents: read
@@ -175,15 +175,15 @@ jobs:
 
       # Optional: say why we’re skipping
       - name: Skip note (archlinux is amd64-only)
-        if: ${{ matrix.image == 'archlinux' }}
+        if: ${{ matrix.osname == 'archlinux' }}
         run: echo "Skipping arm64 build for archlinux"
 
       - name: Set up Buildx
-        if: ${{ matrix.image != 'archlinux' }}
+        if: ${{ matrix.osname != 'archlinux' }}
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to GHCR
-        if: ${{ matrix.image != 'archlinux' }}
+        if: ${{ matrix.osname != 'archlinux' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -191,7 +191,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - id: meta
-        if: ${{ matrix.image != 'archlinux' }}
+        if: ${{ matrix.osname != 'archlinux' }}
         name: Docker metadata (base tag)
         uses: docker/metadata-action@v5
         with:
@@ -203,7 +203,7 @@ jobs:
             org.opencontainers.image.description=GEMC image (${{ matrix.gemc_tag }}, Geant4: ${{ matrix.geant4_tag }}) on ${{ matrix.image }})
 
       - name: Generate Dockerfile
-        if: ${{ matrix.image != 'archlinux' }}
+        if: ${{ matrix.osname != 'archlinux' }}
         run: |
           python3 ci/dockerfile_creator.py \
           -i "${{ matrix.image }}" \
@@ -212,11 +212,11 @@ jobs:
           cat Dockerfile.generated
 
       - name: Get upstream commit
-        if: ${{ matrix.image != 'archlinux' }}
+        if: ${{ matrix.osname != 'archlinux' }}
         run: echo "UPSTREAM_REV=$(git ls-remote https://github.com/gemc/src HEAD | cut -f1)" >> $GITHUB_ENV
 
       - name: Build & Push (arm64 only)
-        if: ${{ matrix.image != 'archlinux' }}
+        if: ${{ matrix.osname != 'archlinux' }}
         uses: docker/build-push-action@v5
         with:
           pull: true

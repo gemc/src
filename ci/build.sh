@@ -64,8 +64,8 @@ else
   echo
 fi
 
-echo " > Running meson install -v  -j cores" | tee $compile_log
-meson compile -C build -v -j $max_threads >> $compile_log
+echo " > Running meson install -v  -j $cores" | tee $compile_log
+meson compile -C build -v -j $cores >> $compile_log
 meson install -C build -v >> $compile_log
 if [ $? -ne 0 ]; then
   echo "Compile or Install failed. Log: "
