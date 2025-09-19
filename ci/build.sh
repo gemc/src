@@ -16,7 +16,6 @@ echo GEMC for prefix set to: $GEMC
 echo
 
 meson_option=$(meson_options $1)
-max_threads=$(max_j)
 
 mkdir -p /root/src/logs
 setup_log=/root/src/logs/setup.log
@@ -46,11 +45,15 @@ local args=(
   "-Dprefix=${install_dir}"
 )
 
+# detect cores and cap at 16
+cores=$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc)
+jobs=$((cores < 16 ? cores : 16))
+
 echo " > Applying patch to version 0.8.0" | tee -a $setup_log
 meson subprojects update yaml-cpp --reset
 
 echo " > Running build Configure with setup build options: ${args[@]}" | tee -a $setup_log
-	meson setup build "${args[@]}" --wipe >> $setup_log
+meson setup build "${args[@]}" --wipe >>$setup_log
 if [ $? -ne 0 ]; then
   echo "Build Configure failed. Log: "
   cat $setup_log
@@ -61,9 +64,9 @@ else
   echo
 fi
 
-
-echo " > Running meson install -v  -j $max_threads" | tee $compile_log
-	meson install -C build -v -j $max_threads >> $compile_log
+echo " > Running meson install -v  -j cores" | tee $compile_log
+meson compile -C build -v -j $max_threads >> $compile_log
+meson install -C build -v >> $compile_log
 if [ $? -ne 0 ]; then
   echo "Compile or Install failed. Log: "
   cat $compile_log
@@ -74,14 +77,13 @@ else
   echo
 fi
 
-
 echo " > $GEMC recursive content:" | tee -a $compile_log
 ls -lR $GEMC >>$compile_log
 
 # if $1 is NOT one of sanitize option, run meson test
 if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
   echo " > Running meson test" | tee $test_log
-  meson test -C build  -j 1 --print-errorlogs --no-rebuild --num-processes 1 >>$test_log
+  meson test -C build -j 1 --print-errorlogs --no-rebuild --num-processes 1 >>$test_log
   echo Successful: $(cat $test_log | grep "Ok:" | awk '{print $2}')
   echo Failures: $(cat $test_log | grep "Fail:" | awk '{print $2}')
 fi

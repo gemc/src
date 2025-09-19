@@ -58,12 +58,6 @@ function meson_options {
 }
 
 
-function max_j {
-    max_threads=$(($(nproc) / 2))
-    echo $max_threads
-}
-
-
 	# recent versions of Git refuse to touch a repository whose on-disk owner
 	# doesn’t match the UID that is running the command
 	# mark the workspace (and any nested path) as safe
