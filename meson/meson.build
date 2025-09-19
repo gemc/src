@@ -39,24 +39,13 @@ if (not root_dep.found()) and (not root_opt.disabled())
     # Probe root-config once
     rootcfg = find_program('root-config', required : false)
     if rootcfg.found()
-        # install root.pc if not found
-        fs = import('fs')
-        gemc_prefix = get_option('prefix')
-        root_pc = gemc_prefix / 'lib/pkgconfig/root.pc'
-        script_path = meson.project_source_root() / 'meson/install_geant4_root_pkgconfig.py'
-        if not fs.exists(root_pc)
-            message('root.pc not found in ' + root_pc + ', running install script...')
-            run_command(script_path, gemc_prefix, check : true)
-        endif
-
-        # Try pkg-config for 'root' but make it NOT required
-        root_dep = dependency(
-            'root',
-            version : '>=6.32.16',
-            method : 'pkg-config',
-            required : false
+        root_mods = []
+        root_dep = dependency('root',
+                              version : '>=6.32.16',
+                              method : 'cmake',
+                              modules : ['ROOT::Core', 'ROOT::RIO', 'ROOT::Tree', 'ROOT::Hist'],
+                              required : false
         )
-        #root_dep = dependency('root', method: 'cmake')
     else
         if root_opt.enabled()
             warning('ROOT was explicitly enabled (-Droot=enabled) but root-config was not found.')
@@ -67,59 +56,26 @@ if (not root_dep.found()) and (not root_opt.disabled())
     endif
 endif
 
-
-# geant4: pkg-config created manually by ./meson/install_geant4_root_pkgconfig.py
-#geant4_deps = dependency('geant4',
-#                         version : '>=11.3.0',
-#)
-# this also works,but ONLY if the dynamic libraries are present
-# geant4_deps = dependency('Geant4', method : 'cmake', static : true)
-
+# not working yet
 g4_all_modules = [
     # Shared-only in your install:
-    'Geant4::G4tools',
-
-    # Static variants available (from your valid target list):
-    'Geant4::G4ptl-static',
-    'Geant4::G4analysis-static',
-    'Geant4::G4digits_hits-static',
-    'Geant4::G4error_propagation-static',
-    'Geant4::G4event-static',
-    'Geant4::G4geometry-static',
-    'Geant4::G4global-static',
-    'Geant4::G4graphics_reps-static',
-    'Geant4::G4intercoms-static',
-    'Geant4::G4interfaces-static',
-    'Geant4::G4materials-static',
-    'Geant4::G4parmodels-static',
-    'Geant4::G4particles-static',
-    'Geant4::G4geomtext-static',
-    'Geant4::G4mctruth-static',
-    'Geant4::G4gdml-static',
-    'Geant4::G4physicslists-static',
-    'Geant4::G4processes-static',
-    'Geant4::G4readout-static',
-    'Geant4::G4run-static',
-    'Geant4::G4track-static',
-    'Geant4::G4tracking-static',
-    'Geant4::G4FR-static',
-    'Geant4::G4visHepRep-static',
-    'Geant4::G4RayTracer-static',
-    'Geant4::G4Tree-static',
-    'Geant4::G4VRML-static',
-    'Geant4::G4GMocren-static',
-    'Geant4::G4vis_management-static',
-    'Geant4::G4modeling-static',
-    'Geant4::G4ToolsSG-static',
-    'Geant4::G4OpenGL-static',
-    'Geant4::G4visQt3D-static',
+    'Geant4::G4tools', 'Geant4::G4ptl-static', 'Geant4::G4analysis-static', 'Geant4::G4digits_hits-static',
+    'Geant4::G4error_propagation-static', 'Geant4::G4event-static', 'Geant4::G4geometry-static',
+    'Geant4::G4global-static', 'Geant4::G4graphics_reps-static', 'Geant4::G4intercoms-static',
+    'Geant4::G4interfaces-static', 'Geant4::G4materials-static', 'Geant4::G4parmodels-static',
+    'Geant4::G4particles-static', 'Geant4::G4geomtext-static', 'Geant4::G4mctruth-static',
+    'Geant4::G4gdml-static', 'Geant4::G4physicslists-static', 'Geant4::G4processes-static',
+    'Geant4::G4readout-static', 'Geant4::G4run-static', 'Geant4::G4track-static', 'Geant4::G4tracking-static',
+    'Geant4::G4FR-static', 'Geant4::G4visHepRep-static', 'Geant4::G4RayTracer-static',
+    'Geant4::G4Tree-static', 'Geant4::G4VRML-static', 'Geant4::G4GMocren-static', 'Geant4::G4vis_management-static',
+    'Geant4::G4modeling-static', 'Geant4::G4ToolsSG-static', 'Geant4::G4OpenGL-static', 'Geant4::G4visQt3D-static',
 ]
 
 geant4_deps = dependency(
     'Geant4',
     method : 'cmake',
     version : '>=11.3.0',
-    # modules: g4_all_modules,
+    #modules :g4_all_modules,
     static : true, # prefer static libraries when available
     required : true,
 )

@@ -45,9 +45,9 @@ local args=(
   "-Dprefix=${install_dir}"
 )
 
-# detect cores and cap at 16
+# detect cores and cap at 32
 cores=$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc)
-jobs=$((cores < 16 ? cores : 16))
+jobs=$((cores < 32 ? cores : 32))
 
 echo " > Applying patch to version 0.8.0" | tee -a $setup_log
 meson subprojects update yaml-cpp --reset
@@ -66,7 +66,7 @@ fi
 
 echo " > Running meson install -v  -j $cores" | tee $compile_log
 meson compile -C build -v -j $cores >> $compile_log
-meson install -C build -v >> $compile_log
+meson install -C build  >> $compile_log
 if [ $? -ne 0 ]; then
   echo "Compile or Install failed. Log: "
   cat $compile_log
