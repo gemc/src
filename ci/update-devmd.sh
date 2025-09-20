@@ -4,8 +4,8 @@ set -euo pipefail
 echo "[devmd] start"
 
 FILE="releases/dev.md"
-START="<!-- AUTO-DEVMD:START -->"
-END="<!-- AUTO-DEVMD:END -->"
+START=""
+END=""
 mkdir -p "$(dirname "$FILE")"
 
 # --- Branch detection (works in GH Actions and locally) ---
@@ -18,7 +18,7 @@ fi
 echo "[devmd] branch = $BRANCH"
 
 # --- Time window (optional) ---
-SINCE="${DEVMD_SINCE:-}"   # e.g. 2024-01-01
+SINCE="2024-08-09" # Manually set the start date for commits
 UNTIL="${DEVMD_UNTIL:-}"   # e.g. 2025-09-01
 FLAGS=""
 [ -n "$SINCE" ] && FLAGS="$FLAGS --since=$SINCE"
@@ -30,8 +30,6 @@ if [ ! -f "$FILE" ]; then
   cat > "$FILE" <<'EOF'
 # Dev Release Notes
 
-<!-- AUTO-DEVMD:START -->
-<!-- AUTO-DEVMD:END -->
 EOF
   echo "[devmd] created $FILE scaffold"
 fi
@@ -83,6 +81,6 @@ AFTER="$(sed -n "/${END}/,\$p" "$FILE" | sed '1d' || true)"
 } > "$TMP_NEW"
 
 mv "$TMP_NEW" "$FILE"
-chmod 0644 "$FILE"         # ensure normal read perms
+chmod 0644 "$FILE"        # ensure normal read perms
 echo "[devmd] wrote $(wc -l < "$FILE") lines to $FILE"
 echo "[devmd] done"
