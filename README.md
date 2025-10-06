@@ -1,25 +1,38 @@
 # GEMC: Geant4 Monte-Carlo 
 
 
+    A database-driven Monte Carlo simulation program
 
 
+![GEMC Architecture](https://gemc.github.io/home/assets/images/gemcArchitecture.png "GEMC Architecture")
 
-
-
-
-<hr>
 
 <br/>
 <br/>
 
-## CI
+# CI
 
-### Pull requests
+## Build And Test Status
 
-[![Almalinux Build](https://github.com/gemc/src/actions/workflows/build_gemc_almalinux.yml/badge.svg)](https://github.com/gemc/src/actions/workflows/build_gemc_almalinux.yml)
-[![Fedora Build](https://github.com/gemc/src/actions/workflows/build_gemc_fedora.yml/badge.svg)](https://github.com/gemc/src/actions/workflows/build_gemc_fedora.yml)
-[![Ubuntu Build](https://github.com/gemc/src/actions/workflows/build_gemc_ubuntu.yml/badge.svg)](https://github.com/gemc/src/actions/workflows/build_gemc_ubuntu.yml)
+
+
+|            |  version |  architecture |
+|:-----------|---------:|--------------:|
+| ubuntu     |    24.04 |  amd64, arm64 |
+| fedora     |       40 |  amd64, arm64 |
+| almalinux  |      9.4 |  amd64, arm64 |
+| debian     |       12 |  amd64, arm64 |
+| archlinux  |       12 |         amd64 |
+
+
+[![Build And Test Images](https://github.com/gemc/src/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/gemc/src/actions/workflows/build_and_test.yml)
+
+
+## Metrics
+
 [![Sanitize](https://github.com/gemc/src/actions/workflows/sanitize.yaml/badge.svg)](https://github.com/gemc/src/actions/workflows/sanitize.yaml)
+
+[![CodeQL Advanced](https://github.com/gemc/src/actions/workflows/codeql.yml/badge.svg)](https://github.com/gemc/src/actions/workflows/codeql.yml)
 
 ### Nightly
 

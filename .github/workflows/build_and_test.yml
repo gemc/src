@@ -22,10 +22,12 @@ jobs:
             echo ""
             echo ""
             echo "Set these convenience variables to run docker (choose your own password)"
+            echo "To increase or reduce resolution, change the GEOMETRY flag"
             echo '```bash'
             echo 'VPORTS=(-p 6080:6080 -p 5900:5900)'
             echo 'VNC_PASS=(-e X11VNC_PASSWORD=change-me)'
             echo 'VNC_BIND=(-e VNC_BIND=0.0.0.0)'
+            echo 'GEO_FLAGS=(-e GEOMETRY=2560x1440)'
             echo '```'
             echo ""
             echo "For amd64 CPUS (for example, MacOS silicon):"
@@ -34,6 +36,7 @@ jobs:
             echo 'VNC_PASS=(-e X11VNC_PASSWORD=change-me)'
             echo 'VNC_BIND=(-e VNC_BIND=0.0.0.0)'
             echo 'VPLATFORM="--platform=linux/amd64"'
+            echo 'GEO_FLAGS=(-e GEOMETRY=2560x1440)'
             echo '```'
             echo "---"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -55,7 +58,7 @@ jobs:
   # Per-arch build jobs
   # ===========================
   build_amd64:
-    name: Build amd64 from ${{ matrix.osname }}
+    name: Build amd64 from ${{ matrix.osname }} ${{ matrix.osversion }}
     needs: [ overview, discover ]
     runs-on: ubuntu-latest
     permissions:
@@ -144,7 +147,7 @@ jobs:
             echo "_VNC → localhost:5900 (password: change-me)_"
             echo "_noVNC → http://localhost:6080/vnc.html (password: change-me)_"
             echo '```bash'
-            echo "docker run --rm -it \$VPLATFORM \$VPORTS \$VNC_BIND \$VNC_PASS ${IMAGE}:${TAG}"
+            echo "docker run --rm -it \$VPLATFORM \$VPORTS \$VNC_BIND \$VNC_PASS \$GEO_FLAGS ${IMAGE}:${TAG}"
             echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY" > "$OUT"
 
@@ -158,7 +161,7 @@ jobs:
 
   # build_arm64 job header
   build_arm64:
-    name: Build arm64 from ${{ matrix.image }}
+    name: Build arm64 from ${{ matrix.osname }} ${{ matrix.osversion }}
     needs: [ overview, discover ]
     runs-on: ubuntu-24.04-arm   # <— use native ARM64 runner
     permissions:
@@ -237,7 +240,7 @@ jobs:
   # Manifest stitch (same matrix)
   # ===========================
   manifest:
-    name: Manifest for ${{ matrix.image }}
+    name: Manifest for ${{ matrix.osname }} ${{ matrix.osversion }}
     needs: [ build_amd64, build_arm64, discover ]
     runs-on: ubuntu-latest
     # If arm64 was skipped (e.g., archlinux), still publish amd64-only manifest.
