@@ -1,7 +1,7 @@
 experiment: examples
 runno: 1
 n: 1
-nthreads: 12
+nthreads: 4
 
 gparticle:
   - name: e-
@@ -23,7 +23,7 @@ debug:
 
 gsystem:
   - name: b2
-    factory: ascii
+    factory: sqlite
 
 gmultipoles:
   - name: dipole

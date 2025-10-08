@@ -11,7 +11,8 @@ def main():
 	configuration = GConfiguration("examples", "b2")
 	build_geometry(configuration)
 	define_materials(configuration)
-	configuration.printC()
+	configuration.show()
+
 
 if __name__ == "__main__":
 	main()
