@@ -10,7 +10,6 @@
 <br/>
 <br/>
 
-# CI
 
 ## Build And Test Status
 

@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""
+Generate pkg‑config (.pc) file for Geant4
+
+Usage:
+    ./g4_pkgconfig.py <install‑prefix>
+
+Example:
+    ./g4_pkgconfig.py $GEMC
+"""
+import subprocess
+import shutil
+import sys
+from pathlib import Path
+from typing import List, Optional
+
+print(f"[debug] Python version: {sys.version}")
+print(f"[debug] Python executable: {sys.executable}")
+
+
+# ────────────────────────── helpers ──────────────────────────
+def run_config(command: str, option: str) -> str:
+	try:
+		result = subprocess.run([command, option], capture_output=True, text=True, check=True)
+		return result.stdout.strip()
+	except FileNotFoundError:
+		print(f"[FATAL] Command not found: {command}")
+		raise
+	except subprocess.CalledProcessError as e:
+		print(f"[ERROR] Command failed: {command} {option}")
+		print(f"stdout:\n{e.stdout}")
+		print(f"stderr:\n{e.stderr}")
+		raise
+
+
+def filter_unwanted_flags(flags: str) -> str:
+	"""Strip out Qt / CLHEP / XercesC / TreePlayer / -Wshadow flags."""
+	unwanted = {"Qt", "qt", "CLHEP", "clhep",
+				"xercesc", "XercesC", "TreePlayer", "-Wshadow"}
+	return " ".join(f for f in flags.split()
+					if not any(uw in f for uw in unwanted))
+
+def generate_pkgconfig(install_prefix: Path,
+					   config_cmd: str,
+					   output_filename: str,
+					   name: str,
+					   description: str,
+					   root_lbs: Optional[List[str]] = None) -> None:
+	"""Create <install_prefix>/lib/pkgconfig/<output_filename>."""
+	prefix = run_config(config_cmd, "--prefix")
+	libs = filter_unwanted_flags(run_config(config_cmd, "--libs"))
+	cflags = filter_unwanted_flags(run_config(config_cmd, "--cflags"))
+	version = run_config(config_cmd, "--version")
+
+	pc_content = f"""\
+prefix={prefix}
+exec_prefix=${{prefix}}
+libdir=${{prefix}}/lib
+includedir=${{prefix}}/include
+
+Name: {name}
+Description: {description}
+Version: {version}
+Cflags: {cflags}
+Libs:  {libs}
+"""
+
+	pc_path = install_prefix / "lib" / "pkgconfig" / output_filename
+	pc_path.parent.mkdir(parents=True, exist_ok=True)
+	pc_path.write_text(pc_content + "\n")
+	print(f"Generated {pc_path}")
+
+
+# ────────────────────────── main ──────────────────────────
+if __name__ == "__main__":
+	# --- 1. parse argument ----------------------------------------------------
+	if len(sys.argv) != 2:
+		sys.exit(f"Usage: {sys.argv[0]} <install‑prefix>")
+
+	install_dir = Path(sys.argv[1]).expanduser().resolve()
+	if not install_dir.exists():
+		print(f"Creating installation directory {install_dir}")
+		install_dir.mkdir(parents=True, exist_ok=True)
+
+	# --- 2. generate .pc files -----------------------------------------------
+	generate_pkgconfig(install_dir, "geant4-config",
+					   "geant4.pc", "Geant4", "Geant4 Simulation Toolkit")

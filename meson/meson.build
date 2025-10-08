@@ -1,15 +1,17 @@
 # qt
 qt6 = import('qt6')
 qt6_deps = dependency('qt6',
-                      modules : ['Core', 'Gui', 'Widgets', 'OpenGLWidgets'],
+                      modules : ['Core', 'Gui', 'Widgets', 'OpenGLWidgets', 'Svg'],
                       static : true,
                       include_type : 'preserve')
 
 # check system: pkg-config --cflags --libs gl
 ogl_deps = dependency('opengl', required : true)
 
+sys = host_machine.system()
+
 # pkg-config --cflags --libs gl.
-if host_machine.system() == 'darwin'
+if sys == 'darwin'
     sqlite_dep = dependency('sqlite3', required : true)
 else
     # no static or it will link to static system
@@ -56,29 +58,26 @@ if (not root_dep.found()) and (not root_opt.disabled())
     endif
 endif
 
-# not working yet
-g4_all_modules = [
-    # Shared-only in your install:
-    'Geant4::G4tools', 'Geant4::G4ptl-static', 'Geant4::G4analysis-static', 'Geant4::G4digits_hits-static',
-    'Geant4::G4error_propagation-static', 'Geant4::G4event-static', 'Geant4::G4geometry-static',
-    'Geant4::G4global-static', 'Geant4::G4graphics_reps-static', 'Geant4::G4intercoms-static',
-    'Geant4::G4interfaces-static', 'Geant4::G4materials-static', 'Geant4::G4parmodels-static',
-    'Geant4::G4particles-static', 'Geant4::G4geomtext-static', 'Geant4::G4mctruth-static',
-    'Geant4::G4gdml-static', 'Geant4::G4physicslists-static', 'Geant4::G4processes-static',
-    'Geant4::G4readout-static', 'Geant4::G4run-static', 'Geant4::G4track-static', 'Geant4::G4tracking-static',
-    'Geant4::G4FR-static', 'Geant4::G4visHepRep-static', 'Geant4::G4RayTracer-static',
-    'Geant4::G4Tree-static', 'Geant4::G4VRML-static', 'Geant4::G4GMocren-static', 'Geant4::G4vis_management-static',
-    'Geant4::G4modeling-static', 'Geant4::G4ToolsSG-static', 'Geant4::G4OpenGL-static', 'Geant4::G4visQt3D-static',
-]
+# geant4.pc if not found
+fs = import('fs')
+gemc_prefix = get_option('prefix')
+geant4_pc = gemc_prefix / 'lib/pkgconfig/geant4.pc'
+script_path = meson.project_source_root() / 'meson/g4_pkgconfig.py'
+if not fs.exists(geant4_pc)
+    message('geant4.pc not found in ' + geant4_pc + ', running install script...')
+    run_command(script_path, gemc_prefix, check : true)
+endif
+geant4_dep = dependency('geant4', version : '>=11.3.0')
 
-geant4_deps = dependency(
-    'Geant4',
-    method : 'cmake',
-    version : '>=11.3.0',
-    #modules :g4_all_modules,
-    static : true, # prefer static libraries when available
-    required : true,
-)
+geant4_deps = [geant4_dep]
+if sys == 'linux'
+    # Only on Linux: pull in GLX/X11 stack for G4OpenGL(.a)
+    geant4_deps += [
+        dependency('x11', required : true),
+        dependency('xmu', required : true),
+        dependency('gl', required : true),
+    ]
+endif
 
 
 

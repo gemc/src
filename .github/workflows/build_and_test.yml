@@ -1,5 +1,7 @@
 # Build & Publish GitHub Container Registry (GHCR) Images
 name: Build And Test Images
+permissions:
+  contents: read
 
 on:
   push:
@@ -18,25 +20,22 @@ jobs:
           : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/summary.md}"
           {
             echo "# GEMC Images — Overview"
-            echo "Repository: [gemc images](https://github.com/gemc/src/pkgs/container/gemc)"
+            echo "Repository: [gemc images](https://github.com/gemc/src/pkgs/container/src)"
+            echo "Except for archlinux (amd64-only), all images are built for both the *amd64* and *arm64* architectures."
             echo ""
             echo ""
-            echo "Set these convenience variables to run docker (choose your own password)"
-            echo "To increase or reduce resolution, change the GEOMETRY flag"
+            echo "Set these convenience variables for the command lines below (choose your own password)"
             echo '```bash'
             echo 'VPORTS=(-p 6080:6080 -p 5900:5900)'
             echo 'VNC_PASS=(-e X11VNC_PASSWORD=change-me)'
             echo 'VNC_BIND=(-e VNC_BIND=0.0.0.0)'
-            echo 'GEO_FLAGS=(-e GEOMETRY=2560x1440)'
+            echo 'GEO_FLAGS=(-e GEOMETRY=1920x1200)'
+            echo 'VPLATFORM=" "'
             echo '```'
             echo ""
-            echo "For amd64 CPUS (for example, MacOS silicon):"
+            echo "If your arch is arm64, (for example, MacOS silicon), and want to use the archlinux image, add this to all command lines:"
             echo '```bash'
-            echo 'VPORTS=(-p 6080:6080 -p 5900:5900)'
-            echo 'VNC_PASS=(-e X11VNC_PASSWORD=change-me)'
-            echo 'VNC_BIND=(-e VNC_BIND=0.0.0.0)'
-            echo 'VPLATFORM="--platform=linux/amd64"'
-            echo 'GEO_FLAGS=(-e GEOMETRY=2560x1440)'
+            echo '--platform=linux/amd64'
             echo '```'
             echo "---"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -90,12 +89,12 @@ jobs:
             type=raw,value=${{ format('{0}-{1}', matrix.gemc_tag, matrix.osname) }}
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
-            org.opencontainers.image.description=GEMC image (${{ matrix.gemc_tag }}, Geant4: ${{ matrix.geant4_tag }}) on ${{ matrix.image }})
+            org.opencontainers.image.description=GEMC image (${{ matrix.gemc_tag }}, Geant4: ${{ matrix.geant4_tag }}) on ${{ matrix.baseimage }})
 
       - name: Generate Dockerfile
         run: |
           python3 ci/dockerfile_creator.py \
-          -i "${{ matrix.image }}" \
+          -i "${{ matrix.baseimage }}" \
           -t "${{ matrix.gemc_tag }}" \
           > Dockerfile.generated
           cat Dockerfile.generated
@@ -122,7 +121,8 @@ jobs:
           #cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64,mode=max
 
       - name: Summary
-        if: ${{ always() }}
+#        if: ${{ always() }}
+        if: ${{ false }}
         shell: bash
         env:
           IMAGE: ${{ needs.discover.outputs.image }}
@@ -203,13 +203,13 @@ jobs:
             type=raw,value=${{ format('{0}-{1}', matrix.gemc_tag, matrix.osname) }}
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
-            org.opencontainers.image.description=GEMC image (${{ matrix.gemc_tag }}, Geant4: ${{ matrix.geant4_tag }}) on ${{ matrix.image }})
+            org.opencontainers.image.description=GEMC image (${{ matrix.gemc_tag }}, Geant4: ${{ matrix.geant4_tag }}) on ${{ matrix.baseimage }})
 
       - name: Generate Dockerfile
         if: ${{ matrix.osname != 'archlinux' }}
         run: |
           python3 ci/dockerfile_creator.py \
-          -i "${{ matrix.image }}" \
+          -i "${{ matrix.baseimage }}" \
           -t "${{ matrix.gemc_tag }}" \
           > Dockerfile.generated
           cat Dockerfile.generated
@@ -240,9 +240,12 @@ jobs:
   # Manifest stitch (same matrix)
   # ===========================
   manifest:
-    name: Manifest for ${{ matrix.osname }} ${{ matrix.osversion }}
+    name: Manifest for ${{ matrix.osname }}
     needs: [ build_amd64, build_arm64, discover ]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     # If arm64 was skipped (e.g., archlinux), still publish amd64-only manifest.
     strategy:
       fail-fast: false
@@ -282,7 +285,7 @@ jobs:
         shell: bash
         env:
           IMAGE: ${{ needs.discover.outputs.image }}
-          TAG: ${{ format('{0}-{1}', matrix.gemc_tag, matrix.image) }}
+          TAG: ${{ format('{0}-{1}', matrix.gemc_tag, matrix.osname) }}
         run: |
           : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/manifest_summary.md}"
           {
