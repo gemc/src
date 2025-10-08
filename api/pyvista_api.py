@@ -68,39 +68,48 @@ def render_volume(gvolume, gconfiguration):
 		mesh = None
 
 		if gvolume.solid == 'G4Box':
-			mesh = add_box(pv, pars, bcenter)
+			mesh = add_box(pv, pars)
 		elif gvolume.solid == 'G4Cons':
-			pass
+			mesh = add_cons(pv, pars)
 		elif gvolume.solid == 'G4Tubs':
-			mesh = add_cylinder(pv, pars, bcenter)
-		elif gvolume.solid == 'G4Trap8':
-			pass
-		else:
-			print(f'\n Fatal error: {gvolume.solid} not supported yet')
-			exit(1)
-
+			mesh = add_cylinder(pv, pars)
 		if mesh is None:
 			return
-		actor = gconfiguration.add_mesh(mesh, color=rgb, smooth_shading=True, opacity=alpha, style=mstyle, line_width=mlinewidth)
+
+		print("before:", mesh.center)
+
+		mesh = move_to_center(mesh, bcenter)
+		print("after: ", mesh.center, " target:", bcenter)
+
+		actor = gconfiguration.add_mesh(mesh, color=rgb, smooth_shading=True, opacity=alpha,
+		                                style=mstyle, line_width=mlinewidth)
 		actor.prop.ambient = 0.15  # a touch of ambient so faces aren’t pitch black
 
 
-def add_box(pv, pars, bcenter) -> None:
+def move_to_center(mesh, target_center):
+	"""Translate mesh so its center becomes target_center."""
+	target = np.asarray(target_center, dtype=float)
+	curr = np.asarray(mesh.center, dtype=float)
+	delta = target - curr
+	out = mesh.copy()
+	out.translate(tuple(delta), inplace=True)
+	return out
+
+
+def add_box(pv, pars) -> None:
 	volume = pv.Cube(
-		center=bcenter,
 		x_length=pars[0], y_length=pars[1], z_length=pars[2]
 	)
 	return volume
 
 
-def add_cylinder(pv, pars, bcenter):
+def add_cylinder(pv, pars):
 	res = 128  # resolution
-	rmin = pars[0] / 2
-	rmax = pars[1] / 2
-	hz = pars[2] / 2
+	rmin = pars[0] * 0.5
+	rmax = pars[1] * 0.5
+	hz = pars[2] * 0.5
 	phi_start = pars[3]
 	dphi = pars[4]
-
 
 	print(f'cylinder: rmin={rmin}, rmax={rmax}, hz={hz}, phi_start={phi_start}, dphi={dphi}')
 	outer = pv.Cylinder(radius=rmax, height=2 * hz, resolution=res, direction=(0, 0, 1))
@@ -113,14 +122,77 @@ def add_cylinder(pv, pars, bcenter):
 		# clip with two planes to realize a phi segment
 		tub = tub.clip(normal=[0, 0, 1], origin=[0, 0, 0], invert=False)  # no-op, just example
 
-
 		# Build two radial clip planes based on phi_start and phi_start+dphi:
 		def radial_plane(phi_deg):
 			a = np.radians(phi_deg)
 			n = [np.cos(a), np.sin(a), 0.0]
 			return n
 
-
 		tub = tub.clip(normal=radial_plane(phi_start), origin=[0, 0, 0])
 		tub = tub.clip(normal=[-c for c in radial_plane(phi_start + dphi)], origin=[0, 0, 0])
 	return tub.triangulate().clean()
+
+
+def add_cons(pv, pars):
+	"""
+	Build a G4Cons-like solid.
+
+	Parameters (numerical; already in your scene units):
+	  pars[0] = rin1     # inner radius at z = -length
+	  pars[1] = rout1    # outer radius at z = -length
+	  pars[2] = rin2     # inner radius at z = +length
+	  pars[3] = rout2    # outer radius at z = +length
+	  pars[4] = length   # HALF length in z (i.e., dz)
+	  pars[5] = phi_start (degrees)
+	  pars[6] = phi_total (degrees)
+
+	bcenter: (x, y, z) center in world coords.
+
+	Returns: closed PolyData surface suitable for rendering/CSG.
+	"""
+	# --- unpack
+	rin1 = pars[0] * 0.5
+	rout1 = pars[1] * 0.5
+	rin2 = pars[2] * 0.5
+	rout2 = pars[3] * 0.5
+	hz = pars[4] * 0.5
+	phi_start = pars[5]
+	phi_total = pars[6]
+
+	res = 128  # resolution
+
+	def solid_to_axis(r0, z0, r1, z1):
+		"""Make a quad polygon in X–Z plane (Y=0) that includes the axis."""
+		pts = np.array([
+			[r0, 0.0, z0],  # outer @ z0
+			[r1, 0.0, z1],  # outer @ z1
+			[0.0, 0.0, z1],  # axis @ z1
+			[0.0, 0.0, z0],  # axis @ z0
+		], dtype=float)
+		poly = pv.PolyData()
+		poly.points = pts
+		# one polygon with 4 verts: [n, i0, i1, i2, i3]
+		poly.faces = np.array([4, 0, 1, 2, 3], dtype=np.int64)
+		return poly
+
+	# Build a solid outer frustum-to-axis and revolve only phi_total
+	outer_profile = solid_to_axis(rout1, -hz, rout2, +hz)
+	outer = outer_profile.extrude_rotate(angle=phi_total, resolution=res, capping=True)
+
+	# If inner radii present, build inner solid-to-axis and subtract
+	have_inner = (rin1 > 0.0) or (rin2 > 0.0)
+	if have_inner:
+		inner_profile = solid_to_axis(rin1, -hz, rin2, +hz)
+		inner = inner_profile.extrude_rotate(angle=phi_total, resolution=res, capping=True)
+		cons = outer.triangulate().clean().boolean_difference(inner.triangulate().clean())
+	else:
+		cons = outer
+
+	# Rotate sector start and translate to center
+	if phi_total < 360.0 or abs(phi_start) > 1e-12:
+		cons = cons.rotate_z(phi_start, inplace=False)
+
+	# Final tidy
+	cons = cons.triangulate().clean()
+
+	return cons

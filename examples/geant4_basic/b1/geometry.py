@@ -30,16 +30,16 @@ def build_geometry(configuration):
 	gvolume.set_position(0, 20, -70)
 	gvolume.publish(configuration)
 
-	shape2_dxa = 120/2
-	shape2_dxb = 120/2
-	shape2_dya = 100/2
-	shape2_dyb = 160/2
-	shape2_dz = 60/2
+	shape2_dxa = 120
+	shape2_dxb = 120
+	shape2_dya = 100
+	shape2_dyb = 160
+	shape2_dz = 60
 
 	gvolume = GVolume('Shape2')
 	gvolume.mother = 'Envelope'
 	gvolume.description = 'B1 Shape2'
-	gvolume.make_trapezoid(shape2_dxa, shape2_dxb, shape2_dya, shape2_dyb, shape2_dz)
+	gvolume.make_trapezoid(shape2_dxa * 0.5, shape2_dxb * 0.5, shape2_dya * 0.5, shape2_dyb * 0.5, shape2_dz * 0.5)
 	gvolume.material = 'G4_BONE_COMPACT_ICRU'
 	gvolume.color = 'ddffff'
 	gvolume.set_position(0, -10, 70)

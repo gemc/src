@@ -20,5 +20,5 @@ verbosity:
 gsystem:
   - name: b1
 
-root: G4Box, 12*cm, 12*cm, 18*cm, G4_WATER
+root: G4Box, 10*cm, 10*cm, 15*cm, G4_WATER
 phys_list: QBBC

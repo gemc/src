@@ -10,7 +10,7 @@ from geometry import build_geometry
 def main():
 	configuration = GConfiguration("examples", "b1")
 	build_geometry(configuration)
-	configuration.printC()
+	configuration.show()
 
 if __name__ == "__main__":
 	main()

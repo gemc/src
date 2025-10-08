@@ -18,6 +18,14 @@
 #	verbosity	- The log verbosity level for the sci-g API. The default is 0 (print only summary information)
 
 
+class HVolume:
+	def __init__(self, name, position = None, mother=None):
+		# mandatory fields. Checked at publish time
+		self.name = name
+		self.position = position
+		self.mother = mother
+
+
 class GColors:
 	PURPLE = '\033[95m'
 	CYAN = '\033[96m'
@@ -113,7 +121,7 @@ class GConfiguration:
 		actor = p.add_mesh(*args, **kwargs)
 		return actor
 
-	def add_origin_axes(self, L=10.0, width=3):
+	def add_origin_axes(self, L=100.0, width=3):
 		if self.pv is None:
 			return
 		p = self.plotter
