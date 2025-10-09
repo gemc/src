@@ -6,6 +6,14 @@ import math
 
 def build_geometry(configuration):
 
+	gvolume = GVolume('root')
+	gvolume.description = 'World'
+	gvolume.make_box(1.2*100.0, 1.2*100.0, 1.2*150.0)
+	gvolume.material = 'G4_AIR'
+	gvolume.color = '8899224'
+	gvolume.style = 0
+	gvolume.publish(configuration)
+
 	gvolume = GVolume('Envelope')
 	gvolume.description = 'B1 Envelope'
 	gvolume.make_box(100.0, 100.0, 150.0)

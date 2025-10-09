@@ -135,19 +135,19 @@ jobs:
             echo ""
             echo "### Pull"
             echo '```bash'
-            echo "docker pull \$VPLATFORM ${IMAGE}:${TAG}"
+            echo "docker pull ${IMAGE}:${TAG}"
             echo '```'
             echo ""
             echo "### Run interactive shell"
             echo '```bash'
-            echo "docker run --rm -it \$VPLATFORM ${IMAGE}:${TAG} bash -l"
+            echo "docker run --rm -it ${IMAGE}:${TAG} bash -l"
             echo '```'
             echo ""
             echo "### Run with VNC/noVNC"
             echo "_VNC → localhost:5900 (password: change-me)_"
             echo "_noVNC → http://localhost:6080/vnc.html (password: change-me)_"
             echo '```bash'
-            echo "docker run --rm -it \$VPLATFORM \$VPORTS \$VNC_BIND \$VNC_PASS \$GEO_FLAGS ${IMAGE}:${TAG}"
+            echo "docker run --rm -it \$VPORTS \$VNC_BIND \$VNC_PASS \$GEO_FLAGS ${IMAGE}:${TAG}"
             echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY" > "$OUT"
 
@@ -302,14 +302,14 @@ jobs:
             echo ""
             echo "### Run (interactive)"
             echo '```bash'
-            echo "docker run --rm -it \$VPLATFORM ${IMAGE}:${TAG} bash -l"
+            echo "docker run --rm -it ${IMAGE}:${TAG} bash -l"
             echo '```'
             echo ""
             echo "### Run with VNC/noVNC"
             echo "_VNC → localhost:5900 (password: change-me)_"
             echo "_noVNC → http://localhost:6080/vnc.html (password: change-me)_"
             echo '```bash'
-            echo "docker run --rm -it \$VPLATFORM \$VPORTS \$VNC_BIND \$VNC_PASS ${IMAGE}:${TAG}"
+            echo "docker run --rm -it \$VPORTS \$VNC_BIND \$VNC_PASS \$GEO_FLAGS ${IMAGE}:${TAG}"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -324,5 +324,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: summary-${{ matrix.gemc_tag }}-${{ matrix.image }}-manifest
-          path: ${{ runner.temp }}/manifest_summary.md
+          path: |
+            ${{ runner.temp }}/manifest_summary.md
+            /root//root/artifacts
           if-no-files-found: ignore

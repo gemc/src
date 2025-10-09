@@ -60,6 +60,10 @@ def render_volume(gvolume, gconfiguration):
 		bcenter = get_center(gvolume)
 		mstyle = "surface" if gvolume.style == 1 else "wireframe"
 		mlinewidth = 1.0 if gvolume.style == 1 else 10
+		if gvolume.visible == 0:
+			alpha = 0.05  # nearly invisible
+			mlinewidth = 1.0
+			mstyle = "wireframe"
 
 		# print pars
 		print(
@@ -73,6 +77,8 @@ def render_volume(gvolume, gconfiguration):
 			mesh = add_cons(pv, pars)
 		elif gvolume.solid == 'G4Tubs':
 			mesh = add_cylinder(pv, pars)
+		elif gvolume.solid == 'G4Trd':
+			mesh = add_trapezoid(pv, pars)
 		if mesh is None:
 			return
 
@@ -98,7 +104,7 @@ def move_to_center(mesh, target_center):
 
 def add_box(pv, pars) -> None:
 	volume = pv.Cube(
-		x_length=pars[0], y_length=pars[1], z_length=pars[2]
+		x_length=pars[0]*2, y_length=pars[1]*2, z_length=pars[2]*2
 	)
 	return volume
 
@@ -151,11 +157,11 @@ def add_cons(pv, pars):
 	Returns: closed PolyData surface suitable for rendering/CSG.
 	"""
 	# --- unpack
-	rin1 = pars[0] * 0.5
-	rout1 = pars[1] * 0.5
-	rin2 = pars[2] * 0.5
-	rout2 = pars[3] * 0.5
-	hz = pars[4] * 0.5
+	rin1 = pars[0]
+	rout1 = pars[1]
+	rin2 = pars[2]
+	rout2 = pars[3]
+	hz = pars[4]
 	phi_start = pars[5]
 	phi_total = pars[6]
 
@@ -196,3 +202,57 @@ def add_cons(pv, pars):
 	cons = cons.triangulate().clean()
 
 	return cons
+
+def add_trapezoid(pv, pars) -> None:
+		"""
+		Build a G4Trd in PyVista.
+
+		Geant4 parameter order (half-lengths):
+		  pars[0] = dx1  # half-length X at z = -dz
+		  pars[1] = dx2  # half-length X at z = +dz
+		  pars[2] = dy1  # half-length Y at z = -dz
+		  pars[3] = dy2  # half-length Y at z = +dz
+		  pars[4] = dz   # half-length in Z
+
+		bcenter: (x,y,z) where the solid’s local origin (0,0,0) should land.
+		Returns: closed PolyData.
+		"""
+		dx1, dx2, dy1, dy2, dz = map(float, pars[:5])
+
+		# 	dx1 *= 0.5;
+		# 	dx2 *= 0.5;
+		# 	dy1 *= 0.5;
+		# 	dy2 *= 0.5;
+		# 	dz *= 0.5
+
+		z0, z1 = -dz, +dz
+
+		# Eight vertices: bottom (-z) then top (+z)
+		# Order each face CCW when viewed from outside.
+		pts = np.array([
+			[-dx1, -dy1, z0],  # 0 bottom
+			[+dx1, -dy1, z0],  # 1
+			[+dx1, +dy1, z0],  # 2
+			[-dx1, +dy1, z0],  # 3
+			[-dx2, -dy2, z1],  # 4 top
+			[+dx2, -dy2, z1],  # 5
+			[+dx2, +dy2, z1],  # 6
+			[-dx2, +dy2, z1],  # 7
+		], dtype=float)
+
+		# Six quad faces (bottom, top, and 4 sides)
+		faces = np.array([
+			4, 0, 1, 2, 3,  # bottom (-z)
+			4, 4, 5, 6, 7,  # top (+z)
+			4, 0, 1, 5, 4,  # -Y side
+			4, 1, 2, 6, 5,  # +X side
+			4, 2, 3, 7, 6,  # +Y side
+			4, 3, 0, 4, 7,  # -X side
+		], dtype=np.int64)
+
+		trd = pv.PolyData(pts, faces)
+		# (Optional) robustness: ensure triangulated & watertight
+		trd = trd.triangulate().clean()
+
+
+		return trd

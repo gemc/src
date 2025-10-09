@@ -159,30 +159,6 @@ void GWorld::load_systems() {
 
 	auto systemFactories = createSystemFactory();
 
-	// Inject the ROOT “world” volume, if not already present
-	const std::string worldVolumeDefinition =
-		gopts->getScalarString(ROOTWORLDGVOLUMENAME);
-
-	if (gsystemsMap->count(ROOTWORLDGVOLUMENAME)) {
-		log->error(ERR_GVOLUMEALREADYPRESENT,
-		           "ROOT world volume already exists in gsystemsMap. "
-		           "Check your configuration.");
-	}
-	else {
-		auto rootSystem = std::make_shared<GSystem>(
-		                                            gopts, // logger
-		                                            dbhost,
-		                                            ROOTWORLDGVOLUMENAME, // name + path
-		                                            GSYSTEMSQLITETFACTORYLABEL,
-		                                            "all",    // experiment
-		                                            1,        // runNo
-		                                            "default" // variation
-		                                           );
-		rootSystem->addROOTVolume(worldVolumeDefinition);
-
-		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = rootSystem;
-	}
-
 	// For every system, find / create its factory and load volumes
 	const auto yamlFiles = gopts->getYamlFiles();
 
@@ -217,6 +193,36 @@ void GWorld::load_systems() {
 		// Load & close the system
 		factory->loadSystem(sysPtr.get());
 		factory->closeSystem();
+	}
+
+
+	// loop over gsystemsMap looking for ROOTWORLDGVOLUMENAME
+	auto world_is_defined = false;
+	for (auto& [sysName, sysPtr] : *gsystemsMap) {
+		// for each system run getGVolume(ROOTWORLDGVOLUMENAME)
+		if ( sysPtr->getGVolume(ROOTWORLDGVOLUMENAME) != nullptr) {
+			log->info(1, "ROOT world volume found in system <", sysName, ">");
+			world_is_defined = true;
+		}
+	}
+
+	if (!world_is_defined) {
+		// Inject the ROOT “world” volume, if not already present
+		const std::string worldVolumeDefinition =
+			gopts->getScalarString(ROOTWORLDGVOLUMENAME);
+
+		auto rootSystem = std::make_shared<GSystem>(
+													gopts, // logger
+													dbhost,
+													ROOTWORLDGVOLUMENAME, // name + path
+													GSYSTEMSQLITETFACTORYLABEL,
+													"all",    // experiment
+													1,        // runNo
+													"default" // variation
+												   );
+		rootSystem->addROOTVolume(worldVolumeDefinition);
+
+		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = rootSystem;
 	}
 
 	// systemFactories goes out of scope -> all factories destroyed cleanly
@@ -260,7 +266,7 @@ void GWorld::assignG4Names() {
 		for (auto& [volumeName, gvolume] : systemPair.second->getGVolumesMap()) {
 			// Skip if the volume's mother is "MOTHEROFUSALL".
 			std::string motherVolumeName = gvolume->getMotherName();
-			if (motherVolumeName != MOTHEROFUSALL) {
+			if (motherVolumeName != MOTHEROFUSALL && volumeName != ROOTWORLDGVOLUMENAME) {
 				auto        motherVolume = searchForVolume(motherVolumeName, "mother of <" + gvolume->getName() + ">");
 				std::string g4name       = gvolume->getSystem() + GSYSTEM_DELIMITER + volumeName;
 				std::string g4motherName = motherVolume->getSystem() + GSYSTEM_DELIMITER + motherVolumeName;

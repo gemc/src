@@ -149,7 +149,7 @@ def write_templates(system, variations):
 		ps.write(f'	configuration = GConfiguration(\'{experiment}\', \'{system}\')\n\n')
 		ps.write('	define_materials(configuration)\n')
 		ps.write(f'	build_{system}(configuration)\n')
-		ps.write('	configuration.printC()\n\n\n')
+		ps.write('	configuration.show()\n\n\n')
 		ps.write('if __name__ == "__main__":\n')
 		ps.write('	main()\n\n\n')
 	# change permission

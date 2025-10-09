@@ -111,7 +111,7 @@ void GSystem::addGVolume(std::vector<std::string> pars) {
  * \param rootVolumeDefinition The definition string for the ROOT volume.
  */
 void GSystem::addROOTVolume(const std::string& rootVolumeDefinition) {
-	log->info(1, "Adding ROOT volume <" + rootVolumeDefinition + "> to gvolumesMap.");
+	log->warning(1, "Adding ROOT volume using <" + rootVolumeDefinition + "> to gvolumesMap.");
 	// ROOTWORLDGVOLUMENAME is assumed to be defined in gsystemConventions.h.
 	gvolumesMap[ROOTWORLDGVOLUMENAME] = std::make_unique<GVolume>(rootVolumeDefinition, log);
 }

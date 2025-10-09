@@ -30,27 +30,6 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 	buildMaterials(gsystemMap);
 	buildDefaultMaterialsElementsAndIsotopes();
 
-	// get the gsystem named ROOTWORLDGVOLUMENAME from the map
-	auto rootSystemIt = gsystemMap->find(ROOTWORLDGVOLUMENAME);
-	if (rootSystemIt == gsystemMap->end()) {
-		log->error(ERR_G4SYSTEMFACTORYNOTFOUND,
-		           "G4World: ROOT system <", ROOTWORLDGVOLUMENAME, "> not found in the map");
-	}
-	else { log->info(2, "G4World: ROOT system <", rootSystemIt->first, "> found in the map"); }
-	auto rootSystem     = rootSystemIt->second.get();
-	auto objectsFactory = get_factory(G4SYSTEMNATFACTORY);
-
-	for (auto& [volumeName, gvolumePtr] : rootSystem->getGVolumesMap()) {
-		if (volumeName == ROOTWORLDGVOLUMENAME) {
-			auto* gvolume = gvolumePtr.get();
-			if (!build_g4volume(gvolume, objectsFactory)) {
-				if (gvolume->getExistence())
-					log->error(ERR_G4VOLUMEBUILDFAILED,
-					           "G4World: ROOT volume <", gvolume->getName(), "> not built");
-			}
-		}
-	}
-
 	// every volume not built (due to dependencies) increments allRemainingVolumes
 	std::vector<GVolume*> thisIterationRemainingVolumes;
 	unsigned long         allRemainingVolumes = 0;
@@ -61,7 +40,7 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 		// loop over systems in the gsystemsMap
 		for (auto& [systemName, gsystem] : *gsystemMap) {
 			std::string g4Factory = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
-			objectsFactory        = get_factory(g4Factory);
+			auto objectsFactory        = get_factory(g4Factory);
 
 			for (auto& [volumeName, gvolumePtr] : gsystem->getGVolumesMap()) {
 				auto* gvolume = gvolumePtr.get();;
@@ -446,6 +425,7 @@ void G4World::buildMaterials(SystemMap* system_map) {
 
 
 bool G4World::build_g4volume(const GVolume* s, G4ObjectsFactory* objectsFactory) {
+
 	log->info(2, "G4World: using factory <", objectsFactory->className(),
 	          "> to build g4volume <", s->getG4Name(), ">");
 

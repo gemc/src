@@ -1,1 +1,1 @@
-../../examples/geant4_basic/b1/geometry.py
+../../examples/basic/b1/geometry.py

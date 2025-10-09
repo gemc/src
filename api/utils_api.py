@@ -18,14 +18,6 @@
 #	verbosity	- The log verbosity level for the sci-g API. The default is 0 (print only summary information)
 
 
-class HVolume:
-	def __init__(self, name, position = None, mother=None):
-		# mandatory fields. Checked at publish time
-		self.name = name
-		self.position = position
-		self.mother = mother
-
-
 class GColors:
 	PURPLE = '\033[95m'
 	CYAN = '\033[96m'
@@ -41,10 +33,20 @@ class GColors:
 
 import sqlite3
 import os, argparse, sys
-
+import numpy as np
 from gemc_sqlite import create_sqlite_database
+from dataclasses import dataclass
+from typing import Optional, Tuple
 
-from typing import Optional
+Vec3 = Tuple[float, float, float]
+
+
+@dataclass
+class HVolume:
+	name: str
+	position: Vec3 = (0.0, 0.0, 0.0)  # local translation w.r.t. mother
+	mother: Optional[str] = None  # parent name (None/"" = world)
+
 
 has_pyvista: bool = False
 pv: Optional[object] = None  # will hold the module if available
@@ -69,7 +71,8 @@ def get_arguments():
 	parser.add_argument("-pvh", "--height", type=int, default=1600, help="Set plotter height")
 	parser.add_argument("-pvx", "--x", type=int, default=0, help="Set plotter x position")
 	parser.add_argument("-pvy", "--y", type=int, default=0, help="Set plotter y position")
-	parser.add_argument("-axes", "--add_axes_at_zero", action="store_true", help="Add 10cm axes at (0, 0, 0)")
+	parser.add_argument("-axes", "--add_axes_at_zero", action="store_true",
+	                    help="Add 10cm axes at (0, 0, 0)")
 	return parser.parse_args()
 
 
@@ -99,6 +102,10 @@ class GConfiguration:
 
 		self.init_variation(self.variation)
 		self.initialize_storage()
+		# hyerarchy of volumes
+		self._hvolumes: dict[str, HVolume] = {}  # name -> HVolume
+		self._children: dict[str, list[str]] = {}  # mother name -> child names
+		self._world_pos_cache: dict[str, tuple[float, float, float]] = {}  # optional
 
 	@property
 	def plotter(self):
@@ -121,7 +128,7 @@ class GConfiguration:
 		actor = p.add_mesh(*args, **kwargs)
 		return actor
 
-	def add_origin_axes(self, L=100.0, width=3):
+	def add_origin_axes(self, L=50.0, width=3):
 		if self.pv is None:
 			return
 		p = self.plotter
@@ -172,7 +179,8 @@ class GConfiguration:
 				try:
 					self.sqlitedb = sqlite3.connect(sqlite_file)
 					cursor = self.sqlitedb.cursor()
-					cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='geometry'")
+					cursor.execute(
+						"SELECT name FROM sqlite_master WHERE type='table' AND name='geometry'")
 					if cursor.fetchone() is None:
 						print(f"  ❖ Warning: Database exists but missing required tables")
 						self.sqlitedb.close()
@@ -218,7 +226,8 @@ class GConfiguration:
 
 		elif self.factory == "sqlite":
 			if not self.sqlitedb:
-				sys.exit(f"{GColors.RED}Error: sqlite db file is not defined. Exiting.{GColors.END}")
+				sys.exit(
+					f"{GColors.RED}Error: sqlite db file is not defined. Exiting.{GColors.END}")
 			print(f"	▪︎ SQLite File: {self.args.dbhost if self.args.dbhost else 'default.db'}")
 
 		elif self.factory in ["ascii"]:
@@ -239,20 +248,16 @@ class GConfiguration:
 				w, h, x, y = self.args.width, self.args.height, self.args.x, self.args.y
 				p.ren_win.SetPosition(x, y)
 				p.ren_win.SetSize(w, h)
-				try:
-					import numpy as np
 
-					# compute a good camera distance from the scene bounds
-					xmin, xmax, ymin, ymax, zmin, zmax = p.bounds
-					center = np.array([(xmin + xmax) / 2, (ymin + ymax) / 2, (zmin + zmax) / 2])
-					scene_len = np.linalg.norm([xmax - xmin, ymax - ymin, zmax - zmin])
-					direction = np.array([1, 1, 1]) / np.sqrt(3)  # iso direction
-					distance = 2.5 * scene_len  # increase factor to zoom further out
+				# compute a good camera distance from the scene bounds
+				xmin, xmax, ymin, ymax, zmin, zmax = p.bounds
+				center = np.array([(xmin + xmax) / 2, (ymin + ymax) / 2, (zmin + zmax) / 2])
+				scene_len = np.linalg.norm([xmax - xmin, ymax - ymin, zmax - zmin])
+				direction = np.array([1, 1, 1]) / np.sqrt(3)  # iso direction
+				distance = 2.5 * scene_len  # increase factor to zoom further out
 
-					pos = center + direction * distance
-					p.camera_position = [tuple(pos), tuple(center), (0, 0, 1)]
-				except ImportError:
-					pass
+				pos = center + direction * distance
+				p.camera_position = [tuple(pos), tuple(center), (0, 0, 1)]
 
 				if self.args.add_axes_at_zero:
 					self.add_origin_axes()
