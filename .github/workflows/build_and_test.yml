@@ -326,5 +326,5 @@ jobs:
           name: summary-${{ matrix.gemc_tag }}-${{ matrix.image }}-manifest
           path: |
             ${{ runner.temp }}/manifest_summary.md
-            /root//root/artifacts
+            /root/artifacts
           if-no-files-found: ignore

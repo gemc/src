@@ -82,11 +82,7 @@ def render_volume(gvolume, gconfiguration):
 		if mesh is None:
 			return
 
-		print("before:", mesh.center)
-
 		mesh = move_to_center(mesh, bcenter)
-		print("after: ", mesh.center, " target:", bcenter)
-
 		actor = gconfiguration.add_mesh(mesh, color=rgb, smooth_shading=True, opacity=alpha,
 		                                style=mstyle, line_width=mlinewidth)
 		actor.prop.ambient = 0.15  # a touch of ambient so faces aren’t pitch black
@@ -117,7 +113,6 @@ def add_cylinder(pv, pars):
 	phi_start = pars[3]
 	dphi = pars[4]
 
-	print(f'cylinder: rmin={rmin}, rmax={rmax}, hz={hz}, phi_start={phi_start}, dphi={dphi}')
 	outer = pv.Cylinder(radius=rmax, height=2 * hz, resolution=res, direction=(0, 0, 1))
 	if rmin > 0:
 		inner = pv.Cylinder(radius=rmin, height=2 * hz, resolution=res, direction=(0, 0, 1))

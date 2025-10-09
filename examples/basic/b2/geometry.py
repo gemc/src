@@ -5,29 +5,43 @@ import math
 # These are example of methods to build a mother and daughter volume.
 
 def build_geometry(configuration):
-	build_mother_volume(configuration)
-	build_target(configuration)
+	fNbOfChambers = 5
+
+	chamberSpacing = 800  # from chamber center to center
+
+	chamberWidth = 200.0  # width of the chambers
+	targetLength = 50.0  # full length of Target
+
+	trackerLength = (fNbOfChambers + 1) * chamberSpacing
+	worldLength = 1.2 * (2 * targetLength + trackerLength)
+
+	targetRadius = 0.5 * targetLength  # Radius of Target
+	targetLength = 0.5 * targetLength  # Half length of the Target
+	trackerSize = 0.5 * trackerLength  # Half length of the Tracker
 
 
-def build_mother_volume(configuration):
-	gvolume = GVolume('babsorber')
-	gvolume.description = 'scintillator box'
-	gvolume.make_box(100.0, 10.0, 100.0)
-	#gvolume.set_position(0, 10, 10)
-	gvolume.material = 'bcarbonFiber'
-	gvolume.color = 'ff8833'
-	gvolume.digitization = 'flux'
-	gvolume.set_identifier('box', 2)  # identifier for this box
+	gvolume = GVolume('root')
+	gvolume.description = 'World'
+	gvolume.make_box(worldLength*0.5, worldLength*0.5, worldLength*0.5)
+	gvolume.material = 'G4_AIR'
+	gvolume.color = '8899224'
 	gvolume.style = 0
 	gvolume.publish(configuration)
 
-
-def build_target(configuration):
-	gvolume = GVolume('btarget')
-	gvolume.description = 'epoxy target'
-	#gvolume.mother = 'babsorber'
-	gvolume.make_tube(0, 20, 40, 0, 360)
-	#gvolume.set_position(10, 0, 0)
-	gvolume.material = 'G4_H'
-	gvolume.color = '00ff00'
+	tz = -(targetLength + trackerSize)
+	gvolume = GVolume('target')
+	gvolume.description = 'Lead Target'
+	gvolume.make_tube(0, targetRadius, targetLength, 0, 360)
+	gvolume.material = 'G4_Pb'
+	gvolume.set_position(0, 0, tz)
+	gvolume.color = 'ddddff'
 	gvolume.publish(configuration)
+
+	gvolume = GVolume('tracker')
+	gvolume.description = 'Tracker'
+	gvolume.make_tube(0, trackerSize, trackerSize, 0, 360)
+	gvolume.material = 'G4_AIR'
+	gvolume.color = 'bbbbbb'
+	gvolume.style = 0
+	gvolume.publish(configuration)
+
