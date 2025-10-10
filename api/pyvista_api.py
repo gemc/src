@@ -1,7 +1,6 @@
 from g4_units import convert_list
-import re
+from g4_colors import pyvista_gcolor_to_pcolor_and_opacity
 import numpy as np
-
 
 def get_center(gvolume) -> tuple:
 	raw = gvolume.position
@@ -15,48 +14,24 @@ def get_dimensions(gvolume) -> tuple:
 	tokens = [t.strip() for t in raw.split(',') if t.strip()]
 	return convert_list(tokens)
 
-
-def pyvista_color(color_str: str, default_opacity: float = 1.0):
-	"""
-	Convert 'RRGGBB' or 'RRGGBB[T]' (T in 0..5; 5 = fully transparent) to:
-	  ( (r,g,b) in 0..1, opacity in 0..1 )
-
-	Accepts optional prefixes ('#', '0x') and ignores surrounding whitespace.
-	"""
-	s = color_str.strip().lower()
-	if s.startswith('#'):
-		s = s[1:]
-	if s.startswith('0x'):
-		s = s[2:]
-
-	# Optional trailing transparency digit 0..5
-	t_level = None
-	if len(s) == 7 and s[-1].isdigit():
-		t_level = int(s[-1])
-		s = s[:-1]
-
-	if len(s) != 6 or not re.fullmatch(r'[0-9a-f]{6}', s):
-		raise ValueError(f"Invalid color string: {color_str!r} (expected RRGGBB or RRGGBB[T])")
-
-	r = int(s[0:2], 16) / 255.0
-	g = int(s[2:4], 16) / 255.0
-	b = int(s[4:6], 16) / 255.0
-
-	if t_level is None:
-		opacity = float(default_opacity)
-	else:
-		# transparency level: 0 (opaque) … 5 (fully transparent)
-		t_level = max(0, min(5, t_level))
-		opacity = 1.0 - (t_level / 5.0)
-
-	return (r, g, b), opacity
-
-
 def render_volume(gvolume, gconfiguration):
 	if gconfiguration.use_pyvista:
-		rgb, alpha = pyvista_color(gvolume.gcolor)
-		if gvolume.color != '778899': # hardcoded from default
-			rgb = gvolume.color
+		metallic = False
+		pcolor = gvolume.color
+		gcolor = gvolume.gcolor # already converted to 'RRGGBB' or 'RRGGBB[T]'
+		rgb, alpha = pyvista_gcolor_to_pcolor_and_opacity(gcolor)
+		print(f"Volume {gvolume.name} color: {pcolor} / gcolor: {gcolor}")
+		alpha = 1.0
+		if pcolor != '778899': # hardcoded from default
+			# if pcolor is 2 strings, check if the first string is 'metallic'
+			if ',' in pcolor:
+				parts = pcolor.split(',')
+				if len(parts) == 2:
+					if parts[0].lower() == 'metallic':
+						metallic = True
+					rgb = parts[1]
+			else:
+				rgb = pcolor
 		pv = gconfiguration.pv
 		pars = get_dimensions(gvolume)
 		bcenter = get_center(gvolume)
@@ -89,10 +64,10 @@ def render_volume(gvolume, gconfiguration):
 		actor = gconfiguration.add_mesh(mesh, color=rgb, smooth_shading=True, opacity=alpha,
 		                                style=mstyle, line_width=mlinewidth)
 		actor.prop.ambient = 0.15  # a touch of ambient so faces aren’t pitch black
-		# metallic look:
-		# actor.prop.interpolation = "pbr"
-		# actor.prop.metallic = 0.4
-		# actor.prop.roughness = 0.9
+		if metallic:
+			actor.prop.interpolation = "pbr"
+			actor.prop.metallic = 0.4
+			actor.prop.roughness = 0.4
 
 def move_to_center(mesh, target_center):
 	"""Translate mesh so its center becomes target_center."""
@@ -113,9 +88,9 @@ def add_box(pv, pars) -> None:
 
 def add_cylinder(pv, pars):
 	res = 128  # resolution
-	rmin = pars[0] * 0.5
-	rmax = pars[1] * 0.5
-	hz = pars[2] * 0.5
+	rmin = pars[0]
+	rmax = pars[1]
+	hz = pars[2]
 	phi_start = pars[3]
 	dphi = pars[4]
 

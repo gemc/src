@@ -132,7 +132,7 @@ def add_geometry_fields_to_sqlite_if_needed(gvolume, configuration):
 
 		# add columns from gvolume class
 		for field in gvolume.__dict__:
-			if field != "color":
+			if field != "gcolor":
 				sql_type = sqltype_of_variable(gvolume.__dict__[field])
 				add_column(configuration.sqlitedb, "geometry", field, sql_type)
 	configuration.sqlitedb.commit()
@@ -194,14 +194,12 @@ def populate_sqlite_geometry(gvolume, configuration):
 	if sql.fetchone()[0] == 0:
 		columns = form_string_with_column_definitions(gvolume)
 		values = form_string_with_column_values(gvolume, configuration)
+		# print(f"Inserting volume columns: {columns}" f" values: {values}")
 		sql.execute(f"INSERT INTO geometry {columns} VALUES {values}")
 	else:
 		sys.exit(f"{GColors.RED}Error: volume >{gvolume.name}< already exists in the database for variation '{configuration.variation}'{GColors.END}")
 
 	configuration.sqlitedb.commit()
-
-
-
 
 
 def populate_sqlite_materials(gmaterial, configuration):
@@ -244,7 +242,7 @@ def populate_sqlite_materials(gmaterial, configuration):
 def form_string_with_column_definitions(gobject) -> str:
 	strn = "( experiment, system, variation, run, "
 	for field in gobject.__dict__:
-		if field != 'compType' and field != 'totComposition' and field != 'color':
+		if field != 'compType' and field != 'totComposition' and field != 'gcolor':
 			# print(field)
 			strn += f"{field}, "
 	strn = strn[:-2] + ")"

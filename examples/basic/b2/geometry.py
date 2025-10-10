@@ -59,6 +59,6 @@ def build_geometry(configuration):
 		gvolume.description = 'Tracker'
 		gvolume.make_tube(0, rmax, halfWidth, 0, 360)
 		gvolume.material = 'G4_Xe'
-		gvolume.color = 'papayawhip'
+		gvolume.color = 'metallic, papayawhip'
 		gvolume.set_position(0, 0, Zposition)
 		gvolume.publish(configuration)

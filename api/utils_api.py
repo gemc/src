@@ -264,6 +264,7 @@ class GConfiguration:
 					self.add_origin_axes()
 				p.view_zy()  # or p.view_xz(), p.view_yz()
 				p.enable_anti_aliasing()  # FXAA
+				p.enable_parallel_projection()
 				p.show()
 
 

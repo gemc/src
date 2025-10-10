@@ -120,6 +120,27 @@ jobs:
           #cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64
           #cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64,mode=max
 
+      - name: Collect logs from built images
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          mkdir -p "${RUNNER_TEMP}/artifacts"
+          BASE_TAG="${{ steps.meta.outputs.tags }}"
+          
+          for arch in amd64 arm64; do
+          TAG="${BASE_TAG}-${arch}"
+          if docker buildx imagetools inspect "$TAG" >/dev/null 2>&1; then
+           # pull the arch-specific image locally
+           docker pull --platform=linux/${arch} "$TAG"
+           cid=$(docker create --platform=linux/${arch} "$TAG" true)
+           # copy logs (adjust the path if different in your image)
+           docker cp "$cid":/root/src/logs "${RUNNER_TEMP}/artifacts/logs-${arch}" || true
+           docker rm "$cid"
+          fi
+          done
+          ls -alR "${RUNNER_TEMP}/artifacts" || true
+
+
       - name: Summary
 #        if: ${{ always() }}
         if: ${{ false }}
@@ -326,5 +347,6 @@ jobs:
           name: summary-${{ matrix.gemc_tag }}-${{ matrix.image }}-manifest
           path: |
             ${{ runner.temp }}/manifest_summary.md
-            $RUNNER_TEMP/artifacts
-          if-no-files-found: ignore
+            ${{ runner.temp }}/artifacts
+          if-no-files-found: warn
+

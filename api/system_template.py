@@ -67,7 +67,7 @@ def main():
 	if args.gv != NGIVEN:
 		silent: bool = args.silent
 		volume_type: str = args.gv
-		subroutine_name = args.geo_subC
+		subroutine_name = args.geo_sub
 		if args.gvp != NGIVENS:
 			pars = args.gvp.split()
 			pars = [p.replace(',', '') for p in pars]

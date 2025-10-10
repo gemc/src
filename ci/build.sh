@@ -97,5 +97,3 @@ if [[ "$(uname)" == "Darwin" ]]; then
 else
   ldd $GEMC/bin/gemc | tee -a $compile_log
 fi
-
-cp $setup_log $compile_log $test_log $ARTIFACT_DIR
