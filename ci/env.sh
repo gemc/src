@@ -84,5 +84,5 @@ else
 	echo
 fi
 
-export ARTIFACT_DIR=/root/artifacts
+export ARTIFACT_DIR=$RUNNER_TEMP/artifacts
 mkdir -p $ARTIFACT_DIR

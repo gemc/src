@@ -116,7 +116,8 @@ class GConfiguration:
 			self._plotter = self.pv.Plotter()
 			# do one-time scene setup here
 			self._plotter.add_axes()
-			self._plotter.set_background("black")
+			self._plotter.set_background("#303048", top="#000020")
+
 			self._plotter.camera_position = "iso"
 		return self._plotter
 

@@ -54,7 +54,9 @@ def pyvista_color(color_str: str, default_opacity: float = 1.0):
 
 def render_volume(gvolume, gconfiguration):
 	if gconfiguration.use_pyvista:
-		rgb, alpha = pyvista_color(gvolume.color)
+		rgb, alpha = pyvista_color(gvolume.gcolor)
+		if gvolume.color != '778899': # hardcoded from default
+			rgb = gvolume.color
 		pv = gconfiguration.pv
 		pars = get_dimensions(gvolume)
 		bcenter = get_center(gvolume)
@@ -83,10 +85,14 @@ def render_volume(gvolume, gconfiguration):
 			return
 
 		mesh = move_to_center(mesh, bcenter)
+
 		actor = gconfiguration.add_mesh(mesh, color=rgb, smooth_shading=True, opacity=alpha,
 		                                style=mstyle, line_width=mlinewidth)
 		actor.prop.ambient = 0.15  # a touch of ambient so faces aren’t pitch black
-
+		# metallic look:
+		# actor.prop.interpolation = "pbr"
+		# actor.prop.metallic = 0.4
+		# actor.prop.roughness = 0.9
 
 def move_to_center(mesh, target_center):
 	"""Translate mesh so its center becomes target_center."""

@@ -83,6 +83,7 @@ DEFAULTCOLOR = '778899'
 
 from gemc_sqlite import populate_sqlite_geometry
 from pyvista_api import render_volume
+from g4_colors import pyvista_color_to_hex
 
 # GVolume class definition
 class GVolume:
@@ -101,7 +102,8 @@ class GVolume:
 
 		self.visible = 1  # 0 is invisible, 1 is visible
 		self.style = 1  # 0 is wireframe, 1 is solid
-		self.color = DEFAULTCOLOR
+		self.color = DEFAULTCOLOR  # stored for pyvista use
+		self.gcolor = DEFAULTCOLOR # this one goes to the databases
 
 		self.digitization = NOTAPPLICABLE
 		self.identifier = NOTAPPLICABLE
@@ -171,6 +173,7 @@ class GVolume:
 
 	def publish(self, configuration):
 		self.check_validity()
+		self.gcolor = pyvista_color_to_hex(self.color)
 		# TEXT factory
 		if configuration.factory == 'ascii':
 			file_name = configuration.geoFileName
@@ -187,7 +190,7 @@ class GVolume:
 					   + f'{self.mfield} | ' \
 					   + f'{self.visible} | ' \
 					   + f'{self.style} | ' \
-					   + f'{self.color} | ' \
+					   + f'{self.gcolor} | ' \
 					   + f'{self.digitization} | ' \
 					   + f'{self.identifier} | ' \
 					   + f'{self.copyOf} | ' \

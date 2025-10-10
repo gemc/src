@@ -6,7 +6,6 @@ import math
 
 def build_geometry(configuration):
 	fNbOfChambers = 5
-
 	chamberSpacing = 800  # from chamber center to center
 
 	chamberWidth = 200.0  # width of the chambers
@@ -19,12 +18,11 @@ def build_geometry(configuration):
 	targetLength = 0.5 * targetLength  # Half length of the Target
 	trackerSize = 0.5 * trackerLength  # Half length of the Tracker
 
-
 	gvolume = GVolume('root')
 	gvolume.description = 'World'
-	gvolume.make_box(worldLength*0.5, worldLength*0.5, worldLength*0.5)
+	gvolume.make_box(worldLength * 0.5, worldLength * 0.5, worldLength * 0.5)
 	gvolume.material = 'G4_AIR'
-	gvolume.color = '8899224'
+	gvolume.color = 'ghostwhite'
 	gvolume.style = 0
 	gvolume.publish(configuration)
 
@@ -34,14 +32,33 @@ def build_geometry(configuration):
 	gvolume.make_tube(0, targetRadius, targetLength, 0, 360)
 	gvolume.material = 'G4_Pb'
 	gvolume.set_position(0, 0, tz)
-	gvolume.color = 'ddddff'
+	gvolume.color = 'steelblue'
 	gvolume.publish(configuration)
 
 	gvolume = GVolume('tracker')
 	gvolume.description = 'Tracker'
 	gvolume.make_tube(0, trackerSize, trackerSize, 0, 360)
 	gvolume.material = 'G4_AIR'
-	gvolume.color = 'bbbbbb'
-	gvolume.style = 0
+	gvolume.visible = 0
 	gvolume.publish(configuration)
 
+
+	firstPosition = -trackerSize + chamberSpacing
+	firstLength = trackerLength / 10
+	lastLength = trackerLength
+	halfWidth = 0.5 * chamberWidth
+	rmaxFirst = 0.5 * firstLength
+
+	rmaxIncr = 0.5 * (lastLength - firstLength) / (fNbOfChambers - 1)
+
+	# loop from 0 to fNbOfChambers
+	for copyNo in range(fNbOfChambers):
+		Zposition = firstPosition + copyNo * chamberSpacing
+		rmax = rmaxFirst + copyNo * rmaxIncr
+		gvolume = GVolume(f'Chamber_PV_{copyNo}')
+		gvolume.description = 'Tracker'
+		gvolume.make_tube(0, rmax, halfWidth, 0, 360)
+		gvolume.material = 'G4_Xe'
+		gvolume.color = 'papayawhip'
+		gvolume.set_position(0, 0, Zposition)
+		gvolume.publish(configuration)

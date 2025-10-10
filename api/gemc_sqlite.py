@@ -132,8 +132,9 @@ def add_geometry_fields_to_sqlite_if_needed(gvolume, configuration):
 
 		# add columns from gvolume class
 		for field in gvolume.__dict__:
-			sql_type = sqltype_of_variable(gvolume.__dict__[field])
-			add_column(configuration.sqlitedb, "geometry", field, sql_type)
+			if field != "color":
+				sql_type = sqltype_of_variable(gvolume.__dict__[field])
+				add_column(configuration.sqlitedb, "geometry", field, sql_type)
 	configuration.sqlitedb.commit()
 
 
@@ -243,7 +244,7 @@ def populate_sqlite_materials(gmaterial, configuration):
 def form_string_with_column_definitions(gobject) -> str:
 	strn = "( experiment, system, variation, run, "
 	for field in gobject.__dict__:
-		if field != 'compType' and field != 'totComposition':
+		if field != 'compType' and field != 'totComposition' and field != 'color':
 			# print(field)
 			strn += f"{field}, "
 	strn = strn[:-2] + ")"
@@ -253,7 +254,7 @@ def form_string_with_column_definitions(gobject) -> str:
 def form_string_with_column_values(gobject, configuration) -> str:
 	strn = f"( '{configuration.experiment}', '{configuration.system}', '{configuration.variation}', {configuration.runno}, "
 	for field, value in gobject.__dict__.items():
-		if field != 'compType' and field != 'totComposition':
+		if field != 'compType' and field != 'totComposition' and field != 'color':
 			strn += f"'{value}', " if isinstance(value, str) else f"{value}, "
 	strn = strn[:-2] + ")"  # Remove last comma and space, then close parenthesis
 	return strn
