@@ -53,6 +53,7 @@ def log_exporters() -> str:
 	commands = '\n# logs exporter \n'
 	commands += 'FROM scratch AS logs-export \n'
 	commands += 'COPY --from=build /root/src/logs /logs \n'
+	return commands
 
 def create_dockerfile(image: str, tag: str) -> str:
 	commands = ""
