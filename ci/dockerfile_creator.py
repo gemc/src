@@ -27,7 +27,7 @@ def available_images() -> str:
 
 
 def docker_header(image: str) -> str:
-	commands = f"FROM ghcr.io/gemc/g4install:{image}\n"
+	commands = f"FROM ghcr.io/gemc/g4install:{image} AS final\n"
 	commands += f"LABEL maintainer=\"Maurizio Ungaro <ungaro@jlab.org>\"\n\n"
 	commands += f"# run bash instead of sh\n"
 	commands += f"SHELL [\"/bin/bash\", \"-c\"]\n\n"
@@ -52,7 +52,7 @@ def install_gemc(tag: str) -> str:
 def log_exporters() -> str:
 	commands = '\n# logs exporter \n'
 	commands += 'FROM scratch AS logs-export \n'
-	commands += 'COPY --from=build /root/src/logs /logs \n'
+	commands += 'COPY --from=final /root/src/logs /logs \n'
 	return commands
 
 def create_dockerfile(image: str, tag: str) -> str:

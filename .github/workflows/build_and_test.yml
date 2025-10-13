@@ -127,13 +127,13 @@ jobs:
           cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64
           cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64,mode=max
 
-      # NEW: export logs from the logs-export stage to local disk (no docker pull)
+      # export logs from the logs-export stage to local disk (no docker pull)
       - name: Export logs (amd64)
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile.generated
-          # Build only the tiny logs stage; reuse previous cache so it doesn't rebuild.
+          # Build only the tiny logs stage; reuse the previous cache so it doesn't rebuild.
           target: logs-export
           platforms: linux/amd64
           push: false
