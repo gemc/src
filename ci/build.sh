@@ -40,7 +40,6 @@ local install_dir="${GEMC:?GEMC not set}"
 
 local args=(
   "--native-file=core.ini"
-  "-Di_test=true"
   "-Droot=enabled"
   "-Dprefix=${install_dir}"
 )

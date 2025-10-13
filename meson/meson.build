@@ -31,7 +31,6 @@ clhep_deps = dependency('clhep',
 )
 
 
-# root: pkg-config created manually by ./meson/install_geant4_root_pkgconfig.py
 # feature: feature toggle (uncomment options() above)
 root_opt = get_option('root')
 root_dep = disabler() # Always define root_dep so it exists even if not found
@@ -48,6 +47,7 @@ if (not root_dep.found()) and (not root_opt.disabled())
                               modules : ['ROOT::Core', 'ROOT::RIO', 'ROOT::Tree', 'ROOT::Hist'],
                               required : false
         )
+        message( 'root-config found. root_dep  dependency added')
     else
         if root_opt.enabled()
             warning('ROOT was explicitly enabled (-Droot=enabled) but root-config was not found.')
