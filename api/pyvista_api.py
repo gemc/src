@@ -2,6 +2,7 @@ from g4_units import convert_list
 from g4_colors import pyvista_gcolor_to_pcolor_and_opacity
 import numpy as np
 
+
 def get_center(gvolume) -> tuple:
 	raw = gvolume.position
 	tokens = [t.strip() for t in raw.split(',') if t.strip()]
@@ -14,15 +15,16 @@ def get_dimensions(gvolume) -> tuple:
 	tokens = [t.strip() for t in raw.split(',') if t.strip()]
 	return convert_list(tokens)
 
+
 def render_volume(gvolume, gconfiguration):
 	if gconfiguration.use_pyvista:
 		metallic = False
 		pcolor = gvolume.color
-		gcolor = gvolume.gcolor # already converted to 'RRGGBB' or 'RRGGBB[T]'
+		gcolor = gvolume.gcolor  # already converted to 'RRGGBB' or 'RRGGBB[T]'
 		rgb, alpha = pyvista_gcolor_to_pcolor_and_opacity(gcolor)
 		print(f"Volume {gvolume.name} color: {pcolor} / gcolor: {gcolor}")
 		alpha = 1.0
-		if pcolor != '778899': # hardcoded from default
+		if pcolor != '778899':  # hardcoded from default
 			# if pcolor is 2 strings, check if the first string is 'metallic'
 			if ',' in pcolor:
 				parts = pcolor.split(',')
@@ -69,6 +71,7 @@ def render_volume(gvolume, gconfiguration):
 			actor.prop.metallic = 0.4
 			actor.prop.roughness = 0.4
 
+
 def move_to_center(mesh, target_center):
 	"""Translate mesh so its center becomes target_center."""
 	target = np.asarray(target_center, dtype=float)
@@ -81,38 +84,61 @@ def move_to_center(mesh, target_center):
 
 def add_box(pv, pars) -> None:
 	volume = pv.Cube(
-		x_length=pars[0]*2, y_length=pars[1]*2, z_length=pars[2]*2
+		x_length=pars[0] * 2, y_length=pars[1] * 2, z_length=pars[2] * 2
 	)
 	return volume
 
 
 def add_cylinder(pv, pars):
-	res = 128  # resolution
-	rmin = pars[0]
-	rmax = pars[1]
-	hz = pars[2]
-	phi_start = pars[3]
-	dphi = pars[4]
+	"""
+	pars = (rmin, rmax, hz, phi_start_deg, dphi_deg)
+	Builds a watertight G4Tubs without boolean ops.
+	"""
+	rmin, rmax, hz, phi_start, dphi = map(float, pars)
+	if rmax <= 0 or hz <= 0:
+		raise ValueError(f"Invalid cylinder sizes: rmax={rmax}, hz={hz}")
 
-	outer = pv.Cylinder(radius=rmax, height=2 * hz, resolution=res, direction=(0, 0, 1))
-	if rmin > 0:
-		inner = pv.Cylinder(radius=rmin, height=2 * hz, resolution=res, direction=(0, 0, 1))
-		tub = outer.boolean_difference(inner.triangulate().clean())
+	# angular resolution: denser for small sectors
+	res = max(32, int(256 * (dphi / 360.0 if dphi < 360.0 else 1.0)))
+
+	def polydata_from_pts_faces(pts, faces_idx):
+		poly = pv.PolyData()
+		poly.points = np.array(pts, dtype=float)
+		# faces_idx like [n, i0,i1,..., in-1]
+		poly.faces = np.array(faces_idx, dtype=np.int64)
+		return poly
+
+	if rmin <= 0.0:
+		# SOLID cylinder: include the axis so the revolution fills the volume
+		# Quad in X–Z plane (Y=0): (rmax,-hz)->(rmax,+hz)->(0,+hz)->(0,-hz)
+		pts = [
+			[rmax, 0.0, -hz],
+			[rmax, 0.0, +hz],
+			[0.0, 0.0, +hz],
+			[0.0, 0.0, -hz],
+		]
+		faces = [4, 0, 1, 2, 3]  # one quad
+		profile = polydata_from_pts_faces(pts, faces)
 	else:
-		tub = outer
-	if dphi < 360.0:
-		# clip with two planes to realize a phi segment
-		tub = tub.clip(normal=[0, 0, 1], origin=[0, 0, 0], invert=False)  # no-op, just example
+		# HOLLOW tube: a rectangular ring in (r,z): (rmin,-hz)->(rmax,-hz)->(rmax,+hz)->(rmin,+hz)
+		# This revolved surface is closed in 360° and remains watertight for partial φ with capping
+		pts = [
+			[rmin, 0.0, -hz],  # 0
+			[rmax, 0.0, -hz],  # 1
+			[rmax, 0.0, +hz],  # 2
+			[rmin, 0.0, +hz],  # 3
+		]
+		faces = [4, 0, 1, 2, 3]
+		profile = polydata_from_pts_faces(pts, faces)
 
-		# Build two radial clip planes based on phi_start and phi_start+dphi:
-		def radial_plane(phi_deg):
-			a = np.radians(phi_deg)
-			n = [np.cos(a), np.sin(a), 0.0]
-			return n
+	# Revolve only the requested angle; capping=True closes ends (and radial faces for φ<360)
+	tube = profile.extrude_rotate(angle=dphi, resolution=res, capping=True)
 
-		tub = tub.clip(normal=radial_plane(phi_start), origin=[0, 0, 0])
-		tub = tub.clip(normal=[-c for c in radial_plane(phi_start + dphi)], origin=[0, 0, 0])
-	return tub.triangulate().clean()
+	# Align φ start
+	if dphi < 360.0 or abs(phi_start) > 1e-12:
+		tube = tube.rotate_z(phi_start, inplace=False)
+
+	return tube.triangulate().clean()
 
 
 def add_cons(pv, pars):
@@ -179,56 +205,56 @@ def add_cons(pv, pars):
 
 	return cons
 
+
 def add_trapezoid(pv, pars) -> None:
-		"""
-		Build a G4Trd in PyVista.
+	"""
+	Build a G4Trd in PyVista.
 
-		Geant4 parameter order (half-lengths):
-		  pars[0] = dx1  # half-length X at z = -dz
-		  pars[1] = dx2  # half-length X at z = +dz
-		  pars[2] = dy1  # half-length Y at z = -dz
-		  pars[3] = dy2  # half-length Y at z = +dz
-		  pars[4] = dz   # half-length in Z
+	Geant4 parameter order (half-lengths):
+	  pars[0] = dx1  # half-length X at z = -dz
+	  pars[1] = dx2  # half-length X at z = +dz
+	  pars[2] = dy1  # half-length Y at z = -dz
+	  pars[3] = dy2  # half-length Y at z = +dz
+	  pars[4] = dz   # half-length in Z
 
-		bcenter: (x,y,z) where the solid’s local origin (0,0,0) should land.
-		Returns: closed PolyData.
-		"""
-		dx1, dx2, dy1, dy2, dz = map(float, pars[:5])
+	bcenter: (x,y,z) where the solid’s local origin (0,0,0) should land.
+	Returns: closed PolyData.
+	"""
+	dx1, dx2, dy1, dy2, dz = map(float, pars[:5])
 
-		# 	dx1 *= 0.5;
-		# 	dx2 *= 0.5;
-		# 	dy1 *= 0.5;
-		# 	dy2 *= 0.5;
-		# 	dz *= 0.5
+	# 	dx1 *= 0.5;
+	# 	dx2 *= 0.5;
+	# 	dy1 *= 0.5;
+	# 	dy2 *= 0.5;
+	# 	dz *= 0.5
 
-		z0, z1 = -dz, +dz
+	z0, z1 = -dz, +dz
 
-		# Eight vertices: bottom (-z) then top (+z)
-		# Order each face CCW when viewed from outside.
-		pts = np.array([
-			[-dx1, -dy1, z0],  # 0 bottom
-			[+dx1, -dy1, z0],  # 1
-			[+dx1, +dy1, z0],  # 2
-			[-dx1, +dy1, z0],  # 3
-			[-dx2, -dy2, z1],  # 4 top
-			[+dx2, -dy2, z1],  # 5
-			[+dx2, +dy2, z1],  # 6
-			[-dx2, +dy2, z1],  # 7
-		], dtype=float)
+	# Eight vertices: bottom (-z) then top (+z)
+	# Order each face CCW when viewed from outside.
+	pts = np.array([
+		[-dx1, -dy1, z0],  # 0 bottom
+		[+dx1, -dy1, z0],  # 1
+		[+dx1, +dy1, z0],  # 2
+		[-dx1, +dy1, z0],  # 3
+		[-dx2, -dy2, z1],  # 4 top
+		[+dx2, -dy2, z1],  # 5
+		[+dx2, +dy2, z1],  # 6
+		[-dx2, +dy2, z1],  # 7
+	], dtype=float)
 
-		# Six quad faces (bottom, top, and 4 sides)
-		faces = np.array([
-			4, 0, 1, 2, 3,  # bottom (-z)
-			4, 4, 5, 6, 7,  # top (+z)
-			4, 0, 1, 5, 4,  # -Y side
-			4, 1, 2, 6, 5,  # +X side
-			4, 2, 3, 7, 6,  # +Y side
-			4, 3, 0, 4, 7,  # -X side
-		], dtype=np.int64)
+	# Six quad faces (bottom, top, and 4 sides)
+	faces = np.array([
+		4, 0, 1, 2, 3,  # bottom (-z)
+		4, 4, 5, 6, 7,  # top (+z)
+		4, 0, 1, 5, 4,  # -Y side
+		4, 1, 2, 6, 5,  # +X side
+		4, 2, 3, 7, 6,  # +Y side
+		4, 3, 0, 4, 7,  # -X side
+	], dtype=np.int64)
 
-		trd = pv.PolyData(pts, faces)
-		# (Optional) robustness: ensure triangulated & watertight
-		trd = trd.triangulate().clean()
+	trd = pv.PolyData(pts, faces)
+	# (Optional) robustness: ensure triangulated & watertight
+	trd = trd.triangulate().clean()
 
-
-		return trd
+	return trd

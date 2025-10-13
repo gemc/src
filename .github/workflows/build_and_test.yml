@@ -70,6 +70,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Free up disk space
+        uses: ./.github/actions/free-disk-space
+        with:
+          prune_docker: "true"
+          show_tree: "true"
+
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -102,11 +108,14 @@ jobs:
       - name: Get upstream commit
         run: echo "UPSTREAM_REV=$(git ls-remote https://github.com/gemc/src HEAD | cut -f1)" >> $GITHUB_ENV
 
+      - name: Buildx prune (pre-build safety)
+        run: docker buildx prune -af || true
+
       - name: Build & Push (amd64 only)
         uses: docker/build-push-action@v5
         with:
           pull: true
-          no-cache: true
+          # no-cache: true
           build-args: |
             UPSTREAM_REV=${{ env.UPSTREAM_REV }}
           context: .
@@ -117,8 +126,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}-amd64
           labels: ${{ steps.meta.outputs.labels }}
           # Comment these if the cache is old
-          #cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64
-          #cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64,mode=max
+          cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64
+          cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64,mode=max
 
       - name: Collect logs from built images
         if: ${{ always() }}
@@ -202,6 +211,12 @@ jobs:
         if: ${{ matrix.osname == 'archlinux' }}
         run: echo "Skipping arm64 build for archlinux"
 
+      - name: Free up disk space
+        uses: ./.github/actions/free-disk-space
+        with:
+          prune_docker: "true"
+          show_tree: "true"
+
       - name: Set up Buildx
         if: ${{ matrix.osname != 'archlinux' }}
         uses: docker/setup-buildx-action@v3
@@ -239,12 +254,15 @@ jobs:
         if: ${{ matrix.osname != 'archlinux' }}
         run: echo "UPSTREAM_REV=$(git ls-remote https://github.com/gemc/src HEAD | cut -f1)" >> $GITHUB_ENV
 
+      - name: Buildx prune (pre-build safety)
+        run: docker buildx prune -af || true
+
       - name: Build & Push (arm64 only)
         if: ${{ matrix.osname != 'archlinux' }}
         uses: docker/build-push-action@v5
         with:
           pull: true
-          no-cache: true
+          # no-cache: true
           build-args: |
             UPSTREAM_REV=${{ env.UPSTREAM_REV }}
           context: .
@@ -254,8 +272,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}-arm64
           labels: ${{ steps.meta.outputs.labels }}
           # Comment these if the cache is old
-          #cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64
-          #cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64,mode=max
+          cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64
+          cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64,mode=max
 
   # ===========================
   # Manifest stitch (same matrix)
@@ -272,6 +290,12 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     steps:
+      - name: Free up disk space
+        uses: ./.github/actions/free-disk-space
+        with:
+          prune_docker: "true"
+          show_tree: "true"
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -287,6 +311,9 @@ jobs:
           tags: |
             type=raw,value=${{ format('{0}-{1}', matrix.gemc_tag, matrix.osname) }}
 
+      - name: Buildx prune (pre-build safety)
+        run: docker buildx prune -af || true
+        
       - name: Create multi-arch manifest
         shell: bash
         run: |

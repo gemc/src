@@ -18,7 +18,8 @@ def build_geometry(configuration):
 	gvolume.description = 'B1 Envelope'
 	gvolume.make_box(100.0, 100.0, 150.0)
 	gvolume.material = 'G4_WATER'
-	gvolume.color = '0000FF4'
+	gvolume.color = 'turquoise'
+	gvolume.style = 0
 	gvolume.publish(configuration)
 
 	shape1_rmina = 0.0
@@ -34,7 +35,7 @@ def build_geometry(configuration):
 	gvolume.description = 'B1 Shape1'
 	gvolume.make_cons(shape1_rmina, shape1_rmaxa, shape1_rminb, shape1_rmaxb, shape1_hz, shape1_phimin, shape1_phimax)
 	gvolume.material = 'G4_A-150_TISSUE'
-	gvolume.color = 'ffdddd'
+	gvolume.color = 'pink'
 	gvolume.set_position(0, 20, -70)
 	gvolume.publish(configuration)
 
@@ -49,7 +50,7 @@ def build_geometry(configuration):
 	gvolume.description = 'B1 Shape2'
 	gvolume.make_trapezoid(shape2_dxa * 0.5, shape2_dxb * 0.5, shape2_dya * 0.5, shape2_dyb * 0.5, shape2_dz * 0.5)
 	gvolume.material = 'G4_BONE_COMPACT_ICRU'
-	gvolume.color = 'ddffff'
+	gvolume.color = 'lightgray'
 	gvolume.set_position(0, -10, 70)
 	gvolume.digitization = 'flux'     # temp assigning flux for testing digitization routines
 	gvolume.set_identifier('box', 2)

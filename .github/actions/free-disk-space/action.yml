@@ -1,0 +1,70 @@
+name: Free Disk Space
+description: Remove large preinstalled SDKs and prune Docker to reclaim space on GitHub-hosted runners.
+author: you
+inputs:
+  remove_android:
+    description: Remove Android SDK
+    default: "true"
+  remove_dotnet:
+    description: Remove .NET SDKs
+    default: "true"
+  remove_ghc:
+    description: Remove GHC/Haskell
+    default: "true"
+  remove_codeql:
+    description: Remove CodeQL toolcache
+    default: "true"
+  prune_docker:
+    description: Run docker system/builder prune -af
+    default: "true"
+  extra_paths:
+    description: Extra space-separated paths to delete (optional)
+    default: ""
+  show_tree:
+    description: Show top-level /usr/local and /opt after cleanup
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - name: Disk before
+      shell: bash
+      run: df -h /
+
+    - name: Cleanup
+      shell: bash
+      run: |
+        set -euxo pipefail
+
+        # Helper to delete if present
+        del() { sudo rm -rf "$@" 2>/dev/null || true; }
+
+        echo "::group::Removing large preinstalled toolchains"
+        if [[ "${{ inputs.remove_android }}" == "true" ]]; then del /usr/local/lib/android; fi
+        if [[ "${{ inputs.remove_dotnet }}" == "true" ]];  then del /usr/share/dotnet; fi
+        if [[ "${{ inputs.remove_ghc }}" == "true" ]];     then del /opt/ghc; fi
+        if [[ "${{ inputs.remove_codeql }}" == "true" ]];  then del /opt/hostedtoolcache/CodeQL; fi
+
+        # Optional extra paths from caller (space-separated)
+        if [[ -n "${{ inputs.extra_paths }}" ]]; then
+          # shellcheck disable=SC2086
+          del ${{ inputs.extra_paths }}
+        fi
+        echo "::endgroup::"
+
+        echo "::group::Docker prune"
+        if [[ "${{ inputs.prune_docker }}" == "true" ]]; then
+          docker system prune -af || true
+          docker builder prune -af || true
+        fi
+        echo "::endgroup::"
+
+        if [[ "${{ inputs.show_tree }}" == "true" ]]; then
+          echo "::group::Tree (top-level) after cleanup"
+          sudo du -h -d1 /usr/local || true
+          sudo du -h -d1 /opt || true
+          echo "::endgroup::"
+        fi
+
+    - name: Disk after
+      shell: bash
+      run: df -h /

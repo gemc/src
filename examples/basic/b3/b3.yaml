@@ -1,0 +1,36 @@
+experiment: examples
+runno: 1
+n: 1
+nthreads: 4
+
+gparticle:
+  - name: e-
+    p: 1500
+    theta: 23.0
+    delta_theta: 4.0
+    delta_phi: 18.0
+    multiplicity: 1
+
+
+verbosity:
+  - ghits: 0
+  - gsystem: 0
+  - gfield: 1
+  - general: 0
+
+debug:
+  - gfield: true
+
+gsystem:
+  - name: b2
+    factory: sqlite
+
+gmultipoles:
+  - name: dipole
+    pole_number: 2
+    strength: 2
+    rotaxis: z
+    rotation_angle: "30*deg"
+
+root: G4Box, 12*cm, 12*cm, 18*cm, G4_WATER
+phys_list: QBBC
