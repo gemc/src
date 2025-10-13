@@ -115,40 +115,38 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           pull: true
-          # no-cache: true
+          # no-cache: true   # keep removed to leverage cache
           build-args: |
             UPSTREAM_REV=${{ env.UPSTREAM_REV }}
           context: .
           file: ./Dockerfile.generated
           platforms: linux/amd64
           push: true
-          # Add -amd64 suffix to the arch-specific image tag
           tags: ${{ steps.meta.outputs.tags }}-amd64
           labels: ${{ steps.meta.outputs.labels }}
-          # Comment these if the cache is old
           cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64
           cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64,mode=max
 
-      - name: Collect logs from built images
-        if: ${{ always() }}
-        shell: bash
-        run: |
-          mkdir -p "${RUNNER_TEMP}/artifacts"
-          BASE_TAG="${{ steps.meta.outputs.tags }}"
-          
-          for arch in amd64 arm64; do
-          TAG="${BASE_TAG}-${arch}"
-          if docker buildx imagetools inspect "$TAG" >/dev/null 2>&1; then
-           # pull the arch-specific image locally
-           docker pull --platform=linux/${arch} "$TAG"
-           cid=$(docker create --platform=linux/${arch} "$TAG" true)
-           # copy logs (adjust the path if different in your image)
-           docker cp "$cid":/root/src/logs "${RUNNER_TEMP}/artifacts/logs-${arch}" || true
-           docker rm "$cid"
-          fi
-          done
-          ls -alR "${RUNNER_TEMP}/artifacts" || true
+      # NEW: export logs from the logs-export stage to local disk (no docker pull)
+      - name: Export logs (amd64)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.generated
+          # Build only the tiny logs stage; reuse previous cache so it doesn't rebuild.
+          target: logs-export
+          platforms: linux/amd64
+          push: false
+          cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-amd64
+          outputs: type=local,dest=${{ runner.temp }}/artifacts/logs-amd64
 
+      - name: Upload logs artifact (amd64)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.gemc_tag }}-${{ matrix.osname }}-amd64
+          path: ${{ runner.temp }}/artifacts/logs-amd64/logs
+          if-no-files-found: ignore
 
       - name: Summary
 #        if: ${{ always() }}
@@ -262,18 +260,35 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           pull: true
-          # no-cache: true
-          build-args: |
-            UPSTREAM_REV=${{ env.UPSTREAM_REV }}
           context: .
           file: ./Dockerfile.generated
           platforms: linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}-arm64
           labels: ${{ steps.meta.outputs.labels }}
-          # Comment these if the cache is old
           cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64
           cache-to: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64,mode=max
+
+      - name: Export logs (arm64)
+        if: ${{ matrix.osname != 'archlinux' }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.generated
+          target: logs-export
+          platforms: linux/arm64
+          push: false
+          cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-arm64
+          outputs: type=local,dest=${{ runner.temp }}/artifacts/logs-arm64
+
+      - name: Upload logs artifact (arm64)
+        if: ${{ always() && matrix.osname != 'archlinux' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.gemc_tag }}-${{ matrix.osname }}-arm64
+          path: ${{ runner.temp }}/artifacts/logs-arm64/logs
+          if-no-files-found: ignore
+
 
   # ===========================
   # Manifest stitch (same matrix)
@@ -313,7 +328,7 @@ jobs:
 
       - name: Buildx prune (pre-build safety)
         run: docker buildx prune -af || true
-        
+
       - name: Create multi-arch manifest
         shell: bash
         run: |

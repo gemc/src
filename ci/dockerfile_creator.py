@@ -49,13 +49,17 @@ def install_gemc(tag: str) -> str:
 	commands += f'     &&  ./ci/build.sh \n'
 	return commands
 
-
+def log_exporters() -> str:
+	commands = '\n# logs exporter \n'
+	commands += 'FROM scratch AS logs-export \n'
+	commands += 'COPY --from=build /root/src/logs /logs \n'
 
 def create_dockerfile(image: str, tag: str) -> str:
 	commands = ""
 	commands += docker_header(image)
 	commands += add_load_gemc(tag)
 	commands += install_gemc(tag)
+	commands += log_exporters()
 
 	return commands
 
