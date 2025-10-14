@@ -129,7 +129,7 @@ std::vector<std::string> GWorld::getSensitiveDetectorsList() {
 	for (auto& systemPair : *gsystemsMap) {
 		for (auto& gvolumePair : systemPair.second->getGVolumesMap()) {
 			std::string digitization = gvolumePair.second->getDigitization();
-			if (digitization != UNINITIALIZEDSTRINGQUANTITY) {
+			if (digitization != "" && digitization != UNINITIALIZEDSTRINGQUANTITY ) {
 				if (find(snames.begin(), snames.end(), digitization) == snames.end())
 					snames.push_back(digitization);
 			}
@@ -208,8 +208,7 @@ void GWorld::load_systems() {
 
 	if (!world_is_defined) {
 		// Inject the ROOT “world” volume, if not already present
-		const std::string worldVolumeDefinition =
-			gopts->getScalarString(ROOTWORLDGVOLUMENAME);
+		const std::string worldVolumeDefinition = gopts->getScalarString(ROOTWORLDGVOLUMENAME);
 
 		auto rootSystem = std::make_shared<GSystem>(
 													gopts, // logger

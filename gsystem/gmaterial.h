@@ -57,7 +57,7 @@ private:
 	double slowtimeconstant;   // FIX ME believe this is related to scintillator slow decay time
 	double yieldratio;
 	// Relative strength of the fast component as a fraction of total scintillation yield, given as a single number
-	double birkConstant; //  FIX ME
+	double birksConstant;
 
 	// other optical properties
 	std::vector<double> rayleigh;
@@ -70,6 +70,8 @@ private:
 	void getMaterialPropertyFromString(const std::string& parameter, const std::string& propertyName);
 
 	friend std::ostream& operator<<(std::ostream& stream, GMaterial); // Logs infos on screen.
+
+	bool assign_if_set(const std::vector<std::string>& pars, size_t& i, double& out);
 
 public:
 	// getters
@@ -109,7 +111,7 @@ public:
 
 	[[nodiscard]] double getYieldratio() const { return yieldratio; }
 
-	[[nodiscard]] double getBirkConstant() const { return birkConstant; }
+	[[nodiscard]] double getBirksConstant() const { return birksConstant; }
 
 	// other optical properties
 	[[nodiscard]] std::vector<double> getRayleigh() const { return rayleigh; }

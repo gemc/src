@@ -145,24 +145,25 @@ G4VPhysicalVolume* G4ObjectsFactory::buildPhysical(const GVolume*               
 bool G4ObjectsFactory::build_g4volume(const GVolume*                              s,
                                       std::unordered_map<std::string, G4Volume*>* g4s) {
 	const auto name = s->getG4Name();
-	log->info(2, className(), " loadG4System: building <", name, ">");
+	// log->info(2, className(), " loadG4System: building <", name, ">");
 
 	auto sbuild = buildSolid(s, g4s);
-	log->info(2, className(), " loadG4System: buildSolid <", name, ">");
+	// log->info(2, className(), " loadG4System: buildSolid <", name, ">");
 
 	auto lbuild = buildLogical(s, g4s);
-	log->info(2, className(), " loadG4System: buildLogical <", name, ">");
+	// log->info(2, className(), " loadG4System: buildLogical <", name, ">");
 
 	auto pbuild = buildPhysical(s, g4s);
-	log->info(2, className(), " loadG4System: buildPhysical <", name, ">");
+	// log->info(2, className(), " loadG4System: buildPhysical <", name, ">");
 
 	const bool okSolid    = (sbuild != nullptr);
 	const bool okLogical  = (lbuild != nullptr);
 	const bool okPhysical = (pbuild != nullptr);
 	const bool okAll      = okSolid && okLogical && okPhysical;
 
-	log->info(2, className(), " result: ",
-	          " solid: ", okSolid,
+	log->info(2, className(), " result for ",
+	          name,
+	          ": solid: ", okSolid,
 	          " logical: ", okLogical,
 	          " physical: ", okPhysical);
 

@@ -43,7 +43,7 @@ public:
 	std::shared_ptr<GField> getField(std::string name) {
 		bool not_found = (fields_map->find(name) == fields_map->end());
 
-		if (not_found) { log->error(ERR_WRONG_FIELD_NOT_FOUND, "GField ", name, " not found. Exiting."); }
+		if (not_found) { log->error(ERR_WRONG_FIELD_NOT_FOUND, "GField >", name, "< not found. Exiting."); }
 		return fields_map->at(name);
 	}
 
@@ -54,7 +54,13 @@ public:
 	 * @throws Logs an error and exits if the field manager is not found.
 	 */
 	std::shared_ptr<G4FieldManager> getFieldMgr(std::string name) {
-		if (fields_manager->find(name) == fields_manager->end()) { log->error(ERR_WRONG_FIELD_NOT_FOUND, "GField ", name, " not found. Exiting."); }
+
+		// print out the whole map
+		for (const auto& [key, value] : *fields_manager) {
+			log->info(0, "GFieldManager >", key, "< >", value);
+		}
+
+		if (fields_manager->find(name) == fields_manager->end()) { log->error(ERR_WRONG_FIELD_NOT_FOUND, "GField >", name, "< not found. Exiting."); }
 
 		return fields_manager->at(name);
 	}

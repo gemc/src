@@ -21,6 +21,7 @@ private:
 
 	void closeSystem() override;
 
+	bool table_exists(sqlite3* db, const char* name);
 
 	void initialize_sqlite_db(GSystem* system);
 

@@ -111,7 +111,7 @@ void GSystem::addGVolume(std::vector<std::string> pars) {
  * \param rootVolumeDefinition The definition string for the ROOT volume.
  */
 void GSystem::addROOTVolume(const std::string& rootVolumeDefinition) {
-	log->warning(1, "Adding ROOT volume using <" + rootVolumeDefinition + "> to gvolumesMap.");
+	log->warning("Adding ROOT volume using <" + rootVolumeDefinition + "> to gvolumesMap.");
 	// ROOTWORLDGVOLUMENAME is assumed to be defined in gsystemConventions.h.
 	gvolumesMap[ROOTWORLDGVOLUMENAME] = std::make_unique<GVolume>(rootVolumeDefinition, log);
 }
@@ -158,7 +158,6 @@ void GSystem::addVolumeFromFile(const std::string& importType, const std::string
 	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 12 digitization
 	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 13 gidentity
 	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 14 copyOf
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 15 replicaOf
 	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 16 solidsOpr
 	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 17 mirrot
 	pars.emplace_back("1");                         // 18 exist flag

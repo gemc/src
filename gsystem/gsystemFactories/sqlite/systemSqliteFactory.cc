@@ -5,6 +5,16 @@
 #include "systemSqliteFactory.h"
 #include "gsystemConventions.h"
 
+bool  GSystemSQLiteFactory::table_exists(sqlite3* db, const char* name) {
+	sqlite3_stmt* st = nullptr;
+	const char* sql = "SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1";
+	if (sqlite3_prepare_v2(db, sql, -1, &st, nullptr) != SQLITE_OK) return false;
+	sqlite3_bind_text(st, 1, name, -1, SQLITE_TRANSIENT);
+	bool exists = (sqlite3_step(st) == SQLITE_ROW);
+	sqlite3_finalize(st);
+	return exists;
+}
+
 
 void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system) {
 	// skip ROOT system

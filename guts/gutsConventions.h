@@ -10,7 +10,7 @@
 /**
  * @brief Represents an uninitialized string quantity.
  */
-#define UNINITIALIZEDSTRINGQUANTITY "na"
+#define UNINITIALIZEDSTRINGQUANTITY "NULL"
 
 // Exit codes for various error scenarios.
 #define EC__FILENOTFOUND 301    ///< File not found error code.

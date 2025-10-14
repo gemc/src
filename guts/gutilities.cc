@@ -29,6 +29,13 @@ string removeLeadingAndTrailingSpacesFromString(const std::string& input) {
 	return input.substr(startPos, endPos - startPos + 1);
 }
 
+// Fast trim (use yours if you prefer)
+std::string_view removeLeadingAndTrailingSpacesFromString(std::string_view s) {
+	while (!s.empty() && std::isspace(static_cast<unsigned char>(s.front()))) s.remove_prefix(1);
+	while (!s.empty() && std::isspace(static_cast<unsigned char>(s.back())))  s.remove_suffix(1);
+	return s;
+}
+
 string removeAllSpacesFromString(const std::string& str) {
 	string result = str;
 	result.erase(std::remove(result.begin(), result.end(), ' '), result.end());
@@ -496,5 +503,20 @@ std::optional<std::string> searchForFileInLocations(
 	}
 	return std::nullopt;
 }
+
+bool is_unset(std::string_view s) {
+	s = removeLeadingAndTrailingSpacesFromString(s);
+	if (s.empty()) return true;
+	// match your sentinel and YAML nully spellings
+	auto eq = [](std::string_view a, std::string_view b){
+		if (a.size()!=b.size()) return false;
+		for (size_t i=0;i<a.size();++i)
+			if (std::tolower(static_cast<unsigned char>(a[i])) != std::tolower(static_cast<unsigned char>(b[i])))
+				return false;
+		return true;
+	};
+	return eq(s, UNINITIALIZEDSTRINGQUANTITY) || eq(s, "null") || eq(s, "~");
+}
+
 
 }

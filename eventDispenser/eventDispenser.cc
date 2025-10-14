@@ -63,7 +63,7 @@ EventDispenser::EventDispenser(const std::shared_ptr<GOptions>& gopt, const std:
 	else {
 		// A filename was specified; attempt to open the run weights input file.
 		ifstream in(filename.c_str());
-		if (!in) { log->error(ERR_EVENTDISTRIBUTIONFILENOTFOUND, "Error: can't open run weights input file ", filename, ". Check your spelling. Exiting."); }
+		if (!in) { log->error(ERR_EVENTDISTRIBUTIONFILENOTFOUND, "Error: can't open run weights input file >", filename, "<. Check your spelling. Exiting."); }
 		else {
 			log->info(1, "Loading run weights from ", filename);
 			// Fill the run weight map by reading each line from the file.

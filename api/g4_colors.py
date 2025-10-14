@@ -97,37 +97,59 @@ for k in list(_NAME_TO_HEX.keys()):
 	if "gray" in k:
 		_NAME_TO_HEX.setdefault(k.replace("gray", "grey"), _NAME_TO_HEX[k])
 
+# assumes _NAME_TO_HEX exists above
+
+_HEX6_RE = re.compile(r'^#?([0-9a-f]{6})$', re.IGNORECASE)
+_HEX7_RE = re.compile(r'^#?([0-9a-f]{6})([0-5])$', re.IGNORECASE)  # RGB + transparency digit 0..5
+_HEX3_RE = re.compile(r'^#?([0-9a-f]{3})$', re.IGNORECASE)  # allow #RGB/RGB -> expand
+_IS_NUM = re.compile(r'^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$')
+
+
+def _strip_weird_spaces(s: str) -> str:
+	for ch in ("\u00a0", "\u2000", "\u2001", "\u2002", "\u2003", "\u2004", "\u2005",
+	           "\u2006", "\u2007", "\u2008", "\u2009", "\u200a", "\u202f", "\u205f",
+	           "\u3000", "\ufeff"):
+		s = s.replace(ch, " ")
+	return re.sub(r"\s+", " ", s).strip()
+
 
 def pyvista_color_to_hex(name: str) -> str:
 	"""
-	Map a PyVista color *name* to 'RRGGBB'.
-	If `name` already looks like hex ('#RRGGBB', 'RRGGBB', '#RGB', 'RGB'),
-	return normalized 'RRGGBB' unchanged (uppercased, without '#').
+	Normalize a color to 'RRGGBB' or 'RRGGBB[T]' (T in 0..5). Leading '#' optional.
+	Also supports names and comma-qualified names like 'metallic, turquoise' (rightmost known color).
 	"""
-	# if str is 2 str separated by comma, consider the second value
-	if ',' in name:
-		parts = name.split(',')
-		if len(parts) == 2:
-			name = parts[1].strip()
-
 	if not isinstance(name, str):
 		raise TypeError("pyvista_color_to_hex expects a string")
 
-	s = name.strip().lower().replace(" ", "")
+	s = _strip_weird_spaces(name).strip().lower()
 
-	# If it's already hex, normalize and return
-	m6 = re.fullmatch(r'#?([0-9a-f]{6})', s)
-	if m6:
-		return m6.group(1).upper()
-	m7 = re.fullmatch(r'#?([0-9a-f]{7})', s)
-	if m7:
-		return m7.group(1).upper()
+	# --- hex forms (with or without '#')
+	if (m := _HEX7_RE.fullmatch(s)):
+		# 7-digit: keep full string (RGB + transparency digit)
+		return (m.group(1) + m.group(2)).upper()
+	if (m := _HEX6_RE.fullmatch(s)):
+		return m.group(1).upper()
+	if (m := _HEX3_RE.fullmatch(s)):
+		h = m.group(1).lower()
+		return (h[0] * 2 + h[1] * 2 + h[2] * 2).upper()
 
-	# Otherwise, resolve as a named color
-	if s in _NAME_TO_HEX:
-		return _NAME_TO_HEX[s]
+	# --- comma-qualified names: rightmost known non-numeric token
+	parts = [p.strip().replace(" ", "") for p in s.split(",")]
+	if len(parts) > 1:
+		if any(_IS_NUM.fullmatch(p) for p in parts if p):
+			# No support for 'turquoise, 0.5'
+			raise ValueError(f"Numeric alpha not supported in color: {name!r}")
+		for token in reversed(parts):
+			if token and token in _NAME_TO_HEX:
+				return _NAME_TO_HEX[token]
 
-	raise ValueError(f"Unknown color name or hex: {name!r}")
+	# --- simple named color
+	simple = s.replace(" ", "")
+	if simple in _NAME_TO_HEX:
+		return _NAME_TO_HEX[simple]
+
+	raise ValueError(f"Unknown color name or hex (expect 6 hex digits or 6+transparency): {name!r}")
+
 
 def pyvista_gcolor_to_pcolor_and_opacity(color_str: str, default_opacity: float = 1.0):
 	"""

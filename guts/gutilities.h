@@ -27,6 +27,8 @@ using std::map;
 */
 std::string removeLeadingAndTrailingSpacesFromString(const std::string& input);
 
+std::string_view removeLeadingAndTrailingSpacesFromString(const std::string_view input);
+
 /**
 * @brief Removes all spaces from a string.
 *
@@ -370,6 +372,8 @@ inline std::filesystem::path gemc_root() {
 
 	return gemc_root;
 }
+
+bool is_unset(std::string_view s);
 
 inline std::string success_or_fail(bool condition) { return condition ? "success" : "fail"; }
 

@@ -48,7 +48,6 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 		digitization   = removeAllSpacesFromString(pars[i++]);
 		gidentity      = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		copyOf         = removeLeadingAndTrailingSpacesFromString(pars[i++]);
-		replicaOf      = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		solidsOpr      = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		mirror         = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		string pexists = removeAllSpacesFromString(pars[i++]);
@@ -112,16 +111,15 @@ GVolume::GVolume(const string& rootVolumeDefinition, const std::shared_ptr<GLogg
 	motherName   = MOTHEROFUSALL;
 	pos          = DEFAULTPOSITION;
 	rot          = DEFAULTROTATION;
-	emfield      = UNINITIALIZEDSTRINGQUANTITY;
+	emfield      = "";
 	visible      = false;
 	style        = 0; // wireframe
 	color        = "ccffff";
-	digitization = UNINITIALIZEDSTRINGQUANTITY;
-	gidentity    = UNINITIALIZEDSTRINGQUANTITY;
-	copyOf       = UNINITIALIZEDSTRINGQUANTITY;
-	replicaOf    = UNINITIALIZEDSTRINGQUANTITY;
-	solidsOpr    = UNINITIALIZEDSTRINGQUANTITY;
-	mirror       = UNINITIALIZEDSTRINGQUANTITY;
+	digitization = "";
+	gidentity    = "";
+	copyOf       = "";
+	solidsOpr    = "";
+	mirror       = "";
 	exist        = true;
 
 	description = "root volume";

@@ -34,6 +34,6 @@ LD += {
     'sources' : sources,
     'headers' : headers,
     'qrc_examples_sources' : qrc_examples_sources,
-    'dependencies' : [yaml_cpp_dep, qt6_deps, geant4_deps, expat_dep],
+    'dependencies' : [yaml_cpp_dep, qt6_deps, geant4_deps],
     'examples' : examples
 }

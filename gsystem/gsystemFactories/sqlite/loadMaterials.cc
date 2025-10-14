@@ -28,7 +28,6 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system) {
 	if (sqlite3_step(count_stmt) == SQLITE_ROW) { count = sqlite3_column_int(count_stmt, 0); }
 	sqlite3_finalize(count_stmt);
 
-
 	if (count == 0) {
 		log->info(2, "Table 'materials' is empty for system <", system_name, ">, variation <", variation, ">, "
 		             "run ", runno, ". This may be ok if the materials are from the Geant4 database.");
@@ -54,19 +53,38 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system) {
 	sqlite3_bind_text(stmt, 2, variation.c_str(), -1, SQLITE_STATIC);
 	sqlite3_bind_int(stmt, 3, runno);
 
+
 	vector<string> gmaterialPars;
 	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-		for (int i = 0; i < sqlite3_column_count(stmt); i++) {
-			log->info(2, "<sqlite> column: ", sqlite3_column_name(stmt, i), " = ", sqlite3_column_text(stmt, i));
+
+		const int ncols = sqlite3_column_count(stmt);
+		for (int i = 0; i < ncols; ++i) {
+			const char* cname = sqlite3_column_name(stmt, i);
+
+			// Safely get text (use a literal "NULL" for SQLITE_NULL)
+			const char* ctext =
+				(sqlite3_column_type(stmt, i) == SQLITE_NULL)
+					? "NULL"
+					: reinterpret_cast<const char*>(sqlite3_column_text(stmt, i));
+
+			log->info(2, "<sqlite> column: ", cname, " = ", ctext);
+
 			// Assuming gmaterial constructor expects parameters beyond the first 4 columns.
-			if (i > 4) { gmaterialPars.emplace_back((char*)sqlite3_column_text(stmt, i)); }
+			if (i > 4) {
+				// Push a string even for NULLs to avoid nullptr UB
+				gmaterialPars.emplace_back(ctext);  // will be "NULL" string for NULL columns
+			}
 		}
 		system->addGMaterial(gmaterialPars);
 		gmaterialPars.clear();
 	}
+
+
 	if (rc != SQLITE_DONE) {
 		log->error(ERR_GSQLITEERROR, "Sqlite database error in loadMaterials: ",
 		           sqlite3_errmsg(db), " (", rc, ")");
 	}
+
+
 	sqlite3_finalize(stmt);
 }

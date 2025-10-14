@@ -22,8 +22,8 @@ debug:
   - gfield: true
 
 gsystem:
-  - name: b2
-    factory: sqlite
+  - name: b3
+    factory: ascii
 
 gmultipoles:
   - name: dipole

@@ -27,13 +27,18 @@ def main():
 	parser = argparse.ArgumentParser(description=desc_str)
 
 	# file writers
-	parser.add_argument('-sql',  action='store', type=str, help='set the sqlite filename', default=NGIVEN)
-	parser.add_argument('-sv',   action='store_true', help='show volumes from database')
-	parser.add_argument('-sm',   action='store_true', help='show materials from database')
-	parser.add_argument('-ef',   action='store', type=str, help='selects an experiment filter for the volumes')
-	parser.add_argument('-vf',   action='store', type=str, help='selects a variation filter for the volumes')
-	parser.add_argument('-sf',   action='store', type=str, help='selects a system filter for the volumes')
-	parser.add_argument('-rf',   action='store', type=str, help='selects a run number filter for the volumes')
+	parser.add_argument('-sql', action='store', type=str, help='set the sqlite filename',
+	                    default=NGIVEN)
+	parser.add_argument('-sv', action='store_true', help='show volumes from database')
+	parser.add_argument('-sm', action='store_true', help='show materials from database')
+	parser.add_argument('-ef', action='store', type=str,
+	                    help='selects an experiment filter for the volumes')
+	parser.add_argument('-vf', action='store', type=str,
+	                    help='selects a variation filter for the volumes')
+	parser.add_argument('-sf', action='store', type=str,
+	                    help='selects a system filter for the volumes')
+	parser.add_argument('-rf', action='store', type=str,
+	                    help='selects a run number filter for the volumes')
 	parser.add_argument('-what', action='store', type=str, help='show only the selected fields')
 
 	args = parser.parse_args()
@@ -162,81 +167,89 @@ def add_materials_fields_to_sqlite_if_needed(gmaterial, configuration):
 deleted_geometry = set()
 deleted_materials = set()
 
+
+def columns_and_values(gobject, configuration):
+	cols = ["experiment", "system", "variation", "run"]
+	vals = [configuration.experiment, configuration.system, configuration.variation,
+	        configuration.runno]
+
+	for field, value in gobject.__dict__.items():
+		# keep same skips you already use elsewhere
+		if field in ('compType', 'totComposition', 'gcolor'):
+			continue
+		cols.append(field)
+		vals.append(value if not isinstance(value, list) else str(value))  # just in case
+
+	return cols, tuple(vals)
+
+
 def populate_sqlite_geometry(gvolume, configuration):
 	global deleted_geometry
-
 	add_geometry_fields_to_sqlite_if_needed(gvolume, configuration)
 
 	sql = configuration.sqlitedb.cursor()
-	key = (configuration.experiment, configuration.system, configuration.variation, configuration.runno)
+	key = (configuration.experiment, configuration.system, configuration.variation,
+	       configuration.runno)
 
-	# Check if the geometry table exists
 	sql.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='geometry'")
-	if sql.fetchone()[0] == 1:  # Table exists
-		if key not in deleted_geometry:
-			delete_query = """
-                DELETE FROM geometry WHERE experiment = ? AND system = ? AND variation = ? AND run = ?
-            """
-			sql.execute(delete_query, key)
-			configuration.sqlitedb.commit()
-			deleted_geometry.add(key)
-	else:
-		sys.exit(
-			f"{GColors.RED}Error: 'geometry' table does not exist. The database file may be corrupted or invalid.{GColors.END}")
+	if sql.fetchone()[0] != 1:
+		sys.exit(f"{GColors.RED}Error: 'geometry' table does not exist.{GColors.END}")
 
-	# Updated query: Check existence based on name **AND** variation/run/experiment/system
+	if key not in deleted_geometry:
+		sql.execute(
+			"""DELETE FROM geometry WHERE experiment=? AND system=? AND variation=? AND run=?""",
+			key)
+		configuration.sqlitedb.commit()
+		deleted_geometry.add(key)
+
+	# make sure rotations is a string before inserting
+	gvolume.rotations = gvolume.get_rotation_string()
+
 	sql.execute(
 		"""SELECT COUNT(*) FROM geometry 
-		   WHERE name = ? AND experiment = ? AND system = ? AND variation = ? AND run = ?""",
-		(gvolume.name, configuration.experiment, configuration.system, configuration.variation, configuration.runno)
+		   WHERE name=? AND experiment=? AND system=? AND variation=? AND run=?""",
+		(gvolume.name, configuration.experiment, configuration.system, configuration.variation,
+		 configuration.runno)
 	)
+	if sql.fetchone()[0] != 0:
+		sys.exit(
+			f"{GColors.RED}Error: volume >{gvolume.name}< already exists for variation '{configuration.variation}'{GColors.END}")
 
-	if sql.fetchone()[0] == 0:
-		columns = form_string_with_column_definitions(gvolume)
-		values = form_string_with_column_values(gvolume, configuration)
-		# print(f"Inserting volume columns: {columns}" f" values: {values}")
-		sql.execute(f"INSERT INTO geometry {columns} VALUES {values}")
-	else:
-		sys.exit(f"{GColors.RED}Error: volume >{gvolume.name}< already exists in the database for variation '{configuration.variation}'{GColors.END}")
-
+	cols, vals = columns_and_values(gvolume, configuration)
+	placeholders = ",".join(["?"] * len(cols))
+	sql.execute(f"INSERT INTO geometry ({','.join(cols)}) VALUES ({placeholders})", vals)
 	configuration.sqlitedb.commit()
 
 
 def populate_sqlite_materials(gmaterial, configuration):
-	global deleted_materials  # Ensure we modify the global set
-
+	global deleted_materials
 	add_materials_fields_to_sqlite_if_needed(gmaterial, configuration)
 
 	sql = configuration.sqlitedb.cursor()
+	key = (configuration.experiment, configuration.system, configuration.variation,
+	       configuration.runno)
 
-	key = (configuration.experiment, configuration.system, configuration.variation, configuration.runno)
-
-	# Ensure deletion happens only once per variation and run
 	if key not in deleted_materials:
-		delete_query = """
-            DELETE FROM materials WHERE experiment = ? AND system = ? AND variation = ? AND run = ?
-        """
-		sql.execute(delete_query, key)
-		configuration.sqlitedb.commit()  # Ensure deletion applies
-		deleted_materials.add(key)  # Mark as deleted
+		sql.execute(
+			"""DELETE FROM materials WHERE experiment=? AND system=? AND variation=? AND run=?""",
+			key)
+		configuration.sqlitedb.commit()
+		deleted_materials.add(key)
 
-	# Check if material already exists for this experiment, system, variation, and run
 	sql.execute(
 		"""SELECT COUNT(*) FROM materials 
-		   WHERE name = ? AND experiment = ? AND system = ? AND variation = ? AND run = ?""",
-		(gmaterial.name, configuration.experiment, configuration.system, configuration.variation, configuration.runno)
+		   WHERE name=? AND experiment=? AND system=? AND variation=? AND run=?""",
+		(gmaterial.name, configuration.experiment, configuration.system, configuration.variation,
+		 configuration.runno)
 	)
+	if sql.fetchone()[0] != 0:
+		sys.exit(
+			f"{GColors.RED}Error: material >{gmaterial.name}< already exists for variation '{configuration.variation}'{GColors.END}")
 
-	if sql.fetchone()[0] == 0:
-		columns = form_string_with_column_definitions(gmaterial)
-		values = form_string_with_column_values(gmaterial, configuration)
-
-		insert_query = f"INSERT INTO materials {columns} VALUES {values}"
-		sql.execute(insert_query)
-		configuration.sqlitedb.commit()
-	else:
-		sys.exit(f"{GColors.RED}Error: material >{gmaterial.name}< already exists in the database for variation '{configuration.variation}'{GColors.END}")
-
+	cols, vals = columns_and_values(gmaterial, configuration)
+	placeholders = ",".join(["?"] * len(cols))
+	sql.execute(f"INSERT INTO materials ({','.join(cols)}) VALUES ({placeholders})", vals)
+	configuration.sqlitedb.commit()
 
 
 def form_string_with_column_definitions(gobject) -> str:
@@ -252,11 +265,10 @@ def form_string_with_column_definitions(gobject) -> str:
 def form_string_with_column_values(gobject, configuration) -> str:
 	strn = f"( '{configuration.experiment}', '{configuration.system}', '{configuration.variation}', {configuration.runno}, "
 	for field, value in gobject.__dict__.items():
-		if field != 'compType' and field != 'totComposition' and field != 'color':
+		if field != 'compType' and field != 'totComposition' and field != 'gcolor':
 			strn += f"'{value}', " if isinstance(value, str) else f"{value}, "
 	strn = strn[:-2] + ")"  # Remove last comma and space, then close parenthesis
 	return strn
-
 
 
 def sqltype_of_variable(variable) -> str:
@@ -269,7 +281,7 @@ def sqltype_of_variable(variable) -> str:
 def add_column(db, tablename, column_name, var_type):
 	sql = db.cursor()
 	strn = "ALTER TABLE {0} ADD COLUMN {1} {2}".format(tablename, column_name, var_type)
-	#print(strn)
+	# print(strn)
 	sql.execute(strn)
 	db.commit()
 

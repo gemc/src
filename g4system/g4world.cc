@@ -39,14 +39,17 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 
 		// loop over systems in the gsystemsMap
 		for (auto& [systemName, gsystem] : *gsystemMap) {
-			std::string g4Factory = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
-			auto objectsFactory        = get_factory(g4Factory);
+			std::string g4Factory      = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
+			auto        objectsFactory = get_factory(g4Factory);
 
 			for (auto& [volumeName, gvolumePtr] : gsystem->getGVolumesMap()) {
-				auto* gvolume = gvolumePtr.get();;
+				auto* gvolume = gvolumePtr.get();
+
 				// try to build; remember the ones that still have missing mothers
-				if (!build_g4volume(gvolume, objectsFactory)) {
+				if ( !build_g4volume(gvolume, objectsFactory)) {
+
 					if (gvolume->getExistence())
+						log->warning(" >> adding volumeName <", volumeName, "> to the list of remaining volumes");
 						thisIterationRemainingVolumes.push_back(gvolume);
 				}
 			}
@@ -58,7 +61,7 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 				          " remaining motherless g4volumes to be built:");
 				for (auto* gvolumeLeft : thisIterationRemainingVolumes) {
 					log->info(2, "G4World: ", gvolumeLeft->getName(),
-					          " with mother <", gvolumeLeft->getG4MotherName(), ">");
+					          " with mother <", gvolumeLeft->getG4MotherName(), "> " );
 				}
 			}
 		}
@@ -68,7 +71,7 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 			if (allRemainingVolumes >= thisIterationRemainingVolumes.size()) {
 				for (auto* gvolumeLeft : thisIterationRemainingVolumes) {
 					log->warning(" >> ", gvolumeLeft->getName(),
-					             " with mother <", gvolumeLeft->getG4MotherName(), ">");
+					             " with mother <", gvolumeLeft->getG4MotherName(), "> not built");
 				}
 				log->error(ERR_G4DEPENDENCIESNOTSOLVED,
 				           "dependencies are not being resolved: their number should diminish. "
@@ -425,7 +428,6 @@ void G4World::buildMaterials(SystemMap* system_map) {
 
 
 bool G4World::build_g4volume(const GVolume* s, G4ObjectsFactory* objectsFactory) {
-
 	log->info(2, "G4World: using factory <", objectsFactory->className(),
 	          "> to build g4volume <", s->getG4Name(), ">");
 

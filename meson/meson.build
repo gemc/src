@@ -19,9 +19,6 @@ else
 endif
 
 
-# pkg-config --modversion expat
-expat_dep = dependency('expat', required : true)
-
 # pkg-config --cflags --libs zlib
 zlib_dep = dependency('zlib', static : false, required : true)  # Use shared libz.so instead of libz.a
 
@@ -76,6 +73,7 @@ if sys == 'linux'
         dependency('x11', required : true),
         dependency('xmu', required : true),
         dependency('gl', required : true),
+        dependency('expat', required : true)
     ]
 endif
 

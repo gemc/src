@@ -4,7 +4,7 @@
 // The volumes and materials in each system must have an unique name
 
 // number of database pars defining a gvolume and a gmaterial
-#define GVOLUMENUMBEROFPARS    21
+#define GVOLUMENUMBEROFPARS    20
 #define GMATERIALNUMBEROFPARS  18
 
 #define DEFAULTPOSITION       "0*cm, 0*cm, 0*cm";

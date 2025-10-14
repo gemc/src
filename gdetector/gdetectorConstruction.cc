@@ -81,7 +81,7 @@ void GDetectorConstruction::ConstructSDandField() {
 			if (g4volume == nullptr) { log->error(ERR_GVOLUMENOTFOUND, "GDetectorConstruction::ConstructSDandField", "Logical volume <" + g4name + "> not found."); }
 
 			// Skip volumes with no digitization.
-			if (digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
+			if (digitizationName != "" && digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
 				// Create the sensitive detector if it does not exist yet.
 				if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
 					log->info(2, "Creating new sensitive detector <", digitizationName, "> for volume <", g4name, ">");
@@ -103,7 +103,7 @@ void GDetectorConstruction::ConstructSDandField() {
 
 			// Process electromagnetic fields.
 			const auto& field_name = gvolumePtr->getEMField();
-			if (field_name != UNINITIALIZEDSTRINGQUANTITY) {
+			if (field_name != "" && field_name != UNINITIALIZEDSTRINGQUANTITY) {
 				if (gmagneto == nullptr) { gmagneto = new GMagneto(gopt); }
 				log->info(2, "Volume <", volumeName, "> has field: <", field_name, ">. Looking into field map definitions.");
 				log->info(2, "Setting field manager for volume <", g4name, "> with field <", field_name, ">");

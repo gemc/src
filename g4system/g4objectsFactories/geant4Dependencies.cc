@@ -12,28 +12,26 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
 
 	// checking if it's a copy, replica or solid operation – they are mutually exclusive
 	std::string copyOf    = s->getCopyOf();
-	std::string replicaOf = s->getReplicaOf();
 	std::string solidsOpr = s->getSolidsOpr();
 
 	std::string message;
-	if (copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
 		message = ", copyOf: " + copyOf;
 	}
-	else if (replicaOf != UNINITIALIZEDSTRINGQUANTITY) {
-		message = ", replicaOf: " + replicaOf;
-	}
-	else if (solidsOpr != UNINITIALIZEDSTRINGQUANTITY) {
+	else if (solidsOpr != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
 		message = ", solidsOpr: " + solidsOpr;
 	}
 
 	log->debug(NORMAL, className(), " checkSolidDependencies: checking dependencies for <",
 		s->getName(), ">", message);
 
+
 	/*──────────────────────────────────── copyOf: volumeName ───────────────────────────────────*/
-	if (copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
 		std::vector<std::string> copies = gutilities::getStringVectorFromString(copyOf);
 
 		if (copies.size() == 2) {
+
 			// first string must be copyOf
 			if (copies[0] == "copyOf:") {
 				// checking if the copy solid exists
@@ -60,13 +58,9 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
 		}
 	}
 
-	/*──────────────────────────────────── replicaOf – (not yet handled) ─────────────────────────*/
-	else if (replicaOf != UNINITIALIZEDSTRINGQUANTITY) {
-		// TODO: implement replica logic
-	}
 
 	/*──────────────────────────────────── Boolean solid operations ──────────────────────────────*/
-	else if (solidsOpr != UNINITIALIZEDSTRINGQUANTITY) {
+	else if (solidsOpr != "" && solidsOpr != UNINITIALIZEDSTRINGQUANTITY) {
 		std::vector<std::string> solidOperations =
 			gutilities::getStringVectorFromString(solidsOpr);
 
@@ -120,8 +114,7 @@ bool G4ObjectsFactory::checkPhysicalDependencies(const GVolume* s,
 	}
 
 	/* mother logical must exist (unless WORLD volume) */
-	if (motherName != MOTHEROFUSALL &&
-	    getLogicalFromMap(motherName, g4s) == nullptr) {
+	if (motherName != MOTHEROFUSALL && getLogicalFromMap(motherName, g4s) == nullptr) {
 		log->info(2, "dependencies: ", vname,
 		           " mother <", motherName, "> logical volume not found yet.");
 		return false;

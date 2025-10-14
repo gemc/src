@@ -48,15 +48,14 @@ private:
 	std::string rot;   // Define the rotation Matrix, defined by rotations along x,y,z axis relative to the mother volume
 	std::string shift; // Position modifier
 	std::string tilt;  // Rotation modifier
-	bool        exist; // Existance modifier
+	bool        exist; // Existence modifier
 
 	std::string digitization; // Assigns digitization type and collection ID
 	std::string gidentity;    // String with identifiers in it. Example: 'sector: 2, layer: 4, wire; 33'
 
 	// special cases
 	std::string copyOf;    // name of gvolume to copy from
-	std::string replicaOf; // name of gvolume to replica from
-	std::string solidsOpr; // solid operation
+	std::string solidsOpr; // solid boolean operation
 
 	int pCopyNo{}; // should be set to 0 for the first volume of a given type
 
@@ -122,8 +121,6 @@ public:
 
 	// special cases
 	[[nodiscard]] std::string getCopyOf() const { return copyOf; }
-
-	[[nodiscard]] std::string getReplicaOf() const { return replicaOf; }
 
 	[[nodiscard]] std::string getSolidsOpr() const { return solidsOpr; }
 

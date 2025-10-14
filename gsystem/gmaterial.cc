@@ -1,5 +1,5 @@
 #include "gutilities.h"
-using namespace gutilities;
+//using namespace gutilities;
 
 
 // gsystem
@@ -22,10 +22,10 @@ GMaterial::GMaterial(const std::string& s, std::vector<std::string> pars, const 
 	}
 	else {
 		// size is already checked in addVolume, the only interface to volume
-		int i = 0;
+		size_t i = 0;
 
-		name    = removeAllSpacesFromString(pars[i++]);
-		density = stod(removeAllSpacesFromString(pars[i++]));
+		name    = gutilities::removeAllSpacesFromString(pars[i++]);
+		density = stod(gutilities::removeAllSpacesFromString(pars[i++]));
 
 		// sets components and amounts
 		setComponentsFromString(pars[i++]);
@@ -44,12 +44,12 @@ GMaterial::GMaterial(const std::string& s, std::vector<std::string> pars, const 
 		getMaterialPropertyFromString(pars[i++], "fastcomponent");
 		getMaterialPropertyFromString(pars[i++], "slowcomponent");
 
-		scintillationyield = stod(removeLeadingAndTrailingSpacesFromString(pars[i++]));
-		resolutionscale    = stod(removeLeadingAndTrailingSpacesFromString(pars[i++]));
-		fasttimeconstant   = stod(removeLeadingAndTrailingSpacesFromString(pars[i++]));
-		slowtimeconstant   = stod(removeLeadingAndTrailingSpacesFromString(pars[i++]));
-		yieldratio         = stod(removeLeadingAndTrailingSpacesFromString(pars[i++]));
-		birkConstant       = stod(removeLeadingAndTrailingSpacesFromString(pars[i++]));
+		assign_if_set(pars, i, scintillationyield);
+		assign_if_set(pars, i, resolutionscale);
+		assign_if_set(pars, i, fasttimeconstant);
+		assign_if_set(pars, i, slowtimeconstant);
+		assign_if_set(pars, i, yieldratio);
+		assign_if_set(pars, i, birksConstant);
 
 		// other optical processes
 		getMaterialPropertyFromString(pars[i++], "rayleigh");
@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream& stream, GMaterial gMat) {
 	if (!gMat.components.empty()) {
 		stream << "     Composition:          " << std::endl;
 		for (unsigned m = 0; m < gMat.components.size(); m++) {
-			string quantity = gMat.amounts[m] > 1 ? " atoms " : " fractional mass";
+			std::string quantity = gMat.amounts[m] > 1 ? " atoms " : " fractional mass";
 			stream << "       ・ " << gMat.components[m] << quantity << " " << gMat.amounts[m] << std::endl;
 		}
 	}
@@ -76,8 +76,8 @@ std::ostream& operator<<(std::ostream& stream, GMaterial gMat) {
 
 
 // sets components and amounts
-void GMaterial::setComponentsFromString(const string& composition) {
-	vector<string> allComponents = getStringVectorFromString(composition);
+void GMaterial::setComponentsFromString(const std::string& composition) {
+	std::vector<std::string> allComponents = gutilities::getStringVectorFromString(composition);
 
 	for (unsigned e = 0; e < allComponents.size() / 2; e++) {
 		components.push_back(allComponents[e * 2]);
@@ -87,33 +87,35 @@ void GMaterial::setComponentsFromString(const string& composition) {
 
 
 // load property from DB entry based on its name
-void GMaterial::getMaterialPropertyFromString(const string& parameter, const string& propertyName) {
+void GMaterial::getMaterialPropertyFromString(const std::string& parameter, const std::string& propertyName) {
+
+
 	// nothing to do if the parameter is not assigned
-	if (removeLeadingAndTrailingSpacesFromString(parameter) == UNINITIALIZEDSTRINGQUANTITY) { return; }
+	if (gutilities::removeLeadingAndTrailingSpacesFromString(parameter) == UNINITIALIZEDSTRINGQUANTITY) { return; }
 
 	std::stringstream parameterComponents(parameter);
 
 	while (!parameterComponents.eof()) {
-		string component;
+		std::string component;
 		parameterComponents >> component;
 
 		// removing whitespaces
-		string trimmedComponent = removeLeadingAndTrailingSpacesFromString(component);
+		std::string trimmedComponent = gutilities::removeLeadingAndTrailingSpacesFromString(component);
 
-		if (propertyName == "photonEnergy") { photonEnergy.push_back(getG4Number(trimmedComponent)); }
-		else if (propertyName == "indexOfRefraction") { indexOfRefraction.push_back(getG4Number(trimmedComponent)); }
-		else if (propertyName == "absorptionLength") { absorptionLength.push_back(getG4Number(trimmedComponent)); }
-		else if (propertyName == "reflectivity") { reflectivity.push_back(getG4Number(trimmedComponent)); }
-		else if (propertyName == "efficiency") { efficiency.push_back(getG4Number(trimmedComponent)); }
-		else if (propertyName == "fastcomponent") { fastcomponent.push_back(getG4Number(trimmedComponent)); }
-		else if (propertyName == "slowcomponent") { slowcomponent.push_back(getG4Number(trimmedComponent)); }
-		else if (propertyName == "scintillationyield") { scintillationyield = getG4Number(trimmedComponent); }
-		else if (propertyName == "resolutionscale") { resolutionscale = getG4Number(trimmedComponent); }
-		else if (propertyName == "fasttimeconstant") { fasttimeconstant = getG4Number(trimmedComponent); }
-		else if (propertyName == "slowtimeconstant") { slowtimeconstant = getG4Number(trimmedComponent); }
-		else if (propertyName == "yieldratio") { yieldratio = getG4Number(trimmedComponent); }
-		else if (propertyName == "birkConstant") { birkConstant = getG4Number(trimmedComponent); }
-		else if (propertyName == "rayleigh") { rayleigh.push_back(getG4Number(trimmedComponent)); }
+		if (propertyName == "photonEnergy") { photonEnergy.push_back(gutilities::getG4Number(trimmedComponent)); }
+		else if (propertyName == "indexOfRefraction") { indexOfRefraction.push_back(gutilities::getG4Number(trimmedComponent)); }
+		else if (propertyName == "absorptionLength") { absorptionLength.push_back(gutilities::getG4Number(trimmedComponent)); }
+		else if (propertyName == "reflectivity") { reflectivity.push_back(gutilities::getG4Number(trimmedComponent)); }
+		else if (propertyName == "efficiency") { efficiency.push_back(gutilities::getG4Number(trimmedComponent)); }
+		else if (propertyName == "fastcomponent") { fastcomponent.push_back(gutilities::getG4Number(trimmedComponent)); }
+		else if (propertyName == "slowcomponent") { slowcomponent.push_back(gutilities::getG4Number(trimmedComponent)); }
+		else if (propertyName == "scintillationyield") { scintillationyield = gutilities::getG4Number(trimmedComponent); }
+		else if (propertyName == "resolutionscale") { resolutionscale = gutilities::getG4Number(trimmedComponent); }
+		else if (propertyName == "fasttimeconstant") { fasttimeconstant = gutilities::getG4Number(trimmedComponent); }
+		else if (propertyName == "slowtimeconstant") { slowtimeconstant = gutilities::getG4Number(trimmedComponent); }
+		else if (propertyName == "yieldratio") { yieldratio = gutilities::getG4Number(trimmedComponent); }
+		else if (propertyName == "birkConstant") { birksConstant = gutilities::getG4Number(trimmedComponent); }
+		else if (propertyName == "rayleigh") { rayleigh.push_back(gutilities::getG4Number(trimmedComponent)); }
 
 
 		if (propertyName == "rayleigh") {
@@ -158,5 +160,18 @@ void GMaterial::getMaterialPropertyFromString(const string& parameter, const str
 				           photonEnergyVectorSize);
 			}
 		}
+	}
+}
+
+
+bool GMaterial::assign_if_set(const std::vector<std::string>& pars, size_t& i, double& out) {
+	if (i >= pars.size()) return false;
+	std::string_view sv = gutilities::removeLeadingAndTrailingSpacesFromString(pars[i++]);
+	if (gutilities::is_unset(sv)) return false;
+	try {
+		out = std::stod(std::string(sv));  // stod needs std::string
+		return true;
+	} catch (...) {
+		return false; // ignore/flag bad parse; make this a hard error if desired
 	}
 }

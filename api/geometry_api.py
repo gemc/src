@@ -66,7 +66,6 @@
 #                   The plugin filename is <name>.gplugin
 #
 # - copyOf	       Not supported yet. Meant to make a copy of a volume
-# - replicaOf	   Not supported yet. Meant to make a g4replica
 # - solidsOpr	   Not supported yet. Meant to make a boolean operation between solids
 # - mirror	       Not supported yet. Meant to make a g4surface
 #
@@ -77,13 +76,14 @@
 import sys
 
 WILLBESET = 'notSetYet'  # for mandatory fields. Used in function check_validity
-NOTAPPLICABLE = 'na'  # for optionals fields
+NOTAPPLICABLE = None  # for optionals fields
 DEFAULTMOTHER = 'root'
 DEFAULTCOLOR = '778899'
 
 from gemc_sqlite import populate_sqlite_geometry
 from pyvista_api import render_volume
 from g4_colors import pyvista_color_to_hex
+
 
 # GVolume class definition
 class GVolume:
@@ -103,13 +103,12 @@ class GVolume:
 		self.visible = 1  # 0 is invisible, 1 is visible
 		self.style = 1  # 0 is wireframe, 1 is solid
 		self.color = DEFAULTCOLOR  # stored for pyvista use
-		self.gcolor = DEFAULTCOLOR # this one goes to the databases
+		self.gcolor = DEFAULTCOLOR  # this one goes to the databases
 
 		self.digitization = NOTAPPLICABLE
 		self.identifier = NOTAPPLICABLE
 
 		self.copyOf = NOTAPPLICABLE
-		self.replicaOf = NOTAPPLICABLE
 		self.solidsOpr = NOTAPPLICABLE
 
 		self.mirror = NOTAPPLICABLE
@@ -171,42 +170,57 @@ class GVolume:
 
 		self.identifier = myidentifiers
 
+	def entry_to_ascii(self, v):
+		# Normalize Python-side “empty” values for ascii output
+		if v is None:
+			return "NULL"
+		if isinstance(v, list):
+			# rotations already flattened below; but keep this safe
+			return " ".join(map(str, v))
+		return str(v)
+
 	def publish(self, configuration):
 		self.check_validity()
 		self.gcolor = pyvista_color_to_hex(self.color)
-		# TEXT factory
+
+		# Flatten rotations first so None/list don't leak through
+		rotation_string = self.get_rotation_string()
+
 		if configuration.factory == 'ascii':
 			file_name = configuration.geoFileName
 			configuration.nvolumes += 1
 			with open(file_name, 'a+') as dn:
-				lstr = ' ' \
-					   + f'{self.name} | ' \
-					   + f'{self.solid} | ' \
-					   + f'{self.parameters} | ' \
-					   + f'{self.material} | ' \
-					   + f'{self.mother} | ' \
-					   + f'{self.position} | ' \
-					   + f'{self.get_rotation_string()} | ' \
-					   + f'{self.mfield} | ' \
-					   + f'{self.visible} | ' \
-					   + f'{self.style} | ' \
-					   + f'{self.gcolor} | ' \
-					   + f'{self.digitization} | ' \
-					   + f'{self.identifier} | ' \
-					   + f'{self.copyOf} | ' \
-					   + f'{self.replicaOf} | ' \
-					   + f'{self.solidsOpr} | ' \
-					   + f'{self.mirror} | ' \
-					   + f'{self.exist} | ' \
-					   + f'{self.description} |\n'
+				fields = [
+					self.name,
+					self.solid,
+					self.parameters,
+					self.material,
+					self.mother,
+					self.position,
+					rotation_string,
+					self.mfield,
+					self.visible,
+					self.style,
+					self.gcolor,  # keep ascii using gcolor as before
+					self.digitization,
+					self.identifier,
+					self.copyOf,
+					self.solidsOpr,
+					self.mirror,
+					self.exist,
+					self.description
+				]
+				lstr = " " + " | ".join(self.entry_to_ascii(f) for f in fields) + " |\n"
 				dn.write(lstr)
-		# sqlite factory
+
 		elif configuration.factory == 'sqlite':
 			configuration.nvolumes += 1
-			self.rotations = self.get_rotation_string()
+			self.rotations = rotation_string
+			orig_color = self.color
+			self.color = self.gcolor  # publish hex into DB 'color' column
 			populate_sqlite_geometry(self, configuration)
+			self.color = orig_color  # restore for any later use
 
-		# pyvista
 		if configuration.use_pyvista:
 			render_volume(self, configuration)
 
@@ -295,7 +309,8 @@ class GVolume:
 	# def make_cut_tube()
 
 	# Cone or Conical section
-	def make_cons(self, rin1, rout1, rin2, rout2, length, phi_start, phi_total, lunit1='mm', lunit2='deg'):
+	def make_cons(self, rin1, rout1, rin2, rout2, length, phi_start, phi_total, lunit1='mm',
+	              lunit2='deg'):
 		"""
 		make_cons(rin1, rout1, rin2, rout2, length, phi_start, phi_total, lunit1='mm', lunit2='deg')
 
@@ -333,11 +348,11 @@ class GVolume:
 
 		self.solid = 'G4Cons'
 		mydims = str(rin1) + '*' + lunit1 + ', ' + str(rout1) + '*' + lunit1 + ', ' \
-				 + str(rin2) + '*' + lunit1 + ', ' \
-				 + str(rout2) + '*' + lunit1 + ', ' \
-				 + str(length) + '*' + lunit1 + ', ' \
-				 + str(phi_start) + '*' + lunit2 + ', ' \
-				 + str(phi_total) + '*' + lunit2
+		         + str(rin2) + '*' + lunit1 + ', ' \
+		         + str(rout2) + '*' + lunit1 + ', ' \
+		         + str(length) + '*' + lunit1 + ', ' \
+		         + str(phi_start) + '*' + lunit2 + ', ' \
+		         + str(phi_total) + '*' + lunit2
 		self.parameters = mydims
 
 	# Trapezoid
@@ -424,8 +439,9 @@ class GVolume:
 		]
 		self.parameters = ", ".join(with_units)
 
-	def make_general_trapezoid(self, pDz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2,
-							   lunit1='mm', lunit2='deg'):
+	def make_general_trapezoid(self, pDz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4,
+	                           pAlp2,
+	                           lunit1='mm', lunit2='deg'):
 		"""
 
 		make_general_trapezoid(pDz, pTheta, pPhi, pDy1, pDx1, pDx2, pAlp1, pDy2, pDx3, pDx4, pAlp2, lunit1='mm', lunit2='deg')
@@ -483,15 +499,15 @@ class GVolume:
 		self.parameters = ", ".join(with_units)
 
 	def make_trap_from_vertices(self,
-								v1x, v1y, v1z,
-								v2x, v2y, v2z,
-								v3x, v3y, v3z,
-								v4x, v4y, v4z,
-								v5x, v5y, v5z,
-								v6x, v6y, v6z,
-								v7x, v7y, v7z,
-								v8x, v8y, v8z,
-								lunit1='mm'):
+	                            v1x, v1y, v1z,
+	                            v2x, v2y, v2z,
+	                            v3x, v3y, v3z,
+	                            v4x, v4y, v4z,
+	                            v5x, v5y, v5z,
+	                            v6x, v6y, v6z,
+	                            v7x, v7y, v7z,
+	                            v8x, v8y, v8z,
+	                            lunit1='mm'):
 		"""
 
 		make_trap_from_vertices(v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z, v4x, v4y, v4z, v5x, v5y, v5z, v6x, v6y,
@@ -582,12 +598,13 @@ class GVolume:
 			self.make_trap_from_right_angular_wedges(self, *params, lunit1)
 		elif len(params) == 11:
 			self.make_general_trapezoid(params[0], params[1], params[2], params[3], params[4],
-										params[5], params[6], params[7], params[8], params[9],
-										params[10], lunit1, lunit2)
+			                            params[5], params[6], params[7], params[8], params[9],
+			                            params[10], lunit1, lunit2)
 		elif len(params) == 24:
 			self.make_trap_from_vertices(self, *params, lunit1)
 		else:
-			sys.exit(' Error: the G4Trap eight points constructor parameter must be an array with 24 points')
+			sys.exit(
+				' Error: the G4Trap eight points constructor parameter must be an array with 24 points')
 
 	def make_sphere(self, rmin, rmax, sphi, dphi, stheta, dtheta, lunit1='mm', lunit2='deg'):
 		"""
@@ -611,9 +628,9 @@ class GVolume:
 		self.solid = WILLBESET
 		self.solid = 'G4Sphere'
 		dimensions = str(rmin) + '*' + lunit1 + ', ' \
-					 + str(rmax) + '*' + lunit1 + ', ' \
-					 + str(sphi) + '*' + lunit2 + ', ' + str(dphi) + '*' + lunit2 + ', ' \
-					 + str(stheta) + '*' + lunit2 + ', ' + str(dtheta) + '*' + lunit2
+		             + str(rmax) + '*' + lunit1 + ', ' \
+		             + str(sphi) + '*' + lunit2 + ', ' + str(dphi) + '*' + lunit2 + ', ' \
+		             + str(stheta) + '*' + lunit2 + ', ' + str(dtheta) + '*' + lunit2
 		self.parameters = dimensions
 
 	# "G4Orb": "Full Solid Sphere",
@@ -621,7 +638,8 @@ class GVolume:
 
 	# in polycone the zplane and radius order are swapped w.r.t. gemc2 implementation
 	# in order to match the geant4 constructor
-	def make_polycone(self, phiStart, phiTotal, zplane, iradius, oradius, lunit1='mm', lunit2='deg'):
+	def make_polycone(self, phiStart, phiTotal, zplane, iradius, oradius, lunit1='mm',
+	                  lunit2='deg'):
 		"""
 		make_polycone(phiStart, phiTotal, zplane, iradius, oradius, lunit1='mm', lunit2='deg')
 
@@ -648,7 +666,8 @@ class GVolume:
 		nplanes = len(zplane)
 		if not len(iradius) == nplanes and not len(oradius) == nplanes:
 			sys.exit(
-				' Error: the G4Polycone array lengths do not match: zplane=' + str(len(zplane)) + ', iradius=' + str(
+				' Error: the G4Polycone array lengths do not match: zplane=' + str(
+					len(zplane)) + ', iradius=' + str(
 					len(iradius)) + ', oradius=' + str(len(oradius)))
 
 		self.solid = 'G4Polycone'

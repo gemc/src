@@ -19,6 +19,6 @@ verbosity:
 
 gsystem:
   - name: b1
+    factory: sqlite
 
-root: G4Box, 10*cm, 10*cm, 15*cm, G4_WATER
 phys_list: QBBC

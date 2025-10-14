@@ -252,15 +252,18 @@ double GOptions::getScalarDouble(const std::string &tag) const {
  * @param tag The name of the option.
  * @return The string value.
  */
-string GOptions::getScalarString(const std::string &tag) const {
+std::string GOptions::getScalarString(const std::string &tag) const {
 	auto it = getOptionIterator(tag);
 	if (it == goptions.end()) {
-		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR
-			 << " was not found." << endl;
-		exit(EC__NOOPTIONFOUND);
+		std::cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR
+				  << " was not found." << std::endl;
+		std::exit(EC__NOOPTIONFOUND);
 	}
-	return it->value.begin()->second.as<string>();
+	const YAML::Node node = it->value.begin()->second;
+	if (node.IsNull()) return "NULL";   // force the exact sentinel you prefer
+	return node.as<std::string>();
 }
+
 
 /**
  * @brief Prints detailed help for a specific option or switch.

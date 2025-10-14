@@ -80,8 +80,7 @@ WILLBESETSTRING     = 'notSetYet'
 WILLBESETNUMBER     = -987654
 
 # for optionals fields
-NOTASSIGNEDSTRING = 'na'
-NOTASSIGNEDNUMBER = -1
+NOTASSIGNED = None
 
 ISCHEMICAL   = "ISCHEMICAL"
 ISFRACTIONAL = "ISFRACTIONAL"
@@ -105,27 +104,27 @@ class GMaterial():
 		self.totComposition = 0
 
 		# optional fields (have default values)
-		self.description        = NOTASSIGNEDSTRING
+		self.description        = NOTASSIGNED
 
 		# optical parameters
-		self.photonEnergy       = NOTASSIGNEDSTRING
-		self.indexOfRefraction  = NOTASSIGNEDSTRING
-		self.absorptionLength   = NOTASSIGNEDSTRING
-		self.reflectivity       = NOTASSIGNEDSTRING
-		self.efficiency         = NOTASSIGNEDSTRING
+		self.photonEnergy       = NOTASSIGNED
+		self.indexOfRefraction  = NOTASSIGNED
+		self.absorptionLength   = NOTASSIGNED
+		self.reflectivity       = NOTASSIGNED
+		self.efficiency         = NOTASSIGNED
 
 		# scintillation parameters
-		self.fastcomponent      = NOTASSIGNEDSTRING
-		self.slowcomponent      = NOTASSIGNEDSTRING
-		self.scintillationyield = NOTASSIGNEDNUMBER
-		self.resolutionscale    = NOTASSIGNEDNUMBER
-		self.fasttimeconstant   = NOTASSIGNEDNUMBER
-		self.slowtimeconstant   = NOTASSIGNEDNUMBER
-		self.yieldratio         = NOTASSIGNEDNUMBER
-		self.birksConstant      = NOTASSIGNEDNUMBER
+		self.fastcomponent      = NOTASSIGNED
+		self.slowcomponent      = NOTASSIGNED
+		self.scintillationyield = NOTASSIGNED
+		self.resolutionscale    = NOTASSIGNED
+		self.fasttimeconstant   = NOTASSIGNED
+		self.slowtimeconstant   = NOTASSIGNED
+		self.yieldratio         = NOTASSIGNED
+		self.birksConstant      = NOTASSIGNED
 
 		# other optical processes
-		self.rayleigh           = NOTASSIGNEDSTRING
+		self.rayleigh           = NOTASSIGNED
 
 	def check_validity(self):
 		# need to add checking if it's operation instead
@@ -142,41 +141,69 @@ class GMaterial():
 			if not math.isclose(self.totComposition, 1, rel_tol=1e-6):
 				sys.exit(' Error: fractional masses do not add to 1 for material: ' + str(self.name) )
 
+	def entry_to_ascii(self, v):
+		"""
+		Normalize Python-side 'empty' values for ascii output.
+		- None                         -> 'NULL'
+		- NOTASSIGNEDNUMBER / WILLBESETNUMBER -> 'NULL'
+		- empty/legacy sentinel strings -> 'NULL'
+		- lists/tuples                 -> space-joined string
+		- everything else              -> str(v).strip()
+		"""
+		# Use module-level constants directly (no import from __main__)
+		if v is None:
+			return "NULL"
+
+		# Handle numeric sentinels
+		if isinstance(v, (int, float)) and v in (NOTASSIGNED, WILLBESETNUMBER):
+			return "NULL"
+
+		# Join sequences defensively
+		if isinstance(v, (list, tuple)):
+			return " ".join(map(str, v))
+
+		# Handle strings (including legacy sentinels / blank)
+		if isinstance(v, str):
+			s = v.strip()
+			if s == "" or s in (NOTASSIGNED, WILLBESETSTRING):
+				return "NULL"
+			return s
+
+		return str(v)
+
 	def publish(self, configuration):
 		self.check_validity()
-		# TEXT factory
+
 		if configuration.factory == 'ascii':
 			fileName = configuration.matFileName
 			configuration.nmaterials += 1
 			with open(fileName, 'a+') as dn:
-				lstr = ''
-				lstr += '%s | ' % self.name
-				lstr += '%s | ' % self.density
-				lstr += '%s | ' % self.composition
-				lstr += '%s | ' % self.description
+				fields = [
+					self.name,
+					self.density,
+					self.composition,
+					self.description,
+					# optical parameters
+					self.photonEnergy,
+					self.indexOfRefraction,
+					self.absorptionLength,
+					self.reflectivity,
+					self.efficiency,
+					# scintillation parameters
+					self.fastcomponent,
+					self.slowcomponent,
+					self.scintillationyield,
+					self.resolutionscale,
+					self.fasttimeconstant,
+					self.slowtimeconstant,
+					self.yieldratio,
+					self.birksConstant,
+					# other optical processes
+					self.rayleigh,
+				]
+				line = " " + " | ".join(self.entry_to_ascii(f) for f in fields) + " |\n"
+				dn.write(line)
 
-				# optical parameters
-				lstr += '%s | ' % self.photonEnergy
-				lstr += '%s | ' % self.indexOfRefraction
-				lstr += '%s | ' % self.absorptionLength
-				lstr += '%s | ' % self.reflectivity
-				lstr += '%s | ' % self.efficiency
-
-				# scintillation parameters
-				lstr += '%s | ' % self.fastcomponent
-				lstr += '%s | ' % self.slowcomponent
-				lstr += '%s | ' % self.scintillationyield
-				lstr += '%s | ' % self.resolutionscale
-				lstr += '%s | ' % self.fasttimeconstant
-				lstr += '%s | ' % self.slowtimeconstant
-				lstr += '%s | ' % self.yieldratio
-				lstr += '%s | ' % self.birksConstant
-
-				# other optical processes
-				lstr += '%s |\n' % self.rayleigh
-
-				dn.write(lstr)
-		# sqlite factory
 		elif configuration.factory == 'sqlite':
 			configuration.nmaterials += 1
 			populate_sqlite_materials(self, configuration)
