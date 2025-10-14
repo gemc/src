@@ -54,7 +54,7 @@ LD += {
         'gsystemFactories/gdml/systemGdmlFactory.h',
         'gsystemFactories/sqlite/systemSqliteFactory.h',
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps, sqlite_dep],
     'additional_includes' : ['gsystem',
                              'gsystem/gsystemFactories',
                              'gsystem/gsystemFactories/cad',
