@@ -23,7 +23,7 @@ debug:
 
 gsystem:
   - name: b3
-    factory: ascii
+    factory: sqlite
 
 gmultipoles:
   - name: dipole

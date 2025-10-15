@@ -32,6 +32,7 @@ G4VSolid* G4ObjectsFactory::getSolidFromMap(const std::string&                  
 	return (it != g4s->end()) ? it->second->getSolid() : nullptr;
 }
 
+
 G4LogicalVolume* G4ObjectsFactory::getLogicalFromMap(const std::string&                          volume_name,
                                                      std::unordered_map<std::string, G4Volume*>* g4s) {
 	auto it = g4s->find(volume_name);
@@ -94,8 +95,20 @@ G4LogicalVolume* G4ObjectsFactory::buildLogical(const GVolume*                  
 	auto              thisG4Volume = getOrCreateG4Volume(g4name, g4s);
 
 
+	// logical exists, return it
 	if (thisG4Volume->getLogical()) return thisG4Volume->getLogical();
-	if (!thisG4Volume->getSolid()) return nullptr; // dependency, check here
+
+	// copy logical exists, return it
+	std::string copyOf = s->getCopyOf();
+	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+		auto gsystem      = s->getSystem();
+		auto volume_copy  = gsystem + "/" + copyOf;
+		auto copyG4Volume = getOrCreateG4Volume(volume_copy, g4s);
+		if (copyG4Volume->getLogical() != nullptr) {
+			return copyG4Volume->getLogical();
+		}
+	}
+
 
 	// material lookup
 	auto* nist = G4NistManager::Instance();
@@ -124,13 +137,25 @@ G4VPhysicalVolume* G4ObjectsFactory::buildPhysical(const GVolume*               
 	if (!s->getExistence()) return nullptr;
 	if (!checkPhysicalDependencies(s, g4s)) return nullptr;
 
-	const std::string g4name       = s->getG4Name();
-	auto              thisG4Volume = getOrCreateG4Volume(g4name, g4s);
+	const std::string g4name        = s->getG4Name();
+	auto              thisG4Volume  = getOrCreateG4Volume(g4name, g4s);
+	auto              logicalVolume = thisG4Volume->getLogical();
+
+	// copy logical exists, builds from it
+	std::string copyOf = s->getCopyOf();
+	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+		auto gsystem      = s->getSystem();
+		auto volume_copy  = gsystem + "/" + copyOf;
+		auto copyG4Volume = getOrCreateG4Volume(volume_copy, g4s);
+		if (copyG4Volume->getLogical() != nullptr) {
+			logicalVolume = copyG4Volume->getLogical();
+		}
+	}
 
 	if (!thisG4Volume->getPhysical()) {
 		thisG4Volume->setPhysical(new G4PVPlacement(getRotation(s),
 		                                            getPosition(s),
-		                                            thisG4Volume->getLogical(),
+		                                            logicalVolume,
 		                                            g4name,
 		                                            getLogicalFromMap(s->getG4MotherName(), g4s),
 		                                            false,
@@ -145,16 +170,10 @@ G4VPhysicalVolume* G4ObjectsFactory::buildPhysical(const GVolume*               
 bool G4ObjectsFactory::build_g4volume(const GVolume*                              s,
                                       std::unordered_map<std::string, G4Volume*>* g4s) {
 	const auto name = s->getG4Name();
-	// log->info(2, className(), " loadG4System: building <", name, ">");
 
 	auto sbuild = buildSolid(s, g4s);
-	// log->info(2, className(), " loadG4System: buildSolid <", name, ">");
-
 	auto lbuild = buildLogical(s, g4s);
-	// log->info(2, className(), " loadG4System: buildLogical <", name, ">");
-
 	auto pbuild = buildPhysical(s, g4s);
-	// log->info(2, className(), " loadG4System: buildPhysical <", name, ">");
 
 	const bool okSolid    = (sbuild != nullptr);
 	const bool okLogical  = (lbuild != nullptr);

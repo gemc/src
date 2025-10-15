@@ -9,53 +9,29 @@
 bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
                                               std::unordered_map<std::string,
                                                                  G4Volume*>* g4s) {
-
 	// checking if it's a copy, replica or solid operation – they are mutually exclusive
 	std::string copyOf    = s->getCopyOf();
 	std::string solidsOpr = s->getSolidsOpr();
+	std::string gsystem = s->getSystem();
 
 	std::string message;
-	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
-		message = ", copyOf: " + copyOf;
-	}
-	else if (solidsOpr != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
-		message = ", solidsOpr: " + solidsOpr;
-	}
+
+	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) { message = ", copyOf: " + copyOf; }
+	else if (solidsOpr != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) { message = ", solidsOpr: " + solidsOpr; }
 
 	log->debug(NORMAL, className(), " checkSolidDependencies: checking dependencies for <",
-		s->getName(), ">", message);
+	           s->getName(), ">", message);
 
 
 	/*──────────────────────────────────── copyOf: volumeName ───────────────────────────────────*/
 	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
-		std::vector<std::string> copies = gutilities::getStringVectorFromString(copyOf);
-
-		if (copies.size() == 2) {
-
-			// first string must be copyOf
-			if (copies[0] == "copyOf:") {
-				// checking if the copy solid exists
-				log->info(2, "<", s->getName(), "> is a copy of <", copies[1], ">");
-
-				if (getSolidFromMap(copies[1], g4s) != nullptr) {
-					log->info(2, "which already exists");
-					return true;
-				}
-				else {
-					log->info(2, "which does not exist yet");
-					return false;
-				}
-			}
-			else {
-				log->warning("Did you intend to make a copy? The first token must be \"copyOf:\" but you have " +
-				              copies[0]);
-				return false;
-			}
+		auto volume_copy = gsystem + "/" + copyOf;
+		if (getSolidFromMap(volume_copy, g4s) != nullptr) {
+			log->info(2, "<", s->getName(), "> is a copy of <", volume_copy, ">, which already exists");
+			return true;
 		}
-		else {
-			log->warning("Did you intend to make a copy? Syntax is \"copyOf:\" volumeName, but you have " + copyOf);
-			return false;
-		}
+		log->info(2, "<", s->getName(), "> is a copy of <", volume_copy, ">, which already exists, which does not exist yet");
+		return false;
 	}
 
 
@@ -77,15 +53,14 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
 	}
 
 
-
 	/*────────────────────────────────────    default path     ──────────────────────────────────*/
 	return true; // ordinary primitive – no extra prerequisites
 }
 
 bool G4ObjectsFactory::checkLogicalDependencies([[maybe_unused]] const GVolume* s,
                                                 [[maybe_unused]] std::unordered_map<std::string,
-	                                                G4Volume*>* g4s) {
-	// PRAGMA TODO: check material here
+                                                                                    G4Volume*>* g4s) {
+	// PRAGMA TODO: check material here?
 	return true;
 }
 
@@ -109,25 +84,37 @@ bool G4ObjectsFactory::checkPhysicalDependencies(const GVolume* s,
 
 	/* candidate logical must exist */
 	if (getLogicalFromMap(vname, g4s) == nullptr) {
-		log->info(2, "dependencies: ", vname, " logical volume not found yet.");
-		return false;
+
+		// copy physical exists, return it
+		std::string copyOf    = s->getCopyOf();
+		if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+			auto gsystem = s->getSystem();
+			auto volume_copy = gsystem + "/" + copyOf;
+			if (getLogicalFromMap(volume_copy, g4s) == nullptr) {
+			log->info(2, "dependencies: copy ", volume_copy, " logical volume not found yet.");
+				return false;
+			}
+		} else {
+			log->info(2, "dependencies: ", vname, " logical volume not found yet.");
+			return false;
+		}
 	}
 
 	/* mother logical must exist (unless WORLD volume) */
 	if (motherName != MOTHEROFUSALL && getLogicalFromMap(motherName, g4s) == nullptr) {
 		log->info(2, "dependencies: ", vname,
-		           " mother <", motherName, "> logical volume not found yet.");
+		          " mother <", motherName, "> logical volume not found yet.");
 		return false;
 	}
 
 	/* everything satisfied – emit verbose trace */
 	if (motherName != MOTHEROFUSALL) {
 		log->info(2, "dependencies: <", vname, "> and mother <", motherName,
-		           "> logical volumes are found. Ready to build or get physical volume.");
+		          "> logical volumes are found. Ready to build or get physical volume.");
 	}
 	else {
 		log->info(2, "dependencies: <", vname,
-		           "> logical volume is found. Ready to build or get physical volume.");
+		          "> logical volume is found. Ready to build or get physical volume.");
 	}
 	return true;
 }

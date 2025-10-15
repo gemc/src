@@ -44,7 +44,18 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 
 	/*────────── locate or allocate G4Volume ──────────*/
 	auto thisG4Volume = getOrCreateG4Volume(g4name, g4s);
+
+	// solid exists, return it
 	if (thisG4Volume->getSolid() != nullptr) return thisG4Volume->getSolid();
+
+	// copy exists, return it
+	std::string copyOf    = s->getCopyOf();
+	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+		auto gsystem = s->getSystem();
+		auto volume_copy = gsystem + "/" + copyOf;
+		auto thisG4Volume = getOrCreateG4Volume(volume_copy, g4s);
+		if (thisG4Volume->getSolid() != nullptr) return thisG4Volume->getSolid();
+	}
 
     // geant4 solids definitions:
     // https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Detector/Geometry/geomSolids.html

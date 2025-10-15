@@ -41,7 +41,16 @@ def build_geometry(configuration):
 
 	OG = -0.5 * (detector_dZ + cryst_dX)
 
-	for icrys in range(nb_rings):
+	gvolume = GVolume(f'Ring1')
+	gvolume.description = f'Ring1'
+	gvolume.make_tube(ring_R1, ring_R2, 0.5* cryst_dX, 0, 360)
+	gvolume.set_position(0, 0, OG)
+	gvolume.material = 'G4_AIR'
+	gvolume.style = 0
+	gvolume.publish(configuration)
+
+
+	for icrys in range(2, nb_rings):
 		# phi_rot = icrys * dPhi
 		#
 		# c = (ring_R1 + 0.5 * cryst_dZ)
@@ -51,8 +60,8 @@ def build_geometry(configuration):
 
 		gvolume = GVolume(f'Ring{icrys}')
 		gvolume.description = f'Ring{icrys}'
-		gvolume.make_tube(ring_R1, ring_R2, 0.5* cryst_dX, 0, 360)
+		gvolume.copyOf = 'Ring1'
 		gvolume.set_position(0, 0, OG)
 		gvolume.material = 'G4_AIR'
-		gvolume.visible = 0
+
 		gvolume.publish(configuration)

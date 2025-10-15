@@ -77,18 +77,20 @@ std::ostream& operator<<(std::ostream& stream, const GVolume& gVol) {
 
 	stream << std::endl;
 	stream << "   - Name:            " << gVol.name << "  -  " << gVol.description << std::endl;
-	stream << "   - System:       " << gVol.system << std::endl;
+	stream << "   - System:         " << gVol.system << std::endl;
 	stream << "   - Variation:       " << gVol.variation << std::endl;
 	stream << "   - Run Number:      " << gVol.runno << std::endl;
-	stream << "   - Type:            " << gVol.type << std::endl;
-	stream << "   - Parameters:      " << gVol.parameters << std::endl;
+	if (gVol.copyOf != "" && gVol.copyOf != UNINITIALIZEDSTRINGQUANTITY) stream << "   - copyOf:          " << gVol.copyOf << std::endl;
+	if (gVol.solidsOpr != "" && gVol.solidsOpr != UNINITIALIZEDSTRINGQUANTITY) stream << "   - solidsOpr:            " << gVol.solidsOpr << std::endl;
+	if (gVol.type != "" && gVol.type != UNINITIALIZEDSTRINGQUANTITY) stream << "   - Type:            " << gVol.type << std::endl;
+	if (gVol.parameters != "" && gVol.parameters != UNINITIALIZEDSTRINGQUANTITY) stream << "   - Parameters:      " << gVol.parameters << std::endl;
 	stream << "   - Material:        " << gVol.material << std::endl;
 	stream << "   - Mother:          " << gVol.motherName << std::endl;
 	stream << "   - Positions:       " << gVol.pos << std::endl;
 	stream << "   - Rotation(s):     " << gVol.rot << std::endl;
-	stream << "   - E.M. Field:      " << gVol.emfield << std::endl;
-	stream << "   - Digitization:    " << gVol.digitization << std::endl;
-	stream << "   - GIdentity:       " << gVol.gidentity << std::endl;
+	if (gVol.emfield != "" && gVol.emfield != UNINITIALIZEDSTRINGQUANTITY) stream << "   - E.M. emfield:      " << gVol.emfield << std::endl;
+	if (gVol.digitization != "" && gVol.digitization != UNINITIALIZEDSTRINGQUANTITY) stream << "   - Digitization:    " << gVol.digitization << std::endl;
+	if (gVol.gidentity != "" && gVol.gidentity != UNINITIALIZEDSTRINGQUANTITY) stream << "   - GIdentity:       " << gVol.gidentity << std::endl;
 	stream << "   - Col, Vis, Style: " << gVol.color << ", " << visibility << ", " << style << std::endl;
 	stream << std::endl;
 

@@ -75,8 +75,6 @@
 # - description		- A description of the volume. Default is "no description"
 import sys
 
-WILLBESET = 'notSetYet'  # for mandatory fields. Used in function check_validity
-NOTAPPLICABLE = None  # for optionals fields
 DEFAULTMOTHER = 'root'
 DEFAULTCOLOR = '778899'
 
@@ -90,31 +88,31 @@ class GVolume:
 	def __init__(self, name):
 		# mandatory fields. Checked at publish time
 		self.name = name
-		self.solid = WILLBESET
-		self.parameters = WILLBESET
-		self.material = WILLBESET
+		self.solid = None
+		self.parameters = None
+		self.material = None
 
 		# optional fields
 		self.mother = DEFAULTMOTHER
 		self.position = '0*mm, 0*mm, 0*mm'
 		self.rotations = ['0*deg, 0*deg, 0*deg']
-		self.mfield = NOTAPPLICABLE
+		self.mfield = None
 
 		self.visible = 1  # 0 is invisible, 1 is visible
 		self.style = 1  # 0 is wireframe, 1 is solid
 		self.color = DEFAULTCOLOR  # stored for pyvista use
 		self.gcolor = DEFAULTCOLOR  # this one goes to the databases
 
-		self.digitization = NOTAPPLICABLE
-		self.identifier = NOTAPPLICABLE
+		self.digitization = None
+		self.identifier = None
 
-		self.copyOf = NOTAPPLICABLE
-		self.solidsOpr = NOTAPPLICABLE
+		self.copyOf = None
+		self.solidsOpr = None
 
-		self.mirror = NOTAPPLICABLE
+		self.mirror = None
 
 		self.exist = 1  # 0 does not exist, 1 exists
-		self.description = NOTAPPLICABLE
+		self.description = None
 
 	def set_rotation(self, x, y, z, lunit='deg', order=''):
 		with_units = [
@@ -147,11 +145,11 @@ class GVolume:
 
 	def check_validity(self):
 		# need to add checking if it's operation instead
-		if self.solid == WILLBESET:
+		if self.solid == None and self.copyOf == None:
 			sys.exit(' Error: solid not defined for GVolume ' + str(self.name))
-		if self.parameters == WILLBESET:
+		if self.parameters == None and self.copyOf == None:
 			sys.exit(' Error: parameters not defined for GVolume ' + str(self.name))
-		if self.material == WILLBESET:
+		if self.material == None:
 			sys.exit(' Error: material not defined for GVolume ' + str(self.name))
 
 	# Pass a List to a Function as Multiple Arguments
@@ -255,7 +253,6 @@ class GVolume:
 		> templates.py -gv G4Box
 		"""
 
-		self.solid = WILLBESET
 		self.solid = 'G4Box'
 		my_lengths: str = str(dx) + '*' + lunit + ', '
 		my_lengths += str(dy) + '*' + lunit + ', '
@@ -625,7 +622,6 @@ class GVolume:
 		lunit2: angle unit (optional; default: deg)
 
 		"""
-		self.solid = WILLBESET
 		self.solid = 'G4Sphere'
 		dimensions = str(rmin) + '*' + lunit1 + ', ' \
 		             + str(rmax) + '*' + lunit1 + ', ' \

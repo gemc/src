@@ -78,7 +78,22 @@ void GDetectorConstruction::ConstructSDandField() {
 			auto*       g4volume         = g4world->getG4Volume(g4name)->getLogical();
 
 			// Ensure the Geant4 logical volume exists.
-			if (g4volume == nullptr) { log->error(ERR_GVOLUMENOTFOUND, "GDetectorConstruction::ConstructSDandField", "Logical volume <" + g4name + "> not found."); }
+			if (g4volume == nullptr) {
+				std::string copyOf = gvolumePtr->getCopyOf();
+				if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+					auto gsystem      = gvolumePtr->getSystem();
+					auto volume_copy  = gsystem + "/" + copyOf;
+					auto copyG4Volume = g4world->getG4Volume(volume_copy)->getLogical();
+					if (copyG4Volume != nullptr) { g4volume = copyG4Volume; }
+					else {
+						log->error(ERR_GVOLUMENOTFOUND, FUNCTION_NAME, " Logical volume copy <" + volume_copy + "> not found.");
+					}
+				}
+			}
+			if (g4volume == nullptr) {
+						log->error(ERR_GVOLUMENOTFOUND, FUNCTION_NAME, " Logical volume <" + g4name + "> not found.");
+			}
+
 
 			// Skip volumes with no digitization.
 			if (digitizationName != "" && digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
@@ -152,7 +167,6 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 
 
 void GDetectorConstruction::reload_geometry(SystemList sl) {
-
 	// it could be empty for tests
 	if (!sl.empty()) {
 		// Use vector assignment to update the local systems.
