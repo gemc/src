@@ -4,8 +4,8 @@ n: 5
 nthreads: 12
 
 gparticle:
-  - name: gamma
-    p: 6
+  - name: proton
+    p: 2
     vz: -17
     delta_vx: 8
     delta_vy: 8
@@ -18,7 +18,7 @@ verbosity:
   - gemc: 0
 
 gsystem:
-  - name: b1
+  - name: simple_flux
     factory: sqlite
 
 phys_list: QBBC

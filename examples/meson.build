@@ -9,8 +9,10 @@ install_subdir(meson.current_source_dir(), install_dir : '.')
 # Test all solid creators
 examples_map = {
     'basic' : {
+        'simple_flux' : { 'runs' : ['1'], 'variations' : ['default'] },
         'b1' : { 'runs' : ['1'], 'variations' : ['default', 'test'] },
-        'b2' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] }
+        'b2' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] },
+        'b3' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] }
     }
 }
 

@@ -1,7 +1,7 @@
 
-|  [![gemc][gemc-logo]][gemc-home]  |
-|:---------------------------------:|
-|      Geant4 Basic Example B1      |
+| [![gemc][gemc-logo]][gemc-home] |
+|:-------------------------------:|
+|       GEMC Basic Examples       |
 
 ---
 
