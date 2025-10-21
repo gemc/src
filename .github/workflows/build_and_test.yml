@@ -384,6 +384,5 @@ jobs:
           name: summary-${{ matrix.gemc_tag }}-${{ matrix.image }}-manifest
           path: |
             ${{ runner.temp }}/manifest_summary.md
-            ${{ runner.temp }}/artifacts
           if-no-files-found: warn
 
