@@ -268,6 +268,21 @@ class GConfiguration:
 				p.show()
 
 
+# utils_api.py
+import atexit
+
+def autogeometry(experiment: str, application: str, auto_show: bool = True):
+	"""
+	Returns a GConfiguration immediately and arranges .show() at process exit.
+	Great for simple scripts at module top level.
+	"""
+	from utils_api import GConfiguration  # avoid circular import
+	cfg = GConfiguration(experiment, application)
+	if auto_show:
+		atexit.register(lambda: cfg.show())
+	return cfg
+
+
 # The following code allows this module to be executed as a main python script for the purpose of testing the functions
 # To test, type:  'python utils.py' on the command line
 if __name__ == "__main__":
