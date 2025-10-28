@@ -282,12 +282,3 @@ def autogeometry(experiment: str, application: str, auto_show: bool = True):
 		atexit.register(lambda: cfg.show())
 	return cfg
 
-
-# The following code allows this module to be executed as a main python script for the purpose of testing the functions
-# To test, type:  'python utils.py' on the command line
-if __name__ == "__main__":
-	system1 = GConfiguration("examples", "ctof")
-	system1.show()
-
-	system2 = GConfiguration("examples", "dc")
-	system2.show()
