@@ -48,11 +48,12 @@ G4VPhysicalVolume* G4ObjectsFactory::getPhysicalFromMap(const std::string&      
 
 G4VisAttributes G4ObjectsFactory::createVisualAttributes(const GVolume* s) {
 	std::string_view color = s->getColor();
+	double opacity = s->getOpacity();
 
-	const auto g4color = gutilities::makeColour(color);
+	const auto g4color = gutilities::makeG4Colour(color, opacity);
 
 	log->info(2, className(), " createVisualAttributes for color ", color,
-	          " resulted in RGB = (", g4color.GetRed(), ", ", g4color.GetGreen(), ", ", g4color.GetBlue(), ")");
+	          " resulted in RGB = (", g4color.GetRed(), ", ", g4color.GetGreen(), ", ", g4color.GetBlue(), ", opacity: ", opacity, ")");
 
 	G4VisAttributes attr(g4color);
 
@@ -153,8 +154,10 @@ G4VPhysicalVolume* G4ObjectsFactory::buildPhysical(const GVolume*               
 	}
 
 	if (!thisG4Volume->getPhysical()) {
-		thisG4Volume->setPhysical(new G4PVPlacement(getRotation(s),
-		                                            getPosition(s),
+		G4RotationMatrix rotation_instance = *getRotation(s);
+		G4ThreeVector    translation_instance = getPosition(s);
+
+		thisG4Volume->setPhysical(new G4PVPlacement( G4Transform3D(rotation_instance, translation_instance),
 		                                            logicalVolume,
 		                                            g4name,
 		                                            getLogicalFromMap(s->getG4MotherName(), g4s),
@@ -162,6 +165,20 @@ G4VPhysicalVolume* G4ObjectsFactory::buildPhysical(const GVolume*               
 		                                            s->getPCopyNo(),
 		                                            checkOverlaps > 0),
 		                          log);
+
+		// passive rotation
+		// thisG4Volume->setPhysical(new G4PVPlacement(getRotation(s),
+		//                                             getPosition(s),
+		//                                             logicalVolume,
+		//                                             g4name,
+		//                                             getLogicalFromMap(s->getG4MotherName(), g4s),
+		//                                             false,
+		//                                             s->getPCopyNo(),
+		//                                             checkOverlaps > 0),
+		//                           log);
+
+
+
 	}
 	return thisG4Volume->getPhysical();
 }
