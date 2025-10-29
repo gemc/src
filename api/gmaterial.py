@@ -85,7 +85,7 @@ NOTASSIGNED = None
 ISCHEMICAL   = "ISCHEMICAL"
 ISFRACTIONAL = "ISFRACTIONAL"
 
-from gemc_sqlite import populate_sqlite_materials
+from gsqlite import populate_sqlite_materials
 
 # Material class definition
 class GMaterial():

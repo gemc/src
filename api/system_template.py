@@ -140,7 +140,7 @@ def write_templates(system, variations):
 		ps.write('#!/usr/bin/env python3\n\n')
 		ps.write('# python:\n')
 		ps.write('# api:\n')
-		ps.write('from utils_api import GConfiguration\n\n')
+		ps.write('from gconfiguration import GConfiguration\n\n')
 		ps.write(f'# {system}:\n')
 		ps.write('from materials import define_materials\n')
 		ps.write(f'from geometry import build_{system}\n\n')
@@ -157,7 +157,7 @@ def write_templates(system, variations):
 
 	# ask_to_overwrite_file(mat_script)
 	with open(f'{mat_script}', 'w') as pm:
-		pm.write('from materials_api import GMaterial\n\n')
+		pm.write('from gmaterial import GMaterial\n\n')
 		pm.write('def define_materials(configuration):\n\n')
 		pm.write('# example of material: epoxy glue, defined with number of atoms\n')
 		pm.write('	gmaterial = GMaterial("epoxy")\n')
@@ -178,7 +178,7 @@ def write_templates(system, variations):
 
 	# ask_to_overwrite_file(geo_script)
 	with open(f'{geo_script}', 'w') as pg:
-		pg.write('from geometry_api import GVolume\n')
+		pg.write('from gvolume import GVolume\n')
 		pg.write('import math\n\n')
 		pg.write('# These are example of methods to build a mother and daughter volume.\n\n')
 		pg.write(f'def build_{system}(configuration):\n')
@@ -389,14 +389,14 @@ def log_gvolume_from_defs(subroutine_name, volume_definitions, write_to):
 	if write_to != NGIVEN:
 		print(f' Writing to file: {write_to}')
 		with open(f'{write_to}', 'w') as pv:
-			pv.write('from geometry_api import GVolume\n\n')
+			pv.write('from gvolume import GVolume\n\n')
 			pv.write(f'def {subroutine_name}(configuration):\n')
 			for vd in volume_definitions:
 				pv.write(f' {vd}\n')
 		print()
 	else:
 		print()
-		print('from geometry_api import GVolume\n')
+		print('from gvolume import GVolume\n')
 		print(f'def {subroutine_name}(configuration):')
 		for vd in volume_definitions:
 			print(f'    {vd}')

@@ -100,7 +100,6 @@ for k in list(_NAME_TO_HEX.keys()):
 # assumes _NAME_TO_HEX exists above
 
 _HEX6_RE = re.compile(r'^#?([0-9a-f]{6})$', re.IGNORECASE)
-_HEX7_RE = re.compile(r'^#?([0-9a-f]{6})([0-5])$', re.IGNORECASE)  # RGB + transparency digit 0..5
 _HEX3_RE = re.compile(r'^#?([0-9a-f]{3})$', re.IGNORECASE)  # allow #RGB/RGB -> expand
 _IS_NUM = re.compile(r'^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$')
 
@@ -123,10 +122,6 @@ def pyvista_color_to_hex(name: str) -> str:
 
 	s = _strip_weird_spaces(name).strip().lower()
 
-	# --- hex forms (with or without '#')
-	if (m := _HEX7_RE.fullmatch(s)):
-		# 7-digit: keep full string (RGB + transparency digit)
-		return (m.group(1) + m.group(2)).upper()
 	if (m := _HEX6_RE.fullmatch(s)):
 		return m.group(1).upper()
 	if (m := _HEX3_RE.fullmatch(s)):
@@ -150,38 +145,3 @@ def pyvista_color_to_hex(name: str) -> str:
 
 	raise ValueError(f"Unknown color name or hex (expect 6 hex digits or 6+transparency): {name!r}")
 
-
-def pyvista_gcolor_to_pcolor_and_opacity(color_str: str, default_opacity: float = 1.0):
-	"""
-	Convert 'RRGGBB' or 'RRGGBB[T]' (T in 0..5; 5 = fully transparent) to:
-	  ( (r,g,b) in 0..1, opacity in 0..1 )
-
-	Accepts optional prefixes ('#', '0x') and ignores surrounding whitespace.
-	"""
-	s = color_str.strip().lower()
-	if s.startswith('#'):
-		s = s[1:]
-	if s.startswith('0x'):
-		s = s[2:]
-
-	# Optional trailing transparency digit 0..5
-	t_level = None
-	if len(s) == 7 and s[-1].isdigit():
-		t_level = int(s[-1])
-		s = s[:-1]
-
-	if len(s) != 6 or not re.fullmatch(r'[0-9a-f]{6}', s):
-		raise ValueError(f"Invalid color string: {color_str!r} (expected RRGGBB or RRGGBB[T])")
-
-	r = int(s[0:2], 16) / 255.0
-	g = int(s[2:4], 16) / 255.0
-	b = int(s[4:6], 16) / 255.0
-
-	if t_level is None:
-		opacity = float(default_opacity)
-	else:
-		# transparency level: 0 (opaque) … 5 (fully transparent)
-		t_level = max(0, min(5, t_level))
-		opacity = 1.0 - (t_level / 5.0)
-
-	return (r, g, b), opacity

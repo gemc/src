@@ -78,9 +78,9 @@ import sys
 DEFAULTMOTHER = 'root'
 DEFAULTCOLOR = '778899'
 
-from gemc_sqlite import populate_sqlite_geometry
-from pyvista_api import render_volume
-from g4_colors import pyvista_color_to_hex
+from gsqlite import populate_sqlite_geometry
+from pyvista_api import render_volume, gmesh_to_geant4_solid_and_params
+from gcolors import pyvista_color_to_hex
 
 
 # GVolume class definition
@@ -101,6 +101,7 @@ class GVolume:
 		self.visible = 1  # 0 is invisible, 1 is visible
 		self.style = 1  # 0 is wireframe, 1 is solid
 		self.color = DEFAULTCOLOR  # stored for pyvista use
+		self.opacity = 1
 		self.gcolor = DEFAULTCOLOR  # this one goes to the databases
 
 		self.digitization = None
@@ -200,6 +201,7 @@ class GVolume:
 					self.visible,
 					self.style,
 					self.gcolor,  # keep ascii using gcolor as before
+					self.opacity,
 					self.digitization,
 					self.identifier,
 					self.copyOf,
@@ -678,3 +680,89 @@ class GVolume:
 		# last element w/o the extra comment
 		mylengths += str(oradius[-1]) + '*' + lunit1
 		self.parameters = f'{phiStart}*{lunit2}, {phiTotal}*{lunit2}, {nplanes}, {mylengths}'
+
+
+	@classmethod
+	def from_gmesh(cls, gm, length_unit='mm', angle_unit='deg'):
+		"""
+		Create and return a GVolume from a GMesh scene node.
+
+		We do NOT bake world transforms here.
+		We export local placement (position, rotation) relative to the mother,
+		which matches how Geant4 places daughters inside mothers.
+
+		Arguments
+		---------
+		gm : GMesh
+		    The PyVista-side logical node (name, mesh, material, mother, etc.)
+		length_unit : str
+		    Unit string for lengths in parameters/position (default 'mm')
+		angle_unit : str
+		    Unit string for angles in rotations (default 'deg')
+
+		Returns
+		-------
+		GVolume
+		"""
+
+		# 1. instantiate a new GVolume with the same name
+		gv = cls(gm.name)
+
+		# 2. infer Geant4 solid + parameter string from gm.mesh
+		#    We import here (lazy) to avoid circular import at module load.
+		from pyvista_api import gmesh_to_geant4_solid_and_params
+
+		solid_name, param_string = gmesh_to_geant4_solid_and_params(
+			gm, length_unit, angle_unit
+		)
+		gv.solid = solid_name
+		gv.parameters = param_string
+
+		# 3. material and color
+		gv.material = getattr(gm, "material", None)
+
+		if hasattr(gm, "color"):
+			gv.color = gm.color
+		else:
+			gv.color = DEFAULTCOLOR
+
+		# carry opacity as-is for ascii/sqlite export or rendering
+		if hasattr(gm, "opacity"):
+			gv.opacity = gm.opacity
+		else:
+			gv.opacity = 1
+
+		# 4. mother volume
+		if getattr(gm, "mother", None) is not None:
+			gv.mother = gm.mother
+		else:
+			gv.mother = DEFAULTMOTHER  # e.g. "root"
+
+		# 5. position: use gm.position (local offset in mother's frame)
+		if hasattr(gm, "position"):
+			px, py, pz = gm.position
+		else:
+			px, py, pz = (0.0, 0.0, 0.0)
+		gv.set_position(px, py, pz, lunit=length_unit)
+
+		# 6. rotation: use gm.rotation (rx, ry, rz in deg)
+		if hasattr(gm, "rotation"):
+			rx, ry, rz = gm.rotation
+		else:
+			rx, ry, rz = (0.0, 0.0, 0.0)
+
+		# Our convention in GMesh is intrinsic ZYX.
+		# Your set_rotation() lets us optionally give an order string like "zyx".
+		# You already chose to *store* ordered:..., so let's respect that.
+		gv.set_rotation(rx, ry, rz, lunit=angle_unit, order='')
+
+		# 7. field / visibility mapping
+		if hasattr(gm, "mfield"):
+			gv.mfield = gm.mfield
+
+		if hasattr(gm, "opacity"):
+			gv.visible = 0 if gm.opacity <= 0.01 else 1
+		# gv.style stays default (solid vs wireframe)
+
+		return gv
+

@@ -17,47 +17,25 @@
 #					- for the MYSQL factory.
 #	verbosity	- The log verbosity level for the sci-g API. The default is 0 (print only summary information)
 
-
-class GColors:
-	PURPLE = '\033[95m'
-	CYAN = '\033[96m'
-	DARKCYAN = '\033[36m'
-	BLUE = '\033[94m'
-	GREEN = '\033[92m'
-	YELLOW = '\033[93m'
-	RED = '\033[91m'
-	BOLD = '\033[1m'
-	UNDERLINE = '\033[4m'
-	END = '\033[0m'
-
-
+# python
 import sqlite3
 import os, argparse, sys
 import numpy as np
-from gemc_sqlite import create_sqlite_database
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
-Vec3 = Tuple[float, float, float]
-
-
-@dataclass
-class HVolume:
-	name: str
-	position: Vec3 = (0.0, 0.0, 0.0)  # local translation w.r.t. mother
-	mother: Optional[str] = None  # parent name (None/"" = world)
-
+# gemc api
+from gsqlite import create_sqlite_database
+from gutils import GColors
 
 has_pyvista: bool = False
 pv: Optional[object] = None  # will hold the module if available
 
 try:
 	import pyvista as _pv
-
 	has_pyvista = True
 except ModuleNotFoundError:
 	pass  # leave defaults
-
 
 def get_arguments():
 	parser = argparse.ArgumentParser(description="GEMC Configuration Utility")
@@ -102,10 +80,6 @@ class GConfiguration:
 
 		self.init_variation(self.variation)
 		self.initialize_storage()
-		# hyerarchy of volumes
-		self._hvolumes: dict[str, HVolume] = {}  # name -> HVolume
-		self._children: dict[str, list[str]] = {}  # mother name -> child names
-		self._world_pos_cache: dict[str, tuple[float, float, float]] = {}  # optional
 
 	@property
 	def plotter(self):
@@ -261,14 +235,15 @@ class GConfiguration:
 				p.camera_position = [tuple(pos), tuple(center), (0, 0, 1)]
 
 				if self.args.add_axes_at_zero:
-					self.add_origin_axes()
+					p.add_axes_at_origin(xlabel="X", ylabel="Y", zlabel="Z")
 				p.view_zy()  # or p.view_xz(), p.view_yz()
 				p.enable_anti_aliasing()  # FXAA
 				p.enable_parallel_projection()
 				p.show()
 
 
-# utils_api.py
+
+# autogeometry utility to executes show() at exit
 import atexit
 
 def autogeometry(experiment: str, application: str, auto_show: bool = True):
@@ -276,7 +251,6 @@ def autogeometry(experiment: str, application: str, auto_show: bool = True):
 	Returns a GConfiguration immediately and arranges .show() at process exit.
 	Great for simple scripts at module top level.
 	"""
-	from utils_api import GConfiguration  # avoid circular import
 	cfg = GConfiguration(experiment, application)
 	if auto_show:
 		atexit.register(lambda: cfg.show())

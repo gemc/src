@@ -4,10 +4,13 @@
 # 1. function to create a sqlite database file with the geometry and materials tables
 # 2. functions to fill the tables with the geometry and materials of a system
 
+# python
 import argparse
 import sys
 import sqlite3
-from utils_api import GColors
+
+# gemc api
+from gutils import GColors
 
 NGIVEN: str = 'NOTGIVEN'
 NGIVENS: [str] = ['NOTGIVEN']
