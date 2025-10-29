@@ -25,6 +25,12 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts, std::shared
                              QWidget* parent) : QWidget(parent), log(logger) {
     log->debug(CONSTRUCTOR, "G4DisplayView");
 
+    // LCD font
+    QFont flcd;
+    flcd.setFamilies({"Helvetica"}); // Qt6: prefer setFamilies over family string ctor
+    flcd.setPointSize(32);
+    flcd.setBold(true);
+
     G4Camera jcamera = getG4Camera(gopts);
 
     double thetaValue = getG4Number(jcamera.theta);
@@ -36,63 +42,126 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts, std::shared
     toggle_button_titles.emplace_back("Auxiliary\nEdges");
     toggle_button_titles.emplace_back("Field\nLines");
     toggle_button_titles.emplace_back("Axes");
+    toggle_button_titles.emplace_back("Scale");
 
 
     buttons_set1 = new GQTToggleButtonWidget(80, 80, 20, toggle_button_titles, false, this);
     connect(buttons_set1, &GQTToggleButtonWidget::buttonPressedIndexChanged, this, &G4DisplayView::apply_buttons_set1);
+
+
+    QStringList theta_angle_Set;
+    for (int t = 0; t <= 180; t += 30) { theta_angle_Set << QString::number(t); }
+    QStringList phi_angle_Set;
+    for (int t = 0; t <= 360; t += 30) { phi_angle_Set << QString::number(t); }
 
     // Camera sliders
     cameraTheta = new QSlider(Qt::Horizontal);
     cameraTheta->setRange(0, 180);
     cameraTheta->setSingleStep(1);
     cameraTheta->setValue(thetaValue);
+    cameraTheta->setTracking(true); // updates while dragging
+
     auto cameraThetaLabel = new QLabel(tr("θ"));
+
+    QLCDNumber* theta_LCD = new QLCDNumber(this);
+    theta_LCD->setFont(flcd);
+    theta_LCD->setMaximumSize(QSize(45, 45));
+    theta_LCD->setSegmentStyle(QLCDNumber::Flat);
+
+    thetaDropdown = new QComboBox(this);
+    thetaDropdown->addItems(theta_angle_Set);
+    thetaDropdown->setMaximumSize(QSize(100, 45));
 
     auto cameraThetaLayout = new QHBoxLayout;
     cameraThetaLayout->addWidget(cameraThetaLabel);
     cameraThetaLayout->addWidget(cameraTheta);
+    cameraThetaLayout->addWidget(theta_LCD);
+    cameraThetaLayout->addWidget(thetaDropdown);
 
     cameraPhi = new QSlider(Qt::Horizontal);
     cameraPhi->setRange(0, 360);
     cameraPhi->setSingleStep(1);
     cameraPhi->setValue(phiValue);
+    cameraPhi->setTracking(true); // updates while dragging
     auto cameraPhiLabel = new QLabel(tr("ɸ"));
+
+    QLCDNumber* phi_LCD = new QLCDNumber(this);
+    phi_LCD->setFont(flcd);
+    phi_LCD->setMaximumSize(QSize(45, 45));
+    phi_LCD->setSegmentStyle(QLCDNumber::Flat);
+
+    phiDropdown = new QComboBox(this);
+    phiDropdown->addItems(phi_angle_Set);
+    phiDropdown->setMaximumSize(QSize(100, 45));
 
     auto cameraPhiLayout = new QHBoxLayout;
     cameraPhiLayout->addWidget(cameraPhiLabel);
     cameraPhiLayout->addWidget(cameraPhi);
+    cameraPhiLayout->addWidget(phi_LCD);
+    cameraPhiLayout->addWidget(phiDropdown);
+
 
     QVBoxLayout* cameraDirectionLayout = new QVBoxLayout;
     cameraDirectionLayout->addLayout(cameraThetaLayout);
     cameraDirectionLayout->addSpacing(12);
     cameraDirectionLayout->addLayout(cameraPhiLayout);
 
+
     QGroupBox* cameraAnglesGroup = new QGroupBox(tr("Camera Direction"));
     cameraAnglesGroup->setLayout(cameraDirectionLayout);
 
     connect(cameraTheta, &QSlider::valueChanged, this, &G4DisplayView::changeCameraDirection);
+    connect(cameraTheta, &QSlider::valueChanged, theta_LCD, qOverload<int>(&QLCDNumber::display));
+    connect(thetaDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::setCameraDirection);
+
     connect(cameraPhi, &QSlider::valueChanged, this, &G4DisplayView::changeCameraDirection);
+    connect(cameraPhi, &QSlider::valueChanged, phi_LCD, qOverload<int>(&QLCDNumber::display));
+    connect(phiDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::setCameraDirection);
 
     // Light Direction
     lightTheta = new QSlider(Qt::Horizontal);
     lightTheta->setRange(0, 180);
     lightTheta->setSingleStep(1);
     lightTheta->setValue(thetaValue);
+    lightTheta->setTracking(true); // updates while dragging
     auto lightThetaLabel = new QLabel(tr("θ"));
+
+    QLCDNumber* ltheta_LCD = new QLCDNumber(this);
+    ltheta_LCD->setFont(flcd);
+    ltheta_LCD->setMaximumSize(QSize(45, 45));
+    ltheta_LCD->setSegmentStyle(QLCDNumber::Flat);
+
+    lthetaDropdown = new QComboBox(this);
+    lthetaDropdown->addItems(theta_angle_Set);
+    lthetaDropdown->setMaximumSize(QSize(100, 45));
 
     auto lightThetaLayout = new QHBoxLayout;
     lightThetaLayout->addWidget(lightThetaLabel);
     lightThetaLayout->addWidget(lightTheta);
+    lightThetaLayout->addWidget(ltheta_LCD);
+    lightThetaLayout->addWidget(lthetaDropdown);
 
     lightPhi = new QSlider(Qt::Horizontal);
     lightPhi->setRange(0, 360);
     lightPhi->setSingleStep(1);
     lightPhi->setValue(phiValue);
+    lightPhi->setTracking(true); // updates while dragging
     auto lightPhiLabel = new QLabel(tr("ɸ"));
+
+    QLCDNumber* lphi_LCD = new QLCDNumber(this);
+    lphi_LCD->setFont(flcd);
+    lphi_LCD->setMaximumSize(QSize(45, 45));
+    lphi_LCD->setSegmentStyle(QLCDNumber::Flat);
+
+    lphiDropdown = new QComboBox(this);
+    lphiDropdown->addItems(phi_angle_Set);
+    lphiDropdown->setMaximumSize(QSize(100, 45));
 
     auto lightPhiLayout = new QHBoxLayout;
     lightPhiLayout->addWidget(lightPhiLabel);
     lightPhiLayout->addWidget(lightPhi);
+    lightPhiLayout->addWidget(lphi_LCD);
+    lightPhiLayout->addWidget(lphiDropdown);
 
     auto lightDirectionLayout = new QVBoxLayout;
     lightDirectionLayout->addLayout(lightThetaLayout);
@@ -103,7 +172,10 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts, std::shared
     lightAnglesGroup->setLayout(lightDirectionLayout);
 
     connect(lightTheta, &QSlider::valueChanged, this, &G4DisplayView::changeLightDirection);
+    connect(lightTheta, &QSlider::valueChanged, ltheta_LCD, qOverload<int>(&QLCDNumber::display));
+
     connect(lightPhi, &QSlider::valueChanged, this, &G4DisplayView::changeLightDirection);
+    connect(lightPhi, &QSlider::valueChanged, lphi_LCD, qOverload<int>(&QLCDNumber::display));
 
     // x slice
     sliceXEdit = new QLineEdit(tr("0"));
@@ -119,7 +191,6 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts, std::shared
     sliceXLayout->addWidget(sliceXActi);
     sliceXLayout->addWidget(sliceXInve);
     sliceXLayout->addStretch(1);
-
 
     // y slice
     sliceYEdit = new QLineEdit(tr("0"));
@@ -251,6 +322,19 @@ void G4DisplayView::changeCameraDirection() {
     G4UImanager::GetUIpointer()->ApplyCommand(command);
 }
 
+void G4DisplayView::setCameraDirection() {
+
+    string thetaValue = thetaDropdown->currentText().toStdString();
+    string phiValue = phiDropdown->currentText().toStdString();
+
+
+    // Construct the command using the current slider values.
+    string command = "/vis/viewer/set/viewpointThetaPhi " + thetaValue + " " + phiValue ;
+    // Send the command to the Geant4 UImanager.
+    G4UImanager::GetUIpointer()->ApplyCommand(command);
+}
+
+
 /**
  * @brief Slot triggered when light direction sliders change.
  *
@@ -261,6 +345,16 @@ void G4DisplayView::changeLightDirection() {
     string command = "/vis/viewer/set/lightsThetaPhi " +
         to_string(lightTheta->value()) + " " +
         to_string(lightPhi->value());
+    G4UImanager::GetUIpointer()->ApplyCommand(command);
+}
+
+
+void G4DisplayView::setLightDirection() {
+    string thetaValue = lthetaDropdown->currentText().toStdString();
+    string phiValue = lphiDropdown->currentText().toStdString();
+
+    string command = "/vis/viewer/set/lightsThetaPhi " + thetaValue + " " + phiValue ;
+
     G4UImanager::GetUIpointer()->ApplyCommand(command);
 }
 
@@ -378,6 +472,12 @@ void G4DisplayView::apply_buttons_set1(int index) {
     else if (index == 4) {
         if (button_state == 1) {
             string command = string("/vis/scene/add/axes");
+            g4uim->ApplyCommand(command);
+        }
+    }
+    else if (index == 5) {
+        if (button_state == 1) {
+            string command = string("/vis/scene/add/scale");
             g4uim->ApplyCommand(command);
         }
     }

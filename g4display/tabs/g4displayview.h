@@ -57,6 +57,10 @@ private:
     /** @brief Slider controlling the camera's azimuthal angle (phi). */
     QSlider *cameraPhi;
 
+	QComboBox *thetaDropdown, *phiDropdown;
+	QComboBox *lthetaDropdown, *lphiDropdown;
+
+
     /** @brief Slider controlling the light source's elevation angle (theta). */
 	QSlider *lightTheta;
     /** @brief Slider controlling the light source's azimuthal angle (phi). */
@@ -108,12 +112,20 @@ private slots:
      */
 	void changeCameraDirection();
 
+
+
+	void setCameraDirection();
+
+
     /**
      * @brief Slot triggered when either the lightTheta or lightPhi slider's value changes.
      * Reads the current values from both sliders and sends the updated light source direction
      * command (`/vis/viewer/set/lightsThetaPhi`) to the Geant4 UImanager.
      */
 	void changeLightDirection();
+
+
+	void setLightDirection();
 
     /**
      * @brief Slot triggered by changes in any of the slice control widgets (QLineEdit returnPressed,

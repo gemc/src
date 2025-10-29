@@ -6,8 +6,8 @@
 #include <vector>
 #include <string>
 
-#define GDEFAULTVIEWERDRIVER  "OpenGLStoredQt"
-//#define GDEFAULTVIEWERDRIVER  "TOOLSSG_QT_GLES"
+//#define GDEFAULTVIEWERDRIVER  "OpenGLStoredQt"  << has problems with /vis/viewer/set/hiddenEdge
+#define GDEFAULTVIEWERDRIVER  "TOOLSSG_QT_GLES"
 #define GDEFAULTVIEWERSIZE    "400x400"
 #define GDEFAULTVIEWERPOS     "-400+100"
 #define GDEFAULTVSEGPERCIRCLE 50
