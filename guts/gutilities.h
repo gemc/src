@@ -306,7 +306,7 @@ inline constexpr const char* to_string(randomModel m) noexcept {
  *
  * No allocations, one integer parse, and throws std::invalid_argument on malformed input.
  */
-G4Colour makeColour(std::string_view code);
+G4Colour makeG4Colour(std::string_view code, double opacity);
 
 };
 

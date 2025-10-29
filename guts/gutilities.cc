@@ -453,10 +453,10 @@ randomModel stringToRandomModel(const std::string& str) {
 }
 
 
-G4Colour makeColour(std::string_view code) {
+G4Colour makeG4Colour(std::string_view code, double opacity) {
 	if (code.empty()) throw std::invalid_argument("empty colour string");
 	if (code.front() == '#') code.remove_prefix(1);
-	if (code.size() != 6 && code.size() != 7)
+	if (code.size() != 6)
 		throw std::invalid_argument("colour must have 6 or 7 hex digits");
 
 	auto hexNibble = [](char c) -> unsigned {
@@ -476,12 +476,7 @@ G4Colour makeColour(std::string_view code) {
 	double g            = byteToDouble((rgb >> 8) & 0xFF);
 	double b            = byteToDouble(rgb & 0xFF);
 
-	// ---- optional transparency nibble ----
-	double a = 1.0;
-	if (code.size() == 7)
-		a = hexNibble(code[6]) / 15.0;
-
-	return {r, g, b, a}; // G4Colour
+	return {r, g, b, opacity}; // G4Colour
 }
 
 std::optional<std::string> searchForFileInLocations(
