@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 
 # gemc api:
-from utils_api import GConfiguration
+from gconfiguration import autogeometry
 
-# B2
+# build_geometry and define_materials are in geometry.py, materials.py
 from geometry import build_geometry
 from materials import define_materials
 
-def main():
-	configuration = GConfiguration("examples", "b3")
-	build_geometry(configuration)
-	define_materials(configuration)
-	configuration.show()
+cfg = autogeometry("examples", "b3")
 
+build_geometry(cfg)
+define_materials(cfg)
 
-if __name__ == "__main__":
-	main()

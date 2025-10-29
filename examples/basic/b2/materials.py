@@ -1,4 +1,4 @@
-from materials_api import GMaterial
+from gmaterial import GMaterial
 
 def define_materials(configuration):
 

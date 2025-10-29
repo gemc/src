@@ -1,4 +1,4 @@
-from geometry_api import GVolume
+from gvolume import GVolume
 import math
 
 
@@ -10,7 +10,7 @@ def build_geometry(configuration):
 	gvolume.description = 'World'
 	gvolume.make_box(1.2*100.0, 1.2*100.0, 1.2*150.0)
 	gvolume.material = 'G4_AIR'
-	gvolume.color = '8899224'
+	gvolume.color = '889922'
 	gvolume.style = 0
 	gvolume.publish(configuration)
 
@@ -54,4 +54,5 @@ def build_geometry(configuration):
 	gvolume.set_position(0, -10, 70)
 	gvolume.digitization = 'flux'     # temp assigning flux for testing digitization routines
 	gvolume.set_identifier('box', 2)
+	gvolume.opacity = 0.1
 	gvolume.publish(configuration)

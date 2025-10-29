@@ -5,11 +5,11 @@ nthreads: 12
 
 gparticle:
   - name: proton
-    p: 2
-    vz: -17
-    delta_vx: 8
-    delta_vy: 8
-    multiplicity: 1
+    p: 2000
+    vz: -3
+    delta_vx: 0.1
+    delta_vy: 0.1
+    multiplicity: 10
 
 verbosity:
   - gparticle: 0

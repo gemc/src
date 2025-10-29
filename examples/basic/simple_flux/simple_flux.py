@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-from utils_api import autogeometry
-from geometry_api import GVolume
+from gconfiguration import autogeometry
+from gvolume import GVolume
 
-configuration = autogeometry("examples", "simple_flux")
+cfg = autogeometry("examples", "simple_flux")
 
 world_size = 110
 gvolume = GVolume("root")
@@ -11,17 +11,17 @@ gvolume.make_box(world_size * 0.5, world_size * 0.5, world_size * 0.5)
 gvolume.material = "G4_AIR"
 gvolume.color = "ghostwhite"
 gvolume.style = 0
-gvolume.publish(configuration)
+gvolume.publish(cfg)
 
-target_z = 20
+target_dz = 20
 target_radius = 5
 gvolume = GVolume("Target")
 gvolume.mother = "root"
 gvolume.description = "Simple Carbon Target"
-gvolume.make_tube(0, target_radius, target_z, 0, 360)
+gvolume.make_tube(0, target_radius, target_dz, 0, 360)
 gvolume.material = "G4_C"
 gvolume.color = "metallic, darkgreen"
-gvolume.publish(configuration)
+gvolume.publish(cfg)
 
 flux_z = 50
 flux_dx = 1
@@ -35,4 +35,6 @@ gvolume.color = "FAFAD2"
 gvolume.set_position(0, 0, flux_z)
 gvolume.digitization = "flux"
 gvolume.set_identifier("flux_plane", 1)
-gvolume.publish(configuration)
+gvolume.publish(cfg)
+
+

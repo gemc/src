@@ -1,4 +1,4 @@
-from geometry_api import GVolume
+from gvolume import GVolume
 import math
 
 
@@ -50,18 +50,18 @@ def build_geometry(configuration):
 	gvolume.publish(configuration)
 
 
-	for icrys in range(2, nb_rings):
-		# phi_rot = icrys * dPhi
-		#
-		# c = (ring_R1 + 0.5 * cryst_dZ)
-		# posx = c *  math.cos(phi_rot*math.pi/180.)
-		# posy = c *  math.sin(phi_rot*math.pi/180.)
-		OG += cryst_dX
-
-		gvolume = GVolume(f'Ring{icrys}')
-		gvolume.description = f'Ring{icrys}'
-		gvolume.copyOf = 'Ring1'
-		gvolume.set_position(0, 0, OG)
-		gvolume.material = 'G4_AIR'
-
-		gvolume.publish(configuration)
+	# for icrys in range(2, nb_rings):
+	# 	# phi_rot = icrys * dPhi
+	# 	#
+	# 	# c = (ring_R1 + 0.5 * cryst_dZ)
+	# 	# posx = c *  math.cos(phi_rot*math.pi/180.)
+	# 	# posy = c *  math.sin(phi_rot*math.pi/180.)
+	# 	OG += cryst_dX
+	#
+	# 	gvolume = GVolume(f'Ring{icrys}')
+	# 	gvolume.description = f'Ring{icrys}'
+	# 	gvolume.copyOf = 'Ring1'
+	# 	gvolume.set_position(0, 0, OG)
+	# 	gvolume.material = 'G4_AIR'
+	#
+	# 	gvolume.publish(configuration)
