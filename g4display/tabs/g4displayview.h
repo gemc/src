@@ -59,6 +59,9 @@ private:
 
 	QComboBox *thetaDropdown, *phiDropdown;
 	QComboBox *lthetaDropdown, *lphiDropdown;
+	QComboBox *perspectiveDropdown, *precisionDropdown;
+	QComboBox *cullingDropdown, *backgroundColorDropdown;
+
 
 
     /** @brief Slider controlling the light source's elevation angle (theta). */
@@ -113,8 +116,7 @@ private slots:
 	void changeCameraDirection();
 
 
-
-	void setCameraDirection();
+	void setCameraDirection(int which);
 
 
     /**
@@ -125,7 +127,18 @@ private slots:
 	void changeLightDirection();
 
 
-	void setLightDirection();
+	void setLightDirection(int which);
+
+
+
+
+	void set_projection();
+	void set_precision();
+	void set_culling();
+	void set_background();
+
+
+
 
     /**
      * @brief Slot triggered by changes in any of the slice control widgets (QLineEdit returnPressed,

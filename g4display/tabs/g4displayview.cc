@@ -112,11 +112,54 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts, std::shared
 
     connect(cameraTheta, &QSlider::valueChanged, this, &G4DisplayView::changeCameraDirection);
     connect(cameraTheta, &QSlider::valueChanged, theta_LCD, qOverload<int>(&QLCDNumber::display));
-    connect(thetaDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::setCameraDirection);
+    connect(thetaDropdown, &QComboBox::currentTextChanged,
+            this, [this](const QString&) {
+                setCameraDirection(0); // 0 = theta changed
+            });
 
     connect(cameraPhi, &QSlider::valueChanged, this, &G4DisplayView::changeCameraDirection);
     connect(cameraPhi, &QSlider::valueChanged, phi_LCD, qOverload<int>(&QLCDNumber::display));
-    connect(phiDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::setCameraDirection);
+    connect(phiDropdown, &QComboBox::currentTextChanged,
+            this, [this](const QString&) {
+                setCameraDirection(1); // 1 = phi changed
+            });
+
+
+    // projection: Orthogonal / Perspective
+    QLabel* projLabel = new QLabel(tr("Projection:"));
+    perspectiveDropdown = new QComboBox;
+    perspectiveDropdown->addItem(tr("Orthogonal"));
+    perspectiveDropdown->addItem(tr("Perspective 30"));
+    perspectiveDropdown->addItem(tr("Perspective 45"));
+    perspectiveDropdown->addItem(tr("Perspective 60"));
+
+    QLabel* sides_per_circlesLabel = new QLabel(tr("Sides per circle:"));
+    precisionDropdown = new QComboBox;
+    precisionDropdown->addItem(tr("50"));
+    precisionDropdown->addItem(tr("100"));
+    precisionDropdown->addItem(tr("200"));
+    precisionDropdown->addItem(tr("300"));
+    precisionDropdown->setCurrentIndex(0);
+
+    connect(perspectiveDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::set_projection);
+    connect(precisionDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::set_precision);
+
+
+    QVBoxLayout* resolutionAndPerspectiveLayout = new QVBoxLayout;
+    resolutionAndPerspectiveLayout->addWidget(projLabel);
+    resolutionAndPerspectiveLayout->addWidget(perspectiveDropdown);
+    resolutionAndPerspectiveLayout->addSpacing(12);
+    resolutionAndPerspectiveLayout->addWidget(sides_per_circlesLabel);
+    resolutionAndPerspectiveLayout->addWidget(precisionDropdown);
+
+    QGroupBox* propertyGroup = new QGroupBox(tr("View Properties"));
+    propertyGroup->setLayout(resolutionAndPerspectiveLayout);
+
+    QHBoxLayout* cameraAndPerspective = new QHBoxLayout;
+    cameraAndPerspective->addWidget(cameraAnglesGroup);
+    cameraAndPerspective->addSpacing(12);
+    cameraAndPerspective->addWidget(propertyGroup);
+
 
     // Light Direction
     lightTheta = new QSlider(Qt::Horizontal);
@@ -173,9 +216,77 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts, std::shared
 
     connect(lightTheta, &QSlider::valueChanged, this, &G4DisplayView::changeLightDirection);
     connect(lightTheta, &QSlider::valueChanged, ltheta_LCD, qOverload<int>(&QLCDNumber::display));
+    connect(lthetaDropdown, &QComboBox::currentTextChanged,
+            this, [this](const QString&) {
+                setLightDirection(0); // 0 = theta changed
+            });
 
     connect(lightPhi, &QSlider::valueChanged, this, &G4DisplayView::changeLightDirection);
     connect(lightPhi, &QSlider::valueChanged, lphi_LCD, qOverload<int>(&QLCDNumber::display));
+    connect(lphiDropdown, &QComboBox::currentTextChanged,
+            this, [this](const QString&) {
+                setLightDirection(1); // 0 = phi changed
+            });
+
+
+    // projection: Orthogonal / Perspective
+    QLabel* cullingLabel = new QLabel(tr("Culling:"));
+    cullingDropdown = new QComboBox;
+    cullingDropdown->addItem(tr("Reset"));
+    cullingDropdown->addItem(tr("Covered Daughters"));
+    cullingDropdown->addItem(tr("Density: 1 mg/cm3"));
+    cullingDropdown->addItem(tr("Density: 10 mg/cm3"));
+    cullingDropdown->addItem(tr("Density: 100 mg/cm3"));
+    cullingDropdown->addItem(tr("Density: 1 g/cm3"));
+    cullingDropdown->addItem(tr("Density: 10 g/cm3"));
+
+
+    QLabel* backgroundColorLabel = new QLabel(tr("Background Color:"));
+    backgroundColorDropdown = new QComboBox;
+    backgroundColorDropdown->addItem(tr("ghostwhite"));
+    backgroundColorDropdown->addItem(tr("black"));
+    backgroundColorDropdown->addItem(tr("navy"));
+    backgroundColorDropdown->addItem(tr("lightslategray"));
+    backgroundColorDropdown->addItem(tr("whitesmoke"));
+    backgroundColorDropdown->addItem(tr("lightskyblue"));
+    backgroundColorDropdown->addItem(tr("deepskyblue"));
+    backgroundColorDropdown->addItem(tr("lightsteelblue"));
+    backgroundColorDropdown->addItem(tr("blueviolet"));
+    backgroundColorDropdown->addItem(tr("turquoise"));
+    backgroundColorDropdown->addItem(tr("mediumaquamarine"));
+    backgroundColorDropdown->addItem(tr("springgreen"));
+    backgroundColorDropdown->addItem(tr("lawngreen"));
+    backgroundColorDropdown->addItem(tr("yellowgreen"));
+    backgroundColorDropdown->addItem(tr("lemonchiffon"));
+    backgroundColorDropdown->addItem(tr("antiquewhite"));
+    backgroundColorDropdown->addItem(tr("wheat"));
+    backgroundColorDropdown->addItem(tr("sienna"));
+    backgroundColorDropdown->addItem(tr("snow"));
+    backgroundColorDropdown->addItem(tr("floralwhite"));
+    backgroundColorDropdown->addItem(tr("lightsalmon"));
+    backgroundColorDropdown->addItem(tr("orchid"));
+    backgroundColorDropdown->addItem(tr("plum"));
+    backgroundColorDropdown->setCurrentIndex(0);
+
+
+    connect(cullingDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::set_culling);
+    connect(backgroundColorDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::set_background);
+
+    QVBoxLayout* sceneLayout = new QVBoxLayout;
+    sceneLayout->addWidget(cullingLabel);
+    sceneLayout->addWidget(cullingDropdown);
+    sceneLayout->addSpacing(12);
+    sceneLayout->addWidget(backgroundColorLabel);
+    sceneLayout->addWidget(backgroundColorDropdown);
+
+    QGroupBox* spropertyGroup = new QGroupBox(tr("Scene Properties"));
+    spropertyGroup->setLayout(sceneLayout);
+
+    QHBoxLayout* lightAndProperties = new QHBoxLayout;
+    lightAndProperties->addWidget(lightAnglesGroup);
+    lightAndProperties->addSpacing(12);
+    lightAndProperties->addWidget(spropertyGroup);
+
 
     // x slice
     sliceXEdit = new QLineEdit(tr("0"));
@@ -301,8 +412,8 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts, std::shared
     // All layouts together
     auto mainLayout = new QVBoxLayout;
     mainLayout->addLayout(buttons_field_HBox);
-    mainLayout->addWidget(cameraAnglesGroup);
-    mainLayout->addWidget(lightAnglesGroup);
+    mainLayout->addLayout(cameraAndPerspective);
+    mainLayout->addLayout(lightAndProperties);
     mainLayout->addLayout(sliceLayout);
     setLayout(mainLayout);
 }
@@ -314,24 +425,181 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts, std::shared
  * current theta and phi values from the camera sliders.
  */
 void G4DisplayView::changeCameraDirection() {
-    // Construct the command using the current slider values.
+    // Construct the command using the current slider values  and send to the Geant4 UImanager.
     string command = "/vis/viewer/set/viewpointThetaPhi " +
         to_string(cameraTheta->value()) + " " +
         to_string(cameraPhi->value());
-    // Send the command to the Geant4 UImanager.
     G4UImanager::GetUIpointer()->ApplyCommand(command);
 }
 
-void G4DisplayView::setCameraDirection() {
-
+void G4DisplayView::setCameraDirection(int which) {
     string thetaValue = thetaDropdown->currentText().toStdString();
     string phiValue = phiDropdown->currentText().toStdString();
 
-
-    // Construct the command using the current slider values.
-    string command = "/vis/viewer/set/viewpointThetaPhi " + thetaValue + " " + phiValue ;
-    // Send the command to the Geant4 UImanager.
+    // Construct the command using the current slider values and send to the Geant4 UImanager.
+    string command = "/vis/viewer/set/viewpointThetaPhi " + thetaValue + " " + phiValue;
     G4UImanager::GetUIpointer()->ApplyCommand(command);
+
+    int thetaDeg = thetaDropdown->currentText().toInt();
+    int phiDeg = phiDropdown->currentText().toInt();
+
+    if (cameraTheta && which == 0)
+        cameraTheta->setValue(thetaDeg);
+    if (cameraPhi && which == 1)
+        cameraPhi->setValue(phiDeg);
+}
+
+void G4DisplayView::set_projection() {
+    string value = perspectiveDropdown->currentText().toStdString();
+
+    string g4perspective = "o";
+    string g4perpvalue = "0";
+    if (value.find("Perspective") != string::npos) {
+        g4perspective = "p";
+        // g4perpvalue is the second item of value separate by space
+        g4perpvalue = value.substr(value.find(" ") + 1);
+    }
+
+
+    // Construct the command using the current dropdown values and send to the Geant4 UImanager.
+    string command = "/vis/viewer/set/projection " + g4perspective + " " + g4perpvalue;
+    G4UImanager::GetUIpointer()->ApplyCommand(command);
+}
+
+void G4DisplayView::set_precision() {
+    string value = precisionDropdown->currentText().toStdString();
+
+    // Construct the command using the current dropdown values and send to the Geant4 UImanager.
+    string command = "/vis/viewer/set/lineSegmentsPerCircle " + value;
+    G4UImanager::GetUIpointer()->ApplyCommand(command);
+    G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/flush");
+}
+
+void G4DisplayView::set_culling() {
+    string value = cullingDropdown->currentText().toStdString();
+    int index = cullingDropdown->currentIndex() - 2;
+
+    if (value.find("Reset") != string::npos) {
+        G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/set/culling global true");
+        G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/set/culling density false");
+    }
+    else if (value.find("Daughters") != string::npos) {
+        G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/set/culling coveredDaughters true");
+        G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/set/culling density false");
+    }
+    else {
+        vector<double> density = {0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0};
+        string command = "/vis/viewer/set/culling density true " + to_string(density[index]);
+        G4UImanager::GetUIpointer()->ApplyCommand(command);
+        G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/flush");
+        log->info(0, command);
+    }
+}
+
+void G4DisplayView::set_background() {
+    string value = backgroundColorDropdown->currentText().toStdString();
+
+    string g4value = "0 0 0";
+    if (value.find("black") != string::npos) {
+        // CSS “black” = #000000
+        g4value = "0.0 0.0 0.0";
+    }
+    else if (value.find("navy") != string::npos) {
+        // CSS “navy” = #000080 → normalized (0,0,128/255 ≈0.50196)
+        g4value = "0.0 0.0 0.50196";
+    }
+    else if (value.find("lightslategray") != string::npos) {
+        // #778899 → (119/255,136/255,153/255) ≈ (0.46667,0.53333,0.6)
+        g4value = "0.46667 0.53333 0.60000";
+    }
+    else if (value.find("whitesmoke") != string::npos) {
+        // #F5F5F5 → (~0.96078,0.96078,0.96078)
+        g4value = "0.96078 0.96078 0.96078";
+    }
+    else if (value.find("ghostwhite") != string::npos) {
+        // #F8F8FF → (0.97255,0.97255,1.0)
+        g4value = "0.97255 0.97255 1.00000";
+    }
+    else if (value.find("lightskyblue") != string::npos) {
+        // #87CEFA → (135/255,206/255,250/255) ≈ (0.52941,0.80784,0.98039)
+        g4value = "0.52941 0.80784 0.98039";
+    }
+    else if (value.find("deepskyblue") != string::npos) {
+        // #00BFFF → (0,191/255,255/255) ≈ (0.0,0.74902,1.0)
+        g4value = "0.00000 0.74902 1.00000";
+    }
+    else if (value.find("lightsteelblue") != string::npos) {
+        // #B0C4DE → (176/255,196/255,222/255) ≈ (0.69020,0.76863,0.87059)
+        g4value = "0.69020 0.76863 0.87059";
+    }
+    else if (value.find("blueviolet") != string::npos) {
+        // #8A2BE2 → (138/255,43/255,226/255) ≈ (0.54118,0.16863,0.88627)
+        g4value = "0.54118 0.16863 0.88627";
+    }
+    else if (value.find("turquoise") != string::npos) {
+        // #40E0D0 → (64/255,224/255,208/255) ≈ (0.25098,0.87843,0.81569)
+        g4value = "0.25098 0.87843 0.81569";
+    }
+    else if (value.find("mediumaquamarine") != string::npos) {
+        // #66CDAA → (102/255,205/255,170/255) ≈ (0.40000,0.80392,0.66667)
+        g4value = "0.40000 0.80392 0.66667";
+    }
+    else if (value.find("springgreen") != string::npos) {
+        // #00FF7F → (0,255/255,127/255) ≈ (0.0,1.0,0.49804)
+        g4value = "0.00000 1.00000 0.49804";
+    }
+    else if (value.find("lawngreen") != string::npos) {
+        // #7CFC00 → (124/255,252/255,0) ≈ (0.48627,0.98824,0.0)
+        g4value = "0.48627 0.98824 0.00000";
+    }
+    else if (value.find("yellowgreen") != string::npos) {
+        // #9ACD32 → (154/255,205/255,50/255) ≈ (0.60392,0.80392,0.19608)
+        g4value = "0.60392 0.80392 0.19608";
+    }
+    else if (value.find("lemonchiffon") != string::npos) {
+        // #FFFACD → (255/255,250/255,205/255) ≈ (1.0,0.98039,0.80392)
+        g4value = "1.00000 0.98039 0.80392";
+    }
+    else if (value.find("antiquewhite") != string::npos) {
+        // #FAEBD7 → (250/255,235/255,215/255) ≈ (0.98039,0.92157,0.84314)
+        g4value = "0.98039 0.92157 0.84314";
+    }
+    else if (value.find("wheat") != string::npos) {
+        // #F5DEB3 → (245/255,222/255,179/255) ≈ (0.96078,0.87059,0.70196)
+        g4value = "0.96078 0.87059 0.70196";
+    }
+    else if (value.find("sienna") != string::npos) {
+        // #A0522D → (160/255,82/255,45/255) ≈ (0.62745,0.32157,0.17647)
+        g4value = "0.62745 0.32157 0.17647";
+    }
+    else if (value.find("snow") != string::npos) {
+        // #FFFAFA → (255/255,250/255,250/255) ≈ (1.0,0.98039,0.98039)
+        g4value = "1.00000 0.98039 0.98039";
+    }
+    else if (value.find("floralwhite") != string::npos) {
+        // #FFFAF0 → (255/255,250/255,240/255) ≈ (1.0,0.98039,0.94118)
+        g4value = "1.00000 0.98039 0.94118";
+    }
+    else if (value.find("lightsalmon") != string::npos) {
+        // #FFA07A → (255/255,160/255,122/255) ≈ (1.0,0.62745,0.47843)
+        g4value = "1.00000 0.62745 0.47843";
+    }
+    else if (value.find("orchid") != string::npos) {
+        // #DA70D6 → (218/255,112/255,214/255) ≈ (0.85490,0.43922,0.83922)
+        g4value = "0.85490 0.43922 0.83922";
+    }
+    else if (value.find("plum") != string::npos) {
+        // #DDA0DD → (221/255,160/255,221/255) ≈ (0.86667,0.62745,0.86667)
+        g4value = "0.86667 0.62745 0.86667";
+    }
+    else {
+        // fallback: white
+        g4value = "1.0 1.0 1.0";
+    }
+
+    string command = "/vis/viewer/set/background " + g4value;
+    G4UImanager::GetUIpointer()->ApplyCommand(command);
+
 }
 
 
@@ -349,13 +617,21 @@ void G4DisplayView::changeLightDirection() {
 }
 
 
-void G4DisplayView::setLightDirection() {
+void G4DisplayView::setLightDirection(int which) {
     string thetaValue = lthetaDropdown->currentText().toStdString();
     string phiValue = lphiDropdown->currentText().toStdString();
 
-    string command = "/vis/viewer/set/lightsThetaPhi " + thetaValue + " " + phiValue ;
+    string command = "/vis/viewer/set/lightsThetaPhi " + thetaValue + " " + phiValue;
 
     G4UImanager::GetUIpointer()->ApplyCommand(command);
+
+    int thetaDeg = lthetaDropdown->currentText().toInt();
+    int phiDeg = lphiDropdown->currentText().toInt();
+
+    if (lightTheta && which == 0)
+        lightTheta->setValue(thetaDeg);
+    if (lightPhi && which == 1)
+        lightPhi->setValue(phiDeg);
 }
 
 

@@ -100,11 +100,9 @@ std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts
 	cmds.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
 	cmds.emplace_back("/vis/scene/add/hits");
 	cmds.emplace_back("/vis/scene/endOfEventAction accumulate 10000");
-	//	cmds.emplace_back("/vis/viewer/set/culling coveredDaughters true");
 
 	// background colors and root volume are the same
-	// cmds.push_back("/vis/viewer/set/background 1 1 1 1");
-	//cmds.emplace_back("/vis/geometry/set/colour root 0 0 0 0");
+	cmds.push_back("/vis/viewer/set/background 0.97255 0.97255 1.00000");
 
 	cmds.emplace_back("/vis/viewer/set/autoRefresh true");
 	cmds.emplace_back("/vis/viewer/flush");

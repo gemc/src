@@ -23,7 +23,7 @@ def build_geometry(configuration):
 	gvolume.make_box(worldLength * 0.5, worldLength * 0.5, worldLength * 0.5)
 	gvolume.material = 'G4_AIR'
 	gvolume.color = 'ghostwhite'
-	gvolume.style = 0
+	gvolume.opacity = 0
 	gvolume.publish(configuration)
 
 	tz = -(targetLength + trackerSize)
