@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, dbselect::defineOptions());
 	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, DBSELECT_LOGGER);
 
-	log->info(0, "dbselect", "Starting dbselect example...", gopts);
+	log->info(0, "dbselect", "Starting dbselect example...");
 
 	// Optional GUI setup (only if --gui is passed)
 	QApplication* app    = nullptr;

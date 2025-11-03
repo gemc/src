@@ -6,7 +6,6 @@
 // gemc
 #include "glogger.h"          // Logging utility
 #include "gQtButtonsWidget.h" // Custom toggle button widget
-#include "goptions.h"         // Forward GOptions type
 
 
 // Geant4

@@ -8,5 +8,7 @@
         <file>gui/images/buttons/dialog_2.svg</file>
         <file>gui/images/buttons/setup_1.svg</file>
         <file>gui/images/buttons/setup_2.svg</file>
+        <file>gui/images/buttons/tree_1.svg</file>
+        <file>gui/images/buttons/tree_2.svg</file>
     </qresource>
 </RCC>

@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, g4display::defineOptions());
 	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, G4DISPLAY_LOGGER);
 
-	log->info(0, "Starting g4display example...", gopts);
+	log->info(0, "Starting g4display example...");
 
 	// Optional GUI setup (only if --gui is passed)
 	QApplication* app    = nullptr;

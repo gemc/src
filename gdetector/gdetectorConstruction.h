@@ -47,6 +47,13 @@ public:
 		return digitization_routines_map;
 	}
 
+	[[nodiscard]] std::unordered_map<std::string, G4Volume*> get_g4volumes_map() const {
+		if (g4world == nullptr) {
+			log->error(ERR_G4VOLUMEBUILDFAILED, "No g4world ");
+		}
+		return g4world->get_g4volumes_map();
+	}
+
 private:
 	std::shared_ptr<GOptions> gopt;    // need options inside Constructs() methods
 	std::shared_ptr<GWorld>   gworld;

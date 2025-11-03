@@ -64,6 +64,7 @@ subdir('gsd') # TODO: example
 subdir('gfields')
 subdir('gdetector')
 subdir('dbselect')
+subdir('gtree')
 subdir('gui')
 subdir('actions') # TODO: example
 subdir('utilities')

@@ -84,6 +84,10 @@ public:
 		}
 	}
 
+	[[nodiscard]] std::unordered_map<std::string, G4Volume*> get_g4volumes_map() const {
+		return g4volumesMap;
+	}
+
 private:
 	// ────── helper functions ─────────────────────────────────────────
 	std::string g4FactoryNameFromSystemFactory(const std::string& factory) const;

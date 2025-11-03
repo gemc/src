@@ -16,6 +16,7 @@
 #include "gboard.h"
 #include "gsd.h"
 #include "gfield_options.h"
+#include "gtree_options.h"
 
 namespace gemc {
 
@@ -75,6 +76,7 @@ namespace gemc {
     	goptions += gsensitivedetector::defineOptions();
     	goptions += gfields::defineOptions();
     	goptions += gboard::defineOptions();
+    	goptions += gtree::defineOptions();
 
 
         return goptions;

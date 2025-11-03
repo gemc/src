@@ -9,8 +9,7 @@
 // qt
 #include <QtWidgets/QWidget>   // Required for QWidget parent parameter
 
-// g4display
-#include "g4display_options.h"
+
 
 /**
  * @brief The main widget for controlling Geant4 visualization.

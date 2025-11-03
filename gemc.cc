@@ -89,14 +89,13 @@ int main(int argc, char* argv[]) {
 		auto scene_commands = g4SceneProperties->scene_commands(gopts);
 		// add init_commands to scene_commands
 
-		GemcGUI gemcGui(gopts, geventDispenser, gdetector);
-		gemcGui.show();
-
 		scene_commands.insert(scene_commands.end(), init_commands.begin(), init_commands.end());
 		gemc::run_manager_commands(gopts, log, scene_commands);
 
-		spash_screen->finish(&gemcGui);
+		GemcGUI gemcGui(gopts, geventDispenser, gdetector);
+		gemcGui.show();
 
+		spash_screen->finish(&gemcGui);
 		app_result = QApplication::exec();
 
 		runManager.reset();

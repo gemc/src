@@ -599,7 +599,6 @@ void G4DisplayView::set_background() {
 
     string command = "/vis/viewer/set/background " + g4value;
     G4UImanager::GetUIpointer()->ApplyCommand(command);
-
 }
 
 
@@ -648,9 +647,8 @@ void G4DisplayView::slice() {
 
     // can't have a mix of wireframe / solid when doing a slice.
     // forcing all to be solid
-    //	if(!solidVis) {
-    //		g4uim->ApplyCommand("/vis/geometry/set/forceSolid all -1 1");
-    //	}
+    g4uim->ApplyCommand("/vis/geometry/set/forceSolid all -1 1");
+
 
     g4uim->ApplyCommand("/vis/viewer/clearCutawayPlanes");
 

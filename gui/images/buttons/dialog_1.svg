@@ -11,7 +11,7 @@
     </text>
 
     <!-- Centered Text Label "G4Dialog" -->
-    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Avenir">
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">
         G4Dialog
     </text>
 </svg>
