@@ -8,10 +8,6 @@
 #include "gQtButtonsWidget.h" // Custom toggle button widget
 
 
-// Geant4
-#include "G4UImanager.hh" // Geant4 UI manager access
-
-
 /**
  * @class G4DisplayView
  * @brief A QWidget tab providing controls for Geant4 camera, lighting, slicing, and view styles.

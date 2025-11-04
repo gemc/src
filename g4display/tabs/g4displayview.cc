@@ -4,11 +4,15 @@
 
 using namespace g4display;
 
+// c++
 #include <iostream>
 #include <string>
-
 using namespace std;
 using namespace gutilities;
+
+// geant4
+#include "G4UImanager.hh" // Geant4 UI manager access
+
 
 /**
  * @brief Constructs the G4DisplayView widget.

@@ -12,9 +12,10 @@
 #include "gsystemConventions.h"
 
 // geant4
-
 #include "G4VisAttributes.hh"
 #include "G4Material.hh"
+#include "G4UImanager.hh" // Geant4 UI manager access
+#include "gtouchable.h"
 #include "gutilities.h"
 
 G4Ttree_item::G4Ttree_item(G4Volume* g4volume) {
@@ -142,7 +143,7 @@ void GTree::populateTree() {
             colorBtn->setFixedSize(20, 20);
             colorBtn->setFlat(true);        // no 3D/bevel look
             colorBtn->setText(QString());   // no text
-            
+
             // Use stylesheet so the *entire* button is filled
             colorBtn->setStyleSheet(
                 QString("QPushButton { background-color: %1; border: 1px solid black; }")
@@ -246,29 +247,32 @@ void GTree::onColorButtonClicked()
 }
 
 
-void GTree::set_visibility(const std::string& fullName, bool visible)
+void GTree::set_visibility(const std::string& volumeName, bool visible)
 {
-    // look up system + item in g4_systems_tree and set the visibility
-    // (you can store it back in the G4Ttree_item too)
-    for (auto& [systemName, volMap] : g4_systems_tree) {
-        auto it = volMap.find(fullName);
-        if (it != volMap.end()) {
-            //it->second->set_visibility(visible); // add setter in G4Ttree_item if needed
-            // also call Geant4 / vis update here
-            break;
-        }
-    }
+    G4UImanager* g4uim = G4UImanager::GetUIpointer();
+    if (g4uim == nullptr) { return; }
+
+    std::string vis_int = visible ? "1" : "0";
+
+    std::string command = "/vis/geometry/set/visibility " + volumeName + " 0 " + vis_int;
+
+
+    g4uim->ApplyCommand(command);
 }
 
-void GTree::set_color(const std::string& fullName, const QColor& c)
+void GTree::set_color(const std::string& volumeName, const QColor& c)
 {
-    const std::string colorStr = c.name(QColor::HexRgb).toStdString();
-    for (auto& [systemName, volMap] : g4_systems_tree) {
-        auto it = volMap.find(fullName);
-        if (it != volMap.end()) {
-            // add a setter in G4Ttree_item for color
-            // it->second->set_color(colorStr);
-            break;
-        }
-    }
+    G4UImanager* g4uim = G4UImanager::GetUIpointer();
+    if (g4uim == nullptr) { return; }
+
+    int r, g, b;
+    c.getRgb(&r, &g, &b);
+
+    std::string command = "/vis/geometry/set/colour " + volumeName + " 0 "
+    + std::to_string(r/255.0) + " "
+    + std::to_string(g/255.0) + " "
+    + std::to_string(b/255.0);
+
+    g4uim->ApplyCommand(command);
+
 }
