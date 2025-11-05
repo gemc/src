@@ -1,6 +1,7 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Container Outline -->
-    <rect x="4" y="4" width="40" height="40" rx="4" stroke="currentColor" stroke-width="1"/>
+    <!-- Dialog container: transparent background with currentColor border -->
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+
 
     <!-- Detector Grid (3 rows x 4 columns) with smaller, centered squares (moved down by 4 units) -->
     <!-- Row 0 (original y positions +4) -->

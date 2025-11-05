@@ -1,0 +1,48 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Unselected state container -->
+    <rect x="6" y="6" width="36" height="36" rx="3"
+          fill="none" stroke="currentColor" stroke-width="1"/>
+
+    <!-- Centered Geant4-style solid cube -->
+
+    <!-- Back face -->
+    <rect
+            x="18" y="10" width="16" height="16"
+            fill="currentColor" fill-opacity="0.08"
+            stroke="currentColor" stroke-width="1"
+    />
+
+    <!-- Top face -->
+    <polygon
+            points="14,14 30,14 34,10 18,10"
+            fill="currentColor" fill-opacity="0.12"
+            stroke="currentColor" stroke-width="1"
+    />
+
+    <!-- Right face -->
+    <polygon
+            points="30,14 34,10 34,26 30,30"
+            fill="currentColor" fill-opacity="0.18"
+            stroke="currentColor" stroke-width="1"
+    />
+
+    <!-- Front face -->
+    <rect
+            x="14" y="14" width="16" height="16"
+            fill="currentColor" fill-opacity="0.22"
+            stroke="currentColor" stroke-width="1"
+    />
+
+    <!-- Connecting edges -->
+    <line x1="18" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1" />
+    <line x1="34" y1="10" x2="30" y2="14" stroke="currentColor" stroke-width="1" />
+    <line x1="34" y1="26" x2="30" y2="30" stroke="currentColor" stroke-width="1" />
+    <line x1="18" y1="26" x2="14" y2="30" stroke="currentColor" stroke-width="1" />
+
+
+    <!-- Label -->
+    <text x="24" y="38" text-anchor="middle"
+          fill="currentColor" font-size="8" font-family="Arial">
+        Surface
+    </text>
+</svg>

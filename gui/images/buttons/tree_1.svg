@@ -1,6 +1,7 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Unselected state container -->
+    <!-- Dialog container: transparent background with currentColor border -->
     <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+
 
     <!-- Database cylinder -->
     <!-- Top ellipse -->

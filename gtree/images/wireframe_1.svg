@@ -1,0 +1,27 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Unselected state container -->
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+
+    <!-- Geant4-style wireframe cube -->
+
+    <!-- Back face -->
+    <rect x="18" y="10" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1" />
+
+    <!-- Front face -->
+    <rect x="14" y="14" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1" />
+
+    <!-- Connecting edges -->
+    <line x1="18" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1" />
+    <line x1="32" y1="10" x2="28" y2="14" stroke="currentColor" stroke-width="1" />
+    <line x1="32" y1="24" x2="28" y2="28" stroke="currentColor" stroke-width="1" />
+    <line x1="18" y1="24" x2="14" y2="28" stroke="currentColor" stroke-width="1" />
+
+    <!-- Optional internal diagonals for a more "wireframe" feel -->
+    <line x1="14" y1="14" x2="28" y2="28" stroke="currentColor" stroke-width="0.75" />
+    <line x1="18" y1="10" x2="32" y2="24" stroke="currentColor" stroke-width="0.75" />
+
+    <!-- Text Label -->
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">
+        Wire
+    </text>
+</svg>

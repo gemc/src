@@ -102,7 +102,7 @@ std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts
 	cmds.emplace_back("/vis/scene/endOfEventAction accumulate 10000");
 
 	// background colors and root volume are the same
-	cmds.push_back("/vis/viewer/set/background 0.97255 0.97255 1.00000");
+	cmds.push_back("/vis/viewer/set/background 0.46666667 0.53333333 0.6");
 
 	cmds.emplace_back("/vis/viewer/set/autoRefresh true");
 	cmds.emplace_back("/vis/viewer/flush");

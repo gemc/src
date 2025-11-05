@@ -10,6 +10,7 @@
 #include <QWidget>
 #include <QTreeWidgetItem>
 #include <QColor>
+#include <QLabel>
 
 // cpp
 #include <map>
@@ -29,8 +30,11 @@ private:
     double opacity;
 
     std::string material;
-    double density;
     double mass;
+    double volume;
+    double density;
+
+    bool recursive;
 
 public:
     [[nodiscard]] std::string get_mother() const { return mother; }
@@ -38,9 +42,12 @@ public:
     [[nodiscard]] bool get_visibility() const { return is_visible; }
     [[nodiscard]] int get_representation() const { return representation; }
     [[nodiscard]] double get_opacity() const { return opacity; }
-    [[nodiscard]] double get_density() const { return density; }
     [[nodiscard]] double get_mass() const { return mass; }
+    [[nodiscard]] double get_volume() const { return volume; }
+    [[nodiscard]] double get_density() const { return density; }
     [[nodiscard]] std::string get_material() const { return material; }
+    [[nodiscard]] bool get_recursive() const { return recursive; }
+    void set_recursive(bool recursive) { this->recursive = recursive; }
 
     static std::string vname_from_v4name(std::string v4name);
     static std::string system_from_v4name(std::string v4name);
@@ -73,13 +80,35 @@ private:
     std::map<std::string, g4tree_map> g4_systems_tree; // map of systems
     QTreeWidget* treeWidget = nullptr;
 
+    // right-side panel
+    QWidget* rightPanel = nullptr;
+    QWidget* bottomPanel = nullptr; // appears only when an item is selected
+
+    GQTButtonsWidget* styleButtons;  // left bar buttons
+
+    // info labels inside bottomPanel
+    QLabel* typeLabel = nullptr;
+    QLabel* daughtersLabel = nullptr;
+    QLabel* nameLabel = nullptr;
+    QLabel* materialLabel = nullptr;
+    QLabel* massLabel = nullptr;
+    QLabel* volumeLabel = nullptr;
+    QLabel* densityLabel = nullptr;
+
     void build_tree(std::unordered_map<std::string, G4Volume*> g4volumes_map); // already implemented
     void populateTree(); // build the Qt tree from g4_systems_tree
 
     void set_visibility(const std::string& fullName, bool visible);
     void set_color(const std::string& fullName, const QColor& c);
 
+    QWidget* right_widget();
+    int get_ndaughters(QTreeWidgetItem* item) const;
+    const G4Ttree_item* findTreeItem(const std::string& fullName) const;
+
 private slots:
     void onItemChanged(QTreeWidgetItem* item, int column);
     void onColorButtonClicked();
+    void onTreeItemClicked(QTreeWidgetItem* item, int column);
+    void onCurrentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* previous);
+
 };

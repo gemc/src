@@ -1,6 +1,7 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+
     <!-- Selected state container background with white outline -->
-    <rect x="4" y="4" width="40" height="40" rx="4" fill="#aaddff" stroke="currentColor" stroke-width="1"/>
+    <rect x="2" y="2" width="42" height="42" rx="4" fill="#aaddff" stroke="currentColor" stroke-width="1"/>
 
     <!-- Detector Grid (3 rows x 4 columns) shifted down by 4 units -->
     <!-- Row 0 -->

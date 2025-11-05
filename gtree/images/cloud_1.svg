@@ -1,0 +1,29 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Unselected state container -->
+    <rect x="6" y="6" width="36" height="36" rx="3"
+          fill="none" stroke="currentColor" stroke-width="1"/>
+
+    <!-- Centered cloud "solid" with subtle wireframe -->
+    <!-- Main cloud shape -->
+    <path
+            d="M16 24
+           C13.8 23.6 12 21.8 12 19.5
+           C12 17 14 15 16.8 15
+           C17.5 13.1 19.3 11.8 21.5 11.8
+           C23.4 11.8 25.0 12.7 26.0 14.2
+           C26.8 13.9 27.6 13.8 28.5 13.8
+           C31.2 13.8 33.5 15.9 33.5 18.6
+           C35.3 19.0 36.7 20.6 36.7 22.5
+           C36.7 24.9 34.8 26.8 32.4 26.8
+           H19.2
+           C18.2 26.8 17.0 26.4 16 25.7Z"
+            fill="currentColor" fill-opacity="0.1"
+            stroke="currentColor" stroke-width="1"
+    />
+
+    <!-- Label -->
+    <text x="24" y="38" text-anchor="middle"
+          fill="currentColor" font-size="8" font-family="Arial">
+        Cloud
+    </text>
+</svg>

@@ -247,10 +247,10 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts, std::shared
 
     QLabel* backgroundColorLabel = new QLabel(tr("Background Color:"));
     backgroundColorDropdown = new QComboBox;
+    backgroundColorDropdown->addItem(tr("lightslategray"));
     backgroundColorDropdown->addItem(tr("ghostwhite"));
     backgroundColorDropdown->addItem(tr("black"));
     backgroundColorDropdown->addItem(tr("navy"));
-    backgroundColorDropdown->addItem(tr("lightslategray"));
     backgroundColorDropdown->addItem(tr("whitesmoke"));
     backgroundColorDropdown->addItem(tr("lightskyblue"));
     backgroundColorDropdown->addItem(tr("deepskyblue"));

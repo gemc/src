@@ -17,7 +17,8 @@ verbosities = ['-verbosity.gtree=2',
 
 sources = files(
     'gtree_options.cc',
-    'gtree.cc'
+    'gtree.cc',
+    'right_widget.cc'
 )
 
 headers = files(

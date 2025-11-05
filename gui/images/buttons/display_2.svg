@@ -1,6 +1,7 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- Selected state container: inner background is filled -->
-    <rect x="6" y="6" width="36" height="36" rx="3" fill="#aaddff" stroke="currentColor" stroke-width="1"/>
+
+    <!-- Selected state container background with white outline -->
+    <rect x="2" y="2" width="42" height="42" rx="4" fill="#aaddff" stroke="currentColor" stroke-width="1"/>
 
     <!-- Monitor Screen (smaller and centered between top and label) -->
     <rect x="14" y="12" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1"/>
