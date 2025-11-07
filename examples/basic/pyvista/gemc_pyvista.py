@@ -8,7 +8,13 @@ from gvolume import GVolume
 # pyvista objects
 from pyvista_basic_shapes import make_basic_shapes
 
-cfg = autogeometry("examples", "pyvista")
+cfg = autogeometry(
+	"examples",
+	"simple_flux",
+	auto_show=False,            # don't show at exit
+	enable_pyvista=True,        # turn pyvista on without CLI
+	use_background_plotter=True # non-blocking window
+)
 
 for gm in make_basic_shapes():
 	gv = GVolume.from_gmesh(gm)

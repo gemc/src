@@ -2,7 +2,13 @@
 from gconfiguration import autogeometry
 from gvolume import GVolume
 
-cfg = autogeometry("examples", "simple_flux")
+cfg = autogeometry(
+    "examples",
+    "simple_flux",
+    auto_show=False,              # don't auto-show at interpreter exit
+    enable_pyvista=True,
+    use_background_plotter=True,  # force BackgroundPlotter
+)
 
 world_size = 110
 gvolume = GVolume("root")
