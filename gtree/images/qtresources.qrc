@@ -1,0 +1,11 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource>
+        <file>../../gtree/images/wireframe_1.svg</file>
+        <file>../../gtree/images/wireframe_2.svg</file>
+        <file>../../gtree/images/surface_1.svg</file>
+        <file>../../gtree/images/surface_2.svg</file>
+        <file>../../gtree/images/cloud_1.svg</file>
+        <file>../../gtree/images/cloud_2.svg</file>
+    </qresource>
+</RCC>

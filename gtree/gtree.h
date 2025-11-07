@@ -11,6 +11,7 @@
 #include <QTreeWidgetItem>
 #include <QColor>
 #include <QLabel>
+#include <QSlider>
 
 // cpp
 #include <map>
@@ -48,6 +49,8 @@ public:
     [[nodiscard]] std::string get_material() const { return material; }
     [[nodiscard]] bool get_recursive() const { return recursive; }
     void set_recursive(bool recursive) { this->recursive = recursive; }
+    void set_color(QColor& c)  { color = c; }
+    void set_opacity(double opacity) { this->opacity = opacity; }
 
     static std::string vname_from_v4name(std::string v4name);
     static std::string system_from_v4name(std::string v4name);
@@ -95,20 +98,28 @@ private:
     QLabel* volumeLabel = nullptr;
     QLabel* densityLabel = nullptr;
 
+    QSlider* opacitySlider = nullptr;
+    QLabel*  opacityLabel  = nullptr;   // show numeric value
+
     void build_tree(std::unordered_map<std::string, G4Volume*> g4volumes_map); // already implemented
     void populateTree(); // build the Qt tree from g4_systems_tree
 
     void set_visibility(const std::string& fullName, bool visible);
     void set_color(const std::string& fullName, const QColor& c);
+    void set_opacity(const std::string& volumeName, double opacity);
 
     QWidget* right_widget();
     int get_ndaughters(QTreeWidgetItem* item) const;
-    const G4Ttree_item* findTreeItem(const std::string& fullName) const;
+    G4Ttree_item* findTreeItem(const std::string& fullName);
+
+    std::string current_volume_name;
 
 private slots:
     void onItemChanged(QTreeWidgetItem* item, int column);
     void onColorButtonClicked();
     void onTreeItemClicked(QTreeWidgetItem* item, int column);
     void onCurrentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* previous);
+    void changeStyle();
+    void onOpacitySliderChanged(int value);
 
 };

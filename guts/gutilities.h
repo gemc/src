@@ -9,9 +9,9 @@
 
 // geant4
 #include "G4Colour.hh"
+#include "G4UImanager.hh" // Geant4 UI manager access
 
 namespace gutilities {
-
 using std::string;
 using std::vector;
 using std::map;
@@ -60,8 +60,8 @@ std::string getFileFromPath(const std::string& path);
 std::string getDirFromPath(const std::string& path);
 
 std::optional<std::string> searchForFileInLocations(
-	const std::vector<std::string>& locations,
-	std::string_view                filename);
+    const std::vector<std::string>& locations,
+    std::string_view filename);
 
 /**
 * @brief Splits a string into a vector of strings using spaces as delimiters.
@@ -268,11 +268,12 @@ vector<KEY> getKeys(const map<KEY, VALUE>& map);
 /**
  * @brief Enumeration of random models.
  */
-enum randomModel {
-	uniform,  ///< Uniform distribution
-	gaussian, ///< Gaussian distribution
-	cosine,   ///< Cosine distribution
-	sphere    ///< Sphere distribution
+enum randomModel
+{
+    uniform, ///< Uniform distribution
+    gaussian, ///< Gaussian distribution
+    cosine, ///< Cosine distribution
+    sphere ///< Sphere distribution
 };
 
 /**
@@ -288,13 +289,13 @@ enum randomModel {
 randomModel stringToRandomModel(const std::string& str);
 
 inline constexpr const char* to_string(randomModel m) noexcept {
-	switch (m) {
-	case uniform: return "uniform";
-	case gaussian: return "gaussian";
-	case cosine: return "cosine";
-	case sphere: return "sphere";
-	}
-	return "<unknown>";
+    switch (m) {
+    case uniform: return "uniform";
+    case gaussian: return "gaussian";
+    case cosine: return "cosine";
+    case sphere: return "sphere";
+    }
+    return "<unknown>";
 }
 
 /**
@@ -307,7 +308,6 @@ inline constexpr const char* to_string(randomModel m) noexcept {
  * No allocations, one integer parse, and throws std::invalid_argument on malformed input.
  */
 G4Colour makeG4Colour(std::string_view code, double opacity);
-
 };
 
 
@@ -328,53 +328,55 @@ G4Colour makeG4Colour(std::string_view code, double opacity);
 namespace gutilities {
 inline std::filesystem::path executable_path() {
 #if defined(__APPLE__)
-	char     buf[PATH_MAX];
-	uint32_t sz = sizeof(buf);
-	if (_NSGetExecutablePath(buf, &sz) != 0) { // buffer too small
-		std::string big(sz, '\0');
-		if (_NSGetExecutablePath(big.data(), &sz) != 0)
-			throw std::runtime_error("_NSGetExecutablePath failed");
-		return std::filesystem::canonical(big);
-	}
-	return std::filesystem::canonical(buf);
+    char buf[PATH_MAX];
+    uint32_t sz = sizeof(buf);
+    if (_NSGetExecutablePath(buf, &sz) != 0) {
+        // buffer too small
+        std::string big(sz, '\0');
+        if (_NSGetExecutablePath(big.data(), &sz) != 0)
+            throw std::runtime_error("_NSGetExecutablePath failed");
+        return std::filesystem::canonical(big);
+    }
+    return std::filesystem::canonical(buf);
 
 #elif defined(__linux__)
-	char    buf[PATH_MAX];
-	ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf) - 1);
-	if (len == -1)
-		throw std::runtime_error("readlink(/proc/self/exe) failed");
-	buf[len] = '\0';
-	return std::filesystem::canonical(buf);
+    char buf[PATH_MAX];
+    ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+    if (len == -1)
+        throw std::runtime_error("readlink(/proc/self/exe) failed");
+    buf[len] = '\0';
+    return std::filesystem::canonical(buf);
 
 #elif defined(_WIN32)
-	std::wstring buf(MAX_PATH, L'\0');
-	DWORD        len = ::GetModuleFileNameW(nullptr, buf.data(), buf.size());
-	if (len == 0)
-		throw std::runtime_error("GetModuleFileNameW failed");
-	// If the path is longer than MAX_PATH the buffer is truncated;
-	// do a second call with the returned length to get the full path.
-	if (len == buf.size()) {
-		buf.resize(len * 2);
-		len = ::GetModuleFileNameW(nullptr, buf.data(), buf.size());
-	}
-	buf.resize(len);
-	return std::filesystem::canonical(std::filesystem::path(buf));
+    std::wstring buf(MAX_PATH, L'\0');
+    DWORD len = ::GetModuleFileNameW(nullptr, buf.data(), buf.size());
+    if (len == 0)
+        throw std::runtime_error("GetModuleFileNameW failed");
+    // If the path is longer than MAX_PATH the buffer is truncated;
+    // do a second call with the returned length to get the full path.
+    if (len == buf.size()) {
+        buf.resize(len * 2);
+        len = ::GetModuleFileNameW(nullptr, buf.data(), buf.size());
+    }
+    buf.resize(len);
+    return std::filesystem::canonical(std::filesystem::path(buf));
 #endif
 }
 
 inline std::filesystem::path gemc_root() {
-	auto exe_dir   = executable_path().parent_path(); // where the executable is installed
-	auto gemc_root = exe_dir.parent_path();           // one dir up. The danger here is where this is a
+    auto exe_dir = executable_path().parent_path(); // where the executable is installed
+    auto gemc_root = exe_dir.parent_path(); // one dir up. The danger here is where this is a
 
-	// Sanity‑check api dir
-	if (!std::filesystem::exists(gemc_root / "api"))
-		throw std::runtime_error("Cannot locate directory >api< check directory layout");
+    // Sanity‑check api dir
+    if (!std::filesystem::exists(gemc_root / "api"))
+        throw std::runtime_error("Cannot locate directory >api< check directory layout");
 
-	return gemc_root;
+    return gemc_root;
 }
 
 bool is_unset(std::string_view s);
 
 inline std::string success_or_fail(bool condition) { return condition ? "success" : "fail"; }
+void apply_uimanager_commands(const std::string& commands);
 
 }

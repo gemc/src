@@ -513,5 +513,11 @@ bool is_unset(std::string_view s) {
 	return eq(s, UNINITIALIZEDSTRINGQUANTITY) || eq(s, "null") || eq(s, "~");
 }
 
+void apply_uimanager_commands(const std::string& command) {
+	G4UImanager* g4uim = G4UImanager::GetUIpointer();
+	if (g4uim == nullptr) { return; }
+	g4uim->ApplyCommand(command);
+
+}
 
 }

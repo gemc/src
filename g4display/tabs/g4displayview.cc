@@ -650,8 +650,8 @@ void G4DisplayView::slice() {
     if (g4uim == nullptr) { return; }
 
     // can't have a mix of wireframe / solid when doing a slice.
-    // forcing all to be solid
-    g4uim->ApplyCommand("/vis/geometry/set/forceSolid all -1 1");
+    // forcing all to be solid. Actually this seems not to be true anymore
+    // g4uim->ApplyCommand("/vis/geometry/set/forceSolid all -1 1");
 
 
     g4uim->ApplyCommand("/vis/viewer/clearCutawayPlanes");

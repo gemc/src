@@ -89,6 +89,8 @@ public:
 	 */
 	void press_button(int i);
 
+	void reset_buttons();           ///< all buttons unpressed
+
 private:
 	std::vector<ButtonInfo *> buttons; ///< Vector holding pointers to ButtonInfo objects.
 
@@ -154,6 +156,8 @@ public:
 	 * \return True if the button is checked; false otherwise.
 	 */
 	bool buttonStatus(int index) const;
+
+	void reset_buttons();           ///< all buttons unpressed
 
 	signals:
 			/**

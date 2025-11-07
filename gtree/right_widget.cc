@@ -18,20 +18,30 @@ QWidget* GTree::right_widget() {
     bottomPanel = new QWidget(container);
     auto* blayout = new QVBoxLayout(bottomPanel);
 
-    // --- Placeholders for your custom widgets ---
-    // Replace QWidget with GQTButtonsWidget / GQTToggleButtonWidget once you have them.
-    QWidget* buttonsWidget = new QWidget(bottomPanel);
-    buttonsWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    buttonsWidget->setMinimumHeight(40); // placeholder
-    blayout->addWidget(buttonsWidget);
-
-
     std::vector<std::string> bicons;
     bicons.push_back(":/gtree/images/wireframe");
     bicons.push_back(":/gtree/images/surface");
     bicons.push_back(":/gtree/images/cloud");
-    styleButtons = new GQTButtonsWidget(96, 96, bicons, false, bottomPanel);
+    styleButtons = new GQTButtonsWidget(96, 96, bicons, false);
     blayout->addWidget(styleButtons, 1);
+
+    auto* opacityContainer = new QWidget(bottomPanel);
+    auto* opacityLayout = new QHBoxLayout(opacityContainer);
+    opacityLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto* label = new QLabel(tr("Opacity:"), opacityContainer);
+    opacityLabel = new QLabel(tr("1.00"), opacityContainer); // default text
+
+    opacitySlider = new QSlider(Qt::Horizontal, opacityContainer);
+    opacitySlider->setRange(0, 100); // 0 → 0.0, 100 → 1.0
+    opacitySlider->setValue(100); // default fully opaque
+    opacitySlider->setSingleStep(5);
+    opacitySlider->setPageStep(10);
+
+    opacityLayout->addWidget(label);
+    opacityLayout->addWidget(opacitySlider);
+    opacityLayout->addWidget(opacityLabel);
+
 
     // Info labels
     typeLabel = new QLabel(bottomPanel);
@@ -42,6 +52,8 @@ QWidget* GTree::right_widget() {
     volumeLabel = new QLabel(bottomPanel);
     densityLabel = new QLabel(bottomPanel);
 
+    blayout->addWidget(opacityContainer);
+    blayout->addSpacing(10);
     blayout->addWidget(typeLabel);
     blayout->addWidget(daughtersLabel);
     blayout->addWidget(nameLabel);

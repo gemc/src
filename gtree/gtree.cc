@@ -15,7 +15,6 @@
 // geant4
 #include "G4VisAttributes.hh"
 #include "G4Material.hh"
-#include "G4UImanager.hh" // Geant4 UI manager access
 #include "gtouchable.h"
 #include "gutilities.h"
 #include "G4SystemOfUnits.hh"   // for mm, cm, g/cm3, etc.
@@ -111,8 +110,17 @@ GTree::GTree(const std::shared_ptr<GOptions>& gopt,
             this, &GTree::onTreeItemClicked);
 
     connect(treeWidget, &QTreeWidget::currentItemChanged,
-        this, &GTree::onCurrentItemChanged);
+            this, &GTree::onCurrentItemChanged);
 
+    // connect GQTButtonsWidget signal button_pressed to slot changeStyle()
+    connect(styleButtons->buttonsWidget,
+            SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem*)),
+            this, SLOT(changeStyle()));
+
+
+    // connect slider to slot
+    connect(opacitySlider, &QSlider::valueChanged,
+            this, &GTree::onOpacitySliderChanged);
 
     log->debug(NORMAL, SFUNCTION_NAME, "GTree added");
 }
@@ -309,9 +317,6 @@ void GTree::onColorButtonClicked() {
 
 
 void GTree::set_visibility(const std::string& volumeName, bool visible) {
-    G4UImanager* g4uim = G4UImanager::GetUIpointer();
-    if (g4uim == nullptr) { return; }
-
     std::string vis_int = visible ? "1" : "0";
 
     std::string command = "/vis/geometry/set/visibility " + volumeName + " -1 " + vis_int;
@@ -320,14 +325,10 @@ void GTree::set_visibility(const std::string& volumeName, bool visible) {
         command = "/vis/geometry/set/visibility " + volumeName + " 0 " + vis_int;
     }
 
-
-    g4uim->ApplyCommand(command);
+    gutilities::apply_uimanager_commands(command);
 }
 
 void GTree::set_color(const std::string& volumeName, const QColor& c) {
-    G4UImanager* g4uim = G4UImanager::GetUIpointer();
-    if (g4uim == nullptr) { return; }
-
     int r, g, b;
     c.getRgb(&r, &g, &b);
 
@@ -336,7 +337,7 @@ void GTree::set_color(const std::string& volumeName, const QColor& c) {
         + std::to_string(g / 255.0) + " "
         + std::to_string(b / 255.0);
 
-    g4uim->ApplyCommand(command);
+    gutilities::apply_uimanager_commands(command);
 }
 
 int GTree::get_ndaughters(QTreeWidgetItem* item) const {
@@ -344,7 +345,7 @@ int GTree::get_ndaughters(QTreeWidgetItem* item) const {
     return item->childCount();
 }
 
-const G4Ttree_item* GTree::findTreeItem(const std::string& fullName) const {
+G4Ttree_item* GTree::findTreeItem(const std::string& fullName) {
     for (const auto& [systemName, volMap] : g4_systems_tree) {
         auto it = volMap.find(fullName);
         if (it != volMap.end()) {
@@ -356,12 +357,12 @@ const G4Ttree_item* GTree::findTreeItem(const std::string& fullName) const {
 
 
 void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
-
     if (!bottomPanel)
         return;
 
     if (!item) {
         bottomPanel->setVisible(false);
+        current_volume_name.clear();
         return;
     }
 
@@ -374,9 +375,11 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
     // Type label
     if (isVolume) {
         typeLabel->setText(QStringLiteral("<b>G4 Volume</b>"));
+        current_volume_name = v.toString().toStdString();
     }
     else {
         typeLabel->setText(QStringLiteral("<b>System</b>"));
+        current_volume_name.clear();
     }
 
     // Number of direct daughters
@@ -389,6 +392,8 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
 
     // Material / density / mass
     if (isVolume) {
+        styleButtons->setVisible(true);
+
         const std::string fullName = v.toString().toStdString();
         const G4Ttree_item* titem = findTreeItem(fullName);
 
@@ -406,16 +411,27 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
             auto volume = titem->get_volume();
             if (volume < 1000000) {
                 volumeLabel->setText(tr("Volume: %1 cm3").arg(volume));
-            } else {
+            }
+            else {
                 volumeLabel->setText(tr("Volume: %1 m3").arg(volume / 1000000));
             }
 
             densityLabel->setText(
                 tr("Average Density: %1 g / cm3").arg(titem->get_density())
             );
+            double op = titem->get_opacity();
+            int sliderVal = static_cast<int>(op * 100.0 + 0.5);
+            {
+                QSignalBlocker blocker(opacitySlider);
+                opacitySlider->setValue(sliderVal);
+            }
+            opacityLabel->setText(QString::number(op, 'f', 2));
+            opacitySlider->setVisible(true);
         }
     }
     else {
+        styleButtons->setVisible(false);
+        opacitySlider->setVisible(false);
         // Systems don't have a single material etc.
         materialLabel->setText(tr(""));
         massLabel->setText(tr(""));
@@ -424,12 +440,70 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
     }
 }
 
-void GTree::onCurrentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* previous)
-{
+void GTree::onCurrentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* previous) {
     Q_UNUSED(previous);
     if (!current)
         return;
 
+    // reset styleButtons
+    styleButtons->reset_buttons();
+
     // Reuse the same logic as mouse clicks
     onTreeItemClicked(current, 0);
+}
+
+void GTree::changeStyle() {
+
+    int button_index = styleButtons->button_pressed();
+
+    std::string command;
+
+    if (button_index == 0) {
+        command = "/vis/geometry/set/forceWireframe " + current_volume_name + " 0 1 ";
+    }
+    else if (button_index == 1) {
+        command = "/vis/geometry/set/forceSolid " + current_volume_name + " 0 1 ";
+    }
+    else if (button_index == 2) {
+        command = "/vis/geometry/set/forceCloud " + current_volume_name + " 0 1 ";
+    }
+
+    gutilities::apply_uimanager_commands(command);
+}
+
+void GTree::onOpacitySliderChanged(int value) {
+    if (current_volume_name.empty())
+        return; // no volume selected
+
+    double opacity = value / 100.0;
+
+    if (opacityLabel) {
+        opacityLabel->setText(QString::number(opacity, 'f', 2));
+    }
+
+    set_opacity(current_volume_name, opacity);
+}
+
+void GTree::set_opacity(const std::string& volumeName, double opacity) {
+
+    // find current color for this volume from our tree model
+    G4Ttree_item* item = findTreeItem(volumeName);
+    if (!item) return;
+
+    QColor c = item->get_color();
+    double r = c.redF();
+    double g = c.greenF();
+    double b = c.blueF();
+
+    // Geant4: r g b alpha
+    std::string command = "/vis/geometry/set/colour " + volumeName + " 0 "
+        + std::to_string(r) + " "
+        + std::to_string(g) + " "
+        + std::to_string(b) + " "
+        + std::to_string(opacity);
+
+    item->set_color(c);
+    item->set_opacity(opacity);
+
+    gutilities::apply_uimanager_commands(command);
 }

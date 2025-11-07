@@ -94,7 +94,7 @@ foreach L : LD
 
     if not sources.contains('')
         if not qrc_sources.contains('')
-            qrc_compiled_sources += qt6.compile_resources(sources : qrc_sources)
+            qrc_compiled_sources += qt6.compile_resources(name : this_lib_name + '_qtresources', sources : qrc_sources)
         endif
         this_library = static_library(
             this_lib_name,
@@ -156,7 +156,7 @@ foreach L : LD
 
         # example executables, lower priority so it's executed after build geometry
         if not qrc_examples_sources.contains('')
-            qrc_examples_compiled_sources = qt6.compile_resources(sources : qrc_examples_sources)
+            qrc_examples_compiled_sources = qt6.compile_resources(name : this_lib_name + '_qtresources', sources : qrc_examples_sources)
         endif
         foreach name, sources_and_arguments : examples
             # concatenate the items in sources_and_arguments[1] to a string

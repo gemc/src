@@ -141,6 +141,14 @@ void GQTButtonsWidget::buttonWasPressed(QListWidgetItem *item) {
 	item->setIcon(buttons[index]->iconForState(2));
 }
 
+
+void GQTButtonsWidget::reset_buttons() {
+	for (auto &b : buttons) {
+		b->thisButton->setIcon(b->iconForState(1));
+	}
+}
+
+
 /* --- GQTToggleButtonWidget Implementation --- */
 
 /**
@@ -244,4 +252,10 @@ bool GQTToggleButtonWidget::buttonStatus(int index) const {
 void GQTToggleButtonWidget::setButtonPressed(int index) {
 	buttonPressedIndex = index;
 	emit buttonPressedIndexChanged(buttonPressedIndex);
+}
+
+void GQTToggleButtonWidget::reset_buttons() {
+	for (auto &b : buttons) {
+		b->setChecked(false);
+	}
 }

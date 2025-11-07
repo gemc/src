@@ -10,5 +10,11 @@
         <file>gui/images/buttons/setup_2.svg</file>
         <file>gui/images/buttons/tree_1.svg</file>
         <file>gui/images/buttons/tree_2.svg</file>
+        <file>gtree/images/wireframe_1.svg</file>
+        <file>gtree/images/wireframe_2.svg</file>
+        <file>gtree/images/surface_1.svg</file>
+        <file>gtree/images/surface_2.svg</file>
+        <file>gtree/images/cloud_1.svg</file>
+        <file>gtree/images/cloud_2.svg</file>
     </qresource>
 </RCC>

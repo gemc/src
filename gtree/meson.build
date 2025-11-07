@@ -33,6 +33,10 @@ geo_build = {
     'test_dbselect_geo' : [files('examples/example.py')]
 }
 
+qrc_examples_sources = files(
+    'images/qtresources.qrc'
+)
+
 examples = {
     'test_gtree' : [example_source, with_gui + dbhost + gsystem],
     'test_gtree_verbose' : [example_source, with_gui + dbhost + gsystem + verbosities]
@@ -43,6 +47,7 @@ LD += {
     'sources' : sources,
     'headers' : headers,
     'moc_headers' : moc_headers,
+    'qrc_examples_sources' : qrc_examples_sources,
     'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps],
     'geo_build' : geo_build,
     'examples' : examples
