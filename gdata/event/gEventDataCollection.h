@@ -39,7 +39,7 @@ public:
 	 */
 
 	GEventDataCollection(const std::shared_ptr<GOptions>& gopts, std::unique_ptr<GEventHeader> header)
-		: GBase(gopts, GDATAHEADER_LOGGER), gheader(std::move(header)) { }
+		: GBase(gopts, GDATAEVENTHEADER_LOGGER), gheader(std::move(header)) { }
 
 	/**
 	 * \brief Adds true hit information data for a detector.

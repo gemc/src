@@ -16,11 +16,11 @@
  * thread ID, and a timestamp. It is used by the GEventDataCollection class.
  */
 
-constexpr const char* GDATAHEADER_LOGGER = "event_header";
+constexpr const char* GDATAEVENTHEADER_LOGGER = "event_header";
 
 namespace gheader {
 inline GOptions defineOptions() {
-	auto goptions = GOptions(GDATAHEADER_LOGGER);
+	auto goptions = GOptions(GDATAEVENTHEADER_LOGGER);
 	return goptions;
 }
 }
@@ -38,7 +38,7 @@ public:
 	 * \param gopts Pointer to a GOptions instance.
 	 */
 	GEventHeader(const std::shared_ptr<GOptions>& gopts, int n, int tid) :
-		GBase(gopts, GDATAHEADER_LOGGER),
+		GBase(gopts, GDATAEVENTHEADER_LOGGER),
 		g4localEventNumber(n),
 		threadID(tid) {
 		timeStamp = assignTimeStamp();

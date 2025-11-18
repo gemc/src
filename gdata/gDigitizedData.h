@@ -49,7 +49,10 @@ public:
 	// Public interface to add data to a hit:
 	void includeVariable(const std::string& vname, int value);
 	void includeVariable(const std::string& vname, double value);
-	// void includeVariable(std::string vname, std::vector<int> values);
+
+	// Public interface to accumulate data:
+	void accumulateVariable(const std::string& vname, int value);
+	void accumulateVariable(const std::string& vname, double value);
 
 	/**
 	 * \brief Returns the filtered map of integer observables.
