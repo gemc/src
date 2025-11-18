@@ -6,7 +6,7 @@ using std::vector;
 
 
 // Return Header Tree with initialized leafs
-GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader, std::shared_ptr<GLogger>& logger) : log(logger) {
+GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header, std::shared_ptr<GLogger>& logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree header");
 
 	// With AUTO FLUSH AND AUTOSAVE
@@ -14,9 +14,9 @@ GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& ghead
 	root_tree->SetAutoFlush(20 * 1024 * 1024); // write root data buffers to disk automatically once their in-memory size exceeds 20 MB
 	root_tree->SetAutoSave(50 * 1024 * 1024);  // save a snapshot of the entire tree (including metadata), useful for recovery after a crash
 
-	registerVariable("g4localEventNumber", gheader->getG4LocalEvn());
-	registerVariable("threadID", gheader->getThreadID());
-	registerVariable("timeStamp", gheader->getTimeStamp());
+	registerVariable("g4localEventNumber", gevent_header->getG4LocalEvn());
+	registerVariable("threadID", gevent_header->getThreadID());
+	registerVariable("timeStamp", gevent_header->getTimeStamp());
 }
 
 
@@ -50,17 +50,17 @@ GRootTree::GRootTree(const string& treeName, const GDigitizedData* gdata, std::s
 }
 
 // fill the header tree
-bool GRootTree::fillTree(const std::unique_ptr<GEventHeader>& gheader) {
-	log->info(0, "Filling header tree for local event n. ", gheader->getG4LocalEvn(), " threadID ", gheader->getThreadID());
+bool GRootTree::fillTree(const std::unique_ptr<GEventHeader>& gevent_header) {
+	log->info(0, "Filling header tree for local event n. ", gevent_header->getG4LocalEvn(), " threadID ", gevent_header->getThreadID());
 
 	// clearing previous header info
 	intVarsMap["g4localEventNumber"].clear();
 	intVarsMap["threadID"].clear();
 	stringVarsMap["timeStamp"].clear();
 
-	intVarsMap["g4localEventNumber"].emplace_back(gheader->getG4LocalEvn());
-	intVarsMap["threadID"].emplace_back(gheader->getThreadID());
-	stringVarsMap["timeStamp"].emplace_back(gheader->getTimeStamp());
+	intVarsMap["g4localEventNumber"].emplace_back(gevent_header->getG4LocalEvn());
+	intVarsMap["threadID"].emplace_back(gevent_header->getThreadID());
+	stringVarsMap["timeStamp"].emplace_back(gevent_header->getTimeStamp());
 
 	root_tree->Fill();
 

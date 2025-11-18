@@ -20,7 +20,7 @@ public:
 	 * \param logger Pointer to a GLogger instance.
 	 */
 	GFrameDataCollection(GFrameHeader* header, std::shared_ptr<GLogger> logger)
-		: log(logger), gheader(header) {
+		: log(logger), gevent_header(header) {
 		log->debug(CONSTRUCTOR, "GFrameDataCollection");
 		integralPayloads = new std::vector<GIntegralPayload*>();
 	}
@@ -30,7 +30,7 @@ public:
 	 */
 	~GFrameDataCollection() {
 		log->debug(DESTRUCTOR, "GFrameDataCollection");
-		delete gheader;
+		delete gevent_header;
 		for (auto* payload : *integralPayloads) { delete payload; }
 		delete integralPayloads;
 	}
@@ -71,7 +71,7 @@ public:
 	 * \brief Gets the frame header.
 	 * \return Pointer to the frame header.
 	 */
-	[[nodiscard]] inline const GFrameHeader* getHeader() const { return gheader; }
+	[[nodiscard]] inline const GFrameHeader* getHeader() const { return gevent_header; }
 
 	/**
 	 * \brief Gets the integral payloads.
@@ -83,11 +83,11 @@ public:
 	 * \brief Gets the frame ID.
 	 * \return The frame ID.
 	 */
-	[[nodiscard]] inline long int getFrameID() const { return gheader->getFrameID(); }
+	[[nodiscard]] inline long int getFrameID() const { return gevent_header->getFrameID(); }
 
 private:
 	std::shared_ptr<GLogger>        log;               ///< Logger instance
-	GFrameHeader*     gheader = nullptr; ///< Frame header.
+	GFrameHeader*     gevent_header = nullptr; ///< Frame header.
 	std::vector<GIntegralPayload*>* integralPayloads;  ///< Vector of integral payloads.
 };
 

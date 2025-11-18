@@ -84,12 +84,11 @@ void GHit::Draw() {
 	double etot = getTotalEnergyDeposited();
 
 	if (etot > 0) {
-		circle.SetScreenDiameter(10);
+		circle.SetScreenSize(50);
 		circle.SetVisAttributes(G4VisAttributes(colour_hit));
-		circle.SetFillStyle(G4Circle::filled);
 	}
 	else if (etot == 0) {
-		circle.SetScreenSize(8);
+		circle.SetScreenSize(15);
 		circle.SetVisAttributes(G4VisAttributes(colour_passby));
 		circle.SetFillStyle(G4Circle::hashed);
 	}

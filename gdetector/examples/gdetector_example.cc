@@ -61,8 +61,8 @@ auto run_simulation_in_threads(int                                              
 				int         runNumber = 1;
 				std::string variation = "default";
 
-				auto gheader      = GEventHeader::create(gopts, tid);
-				auto eventData    = std::make_shared<GEventDataCollection>(gopts, std::move(gheader));
+				auto gevent_header      = GEventHeader::create(gopts, tid);
+				auto eventData    = std::make_shared<GEventDataCollection>(gopts, std::move(gevent_header));
 				auto digi_routine = gdetector->get_digitization_routines_for_sdname(sdname);
 				log->debug(NORMAL, "Calling ", sdname, " loadConstants for run ", runNumber);
 

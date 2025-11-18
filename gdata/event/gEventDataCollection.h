@@ -20,7 +20,7 @@ constexpr const char* GEVENTDATA_LOGGER = "gevent_data";
 namespace gevent_data {
 inline GOptions defineOptions() {
 	auto goptions = GOptions(GEVENTDATA_LOGGER);
-	goptions += gheader::defineOptions();
+	goptions += geventheader::defineOptions();
 	goptions += gtrue_data::defineOptions();
 	goptions += gdigi_data::defineOptions();
 	goptions += gtouchable::defineOptions();
@@ -39,7 +39,7 @@ public:
 	 */
 
 	GEventDataCollection(const std::shared_ptr<GOptions>& gopts, std::unique_ptr<GEventHeader> header)
-		: GBase(gopts, GDATAEVENTHEADER_LOGGER), gheader(std::move(header)) { }
+		: GBase(gopts, GDATAEVENTHEADER_LOGGER), gevent_header(std::move(header)) { }
 
 	/**
 	 * \brief Adds true hit information data for a detector.
@@ -59,7 +59,7 @@ public:
 	 * \brief Gets the event header.
 	 * \return Pointer to the event header.
 	 */
-	[[nodiscard]] inline const std::unique_ptr<GEventHeader>& getHeader() const { return gheader; }
+	[[nodiscard]] inline const std::unique_ptr<GEventHeader>& getHeader() const { return gevent_header; }
 
 	/**
 	 * \brief Gets the map of data collections.
@@ -71,7 +71,7 @@ public:
 	 * \brief Gets the event number.
 	 * \return The event number.
 	 */
-	[[nodiscard]] inline int getEventNumber() const { return gheader->getG4LocalEvn(); }
+	[[nodiscard]] inline int getEventNumber() const { return gevent_header->getG4LocalEvn(); }
 
 
 	// returning shared here as GEventDataCollection may be used by multiple streams and also collected in a runData vector
@@ -89,7 +89,7 @@ public:
 	}
 
 private:
-	std::unique_ptr<GEventHeader>                           gheader;
+	std::unique_ptr<GEventHeader>                           gevent_header;
 	std::map<std::string, std::unique_ptr<GDataCollection>> gdataCollectionMap;
 
 	/// Static thread-safe event counter - used for testing only

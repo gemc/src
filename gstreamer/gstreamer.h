@@ -68,13 +68,13 @@ protected:
 
 	virtual bool startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) { return false; }
 
-	[[nodiscard]] bool publishEventHeader([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) {
-		if (!gheader) { log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::publishEventHeader"); }
+	[[nodiscard]] bool publishEventHeader([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header) {
+		if (!gevent_header) { log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::publishEventHeader"); }
 		log->debug(NORMAL, "GStreamer::publishEventHeader");
-		return publishEventHeaderImpl(gheader);
+		return publishEventHeaderImpl(gevent_header);
 	}
 
-	virtual bool publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) { return false; }
+	virtual bool publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header) { return false; }
 
 	// vector index is hit number
 	[[nodiscard]] bool publishEventTrueInfoData([[maybe_unused]] const std::string&                       detectorName,

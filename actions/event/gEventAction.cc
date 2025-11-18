@@ -30,8 +30,8 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	int thread_id = G4Threading::G4GetThreadId();
 	int eventID   = event->GetEventID();
 
-	auto gheader   = std::make_unique<GEventHeader>(goptions, eventID, thread_id);
-	auto eventData = std::make_shared<GEventDataCollection>(goptions, std::move(gheader));
+	auto gevent_header   = std::make_unique<GEventHeader>(goptions, eventID, thread_id);
+	auto eventData = std::make_shared<GEventDataCollection>(goptions, std::move(gevent_header));
 
 	// looping over all collections
 	for (G4int hci = 0; hci < HCsThisEvent->GetNumberOfCollections(); hci++) {

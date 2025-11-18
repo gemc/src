@@ -3,13 +3,13 @@
 #include "gstreamerConventions.h"
 
 
-bool GstreamerRootFactory::publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) {
+bool GstreamerRootFactory::publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header) {
 
 	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
 
     // get or instantiate the root tree from the map
-	const auto& headerTree = getOrInstantiateHeaderTree(gheader);
+	const auto& headerTree = getOrInstantiateHeaderTree(gevent_header);
 
 	// fill variables and tree
-    return headerTree->fillTree(gheader);
+    return headerTree->fillTree(gevent_header);
 }

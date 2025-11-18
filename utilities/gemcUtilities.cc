@@ -95,7 +95,8 @@ std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts
 	cmds.emplace_back("/vis/viewer/set/viewpointVector -1 0 0");
 	cmds.emplace_back("/vis/viewer/set/lightsVector -1 0 0");
 
-	cmds.emplace_back("/vis/scene/add/trajectories rich smooth");
+	cmds.emplace_back("/vis/scene/add/trajectories smooth");
+	cmds.emplace_back("/vis/modeling/trajectories/create/drawByCharge");
 	cmds.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true");
 	cmds.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
 	cmds.emplace_back("/vis/scene/add/hits");

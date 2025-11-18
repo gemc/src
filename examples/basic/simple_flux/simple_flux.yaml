@@ -1,7 +1,7 @@
 experiment: examples
 runno: 1
-n: 5
-nthreads: 12
+n: 12
+nthreads: 4
 
 gparticle:
   - name: proton

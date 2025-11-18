@@ -59,8 +59,8 @@ void run_simulation_in_threads(int                                              
 				int evn = next.fetch_add(1, std::memory_order_relaxed); // atomically returns the current value and increments it by 1.
 				if (evn > nevents) break;                               // exit the while loop
 
-				auto gheader   = GEventHeader::create(gopts, tid);
-				auto eventData = std::make_shared<GEventDataCollection>(gopts, std::move(gheader));
+				auto gevent_header   = GEventHeader::create(gopts, tid);
+				auto eventData = std::make_shared<GEventDataCollection>(gopts, std::move(gevent_header));
 
 				// each event has 10 hits
 				for (unsigned i = 1; i < 11; i++) {

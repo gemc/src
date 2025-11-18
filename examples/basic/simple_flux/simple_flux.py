@@ -2,13 +2,7 @@
 from gconfiguration import autogeometry
 from gvolume import GVolume
 
-cfg = autogeometry(
-    "examples",
-    "simple_flux",
-    auto_show=False,              # don't auto-show at interpreter exit
-    enable_pyvista=True,
-    use_background_plotter=True,  # force BackgroundPlotter
-)
+cfg = autogeometry("examples", "simple_flux", )
 
 world_size = 110
 gvolume = GVolume("root")
@@ -42,5 +36,3 @@ gvolume.set_position(0, 0, flux_z)
 gvolume.digitization = "flux"
 gvolume.set_identifier("flux_plane", 1)
 gvolume.publish(cfg)
-
-

@@ -28,12 +28,12 @@ public:
 	~GRootTree() { if (log) log->debug(NORMAL, "~GRootTree"); }
 
 	// types of TTree
-	GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader, std::shared_ptr<GLogger>& log);
+	GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header, std::shared_ptr<GLogger>& log);
 	GRootTree(const std::string& detectorName, const GTrueInfoData* gdata, std::shared_ptr<GLogger>& log);
 	GRootTree(const std::string& detectorName, const GDigitizedData* gdata, std::shared_ptr<GLogger>& log);
 
 	// filling trees
-	bool fillTree(const std::unique_ptr<GEventHeader>& gheader);
+	bool fillTree(const std::unique_ptr<GEventHeader>& gevent_header);
 	bool fillTree(const std::vector<const GTrueInfoData*>& trueInfoData);
 	bool fillTree(const std::vector<const GDigitizedData*>& digitizedData);
 

@@ -18,7 +18,7 @@
 
 constexpr const char* GDATAEVENTHEADER_LOGGER = "event_header";
 
-namespace gheader {
+namespace geventheader {
 inline GOptions defineOptions() {
 	auto goptions = GOptions(GDATAEVENTHEADER_LOGGER);
 	return goptions;

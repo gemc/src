@@ -7,8 +7,9 @@
 #include <string>
 
 //#define GDEFAULTVIEWERDRIVER  "OpenGLStoredQt"  << has problems with /vis/viewer/set/hiddenEdge
+//#define GDEFAULTVIEWERDRIVER  "OpenGLStoredQt"
 #define GDEFAULTVIEWERDRIVER  "TOOLSSG_QT_GLES"
-#define GDEFAULTVIEWERSIZE    "400x400"
+#define GDEFAULTVIEWERSIZE    "800x800"
 #define GDEFAULTVIEWERPOS     "-400+100"
 #define GDEFAULTVSEGPERCIRCLE 50
 #define GNOT_SPECIFIED_SCENE_TEXT_Z (-1234.5)

@@ -16,6 +16,8 @@ cfg = autogeometry(
 	use_background_plotter=True # non-blocking window
 )
 
+
+
 for gm in make_basic_shapes():
 	gv = GVolume.from_gmesh(gm)
 	gv.publish(cfg)

@@ -19,7 +19,7 @@ static EnableRootTS _enableROOTLocks; // global object, static storage duration.
 } // unnamed namespace
 
 // Return the header tree pointer from the map. If it's not there, initialize the smart pointer.
-const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gheader) {
+const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& event_header) {
 	rootfile->cd();
 
 	if (!log) {
@@ -27,14 +27,14 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTr
 		std::terminate();
 	}
 
-	if (!gheader) { log->error(ERR_PUBLISH_ERROR, "event header is null in GstreamerRootFactory::getOrInstantiateHeaderTree"); }
+	if (!event_header) { log->error(ERR_PUBLISH_ERROR, "event header is null in GstreamerRootFactory::getOrInstantiateHeaderTree"); }
 
 	// If the key does not exist, this inserts a new entry with a default value
 	// and returns a reference to it.
 	auto& treePtr = gRootTrees[HEADERTREENAME];
 	if (!treePtr) {
 		log->info(2, "GstreamerRootFactory", "Creating ROOT", HEADERTREENAME, " tree");
-		treePtr = std::make_unique<GRootTree>(gheader, log); // add the new tree to the map
+		treePtr = std::make_unique<GRootTree>(event_header, log); // add the new tree to the map
 	}
 
 	return treePtr;
