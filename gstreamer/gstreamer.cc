@@ -37,8 +37,8 @@ void GStreamer::flushEventBuffer() {
 		log->info(2, "GStreamer::publishEventData->publishEventHeader -> ",
 		          gutilities::success_or_fail(publishEventHeader(eventData->getHeader())));
 
-
-		for (const auto& [detectorName, gDataCollection] : eventData->getDataCollectionMap()) {
+		// possibly can filter out writing event data based on sdname
+		for (const auto& [sdname, gDataCollection] : eventData->getDataCollectionMap()) {
 			const GDataCollection* tdptr = gDataCollection.get();
 
 			// extract the vector of raw pointers to publish
@@ -50,12 +50,11 @@ void GStreamer::flushEventBuffer() {
 			for (const auto& hit : tdptr->getTrueInfoData()) { trueInfoPtrs.push_back(hit.get()); }
 			for (const auto& hit : tdptr->getDigitizedData()) { digitizedPtrs.push_back(hit.get()); }
 
+			log->info(2, "GStreamer::publishEventData->publishEventTrueInfoData for detector -> ", sdname,
+			          gutilities::success_or_fail(publishEventTrueInfoData(sdname, trueInfoPtrs)));
 
-			log->info(2, "GStreamer::publishEventData->publishEventTrueInfoData for detector -> ", detectorName,
-			          gutilities::success_or_fail(publishEventTrueInfoData(detectorName, trueInfoPtrs)));
-
-			log->info(2, "GStreamer::publishEventData->publishEventDigitizedData for detector -> ", detectorName,
-			          gutilities::success_or_fail(publishEventDigitizedData(detectorName, digitizedPtrs)));
+			log->info(2, "GStreamer::publishEventData->publishEventDigitizedData for detector -> ", sdname,
+			          gutilities::success_or_fail(publishEventDigitizedData(sdname, digitizedPtrs)));
 		}
 
 		log->info(2, "GStreamer::endEvent -> ", gutilities::success_or_fail(endEvent(eventData)));
