@@ -8,63 +8,62 @@
 
 
 GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a) :
-	GBase(gopt, EVENTACTION_LOGGER),
-	goptions(gopt),
-	run_action(run_a) {
-	auto desc = "GEventAction " + std::to_string(G4Threading::G4GetThreadId());
-	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
+    GBase(gopt, EVENTACTION_LOGGER),
+    goptions(gopt),
+    run_action(run_a) {
+    auto desc = "GEventAction " + std::to_string(G4Threading::G4GetThreadId());
+    log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
 }
 
-
 void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) {
-	int thread_id = G4Threading::G4GetThreadId();
-	int eventID   = event->GetEventID();
+    int thread_id = G4Threading::G4GetThreadId();
+    int eventID   = event->GetEventID();
 
-	log->debug(CONSTRUCTOR, FUNCTION_NAME, " event id ", eventID, " in thread ", thread_id);
+    log->debug(CONSTRUCTOR, FUNCTION_NAME, " event id ", eventID, " in thread ", thread_id);
 }
 
 void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
-	G4HCofThisEvent* HCsThisEvent = event->GetHCofThisEvent();
-	if (!HCsThisEvent) return;
+    G4HCofThisEvent* HCsThisEvent = event->GetHCofThisEvent();
+    if (!HCsThisEvent) return;
 
-	int thread_id = G4Threading::G4GetThreadId();
-	int eventID   = event->GetEventID();
+    int thread_id = G4Threading::G4GetThreadId();
+    int eventID   = event->GetEventID();
 
-	auto gevent_header   = std::make_unique<GEventHeader>(goptions, eventID, thread_id);
-	auto eventData = std::make_shared<GEventDataCollection>(goptions, std::move(gevent_header));
+    auto gevent_header       = std::make_unique<GEventHeader>(goptions, eventID, thread_id);
+    auto eventDataCollection = std::make_shared<GEventDataCollection>(goptions, std::move(gevent_header));
 
-	// looping over all collections
-	for (G4int hci = 0; hci < HCsThisEvent->GetNumberOfCollections(); hci++) {
-		auto thisGHC = (GHitsCollection*)HCsThisEvent->GetHC(hci);
+    // looping over all collections
+    for (G4int hci = 0; hci < HCsThisEvent->GetNumberOfCollections(); hci++) {
+        auto thisGHC = (GHitsCollection*)HCsThisEvent->GetHC(hci);
 
-		if (thisGHC) {
-			std::string hitCollectionSDName = thisGHC->GetSDname();
-			auto        digi_map            = run_action->get_digitization_routines_map();
+        if (thisGHC) {
+            std::string hcSDName = thisGHC->GetSDname();
+            auto        digi_map = run_action->get_digitization_routines_map();
 
-			log->info(2, FUNCTION_NAME, " worker ", thread_id,
-			          " for event number ", eventID,
-			          " for collection number ", hci + 1,
-			          " collection name: ", hitCollectionSDName);
+            log->info(2, FUNCTION_NAME, " worker ", thread_id,
+                      " for event number ", eventID,
+                      " for collection number ", hci + 1,
+                      " collection name: ", hcSDName);
 
-			auto digitization_routine = digi_map->at(hitCollectionSDName);
-			auto gstreamers_map       = run_action->get_streamer_map();
+            auto digitization_routine = digi_map->at(hcSDName);
+            auto gstreamers_map       = run_action->get_streamer_map();
 
-			if (digitization_routine != nullptr) {
-				// looping over hits in this collection
-				for (size_t hitIndex = 0; hitIndex < thisGHC->GetSize(); hitIndex++) {
-					auto thisHit = (GHit*)thisGHC->GetHit(hitIndex);
-					// PRAGMA TODO: switch these on/off with options
-					auto true_data = digitization_routine->collectTrueInformation(thisHit, hitIndex);
-					auto digi_data = digitization_routine->digitizeHit(thisHit, hitIndex);
-					eventData->addDetectorDigitizedData("ctof", std::move(digi_data));
-					eventData->addDetectorTrueInfoData("ctof", std::move(true_data));
-				}
+            if (digitization_routine != nullptr) {
+                // looping over hits in this collection
+                for (size_t hitIndex = 0; hitIndex < thisGHC->GetSize(); hitIndex++) {
+                    auto thisHit = (GHit*)thisGHC->GetHit(hitIndex);
+                    // PRAGMA TODO: switch these on/off with options
+                    auto true_data = digitization_routine->collectTrueInformation(thisHit, hitIndex);
+                    auto digi_data = digitization_routine->digitizeHit(thisHit, hitIndex);
+                    eventDataCollection->addDetectorDigitizedData(hcSDName, std::move(digi_data));
+                    eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
+                }
 
-				for (const auto& [name, gstreamer] : *gstreamers_map) {
-					// publish the event to the gstreamer
-					gstreamer->publishEventData(eventData);
-				}
-			}
-		}
-	}
+                for (const auto& [name, gstreamer] : *gstreamers_map) {
+                    // publish the event to the gstreamer
+                    gstreamer->publishEventData(eventDataCollection);
+                }
+            }
+        }
+    }
 }
