@@ -57,12 +57,16 @@ public:
 	 */
 	void includeVariable(const std::string& varName, std::string var);
 
+	// Public interface to accumulate data:
+	void accumulateVariable(const std::string& vname, double value);
+	void accumulateVariable(const std::string& vname, std::string var);
+
 	/**
 	 * \brief Returns the map of double variables.
 	 * \return A map from variable names to double values.
 	 */
 	[[nodiscard]] inline std::map<std::string, double> getDoubleVariablesMap() const {
-		return trueInfoDoublesVariablesMap;
+		return doubleObservablesMap;
 	}
 
 	/**
@@ -70,7 +74,7 @@ public:
 	 * \return A map from variable names to string values.
 	 */
 	[[nodiscard]] inline std::map<std::string, std::string> getStringVariablesMap() const {
-		return trueInfoStringVariablesMap;
+		return stringVariablesMap;
 	}
 
 	static std::unique_ptr<GTrueInfoData> create(const std::shared_ptr<GOptions>& gopts) {
@@ -89,8 +93,8 @@ public:
 	}
 
 private:
-	std::map<std::string, double>      trueInfoDoublesVariablesMap; ///< Map of double variables.
-	std::map<std::string, std::string> trueInfoStringVariablesMap;  ///< Map of string variables.
+	std::map<std::string, double>      doubleObservablesMap; ///< Map of double variables.
+	std::map<std::string, std::string> stringVariablesMap;  ///< Map of string variables.
 	std::vector<GIdentifier>           gidentity;                   ///< Vector of identifiers extracted from the hit.
 
 	/// Static thread-safe event counter - used for testing only

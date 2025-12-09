@@ -13,15 +13,39 @@ GTrueInfoData::GTrueInfoData(const std::shared_ptr<GOptions>& gopts, const GHit*
 	gidentity = ghit->getGID();
 }
 
-void GTrueInfoData::includeVariable(const std::string& varName, double var) {
+void GTrueInfoData::includeVariable(const std::string& varName, double value) {
 	log->info(2, " including ", varName, " in trueInfoDoublesVariablesMap.");
-	trueInfoDoublesVariablesMap[varName] = var;
+	doubleObservablesMap[varName] = value;
 }
 
-void GTrueInfoData::includeVariable(const std::string& varName, std::string var) {
+void GTrueInfoData::includeVariable(const std::string& varName, std::string value) {
 	log->info(2, " including ", varName, " in trueInfoStringVariablesMap.");
-	trueInfoStringVariablesMap[varName] = std::move(var);
+	stringVariablesMap[varName] = std::move(value);
 }
+
+
+void GTrueInfoData::accumulateVariable(const std::string& vname, std::string value) {
+	if (stringVariablesMap.find(vname) == stringVariablesMap.end()) {
+		log->info(2, "Accumulating new int variable ", vname, " with value ", value);
+		stringVariablesMap[vname] = value;
+	}
+	else {
+		log->info(2, "Accumulating int variable ", vname, " with value ", value);
+		stringVariablesMap[vname] += value;
+	}
+}
+void GTrueInfoData::accumulateVariable(const std::string& vname, double value) {
+	if (doubleObservablesMap.find(vname) == doubleObservablesMap.end()) {
+		log->info(2, "Accumulating double variable ", vname, " with value ", value);
+		doubleObservablesMap[vname] = value;
+	}
+	else {
+		log->info(2, "Accumulating double variable ", vname, " with value ", value);
+		doubleObservablesMap[vname] += value;
+	}
+}
+
+
 
 std::string GTrueInfoData::getIdentityString() const  {
 	std::string identifierString;
@@ -29,3 +53,5 @@ std::string GTrueInfoData::getIdentityString() const  {
 	identifierString += gidentity.back().getName() + "->" + std::to_string(gidentity.back().getValue());
 	return identifierString;
 }
+
+
