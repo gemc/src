@@ -29,7 +29,7 @@ inline GOptions defineOptions() {
 class GEventHeader : public GBase<GEventHeader> {
 public:
 	/**
-	 * \brief Constructs a GEventDataCollectionHeader.
+	 * \brief Constructs a GEventHeader.
 	 *
 	 * The event number is obtained from aEvent->GetEventID(), and the thread ID from G4Threading::G4GetThreadId().
 	 *
@@ -42,7 +42,7 @@ public:
 		g4localEventNumber(n),
 		threadID(tid) {
 		timeStamp = assignTimeStamp();
-		log->debug(CONSTRUCTOR, "GEventDataCollectionHeader");
+		log->debug(CONSTRUCTOR, "GEventHeader");
 		log->info(1, "\n",
 		          TPOINTITEM, " Event Number:  ", g4localEventNumber, "\n",
 		          TPOINTITEM, " Thread ID:  ", threadID, "\n",
@@ -50,9 +50,9 @@ public:
 	}
 
 	/**
-	 * \brief Factory method to create a GEventDataCollectionHeader with a unique event number.
+	 * \brief Factory method to create a GEventHeader with a unique event number.
 	 * \param gopts A shared pointer to Goptions.
-	 * \return A unique_ptr to the created GEventDataCollectionHeader.
+	 * \return A unique_ptr to the created GEventHeader.
 	 */
 	static std::unique_ptr<GEventHeader> create(const std::shared_ptr<GOptions>& gopts, int tid = -1) {
 		int eventNumber = globalEventHeaderCounter.fetch_add(1, std::memory_order_relaxed);

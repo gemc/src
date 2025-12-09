@@ -4,7 +4,6 @@
  */
 
 #include "gEventDataCollection.h"
-#include "gEventHeader.h"
 
 std::atomic<int> GEventDataCollection::globalEventDataCollectionCounter{1};
 std::atomic<int> GEventHeader::globalEventHeaderCounter{1};

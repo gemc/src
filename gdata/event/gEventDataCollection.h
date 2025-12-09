@@ -4,7 +4,7 @@
  * \file GEventDataCollection.h
  * \brief Defines the GEventDataCollection class, which aggregates event-level data.
  *
- * This class collects hit data for an event, keyed by sensitive detector name.
+ * This class collects hit data for an event, keyed by the sensitive detector name.
  * It holds an event header and a map of GDataCollection pointers for each detector.
  */
 
@@ -73,7 +73,6 @@ public:
 	 */
 	[[nodiscard]] inline int getEventNumber() const { return gevent_header->getG4LocalEvn(); }
 
-
 	// returning shared here as GEventDataCollection may be used by multiple streams and also collected in a runData vector
 	static std::shared_ptr<GEventDataCollection> create(const std::shared_ptr<GOptions>& gopts) {
 		auto header = GEventHeader::create(gopts);
@@ -90,7 +89,7 @@ public:
 
 private:
 	std::unique_ptr<GEventHeader>                           gevent_header;
-	std::map<std::string, std::unique_ptr<GDataCollection>> gdataCollectionMap;
+	std::map<std::string, std::unique_ptr<GDataCollection>> gdataCollectionMap; // keyed by the sensitive detector name.
 
 	/// Static thread-safe event counter - used for testing only
 	static std::atomic<int> globalEventDataCollectionCounter;
