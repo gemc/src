@@ -119,7 +119,7 @@ assimp_proj = cmake.subproject('assimp', options : cmake_opts)
 assimp_dep = assimp_proj.dependency('assimp')
 
 yaml_cpp_proj = cmake.subproject('yaml-cpp', options : cmake_opts)
-yaml_cpp_dep = yaml_cpp_proj.dependency('yaml_cpp')
+yaml_cpp_dep = yaml_cpp_proj.dependency('yaml-cpp')
 
 # sanitizer settings
 project_test_env = environment()

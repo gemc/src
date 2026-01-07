@@ -1,1 +1,1 @@
-../../examples/basic/b1/b1.py
+../../examples/basic/simple_flux/simple_flux.py

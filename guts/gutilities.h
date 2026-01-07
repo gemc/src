@@ -61,7 +61,7 @@ std::string getDirFromPath(const std::string& path);
 
 std::optional<std::string> searchForFileInLocations(
     const std::vector<std::string>& locations,
-    std::string_view filename);
+    std::string_view                filename);
 
 /**
 * @brief Splits a string into a vector of strings using spaces as delimiters.
@@ -270,10 +270,10 @@ vector<KEY> getKeys(const map<KEY, VALUE>& map);
  */
 enum randomModel
 {
-    uniform, ///< Uniform distribution
+    uniform,  ///< Uniform distribution
     gaussian, ///< Gaussian distribution
-    cosine, ///< Cosine distribution
-    sphere ///< Sphere distribution
+    cosine,   ///< Cosine distribution
+    sphere    ///< Sphere distribution
 };
 
 /**
@@ -328,7 +328,7 @@ G4Colour makeG4Colour(std::string_view code, double opacity);
 namespace gutilities {
 inline std::filesystem::path executable_path() {
 #if defined(__APPLE__)
-    char buf[PATH_MAX];
+    char     buf[PATH_MAX];
     uint32_t sz = sizeof(buf);
     if (_NSGetExecutablePath(buf, &sz) != 0) {
         // buffer too small
@@ -340,7 +340,7 @@ inline std::filesystem::path executable_path() {
     return std::filesystem::canonical(buf);
 
 #elif defined(__linux__)
-    char buf[PATH_MAX];
+    char    buf[PATH_MAX];
     ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf) - 1);
     if (len == -1)
         throw std::runtime_error("readlink(/proc/self/exe) failed");
@@ -349,7 +349,7 @@ inline std::filesystem::path executable_path() {
 
 #elif defined(_WIN32)
     std::wstring buf(MAX_PATH, L'\0');
-    DWORD len = ::GetModuleFileNameW(nullptr, buf.data(), buf.size());
+    DWORD        len = ::GetModuleFileNameW(nullptr, buf.data(), buf.size());
     if (len == 0)
         throw std::runtime_error("GetModuleFileNameW failed");
     // If the path is longer than MAX_PATH the buffer is truncated;
@@ -364,19 +364,39 @@ inline std::filesystem::path executable_path() {
 }
 
 inline std::filesystem::path gemc_root() {
-    auto exe_dir = executable_path().parent_path(); // where the executable is installed
-    auto gemc_root = exe_dir.parent_path(); // one dir up. The danger here is where this is a
+    const auto exe_dir = executable_path().parent_path();
 
-    // Sanity‑check api dir
-    if (!std::filesystem::exists(gemc_root / "api"))
-        throw std::runtime_error("Cannot locate directory >api< check directory layout");
+    std::filesystem::path root;
 
-    return gemc_root;
+    // Case 1: executable came from .../bin
+    if (exe_dir.filename() == "bin") {
+        root = exe_dir.parent_path();
+    }
+    else {
+        // Case 2: use GEMC environment variable
+        const char* env = std::getenv("GEMC");
+        if (!env || std::string(env).empty()) {
+            throw std::runtime_error(
+                "GEMC executable not in <.../bin>. Environment variable GEMC is required."
+            );
+        }
+        root = std::filesystem::path(env);
+    }
+
+    // Sanity check
+    if (!std::filesystem::exists(root / "api")) {
+        throw std::runtime_error(
+            "Cannot locate directory <api> under " + root.string() +
+            ". Check installation layout or GEMC environment variable."
+        );
+    }
+
+    return root;
 }
+
 
 bool is_unset(std::string_view s);
 
 inline std::string success_or_fail(bool condition) { return condition ? "success" : "fail"; }
-void apply_uimanager_commands(const std::string& commands);
-
+void               apply_uimanager_commands(const std::string& commands);
 }

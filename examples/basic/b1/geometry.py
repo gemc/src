@@ -52,7 +52,7 @@ def build_geometry(configuration):
 	gvolume.material = 'G4_BONE_COMPACT_ICRU'
 	gvolume.color = 'lightgray'
 	gvolume.set_position(0, -10, 70)
-	gvolume.digitization = 'flux'     # temp assigning flux for testing digitization routines
+	gvolume.digitization = 'dosimeter'     # collects edep, dose
 	gvolume.set_identifier('box', 2)
 	gvolume.opacity = 0.1
 	gvolume.publish(configuration)

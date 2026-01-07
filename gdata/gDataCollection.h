@@ -31,34 +31,34 @@ public:
      * Smart pointers clean up automatically.
      */
 
-    /**
-     * \brief Adds true hit information data.
-     * \param data Unique pointer to GTrueInfoData.
-     */
-    void addTrueInfoData(std::unique_ptr<GTrueInfoData> data) {
-        trueInfosData.push_back(std::move(data)); // taking ownership of the unique_ptr
-    }
 
-    // sum existing data
-    void collectTrueInfosData(std::unique_ptr<GTrueInfoData> data) {
+
+    /**
+     * \brief Collects true information hit data.
+     * This copies the data
+     * \param data Unique pointer to GDigitizedData.
+     */
+    void collectTrueInfosData(const std::unique_ptr<GTrueInfoData>& data) {
         // first event
         if (trueInfosData.empty()) {
-            trueInfosData.push_back(std::move(data));
+            trueInfosData.push_back(std::make_unique<GTrueInfoData>(*data));
         }
         else {
             for (const auto& [varName, value] : data->getDoubleVariablesMap()) {
                 trueInfosData.front()->accumulateVariable(varName, value);
             }
-            for (const auto& [varName, value] : data->getStringVariablesMap()) {
-                trueInfosData.front()->accumulateVariable(varName, value);
-            }
         }
     }
 
-    void collectDigitizedData(std::unique_ptr<GDigitizedData> data) {
+    /**
+     * \brief Collects digitized hit data.
+     * This copies the data
+     * \param data Unique pointer to GDigitizedData.
+     */
+    void collectDigitizedData(const std::unique_ptr<GDigitizedData>& data) {
         // first event
         if (digitizedData.empty()) {
-            digitizedData.push_back(std::move(data));
+            digitizedData.push_back(std::make_unique<GDigitizedData>(*data));
         }
         else {
             // argument passed: 0: do not get SRO var
@@ -74,10 +74,20 @@ public:
 
     /**
      * \brief Adds digitized hit data.
+     * This moves ownership
      * \param data Unique pointer to GDigitizedData.
      */
     void addDigitizedData(std::unique_ptr<GDigitizedData> data) {
         digitizedData.push_back(std::move(data)); // taking ownership of the unique_ptr
+    }
+
+    /**
+     * \brief Adds true information hit data.
+     * This moves ownership
+     * \param data Unique pointer to GTrueInfoData.
+     */
+    void addTrueInfoData(std::unique_ptr<GTrueInfoData> data) {
+        trueInfosData.push_back(std::move(data)); // taking ownership of the unique_ptr
     }
 
     /**
@@ -90,7 +100,7 @@ public:
      *
      * \return Const reference to the vector of unique_ptr<GTrueInfoData>.
      */
-    [[nodiscard]] inline const std::vector<std::unique_ptr<GTrueInfoData>>& getTrueInfoData() const {
+    [[nodiscard]] auto getTrueInfoData() const -> const std::vector<std::unique_ptr<GTrueInfoData>>& {
         return trueInfosData;
     }
 
@@ -103,12 +113,13 @@ public:
      *
      * \return Const reference to the vector of unique_ptr<GDigitizedData>.
      */
-    [[nodiscard]] inline const std::vector<std::unique_ptr<GDigitizedData>>& getDigitizedData() const {
+    [[nodiscard]] auto getDigitizedData() const -> const std::vector<std::unique_ptr<GDigitizedData>>& {
         return digitizedData;
     }
 
 private:
     // for event data, the array index is the hit index
+    // for run data, the array contains one item
     std::vector<std::unique_ptr<GTrueInfoData>>  trueInfosData; ///< Vector of true data.
     std::vector<std::unique_ptr<GDigitizedData>> digitizedData; ///< Vector of digitized data.
 };

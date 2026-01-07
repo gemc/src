@@ -16,6 +16,10 @@ verbosities = ['-verbosity.gevent_data=2',
                '-debug.gtouchable=true'
 ]
 
+verbosities_run = ['-verbosity.grun_data=2',
+                   '-debug.grun_data=true',
+]
+
 
 LD += {
     'name' : sub_dir_name,
@@ -46,5 +50,5 @@ LD += {
         'test_gdata_gframe' : [example_frame_source, ''],
         'test_gdata_gframe_verbose' : [example_frame_source, verbosities],
         'test_gdata_run_event' : [example_run_source, ''],
-        'test_gdata_run_verbose' : [example_run_source, verbosities] }
+        'test_gdata_run_verbose' : [example_run_source, verbosities + verbosities_run] }
 }

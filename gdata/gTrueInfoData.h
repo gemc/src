@@ -59,7 +59,6 @@ public:
 
 	// Public interface to accumulate data:
 	void accumulateVariable(const std::string& vname, double value);
-	void accumulateVariable(const std::string& vname, std::string var);
 
 	/**
 	 * \brief Returns the map of double variables.

@@ -12,7 +12,7 @@ GRunAction::GRunAction(std::shared_ptr<GOptions> gopt, std::shared_ptr<gdynamicd
 	GBase(gopt, GRUNACTION_LOGGER),
 	goptions(gopt),
 	digitization_routines_map(digi_map) {
-	auto desc = "GRunAction " + std::to_string(G4Threading::G4GetThreadId());
+	auto desc= std::to_string(G4Threading::G4GetThreadId());
 
 	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
 }
@@ -28,6 +28,7 @@ G4Run* GRunAction::GenerateRun() {
 
 // invoked at the beginning of BeamOn (before physics tables are computed)
 void GRunAction::BeginOfRunAction(const G4Run* aRun) {
+
 	int thread_id      = G4Threading::G4GetThreadId();
 	int run            = aRun->GetRunID();
 	int neventsThisRun = aRun->GetNumberOfEventToBeProcessed();
@@ -54,8 +55,8 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 
 // invoked at the very end of the run processing
 void GRunAction::EndOfRunAction(const G4Run* aRun) {
-	//	const GRun* theRun = static_cast<const GRun*>(aRun);
 
+	//	const GRun* theRun = static_cast<const GRun*>(aRun);
 	int         thread_id = G4Threading::G4GetThreadId();
 	int         run       = aRun->GetRunID();
 	std::string what_am_i = IsMaster() ? "Master" : "Worker";
