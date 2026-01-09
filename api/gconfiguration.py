@@ -20,7 +20,6 @@
 # python
 import sqlite3
 import os, argparse, sys
-import numpy as np
 
 from dataclasses import dataclass
 from typing import Optional, Tuple
@@ -35,6 +34,7 @@ BackgroundPlotterCls = None
 
 try:
 	import pyvista as _pv
+	import numpy as np
 
 	has_pyvista = True
 	pv = _pv

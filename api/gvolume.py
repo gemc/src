@@ -79,7 +79,7 @@ DEFAULTMOTHER = 'root'
 DEFAULTCOLOR = '778899'
 
 from gsqlite import populate_sqlite_geometry
-from pyvista_api import render_volume, gmesh_to_geant4_solid_and_params
+
 from gcolors import pyvista_color_to_hex
 
 
@@ -222,6 +222,7 @@ class GVolume:
 			self.color = orig_color  # restore for any later use
 
 		if configuration.use_pyvista:
+			from pyvista_api import render_volume
 			render_volume(self, configuration)
 
 	# Functions to build geant4 solids

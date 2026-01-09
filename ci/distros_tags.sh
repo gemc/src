@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-get_geant4_tag() { echo "11.3.2"; }
-get_gemc_tag() { echo "dev"; }
+get_geant4_tags() { echo "11.4.0 11.3.2"; } # space separated list.
+get_gemc_tags() { echo "dev"; }
+get_cpu_architectures() { echo "arm64 amd64"; } # space separated list.
+get_runner() {
+	local arch=$1
+	case "$arch" in
+		"arm64") echo "ubuntu-24.04-arm" ;;
+		"amd64") echo "ubuntu-latest" ;;
+		*)
+			echo   "ERROR: unsupported arch $arch" >&2
+			return                                                  2
+			;;
+	esac
+}
+lc() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; } # portable lowercasing
 
 # Single source of truth (order preserved)
 OS_VERSIONS=(
@@ -13,31 +26,109 @@ OS_VERSIONS=(
   "archlinux=latest"
 )
 
-build_matrix() {
-  local g4 gemc
-  g4="$(get_geant4_tag)"
-  gemc="$(get_gemc_tag)"
 
-  local body="" sep="" pair os ver baseimage img
-  for pair in "${OS_VERSIONS[@]}"; do
-    os="${pair%%=*}"
-    ver="${pair#*=}"
-    baseimage="${g4}-${os}-${ver}"
-    img="${os}-${ver}" # don't use the name 'image' here to avoid clobbering caller vars
-    body+=${sep}"{\"osname\":\"${os}\",\"baseimage\":\"${baseimage}\",\"image\":\"${img}\",\"osversion\":\"${ver}\",\"gemc_tag\":\"${gemc}\",\"geant4_tag\":\"${g4}\"}"
-    sep=","
-  done
+build_matrix_build() {
 
-  local json="{\"include\":[${body}]}"
-  if command -v jq >/dev/null 2>&1; then
-    printf '%s' "$json" | jq .
-  else
-    printf '%s' "$json"
-  fi
+	local g4_list arch_list gemc_list
+	g4_list="$(get_geant4_tags)"
+	arch_list="$(get_cpu_architectures)"
+  gemc_list="$(get_gemc_tags)"
+
+	local -a g4_tags arch_tags
+	read -r -a g4_tags <<<"$g4_list"
+	read -r -a arch_tags <<<"$arch_list"
+	read -r -a gemc_tags <<<"$gemc_list"
+
+	local body="" sep="" pair os ver
+	for g4v in "${g4_tags[@]}"; do
+		for cpuv in "${arch_tags[@]}"; do
+      for gemcv in "${gemc_tags[@]}"; do
+
+			  local platform runner suffix logs_dir
+
+        platform="linux/$cpuv"
+        runner="$(get_runner "$cpuv")"
+        suffix="-$cpuv"
+        logs_dir="logs-$cpuv"
+
+        for pair in "${OS_VERSIONS[@]}"; do
+          os="${pair%%=*}"
+          ver="${pair#*=}"
+
+          # archlinux is amd64-only
+          if [[ "$os" == "archlinux" && "$cpuv" == "arm64" ]]; then
+            continue
+          fi
+
+          body+="${sep}{"
+          body+="\"image\":\"${os}\","
+          body+="\"image_tag\":\"${ver}\","
+          body+="\"geant4_tag\":\"${g4v}\","
+          body+="\"gemc_tag\":\"${gemcv}\","
+          body+="\"arch\":\"${cpuv}\","
+          body+="\"platform\":\"${platform}\","
+          body+="\"runner\":\"${runner}\","
+          body+="\"suffix\":\"${suffix}\","
+          body+="\"logs_dir\":\"${logs_dir}\""
+          body+="}"
+          sep=","
+			  done
+			done
+		done
+	done
+
+	local json="{\"include\":[${body}]}"
+	if command -v jq >/dev/null 2>&1; then
+		printf '%s' "$json" | jq -c .
+	else
+		printf '%s' "$json"
+	fi
 }
 
-# portable lowercasing
-lc() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
+build_matrix_manifest() {
+
+	local g4_list gemc_list
+	g4_list="$(get_geant4_tags)"
+  gemc_list="$(get_gemc_tags)"
+
+	local -a g4_tags
+	read -r -a g4_tags <<<"$g4_list"
+	read -r -a gemc_tags <<<"$gemc_list"
+
+	local body="" sep="" pair os ver
+	for g4v in "${g4_tags[@]}"; do
+	  for gemcv in "${gemc_tags[@]}"; do
+
+      for pair in "${OS_VERSIONS[@]}"; do
+        os="${pair%%=*}"
+        ver="${pair#*=}"
+
+        body+="${sep}{"
+        body+="\"image\":\"${os}\","
+        body+="\"image_tag\":\"${ver}\","
+        body+="\"geant4_tag\":\"${g4v}\","
+        body+="\"gemc_tag\":\"${gemcv}\""
+        body+="}"
+        sep=","
+		  done
+		done
+	done
+
+	local json="{\"include\":[${body}]}"
+	if command -v jq >/dev/null 2>&1; then
+		# De-duplicate by the fields that define one manifest
+		printf '%s' "$json" | jq -c '{
+      include: (
+        .include
+        | unique_by([.geant4_tag,.image,.image_tag,.gemc_tag])
+      )
+    }'
+	else
+		# No jq available: emit as-is (may include duplicates)
+		printf '%s' "$json"
+	fi
+}
+
 
 build_image_ref() {
   # Owner from env (Actions sets this). Fallback for local runs.
@@ -52,24 +143,35 @@ build_image_ref() {
   printf 'ghcr.io/%s/%s' "$(lc "$owner")" "$(lc "$repo")"
 }
 
+# the separate matrices are needed so that manifest is not run twice
 main() {
-  local image_ref
-  image_ref="$(build_image_ref)"
+	local image_ref
+	image_ref="$(build_image_ref)"
 
-  if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-    local DELIM="MATRIX_$(date +%s%N)"
-    {
-      echo "matrix<<$DELIM"
-      build_matrix
-      echo "$DELIM"
-      echo "image=$image_ref"
-    } >>"$GITHUB_OUTPUT"
-  else
-    # Local run: only print the matrix (no trailing image line)
-    build_matrix
-    echo
-    echo "images located at: $image_ref"
-  fi
+	if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+		local DELIM_BUILD="MATRIX_BUILD_$(date +%s%N)"
+		local DELIM_MANIFEST="MATRIX_MANIFEST_$(date +%s%N)"
+		{
+			echo "matrix_build<<$DELIM_BUILD"
+			build_matrix_build
+			echo "$DELIM_BUILD"
+
+			echo "matrix_manifest<<$DELIM_MANIFEST"
+			build_matrix_manifest
+			echo "$DELIM_MANIFEST"
+
+			echo "image=$image_ref"
+		} >>"$GITHUB_OUTPUT"
+	else
+		echo "== matrix_build =="
+		build_matrix_build
+		echo
+		echo "== matrix_manifest =="
+		build_matrix_manifest
+		echo
+		echo "images located at: $image_ref"
+	fi
+
 }
 
 main "$@"

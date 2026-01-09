@@ -48,11 +48,13 @@ local args=(
 cores=$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc)
 jobs=$((cores < 32 ? cores : 32))
 
+meson subprojects download yaml-cpp
+meson subprojects download assimp
 echo " > Applying patch to version 0.8.0" | tee -a $setup_log
 meson subprojects update yaml-cpp --reset
-
-echo " > Running build Configure with setup build options: ${args[@]}" | tee -a $setup_log
-meson setup build "${args[@]}" --wipe >>$setup_log
+echo
+echo " > Running meson setup build ${args[@]}" | tee -a $setup_log
+meson setup build "${args[@]}" - >> $setup_log
 if [ $? -ne 0 ]; then
   echo "Build Configure failed. Log: "
   cat $setup_log
@@ -64,7 +66,7 @@ else
 fi
 
 echo " > Running meson install -v  -j $cores" | tee $compile_log
-meson compile -C build -v -j $cores >> $compile_log
+meson compile -C build -v -j $jobs >> $compile_log
 meson install -C build  >> $compile_log
 if [ $? -ne 0 ]; then
   echo "Compile or Install failed. Log: "

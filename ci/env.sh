@@ -1,5 +1,6 @@
 #!/usr/bin/env zsh
 
+
 DetectorDirNotExisting() {
 	echo "System directory: $system not existing"
 	exit 3

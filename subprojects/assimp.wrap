@@ -3,6 +3,7 @@ url = https://github.com/assimp/assimp
 revision = v6.0.2
 depth = 1
 method = cmake
+#diff_files = assimp/0001-disable-version-soversion.patch
 
 [provide]
-assimp=assimp_dep
+assimp = assimp_dep

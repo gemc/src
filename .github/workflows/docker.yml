@@ -1,0 +1,253 @@
+# Build & Publish GitHub Container Registry (GHCR) Images
+name: Build And Test Images
+permissions:
+  contents: read
+  packages: write
+
+# default varsions. This is overwritten by distros_tags.sh
+env:
+  GEMC_TAG: dev           # default gemc tag
+  GEANT4_TAG: 11.4.0      # default geant4 tag
+
+concurrency:
+  group: geant4-images-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ main ]   # publish on main updates
+    tags: [ 'v*' ]       # also publish on version tags
+  pull_request:          # PRs: build only (no push)
+
+jobs:
+  overview:
+    name: Workflow Overview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write overview
+        shell: bash
+        run: |
+          : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/summary.md}"
+          {
+            echo "# GEMC Images — Overview"
+            echo "Repository: [gemc images](https://github.com/gemc/src/pkgs/container/src)"
+            echo "Except for archlinux (amd64-only), all images are built for both the *amd64* and *arm64* architectures."
+            echo ""
+            echo ""
+            echo "Set these convenience variables for the command lines below (choose your own password)"
+            echo '```bash'
+            echo 'VPORTS=(-p 6080:6080 -p 5900:5900)'
+            echo 'VNC_PASS=(-e X11VNC_PASSWORD=change-me)'
+            echo 'VNC_BIND=(-e VNC_BIND=0.0.0.0)'
+            echo 'GEO_FLAGS=(-e GEOMETRY=1920x1200)'
+            echo '```'
+            echo ""
+            echo "If your arch is arm64, (for example, MacOS silicon), and want to use the archlinux image, add this to all command lines:"
+            echo '```bash'
+            echo '--platform=linux/amd64'
+            echo '```'
+            echo "---"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  discover:
+    name: Create Job Matrices
+    runs-on: ubuntu-latest
+    outputs:
+      matrix_build: ${{ steps.scan.outputs.matrix_build }}
+      matrix_manifest: ${{ steps.scan.outputs.matrix_manifest }}
+      image: ${{ steps.scan.outputs.image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - id: scan
+        name: Build matrix
+        run: ci/distros_tags.sh
+
+  # ===============
+  # arch build jobs
+  # ===============
+  build_arch:
+    name: ${{ matrix.arch }} ${{ matrix.gemc_tag }} ${{ matrix.geant4_tag }} ${{ matrix.image }}:${{ matrix.image_tag }}
+    needs: [ overview, discover ]
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix_build) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Free up disk space
+        uses: ./.github/actions/free-disk-space
+        with:
+          prune_docker: "true"
+          show_tree: "true"
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        name: Docker metadata (base tag)
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ needs.discover.outputs.image }}
+          tags: |
+            type=raw,value=${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.geant4_tag, matrix.image, matrix.image_tag) }}
+          labels: |
+            org.opencontainers.image.source=${{ github.repository }}
+            org.opencontainers.image.description=GEMC ${{ matrix.gemc_tag }} ${{ matrix.geant4_tag }} on ${{ matrix.image }}:${{ matrix.image_tag }} (${{ matrix.arch }})
+
+      - name: Generate Dockerfile
+        run: |
+          python3 ci/dockerfile_creator.py \
+          -i "${{ matrix.image }}" \
+          -t "${{ matrix.image_tag }}" \
+          --gemc-version "${{ matrix.gemc_tag || env.GEMC_TAG }}" \
+          --geant4-version "${{ matrix.geant4_tag || env.GEANT4_TAG }}" \
+          > Dockerfile.generated
+          cat Dockerfile.generated
+
+      # later pass it in the step below so that it's executed for every commit
+      # otherwise the cached step is used
+      - name: Get upstream commit
+        run: echo "UPSTREAM_REV=$(git ls-remote https://github.com/gemc/src HEAD | cut -f1)" >> $GITHUB_ENV
+
+      - name: Build & Push
+        uses: docker/build-push-action@v5
+        with:
+          pull: true
+          build-args: |
+            UPSTREAM_REV=${{ env.UPSTREAM_REV }}
+          context: .
+          file: ./Dockerfile.generated
+          platforms: ${{ matrix.platform }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}${{ matrix.suffix }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}:cache-{1}', needs.discover.outputs.image, matrix.arch) || '' }}
+          cache-to:   ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}:cache-{1},mode=max', needs.discover.outputs.image, matrix.arch) || '' }}
+
+
+      # export logs from the logs-export stage in the dockerfile to the runner’s filesystem (no docker pull)
+      - name: Export logs
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.generated
+          target: logs-export
+          platforms: ${{ matrix.platform }}
+          push: false
+          cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-${{ matrix.arch }}
+          outputs: type=local,dest=${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}
+
+      - name: Upload logs artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.arch }}
+          path: ${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}/logs
+          if-no-files-found: ignore
+
+  # ===========================
+  # Manifest stitch (same matrix)
+  # ===========================
+  manifest:
+    if: ${{ github.event_name != 'pull_request' }}
+    name: Manifest ${{ matrix.gemc_tag }} ${{ matrix.geant4_tag }} ${{ matrix.image }}:${{ matrix.image_tag }}
+    needs: [ build_arch, discover ]
+    runs-on: ubuntu-latest
+    # If arm64 was skipped (e.g., archlinux), still publish amd64-only manifest.
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix_manifest) }}
+    steps:
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - id: meta
+        name: Docker metadata (base tag)
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ needs.discover.outputs.image }}
+          tags: |
+            type=raw,value=${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.geant4_tag, matrix.image, matrix.image_tag) }}
+
+      - name: Create multi-arch manifest
+        shell: bash
+        run: |
+          BASE_TAG="${{ steps.meta.outputs.tags }}"
+          AMD_TAG="${BASE_TAG}-amd64"
+          ARM_TAG="${BASE_TAG}-arm64"
+
+          # If the arm64 build was skipped (e.g., archlinux), only include amd64
+          if docker buildx imagetools inspect "$ARM_TAG" >/dev/null 2>&1; then
+            docker buildx imagetools create -t "$BASE_TAG" "$AMD_TAG" "$ARM_TAG"
+          else
+            docker buildx imagetools create -t "$BASE_TAG" "$AMD_TAG"
+          fi
+
+      - name: Summary (manifest)
+        if: ${{ always() }}
+        shell: bash
+        env:
+          IMAGE: ${{ needs.discover.outputs.image }}
+          TAG: ${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.geant4_tag, matrix.image, matrix.image_tag) }}
+        run: |
+          : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/manifest_summary.md}"
+          {
+            echo "## \`${IMAGE}:${TAG}\`"
+            echo ""
+            echo "Includes:"
+            if docker buildx imagetools inspect "${IMAGE}:${TAG}-amd64" >/dev/null 2>&1; then echo "- amd64"; fi
+            if docker buildx imagetools inspect "${IMAGE}:${TAG}-arm64" >/dev/null 2>&1; then echo "- arm64"; else echo "- arm64 (skipped)"; fi
+            echo ""
+            echo "### Pull"
+            echo '```bash'
+            echo "docker pull ${IMAGE}:${TAG}"
+            echo '```'
+            echo ""
+            echo "### Run in batch mode"
+            echo '```bash'
+            echo "docker run --rm -it ${IMAGE}:${TAG} bash -l"
+            echo '```'
+            echo ""
+            echo "### Run with VNC/noVNC"
+            echo "_VNC → localhost:5900 (password: change-me)_"
+            echo "_noVNC → http://localhost:6080/vnc.html (password: change-me)_"
+            echo '```bash'
+            echo "docker run --rm -it \$VPORTS \$VNC_BIND \$VNC_PASS \$GEO_FLAGS ${IMAGE}:${TAG}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Also save a copy inside the workspace for artifact upload
+          mkdir -p "$GITHUB_WORKSPACE/summaries"
+          cp "$GITHUB_STEP_SUMMARY" "$GITHUB_WORKSPACE/summaries/summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-${{ job.status }}.md" || true
+          echo "Wrote $GITHUB_WORKSPACE/summaries/summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-${{ job.status }}.md"
+          ls -l "$GITHUB_WORKSPACE/summaries"
+
+      - name: Upload summary artifact (manifest)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-manifest
+          path: |
+            ${{ runner.temp }}/manifest_summary.md
+          if-no-files-found: warn
+

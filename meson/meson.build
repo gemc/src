@@ -64,7 +64,20 @@ if not fs.exists(geant4_pc)
     message('geant4.pc not found in ' + geant4_pc + ', running install script...')
     run_command(script_path, gemc_prefix, check : true)
 endif
-geant4_dep = dependency('geant4', version : '>=11.3.0')
+geant4_dep = dependency('geant4', version : '>=11.3.2')
+
+# cmake template - but still not working
+#geant4_dep = dependency(
+#    'Geant4',
+#    method: 'cmake',
+#    version: '>=11.3.0',
+#    modules: [
+#        'Geant4::G4run-static',
+#        'Geant4::G4vis_management-static',
+#        'Geant4::G4interfaces-static',
+#        'Geant4::G4OpenGL-static',
+#    ],
+#)
 
 geant4_deps = [geant4_dep]
 if sys == 'linux'
@@ -80,7 +93,6 @@ endif
 
 
 cmake = import('cmake')
-
 cmake_opts = cmake.subproject_options()
 cmake_opts.add_cmake_defines({
                                  'BUILD_SHARED_LIBS' : false, # or false if you want static assimp
