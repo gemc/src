@@ -21,7 +21,7 @@ def available_images() -> str:
 
 
 def docker_header(image: str, image_tag: str, geant4_tag: str) -> str:
-    commands = f"FROM {g4_registry}/{geant4_tag}-{image}{image_tag}\n"
+    commands = f"FROM {g4_registry}:{geant4_tag}-{image}-{image_tag}\n"
     commands += f"LABEL maintainer=\"Maurizio Ungaro <ungaro@jlab.org>\"\n\n"
     commands += f"# run bash instead of sh\n"
     commands += f"SHELL [\"/bin/bash\", \"-c\"]\n\n"
