@@ -20,8 +20,8 @@ def available_images() -> str:
 # 	return '/usr/local/bin/start-novnc'
 
 
-def docker_header(image: str, image_tag: str) -> str:
-    commands = f"FROM {g4_registry}/{image}{image_tag}\n"
+def docker_header(image: str, image_tag: str, geant4_tag: str) -> str:
+    commands = f"FROM {geant4_tag}-{g4_registry}/{image}{image_tag}\n"
     commands += f"LABEL maintainer=\"Maurizio Ungaro <ungaro@jlab.org>\"\n\n"
     commands += f"# run bash instead of sh\n"
     commands += f"SHELL [\"/bin/bash\", \"-c\"]\n\n"
@@ -53,7 +53,7 @@ def log_exporters() -> str:
 
 def create_dockerfile(image: str, image_tag: str, geant4_version: str, gemc_version: str) -> str:
     commands = ""
-    commands += docker_header(image, image_tag)
+    commands += docker_header(image, image_tag, geant4_version)
     commands += install_gemc(geant4_version, gemc_version)
     commands += log_exporters()
 
