@@ -24,8 +24,8 @@ meson subprojects download assimp
 echo " > Applying patch to version 0.8.0" | tee -a $setup_log
 meson subprojects update yaml-cpp --reset
 echo
-echo " > Running meson setup build $meson_option" | tee -a $setup_log
-meson setup build "$=meson_option" >> $setup_log
+echo " > Running meson setup build $=meson_option" | tee -a $setup_log
+meson setup build $=meson_option >> $setup_log
 if [ $? -ne 0 ]; then
   echo " > Meson Configure failed. Log: "
   cat $setup_log
