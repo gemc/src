@@ -127,7 +127,7 @@ jobs:
       - name: Build & Push
         uses: docker/build-push-action@v5
         with:
-          # pull always to ensure we have the latest base image
+          # ensure we have the latest base image
           pull: true
           # force a full rebuild regardless of any local cache from previous workflow runs
           no-cache: true
@@ -136,7 +136,7 @@ jobs:
           context: .
           file: ./Dockerfile.generated
           platforms: ${{ matrix.platform }}
-          push: ${{ always() }}
+          push: true
           # Add suffix to the arch-specific image tag
           tags: ${{ steps.meta.outputs.tags }}${{ matrix.suffix }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -158,7 +158,6 @@ jobs:
           outputs: type=local,dest=${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}
 
       - name: Upload logs artifact
-        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: logs-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.arch }}
@@ -212,7 +211,6 @@ jobs:
           fi
 
       - name: Summary (manifest)
-        if: ${{ always() }}
         shell: bash
         env:
           IMAGE: ${{ needs.discover.outputs.image }}
