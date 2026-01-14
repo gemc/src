@@ -57,12 +57,12 @@ endif
 
 # geant4.pc if not found
 fs = import('fs')
-gemc_prefix = get_option('prefix')
-geant4_pc = gemc_prefix / 'lib/pkgconfig/geant4.pc'
-script_path = meson.project_source_root() / 'meson/g4_pkgconfig.py'
+geant4_pc_path =  get_option('prefix') / 'lib/pkgconfig'
+geant4_pc = geant4_pc_path / 'geant4.pc'
+g4_pkgconfig_script =  meson.project_source_root() / 'meson/g4_pkgconfig.py'
 if not fs.exists(geant4_pc)
-    message('geant4.pc not found in ' + geant4_pc + ', running install script...')
-    run_command(script_path, gemc_prefix, check : true)
+    message('geant4.pc not found in ' + geant4_pc + ', running install script to install it in ' + geant4_pc_path)
+    run_command(g4_pkgconfig_script, geant4_pc_path, check : true)
 endif
 geant4_dep = dependency('geant4', version : '>=11.3.2')
 

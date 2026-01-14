@@ -11,17 +11,29 @@ function enable_git_describe {
 }
 
 function show_gemc_installation {
-  echo
-  echo "- Content of \$GEMC=$GEMC"
-  ls -lrt $GEMC
 
-  echo "- Content of \$GEMC/bin=$GEMC/bin"
-  ls -lrt $GEMC/bin
+  echo "- Content of \$GEMC=$GEMC" >> $gemc_install_show
+  ls -lrt $GEMC >> $gemc_install_show
+
+  echo "- Content of \$GEMC/bin=$GEMC/bin" >> $gemc_install_show
+  ls -lrt $GEMC/bin >> $gemc_install_show
 
   if [ -d $GEMC/lib ]; then
-    echo "- Content of \$GEMC/lib=$GEMC/lib"
-    ls -lrt $GEMC/lib
+    echo "- Content of \$GEMC/lib=$GEMC/lib" >> $gemc_install_show
+    ls -lrt $GEMC/lib >> $gemc_install_show
   fi
+
+  echo " ldd of $GEMC/bin/gemc:" >> $gemc_install_show
+
+  # if on unix, use ldd , if on mac, use otool -L
+  if [[ "$(uname)" == "Darwin" ]]; then
+    otool -L $GEMC/bin/gemc >> $gemc_install_show
+  else
+    ldd $GEMC/bin/gemc >> $gemc_install_show
+  fi
+
+  echo " > To check gemc installation:  cat $gemc_install_show"
+
 }
 
 function meson_setup_options {
@@ -30,6 +42,7 @@ function meson_setup_options {
 
     meson_options=""
     buildtype=" -Dbuildtype=debug "
+    interactive_option=""
 
     case $1 in
         "address")
@@ -60,45 +73,49 @@ function meson_setup_options {
             ;;
     esac
 
-    additional_args=(
-                    		"--native-file=core.ini"
-                    		"-Di_test=true"
-                    		"-Droot=enabled"
-                    		"-Dprefix=${install_dir}"
-                    		"-Dpkg_config_path=$PKG_CONFIG_PATH:${install_dir}/lib/pkgconfig"
-                    	)
+    args=(
+            $meson_options
+            $test_interactive_option
+            "--native-file=core.ini"
+            "-Droot=enabled"
+            "-Dprefix=${install_dir}"
+            "-Dpkg_config_path=$PKG_CONFIG_PATH:${install_dir}/lib/pkgconfig"
+            $buildtype
+        )
 
-    echo $meson_options $buildtype "${additional_args[@]}"
+    echo "${args[@]}"
 }
 
-
-# recent versions of Git refuse to touch a repository whose on-disk owner
-# doesn’t match the UID that is running the command
-# mark the workspace (and any nested path) as safe
-echo "Marking workspace as safe for Git"
-git config --global --add safe.directory '*'
-
-enable_git_describe
 log_dir=$SIM_HOME/logs
+test_interactive_option=""
 
 # if we are in the docker container, we need to load the modules
 if [[ -z "${AUTOBUILD}" ]]; then
 	echo "\nNot in container"
+  test_interactive_option="-Di_test=true"
 else
 	echo "\nIn docker container."
+  # recent versions of Git refuse to touch a repository whose on-disk owner
+  # doesn’t match the UID that is running the command
+  # mark the workspace (and any nested path) as safe
+  echo "Marking workspace as safe for Git"
+  git config --global --add safe.directory '*'
+  enable_git_describe
 	log_dir=/root/src/logs
 fi
 
-export $GEMC=$SIM_HOME/gemc/dev
 
-setup_log=/root/src/logs/setup.log
-compile_log=/root/src/logs/build.log
-test_log=/root/src/logs/test.log
+export GEMC=${SIM_HOME}/gemc/dev
+# detect cores and cap at 16
+cores=$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc)
+jobs=$((cores < 16 ? cores : 16))
 
-touch $setup_log $compile_log $test_log
+mkdir -p $log_dir
+setup_log=$log_dir/setup.log
+compile_log=$log_dir/build.log
+install_log=$log_dir/install.log
+test_log=$log_dir/test.log
+gemc_install_show=$log_dir/gemc.log
 
-echo Logs:
-
-ls -l $setup_log
-ls -l $compile_log
-ls -l $test_log
+touch $setup_log $compile_log $install_log $test_log
+echo
