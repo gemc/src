@@ -8,45 +8,16 @@
 # ./ci/build.sh
 
 source ci/env.sh
-
-# module gemc gives $GEMC (used in meson prefix) and PKG_CONFIG_PATH
-# not strickly necessary, one could set those manually
-module load gemc/dev
-echo GEMC for prefix set to: $GEMC
-echo
-
 meson_option=$(meson_options $1)
-
-mkdir -p /root/src/logs
-setup_log=/root/src/logs/setup.log
-compile_log=/root/src/logs/build.log
-test_log=/root/src/logs/test.log
-
-touch $setup_log $compile_log $test_log
-
-echo Logs:
-
-ls -l $setup_log
-ls -l $compile_log
-ls -l $test_log
 
 echo " > Geant-config: $(which geant4-config) : $(geant4-config --version)" | tee $setup_log
 echo " > Root-config: $(which root-config) : $(root-config --version)" | tee -a $setup_log
+echo Meson Options: $meson_option
+exit
 
-setup_options=" --native-file=core.ini $meson_option -Dprefix=$GEMC --wipe "
-
-local mode="${1:-release}"
-local install_dir="${GEMC:?GEMC not set}"
-
-local args=(
-  "--native-file=core.ini"
-  "-Droot=enabled"
-  "-Dprefix=${install_dir}"
-)
-
-# detect cores and cap at 32
+# detect cores and cap at 16
 cores=$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc)
-jobs=$((cores < 32 ? cores : 32))
+jobs=$((cores < 16 ? cores : 16))
 
 meson subprojects download yaml-cpp
 meson subprojects download assimp
@@ -54,7 +25,7 @@ echo " > Applying patch to version 0.8.0" | tee -a $setup_log
 meson subprojects update yaml-cpp --reset
 echo
 echo " > Running meson setup build ${args[@]}" | tee -a $setup_log
-meson setup build "${args[@]}" - >> $setup_log
+meson setup build "meson_option" - >> $setup_log
 if [ $? -ne 0 ]; then
   echo "Build Configure failed. Log: "
   cat $setup_log
