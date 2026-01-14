@@ -16,17 +16,14 @@ def available_images() -> str:
     return ', '.join(sorted(valid_images))
 
 
-# def remote_novnc_startup_script() -> str:
-# 	return '/usr/local/bin/start-novnc'
-
+def remote_entrypoint():
+    return f'/usr/local/bin/docker-entrypoint.sh'
 
 def docker_header(image: str, image_tag: str, geant4_tag: str) -> str:
     commands = f"FROM {g4_registry}:{geant4_tag}-{image}-{image_tag} as final\n"
     commands += f"LABEL maintainer=\"Maurizio Ungaro <ungaro@jlab.org>\"\n\n"
     commands += f"# run bash instead of sh\n"
     commands += f"SHELL [\"/bin/bash\", \"-c\"]\n\n"
-    # commands += f"# Make browser UI the default; users can override with \"docker run ... bash -l\"\n"
-    # commands += f"CMD [\"{remote_novnc_startup_script()}\"]\n\n"
     commands += f"ENV AUTOBUILD=1\n"
     return commands
 
@@ -39,6 +36,7 @@ def install_gemc(geant4_version: str, gemc_version: str) -> str:
         clone_arguments += f'--branch "{gemc_version}'
     commands = f'\nRUN  git clone {clone_arguments} http://github.com/gemc/src /root/src \\\n'
     commands += f'     && cd /root/src \\\n'
+    commands += f"     && DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . {remote_entrypoint()} \\\n"
     commands += f'     && module load geant4/{geant4_version} \\\n'
     commands += f'     &&  ./ci/build.sh \n'
     return commands

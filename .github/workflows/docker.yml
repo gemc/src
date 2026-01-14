@@ -1,5 +1,5 @@
 # Build & Publish GitHub Container Registry (GHCR) Images
-name: Build And Test Images
+name: Build GEMC Images
 permissions:
   contents: read
   packages: write
@@ -10,7 +10,7 @@ env:
   GEANT4_TAG: 11.4.0      # default geant4 tag
 
 concurrency:
-  group: geant4-images-${{ github.ref }}
+  group: gemc-images-${{ github.ref }}
   cancel-in-progress: true
 
 on:
@@ -21,6 +21,7 @@ on:
 
 jobs:
   overview:
+    if: ${{ github.event_name != 'pull_request' }}
     name: Workflow Overview
     runs-on: ubuntu-latest
     steps:
@@ -34,7 +35,7 @@ jobs:
             echo "Except for archlinux (amd64-only), all images are built for both the *amd64* and *arm64* architectures."
             echo ""
             echo ""
-            echo "Set these convenience variables for the command lines below (choose your own password)"
+            echo "Set these convenience variables for the interactive use below (choose your own password)"
             echo '```bash'
             echo 'VPORTS=(-p 6080:6080 -p 5900:5900)'
             echo 'VNC_PASS=(-e X11VNC_PASSWORD=change-me)'
@@ -42,7 +43,7 @@ jobs:
             echo 'GEO_FLAGS=(-e GEOMETRY=1920x1200)'
             echo '```'
             echo ""
-            echo "If your arch is arm64, (for example, MacOS silicon), and want to use the archlinux image, add this to all command lines:"
+            echo "If your arch is arm64 and want to use the archlinux image, add this to all command lines:"
             echo '```bash'
             echo '--platform=linux/amd64'
             echo '```'
@@ -50,6 +51,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   discover:
+    if: ${{ github.event_name != 'pull_request' }}
     name: Create Job Matrices
     runs-on: ubuntu-latest
     outputs:
@@ -63,10 +65,10 @@ jobs:
         name: Build matrix
         run: ci/distros_tags.sh
 
-  # ===============
   # arch build jobs
-  # ===============
+  # uses matrix_build
   build_arch:
+    if: ${{ github.event_name != 'pull_request' }}
     name: ${{ matrix.arch }} ${{ matrix.gemc_tag }} ${{ matrix.geant4_tag }} ${{ matrix.image }}:${{ matrix.image_tag }}
     needs: [ overview, discover ]
     runs-on: ${{ matrix.runner }}
@@ -74,21 +76,23 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.discover.outputs.matrix_build) }}
 
+    env:
+      CACHE_REF: type=registry,ref=${{ needs.discover.outputs.image }}:cache-${{ matrix.arch }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-#      - name: Free up disk space
-#        uses: ./.github/actions/free-disk-space
-#        with:
-#          prune_docker: "true"
-#          show_tree: "true"
+      - name: Free up disk space
+        uses: ./.github/actions/free-disk-space
+        with:
+          prune_docker: "true"
+          show_tree: "true"
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to GHCR
-        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -117,29 +121,32 @@ jobs:
           cat Dockerfile.generated
 
       # later pass it in the step below so that it's executed for every commit
-      # otherwise the cached step is used
       - name: Get upstream commit
         run: echo "UPSTREAM_REV=$(git ls-remote https://github.com/gemc/src HEAD | cut -f1)" >> $GITHUB_ENV
 
       - name: Build & Push
         uses: docker/build-push-action@v5
         with:
+          # pull always to ensure we have the latest base image
           pull: true
+          # force a full rebuild regardless of any local cache from previous workflow runs
+          no-cache: true
           build-args: |
             UPSTREAM_REV=${{ env.UPSTREAM_REV }}
           context: .
           file: ./Dockerfile.generated
           platforms: ${{ matrix.platform }}
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ always() }}
+          # Add suffix to the arch-specific image tag
           tags: ${{ steps.meta.outputs.tags }}${{ matrix.suffix }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}:cache-{1}', needs.discover.outputs.image, matrix.arch) || '' }}
-          cache-to:   ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}:cache-{1},mode=max', needs.discover.outputs.image, matrix.arch) || '' }}
-
+          # build layers are imported from a previously exported BuildKit cache
+          # cache-from: ${{ env.CACHE_REF }}
+          # publishes the BuildKit cache to your container registry under that tag
+          cache-to:   ${{ env.CACHE_REF }},mode=max
 
       # export logs from the logs-export stage in the dockerfile to the runner’s filesystem (no docker pull)
       - name: Export logs
-        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -147,7 +154,7 @@ jobs:
           target: logs-export
           platforms: ${{ matrix.platform }}
           push: false
-          cache-from: type=registry,ref=${{ needs.discover.outputs.image }}:cache-${{ matrix.arch }}
+          cache-from: ${{ env.CACHE_REF }}
           outputs: type=local,dest=${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}
 
       - name: Upload logs artifact
@@ -158,9 +165,10 @@ jobs:
           path: ${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}/logs
           if-no-files-found: ignore
 
-  # ===========================
-  # Manifest stitch (same matrix)
-  # ===========================
+  # Manifest stitch
+  # uses matrix_manifest so it's not repeated for each arch
+  # docker buildx imagetools create: assembles an OCI manifest list
+  # from already-pushed per-arch image tags.
   manifest:
     if: ${{ github.event_name != 'pull_request' }}
     name: Manifest ${{ matrix.gemc_tag }} ${{ matrix.geant4_tag }} ${{ matrix.image }}:${{ matrix.image_tag }}
@@ -243,7 +251,6 @@ jobs:
           ls -l "$GITHUB_WORKSPACE/summaries"
 
       - name: Upload summary artifact (manifest)
-        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-manifest
