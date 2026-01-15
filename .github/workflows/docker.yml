@@ -135,6 +135,7 @@ jobs:
             UPSTREAM_REV=${{ env.UPSTREAM_REV }}
           context: .
           file: ./Dockerfile.generated
+          target: final
           platforms: ${{ matrix.platform }}
           push: true
           # Add suffix to the arch-specific image tag
@@ -145,17 +146,19 @@ jobs:
           # publishes the BuildKit cache to your container registry under that tag
           cache-to:   ${{ env.CACHE_REF }},mode=max
 
+
       # export logs from the logs-export stage in the dockerfile to the runner’s filesystem (no docker pull)
-      - name: Export logs
+      - name: Export logs (runner artifact)
         uses: docker/build-push-action@v5
         with:
+          pull: true
           context: .
           file: ./Dockerfile.generated
           target: logs-export
-          platforms: ${{ matrix.platform }}
           push: false
           cache-from: ${{ env.CACHE_REF }}
           outputs: type=local,dest=${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}
+
 
       - name: Upload logs artifact
         uses: actions/upload-artifact@v4
@@ -222,7 +225,7 @@ jobs:
             echo ""
             echo "Includes:"
             if docker buildx imagetools inspect "${IMAGE}:${TAG}-amd64" >/dev/null 2>&1; then echo "- amd64"; fi
-            if docker buildx imagetools inspect "${IMAGE}:${TAG}-arm64" >/dev/null 2>&1; then echo "- arm64"; else echo "- arm64 (skipped)"; fi
+            if docker buildx imagetools inspect "${IMAGE}:${TAG}-arm64" >/dev/null 2>&1; then echo "- arm64"; else echo "no arm64. Run with --platform=linux/amd64 in arm64 CPUs"; fi
             echo ""
             echo "### Pull"
             echo '```bash'
