@@ -10,7 +10,7 @@ on:
 
 # default geant4 version.
 env:
-  CONTAINER: g4install:11.4.0-ubuntu-24.04      # default geant4 tag
+  DEFAULT_CONTAINER: ghcr.io/gemc/g4install:11.4.0-ubuntu-24.04
 
 jobs:
   analyze:
@@ -21,6 +21,9 @@ jobs:
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    # Use a container with G4 installed
+    container: ${{ env.DEFAULT_CONTAINER }}
+
     permissions:
       # required for all workflows
       security-events: write
@@ -32,8 +35,7 @@ jobs:
       actions: read
       contents: read
 
-    # Use a container with G4 installed
-    container: ${{ env.CONTAINER }}
+
 
     strategy:
       fail-fast: false

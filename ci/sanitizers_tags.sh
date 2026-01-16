@@ -35,7 +35,7 @@ OS_VERSIONS=(
 # In the CI we first run one sanitizer at a time until all issues are solved
 # Then we can run them all
 get_sanitizers() {
-  local choice_of_sanitizer="address"
+  local choice_of_sanitizer="undefined"
   local baseos=$1
 	case "$baseos" in
 	  "macos") echo $choice_of_sanitizer ;;

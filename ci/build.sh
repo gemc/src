@@ -17,8 +17,6 @@ echo " > Meson Setup Options: $meson_option"
 echo " > Using $jobs cores"
 echo
 
-
-
 meson subprojects download yaml-cpp
 meson subprojects download assimp
 echo " > Applying patch to version 0.8.0" | tee -a $setup_log
@@ -61,7 +59,7 @@ fi
 show_gemc_installation
 
 # if $1 is NOT one of sanitize option, run meson test
-if [[ $1 != @(address|thread|undefined|memory|leak) ]]; then
+if [[ $1 != @(address|thread|undefined|leak) ]]; then
   echo " > Running meson test with options  -C build -j 1 --print-errorlogs --no-rebuild --num-processes 1 " | tee $test_log
   meson test -C build -v -j 1 --print-errorlogs --no-rebuild --num-processes 1 >> $test_log
   echo "   - Successful: $(cat $test_log | grep "Ok:" | awk '{print $2}')"
