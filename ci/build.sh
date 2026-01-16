@@ -58,16 +58,38 @@ fi
 
 show_gemc_installation
 
+test_options=(
+  -C build
+  --print-errorlogs
+  -j 1
+  --no-rebuild
+  --num-processes 1
+)
+
+# Specific tests to run when sanitizer is enabled
+sanitizer_tests=(
+  api_run_gemc_with_replaced_geometry_using_G4Box_with_formatascii
+  test_gstreamer_csv
+  test_gparticle_double
+  test_event_dispenser
+  examples_geo_basic_simple_flux_ascii_variation_default
+)
+
+
+meson_args=( "${test_options[@]}" )
+
 # if $1 is NOT one of sanitize option, run meson test
 case "$1" in
   address|thread|undefined|leak)
-    # sanitizer option -> do NOT run meson test
+    meson_args+=( "${sanitizer_tests[@]}" )
     ;;
   *)
-    echo " > Running meson test with options -C build -j 1 --print-errorlogs --no-rebuild --num-processes 1" | tee -a "$test_log"
-    meson test -C build -v -j 1 --print-errorlogs --no-rebuild --num-processes 1 >> "$test_log"
-    echo "   - Successful: $(grep -m1 'Ok:' "$test_log" | awk '{print $2}')"
-    echo "   - Failures: $(grep -m1 'Fail:' "$test_log" | awk '{print $2}')"
-    echo " > Complete test log: $test_log"
+    meson_args+=( -v )
     ;;
 esac
+
+echo " > Running meson test with options:"  "${meson_args[@]}" | tee -a "$test_log"
+meson test "${meson_args[@]}" >> "$test_log"
+echo "   - Successful: $(grep -m1 'Ok:' "$test_log" | awk '{print $2}')"
+echo "   - Failures: $(grep -m1 'Fail:' "$test_log" | awk '{print $2}')"
+echo " > Complete test log: $test_log"

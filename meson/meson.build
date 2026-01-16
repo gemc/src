@@ -109,19 +109,24 @@ sanitize = get_option('b_sanitize')  # string option: 'none', 'address', 'undefi
 # only use shared libraries if a sanitizer option is passed
 # this will avoid duplicate symbols errors when sanitizer is used, coming from static library usage
 use_sharedl = (sanitize != 'none')
+cmake_opts.add_cmake_defines({
+                                 'BUILD_SHARED_LIBS': use_sharedl,
+                                 # Avoid pulling GUI/sample/tooling deps like X11
+                                 'ASSIMP_BUILD_ASSIMP_TOOLS': false,
+                                 'ASSIMP_BUILD_SAMPLES': false,
+                                 'ASSIMP_BUILD_TESTS': false,
+                             })
 
 
 if host_machine.system() == 'darwin'
     # there's a macro collision in Assimp’s bundled zlib on macOS.
     # Using system zlib is fine on macos
     cmake_opts.add_cmake_defines({
-                                     'BUILD_SHARED_LIBS': use_sharedl,
                                      'ASSIMP_BUILD_ZLIB' : false,
                                  })
 else
     # Ubuntu: zlib is not compiled with fPic on the system. Let Assimp compile it.
     cmake_opts.add_cmake_defines({
-                                     'BUILD_SHARED_LIBS': use_sharedl,
                                      'ASSIMP_BUILD_ZLIB' : true,
                                  })
 endif
