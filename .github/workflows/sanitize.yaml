@@ -44,7 +44,7 @@ jobs:
           echo '${{ steps.scan.outputs.matrix_sanitize }}'
 
   build-with-sanitizer:
-    name: Sanitize - ${{ matrix.name }} - ${{ matrix.sanitizer }}
+    name: ${{ matrix.baseos }} ${{ matrix.arch }} - ${{ matrix.sanitizer }}
     needs: [ discover ]
     strategy:
       fail-fast: false
@@ -56,10 +56,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build (${{ matrix.sanitizer }})
+      - name: Sanitizer ${{ matrix.sanitizer }}
         shell: bash
         run: |
           set -euo pipefail
+          echo "Starting manual build for sanitizer: ${{ matrix.sanitizer }}"
+          DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . /usr/local/bin/docker-entrypoint.sh \
+          module load geant4/11.4.0 \
           ./ci/build.sh "${{ matrix.sanitizer }}"
 
   build-with-sanitizer-final:

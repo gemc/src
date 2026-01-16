@@ -81,7 +81,9 @@ build_matrix_build() {
 
           body+="${sep}{"
           body+="\"container\":\"ghcr.io/gemc/g4install:${g4v}-${os}-${ver}\","
-          body+="\"runner\":\"${runner}\","
+          body+="\"baseos\":\"${runner}\","
+          body+="\"runner\":\"${os}\","
+          body+="\"arch\":\"${cpuv}\","
           body+="\"sanitizer\":\"${sanitizer}\""
           body+="}"
           sep=","
