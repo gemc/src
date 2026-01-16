@@ -219,13 +219,15 @@ jobs:
           IMAGE: ${{ needs.discover.outputs.image }}
           TAG: ${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.geant4_tag, matrix.image, matrix.image_tag) }}
         run: |
-          : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/manifest_summary.md}"
+          SUMMARY_FILE="${GITHUB_STEP_SUMMARY:-$RUNNER_TEMP/manifest_summary.md}"
+          echo "MANIFEST_SUMMARY_FILE=$SUMMARY_FILE" >> "$GITHUB_ENV"
+
           {
             echo "## \`${IMAGE}:${TAG}\`"
             echo ""
             echo "Includes:"
             if docker buildx imagetools inspect "${IMAGE}:${TAG}-amd64" >/dev/null 2>&1; then echo "- amd64"; fi
-            if docker buildx imagetools inspect "${IMAGE}:${TAG}-arm64" >/dev/null 2>&1; then echo "- arm64"; else echo "no arm64. Run with --platform=linux/amd64 in arm64 CPUs"; fi
+            if docker buildx imagetools inspect "${IMAGE}:${TAG}-arm64" >/dev/null 2>&1; then echo "- arm64"; else echo "- no arm64. Run with --platform=linux/amd64 in arm64 CPUs"; fi
             echo ""
             echo "### Pull"
             echo '```bash'
@@ -243,11 +245,11 @@ jobs:
             echo '```bash'
             echo "docker run --rm -it \$VPORTS \$VNC_BIND \$VNC_PASS \$GEO_FLAGS ${IMAGE}:${TAG}"
             echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          } >> "$SUMMARY_FILE"
 
           # Also save a copy inside the workspace for artifact upload
           mkdir -p "$GITHUB_WORKSPACE/summaries"
-          cp "$GITHUB_STEP_SUMMARY" "$GITHUB_WORKSPACE/summaries/summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-${{ job.status }}.md" || true
+          cp "$SUMMARY_FILE" "$GITHUB_WORKSPACE/summaries/summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-${{ job.status }}.md" || true
           echo "Wrote $GITHUB_WORKSPACE/summaries/summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-${{ job.status }}.md"
           ls -l "$GITHUB_WORKSPACE/summaries"
 
@@ -255,7 +257,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-manifest
-          path: |
-            ${{ runner.temp }}/manifest_summary.md
+          path: ${{ env.MANIFEST_SUMMARY_FILE }}
           if-no-files-found: warn
+
 

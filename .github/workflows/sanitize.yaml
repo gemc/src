@@ -1,52 +1,53 @@
 name: Sanitize
 permissions:
   contents: read
-  pull-requests: write
+  packages: write
 
-# Controls when the workflow will run
+# default varsions. This is overwritten by distros_tags.sh
+env:
+  GEMC_TAG: dev           # default gemc tag
+  GEANT4_TAG: 11.4.0      # default geant4 tag
+
+concurrency:
+  group: gemc-images-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
-  # Triggers the workflow on all pushes
   push:
-    branches:
-      - '*'
+    branches: [ main ]   # publish on main updates
+    tags: [ 'v*' ]       # also publish on version tags
+  pull_request:          # PRs: build only (no push)
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 jobs:
-  build-with-sanitizer:
-    strategy:
-      # max-parallel: 4
-      matrix:
-        container:
-          - name: ubuntu24
-            image: jeffersonlab/geant4:g4v11.3.2-ubuntu24
-          - name: fedora40
-            image: jeffersonlab/geant4:g4v11.3.2-fedora40
-          - name: almalinux94
-            image: jeffersonlab/geant4:g4v11.3.2-almalinux94
-        # NOTE: additional packages needed for the sanitizer: libasan libubsan libtsan
-        # MacOS: address, thread, undefined
-        # Linux: address, hwaddress, leak, undefined, integer, thread, cfi, kcfi, shadowcallstack
-        sanitize: [ none, address, hwaddress, leak, undefined, integer, thread, cfi, kcfi, shadowcallstack ]
+  discover:
+    name: Create Job Matrices
     runs-on: ubuntu-latest
-    continue-on-error: true
-    container: ${{ matrix.container.image }}
-    name: ${{ matrix.container.name }}-${{ matrix.sanitize }}
+    outputs:
+      matrix_sanitize: ${{ steps.scan.outputs.matrix_sanitize }}
+      image: ${{ steps.scan.outputs.image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - id: scan
+        name: Build matrix
+        run: ci/distros_tags.sh
+
+  build-with-sanitizer:
+    name: ${{ matrix.image }}:${{ matrix.image_tag }} ${{ matrix.image_tag }}
+    needs: [ discover ]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix_sanitize) }}
+    runs-on: ${{ matrix.runner }}
+    container: ${{ matrix.container }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@main
-      - name: Fix Ownership
-        run: |
-          # recent versions of Git refuse to touch a repository whose on-disk owner 
-          # doesn’t match the UID that is running the command
-          # mark the workspace (and any nested path) as safe
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"/src
+        uses: actions/checkout@v4
       - name: Build ${{ matrix.sanitize }}
         run: |
-          ./ci/build.sh ${{ matrix.sanitize }}
+          ./ci/build.sh ${{ matrix.sanitizer }}
 
   build_with_sanitizert-final:
     needs:

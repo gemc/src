@@ -11,7 +11,7 @@ get_runner() {
 		"amd64") echo "ubuntu-latest" ;;
 		*)
 			echo   "ERROR: unsupported arch $arch" >&2
-			return                                                  2
+			return 2
 			;;
 	esac
 }
@@ -34,7 +34,7 @@ build_matrix_build() {
 	arch_list="$(get_cpu_architectures)"
   gemc_list="$(get_gemc_tags)"
 
-	local -a g4_tags arch_tags
+	local -a g4_tags arch_tags gemc_tags
 	read -r -a g4_tags <<<"$g4_list"
 	read -r -a arch_tags <<<"$arch_list"
 	read -r -a gemc_tags <<<"$gemc_list"

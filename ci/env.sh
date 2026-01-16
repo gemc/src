@@ -42,7 +42,6 @@ function meson_setup_options {
 
     meson_options=""
     buildtype=" -Dbuildtype=debug "
-    interactive_option=""
 
     case $1 in
         "address")
