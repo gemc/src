@@ -33,7 +33,7 @@ jobs:
       contents: read
 
     # Use a container with G4 installed
-    container: env.CONTAINER
+    container: ${{ env.CONTAINER }}
 
     strategy:
       fail-fast: false
@@ -89,9 +89,13 @@ jobs:
       shell: bash
       run: |
         echo "Starting manual build for CodeQL..."
-        DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . /usr/local/bin/docker-entrypoint.sh \
-        module load geant4 \        
-        ./ci/build.sh
+        
+        export DOCKER_ENTRYPOINT_SOURCE_ONLY=1
+        . /usr/local/bin/docker-entrypoint.sh
+        module load geant4/"${{ matrix.g4v }}"
+      
+        ./ci/build.sh "${{ matrix.sanitizer }}"
+        
         echo "Manual build finished."
 
     - name: Perform CodeQL Analysis
