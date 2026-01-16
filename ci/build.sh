@@ -59,10 +59,15 @@ fi
 show_gemc_installation
 
 # if $1 is NOT one of sanitize option, run meson test
-if [[ $1 != @(address|thread|undefined|leak) ]]; then
-  echo " > Running meson test with options  -C build -j 1 --print-errorlogs --no-rebuild --num-processes 1 " | tee $test_log
-  meson test -C build -v -j 1 --print-errorlogs --no-rebuild --num-processes 1 >> $test_log
-  echo "   - Successful: $(cat $test_log | grep "Ok:" | awk '{print $2}')"
-  echo "   - Failures: $(cat $test_log | grep "Fail:" | awk '{print $2}')"
-  echo " > Complete test log: $test_log"
-fi
+case "$1" in
+  address|thread|undefined|leak)
+    # sanitizer option -> do NOT run meson test
+    ;;
+  *)
+    echo " > Running meson test with options -C build -j 1 --print-errorlogs --no-rebuild --num-processes 1" | tee -a "$test_log"
+    meson test -C build -v -j 1 --print-errorlogs --no-rebuild --num-processes 1 >> "$test_log"
+    echo "   - Successful: $(grep -m1 'Ok:' "$test_log" | awk '{print $2}')"
+    echo "   - Failures: $(grep -m1 'Fail:' "$test_log" | awk '{print $2}')"
+    echo " > Complete test log: $test_log"
+    ;;
+esac

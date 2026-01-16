@@ -44,7 +44,7 @@ if (not root_dep.found()) and (not root_opt.disabled())
                               modules : ['ROOT::Core', 'ROOT::RIO', 'ROOT::Tree', 'ROOT::Hist'],
                               required : false
         )
-        message( 'root-config found. root_dep  dependency added')
+        message('root-config found. root_dep  dependency added')
     else
         if root_opt.enabled()
             warning('ROOT was explicitly enabled (-Droot=enabled) but root-config was not found.')
@@ -58,11 +58,11 @@ endif
 # geant4.pc if not found
 fs = import('fs')
 gemc_prefix = get_option('prefix')
-geant4_pc_path =  gemc_prefix / 'lib/pkgconfig'
+geant4_pc_path = gemc_prefix / 'lib/pkgconfig'
 geant4_pc = geant4_pc_path / 'geant4.pc'
-g4_pkgconfig_script =  meson.project_source_root() / 'meson/g4_pkgconfig.py'
+g4_pkgconfig_script = meson.project_source_root() / 'meson/g4_pkgconfig.py'
 if not fs.exists(geant4_pc)
-    message('geant4.pc not found in ' + geant4_pc + ', running install script to install it in ' + gemc_prefix )
+    message('geant4.pc not found in ' + geant4_pc + ', running install script to install it in ' + gemc_prefix)
     run_command(g4_pkgconfig_script, gemc_prefix, check : true)
 endif
 geant4_dep = dependency('geant4', version : '>=11.3.2')
@@ -104,15 +104,24 @@ cmake_opts.add_cmake_defines({
                                  'CMAKE_POLICY_VERSION_MINIMUM' : '4.0',
                              })
 
+sanitize = get_option('b_sanitize')  # string option: 'none', 'address', 'undefined', etc.
+
+# only use shared libraries if a sanitizer option is passed
+# this will avoid duplicate symbols errors when sanitizer is used, coming from static library usage
+use_sharedl = (sanitize != 'none')
+
+
 if host_machine.system() == 'darwin'
     # there's a macro collision in Assimp’s bundled zlib on macOS.
     # Using system zlib is fine on macos
     cmake_opts.add_cmake_defines({
+                                     'BUILD_SHARED_LIBS': use_sharedl,
                                      'ASSIMP_BUILD_ZLIB' : false,
                                  })
 else
     # Ubuntu: zlib is not compiled with fPic on the system. Let Assimp compile it.
     cmake_opts.add_cmake_defines({
+                                     'BUILD_SHARED_LIBS': use_sharedl,
                                      'ASSIMP_BUILD_ZLIB' : true,
                                  })
 endif
