@@ -1,35 +1,50 @@
 name: Sanitize
 permissions:
   contents: read
-  packages: write
 
 concurrency:
-  group: gemc-images-${{ github.ref }}
+  group: sanitize-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 on:
   push:
-    branches: [ main ]   # publish on main updates
-    tags: [ 'v*' ]       # also publish on version tags
-  pull_request:          # PRs: build only (no push)
-
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
 
 jobs:
   discover:
-    name: Create Job Matrices
+    name: Create job matrix
     runs-on: ubuntu-latest
     outputs:
       matrix_sanitize: ${{ steps.scan.outputs.matrix_sanitize }}
-      image: ${{ steps.scan.outputs.image }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - id: scan
         name: Build matrix
-        run: ci/sanitizers_tags.sh
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./ci/sanitizers_tags.sh
+
+      - name: Fail if matrix is empty
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${{ steps.scan.outputs.matrix_sanitize }}" ]]; then
+            echo "matrix_sanitize output is empty. Check ci/sanitizers_tags.sh writing to GITHUB_OUTPUT."
+            exit 1
+          fi
+
+      - name: Show matrix (debug)
+        shell: bash
+        run: |
+          echo '${{ steps.scan.outputs.matrix_sanitize }}'
 
   build-with-sanitizer:
-    name: ${{ matrix.image }}:${{ matrix.image_tag }} ${{ matrix.image_tag }}
+    name: Sanitize - ${{ matrix.name }} - ${{ matrix.sanitizer }}
     needs: [ discover ]
     strategy:
       fail-fast: false
@@ -40,21 +55,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Build ${{ matrix.sanitize }}
-        run: |
-          ./ci/build.sh ${{ matrix.sanitizer }}
 
-  build_with_sanitizert-final:
-    needs:
-      - build-with-sanitizer
+      - name: Build (${{ matrix.sanitizer }})
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./ci/build.sh "${{ matrix.sanitizer }}"
+
+  build-with-sanitizer-final:
+    name: Sanitize - summary
+    if: ${{ always() }}
+    needs: [ build-with-sanitizer ]
     runs-on: ubuntu-latest
     steps:
-      - name: fail
-        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}
+      - name: Fail if any matrix entry failed
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         run: |
-          echo "### Some tests failed." >> $GITHUB_STEP_SUMMARY
+          echo "### Some sanitizer jobs failed or were cancelled." >> $GITHUB_STEP_SUMMARY
           exit 1
-      - name: pass
+
+      - name: Pass
         run: |
-          echo "### All tests passed." >> $GITHUB_STEP_SUMMARY
-          exit 0
+          echo "### All sanitizer jobs passed." >> $GITHUB_STEP_SUMMARY

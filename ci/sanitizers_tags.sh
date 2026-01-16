@@ -121,10 +121,9 @@ main() {
 	image_ref="$(build_image_ref)"
 
 	if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-		local DELIM_BUILD="MATRIX_BUILD_$(date +%s%N)"
-		local DELIM_MANIFEST="MATRIX_MANIFEST_$(date +%s%N)"
+		local DELIM_BUILD="MATRIX_SANITIZE_$(date +%s%N)"
 		{
-			echo "matrix_build<<$DELIM_BUILD"
+			echo "matrix_sanitize<<$DELIM_BUILD"
 			build_matrix_build
 			echo "$DELIM_BUILD"
 
