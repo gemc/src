@@ -8,6 +8,10 @@ on:
   schedule:
     - cron: '20 2 * * 5'
 
+# default geant4 version.
+env:
+  CONTAINER: g4install:11.4.0-ubuntu-24.04      # default geant4 tag
+
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
@@ -29,7 +33,7 @@ jobs:
       contents: read
 
     # Use a container with G4 installed
-    container: ghcr.io/gemc/g4install:11.4.0-ubuntu-24.04
+    container: env.CONTAINER
 
     strategy:
       fail-fast: false
@@ -86,7 +90,7 @@ jobs:
       run: |
         echo "Starting manual build for CodeQL..."
         DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . /usr/local/bin/docker-entrypoint.sh \
-        module load geant4/11.4.0 \        
+        module load geant4 \        
         ./ci/build.sh
         echo "Manual build finished."
 
