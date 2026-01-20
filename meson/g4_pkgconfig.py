@@ -188,5 +188,6 @@ if __name__ == "__main__":
 	generate_pkgconfig(install_dir, "geant4-config",
 					   "geant4_core.pc", "Geant4 Core",
 					   "Geant4 Simulation Toolkit (core, no graphical/GUI libs)",
-					   cflags_filter=filter_graphical_cflags)
+					   cflags_filter=filter_graphical_cflags,
+					   libs_filter=filter_graphical_libs)
 

@@ -71,6 +71,30 @@ jobs:
           
           echo "Manual build for sanitizer: ${{ matrix.sanitizer }} completed"
 
+      - name: Package sanitizer logs
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          src="/root/src/logs"
+          outdir="$GITHUB_WORKSPACE/_artifacts"
+          mkdir -p "$outdir"
+
+          if [[ -d "$src" ]]; then
+            tar -C "/root/src" -czf "$outdir/logs-${{ matrix.baseos }}-${{ matrix.arch }}-${{ matrix.sanitizer }}.tgz" "logs"
+            echo "Packaged logs from $src"
+          else
+            echo "No logs directory at $src"
+          fi
+
+      - name: Upload sanitizer logs (artifact)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.baseos }}-${{ matrix.arch }}-${{ matrix.sanitizer }}
+          path: ${{ github.workspace }}/_artifacts/logs-${{ matrix.baseos }}-${{ matrix.arch }}-${{ matrix.sanitizer }}.tgz
+          if-no-files-found: warn
+          retention-days: 14
 
   build-with-sanitizer-final:
     name: Sanitize - summary
@@ -87,3 +111,4 @@ jobs:
       - name: Pass
         run: |
           echo "### All sanitizer jobs passed." >> $GITHUB_STEP_SUMMARY
+          echo "### Uploaded artifact: logs-${{ matrix.baseos }}-${{ matrix.arch }}-${{ matrix.sanitizer }}" >> $GITHUB_STEP_SUMMARY

@@ -29,6 +29,7 @@ all_libs = []
 all_includes = []
 empty_dict = { 'na' : [''] }
 all_lib_names = []  # Store library names as linker flags
+lib_target_maps = {}
 python_exe = import('python').find_installation('python3')
 
 
@@ -51,6 +52,7 @@ subdir('gdata')
 subdir('gdynamicDigitization')
 subdir('eventDispenser')
 subdir('gqtbuttonswidget')
+subdir('gstreamer')
 subdir('g4display')
 subdir('g4dialog')
 subdir('gboard')
@@ -59,7 +61,6 @@ subdir('g4system')
 subdir('gparticle')
 subdir('gphysics')
 subdir('gsplash')
-subdir('gstreamer')
 subdir('gsd') # TODO: example
 subdir('gfields')
 subdir('gdetector')
@@ -106,6 +107,7 @@ foreach L : LD
         if not all_libs.contains(this_library)
             all_libs += this_library
             all_lib_names += 'lib' + this_lib_name + '.a' # Add as linker flag
+            lib_target_maps += {this_lib_name: this_library}
         endif
     endif
 
@@ -122,7 +124,18 @@ foreach L : LD
             if not sources.contains('')
                 plugin_link_with = [this_library]
             endif
-
+            if lib_target_maps.has_key('gtouchable')
+                plugin_link_with += [lib_target_maps['gtouchable']]
+            endif
+            if lib_target_maps.has_key('gdata')
+                plugin_link_with += [lib_target_maps['gdata']]
+            endif
+            if lib_target_maps.has_key('gtranslationTable')
+                plugin_link_with += [lib_target_maps['gtranslationTable']]
+            endif
+            if lib_target_maps.has_key('ghit')
+                plugin_link_with += [lib_target_maps['ghit']]
+            endif
             shared_library(
                 name,
                 sources[0],
@@ -132,7 +145,8 @@ foreach L : LD
                 link_with : plugin_link_with,
                 name_suffix : 'gplugin',
                 name_prefix : '',
-                override_options : ['b_staticpic=false']
+                # for shared modules, the static libraries they link must be PIC.
+                override_options : ['b_staticpic=true']
             )
 
         endforeach
