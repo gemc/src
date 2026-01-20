@@ -52,6 +52,9 @@ test('api_show_template_code_for_G4Cons',
      args : [system_template, '-gv', 'G4Cons', '-silent'])
 
 test_dir = join_paths(build_root, 'test')
+# Ensure the per-volume test directory exists in a clean build tree (CI/Linux).
+run_command('mkdir', '-p', test_dir, check: true)
+
 test('api_create_system',
      python_exe,
      is_parallel: false,
@@ -83,6 +86,9 @@ foreach volume: g4objects.keys()
     sub_name='-geo_sub=build_' + test_name
     geo_py = '-write_to=geometry_test_' + volume + '.py'
     test_dir = join_paths(build_root, test_name)
+    # Ensure the per-volume test directory exists in a clean build tree (CI/Linux).
+    run_command('mkdir', '-p', test_dir, check: true)
+
     pars = g4objects[volume]
     test('api_create_template_system_with' + volume,
          python_exe,
