@@ -1,4 +1,8 @@
 examples_dir = get_option('prefix') + '/examples/'
+test_env = environment()
+test_env.set('PYTHONDONTWRITEBYTECODE', '1')
+test_env.prepend('PYTHONPATH', api_dir)
+
 test_outdir = meson.current_build_dir()
 sql_db = get_option('prefix') + '/examples/gemc.db'
 
@@ -40,7 +44,7 @@ foreach branch : examples_map.keys()
                      args : [example_dir + example + '.py', '-f', format, '-sql', sql_db, '-v', variation], # the sql flag is ignored for ascii format
                      workdir : example_dir,
                      is_parallel : false,
-                     env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
+                     env: test_env,
                      priority : 10)
                 test(run_test_name_asci,
                      gemc,
@@ -68,7 +72,7 @@ foreach branch : examples_map.keys()
                      args : [example_dir + example + '.py', '-f', format, '-sql', sql_db, '-r', run_value], # the sql flag is ignored for ascii format
                      workdir : example_dir,
                      is_parallel : false,
-                     env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
+                     env: test_env,
                      priority : 9)
                 test(run_test_name_asci,
                      gemc,

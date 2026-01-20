@@ -105,6 +105,8 @@ fi
 
 
 export GEMC=${SIM_HOME}/gemc/dev
+
+
 # detect cores and cap at 16
 cores=$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc)
 jobs=$((cores < 16 ? cores : 16))

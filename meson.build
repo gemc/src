@@ -20,6 +20,12 @@ if get_option('buildtype') == 'debug'
     add_project_arguments('-O2', language : 'cpp')
 endif
 
+api_dir = get_option('prefix') + '/api/'
+test_env = environment()
+test_env.set('PYTHONDONTWRITEBYTECODE', '1')
+test_env.prepend('PYTHONPATH', api_dir)
+
+
 project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 
 # init lists
@@ -28,7 +34,6 @@ LD = []
 all_libs = []
 all_includes = []
 empty_dict = { 'na' : [''] }
-all_lib_names = []  # Store library names as linker flags
 lib_target_maps = {}
 python_exe = import('python').find_installation('python3')
 
@@ -106,7 +111,6 @@ foreach L : LD
         )
         if not all_libs.contains(this_library)
             all_libs += this_library
-            all_lib_names += 'lib' + this_lib_name + '.a' # Add as linker flag
             lib_target_maps += {this_lib_name: this_library}
         endif
     endif
@@ -171,7 +175,7 @@ foreach L : LD
                      args : [geo_python_script],
                      workdir : examples_dir,
                      is_parallel: false,
-                     env : { 'PYTHONDONTWRITEBYTECODE' : '1' },
+                     env: test_env,
                      priority : 20)
             endforeach
         endif
@@ -193,7 +197,6 @@ foreach L : LD
                 dependencies : this_deps,
                 include_directories : all_includes + this_lib_name + additional_includes,
                 link_with : all_libs,
-                # link_args : all_lib_names
                 override_options : ['b_pie=true']
             )
             test(name,
@@ -225,7 +228,6 @@ gemc = executable(
     dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, assimp_dep],
     include_directories : all_includes,
     link_with : all_libs,
-    link_args : all_lib_names,
     override_options : ['b_pie=true']
 )
 
@@ -306,5 +308,4 @@ post_install = run_command('echo', 'Installation completed!', check : true)
 #    requires : ['yaml-cpp', 'qt6', 'clhep', 'geant4'], # pkg-config dependencies only
 #    version : meson.project_version(),
 #    #    libraries : all_libs
-#    #    link_args : all_lib_names
 #)
