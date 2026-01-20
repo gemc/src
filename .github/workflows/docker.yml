@@ -212,6 +212,7 @@ jobs:
           fi
 
       - name: Summary (manifest)
+        if: ${{ always() }} # run regardless of earlier step outcomes
         shell: bash
         env:
           IMAGE: ${{ needs.discover.outputs.image }}
@@ -252,6 +253,7 @@ jobs:
           ls -l "$GITHUB_WORKSPACE/summaries"
 
       - name: Upload summary artifact (manifest)
+        if: ${{ always() }} # run regardless of earlier step outcomes
         uses: actions/upload-artifact@v4
         with:
           name: summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-manifest

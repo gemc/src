@@ -20,7 +20,7 @@ if get_option('buildtype') == 'debug'
     add_project_arguments('-O2', language : 'cpp')
 endif
 
-api_dir = get_option('prefix') + '/api/'
+api_dir = join_paths(get_option('prefix'), 'api')
 test_env = environment()
 test_env.set('PYTHONDONTWRITEBYTECODE', '1')
 test_env.prepend('PYTHONPATH', api_dir)

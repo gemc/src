@@ -72,7 +72,7 @@ jobs:
           echo "Manual build for sanitizer: ${{ matrix.sanitizer }} completed"
 
       - name: Package sanitizer logs
-        if: ${{ always() }}
+        if: ${{ always() }} # run regardless of earlier step outcomes
         shell: bash
         run: |
           set -euo pipefail
@@ -98,7 +98,7 @@ jobs:
 
   build-with-sanitizer-final:
     name: Sanitize - summary
-    if: ${{ always() }}
+    if: ${{ always() }} # run regardless of earlier step outcomes
     needs: [ build-with-sanitizer ]
     runs-on: ubuntu-latest
     strategy:

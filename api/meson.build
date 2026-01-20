@@ -1,22 +1,24 @@
-api_dir = get_option('prefix') + '/api/'
+api_dir = join_paths(get_option('prefix'), 'api')
 build_root = meson.project_build_root()
 
 test_env = environment()
 test_env.set('PYTHONDONTWRITEBYTECODE', '1')
 test_env.prepend('PYTHONPATH', api_dir)
 python_exe = import('python').find_installation('python3')
+system_template = join_paths(api_dir, 'system_template.py')
 
 install_subdir(meson.current_source_dir(), install_dir : '.')
 
 test('api_template_help',
      python_exe,
      env: test_env,
-     args : [api_dir + 'system_template.py', '-h'])
+     args : [system_template, '-h'])
 
 test('api_show_solid_creators',
      python_exe,
      env: test_env,
-     args : [api_dir + 'system_template.py', '-sl'])
+     args : [system_template, '-sl'],
+)
 
 # Test all solid creators
 g4objects = {
@@ -35,27 +37,27 @@ foreach volume: g4objects.keys()
          python_exe,
          is_parallel: false,
          env: test_env,
-         args : [api_dir + 'system_template.py', '-gv', volume])
+         args : [system_template, '-gv', volume])
     test('api_template_show_code_for_volume' + volume + '_with_parameters_' + pars.replace(' ', ''),
          python_exe,
          is_parallel: false,
          env: test_env,
-         args : [api_dir + 'system_template.py', '-gv', volume, '-gvp',  pars.replace(' ', '')])
+         args : [system_template, '-gv', volume, '-gvp',  pars.replace(' ', '')])
 endforeach
 
 test('api_show_template_code_for_G4Cons',
      python_exe,
      is_parallel: false,
      env: test_env,
-     args : [api_dir + 'system_template.py', '-gv', 'G4Cons', '-silent'])
+     args : [system_template, '-gv', 'G4Cons', '-silent'])
 
 test_dir = join_paths(build_root, 'test')
 test('api_create_system',
      python_exe,
      is_parallel: false,
      env: test_env,
-     args : [api_dir + 'system_template.py', '-s', 'test'],
-     workdir : test_dir,
+     args : [system_template, '-s', 'test'],
+     workdir : build_root,
      priority : 5)
 foreach format : ['ascii', 'sqlite']
     test('api_template_build_geometry_in_test_for_format_' + format,
@@ -86,15 +88,15 @@ foreach volume: g4objects.keys()
          python_exe,
          is_parallel: false,
          env: test_env,
-         args : [api_dir + 'system_template.py', '-s', test_name],
-         workdir : test_dir,
+         args : [system_template, '-s', test_name],
+         workdir : build_root,
          priority : 4)
     test('api_template_replace_geometry_with' + volume,
          python_exe,
          is_parallel: false,
          env: test_env,
-         args: [api_dir + 'system_template.py', '-gv', volume, '-gvp', pars, geo_py, sub_name],
-         workdir : test_dir,
+         args: [system_template, '-gv', volume, '-gvp', pars, geo_py, sub_name],
+         workdir : build_root,
          priority : -3)
     foreach format : ['ascii', 'sqlite']
         test('api_template_build_geometry_in_test_of_replacing_geometry_with' + volume + '_with_format' + format,
