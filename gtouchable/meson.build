@@ -21,7 +21,7 @@ LD += {
         'gtouchable_options.h'
 
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'examples' : {
         'test_gtouchable_example' : [example_source, ''],
         'test_gtouchable_example_verbose' : [example_source, verbosities]

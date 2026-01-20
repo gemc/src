@@ -30,7 +30,7 @@ LD += {
         'gfieldmultipolesFactory' : multipoles_files,
     },
     'additional_includes' : ['gfields', 'gfields/gfieldFactories/multipoles'],
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'examples' : {
         'test_gfield_dipole' : [example_source, input_file],
         'test_gfield_dipole_verbose' : [example_source, input_file + verbosities],

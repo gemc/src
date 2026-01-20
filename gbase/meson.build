@@ -12,7 +12,7 @@ LD += {
     'headers' : files(
         'gbase.h',
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
 
     'examples' : {
         'test_gbase' : [example_source, verbosity],

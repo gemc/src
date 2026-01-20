@@ -31,7 +31,7 @@ LD += {
         'gdetectorConstruction.h',
         'gdetector_options.h'
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'geo_build' : {
         'test_detector_geo' : [files('examples/example.py')]
     },

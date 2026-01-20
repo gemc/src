@@ -17,7 +17,7 @@ LD += {
                           'gphysics_options.h',
                           'gphysicsConventions.h'
                       ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps], # expat needed because g4processes
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps], # expat needed because g4processes
     'examples' : {
         'test_gphysics' : [example_source, '' ],
         'test_gphysics_verbose' : [example_source, verbosities]

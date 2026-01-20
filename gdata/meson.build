@@ -43,7 +43,7 @@ LD += {
         'frame/gFrameDataCollection.h'
     ),
     'additional_includes' : ['gdata', 'gdata/event', 'gdata/run'],
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'examples' : {
         'test_gdata_event' : [example_event_source, ''],
         'test_gdata_event_verbose' : [example_event_source, verbosities],

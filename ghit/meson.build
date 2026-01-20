@@ -10,7 +10,7 @@ LD += {
         'ghit.h',
         'ghitConventions.h'
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'examples' : {
         'test_ghit' : [files('examples/ghit_example.cc'), ''],
         'test_ghit_verbose' : [files('examples/ghit_example.cc'), '-verbosity.gtouchable=2', '-debug.gtouchable=true']

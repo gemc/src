@@ -36,7 +36,7 @@ LD += {
     'sources' : sources,
     'headers' : headers,
     'moc_headers' : moc_headers,
-    'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_core_deps],
     'additional_includes' : ['gboard'],
     'examples' : examples
 }

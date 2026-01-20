@@ -23,7 +23,7 @@ LD += {
         'ginternalDigitization.h',
         'greadoutSpecs.h'
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'plugins' : {
         'test_gdynamic_plugin' : [files('examples/gplugin_test_example.cc'), true],
     },

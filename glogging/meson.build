@@ -5,5 +5,5 @@ LD += {
         'glogger.h',
         'gbatch_session.h'
     ),
-    'dependencies' : [clhep_deps, geant4_deps],
+    'dependencies' : [clhep_deps, geant4_core_deps],
 }

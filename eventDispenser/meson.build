@@ -19,7 +19,7 @@ LD += {
         'eventDispenser_options.h',
         'eventDispenserConventions.h'
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'examples' : {
         'test_event_dispenser' : [example_source, [weight_file_option, '-n=1000', ]],
         'test_event_dispenser_verbose' : [example_source, [weight_file_option, '-n=1000'] + verbosities]

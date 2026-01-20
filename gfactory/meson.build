@@ -15,7 +15,7 @@ LD += {
         'gfactory.h',
         'gfactory_options.h'
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'plugins' : {
         'test_dyn_factory1' : [files('examples/FordFactory.cc'), true],
         'test_dyn_factory2' : [files('examples/TeslaFactory.cc'), true],

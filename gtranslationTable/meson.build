@@ -18,7 +18,7 @@ LD += {
         'gtranslationTable_options.h',
         'gtranslationTableConventions.h'
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'examples' : {
         'test_translation_table' : [example_source, ''],
         'test_translation_table_verbose' : [example_source, verbosities]

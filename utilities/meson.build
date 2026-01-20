@@ -8,5 +8,5 @@ LD += {
         'gemcUtilities.h',
         'gemcConventions.h',
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, qt6_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, qt6_deps, geant4_core_deps],
 }

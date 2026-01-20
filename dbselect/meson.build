@@ -48,7 +48,7 @@ LD += {
     'headers' : headers,
     'moc_headers' : moc_headers,
     'qrc_examples_sources' : qrc_examples_sources,
-    'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_core_deps],
     'geo_build' : geo_build,
     'examples' : examples
 }

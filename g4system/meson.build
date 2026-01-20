@@ -35,7 +35,7 @@ LD += {
         'g4objectsFactories/cad/CADMesh.hh',
         'g4objectsFactories/cad/cadSystemFactory.h',
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps, assimp_dep],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps, assimp_dep],
     'additional_includes' : ['g4system', 'g4system/g4objectsFactories', 'g4system/g4objectsFactories/g4native', 'g4system/g4objectsFactories/cad'],
     'geo_build' : {
         'test_g4system_geo' : [files('examples/example.py')]

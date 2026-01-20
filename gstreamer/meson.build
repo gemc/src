@@ -75,7 +75,7 @@ streamer_plugins = {
     'gstreamer_jlabsro_plugin' : jlab_sro_plugin_files,
 }
 
-streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_deps]
+streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_core_deps]
 additional_includes = ['gstreamer', 'gstreamer/factories/ASCII', 'gstreamer/factories/CSV', 'gstreamer/factories/JLABSRO']
 
 # Add ROOT bits if available

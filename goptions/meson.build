@@ -13,7 +13,7 @@ LD += {
         'gversion.h',
         'goptionsConventions.h'
     ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
 
     'examples' : {
         'test_goptions_definitions' : [files('examples/define_options.cc'), ''],

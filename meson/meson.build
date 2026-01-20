@@ -59,13 +59,15 @@ endif
 fs = import('fs')
 gemc_prefix = get_option('prefix')
 geant4_pc_path = gemc_prefix / 'lib/pkgconfig'
+geant4_core_pc = geant4_pc_path / 'geant4_core.pc'
 geant4_pc = geant4_pc_path / 'geant4.pc'
 g4_pkgconfig_script = meson.project_source_root() / 'meson/g4_pkgconfig.py'
-if not fs.exists(geant4_pc)
-    message('geant4.pc not found in ' + geant4_pc + ', running install script to install it in ' + gemc_prefix)
+if not fs.exists(geant4_pc) or not fs.exists(geant4_core_pc)
+    message('geant4.pc or geant4_core.pc  not found in ' + geant4_pc_path + ', running install script to install it in ' + gemc_prefix)
     run_command(g4_pkgconfig_script, gemc_prefix, check : true)
 endif
-geant4_dep = dependency('geant4', version : '>=11.3.2')
+geant4_dep      = dependency('geant4',      version: '>=11.3.2', method: 'pkg-config')
+geant4_core_dep = dependency('geant4_core', version: '>=11.3.2', method: 'pkg-config')
 
 # cmake template - but still not working
 #geant4_dep = dependency(
@@ -81,6 +83,7 @@ geant4_dep = dependency('geant4', version : '>=11.3.2')
 #)
 
 geant4_deps = [geant4_dep]
+geant4_core_deps = [geant4_core_dep]
 if sys == 'linux'
     # Only on Linux: pull in GLX/X11 stack for G4OpenGL(.a)
     geant4_deps += [

@@ -21,7 +21,7 @@ LD += {
                           'gparticle_options.h',
                           'gparticleConventions.h'
                       ),
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'examples' : {
         'test_gparticle_single' : [example_source, single],
         'test_gparticle_double' : [example_source, double],
