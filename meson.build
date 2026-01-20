@@ -84,6 +84,7 @@ foreach L : LD
     examples = L.get('examples', empty_dict)
     geo_build = L.get('geo_build', empty_dict)
     this_deps = L.get('dependencies', [])
+    this_internal_libs = L.get('internal_dependencies', [])
     plugins = L.get('plugins', empty_dict)
     additional_includes = L.get('additional_includes', [''])
     moc_headers = L.get('moc_headers', [''])
@@ -111,7 +112,7 @@ foreach L : LD
         )
         if not all_libs.contains(this_library)
             all_libs += this_library
-            lib_target_maps += {this_lib_name: this_library}
+            lib_target_maps += { this_lib_name : this_library }
         endif
     endif
 
@@ -122,31 +123,23 @@ foreach L : LD
 
     if plugins != empty_dict
         foreach name, sources : plugins
-            # Link plugins only against the current module library (when present),
-            # not against the entire cumulative all_libs closure.
-            plugin_link_with = []
+            this_library_link_with = []
             if not sources.contains('')
-                plugin_link_with = [this_library]
+                this_library_link_with = [this_library]
             endif
-            if lib_target_maps.has_key('gtouchable')
-                plugin_link_with += [lib_target_maps['gtouchable']]
-            endif
-            if lib_target_maps.has_key('gdata')
-                plugin_link_with += [lib_target_maps['gdata']]
-            endif
-            if lib_target_maps.has_key('gtranslationTable')
-                plugin_link_with += [lib_target_maps['gtranslationTable']]
-            endif
-            if lib_target_maps.has_key('ghit')
-                plugin_link_with += [lib_target_maps['ghit']]
-            endif
+            foreach this_link_with : this_internal_libs
+                if lib_target_maps.has_key(this_link_with)
+                    this_library_link_with += [lib_target_maps[this_link_with]]
+                endif
+            endforeach
+
             shared_library(
                 name,
                 sources[0],
                 install : sources[1],
                 dependencies : [this_deps, zlib_dep],
                 include_directories : all_includes + this_lib_name + additional_includes,
-                link_with : plugin_link_with,
+                link_with : this_library_link_with,
                 name_suffix : 'gplugin',
                 name_prefix : '',
                 # for shared modules, the static libraries they link must be PIC.
@@ -174,8 +167,8 @@ foreach L : LD
                      python_exe,
                      args : [geo_python_script],
                      workdir : examples_dir,
-                     is_parallel: false,
-                     env: test_env,
+                     is_parallel : false,
+                     env : test_env,
                      priority : 20)
             endforeach
         endif
@@ -203,7 +196,7 @@ foreach L : LD
                  exe,
                  env : project_test_env,
                  args : arguments,
-                 is_parallel: false,
+                 is_parallel : false,
                  priority : -20)
         endforeach
     endif
@@ -286,9 +279,9 @@ foreach opt_dict : test_options
             gemc,
             args : test_arguments + gemc_test_sqlite,
             # suite : 'gemc',
-            is_parallel: false,
-            timeout : 60,          # adjust as needed
-            priority: -20
+            is_parallel : false,
+            timeout : 60, # adjust as needed
+            priority : -20
         )
     endforeach
 endforeach

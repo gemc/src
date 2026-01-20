@@ -1,6 +1,6 @@
 # ── helpers / common ───────────────────────────────────────────────────────────
 sub_dir_name = meson.current_source_dir().split('/').get(-1)  # fine on *nix
-internal_deps = []
+internal_deps = ['gtouchable', 'gdata', 'gtranslationTable', 'ghit']
 
 example_source = files('examples/gstreamer_example.cc')
 verbosities = [
