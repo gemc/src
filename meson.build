@@ -116,17 +116,25 @@ foreach L : LD
 
     if plugins != empty_dict
         foreach name, sources : plugins
+            # Link plugins only against the current module library (when present),
+            # not against the entire cumulative all_libs closure.
+            plugin_link_with = []
+            if not sources.contains('')
+                plugin_link_with = [this_library]
+            endif
+
             shared_library(
                 name,
                 sources[0],
                 install : sources[1],
                 dependencies : [this_deps, zlib_dep],
                 include_directories : all_includes + this_lib_name + additional_includes,
-                link_with : all_libs,
+                link_with : plugin_link_with,
                 name_suffix : 'gplugin',
                 name_prefix : '',
                 override_options : ['b_staticpic=false']
             )
+
         endforeach
     endif
 

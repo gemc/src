@@ -38,14 +38,58 @@ def run_config(command: str, option: str) -> str:
 
 def filter_unwanted_flags(flags: str) -> str:
 	"""Strip out Qt / CLHEP / XercesC / TreePlayer / -Wshadow flags."""
-	unwanted = {
-		"Qt", "qt",
-		"CLHEP", "clhep",
-		"xercesc", "XercesC",
-		"TreePlayer",
-		"-Wshadow",
-	}
-	return " ".join(f for f in flags.split() if not any(uw in f for uw in unwanted))
+	unwanted = {"Qt", "qt", "CLHEP", "clhep",
+				"xercesc", "XercesC", "TreePlayer", "-Wshadow"}
+	return " ".join(f for f in flags.split()
+					if not any(uw in f for uw in unwanted))
+
+
+def filter_graphical_cflags(flags: str) -> str:
+	"""
+	Remove GUI/visualization-related compile flags for a "core" Geant4 .pc.
+
+	This strips:
+	  - G4VIS_* and G4UI_* feature defines (e.g. -DG4UI_USE_QT, -DG4VIS_USE_OPENGLX)
+	  - X11 include paths (e.g. -I/usr/X11R6/include)
+	  - obvious Qt/Framework search flags if they appear (-F..., -I...Qt..., -isystem ...Qt...)
+	"""
+	gui_markers = (
+		"G4VIS_", "G4UI_",
+		"/X11", "X11R6",
+		"Qt5", "Qt6", "Qt",
+	)
+
+	kept = []
+	toks = flags.split()
+	i = 0
+	while i < len(toks):
+		t = toks[i]
+
+		# Drop -D* that enable Geant4 UI/vis backends
+		if t.startswith("-D") and any(m in t for m in ("G4VIS_", "G4UI_")):
+			i += 1
+			continue
+
+		# Drop include / framework search paths that clearly reference X11 or Qt
+		if t in ("-I", "-isystem", "-F"):
+			if i + 1 < len(toks) and any(m in toks[i + 1] for m in gui_markers):
+				i += 2
+				continue
+
+		# Drop combined forms: -I/path, -F/path
+		if t.startswith(("-I", "-F")) and any(m in t for m in gui_markers):
+			i += 1
+			continue
+
+		# Drop any remaining tokens that obviously reference Qt or X11
+		if any(m in t for m in ("Qt5", "Qt6", "Qt", "X11R6", "/X11")):
+			i += 1
+			continue
+
+		kept.append(t)
+		i += 1
+
+	return " ".join(kept)
 
 
 def filter_graphical_libs(flags: str) -> str:
@@ -87,27 +131,27 @@ def filter_graphical_libs(flags: str) -> str:
 	return " ".join(kept)
 
 
-def generate_pkgconfig(
-		install_prefix: Path,
-		config_cmd: str,
-		output_filename: str,
-		name: str,
-		description: str,
-		libs_filter=None,
-) -> None:
+def generate_pkgconfig(install_prefix: Path,
+					   config_cmd: str,
+					   output_filename: str,
+					   name: str,
+					   description: str,
+					   root_lbs: Optional[List[str]] = None,
+					   cflags_filter=None,
+					   libs_filter=None) -> None:
 	"""Create <install_prefix>/lib/pkgconfig/<output_filename>."""
 	prefix = run_config(config_cmd, "--prefix")
 
-	libs_raw = run_config(config_cmd, "--libs")
-	cflags_raw = run_config(config_cmd, "--cflags")
+	libs = filter_unwanted_flags(run_config(config_cmd, "--libs"))
+	cflags = filter_unwanted_flags(run_config(config_cmd, "--cflags"))
 	version = run_config(config_cmd, "--version")
 
-	# Keep your existing filtering for cflags; libs can be optionally post-filtered.
-	cflags = filter_unwanted_flags(cflags_raw)
-	libs = filter_unwanted_flags(libs_raw)
+	if cflags_filter is not None:
+		cflags = cflags_filter(cflags)
 
 	if libs_filter is not None:
 		libs = libs_filter(libs)
+
 
 	pc_content = f"""\
 prefix={prefix}
@@ -130,7 +174,6 @@ Libs:  {libs}
 
 # ────────────────────────── main ──────────────────────────
 if __name__ == "__main__":
-	# --- 1. parse argument ----------------------------------------------------
 	if len(sys.argv) != 2:
 		sys.exit(f"Usage: {sys.argv[0]} <install-prefix>")
 
@@ -139,22 +182,11 @@ if __name__ == "__main__":
 		print(f"Creating installation directory {install_dir}")
 		install_dir.mkdir(parents=True, exist_ok=True)
 
-	# --- 2. generate .pc files -----------------------------------------------
-	# Full (as before)
-	generate_pkgconfig(
-		install_dir,
-		"geant4-config",
-		"geant4.pc",
-		"Geant4",
-		"Geant4 Simulation Toolkit",
-	)
+	generate_pkgconfig(install_dir, "geant4-config",
+					   "geant4.pc", "Geant4", "Geant4 Simulation Toolkit")
 
-	# Core (no graphical libs)
-	generate_pkgconfig(
-		install_dir,
-		"geant4-config",
-		"geant4_core.pc",
-		"Geant4 Core",
-		"Geant4 Simulation Toolkit (core, no graphical/GUI libs)",
-		libs_filter=filter_graphical_libs,
-	)
+	generate_pkgconfig(install_dir, "geant4-config",
+					   "geant4_core.pc", "Geant4 Core",
+					   "Geant4 Simulation Toolkit (core, no graphical/GUI libs)",
+					   cflags_filter=filter_graphical_cflags)
+
