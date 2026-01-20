@@ -1,4 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
 # notice the test run on the installation dir, which does has 'examples' stripped from the path
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
@@ -54,7 +55,10 @@ LD += {
         'gsystemFactories/gdml/systemGdmlFactory.h',
         'gsystemFactories/sqlite/systemSqliteFactory.h',
     ),
+
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps, sqlite_dep],
+    'internal_dependencies' : internal_deps,
+
     'additional_includes' : ['gsystem',
                              'gsystem/gsystemFactories',
                              'gsystem/gsystemFactories/cad',

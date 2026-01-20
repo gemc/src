@@ -1,4 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
 with_gui = ['']
 if get_option('i_test')
@@ -6,7 +7,6 @@ if get_option('i_test')
 endif
 
 example_source = files('examples/g4dialog_example.cc')
-
 verbosities = [
     '-verbosity.g4dialog=2',
     '-debug.g4dialog=true'
@@ -39,6 +39,7 @@ LD += {
     'headers' : headers,
     'moc_headers' : moc_headers,
     'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps],
+    'internal_dependencies' : internal_deps,
     'additional_includes' : ['g4dialog', 'g4dialog/tabs'],
     'examples' : examples
 }

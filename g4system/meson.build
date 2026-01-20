@@ -1,4 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
 example_source = files('examples/g4system_example.cc')
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
@@ -35,7 +36,10 @@ LD += {
         'g4objectsFactories/cad/CADMesh.hh',
         'g4objectsFactories/cad/cadSystemFactory.h',
     ),
+
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps, assimp_dep],
+    'internal_dependencies' : internal_deps,
+
     'additional_includes' : ['g4system', 'g4system/g4objectsFactories', 'g4system/g4objectsFactories/g4native', 'g4system/g4objectsFactories/cad'],
     'geo_build' : {
         'test_g4system_geo' : [files('examples/example.py')]

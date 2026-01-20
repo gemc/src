@@ -1,4 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
 with_gui = ['']
 if get_option('i_test')
@@ -6,7 +7,6 @@ if get_option('i_test')
 endif
 
 example_source = files('examples/gboard_example.cc')
-
 verbosities = [
     '-verbosity.gboard=2',
     '-debug.gboard=true']
@@ -37,6 +37,7 @@ LD += {
     'headers' : headers,
     'moc_headers' : moc_headers,
     'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_core_deps],
+    'internal_dependencies' : internal_deps,
     'additional_includes' : ['gboard'],
     'examples' : examples
 }

@@ -1,4 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
 example_event_source = files('examples/event_example.cc')
 example_frame_source = files('examples/gframe_example.cc')
@@ -43,7 +44,10 @@ LD += {
         'frame/gFrameDataCollection.h'
     ),
     'additional_includes' : ['gdata', 'gdata/event', 'gdata/run'],
+
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
+    'internal_dependencies' : internal_deps,
+
     'examples' : {
         'test_gdata_event' : [example_event_source, ''],
         'test_gdata_event_verbose' : [example_event_source, verbosities],

@@ -1,5 +1,7 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
+example_source = files('examples/plugin_load_example.cc')
 verbosities = [
     '-verbosity.plugins=2',
     '-debug.plugins=true',
@@ -7,7 +9,6 @@ verbosities = [
     '-debug.gdigitization=true',
 ]
 
-example_source = files('examples/plugin_load_example.cc')
 
 LD += {
     'name' : sub_dir_name,
@@ -23,7 +24,10 @@ LD += {
         'ginternalDigitization.h',
         'greadoutSpecs.h'
     ),
+
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
+    'internal_dependencies' : internal_deps,
+
     'plugins' : {
         'test_gdynamic_plugin' : [files('examples/gplugin_test_example.cc'), true],
     },

@@ -1,5 +1,7 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
+example_source = files('examples/gdetector_example.cc')
 verbosities = ['-verbosity.plugins=2',
                '-debug.plugins=true',
                '-verbosity.gsystem=2',
@@ -16,7 +18,6 @@ verbosities = ['-verbosity.plugins=2',
                '-debug.gdetector=true'
 ]
 
-example_source = files('examples/gdetector_example.cc')
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
 gsystem = ['-gsystem="[{name: b1}]"']
@@ -31,7 +32,10 @@ LD += {
         'gdetectorConstruction.h',
         'gdetector_options.h'
     ),
+
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
+    'internal_dependencies' : internal_deps,
+
     'geo_build' : {
         'test_detector_geo' : [files('examples/example.py')]
     },

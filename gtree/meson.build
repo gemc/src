@@ -1,4 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
 with_gui = ['']
 if get_option('i_test')
@@ -6,14 +7,12 @@ if get_option('i_test')
 endif
 
 example_source = files('examples/gtree_example.cc')
-examples_dir = get_option('prefix') + '/test/' + sub_dir_name
-dbhost = ['-sql=' + examples_dir + '/gemc.db']
-gsystem = ['-gsystem="[{name: b2}]"']
-
 verbosities = ['-verbosity.gtree=2',
                '-debug.gtree=true']
 
-
+examples_dir = get_option('prefix') + '/test/' + sub_dir_name
+dbhost = ['-sql=' + examples_dir + '/gemc.db']
+gsystem = ['-gsystem="[{name: b2}]"']
 
 sources = files(
     'gtree_options.cc',
@@ -49,6 +48,7 @@ LD += {
     'moc_headers' : moc_headers,
     'qrc_examples_sources' : qrc_examples_sources,
     'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps],
+    'internal_dependencies' : internal_deps,
     'geo_build' : geo_build,
     'examples' : examples
 }

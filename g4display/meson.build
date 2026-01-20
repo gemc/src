@@ -1,4 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
 with_gui = ['']
 if get_option('i_test')
@@ -6,7 +7,6 @@ if get_option('i_test')
 endif
 
 example_source = files('examples/g4display_example.cc')
-
 verbosities = ['-verbosity.g4display=2',
                '-debug.g4display=true',
                '-verbosity.g4scene=2',
@@ -53,6 +53,7 @@ LD += {
     'moc_headers' : moc_headers,
     'qrc_examples_sources' : qrc_examples_sources,
     'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps],
+    'internal_dependencies' : internal_deps,
     'additional_includes' : ['g4display', 'g4display/tabs'],
     'examples' : examples
 }

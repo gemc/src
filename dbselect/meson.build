@@ -1,4 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
 with_gui = ['']
 if get_option('i_test')
@@ -6,14 +7,14 @@ if get_option('i_test')
 endif
 
 example_source = files('examples/test_dbselect.cc')
-examples_dir = get_option('prefix') + '/test/' + sub_dir_name
-dbhost = ['-sql=' + examples_dir + '/gemc.db']
-gsystem = ['-gsystem="[{name: b1}]"']
-
 verbosity = ['-verbosity.dbselect=2',
              '-debug.dbselect=true',
              '-verbosity.gsystem=2',
              '-debug.gsystem=true']
+
+examples_dir = get_option('prefix') + '/test/' + sub_dir_name
+dbhost = ['-sql=' + examples_dir + '/gemc.db']
+gsystem = ['-gsystem="[{name: b1}]"']
 
 sources = files(
     'dbselect_options.cc',
@@ -49,6 +50,7 @@ LD += {
     'moc_headers' : moc_headers,
     'qrc_examples_sources' : qrc_examples_sources,
     'dependencies' : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_core_deps],
+    'internal_dependencies' : internal_deps,
     'geo_build' : geo_build,
     'examples' : examples
 }

@@ -1,7 +1,7 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
 example_sourcess = files('examples/static_and_dynamic_example.cc', 'examples/ShapeFactory.cc')
-
 verbosities = [
     '-verbosity.plugins=2',
     '-debug.plugins=true'
@@ -15,7 +15,10 @@ LD += {
         'gfactory.h',
         'gfactory_options.h'
     ),
+
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
+    'internal_dependencies' : internal_deps,
+
     'plugins' : {
         'test_dyn_factory1' : [files('examples/FordFactory.cc'), true],
         'test_dyn_factory2' : [files('examples/TeslaFactory.cc'), true],

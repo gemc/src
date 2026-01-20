@@ -1,4 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = []
 
 sources = files(
     'gQtButtonsWidget.cc',
@@ -27,6 +28,7 @@ LD += {
     'moc_headers' : moc_headers,
     'qrc_examples_sources' : qrc_examples_sources,
     'dependencies' : [yaml_cpp_dep, qt6_deps],
+    'internal_dependencies' : internal_deps,
     'examples' : examples
 }
 

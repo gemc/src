@@ -101,9 +101,6 @@ jobs:
     if: ${{ always() }} # run regardless of earlier step outcomes
     needs: [ build-with-sanitizer ]
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.discover.outputs.matrix_sanitize) }}
     steps:
       - name: Fail if any matrix entry failed
         if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
@@ -114,4 +111,3 @@ jobs:
       - name: Pass
         run: |
           echo "### All sanitizer jobs passed." >> $GITHUB_STEP_SUMMARY
-          echo "### Uploaded artifact: logs-${{ matrix.baseos }}-${{ matrix.arch }}-${{ matrix.sanitizer }}" >> $GITHUB_STEP_SUMMARY

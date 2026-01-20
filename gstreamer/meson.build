@@ -1,6 +1,8 @@
 # ── helpers / common ───────────────────────────────────────────────────────────
 sub_dir_name = meson.current_source_dir().split('/').get(-1)  # fine on *nix
+internal_deps = []
 
+example_source = files('examples/gstreamer_example.cc')
 verbosities = [
     '-verbosity.plugins=2',
     '-verbosity.gdigitization=2',
@@ -20,7 +22,6 @@ fmt_args = {
 }
 
 buffer = ['-ebuffer=20']
-example_source = files('examples/gstreamer_example.cc')
 
 # plugin file lists (unchanged)
 ascii_plugin_files = [files(
@@ -118,6 +119,7 @@ LD += {
     'headers' : files('gstreamer.h', 'gstreamerConventions.h', 'gstreamer_options.h'),
     'plugins' : streamer_plugins,
     'dependencies' : streamer_dependencies,
+    'internal_dependencies' : internal_deps,
     'additional_includes' : additional_includes,
     'examples' : examples,
 }
