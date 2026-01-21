@@ -1,5 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = []
+internal_deps = ['goptions', 'guts', 'glogging']
 
 example_source = files('examples/test_gfield_dipole.cc')
 verbosities = ['-verbosity.gfield=2',

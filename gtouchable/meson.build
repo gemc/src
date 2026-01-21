@@ -1,8 +1,7 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = []
+internal_deps = ['goptions', 'guts']
 
 example_source = files('examples/gtouchable_example.cc')
-
 verbosities = ['-verbosity.gtouchable=2',
                '-debug.gtouchable=true'
 ]

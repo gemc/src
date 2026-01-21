@@ -1,5 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = []
+internal_deps = ['goptions', 'guts', 'glogging']
 
 single = [ '-gparticle="[{name: e-, p: 2300, theta: 23.0}]"']
 double = ['-gparticle="[{name: e-, p: 2300, theta: 23.0}, {name: proton, multiplicity: 2, p: 1200, theta: 14.0, delta_theta: 10}]"']

@@ -1,5 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = []
+internal_deps = ['goptions', 'guts', 'gtouchable']
 
 example_source = files('examples/ghit_example.cc')
 verbosities = ['-verbosity.gtouchable=2',

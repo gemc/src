@@ -1,12 +1,12 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = []
+internal_deps = ['glogging', 'goptions', 'guts']
 
 example_source = files('examples/test_gbase.cc')
 verbosity = [
-    '-verbosity.gdetector=2',
-    '-debug.gdetector=true',
-    '-verbosity.gfield=2',
-    '-debug.gfield=true'
+    '-verbosity.hello1=2',
+    '-debug.hello1=true',
+    '-verbosity.hello2=2',
+    '-debug.hello2=true'
 ]
 
 LD += {

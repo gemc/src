@@ -73,7 +73,7 @@ public:
 			handle = load_lib(dlFileName);
 			if (handle == nullptr) {
 				char const* const dlopen_error = dlerror();
-				log->error(ERR_DLHANDLENOTFOUND, "File ", dlFileName, " found, but handle is null. Error: ",
+				log->error(ERR_DLHANDLENOTFOUND, "File ", dlFileName, " found, but handle is null. dlopen_error >> ",
 				           dlopen_error);
 			}
 			else { log->info(0, "Loaded ", dlFileName); }

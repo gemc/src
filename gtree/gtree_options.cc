@@ -1,6 +1,5 @@
 // gemc
 #include "dbselect_options.h"
-
 #include "gtree_options.h"
 
 namespace gtree {

@@ -1,5 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = []
+internal_deps = ['goptions', 'guts', 'glogging', 'gtouchable', 'gdata', 'gtranslationTable', 'ghit', 'gfactory', 'gdynamicDigitization']
 
 example_source = files('examples/event_dispenser_example.cc')
 verbosities = ['-verbosity.eventdispenser=2',

@@ -68,10 +68,11 @@ test_options=(
 
 # Specific tests to run when sanitizer is enabled
 sanitizer_tests=(
+  -v
   api_run_gemc_with_replaced_geometry_using_G4Box_with_formatascii
-  test_gstreamer_csv
-  test_gparticle_double
-  test_event_dispenser
+  test_gstreamer_csv_verbose
+  test_gparticle_double_verbose
+  test_event_dispenser_verbose
   examples_geo_basic_simple_flux_ascii_variation_default
 )
 

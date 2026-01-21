@@ -1,8 +1,8 @@
 
 #include "gbase.h"
 
-constexpr const char* G1_LOGGER = "gdetector";
-constexpr const char* G2_LOGGER = "gfield";
+constexpr const char* G1_LOGGER = "hello1";
+constexpr const char* G2_LOGGER = "hello2";
 
 // derived with its own logger
 class g1 : public GBase<g1> {

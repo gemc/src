@@ -1,5 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = []
+internal_deps = ['goptions', 'guts', 'gtouchable', 'gfactory']
 
 # notice the test run on the installation dir, which does has 'examples' stripped from the path
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name

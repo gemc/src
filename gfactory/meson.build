@@ -1,5 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = []
+internal_deps = ['glogging', 'goptions', 'guts']
 
 example_sourcess = files('examples/static_and_dynamic_example.cc', 'examples/ShapeFactory.cc')
 verbosities = [

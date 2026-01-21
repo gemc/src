@@ -54,14 +54,14 @@ subdir('gtouchable')
 subdir('ghit')
 subdir('gtranslationTable')
 subdir('gdata')
+subdir('gboard')
 subdir('gdynamicDigitization')
+subdir('gsystem') # uses api for testing
+subdir('gstreamer')
 subdir('eventDispenser')
 subdir('gqtbuttonswidget')
-subdir('gstreamer')
 subdir('g4display')
 subdir('g4dialog')
-subdir('gboard')
-subdir('gsystem') # uses api for testing
 subdir('g4system')
 subdir('gparticle')
 subdir('gphysics')
@@ -94,6 +94,7 @@ foreach L : LD
     qrc_compiled_sources = []
     qrc_examples_compiled_sources = []
 
+
     if not moc_headers.contains('')
         moc_sources = qt6.compile_moc(headers : moc_headers,
                                       dependencies : this_deps)
@@ -121,17 +122,19 @@ foreach L : LD
         install_headers(headers)
     endif
 
+    this_library_link_with = []
+    if not sources.contains('')
+        this_library_link_with += this_library
+    endif
+
+        foreach this_link_with : this_internal_libs
+        if lib_target_maps.has_key(this_link_with)
+            this_library_link_with += [lib_target_maps[this_link_with]]
+        endif
+    endforeach
+
     if plugins != empty_dict
         foreach name, sources : plugins
-            this_library_link_with = []
-            if not sources.contains('')
-                this_library_link_with = [this_library]
-            endif
-            foreach this_link_with : this_internal_libs
-                if lib_target_maps.has_key(this_link_with)
-                    this_library_link_with += [lib_target_maps[this_link_with]]
-                endif
-            endforeach
 
             shared_library(
                 name,
@@ -162,7 +165,6 @@ foreach L : LD
                                install_dir : examples_dir,
                                strip_directory : true,
                                follow_symlinks : true)
-
                 test(name,
                      python_exe,
                      args : [geo_python_script],
@@ -189,7 +191,8 @@ foreach L : LD
                 install : true,
                 dependencies : this_deps,
                 include_directories : all_includes + this_lib_name + additional_includes,
-                link_with : all_libs,
+#                link_with : all_libs,
+                link_with : this_library_link_with,
                 override_options : ['b_pie=true']
             )
             test(name,

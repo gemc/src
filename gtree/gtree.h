@@ -5,6 +5,7 @@
 #include "gQtButtonsWidget.h" // Custom toggle button widget
 #include "g4volume.h"
 #include "gbase.h" // Provides application options/configuration
+#include "goptions.h"
 
 // qt
 #include <QWidget>
