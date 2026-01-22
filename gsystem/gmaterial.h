@@ -69,7 +69,7 @@ private:
 	// load property from DB entry based on its name
 	void getMaterialPropertyFromString(const std::string& parameter, const std::string& propertyName);
 
-	friend std::ostream& operator<<(std::ostream& stream, GMaterial); // Logs infos on screen.
+	friend std::ostream& operator<<(std::ostream& stream, const GMaterial&); // Logs infos on screen.
 
 	bool assign_if_set(const std::vector<std::string>& pars, size_t& i, double& out);
 

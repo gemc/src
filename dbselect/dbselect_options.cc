@@ -5,14 +5,11 @@
 
 // namespace to define options
 namespace dbselect {
+GOptions defineOptions() {
+	GOptions goptions(DBSELECT_LOGGER);
 
-    GOptions defineOptions() {
+	goptions += gdetector::defineOptions();
 
-        GOptions goptions(DBSELECT_LOGGER);
-
-		goptions += gdetector::defineOptions();
-
-        return goptions;
-    }
-
+	return goptions;
+}
 }

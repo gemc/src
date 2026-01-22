@@ -3,7 +3,7 @@ qt6 = import('qt6')
 qt6_deps = dependency('qt6',
                       modules : ['Core', 'Gui', 'Widgets', 'OpenGLWidgets', 'Svg'],
                       static : true,
-                      include_type : 'preserve')
+                      include_type : 'system') # treat as system include paths - no warnings
 
 # check system: pkg-config --cflags --libs gl
 ogl_deps = dependency('opengl', required : true)
@@ -20,12 +20,13 @@ endif
 
 
 # pkg-config --cflags --libs zlib
-zlib_dep = dependency('zlib', static : false, required : true)  # Use shared libz.so instead of libz.a
+zlib_dep = dependency('zlib', static : false, required : true)  # Use shared libz.so instead of libz.az
 
 # clhep: pkg-config
 clhep_deps = dependency('clhep',
                         version : '>=2.4.7.1',
-)
+                        include_type : 'system') # treat as system include paths - no warnings
+
 
 
 # feature: feature toggle (uncomment options() above)
@@ -42,8 +43,9 @@ if (not root_dep.found()) and (not root_opt.disabled())
                               version : '>=6.32.16',
                               method : 'cmake',
                               modules : ['ROOT::Core', 'ROOT::RIO', 'ROOT::Tree', 'ROOT::Hist'],
-                              required : false
-        )
+                              required : false,
+                              include_type : 'system') # treat as system include paths - no warnings
+
         message('root-config found. root_dep  dependency added')
     else
         if root_opt.enabled()
@@ -66,8 +68,9 @@ if not fs.exists(geant4_pc) or not fs.exists(geant4_core_pc)
     message('geant4.pc or geant4_core.pc  not found in ' + geant4_pc_path + ', running install script to install it in ' + gemc_prefix)
     run_command(g4_pkgconfig_script, gemc_prefix, check : true)
 endif
-geant4_dep      = dependency('geant4',      version: '>=11.3.2', method: 'pkg-config')
-geant4_core_dep = dependency('geant4_core', version: '>=11.3.2', method: 'pkg-config')
+geant4_dep = dependency('geant4', version : '>=11.3.2', method : 'pkg-config', include_type : 'system') # treat as system include paths - no warnings
+
+geant4_core_dep = dependency('geant4_core', version : '>=11.3.2', method : 'pkg-config')
 
 # cmake template - but still not working
 #geant4_dep = dependency(
@@ -113,11 +116,11 @@ sanitize = get_option('b_sanitize')  # string option: 'none', 'address', 'undefi
 # this will avoid duplicate symbols errors when sanitizer is used, coming from static library usage
 use_sharedl = (sanitize != 'none')
 cmake_opts.add_cmake_defines({
-                                 'BUILD_SHARED_LIBS': use_sharedl,
+                                 'BUILD_SHARED_LIBS' : use_sharedl,
                                  # Avoid pulling GUI/sample/tooling deps like X11
-                                 'ASSIMP_BUILD_ASSIMP_TOOLS': false,
-                                 'ASSIMP_BUILD_SAMPLES': false,
-                                 'ASSIMP_BUILD_TESTS': false,
+                                 'ASSIMP_BUILD_ASSIMP_TOOLS' : false,
+                                 'ASSIMP_BUILD_SAMPLES' : false,
+                                 'ASSIMP_BUILD_TESTS' : false,
                              })
 
 

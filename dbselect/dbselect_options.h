@@ -6,9 +6,5 @@
 constexpr const char* DBSELECT_LOGGER = "dbselect";
 
 namespace dbselect {
-
-    GOptions defineOptions();
-
+GOptions defineOptions();
 }
-
-

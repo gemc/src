@@ -9,7 +9,6 @@
 // c++
 #include <iostream>
 #include <sstream>
-#include <utility>
 
 
 GMaterial::GMaterial(const std::string& s, std::vector<std::string> pars, const std::shared_ptr<GLogger>& logger) :
@@ -57,7 +56,7 @@ GMaterial::GMaterial(const std::string& s, std::vector<std::string> pars, const 
 }
 
 
-std::ostream& operator<<(std::ostream& stream, GMaterial gMat) {
+std::ostream& operator<<(std::ostream& stream, const GMaterial& gMat) {
 	stream << std::endl;
 	stream << "   - Material: " << gMat.name << "  in system  " << gMat.system << ": " << std::endl;
 	stream << "     Density:          " << gMat.density << std::endl;
@@ -164,14 +163,20 @@ void GMaterial::getMaterialPropertyFromString(const std::string& parameter, cons
 }
 
 
-bool GMaterial::assign_if_set(const std::vector<std::string>& pars, size_t& i, double& out) {
+bool GMaterial::assign_if_set(const std::vector<std::string>& pars, size_t& i, double& out)
+{
 	if (i >= pars.size()) return false;
-	std::string_view sv = gutilities::removeLeadingAndTrailingSpacesFromString(pars[i++]);
+
+	const std::string trimmed =
+		gutilities::removeLeadingAndTrailingSpacesFromString(pars[i++]); // owns storage
+
+	std::string_view sv(trimmed);
 	if (gutilities::is_unset(sv)) return false;
+
 	try {
-		out = std::stod(std::string(sv));  // stod needs std::string
+		out = std::stod(trimmed);
 		return true;
-	} catch (...) {
-		return false; // ignore/flag bad parse; make this a hard error if desired
+	} catch (const std::exception&) {
+		return false;
 	}
 }

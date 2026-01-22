@@ -1,6 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-#internal_deps = ['goptions', 'guts', 'glogging', 'g4system', 'gsystem']
-internal_deps = ['goptions', 'guts', 'glogging', 'gtouchable', 'gdata', 'gtranslationTable', 'ghit', 'gfactory', 'gdynamicDigitization',  'g4system', 'gsystem', 'gdetector', 'gstreamer']
+internal_deps = ['goptions', 'guts', 'glogging', 'gtouchable', 'g4system', 'gsystem', 'dbselect', 'gtranslationTable', 'gdetector', 'gdynamicDigitization', 'gfactory', 'gqtbuttonswidget']
 
 with_gui = ['']
 if get_option('i_test')
