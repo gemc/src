@@ -61,7 +61,7 @@ bool GDosimeterDigitization::defineReadoutSpecsImpl() {
  * \param hitn The hit index.
  * \return Pointer to the newly created GDigitizedData object.
  */
-std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(GHit* ghit, size_t hitn) {
+std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(GHit* ghit, [[maybe_unused]] size_t hitn) {
     // Ensure that required loggers and options are defined.
     check_if_log_defined();
 

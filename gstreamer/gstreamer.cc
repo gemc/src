@@ -64,7 +64,7 @@ void GStreamer::flushEventBuffer() {
 }
 
 // stream an individual frame
-void GStreamer::publishFrameRunData(const std::shared_ptr<GFrameDataCollection>& frameRunData) {
+// void GStreamer::publishFrameRunData(const std::shared_ptr<GFrameDataCollection>& frameRunData) {
 	// TODO: add more infor like frame number or number of entries in paylod
 
 	// log->info(2, "GStreamer::publishFrameRunData:  ",
@@ -75,4 +75,4 @@ void GStreamer::publishFrameRunData(const std::shared_ptr<GFrameDataCollection>&
 	// 	gutilities::success_or_fail(publishPayload(frameRunData->getIntegralPayload())));
 	// log->info(2, "GStreamer::endStream:  ",
 	// 	gutilities::success_or_fail(endStream(frameRunData)));
-}
+// }

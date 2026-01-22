@@ -113,7 +113,7 @@ std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts
 }
 
 // initialize G4MTRunManager
-void run_manager_commands(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log, const std::vector<std::string>& commands) {
+void run_manager_commands([[maybe_unused]] const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log, const std::vector<std::string>& commands) {
 	auto* g4uim = G4UImanager::GetUIpointer();
 
 	for (const auto& cmd : commands) {

@@ -7,17 +7,14 @@
 
 // namespace to define options
 namespace gdetector {
+GOptions defineOptions() {
+	GOptions goptions(GDETECTOR_LOGGER);
 
-    GOptions defineOptions() {
+	goptions += gsystem::defineOptions();
+	goptions += g4system::defineOptions();
+	goptions += gdynamicdigitization::defineOptions();
+	goptions += gsensitivedetector::defineOptions();
 
-        GOptions goptions(GDETECTOR_LOGGER);
-
-		goptions += gsystem::defineOptions();
-    	goptions += g4system::defineOptions();
-    	goptions += gdynamicdigitization::defineOptions();
-    	goptions += gsensitivedetector::defineOptions();
-
-        return goptions;
-    }
-
+	return goptions;
+}
 }

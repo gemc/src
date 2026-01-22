@@ -39,7 +39,7 @@ public:
 	void publishEventData(const std::shared_ptr<GEventDataCollection>& event_data);
 
 	// runs the protected virtual methods below to write frames from a run to file
-	void publishFrameRunData(const std::shared_ptr<GFrameDataCollection>& frameRunData);
+	// void publishFrameRunData(const std::shared_ptr<GFrameDataCollection>& frameRunData);
 
 	[[nodiscard]] inline std::string getStreamType() const { return gstreamer_definitions.type; }
 	inline void define_gstreamer(const GStreamerDefinition& gstreamerDefinition, int tid = -1) { gstreamer_definitions = GStreamerDefinition(gstreamerDefinition, tid); }

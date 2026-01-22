@@ -2,7 +2,7 @@
 from gconfiguration import autogeometry
 from gvolume import GVolume
 
-cfg = autogeometry("examples", "simple_flux", )
+cfg = autogeometry("examples", "simple_flux")
 
 world_size = 110
 gvolume = GVolume("root")

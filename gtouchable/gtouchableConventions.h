@@ -5,7 +5,7 @@
 // - dosimeter: track id is the discriminating factor, radiation digitization
 
 #define FLUXNAME      "flux"
-#define COUNTERNAME   "particleCounter"
+#define COUNTERNAME   "particle_counter"
 #define DOSIMETERNAME "dosimeter"
 #define GTOUCHABLEUNSETTIMEINDEX -1
 

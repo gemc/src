@@ -1,5 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = []
+internal_deps = ['goptions', 'guts', 'glogging', 'gtouchable', 'gdata', 'ghit', 'gdynamicDigitization', 'gsystem', 'gfactory',  'g4system', 'gtranslationTable', 'gsd']
 
 example_source = files('examples/gdetector_example.cc')
 verbosities = ['-verbosity.plugins=2',
@@ -20,7 +20,7 @@ verbosities = ['-verbosity.plugins=2',
 
 examples_dir = get_option('prefix') + '/test/' + sub_dir_name
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
-gsystem = ['-gsystem="[{name: b1}]"']
+gsystem = ['-gsystem="[{name: simple_flux}]"']
 
 LD += {
     'name' : sub_dir_name,

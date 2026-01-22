@@ -46,7 +46,7 @@ bool GPlugin_test_example::loadTTImpl([[maybe_unused]] int runno, [[maybe_unused
 	translationTable->addGElectronicWithIdentity(element1, crate1);
 	translationTable->addGElectronicWithIdentity(element2, crate2);
 
-	auto retrievedElectronic = translationTable->getElectronics(element1);
+	// auto retrievedElectronic = translationTable->getElectronics(element1);
 
 	return true;
 }
