@@ -127,7 +127,7 @@ foreach L : LD
         this_library_link_with += this_library
     endif
 
-        foreach this_link_with : this_internal_libs
+    foreach this_link_with : this_internal_libs
         if lib_target_maps.has_key(this_link_with)
             this_library_link_with += [lib_target_maps[this_link_with]]
         endif
@@ -191,7 +191,7 @@ foreach L : LD
                 install : true,
                 dependencies : this_deps,
                 include_directories : all_includes + this_lib_name + additional_includes,
-#                link_with : all_libs,
+                #                link_with : all_libs,
                 link_with : this_library_link_with,
                 override_options : ['b_pie=true']
             )

@@ -123,14 +123,18 @@ bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int             
 
     // Construct plugin path from the GEMC environment variable.
     std::filesystem::path gemcRoot   = gutilities::gemc_root();
-    std::string           pluginPath = gemcRoot.string() + "/dosimeterData";
 
     // Loop over each particle type and load its NIEL data.
     for (const auto& [pid, filename] : nielDataFiles) {
-        std::string dataFileWithPath = pluginPath + "/Niel/" + filename;
+        std::string dataFileWithPath = gemcRoot.string() + "/dosimeterData" + "/Niel/" + filename;
 
         std::ifstream inputfile(dataFileWithPath);
         if (!inputfile) {
+            // on linux, the tests use the build directory executables are run from the build directory
+            // if that's the case, the data is inside gdynamicDigitization
+            dataFileWithPath =  gemcRoot.string() + "/gdynamicDigitization/dosimeterData" + "/Niel/" + filename;
+            inputfile.open(dataFileWithPath);
+            if (!inputfile)
             log->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ",
                        dataFileWithPath);
         }

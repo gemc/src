@@ -372,16 +372,16 @@ inline std::filesystem::path gemc_root() {
     if (exe_dir.filename() == "bin" || exe_dir.filename() == "build") {
         root = exe_dir.parent_path();
     }
-    else {
-        // Case 2: use GEMC environment variable
-        const char* env = std::getenv("GEMC");
-        if (!env || std::string(env).empty()) {
-            throw std::runtime_error(
-                "GEMC executable not in <.../bin>. Environment variable GEMC is required."
-            );
-        }
-        root = std::filesystem::path(env);
-    }
+    // else {
+    //     // Case 2: use GEMC environment variable
+    //     const char* env = std::getenv("GEMC");
+    //     if (!env || std::string(env).empty()) {
+    //         throw std::runtime_error(
+    //             "GEMC executable not in <.../bin>. Environment variable GEMC is required."
+    //         );
+    //     }
+    //     root = std::filesystem::path(env);
+    // }
 
     // Sanity check
     if (!std::filesystem::exists(root / "api")) {
