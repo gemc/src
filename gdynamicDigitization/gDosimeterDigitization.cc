@@ -134,9 +134,10 @@ bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int             
             // if that's the case, the data is inside gdynamicDigitization
             dataFileWithPath =  gemcRoot.string() + "/gdynamicDigitization/dosimeterData" + "/Niel/" + filename;
             inputfile.open(dataFileWithPath);
-            if (!inputfile)
-            log->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ",
-                       dataFileWithPath);
+            if (!inputfile) {
+                log->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ",
+                           dataFileWithPath);
+            }
         }
 
         log->info(0, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);

@@ -12,6 +12,7 @@ meson_option=$(meson_setup_options $1)
 
 echo " > Geant-config: $(which geant4-config) : $(geant4-config --version)" | tee $setup_log
 echo " > Root-config: $(which root-config) : $(root-config --version)" | tee -a $setup_log
+echo
 echo " > Meson Interactive Options: $test_interactive_option"
 echo " > Meson Setup Options: $meson_option"
 echo " > Using $jobs cores"

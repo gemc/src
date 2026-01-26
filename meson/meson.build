@@ -41,15 +41,21 @@ if (not root_dep.found()) and (not root_opt.disabled())
     # Probe root-config once
     rootcfg = find_program('root-config', required : false)
     if rootcfg.found()
+        root_prefix = run_command(rootcfg, '--prefix', check : true).stdout().strip()
+
         root_mods = []
-        root_dep = dependency('root',
+        root_dep = dependency('ROOT',
                               version : '>=6.32.16',
                               method : 'cmake',
                               modules : ['ROOT::Core', 'ROOT::RIO', 'ROOT::Tree', 'ROOT::Hist'],
                               required : false,
                               include_type : 'system') # treat as system include paths - no warnings
 
-        message('root-config found. root_dep  dependency added')
+        if root_dep.found()
+            message('root-config found; ROOT dependency resolved: ' + root_dep.version())
+        else
+            message('root-config found, but ROOT CMake dependency NOT resolved; ROOT features will be disabled')
+        endif
     else
         if root_opt.enabled()
             warning('ROOT was explicitly enabled (-Droot=enabled) but root-config was not found.')
