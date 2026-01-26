@@ -221,7 +221,7 @@ gemc = executable(
     'gemc',
     gemc_sources + qrc_gemc_sources + qrc_compiled_sources,
     install : true,
-    dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, assimp_dep],
+    dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, assimp_dep, zlib_dep],
     include_directories : all_includes,
     link_with : all_libs,
     override_options : ['b_pie=true']
