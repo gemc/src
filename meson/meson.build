@@ -93,7 +93,8 @@ if sys == 'linux'
         dependency('x11', required : true),
         dependency('xmu', required : true),
         dependency('gl', required : true),
-        dependency('expat', required : true)
+        dependency('expat', required : true),
+        zlib_deps
     ]
 endif
 

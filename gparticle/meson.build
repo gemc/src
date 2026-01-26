@@ -22,7 +22,7 @@ LD += {
                           'gparticleConventions.h'
                       ),
 
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps, zlib_dep],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'internal_dependencies' : internal_deps,
 
     'examples' : {

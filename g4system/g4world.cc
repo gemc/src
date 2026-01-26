@@ -48,9 +48,10 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 				// try to build; remember the ones that still have missing mothers
 				if ( !build_g4volume(gvolume, objectsFactory)) {
 
-					if (gvolume->getExistence())
+					if (gvolume->getExistence()) {
 						log->warning(" >> adding volumeName <", volumeName, "> to the list of remaining volumes");
 						thisIterationRemainingVolumes.push_back(gvolume);
+					}
 				}
 			}
 
