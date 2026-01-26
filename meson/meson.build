@@ -96,6 +96,9 @@ if sys == 'linux'
         dependency('expat', required : true),
         zlib_dep
     ]
+    geant4_core_deps += [
+        zlib_dep
+    ]
 endif
 
 
