@@ -1,5 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = ['goptions', 'guts', 'glogging', 'gtouchable', 'gdata', 'ghit', 'gdynamicDigitization', 'gsystem', 'gfactory',  'g4system', 'gtranslationTable', 'gsd']
+internal_deps = ['goptions', 'guts', 'glogging', 'gtouchable', 'gdata', 'ghit', 'gdynamicDigitization', 'gsystem', 'gfactory',  'g4system', 'gtranslationTable', 'gsd', 'gfields']
 
 example_source = files('examples/gdetector_example.cc')
 verbosities = ['-verbosity.plugins=2',
@@ -33,7 +33,7 @@ LD += {
         'gdetector_options.h'
     ),
 
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps, expat_dep],
     'internal_dependencies' : internal_deps,
 
     'geo_build' : {

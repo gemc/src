@@ -27,6 +27,9 @@ clhep_deps = dependency('clhep',
                         version : '>=2.4.7.1',
                         include_type : 'system') # treat as system include paths - no warnings
 
+# expat required as geant4 is linked statically
+# Geant4’s GIDI/XML parsing in G4processes uses Expat
+expat_dep = dependency('expat', required: true)
 
 
 # feature: feature toggle (uncomment options() above)
@@ -93,11 +96,6 @@ if sys == 'linux'
         dependency('x11', required : true),
         dependency('xmu', required : true),
         dependency('gl', required : true),
-        dependency('expat', required : true),
-        zlib_dep
-    ]
-    geant4_core_deps += [
-        zlib_dep
     ]
 endif
 

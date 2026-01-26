@@ -368,8 +368,8 @@ inline std::filesystem::path gemc_root() {
 
     std::filesystem::path root;
 
-    // Case 1: executable came from .../bin
-    if (exe_dir.filename() == "bin") {
+    // Case 1: executable came from ../bin or (for tests) build
+    if (exe_dir.filename() == "bin" || exe_dir.filename() == "build") {
         root = exe_dir.parent_path();
     }
     else {
