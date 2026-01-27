@@ -249,13 +249,14 @@ jobs:
             echo "## Tests"
             echo ""
 
-            TEST_LOG="${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}/logs/test.log"
+            TEST_DIR=${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}
+            TEST_LOG="$TEST_DIR/logs/test.log"
 
             if [[ -f "$TEST_LOG" ]]; then
               echo '```'
               # Always include the final Ok/Fail lines
               OK_FAIL="$(tail -n 2 "$TEST_LOG")"
-
+              ls -lR "$TEST_DIR"
               # If there is a "Summary of Failures:" section, include it (without duplicating Ok/Fail)
               if grep -q '^Summary of Failures:' "$TEST_LOG"; then
                 # Print from "Summary of Failures:" up to the line before "Ok:"
