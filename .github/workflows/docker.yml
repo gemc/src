@@ -25,13 +25,11 @@ jobs:
     name: Workflow Overview
     runs-on: ubuntu-latest
     steps:
-    - name: Write overview
-      shell: bash
-      run: |
-        : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/summary.md}"
-        bash ci/summary.sh "$GITHUB_STEP_SUMMARY"
-
-
+      - name: Write overview
+        shell: bash
+        run: |
+          : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/summary.md}"
+          bash ci/summary.sh "$GITHUB_STEP_SUMMARY"
 
   discover:
     if: ${{ github.event_name != 'pull_request' }}
