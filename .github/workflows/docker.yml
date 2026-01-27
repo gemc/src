@@ -25,30 +25,13 @@ jobs:
     name: Workflow Overview
     runs-on: ubuntu-latest
     steps:
-      - name: Write overview
-        shell: bash
-        run: |
-          : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/summary.md}"
-          {
-            echo "# GEMC Images — Overview"
-            echo "Repository: [gemc images](https://github.com/gemc/src/pkgs/container/src)"
-            echo "Except for archlinux (amd64-only), all images are built for both the *amd64* and *arm64* architectures."
-            echo ""
-            echo ""
-            echo "Set these convenience variables for the interactive use below (choose your own password)"
-            echo '```bash'
-            echo 'VPORTS=(-p 6080:6080 -p 5900:5900)'
-            echo 'VNC_PASS=(-e X11VNC_PASSWORD=change-me)'
-            echo 'VNC_BIND=(-e VNC_BIND=0.0.0.0)'
-            echo 'GEO_FLAGS=(-e GEOMETRY=1920x1200)'
-            echo '```'
-            echo ""
-            echo "If your arch is arm64 and want to use the archlinux image, add this to all command lines:"
-            echo '```bash'
-            echo '--platform=linux/amd64'
-            echo '```'
-            echo "---"
-          } >> "$GITHUB_STEP_SUMMARY"
+    - name: Write overview
+      shell: bash
+      run: |
+        : "${GITHUB_STEP_SUMMARY:=$RUNNER_TEMP/summary.md}"
+        bash ci/summary.sh "$GITHUB_STEP_SUMMARY"
+
+
 
   discover:
     if: ${{ github.event_name != 'pull_request' }}
@@ -234,7 +217,7 @@ jobs:
           merge-multiple: true
 
       - name: Summary (manifest)
-        if: ${{ always() }} # run regardless of earlier step outcomes
+        if: ${{ always() }}
         shell: bash
         env:
           IMAGE: ${{ needs.discover.outputs.image }}
@@ -242,94 +225,12 @@ jobs:
         run: |
           SUMMARY_FILE="${GITHUB_STEP_SUMMARY:-$RUNNER_TEMP/manifest_summary.md}"
           echo "MANIFEST_SUMMARY_FILE=$SUMMARY_FILE" >> "$GITHUB_ENV"
-          {
-            echo "## \`${IMAGE}:${TAG}\`"
-            echo ""
-            echo "Includes:"
-            if docker buildx imagetools inspect "${IMAGE}:${TAG}-amd64" >/dev/null 2>&1; then echo "- amd64"; fi
-            if docker buildx imagetools inspect "${IMAGE}:${TAG}-arm64" >/dev/null 2>&1; then echo "- arm64"; else echo "- no arm64. Run with --platform=linux/amd64 in arm64 CPUs"; fi
-            echo ""
-            echo "### Pull"
-            echo '```bash'
-            echo "docker pull ${IMAGE}:${TAG}"
-            echo '```'
-            echo ""
-            echo "### Run in batch mode"
-            echo '```bash'
-            echo "docker run --rm -it ${IMAGE}:${TAG} bash -l"
-            echo '```'
-            echo ""
-            echo "### Run with VNC/noVNC"
-            echo "_VNC → localhost:5900 (password: change-me)_"
-            echo "_noVNC → http://localhost:6080/vnc.html (password: change-me)_"
-            echo '```bash'
-            echo "docker run --rm -it \$VPORTS \$VNC_BIND \$VNC_PASS \$GEO_FLAGS ${IMAGE}:${TAG}"
-            echo '```'
-          } >> "$SUMMARY_FILE"
-          {
-            echo ""
-            echo "## Tests"
-            echo ""
-
-            DL="${{ runner.temp }}/downloaded-logs"
-            echo "_Logs downloaded to:_ \`$DL\`"
-            echo ""
-
-            PATTERN="$DL/logs-${TAG}-*.tgz"
-            
-            shopt -s nullglob
-            TARS=( $PATTERN )
-            shopt -u nullglob
-            
-            if (( ${#TARS[@]} == 0 )); then
-              echo "_No logs tarballs found matching:_ \`$PATTERN\`"
-            else
-              echo "_Found ${#TARS[@]} tarball(s)._"
-              echo ""
-              for tarball in "${TARS[@]}"; do
-                base="$(basename "$tarball")"
-                arch="${base#logs-${TAG}-}"
-                arch="${arch%.tgz}"
-
-                work="$DL/extract-$arch"
-                mkdir -p "$work"
-                tar -xzf "$tarball" -C "$work"
-
-                TEST_LOG="$work/logs/test.log"
-
-                echo "### ${arch}"
-                if [[ -f "$TEST_LOG" ]]; then
-                  echo '```'
-                  OK_FAIL="$(tail -n 2 "$TEST_LOG")"
-
-                  if grep -q '^Summary of Failures:' "$TEST_LOG"; then
-                    sed -n '/^Summary of Failures:/,/^Ok:/p' "$TEST_LOG" | sed '$d'
-                    echo ""
-                  else
-                    echo "Summary of Failures:"
-                    echo "(none)"
-                    echo ""
-                  fi
-
-                  echo "$OK_FAIL"
-                  echo '```'
-                else
-                  echo "_No test log found at:_ \`$TEST_LOG\`"
-                fi
-
-                echo ""
-              done
-            fi
-
-          } >> "$SUMMARY_FILE"
-
-          # Also save a copy inside the workspace for artifact upload
+          bash ci/manifest.sh "$SUMMARY_FILE" "$IMAGE" "$TAG" "${{ runner.temp }}/downloaded-logs"
+          
           mkdir -p "$GITHUB_WORKSPACE/summaries"
           OUT="$GITHUB_WORKSPACE/summaries/summary-${TAG}-${{ job.status }}.md"
           cp "$SUMMARY_FILE" "$OUT" || true
           echo "Wrote $OUT"
-
-          ls -l "$GITHUB_WORKSPACE/summaries"
 
       - name: Upload summary artifact (manifest)
         uses: actions/upload-artifact@v4
