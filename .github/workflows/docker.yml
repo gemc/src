@@ -78,6 +78,8 @@ jobs:
 
     env:
       CACHE_REF: type=registry,ref=${{ needs.discover.outputs.image }}:cache-${{ matrix.arch }}
+      TAG4: ${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.geant4_tag, matrix.image, matrix.image_tag) }}
+      LOGNAME: ${{ format('{0}-{1}-{2}-{3}-{4}', matrix.gemc_tag, matrix.geant4_tag, matrix.image, matrix.image_tag, matrix.arch) }}
 
     steps:
       - name: Checkout repository
@@ -105,7 +107,7 @@ jobs:
         with:
           images: ${{ needs.discover.outputs.image }}
           tags: |
-            type=raw,value=${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.geant4_tag, matrix.image, matrix.image_tag) }}
+            type=raw,value=${{ env.TAG4 }}
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
             org.opencontainers.image.description=GEMC ${{ matrix.gemc_tag }} ${{ matrix.geant4_tag }} on ${{ matrix.image }}:${{ matrix.image_tag }} (${{ matrix.arch }})
@@ -158,12 +160,22 @@ jobs:
           cache-from: ${{ env.CACHE_REF }}
           outputs: type=local,dest=${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}
 
+      - name: Pack logs
+        shell: bash
+        run: |
+          LOGROOT="${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}"
+          TAR="logs-${LOGNAME}.tgz"
+          cd "$LOGROOT"
+          tar -czf "$TAR" logs
+          echo "LOG_TAR=$LOGROOT/$TAR" >> "$GITHUB_ENV"
+
       - name: Upload logs artifact
         uses: actions/upload-artifact@v4
         with:
-          name: logs-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.arch }}
-          path: ${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}/logs
+          name: logs-${{ env.LOGNAME }}
+          path: ${{ env.LOG_TAR }}
           if-no-files-found: ignore
+
 
   # Manifest stitch
   # uses matrix_manifest so it's not repeated for each arch
@@ -178,6 +190,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.discover.outputs.matrix_manifest) }}
+    env:
+      TAG4: ${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.geant4_tag, matrix.image, matrix.image_tag) }}
     steps:
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -195,7 +209,7 @@ jobs:
         with:
           images: ${{ needs.discover.outputs.image }}
           tags: |
-            type=raw,value=${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.geant4_tag, matrix.image, matrix.image_tag) }}
+            type=raw,value=${{ env.TAG4 }}
 
       - name: Create multi-arch manifest
         shell: bash
@@ -211,12 +225,20 @@ jobs:
             docker buildx imagetools create -t "$BASE_TAG" "$AMD_TAG"
           fi
 
+      - name: Download logs artifacts (all arches)
+        if: ${{ always() }}
+        uses: actions/download-artifact@v4
+        with:
+          pattern: logs-${{ env.TAG4 }}-*
+          path: ${{ runner.temp }}/downloaded-logs
+          merge-multiple: true
+
       - name: Summary (manifest)
         if: ${{ always() }} # run regardless of earlier step outcomes
         shell: bash
         env:
           IMAGE: ${{ needs.discover.outputs.image }}
-          TAG: ${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.geant4_tag, matrix.image, matrix.image_tag) }}
+          TAG: ${{ env.TAG4 }}
         run: |
           SUMMARY_FILE="${GITHUB_STEP_SUMMARY:-$RUNNER_TEMP/manifest_summary.md}"
           echo "MANIFEST_SUMMARY_FILE=$SUMMARY_FILE" >> "$GITHUB_ENV"
@@ -249,44 +271,70 @@ jobs:
             echo "## Tests"
             echo ""
 
-            TEST_DIR=${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}
-            TEST_LOG="$TEST_DIR/logs/test.log"
+            DL="${{ runner.temp }}/downloaded-logs"
+            echo "_Logs downloaded to:_ \`$DL\`"
+            echo ""
 
-            if [[ -f "$TEST_LOG" ]]; then
-              echo '```'
-              # Always include the final Ok/Fail lines
-              OK_FAIL="$(tail -n 2 "$TEST_LOG")"
-              ls -lR "$TEST_DIR"
-              # If there is a "Summary of Failures:" section, include it (without duplicating Ok/Fail)
-              if grep -q '^Summary of Failures:' "$TEST_LOG"; then
-                # Print from "Summary of Failures:" up to the line before "Ok:"
-                # (failures may be empty; this will still print the header if present)
-                sed -n '/^Summary of Failures:/,/^Ok:/p' "$TEST_LOG" | sed '$d'
-                echo ""
-              else
-                echo "Summary of Failures:"
-                echo "(none)"
-                echo ""
-              fi
-
-              echo "$OK_FAIL"
-              echo '```'
+            PATTERN="$DL/logs-${TAG}-*.tgz"
+            
+            shopt -s nullglob
+            TARS=( $PATTERN )
+            shopt -u nullglob
+            
+            if (( ${#TARS[@]} == 0 )); then
+              echo "_No logs tarballs found matching:_ \`$PATTERN\`"
             else
-              echo "_No test log found at:_ \`$TEST_LOG\`"
+              echo "_Found ${#TARS[@]} tarball(s)._"
+              echo ""
+              for tarball in "${TARS[@]}"; do
+                base="$(basename "$tarball")"
+                arch="${base#logs-${TAG}-}"
+                arch="${arch%.tgz}"
+
+                work="$DL/extract-$arch"
+                mkdir -p "$work"
+                tar -xzf "$tarball" -C "$work"
+
+                TEST_LOG="$work/logs/test.log"
+
+                echo "### ${arch}"
+                if [[ -f "$TEST_LOG" ]]; then
+                  echo '```'
+                  OK_FAIL="$(tail -n 2 "$TEST_LOG")"
+
+                  if grep -q '^Summary of Failures:' "$TEST_LOG"; then
+                    sed -n '/^Summary of Failures:/,/^Ok:/p' "$TEST_LOG" | sed '$d'
+                    echo ""
+                  else
+                    echo "Summary of Failures:"
+                    echo "(none)"
+                    echo ""
+                  fi
+
+                  echo "$OK_FAIL"
+                  echo '```'
+                else
+                  echo "_No test log found at:_ \`$TEST_LOG\`"
+                fi
+
+                echo ""
+              done
             fi
+
           } >> "$SUMMARY_FILE"
 
           # Also save a copy inside the workspace for artifact upload
           mkdir -p "$GITHUB_WORKSPACE/summaries"
-          cp "$SUMMARY_FILE" "$GITHUB_WORKSPACE/summaries/summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-${{ job.status }}.md" || true
-          echo "Wrote $GITHUB_WORKSPACE/summaries/summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-${{ job.status }}.md"
+          OUT="$GITHUB_WORKSPACE/summaries/summary-${TAG}-${{ job.status }}.md"
+          cp "$SUMMARY_FILE" "$OUT" || true
+          echo "Wrote $OUT"
+
           ls -l "$GITHUB_WORKSPACE/summaries"
 
       - name: Upload summary artifact (manifest)
-        if: ${{ always() }} # run regardless of earlier step outcomes
         uses: actions/upload-artifact@v4
         with:
-          name: summary-${{ matrix.gemc_tag }}-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-manifest
+          name: summary-${{ env.TAG4 }}-manifest
           path: ${{ env.MANIFEST_SUMMARY_FILE }}
           if-no-files-found: warn
 
