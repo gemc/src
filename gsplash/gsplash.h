@@ -5,6 +5,7 @@
 
 // Qt
 #include <QtWidgets>
+#include <QTimer>
 
 #define GSPLASHENVIRONMENT    "GSPLASH"
 #define NOSPLASHIMAGESELECTED "NOSPLASHIMAGESELECTED"
@@ -26,6 +27,7 @@ public:
 	       const std::string&               imageName = "gemcArchitecture");
 
 	void message(const std::string& msg);
+	void messageAfter(int delay, const std::string& msg);
 
 	// called in program using GSplash
 	// returns focus to the program window

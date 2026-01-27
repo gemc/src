@@ -6,36 +6,47 @@
 #include <QMainWindow>
 
 int main(int argc, char* argv[]) {
+	// Initialize options and logging
+	auto gopts   = std::make_shared<GOptions>(argc, argv, gsplash::defineOptions());
+	auto log     = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GSPLASH_LOGGER);
+	auto gui     = gopts->getSwitch("gui");
+	auto timeout = gopts->getScalarDouble("tt");
+	int  ret     = EXIT_SUCCESS;
 
-	auto gopts = std::make_shared<GOptions>(argc, argv, gsplash::defineOptions());
-	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GSPLASH_LOGGER);
+	log->info(0, "Starting gsplash example...");
 
-	bool gui = gopts->getSwitch("gui");
-
-	QScopedPointer<QCoreApplication> gApp(new QApplication(argc, argv));
-
-	auto gsplash = GSplash::create(gopts, "example.png");
+	// Optional GUI setup (only if --gui is passed)
+	QApplication* app    = nullptr;
+	QMainWindow*  window = nullptr;
 
 	if (gui) {
-		// create the splash screen
-		gsplash->message("Some text I want to show");
+		log->info(0, "g4dialog", "Running in GUI mode...");
+		app    = new QApplication(argc, argv);
+		window = new QMainWindow();
+		window->setWindowTitle(QString::fromUtf8("displayUI example"));
 
-		auto window = new QMainWindow; // own it with Qt’s parent system
+		// create the splash screen and display messages
+		auto gsplash = GSplash::create(gopts, "example.png");
+		gsplash->message("Some text I want to show");
+		gsplash->messageAfter(500, "Some other text I want to show");
+
 		window->show();
 
-		/* ---- quit after 0.5s ---- */
-		// need to move gsplash here because the capture is trying to copy it
-		/* ---- quit after 0.5s ---- */
-		QTimer::singleShot(
-			500, window,
-			[g = std::move(gsplash), window]() mutable   // <-- move + mutable
-			{
-				if (g) g->finish(window);                // still safely owned here
-				QCoreApplication::quit();
-			});
+		// quit after timeout. Notice the additional delay needed for the messageAfter
+		QTimer::singleShot(timeout + 500, [] {
+			QCoreApplication::quit(); // stop the event loop
+		});
 
-		return QApplication::exec();
+		ret = QApplication::exec();
+
+		delete window;
+		delete app;
+
+	}
+	else {
+		// CLI mode
+		log->info(0, "Running gsplash in command line mode...");
 	}
 
-	return EXIT_SUCCESS;
+	return ret;
 }

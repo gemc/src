@@ -220,7 +220,6 @@ jobs:
         run: |
           SUMMARY_FILE="${GITHUB_STEP_SUMMARY:-$RUNNER_TEMP/manifest_summary.md}"
           echo "MANIFEST_SUMMARY_FILE=$SUMMARY_FILE" >> "$GITHUB_ENV"
-
           {
             echo "## \`${IMAGE}:${TAG}\`"
             echo ""
@@ -244,6 +243,36 @@ jobs:
             echo '```bash'
             echo "docker run --rm -it \$VPORTS \$VNC_BIND \$VNC_PASS \$GEO_FLAGS ${IMAGE}:${TAG}"
             echo '```'
+          } >> "$SUMMARY_FILE"
+          {
+            echo ""
+            echo "## Tests"
+            echo ""
+
+            TEST_LOG="${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}/logs/test.log"
+
+            if [[ -f "$TEST_LOG" ]]; then
+              echo '```'
+              # Always include the final Ok/Fail lines
+              OK_FAIL="$(tail -n 2 "$TEST_LOG")"
+
+              # If there is a "Summary of Failures:" section, include it (without duplicating Ok/Fail)
+              if grep -q '^Summary of Failures:' "$TEST_LOG"; then
+                # Print from "Summary of Failures:" up to the line before "Ok:"
+                # (failures may be empty; this will still print the header if present)
+                sed -n '/^Summary of Failures:/,/^Ok:/p' "$TEST_LOG" | sed '$d'
+                echo ""
+              else
+                echo "Summary of Failures:"
+                echo "(none)"
+                echo ""
+              fi
+
+              echo "$OK_FAIL"
+              echo '```'
+            else
+              echo "_No test log found at:_ \`$TEST_LOG\`"
+            fi
           } >> "$SUMMARY_FILE"
 
           # Also save a copy inside the workspace for artifact upload

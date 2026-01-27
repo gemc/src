@@ -12,40 +12,53 @@
 #include <QTimer>
 
 int main(int argc, char* argv[]) {
+	// Initialize options and logging
+	auto gopts   = std::make_shared<GOptions>(argc, argv, gboard::defineOptions());
+	auto log     = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GBOARD_LOGGER);
+	auto gui     = gopts->getSwitch("gui");
+	auto timeout = gopts->getScalarDouble("tt");
+	int  ret     = EXIT_SUCCESS;
 
-	QApplication app(argc, argv);
+	log->info(0, "Starting gboard example...");
 
-	auto gopts =std::make_shared<GOptions>(argc, argv, gboard::defineOptions());
-	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GBOARD_LOGGER);
+	// Optional GUI setup (only if --gui is passed)
+	QApplication* app    = nullptr;
+	QMainWindow*  window = nullptr;
+
+	if (gui) {
+		log->info(0, "gboard", "Running in GUI mode...");
+		app    = new QApplication(argc, argv);
+		window = new QMainWindow();
+		window->setWindowTitle(QString::fromUtf8("displayUI example"));
+	}
 
 	auto visManager = new G4VisExecutive;
 	visManager->Initialize();
 
-    // main window and controls
-	auto window = new QMainWindow();
-	window->setWindowTitle(QString::fromUtf8("displayUI example"));
-
-	auto* gboard = new GBoard(gopts, window);
-	window->setCentralWidget(gboard);
-
-	auto gui_session = std::make_unique<GUI_Session>(gopts, gboard);
-
-	log->info(0, "gboard example started");
-	int ret = EXIT_SUCCESS;
-
-	if (gopts->getSwitch("gui")) {
+	// If GUI, show the window and run Qt loop
+	if (gui) {
+		auto* gboard      = new GBoard(gopts, window);
+		auto  gui_session = std::make_unique<GUI_Session>(gopts, gboard);
+		window->setCentralWidget(gboard);
 		window->show();
 
-		// --- quit after 0.5 s ---
-		QTimer::singleShot(500, &app, &QCoreApplication::quit);  // ⬅️ key line :contentReference[oaicite:0]{index=0}
+		// quit after timeout
+		QTimer::singleShot(timeout, [] {
+			QCoreApplication::quit(); // stop the event loop
+		});
 
-		ret = QApplication::exec();    // returns when the timer fires
+		ret = QApplication::exec();
+
+		delete gboard;
+		delete window;
+		delete app;
+	}
+	else {
+		// CLI mode
+		log->info(0, "Running gboard in command line mode...");
 	}
 
-	delete gboard;
-	delete window;
 	delete visManager;
 
 	return ret;
-
 }

@@ -25,16 +25,39 @@ GSplash::GSplash(const std::shared_ptr<GOptions>& gopts, const string& imageName
 		}
 	}
 	else {
-		pixmap.load((":" + imageName).c_str());
+		// Try filesystem path first (e.g. "example.png"), then Qt resource (":/example.png")
+		if (!pixmap.load(QString::fromStdString(imageName))) {
+			pixmap.load(QString(":/%1").arg(QString::fromStdString(imageName)));
+		}
+
 		if (pixmap.isNull())
 			log->error(ERR_NOSPLASHENVFOUND, "Image ", imageName, " not found.");
 	}
 
+
 	if (!pixmap.isNull()) {
 		splash = std::make_unique<QSplashScreen>(pixmap);
 		splash->show();
+		QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
 	}
 	// else splash remains null; caller can check isActive() if you expose one
 }
 
-void GSplash::message(const string& msg) { if (splash) splash->showMessage(msg.c_str(), Qt::AlignLeft, Qt::black); }
+
+void GSplash::messageAfter(int delay_ms, const std::string& msg) {
+	if (!splash) return;
+
+	QPointer<QSplashScreen> sp = splash.get();
+	QTimer::singleShot(delay_ms, sp, [sp, qmsg = QString::fromStdString(msg)] {
+		if (!sp) return;
+		sp->showMessage(qmsg, Qt::AlignLeft, Qt::black);
+		QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
+	});
+}
+
+void GSplash::message(const std::string& msg) {
+	if (!splash) return;
+
+	splash->showMessage(QString::fromStdString(msg), Qt::AlignLeft, Qt::black);
+	QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
+}
