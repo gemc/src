@@ -41,15 +41,28 @@ if (not root_dep.found()) and (not root_opt.disabled())
     # Probe root-config once
     rootcfg = find_program('root-config', required : false)
     if rootcfg.found()
-        root_prefix = run_command(rootcfg, '--prefix', check : true).stdout().strip()
+#        root_dep = dependency('ROOT',
+#                              version : '>=6.32.16',
+#                              method : 'cmake',
+#                              modules : ['ROOT::Core', 'ROOT::RIO', 'ROOT::Tree', 'ROOT::Hist'],
+#                              required : false,
+#                              include_type : 'system') # treat as system include paths - no warnings
 
-        root_mods = []
+        root_prefix = run_command(rootcfg, '--prefix', check: true).stdout().strip()
+        root_libdir = run_command(rootcfg, '--libdir', check: true).stdout().strip()
+
+        root_cmake = join_paths(root_libdir, 'cmake', 'ROOT')
+        if not fs.is_dir(root_cmake)
+            root_cmake = join_paths(root_prefix, 'lib', 'cmake', 'ROOT')
+        endif
+
         root_dep = dependency('ROOT',
-                              version : '>=6.32.16',
-                              method : 'cmake',
-                              modules : ['ROOT::Core', 'ROOT::RIO', 'ROOT::Tree', 'ROOT::Hist'],
-                              required : false,
-                              include_type : 'system') # treat as system include paths - no warnings
+                              version: '>=6.32.16',
+                              method: 'cmake',
+                              modules: ['ROOT::Core', 'ROOT::RIO', 'ROOT::Tree', 'ROOT::Hist'],
+                              cmake_args: ['-DROOT_DIR=' + root_cmake],
+                              required: false,
+                              include_type: 'system')
 
         if root_dep.found()
             message('root-config found; ROOT dependency resolved: ' + root_dep.version())

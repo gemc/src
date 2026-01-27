@@ -25,6 +25,9 @@ jobs:
     name: Workflow Overview
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Write overview
         shell: bash
         run: |
@@ -174,6 +177,9 @@ jobs:
     env:
       TAG4: ${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.geant4_tag, matrix.image, matrix.image_tag) }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
