@@ -56,7 +56,7 @@ LD += {
         'gsystemFactories/sqlite/systemSqliteFactory.h',
     ),
 
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps, sqlite_dep],
     'internal_dependencies' : internal_deps,
 
     'additional_includes' : ['gsystem',
