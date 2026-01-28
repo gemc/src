@@ -123,6 +123,7 @@ foreach L : LD
     endif
 
     this_library_link_with = []
+    # todo: this produces duplicates ROOT libraries 
     if not sources.contains('')
         this_library_link_with += this_library
     endif
@@ -135,7 +136,6 @@ foreach L : LD
 
     if plugins != empty_dict
         foreach name, sources : plugins
-
             shared_library(
                 name,
                 sources[0],

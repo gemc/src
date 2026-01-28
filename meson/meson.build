@@ -43,28 +43,33 @@ if (not root_dep.found()) and (not root_opt.disabled())
     # Probe root-config once
     rootcfg = find_program('root-config', required : false)
     if rootcfg.found()
-#        root_dep = dependency('ROOT',
-#                              version : '>=6.32.16',
-#                              method : 'cmake',
-#                              modules : ['ROOT::Core', 'ROOT::RIO', 'ROOT::Tree', 'ROOT::Hist'],
-#                              required : false,
-#                              include_type : 'system') # treat as system include paths - no warnings
 
-        root_prefix = run_command(rootcfg, '--prefix', check: true).stdout().strip()
-        root_libdir = run_command(rootcfg, '--libdir', check: true).stdout().strip()
+        # This commented method did not work on archlinux
+        # However the method below did work
+        #        root_prefix = run_command(rootcfg, '--prefix', check: true).stdout().strip()
+        #        root_libdir = run_command(rootcfg, '--libdir', check: true).stdout().strip()
+        #
+        #        root_cmake = join_paths(root_libdir, 'cmake', 'ROOT')
+        #        if not fs.is_dir(root_cmake)
+        #            root_cmake = join_paths(root_prefix, 'lib', 'cmake', 'ROOT')
+        #        endif
+        #        message('root_cmake files location:' + root_cmake )
+        #
+        #        root_dep = dependency('ROOT',
+        #                              version: '>=6.32.16',
+        #                              method: 'cmake',
+        #                              modules : ['Core', 'RIO', 'Tree', 'Hist'],
+        #                              cmake_args: ['-DROOT_DIR=' + root_cmake],
+        #                              required: false,
+        #                              include_type: 'system')
 
-        root_cmake = join_paths(root_libdir, 'cmake', 'ROOT')
-        if not fs.is_dir(root_cmake)
-            root_cmake = join_paths(root_prefix, 'lib', 'cmake', 'ROOT')
-        endif
+        root_cflags = run_command(rootcfg, '--cflags', check: true).stdout().strip().split()
+        root_libs   = run_command(rootcfg, '--libs',   check: true).stdout().strip().split()
 
-        root_dep = dependency('ROOT',
-                              version: '>=6.32.16',
-                              method: 'cmake',
-                              modules: ['ROOT::Core', 'ROOT::RIO', 'ROOT::Tree', 'ROOT::Hist'],
-                              cmake_args: ['-DROOT_DIR=' + root_cmake],
-                              required: false,
-                              include_type: 'system')
+        root_dep = declare_dependency(
+            compile_args: root_cflags,
+            link_args: root_libs,
+        )
 
         if root_dep.found()
             message('root-config found; ROOT dependency resolved: ' + root_dep.version())
