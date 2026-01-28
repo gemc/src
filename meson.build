@@ -181,7 +181,6 @@ foreach L : LD
         endif
         foreach name, sources_and_arguments : examples
             # concatenate the items in sources_and_arguments[1] to a string
-
             example_sources = sources_and_arguments[0] + qrc_examples_compiled_sources
             arguments = sources_and_arguments[1]
 
@@ -191,7 +190,6 @@ foreach L : LD
                 install : true,
                 dependencies : this_deps,
                 include_directories : all_includes + this_lib_name + additional_includes,
-                #                link_with : all_libs,
                 link_with : this_library_link_with,
                 override_options : ['b_pie=true']
             )

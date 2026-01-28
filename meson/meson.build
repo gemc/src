@@ -32,6 +32,8 @@ clhep_deps = dependency('clhep',
 expat_dep = dependency('expat', required: true)
 
 
+fs = import('fs')
+
 # feature: feature toggle (uncomment options() above)
 root_opt = get_option('root')
 root_dep = disabler() # Always define root_dep so it exists even if not found
