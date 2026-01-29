@@ -104,7 +104,8 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 			// 	log->info(0, "element ", element->GetName(), " number of atoms: ", thisMat->GetFractionVector()[e]);
 			// }
 		}
-		log->info(0, *(G4Material::GetMaterialTable()));
+		// TODO: log can't deal with this why was it working
+		// log->info(0, *(G4Material::GetMaterialTable()));
 	}
 }
 
