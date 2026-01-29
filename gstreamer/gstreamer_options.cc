@@ -37,7 +37,7 @@ GOptions defineOptions() {
 	help += "\n";
 	help += "The file extension is added automatically based on the format.\n";
 	help += "Supported formats:\n";
-	for (auto& format : GStreamer::supported_formats) { help += " - " + format + "\n"; }
+	for (auto& format : GStreamer::supported_formats()) { help += " - " + format + "\n"; }
 	help += "\n";
 	help += "Output types\n";
 	help += "\n";

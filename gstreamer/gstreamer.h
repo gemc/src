@@ -44,7 +44,8 @@ public:
 	[[nodiscard]] inline std::string getStreamType() const { return gstreamer_definitions.type; }
 	inline void define_gstreamer(const GStreamerDefinition& gstreamerDefinition, int tid = -1) { gstreamer_definitions = GStreamerDefinition(gstreamerDefinition, tid); }
 
-	static const std::vector<std::string> supported_formats;
+	// a function-local static instead of a variable. This avoids destruction at exit
+	static const std::vector<std::string>& supported_formats();
 	static bool                           is_valid_format(const std::string& format);
 
 	void set_loggers(const std::shared_ptr<GOptions>& g) {

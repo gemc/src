@@ -5,12 +5,17 @@
 #include "gutilities.h"
 
 
-const std::vector<std::string> GStreamer::supported_formats = {"jlabsro", "root", "ascii"};
+const std::vector<std::string>& GStreamer::supported_formats() {
+	static const std::vector<std::string> formats = {"jlabsro", "root", "ascii"};
+	return formats;
+}
 
 bool GStreamer::is_valid_format(const std::string& format) {
-	std::vector<std::string> supported = GStreamer::supported_formats;
-	return std::find(supported.begin(), supported.end(), gutilities::convertToLowercase(format)) != supported.end();
+	const auto& supported = GStreamer::supported_formats();
+	const auto f = gutilities::convertToLowercase(format);
+	return std::find(supported.begin(), supported.end(), f) != supported.end();
 }
+
 
 // pragma todo: pass someting like map<string, bitset> to each detector to decide which data to publish
 void GStreamer::publishEventData(const std::shared_ptr<GEventDataCollection>& event_data) {
