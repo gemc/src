@@ -4,7 +4,7 @@
  * \file GDataCollection.h
  * \brief Defines the GDataCollection class for storing hit data for a detector.
  *
- * A \ref GDataCollection is the per-sensitive-detector container used by both:
+ * A \c GDataCollection is the per-sensitive-detector container used by both:
  * - \ref GEventDataCollection (event-level): stores many hits (one entry per hit)
  * - \ref GRunDataCollection   (run-level): integrates hits/events into a single entry
  *
@@ -24,6 +24,18 @@
 #include <memory>
 #include <vector>
 
+/**
+ * \brief Per-sensitive-detector container that owns true and digitized hit data.
+ *
+ * \details
+ * A \ref GDataCollection is the per-detector container used by:
+ * - \ref GEventDataCollection (event-level): stores one entry per hit
+ * - \ref GRunDataCollection   (run-level): integrates many hits/events into an accumulator
+ *
+ * It owns two vectors:
+ * - \ref GTrueInfoData   ("truth" observables)
+ * - \ref GDigitizedData  ("digitized" observables)
+ */
 class GDataCollection
 {
 public:
@@ -31,7 +43,7 @@ public:
 	 * \brief Constructs an empty data collection for a single sensitive detector.
 	 *
 	 * The detector name itself is stored at higher layers (e.g. as a key in
-	 * \ref GEventDataCollection::getDataCollectionMap()).
+	 * \ref GEventDataCollection::getDataCollectionMap).
 	 */
 	explicit GDataCollection() = default;
 
@@ -48,7 +60,7 @@ public:
 	 * This method is intended for run-level accumulation:
 	 * - On the first call, a deep copy of \p data is stored as the first element.
 	 * - On subsequent calls, each double observable from \p data is added to the first element
-	 *   via \ref GTrueInfoData::accumulateVariable().
+	 *   via \ref GTrueInfoData::accumulateVariable.
 	 *
 	 * Notes:
 	 * - Only the double observables are accumulated here (string observables are not merged).

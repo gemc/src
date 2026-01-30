@@ -38,6 +38,7 @@
 // gdata
 #include "gdataConventions.h" // CRATESTRINGID, SLOTSTRINGID, CHANNELSTRINGID, TIMEATELECTRONICS, ...
 
+/// Logger domain name used by \ref GDigitizedData (controls verbosity/category in \ref GLogger).
 constexpr const char* GDIGITIZED_DATA_LOGGER = "digitized_data";
 
 namespace gdigi_data {
@@ -52,7 +53,15 @@ inline GOptions defineOptions() {
 }
 } // namespace gdigi_data
 
-class GDigitizedData : public GBase<GDigitizedData> {
+/**
+ * \brief Container for digitized (electronics-level) observables for one hit.
+ *
+ * \details
+ * Stores named integer/double observables in maps, plus optional array-valued observables.
+ * Supports run-level accumulation via accumulateVariable().
+ */
+class GDigitizedData : public GBase<GDigitizedData>
+{
 public:
 	/**
 	 * \brief Construct digitized data from a hit identity.
@@ -82,7 +91,11 @@ public:
 	 * for the current hit/event.
 	 * @{
 	 */
+
+	/// Store/overwrite an integer observable for this hit (event-level).
 	void includeVariable(const std::string& vname, int value);
+
+	/// Store/overwrite a double observable for this hit (event-level).
 	void includeVariable(const std::string& vname, double value);
 	/** @} */
 
@@ -94,7 +107,11 @@ public:
 	 * a single \ref GDigitizedData becomes the running accumulator.
 	 * @{
 	 */
+
+	/// Accumulate an integer observable (run-level integration).
 	void accumulateVariable(const std::string& vname, int value);
+
+	/// Accumulate a double observable (run-level integration).
 	void accumulateVariable(const std::string& vname, double value);
 	/** @} */
 

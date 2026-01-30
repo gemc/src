@@ -32,6 +32,7 @@
 #include "ghit.h"
 #include "gbase.h"
 
+/// Logger domain name used by \ref GTrueInfoData (controls verbosity/category in \ref GLogger).
 constexpr const char* GTRUEDATA_LOGGER = "true_data";
 
 namespace gtrue_data {
@@ -46,6 +47,13 @@ inline GOptions defineOptions() {
 }
 } // namespace gtrue_data
 
+/**
+ * \brief Container for true (simulation-level) observables for one hit.
+ *
+ * \details
+ * Stores named truth observables (double + string) and the hit identity copied from \ref GHit.
+ * Supports run-level accumulation via accumulateVariable().
+ */
 class GTrueInfoData : public GBase<GTrueInfoData>
 {
 public:

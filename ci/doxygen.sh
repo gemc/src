@@ -1,133 +1,166 @@
 #!/usr/bin/env zsh
-# Purpose: creates the doxygen documentation for the selected classes
+# Purpose: build doxygen docs per module with cross-references (2-pass: TAGs then HTML)
 
 set -euo pipefail
 
 # ---- config ----
-classes=(
+doc_modules=(
   goptions guts gfields glogging gfactory gtouchable ghit gtranslationTable
   gdata gdynamicDigitization g4display g4dialog
 )
 
-# If you still want a second list, keep it, but it's unused by default.
-classes_to_do=(
-  gdetector gtranslationTable gsplash gui textProgressBar g4system gparticle
-  gstreamer userActions gQtButtonsWidget gphysics gsystem utilities
-  eventDispenser gsd
-)
-
 script_dir="${0:A:h}"
+pages_dir="pages"
+
+
 
 usage() {
   cat <<'EOF'
 Usage:
-  ./ci/doxygen.sh                 Run doxygen for all default classes
-  ./ci/doxygen.sh -c <class>      Run doxygen for a single class (e.g. -c gdata)
-  ./ci/doxygen.sh --class <class> Same as -c
-  ./ci/doxygen.sh -l              List available classes
-  ./ci/doxygen.sh --list          Same as -l
-  ./ci/doxygen.sh -h              Show this help
-  ./ci/doxygen.sh --help          Same as -h
+  ./ci/doxygen.sh                 Build all default modules
+  ./ci/doxygen.sh -c <module>     Build a single module (e.g. -c gdata)
+  ./ci/doxygen.sh -l              List available modules
+  ./ci/doxygen.sh -h              Help
 
 Notes:
-  - Runs from the repo root (recommended).
-  - Output is written to ./pages/<class>/ (and then an index via generate_html.py).
+  - Output is written to ./pages/<module>/
+  - Two-pass build:
+    1) TAG-only pass for all selected modules
+    2) HTML pass for all selected modules with TAGFILES cross-links
+  - If you build a single module (-c), existing ./pages is preserved for cross-links.
 EOF
 }
 
-list_classes() {
-  print -l -- $classes
+list_modules() { print -l -- $doc_modules; }
+
+die() { print -u2 -- "ERROR: $*"; exit 2; }
+
+# Portable in-place sed (BSD/macOS vs GNU)
+inplace_sed() {
+  local expr="$1"
+  local file="$2"
+  if sed --version >/dev/null 2>&1; then
+    sed -i "$expr" "$file"
+  else
+    sed -i '' "$expr" "$file"
+  fi
 }
 
-die() {
-  print -u2 -- "ERROR: $*"
-  exit 2
+# Find module directory: supports either ./<module>/ or ./modules/<module>/
+module_dir_for() {
+  local m="$1"
+  if [[ -d "modules/$m" ]]; then
+    print -- "modules/$m"
+  elif [[ -d "$m" ]]; then
+    print -- "$m"
+  else
+    return 1
+  fi
 }
 
-selected_class=""
-
-# ---- args ----
+selected=""
 while (( $# )); do
   case "$1" in
-    -c|--class)
-      shift
-      (( $# )) || die "Missing argument for --class"
-      selected_class="$1"
+    -c|--class|--module)
+      shift; (( $# )) || die "Missing argument for -c/--module"
+      selected="$1"
       ;;
-    -l|--list)
-      list_classes
-      exit 0
-      ;;
-    -h|--help)
-      usage
-      exit 0
-      ;;
-    --)
-      shift
-      break
-      ;;
-    *)
-      die "Unknown option: $1 (use -h for help)"
-      ;;
+    -l|--list) list_modules; exit 0 ;;
+    -h|--help) usage; exit 0 ;;
+    --) shift; break ;;
+    *) die "Unknown option: $1 (use -h for help)" ;;
   esac
   shift
 done
 
-# ---- preflight ----
-echo " "
+echo ""
 echo " Doxygen version: $(doxygen --version)"
-echo " "
+echo ""
 
-# Determine which classes to build
-classes_to_build=($classes)
-if [[ -n "$selected_class" ]]; then
-  if ! (( ${classes[(I)$selected_class]} )); then
-    die "Unknown class '$selected_class'. Use -l to list valid classes."
+modules_to_build=($doc_modules)
+if [[ -n "$selected" ]]; then
+  if ! (( ${doc_modules[(I)$selected]} )); then
+    die "Unknown module '$selected'. Use -l to list valid modules."
   fi
-  classes_to_build=("$selected_class")
+  modules_to_build=("$selected")
 fi
 
-# ---- build ----
-rm -rf pages
-mkdir -p pages
+# ---- pages handling ----
+if [[ -z "$selected" ]]; then
+  rm -rf "$pages_dir"
+  mkdir -p "$pages_dir"
+else
+  rm -rf "$pages_dir/$selected"
+  mkdir -p "$pages_dir/$selected"
+fi
 
-# Copy stylesheet once into repo root if needed by Doxyfiles; keep behavior but avoid repeated copies.
-cp -f doc/mydoxygen.css .
+# Copy CSS into each module output after HTML pass; keep source of truth in doc/mydoxygen.css
+css_src="doc/mydoxygen.css"
+[[ -f "$css_src" ]] || css_src="../doc/mydoxygen.css"
 
-for class in $classes_to_build; do
-  echo " Running Doxygen for $class"
+# Absolute path to the canonical stylesheet in the repo root
+repo_root="${script_dir:h}"
+css_abs="$repo_root/doc/mydoxygen.css"
+[[ -f "$css_abs" ]] || die "Missing stylesheet: $css_abs"
 
-  [[ -d "$class" ]] || die "Directory '$class' not found (run from repo root?)"
+# ---- PASS 1: TAG-only ----
+for m in $modules_to_build; do
+  echo " [PASS 1] Generating TAG for $m"
+  moddir="$(module_dir_for "$m")" || die "Module dir not found for '$m'"
+  mkdir -p "$pages_dir/$m"
 
-  pushd "$class" >/dev/null
+  pushd "$moddir" >/dev/null
+  ln -sf "$css_abs" mydoxygen.css
 
-  # If create_doxygen.sh is needed only to silence warnings, keep it but don't fail the build if it isn't present.
-  if [[ -x "$script_dir/create_doxygen.sh" ]]; then
-    "$script_dir/create_doxygen.sh" "$class"
-  fi
+  "$script_dir/create_doxygen.sh" "$m"
+  [[ -f Doxyfile ]] || die "Missing Doxyfile in '$moddir'"
 
-  [[ -f "Doxyfile" ]] || die "Missing Doxyfile in '$class/'"
+  inplace_sed 's|^GENERATE_HTML[[:space:]]*=.*|GENERATE_HTML              = NO|g' Doxyfile
+  inplace_sed '/^TAGFILES\b/d' Doxyfile
+
+  doxygen Doxyfile
+  [[ -f "../$pages_dir/$m/$m.tag" ]] || die "Tag file not produced: $pages_dir/$m/$m.tag"
+
+  popd >/dev/null
+  echo
+done
+
+# ---- PASS 2: HTML + TAGFILES ----
+for m in $modules_to_build; do
+  echo " [PASS 2] Generating HTML for $m (with cross-links)"
+  moddir="$(module_dir_for "$m")" || die "Module dir not found for '$m'"
+  mkdir -p "$pages_dir/$m"
+
+  pushd "$moddir" >/dev/null
+  ln -sf "$css_abs" mydoxygen.css
+
+  "$script_dir/create_doxygen.sh" "$m"
+  [[ -f Doxyfile ]] || die "Missing Doxyfile in '$moddir'"
+
+  inplace_sed 's|^GENERATE_HTML[[:space:]]*=.*|GENERATE_HTML              = YES|g' Doxyfile
+  inplace_sed '/^TAGFILES\b/d' Doxyfile
+
+  for other in $doc_modules; do
+    [[ "$other" == "$m" ]] && continue
+    if [[ -f "../$pages_dir/$other/$other.tag" ]]; then
+      echo "TAGFILES += ../$pages_dir/$other/$other.tag=../$other" >> Doxyfile
+    fi
+  done
 
   doxygen Doxyfile
 
-  mkdir -p "../pages/$class"
-
-  # Move generated HTML if present
-  if [[ -d "html" ]]; then
-    mv html/* "../pages/$class/"
-    rm -rf html
-  else
-    die "No 'html/' output produced for $class"
-  fi
-
   popd >/dev/null
+
+  cp -f "$css_src" "$pages_dir/$m/mydoxygen.css"  2>/dev/null || true
+  [[ -f "$pages_dir/$m/index.html" ]] || die "HTML not produced for $m ($pages_dir/$m/index.html missing)"
   echo
 done
 
 # Build top-level index / landing page
 if [[ -f "$script_dir/generate_html.py" ]]; then
   "$script_dir/generate_html.py"
-else
-  # preserve your original call path too
+elif [[ -f "./ci/generate_html.py" ]]; then
   ./ci/generate_html.py
 fi
+
+echo "Done. Output in ./$pages_dir/"
