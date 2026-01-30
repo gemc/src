@@ -2,30 +2,46 @@
 
 /**
  * \file gdataConventions.h
- * \brief Defines constants and exit codes for the GData library.
+ * \brief Shared constants and error codes for the GData library.
  *
- * This file contains global constants used throughout the GData library,
- * including exit codes and identifier strings.
+ * The GData library passes observables around using string keys (e.g. "adc", "tdc",
+ * "crate", "slot", ...). This header centralizes the most common identifiers used
+ * across event/run/frame collectors to avoid spelling drift and to make filtering
+ * deterministic.
  *
- * \mainpage GData Library
- *
- * \section intro_sec Introduction
- * The GData library provides utilities and classes for handling simulation data,
- * including true hit information and digitized data. This file defines the conventions,
- * constants, and default values used by the library.
- *
- * \section conventions_sec Conventions
- * The constants below are used for error reporting and as string identifiers in various modules.
+ * The error codes are used with \c GLogger::error(...) to provide stable exit/status
+ * codes for higher-level tooling.
  */
 
-constexpr int ERR_GSDETECTORNOTFOUND = 601;    ///< Exit code when a detector is not found.
-constexpr int ERR_VARIABLENOTFOUND   = 602;      ///< Exit code when a variable is not found.
-constexpr int ERR_WRONGPAYLOAD       = 603;      ///< Exit code when a payload is of the wrong size.
+/**
+ * \name Error / exit codes
+ * \brief Numeric error codes used by GData components for consistent reporting.
+ * @{
+ */
+constexpr int ERR_GSDETECTORNOTFOUND = 601; ///< Requested sensitive detector is missing from a collection/map.
+constexpr int ERR_VARIABLENOTFOUND   = 602; ///< Requested observable key is missing from an observables map.
+constexpr int ERR_WRONGPAYLOAD       = 603; ///< A payload vector has the wrong size/shape for the expected format.
+/** @} */
 
-constexpr const char* CRATESTRINGID         = "crate";                ///< Identifier for crate.
-constexpr const char* SLOTSTRINGID          = "slot";                 ///< Identifier for slot.
-constexpr const char* CHANNELSTRINGID       = "channel";              ///< Identifier for channel.
-constexpr const char* CHARGEATELECTRONICS   = "chargeAtElectronics";  ///< Identifier for charge at electronics.
-constexpr const char* TIMEATELECTRONICS     = "timeAtElectronics";    ///< Identifier for time at electronics.
-constexpr int         TIMEATELECTRONICSNOTDEFINED = -123456;         ///< Default value for undefined time at electronics.
+/**
+ * \name Streaming / readout identifiers (SRO keys)
+ * \brief Conventional keys used to label electronics readout coordinates and timing.
+ *
+ * These keys are treated specially by \ref GDigitizedData::getIntObservablesMap() and
+ * \ref GDigitizedData::getDblObservablesMap() when filtering "streaming readout"
+ * variables (crate/slot/channel + electronics time/charge).
+ * @{
+ */
+constexpr const char* CRATESTRINGID         = "crate";              ///< Electronics crate index.
+constexpr const char* SLOTSTRINGID          = "slot";               ///< Slot index within a crate (typically module position).
+constexpr const char* CHANNELSTRINGID       = "channel";            ///< Channel index within a slot/module.
+constexpr const char* CHARGEATELECTRONICS   = "chargeAtElectronics";///< Charge (or ADC-integrated proxy) at electronics stage.
+constexpr const char* TIMEATELECTRONICS     = "timeAtElectronics";  ///< Time (or TDC proxy) at electronics stage.
+/** @} */
 
+/**
+ * \brief Sentinel value returned when \ref TIMEATELECTRONICS is requested but not present.
+ *
+ * This is intentionally an "unlikely" value to help catch missing-data bugs quickly.
+ */
+constexpr int TIMEATELECTRONICSNOTDEFINED = -123456;

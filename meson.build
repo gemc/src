@@ -145,7 +145,8 @@ foreach L : LD
                 link_with : this_library_link_with,
                 name_suffix : 'gplugin',
                 name_prefix : '',
-                # for shared modules, the static libraries they link must be PIC.
+                # Forces any static libraries that get built as part of the Meson project to be built with PIC
+                # so they can be linked into a shared module
                 override_options : ['b_staticpic=true']
             )
 
@@ -191,6 +192,7 @@ foreach L : LD
                 dependencies : this_deps,
                 include_directories : all_includes + this_lib_name + additional_includes,
                 link_with : this_library_link_with,
+                # Builds the executable as a PIE (position-independent executable).
                 override_options : ['b_pie=true']
             )
             test(name,
@@ -222,6 +224,7 @@ gemc = executable(
     dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, assimp_dep, zlib_dep],
     include_directories : all_includes,
     link_with : all_libs,
+    # Builds the executable as a PIE (position-independent executable).
     override_options : ['b_pie=true']
 )
 

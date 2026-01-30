@@ -1,10 +1,21 @@
 #pragma once
 
 /**
- * \file GFrameDataCollection.h
- * \brief Defines the GFrameDataCollection class for frame-level data.
+ * \file gFrameDataCollection.h
+ * \brief Defines \ref GFrameDataCollection a container for frame-level integrated payloads.
  *
- * This class collects integral payloads for a frame and is associated with a frame header.
+ * \details
+ * A frame collection groups multiple \ref GIntegralPayload objects under a single
+ * \ref GFrameHeader. This models streaming/readout output where many channels may
+ * fire within a time window ("frame").
+ *
+ * Ownership model (current implementation):
+ * - \ref GFrameDataCollection owns the \ref GFrameHeader pointer passed at construction
+ *   and deletes it in the destructor.
+ * - Payloads are allocated with \c new and deleted in the destructor.
+ *
+ * \note The class uses raw pointers today. If/when modernized, the natural replacement is
+ * \c std::unique_ptr<GFrameHeader> and \c std::vector<std::unique_ptr<GIntegralPayload>>.
  */
 
 #include "gFrameHeader.h"
@@ -15,9 +26,10 @@
 class GFrameDataCollection {
 public:
 	/**
-	 * \brief Constructs a GFrameDataCollection.
-	 * \param header Pointer to a GFrameDataCollectionHeader.
-	 * \param logger Pointer to a GLogger instance.
+	 * \brief Construct a frame data collection.
+	 *
+	 * \param header Frame header pointer. Ownership is transferred to this object.
+	 * \param logger Logger instance used for diagnostics.
 	 */
 	GFrameDataCollection(GFrameHeader* header, std::shared_ptr<GLogger> logger)
 		: log(logger), gevent_header(header) {
@@ -26,7 +38,12 @@ public:
 	}
 
 	/**
-	 * \brief Destructor for GFrameDataCollection.
+	 * \brief Destructor.
+	 *
+	 * Deletes:
+	 * - the owned frame header
+	 * - all owned payload pointers
+	 * - the payload vector container
 	 */
 	~GFrameDataCollection() {
 		log->debug(DESTRUCTOR, "GFrameDataCollection");
@@ -37,12 +54,22 @@ public:
 
 public:
 	/**
-	 * \brief Adds an integral payload.
+	 * \brief Add one integral payload to this frame.
 	 *
-	 * Expects the payload vector to have exactly 5 elements:
-	 * crate, slot, channel, charge, and time.
+	 * The payload is passed as a vector to support a generic "packed" interface,
+	 * typically used when data come from external buffers or electronics emulators.
 	 *
-	 * \param payload A vector of integers representing the payload.
+	 * Expected layout (size must be exactly 5):
+	 * - payload[0] = crate
+	 * - payload[1] = slot
+	 * - payload[2] = channel
+	 * - payload[3] = charge
+	 * - payload[4] = time
+	 *
+	 * On success a new \ref GIntegralPayload is allocated and stored internally.
+	 * On failure (wrong size) \ref ERR_WRONGPAYLOAD is reported via the logger.
+	 *
+	 * \param payload Packed payload vector (must have size 5).
 	 */
 	void addIntegralPayload(std::vector<int> payload) const {
 		if (payload.size() == 5) {
@@ -52,43 +79,60 @@ public:
 			int charge  = payload[3];
 			int time    = payload[4];
 
-			// Use 'log' as the logger for GIntegralPayload.
 			auto gpayload = new GIntegralPayload(crate, slot, channel, charge, time, log);
 			integralPayloads->push_back(gpayload);
 			log->debug(NORMAL, " adding integral payload for crate ", crate, " slot ", slot, " channel ", channel,
 			           " charge ", charge, " time ", time);
 		}
-		else { log->error(ERR_WRONGPAYLOAD, "payload size is not 5 but ", payload.size()); }
+		else {
+			log->error(ERR_WRONGPAYLOAD, "payload size is not 5 but ", payload.size());
+		}
 	}
 
-	// Placeholder: Add event-specific data.
+	/**
+	 * \brief Placeholder for adding event-level information into the frame.
+	 *
+	 * Intended usage (future): accept an event number (or event object) and integrate it
+	 * into this frame's payload list, e.g. by collecting channels hit during the frame window.
+	 *
+	 * \param evn Event number.
+	 */
 	void addEvent(int evn);
 
-	// Placeholder: Determine if the frame should be written.
+	/**
+	 * \brief Placeholder decision hook: should this frame be emitted/written?
+	 *
+	 * Intended usage (future): decide whether enough data has accumulated (or time window has elapsed)
+	 * to write this frame to an output stream.
+	 *
+	 * \return True if frame should be written.
+	 */
 	[[nodiscard]] bool shouldWriteFrame() const;
 
 	/**
-	 * \brief Gets the frame header.
-	 * \return Pointer to the frame header.
+	 * \brief Get the owned frame header (read-only).
+	 * \return Pointer to the frame header (owned by this object).
 	 */
 	[[nodiscard]] inline const GFrameHeader* getHeader() const { return gevent_header; }
 
 	/**
-	 * \brief Gets the integral payloads.
-	 * \return Pointer to a vector of GIntegralPayload pointers.
+	 * \brief Get the stored payload pointers (read-only).
+	 *
+	 * \warning Pointers are owned by this object and remain valid only as long as the
+	 * collection exists.
+	 *
+	 * \return Pointer to the internal payload vector.
 	 */
 	[[nodiscard]] inline const std::vector<GIntegralPayload*>* getIntegralPayload() const { return integralPayloads; }
 
 	/**
-	 * \brief Gets the frame ID.
-	 * \return The frame ID.
+	 * \brief Convenience getter for frame ID.
+	 * \return Frame ID as stored in the header.
 	 */
 	[[nodiscard]] inline long int getFrameID() const { return gevent_header->getFrameID(); }
 
 private:
-	std::shared_ptr<GLogger>        log;               ///< Logger instance
-	GFrameHeader*     gevent_header = nullptr; ///< Frame header.
-	std::vector<GIntegralPayload*>* integralPayloads;  ///< Vector of integral payloads.
+	std::shared_ptr<GLogger> log; ///< Logger instance.
+	GFrameHeader* gevent_header = nullptr; ///< Owned frame header (deleted in destructor).
+	std::vector<GIntegralPayload*>* integralPayloads; ///< Owned payload pointers (deleted in destructor).
 };
-
-

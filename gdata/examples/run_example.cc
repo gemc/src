@@ -1,26 +1,32 @@
 /**
- * \file run_example.cc
- * \brief Example demonstrating run data collection.
+* \file run_example.cc
+ * \brief Example demonstrating run-level integration of event data.
  *
- * \mainpage GData Event Data Example
+ * \page gdata_run_example Run data integration example
  *
- * \section intro_sec Introduction
- * This example emulates data being integrated over a run of 10 events.
- * A run
- * For each event:
- *  - A GEventDataCollectionHeader is created.
- *  - A GEventDataCollection is instantiated.
- *  - A single hit is created using a GTouchable and a default HitBitSet.
- *  - Digitized data is produced and added to the event's data collection.
+ * \section run_overview Overview
+ * This example emulates integrating many events into a run summary.
  *
- * \section usage_sec Usage
- * Compile and run this example along with the GData library components (GEventDataCollection,
- * GTrueInfoData, GDigitizedData, etc.) and the associated logging and options modules.
+ * The workflow is:
+ * 1) Build an event container (\ref GEventDataCollection) per event.
+ * 2) Feed each event container into \ref GRunDataCollection::collect_event_data_collection().
+ * 3) The run collection integrates per-detector data into a single entry per detector
+ *    using accumulation semantics (summing observables across events).
  *
- * \n\n
+ * \section run_threading Threading model
+ * The example shows a per-thread run collection (\c run_data_local) to accumulate data.
+ * In production you typically either:
+ * - keep a per-thread accumulator and merge at the end, or
+ * - protect a shared accumulator with synchronization.
+ *
+ * \warning This file is an example; it focuses on showing the GData API usage rather than
+ * providing a finalized reduction strategy.
+ *
+ * \section gdata_run_usage Usage
+ * Build this example together with the GData library components and required GEMC utilities.
+ *
  * \author \n &copy; Maurizio Ungaro
  * \author e-mail: ungaro@jlab.org
- * \n\n\n
  */
 
 // gdata
@@ -37,78 +43,53 @@ auto run_simulation_in_threads(int                              nevents,
                                int                              nthreads,
                                const std::shared_ptr<GOptions>& gopt,
                                const std::shared_ptr<GLogger>&  log) -> std::shared_ptr<GRunDataCollection> {
-    std::mutex collectorMtx;
+	std::mutex collectorMtx;
 
-    auto grun_header = std::make_unique<GRunHeader>(gopt, 1); // using run id 1, thread by default is -1
-    auto run_data    = std::make_shared<GRunDataCollection>(gopt, std::move(grun_header));
+	auto grun_header = std::make_unique<GRunHeader>(gopt, 1); // using run id 1, thread by default is -1
+	auto run_data    = std::make_shared<GRunDataCollection>(gopt, std::move(grun_header));
 
-    // thread-safe integer event counter starts at 1.
-    // fetch_add returns the old value *and* bumps.
-    // zero contention: each thread fetches the next free event number.
-    std::atomic<int> next{1};
+	std::atomic<int> next{1};
 
-    // pool of jthreads.  jthread joins in its destructor so we don’t need an
-    // explicit loop at the end.
-    // each element represents one worker thread running your event-processing lambda.
-    // std::vector<std::jthread> pool; use this when C++20 is widely available
-    std::vector<jthread_alias> pool; // was std::vector<std::jthread>
+	std::vector<jthread_alias> pool;
+	pool.reserve(nthreads);
 
-    pool.reserve(nthreads);
+	for (int tid = 0; tid < nthreads; ++tid) {
+		pool.emplace_back([&, tid] {
+			log->info(0, "worker ", tid, " started");
 
-    for (int tid = 0; tid < nthreads; ++tid) {
-        // The capture [&, tid] gives the thread references to variables like next, nevents, runDataMtx, etc.
-        pool.emplace_back([&, tid] // capture tid *by value*
-        {
-            // start the thread with a lambda
-            log->info(0, "worker ", tid, " started");
+			int localCount = 0;
 
-            int localCount = 0; // events built by *this* worker
+			thread_local auto grun_header_local = std::make_unique<GRunHeader>(gopt, 1, tid);
+			thread_local auto run_data_local    = std::make_shared<GRunDataCollection>(gopt, std::move(grun_header_local));
 
-            thread_local auto grun_header_local = std::make_unique<GRunHeader>(gopt, 1, tid);
-            thread_local auto run_data_local = std::make_shared<GRunDataCollection>(gopt, std::move(grun_header));
+			while (true) {
+				int evn = next.fetch_add(1, std::memory_order_relaxed);
+				if (evn > nevents) break;
 
-            while (true) {
-                // repeatedly asks the shared atomic counter for “the next unclaimed event
-                // number,” processes that event, stores the result, and goes back for more.
-                // memory_order_relaxed: we only need *atomicity*, no ordering
-                int evn = next.fetch_add(1, std::memory_order_relaxed);
-                // atomically returns the current value and increments it by 1.
-                if (evn > nevents) break; // exit the while loop
+				auto event_data_collection = GEventDataCollection::create(gopt);
+				run_data_local->collect_event_data_collection(event_data_collection);
 
-                auto event_data_collection = GEventDataCollection::create(gopt);
-                run_data_local->collect_event_data_collection(event_data_collection);
+				++localCount;
+			}
 
-                ++localCount; // tally for this worker
-            }
+			log->info(0, "worker ", tid, " processed ", localCount, " events");
+		});
+	}
 
-            // braces to lock the mutex when it's constructed and unlocks when it is destroyed
-            // {
-            //     std::scoped_lock lk(collectorMtx);
-            //     for (auto& evt : localRunData) { collected.emplace_back(evt); }
-            //     localRunData.clear();
-            // }
-
-            log->info(0, "worker ", tid, " processed ", localCount, " events");
-        }); // jthread constructor launches the thread immediately
-    }       // pool’s destructor blocks until every jthread has joined
-    return run_data;
+	return run_data;
 }
 
-
-// emulation of a run of events, collecting data in separate threads
-
 int main(int argc, char* argv[]) {
-    // Create GOptions using gevent_data::defineOptions, which aggregates options from all gdata and gtouchable.
-    auto gopts = std::make_shared<GOptions>(argc, argv, grun_data::defineOptions());
+	// Aggregate options for run-level data collection.
+	auto gopts = std::make_shared<GOptions>(argc, argv, grun_data::defineOptions());
 
-    // Create loggers: one for gdata and one for gtouchable.
-    auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GRUNDATA_LOGGER);
+	// Run-data logger.
+	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GRUNDATA_LOGGER);
 
-    constexpr int nevents  = 100;
-    constexpr int nthreads = 1;
+	constexpr int nevents  = 100;
+	constexpr int nthreads = 1;
 
-    auto runData = run_simulation_in_threads(nevents, nthreads, gopts, log);
+	auto runData = run_simulation_in_threads(nevents, nthreads, gopts, log);
 
-
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }

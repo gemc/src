@@ -7,40 +7,44 @@
 #include <atomic>
 #include <string>
 
-
 /**
- * \file GEventHeader.h
- * \brief Defines the header for event data collection.
+ * \file gEventHeader.h
+ * \brief Defines \ref GEventHeader metadata for an event data collection.
  *
- * This header contains event-related information such as the event number,
- * thread ID, and a timestamp. It is used by the GEventDataCollection class.
+ * \details
+ * The event header records:
+ * - a local event number (\c g4localEventNumber)
+ * - a thread identifier (\c threadID)
+ * - a timestamp string (\c timeStamp)
+ *
+ * In production GEMC/Geant4, event number and thread ID would typically come from Geant4
+ * (e.g. G4Event and G4Threading). In this library, \ref GEventHeader::create() provides a deterministic
+ * generator for examples and tests.
  */
 
 constexpr const char* GDATAEVENTHEADER_LOGGER = "event_header";
 
 namespace geventheader {
+/**
+ * \brief Defines GOptions for the event-header logger domain.
+ */
 inline GOptions defineOptions() {
 	auto goptions = GOptions(GDATAEVENTHEADER_LOGGER);
 	return goptions;
 }
-}
-
+} // namespace geventheader
 
 class GEventHeader : public GBase<GEventHeader> {
 public:
 	/**
-	 * \brief Constructs a GEventHeader.
+	 * \brief Construct an event header with explicit values.
 	 *
-	 * The event number is obtained from aEvent->GetEventID(), and the thread ID from G4Threading::G4GetThreadId().
-	 *
-	 * \param n The local event number.
-	 * \param tid The thread ID.
-	 * \param gopts Pointer to a GOptions instance.
+	 * \param gopts Shared options object used to configure logging and behavior.
+	 * \param n     Local event number.
+	 * \param tid   Thread ID associated with this event.
 	 */
-	GEventHeader(const std::shared_ptr<GOptions>& gopts, int n, int tid) :
-		GBase(gopts, GDATAEVENTHEADER_LOGGER),
-		g4localEventNumber(n),
-		threadID(tid) {
+	GEventHeader(const std::shared_ptr<GOptions>& gopts, int n, int tid)
+		: GBase(gopts, GDATAEVENTHEADER_LOGGER), g4localEventNumber(n), threadID(tid) {
 		timeStamp = assignTimeStamp();
 		log->debug(CONSTRUCTOR, "GEventHeader");
 		log->info(1, "\n",
@@ -50,60 +54,63 @@ public:
 	}
 
 	/**
-	 * \brief Factory method to create a GEventHeader with a unique event number.
-	 * \param gopts A shared pointer to Goptions.
-	 * \return A unique_ptr to the created GEventHeader.
+	 * \brief Factory method used by examples/tests to create a header with a unique event number.
+	 *
+	 * If \p tid is negative, a default thread ID is derived from the event number
+	 * (currently mod 8) to mimic multi-threaded execution.
+	 *
+	 * \param gopts Shared options.
+	 * \param tid   Optional thread ID override.
+	 * \return Newly created event header.
 	 */
 	static std::unique_ptr<GEventHeader> create(const std::shared_ptr<GOptions>& gopts, int tid = -1) {
 		int eventNumber = globalEventHeaderCounter.fetch_add(1, std::memory_order_relaxed);
-		int threadID    = tid; // Example: cycle through 3 thread IDs
-		if (threadID < 0) {
-			threadID = eventNumber % 8; // default to 8 threads if not provided
+		int threadID_   = tid;
+		if (threadID_ < 0) {
+			threadID_ = eventNumber % 8; // default to 8 threads if not provided
 		}
-
-		return std::make_unique<GEventHeader>(gopts, eventNumber, threadID);
+		return std::make_unique<GEventHeader>(gopts, eventNumber, threadID_);
 	}
 
 	/**
-	 * \brief Gets the timestamp.
-	 * \return The timestamp as a string.
+	 * \brief Get the formatted timestamp string.
+	 * \return Timestamp string.
 	 */
 	[[nodiscard]] inline std::string getTimeStamp() const { return timeStamp; }
 
 	/**
-	 * \brief Gets the local event number.
-	 * \return The event number.
+	 * \brief Get the local event number.
+	 * \return Event number.
 	 */
 	[[nodiscard]] inline int getG4LocalEvn() const { return g4localEventNumber; }
 
 	/**
-	 * \brief Gets the thread ID.
-	 * \return The thread ID.
+	 * \brief Get the thread ID associated with this event.
+	 * \return Thread ID.
 	 */
 	[[nodiscard]] inline int getThreadID() const { return threadID; }
 
 private:
-	int g4localEventNumber; ///< G4Run-local event number.
-	int threadID;           ///< Thread ID.
+	int g4localEventNumber; ///< Event number (run-local in typical Geant4 usage).
+	int threadID;           ///< Thread ID (diagnostic/labeling).
 
 	/**
-	 * \brief Assigns a timestamp using the local time.
+	 * \brief Create a timestamp string using local time.
 	 *
-	 * Uses C functions to format the time as a string.
+	 * Format: \c "Mon 01.30.2026 15:04:05" (weekday mm.dd.yyyy hh:mm:ss).
 	 *
-	 * \return A string representing the timestamp.
+	 * \return Timestamp string.
 	 */
 	static std::string assignTimeStamp() {
 		time_t     now = time(nullptr);
 		struct tm* ptm = localtime(&now);
 		char       buffer[32];
-		// Format: Mo, 15.06.2009 20:20:00
 		strftime(buffer, 32, "%a %m.%d.%Y %H:%M:%S", ptm);
 		return {buffer};
 	}
 
-	std::string timeStamp; ///< The timestamp
+	std::string timeStamp; ///< Timestamp string.
 
-	/// Static thread-safe event counter - used for testing only
+	/// Static thread-safe event counter - used for testing/examples only.
 	static std::atomic<int> globalEventHeaderCounter;
 };

@@ -24,7 +24,7 @@ dl_dir="${4:-}"
   if docker buildx imagetools inspect "${image}:${tag}-arm64" >/dev/null 2>&1; then
     printf -- '- arm64\n'
   else
-    printf -- '- no arm64. Run with --platform=linux/amd64 in arm64 CPUs\n'
+    printf -- '- no arm64. Run with --platform=linux/amd64 in arm64 CPUs. On MacOs you may need to use Rosetta for correct terminal emulation.\n'
   fi
   printf '\n'
   printf '### Pull\n'

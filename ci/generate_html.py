@@ -95,8 +95,8 @@ html_header = """<!DOCTYPE html>
 </head>
 <body>
     <div class="container">
-        <h1><a href="https://gemc.github.io/home/">GEMC Home</a></h1>
-        <p>Explore the Doxygen documentation the various gemc classes.</p>
+        <h1>Doxygen Documentation</h1>
+        <p>Explore the Doxygen documentation the various gemc modules.</p>
         <ul class="link-list">
 """
 
@@ -104,9 +104,9 @@ html_header = """<!DOCTYPE html>
 html_footer = """
         </ul>
         <div class="footer">
-            © 2025 GEMC - Maurizio Ungaro
+            © 2026 GEMC - Maurizio Ungaro
             <br/><br/>
-            <h1>Doxygen Documentation</h1>
+            <h1><a href="https://gemc.github.io/home/documentation">Back to GEMC Documentation</a></h1>
         </div>
     </div>
 </body>
