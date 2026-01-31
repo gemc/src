@@ -1,8 +1,10 @@
 #!/usr/bin/env zsh
+# File: ci/create_doxygen.sh
+#
 # Purpose:
-#   - Generate an up-to-date base Doxyfile from `doxygen -g` (cached per doxygen version)
-#   - Sanitize that base deterministically on every run (fixes template multi-line lists)
-#   - Emit a tiny per-module Doxyfile that @INCLUDEs that sanitized base
+#   - Generate a fresh base Doxyfile from `doxygen -g` on every run (NO .cache usage)
+#   - Sanitize that base deterministically (fixes template multi-line lists)
+#   - Emit a per-module Doxyfile that INLINES the sanitized base + module overrides
 #
 # Usage:
 #   ./ci/create_doxygen.sh <module_name>
@@ -15,14 +17,9 @@ die() { print -u2 -- "ERROR: $*"; exit 2; }
 mod="$1"
 
 script_dir="${0:A:h}"
-cache_dir="$script_dir/doxygen/.cache"
-mkdir -p "$cache_dir"
 
-base_pure="$cache_dir/Doxyfile.pure"
-base_file="$cache_dir/Doxyfile.base"
-ver_file="$cache_dir/doxygen.version"
-
-doxver="$(doxygen --version)"
+doxver="$(doxygen --version 2>/dev/null || true)"
+[[ -n "$doxver" ]] || die "doxygen not found in PATH"
 
 # Portable in-place sed (BSD/macOS vs GNU)
 inplace_sed() {
@@ -35,30 +32,33 @@ inplace_sed() {
   fi
 }
 
-
 # Replace a doxygen list key that may be written as a multi-line block:
 #   KEY = *.a \
 #         *.b \
 # with a single-line canonical:
 #   KEY = value
 #
-# We remove the KEY line and its following "indented *..." continuation lines,
-# then append the canonical KEY line. Appending is semantically fine for doxygen.
+# Strategy:
+#   - Remove KEY line and continuation lines that follow it
+#   - Append canonical KEY line at end (Doxygen accepts last-one-wins)
 replace_doxy_list_key_single_line() {
   local file="$1"
   local key="$2"
   local value="$3"
 
   # Remove existing KEY line + template continuation lines that follow it.
+  # Continuations from `doxygen -g` are often indented and may start with "*.ext".
   awk -v key="^"key"[[:space:]]*=" '
     BEGIN{skip=0}
-    $0 ~ key { skip=1; next }                   # drop the KEY = ... line
-    skip && $0 ~ /^[[:space:]]+\*/ { next }     # drop indented "*.ext \" lines
-    skip { skip=0 }                             # first non-continuation after block
+    $0 ~ key { skip=1; next }                       # drop the KEY = ... line
+    skip && $0 ~ /^[[:space:]]+\*/ { next }         # drop indented "*..." lines
+    skip && $0 ~ /^[[:space:]]+\*\.[^[:space:]]/ { next }  # (extra defensive)
+    skip && $0 ~ /^[[:space:]]+[^#[:space:]].*\\$/ { next } # drop generic "\" continuation lines
+    skip { skip=0 }                                 # first non-continuation after block
     { print }
   ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
 
-  # Defensive: remove any stray KEY lines that might still exist (shouldn't).
+  # Defensive: remove any stray KEY lines that might still exist.
   if grep -qE "^${key}[[:space:]]*=" "$file"; then
     inplace_sed "/^${key}[[:space:]]*=/d" "$file"
   fi
@@ -88,7 +88,6 @@ sanitize_base() {
   inplace_sed 's|^QUIET[[:space:]]*=.*|QUIET                   = YES|g' "$f"
   inplace_sed 's|^WARNINGS[[:space:]]*=.*|WARNINGS                = YES|g' "$f"
 
-
   replace_doxy_list_key_single_line "$f" "FILE_PATTERNS" \
     "*.h *.hh *.hpp *.hxx *.c *.cc *.cpp *.cxx *.C *.H"
 
@@ -106,34 +105,29 @@ sanitize_base() {
   inplace_sed '/^HTML_OUTPUT[[:space:]]*=/d' "$f"
   inplace_sed '/^GENERATE_TAGFILE[[:space:]]*=/d' "$f"
   inplace_sed '/^TAGFILES[[:space:]]*=/d' "$f"
+
+  # Defensive: remove any stray lines that start with "*" (cause: broken multi-line list blocks)
+  inplace_sed '/^[[:space:]]*\*/d' "$f"
 }
 
-# ---- (re)generate base if missing or doxygen version changed ----
-need_regen=0
-if [[ ! -f "$base_pure" || ! -f "$base_file" || ! -f "$ver_file" ]]; then
-  need_regen=1
-elif [[ "$(cat "$ver_file")" != "$doxver" ]]; then
-  need_regen=1
-fi
+# ---- Generate fresh base every run (no .cache usage) ----
+tmp_pure="$(mktemp "${TMPDIR:-/tmp}/Doxyfile.pure.XXXXXX")"
+tmp_base="$(mktemp "${TMPDIR:-/tmp}/Doxyfile.base.XXXXXX")"
+cleanup() { rm -f -- "$tmp_pure" "$tmp_base"; }
+trap cleanup EXIT
 
-if (( need_regen )); then
-  print -- " [create_doxygen] Generating base for doxygen $doxver"
-  doxygen -g "$base_pure" >/dev/null 2>&1
-  cp -f "$base_pure" "$base_file"
-  print -- "$doxver" > "$ver_file"
-fi
+print -- " [create_doxygen] Generating base for doxygen $doxver"
+doxygen -g "$tmp_pure" >/dev/null 2>&1
+cp -f "$tmp_pure" "$tmp_base"
 
-# Always sanitize (fixes stale/broken cache contents too)
-[[ -f "$base_file" ]] || die "Missing base file '$base_file'"
-sanitize_base "$base_file"
+sanitize_base "$tmp_base"
 
-# Emit tiny module Doxyfile that includes the generated base.
-# Use absolute path so it works regardless of where the module lives.
-base_abs="$base_file"
+# Emit a module Doxyfile by inlining the sanitized base, then overriding.
+{
+  cat "$tmp_base"
+  cat <<EOF
 
-cat > Doxyfile <<EOF
-@INCLUDE = $base_abs
-
+# ---- module overrides ----
 PROJECT_NAME              = "$mod"
 INPUT                     = .
 OUTPUT_DIRECTORY          = ../pages
@@ -143,6 +137,7 @@ HTML_EXTRA_STYLESHEET     = mydoxygen.css
 
 # TAGFILES is injected by ci/doxygen.sh in pass 2
 EOF
+} > Doxyfile
 
 # Optional: keep local copy for debugging/inspection
 cp -f Doxyfile DoxyfilePure 2>/dev/null || true

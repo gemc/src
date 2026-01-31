@@ -1,4 +1,6 @@
 #!/usr/bin/env zsh
+# File: ci/doxygen.sh
+#
 # Purpose: build doxygen docs per module with cross-references (2-pass: TAGs then HTML)
 
 set -euo pipefail
@@ -11,8 +13,6 @@ doc_modules=(
 
 script_dir="${0:A:h}"
 pages_dir="pages"
-
-
 
 usage() {
   cat <<'EOF'
@@ -115,7 +115,14 @@ for m in $modules_to_build; do
   "$script_dir/create_doxygen.sh" "$m"
   [[ -f Doxyfile ]] || die "Missing Doxyfile in '$moddir'"
 
-  inplace_sed 's|^GENERATE_HTML[[:space:]]*=.*|GENERATE_HTML              = NO|g' Doxyfile
+  # Ensure TAG pass doesn't emit HTML
+  if grep -qE '^GENERATE_HTML[[:space:]]*=' Doxyfile; then
+    inplace_sed 's|^GENERATE_HTML[[:space:]]*=.*|GENERATE_HTML              = NO|g' Doxyfile
+  else
+    print -- 'GENERATE_HTML              = NO' >> Doxyfile
+  fi
+
+  # Ensure TAGFILES isn't present in pass 1
   inplace_sed '/^TAGFILES\b/d' Doxyfile
 
   doxygen Doxyfile
@@ -137,7 +144,14 @@ for m in $modules_to_build; do
   "$script_dir/create_doxygen.sh" "$m"
   [[ -f Doxyfile ]] || die "Missing Doxyfile in '$moddir'"
 
-  inplace_sed 's|^GENERATE_HTML[[:space:]]*=.*|GENERATE_HTML              = YES|g' Doxyfile
+  # Ensure HTML is enabled in pass 2
+  if grep -qE '^GENERATE_HTML[[:space:]]*=' Doxyfile; then
+    inplace_sed 's|^GENERATE_HTML[[:space:]]*=.*|GENERATE_HTML              = YES|g' Doxyfile
+  else
+    print -- 'GENERATE_HTML              = YES' >> Doxyfile
+  fi
+
+  # Remove any existing TAGFILES lines before injecting ours
   inplace_sed '/^TAGFILES\b/d' Doxyfile
 
   for other in $doc_modules; do
@@ -151,7 +165,7 @@ for m in $modules_to_build; do
 
   popd >/dev/null
 
-  cp -f "$css_src" "$pages_dir/$m/mydoxygen.css"  2>/dev/null || true
+  cp -f "$css_src" "$pages_dir/$m/mydoxygen.css" 2>/dev/null || true
   [[ -f "$pages_dir/$m/index.html" ]] || die "HTML not produced for $m ($pages_dir/$m/index.html missing)"
   echo
 done

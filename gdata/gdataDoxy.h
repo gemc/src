@@ -1,7 +1,6 @@
 /**
  * \mainpage GData Library
  *
- * \tableofcontents
  *
  * \section intro_sec Introduction
  * The GData library provides classes and utilities to accumulate simulated “true” information
