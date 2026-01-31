@@ -95,8 +95,7 @@ html_header = """<!DOCTYPE html>
 </head>
 <body>
     <div class="container">
-        <h1>Doxygen Documentation</h1>
-        <p>Explore the Doxygen documentation the various gemc modules.</p>
+        <p>Explore the Doxygen documentation the various gemc modules.</p> <br/><br/>
         <ul class="link-list">
 """
 
@@ -104,9 +103,10 @@ html_header = """<!DOCTYPE html>
 html_footer = """
         </ul>
         <div class="footer">
+            <br/><br/>
             © 2026 GEMC - Maurizio Ungaro
             <br/><br/>
-            <h1><a href="https://gemc.github.io/home/documentation">Back to GEMC Documentation</a></h1>
+            <h3><a href="https://gemc.github.io/home/documentation">Back to GEMC Documentation</a></h3>
         </div>
     </div>
 </body>
@@ -124,7 +124,7 @@ def generate_html(directory):
             if os.path.exists(index_file):
                 # Update the link to be relative to the pages directory
                 relative_index_file = os.path.relpath(index_file, directory)
-                links += f'            <li><a href="{relative_index_file}" target="_blank">{subdir} Documentation</a></li>\n'
+                links += f'            <li><a href="{relative_index_file}" target="_blank">{subdir} </a></li>\n'
     return html_header + links + html_footer
 
 
