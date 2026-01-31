@@ -2,13 +2,15 @@
 
 /**
  * \file gIntegralPayload.h
- * \brief Defines \ref GIntegralPayload one integrated electronics payload.
+ * \brief Defines \ref GIntegralPayload one integrated electronics payload sample.
  *
  * \details
  * A payload is the minimal set of fields typically needed to represent a readout sample:
- * - crate / slot / channel : readout address
+ * - crate / slot / channel : readout address (hardware coordinates)
  * - charge                : integrated amplitude (or ADC proxy)
  * - time                  : time coordinate (or TDC proxy)
+ *
+ * This struct is used by \ref GFrameDataCollection to store per-frame integrated samples.
  */
 
 #include "glogger.h"
@@ -18,6 +20,9 @@ struct GIntegralPayload {
 public:
 	/**
 	 * \brief Construct an integral payload.
+	 *
+	 * \details
+	 * Stores the provided values and emits a debug log message.
 	 *
 	 * \param c      Crate number (readout address component).
 	 * \param s      Slot number (module position within the crate).
@@ -43,6 +48,7 @@ public:
 	/**
 	 * \brief Export payload as a fixed-order vector of integers.
 	 *
+	 * \details
 	 * Order is:
 	 * 0) crate
 	 * 1) slot
@@ -50,7 +56,7 @@ public:
 	 * 3) charge
 	 * 4) time
 	 *
-	 * This ordering matches \ref GFrameDataCollection::addIntegralPayload().
+	 * This ordering matches the expectation in \ref GFrameDataCollection::addIntegralPayload().
 	 *
 	 * \return Vector \c {crate, slot, channel, charge, time}.
 	 */

@@ -18,15 +18,20 @@
  * - a timestamp string (\c timeStamp)
  *
  * In production GEMC/Geant4, event number and thread ID would typically come from Geant4
- * (e.g. G4Event and G4Threading). In this library, \ref GEventHeader::create() provides a deterministic
- * generator for examples and tests.
+ * (e.g. G4Event and G4Threading). In this library, \ref GEventHeader::create() provides a
+ * deterministic generator for examples and tests.
+ *
+ * \note Time stamp is generated using the local system time at construction.
  */
 
 constexpr const char* GDATAEVENTHEADER_LOGGER = "event_header";
 
 namespace geventheader {
 /**
- * \brief Defines GOptions for the event-header logger domain.
+ * \brief Defines \ref GOptions for the event-header logger domain.
+ *
+ * \details
+ * Event header logging can be enabled/controlled by including this in composite option bundles.
  */
 inline GOptions defineOptions() {
 	auto goptions = GOptions(GDATAEVENTHEADER_LOGGER);
@@ -34,10 +39,25 @@ inline GOptions defineOptions() {
 }
 } // namespace geventheader
 
+/**
+ * \brief Minimal event metadata header: event number, thread id, and timestamp.
+ *
+ * \details
+ * This object is typically owned by \ref GEventDataCollection as a \c std::unique_ptr.
+ *
+ * It is primarily used for:
+ * - labeling events in logs/output
+ * - reproducing the event/thread provenance for debugging
+ */
 class GEventHeader : public GBase<GEventHeader> {
 public:
 	/**
 	 * \brief Construct an event header with explicit values.
+	 *
+	 * \details
+	 * The constructor:
+	 * - assigns \c timeStamp based on local time
+	 * - emits an informational log summarizing the header values
 	 *
 	 * \param gopts Shared options object used to configure logging and behavior.
 	 * \param n     Local event number.
@@ -56,8 +76,12 @@ public:
 	/**
 	 * \brief Factory method used by examples/tests to create a header with a unique event number.
 	 *
+	 * \details
 	 * If \p tid is negative, a default thread ID is derived from the event number
 	 * (currently mod 8) to mimic multi-threaded execution.
+	 *
+	 * Threading notes:
+	 * - Uses an atomic counter so that concurrent calls from multiple threads produce unique event numbers.
 	 *
 	 * \param gopts Shared options.
 	 * \param tid   Optional thread ID override.
@@ -80,6 +104,7 @@ public:
 
 	/**
 	 * \brief Get the local event number.
+	 * \details This is "run-local" in typical Geant4 usage.
 	 * \return Event number.
 	 */
 	[[nodiscard]] inline int getG4LocalEvn() const { return g4localEventNumber; }
@@ -97,7 +122,12 @@ private:
 	/**
 	 * \brief Create a timestamp string using local time.
 	 *
-	 * Format: \c "Mon 01.30.2026 15:04:05" (weekday mm.dd.yyyy hh:mm:ss).
+	 * \details
+	 * Format:
+	 * \code
+	 *   "Mon 01.30.2026 15:04:05"
+	 * \endcode
+	 * (weekday mm.dd.yyyy hh:mm:ss).
 	 *
 	 * \return Timestamp string.
 	 */

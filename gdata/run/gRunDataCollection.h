@@ -6,18 +6,23 @@
  *
  * \details
  * A run collection integrates event-level data into a run summary.
+ *
  * It owns:
  * - a \ref GRunHeader describing run ID and integrated event count
- * - a map from sensitive detector name to \ref GDataCollection
+ * - a map from sensitive detector name to \ref GDataCollection (the per-detector accumulator)
  *
  * Integration is performed by consuming \ref GEventDataCollection objects and:
- * - iterating over each detector’s per-hit data
+ * - iterating over each detector’s per-hit data vectors
  * - accumulating observables into a per-detector \ref GDataCollection entry
  *
  * The resulting structure typically has:
  * - one \ref GDataCollection per detector
- * - one integrated \ref GTrueInfoData and one integrated \ref GDigitizedData entry per detector (vector size 1),
- *   depending on how the \ref GDataCollection integration methods are used.
+ * - one integrated \ref GTrueInfoData and one integrated \ref GDigitizedData entry per detector
+ *   (vector size 1) depending on how \ref GDataCollection integration is used.
+ *
+ * \note This class currently does not increment \ref GRunHeader::events_processed.
+ *       If you want that counter to reflect integrated events, the caller (or this class)
+ *       must call \ref GRunHeader::increment_events_processed() once per integrated event.
  */
 
 #include "gRunHeader.h"
@@ -33,11 +38,14 @@ namespace grun_data {
 /**
  * \brief Aggregated options for run-level data collection.
  *
+ * \details
  * Combines options from:
  * - event header + event data collection
  * - run header + run data collection
  * - true/digitized data
  * - touchable (for hit identity creation in examples)
+ *
+ * This is intended to provide a single "options bundle" for examples and applications.
  */
 inline auto defineOptions() -> GOptions {
 	auto goptions = GOptions(GRUNDATA_LOGGER);
@@ -51,11 +59,25 @@ inline auto defineOptions() -> GOptions {
 }
 } // namespace grun_data
 
+/**
+ * \brief Run-level container that integrates per-event detector data into per-detector summaries.
+ *
+ * \details
+ * The main API is \ref collect_event_data_collection(), which:
+ * - loops over detectors present in the event
+ * - loops over all hits for each detector (truth and digitized)
+ * - delegates integration to \ref GDataCollection accumulation methods
+ *
+ * The per-detector map is keyed by sensitive detector name.
+ */
 class GRunDataCollection : public GBase<GRunDataCollection>
 {
 public:
 	/**
 	 * \brief Construct a run data collection.
+	 *
+	 * \details
+	 * The header stores metadata such as run ID and (optionally) number of integrated events.
 	 *
 	 * \param gopts  Shared options object used to configure logging and behavior.
 	 * \param header Owned run header describing this run.
@@ -67,9 +89,14 @@ public:
 	/**
 	 * \brief Integrate one event data collection into this run summary.
 	 *
-	 * The method iterates over all detectors present in \p edc and, for each detector:
-	 * - integrates all true-hit entries
-	 * - integrates all digitized-hit entries
+	 * \details
+	 * For each detector present in \p edc, integrates all per-hit entries:
+	 * - truth hits (via \ref collectDetectorTrueInfoData)
+	 * - digitized hits (via \ref collectDetectorDigitizedData)
+	 *
+	 * The integration semantics for individual hits are implemented in \ref GDataCollection:
+	 * - first hit creates the integrated entry
+	 * - subsequent hits contribute by summation of scalars
 	 *
 	 * \param edc Event-level container to integrate.
 	 */
@@ -84,6 +111,7 @@ public:
 	/**
 	 * \brief Access the per-detector run summary map.
 	 *
+	 * \details
 	 * Key: sensitive detector name.
 	 * Value: per-detector \ref GDataCollection accumulator.
 	 *
@@ -101,6 +129,11 @@ public:
 
 	/**
 	 * \brief Number of events integrated into this run summary.
+	 *
+	 * \details
+	 * This value is stored in \ref GRunHeader and incremented by
+	 * \ref GRunHeader::increment_events_processed().
+	 *
 	 * \return Count stored in the header.
 	 */
 	[[nodiscard]] auto get_events_processed() const -> int { return grun_header->get_events_processed(); }
@@ -114,19 +147,24 @@ private:
 	/**
 	 * \brief Integrate one true-hit entry into the detector accumulator.
 	 *
+	 * \details
 	 * Ensures the detector entry exists in \ref gdataCollectionMap and then delegates
 	 * integration to \ref GDataCollection::collectTrueInfosData().
 	 *
 	 * \param sdName Sensitive detector name.
-	 * \param data   True-hit object to integrate.
+	 * \param data   True-hit object to integrate (not owned; deep-copied internally).
 	 */
 	void collectDetectorTrueInfoData(const std::string& sdName, const std::unique_ptr<GTrueInfoData>& data);
 
 	/**
 	 * \brief Integrate one digitized-hit entry into the detector accumulator.
 	 *
+	 * \details
+	 * Ensures the detector entry exists and delegates integration to
+	 * \ref GDataCollection::collectDigitizedData().
+	 *
 	 * \param sdName Sensitive detector name.
-	 * \param data   Digitized-hit object to integrate.
+	 * \param data   Digitized-hit object to integrate (not owned; deep-copied internally).
 	 */
 	void collectDetectorDigitizedData(const std::string& sdName, const std::unique_ptr<GDigitizedData>& data);
 };

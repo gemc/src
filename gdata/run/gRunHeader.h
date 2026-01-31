@@ -11,19 +11,27 @@
  * \brief Defines \ref GRunHeader metadata for a run-level data collection.
  *
  * \details
- * A run header records:
- * - the run identifier (\c runID)
- * - how many events have been integrated into this run summary (\c events_processed)
+ * A run header is a minimal metadata object associated with a \ref GRunDataCollection.
  *
- * The constructor logs a short summary. In a multi-threaded environment, the thread ID
- * can be attached for diagnostics.
+ * It records:
+ * - \c runID            : run identifier (application-defined)
+ * - \c events_processed : number of events integrated into this run summary so far
+ *
+ * The constructor emits a brief log summary. In multi-threaded contexts, an optional
+ * thread ID can be attached for diagnostics and provenance.
+ *
+ * \note The header does not itself perform synchronization. If multiple threads are meant
+ * to update \c events_processed concurrently, higher-level synchronization is required.
  */
 
 constexpr const char* GDATARUNHEADER_LOGGER = "run_header";
 
 namespace grun_header {
 /**
- * \brief Defines GOptions for the run-header logger domain.
+ * \brief Defines \ref GOptions for the run-header logger domain.
+ *
+ * \details
+ * Higher-level option bundles (e.g. \ref grun_data::defineOptions) typically include this.
  */
 inline auto defineOptions() -> GOptions {
 	auto goptions = GOptions(GDATARUNHEADER_LOGGER);
@@ -31,11 +39,28 @@ inline auto defineOptions() -> GOptions {
 }
 } // namespace grun_header
 
+/**
+ * \brief Minimal run metadata: run ID and integrated-event counter.
+ *
+ * \details
+ * This object is typically owned by \ref GRunDataCollection as a \c std::unique_ptr.
+ * It provides:
+ * - stable access to run identifier
+ * - a simple counter tracking how many events were integrated
+ *
+ * The counter is incremented via \ref increment_events_processed().
+ */
 class GRunHeader : public GBase<GRunHeader>
 {
 public:
 	/**
 	 * \brief Construct a run header.
+	 *
+	 * \details
+	 * The constructor logs:
+	 * - run ID
+	 * - initial event count (usually 0)
+	 * - optional thread ID if provided
 	 *
 	 * \param gopts Shared options object used to configure logging and behavior.
 	 * \param rid   Run identifier.
@@ -66,7 +91,9 @@ public:
 	/**
 	 * \brief Get the number of events integrated into this run summary so far.
 	 *
+	 * \details
 	 * This value is incremented by \ref increment_events_processed().
+	 * Typical usage is "once per event integrated into the run accumulator".
 	 *
 	 * \return Number of processed events.
 	 */
@@ -75,7 +102,8 @@ public:
 	/**
 	 * \brief Increment the number of processed events.
 	 *
-	 * Intended to be called once per event that is integrated into the run accumulator.
+	 * \details
+	 * Intended to be called once per event integrated into the run accumulator.
 	 */
 	void increment_events_processed() { events_processed++; }
 

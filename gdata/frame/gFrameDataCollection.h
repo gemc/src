@@ -16,6 +16,10 @@
  *
  * \note The class uses raw pointers today. If/when modernized, the natural replacement is
  * \c std::unique_ptr<GFrameHeader> and \c std::vector<std::unique_ptr<GIntegralPayload>>.
+ *
+ * \warning Because raw pointers are used, callers must follow the ownership rules strictly:
+ * - do not delete the header after passing it to the constructor
+ * - do not delete payload pointers returned by \ref GFrameDataCollection::getIntegralPayload()
  */
 
 #include "gFrameHeader.h"
@@ -27,6 +31,10 @@ class GFrameDataCollection {
 public:
 	/**
 	 * \brief Construct a frame data collection.
+	 *
+	 * \details
+	 * Ownership:
+	 * - \p header is adopted by this object and deleted in the destructor.
 	 *
 	 * \param header Frame header pointer. Ownership is transferred to this object.
 	 * \param logger Logger instance used for diagnostics.
@@ -40,6 +48,7 @@ public:
 	/**
 	 * \brief Destructor.
 	 *
+	 * \details
 	 * Deletes:
 	 * - the owned frame header
 	 * - all owned payload pointers
@@ -56,6 +65,7 @@ public:
 	/**
 	 * \brief Add one integral payload to this frame.
 	 *
+	 * \details
 	 * The payload is passed as a vector to support a generic "packed" interface,
 	 * typically used when data come from external buffers or electronics emulators.
 	 *
@@ -66,8 +76,11 @@ public:
 	 * - payload[3] = charge
 	 * - payload[4] = time
 	 *
-	 * On success a new \ref GIntegralPayload is allocated and stored internally.
-	 * On failure (wrong size) \ref ERR_WRONGPAYLOAD is reported via the logger.
+	 * On success:
+	 * - a new \ref GIntegralPayload is allocated and stored internally.
+	 *
+	 * On failure:
+	 * - \ref ERR_WRONGPAYLOAD is reported via the logger.
 	 *
 	 * \param payload Packed payload vector (must have size 5).
 	 */
@@ -92,8 +105,10 @@ public:
 	/**
 	 * \brief Placeholder for adding event-level information into the frame.
 	 *
-	 * Intended usage (future): accept an event number (or event object) and integrate it
-	 * into this frame's payload list, e.g. by collecting channels hit during the frame window.
+	 * \details
+	 * Intended usage (future):
+	 * - accept an event number (or event object)
+	 * - integrate it into this frame's payload list (collect channels hit during the frame window)
 	 *
 	 * \param evn Event number.
 	 */
@@ -102,8 +117,10 @@ public:
 	/**
 	 * \brief Placeholder decision hook: should this frame be emitted/written?
 	 *
-	 * Intended usage (future): decide whether enough data has accumulated (or time window has elapsed)
-	 * to write this frame to an output stream.
+	 * \details
+	 * Intended usage (future):
+	 * - decide whether enough data has accumulated (or time window has elapsed)
+	 * - trigger writing this frame to an output stream
 	 *
 	 * \return True if frame should be written.
 	 */
@@ -111,6 +128,10 @@ public:
 
 	/**
 	 * \brief Get the owned frame header (read-only).
+	 *
+	 * \details
+	 * The returned pointer remains valid as long as this \ref GFrameDataCollection exists.
+	 *
 	 * \return Pointer to the frame header (owned by this object).
 	 */
 	[[nodiscard]] inline const GFrameHeader* getHeader() const { return gevent_header; }
@@ -119,7 +140,7 @@ public:
 	 * \brief Get the stored payload pointers (read-only).
 	 *
 	 * \warning Pointers are owned by this object and remain valid only as long as the
-	 * collection exists.
+	 * collection exists. Callers must not delete them.
 	 *
 	 * \return Pointer to the internal payload vector.
 	 */

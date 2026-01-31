@@ -8,18 +8,28 @@
  * \ref GTrueInfoData stores *truth* information typically derived from Geant4 tracking:
  * energy deposition, step-averaged positions, time, particle/process metadata, etc.
  *
- * Observables are stored as named maps:
- * - \c doubleObservablesMap : numeric truth quantities (edep, x/y/z, time, ...)
+ * ## Why maps?
+ * Observables are stored as name->value maps to support detector/digitization plugins that:
+ * - define custom variables without recompiling the core library
+ * - evolve their schema over time without breaking binary interfaces
+ *
+ * ## Stored observable categories
+ * - \c doubleObservablesMap : numeric truth quantities (edep, x/y/z, time, etc.)
  * - \c stringVariablesMap   : categorical/provenance values (process name, volume name, ...)
  *
- * Per-event vs per-run semantics:
- * - includeVariable(): sets/overwrites a variable for a single hit (event-level).
- * - accumulateVariable(): adds into a running sum (run-level integration).
+ * ## Per-event vs per-run semantics
+ * - \ref includeVariable(): sets/overwrites a variable for a single hit (event-level).
+ * - \ref accumulateVariable(): adds into a running sum (run-level integration).
  *
- * Identity:
- * Each \ref GTrueInfoData also stores the hit identity (\c gidentity), copied from \c GHit.
+ * ## Identity
+ * Each \ref GTrueInfoData stores the hit identity (\c gidentity), copied from \c GHit.
  * This is typically a vector of named indices (e.g. sector/layer/component) that uniquely identify
- * where the hit occurred.
+ * where the hit occurred. The identity is intended to be stable and human-readable via
+ * \ref getIdentityString().
+ *
+ * \note Threading:
+ * - Regular instances have no shared mutable state.
+ * - The static factory \ref create() uses \ref globalTrueInfoDataCounter which is atomic.
  */
 
 // c++
@@ -37,9 +47,17 @@ constexpr const char* GTRUEDATA_LOGGER = "true_data";
 
 namespace gtrue_data {
 /**
- * \brief Defines GOptions for the true-data logger domain.
+ * \brief Defines \ref GOptions for the true-data logger domain.
  *
- * This is typically aggregated by higher-level option groups (event/run collections).
+ * \details
+ * This helper allows higher-level option aggregators (event/run collections) to pull in
+ * configuration for this logger domain without knowing details about how \ref GLogger is set up.
+ *
+ * Typical usage:
+ * \code
+ *   GOptions opts("some_domain");
+ *   opts += gtrue_data::defineOptions();
+ * \endcode
  */
 inline GOptions defineOptions() {
 	auto goptions = GOptions(GTRUEDATA_LOGGER);
@@ -51,16 +69,30 @@ inline GOptions defineOptions() {
  * \brief Container for true (simulation-level) observables for one hit.
  *
  * \details
- * Stores named truth observables (double + string) and the hit identity copied from \ref GHit.
- * Supports run-level accumulation via accumulateVariable().
+ * A \ref GTrueInfoData instance conceptually corresponds to *one simulated hit*.
+ *
+ * - It stores numeric and string observables keyed by name.
+ * - It stores an identity vector derived from \ref GHit, typically encoding geometry indices.
+ *
+ * The container supports two usage patterns:
+ * 1) **Event-level storage**: create a new instance per hit and populate it using \ref includeVariable().
+ * 2) **Run-level integration**: keep a single instance as an accumulator and call \ref accumulateVariable()
+ *    to sum contributions across hits/events.
+ *
+ * \note Accumulation is summation only; do not expect averages unless you compute them externally.
  */
 class GTrueInfoData : public GBase<GTrueInfoData>
 {
 public:
 	/**
-	 * \brief Construct true-hit data from a hit identity.
+	 * \brief Construct true-hit data by copying identity from a hit.
 	 *
-	 * The constructor copies the hit identity (\c GIdentifier vector) from \p ghit.
+	 * \details
+	 * - Copies the hit identity vector (\c GIdentifier list) from \p ghit.
+	 * - Initializes the base logger domain to \ref GTRUEDATA_LOGGER.
+	 *
+	 * Ownership:
+	 * - \p ghit is **not owned**; it must remain valid only for the duration of the constructor.
 	 *
 	 * \param gopts Shared options object used to configure logging and behavior.
 	 * \param ghit  Pointer to the hit providing identity information (not owned).
@@ -70,7 +102,13 @@ public:
 	/**
 	 * \brief Return a human-readable identity string for debugging and labeling.
 	 *
-	 * Format: \c name1->value1, name2->value2, ...
+	 * \details
+	 * Format:
+	 * \code
+	 *   name1->value1, name2->value2, ...
+	 * \endcode
+	 *
+	 * The underlying identity is the \c gidentity vector copied from the \ref GHit.
 	 *
 	 * \return Identity string assembled from the hit identifiers.
 	 */
@@ -79,13 +117,15 @@ public:
 	/**
 	 * \brief Store/overwrite a numeric "true" observable for this hit.
 	 *
-	 * Typical variables include:
-	 * - total energy deposition ("totalEDeposited")
-	 * - average time ("avgTime")
-	 * - average position ("avgx", "avgy", "avgz")
+	 * \details
+	 * Overwrite semantics:
+	 * - If \p varName already exists, the stored value is replaced.
+	 * - If it does not exist, a new entry is created.
 	 *
-	 * \note If you also want integer truth observables, store them as doubles
-	 * (implicit conversion) or add a dedicated integer map.
+	 * Typical keys (examples, not enforced):
+	 * - "totalEDeposited"
+	 * - "avgTime"
+	 * - "avgx", "avgy", "avgz"
 	 *
 	 * \param varName Observable name/key.
 	 * \param var     Value to store.
@@ -95,7 +135,12 @@ public:
 	/**
 	 * \brief Store/overwrite a string "true" observable for this hit.
 	 *
-	 * Typical variables include process/volume/particle names or other provenance.
+	 * \details
+	 * String observables are typically used for categorical metadata such as:
+	 * - physics process name
+	 * - volume name
+	 * - particle name
+	 * - provenance tags
 	 *
 	 * \param varName Observable name/key.
 	 * \param var     String value to store (moved into the map).
@@ -105,11 +150,12 @@ public:
 	/**
 	 * \brief Accumulate a numeric observable into this object (run-level integration).
 	 *
-	 * If \p vname is not present, it is created with \p value.
-	 * If present, \p value is added to the existing entry.
+	 * \details
+	 * Summation semantics:
+	 * - If \p vname is absent, it is created with \p value.
+	 * - If present, \p value is added to the existing entry.
 	 *
-	 * This is typically used by run-level collectors that integrate hit contributions
-	 * over many events.
+	 * This method is typically used when integrating many hits/events into a run-level summary.
 	 *
 	 * \param vname Observable name/key.
 	 * \param value Contribution to add.
@@ -119,7 +165,9 @@ public:
 	/**
 	 * \brief Get a copy of all numeric truth observables.
 	 *
-	 * Returning by value keeps the internal map encapsulated and avoids exposing mutable references.
+	 * \details
+	 * Returning by value keeps the internal storage encapsulated and avoids exposing a mutable reference.
+	 * For very large maps, consider whether a const reference accessor is desirable at higher layers.
 	 *
 	 * \return Copy of the double observables map.
 	 */
@@ -139,8 +187,14 @@ public:
 	/**
 	 * \brief Test/example factory: create a true-hit object with deterministic dummy data.
 	 *
-	 * This method exists to support examples and unit tests. It generates a predictable
-	 * set of variables using a thread-safe counter.
+	 * \details
+	 * This method exists to support examples and unit tests. It does **not** represent real
+	 * physics truth generation. Values are created using a thread-safe counter so that:
+	 * - each call produces different values
+	 * - behavior is deterministic given call order
+	 *
+	 * The returned object includes a small set of conventional truth keys used in examples:
+	 * - "totalEDeposited", "avgTime", "avgx", "avgy", "avgz", and "hitn".
 	 *
 	 * \param gopts Shared options.
 	 * \return Newly created true-hit object.
@@ -172,6 +226,6 @@ private:
 	/// Identity extracted from the originating hit (vector of named indices).
 	std::vector<GIdentifier> gidentity;
 
-	/// Static thread-safe counter used only by \ref GTrueInfoData::create() (examples/tests).
+	/// Static thread-safe counter used only by \ref create() (examples/tests).
 	static std::atomic<int> globalTrueInfoDataCounter;
 };

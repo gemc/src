@@ -13,8 +13,10 @@
  * - a frame duration (\c frameDuration)
  *
  * From these it can compute a deterministic time coordinate (\ref GFrameHeader::getTime()).
- * The units are whatever the caller defines (ms, ns, ticks). The class does not
- * enforce units; it merely combines ID and duration consistently.
+ * The units are caller-defined (ms, ns, ticks, ...). The class does not enforce units; it
+ * simply combines ID and duration consistently.
+ *
+ * \note The method name \ref GFrameHeader::time_ns() reflects historical naming; it does not enforce nanoseconds.
  */
 
 #include "glogger.h"
@@ -25,6 +27,9 @@ class GFrameHeader {
 public:
 	/**
 	 * \brief Construct a frame header.
+	 *
+	 * \details
+	 * The constructor logs a debug message including the frame ID.
 	 *
 	 * \param frameID_       Frame index/identifier (monotonic in typical usage).
 	 * \param frameDuration_ Duration of one frame in caller-defined units.
@@ -37,14 +42,21 @@ public:
 
 	/**
 	 * \brief Destructor (logs for debug builds/configurations).
+	 *
+	 * \details
+	 * Logging is guarded by a null check to tolerate cases where the logger is absent.
 	 */
 	~GFrameHeader() { if (log) log->debug(DESTRUCTOR, "GFrameHeader id ", frameID); }
 
 	/**
 	 * \brief Test/example factory: create a header with a unique frame ID.
 	 *
+	 * \details
 	 * The duration is set to a fixed example value. This is meant for examples/tests,
 	 * not physics production.
+	 *
+	 * Threading:
+	 * - Uses a global atomic counter so that concurrent calls can produce unique IDs.
 	 *
 	 * \param logger Logger instance.
 	 * \return Newly created header.
@@ -64,8 +76,13 @@ public:
 	/**
 	 * \brief Get a deterministic time coordinate for the frame.
 	 *
-	 * This is computed as \c frameID * frameDuration. Units are inherited from
-	 * \c frameDuration and are therefore caller-defined.
+	 * \details
+	 * Computed as:
+	 * \code
+	 *   frameID * frameDuration
+	 * \endcode
+	 *
+	 * Units are inherited from \c frameDuration and are therefore caller-defined.
 	 *
 	 * \return Time coordinate for this frame.
 	 */
@@ -79,8 +96,7 @@ private:
 	/**
 	 * \brief Compute time coordinate based on ID and duration.
 	 *
-	 * \note The method name keeps historical "ns" wording, but the computation
-	 * does not enforce nanoseconds. Treat the units as caller-defined.
+	 * \note Name is historical; the value is not necessarily in nanoseconds.
 	 */
 	[[nodiscard]] long int time_ns() const { return frameID * frameDuration; }
 
