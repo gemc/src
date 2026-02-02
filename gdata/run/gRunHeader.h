@@ -20,8 +20,9 @@
  * The constructor emits a brief log summary. In multi-threaded contexts, an optional
  * thread ID can be attached for diagnostics and provenance.
  *
- * \note The header does not itself perform synchronization. If multiple threads are meant
- * to update \c events_processed concurrently, higher-level synchronization is required.
+ * \note Synchronization
+ * The header does not itself perform synchronization. If multiple threads are meant to update
+ * \c events_processed concurrently, higher-level synchronization is required.
  */
 
 constexpr const char* GDATARUNHEADER_LOGGER = "run_header";
@@ -31,7 +32,9 @@ namespace grun_header {
  * \brief Defines \ref GOptions for the run-header logger domain.
  *
  * \details
- * Higher-level option bundles (e.g. \ref grun_data::defineOptions) typically include this.
+ * Higher-level option bundles (e.g. \ref grun_data::defineOptions "defineOptions()") typically include this.
+ *
+ * \return An options group rooted at the \ref GDATARUNHEADER_LOGGER domain.
  */
 inline auto defineOptions() -> GOptions {
 	auto goptions = GOptions(GDATARUNHEADER_LOGGER);
@@ -48,7 +51,12 @@ inline auto defineOptions() -> GOptions {
  * - stable access to run identifier
  * - a simple counter tracking how many events were integrated
  *
- * The counter is incremented via \ref increment_events_processed().
+ * The counter is incremented via \ref GRunHeader::increment_events_processed "increment_events_processed()".
+ *
+ * \note
+ * \ref GRunDataCollection does not automatically increment this counter in the current implementation.
+ * If you want the value to reflect integrated events, ensure the caller (or the run collection)
+ * invokes \ref GRunHeader::increment_events_processed "increment_events_processed()" once per event.
  */
 class GRunHeader : public GBase<GRunHeader>
 {
@@ -92,7 +100,7 @@ public:
 	 * \brief Get the number of events integrated into this run summary so far.
 	 *
 	 * \details
-	 * This value is incremented by \ref increment_events_processed().
+	 * This value is incremented by \ref GRunHeader::increment_events_processed "increment_events_processed()".
 	 * Typical usage is "once per event integrated into the run accumulator".
 	 *
 	 * \return Number of processed events.

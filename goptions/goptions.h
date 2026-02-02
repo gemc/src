@@ -1,3 +1,8 @@
+/**
+ * @file goptions.h
+ * @brief Public interface for \ref GOptions : the YAML + command-line configuration manager.
+ */
+
 #pragma once
 
 #include "goption.h"
@@ -16,41 +21,68 @@
 #include <vector>
 
 /**
- * @brief The GOptions class manages command-line options and switches.
+ * @class GOptions
+ * @brief Parses, stores, and exposes command-line options and YAML configuration values.
  *
- * This class provides methods to define, access, and manage configuration options and switches
- * for command-line applications. Options can be scalar or sequence-based and are stored in YAML format.
+ * @details
+ * \ref GOptions : manages two categories of configuration inputs:
+ * - **Switches** (\ref GSwitch :): boolean flags toggled by presence (e.g., `-gui`).
+ * - **Options** (\ref GOption :): values that can be scalar or structured (map/sequence),
+ *   set via YAML files and/or `-name=value` command line arguments.
+ *
+ * Parsing precedence is:
+ * 1. YAML file(s) (in the order they appear on the command line)
+ * 2. Command-line options, which overwrite YAML values
+ *
+ * The main constructor \ref GOptions::GOptions "GOptions(argc, argv, user_defined_options)" performs parsing
+ * immediately and may call \c exit() for help/version requests or invalid inputs.
  */
-class GOptions {
+class GOptions
+{
 public:
 	/**
 	 * @brief Default constructor.
 	 *
-	 * Creates an empty GOptions object, typically used for defining user–defined options.
+	 * @details
+	 * Creates an empty \ref GOptions : instance. This is primarily used to build up
+	 * user-defined option sets (e.g., in plugin/framework `defineOptions()` functions)
+	 * that will later be merged into a parsing instance.
 	 */
 	GOptions() {
 	};
 
 	/**
-	 * @brief Constructor for verbosity and debug options.
+	 * @brief Constructor for creating verbosity/debug schema helpers.
 	 *
-	 * @param name: verbosity and debug option name
+	 * @details
+	 * This convenience constructor registers one schema entry (via \c addOptionTitle())
+	 * into \c option_verbosity_names. It is used to populate the standard `verbosity` and `debug`
+	 * structured options.
+	 *
+	 * @param name The verbosity/debug key name to add to the schema.
 	 */
 	explicit GOptions(std::string name) : option_verbosity_name(name) { addOptionTitle(std::move(name)); }
 
 	/**
-	 * @brief Library–based constructor.
+	 * @brief Main constructor: registers options and parses inputs (YAML + command line).
 	 *
-	 * Constructs a GOptions object by initializing built–in options and switches,
-	 * loading user-defined options, parsing YAML files, and processing command line arguments.
+	 * @details
+	 * See implementation documentation in `goptions.cc` for the full parsing pipeline.
 	 *
-	 * @param argc Number of command–line arguments.
-	 * @param argv Array of command–line argument strings.
-	 * @param user_defined_options A GOptions object containing user–defined options.
+	 * @param argc Number of command-line arguments.
+	 * @param argv Array of command-line argument strings.
+	 * @param user_defined_options A \ref GOptions : containing additional options/switches to register.
 	 */
 	GOptions(int argc, char* argv[], const GOptions& user_defined_options = GOptions());
 
 
+	/**
+	 * @brief Destructor.
+	 *
+	 * @details
+	 * Owns and deletes \c yamlConf if it was allocated by the parsing constructor.
+	 * This ensures file handles are closed and memory is released deterministically.
+	 */
 	~GOptions() {
 		if (yamlConf != nullptr) {
 			if (yamlConf->is_open()) { yamlConf->close(); }
@@ -60,63 +92,96 @@ public:
 	}
 
 	/**
-	 * @brief Defines and adds a command–line switch.
-	 * @param name The name of the switch.
-	 * @param description The description of the switch.
+	 * @brief Defines and adds a command-line switch.
+	 *
+	 * @details
+	 * Switches are presence-based boolean flags (default off) and are activated by
+	 * specifying `-<name>` on the command line.
+	 *
+	 * @param name Switch name (without leading '-').
+	 * @param description Text shown in help output.
 	 */
 	void defineSwitch(const std::string& name, const std::string& description);
 
 	/**
 	 * @brief Defines and adds a scalar option.
-	 * @param gvar A GVariable representing the option.
-	 * @param help Help text for the option.
+	 *
+	 * @details
+	 * Scalar options hold a single value (int/double/string/bool expressed as string in YAML)
+	 * and are set using `-name=value`.
+	 *
+	 * @param gvar Option descriptor (name, default value, description).
+	 * @param help Additional detailed help text.
 	 */
 	void defineOption(const GVariable& gvar, const std::string& help);
 
 	/**
-	 * @brief Defines and adds a structured (map/sequence) option.
-	 * @param name The name of the option.
-	 * @param description A summary description of the option.
-	 * @param gvars A vector of GVariable objects representing the option elements.
-	 * @param help Help text for the option.
+	 * @brief Defines and adds a structured option (map or sequence of maps).
+	 *
+	 * @details
+	 * A structured option is described by a vector of \ref GVariable : schema entries.
+	 * If any schema entry uses \ref goptions::NODFLT : as its default, that key becomes mandatory
+	 * and the option becomes cumulative.
+	 *
+	 * @param name Option name (without leading '-').
+	 * @param description Brief description shown in summary help.
+	 * @param gvars Schema definitions (keys, defaults, descriptions).
+	 * @param help Detailed help text and examples.
 	 */
 	void defineOption(const std::string& name, const std::string& description, const std::vector<GVariable>& gvars,
 	                  const std::string& help);
 
 	/**
 	 * @brief Retrieves the value of a scalar integer option.
-	 * @param tag The name of the option.
-	 * @return The integer value.
+	 *
+	 * @details
+	 * See \ref GOptions::getScalarString "getScalarString()" for YAML null sentinel behavior.
+	 *
+	 * @param tag Option name.
+	 * @return Value converted to int.
 	 */
 	[[nodiscard]] int getScalarInt(const std::string& tag) const;
 
 
 	/**
 	 * @brief Retrieves the value of a scalar double option.
-	 * @param tag The name of the option.
-	 * @return The double value.
+	 *
+	 * @param tag Option name.
+	 * @return Value converted to double.
 	 */
 	[[nodiscard]] double getScalarDouble(const std::string& tag) const;
 
 	/**
 	 * @brief Retrieves the value of a scalar string option.
-	 * @param tag The name of the option.
-	 * @return The string value.
+	 *
+	 * @details
+	 * If the underlying YAML node is null, returns the literal sentinel `"NULL"`.
+	 *
+	 * @param tag Option name.
+	 * @return Value as string (or `"NULL"`).
 	 */
 	[[nodiscard]] std::string getScalarString(const std::string& tag) const;
 
 	/**
 	 * @brief Retrieves the status of a switch.
-	 * @param tag The name of the switch.
-	 * @return True if the switch is on; false otherwise.
+	 *
+	 * @param tag Switch name.
+	 * @return True if enabled; false otherwise.
 	 */
 	[[nodiscard]] bool getSwitch(const std::string& tag) const;
 
 	/**
 	 * @brief Retrieves the YAML node for the specified option.
 	 *
-	 * @param tag The name of the option.
-	 * @return The YAML::Node containing the option's value.
+	 * @details
+	 * This provides direct access to the YAML node underlying the option, enabling clients to
+	 * inspect structured content without additional copying.
+	 *
+	 * @param tag Option name.
+	 * @return YAML node representing the option value.
+	 *
+	 * @warning
+	 * If the option does not exist, this function exits with \c EC__NOOPTIONFOUND .
 	 */
 	[[nodiscard]] inline YAML::Node getOptionNode(const std::string& tag) const {
 		if (!doesOptionExist(tag)) {
@@ -127,48 +192,69 @@ public:
 	}
 
 	/**
-	 * @brief Retrieves a map option’s value from within a YAML node.
-	 * @param option_name The name of the option.
-	 * @param map_key The key within the option.
-	 * @return The YAML::Node corresponding to the specified map key.
+	 * @brief Retrieves a map entry value from a structured option stored as a sequence of maps.
+	 *
+	 * @details
+	 * This is commonly used for options like `verbosity` and `debug`, where each sequence element
+	 * is a `{key: value}` map.
+	 *
+	 * @param option_name Structured option name.
+	 * @param map_key Key to retrieve.
+	 * @return YAML node associated with @p map_key .
 	 */
 	[[nodiscard]] YAML::Node getOptionMapInNode(const std::string& option_name, const std::string& map_key) const;
 
 	/**
 	 * @brief Retrieves the verbosity level for the specified tag.
-	 * @param tag The name of the verbosity option.
-	 * @return The verbosity level as an integer.
+	 *
+	 * @param tag Verbosity key (e.g., "ghits").
+	 * @return Verbosity level as integer.
 	 */
 	[[nodiscard]] int getVerbosityFor(const std::string& tag) const;
 
 	/**
 	 * @brief Retrieves the debug level for the specified tag.
 	 *
+	 * @details
 	 * Accepts values as either booleans ("true"/"false") or integers.
 	 *
-	 * @param tag The name of the debug option.
-	 * @return The debug level as an integer.
+	 * @param tag Debug key (e.g., "general").
+	 * @return Debug level as integer.
 	 */
 	[[nodiscard]] int getDebugFor(const std::string& tag) const;
 
 	/**
 	 * @brief Returns the list of defined options.
-	 * @return A vector of GOption objects.
+	 *
+	 * @return Const reference to internal option vector.
 	 */
 	[[nodiscard]] const std::vector<GOption>& getOptions() const { return goptions; }
 
 	/**
 	 * @brief Returns the map of defined switches.
-	 * @return A map of switches.
+	 *
+	 * @return Const reference to internal switch map.
 	 */
 	[[nodiscard]] const std::map<std::string, GSwitch>& getSwitches() const { return switches; }
 
 	/**
-	 * @brief Adds options from another GOptions object.
-	 * @param src The GOptions object to add.
+	 * @brief Merges options and switches from another \ref GOptions : into this one.
+	 *
+	 * @details
+	 * Merge rules:
+	 * - **Options** are merged by option name; an option is added only if absent.
+	 * - **Switches** are inserted by name; existing names remain unchanged.
+	 * - **Verbosity/debug schema names** are merged by key name; duplicates are avoided.
+	 *
+	 * This function enables a plugin/framework pattern:
+	 * \code{.cpp}
+	 * goptions += pluginA::defineOptions();
+	 * goptions += pluginB::defineOptions();
+	 * \endcode
+	 *
+	 * @param src Source \ref GOptions : to merge into this instance.
 	 */
-	inline void addGOptions(const GOptions& src)
-	{
+	inline void addGOptions(const GOptions& src) {
 		// 1.  Options – check by option name
 		for (const auto& opt : src.getOptions()) {
 			auto already = std::find_if(
@@ -176,12 +262,12 @@ public:
 				[&opt](const GOption& o) { return o.name == opt.name; });
 
 			if (already == goptions.end())
-				goptions.push_back(opt);             // add only if absent
+				goptions.push_back(opt); // add only if absent
 		}
 
 		// 2.  Switches – std::map::insert does the uniqueness check for us
 		for (const auto& sw : src.getSwitches()) {
-			switches.insert(sw);                     // ignored if key already exists
+			switches.insert(sw); // ignored if key already exists
 		}
 
 		// 3.  Verbosity/debug variable names – store each only once
@@ -195,7 +281,22 @@ public:
 		}
 	}
 
-	std::string            option_verbosity_name{UNINITIALIZEDSTRINGQUANTITY};
+	/**
+	 * @brief Name used when constructing the verbosity/debug schema helper.
+	 *
+	 * @details
+	 * Defaults to \c UNINITIALIZEDSTRINGQUANTITY and is typically set by the
+	 * \ref GOptions::GOptions(std::string) "GOptions(name)" helper constructor.
+	 */
+	std::string option_verbosity_name{UNINITIALIZEDSTRINGQUANTITY};
+
+	/**
+	 * @brief Schema entries used to define the `verbosity` and `debug` structured options.
+	 *
+	 * @details
+	 * Each \ref GVariable : in this vector is used as a schema key (e.g., "general", "ghits", etc.)
+	 * with an integer default value and a short description.
+	 */
 	std::vector<GVariable> option_verbosity_names;
 
 	inline void addOptionTitle(const std::string& name) {
@@ -204,99 +305,52 @@ public:
 	}
 
 	/**
-	 * @brief Retrieves a variable from a YAML node within an option.
+	 * @brief Retrieves a typed variable from a YAML node within an option.
+	 *
 	 * @tparam T The type of the variable.
-	 * @param node The YAML node.
-	 * @param variable_name The name of the variable.
-	 * @param default_value The default value if the variable is not found.
-	 * @return The variable value.
+	 * @param node YAML node to query.
+	 * @param variable_name Key name.
+	 * @param default_value Fallback value when key is absent.
+	 * @return Parsed value or fallback.
 	 */
 	template <typename T>
 	T get_variable_in_option(const YAML::Node& node, const std::string& variable_name, const T& default_value);
 
 	/**
-	 * @brief Retrieves the list of YAML file paths.
-	 * @return A vector of YAML file paths as strings.
+	 * @brief Returns the list of YAML file paths detected on the command line.
+	 *
+	 * @return Vector of YAML file path strings.
 	 */
 	[[nodiscard]] std::vector<std::string> getYamlFiles() const { return yaml_files; }
 
 	/**
-	 * @brief Checks if the specified option exists.
-	 * @param tag The name of the option.
+	 * @brief Checks if an option exists.
+	 *
+	 * @param tag Option name.
 	 * @return True if the option exists; false otherwise.
 	 */
 	[[nodiscard]] bool doesOptionExist(const std::string& tag) const;
 
 private:
-	std::vector<GOption>           goptions;             ///< Array of GOption objects.
-	std::map<std::string, GSwitch> switches;             ///< Map of GSwitch objects.
-	std::ofstream*                 yamlConf{};           ///< YAML configuration file stream.
-	std::string                    executableName;       ///< Executable name.
-	std::string                    executableCallingDir; ///< Executable calling dir
-	std::string                    installDir;           ///< Executable installation dir
-	std::vector<std::string>       yaml_files;           ///< List of YAML file paths.
+	std::vector<GOption>           goptions;             ///< Registered options (scalar and structured).
+	std::map<std::string, GSwitch> switches;             ///< Registered switches (boolean flags).
+	std::ofstream*                 yamlConf{};           ///< Output stream for saved YAML configuration (owned).
+	std::string                    executableName;       ///< Name of the executable (derived from argv[0]).
+	std::string                    executableCallingDir; ///< Directory from which the executable was invoked.
+	std::string                    installDir;           ///< Installation directory for the executable (gemc root).
+	std::vector<std::string>       yaml_files;           ///< YAML configuration files detected on command line.
 
-	/**
-	 * @brief Finds YAML files specified by the command line.
-	 * @param argc Number of command-line arguments.
-	 * @param argv Array of command-line argument strings.
-	 * @return A vector of YAML file paths.
-	 */
 	std::vector<std::string> findYamls(int argc, char* argv[]);
-
-	/**
-	 * @brief Parses and sets option values from a YAML file.
-	 * @param yaml The YAML file path.
-	 */
 	void setOptionsValuesFromYamlFile(const std::string& yaml);
-
-	/**
-	 * @brief Parses and sets option values from a command-line argument.
-	 * @param optionName The name of the option.
-	 * @param possibleYamlNode The YAML-formatted value string.
-	 */
 	void setOptionValuesFromCommandLineArgument(const std::string& optionName, const std::string& possibleYamlNode);
-
-	/**
-	 * @brief Retrieves an iterator to the option with the specified name.
-	 * @param name The name of the option.
-	 * @return An iterator to the option.
-	 */
 	std::vector<GOption>::iterator getOptionIterator(const std::string& name);
-
-	/**
-	 * @brief Retrieves a const iterator to the option with the specified name.
-	 * @param name The name of the option.
-	 * @return A const iterator to the option.
-	 */
 	[[nodiscard]] std::vector<GOption>::const_iterator getOptionIterator(const std::string& name) const;
-
-	/**
-	 * @brief Prints help information for a specific option or switch.
-	 * @param tag The name of the option or switch.
-	 */
 	void printOptionOrSwitchHelp(const std::string& tag) const;
-
-	/**
-	 * @brief Prints general help information to the console.
-	 */
 	void printHelp() const;
-
-	/**
-	 * @brief Prints web-formatted help information.
-	 */
 	void printWebHelp() const;
-
-	/**
-	 * @brief Saves all user options to a YAML configuration file.
-	 */
 	void saveOptions() const;
-
-	/**
-	 * @brief Prints the version information of the executable.
-	 */
 	void print_version();
 };
 
-/// Overloaded operator to add options and switches from one GOptions object to another.
+/// Overloaded operator to add options and switches from one \ref GOptions : to another.
 GOptions& operator+=(GOptions& original, const GOptions& optionsToAdd);

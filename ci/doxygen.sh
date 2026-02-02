@@ -7,9 +7,9 @@ set -euo pipefail
 
 # ---- config ----
 doc_modules=(
-  goptions guts gfields glogging gfactory gtouchable ghit gtranslationTable
-  gdata gdynamicDigitization g4display g4dialog
-)
+guts goptions glogging gbase gfactory textProgressBar gtouchable ghit gtranslationTable gdata gboard gdynamicDigitization
+gsystem gstreamer eventDispenser gqtbuttonswidget g4display g4dialog g4system gparticle gphysics gsplash gsd
+gfields gdetector dbselect gtree gui actions utilities)
 
 script_dir="${0:A:h}"
 pages_dir="pages"

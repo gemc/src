@@ -6,8 +6,10 @@
  *
  * \details
  * \ref GDigitizedData represents the *post-digitization* view of a hit: quantities produced
- * after detector response and electronics logic. It stores named observables in maps so that
- * digitization plugins can define custom variables without hard-coding a fixed schema.
+ * after detector response and electronics logic.
+ *
+ * The design goal is schema flexibility: digitization plugins can define custom observables
+ * using string keys without requiring the core library to hard-code bank layouts.
  *
  * ## Stored observable categories
  * - \c intObservablesMap    : scalar integer observables (indices, integerized electronics, etc.)
@@ -15,16 +17,18 @@
  * - \c arrayIntObservablesMap / \c arrayDoubleObservablesMap : optional vector-valued observables
  *
  * ## Per-event vs per-run semantics
- * - \ref includeVariable(): sets/overwrites the observable for a single hit/event.
- * - \ref accumulateVariable(): adds the value into the stored observable (run-level integration).
+ * - \ref GDigitizedData::includeVariable "includeVariable()"
+ *   sets/overwrites the observable for a single hit (event-level filling).
+ * - \ref GDigitizedData::accumulateVariable "accumulateVariable()"
+ *   adds the value into the stored observable (run-level integration).
  *
  * ## Streaming-readout (SRO) keys
- * The conventional readout keys defined in \ref gdataConventions.h:
+ * The conventional readout keys defined in \ref gdataConventions.h :
  * - crate, slot, channel, timeAtElectronics, chargeAtElectronics
  *
  * are treated specially by the filtering accessors:
- * - \ref GDigitizedData::getIntObservablesMap()
- * - \ref GDigitizedData::getDblObservablesMap()
+ * - \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap()"
+ * - \ref GDigitizedData::getDblObservablesMap "getDblObservablesMap()"
  *
  * This supports backends that want to separate "readout addressing" from "physics-like" observables.
  */
@@ -52,6 +56,8 @@ namespace gdigi_data {
  * \details
  * Higher-level aggregators (event/run collections) typically include this in their
  * composite option groups so that digitized-data logging can be enabled/controlled consistently.
+ *
+ * \return An options group rooted at the \ref GDIGITIZED_DATA_LOGGER domain.
  */
 inline GOptions defineOptions() {
 	auto goptions = GOptions(GDIGITIZED_DATA_LOGGER);
@@ -70,9 +76,9 @@ inline GOptions defineOptions() {
  * - run-level integration via summation of scalars
  *
  * Common usage patterns:
- * 1) Event-level: create a new instance per hit; fill using \ref includeVariable().
+ * 1) Event-level: create a new instance per hit; fill using \ref GDigitizedData::includeVariable "includeVariable()".
  * 2) Run-level: keep a single instance as an accumulator; integrate contributions with
- *    \ref accumulateVariable().
+ *    \ref GDigitizedData::accumulateVariable "accumulateVariable()".
  *
  * \note Accumulation is summation only; compute averages/rates in the consumer if needed.
  */
@@ -84,7 +90,8 @@ public:
 	 *
 	 * \details
 	 * The constructor copies the hit identity (\c GIdentifier vector) from \p ghit.
-	 * The identity can be rendered as a human-readable string via \ref getIdentityString().
+	 * The identity can be rendered as a human-readable string via
+	 * \ref GDigitizedData::getIdentityString "getIdentityString()".
 	 *
 	 * Ownership:
 	 * - \p ghit is not owned and only needs to be valid during construction.
@@ -164,7 +171,8 @@ public:
 	 * \brief Return a filtered copy of the double observables map.
 	 *
 	 * \details
-	 * Uses the same filtering semantics as \ref getIntObservablesMap().
+	 * Uses the same filtering semantics as
+	 * \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap()".
 	 *
 	 * \param which Filter mode (0 = non-SRO, 1 = SRO only).
 	 * \return A filtered copy of the double observables.
@@ -222,6 +230,9 @@ public:
 
 	/**
 	 * \brief Get the array-valued double observables map.
+	 *
+	 * \details
+	 * No filtering is applied to array-valued maps; their interpretation is producer-defined.
 	 *
 	 * \return A copy of the array double observables map.
 	 */
@@ -288,6 +299,6 @@ private:
 	 */
 	[[nodiscard]] static bool validVarName(const std::string& varName, int which);
 
-	/// Static thread-safe counter used only by \ref create() (examples/tests).
+	/// Static thread-safe counter used only by \ref GDigitizedData::create "create()" (examples/tests).
 	static std::atomic<int> globalDigitizedDataCounter;
 };

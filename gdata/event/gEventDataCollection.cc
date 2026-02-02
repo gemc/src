@@ -11,6 +11,11 @@
  * - Hit objects are owned via \c std::unique_ptr and are moved into the collection.
  * - The class does not enforce policies such as "truth and digitized hit counts must match";
  *   such validation is typically performed by upstream logic or examples/tests.
+ *
+ * Ownership summary:
+ * - After calling \ref GEventDataCollection::addDetectorTrueInfoData "addDetectorTrueInfoData()"
+ *   or \ref GEventDataCollection::addDetectorDigitizedData "addDetectorDigitizedData()",
+ *   the event container owns the provided object and the caller must not use the moved-from pointer.
  */
 
 #include "gEventDataCollection.h"
@@ -19,10 +24,10 @@
 ///
 /// \details
 /// This exists as a convenience hook for potential future example factories.
-/// Current example behavior uses \ref GEventHeader::create() as the event counter.
+/// Current example behavior uses \ref GEventHeader::create "create()" as the event counter.
 std::atomic<int> GEventDataCollection::globalEventDataCollectionCounter{1};
 
-/// Counter used by \ref GEventHeader::create() to generate unique event numbers in examples/tests.
+/// Counter used by \ref GEventHeader::create "create()" to generate unique event numbers in examples/tests.
 std::atomic<int> GEventHeader::globalEventHeaderCounter{1};
 
 void GEventDataCollection::addDetectorTrueInfoData(const std::string& sdName, std::unique_ptr<GTrueInfoData> data) {

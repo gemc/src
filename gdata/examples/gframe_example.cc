@@ -1,20 +1,33 @@
 /**
-* \file gframe_example.cc
+ * \file gframe_example.cc
  * \brief Example demonstrating frame data collection.
  *
  * \page gdata_frame_example Frame data example
  *
  * \section frame_overview Overview
- * This example demonstrates how to build a frame container (\ref GFrameDataCollection)
- * that owns:
+ * This example demonstrates how to build a frame container (\ref GFrameDataCollection) that owns:
  * - a \ref GFrameHeader (frame ID + duration)
  * - a list of \ref GIntegralPayload objects (crate/slot/channel/charge/time)
  *
- * Frames are typically used for streaming/readout-style output where data are grouped
- * by time windows rather than by Geant4 events.
+ * Frames are typically used for streaming/readout-style output where data are grouped by
+ * time windows rather than by Geant4 events. Conceptually, a frame corresponds to a fixed
+ * integration window (for example 33.33 ms), during which many channels may fire.
+ *
+ * \section frame_payload_layout Payload layout
+ * The \ref GFrameDataCollection::addIntegralPayload "addIntegralPayload()" API accepts a packed
+ * integer vector with a fixed order (size must be exactly 5):
+ * - payload[0] crate
+ * - payload[1] slot
+ * - payload[2] channel
+ * - payload[3] charge
+ * - payload[4] time
+ *
+ * This example constructs three such payloads and inserts them into the frame collection.
  *
  * \section gdata_frame_usage Usage
- * Compile this file along with the frame classes and the logging/options utilities.
+ * Compile this file along with the frame classes and the logging/options utilities. Run it to:
+ * - print the frame ID and computed frame time
+ * - print each stored payload in its fixed order
  *
  * \author \n &copy; Maurizio Ungaro
  * \author e-mail: ungaro@jlab.org
@@ -36,8 +49,8 @@
 
 using namespace std;
 
-// TODO: run this in multiple threads and collect results in frames like in runAction
-int main(int argc, char *argv[]) {
+// TODO: Run this in multiple threads and collect results into frames (similar to a runAction-style aggregator).
+int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, gevent_data::defineOptions());
 
 	auto log  = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GEVENTDATA_LOGGER);
@@ -60,7 +73,7 @@ int main(int argc, char *argv[]) {
 	cout << "Frame ID: " << frameData->getFrameID() << endl;
 	cout << "Frame Header Time: " << frameData->getHeader()->getTime() << endl;
 
-	const vector<GIntegralPayload*> *payloads = frameData->getIntegralPayload();
+	const vector<GIntegralPayload*>* payloads = frameData->getIntegralPayload();
 	cout << "Number of integral payloads: " << payloads->size() << endl;
 
 	for (size_t i = 0; i < payloads->size(); ++i) {
@@ -72,7 +85,7 @@ int main(int argc, char *argv[]) {
 		cout << endl;
 	}
 
-	delete frameData;  // deletes header and all payloads inside
+	delete frameData; // deletes header and all payloads inside
 
 	return EXIT_SUCCESS;
 }

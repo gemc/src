@@ -23,7 +23,7 @@
  *   - strings (metadata/provenance)
  *
  * Truth objects also carry a hit identity vector copied from \ref GHit, accessible via
- * \ref GTrueInfoData::getIdentityString.
+ * \ref GTrueInfoData::getIdentityString "getIdentityString()".
  *
  * \subsection digi_sec Digitized information (electronics-level)
  * - \ref GDigitizedData stores digitized observables as maps of:
@@ -33,7 +33,8 @@
  * It supports optional filtering of streaming readout (SRO) keys:
  * - crate / slot / channel / timeAtElectronics / chargeAtElectronics
  *
- * via \ref GDigitizedData::getIntObservablesMap and \ref GDigitizedData::getDblObservablesMap.
+ * via \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap()"
+ * and \ref GDigitizedData::getDblObservablesMap "getDblObservablesMap()".
  *
  * \subsection collection_sec Collections
  * - \ref GDataCollection groups true/digitized objects for a single sensitive detector.
@@ -55,8 +56,8 @@
  *
  * \subsection integrate_sec Integration
  * Run-level integration typically stores a single entry per detector and calls:
- * - \ref GTrueInfoData::accumulateVariable (truth doubles)
- * - \ref GDigitizedData::accumulateVariable (digitized non-SRO scalars)
+ * - \ref GTrueInfoData::accumulateVariable "accumulateVariable()" (truth doubles)
+ * - \ref GDigitizedData::accumulateVariable "accumulateVariable()" (digitized non-SRO scalars)
  *
  * \subsection normalize_sec Normalization
  * Accumulated values are sums by construction. If you need averages or rates:

@@ -1,3 +1,17 @@
+/**
+ * @file goption.cc
+ * @brief Implementation of \ref GOption : the option container used by \ref GOptions : .
+ *
+ * @details
+ * \ref GOption : supports:
+ * - **Scalar options** (single value) stored as a YAML scalar.
+ * - **Structured options** stored as YAML maps or sequences of maps.
+ *
+ * Structured options can be **cumulative** (sequence of maps). In that mode:
+ * - Some keys may be mandatory (schema value is \ref goptions::NODFLT : ).
+ * - Missing non-mandatory keys can be filled from schema defaults.
+ */
+
 #include "goption.h"
 #include "goptionsConventions.h"
 #include "gutilities.h"
@@ -113,43 +127,41 @@ bool GOption::does_the_option_set_all_necessary_values(const YAML::Node& v) {
  *
  * @param yamlConf Pointer to the output file stream.
  */
-void GOption::saveOption(std::ofstream* yamlConf) const
-{
-	std::vector<std::string> missing;   // paths of null values
+void GOption::saveOption(std::ofstream* yamlConf) const {
+	std::vector<std::string> missing; // paths of null values
 
 	// --------------------------------------------------------------------
 	// recursive lambda: returns a *new* node with nulls → "not provided"
 	// --------------------------------------------------------------------
 	std::function<YAML::Node(YAML::Node, std::string)> clean =
-		[&](YAML::Node n, const std::string& path) -> YAML::Node
-		{
-			if (n.IsNull()) {
-				missing.push_back(path.empty() ? name : path);
-				return YAML::Node("not provided");          // null replaced
+		[&](YAML::Node n, const std::string& path) -> YAML::Node {
+		if (n.IsNull()) {
+			missing.push_back(path.empty() ? name : path);
+			return YAML::Node("not provided"); // null replaced
+		}
+
+		if (n.IsMap()) {
+			YAML::Node res(YAML::NodeType::Map);
+			for (auto it : n) {
+				const std::string key = it.first.as<std::string>();
+				res[it.first]         = clean(it.second,
+				                      path.empty() ? key : path + "." + key);
 			}
+			return res;
+		}
 
-			if (n.IsMap()) {
-				YAML::Node res(YAML::NodeType::Map);
-				for (auto it : n) {
-					const std::string key = it.first.as<std::string>();
-					res[it.first] = clean(it.second,
-										  path.empty() ? key : path + "." + key);
-				}
-				return res;
-			}
+		if (n.IsSequence()) {
+			YAML::Node res(YAML::NodeType::Sequence);
+			for (std::size_t i = 0; i < n.size(); ++i)
+				res.push_back(clean(n[i],
+				                    path + "[" + std::to_string(i) + "]"));
+			return res;
+		}
 
-			if (n.IsSequence()) {
-				YAML::Node res(YAML::NodeType::Sequence);
-				for (std::size_t i = 0; i < n.size(); ++i)
-					res.push_back(clean(n[i],
-										path + "[" + std::to_string(i) + "]"));
-				return res;
-			}
+		return n; // scalar, already OK
+	};
 
-			return n;  // scalar, already OK
-		};
-
-	YAML::Node out = clean(value, "");          // fully cleaned copy
+	YAML::Node out = clean(value, ""); // fully cleaned copy
 
 	// --------------------------------------------------------------------
 	// write one comment line per missing entry
@@ -161,8 +173,6 @@ void GOption::saveOption(std::ofstream* yamlConf) const
 	out.SetStyle(YAML::EmitterStyle::Block);
 	*yamlConf << out << '\n';
 }
-
-
 
 
 /**
@@ -179,8 +189,8 @@ void GOption::printHelp(bool detailed) const {
 	cout.fill('.');
 	string helpString  = "-" + name + RST;
 	bool   is_sequence = defaultValue.begin()->second.IsSequence();
-	helpString += is_sequence ? "=<sequence>" : "=<value>";
-	helpString += " ";
+	helpString         += is_sequence ? "=<sequence>" : "=<value>";
+	helpString         += " ";
 	cout << KGRN << " " << left;
 	cout.width(fill_width);
 	if (detailed) {
@@ -211,7 +221,7 @@ string GOption::detailedHelp() const {
 			}
 		}
 	}
-	newHelp += "\n";
+	newHelp                   += "\n";
 	vector<string> help_lines = gutilities::getStringVectorFromStringWithDelimiter(help, "\n");
 	for (const auto& line : help_lines) { newHelp += GTAB + line + "\n"; }
 	return newHelp;
@@ -220,11 +230,13 @@ string GOption::detailedHelp() const {
 /**
  * @brief Sets the value of a sub–option using dot–notation.
  *
- * For options that are structured as maps or sequences of maps, this function updates a single
- * sub–option (e.g. for "-debug.general=true", it updates the "general" key within "debug").
+ * @details
+ * The public API documentation for this method is in \ref GOption::set_sub_option_value "set_sub_option_value()" (declaration in goption.h).
  *
- * @param subkey The key within the option to update.
- * @param subvalue The new value for the sub–option as a string.
+ * Implementation behavior:
+ * - If the current option node is a sequence: update all map elements that contain \c subkey .
+ * - If the current option node is a map: update the single \c subkey entry.
+ * - If \c subkey is not present: exit with \c EC__NOOPTIONFOUND .
  */
 void GOption::set_sub_option_value(const string& subkey, const string& subvalue) {
 	YAML::Node option_node = value.begin()->second;

@@ -17,7 +17,15 @@
 #include <filesystem>
 
 namespace gutilities {
-
+/*
+ * Trim leading/trailing spaces and tabs from an owning std::string.
+ *
+ * Notes:
+ * - Whitespace considered here is strictly ' ' and '\t' (tab).
+ * - If the input is all whitespace (or empty), returns an empty string.
+ *
+ * See the API documentation in gutilities.h for full Doxygen docs.
+ */
 string removeLeadingAndTrailingSpacesFromString(const std::string& input) {
 	size_t startPos = input.find_first_not_of(" \t"); // Find the first non-whitespace character
 	size_t endPos   = input.find_last_not_of(" \t");  // Find the last non-whitespace character
@@ -29,19 +37,37 @@ string removeLeadingAndTrailingSpacesFromString(const std::string& input) {
 	return input.substr(startPos, endPos - startPos + 1);
 }
 
-// Fast trim (use yours if you prefer)
+/*
+ * Fast trim for std::string_view.
+ *
+ * Notes:
+ * - No allocations: adjusts the view by removing prefix/suffix.
+ * - Uses std::isspace (locale-sensitive) to classify whitespace.
+ *
+ * See the API documentation in gutilities.h for full Doxygen docs.
+ */
 std::string_view removeLeadingAndTrailingSpacesFromString(std::string_view s) {
 	while (!s.empty() && std::isspace(static_cast<unsigned char>(s.front()))) s.remove_prefix(1);
-	while (!s.empty() && std::isspace(static_cast<unsigned char>(s.back())))  s.remove_suffix(1);
+	while (!s.empty() && std::isspace(static_cast<unsigned char>(s.back()))) s.remove_suffix(1);
 	return s;
 }
 
+/*
+ * Remove all literal spaces ' ' from a string.
+ *
+ * See the API documentation in gutilities.h for full Doxygen docs.
+ */
 string removeAllSpacesFromString(const std::string& str) {
 	string result = str;
 	result.erase(std::remove(result.begin(), result.end(), ' '), result.end());
 	return result;
 }
 
+/*
+ * Extract the filename component from a POSIX-style path (splitting on '/').
+ *
+ * See the API documentation in gutilities.h for full Doxygen docs.
+ */
 string getFileFromPath(const std::string& path) {
 	std::size_t lastSlashPos = path.find_last_of('/');
 	if (lastSlashPos == std::string::npos) {
@@ -51,6 +77,11 @@ string getFileFromPath(const std::string& path) {
 	return path.substr(lastSlashPos + 1);
 }
 
+/*
+ * Extract the directory component from a POSIX-style path (splitting on '/').
+ *
+ * See the API documentation in gutilities.h for full Doxygen docs.
+ */
 string getDirFromPath(const std::string& path) {
 	auto lastSlash = path.find_last_of('/');
 	if (lastSlash == std::string::npos) return ".";
@@ -60,6 +91,11 @@ string getDirFromPath(const std::string& path) {
 namespace fs = std::filesystem;
 
 
+/*
+ * Tokenize a string on whitespace into a vector.
+ *
+ * See the API documentation in gutilities.h for full Doxygen docs.
+ */
 vector<std::string> getStringVectorFromString(const std::string& input) {
 	std::vector<std::string> pvalues;
 	std::stringstream        plist(input);
@@ -71,7 +107,11 @@ vector<std::string> getStringVectorFromString(const std::string& input) {
 	return pvalues;
 }
 
-// Replace all occurences of specific chars in a string with a string
+/*
+ * Replace any character found in 'toReplace' with the string 'replacement'.
+ *
+ * See the API documentation in gutilities.h for full Doxygen docs.
+ */
 string replaceCharInStringWithChars(const std::string& input, const std::string& toReplace,
                                     const std::string& replacement) {
 	string output;
@@ -82,6 +122,11 @@ string replaceCharInStringWithChars(const std::string& input, const std::string&
 	return output;
 }
 
+/*
+ * Replace all occurrences of substring 'from' with substring 'to'.
+ *
+ * See the API documentation in gutilities.h for full Doxygen docs.
+ */
 string replaceAllStringsWithString(const string& source, const string& from, const string& to) {
 	if (from.empty()) return source; // Avoid infinite loop
 
@@ -93,8 +138,8 @@ string replaceAllStringsWithString(const string& source, const string& from, con
 		// Append part before the match and the replacement string
 		newString.append(source, lastPos, findPos - lastPos);
 		newString += to;
-		lastPos = findPos + from.length();
-		findPos = source.find(from, lastPos);
+		lastPos   = findPos + from.length();
+		findPos   = source.find(from, lastPos);
 	}
 
 	// Append the remaining part of the string after the last occurrence
@@ -104,6 +149,11 @@ string replaceAllStringsWithString(const string& source, const string& from, con
 }
 
 
+/*
+ * Left-pad a string using the first character of 'c' until length reaches ndigits.
+ *
+ * See the API documentation in gutilities.h for full Doxygen docs.
+ */
 string fillDigits(const string& word, const string& c, int ndigits) {
 	if (c.empty() || ndigits <= static_cast<int>(word.size())) return word; // Return original if no padding needed
 
@@ -121,20 +171,30 @@ string fillDigits(const string& word, const string& c, int ndigits) {
 // add near your includes:
 #include <locale.h>   // strtod_l / _strtod_l
 
-// Parse a whole string_view as a double using the "C" numeric locale.
-// Returns true on full-consume success; false otherwise.
+/**
+ * @brief Parse a whole string_view as a double using the "C" numeric locale.
+ *
+ * This is a private helper (translation-unit local). It ensures locale-independent numeric parsing.
+ * Parsing succeeds only if the entire string is consumed (no trailing garbage).
+ *
+ * @param sv String view containing the numeric text.
+ * @param out Parsed value on success.
+ * @return true on full-consume success; false otherwise.
+ *
+ * @note Private helper function: refer to it as \c parse_double_clocale (no \ref).
+ */
 static bool parse_double_clocale(std::string_view sv, double& out) {
 	std::string tmp(sv); // strtod_l needs a 0-terminated buffer
 #if defined(_WIN32)
 	_locale_t loc = _create_locale(LC_NUMERIC, "C");
-	char* end = nullptr;
-	out = _strtod_l(tmp.c_str(), &end, loc);
+	char*     end = nullptr;
+	out           = _strtod_l(tmp.c_str(), &end, loc);
 	_free_locale(loc);
 	return end == tmp.c_str() + tmp.size();
 #else
 	locale_t loc = newlocale(LC_NUMERIC_MASK, "C", (locale_t)0);
-	char* end = nullptr;
-	out = strtod_l(tmp.c_str(), &end, loc);
+	char*    end = nullptr;
+	out          = strtod_l(tmp.c_str(), &end, loc);
 	freelocale(loc);
 	return end == tmp.c_str() + tmp.size();
 #endif
@@ -186,9 +246,9 @@ double getG4Number(const string& v, bool warnIfNotUnit) {
 	}
 
 	// --- Exactly one '*' → split "<number>*<unit>" ---
-	const size_t pos = value.find('*');
-	string left  = removeLeadingAndTrailingSpacesFromString(value.substr(0, pos));
-	string right = removeLeadingAndTrailingSpacesFromString(value.substr(pos + 1));
+	const size_t pos   = value.find('*');
+	string       left  = removeLeadingAndTrailingSpacesFromString(value.substr(0, pos));
+	string       right = removeLeadingAndTrailingSpacesFromString(value.substr(pos + 1));
 	if (left.empty() || right.empty()) {
 		std::cerr << FATALERRORL << "expected '<number>*<unit>', got <" << v << ">.\n";
 		exit(EC__G4NUMBERERROR);
@@ -208,7 +268,7 @@ double getG4Number(const string& v, bool warnIfNotUnit) {
 	}
 
 	// sanitize unit and proceed with your existing unit table logic...
-	right = replaceAllStringsWithString(right, "µ", "u");
+	right       = replaceAllStringsWithString(right, "µ", "u");
 	string unit = convertToLowercase(right);
 
 	// (keep your unitConversion map and SI prefix handling as-is)
@@ -242,13 +302,26 @@ double getG4Number(const string& v, bool warnIfNotUnit) {
 	// SI prefix handling: mT, uT, mm, um, etc.
 	auto si_prefix_factor = [](char p) -> double {
 		switch (p) {
-			case 'Y': return 1e24;  case 'Z': return 1e21;  case 'E': return 1e18;
-			case 'P': return 1e15;  case 'T': return 1e12;  case 'G': return 1e9;
-			case 'M': return 1e6;   case 'k': return 1e3;   case 'h': return 1e2;
-			case 'd': return 1e-1;  case 'c': return 1e-2;  case 'm': return 1e-3;
-			case 'u': return 1e-6;  case 'n': return 1e-9;  case 'p': return 1e-12;
-			case 'f': return 1e-15; case 'a': return 1e-18; case 'z': return 1e-21; case 'y': return 1e-24;
-			default:  return 0.0;
+		case 'Y': return 1e24;
+		case 'Z': return 1e21;
+		case 'E': return 1e18;
+		case 'P': return 1e15;
+		case 'T': return 1e12;
+		case 'G': return 1e9;
+		case 'M': return 1e6;
+		case 'k': return 1e3;
+		case 'h': return 1e2;
+		case 'd': return 1e-1;
+		case 'c': return 1e-2;
+		case 'm': return 1e-3;
+		case 'u': return 1e-6;
+		case 'n': return 1e-9;
+		case 'p': return 1e-12;
+		case 'f': return 1e-15;
+		case 'a': return 1e-18;
+		case 'z': return 1e-21;
+		case 'y': return 1e-24;
+		default: return 0.0;
 		}
 	};
 
@@ -397,7 +470,7 @@ string searchForDirInLocations(const string& dirName, const vector<string>& poss
 bool hasExtension(const std::string& filename, const std::vector<std::string>& extensions) {
 	for (const auto& ext : extensions) {
 		if (filename.size() >= ext.size() &&
-		    filename.compare(filename.size() - ext.size(), ext.size(), ext) == 0) { return true; }
+			filename.compare(filename.size() - ext.size(), ext.size(), ext) == 0) { return true; }
 	}
 	return false;
 }
@@ -469,7 +542,7 @@ G4Colour makeG4Colour(std::string_view code, double opacity) {
 	// ---- parse RRGGBB ----
 	unsigned rgb = 0;
 	for (int i = 0; i < 6; ++i)
-		rgb    = (rgb << 4) | hexNibble(code[i]);
+		rgb = (rgb << 4) | hexNibble(code[i]);
 
 	auto   byteToDouble = [](unsigned byte) { return byte / 255.0; };
 	double r            = byteToDouble((rgb >> 16) & 0xFF);
@@ -503,9 +576,9 @@ bool is_unset(std::string_view s) {
 	s = removeLeadingAndTrailingSpacesFromString(s);
 	if (s.empty()) return true;
 	// match your sentinel and YAML nully spellings
-	auto eq = [](std::string_view a, std::string_view b){
-		if (a.size()!=b.size()) return false;
-		for (size_t i=0;i<a.size();++i)
+	auto eq = [](std::string_view a, std::string_view b) {
+		if (a.size() != b.size()) return false;
+		for (size_t i = 0; i < a.size(); ++i)
 			if (std::tolower(static_cast<unsigned char>(a[i])) != std::tolower(static_cast<unsigned char>(b[i])))
 				return false;
 		return true;
@@ -517,7 +590,5 @@ void apply_uimanager_commands(const std::string& command) {
 	G4UImanager* g4uim = G4UImanager::GetUIpointer();
 	if (g4uim == nullptr) { return; }
 	g4uim->ApplyCommand(command);
-
 }
-
 }

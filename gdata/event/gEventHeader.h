@@ -18,10 +18,15 @@
  * - a timestamp string (\c timeStamp)
  *
  * In production GEMC/Geant4, event number and thread ID would typically come from Geant4
- * (e.g. G4Event and G4Threading). In this library, \ref GEventHeader::create() provides a
- * deterministic generator for examples and tests.
+ * (e.g. G4Event and G4Threading). In this library, \ref GEventHeader::create "create()"
+ * provides a deterministic generator for examples and tests.
  *
- * \note Time stamp is generated using the local system time at construction.
+ * Timestamp behavior:
+ * - Time stamp is generated using local system time at construction.
+ *
+ * \note Threading
+ * The factory \ref GEventHeader::create "create()" uses an atomic counter so that concurrent calls
+ * from multiple threads produce unique event numbers in examples/tests.
  */
 
 constexpr const char* GDATAEVENTHEADER_LOGGER = "event_header";
@@ -32,6 +37,8 @@ namespace geventheader {
  *
  * \details
  * Event header logging can be enabled/controlled by including this in composite option bundles.
+ *
+ * \return An options group rooted at the \ref GDATAEVENTHEADER_LOGGER domain.
  */
 inline GOptions defineOptions() {
 	auto goptions = GOptions(GDATAEVENTHEADER_LOGGER);
@@ -49,7 +56,8 @@ inline GOptions defineOptions() {
  * - labeling events in logs/output
  * - reproducing the event/thread provenance for debugging
  */
-class GEventHeader : public GBase<GEventHeader> {
+class GEventHeader : public GBase<GEventHeader>
+{
 public:
 	/**
 	 * \brief Construct an event header with explicit values.
@@ -104,7 +112,10 @@ public:
 
 	/**
 	 * \brief Get the local event number.
-	 * \details This is "run-local" in typical Geant4 usage.
+	 *
+	 * \details
+	 * This is "run-local" in typical Geant4 usage (i.e. it resets each run).
+	 *
 	 * \return Event number.
 	 */
 	[[nodiscard]] inline int getG4LocalEvn() const { return g4localEventNumber; }

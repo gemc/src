@@ -88,6 +88,9 @@ sanitize_base() {
   inplace_sed 's|^HIDE_FRIEND_COMPOUNDS[[:space:]]*=.*|HIDE_FRIEND_COMPOUNDS    = NO|g' "$f"
   inplace_sed 's|^QUIET[[:space:]]*=.*|QUIET                                    = YES|g' "$f"
   inplace_sed 's|^WARNINGS[[:space:]]*=.*|WARNINGS                              = YES|g' "$f"
+  inplace_sed 's|^CLASS_GRAPH[[:space:]]*=.*|CLASS_GRAPH                        = NO|g' "$f"
+  inplace_sed 's|^COLLABORATION_GRAPH[[:space:]]*=.*|COLLABORATION_GRAPH        = NO|g' "$f"
+  inplace_sed 's|^AUTOLINK_SUPPORT[[:space:]]*=.*|AUTOLINK_SUPPORT              = YES|g' "$f"
 
   replace_doxy_list_key_single_line "$f" "FILE_PATTERNS" \
     "*.h *.hh *.hpp *.hxx *.c *.cc *.cpp *.cxx *.C *.H"

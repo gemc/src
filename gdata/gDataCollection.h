@@ -15,11 +15,14 @@
  *
  * ## Ownership model
  * - **Event-level**:
- *   - \ref GDataCollection::addTrueInfoData() / \ref GDataCollection::addDigitizedData() transfer ownership of per-hit objects.
+ *   - \ref GDataCollection::addTrueInfoData "addTrueInfoData()"
+ *     and \ref GDataCollection::addDigitizedData "addDigitizedData()"
+ *     transfer ownership of per-hit objects.
  *   - Storage is \c std::vector<std::unique_ptr<...>> so destruction is automatic.
  * - **Run-level integration**:
- *   - \ref GDataCollection::collectTrueInfosData() / \ref GDataCollection::collectDigitizedData() implement accumulation into a
- *     single "integrated entry" (typically vector size == 1).
+ *   - \ref GDataCollection::collectTrueInfosData "collectTrueInfosData()"
+ *     and \ref GDataCollection::collectDigitizedData "collectDigitizedData()"
+ *     implement accumulation into a single "integrated entry" (typically vector size == 1).
  *
  * ## Integration semantics (important)
  * - Truth integration: currently accumulates **double observables only** (strings are not merged).
@@ -42,7 +45,7 @@
  *
  * \details
  * A \ref GDataCollection is keyed by sensitive detector name in higher-level containers
- * (e.g. in \ref GEventDataCollection::getDataCollectionMap()).
+ * (e.g. in \ref GEventDataCollection::getDataCollectionMap "getDataCollectionMap()").
  *
  * The container stores:
  * - \c trueInfosData  : vector of per-hit truth objects (or size 1 in run-integrated usage)
@@ -51,6 +54,9 @@
  * Two usage modes are supported:
  * - **Event mode**: append one entry per hit (ownership transfer).
  * - **Run mode**: repeatedly integrate hits so the first entry becomes an accumulator.
+ *
+ * \note In run mode, the "accumulator" is implemented as the first element of each vector.
+ *       Consumers should treat vector size > 1 as a sign of event-level content.
  */
 class GDataCollection
 {
@@ -60,7 +66,7 @@ public:
 	 *
 	 * \details
 	 * The detector name itself is stored at higher layers (e.g. as a key in
-	 * \ref GEventDataCollection::getDataCollectionMap()).
+	 * \ref GEventDataCollection::getDataCollectionMap "getDataCollectionMap()").
 	 */
 	explicit GDataCollection() = default;
 
@@ -76,10 +82,10 @@ public:
 	 * \brief Integrate ("collect") true-hit data into a run-level aggregate entry.
 	 *
 	 * \details
-	 * Intended for run-level accumulation:
+	 * Intended for run-level accumulation where a detector accumulates hit contributions:
 	 * - On the first call, a deep copy of \p data is stored as the first element.
 	 * - On subsequent calls, each **double** observable from \p data is accumulated into the
-	 *   first element via \ref GTrueInfoData::accumulateVariable().
+	 *   first element via \ref GTrueInfoData::accumulateVariable "accumulateVariable()".
 	 *
 	 * Notes / design choices:
 	 * - Only the **double** observables are accumulated here.
@@ -107,7 +113,7 @@ public:
 	 * Intended for run-level accumulation:
 	 * - On the first call, a deep copy of \p data is stored as the first element.
 	 * - On subsequent calls, integer and double observables are accumulated into the first
-	 *   element via \ref GDigitizedData::accumulateVariable().
+	 *   element via \ref GDigitizedData::accumulateVariable "accumulateVariable()".
 	 *
 	 * Filtering policy:
 	 * - This method uses \c which=0 when reading observables maps, i.e. it excludes

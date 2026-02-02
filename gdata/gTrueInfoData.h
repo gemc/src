@@ -18,18 +18,21 @@
  * - \c stringVariablesMap   : categorical/provenance values (process name, volume name, ...)
  *
  * ## Per-event vs per-run semantics
- * - \ref includeVariable(): sets/overwrites a variable for a single hit (event-level).
- * - \ref accumulateVariable(): adds into a running sum (run-level integration).
+ * - \ref GTrueInfoData::includeVariable "includeVariable()"
+ *   sets/overwrites a variable for a single hit (event-level).
+ * - \ref GTrueInfoData::accumulateVariable "accumulateVariable()"
+ *   adds into a running sum (run-level integration).
  *
  * ## Identity
- * Each \ref GTrueInfoData stores the hit identity (\c gidentity), copied from \c GHit.
+ * Each \ref GTrueInfoData stores the hit identity (\c gidentity), copied from \ref GHit.
  * This is typically a vector of named indices (e.g. sector/layer/component) that uniquely identify
  * where the hit occurred. The identity is intended to be stable and human-readable via
- * \ref getIdentityString().
+ * \ref GTrueInfoData::getIdentityString "getIdentityString()".
  *
- * \note Threading:
+ * \note Threading
  * - Regular instances have no shared mutable state.
- * - The static factory \ref create() uses \ref globalTrueInfoDataCounter which is atomic.
+ * - The static factory \ref GTrueInfoData::create "create()" uses
+ *   \c globalTrueInfoDataCounter which is atomic.
  */
 
 // c++
@@ -58,6 +61,8 @@ namespace gtrue_data {
  *   GOptions opts("some_domain");
  *   opts += gtrue_data::defineOptions();
  * \endcode
+ *
+ * \return An options group rooted at the \ref GTRUEDATA_LOGGER domain.
  */
 inline GOptions defineOptions() {
 	auto goptions = GOptions(GTRUEDATA_LOGGER);
@@ -75,8 +80,10 @@ inline GOptions defineOptions() {
  * - It stores an identity vector derived from \ref GHit, typically encoding geometry indices.
  *
  * The container supports two usage patterns:
- * 1) **Event-level storage**: create a new instance per hit and populate it using \ref includeVariable().
- * 2) **Run-level integration**: keep a single instance as an accumulator and call \ref accumulateVariable()
+ * 1) **Event-level storage**: create a new instance per hit and populate it using
+ *    \ref GTrueInfoData::includeVariable "includeVariable()".
+ * 2) **Run-level integration**: keep a single instance as an accumulator and call
+ *    \ref GTrueInfoData::accumulateVariable "accumulateVariable()"
  *    to sum contributions across hits/events.
  *
  * \note Accumulation is summation only; do not expect averages unless you compute them externally.
@@ -122,7 +129,7 @@ public:
 	 * - If \p varName already exists, the stored value is replaced.
 	 * - If it does not exist, a new entry is created.
 	 *
-	 * Typical keys (examples, not enforced):
+	 * Typical numeric truth keys (examples, not enforced):
 	 * - "totalEDeposited"
 	 * - "avgTime"
 	 * - "avgx", "avgy", "avgz"
@@ -141,6 +148,9 @@ public:
 	 * - volume name
 	 * - particle name
 	 * - provenance tags
+	 *
+	 * Semantics:
+	 * - Overwrite: repeated calls with the same key replace the stored value.
 	 *
 	 * \param varName Observable name/key.
 	 * \param var     String value to store (moved into the map).
@@ -177,6 +187,10 @@ public:
 
 	/**
 	 * \brief Get a copy of all string truth observables.
+	 *
+	 * \details
+	 * String observables are typically per-hit categorical/provenance values and are not accumulated
+	 * by \ref GDataCollection in run mode.
 	 *
 	 * \return Copy of the string observables map.
 	 */
@@ -226,6 +240,6 @@ private:
 	/// Identity extracted from the originating hit (vector of named indices).
 	std::vector<GIdentifier> gidentity;
 
-	/// Static thread-safe counter used only by \ref create() (examples/tests).
+	/// Static thread-safe counter used only by \ref GTrueInfoData::create "create()" (examples/tests).
 	static std::atomic<int> globalTrueInfoDataCounter;
 };

@@ -2,7 +2,7 @@
 
 /**
  * \file gRunDataCollection.h
- * \brief Defines \ref GRunDataCollection run-level aggregation of detector data.
+ * \brief Defines \ref GRunDataCollection, run-level aggregation of detector data.
  *
  * \details
  * A run collection integrates event-level data into a run summary.
@@ -18,11 +18,12 @@
  * The resulting structure typically has:
  * - one \ref GDataCollection per detector
  * - one integrated \ref GTrueInfoData and one integrated \ref GDigitizedData entry per detector
- *   (vector size 1) depending on how \ref GDataCollection integration is used.
+ *   (vector size 1), depending on how \ref GDataCollection integration is used.
  *
- * \note This class currently does not increment \ref GRunHeader::events_processed.
- *       If you want that counter to reflect integrated events, the caller (or this class)
- *       must call \ref GRunHeader::increment_events_processed() once per integrated event.
+ * \note Event counter
+ * This class currently does not increment \c GRunHeader::events_processed.
+ * If you want that counter to reflect integrated events, the caller (or this class)
+ * must call \ref GRunHeader::increment_events_processed "increment_events_processed()" once per integrated event.
  */
 
 #include "gRunHeader.h"
@@ -46,6 +47,8 @@ namespace grun_data {
  * - touchable (for hit identity creation in examples)
  *
  * This is intended to provide a single "options bundle" for examples and applications.
+ *
+ * \return Composite options group rooted at \ref GRUNDATA_LOGGER.
  */
 inline auto defineOptions() -> GOptions {
 	auto goptions = GOptions(GRUNDATA_LOGGER);
@@ -63,12 +66,17 @@ inline auto defineOptions() -> GOptions {
  * \brief Run-level container that integrates per-event detector data into per-detector summaries.
  *
  * \details
- * The main API is \ref collect_event_data_collection(), which:
+ * The main API is \ref GRunDataCollection::collect_event_data_collection "collect_event_data_collection()",
+ * which:
  * - loops over detectors present in the event
  * - loops over all hits for each detector (truth and digitized)
  * - delegates integration to \ref GDataCollection accumulation methods
  *
  * The per-detector map is keyed by sensitive detector name.
+ *
+ * \note Threading and merging
+ * This class acts as a single accumulator. If you create one accumulator per thread,
+ * you need a higher-level merge strategy (not implemented here).
  */
 class GRunDataCollection : public GBase<GRunDataCollection>
 {
@@ -78,6 +86,9 @@ public:
 	 *
 	 * \details
 	 * The header stores metadata such as run ID and (optionally) number of integrated events.
+	 *
+	 * Ownership:
+	 * - \p header is moved into this object and owned exclusively.
 	 *
 	 * \param gopts  Shared options object used to configure logging and behavior.
 	 * \param header Owned run header describing this run.
@@ -91,10 +102,10 @@ public:
 	 *
 	 * \details
 	 * For each detector present in \p edc, integrates all per-hit entries:
-	 * - truth hits (via \ref collectDetectorTrueInfoData)
-	 * - digitized hits (via \ref collectDetectorDigitizedData)
+	 * - truth hits (via the private method  \c "collectDetectorTrueInfoData()")
+	 * - digitized hits (via the private method  \c "collectDetectorDigitizedData()")
 	 *
-	 * The integration semantics for individual hits are implemented in \ref GDataCollection:
+	 * The integration semantics for individual hits are implemented in \ref GDataCollection :
 	 * - first hit creates the integrated entry
 	 * - subsequent hits contribute by summation of scalars
 	 *
@@ -132,7 +143,7 @@ public:
 	 *
 	 * \details
 	 * This value is stored in \ref GRunHeader and incremented by
-	 * \ref GRunHeader::increment_events_processed().
+	 * \ref GRunHeader::increment_events_processed "increment_events_processed()".
 	 *
 	 * \return Count stored in the header.
 	 */
@@ -148,8 +159,8 @@ private:
 	 * \brief Integrate one true-hit entry into the detector accumulator.
 	 *
 	 * \details
-	 * Ensures the detector entry exists in \ref gdataCollectionMap and then delegates
-	 * integration to \ref GDataCollection::collectTrueInfosData().
+	 * Ensures the detector entry exists in \ref GRunDataCollection::gdataCollectionMap and then delegates
+	 * integration to \ref GDataCollection::collectTrueInfosData "collectTrueInfosData()".
 	 *
 	 * \param sdName Sensitive detector name.
 	 * \param data   True-hit object to integrate (not owned; deep-copied internally).
@@ -161,7 +172,7 @@ private:
 	 *
 	 * \details
 	 * Ensures the detector entry exists and delegates integration to
-	 * \ref GDataCollection::collectDigitizedData().
+	 * \ref GDataCollection::collectDigitizedData "collectDigitizedData()".
 	 *
 	 * \param sdName Sensitive detector name.
 	 * \param data   Digitized-hit object to integrate (not owned; deep-copied internally).

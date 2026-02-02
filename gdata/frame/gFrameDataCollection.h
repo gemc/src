@@ -2,24 +2,26 @@
 
 /**
  * \file gFrameDataCollection.h
- * \brief Defines \ref GFrameDataCollection a container for frame-level integrated payloads.
+ * \brief Defines \ref GFrameDataCollection, a container for frame-level integrated payloads.
  *
  * \details
- * A frame collection groups multiple \ref GIntegralPayload objects under a single
- * \ref GFrameHeader. This models streaming/readout output where many channels may
- * fire within a time window ("frame").
+ * A frame collection groups multiple \ref GIntegralPayload objects under a single \ref GFrameHeader.
+ * This models streaming/readout output where many channels may fire within a time window ("frame").
  *
  * Ownership model (current implementation):
- * - \ref GFrameDataCollection owns the \ref GFrameHeader pointer passed at construction
- *   and deletes it in the destructor.
- * - Payloads are allocated with \c new and deleted in the destructor.
+ * - \ref GFrameDataCollection adopts the \ref GFrameHeader pointer passed at construction and deletes it
+ *   in the destructor.
+ * - Payloads are allocated with \c new in \ref GFrameDataCollection::addIntegralPayload "addIntegralPayload()"
+ *   and deleted in the destructor.
+ * - The internal payload container is also heap-allocated and deleted in the destructor.
  *
  * \note The class uses raw pointers today. If/when modernized, the natural replacement is
  * \c std::unique_ptr<GFrameHeader> and \c std::vector<std::unique_ptr<GIntegralPayload>>.
  *
  * \warning Because raw pointers are used, callers must follow the ownership rules strictly:
  * - do not delete the header after passing it to the constructor
- * - do not delete payload pointers returned by \ref GFrameDataCollection::getIntegralPayload()
+ * - do not delete payload pointers returned by \ref GFrameDataCollection::getIntegralPayload "getIntegralPayload()"
+ * - do not store returned pointers beyond the lifetime of the owning \ref GFrameDataCollection
  */
 
 #include "gFrameHeader.h"
@@ -27,7 +29,8 @@
 #include "gdataConventions.h"
 #include <vector>
 
-class GFrameDataCollection {
+class GFrameDataCollection
+{
 public:
 	/**
 	 * \brief Construct a frame data collection.
@@ -35,6 +38,9 @@ public:
 	 * \details
 	 * Ownership:
 	 * - \p header is adopted by this object and deleted in the destructor.
+	 *
+	 * Internal storage:
+	 * - The payload pointer vector is allocated on the heap for historical reasons.
 	 *
 	 * \param header Frame header pointer. Ownership is transferred to this object.
 	 * \param logger Logger instance used for diagnostics.
@@ -49,10 +55,14 @@ public:
 	 * \brief Destructor.
 	 *
 	 * \details
-	 * Deletes:
+	 * Deletes in the following order:
 	 * - the owned frame header
 	 * - all owned payload pointers
 	 * - the payload vector container
+	 *
+	 * \warning Any pointers previously returned by \ref GFrameDataCollection::getHeader "getHeader()"
+	 *          or \ref GFrameDataCollection::getIntegralPayload "getIntegralPayload()" become invalid
+	 *          after destruction.
 	 */
 	~GFrameDataCollection() {
 		log->debug(DESTRUCTOR, "GFrameDataCollection");
@@ -66,8 +76,8 @@ public:
 	 * \brief Add one integral payload to this frame.
 	 *
 	 * \details
-	 * The payload is passed as a vector to support a generic "packed" interface,
-	 * typically used when data come from external buffers or electronics emulators.
+	 * The payload is passed as a vector to support a generic "packed" interface, typically used when
+	 * data come from external buffers or electronics emulators.
 	 *
 	 * Expected layout (size must be exactly 5):
 	 * - payload[0] = crate
@@ -80,7 +90,7 @@ public:
 	 * - a new \ref GIntegralPayload is allocated and stored internally.
 	 *
 	 * On failure:
-	 * - \ref ERR_WRONGPAYLOAD is reported via the logger.
+	 * - \ref ERR_WRONGPAYLOAD is reported via the logger and no payload is added.
 	 *
 	 * \param payload Packed payload vector (must have size 5).
 	 */
@@ -131,6 +141,7 @@ public:
 	 *
 	 * \details
 	 * The returned pointer remains valid as long as this \ref GFrameDataCollection exists.
+	 * The header is owned by this object and must not be deleted by the caller.
 	 *
 	 * \return Pointer to the frame header (owned by this object).
 	 */
@@ -139,8 +150,11 @@ public:
 	/**
 	 * \brief Get the stored payload pointers (read-only).
 	 *
-	 * \warning Pointers are owned by this object and remain valid only as long as the
-	 * collection exists. Callers must not delete them.
+	 * \details
+	 * The returned pointers:
+	 * - are owned by this object
+	 * - remain valid only as long as the collection exists
+	 * - must not be deleted by the caller
 	 *
 	 * \return Pointer to the internal payload vector.
 	 */
@@ -148,12 +162,16 @@ public:
 
 	/**
 	 * \brief Convenience getter for frame ID.
+	 *
+	 * \details
+	 * Equivalent to calling \ref GFrameHeader::getFrameID "getFrameID()" on the owned header.
+	 *
 	 * \return Frame ID as stored in the header.
 	 */
 	[[nodiscard]] inline long int getFrameID() const { return gevent_header->getFrameID(); }
 
 private:
-	std::shared_ptr<GLogger> log; ///< Logger instance.
-	GFrameHeader* gevent_header = nullptr; ///< Owned frame header (deleted in destructor).
-	std::vector<GIntegralPayload*>* integralPayloads; ///< Owned payload pointers (deleted in destructor).
+	std::shared_ptr<GLogger>        log;                     ///< Logger instance.
+	GFrameHeader*                   gevent_header = nullptr; ///< Owned frame header (deleted in destructor).
+	std::vector<GIntegralPayload*>* integralPayloads;        ///< Owned payload pointers (deleted in destructor).
 };

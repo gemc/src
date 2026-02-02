@@ -2,7 +2,7 @@
 
 /**
  * \file gEventDataCollection.h
- * \brief Defines \ref GEventDataCollection event-level aggregation of per-detector hit data.
+ * \brief Defines \ref GEventDataCollection, event-level aggregation of per-detector hit data.
  *
  * \details
  * An event data collection groups all hit data produced during a single event.
@@ -15,7 +15,8 @@
  * \endcode
  *
  * ## Event-level semantics
- * - each call to \ref GEventDataCollection::addDetectorTrueInfoData() or \ref GEventDataCollection::addDetectorDigitizedData()
+ * - each call to \ref GEventDataCollection::addDetectorTrueInfoData "addDetectorTrueInfoData()"
+ *   or \ref GEventDataCollection::addDetectorDigitizedData "addDetectorDigitizedData()"
  *   appends one hit entry to the specified detector’s vectors.
  * - the detector entry is created on demand if it does not already exist.
  *
@@ -50,6 +51,8 @@ namespace gevent_data {
  * - touchable (for identity creation in examples)
  *
  * This provides a single "options bundle" for event-level examples/applications.
+ *
+ * \return Composite options group rooted at \ref GEVENTDATA_LOGGER.
  */
 inline auto defineOptions() -> GOptions {
 	auto goptions = GOptions(GEVENTDATA_LOGGER);
@@ -72,6 +75,10 @@ inline auto defineOptions() -> GOptions {
  * - local event number
  * - thread ID label
  * - timestamp string
+ *
+ * \note
+ * This class intentionally does not enforce invariants such as "truth hits must equal digitized hits".
+ * If an application requires such invariants, it should validate them at a higher level.
  */
 class GEventDataCollection : public GBase<GEventDataCollection>
 {
@@ -135,6 +142,10 @@ public:
 
 	/**
 	 * \brief Convenience accessor for the event number.
+	 *
+	 * \details
+	 * Equivalent to \ref GEventHeader::getG4LocalEvn "getG4LocalEvn()" on the owned header.
+	 *
 	 * \return Event number stored in the header.
 	 */
 	[[nodiscard]] auto getEventNumber() const -> int { return gevent_header->getG4LocalEvn(); }
@@ -144,7 +155,7 @@ public:
 	 *
 	 * \details
 	 * This method exists to support examples/tests. It:
-	 * - creates a new \ref GEventHeader
+	 * - creates a new \ref GEventHeader via \ref GEventHeader::create "create()"
 	 * - constructs an event data collection
 	 * - inserts one \ref GDigitizedData and one \ref GTrueInfoData entry under detector "ctof"
 	 *

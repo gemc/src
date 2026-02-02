@@ -11,8 +11,12 @@
  * - allow deterministic filtering/export behavior
  * - provide stable, documented keys for plugins and backends
  *
- * It also defines numeric error codes used with \ref GLogger::error(...) so that higher-level
- * tooling can interpret failure modes in a stable way.
+ * It also defines numeric error codes used with \ref GLogger::error "error()"
+ * so that higher-level tooling can interpret failure modes in a stable way.
+ *
+ * Design intent:
+ * - These constants represent part of the "public schema contract" between producers and consumers.
+ * - Changing a key string can break downstream analysis/export unless migration is handled explicitly.
  */
 
 /**
@@ -21,7 +25,7 @@
  *
  * \details
  * These codes are intended to be stable across releases so that scripts, wrappers, and
- * downstream applications can classify failures.
+ * downstream applications can classify failures without parsing log strings.
  * @{
  */
 constexpr int ERR_GSDETECTORNOTFOUND = 601; ///< Requested sensitive detector is missing from a collection/map.
@@ -36,19 +40,21 @@ constexpr int ERR_WRONGPAYLOAD       = 603; ///< A payload vector has the wrong 
  * \details
  * "SRO" (streaming readout) keys are treated specially by some APIs.
  *
- * For example, \ref GDigitizedData::getIntObservablesMap() and
- * \ref GDigitizedData::getDblObservablesMap() accept a \c which argument that allows:
+ * For example, \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap()"
+ * and \ref GDigitizedData::getDblObservablesMap "getDblObservablesMap()"
+ * accept a \c which argument that allows:
  * - selecting only SRO keys (crate/slot/channel/time/charge)
  * - selecting only non-SRO keys (physics-like digitized observables)
  *
  * This enables output backends to store readout addressing separately from digitization results.
  * @{
  */
-constexpr const char* CRATESTRINGID         = "crate";              ///< Electronics crate index.
-constexpr const char* SLOTSTRINGID          = "slot";               ///< Slot index within a crate (module position).
-constexpr const char* CHANNELSTRINGID       = "channel";            ///< Channel index within a slot/module.
-constexpr const char* CHARGEATELECTRONICS   = "chargeAtElectronics";///< Charge (or ADC-integrated proxy) at electronics stage.
-constexpr const char* TIMEATELECTRONICS     = "timeAtElectronics";  ///< Time (or TDC proxy) at electronics stage.
+constexpr const char* CRATESTRINGID       = "crate";   ///< Electronics crate index.
+constexpr const char* SLOTSTRINGID        = "slot";    ///< Slot index within a crate (module position).
+constexpr const char* CHANNELSTRINGID     = "channel"; ///< Channel index within a slot/module.
+constexpr const char* CHARGEATELECTRONICS = "chargeAtElectronics";
+///< Charge (or ADC-integrated proxy) at electronics stage.
+constexpr const char* TIMEATELECTRONICS = "timeAtElectronics"; ///< Time (or TDC proxy) at electronics stage.
 /** @} */
 
 /**
@@ -56,6 +62,6 @@ constexpr const char* TIMEATELECTRONICS     = "timeAtElectronics";  ///< Time (o
  *
  * \details
  * This is intentionally an "unlikely" value to help catch missing-data bugs quickly.
- * Used by \ref GDigitizedData::getTimeAtElectronics().
+ * Used by \ref GDigitizedData::getTimeAtElectronics "getTimeAtElectronics()".
  */
 constexpr int TIMEATELECTRONICSNOTDEFINED = -123456;
