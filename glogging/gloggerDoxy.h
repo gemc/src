@@ -3,21 +3,46 @@
  * \mainpage GLogger Module
  *
  * \section intro_sec Introduction
- * The GLogger module is responsible for handling structured logging in the simulation.
- * It supports various log levels (debug, info, warning, error, and critical) with configurable
- * verbosity and debug settings. Log messages are prepended with a header that includes a unique
- * counter to help trace message order in multi-threaded environments.
+ * The GLogger module provides structured, consistently formatted logging for the simulation runtime.
+ * It is intended to be the single place where verbosity/debug policies and log formatting rules
+ * are applied so that the rest of the codebase can emit messages without re-implementing
+ * filtering, headers, or formatting.
  *
- * \section details_sec Details
- * - Uses modern C++ features such as variadic templates, fold expressions, perfect forwarding, and
- *   [[nodiscard]] attributes.
- * - Provides a robust logging interface where debug messages can be suppressed if debug is off.
- * - The logger uses atomic counters to ensure thread safety.
+ * The logger supports multiple message categories:
+ * - Debug messages (optionally filtered by a debug level)
+ * - Informational messages (optionally filtered by a verbosity level)
+ * - Warnings (always printed)
+ * - Errors (printed and then the process terminates with an exit code)
+ * - Critical messages (always printed, emphasized formatting)
+ *
+ * Each emitted message is prepended with a compact header that includes:
+ * - The configured logger name (a logical subsystem identifier)
+ * - A monotonically increasing counter (per logger instance)
+ *
+ * The counter is particularly useful in multi-threaded environments because it helps correlate
+ * message order even when different threads interleave output.
+ *
+ * \section details_sec Implementation notes
+ * - The implementation is intentionally lightweight and header-driven.
+ * - Debug/info/warning/error/critical accept a variadic list of "streamable" arguments, which are
+ *   concatenated using an `std::ostringstream`.
+ * - A `std::atomic<int>` counter is used to produce the per-instance sequence number in a
+ *   thread-safe manner.
+ * - Debug logging supports special "constructor/destructor" styles to make lifetime tracing easier.
  *
  * \section usage_sec Usage
- * Instantiate a GLogger with a pointer to a GOptions object and a string identifier. Then call
- * the member functions (debug, info, warning, error, critical) to log messages. The error function
- * terminates the process.
+ * 1. Construct a \ref GLogger "GLogger" instance with:
+ *    - A shared pointer to \ref GOptions "GOptions" (used to resolve verbosity/debug configuration)
+ *    - A caller class name (informational; currently not used for filtering)
+ *    - A logger name (used as a lookup key in \ref GOptions "GOptions")
+ * 2. Call the relevant message methods:
+ *    - \ref GLogger::debug "debug()"
+ *    - \ref GLogger::info "info()"
+ *    - \ref GLogger::warning "warning()"
+ *    - \ref GLogger::error "error()"
+ *    - \ref GLogger::critical "critical()"
+ *
+ * \note The \ref GLogger::error "error()" method is marked `[[noreturn]]` and terminates the process.
  *
  * \n\n
  * \author \n &copy; Maurizio Ungaro
