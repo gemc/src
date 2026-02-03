@@ -1,53 +1,32 @@
 /**
- * \mainpage GEMC Hit and Detector Information Library
+* \mainpage ghit : Hit information utilities
  *
  * \section intro_sec Introduction
- * This library provides classes and utilities for handling hit information
- * in Geant4-based detector simulations. It supports detailed hit recording,
- * configurable hit information via bit masks, and integration with Geant4
- * visualization.
+ * The \c ghit module provides a compact hit container (\c GHit) and supporting conventions
+ * (\c HitBitSet) for storing step-by-step and aggregated information from detector simulations.
  *
- * \section features_sec Features
- * - Configurable hit information using a bitset (HitBitSet).
- * - Support for standard hit data such as positions, energy deposit, and time.
- * - Additional information (e.g., particle IDs, process names) toggled by bit flags.
+ * A \c GHit records always-present per-step information:
+ * - global and local positions
+ * - energy deposited (optionally scaled by detector-specific multipliers)
+ * - global time
  *
- * \section usage_sec Usage
- * - Use GHit to represent a detector hit.
- * - Use GTouchable to identify sensitive detector elements.
+ * It can also record optional per-step information controlled by \c HitBitSet (see ghitConventions.h :
+ * bit meanings and reserved future extensions).
  *
- * \n\n
- * \author \n &copy; Maurizio Ungaro
- * \author e-mail: ungaro@jlab.org\n\n\n
- */
-
-
-/**
- * \mainpage Geant4 Hit Information Conventions
+ * \section components_sec Components
+ * - \c GHit : hit container that accumulates per-step vectors and provides lazy derived quantities.
+ * - \c HitBitSet : fixed-size bitset selecting optional hit information groups.
+ * - ghitConventions.h : stable conventions for bit meanings and analysis expectations.
  *
- * \section intro_sec Introduction
- * This module defines the conventions for representing hit information in a
- * Geant4 simulation. It uses a bitset (HitBitSet) to select which quantities
- * should be recorded for each hit.
+ * \section examples_sec Examples
+ * The module ships with an example program:
+ * - \b ghit_example.cc : constructs a \c GTouchable, creates a \c GHit, generates randomized test hits,
+ *   and compares them using \c GHit::is_same_hit().
  *
- * \section details_sec Details
- * The bitset controls the inclusion of standard quantities (positions,
- * energy deposition, time) as well as additional information such as particle IDs,
- * process names, and step length.
+ * \section ownership_sec Ownership and contacts
+ * Author: &copy; Maurizio Ungaro \n
+ * e-mail: ungaro@jlab.org
  *
- * \n\n
- * \author \n &copy; Maurizio Ungaro
- * \author e-mail: ungaro@jlab.org\n\n\n
- */
-
-
-/**
- * \file ghitConventions.h
- * \brief Defines the HitBitSet and associated bit indices.
- */
-
-
-/**
- * \file ghitConventions.h
- * \brief Defines the hit conventions and the HitBitSet for GHit.
+ * \note This module does not define verbosity levels because it does not introduce any classes derived
+ *       from \c glogger. Logging in the provided example is performed using \c GLogger.
  */

@@ -15,15 +15,24 @@
  * @file gutilities.h
  * @brief Public API for the gutilities namespace.
  *
- * This header declares a set of small utilities used throughout the codebase.
- * Most functions are pure helpers (string/path manipulation, parsing), with a few Geant4-adjacent
- * conveniences (e.g., UI command application and \c G4Colour construction).
+ * This header declares a set of small utility functions used throughout the codebase.
+ * Most functions are pure helpers (string/path manipulation, parsing), with a few
+ * Geant4-adjacent conveniences (e.g., UI command application and \c G4Colour construction).
+ *
+ * Documentation strategy:
+ * - This header is the authoritative API reference for \ref gutilities "gutilities".
+ * - Implementations may contain brief non-Doxygen notes, but API behavior is specified here.
  */
 
 namespace gutilities {
 using std::string;
 using std::vector;
 using std::map;
+
+/**
+ * @name String normalization and tokenization
+ * @{
+ */
 
 /**
  * @brief Removes leading and trailing spaces and tabs from a string.
@@ -53,6 +62,8 @@ std::string removeLeadingAndTrailingSpacesFromString(const std::string& input);
  *
  * @param input The string_view to be trimmed.
  * @return A trimmed view of the original input.
+ *
+ * @warning The returned view is only valid as long as the referenced buffer remains valid.
  */
 std::string_view removeLeadingAndTrailingSpacesFromString(const std::string_view input);
 
@@ -66,45 +77,6 @@ std::string_view removeLeadingAndTrailingSpacesFromString(const std::string_view
  * @return A new string with all spaces removed.
  */
 std::string removeAllSpacesFromString(const std::string& str);
-
-/**
- * @brief Extracts the filename from a given file path.
- *
- * This function extracts and returns the filename from a given POSIX-style file path using @c '/' as separator.
- * If the path contains no separators, the original string is returned.
- *
- * @param path The input file path.
- * @return The filename extracted from the path.
- */
-std::string getFileFromPath(const std::string& path);
-
-/**
- * @brief Extracts the directory path from a given file path.
- *
- * This function extracts and returns the directory path from a given POSIX-style file path using @c '/' as separator.
- * If the path contains no separators, @c "." is returned.
- *
- * @param path The input file path.
- * @return The directory path extracted from the path.
- */
-std::string getDirFromPath(const std::string& path);
-
-/**
- * @brief Search for a regular file across candidate locations.
- *
- * Each entry in @p locations may be either:
- * - A directory path, in which case @p filename is appended and tested.
- * - A full path to a file candidate, tested directly.
- *
- * The first candidate that exists and is a regular file is returned.
- *
- * @param locations Candidate directories and/or file paths.
- * @param filename Filename to append when probing directory entries.
- * @return Full path string for the first match, or @c std::nullopt if no match is found.
- */
-std::optional<std::string> searchForFileInLocations(
-	const std::vector<std::string>& locations,
-	std::string_view                filename);
 
 /**
  * @brief Splits a string into a vector of strings using whitespace as delimiters.
@@ -127,6 +99,9 @@ std::vector<std::string> getStringVectorFromString(const std::string& input);
  * @param toReplace A string containing characters to be replaced.
  * @param replacement The string to replace each occurrence of characters in @p toReplace.
  * @return A new string with specified characters replaced by the replacement string.
+ *
+ * @note This function replaces *characters* (not substrings) and may increase the output size
+ *       if @p replacement is longer than one character.
  */
 std::string replaceCharInStringWithChars(const std::string& input, const std::string& toReplace,
                                          const std::string& replacement);
@@ -142,6 +117,8 @@ std::string replaceCharInStringWithChars(const std::string& input, const std::st
  * @param from The substring to be replaced.
  * @param to The string to replace each occurrence of the substring.
  * @return A new string with all occurrences of the substring replaced.
+ *
+ * @warning If @p from is empty, the function returns @p source to avoid an infinite loop.
  */
 string replaceAllStringsWithString(const string& source, const string& from, const string& to);
 
@@ -157,6 +134,116 @@ string replaceAllStringsWithString(const string& source, const string& from, con
  * @return A new string padded to the specified length.
  */
 string fillDigits(const string& word, const string& c, int ndigits);
+
+/** @} */
+
+/**
+ * @name Path and filesystem helpers
+ * @{
+ */
+
+/**
+ * @brief Extracts the filename from a given file path.
+ *
+ * This function extracts and returns the filename from a given POSIX-style file path using @c '/' as separator.
+ * If the path contains no separators, the original string is returned.
+ *
+ * @param path The input file path.
+ * @return The filename extracted from the path.
+ *
+ * @note This is a string-based helper. It does not query the filesystem and does not normalize paths.
+ */
+std::string getFileFromPath(const std::string& path);
+
+/**
+ * @brief Extracts the directory path from a given file path.
+ *
+ * This function extracts and returns the directory path from a given POSIX-style file path using @c '/' as separator.
+ * If the path contains no separators, @c "." is returned.
+ *
+ * @param path The input file path.
+ * @return The directory path extracted from the path.
+ *
+ * @note This is a string-based helper. It does not query the filesystem and does not normalize paths.
+ */
+std::string getDirFromPath(const std::string& path);
+
+/**
+ * @brief Search for a regular file across candidate locations.
+ *
+ * Each entry in @p locations may be either:
+ * - A directory path, in which case @p filename is appended and tested.
+ * - A full path to a file candidate, tested directly.
+ *
+ * The first candidate that exists and is a regular file is returned.
+ *
+ * @param locations Candidate directories and/or file paths.
+ * @param filename Filename to append when probing directory entries.
+ * @return Full path string for the first match, or @c std::nullopt if no match is found.
+ *
+ * @note This function probes the filesystem. It is appropriate for "search path" style logic.
+ */
+std::optional<std::string> searchForFileInLocations(
+	const std::vector<std::string>& locations,
+	std::string_view                filename);
+
+/**
+ * @brief Checks if a directory exists at the given path.
+ *
+ * @param path The path to check for a directory.
+ * @return @c true if the directory exists, @c false otherwise.
+ *
+ * @note This probes the filesystem and may fail for permission reasons; failures are treated
+ *       as "does not exist" in the current implementation.
+ */
+bool directoryExists(const std::string& path);
+
+/**
+ * @brief Searches for a directory within a list of possible locations.
+ *
+ * For each candidate base path, the function checks for @c "<base>/<dirName>".
+ *
+ * @param dirName The name of the directory to search for.
+ * @param possibleLocations A vector of paths where the directory might be located.
+ * @return The path to the found directory or the literal string @c "UNINITIALIZEDSTRINGQUANTITY" if not found.
+ *
+ * @warning The "not found" case returns a literal marker string (not the macro value). Treat this
+ *          as a legacy behavior and compare against the exact returned token if needed.
+ */
+string searchForDirInLocations(const string& dirName, const vector<string>& possibleLocations);
+
+/**
+ * @brief Checks if a filename has one of the specified extensions.
+ *
+ * The comparison is a suffix match against each provided extension.
+ *
+ * @param filename The name of the file to check.
+ * @param extensions A vector of extensions to check against.
+ * @return @c true if the filename has one of the specified extensions, @c false otherwise.
+ *
+ * @note Extensions are matched exactly as provided (case-sensitive).
+ */
+bool hasExtension(const string& filename, const vector<string>& extensions);
+
+/**
+ * @brief Retrieves a list of files with specific extensions from a directory.
+ *
+ * Only regular files are returned. Directory entries that are not regular files are ignored.
+ *
+ * @param dirName The name of the directory to search in.
+ * @param extensions A vector of file extensions to filter the files.
+ * @return A vector of file names that have the specified extensions.
+ *
+ * @note Returned values are filenames (not absolute paths).
+ */
+vector<string> getListOfFilesInDirectory(const string& dirName, const vector<string>& extensions);
+
+/** @} */
+
+/**
+ * @name Numeric parsing with optional units
+ * @{
+ */
 
 /**
  * @brief Converts a string representation of a number with optional units to a double.
@@ -176,6 +263,9 @@ string fillDigits(const string& word, const string& c, int ndigits);
  * @param v The input string containing the number and optional units, formatted as @c "<number>*<unit>".
  * @param warnIfNotUnit Flag indicating whether to issue a warning if the units are not present.
  * @return The numeric value converted to a double, taking into account the units if provided.
+ *
+ * @warning This function may terminate the process on formatting or numeric parse errors. It is intended
+ *          for configuration/parameter parsing where such errors are considered fatal.
  */
 double getG4Number(const string& v, bool warnIfNotUnit = false);
 
@@ -215,6 +305,13 @@ vector<double> getG4NumbersFromStringVector(const vector<string>& vstring, bool 
  */
 vector<double> getG4NumbersFromString(const string& vstring, bool warnIfNotUnit = false);
 
+/** @} */
+
+/**
+ * @name Text file parsing and substring extraction
+ * @{
+ */
+
 /**
  * @brief Parses a file and removes all lines containing specified comment characters.
  *
@@ -225,6 +322,9 @@ vector<double> getG4NumbersFromString(const string& vstring, bool warnIfNotUnit 
  * @param commentChars The characters indicating the start of a comment in the file.
  * @param verbosity The verbosity level for logging information.
  * @return A string representing the content of the file with comments removed.
+ *
+ * @warning This performs a textual removal strategy. It is appropriate for simple configuration formats
+ *          but should not be used as a general-purpose parser for languages with nested quoting rules.
  */
 string parseFileAndRemoveComments(const string& filename, const string& commentChars = "#", int verbosity = 0);
 
@@ -239,6 +339,8 @@ string parseFileAndRemoveComments(const string& filename, const string& commentC
  * @param firstDelimiter The delimiter marking the start of the substring.
  * @param secondDelimiter The delimiter marking the end of the substring.
  * @return The substring found between the specified delimiters, or an empty string if delimiters are not found.
+ *
+ * @note Only the first occurrence of each delimiter is considered.
  */
 string retrieveStringBetweenChars(const string& input, const string& firstDelimiter, const string& secondDelimiter);
 
@@ -251,57 +353,26 @@ string retrieveStringBetweenChars(const string& input, const string& firstDelimi
  * @param input The input string to split.
  * @param x The delimiter string (only the first character is used).
  * @return A vector of strings containing the split substrings.
+ *
+ * @warning If @p x is empty, behavior is undefined (the implementation indexes @c x[0]).
  */
 vector<string> getStringVectorFromStringWithDelimiter(const string& input, const string& x);
 
-/**
- * @brief Checks if a directory exists at the given path.
- *
- * @param path The path to check for a directory.
- * @return @c true if the directory exists, @c false otherwise.
- */
-bool directoryExists(const std::string& path);
-
+/** @} */
 
 /**
- * @brief Searches for a directory within a list of possible locations.
- *
- * For each candidate base path, the function checks for @c "<base>/<dirName>".
- *
- * @param dirName The name of the directory to search for.
- * @param possibleLocations A vector of paths where the directory might be located.
- * @return The path to the found directory or the literal string @c "UNINITIALIZEDSTRINGQUANTITY" if not found.
+ * @name Miscellaneous helpers
+ * @{
  */
-string searchForDirInLocations(const string& dirName, const vector<string>& possibleLocations);
-
-
-/**
- * @brief Checks if a filename has one of the specified extensions.
- *
- * The comparison is a suffix match against each provided extension.
- *
- * @param filename The name of the file to check.
- * @param extensions A vector of extensions to check against.
- * @return @c true if the filename has one of the specified extensions, @c false otherwise.
- */
-bool hasExtension(const string& filename, const vector<string>& extensions);
-
-/**
- * @brief Retrieves a list of files with specific extensions from a directory.
- *
- * Only regular files are returned. Directory entries that are not regular files are ignored.
- *
- * @param dirName The name of the directory to search in.
- * @param extensions A vector of file extensions to filter the files.
- * @return A vector of file names that have the specified extensions.
- */
-vector<string> getListOfFilesInDirectory(const string& dirName, const vector<string>& extensions);
 
 /**
  * @brief Converts a string to lowercase.
  *
  * @param str The string to convert.
  * @return The lowercase version of the input string.
+ *
+ * @note This uses the C locale's @c ::tolower behavior (byte-wise). It is intended for ASCII-ish tokens
+ *       such as configuration keywords and unit identifiers.
  */
 string convertToLowercase(const string& str);
 
@@ -312,6 +383,8 @@ string convertToLowercase(const string& str);
  * @tparam VALUE The type of values in the map.
  * @param map The map from which to extract keys.
  * @return A vector containing all the keys from the map.
+ *
+ * Complexity: linear in the map size.
  */
 template <class KEY, class VALUE>
 vector<KEY> getKeys(const map<KEY, VALUE>& map);
@@ -372,8 +445,12 @@ inline constexpr const char* to_string(randomModel m) noexcept {
  * @param opacity Alpha value passed to \c G4Colour.
  * @return Constructed \c G4Colour.
  * @throws std::invalid_argument on malformed input.
+ *
+ * @note This helper is intended for configuration-driven color selection.
  */
 G4Colour makeG4Colour(std::string_view code, double opacity);
+
+/** @} */
 };
 
 
@@ -404,6 +481,8 @@ namespace gutilities {
  *
  * @return Canonical executable path.
  * @throws std::runtime_error on platform API failures.
+ *
+ * @note This utility is used to infer installation layout relative to the executable.
  */
 inline std::filesystem::path executable_path() {
 #if defined(__APPLE__)
@@ -453,6 +532,9 @@ inline std::filesystem::path executable_path() {
  *
  * @return Filesystem path to the inferred GEMC root.
  * @throws std::runtime_error if the layout check fails.
+ *
+ * @note This function encodes a layout expectation. If the installation structure changes,
+ *       update the documented assumptions here and the corresponding implementation.
  */
 inline std::filesystem::path gemc_root() {
 	const auto exe_dir = executable_path().parent_path();
@@ -489,10 +571,14 @@ inline std::filesystem::path gemc_root() {
 /**
  * @brief Determine whether a string should be treated as "unset".
  *
+ * The matching rules are intentionally more permissive than a single sentinel:
+ * they typically include a conventional sentinel token and common YAML-style null spellings.
  * See the implementation in the corresponding translation unit for the exact matching rules.
  *
  * @param s Input view.
  * @return @c true if @p s represents an "unset" value, @c false otherwise.
+ *
+ * @note This is used for robust configuration parsing where users may specify "NULL", "null", "~", or empty values.
  */
 bool is_unset(std::string_view s);
 
@@ -501,6 +587,8 @@ bool is_unset(std::string_view s);
  *
  * @param condition Boolean test.
  * @return @c "success" when @p condition is true; otherwise @c "fail".
+ *
+ * @note Intended for short, human-readable status reporting and logs.
  */
 inline std::string success_or_fail(bool condition) { return condition ? "success" : "fail"; }
 
@@ -511,6 +599,8 @@ inline std::string success_or_fail(bool condition) { return condition ? "success
  * If no UI manager exists, the call is a no-op.
  *
  * @param commands Command string to apply.
+ *
+ * @note This intentionally does not validate the command string; validation is delegated to the UI manager.
  */
 void apply_uimanager_commands(const std::string& commands);
 }

@@ -6,23 +6,32 @@
  * @file gutsConventions.h
  * @brief Common constants and console-formatting macros used across gutilities and related code.
  *
- * This header centralizes:
+ * This header centralizes *conventions* that are intentionally shared across the project:
  * - Sentinel values for "uninitialized" numeric and string quantities.
- * - Exit codes used by error handling paths.
+ * - Exit codes used by fatal error handling paths.
  * - ANSI escape sequences and helper macros for colored/bold/underlined console output.
  * - Standardized glyphs used for list items and log decorations.
  *
- * The intent is to keep message formatting consistent across the codebase.
+ * The goal is to keep error messages and console output consistent across all modules that
+ * rely on these utilities.
+ *
+ * @note These are macros on purpose: they are intended to be lightweight, header-only,
+ *       and usable in low-level code paths (including error handling) without additional
+ *       dependencies.
  */
 
 /**
  * @def UNINITIALIZEDNUMBERQUANTITY
  * @brief Sentinel value representing an uninitialized numeric quantity.
  *
- * This constant is used in contexts where a numeric parameter is optional or not yet set
- * and a distinct "impossible" value is needed for detection.
+ * This constant is used when a numeric quantity is optional or not yet set and a distinct,
+ * easily-detectable value is needed. Typical examples include:
+ * - Configuration values that are optional and later validated.
+ * - "Not provided" values coming from parsing a text configuration.
  *
- * @warning Do not rely on this specific numeric value in persisted outputs; treat it as an internal sentinel.
+ * @warning Do not rely on this specific numeric value in persisted outputs; treat it as an
+ *          internal sentinel only. If you need a persistent representation, serialize
+ *          a dedicated "is set" flag or use a structured representation.
  */
 #define UNINITIALIZEDNUMBERQUANTITY -123456
 
@@ -30,9 +39,11 @@
  * @def UNINITIALIZEDSTRINGQUANTITY
  * @brief Sentinel string representing an uninitialized string quantity.
  *
- * This constant is used as a conventional marker for unset or missing strings in configuration-like flows.
+ * This string literal is used as a conventional marker for unset/missing strings in
+ * configuration-like flows.
  *
- * @note Some utilities also treat YAML-style null spellings (e.g., @c "null", @c "~") as equivalent.
+ * Matching rules across the utilities may treat common YAML "null" spellings (e.g., @c "null",
+ * @c "~") as equivalent; see the relevant parsing helpers for details.
  */
 #define UNINITIALIZEDSTRINGQUANTITY "NULL"
 
@@ -41,12 +52,20 @@
 /**
  * @def EC__FILENOTFOUND
  * @brief Process exit code used when an expected file cannot be opened or found.
+ *
+ * This exit code is used by code paths that treat a missing file as fatal (i.e., cannot continue).
+ * It is intentionally stable so wrapper scripts and CI can classify failures.
  */
 #define EC__FILENOTFOUND 301    ///< File not found error code.
 
 /**
  * @def EC__G4NUMBERERROR
  * @brief Process exit code used when parsing a Geant4-style numeric string fails.
+ *
+ * Used by utilities that parse @c "<number>*<unit>" style strings. Errors include:
+ * - Invalid numeric text
+ * - Missing or malformed separators
+ * - Structural format violations (e.g., multiple separators)
  */
 #define EC__G4NUMBERERROR 302   ///< G4 number error code.
 
@@ -56,6 +75,9 @@
 /**
  * @def KBOLD
  * @brief ANSI escape sequence for bold text.
+ *
+ * @note Bold support depends on the terminal emulator. On some terminals it may appear as
+ *       increased brightness rather than a true bold weight.
  */
 #define KBOLD "\x1B[1m"
 
@@ -104,6 +126,9 @@
 /**
  * @def RST
  * @brief ANSI escape sequence to reset text formatting to defaults.
+ *
+ * Use this after applying a color/attribute sequence to avoid "leaking" formatting into
+ * subsequent console output.
  */
 #define RST "\x1B[0m"
 
@@ -112,6 +137,10 @@
 /**
  * @def FRED(x)
  * @brief Wrap @p x in red text and reset formatting afterwards.
+ *
+ * @param x String literal to wrap (typically a short label).
+ * @note These macros operate on string literals; they are meant for building other labels
+ *       and prefixes, not for formatting arbitrary runtime strings.
  */
 #define FRED(x) KRED x RST  ///< Macro to wrap text in red color.
 
@@ -154,6 +183,8 @@
 /**
  * @def BOLD(x)
  * @brief Wrap @p x in bold formatting and reset afterwards.
+ *
+ * This is commonly composed with the color wrappers to produce prominent labels.
  */
 #define BOLD(x) KBOLD x RST ///< Macro to wrap text in bold.
 
@@ -167,7 +198,10 @@
  * @def FATALERRORL
  * @brief Standardized fatal error label prefix (bold red).
  *
- * Typically used at the start of an error message sent to @c std::cerr.
+ * Typically used at the start of an error message sent to @c std::cerr, for example:
+ * @code{.cpp}
+ * std::cerr << FATALERRORL << "something went wrong" << std::endl;
+ * @endcode
  */
 #define FATALERRORL BOLD(FRED("Fatal Error: ")) ///< Fatal error label.
 
@@ -231,6 +265,9 @@
 /**
  * @def GTAB
  * @brief Standard indentation unit used by console-formatting macros.
+ *
+ * Intended for human-readable, visually aligned console output. These are not meant to be
+ * used for machine-parsed logs.
  */
 #define GTAB "   "
 #define GTABTAB GTAB GTAB
@@ -274,12 +311,16 @@
 /**
  * @def HHL
  * @brief Left highlight glyph.
+ *
+ * Used for lightweight highlighting in console output. Often paired with @ref HHR.
  */
 #define HHL "⏵"                ///< Highlight left symbol.
 
 /**
  * @def HHR
  * @brief Right highlight glyph.
+ *
+ * Used for lightweight highlighting in console output. Often paired with @ref HHL.
  */
 #define HHR "⏴"                ///< Highlight right symbol.
 

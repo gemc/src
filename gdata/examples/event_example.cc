@@ -1,10 +1,14 @@
 /**
  * \file event_example.cc
  * \brief Event-level example demonstrating how to build and inspect \ref GEventDataCollection objects.
+ */
+
+/**
+ * \defgroup gdata_event_example Event data collection example
  *
- * \page gdata_event_example Event data collection example
+ * \brief Event-level construction and inspection of per-detector hit data.
  *
- * \section event_overview Overview
+ * \details
  * This example emulates a simplified event loop where each event produces hit data for one or more
  * sensitive detectors and stores them into a \ref GEventDataCollection.
  *
@@ -22,7 +26,7 @@
  *              - vector<unique_ptr<GDigitizedData>>  (one per hit)
  * \endcode
  *
- * \section event_demo What this example demonstrates
+ * \section gdata_event_demo What this example demonstrates
  * - Creating event containers with the factory \ref GEventDataCollection::create "create()".
  * - Adding *additional hits* and *additional detectors* to the same event with:
  *   - \ref GEventDataCollection::addDetectorTrueInfoData "addDetectorTrueInfoData()"
@@ -36,7 +40,7 @@
  *   - \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap(int)"
  *   - \ref GDigitizedData::getDblObservablesMap "getDblObservablesMap(int)"
  *
- * \section event_threading Threading model
+ * \section gdata_event_threading Threading model
  * The example uses a simple work-distribution pattern:
  * - A shared atomic counter assigns event numbers.
  * - Each worker thread builds independent \ref GEventDataCollection objects.
@@ -54,6 +58,8 @@
  *
  * \author \n &copy; Maurizio Ungaro
  * \author e-mail: ungaro@jlab.org
+ *
+ * @{
  */
 
 // gdata
@@ -236,10 +242,6 @@ static void validate_event_structure(const std::shared_ptr<GEventDataCollection>
  * - adding additional hits under the same detector key
  * - adding a second detector key
  *
- * Concurrency notes:
- * - Each worker produces independent event containers (no shared mutation of events).
- * - A mutex is used only when appending thread-local results to the shared output vector.
- *
  * \param nevents  Total number of events to generate.
  * \param nthreads Number of worker threads.
  * \param gopt     Shared options.
@@ -330,3 +332,5 @@ int main(int argc, char* argv[]) {
 
 	return EXIT_SUCCESS;
 }
+
+/** @} */

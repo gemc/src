@@ -1,58 +1,57 @@
 /**
- * \mainpage
- * \section overview Overview
- * This frameworks provides static or dynamic loading of methods (factories) from shared libraries.\n
- * The class GManager registers the client factories and provide methods to instantiate them.
+ * \defgroup Factory Factory
+ * \brief Runtime factory registry and dynamic plugin loading utilities.
  *
- * \section howto Suggested Use
- * After the gManager registration clients can instantiate
- * the derived class and store them in a map<string, Base>
- * for later use.
+ * This group contains the gfactory module public API:
+ * - Static registration of concrete types by name and instantiation via a type-erased factory.
+ * - Dynamic loading of plugin libraries and object creation via exported C symbols.
  *
- * \section Static client factories
- * In this case the client have access to both the base and the derived class headers.
- * To register a "Triangle" class derived from "Shape":
- * <pre>
- * \#include "ShapeFactory.h"
- * \#include "Triangle.h"
- * 
- *  // map that will contain the derived classes instances
- * map<string, Shape*> shapes;
- * GManager manager;
- *
- *  // register class in the manager
- * manager.RegisterObjectFactory<Triangle>("triangle");
+ * The primary entry point is the GManager class.
+ */
 
- * // retrieve "triangle", instantiate and store new client Triangle class
- * map["triangle"] = manager.CreateObject<Shape>("triangle");
+/**
+ * \mainpage gfactory module
  *
- * // Method() is pure virtual in Shape. Calling the instance Triangle method here
- * map["triangle"]->Method();
+ * \section overview Overview
+ * The **gfactory** module provides a lightweight registry and loader for plugin-style objects.
+ * It supports two complementary workflows:
+ * - **Static factory registration**: register a concrete C++ type under a string key and instantiate it later.
+ * - **Dynamic factory loading**: load a shared object at runtime and instantiate objects via a known C symbol.
  *
- * </pre>
+ * The primary entry point is the GManager class.
  *
- * \section dynamicUse Dynamic client factories
- * In this case the client have access to only the base class header.
- * The derived classes are compiled in shared libraries.
- * To register a "ford" class derived from "Car":
- * <pre>
- * \#include "Car.h"
+ * \section conventions Conventions and expectations
+ * - **Naming**: dynamic plugin files are expected to follow the convention `<name>.gplugin`.
+ * - **Dynamic instantiation**:
+ *   - A product base type (e.g., `Car`) typically provides a static method `instantiate(...)`
+ *     that uses \c dlsym to locate an extern "C" factory function (e.g., `CarFactory`).
+ *   - Derived implementations live in separate libraries and provide that extern "C" symbol.
+ * - **Ownership**:
+ *   - Static creation returns a raw pointer; the caller owns it and must delete it.
+ *   - Dynamic creation returns `std::shared_ptr<T>` and keeps the library loaded for the lifetime of the object.
  *
- *  // map that will contain the derived classes instances
- * map<string, Car*> cars;
- * GManager manager;
+ * \section examples Examples (see `examples/`)
+ * The module ships with small examples intended as reference implementations:
+ * - **static_and_dynamic_example.cc**:
+ *   Demonstrates both static registration (for `Shape`) and dynamic loading (for `Car`) in a single program.
+ * - **ShapeFactory.h / ShapeFactory.cc**:
+ *   Implements two static factory products (`Triangle`, `Box`) derived from `Shape`.
+ * - **TeslaFactory.* and FordFactory.* (dynamic)**:
+ *   Implements two dynamically-loaded `Car` products and the exported `CarFactory` symbol.
  *
- * // register the dynamic library (shared object file) in the manager
- * manager.registerDL("fordFactory");
+ * \section verbosity Verbosity and logging
+ * Many classes in this ecosystem derive (directly or indirectly) from `glogger` infrastructure via `GBase`.
+ * In practice, the module emits:
+ * - **info level 0**: high-level lifecycle messages (e.g., library loaded successfully).
+ * - **info level 1**: additional progress details useful for normal development runs.
+ * - **info level 2**: more verbose informational traces (e.g., repeated operations in loops).
+ * - **debug**: diagnostic details such as attempted search paths, symbol resolution, and cleanup ordering.
  *
- * // retrieve "fordFactory" from the shared object, instantiate and store new client fordFactory class
- * map["ford"] = manager.LoadAndRegisterObjectFromLibrary<Car>("fordFactory");
+ * Exact formatting and filtering depend on the logger configuration carried by `GOptions`.
  *
- * // Method() is pure virtual in Car. Calling the instance fordFactory method here
- * map["ford"]->Method();
- * </pre>
- * \n\n
- * \author \n &copy; Maurizio Ungaro
- * \author e-mail: ungaro@jlab.org
- * \n\n\n
+ * \section ownership Ownership and maintenance
+ * Maintainer: Maurizio Ungaro (Jefferson Lab).
+ *
+ * \section contact Contact
+ * e-mail: ungaro@jlab.org
  */

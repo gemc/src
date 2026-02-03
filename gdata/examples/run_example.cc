@@ -1,10 +1,14 @@
 /**
  * \file run_example.cc
  * \brief Example demonstrating run-level integration (accumulation) of event data.
+ */
+
+/**
+ * \defgroup gdata_run_example Run data integration example
  *
- * \page gdata_run_example Run data integration example
+ * \brief Run-level integration of many events into a single detector-summary map.
  *
- * \section run_overview Overview
+ * \details
  * This example shows how to integrate many \ref GEventDataCollection objects into a single
  * \ref GRunDataCollection summary using accumulation semantics (sums of scalar observables).
  *
@@ -19,14 +23,14 @@
  *                - vector<unique_ptr<GDigitizedData>>  typically size 1 (integrated entry)
  *    \endcode
  *
- * \section run_demo What this example demonstrates
+ * \section gdata_run_demo What this example demonstrates
  * - Creating a set of events with multiple detectors and multiple hits per detector.
  * - Run-level integration that produces *sums* of observables across all events/hits.
  * - A reference self-check:
  *   - compute sums directly by scanning the generated events
  *   - compare those sums to what \ref GRunDataCollection produced
  *
- * \section run_integration_details Integration details worth noticing
+ * \section gdata_run_integration_details Integration details worth noticing
  * - Truth integration: this example checks sums of truth doubles (as stored by \ref GTrueInfoData).
  * - Digitized integration: this example checks sums of *non-SRO* digitized keys only.
  *   Filtering is applied by calling:
@@ -34,7 +38,7 @@
  *   - \ref GDigitizedData::getDblObservablesMap "getDblObservablesMap(0)"
  *   where \c which=0 means "exclude SRO keys".
  *
- * \section run_threading Threading model
+ * \section gdata_run_threading Threading model
  * Event generation can be parallel. Run integration is performed sequentially in this example to:
  * - keep the reference check straightforward
  * - avoid requiring a merge API for multiple run accumulators
@@ -46,6 +50,8 @@
  *
  * \author \n &copy; Maurizio Ungaro
  * \author e-mail: ungaro@jlab.org
+ *
+ * @{
  */
 
 // gdata
@@ -106,25 +112,6 @@ static std::string map_to_string(const MapType& m) {
 using PerDetectorDoubles = std::map<std::string, std::map<std::string, double>>;
 using PerDetectorInts    = std::map<std::string, std::map<std::string, long long>>;
 
-/**
- * \brief Generate events in parallel, producing richer content than the minimal factory.
- *
- * \details
- * Each event starts from \ref GEventDataCollection::create "create()" (which inserts one hit for "ctof"),
- * then this example adds:
- * - a second hit under "ctof"
- * - one hit under a second detector key "ec"
- *
- * This ensures run integration exercises:
- * - multiple detectors
- * - multiple hits per detector
- *
- * \param nevents  Number of events to generate.
- * \param nthreads Number of worker threads to use.
- * \param gopt     Shared options.
- * \param log      Logger.
- * \return Vector of generated events.
- */
 static auto generate_events_in_threads(int                              nevents,
                                        int                              nthreads,
                                        const std::shared_ptr<GOptions>& gopt,
@@ -177,22 +164,6 @@ static auto generate_events_in_threads(int                              nevents,
 	return collected;
 }
 
-/**
- * \brief Compute reference sums by scanning event data (ground truth for this example).
- *
- * \details
- * We compute:
- * - truth double sums:      sum over all hits in all events per detector per variable
- * - digitized int sums:     sum over all hits (non-SRO keys only)
- * - digitized double sums:  sum over all hits (non-SRO keys only)
- *
- * This provides an internal consistency check against run-level integration.
- *
- * \param events Vector of generated events.
- * \param truth_ref Output: per-detector truth double sums.
- * \param digi_int_ref Output: per-detector digitized int sums (non-SRO).
- * \param digi_dbl_ref Output: per-detector digitized double sums (non-SRO).
- */
 static void compute_reference_sums(const std::vector<std::shared_ptr<GEventDataCollection>>& events,
                                    PerDetectorDoubles&                                       truth_ref,
                                    PerDetectorInts&                                          digi_int_ref,
@@ -227,21 +198,6 @@ static void compute_reference_sums(const std::vector<std::shared_ptr<GEventDataC
 	}
 }
 
-/**
- * \brief Integrate events into a run collection (run-level accumulation).
- *
- * \details
- * This creates a \ref GRunDataCollection and feeds it each event container via
- * \ref GRunDataCollection::collect_event_data_collection "collect_event_data_collection()".
- *
- * Integration model (as implemented in the library):
- * - for each detector, the first encountered hit creates the integrated entry
- * - subsequent hits contribute by summation of scalar observables into that entry
- *
- * \param events Vector of event data collections.
- * \param gopt Shared options.
- * \return Run data collection (integrated summary).
- */
 static auto integrate_into_run(const std::vector<std::shared_ptr<GEventDataCollection>>& events,
                                const std::shared_ptr<GOptions>&                          gopt)
 	-> std::shared_ptr<GRunDataCollection> {
@@ -256,23 +212,6 @@ static auto integrate_into_run(const std::vector<std::shared_ptr<GEventDataColle
 	return run_data;
 }
 
-/**
- * \brief Inspect and validate run-level integrated content against reference sums.
- *
- * \details
- * This function:
- * - prints per-detector integrated maps from the run collection
- * - compares them to the reference sums computed by scanning the event collection vector
- *
- * The comparison is intentionally diagnostic: it logs mismatches rather than aborting, which
- * makes it easier to use while evolving integration policies.
- *
- * \param run_data Integrated run summary.
- * \param truth_ref Reference truth sums.
- * \param digi_int_ref Reference digitized int sums (non-SRO).
- * \param digi_dbl_ref Reference digitized double sums (non-SRO).
- * \param log Logger.
- */
 static void validate_run_against_reference(const std::shared_ptr<GRunDataCollection>& run_data,
                                            const PerDetectorDoubles&                  truth_ref,
                                            const PerDetectorInts&                     digi_int_ref,
@@ -297,12 +236,11 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 		log->info(0, "Detector <", sdName, ">: integrated truth entries=", truthVec.size(),
 		          " integrated digitized entries=", digiVec.size());
 
-		// ---- Truth integrated entry (expected vector size: 1 in this integration model)
+		// ---- Truth integrated entry
 		if (!truthVec.empty() && truthVec.front()) {
 			const auto integrated_truth = truthVec.front()->getDoubleVariablesMap();
 			log->info(0, "  integrated truth doubles: ", map_to_string(integrated_truth));
 
-			// Compare with reference sums
 			const auto it_ref_det = truth_ref.find(sdName);
 			if (it_ref_det != truth_ref.end()) {
 				for (const auto& [k, refv] : it_ref_det->second) {
@@ -321,7 +259,7 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 			log->info(0, "  integrated truth: <none>");
 		}
 
-		// ---- Digitized integrated entry (non-SRO maps are accumulated by run collection)
+		// ---- Digitized integrated entry
 		if (!digiVec.empty() && digiVec.front()) {
 			const auto ints_non_sro = digiVec.front()->getIntObservablesMap(0);
 			const auto dbls_non_sro = digiVec.front()->getDblObservablesMap(0);
@@ -329,13 +267,11 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 			log->info(0, "  integrated digi int  non-SRO: ", map_to_string(ints_non_sro));
 			log->info(0, "  integrated digi dbl  non-SRO: ", map_to_string(dbls_non_sro));
 
-			// Show SRO keys too (they may exist per hit but are not accumulated under which=0).
 			const auto ints_sro = digiVec.front()->getIntObservablesMap(1);
 			const auto dbls_sro = digiVec.front()->getDblObservablesMap(1);
 			log->info(0, "  integrated digi int  SRO:     ", map_to_string(ints_sro));
 			log->info(0, "  integrated digi dbl  SRO:     ", map_to_string(dbls_sro));
 
-			// Compare int sums
 			const auto it_int_ref_det = digi_int_ref.find(sdName);
 			if (it_int_ref_det != digi_int_ref.end()) {
 				for (const auto& [k, refv] : it_int_ref_det->second) {
@@ -350,7 +286,6 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 				log->info(0, "  NOTE: no reference digitized-int sums found for detector <", sdName, ">.");
 			}
 
-			// Compare double sums
 			const auto it_dbl_ref_det = digi_dbl_ref.find(sdName);
 			if (it_dbl_ref_det != digi_dbl_ref.end()) {
 				for (const auto& [k, refv] : it_dbl_ref_det->second) {
@@ -372,31 +307,24 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 }
 
 int main(int argc, char* argv[]) {
-	// Aggregate options for run-level data collection.
 	auto gopts = std::make_shared<GOptions>(argc, argv, grun_data::defineOptions());
+	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GRUNDATA_LOGGER);
 
-	// Run-data logger (domain: GRUNDATA_LOGGER).
-	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GRUNDATA_LOGGER);
-
-	// Keep defaults moderate so the demo remains readable.
 	constexpr int nevents  = 20;
 	constexpr int nthreads = 4;
 
-	// (1) Generate events (parallel).
 	auto events = generate_events_in_threads(nevents, nthreads, gopts, log);
 	log->info(0, "Generated ", events.size(), " events.");
 
-	// (2) Compute reference sums by scanning the event containers.
 	PerDetectorDoubles truth_ref;
 	PerDetectorInts    digi_int_ref;
 	PerDetectorDoubles digi_dbl_ref;
 	compute_reference_sums(events, truth_ref, digi_int_ref, digi_dbl_ref);
 
-	// (3) Integrate into a run summary (sequential).
 	auto runData = integrate_into_run(events, gopts);
-
-	// (4) Validate run output against reference sums and print summary.
 	validate_run_against_reference(runData, truth_ref, digi_int_ref, digi_dbl_ref, log);
 
 	return EXIT_SUCCESS;
 }
+
+/** @} */

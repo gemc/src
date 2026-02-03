@@ -172,16 +172,21 @@ string fillDigits(const string& word, const string& c, int ndigits) {
 #include <locale.h>   // strtod_l / _strtod_l
 
 /**
- * @brief Parse a whole string_view as a double using the "C" numeric locale.
+ * @brief Parse an entire numeric string as a double using the "C" numeric locale.
  *
- * This is a private helper (translation-unit local). It ensures locale-independent numeric parsing.
- * Parsing succeeds only if the entire string is consumed (no trailing garbage).
+ * This translation-unit local helper exists to make numeric parsing robust against the
+ * process locale (for example when a user's environment uses a comma decimal separator).
+ *
+ * Contract:
+ * - Parsing succeeds only if the entire input is consumed (no trailing characters).
+ * - The conversion uses the "C" numeric locale, independent of the process locale.
  *
  * @param sv String view containing the numeric text.
  * @param out Parsed value on success.
- * @return true on full-consume success; false otherwise.
+ * @return @c true when the full string was successfully parsed; @c false otherwise.
  *
- * @note Private helper function: refer to it as \c parse_double_clocale (no \ref).
+ * @note This is a private helper function. Refer to it textually as \c parse_double_clocale
+ *       (no \ref to private symbols).
  */
 static bool parse_double_clocale(std::string_view sv, double& out) {
 	std::string tmp(sv); // strtod_l needs a 0-terminated buffer

@@ -42,11 +42,38 @@
  * - \ref GRunDataCollection integrates many events into a run summary (accumulation semantics).
  * - \ref GFrameDataCollection aggregates readout payloads per frame/time-window.
  *
+ * \section verbosity_sec Module verbosity
+ * Most GData classes emit messages through the common logging system (\c GLogger) and can be
+ * configured by logger “domains” (for example: \c "true_data", \c "digitized_data", \c "gevent_data",
+ * \c "grun_data"). These domains are typically enabled and tuned via the application options layer
+ * (\c GOptions) so you can increase detail for one component without flooding the whole application.
+ *
+ * The \c info(level, ...) calls follow a coarse convention across this module:
+ * - **info level 0**: high-level summaries intended for normal runs (major steps, per-event or per-run headlines).
+ * - **info level 1**: moderately detailed progress and bookkeeping (per-detector summaries, integration milestones).
+ * - **info level 2**: fine-grained tracing useful for debugging logic and data flow
+ *   (per-hit actions, per-variable insertion/accumulation, filtering decisions).
+ *
+ * \c debug(...) messages are intended for developer diagnostics and lifecycle tracing. In this module they
+ * typically cover constructor/destructor activity, low-level state transitions, and “why did we do this?”
+ * decisions (for example: creation of accumulators, internal container management, and verbose frame/payload traces).
+ *
  * \section examples_sec Examples
- * Example pages built from files in \c examples/:
- * - \ref gdata_event_example : event-level ownership, hit insertion, inspection.
- * - \ref gdata_run_example   : run-level accumulation and validation strategy.
- * - \ref gdata_frame_example : frame/time-window payload grouping (streaming-style).
+ * The repository includes small, buildable examples (see \c examples/) intended to demonstrate the
+ * intended ownership patterns and integration semantics. Each example is a standalone program and can
+ * be used as a reference when integrating GData into an application or backend.
+ *
+ * \subsection examples_event_subsec \ref gdata_event_example "Event data collection example"
+ * Demonstrates **event-level ownership**: creating a \ref GEventDataCollection, adding hits for one or more
+ * detectors, printing identity strings, and inspecting truth/digitized observables (including SRO filtering).
+ *
+ * \subsection examples_run_subsec \ref gdata_run_example "Run data integration example"
+ * Demonstrates **run-level accumulation**: integrating many \ref GEventDataCollection objects into a single
+ * \ref GRunDataCollection and validating that integrated sums match a reference scan of the event content.
+ *
+ * \subsection examples_frame_subsec \ref gdata_frame_example "Frame data example"
+ * Demonstrates **frame/time-window grouping**: building a \ref GFrameDataCollection from a \ref GFrameHeader and
+ * adding packed \ref GIntegralPayload samples (crate/slot/channel/charge/time) as a minimal streaming-style model.
  *
  * \section notes_sec Ownership and integration semantics
  *

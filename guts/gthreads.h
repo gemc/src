@@ -17,8 +17,14 @@
  * - \c std::jthread when the standard library provides it (C++20 and library support), or
  * - a minimal RAII wrapper around \c std::thread that joins on destruction otherwise.
  *
- * The fallback is intentionally small: it provides only the subset of functionality used by the project
- * (construction, move support, join/detach, id/native handle access, and swap).
+ * The fallback is intentionally small and conservative: it provides only the subset of functionality
+ * used by the project. The intent is to avoid sprinkling conditional compilation throughout the
+ * codebase while still getting safe thread joining semantics.
+ *
+ * Key contract for the fallback:
+ * - If a thread is started and still joinable at destruction, it is joined.
+ * - The wrapper is non-copyable and movable.
+ * - The API mirrors the \c std::thread subset that is needed (join, detach, id, native handle, swap).
  */
 
 // 2) Use std::jthread when the library actually ships it
@@ -30,6 +36,9 @@
  *
  * When \c std::jthread exists, it provides automatic joining and cooperative cancellation
  * (via stop tokens) in the standard way.
+ *
+ * @note The rest of the codebase should prefer \c jthread_alias so the implementation choice
+ *       remains centralized in this header.
  */
 using jthread_alias = std::jthread;
 
@@ -41,22 +50,40 @@ using jthread_alias = std::jthread;
  *
  * This class is used when \c std::jthread is not available in the standard library.
  *
- * Key properties:
- * - Owns a \c std::thread instance via composition (not inheritance).
- * - Joins the thread in the destructor if it is still joinable.
- * - Non-copyable; movable.
+ * Ownership model:
+ * - The object *owns* the underlying \c std::thread instance.
+ * - If that thread is joinable at destruction, the destructor joins it.
  *
  * Differences vs \c std::jthread:
  * - No stop-token / cooperative cancellation support.
- * - Only the minimal forwarding API needed by the codebase is exposed.
+ * - Only a minimal subset of the thread API is exposed.
+ *
+ * Typical usage:
+ * @code{.cpp}
+ * jthread_alias t([]{ do_work(); });
+ * // ... later ...
+ * // joins automatically on scope exit if still joinable
+ * @endcode
+ *
+ * @warning The destructor joins unconditionally when joinable. This is a safety feature, but
+ *          it also means a long-running thread may delay scope exit. Ensure the thread function
+ *          has clear termination conditions.
  */
 class jthread_alias
 {
+	/**
+	 * @brief Owned thread instance.
+	 *
+	 * Invariant: \c t_ is either default-constructed (not joinable), moved-from (not joinable),
+	 * or represents a running/finished thread that may be joinable.
+	 */
 	std::thread t_;
 
 public:
 	/**
 	 * @brief Construct an empty (non-joinable) wrapper.
+	 *
+	 * After default construction, \ref jthread_alias::joinable "joinable()" returns @c false.
 	 */
 	jthread_alias() noexcept = default;
 
@@ -67,6 +94,8 @@ public:
 	 * @tparam Args Argument pack forwarded to @p f.
 	 * @param f Callable to run in the new thread.
 	 * @param args Arguments passed to @p f.
+	 *
+	 * @note This constructor is \c explicit to avoid accidental implicit thread starts.
 	 */
 	template <class F, class... Args>
 	explicit jthread_alias(F&& f, Args&&... args)
@@ -81,6 +110,10 @@ public:
 
 	/**
 	 * @brief Join the underlying thread on destruction if still joinable.
+	 *
+	 * This mirrors the "safe by default" behavior typically sought with \c std::jthread.
+	 *
+	 * @warning If the owned thread function can block indefinitely, destruction will also block.
 	 */
 	~jthread_alias() { if (t_.joinable()) t_.join(); }
 
@@ -93,14 +126,18 @@ public:
 	/**
 	 * @brief Join the underlying thread.
 	 *
-	 * @warning Calling this when not joinable has the same preconditions as \c std::thread::join.
+	 * Preconditions match \c std::thread::join.
+	 *
+	 * @warning Calling this when not joinable has undefined behavior per \c std::thread rules
+	 *          (typically terminating the program).
 	 */
 	void join() { t_.join(); }
 
 	/**
 	 * @brief Detach the underlying thread.
 	 *
-	 * After detaching, the wrapper no longer represents a joinable thread.
+	 * After detaching, the wrapper no longer represents a joinable thread, and the destructor
+	 * will not join.
 	 */
 	void detach() { t_.detach(); }
 
@@ -113,12 +150,16 @@ public:
 	/**
 	 * @brief Access the native handle of the underlying thread.
 	 * @return Native handle as returned by \c std::thread::native_handle.
+	 *
+	 * @note This is provided for integration with low-level platform APIs when needed.
 	 */
 	auto native_handle() { return t_.native_handle(); }
 
 	/**
 	 * @brief Swap the underlying thread with another wrapper.
 	 * @param other Wrapper to swap with.
+	 *
+	 * After swapping, each wrapper owns the other's prior thread.
 	 */
 	void swap(jthread_alias& other) noexcept { t_.swap(other.t_); }
 };

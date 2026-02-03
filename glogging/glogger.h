@@ -88,11 +88,11 @@ public:
 	 * @brief Constructs a GLogger instance and resolves its runtime configuration.
 	 *
 	 * The constructor queries the provided GOptions to resolve:
-	 * - The verbosity level associated with `lname`
-	 * - The debug level associated with `lname`
+	 * - The verbosity level associated with \p lname.
+	 * - The debug level associated with \p lname.
 	 *
 	 * It also emits a constructor-style debug message via
-	 * \ref GLogger::debug "debug()" (only if debug is enabled).
+	 * \ref GLogger::debug "debug()" (only if debug is enabled for this logger name).
 	 *
 	 * @param gopts Shared pointer to the GOptions instance used for verbosity/debug lookup.
 	 * @param cname Caller-provided class name (informational; currently not used for filtering).
@@ -101,8 +101,11 @@ public:
 	 */
 	explicit GLogger(const std::shared_ptr<GOptions>& gopts, const std::string& cname, const std::string& lname = "")
 		: class_name(cname), logger_name(lname), log_counter{0} {
+		// Resolve the runtime policy for this subsystem name from the global options.
 		verbosity_level = gopts->getVerbosityFor(logger_name);
 		debug_level     = gopts->getDebugFor(logger_name);
+
+		// Optional lifetime trace to help identify logger ownership and construction order.
 		debug(CONSTRUCTOR, logger_name, " logger");
 	}
 
@@ -113,7 +116,7 @@ public:
 	 * default-initialized state. It is primarily useful for scenarios where a logger instance
 	 * must exist before configuration is available.
 	 *
-	 * \note If you use this constructor, ensure `logger_name`, `verbosity_level`, and `debug_level`
+	 * \note If you use this constructor, ensure \c logger_name, \c verbosity_level, and \c debug_level
 	 * are set through the normal construction path before relying on filtering behavior.
 	 */
 	GLogger() = default;
@@ -129,24 +132,24 @@ public:
 	/**
 	 * \brief Logs a debug message if the debug level is nonzero.
 	 *
-	 * This method builds a single message string from `args...` using stream insertion into an
-	 * `std::ostringstream`. It then prints the message with a standardized header and optional
+	 * This method builds a single message string from \p args... using stream insertion into an
+	 * \c std::ostringstream. It then prints the message with a standardized header and optional
 	 * constructor/destructor markers depending on \p type.
 	 *
 	 * \tparam Args Variadic template parameters representing any streamable types.
 	 * \param type The debug message classification : NORMAL, CONSTRUCTOR, or DESTRUCTOR.
-	 * \param args The message components. Each argument must be insertable into `std::ostream`.
+	 * \param args The message components. Each argument must be insertable into \c std::ostream.
 	 *
 	 * @details Implementation techniques used:
 	 * - Variadic templates for a flexible number of message components.
-	 * - Perfect forwarding (`std::forward`) to preserve value categories.
-	 * - Fold expression `(oss << ... << arg)` to stream all arguments.
+	 * - Perfect forwarding (\c std::forward) to preserve value categories.
+	 * - Fold expression \c (oss << ... << arg) to stream all arguments.
 	 *
-	 * \note Debug output is suppressed entirely when `debug_level == 0`.
+	 * \note Debug output is suppressed entirely when \c debug_level == 0.
 	 */
 	template <typename... Args>
 	void debug(debug_type type, Args&&... args) const {
-		if (debug_level == 0) return;
+		if (debug_level == 0) return; // Debug disabled for this logger instance.
 
 		std::ostringstream oss;
 		(oss << ... << std::forward<Args>(args));
@@ -171,25 +174,26 @@ public:
 	 *
 	 * Info messages support three levels of detail:
 	 * - level 0 : Always printed (baseline information).
-	 * - level 1 : Printed only when `verbosity_level > 0`.
-	 * - level 2 : Printed only when `verbosity_level > 1` (most detailed).
+	 * - level 1 : Printed only when \c verbosity_level > 0.
+	 * - level 2 : Printed only when \c verbosity_level > 1 (most detailed).
 	 *
 	 * \tparam Args Variadic template parameters for any streamable types.
 	 * \param level The info importance/detail level (0, 1, or 2).
 	 * \param args Message components to log. Each argument must be stream-insertable.
 	 *
 	 * \throws (process termination) If \p level is not 0, 1, or 2, this method prints a fatal error
-	 * and terminates the process with `EC_WRONG_VERBOSITY_LEVEL`.
+	 * and terminates the process with \c EC_WRONG_VERBOSITY_LEVEL.
 	 */
 	template <typename... Args>
 	void info(int level, Args&&... args) const {
-		// error if the level is not 0, 1 or 2
+		// Validate the requested verbosity level early so callers fail fast with a clear message.
 		if (level != 0 && level != 1 && level != 2) {
 			G4cerr << FATALERRORL << header_string() << GWARNING << " Invalid verbosity level requested: " << level <<
 				RST << G4endl;
 			exit(EC_WRONG_VERBOSITY_LEVEL);
 		}
 
+		// Apply the gating rule associated with the requested level.
 		if (level == 0 || (level == 1 && verbosity_level > 0) || (level == 2 && verbosity_level > 1)) {
 			std::ostringstream oss;
 			(oss << ... << std::forward<Args>(args));
@@ -231,16 +235,16 @@ public:
 	 * @brief Logs an error message and terminates the process.
 	 *
 	 * This method prints:
-	 * - The provided message
-	 * - The explicit exit code line
+	 * - The provided message.
+	 * - The explicit exit code line.
 	 *
-	 * Then it terminates the process via `std::exit(exit_code)`.
+	 * Then it terminates the process via \c std::exit(exit_code).
 	 *
 	 * @tparam Args Variadic template parameters for any streamable types.
 	 * @param exit_code The program exit code to return to the calling environment.
 	 * @param args Message parts to be logged before exiting.
 	 *
-	 * @note This function is marked `[[noreturn]]` because it always terminates the process.
+	 * @note This function is marked \c [[noreturn]] because it always terminates the process.
 	 */
 	template <typename... Args>
 	[[noreturn]] void error(int exit_code, Args&&... args) const {
@@ -280,7 +284,7 @@ public:
 private:
 	std::string class_name; ///< Logical "owner" class name that instantiated the logger (informational).
 	std::string logger_name;
-	///< Logger/subsystem name used as the configuration lookup key in \ref GOptions "GOptions".
+	///< Logger/subsystem name used as the configuration lookup key in GOptions.
 	int verbosity_level{}; ///< Resolved verbosity level for this logger instance (0 = minimal, higher = more detailed).
 	int debug_level{};     ///< Resolved debug level for this logger instance (0 = off; nonzero enables debug printing).
 
@@ -293,12 +297,12 @@ private:
 	 * - The counter is incremented atomically on each call.
 	 * - The returned header embeds the current counter value.
 	 *
-	 * \return A formatted header string in the form : `[ logger_name - counter ]`.
+	 * \return A formatted header string in the form : \c "[ logger_name - counter ] ".
 	 *
-	 * \note This is a private helper; its behavior is documented here without external cross-references.
+	 * \note This is a private helper; its behavior is documented here without cross-references.
 	 */
 	[[nodiscard]] std::string header_string() const {
-		++log_counter;
+		++log_counter; // Increment first so the first emitted message is "1" rather than "0".
 		return " [ " + logger_name + " - " + std::to_string(log_counter.load()) + " ] ";
 	}
 };

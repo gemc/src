@@ -18,7 +18,7 @@
  * - a timestamp string (\c timeStamp)
  *
  * In production GEMC/Geant4, event number and thread ID would typically come from Geant4
- * (e.g. G4Event and G4Threading). In this library, \ref GEventHeader::create "create()"
+ * (e.g. \c G4Event and \c G4Threading). In this library, \ref GEventHeader::create "create()"
  * provides a deterministic generator for examples and tests.
  *
  * Timestamp behavior:
@@ -33,7 +33,7 @@ constexpr const char* GDATAEVENTHEADER_LOGGER = "event_header";
 
 namespace geventheader {
 /**
- * \brief Defines \ref GOptions for the event-header logger domain.
+ * \brief Defines GOptions for the event-header logger domain.
  *
  * \details
  * Event header logging can be enabled/controlled by including this in composite option bundles.

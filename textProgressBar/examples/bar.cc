@@ -1,3 +1,5 @@
+// Example: demonstrates basic usage of TextProgressBar in a tight loop.
+
 // textProgressBar
 #include "textProgressBar.h"
 

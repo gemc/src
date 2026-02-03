@@ -28,7 +28,7 @@
  * - Scalar option: one \ref GVariable : holds option name, default value, and summary description.
  * - Structured option: a vector of \ref GVariable : entries defines the schema (keys and defaults).
  *
- * Values are stored internally as strings for uniform YAML construction.
+ * Values are stored internally as strings for uniform YAML construction and printing.
  */
 struct GVariable
 {
@@ -113,6 +113,10 @@ public:
 	 * <name>: <default>
 	 * \endcode
 	 *
+	 * The constructed node is stored in both:
+	 * - \c defaultValue (schema/default snapshot),
+	 * - \c value (current resolved value), initially equal to the default.
+	 *
 	 * @param dv Scalar option descriptor (name, default value, description).
 	 * @param h Multi-line help text shown in detailed help.
 	 */
@@ -136,6 +140,10 @@ public:
 	 * If any schema entry has value \ref goptions::NODFLT : :
 	 * - that key is added to \c mandatory_keys
 	 * - the option is flagged cumulative (\c isCumulative = true)
+	 *
+	 * For non-cumulative structured options, the current \c value is initialized to the default schema.
+	 * For cumulative options, the current \c value is intentionally left unset until user values are provided,
+	 * because mandatory keys require explicit user input.
 	 *
 	 * @param n Option name.
 	 * @param desc One-line description shown in summary help.
@@ -169,27 +177,36 @@ public:
 	 * \ref GOptions : locates the \ref GOption : for "verbosity" and calls this method to update
 	 * the "general" entry.
 	 *
+	 * Update rules:
+	 * - If the stored value is a YAML sequence of maps: every map entry that contains @p subkey is updated.
+	 * - If the stored value is a YAML map: the map entry @p subkey is updated.
+	 * - If @p subkey does not exist in the stored structured value, the program exits with \c EC__NOOPTIONFOUND .
+	 *
 	 * @param subkey The sub-option key to update.
 	 * @param subvalue The new value expressed as a string; it is parsed as YAML.
 	 */
 	void set_sub_option_value(const std::string& subkey, const std::string& subvalue);
 
 private:
-	bool              isCumulative = false; ///< True for cumulative structured options (mandatory keys present).
-	const std::string name;                 ///< Option name (tag without leading '-').
-	const std::string description;          ///< Short summary description.
-	const std::string help;                 ///< Multi-line help text shown in detailed help output.
+	bool              isCumulative = false; ///< True for cumulative structured options (mandatory keys present in schema).
+	const std::string name;                 ///< Option name (tag without leading '-'); this is the stable lookup key.
+	const std::string description;          ///< Short summary description shown in one-line help output.
+	const std::string help;                 ///< Multi-line help text shown in detailed help output (may include examples).
 
-	YAML::Node               value;          ///< Current resolved YAML value for this option.
-	YAML::Node               defaultValue;   ///< Default YAML value/schema for this option.
-	std::vector<std::string> gvar_descs;     ///< Per-schema-key descriptions used for detailed help.
-	std::vector<std::string> mandatory_keys; ///< Mandatory keys required for cumulative options.
+	YAML::Node               value;          ///< Current resolved YAML value for this option (after YAML + CLI parsing).
+	YAML::Node               defaultValue;   ///< Default YAML value/schema for this option (constructed from definitions).
+	std::vector<std::string> gvar_descs;     ///< Per-schema-key descriptions aligned with defaultValue sequence order.
+	std::vector<std::string> mandatory_keys; ///< Keys that must be present in every cumulative entry.
 
 	/**
 	 * @brief Saves the current option value to a YAML configuration file.
 	 *
 	 * @details
-	 * This is a private method \c saveOption() : invoked by \ref GOptions::saveOptions "saveOptions()" .
+	 * Serialization behavior:
+	 * - Writes comment lines for any YAML null values (paths) to help users understand which fields were not provided.
+	 * - Writes the YAML node in block style so nested maps/sequences remain readable.
+	 *
+	 * This method is invoked by the option manager during configuration snapshot writing.
 	 *
 	 * @param yamlConf Output stream for the YAML configuration file.
 	 */
@@ -199,8 +216,11 @@ private:
 	 * @brief Prints help text for this option.
 	 *
 	 * @details
-	 * This is a private method \c printHelp() : invoked by \ref GOptions::printHelp "printHelp()" and
-	 * \ref GOptions::printOptionOrSwitchHelp "printOptionOrSwitchHelp()" .
+	 * Output behavior:
+	 * - Summary mode prints a single aligned line (name + short description).
+	 * - Detailed mode additionally prints schema key descriptions and the full multi-line help text.
+	 *
+	 * This method is used by the option manager when generating console help output.
 	 *
 	 * @param detailed If true, prints schema defaults and extended help.
 	 */
@@ -210,7 +230,10 @@ private:
 	 * @brief Builds detailed help text for this option.
 	 *
 	 * @details
-	 * This is a private method \c detailedHelp() : used internally by \c printHelp(true) .
+	 * Detailed help includes:
+	 * - the structured schema keys (if present) with their default values,
+	 * - the per-key description strings,
+	 * - and the free-form multi-line help text (often containing examples).
 	 *
 	 * @return Multi-line detailed help string.
 	 */
@@ -220,7 +243,10 @@ private:
 	 * @brief Sets a scalar option value from a command-line string.
 	 *
 	 * @details
-	 * This is a private method \c set_scalar_value() : called by \ref GOptions : when parsing scalar payloads.
+	 * The input string is normalized for compatibility with legacy comma-delimited payloads.
+	 * The resulting string becomes the YAML scalar stored as the current option value.
+	 *
+	 * This method is called by the option manager while parsing scalar command-line tokens.
 	 *
 	 * @param v Input string value.
 	 */
@@ -230,7 +256,15 @@ private:
 	 * @brief Sets the option value from a parsed YAML node.
 	 *
 	 * @details
-	 * This is a private method \c set_value() : called by \ref GOptions : when parsing structured payloads.
+	 * For cumulative structured options:
+	 * - validates that each entry contains all mandatory keys,
+	 * - stores the provided sequence of maps,
+	 * - back-fills missing optional keys from schema defaults.
+	 *
+	 * For non-cumulative structured options:
+	 * - updates existing structured content by matching keys and replacing values.
+	 *
+	 * This method is called by the option manager while parsing YAML files or structured command-line tokens.
 	 *
 	 * @param v Parsed YAML node.
 	 */
@@ -240,7 +274,8 @@ private:
 	 * @brief Checks whether all mandatory keys are present in a candidate YAML node.
 	 *
 	 * @details
-	 * This is a private method \c does_the_option_set_all_necessary_values() : used during cumulative option parsing.
+	 * Mandatory keys are those whose schema default was \ref goptions::NODFLT : .
+	 * The check is applied to each element of a cumulative sequence.
 	 *
 	 * @param v Candidate YAML node (typically one element of a sequence).
 	 * @return True if all mandatory keys are present; false otherwise.

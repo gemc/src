@@ -1,31 +1,35 @@
 /**
  *  \mainpage
  *
- *  \section Overview
- *  The **gutilities** library provides a suite of utility helpers grouped under the \ref gutilities "gutilities"
- *  namespace. The focus is on small, dependency-light building blocks that are reused across the codebase:
+ *  \tableofcontents
  *
- *  - String normalization (trimming, tokenizing, replacements)
- *  - Path manipulation and basic directory scanning
- *  - Parsing numeric strings with optional units into CLHEP/Geant4 internal units
- *  - Small Geant4 convenience helpers (e.g., applying UI commands, constructing \c G4Colour)
+ *  \section overview Overview
+ *  The **gutilities** module provides a suite of small, dependency-light helpers grouped under
+ *  the \ref gutilities "gutilities" namespace. These utilities are reused across the codebase
+ *  to keep common operations (string normalization, filesystem probing, numeric parsing) consistent
+ *  and easy to audit.
  *
- *  \section Main namespace contents
- *  The \ref gutilities "gutilities" namespace includes:
+ *  The guiding design goals are:
+ *  - **Small surface area**: each function does one thing, with explicit behavior.
+ *  - **Predictable parsing**: numeric parsing is designed to be locale-independent.
+ *  - **Reuse**: common patterns live in one place rather than being re-implemented in multiple modules.
+ *
+ *  \section namespace_contents Main namespace contents
+ *  The \ref gutilities "gutilities" namespace includes (non-exhaustive):
  *
  *  - \ref gutilities::removeLeadingAndTrailingSpacesFromString "removeLeadingAndTrailingSpacesFromString()"
- *    - Two overloads: one returning an owning \c std::string and one operating on \c std::string_view.
+ *    - Two overloads: an owning \c std::string variant and a \c std::string_view variant.
  *  - \ref gutilities::getStringVectorFromString "getStringVectorFromString()"
- *    - Tokenizes a whitespace-separated string into a vector.
+ *    - Tokenizes whitespace-separated text into a vector of trimmed tokens.
  *  - \ref gutilities::getFileFromPath "getFileFromPath()"
  *    - Extracts the last path component from a POSIX-style path.
  *  - \ref gutilities::getDirFromPath "getDirFromPath()"
- *    - Extracts the directory portion from a POSIX-style path.
+ *    - Extracts the directory portion of a POSIX-style path.
  *  - \ref gutilities::getG4Number "getG4Number()"
- *    - Parses \c "<number>*<unit>" and converts to CLHEP internal units when recognized.
+ *    - Parses \c "<number>*<unit>" and converts to internal units when recognized.
  *
- *  \section Conventions
- *  The **gutilities** library follows conventions defined in gutsConventions.h :
+ *  \section conventions Conventions and shared macros
+ *  The module follows conventions defined in gutsConventions.h :
  *
  *  - **Message prefixes**:
  *    - \c FATALERRORL and \c GWARNING provide standardized fatal/warning prefixes.
@@ -34,10 +38,12 @@
  *  - **List glyphs**:
  *    - \c POINTITEM, \c CIRCLEITEM, \c SQUAREITEM, etc., to keep console logs consistent.
  *
- *  \section Example
- *  The following example demonstrates how to use
- *  \ref gutilities::getStringVectorFromString "getStringVectorFromString()"
- *  to split a string into individual words:
+ *  \section examples Examples
+ *
+ *  \subsection ex_string_vector Tokenizing a string into words
+ *  The example program \c examples/string_vector_from_string.cc demonstrates how to use
+ *  \ref gutilities::getStringVectorFromString "getStringVectorFromString()" to split a single
+ *  command-line argument into tokens and print them.
  *
  *  ~~~~cpp
  *  #include <iostream>
@@ -51,22 +57,19 @@
  *      for (const auto& word : result) {
  *          std::cout << word << std::endl;
  *      }
- *
  *      return 0;
  *  }
  *  ~~~~
  *
- *  **Usage**:
- *
+ *  Example output:
  *  \code{.bash}
- *  > example "strings separated by spaces"
  *  strings
  *  separated
  *  by
  *  spaces
  *  \endcode
  *
- *  \section Additional features
+ *  \section additional_features Additional features
  *  Additional utility functions include:
  *
  *  - \ref gutilities::replaceCharInStringWithChars "replaceCharInStringWithChars()"
@@ -76,8 +79,12 @@
  *  - \ref gutilities::getListOfFilesInDirectory "getListOfFilesInDirectory()"
  *    - Scans a directory for regular files with matching extensions.
  *
- *  \subsection cisubsection Continuous Integration
- *  The gutilities code is continuously integrated and tested to ensure stability and reliability across updates.
+ *  \section ownership Ownership and maintenance
+ *  This module is maintained as part of the broader codebase by the primary project maintainer.
+ *  When updating these utilities, prefer:
+ *  - adding documentation for behavior changes,
+ *  - keeping parsing rules explicit and testable,
+ *  - avoiding implicit dependencies on platform locale and environment.
  *
  *  \n\n
  *  \author \n &copy; Maurizio Ungaro

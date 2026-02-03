@@ -14,10 +14,15 @@
  * @details
  * A switch is a presence-based boolean flag:
  * - Default: off (false)
- * - If specified on the command line (e.g. `-gui`), it becomes on (true).
+ * - If specified on the command line (e.g., `-gui`), it becomes on (true).
  *
  * Switches are stored by \ref GOptions : and are typically used for enabling/disabling
  * optional behaviors in an application (GUI, interactive mode, logging toggles, etc.).
+ *
+ * Design intent:
+ * - Lightweight value type suitable for storage in associative containers.
+ * - Description text is meant for human-facing help output.
+ * - Status is intentionally binary: either present (on) or absent (off).
  */
 class GSwitch
 {
@@ -37,6 +42,8 @@ public:
 	 *
 	 * @details
 	 * Initializes the switch description and forces the status to `false` (off).
+	 * This guarantees that defining a switch never enables it implicitly; only parsing or explicit
+	 * programmatic calls enable it.
 	 *
 	 * @param d Human-readable description of what enabling this switch does.
 	 */
@@ -80,8 +87,8 @@ private:
 	 * @brief Human-readable description of the switch.
 	 *
 	 * @details
-	 * This is displayed by \ref GOptions::printHelp "printHelp()" and
-	 * \ref GOptions::printOptionOrSwitchHelp "printOptionOrSwitchHelp()" .
+	 * Displayed in help output and in per-switch help text.
+	 * It is intended to be a short sentence fragment that reads naturally after the switch name.
 	 */
 	std::string description;
 

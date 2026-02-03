@@ -9,6 +9,8 @@
 // Define the static counter here
 std::atomic<int> GTouchable::globalGTouchableCounter{0};
 
+// See header for API docs.
+
 // constructor from gopt, digitization and gidentity strings
 // called in GDetectorConstruction::ConstructSDandField
 GTouchable::GTouchable(const std::shared_ptr<GOptions>& gopt,
@@ -17,21 +19,25 @@ GTouchable::GTouchable(const std::shared_ptr<GOptions>& gopt,
                        const std::vector<double>&       dimensions) : GBase(gopt, TOUCHABLE_LOGGER),
                                                                       trackId(0),
                                                                       eMultiplier(1),
-                                                                      stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),
+                                                                      stepTimeAtElectronicsIndex(
+	                                                                      GTOUCHABLEUNSETTIMEINDEX),
                                                                       detectorDimensions(dimensions) {
 	// Determine the type based on the digitization string.
+	// The string constants are defined in gtouchableConventions.h : FLUXNAME, COUNTERNAME, DOSIMETERNAME.
 	if (digitization == FLUXNAME) { gType = flux; }
 	else if (digitization == COUNTERNAME) { gType = particleCounter; }
 	else if (digitization == DOSIMETERNAME) { gType = dosimeter; }
 	else { gType = readout; }
 
-	// Parse the gidentity string.
+	// Parse the gidentity string into (name,value) pairs.
 	// Expected format: "sector: 2, layer: 4, wire: 33"
+	// The identity vector order is preserved because comparisons assume the same schema/order.
 	std::vector<std::string> identity = gutilities::getStringVectorFromStringWithDelimiter(gidentityString, ",");
-	// Process each identifier (e.g., "sector: 2").
+	// Process each identifier token (e.g., "sector: 2").
 	for (auto& gid : identity) {
 		std::vector<std::string> identifier = gutilities::getStringVectorFromStringWithDelimiter(gid, ":");
 
+		// The parser assumes the token splits into [name, value].
 		// Note: In production, consider adding try-catch here to handle conversion errors.
 		const std::string& idName  = identifier[0];
 		int                idValue = std::stoi(identifier[1]);
@@ -44,26 +50,30 @@ GTouchable::GTouchable(const std::shared_ptr<GOptions>& gopt,
 // constructor from logger, digitization and gidentity strings
 // called in GDetectorConstruction::ConstructSDandField
 GTouchable::GTouchable(const std::shared_ptr<GLogger>& logger,
-					   const std::string&               digitization,
-					   const std::string&               gidentityString,
-					   const std::vector<double>&       dimensions) : GBase(logger),
-																	  trackId(0),
-																	  eMultiplier(1),
-																	  stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),
-																	  detectorDimensions(dimensions) {
+                       const std::string&              digitization,
+                       const std::string&              gidentityString,
+                       const std::vector<double>&      dimensions) : GBase(logger),
+                                                                     trackId(0),
+                                                                     eMultiplier(1),
+                                                                     stepTimeAtElectronicsIndex(
+	                                                                     GTOUCHABLEUNSETTIMEINDEX),
+                                                                     detectorDimensions(dimensions) {
 	// Determine the type based on the digitization string.
+	// The string constants are defined in gtouchableConventions.h : FLUXNAME, COUNTERNAME, DOSIMETERNAME.
 	if (digitization == FLUXNAME) { gType = flux; }
 	else if (digitization == COUNTERNAME) { gType = particleCounter; }
 	else if (digitization == DOSIMETERNAME) { gType = dosimeter; }
 	else { gType = readout; }
 
-	// Parse the gidentity string.
+	// Parse the gidentity string into (name,value) pairs.
 	// Expected format: "sector: 2, layer: 4, wire: 33"
+	// The identity vector order is preserved because comparisons assume the same schema/order.
 	std::vector<std::string> identity = gutilities::getStringVectorFromStringWithDelimiter(gidentityString, ",");
-	// Process each identifier (e.g., "sector: 2").
+	// Process each identifier token (e.g., "sector: 2").
 	for (auto& gid : identity) {
 		std::vector<std::string> identifier = gutilities::getStringVectorFromStringWithDelimiter(gid, ":");
 
+		// The parser assumes the token splits into [name, value].
 		// Note: In production, consider adding try-catch here to handle conversion errors.
 		const std::string& idName  = identifier[0];
 		int                idValue = std::stoi(identifier[1]);
@@ -82,6 +92,8 @@ bool GTouchable::operator==(const GTouchable& that) const {
 		return false;
 	}
 
+	// Compare identifiers positionally.
+	// Only the identifier values are compared (schema/order is assumed identical for the same sensitivity).
 	log->debug(NORMAL, "  + Touchable comparison:  ");
 	for (size_t i = 0; i < this->gidentity.size(); ++i) {
 		bool        equal            = (this->gidentity[i].getValue() == that.gidentity[i].getValue());
@@ -93,13 +105,13 @@ bool GTouchable::operator==(const GTouchable& that) const {
 	bool        typeComparison = false;
 	std::string result;
 
-	// all identities are the same
-	// now using gtouchable type
+	// All identity values matched; apply the type-specific discriminator.
 	switch (this->gType) {
 	case readout:
 		typeComparison = this->stepTimeAtElectronicsIndex == that.stepTimeAtElectronicsIndex;
 		result = typeComparison ? " ✅" : " ❌";
-		log->debug(NORMAL, "    Touchable type is readout. Time cell comparison: ", this->stepTimeAtElectronicsIndex, " ", that.stepTimeAtElectronicsIndex,
+		log->debug(NORMAL, "    Touchable type is readout. Time cell comparison: ", this->stepTimeAtElectronicsIndex,
+		           " ", that.stepTimeAtElectronicsIndex,
 		           " result:", result);
 		break;
 	case flux:
@@ -133,7 +145,8 @@ std::ostream& operator<<(std::ostream& stream, const GTouchable& gtouchable) {
 	switch (gtouchable.gType) {
 	case readout:
 		// compare the time cell
-		stream << KGRN << " (readout), " << RST << " multiplier: " << gtouchable.eMultiplier << ", time cell index: " << gtouchable.stepTimeAtElectronicsIndex;
+		stream << KGRN << " (readout), " << RST << " multiplier: " << gtouchable.eMultiplier << ", time cell index: " <<
+			gtouchable.stepTimeAtElectronicsIndex;
 		break;
 	case flux:
 		stream << KGRN << " (flux), " << RST << " g4 track id: " << gtouchable.trackId;

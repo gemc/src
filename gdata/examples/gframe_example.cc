@@ -1,19 +1,23 @@
 /**
  * \file gframe_example.cc
  * \brief Example demonstrating frame data collection.
+ */
+
+/**
+ * \defgroup gdata_frame_example Frame data example
  *
- * \page gdata_frame_example Frame data example
+ * \brief Frame/time-window grouping of integrated readout payloads.
  *
- * \section frame_overview Overview
+ * \details
  * This example demonstrates how to build a frame container (\ref GFrameDataCollection) that owns:
  * - a \ref GFrameHeader (frame ID + duration)
  * - a list of \ref GIntegralPayload objects (crate/slot/channel/charge/time)
  *
  * Frames are typically used for streaming/readout-style output where data are grouped by
- * time windows rather than by Geant4 events. Conceptually, a frame corresponds to a fixed
+ * time windows rather than by events. Conceptually, a frame corresponds to a fixed
  * integration window (for example 33.33 ms), during which many channels may fire.
  *
- * \section frame_payload_layout Payload layout
+ * \section gdata_frame_payload_layout Payload layout
  * The \ref GFrameDataCollection::addIntegralPayload "addIntegralPayload()" API accepts a packed
  * integer vector with a fixed order (size must be exactly 5):
  * - payload[0] crate
@@ -31,6 +35,8 @@
  *
  * \author \n &copy; Maurizio Ungaro
  * \author e-mail: ungaro@jlab.org
+ *
+ * @{
  */
 
 // gdata
@@ -89,3 +95,5 @@ int main(int argc, char* argv[]) {
 
 	return EXIT_SUCCESS;
 }
+
+/** @} */

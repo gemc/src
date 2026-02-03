@@ -2,136 +2,127 @@
 
 /**
  * \mainpage
- * \section main Overview
  *
- * \ref GOptions provides a unified framework to parse command-line arguments and YAML files.
- * The primary building blocks are \ref GSwitch and \ref GOption.
+ * \section goptions_main_overview Overview
  *
- * \subsection Subsection0 Switches
- * A \ref GSwitch is a lightweight boolean flag with a description.
- * It is initialized to `false` by default and can be toggled to `true` by specifying it on the command line.
- * For example, the switch `gui` is activated if the command line contains:
- * ~~~sh
- * -gui
- * ~~~
+ * \ref GOptions : provides a unified framework to define, parse, validate, and persist configuration
+ * coming from **YAML files** and **command-line arguments**. It is designed to support:
+ * - small executables (a handful of options),
+ * - large frameworks/plugins (many modules contributing options),
+ * - reproducible batch workflows (automatic YAML snapshot of resolved configuration).
  *
- * \subsection Subsection1 Scalar options
- * A scalar \ref GOption is associated with a single value (integer, double, string, etc.) stored as a YAML scalar.
- * In a YAML configuration file:
- * ~~~yaml
+ * The subsystem is built around:
+ * - \ref GSwitch : a presence-based boolean flag (e.g. `-gui`).
+ * - \ref GOption : an option value container that can be scalar or structured.
+ * - \ref GVariable : a schema entry used when defining scalar options or structured option keys.
+ *
+ * \tableofcontents
+ *
+ * \section goptions_main_concepts Concepts
+ *
+ * \subsection goptions_main_switches Switches
+ * A \ref GSwitch : is a lightweight boolean flag:
+ * - default is **off**,
+ * - specifying `-<name>` on the command line turns it **on**.
+ *
+ * Example:
+ * \code{.sh}
+ * myprog -gui
+ * \endcode
+ *
+ * \subsection goptions_main_scalar Scalar options
+ * A scalar \ref GOption : stores exactly one value as a YAML scalar. Values can be supplied via:
+ * - YAML:
+ * \code{.yaml}
  * runno: 12
- * ~~~
- * The corresponding command-line syntax is:
- * ~~~sh
- * -runno=12
- * ~~~
+ * \endcode
+ * - Command line:
+ * \code{.sh}
+ * myprog -runno=12
+ * \endcode
  *
- * \subsection Subsection2 Structured options
- * A structured \ref GOption groups multiple key/value pairs under one option name.
- * Example YAML:
- * ~~~yaml
+ * \subsection goptions_main_structured Structured options
+ * A structured \ref GOption : stores either:
+ * - a YAML map, or
+ * - a YAML sequence (commonly a sequence of maps).
+ *
+ * A typical pattern is a **sequence of maps** where each entry represents one repeated item:
+ * \code{.yaml}
  * gparticle:
  *  - name: e-
  *    p: 1500
  *    theta: 23.0
  *    multiplicity: 4
- * ~~~
- * Equivalent command-line option:
- * ~~~sh
- * -gparticle="[{name: e-, p: 1500, theta: 23.0, multiplicity: 4}]"
- * ~~~
- * Note the need for quotes on the command line when passing structured YAML.
+ * \endcode
  *
- * \subsection Subsection3 Dot-notation for sub-options
+ * Equivalent command-line option (quotes are usually required so your shell does not split the string):
+ * \code{.sh}
+ * myprog -gparticle="[{name: e-, p: 1500, theta: 23.0, multiplicity: 4}]"
+ * \endcode
+ *
+ * \subsection goptions_main_cumulative Cumulative structured options and mandatory keys
+ * Structured options can be declared **cumulative** when at least one schema key uses
+ * \ref goptions::NODFLT : as its default value. That tells \ref GOption : that:
+ * - the option expects a **sequence of maps** (multiple entries),
+ * - those keys are **mandatory** and must appear in every entry.
+ *
+ * Missing non-mandatory keys are back-filled from schema defaults so every entry becomes complete.
+ *
+ * \subsection goptions_main_dot Dot-notation updates for structured sub-options
  * Some structured options are updated using dot-notation:
- * ~~~sh
- * -verbosity.general=1
- * -debug.general=true
- * ~~~
- * This updates a single subkey within the structured option, via \ref GOption::set_sub_option_value "set_sub_option_value()".
- *
- * \subsection Subsection4 Main features
- * * Add options and switches to an executable via frameworks or plugins.
- * * Merge command-line options with YAML file values (command line overrides YAML).
- * * YAML output for all user-selected and default options.
- * * Automatic versioning and formatted help output.
- *
- * \subsection Subsection5 C++ user interface
- * Users instantiate the parsing \ref GOptions object by calling its constructor:
- * \code{.cpp}
- * GOptions(argc, argv, defineOptions())
+ * \code{.sh}
+ * myprog -verbosity.general=1
+ * myprog -debug.general=true
  * \endcode
  *
- * \param argc Number of command-line arguments passed from `main`.
- * \param argv Array of command-line arguments passed from `main`.
- * \param defineOptions Function that constructs and returns a \ref GOptions object with definitions.
+ * This updates a single subkey within a structured option via
+ * \ref GOption::set_sub_option_value "set_sub_option_value()" .
  *
- * The \c defineOptions() function creates and returns an instance of \ref GOptions with predefined
- * command-line switches and options.
+ * \section goptions_main_verbosity Verbosity and debug behavior
  *
- * Example with these options and switches:
- * - A switch `log` to enable logging.
- * - An integer option `runno` to set the run number with a default value.
- * - An integer option `nthreads` to set the number of threads to use, defaulting to all available threads.
- * - A structured option `gparticle` to define generator particles with attributes such as name,
- *   multiplicity, momentum, and angles.
+ * This module defines two conventional structured options commonly used across the project:
+ * - `verbosity` (integer levels)
+ * - `debug` (boolean or integer)
  *
- * \code{.cpp}
- * GOptions defineOptions() {
- *     GOptions goptions;
- *     string help;
+ * Typical semantics used by classes that consume these settings:
+ * - Level **0**: minimal output ("shush") — only essential messages.
+ * - Level **1**: detailed informational output — key configuration and progress.
+ * - Level **2**: extra detailed output — expanded per-step or per-event diagnostics.
+ * - `debug=true` (or debug > 0): developer-focused diagnostics — internal state, parsing details,
+ *   and other troubleshooting information beyond normal verbosity.
  *
- *     // Command line switch
- *     goptions.defineSwitch("log", "A switch, this is just an example.");
+ * \section goptions_main_examples Examples
  *
- *     // Option for run number
- *     help = "Example: -runno=12\n";
- *     goptions.defineOption(GVariable("runno", 1, "Sets the run number"), help);
+ * The following example program is provided with this module:
+ * - **examples/define_options.cc** : Defines switches and options (scalar + structured), constructs a parsing
+ *   \ref GOptions : instance, and reads back resolved values with typed getters.
  *
- *     // Option for number of threads
- *     help = "If not set, use all available threads. 0: use all threads\n";
- *     help += "Example: -nthreads=12\n";
- *     goptions.defineOption(GVariable("nthreads", 0, "Number of threads"), help);
+ * \section goptions_main_extensibility Extensibility via merging option definitions
  *
- *     // Vector of GVariable for structured option gparticle
- *     vector <GVariable> gparticle = {
- *         {"name",  goptions::NODFLT, "Particle name"},
- *         {"multiplicity", 1,                "Number of particles per event"},
- *         {"p",     goptions::NODFLT, "Momentum"},
- *         {"theta",        "0*degrees",      "Polar angle"},
- *         {"delta_theta",  0,                "Particle polar angle range, centered on theta. Default: 0"},
- *     };
+ * Frameworks or plugins can define their own options and switches, then merge them into the executable’s
+ * definition set using \ref operator+= "operator+=()" (which internally calls
+ * \ref GOptions::addGOptions "addGOptions()").
  *
- *     help = "Example to add three particles, one electron and two protons, identical except spread in theta:\n\n";
- *     help += "-gparticle=\"[{name: e-, p: 2300, theta: 23.0}, {name: proton, multiplicity: 2, p: 1200, delta_theta: 10}]\"\n";
- *     goptions.defineOption("gparticle", "Define the generator particle(s)", gparticle, help);
- *
- *     return goptions;
- * }
- * \endcode
- *
- * \subsection subsection6 Adding options and switches from frameworks/plugins
- * Each framework or plugin can define its own options and switches. The user can merge these with the main executable's
- * definitions using the \ref operator+=  which internally uses \ref GOptions::addGOptions "addGOptions()".
- * For example
- *
+ * Example:
  * \code{.cpp}
  * goptions += eventDispenser::defineOptions();
  * goptions += g4display::defineOptions();
  * goptions += g4system::defineOptions();
- * goptions += gfield::defineOptions();
- * goptions += gparticle::defineOptions();
- * goptions += gphysics::defineOptions();
- * goptions += gstreamer::defineOptions();
- * goptions += gsystem::defineOptions();
  * \endcode
  *
- * \subsection subsection7 YAML library and validation
- * The YAML parser used in this project is from the yaml-cpp library (https://github.com/jbeder/yaml-cpp).
- * It is included as a dependency and facilitates parsing complex YAML configurations.
+ * \section goptions_main_yaml YAML parsing and validation
  *
- * \n\n
- * \author \n &copy; Maurizio Ungaro
- * \author e-mail: ungaro@jlab.org
- * \n\n\n
+ * YAML parsing is implemented using the \c yaml-cpp library. When a YAML file fails to parse, the option manager
+ * exits with a dedicated exit code so batch workflows can detect the failure mode.
+ *
+ * \section goptions_main_ownership Ownership and maintenance
+ *
+ * The goptions module is maintained as part of GEMC and is intended to be:
+ * - stable at the API level for consumers of \ref GOptions : ,
+ * - strict and explicit about error reporting (exit codes) for batch reproducibility,
+ * - documentation-first: headers contain authoritative API docs; implementation files avoid duplication.
+ *
+ * \author
+ * \n &copy; Maurizio Ungaro
+ * \n e-mail: ungaro@jlab.org
  */

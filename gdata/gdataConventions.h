@@ -11,7 +11,7 @@
  * - allow deterministic filtering/export behavior
  * - provide stable, documented keys for plugins and backends
  *
- * It also defines numeric error codes used with \ref GLogger::error "error()"
+ * It also defines numeric error codes used with GLogger::error "error()"
  * so that higher-level tooling can interpret failure modes in a stable way.
  *
  * Design intent:

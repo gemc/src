@@ -23,10 +23,14 @@
  * This string controls the width of the left column used by the help output produced by
  * \ref GOptions : and \ref GOption : so the console formatting stays aligned.
  *
+ * Typical usage pattern:
+ * - Build the left-hand label (e.g. `-runno=<value>`).
+ * - Print it in a fixed-width field using this padding.
+ * - Print the human-readable description after the aligned column.
+ *
  * @note
- * The actual formatting is implemented in private methods inside those classes; private members
- * are intentionally not referenced here to avoid unresolved `\\ref` warnings when private extraction
- * is disabled in Doxygen.
+ * The formatting routines live in internal implementation methods; documentation avoids cross-referencing
+ * private symbols to prevent unresolved references when private extraction is disabled.
  */
 #define HELPFILLSPACE "                               "
 
@@ -35,7 +39,8 @@
  *
  * @details
  * \ref GOptions : registers this as a structured option so version metadata can be written to the saved YAML.
- * It is not intended to be set by users.
+ * It is not intended to be set by users. The saved YAML contains release metadata to support reproducibility
+ * in scripts and batch pipelines.
  */
 #define GVERSION_STRING "version"
 
@@ -46,12 +51,13 @@
  *
  * @details
  * These codes are used in \c exit(code) calls to allow scripts/tests to distinguish failure modes.
+ * They are part of the user-facing contract because they often appear in CI logs and batch workflows.
  * @{
  */
-#define EC__NOOPTIONFOUND                  101  ///< Option/switch/key not found or invalid command-line token.
+#define EC__NOOPTIONFOUND                  101  ///< Option/switch/key not found, or invalid command-line token.
 #define EC__DEFINED_OPTION_ALREADY_PRESENT 102  ///< Attempted to define an option name more than once.
 #define EC__DEFINED_SWITCHALREADYPRESENT   103  ///< Attempted to define a switch name more than once.
-#define EC__YAML_PARSING_ERROR             104  ///< YAML file failed to parse (syntax or parser failure).
+#define EC__YAML_PARSING_ERROR             104  ///< YAML file failed to parse (syntax error or parser failure).
 #define EC__MANDATORY_NOT_FILLED           105  ///< Mandatory structured option key (NODFLT) missing.
 #define EC__BAD_CONVERSION                 106  ///< YAML value could not be converted to requested type.
 #define EC_WRONG_VERBOSITY_LEVEL           107  ///< Verbosity/debug values outside accepted range (if enforced).
@@ -67,9 +73,13 @@ namespace goptions {
  * @details
  * When a \ref GVariable : in a structured option schema uses value \ref goptions::NODFLT : :
  * - that key becomes **mandatory** (must be provided by the user),
- * - and the option becomes **cumulative** (expects a sequence of maps).
+ * - and the option becomes **cumulative** (expects a sequence of maps rather than a single map).
  *
  * This allows a schema definition to encode both required fields and repeated entries.
+ *
+ * Practical consequence:
+ * - The user can specify multiple entries for the same option (sequence of maps).
+ * - Each entry must contain all mandatory keys; optional keys are back-filled from schema defaults.
  */
 const std::string NODFLT = "NODFLT";
 }

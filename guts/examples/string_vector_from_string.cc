@@ -14,9 +14,14 @@ using namespace std;
  * This example reads a single command-line argument containing a whitespace-separated list
  * of tokens (typically provided in quotes) and prints each token on its own line.
  *
- * It specifically demonstrates:
+ * It demonstrates:
  * - \ref gutilities::getStringVectorFromString "getStringVectorFromString()"
- * - Use of formatting glyphs from gutsConventions.h : (e.g., \c SQUAREITEM)
+ *   to split text on whitespace into individual string tokens.
+ * - Use of formatting glyphs from gutsConventions.h : (e.g., \c SQUAREITEM) to keep
+ *   console output consistent with the rest of the codebase.
+ *
+ * Intended audience:
+ * - Developers wanting a minimal, runnable illustration of how tokenization behaves.
  */
 
 /**
@@ -27,7 +32,7 @@ using namespace std;
  *
  * Behavior:
  * - If the argument count is incorrect, prints a fatal-style message and returns failure.
- * - Otherwise tokenizes the string and prints the resulting vector.
+ * - Otherwise tokenizes the string and prints each resulting token.
  *
  * @param argc Argument count.
  * @param argv Argument vector.

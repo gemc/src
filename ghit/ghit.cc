@@ -21,6 +21,8 @@ std::atomic<int> GHit::globalHitCounter{0};
 // https://twiki.cern.ch/twiki/bin/view/Geant4/QuickMigrationGuideForGeant4V10
 G4ThreadLocal G4Allocator<GHit>* GHitAllocator = nullptr;
 
+// See header for API docs.
+
 GHit::GHit(std::shared_ptr<GTouchable> gt,
            const HitBitSet             hbs,
            const G4Step*               thisStep,
@@ -28,16 +30,17 @@ GHit::GHit(std::shared_ptr<GTouchable> gt,
 	G4VHit(),
 	colorSchema(cScheme),
 	gtouchable(gt) {
-
-	// initialize quantities based on HitBitSet, like globalPositions
+	// Initialize per-step vectors if a step is provided.
 	if (thisStep) { addHitInfosForBitset(hbs, thisStep); }
 
-	// unitialized quantities, to be calculated at the end of the steps by collectTrueInformation
+	// Uninitialized quantities, to be calculated at the end of the steps by collectTrueInformation
 	// bit 0: always there
 	averageTime       = UNINITIALIZEDNUMBERQUANTITY;
-	avgGlobalPosition = G4ThreeVector(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY);
-	avgLocalPosition  = G4ThreeVector(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY);
-	processName       = UNINITIALIZEDSTRINGQUANTITY;
+	avgGlobalPosition = G4ThreeVector(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY,
+	                                  UNINITIALIZEDNUMBERQUANTITY);
+	avgLocalPosition = G4ThreeVector(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY,
+	                                 UNINITIALIZEDNUMBERQUANTITY);
+	processName = UNINITIALIZEDSTRINGQUANTITY;
 }
 
 bool GHit::is_same_hit(const GHit* hit) const {
@@ -59,19 +62,11 @@ vector<int> GHit::getTTID() const {
 	return ttid;
 }
 
-
-/**
- * \brief Draws the hit using Geant4 visualization.
- *
- * Depending on the total energy deposited, selects different visual attributes.
- * Uses a G4Circle to represent the hit position. If the globalPositions vector is empty,
- * the method exits safely.
- */
 void GHit::Draw() {
 	auto visManager = G4VVisManager::GetConcreteInstance();
 	if (!visManager) return;
 
-	// only care about schema if we are interactive
+	// Only care about schema if we are interactive.
 	setColorSchema();
 
 	// Check that globalPositions is not empty before accessing the first element.
@@ -79,7 +74,6 @@ void GHit::Draw() {
 
 	G4Circle circle(globalPositions[0]);
 	circle.SetFillStyle(G4Circle::filled);
-
 
 	double etot = getTotalEnergyDeposited();
 
@@ -96,13 +90,6 @@ void GHit::Draw() {
 	visManager->Draw(circle);
 }
 
-
-/**
- * \brief Sets the color schema for visualizing the hit.
- *
- * Chooses colors for hits with energy deposition versus pass-by events.
- * \return Currently always returns false.
- */
 bool GHit::setColorSchema() {
 	// For now, hard-code the color schema.
 	colour_hit    = G4Colour(1.0, 0.0, 0.0); // Red for hits with energy.
@@ -110,11 +97,12 @@ bool GHit::setColorSchema() {
 	return false;
 }
 
-
 void GHit::randomizeHitForTesting(int nsteps) {
 	// This function is for testing purposes only.
 	// It randomizes the hit's global position and energy deposition.
 	// It should not be used in production code.
+
+	// Generate nsteps+1 entries to preserve the existing behavior exactly.
 	for (int i = 0; i < nsteps + 1; ++i) {
 		globalPositions.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
 		localPositions.emplace_back(G4UniformRand() * 10, G4UniformRand() * 10, G4UniformRand() * 10);

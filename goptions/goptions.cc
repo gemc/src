@@ -4,7 +4,11 @@
  *
  * @details
  * Documentation for the public API lives in `goptions.h`. This translation unit focuses on
- * implementation.
+ * implementation details:
+ * - built-in option/switch registration,
+ * - YAML file discovery and parsing,
+ * - command-line parsing (including dot-notation for structured options),
+ * - persistence of a resolved YAML snapshot for reproducibility.
  */
 
 // goptions
@@ -22,6 +26,15 @@
 using namespace std;
 
 // See goptions.h for full constructor API documentation.
+/*
+ * Parsing precedence implemented here:
+ * 1. YAML file(s), applied in argv order
+ * 2. Command-line tokens override YAML values
+ *
+ * Notes:
+ * - "help <option>" is treated as an immediate action and exits after printing.
+ * - Dot-notation routes structured updates to the owning option via GOption::set_sub_option_value().
+ */
 GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options) {
 	executableName       = gutilities::getFileFromPath(argv[0]);
 	executableCallingDir = gutilities::getDirFromPath(argv[0]);
@@ -54,6 +67,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	};
 	defineOption(GVERSION_STRING, "version information", version, "Version information. Not settable by user.");
 
+	// verbosity option: convention used across modules consuming verbosity levels
 	string help = "Levels: \n \n";
 	help        += " - 0: (default) = shush\n";
 	help        += " - 1: log detailed information\n";
@@ -62,7 +76,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	help        += "This option can be repeated.\n \n";
 	defineOption("verbosity", "Sets the log verbosity for various classes", option_verbosity_names, help);
 
-
+	// debug option: boolean or integer, depending on consumer expectations
 	help = "Debug information Types: \n \n";
 	help += " - false: (default): do not print debug information\n";
 	help += " - true: print debug information\n\n";
@@ -71,6 +85,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	defineOption("debug", "Sets the debug level for various classes", option_verbosity_names, help);
 
 	// Process help/version command-line arguments.
+	// These are handled early and exit immediately (they do not proceed to parse YAML/options).
 	for (int i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--h") == 0 ||
 			strcmp(argv[i], "-help") == 0 || strcmp(argv[i], "--help") == 0) {
@@ -91,6 +106,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	}
 
 	// finds and parse the yaml files
+	// YAML file tokens are treated as inputs, not as "invalid command-line arguments".
 	yaml_files = findYamls(argc, argv);
 	for (auto& yaml_file : yaml_files) {
 		cout << " Parsing " << yaml_file << endl;
@@ -101,10 +117,14 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	for (int i = 1; i < argc; i++) {
 		string candidate = argv[i];
 		if (candidate.empty()) continue;
+
+		// Skip YAML file tokens: they were already handled above.
 		if (find(yaml_files.begin(), yaml_files.end(), candidate) != yaml_files.end()) continue;
+
 		if (candidate[0] == '-') {
 			string argStr = candidate.substr(1);
 			size_t eqPos  = argStr.find('=');
+
 			if (eqPos != string::npos) {
 				string keyPart   = argStr.substr(0, eqPos);
 				string valuePart = argStr.substr(eqPos + 1);
@@ -114,11 +134,12 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 					valuePart = valuePart.substr(1, valuePart.length() - 2);
 				}
 
+				// Dot-notation targets a subkey in a structured option (e.g., verbosity.general).
 				size_t dotPos = keyPart.find('.');
 				if (dotPos != string::npos) {
-					// Dot–notation detected (e.g. "debug.general=true")
 					string mainOption = keyPart.substr(0, dotPos);
 					string subOption  = keyPart.substr(dotPos + 1);
+
 					if (doesOptionExist(mainOption)) {
 						auto it = getOptionIterator(mainOption);
 						it->set_sub_option_value(subOption, valuePart);
@@ -129,7 +150,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 					}
 				}
 				else {
-					// Standard option syntax.
+					// Standard option syntax: -name=value
 					if (doesOptionExist(keyPart)) {
 						setOptionValuesFromCommandLineArgument(keyPart, valuePart);
 					}
@@ -140,7 +161,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 				}
 			}
 			else {
-				// Treat as a switch.
+				// Treat as a switch: -gui, -i, etc.
 				const string& possibleSwitch = argStr;
 				if (switches.find(possibleSwitch) != switches.end()) {
 					switches[possibleSwitch].turnOn();
@@ -300,6 +321,8 @@ void GOptions::setOptionsValuesFromYamlFile(const std::string& yaml) {
 	for (auto it = config.begin(); it != config.end(); ++it) {
 		auto option_name = it->first.as<std::string>();
 		auto option_it   = getOptionIterator(option_name);
+
+		// If it is not an option, it may still be a switch.
 		if (option_it == goptions.end()) {
 			if (switches.find(option_name) == switches.end()) {
 				cerr << FATALERRORL << "The option or switch " << YELLOWHHL << option_name << RSTHHR
@@ -334,6 +357,7 @@ void GOptions::setOptionValuesFromCommandLineArgument(const std::string& optionN
                                                       const std::string& possibleYamlNode) {
 	YAML::Node node      = YAML::Load(possibleYamlNode);
 	auto       option_it = getOptionIterator(optionName);
+
 	if (node.Type() == YAML::NodeType::Scalar) {
 		option_it->set_scalar_value(possibleYamlNode);
 	}
@@ -370,6 +394,7 @@ bool GOptions::getSwitch(const std::string& tag) const {
 // Implementation note: public API docs are in goptions.h (avoid duplicate @param blocks).
 YAML::Node GOptions::getOptionMapInNode(const string& option_name, const string& map_key) const {
 	auto sequence_node = getOptionNode(option_name);
+
 	for (auto seq_item : sequence_node) {
 		for (auto map_item = seq_item.begin(); map_item != seq_item.end(); ++map_item) {
 			if (map_item->first.as<string>() == map_key) {
@@ -377,6 +402,7 @@ YAML::Node GOptions::getOptionMapInNode(const string& option_name, const string&
 			}
 		}
 	}
+
 	cerr << FATALERRORL << "The key " << YELLOWHHL << map_key << RSTHHR
 		<< " was not found in " << YELLOWHHL << option_name << RSTHHR << endl;
 	exit(EC__NOOPTIONFOUND);

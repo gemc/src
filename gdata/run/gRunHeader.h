@@ -29,7 +29,7 @@ constexpr const char* GDATARUNHEADER_LOGGER = "run_header";
 
 namespace grun_header {
 /**
- * \brief Defines \ref GOptions for the run-header logger domain.
+ * \brief Defines GOptions for the run-header logger domain.
  *
  * \details
  * Higher-level option bundles (e.g. \ref grun_data::defineOptions "defineOptions()") typically include this.

@@ -3,22 +3,16 @@
 #include "gtranslationTableConventions.h"
 
 
-/**
- * \brief Forms the translation table key from the given identity vector.
- *
- * Uses a std::ostringstream to concatenate the integer elements separated by hyphens.
- * If the identity vector is empty, logs a warning and returns an empty string.
- *
- * \param identity A vector of integers representing the identity.
- * \return A hyphen-separated string key.
- */
+// See header for API docs.
 std::string GTranslationTable::formTTKey(const std::vector<int> &identity) const {
-	// Check for an empty identity vector to avoid undefined behavior.
+	// Defensive check: an empty identity cannot form a meaningful key.
+	// Returning an empty key also prevents accidental insertion under an ambiguous identifier.
 	if (identity.empty()) {
 		log->warning("Empty identity vector provided to formTTKey");
 		return "";
 	}
 
+	// Build a hyphen-separated key (e.g. "1-2-3-4").
 	std::ostringstream oss;
 	for (size_t i = 0; i < identity.size(); ++i) {
 		oss << identity[i];
@@ -29,27 +23,25 @@ std::string GTranslationTable::formTTKey(const std::vector<int> &identity) const
 }
 
 
-/**
- * \brief Adds a GElectronic object to the translation table using the provided identity.
- *
- * If the key already exists, logs a warning instead of overwriting.
- *
- * \param identity A vector of integers representing the unique identity.
- * \param gtron The GElectronic object to be added.
- */
+// See header for API docs.
 void GTranslationTable::addGElectronicWithIdentity(const std::vector<int> &identity, const GElectronic &gtron) {
 	std::string ttKey = formTTKey(identity);
+
+	// Explicitly check presence so we can preserve the original entry and log a warning
+	// instead of overwriting silently.
 	auto search = tt.find(ttKey);
 
 	if (search == tt.end()) {
-		// Insert the new key-value pair
+		// Insert the new key-value pair.
 		tt[ttKey] = gtron;
 	} else {
 		log->warning("Key <" + ttKey + "> already present in TT map");
 	}
 
+	// Level 1: typical "milestone" message indicating a configuration registration occurred.
 	log->info(1, "Added GElectronic with identity <", ttKey, "> to TT map");
 
+	// Debug: print the entire table content for troubleshooting configuration/key issues.
 	log->debug(NORMAL, "Translation Table:");
 	for (auto &thisItem: tt) {
 		log->debug(NORMAL, GTAB, "<", thisItem.first, ">  ⇢ ", thisItem.second);
@@ -57,14 +49,7 @@ void GTranslationTable::addGElectronicWithIdentity(const std::vector<int> &ident
 }
 
 
-/**
- * \brief Retrieves the GElectronic object corresponding to the provided identity.
- *
- * Logs an error if the key is not found and returns a default constructed GElectronic.
- *
- * \param identity A vector of integers representing the unique identity.
- * \return The GElectronic object if found; otherwise, a default GElectronic.
- */
+// See header for API docs.
 GElectronic GTranslationTable::getElectronics(const std::vector<int> &identity) const {
 	std::string ttKey = formTTKey(identity);
 	auto search = tt.find(ttKey);
@@ -76,4 +61,3 @@ GElectronic GTranslationTable::getElectronics(const std::vector<int> &identity) 
 		log->error(EC__TTNOTFOUNDINTT, "Key <", ttKey, "> not found in TT map");
 	}
 }
-

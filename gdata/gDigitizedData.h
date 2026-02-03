@@ -46,12 +46,12 @@
 // gdata
 #include "gdataConventions.h" // CRATESTRINGID, SLOTSTRINGID, CHANNELSTRINGID, TIMEATELECTRONICS, ...
 
-/// Logger domain name used by \ref GDigitizedData (controls verbosity/category in \ref GLogger).
+/// Logger domain name used by \ref GDigitizedData (controls verbosity/category in GLogger).
 constexpr const char* GDIGITIZED_DATA_LOGGER = "digitized_data";
 
 namespace gdigi_data {
 /**
- * \brief Defines \ref GOptions for the digitized-data logger domain.
+ * \brief Defines GOptions for the digitized-data logger domain.
  *
  * \details
  * Higher-level aggregators (event/run collections) typically include this in their
@@ -194,7 +194,7 @@ public:
 	 * \brief Retrieve one integer observable by name.
 	 *
 	 * \details
-	 * If the key is missing, an error is emitted via \ref GLogger using \ref ERR_VARIABLENOTFOUND.
+	 * If the key is missing, an error is emitted via GLogger using \ref ERR_VARIABLENOTFOUND.
 	 * Return behavior after logging depends on the logger configuration (fatal vs non-fatal).
 	 *
 	 * \param varName Observable name/key.
@@ -206,7 +206,7 @@ public:
 	 * \brief Retrieve one double observable by name.
 	 *
 	 * \details
-	 * If the key is missing, an error is emitted via \ref GLogger using \ref ERR_VARIABLENOTFOUND.
+	 * If the key is missing, an error is emitted via GLogger using \ref ERR_VARIABLENOTFOUND.
 	 *
 	 * \param varName Observable name/key.
 	 * \return The stored double value.

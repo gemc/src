@@ -5,6 +5,9 @@ import os
 # Path to the directory containing subdirectories with Doxygen documentation
 pages_directory = "pages"
 
+# Number of columns to show in the link grid (set to any integer >= 1)
+num_columns = 5
+
 # HTML template for the header
 html_header = """<!DOCTYPE html>
 <html lang="en">
@@ -47,7 +50,7 @@ html_header = """<!DOCTYPE html>
         }
 
         .link-list {
-          display: flex;
+            display: flex;
             flex-wrap: wrap;
             justify-content: center;
             padding: 0;
@@ -56,8 +59,8 @@ html_header = """<!DOCTYPE html>
         }
 
         .link-list li {
-        margin: 10px;
-            flex: 0 1 calc(50% - 20px);
+            margin: 10px;
+            flex: 0 1 calc(100% / {{NUM_COLUMNS}} - 20px);
             display: flex;
             justify-content: center;
         }
@@ -65,7 +68,7 @@ html_header = """<!DOCTYPE html>
         .link-list a {
             text-decoration: none;
             color: #ffffff;
-            background-color: #4a30a2;
+            background-color: #333392;
             padding: 10px 20px;
             border-radius: 5px;
             transition: background-color 0.1s;
@@ -84,13 +87,6 @@ html_header = """<!DOCTYPE html>
             font-size: 0.9em;
             color: #999;
         }
-        
-        @media (min-width: 768px) {
-            .link-list {
-                column-count: 2;
-            }
-        }
-        
     </style>
 </head>
 <body>
@@ -114,28 +110,43 @@ html_footer = """
 """
 
 
-# Generate the HTML content
-def generate_html(directory):
+def generate_html(directory: str, columns: int) -> str:
+    """Generate the index.html content listing subdirectories alphabetically."""
     links = ""
-    for subdir in os.listdir(directory):
+
+    # Clamp columns to at least 1 (avoids division by zero / bad CSS)
+    columns = max(1, int(columns))
+
+    # Alphabetical order (case-insensitive)
+    subdirs = sorted(os.listdir(directory), key=str.casefold)
+
+    for subdir in subdirs:
         subdir_path = os.path.join(directory, subdir)
-        if os.path.isdir(subdir_path):
-            index_file = os.path.join(subdir_path, "index.html")
-            if os.path.exists(index_file):
-                # Update the link to be relative to the pages directory
-                relative_index_file = os.path.relpath(index_file, directory)
-                links += f'            <li><a href="{relative_index_file}" target="_blank">{subdir} </a></li>\n'
-    return html_header + links + html_footer
+        if not os.path.isdir(subdir_path):
+            continue
+
+        index_file = os.path.join(subdir_path, "index.html")
+        if not os.path.exists(index_file):
+            continue
+
+        # Link relative to the pages directory
+        relative_index_file = os.path.relpath(index_file, directory)
+        links += f'            <li><a href="{relative_index_file}" target="_blank">{subdir}</a></li>\n'
+
+    header = html_header.replace("{{NUM_COLUMNS}}", str(columns))
+    return header + links + html_footer
 
 
-# Write the HTML content to a file in the pages directory
-def write_html_file(directory):
-    html_content = generate_html(directory)
+def write_html_file(directory: str, columns: int) -> None:
+    """Write the generated HTML to pages/index.html."""
+    html_content = generate_html(directory, columns)
     output_file = os.path.join(directory, "index.html")
-    with open(output_file, "w") as file:
+
+    with open(output_file, "w", encoding="utf-8") as file:
         file.write(html_content)
+
     print(f"HTML file '{output_file}' has been generated.")
 
 
-# Run the script
-write_html_file(pages_directory)
+if __name__ == "__main__":
+    write_html_file(pages_directory, num_columns)

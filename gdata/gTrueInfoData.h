@@ -24,7 +24,7 @@
  *   adds into a running sum (run-level integration).
  *
  * ## Identity
- * Each \ref GTrueInfoData stores the hit identity (\c gidentity), copied from \ref GHit.
+ * Each \ref GTrueInfoData stores the hit identity (\c gidentity), copied from  GHit.
  * This is typically a vector of named indices (e.g. sector/layer/component) that uniquely identify
  * where the hit occurred. The identity is intended to be stable and human-readable via
  * \ref GTrueInfoData::getIdentityString "getIdentityString()".
@@ -45,16 +45,16 @@
 #include "ghit.h"
 #include "gbase.h"
 
-/// Logger domain name used by \ref GTrueInfoData (controls verbosity/category in \ref GLogger).
+/// Logger domain name used by \ref GTrueInfoData (controls verbosity/category in GLogger).
 constexpr const char* GTRUEDATA_LOGGER = "true_data";
 
 namespace gtrue_data {
 /**
- * \brief Defines \ref GOptions for the true-data logger domain.
+ * \brief Defines GOptions for the true-data logger domain.
  *
  * \details
  * This helper allows higher-level option aggregators (event/run collections) to pull in
- * configuration for this logger domain without knowing details about how \ref GLogger is set up.
+ * configuration for this logger domain without knowing details about how GLogger is set up.
  *
  * Typical usage:
  * \code
@@ -77,7 +77,7 @@ inline GOptions defineOptions() {
  * A \ref GTrueInfoData instance conceptually corresponds to *one simulated hit*.
  *
  * - It stores numeric and string observables keyed by name.
- * - It stores an identity vector derived from \ref GHit, typically encoding geometry indices.
+ * - It stores an identity vector derived from GHit, typically encoding geometry indices.
  *
  * The container supports two usage patterns:
  * 1) **Event-level storage**: create a new instance per hit and populate it using
@@ -115,7 +115,7 @@ public:
 	 *   name1->value1, name2->value2, ...
 	 * \endcode
 	 *
-	 * The underlying identity is the \c gidentity vector copied from the \ref GHit.
+	 * The underlying identity is the \c gidentity vector copied from the GHit.
 	 *
 	 * \return Identity string assembled from the hit identifiers.
 	 */
