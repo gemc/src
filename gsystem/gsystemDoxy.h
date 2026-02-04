@@ -1,29 +1,58 @@
 /**
- * \mainpage GEMC Detector System
+ * \mainpage GEMC Detector System Module (gsystem)
+ *
+ * \tableofcontents
  *
  * @section intro_sec Introduction
  *
- * This documentation describes the GSystem class, which is a fundamental component
- * for defining detector geometries within the simulation framework.
- * A GSystem represents a logical collection of volumes (GVolume) and associated
- * materials (GMaterial) that form a specific detector subsystem (e.g., calorimeter,
- * drift chamber).
+ * The gsystem module provides the infrastructure that turns detector configuration into
+ * an in-memory representation of geometry and materials.
  *
- * @section usage_sec Usage
+ * Core concepts:
+ * - A GSystem is a logical detector subsystem (e.g. calorimeter, tracker).
+ * - A GVolume is one placed volume record belonging to a GSystem.
+ * - A GMaterial is a material definition belonging to a GSystem.
+ * - A GWorld assembles multiple systems, applies modifiers, and assigns final names.
+ * - A GSystemFactory loads a system from a concrete source (sqlite, ASCII, CAD, ...).
  *
- * Typically, a GSystem is instantiated with a name, factory type, variation,
- * and run number. Volumes and materials are then added to it using methods like
- * addGVolume(), addGMaterial(), or addVolumeFromFile(). The system provides
- * accessors to retrieve information about its configuration and components.
+ * @section ownership_sec Ownership and lifecycle
  *
- * @section design_sec Design Notes
+ * - The world owns the system map container, and stores systems as shared pointers.
+ * - Each system owns its collections of volumes and materials.
+ * - Factories are temporary objects used during load; they may keep transient state such as
+ *   open DB handles or search paths and should release them in closeSystem().
  *
- * - Uses modern C++ features like smart pointers (`std::unique_ptr`) for automatic memory management.
- * - Employs a logger (`GLogger`) for informative messages and error reporting.
- * - Aims for clear separation of concerns, with GSystem managing the collection
- *   and GVolume/GMaterial representing the individual components.
- * - Materials are considered specific to the system; they are not shared between GSystem instances
- *   at this level (global materials might be handled elsewhere, e.g., via a G4Material database).
+ * @section factories_sec Factories
+ *
+ * Factory selection is driven by system configuration:
+ * - \c sqlite : loads geometry/materials from a sqlite database.
+ * - \c ascii  : loads geometry/materials from text files with positional fields.
+ * - \c CAD    : imports volumes from CAD assets (e.g. STL).
+ * - \c GDML   : placeholder for future GDML support.
+ *
+ * @section verbosity_sec Verbosity and logging
+ *
+ * Most classes in this module derive from GBase and therefore use a GLogger.
+ * Typical verbosity behavior:
+ * - Level 0: high-level milestones and key warnings (e.g. missing optional files).
+ * - Level 1: normal informational messages (e.g. which systems/factories are loading).
+ * - Level 2: detailed diagnostics (e.g. expanded SQL queries, per-column dumps).
+ * - Debug: very fine-grained tracing such as constructor/function entry markers.
+ *
+ * The exact interpretation is logger-dependent, but the module is structured so that higher
+ * levels add detail without changing semantics.
+ *
+ * @section examples_sec Examples
+ *
+ * @subsection example_gsystem Example: gsystem_example.cc
+ * A minimal program that constructs GOptions using gsystem option definitions and then
+ * constructs a GWorld, triggering full system load (factories, volumes/materials, modifiers).
+ *
+ * @section notes_sec Design notes
+ *
+ * - The module uses serialized parameter vectors to represent DB/ASCII rows. Parsing is positional.
+ * - Post-load modifiers (shift/tilt/existence) are applied by the world after all volumes exist.
+ * - Final Geant4 names are assigned as \c "<system>/<volume>" during world bookkeeping.
  *
  * \n\n
  * \author \n &copy; Maurizio Ungaro

@@ -11,10 +11,11 @@ GBoard::GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
 	: QWidget(parent),
 	  GBase(gopt, GBOARD_LOGGER) {
 	// --- Create top bar widgets ---
+	// The top bar provides a lightweight "console" UX: filter, clear, save.
 	searchLineEdit = new QLineEdit(this);
 	searchLineEdit->setObjectName("searchLineEdit");
 	searchLineEdit->setPlaceholderText("Filter log lines (case insensitive)...");
-	searchLineEdit->setClearButtonEnabled(true); // Nice feature to easily clear search
+	searchLineEdit->setClearButtonEnabled(true); // Allows quickly removing the filter text.
 
 	clearButton = new QToolButton(this);
 	clearButton->setObjectName("clearButton");
@@ -39,6 +40,7 @@ GBoard::GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
 	topBarLayout->setSpacing(5);
 
 	// Create a QTextEdit for log messages.
+	// Rich text is enabled so that HTML fragments (for example ANSI-to-HTML conversions) render correctly.
 	logTextEdit = new QTextEdit(this);
 	logTextEdit->setAcceptRichText(true);
 	logTextEdit->setReadOnly(true);
@@ -46,12 +48,13 @@ GBoard::GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
 	logTextEdit->setMinimumWidth(400);
 
 	// --- Dark theme (local to this widget) ---
+	// This uses a local stylesheet so the log board remains readable even in otherwise light GUIs.
 	this->setStyleSheet(
-	                    "QWidget { background-color: #0b0e12; color: #e6e6e6; }"
-	                    "QTextEdit { background-color: #0f1115; color: #e6e6e6; }"
-	                    // Override the style for the search line edit and the clear button
-						"QLineEdit#searchLineEdit { background-color: #ffffff; color: #000000; }"
-						"QToolButton#clearButton { background-color: #f0f0f0; color: #000000; }"	                   );
+		"QWidget { background-color: #0b0e12; color: #e6e6e6; }"
+		"QTextEdit { background-color: #0f1115; color: #e6e6e6; }"
+		// Override the style for the search line edit and the clear button
+		"QLineEdit#searchLineEdit { background-color: #ffffff; color: #000000; }"
+		"QToolButton#clearButton { background-color: #f0f0f0; color: #000000; }");
 
 	auto* layout = new QVBoxLayout(this);
 	layout->addLayout(topBarLayout);
@@ -59,6 +62,7 @@ GBoard::GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
 	setLayout(layout);
 
 	// --- Connect signals to slots ---
+	// UI changes (typing, clicking) are translated into operations on the stored log history.
 	connect(searchLineEdit, &QLineEdit::textChanged, this, &GBoard::filterLog);
 	connect(clearButton, &QToolButton::clicked, this, &GBoard::clearLog);
 	connect(saveButton, &QToolButton::clicked, this, &GBoard::saveLog);
@@ -67,29 +71,34 @@ GBoard::GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
 }
 
 void GBoard::appendLog(const QString& htmlFragment) {
+	// See header for API docs.
 	if (htmlFragment.trimmed().isEmpty()) { return; }
 
-	// Append to the source of truth, the full log line list
+	// Append to the source of truth, the full log line list.
+	// NOTE: We intentionally store all lines (even when filtered out) so the user can change filters later.
 	fullLogLines.append(htmlFragment);
 
-	// Call updateDisplay to show the new line if it matches the current filter
+	// Refresh the view so the new line appears if it matches the current filter.
 	updateDisplay();
 }
 
 void GBoard::updateDisplay() {
+	// See header for API docs.
 	if (!logTextEdit) return;
 
-	// Use invokeMethod to ensure this runs on the GUI thread
+	// Ensure QTextEdit manipulation occurs on the GUI thread.
+	// This protects typical usage where log lines arrive from worker threads or external callbacks.
 	if (QThread::currentThread() != logTextEdit->thread()) {
 		QMetaObject::invokeMethod(this, "updateDisplay", Qt::QueuedConnection);
 		return;
 	}
 
-	logTextEdit->clear(); // Clear the QTextEdit
+	logTextEdit->clear(); // Rebuild from scratch using the stored history.
 
 	const bool          filtering = !currentFilterText.isEmpty();
 	Qt::CaseSensitivity cs        = Qt::CaseInsensitive;
 
+	// Re-append only the matching HTML fragments.
 	for (const QString& line : fullLogLines) {
 		bool matches = true;
 
@@ -98,16 +107,19 @@ void GBoard::updateDisplay() {
 		if (matches) { logTextEdit->append(line); }
 	}
 
-	// Auto-scroll to the bottom after updating the display
+	// Auto-scroll to the bottom after updating the display.
 	logTextEdit->verticalScrollBar()->setValue(logTextEdit->verticalScrollBar()->maximum());
 }
 
 void GBoard::filterLog(const QString& searchText) {
+	// See header for API docs.
+	// Keep the filter string normalized so repeated updates remain stable.
 	currentFilterText = searchText.trimmed();
 	updateDisplay();
 }
 
 void GBoard::clearLog() {
+	// See header for API docs.
 	if (logTextEdit) {
 		fullLogLines.clear();
 		updateDisplay();
@@ -117,13 +129,14 @@ void GBoard::clearLog() {
 
 // Slot to Save the Log
 void GBoard::saveLog() {
+	// See header for API docs.
 	if (!logTextEdit) return;
 
 	QString defaultFileName = "gboard_log.log"; // Suggest a default name
 	QString fileName        = QFileDialog::getSaveFileName(this,
-	                                                       tr("Save Log File"),
-	                                                       defaultFileName, // Default file/path suggestion
-	                                                       tr("Log Files (*.log);;Text Files (*.txt);;All Files (*)"));
+	                                                tr("Save Log File"),
+	                                                defaultFileName, // Default file/path suggestion
+	                                                tr("Log Files (*.log);;Text Files (*.txt);;All Files (*)"));
 
 	if (fileName.isEmpty()) {
 		return; // User cancelled
@@ -139,8 +152,8 @@ void GBoard::saveLog() {
 	}
 
 	QTextStream out(&file);
-	// Save the plain text content (most common for logs)
-	// This automatically includes *all* lines, even hidden ones
+	// Save the plain text content (most common for logs).
+	// This captures exactly what the user sees (including filtering) in a portable log-friendly format.
 	out << logTextEdit->toPlainText();
 	file.close(); // Stream destructor closes it, but explicit is fine
 

@@ -1,3 +1,10 @@
+/**
+ * \file loadGeometry.cc
+ * \brief Geometry loading implementation for GSystemSQLiteFactory.
+ *
+ * See systemSqliteFactory.h for API docs.
+ */
+
 // gsystem
 #include "systemSqliteFactory.h"
 #include "gsystemConventions.h"
@@ -26,7 +33,7 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 	std::string experiment  = system->getExperiment();
 	std::string system_name = system->getName();
 	std::string variation   = system->getVariation();
-	int    runno       = system->getRunno();
+	int         runno       = system->getRunno();
 
 	rc = sqlite3_bind_text(stmt, 1, experiment.c_str(), -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
@@ -45,7 +52,9 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 		log->error(ERR_GSQLITEERROR, "Error binding run number: >", runno, "<, ", sqlite3_errmsg(db));
 	}
 
-	if (auto sql = sqlite3_expanded_sql(stmt)) { // returns char*
+	// Log the expanded SQL for debugging (caller must free it).
+	if (auto sql = sqlite3_expanded_sql(stmt)) {
+		// returns char*
 		log->info(2, sql);
 		sqlite3_free(sql); // need to free the expanded SQL string
 	}
@@ -60,7 +69,7 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 			log->info(2, "<sqlite> column: ", (colName ? colName : "NULL"), " = ",
 			          (colText ? reinterpret_cast<const char*>(colText) : "NULL"), " (column ", i, ")");
 
-			// Assuming that the first five columns are metadata; additional columns are used for gvolume parameters.
+			// The first columns are metadata; columns beyond index 4 are GVolume constructor parameters.
 			if (i > 4) {
 				colText = sqlite3_column_text(stmt, i);
 				gvolumePars.emplace_back(colText ? reinterpret_cast<const char*>(colText) : "");

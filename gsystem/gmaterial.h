@@ -8,22 +8,56 @@
 #include <vector>
 #include <numeric>
 
-class GMaterial : public GBase<GMaterial> {
+/**
+ * \class GMaterial
+ * \brief Material definition belonging to a detector system.
+ *
+ * A GMaterial is constructed from a serialized list of parameters (typically read from a
+ * database row or ASCII file) and stores:
+ * - bulk density;
+ * - composition (components + amounts);
+ * - optional optical properties (refractive index, absorption length, etc.);
+ * - optional scintillation properties (yield, time constants, spectra, etc.).
+ *
+ * The module treats materials as system-local definitions: a system (GSystem) loads
+ * its own materials and associates them to volumes by name.
+ *
+ * \note External-library material concepts (e.g. Geant4 materials) should be referred
+ * to using \c in docs, not \ref (tag files handle cross-module linking).
+ */
+class GMaterial : public GBase<GMaterial>
+{
 public:
+	/**
+	 * \brief Construct a material from a serialized parameter list.
+	 *
+	 * \param system System name that owns this material (used for provenance/logging).
+	 * \param pars   Serialized material parameters (must match GMATERIALNUMBEROFPARS).
+	 * \param logger Logger used for diagnostics and error reporting.
+	 *
+	 * \details
+	 * The constructor validates \c pars length against GMATERIALNUMBEROFPARS and then
+	 * parses the fields. Optical/scintillation properties may be "unset" (typically
+	 * UNINITIALIZEDSTRINGQUANTITY) and are skipped.
+	 */
 	GMaterial(const std::string& system, std::vector<std::string> pars, const std::shared_ptr<GLogger>& logger);
 
-	// Define a virtual clone method to be used in the copy constructor
+	/**
+	 * \brief Clone the material (polymorphic deep-copy).
+	 *
+	 * \return A heap-allocated copy of this material.
+	 */
 	[[nodiscard]] virtual std::unique_ptr<GMaterial> clone() const {
 		return std::make_unique<GMaterial>(*this); // Make a copy of the current object
 	}
 
-	// Virtual destructor, needed for when unique_ptr<GVolume> is deleted
+	/// \brief Virtual destructor (safe deletion through base pointers).
 	virtual ~GMaterial() = default;
 
 private:
-	std::string system;      // System of provenience
-	std::string name;        // Name of the material
-	std::string description; // Volume Description, for documentation
+	std::string system;      ///< System of provenance (which detector subsystem defines this material).
+	std::string name;        ///< Material name (key used for volume→material association).
+	std::string description; ///< Human-readable description for documentation and logs.
 
 	// material properties
 	// the material is recorded with the string 'components'
@@ -33,90 +67,110 @@ private:
 	// C 9 H 10
 	// G4_N 0.7 G4_O 0.3
 	//
-	double                   density;    // Material density, in g/cm3
-	std::vector<std::string> components; // The list of atoms/material
-	std::vector<double>      amounts;    // Each component quantity or fractional mass
+	double                   density;    ///< Material density, in g/cm3.
+	std::vector<std::string> components; ///< Component identifiers (elements or referenced materials).
+	std::vector<double>      amounts;    ///< Component amounts: integer-ish atoms or fractional mass.
 
 	// optical properties
-	std::vector<double> photonEnergy;
-	// A list of photon energies with units, at which any other optical parameters will be evaluated
-	std::vector<double> indexOfRefraction; // A list of the refractive index evaluated at the energies named in photonEnergy
-	std::vector<double> absorptionLength;
-	// A list of the material absorption length with units, evaluated at the energies in photonEnergy
-	std::vector<double> reflectivity; // A list of reflectivity values evaluated at the energies in photonEnergy
-	std::vector<double> efficiency;   // A list of absorption efficiency evaluated at the energies in photonEnergy
+	std::vector<double> photonEnergy; ///< Photon energies (with units) at which properties are tabulated.
+
+	std::vector<double> indexOfRefraction; ///< Refractive index values evaluated at \c photonEnergy.
+	std::vector<double> absorptionLength;  ///< Absorption length values evaluated at \c photonEnergy.
+	std::vector<double> reflectivity;      ///< Reflectivity values evaluated at \c photonEnergy.
+	std::vector<double> efficiency;        ///< Detection/absorption efficiency evaluated at \c photonEnergy.
 
 	// scintillation properties
-	std::vector<double> fastcomponent;
-	// A list of the fast component relative spectra values evaluated at the energies in photonEnergy
-	std::vector<double> slowcomponent;
-	// A list of the fast component relative spectra values evaluated at the energies in photonEnergy
-	double scintillationyield; // Characteristic light yield in photons/MeV e-, given as a single number
-	double resolutionscale;    // Resolution scale broadens the statistical distribution of generated photons
-	double fasttimeconstant;   // FIX ME believe this is related to the scintillator pulse rise time
-	double slowtimeconstant;   // FIX ME believe this is related to scintillator slow decay time
-	double yieldratio;
-	// Relative strength of the fast component as a fraction of total scintillation yield, given as a single number
-	double birksConstant;
+	std::vector<double> fastcomponent; ///< Fast scintillation spectrum values evaluated at \c photonEnergy.
+	std::vector<double> slowcomponent; ///< Slow scintillation spectrum values evaluated at \c photonEnergy.
+
+	double scintillationyield; ///< Light yield in photons/MeV (single value).
+	double resolutionscale;    ///< Broadens the photon statistics distribution.
+	double fasttimeconstant;   ///< Fast scintillation time constant (time units).
+	double slowtimeconstant;   ///< Slow scintillation time constant (time units).
+	double yieldratio;         ///< Fraction of total yield attributed to the fast component.
+	double birksConstant;      ///< Birks constant for quenching model (units depend on convention).
 
 	// other optical properties
-	std::vector<double> rayleigh;
-	// A list of the Rayleigh scattering attenuation coefficient evaluated at the energies in photonEnergy
+	std::vector<double> rayleigh; ///< Rayleigh scattering attenuation coefficients evaluated at \c photonEnergy.
 
-	// load material components from DB entry
+	/**
+	 * \brief Parse a "components + amounts" string into vectors.
+	 *
+	 * \param composition Tokenized string containing alternating (component, amount) pairs.
+	 * \details The string is split into tokens and interpreted as:
+	 * \code
+	 * components[0] amounts[0] components[1] amounts[1] ...
+	 * \endcode
+	 */
 	void setComponentsFromString(const std::string& composition);
 
-	// load property from DB entry based on its name
+	/**
+	 * \brief Parse and store one property vector (or scalar) based on property name.
+	 *
+	 * \param parameter Raw parameter string read from configuration (may be unset).
+	 * \param propertyName Name identifying which property is being loaded.
+	 *
+	 * \details This method tokenizes the input string and converts each token to a numeric value.
+	 * For vector properties, values are appended; for scalar properties, the last parsed value wins.
+	 *
+	 * \note Vector-size consistency checks are performed once the last property is loaded.
+	 */
 	void getMaterialPropertyFromString(const std::string& parameter, const std::string& propertyName);
 
-	friend std::ostream& operator<<(std::ostream& stream, const GMaterial&); // Logs infos on screen.
+	/// \brief Stream operator used for logging material summaries.
+	friend std::ostream& operator<<(std::ostream& stream, const GMaterial&);
 
+	/**
+	 * \brief Assign a scalar parameter if it is set and parseable.
+	 *
+	 * \param pars Vector of raw parameters.
+	 * \param i    Current parsing index (incremented on use).
+	 * \param out  Output scalar to assign when set.
+	 * \return \c true if a value was assigned, \c false otherwise.
+	 */
 	bool assign_if_set(const std::vector<std::string>& pars, size_t& i, double& out);
 
 public:
-	// getters
-	[[nodiscard]] std::string getName() const { return name; }
-
-	[[nodiscard]] std::string getDescription() const { return description; }
-
-	[[nodiscard]] double getDensity() const { return density; }
-
+	/// \name Identity and description
+	///@{
+	[[nodiscard]] std::string              getName() const { return name; }
+	[[nodiscard]] std::string              getDescription() const { return description; }
+	[[nodiscard]] double                   getDensity() const { return density; }
 	[[nodiscard]] std::vector<std::string> getComponents() const { return components; }
+	[[nodiscard]] std::vector<double>      getAmounts() const { return amounts; }
+	///@}
 
-	[[nodiscard]] std::vector<double> getAmounts() const { return amounts; }
-
-	// optical properties
+	/// \name Optical properties
+	///@{
 	[[nodiscard]] std::vector<double> getPhotonEnergy() const { return photonEnergy; }
-
 	[[nodiscard]] std::vector<double> getIndexOfRefraction() const { return indexOfRefraction; }
-
 	[[nodiscard]] std::vector<double> getAbsorptionLength() const { return absorptionLength; }
-
 	[[nodiscard]] std::vector<double> getReflectivity() const { return reflectivity; }
-
 	[[nodiscard]] std::vector<double> getEfficiency() const { return efficiency; }
+	///@}
 
-	// scintillation properties
+	/// \name Scintillation properties
+	///@{
 	[[nodiscard]] std::vector<double> getFastcomponent() const { return fastcomponent; }
-
 	[[nodiscard]] std::vector<double> getSlowcomponent() const { return slowcomponent; }
+	[[nodiscard]] double              getScintillationyield() const { return scintillationyield; }
+	[[nodiscard]] double              getResolutionscale() const { return resolutionscale; }
+	[[nodiscard]] double              getFasttimeconstant() const { return fasttimeconstant; }
+	[[nodiscard]] double              getSlowtimeconstant() const { return slowtimeconstant; }
+	[[nodiscard]] double              getYieldratio() const { return yieldratio; }
+	[[nodiscard]] double              getBirksConstant() const { return birksConstant; }
+	///@}
 
-	[[nodiscard]] double getScintillationyield() const { return scintillationyield; }
-
-	[[nodiscard]] double getResolutionscale() const { return resolutionscale; }
-
-	[[nodiscard]] double getFasttimeconstant() const { return fasttimeconstant; }
-
-	[[nodiscard]] double getSlowtimeconstant() const { return slowtimeconstant; }
-
-	[[nodiscard]] double getYieldratio() const { return yieldratio; }
-
-	[[nodiscard]] double getBirksConstant() const { return birksConstant; }
-
-	// other optical properties
+	/// \name Additional optical properties
+	///@{
 	[[nodiscard]] std::vector<double> getRayleigh() const { return rayleigh; }
+	///@}
 
-	// return true if this is a chemical formula (the sum of all the component amounts is > 1)
+	/**
+	 * \brief Heuristic: return true if the composition looks like a chemical formula.
+	 *
+	 * The module uses a simple heuristic: when the sum of \c amounts is > 1.0, the
+	 * values are likely atom counts rather than fractional masses.
+	 */
 	[[nodiscard]] bool isChemicalFormula() const { return std::accumulate(amounts.begin(), amounts.end(), 0.0) > 1; }
-
 };

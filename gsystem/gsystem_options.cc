@@ -1,3 +1,10 @@
+/**
+ * \file gsystem_options.cc
+ * \brief Implementation of gsystem option helpers.
+ *
+ * See gsystem_options.h for API docs.
+ */
+
 // gemc
 #include "gfactory_options.h"
 
@@ -7,9 +14,7 @@
 
 // project goption to a system
 namespace gsystem {
-
-
-// method to return a vector of GSystem from the options
+// See gsystem_options.h for API docs.
 SystemList getSystems(const std::shared_ptr<GOptions>& gopts) {
 	auto gsystem_node = gopts->getOptionNode("gsystem");
 
@@ -23,26 +28,29 @@ SystemList getSystems(const std::shared_ptr<GOptions>& gopts) {
 
 	for (auto gsystem_item : gsystem_node) {
 		auto factory = gopts->get_variable_in_option<std::string>(gsystem_item, "factory", GSYSTEMSQLITETFACTORYLABEL);
+
+		// ASCII factory can use an alternate search root (ascii_db).
 		if (factory == GSYSTEMASCIIFACTORYLABEL) { dbhost = ascii_db; }
+
 		systems.emplace_back(
-		                     std::make_shared<GSystem>(
-		                                               gopts,
-		                                               dbhost,
-		                                               gopts->get_variable_in_option<std::string>(gsystem_item, "name", goptions::NODFLT),
-		                                               factory,
-		                                               exp,
-		                                               run,
-		                                               gopts->get_variable_in_option<std::string>(gsystem_item, "variation", "default"),
-		                                               gopts->get_variable_in_option<std::string>(gsystem_item, "annotations",
-		                                                                                          UNINITIALIZEDSTRINGQUANTITY)
-		                                              ));
+			std::make_shared<GSystem>(
+				gopts,
+				dbhost,
+				gopts->get_variable_in_option<std::string>(gsystem_item, "name", goptions::NODFLT),
+				factory,
+				exp,
+				run,
+				gopts->get_variable_in_option<std::string>(gsystem_item, "variation", "default"),
+				gopts->get_variable_in_option<std::string>(gsystem_item, "annotations",
+				                                           UNINITIALIZEDSTRINGQUANTITY)
+			));
 	}
 
 	return systems;
 }
 
 
-// method to return a vector of GModifier from the options
+// See gsystem_options.h for API docs.
 std::vector<GModifier> getModifiers(const std::shared_ptr<GOptions>& gopts) {
 	std::vector<GModifier> gmods;
 
@@ -50,19 +58,18 @@ std::vector<GModifier> getModifiers(const std::shared_ptr<GOptions>& gopts) {
 
 	for (auto gmodifier_item : gmodifier_node) {
 		gmods.emplace_back(
-		                   gopts->get_variable_in_option<std::string>(gmodifier_item, "name", goptions::NODFLT),
-		                   gopts->get_variable_in_option<std::string>(gmodifier_item, "shift", GSYSTEMNOMODIFIER),
-		                   gopts->get_variable_in_option<std::string>(gmodifier_item, "tilt", GSYSTEMNOMODIFIER),
-		                   gopts->get_variable_in_option<bool>(gmodifier_item, "isPresent", true));
+			gopts->get_variable_in_option<std::string>(gmodifier_item, "name", goptions::NODFLT),
+			gopts->get_variable_in_option<std::string>(gmodifier_item, "shift", GSYSTEMNOMODIFIER),
+			gopts->get_variable_in_option<std::string>(gmodifier_item, "tilt", GSYSTEMNOMODIFIER),
+			gopts->get_variable_in_option<bool>(gmodifier_item, "isPresent", true));
 	}
 
 	return gmods;
 }
 
 
-// returns array of options definitions
+// See gsystem_options.h for API docs.
 GOptions defineOptions() {
-
 	GOptions goptions(GVOLUME_LOGGER);
 	goptions += GOptions(GMATERIAL_LOGGER);
 	goptions += GOptions(GSYSTEM_LOGGER);

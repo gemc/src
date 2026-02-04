@@ -23,170 +23,272 @@
 // geant4
 #include "G4Step.hh"
 
-/// Class to manage modifications to a GTouchable using defined modifier weights.
-class GTouchableModifiers {
+/**
+ * \class GTouchableModifiers
+ * \brief Helper container for representing touchable “modifier” information.
+ *
+ * Some digitization routines need to create one or more derived touchables from a single
+ * touchable, weighted by occupancy, energy, time, or similar criteria.
+ *
+ * This helper stores modifier payloads in one of two mutually exclusive representations:
+ * - weights-only : flat pairs (id, weight)
+ * - weights-and-times : flat triplets (id, weight, time)
+ *
+ * \note
+ * Only one representation is expected to be filled for a given instance.
+ */
+class GTouchableModifiers
+{
 public:
 	/**
-	 * \brief Constructs GTouchableModifiers with a list of touchable names.
+	 * \brief Constructs the container and declares supported touchable names.
 	 *
-	 * Initializes internal maps (modifierWeightsMap) for each provided touchable name.
+	 * Declaring touchable names up-front ensures the internal maps contain keys for all
+	 * expected touchables.
 	 *
-	 * \param touchableNames A vector of touchable names.
+	 * \param touchableNames List of touchable names for which modifiers may be recorded.
 	 */
 	explicit GTouchableModifiers(const std::vector<std::string>& touchableNames);
 
 private:
-	// Only one of these maps can be filled with values:
-	// the size of the map is used by processGTouchableModifiers.
-
-	/// Map holding pairs (id, weight) for each touchable.
+	/**
+	 * \brief Map holding flat (id, weight) pairs for each touchable.
+	 *
+	 * Layout for one touchable is:
+	 * \code
+	 * [id0, weight0, id1, weight1, ...]
+	 * \endcode
+	 */
 	std::map<std::string, std::vector<double>> modifierWeightsMap;
 
-	/// Map holding triplets (id, weight, time) for each touchable.
+	/**
+	 * \brief Map holding flat (id, weight, time) triplets for each touchable.
+	 *
+	 * Layout for one touchable is:
+	 * \code
+	 * [id0, weight0, time0, id1, weight1, time1, ...]
+	 * \endcode
+	 */
 	std::map<std::string, std::vector<double>> modifierWeightsAndTimesMap;
 
 public:
 	/**
-	 * \brief Inserts a new (id, weight) pair for given touchable.
-	 * \param touchableName The name of the touchable.
-	 * \param idValue The identifier value.
-	 * \param weight The weight.
+	 * \brief Inserts a new (id, weight) pair for the specified touchable.
+	 *
+	 * \param touchableName Name of the touchable to modify.
+	 * \param idValue Identifier value associated with the modifier entry.
+	 * \param weight Unnormalized weight (caller may later normalize with assignOverallWeight()).
 	 */
 	void insertIdAndWeight(const std::string& touchableName, int idValue, double weight);
 
 	/**
-	 * \brief Inserts a new (id, weight, time) triplet for given touchable.
-	 * \param touchableName The name of the touchable.
-	 * \param idValue The identifier value.
-	 * \param weight The weight.
-	 * \param time The time.
+	 * \brief Inserts a new (id, weight, time) triplet for the specified touchable.
+	 *
+	 * \param touchableName Name of the touchable to modify.
+	 * \param idValue Identifier value associated with the modifier entry.
+	 * \param weight Unnormalized weight (caller may later normalize with assignOverallWeight()).
+	 * \param time Time associated with this modifier entry (time unit follows project conventions).
 	 */
 	void insertIdWeightAndTime(const std::string& touchableName, int idValue, double weight, double time);
 
 	/**
-	 * \brief Normalizes the modifier weights using a total weight.
+	 * \brief Normalizes modifier weights by dividing by a provided total.
 	 *
-	 * For the weights-only map, each weight is divided by totalWeight.
-	 * For the weights-and-times map, the weight (second element of each triplet) is normalized.
+	 * - For weights-only vectors, normalizes every second element.
+	 * - For weights-and-times vectors, normalizes the weight element of each triplet.
 	 *
-	 * \param touchableName The name of the touchable.
-	 * \param totalWeight The total weight used for normalization.
+	 * \param touchableName Name of the touchable whose modifiers are to be normalized.
+	 * \param totalWeight Denominator for normalization (must be non-zero).
 	 */
 	void assignOverallWeight(const std::string& touchableName, double totalWeight);
 
 	/**
-	 * \brief Checks whether only weight modifiers (without time) are defined.
+	 * \brief Returns whether the container currently reports weights-only modifiers.
 	 *
-	 * \return True if modifierWeightsMap is not empty.
+	 * \return true if modifierWeightsMap is non-empty.
+	 *
+	 * \note
+	 * This is a coarse check: it reports whether the map is non-empty, not whether a
+	 * specific touchable has entries.
 	 */
 	[[nodiscard]] inline bool isWeightsOnly() const { return !modifierWeightsMap.empty(); }
 
 	/**
-	 * \brief Gets the modifier weights vector for a given touchable.
-	 * \param touchableName The touchable name.
-	 * \return The vector of weights.
+	 * \brief Returns the weights vector for a touchable.
 	 *
-	 * \note This function will crash if the key is not declared.
+	 * \param touchableName Touchable name key.
+	 * \return A copy of the internal flat vector containing (id, weight) pairs.
+	 *
+	 * \warning
+	 * This function will crash if the key was not declared in the constructor.
 	 */
-	inline std::vector<double> getModifierWeightsVector(const std::string& touchableName) { return modifierWeightsMap[touchableName]; }
+	inline std::vector<double> getModifierWeightsVector(const std::string& touchableName) {
+		return modifierWeightsMap[touchableName];
+	}
 
 	/**
-	 * \brief Gets the modifier weights and time vector for a given touchable.
-	 * \param touchableName The touchable name.
-	 * \return The vector of weights and times.
+	 * \brief Returns the weights-and-times vector for a touchable.
 	 *
-	 * \note This function will crash if the key is not declared.
+	 * \param touchableName Touchable name key.
+	 * \return A copy of the internal flat vector containing (id, weight, time) triplets.
+	 *
+	 * \warning
+	 * This function will crash if the key was not declared in the constructor.
 	 */
-	inline std::vector<double> getModifierWeightsAndTimeVector(const std::string& touchableName) { return modifierWeightsAndTimesMap[touchableName]; }
+	inline std::vector<double> getModifierWeightsAndTimeVector(const std::string& touchableName) {
+		return modifierWeightsAndTimesMap[touchableName];
+	}
 };
 
-/// Abstract base class for dynamic digitization functionality.
-class GDynamicDigitization : public GBase<GDynamicDigitization> {
+/**
+ * \class GDynamicDigitization
+ * \brief Abstract base class for dynamically loaded digitization plugins.
+ *
+ * Plugins typically implement:
+ * - \ref GDynamicDigitization::defineReadoutSpecs "defineReadoutSpecs()"
+ * - \ref GDynamicDigitization::digitizeHit "digitizeHit()"
+ *
+ * They may additionally override:
+ * - \ref GDynamicDigitization::processStepTime "processStepTime()"
+ * - \ref GDynamicDigitization::processTouchable "processTouchable()"
+ * - \ref GDynamicDigitization::collectTrueInformation "collectTrueInformation()"
+ * - \ref GDynamicDigitization::loadConstants "loadConstants()"
+ * - \ref GDynamicDigitization::loadTT "loadTT()"
+ *
+ */
+class GDynamicDigitization : public GBase<GDynamicDigitization>
+{
 public:
-	explicit GDynamicDigitization(const std::shared_ptr<GOptions>& g) : GBase(g, GDIGITIZATION_LOGGER) {}
-
 	/**
-	 * \brief Virtual destructor.
+	 * \brief Constructs the digitization base object.
+	 *
+	 * \param g Options used by this plugin instance.
 	 */
+	explicit GDynamicDigitization(const std::shared_ptr<GOptions>& g) : GBase(g, GDIGITIZATION_LOGGER) {
+	}
+
+	/// Virtual destructor.
 	virtual ~GDynamicDigitization() = default;
 
 	/**
-	 * \brief Processes the step time.
+	 * \brief Computes the time associated with a simulation step for electronics binning.
 	 *
-	 * Returns the global time from the post-step point of the current G4Step.
+	 * This wrapper logs, checks that options are configured, and delegates to
+	 * processStepTimeImpl().
 	 *
-	 * \param gTouchID Pointer to the GTouchable.
-	 * \param thisStep Pointer to the current G4Step.
-	 * \return The global time.
+	 * \param gTouchID Touchable associated with the current step.
+	 * \param thisStep Pointer to the current \c G4Step.
+	 * \return Time value used for electronics time binning (unit follows project conventions).
 	 */
-	[[nodiscard]] double processStepTime(const std::shared_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep) {
+	[[nodiscard]] double processStepTime(const std::shared_ptr<GTouchable>& gTouchID,
+	                                     [[maybe_unused]] G4Step*           thisStep) {
 		check_if_log_defined();
 		log->debug(NORMAL, FUNCTION_NAME);
 		return processStepTimeImpl(gTouchID, thisStep);
 	}
 
-	[[nodiscard]] virtual double processStepTimeImpl(const std::shared_ptr<GTouchable>& gTouchID, [[maybe_unused]] G4Step* thisStep);
-
+	/**
+	 * \brief Implementation hook for step time computation.
+	 *
+	 * Default behavior returns the post-step global time from \c G4Step.
+	 *
+	 * \param gTouchID Touchable associated with the current step.
+	 * \param thisStep Pointer to the current \c G4Step.
+	 * \return Time value used for electronics time binning.
+	 */
+	[[nodiscard]] virtual double processStepTimeImpl(const std::shared_ptr<GTouchable>& gTouchID,
+	                                                 [[maybe_unused]] G4Step*           thisStep);
 
 	/**
-	 * \brief Processes a GTouchable based on a G4Step.
+	 * \brief Processes a touchable based on the current step and readout specs.
 	 *
-	 * If the computed time cell index matches the current one (or if it was unset),
-	 * the original touchable is returned; otherwise, a new touchable is created.
+	 * The default behavior bins the step time into an electronics time-cell index using
+	 * readoutSpecs->timeCellIndex(). If the index changes relative to the current touchable,
+	 * a second touchable instance is created.
 	 *
-	 * \param gtouchable Pointer to the original GTouchable.
-	 * \param thisStep Pointer to the current G4Step.
-	 * \return A vector of GTouchable pointers.
+	 * \param gtouchable Input touchable for this step.
+	 * \param thisStep Pointer to the current \c G4Step.
+	 * \return One or more touchables representing the time-binned view of the input.
 	 */
-	[[nodiscard]] std::vector<std::shared_ptr<GTouchable>> processTouchable(std::shared_ptr<GTouchable> gtouchable, G4Step* thisStep) {
+	[[nodiscard]] std::vector<std::shared_ptr<GTouchable>> processTouchable(
+		std::shared_ptr<GTouchable> gtouchable, G4Step* thisStep) {
 		check_if_log_defined();
 		log->debug(NORMAL, FUNCTION_NAME);
 		return processTouchableImpl(std::move(gtouchable), thisStep);
 	}
 
-	[[nodiscard]] virtual std::vector<std::shared_ptr<GTouchable>> processTouchableImpl(std::shared_ptr<GTouchable> gtouchable, G4Step* thisStep);
+	/**
+	 * \brief Implementation hook for touchable processing.
+	 *
+	 * \param gtouchable Input touchable for this step.
+	 * \param thisStep Pointer to the current \c G4Step.
+	 * \return One or more touchables representing the time-binned view of the input.
+	 */
+	[[nodiscard]] virtual std::vector<std::shared_ptr<GTouchable>> processTouchableImpl(
+		std::shared_ptr<GTouchable> gtouchable, G4Step* thisStep);
 
 	/**
-	 * \brief Processes touchable modifiers.
+	 * \brief Applies touchable modifiers.
 	 *
-	 * This function applies modifiers from a GTouchableModifiers object.
+	 * Wrapper that logs/checks and delegates to processGTouchableModifiersImpl().
 	 *
-	 * \param gTouchID Pointer to the original GTouchable.
-	 * \param gmods A GTouchableModifiers object.
-	 * \return A vector of modified GTouchable pointers.
+	 * \param gTouchID Input touchable to modify.
+	 * \param gmods Modifier container describing how to modify touchables.
+	 * \return A vector of modified touchables (possibly empty).
 	 */
-	[[nodiscard]] std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiers(const std::shared_ptr<GTouchable>& gTouchID, const GTouchableModifiers& gmods) {
+	[[nodiscard]] std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiers(
+		const std::shared_ptr<GTouchable>& gTouchID, const GTouchableModifiers& gmods) {
 		check_if_log_defined();
 		log->debug(NORMAL, FUNCTION_NAME);
 		return processGTouchableModifiersImpl(gTouchID, gmods);
 	}
 
-	virtual std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiersImpl([[maybe_unused]] const std::shared_ptr<GTouchable>& gTouchID,
-	                                                                                [[maybe_unused]] const GTouchableModifiers&         gmods);
+	/**
+	 * \brief Implementation hook for touchable modifier application.
+	 *
+	 * Default implementation returns an empty vector (no modifiers applied).
+	 *
+	 * \param gTouchID Input touchable.
+	 * \param gmods Modifier container.
+	 * \return Modified touchables (default: empty).
+	 */
+	virtual std::vector<std::shared_ptr<GTouchable>> processGTouchableModifiersImpl(
+		[[maybe_unused]] const std::shared_ptr<GTouchable>& gTouchID,
+		[[maybe_unused]] const GTouchableModifiers&         gmods);
 
 	/**
-	 * \brief Collects true hit information into a GTrueInfoData object.
+	 * \brief Collects standardized “true hit information” into a GTrueInfoData record.
 	 *
-	 * Integrates all information built in GHit::addHitInfosForBitset.
+	 * Wrapper that logs/checks and delegates to collectTrueInformationImpl().
 	 *
-	 * \param ghit Pointer to a GHit.
-	 * \param hitn Hit index.
-	 * \return A pointer to a newly created GTrueInfoData object.
+	 * \param ghit Input hit from the sensitive detector.
+	 * \param hitn Sequential hit index.
+	 * \return Newly created true-information record.
 	 */
 	[[nodiscard]] std::unique_ptr<GTrueInfoData> collectTrueInformation(GHit* ghit, size_t hitn) {
 		check_if_log_defined();
-		log->info(2, "GDynamicDigitization::collect true information for hit number ", hitn, " with size ", ghit->nsteps(), " steps");
+		log->info(2, "GDynamicDigitization::collect true information for hit number ", hitn, " with size ",
+		          ghit->nsteps(), " steps");
 		return collectTrueInformationImpl(ghit, hitn);
 	}
 
+	/**
+	 * \brief Implementation hook for true-information collection.
+	 *
+	 * \param ghit Input hit.
+	 * \param hitn Sequential hit index.
+	 * \return Newly created true-information record.
+	 */
 	[[nodiscard]] virtual std::unique_ptr<GTrueInfoData> collectTrueInformationImpl(GHit* ghit, size_t hitn);
 
 	/**
-	 * \brief Digitizes hit information into a GDigitizedData object.
+	 * \brief Digitizes a hit into a GDigitizedData record.
 	 *
-	 * \param ghit Pointer to a GHit.
-	 * \param hitn Hit index.
-	 * \return A pointer to a GDigitizedData object, or nullptr if not implemented.
+	 * Wrapper that logs/checks and delegates to digitizeHitImpl().
+	 *
+	 * \param ghit Input hit from the sensitive detector.
+	 * \param hitn Sequential hit index.
+	 * \return Newly created digitized record (or nullptr if not implemented).
 	 */
 	[[nodiscard]] std::unique_ptr<GDigitizedData> digitizeHit(GHit* ghit, [[maybe_unused]] size_t hitn) {
 		check_if_log_defined();
@@ -194,14 +296,26 @@ public:
 		return digitizeHitImpl(ghit, hitn);
 	}
 
-	[[nodiscard]] virtual std::unique_ptr<GDigitizedData> digitizeHitImpl([[maybe_unused]] GHit* ghit, [[maybe_unused]] size_t hitn) { return nullptr; }
+	/**
+	 * \brief Implementation hook for hit digitization.
+	 *
+	 * Default implementation returns nullptr to indicate "not implemented".
+	 *
+	 * \param ghit Input hit.
+	 * \param hitn Sequential hit index.
+	 * \return Newly created digitized record, or nullptr.
+	 */
+	[[nodiscard]] virtual std::unique_ptr<GDigitizedData> digitizeHitImpl(
+		[[maybe_unused]] GHit* ghit, [[maybe_unused]] size_t hitn) { return nullptr; }
 
 	/**
-	 * \brief Loads digitization constants.
+	 * \brief Loads digitization constants (calibration/configuration).
+	 *
+	 * Wrapper that logs/checks and delegates to loadConstantsImpl().
 	 *
 	 * \param runno Run number.
 	 * \param variation Variation string.
-	 * \return True if successful, false otherwise.
+	 * \return true on success.
 	 */
 	[[nodiscard]] bool loadConstants([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
 		check_if_log_defined();
@@ -209,77 +323,101 @@ public:
 		return loadConstantsImpl(runno, variation);
 	}
 
-	virtual bool loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return true; }
-
 	/**
-	 * \brief Loads the translation table.
+	 * \brief Implementation hook for constant loading.
+	 *
+	 * Default implementation does nothing and returns true.
 	 *
 	 * \param runno Run number.
 	 * \param variation Variation string.
-	 * \return True if successful, false otherwise.
+	 * \return true on success.
+	 */
+	virtual bool loadConstantsImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
+		return true;
+	}
+
+	/**
+	 * \brief Loads the translation table (identity -> electronics address).
+	 *
+	 * Wrapper that logs/checks and delegates to loadTTImpl().
+	 *
+	 * \param runno Run number.
+	 * \param variation Variation string.
+	 * \return true on success.
 	 */
 	[[nodiscard]] bool loadTT([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
 		check_if_log_defined();
-		log->debug(NORMAL, "GDynamicDigitization::load Translation Table for run ", runno, " with variation ", variation);
+		log->debug(NORMAL, "GDynamicDigitization::load Translation Table for run ", runno, " with variation ",
+		           variation);
 		return loadTTImpl(runno, variation);
 	}
 
+	/**
+	 * \brief Implementation hook for translation table loading.
+	 *
+	 * Default implementation does nothing and returns true.
+	 *
+	 * \param runno Run number.
+	 * \param variation Variation string.
+	 * \return true on success.
+	 */
 	virtual bool loadTTImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) { return true; }
 
 	/**
-	 * \brief Sets hardware-level charge and time information in the digitized data.
+	 * \brief Adds hardware-level time/charge and address fields to a digitized record.
 	 *
-	 * Sets the gdata variable TIMEATELECTRONICS (used by RunAction to identify eventFrameIndex)
-	 * and includes the translation table (hardware address: crate/slot/channel) in the digitized data.
-	 * Exits with an error if the translation table is not defined.
+	 * This routine inserts:
+	 * - crate/slot/channel from the translation table
+	 * - TIMEATELECTRONICS and CHARGEATELECTRONICS
 	 *
-	 * \param time Time value (ns).
-	 * \param q Charge value.
-	 * \param ghit Pointer to the GHit.
-	 * \param gdata Pointer to the GDigitizedData - caller keeps ownership.
+	 * \param time Time value (time unit follows project conventions; often ns).
+	 * \param q Charge value (ADC-like integer).
+	 * \param ghit Input hit providing the translation-table id.
+	 * \param gdata Digitized record to augment (caller retains ownership).
 	 */
 	void chargeAndTimeAtHardware(int time, int q, const GHit* ghit, GDigitizedData& gdata);
 
 	/**
-	 * \brief Pure virtual function to initialize readout specifications.
+	 * \brief Initializes readout specifications.
 	 *
-	 * Must be implemented by derived classes.
+	 * Wrapper that logs/checks and delegates to defineReadoutSpecsImpl().
 	 *
-	 * \return True if initialization is successful, false otherwise.
+	 * \return true on success.
 	 */
 	[[nodiscard]] bool defineReadoutSpecs() {
 		check_if_log_defined();
 		log->debug(NORMAL, "GDynamicDigitization::define readout specs");
 		return defineReadoutSpecsImpl();
 	};
+
+	/**
+	 * \brief Implementation hook to define readout specs.
+	 *
+	 * Must be implemented by derived classes.
+	 *
+	 * \return true on success.
+	 */
 	virtual bool defineReadoutSpecsImpl() = 0;
 
-	/// After init, we never mutate these:
-	std::shared_ptr<const GReadoutSpecs>     readoutSpecs;
+	/// Readout specs are created during initialization and treated as immutable.
+	std::shared_ptr<const GReadoutSpecs> readoutSpecs;
+
+	/// Translation table is typically loaded during initialization and treated as immutable.
 	std::shared_ptr<const GTranslationTable> translationTable;
 
 	/**
-	 * \brief Dynamically instantiates a GDynamicDigitization object from a dynamic library.
+	 * \brief Dynamically instantiates a plugin instance from a dynamic library.
 	 *
-	 * \param h Handle to the dynamic library.
-	 * \return A pointer to a GDynamicDigitization instance, or nullptr if instantiation fails.
+	 * This function looks up the \c GDynamicDigitizationFactory symbol and calls it.
+	 *
+	 * \param h Dynamic library handle.
+	 * \param g Options to pass to the plugin instance.
+	 * \return Newly created plugin instance, or nullptr on failure.
 	 */
-	// static GDynamicDigitization* instantiate(const dlhandle handle) {
-	// 	if (handle == nullptr) return nullptr;
-	// 	// Must match the extern "C" declaration in the derived factories.
-	// 	void* maker = dlsym(handle, "GDynamicDigitizationFactory");
-	// 	if (maker == nullptr) return nullptr;
-	// 	typedef GDynamicDigitization*(*fptr)();
-	// 	// Use reinterpret_cast as required.
-	// 	fptr func = reinterpret_cast<fptr>(reinterpret_cast<void*>(maker));
-	// 	return func();
-	// }
-
 	static GDynamicDigitization* instantiate(const dlhandle h, std::shared_ptr<GOptions> g) {
 		if (!h) return nullptr;
 		using fptr = GDynamicDigitization* (*)(std::shared_ptr<GOptions>);
 
-		// Must match the extern "C" declaration in the derived factories.
 		auto sym = dlsym(h, "GDynamicDigitizationFactory");
 		if (!sym) return nullptr;
 
@@ -287,40 +425,50 @@ public:
 		return func(g);
 	}
 
-
-	// decides if the hit should be processed or not
+	/**
+	 * \brief Decides whether a hit should be skipped based on deposited energy.
+	 *
+	 * Default behavior skips hits with exactly zero energy if the \c recordZeroEdep option
+	 * is disabled.
+	 *
+	 * \param energy Total deposited energy for the hit.
+	 * \return true if the hit should be skipped.
+	 */
 	virtual bool decisionToSkipHit(double energy) {
-		if (energy == 0 && !recordZeroEdep) { return true; }
-
+		if (energy == 0 && !recordZeroEdep) {
+			return true;
+		}
 		return false;
 	}
 
-
 	/**
-	 * \brief Sets the loggers for the digitization process.
+	 * \brief Sets the options pointer required by the digitization base.
 	 *
+	 * \param g Options object to store for later use.
 	 *
-	 * \param g Pointer to GOptions.
+	 * \warning
+	 * A future refactor may remove this pattern; currently it is required for legacy flows.
 	 */
 	// TODO: REMOVE THIS EVERYWHERE also remove check_if_log_defined
 	void set_loggers(const std::shared_ptr<GOptions>& g) { gopts = g; }
 
 private:
+	/// When false, hits with exactly zero deposited energy may be skipped.
 	bool recordZeroEdep = false;
 
 protected:
-	/// Optional pointer to GOptions.
+	/// Options used by the digitization plugin instance.
 	std::shared_ptr<GOptions> gopts;
 
 	/**
-	 * \brief Checks that all required loggers and options are defined.
+	 * \brief Ensures options/logging are configured before plugin methods run.
 	 *
-	 * If any required logger is missing, prints an error message and exits.
+	 * If options are not set, prints an error message and exits.
 	 */
 	void check_if_log_defined() const {
 		if (gopts == nullptr) {
-			std::cerr << KRED <<
-				"Fatal Error: GDynamicDigitization: goption is not set for this plugin or one of the loggers is null."
+			std::cerr << KRED
+				<< "Fatal Error: GDynamicDigitization: goption is not set for this plugin or one of the loggers is null."
 				<< std::endl;
 			std::cerr << "The set_loggers function needs to be called." << std::endl;
 			std::cerr << "For example: dynamicRoutines[\"ctof\"]->set_loggers(gopts);" << std::endl;
@@ -330,18 +478,34 @@ protected:
 	}
 };
 
-
 namespace gdynamicdigitization {
-
 using dRoutinesMap = std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>;
 
-inline std::shared_ptr<GDynamicDigitization> load_dynamicRoutine(const std::string& plugin_name, const std::shared_ptr<GOptions>& gopts) {
+/**
+ * \brief Loads a single dynamic routine and returns it.
+ *
+ * \param plugin_name Name of the plugin library/object.
+ * \param gopts Shared options.
+ * \return Loaded plugin instance.
+ */
+inline std::shared_ptr<GDynamicDigitization> load_dynamicRoutine(const std::string&               plugin_name,
+                                                                 const std::shared_ptr<GOptions>& gopts) {
 	GManager manager(gopts);
 	return manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin_name, gopts);
 }
 
-//  the returned map is shared and immutable
-inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<std::string>& plugin_names, const std::shared_ptr<GOptions>& gopts) {
+/**
+ * \brief Loads multiple dynamic routines and returns an immutable shared map.
+ *
+ * The returned map is shared and treated as immutable to prevent accidental mutation
+ * across threads.
+ *
+ * \param plugin_names Names of plugins to load.
+ * \param gopts Shared options.
+ * \return Shared pointer to an immutable map of plugin name -> routine instance.
+ */
+inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<std::string>&  plugin_names,
+                                                              const std::shared_ptr<GOptions>& gopts) {
 	auto     log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GDIGITIZATION_LOGGER);
 	GManager manager(gopts);
 
@@ -352,8 +516,6 @@ inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<
 		log->info(0, "dynamicRoutinesMap[", plugin, "]: ", (*routines)[plugin]);
 	}
 
-	return routines; // shared_ptr<const ...> prevents mutation
+	return routines;
 }
-
-
 } // namespace gdynamicdigitization

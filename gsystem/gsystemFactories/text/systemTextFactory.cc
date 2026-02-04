@@ -1,3 +1,10 @@
+/**
+* \file systemTextFactory.cc
+ * \brief ASCII text file helper implementation for GSystemTextFactory.
+ *
+ * See systemTextFactory.h for API docs.
+ */
+
 // string for gexit
 #include "gutilities.h"
 

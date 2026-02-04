@@ -1,3 +1,10 @@
+/**
+ * \file systemSqliteFactory.cc
+ * \brief sqlite-backed implementation utilities for GSystemSQLiteFactory.
+ *
+ * See systemSqliteFactory.h for API docs.
+ */
+
 // string for gexit
 #include "gutilities.h"
 
@@ -5,9 +12,9 @@
 #include "systemSqliteFactory.h"
 #include "gsystemConventions.h"
 
-bool  GSystemSQLiteFactory::table_exists(sqlite3* db, const char* name) {
-	sqlite3_stmt* st = nullptr;
-	const char* sql = "SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1";
+bool GSystemSQLiteFactory::table_exists(sqlite3* db, const char* name) {
+	sqlite3_stmt* st  = nullptr;
+	const char*   sql = "SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1";
 	if (sqlite3_prepare_v2(db, sql, -1, &st, nullptr) != SQLITE_OK) return false;
 	sqlite3_bind_text(st, 1, name, -1, SQLITE_TRANSIENT);
 	bool exists = (sqlite3_step(st) == SQLITE_ROW);
@@ -20,7 +27,7 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system) {
 	// skip ROOT system
 	if (system->getName() == ROOTWORLDGVOLUMENAME) { return; }
 
-	// Save parameters from the system.
+	// Save parameters from the system (used to bind queries and for logs).
 	system_name = system->getName();
 	variation   = system->getVariation();
 	runno       = system->getRunno();
@@ -29,7 +36,7 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system) {
 	if (dbhost == "na") { dbhost = system->get_dbhost(); }
 	log->info(1, "GSystemSQLiteFactory: dbhost set to <", dbhost, ">");
 
-	// try local dir, gemc installation, then example dir
+	// Try local dir, GEMC installation, then examples dir.
 	std::vector<std::string> dirs = {
 		".",
 		gutilities::gemc_root().string(),

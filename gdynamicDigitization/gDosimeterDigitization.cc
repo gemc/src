@@ -1,210 +1,160 @@
 /**
  * \file gDosimeterDigitization.cc
- * \brief Implementation of GDosimeterDigitization methods.
+ * \brief Implementation of GDosimeterDigitization.
  *
- * \mainpage Dosimeter Digitization Module
- *
- * \section intro_sec Introduction
- * This module implements dosimeter digitization for simulation hits. It provides:
- *  - Readout specification definition for dosimeter detectors.
- *  - Conversion of a true hit (GHit) into variables:
- *    - totEdep (MeV)
- *    -
- *  - Loading of calibration constants (NIEL factors and particle masses) from external files.
- *  - Linear interpolation of the NIEL factor for a given particle energy.
- *
- * \section details_sec Details
- * The functions implemented herein ensure that:
- *  - The readout specifications are set with a fixed time window, grid start time, and hit bitset.
- *  - The digitization function processes a hit by collecting key variables and computing a NIEL weight
- *    over the hit’s individual steps.
- *  - Calibration data are loaded from text files, using a robust file–reading loop.
- *
- * \author Your Name
- * \date YYYY-MM-DD
+ * This translation unit provides the implementation of the internal dosimeter digitization
+ * plugin. Public API documentation for GDosimeterDigitization lives in
+ * ginternalDigitization.h.  This file intentionally keeps only local, non-Doxygen
+ * comments to avoid duplicating the header documentation.
  */
 
 #include "ginternalDigitization.h"
 #include <fstream>
 
-
-/**
- * \brief Defines the readout specifications for dosimeter digitization.
- *
- * Sets the electronic readout time-window to 10, the grid start time to 0, and uses the
- * hit bitset "000001" to define what information is stored. A new GReadoutSpecs object is
- * created and assigned to readoutSpecs.
- *
- * \return True if the readout specifications are successfully defined.
- */
+// See header for API docs.
 bool GDosimeterDigitization::defineReadoutSpecsImpl() {
-    double timeWindow    = 10;                  // electronic readout time-window of the detector
-    double gridStartTime = 0;                   // defines the windows grid
-    auto   hitBitSet     = HitBitSet("000001"); // defines what information to be stored in the hit
+	// Time window is the width of one electronics time cell (unit follows the convention
+	// used by the rest of the digitization chain; typically ns).
+	double timeWindow    = 10;                  // electronic readout time-window of the detector
+	double gridStartTime = 0;                   // defines the windows grid
+	auto   hitBitSet     = HitBitSet("000001"); // defines what information to be stored in the hit
 
-    // Create a new GReadoutSpecs object with the specified parameters.
-    readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, log);
+	// Readout specs are immutable after initialization and shared by all processed hits.
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, log);
 
-    return true;
+	return true;
 }
 
-/**
- * \brief Digitizes a hit for dosimeter detectors.
- *
- * This function converts a GHit into a GDigitizedData object. It:
- *  - Extracts the first identifier from the hit's identity vector.
- *  - Populates the digitized data with basic hit parameters (hit number, total energy, time, etc.).
- *  - Computes a NIEL weight by iterating over each step of the hit and linearly interpolating
- *    the NIEL factor for valid particle IDs.
- *
- * \param ghit Pointer to the GHit to digitize.
- * \param hitn The hit index.
- * \return Pointer to the newly created GDigitizedData object.
- */
+// See header for API docs.
 std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(GHit* ghit, [[maybe_unused]] size_t hitn) {
-    // Ensure that required loggers and options are defined.
-    check_if_log_defined();
+	check_if_log_defined();
 
-    // ghit->getGID() must have a single entry.
-    GIdentifier identity = ghit->getGID().front();
+	// Expected to be a single-identity detector: take the first identity entry.
+	GIdentifier identity = ghit->getGID().front();
 
-    // Create a new GDigitizedData object for this hit.
-    auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);
+	auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);
 
-    // Include basic hit variables.
-    gdata->includeVariable(identity.getName(), identity.getValue());
-    gdata->includeVariable("eTot", ghit->getTotalEnergyDeposited());
+	// Store the detector identity and the total deposited energy.
+	gdata->includeVariable(identity.getName(), identity.getValue());
+	gdata->includeVariable("eTot", ghit->getTotalEnergyDeposited());
 
-    // Retrieve per-step particle IDs and energies.
-    auto pids      = ghit->getPids();
-    auto pEnergies = ghit->getEs();
+	// Per-step information used to build the NIEL-weight.
+	auto pids      = ghit->getPids();
+	auto pEnergies = ghit->getEs();
 
-    double nielWeight = 0;
-    // Loop over each step.
-    for (size_t stepIndex = 0; stepIndex < pids.size(); stepIndex++) {
-        // Use absolute value so negative particle IDs (e.g. -11) are handled.
-        int pid = std::abs(pids[stepIndex]);
+	double nielWeight = 0;
 
-        // Process only for specific particle types.
-        if (pid == 11 || pid == 211 || pid == 2212 || pid == 2112) {
-            // Compute effective energy by subtracting the particle mass.
-            double E = pEnergies[stepIndex] - pMassMeV[pid];
-            // Accumulate NIEL weight using linear interpolation of the NIEL factor.
-            nielWeight += getNielFactorForParticleAtEnergy(pid, E);
-        }
-    }
+	// Accumulate NIEL factor step-by-step. This treats each step independently and sums
+	// the interpolated factors for supported particle species.
+	for (size_t stepIndex = 0; stepIndex < pids.size(); stepIndex++) {
+		// Use absolute PID so negative particle IDs (e.g. -11) are handled.
+		int pid = std::abs(pids[stepIndex]);
 
-    // Include the computed NIEL weight in the digitized data.
-    gdata->includeVariable("nielWeight", nielWeight);
+		// Only a few particle types are supported by the calibration data files.
+		if (pid == 11 || pid == 211 || pid == 2212 || pid == 2112) {
+			// Convert from total energy to kinetic-like quantity used by the NIEL tables
+			// by subtracting the particle rest mass (in MeV).
+			double E   = pEnergies[stepIndex] - pMassMeV[pid];
+			nielWeight += getNielFactorForParticleAtEnergy(pid, E);
+		}
+	}
 
-    return gdata;
+	gdata->includeVariable("nielWeight", nielWeight);
+
+	return gdata;
 }
 
-/**
- * \brief Loads digitization constants for dosimeter digitization.
- *
- * Loads NIEL calibration data for various particle types from text files. The files
- * are located in the GEMC data directory under "dosimeterData/Niel/". Each file is expected
- * to contain pairs of values (NIEL factor and corresponding energy threshold). Particle masses
- * for calibration are also loaded.
- *
- * \param runno Run number (unused).
- * \param variation Variation string (unused).
- * \return True if the constants are successfully loaded.
- */
+// See header for API docs.
 bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int                runno,
                                                [[maybe_unused]] std::string const& variation) {
-    // NIEL Data: map from particle ID (PID) to file name.
-    std::map<int, std::string> nielDataFiles;
-    nielDataFiles[11]   = "niel_electron.txt";
-    nielDataFiles[211]  = "niel_pion.txt";
-    nielDataFiles[2112] = "niel_neutron.txt";
-    nielDataFiles[2212] = "niel_proton.txt";
+	// Map from particle id to the calibration filename (text, 2 columns).
+	std::map<int, std::string> nielDataFiles;
+	nielDataFiles[11]   = "niel_electron.txt";
+	nielDataFiles[211]  = "niel_pion.txt";
+	nielDataFiles[2112] = "niel_neutron.txt";
+	nielDataFiles[2212] = "niel_proton.txt";
 
-    // Construct plugin path from the GEMC environment variable.
-    std::filesystem::path gemcRoot   = gutilities::gemc_root();
+	// GEMC installation root used to locate plugin data.
+	std::filesystem::path gemcRoot = gutilities::gemc_root();
 
-    // Loop over each particle type and load its NIEL data.
-    for (const auto& [pid, filename] : nielDataFiles) {
-        std::string dataFileWithPath = gemcRoot.string() + "/dosimeterData" + "/Niel/" + filename;
+	for (const auto& [pid, filename] : nielDataFiles) {
+		std::string dataFileWithPath = gemcRoot.string() + "/dosimeterData" + "/Niel/" + filename;
 
-        std::ifstream inputfile(dataFileWithPath);
-        if (!inputfile) {
-            // on linux, the tests use the build directory executables are run from the build directory
-            // if that's the case, the data is inside gdynamicDigitization
-            dataFileWithPath =  gemcRoot.string() + "/gdynamicDigitization/dosimeterData" + "/Niel/" + filename;
-            inputfile.open(dataFileWithPath);
-            if (!inputfile) {
-                log->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ",
-                           dataFileWithPath);
-            }
-        }
+		std::ifstream inputfile(dataFileWithPath);
+		if (!inputfile) {
+			// On Linux, tests may run from the build directory, where plugin data lives under
+			// gdynamicDigitization/...
+			dataFileWithPath = gemcRoot.string() + "/gdynamicDigitization/dosimeterData" + "/Niel/" + filename;
+			inputfile.open(dataFileWithPath);
+			if (!inputfile) {
+				log->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ",
+				           dataFileWithPath);
+			}
+		}
 
-        log->info(0, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
+		log->info(0, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
 
-        double p0, p1;
-        // Use proper loop condition to read pairs until failure.
-        while (inputfile >> p0 >> p1) {
-            nielfactorMap[pid].push_back(p0);
-            E_nielfactorMap[pid].push_back(p1);
-        }
-        inputfile.close();
-    }
+		// Expected file format: repeated pairs (factor, energyMeV).
+		double p0, p1;
+		while (inputfile >> p0 >> p1) {
+			nielfactorMap[pid].push_back(p0);
+			E_nielfactorMap[pid].push_back(p1);
+		}
+		inputfile.close();
+	}
 
-    // Load particle masses (in MeV) for calibration.
-    pMassMeV[11]   = 0.510;
-    pMassMeV[211]  = 139.570;
-    pMassMeV[2112] = 939.565;
-    pMassMeV[2212] = 938.272;
+	// Particle rest masses used by the interpolation routine (MeV).
+	pMassMeV[11]   = 0.510;
+	pMassMeV[211]  = 139.570;
+	pMassMeV[2112] = 939.565;
+	pMassMeV[2212] = 938.272;
 
-    return true;
+	return true;
 }
 
-/**
- * \brief Interpolates the NIEL factor for a given particle at a specified energy.
- *
- * For the specified particle (pid) and effective energy (in MeV), this function finds the
- * first threshold where energy is below the recorded value and performs linear interpolation
- * between the adjacent NIEL factors. If the energy is below the first threshold, it returns
- * the first NIEL factor; if above the last threshold, returns the last NIEL factor.
- *
- * \param pid Particle ID.
- * \param energyMeV Effective energy (in MeV) after subtracting particle mass.
- * \return The interpolated NIEL factor.
- */
+// See header for API docs.
 double GDosimeterDigitization::getNielFactorForParticleAtEnergy(int pid, double energyMeV) {
-    // Number of NIEL data points available for this particle.
-    auto niel_N = nielfactorMap[pid].size();
-    auto j      = niel_N;
+	const auto niel_N = nielfactorMap[pid].size();
 
-    // Find the first index for which the energy is below the threshold.
-    for (size_t i = 0; i < niel_N; i++) {
-        if (energyMeV < E_nielfactorMap[pid][i]) {
-            j = i;
-            break;
-        }
-    }
+	// Guard against missing/empty calibration data.
+	// (If this happens, it indicates loadConstantsImpl did not populate the maps as expected.)
+	if (niel_N == 0) {
+		log->error(EC__FILENOTFOUND, "NIEL tables are empty for pid <", pid, ">. Did loadConstantsImpl fail?");
+		return 0.0;
+	}
 
-    double value;
-    if (j > 0 && j < niel_N) {
-        // Perform linear interpolation between indices j-1 and j.
-        auto nielfactor_low = nielfactorMap[pid][j - 1];
-        auto nielfactor_high = nielfactorMap[pid][j];
-        auto energy_low = E_nielfactorMap[pid][j - 1];
-        auto energy_high = E_nielfactorMap[pid][j];
-        value = nielfactor_low + (nielfactor_high - nielfactor_low) / (energy_high - energy_low) * (energyMeV -
-            energy_low);
-    }
-    else if (j == 0) {
-        // Energy is below the first threshold.
-        value = nielfactorMap[pid].front();
-    }
-    else {
-        // Energy is above the last threshold.
-        value = nielfactorMap[pid].back();
-    }
+	// j is the first index for which energyMeV < E_table[j]. Initialize to "past the end".
+	size_t j = niel_N;
 
-    log->debug(NORMAL, " pid: ", pid, ", j: ", j, ", value: ", value, ", energy: ", energyMeV);
+	for (size_t i = 0; i < niel_N; i++) {
+		if (energyMeV < E_nielfactorMap[pid][i]) {
+			j = i;
+			break;
+		}
+	}
 
-    return value;
+	double value = 0.0;
+
+	if (j > 0 && j < niel_N) {
+		// Linear interpolation between (j-1) and j.
+		const auto nielfactor_low  = nielfactorMap[pid][j - 1];
+		const auto nielfactor_high = nielfactorMap[pid][j];
+		const auto energy_low      = E_nielfactorMap[pid][j - 1];
+		const auto energy_high     = E_nielfactorMap[pid][j];
+
+		value = nielfactor_low +
+			(nielfactor_high - nielfactor_low) / (energy_high - energy_low) * (energyMeV - energy_low);
+	}
+	else if (j == 0) {
+		// energy below the first threshold: clamp to first value.
+		value = nielfactorMap[pid].front();
+	}
+	else {
+		// energy beyond the last threshold: clamp to last value.
+		value = nielfactorMap[pid].back();
+	}
+
+	log->debug(NORMAL, " pid: ", pid, ", j: ", j, ", value: ", value, ", energy: ", energyMeV);
+
+	return value;
 }

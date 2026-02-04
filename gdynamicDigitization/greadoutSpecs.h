@@ -1,63 +1,58 @@
 #pragma once
 
 /**
- * \file GReadoutSpecs.h
- * \brief Defines the GReadoutSpecs class for readout electronics specifications.
+ * \file greadoutSpecs.h
+ * \brief Readout electronics specifications used by time-binning and hit organization.
  *
- * \mainpage GReadoutSpecs Module
+ * GReadoutSpecs represents the (simple) electronics timing model needed by digitization:
+ * a time window defines the width of one electronics time bin, and a grid start time
+ * defines the phase (offset) of that binning. A HitBitSet encodes which hit information
+ * is computed/stored.
  *
- * \section intro_sec Introduction
- * The GReadoutSpecs class encapsulates properties of the readout electronics, such as
- * the electronic readout time-window, grid start time, and the hit bitset that defines
- * what information is stored in a hit. These specifications are used by both GTouchable
- * and GHit to determine the appropriate time cell index for a hit.
- *
- * \section usage_sec Usage
- * To use this class, a plugin should construct a GReadoutSpecs object by providing:
- *  - The electronic readout time-window.
- *  - The grid start time.
- *  - A HitBitSet defining what hit information to store.
- *  - A logger for informational output.
- *
- * Once constructed, the hit bitset can be retrieved via getHitBitSet(), and the time cell
- * index can be computed for a given time using timeCellIndex().
- *
- * \n\n
- * \author \n &copy; Maurizio Ungaro
- * \author e-mail: ungaro@jlab.org
- * \n\n\n
+ * \note
+ * This header intentionally does not declare a \c \\mainpage. Module-level documentation
+ * for gdynamic digitization lives in gdynamicdigitizationDoxy.h.
  */
 
-#include "ghitConventions.h" // For HitBitSet
+#include "ghitConventions.h" // HitBitSet
 #include "glogger.h"
 
-#include <cmath>  // Use <cmath> for std::floor
+#include <cmath>
+#include <type_traits>
 
 /**
  * \class GReadoutSpecs
- * \brief Specifies the readout electronics parameters.
+ * \brief Immutable readout timing and storage specification.
  *
- * This class holds parameters such as the electronic readout time-window,
- * grid start time, and the hit bitset. These values are used to determine which
- * information is stored in a hit and to compute the corresponding time cell index.
+ * Instances of this class are typically constructed by digitization plugins inside
+ * \ref GDynamicDigitization::defineReadoutSpecs "defineReadoutSpecs()" and then shared
+ * as an immutable object for subsequent processing.
+ *
+ * \note
+ * The class is designed to be trivially destructible (enforced by a static_assert below).
  */
-class GReadoutSpecs {
-
+class GReadoutSpecs
+{
 private:
-	double    timeWindow;    ///< Electronic readout time-window of the detector.
-	double    gridStartTime; ///< The start time of the time grid.
-	HitBitSet hitBitSet;     ///< Defines which hit information to be stored.
+	/// Width of a single electronics time cell (time unit follows project conventions; commonly ns).
+	double timeWindow;
+
+	/// Time offset (origin) of the electronics time grid.
+	double gridStartTime;
+
+	/// Bitset controlling which hit information is computed/stored.
+	HitBitSet hitBitSet;
 
 public:
 	/**
 	 * \brief Constructs a GReadoutSpecs object.
 	 *
-	 * This constructor is intended to be called by plugins to set readout specifications.
+	 * The constructor logs the parameters at verbosity level 1.
 	 *
-	 * \param tw The electronic readout time-window.
-	 * \param gst The grid start time.
-	 * \param hbs The hit bitset defining what information to store.
-	 * \param log Pointer to a GLogger instance for logging.
+	 * \param tw Electronics time window (width of one time cell).
+	 * \param gst Grid start time (time offset for binning).
+	 * \param hbs Hit bitset controlling which hit fields are stored/computed.
+	 * \param log Logger used for informational output.
 	 */
 	GReadoutSpecs(const double tw, const double gst, const HitBitSet hbs, const std::shared_ptr<GLogger>& log) :
 		timeWindow(tw),
@@ -67,32 +62,32 @@ public:
 		          hitBitSet);
 	}
 
-public:
 	/**
-	 * \brief Retrieves the hit bitset.
+	 * \brief Returns the configured hit bitset.
 	 *
-	 * \return The HitBitSet defining the stored hit information.
+	 * \return The HitBitSet that defines what hit information is stored.
 	 */
 	[[nodiscard]] inline HitBitSet getHitBitSet() const { return hitBitSet; }
 
 	/**
-	 * \brief Computes the time cell index for a given time.
+	 * \brief Computes the 1-based electronics time-cell index for a given time.
 	 *
-	 * For readout detectors, this function calculates the cell index within the
-	 * electronic time window. The formula used is:
+	 * The current convention returns a 1-based index:
 	 * \f[
-	 * \text{cell index} = \left\lfloor \frac{\text{time} - \text{gridStartTime}}{\text{timeWindow}} \right\rfloor + 1
+	 * \mathrm{index} = \left\lfloor \frac{t - \mathrm{gridStartTime}}{\mathrm{timeWindow}} \right\rfloor + 1
 	 * \f]
 	 *
-	 * \param time The time value (e.g., global time from the simulation).
-	 * \return The computed time cell index as an integer.
+	 * This is commonly used to:
+	 * - split GTouchables when a hit spans multiple electronics time bins
+	 * - label digitized hits by an electronics "frame" index
+	 *
+	 * \param time Time value to bin (time unit follows project conventions; commonly ns).
+	 * \return 1-based time-cell index as an integer.
 	 */
-	[[nodiscard]] inline int timeCellIndex(double time) const { return static_cast<int>(std::floor((time - gridStartTime) / timeWindow) + 1); }
+	[[nodiscard]] inline int timeCellIndex(double time) const {
+		return static_cast<int>(std::floor((time - gridStartTime) / timeWindow) + 1);
+	}
 };
 
-
-#include <type_traits>
-
-// At compile time, make sure GReadoutSpecs has trivial destructors,
+// At compile time, make sure GReadoutSpecs has trivial destructors.
 static_assert(std::is_trivially_destructible_v<GReadoutSpecs>);
-
