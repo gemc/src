@@ -6,7 +6,8 @@
 
 
 const std::vector<std::string>& GStreamer::supported_formats() {
-	static const std::vector<std::string> formats = {"jlabsro", "root", "ascii"};
+	// Note: keep this list in sync with the available gstreamer_<format>_plugin factories.
+	static const std::vector<std::string> formats = {"jlabsro", "root", "ascii", "csv", "json"};
 	return formats;
 }
 

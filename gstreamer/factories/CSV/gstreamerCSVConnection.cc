@@ -2,15 +2,17 @@
 #include "gstreamerCSVFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerCsvFactory::openConnection() {
+// Non-Doxygen implementation file: behavior is documented in the header.
 
-	if (ofile_true_info.is_open() && ofile_true_info.is_open() ) {
+bool GstreamerCsvFactory::openConnection() {
+	// Both streams must be open for the CSV plugin to operate.
+	if (ofile_true_info.is_open() && ofile_true_info.is_open()) {
 		// Already open for this thread; nothing to do.
 		return true;
 	}
 
 	if (!ofile_true_info.is_open()) {
-		ofile_true_info.clear();                      // clear fail/eof bits from last use
+		ofile_true_info.clear(); // clear fail/eof bits from last use
 		// std::ios::out — open for writing.
 		// std::ios::trunc — if the file already exists, truncate it to size 0 on open (wipe its contents). If it doesn’t exist, it will be created.
 		// another variant: std::ios::app: append
@@ -24,7 +26,7 @@ bool GstreamerCsvFactory::openConnection() {
 	}
 
 	if (!ofile_digitized.is_open()) {
-		ofile_digitized.clear();                      // clear fail/eof bits from last use
+		ofile_digitized.clear(); // clear fail/eof bits from last use
 		// std::ios::out — open for writing.
 		// std::ios::trunc — if the file already exists, truncate it to size 0 on open (wipe its contents). If it doesn’t exist, it will be created.
 		// another variant: std::ios::app: append
@@ -42,13 +44,18 @@ bool GstreamerCsvFactory::openConnection() {
 }
 
 bool GstreamerCsvFactory::closeConnectionImpl() {
-
+	// Ensure any buffered events are written before closing the files.
 	flushEventBuffer();
 
 	if (ofile_true_info.is_open()) ofile_true_info.close();
 	if (ofile_digitized.is_open()) ofile_digitized.close();
 
-	if (ofile_true_info.is_open()) { log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_true_info()); }
-	if (ofile_digitized.is_open()) { log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_digitized()); }
+	if (ofile_true_info.is_open()) {
+		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_true_info());
+	}
+	if (ofile_digitized.is_open()) {
+		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_digitized());
+	}
 
-	return true;}
+	return true;
+}

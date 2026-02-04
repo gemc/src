@@ -7,8 +7,23 @@
 // c++
 #include <fstream>
 
+/**
+ * \file gstreamerJLABSROFactory.h
+ * \brief JLAB SRO frame streamer plugin definitions.
+ *
+ * This plugin is specialized for producing binary frame records with a packed header (DataFrameHeader)
+ * followed by payload words.
+ */
+
 #pragma pack(push, 1)
-struct DataFrameHeader {
+/**
+ * \brief Packed frame header written at the beginning of each frame record.
+ *
+ * Packing  is required to ensure that the binary layout matches the expected
+ * on-disk/on-wire format without compiler-inserted padding bytes.
+ */
+struct DataFrameHeader
+{
 	uint32_t source_id;
 	uint32_t total_length;
 	uint32_t payload_length;
@@ -22,9 +37,25 @@ struct DataFrameHeader {
 };
 #pragma pack(pop)
 
-class GstreamerJSROFactory : public GStreamer {
+/**
+ * \class GstreamerJSROFactory
+ * \brief JLAB SRO gstreamer plugin producing binary frame streams (\c ".ev" files).
+ *
+ * Output model:
+ * - The plugin constructs a frame header and payload in a \c std::vector<unsigned int> buffer.
+ * - The header and payload are written in two steps via the frame hook sequence:
+ *   - publishFrameHeaderImpl() writes the packed header
+ *   - publishPayloadImpl() writes the payload words
+ *
+ * Threading:
+ * - Intended usage is one instance per worker thread (one output file per thread).
+ * - The output file is owned as a raw \c std::ofstream* to match existing code; lifetime is managed
+ *   in openConnection()/closeConnectionImpl().
+ */
+class GstreamerJSROFactory : public GStreamer
+{
 public:
-//	GstreamerJSROFactory() = default;
+	//	GstreamerJSROFactory() = default;
 
 	// inherit the base (const std::shared_ptr<GOptions>&) ctor
 	using GStreamer::GStreamer;
@@ -44,10 +75,14 @@ private:
 	static inline std::uint64_t llswap(unsigned long long val) { return (val >> 32) | (val << 32); }
 
 private:
-	std::ofstream*            ofile = nullptr;
-	std::vector<unsigned int> frame_data{};
-	std::string               filename() const override { return gstreamer_definitions.rootname + ".ev"; }
+	/// \brief Output stream pointer for the binary \c ".ev" file.
+	std::ofstream* ofile = nullptr;
 
+	/// \brief Buffer holding the current frame header and payload words.
+	std::vector<unsigned int> frame_data{};
+
+	/// \brief Return the output filename for this instance (\c ".ev").
+	std::string filename() const override { return gstreamer_definitions.rootname + ".ev"; }
 };
 
 

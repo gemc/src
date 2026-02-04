@@ -2,6 +2,8 @@
 #include "gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
+// Non-Doxygen implementation file: behavior is documented in the header.
+
 bool GstreamerTextFactory::startStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) {
 	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", filename()); }
 

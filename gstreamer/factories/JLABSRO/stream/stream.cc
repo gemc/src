@@ -2,88 +2,88 @@
 #include "gstreamerJLABSROFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerJSROFactory::startStreamImpl(const GFrameDataCollection *frameRunData) {
+// Non-Doxygen implementation file: behavior is documented in the header.
 
+bool GstreamerJSROFactory::startStreamImpl(const GFrameDataCollection* frameRunData) {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
-    static constexpr int header_offset = sizeof(DataFrameHeader) / 4;
-    const GFrameHeader *header = frameRunData->getHeader();
-    long int frameID = header->getFrameID();
-    const std::vector<GIntegralPayload *> *intPayloadvec = frameRunData->getIntegralPayload();
+	static constexpr int                  header_offset = sizeof(DataFrameHeader) / 4;
+	const GFrameHeader*                   header        = frameRunData->getHeader();
+	long int                              frameID       = header->getFrameID();
+	const std::vector<GIntegralPayload*>* intPayloadvec = frameRunData->getIntegralPayload();
 
-    frame_data.resize(header_offset, 0);
+	frame_data.resize(header_offset, 0);
 
-    if (frameID == 1) {
-        std::vector<std::uint32_t> const super_magic = {0xC0DA2019, 0XC0DA0001};
-        ofile->write(reinterpret_cast<const char *>(super_magic.data()), sizeof(std::uint32_t) * 2);
-    }
+	if (frameID == 1) {
+		std::vector<std::uint32_t> const super_magic = {0xC0DA2019, 0XC0DA0001};
+		ofile->write(reinterpret_cast<const char*>(super_magic.data()), sizeof(std::uint32_t) * 2);
+	}
 
-    // fill dataFrameHeader here or in publishFrameHeader
-    DataFrameHeader &dataFrameHeader = *reinterpret_cast<DataFrameHeader *>(frame_data.data());
+	// fill dataFrameHeader here or in publishFrameHeader
+	DataFrameHeader& dataFrameHeader = *reinterpret_cast<DataFrameHeader*>(frame_data.data());
 
-    dataFrameHeader.source_id = 0;
-    dataFrameHeader.magic = 0xC0DA2019;
-    dataFrameHeader.format_version = 257;
-    dataFrameHeader.flags = 0;
-    dataFrameHeader.record_counter = llswap(frameID);
-    dataFrameHeader.ts_sec = llswap((frameID * 65536) / static_cast<int>(1e9));
-    dataFrameHeader.ts_nsec = llswap((frameID * 65536) % static_cast<int>(1e9));
+	dataFrameHeader.source_id      = 0;
+	dataFrameHeader.magic          = 0xC0DA2019;
+	dataFrameHeader.format_version = 257;
+	dataFrameHeader.flags          = 0;
+	dataFrameHeader.record_counter = llswap(frameID);
+	dataFrameHeader.ts_sec         = llswap((frameID * 65536) / static_cast<int>(1e9));
+	dataFrameHeader.ts_nsec        = llswap((frameID * 65536) % static_cast<int>(1e9));
 
 
-    //make payload data
-    unsigned int crate = 0;
-    unsigned int slot, channel, charge, time;
-    unsigned int slots = 16;
+	//make payload data
+	unsigned int crate = 0;
+	unsigned int slot, channel, charge, time;
+	unsigned int slots = 16;
 
-    frame_data.resize(header_offset);
-    frame_data.push_back(0x80000000);
-    frame_data.insert(frame_data.end(), slots, 0);
+	frame_data.resize(header_offset);
+	frame_data.push_back(0x80000000);
+	frame_data.insert(frame_data.end(), slots, 0);
 
-    for (unsigned int i = 0; i < slots; ++i) {
+	for (unsigned int i = 0; i < slots; ++i) {
+		int starting_point = (int)frame_data.size() - header_offset;
+		frame_data.push_back(0x80008000 | (crate << 8) | i);
+		int hit_counter = 0;
 
-        int starting_point = (int) frame_data.size() - header_offset;
-        frame_data.push_back(0x80008000 | (crate << 8) | i);
-        int hit_counter = 0;
+		for (unsigned int hit = 0; hit < intPayloadvec->size(); ++hit) {
+			GIntegralPayload* intpayload = intPayloadvec->at(hit);
+			std::vector<int>  payload    = intpayload->getPayload();
+			crate                        = payload[0];
+			slot                         = payload[1];
+			channel                      = payload[2];
+			charge                       = payload[3];
+			time                         = payload[4];
 
-        for (unsigned int hit = 0; hit < intPayloadvec->size(); ++hit) {
+			if (i == slot) {
+				//	      if(hit<100) cout << time << endl;
+				frame_data.push_back(charge | (channel << 13) | ((time / 4) << 17));
+				++hit_counter;
+			}
+		}
 
-            GIntegralPayload *intpayload = intPayloadvec->at(hit);
-            std::vector<int> payload = intpayload->getPayload();
-            crate = payload[0];
-            slot = payload[1];
-            channel = payload[2];
-            charge = payload[3];
-            time = payload[4];
+		if (hit_counter == 0) {
+			frame_data.pop_back();
+		}
+		else {
+			++hit_counter;
+		}
 
-            if (i == slot) {
-                //	      if(hit<100) cout << time << endl;
-                frame_data.push_back(charge | (channel << 13) | ((time / 4) << 17));
-                ++hit_counter;
-            }
-        }
+		frame_data[header_offset + 1 + i] =
+			((hit_counter) << 16) | starting_point;
+	}
 
-        if (hit_counter == 0) {
-            frame_data.pop_back();
-        } else {
-            ++hit_counter;
-        }
+	DataFrameHeader& dfh = *reinterpret_cast<DataFrameHeader*>(frame_data.data());
 
-        frame_data[header_offset + 1 + i] =
-                ((hit_counter) << 16) | starting_point;
-    }
+	dfh.payload_length    = (uint32_t)frame_data.size() * sizeof(unsigned int) - sizeof(DataFrameHeader);
+	dfh.compressed_length = dfh.payload_length;
+	dfh.total_length      = dfh.compressed_length + sizeof(DataFrameHeader) - 4;
 
-    DataFrameHeader &dfh = *reinterpret_cast<DataFrameHeader *>(frame_data.data());
-
-    dfh.payload_length = (uint32_t) frame_data.size() * sizeof(unsigned int) - sizeof(DataFrameHeader);
-    dfh.compressed_length = dfh.payload_length;
-    dfh.total_length = dfh.compressed_length + sizeof(DataFrameHeader) - 4;
-
-    return true;
+	return true;
 }
 
 
-bool GstreamerJSROFactory::endStreamImpl([[maybe_unused]] const GFrameDataCollection *frameRunData) {
+bool GstreamerJSROFactory::endStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
-    return true;
+	return true;
 }

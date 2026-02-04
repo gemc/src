@@ -2,7 +2,9 @@
 #include "gstreamerROOTFactory.h"
 #include "gstreamerConventions.h"
 
-bool GstreamerRootFactory::publishEventDigitizedDataImpl(const std::string& detectorName, const std::vector<const GDigitizedData*>& digitizedData) {
+// Non-Doxygen implementation file: behavior is documented in the header.
+bool GstreamerRootFactory::publishEventDigitizedDataImpl(const std::string&                        detectorName,
+                                                         const std::vector<const GDigitizedData*>& digitizedData) {
 	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
 
 	// get or instantiate the root tree from the map

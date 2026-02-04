@@ -19,6 +19,7 @@ fmt_args = {
     'ascii' : ['-gstreamer="[{format: ascii, filename: out}]"'],
     'csv' : ['-gstreamer="[{format: csv,   filename: out}]"'],
     'ascii_root' : ['-gstreamer="[{format: ascii, filename: out}, {format: root, filename: out}]"'],
+    'json' : ['-gstreamer="[{format: json,   filename: out}]"'],
 }
 
 buffer = ['-ebuffer=20']
@@ -69,15 +70,29 @@ csv_plugin_files = [files(
                         'factories/CSV/stream/publishPayload.cc',
                     ), true]
 
+json_plugin_files = [files(
+                        'factories/JSON/gstreamerJSONFactory.cc',
+                        'factories/JSON/gstreamerJSONConnection.cc',
+                        'factories/JSON/gstreamerJSONFactory_helpers.cc',
+                        'factories/JSON/event/event.cc',
+                        'factories/JSON/event/eventHeader.cc',
+                        'factories/JSON/event/publishTrueInfo.cc',
+                        'factories/JSON/event/publishDigitized.cc',
+                        'factories/JSON/stream/stream.cc',
+                        'factories/JSON/stream/frameHeader.cc',
+                        'factories/JSON/stream/publishPayload.cc',
+                    ), true]
+
 # ── assemble plugins/deps/includes once, then extend if ROOT is present ───────
 streamer_plugins = {
     'gstreamer_ascii_plugin' : ascii_plugin_files,
     'gstreamer_csv_plugin' : csv_plugin_files,
     'gstreamer_jlabsro_plugin' : jlab_sro_plugin_files,
+    'gstreamer_json_plugin' : json_plugin_files,
 }
 
 streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_core_deps]
-additional_includes = ['gstreamer', 'gstreamer/factories/ASCII', 'gstreamer/factories/CSV', 'gstreamer/factories/JLABSRO']
+additional_includes = ['gstreamer', 'gstreamer/factories/ASCII', 'gstreamer/factories/CSV', 'gstreamer/factories/JLABSRO', 'gstreamer/factories/JSON']
 
 # Add ROOT bits if available
 if root_dep.found()
@@ -93,7 +108,7 @@ examples = {
 }
 
 # Always-available formats
-foreach name : ['ascii', 'csv']
+foreach name : ['ascii', 'csv', 'json']
     fmt = fmt_args.get(name)
     examples += {
         'test_gstreamer_' + name : [example_source, buffer + fmt],
