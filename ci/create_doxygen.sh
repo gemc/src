@@ -138,6 +138,7 @@ OUTPUT_DIRECTORY          = ../pages
 HTML_OUTPUT               = $mod
 GENERATE_TAGFILE          = ../pages/$mod/$mod.tag
 HTML_EXTRA_STYLESHEET     = mydoxygen.css
+EXCLUDE_PATTERNS          += CADMesh.hh
 
 # TAGFILES is injected by ci/doxygen.sh in pass 2
 EOF

@@ -2,14 +2,16 @@
 /**
  * @file   g4NativeObjectsFactory.h
  * @ingroup Geometry
- * @brief  Factory that builds Geant4 *native primitive* solids
- *         (`G4Box`, `G4Cons`, `G4Trap`, …) from GEMC `GVolume` records.
+ * @brief  Factory that builds Geant4 native primitive solids (\c G4Box, \c G4Cons, \c G4Trap, ...) from GEMC \c GVolume records.
  *
- * Concrete detector systems can register this factory in a `GManager`
- * so that run‑time construction happens via plug‑ins.
+ * @details
+ * This factory is responsible for solids that map directly to Geant4 CSG primitives.
+ * It validates parameter counts and converts the GEMC parameter string into numeric vectors
+ * used by Geant4 constructors.
  */
 
-#include <set>            // std::set  (parameter‑count tables)
+// c++
+#include <set>            // std::set  (parameter-count tables)
 #include <vector>         // std::vector
 #include <unordered_map>  // std::unordered_map
 
@@ -23,42 +25,57 @@
 
 /**
  * @class G4NativeSystemFactory
- * @brief Implements @c buildSolid for the Geant4 CSG primitives and validates
- *        constructor parameter counts via @c checkAndReturnParameters.
+ * @ingroup Geometry
+ * @brief Implements solid creation for Geant4 CSG primitives and validates constructor parameter counts.
+ *
+ * @details
+ * The method \ref G4NativeSystemFactory::buildSolid "buildSolid()" dispatches on \c s->getType()
+ * and creates the corresponding Geant4 solid. The helper
+ * \ref G4NativeSystemFactory::checkAndReturnParameters "checkAndReturnParameters()" validates and parses
+ * the parameter list.
  */
-class G4NativeSystemFactory final : public G4ObjectsFactory {
+class G4NativeSystemFactory final : public G4ObjectsFactory
+{
 public:
 	// inherit the base (const std::shared_ptr<GOptions>&) ctor
 	using G4ObjectsFactory::G4ObjectsFactory;
 
 	/**
-	 * @brief Human‑readable name used by the base class for logging.
-	 * @return `"G4NativeSystemFactory"`.
+	 * @brief Human-readable name used for logging.
+	 * @return \c "G4NativeSystemFactory".
 	 */
 	[[nodiscard]] std::string_view className() const override { return "G4NativeSystemFactory"; }
 
 protected:
 	/**
-	 * @brief Main dispatcher that creates a solid based on `s->getType()`.
-	 * @copydetails G4ObjectsFactory::buildSolid
+	 * @brief Create (or reuse) a native Geant4 solid based on the \c GVolume "type".
+	 *
+	 * @param s   GEMC volume definition containing the type and parameters.
+	 * @param g4s Map holding cached \c G4Volume wrappers.
+	 * @return Pointer to the created/reused solid, or \c nullptr if dependencies are missing or type unsupported.
+	 *
+	 * @details
+	 * The method performs:
+	 * - dependency checks (copy/boolean operations)
+	 * - wrapper retrieval/creation
+	 * - parameter parsing and validation
+	 * - dispatch to the proper Geant4 constructor
 	 */
 	G4VSolid* buildSolid(const GVolume*                              s,
 	                     std::unordered_map<std::string, G4Volume*>* g4s) override;
 
 	/**
-	 * @brief Validate the *number* of parameters against the Geant4 constructor
-	 *        requirements and return them as a numeric vector.
+	 * @brief Validate the number of parameters for the given primitive and return them as numeric values.
 	 *
-	 * @param s Pointer to the GEMC volume record whose `getParameters()` string
-	 *          is to be parsed.
-	 * @return A `std::vector<double>` holding the converted values.
+	 * @param s Pointer to the GEMC volume record whose \c getParameters() string is to be parsed.
+	 * @return A \c std::vector<double> holding the converted values in the order expected by the constructor.
 	 *
-	 * If the parameter count is invalid, the function logs an error and
-	 * terminates (via the logger’s error helper).  Special rules apply for
-	 * polycones, polyhedra, and twisted solids, as documented in the code.
+	 * @details
+	 * Some primitives have fixed parameter counts, while others have special rules:
+	 * - polycones accept multiple constructor layouts, validated via modular arithmetic
+	 * - polyhedra accept multiple constructor layouts, validated similarly
 	 *
-	 * @note This is **protected** because subclasses could reuse the checker
-	 *       if they add support for additional primitives.
+	 * When validation fails, an error is emitted through the logger.
 	 */
 	std::vector<double> checkAndReturnParameters(const GVolume* s);
 };

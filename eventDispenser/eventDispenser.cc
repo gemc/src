@@ -1,33 +1,12 @@
-/**
- * \file eventDispenser.cc
- * \brief Implements the EventDispenser class which distributes events among runs.
- *
- * \mainpage Event Dispenser Module
- *
- * \section intro_sec Introduction
- * The Event Dispenser module is responsible for distributing simulation events
- * among different runs based on a user–defined weighting scheme. It reads run weight
- * information from a file (if provided) or uses options provided via GOptions. It then
- * randomly assigns events to runs and executes them using Geant4 commands.
- *
- * \section details_sec Details
- * The module initializes the run weight maps, distributes events randomly based on the weights,
- * and processes events by calling Geant4 UI commands (e.g., /run/beamOn). The class also logs
- * progress and summary information.
- *
- * \section usage_sec Usage
- * To use the EventDispenser, instantiate it with a pointer to GOptions and a global map of
- * GDynamicDigitization plugins. Call processEvents() to run the events.
- *
- * \author Your Name
- * \date YYYY-MM-DD
- */
+// Implements EventDispenser: run-weight parsing, event distribution, and per-run dispatch through Geant4.
+//
+// Doxygen documentation for the public API is maintained in eventDispenser.h.
+// This implementation file keeps only short, non-Doxygen summaries and inline clarifying comments.
 
 #include "eventDispenserConventions.h"
 #include "eventDispenser_options.h"
 #include "eventDispenser.h"
 #include "gdynamicdigitizationConventions.h"
-
 
 // c++
 #include <fstream>
@@ -39,73 +18,81 @@
 
 using namespace std;
 
-//
-// Constructor: Initializes the EventDispenser using options from GOptions and a pointer to the global
-// GDynamicDigitization plugins map.
-//
-EventDispenser::EventDispenser(const std::shared_ptr<GOptions>& gopt, const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& gdynamicDigitizationMap)
+// Constructor summary:
+// - Reads configuration (number of events, run number, optional run-weight file).
+// - Builds runWeights/runEvents/listOfRuns when weights are provided.
+// - Otherwise, falls back to single-run mode.
+EventDispenser::EventDispenser(const std::shared_ptr<GOptions>&                                 gopt,
+                               const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& gdynamicDigitizationMap)
 	: GBase(gopt, EVENTDISPENSER_LOGGER), gDigitizationMap(gdynamicDigitizationMap) {
-
 	// Retrieve configuration parameters from GOptions.
 	string filename  = gopt->getScalarString("run_weights");
 	userRunno        = gopt->getScalarInt("run");
 	neventsToProcess = gopt->getScalarInt("n");
 
-	// If there are no events to process, nothing more to do.
+	// If there are no events to process, keep the object in an initialized-but-idle state.
 	if (neventsToProcess == 0) return;
 
-	// If no file is provided, use the user-specified run number.
+	// If no file is provided, use the user-specified run number (single-run mode).
 	if (filename == UNINITIALIZEDSTRINGQUANTITY && neventsToProcess > 0) {
-		// Only one run is defined via the option.
 		runEvents[userRunno] = neventsToProcess;
 		return;
 	}
 	else {
-		// A filename was specified; attempt to open the run weights input file.
+		// Multi-run mode: a filename was specified; attempt to open the run weights input file.
 		ifstream in(filename.c_str());
-		if (!in) { log->error(ERR_EVENTDISTRIBUTIONFILENOTFOUND, "Error: can't open run weights input file >", filename, "<. Check your spelling. Exiting."); }
+		if (!in) {
+			// Keep behavior unchanged: log error and continue with an empty distribution.
+			log->error(ERR_EVENTDISTRIBUTIONFILENOTFOUND,
+			           "Error: can't open run weights input file >", filename, "<. Check your spelling. Exiting.");
+		}
 		else {
 			log->info(1, "Loading run weights from ", filename);
-			// Fill the run weight map by reading each line from the file.
+
+			// Read "run weight" pairs, one per line.
+			// The order of insertion into listOfRuns reflects the file order and may be used by clients.
 			int    run;
 			double weight;
-			// Use a robust loop to read pairs from the file.
 			while (in >> run >> weight) {
 				listOfRuns.push_back(run);
 				runWeights[run] = weight;
-				runEvents[run]  = 0;
+				runEvents[run]  = 0; // initialize per-run counters before distribution
 			}
-			// Distribute the total number of events among the runs according to the weights.
+
+			// Distribute the total number of events among runs according to their weights.
 			distributeEvents(neventsToProcess);
 		}
 		in.close();
 
-		// Log summary information.
-		log->info(0, "EventDispenser initialized with ", neventsToProcess, " events distributed among ", runWeights.size(), " runs:");
+		// Log summary information: overall distribution table.
+		log->info(0, "EventDispenser initialized with ", neventsToProcess, " events distributed among ",
+		          runWeights.size(), " runs:");
 		log->info(0, " run\t weight\t  n. events");
-		for (const auto& weight : runWeights) { log->info(0, " ", weight.first, "\t ", weight.second, "\t  ", runEvents[weight.first]); }
+		for (const auto& weight : runWeights) {
+			log->info(0, " ", weight.first, "\t ", weight.second, "\t  ", runEvents[weight.first]);
+		}
 	}
 }
 
 
-// Sets the total number of events to process. Clears previous run events and assigns all events to the user run.
+// setNumberOfEvents summary:
+// - Clears any existing distribution and assigns all events to the user-selected run number.
 void EventDispenser::setNumberOfEvents(int nevents_to_process) {
 	runEvents.clear();
 	runEvents[userRunno] = nevents_to_process;
 }
 
 
-// Randomly distributes events among runs according to the weights read from the input file.
+// distributeEvents summary:
+// - Performs stochastic sampling to convert runWeights into integer runEvents counts.
 void EventDispenser::distributeEvents(int nevents_to_process) {
-	// Initialize a progress bar for visual feedback.
-	// TextProgressBar bar(50, string(EVENTDISPENSERLOGMSGITEM) + " Distributing events according to run weights ", 0, nevents_to_process);
-
-	// Set up a random number generator.
+	// Set up a random number generator drawing from U[0, 1].
 	random_device               randomDevice;
 	mt19937                     generator(randomDevice());
 	uniform_real_distribution<> randomDistribution(0, 1);
 
-	// Loop over each event and assign it to a run based on the cumulative weight.
+	// For each event, select a run by comparing a random draw to the cumulative weight intervals.
+	// This assumes runWeights values represent fractions or relative weights normalized to sum to 1.
 	for (int i = 0; i < nevents_to_process; i++) {
 		double randomNumber = randomDistribution(generator);
 
@@ -117,12 +104,12 @@ void EventDispenser::distributeEvents(int nevents_to_process) {
 				break;
 			}
 		}
-		//	bar.setProgress(i);
 	}
 }
 
 
-// Sums the number of events assigned to all runs.
+// getTotalNumberOfEvents summary:
+// - Sums all per-run event counts from runEvents.
 int EventDispenser::getTotalNumberOfEvents() const {
 	int totalEvents = 0;
 	for (auto rEvents : runEvents) { totalEvents += rEvents.second; }
@@ -130,34 +117,36 @@ int EventDispenser::getTotalNumberOfEvents() const {
 }
 
 
-// Processes events by iterating over runs, initializing plugins, and executing Geant4 commands.
+// processEvents summary:
+// - Iterates the run allocation.
+// - For each run, loads run-dependent constants/TT via digitization routines (if run changed).
+// - Dispatches the events to Geant4 via \c /run/beamOn.
 int EventDispenser::processEvents() {
-	// Get the Geant4 UI manager pointer.
+	// Get the Geant4 UI manager pointer used to apply macro commands.
 	G4UImanager* g4uim = G4UImanager::GetUIpointer();
-
-	// Set the progress print command based on the elog level.
-	// g4uim->ApplyCommand("/run/printProgress " + to_string(elog));
 
 	// Iterate over each run in the run events map.
 	for (auto& run : runEvents) {
 		int runNumber = run.first;
 		int nevents   = run.second;
 
-		// Load constants and translation table if the run number has changed.
+		// Load constants and translation tables if the run number has changed.
 		if (runNumber != currentRunno) {
-			// read-only loop over the map of shared pointers to GDynamicDigitization
-			// plugin is a const std::string&
-			// routine is a std::shared_ptr<GDynamicDigitization>
-			// *dmap dereferences the shared_ptr to access the underlying const std::unordered_map.
+			// Iterate the (plugin name -> digitization routine) map.
+			// digiRoutine is a std::shared_ptr<GDynamicDigitization>.
 			for (const auto& [plugin, digiRoutine] : *gDigitizationMap) {
 				log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadConstants for run ", runNumber);
 				if (digiRoutine->loadConstants(runNumber, variation) == false) {
-					log->error(ERR_LOADCONSTANTFAIL, "Failed to load constants for ", plugin, " for run ", runNumber, " with variation ", variation);
+					log->error(ERR_LOADCONSTANTFAIL,
+					           "Failed to load constants for ", plugin, " for run ", runNumber, " with variation ",
+					           variation);
 				}
 
 				log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadTT for run ", runNumber);
 				if (digiRoutine->loadTT(runNumber, variation) == false) {
-					log->error(ERR_LOADTTFAIL, "Failed to load translation table for ", plugin, " for run ", runNumber, " with variation ", variation);
+					log->error(ERR_LOADTTFAIL,
+					           "Failed to load translation table for ", plugin, " for run ", runNumber,
+					           " with variation ", variation);
 				}
 			}
 			currentRunno = runNumber;
@@ -165,10 +154,10 @@ int EventDispenser::processEvents() {
 
 		log->info(1, "Starting run ", runNumber, " with ", nevents, " events.");
 
-		// If events are fewer than the buffer size, process all in one go.
+		// Dispatch all events for this run in a single call.
+		// The command string is a standard Geant4 UI command: \c /run/beamOn <N>.
 		log->info(1, "Processing ", nevents, " events in one go");
 		g4uim->ApplyCommand("/run/beamOn " + to_string(nevents));
-
 
 		log->info(1, "Run ", runNumber, " done with ", nevents, " events");
 	}

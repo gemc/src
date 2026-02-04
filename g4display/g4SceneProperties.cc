@@ -1,9 +1,8 @@
 /*!
  * \file g4SceneProperties.cc
- * \brief Implementation of the G4SceneProperties class for GEANT4 scene visualization.
+ * \brief Implementation of \ref G4SceneProperties.
  *
- * This file contains the implementation of the G4SceneProperties class, which is responsible
- * for setting up visualization options and commands for GEANT4 scenes using the provided global options.
+ * Doxygen documentation for public behavior is authoritative in g4SceneProperties.h (see rule 7).
  */
 
 // g4display
@@ -16,78 +15,75 @@
 // geant4
 #include "G4UImanager.hh"
 
-
-
 std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr<GOptions>& gopts) {
 	std::vector<std::string> cmds;
 
 	bool gui      = gopts->getSwitch("gui");
 	bool use_dawn = gopts->getSwitch("useDawn");
 
-	// Projecting options onto G4View and G4Camera structs
+	// Project options onto simple structs for downstream use.
 	auto g4view   = g4display::getG4View(gopts);
 	auto g4camera = g4display::getG4Camera(gopts);
-	// auto g4dawn   = g4display::getG4Dawn(gopts);
 
 	std::vector<std::string> commands;
 
+	// Create a named scene. Caller is expected to apply these commands to the Geant4 UI manager.
 	cmds.emplace_back("/vis/scene/create gemc");
 
 	if (use_dawn) {
+		// DAWNFILE workflow: open the DAWN viewer and adjust a minimal set of scene properties.
 		cmds.emplace_back("/vis/open DAWNFILE");
 		cmds.emplace_back("/vis/geometry/set/visibility World 0 false");
 		cmds.emplace_back("/vis/viewer/set/style surface");
 	}
 
 	if (gui) {
+		// Open the configured viewer driver with window geometry settings.
 		cmds.emplace_back("/vis/open " + g4view.driver + " " + g4view.dimension + g4view.position);
 
-		// Scene texts
+		// Scene texts: generate and append per configured g4text option.
 		for (const std::string& c : addSceneTexts(gopts)) { commands.emplace_back(c); }
 
+		// Convert configured camera angles to degrees for the Geant4 viewer command.
 		double toDegrees  = 180 / 3.1415;
 		double thetaValue = gutilities::getG4Number(g4camera.theta) * toDegrees;
 		double phiValue   = gutilities::getG4Number(g4camera.phi) * toDegrees;
 
-		// Disable auto refresh and quieten vis messages whilst scene and trajectories are established:
+		// Disable auto refresh and quieten vis messages whilst scene and trajectories are established.
 		cmds.emplace_back("/vis/viewer/set/autoRefresh false");
-		cmds.emplace_back("/vis/viewer/set/viewpointThetaPhi " + std::to_string(thetaValue) + " " + std::to_string(phiValue));
+		cmds.emplace_back(
+			"/vis/viewer/set/viewpointThetaPhi " + std::to_string(thetaValue) + " " + std::to_string(phiValue));
 		cmds.emplace_back("/vis/viewer/set/lineSegmentsPerCircle " + std::to_string(g4view.segsPerCircle));
 		cmds.emplace_back("/vis/viewer/set/autoRefresh true");
 	}
 
-
 	return cmds;
 }
 
-
-/*!
- * \brief Generates visualization commands for adding text annotations to the scene.
- *
- * This function retrieves a list of scene text objects from the global options and constructs
- * the appropriate commands to add text annotations to the scene. It sets the text color, position,
- * and size based on the parameters provided. Depending on whether a Z-coordinate is specified,
- * the function chooses between 2D and regular text commands.
- *
- * \param gopts Pointer to the global options object.
- * \return A vector of strings containing the visualization commands for scene texts.
- */
 std::vector<std::string> G4SceneProperties::addSceneTexts(const std::shared_ptr<GOptions>& gopts) {
 	std::vector<std::string> commands;
 
 	std::vector<g4display::G4SceneText> text_to_add = g4display::getSceneTexts(gopts);
 
-	// Iterate over each text object to generate the corresponding visualization commands
+	// Map each configured text item into Geant4 text commands.
 	for (const auto& text : text_to_add) {
 		commands.emplace_back("/vis/set/textColour " + text.color);
+
 		std::string position = std::to_string(text.x) + " " + std::to_string(text.y);
 		std::string size     = " " + std::to_string(text.size) + " ! ! ";
-		if (text.z != GNOT_SPECIFIED_SCENE_TEXT_Z) {
-			position += " " + std::to_string(text.z);
-			commands.emplace_back(std::string("/vis/scene/add/text2D ").append(position).append(size).append(text.text));
-		}
-		else { commands.emplace_back(std::string("/vis/scene/add/text ").append(position).append(size).append(text.text)); }
 
+		if (text.z != GNOT_SPECIFIED_SCENE_TEXT_Z) {
+			// Z specified: treat as 2D text positioned in 3D.
+			position += " " + std::to_string(text.z);
+			commands.emplace_back(
+				std::string("/vis/scene/add/text2D ").append(position).append(size).append(text.text));
+		}
+		else {
+			// Z not specified: treat as normal scene text.
+			commands.emplace_back(std::string("/vis/scene/add/text ").append(position).append(size).append(text.text));
+		}
+
+		// Restore default text color.
 		commands.emplace_back("/vis/set/textColour");
 	}
 

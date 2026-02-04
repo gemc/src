@@ -5,12 +5,12 @@ import html
 
 modules_map = {
     "base": "guts goptions glogging gbase textProgressBar utilities",
-    "plugins": "gfactory gdynamicDigitization gsd",
-    "hits": "gtouchable ghit",
+    "plugins": "gfactory gdynamicDigitization gsd gfields",
+    "sensitivity": "gtouchable ghit",
     "gui": "gboard gqtbuttonswidget g4display g4dialog gsplash gtree dbselect gui",
     "detector": "gsystem g4system gdetector gtranslationTable",
     "i/o": "gdata gstreamer eventDispenser",
-    "geant4": "gparticle gphysics gfields actions",
+    "geant4": "gparticle gphysics  actions",
 }
 
 # Path to the directory containing subdirectories with Doxygen documentation

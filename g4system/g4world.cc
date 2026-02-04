@@ -1,3 +1,5 @@
+// g4world.cc : implementation of the Geant4 world builder and material initialization.
+
 // gemc
 #include "g4world.h"
 #include "gfactory.h"
@@ -21,23 +23,30 @@
 G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 	: GBase(gopts, G4SYSTEM_LOGGER) {
 	auto gsystemMap = gworld->getSystemsMap();
+
+	// Phase 1: create and initialize a Geant4 object factory for each system.
+	// The factory provides solid/logical/physical creation for volumes in that system.
 	createG4SystemFactory(gopts,
 	                      gsystemMap,
 	                      gopts->getScalarString("useBackupMaterial"),
 	                      gopts->getScalarInt("check_overlaps")
-	                     );
+	);
 
+	// Phase 2: build all materials across systems, resolving dependencies iteratively.
 	buildMaterials(gsystemMap);
+
+	// Phase 3: ensure common isotopes/elements/materials exist (used by typical configurations).
 	buildDefaultMaterialsElementsAndIsotopes();
 
-	// every volume not built (due to dependencies) increments allRemainingVolumes
+	// Phase 4: build volumes. Some volumes depend on mothers that may not exist yet,
+	// so we iterate until the remaining list becomes empty or the dependency resolution stalls.
 	std::vector<GVolume*> thisIterationRemainingVolumes;
 	unsigned long         allRemainingVolumes = 0;
 
 	do {
 		thisIterationRemainingVolumes.clear();
 
-		// loop over systems in the gsystemsMap
+		// Loop over all systems and attempt to build all volumes in each system.
 		for (auto& [systemName, gsystem] : *gsystemMap) {
 			std::string g4Factory      = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
 			auto        objectsFactory = get_factory(g4Factory);
@@ -45,9 +54,9 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 			for (auto& [volumeName, gvolumePtr] : gsystem->getGVolumesMap()) {
 				auto* gvolume = gvolumePtr.get();
 
-				// try to build; remember the ones that still have missing mothers
-				if ( !build_g4volume(gvolume, objectsFactory)) {
-
+				// Try to build; if dependencies are missing, remember it for the next iteration.
+				if (!build_g4volume(gvolume, objectsFactory)) {
+					// Only track volumes that are meant to exist; nonexistent volumes are skipped quietly.
 					if (gvolume->getExistence()) {
 						log->warning(" >> adding volumeName <", volumeName, "> to the list of remaining volumes");
 						thisIterationRemainingVolumes.push_back(gvolume);
@@ -55,19 +64,20 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 				}
 			}
 
-			// unchanged diagnostic logging for remaining volumes ...
+			// Diagnostic listing of the volumes that could not be built due to missing mothers.
 			if (!thisIterationRemainingVolumes.empty()) {
 				log->info(2, "G4World: ", systemName, " : ",
 				          thisIterationRemainingVolumes.size(),
 				          " remaining motherless g4volumes to be built:");
 				for (auto* gvolumeLeft : thisIterationRemainingVolumes) {
 					log->info(2, "G4World: ", gvolumeLeft->getName(),
-					          " with mother <", gvolumeLeft->getG4MotherName(), "> " );
+					          " with mother <", gvolumeLeft->getG4MotherName(), "> ");
 				}
 			}
 		}
 
-		// unchanged dependency‑stall check ...
+		// Dependency-stall detection:
+		// If the number of remaining volumes does not decrease across iterations, dependencies are not solvable.
 		if (allRemainingVolumes != 0 && !thisIterationRemainingVolumes.empty()) {
 			if (allRemainingVolumes >= thisIterationRemainingVolumes.size()) {
 				for (auto* gvolumeLeft : thisIterationRemainingVolumes) {
@@ -83,34 +93,27 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 	}
 	while (!thisIterationRemainingVolumes.empty());
 
-
+	// Optional diagnostic output: list known materials from the Geant4 NIST manager.
 	if (gopts->getSwitch("showPredefinedMaterials")) { G4NistManager::Instance()->ListMaterials("all"); }
 
+	// Optional diagnostic output: print materials used in the simulation.
 	if (gopts->getSwitch("printSystemsMaterials")) {
 		auto matTable = (G4MaterialTable*)G4Material::GetMaterialTable();
 		for (auto thisMat : *matTable) {
 			log->info(0, 2, "G4World: GEMC Material: <", thisMat->GetName(), ">, density: ",
 			          thisMat->GetDensity() / (CLHEP::g / CLHEP::cm3), "g/cm3");
 
+			// Print each component; negative/zero values mean "fractional mass", positive means "number of atoms".
 			for (auto& [material, component] : thisMat->GetMatComponents()) {
 				if (component > 0.0) { log->info(0, "element", material->GetName(), "number of atoms: ", component); }
 				else { log->info(0, "element", material->GetName(), "fractional mass: ", component); }
 			}
-
-
-			// auto nelements = thisMat->GetNumberOfElements();
-			// for (size_t e = 0; e < nelements; e++) {
-			// 	auto element = thisMat->GetElement(e);
-			// 	log->info(0, "element ", element->GetName(), " number of atoms: ", thisMat->GetFractionVector()[e]);
-			// }
 		}
-		// TODO: log can't deal with this why was it working
-		// log->info(0, *(G4Material::GetMaterialTable()));
 	}
 }
 
 
-/*──────────────────────── look‑ups ──────────────────────────*/
+/*──────────────────────── look-ups ──────────────────────────*/
 
 const G4Volume* G4World::getG4Volume(const std::string& volumeName) const {
 	auto it = g4volumesMap.find(volumeName);
@@ -127,9 +130,10 @@ void G4World::setFieldManagerForVolume(const std::string& volumeName,
 
 // ---- g4FactoryNameFromSystemFactory -----------------------------------------------------------
 std::string G4World::g4FactoryNameFromSystemFactory(const std::string& factory) const {
+	// Map GEMC system factory labels to g4system object factory labels.
 	if (factory == GSYSTEMASCIIFACTORYLABEL ||
-	    factory == GSYSTEMSQLITETFACTORYLABEL ||
-	    factory == GSYSTEMMYSQLTFACTORYLABEL) { return G4SYSTEMNATFACTORY; }
+		factory == GSYSTEMSQLITETFACTORYLABEL ||
+		factory == GSYSTEMMYSQLTFACTORYLABEL) { return G4SYSTEMNATFACTORY; }
 	else if (factory == GSYSTEMCADTFACTORYLABEL) { return G4SYSTEMCADFACTORY; }
 	else {
 		log->error(ERR_G4SYSTEMFACTORYNOTFOUND,
@@ -141,11 +145,10 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial>& gmaterial) {
 	auto NISTman      = G4NistManager::Instance(); // material G4 Manager
 	auto materialName = gmaterial->getName();
 
-	// only build the material if it's not found in geant4
+	// Only build the material if it is not already available in Geant4.
 	auto g4material = NISTman->FindMaterial(materialName);
 	if (g4material != nullptr) {
 		log->info(2, "Material <", materialName, "> already exists in G4NistManager");
-
 		return true;
 	}
 
@@ -153,8 +156,8 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial>& gmaterial) {
 	auto amounts    = gmaterial->getAmounts();
 	bool isChemical = gmaterial->isChemicalFormula();
 
-	// scan material components
-	// return false if any component does not exist yet
+	// Scan material components:
+	// return false if any component does not exist yet (caller will retry later).
 	for (auto& componentName : components) {
 		if (isChemical) {
 			if (NISTman->FindOrBuildElement(componentName) == nullptr) {
@@ -172,14 +175,16 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial>& gmaterial) {
 		}
 	}
 
-	// building material from components
+	// Build the composed material from its components.
 	auto density                 = gmaterial->getDensity();
 	g4materialsMap[materialName] = new G4Material(materialName, density * CLHEP::g / CLHEP::cm3,
 	                                              static_cast<G4int>(components.size()));
 
 	if (isChemical) {
 		log->info(2, "Building material <", materialName, "> with components:");
-		for (size_t i = 0; i < components.size(); i++) { log->info(2, "element <", components[i], "> with amount: ", amounts[i]); }
+		for (size_t i = 0; i < components.size(); i++) {
+			log->info(2, "element <", components[i], "> with amount: ", amounts[i]);
+		}
 
 		for (size_t i = 0; i < components.size(); i++) {
 			auto element = NISTman->FindOrBuildElement(components[i]);
@@ -188,7 +193,9 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial>& gmaterial) {
 	}
 	else {
 		log->info(2, "Building material <", materialName, "> with components:");
-		for (size_t i = 0; i < components.size(); i++) { log->info(2, "material <", components[i], "> with fractional mass: ", amounts[i]); }
+		for (size_t i = 0; i < components.size(); i++) {
+			log->info(2, "material <", components[i], "> with fractional mass: ", amounts[i]);
+		}
 
 		for (size_t i = 0; i < components.size(); i++) {
 			auto material = NISTman->FindOrBuildMaterial(components[i]);
@@ -201,14 +208,15 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial>& gmaterial) {
 
 
 void G4World::buildDefaultMaterialsElementsAndIsotopes() {
-	// isotopes not yet defined, defining them for the first time
+	// Create a small set of commonly-used isotopes/elements/materials if they are missing.
+	// These are defined using Geant4 primitives and then registered in the local map for reference.
 	int    Z, N;
 	double a, d, T;
 
 
 	// ----  Hydrogen
 
-	// hydrogen gas
+	// Hydrogen gas material definition (Hydrogen element + state/gas parameters).
 	if (G4NistManager::Instance()->FindMaterial(HGAS_MATERIAL) == nullptr) {
 		Z                             = 1;
 		a                             = 1.01 * CLHEP::g / CLHEP::mole;
@@ -227,20 +235,20 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 
 	// ----  Deuterium
 
-	// Deuteron isotope
+	// Deuteron isotope and Deuterium element definition.
 	if (G4NistManager::Instance()->FindOrBuildElement(DEUTERIUM_ELEMENT) == nullptr) {
 		Z             = 1;
 		N             = 2;
 		a             = 2.0141018 * CLHEP::g / CLHEP::mole;
 		auto Deuteron = new G4Isotope(DEUTERON_ISOTOPE, Z, N, a);
 
-		// Deuterium element
+		// Deuterium element: isotope composition is explicitly set to the Deuteron isotope.
 		Deuterium = new G4Element(DEUTERIUM_ELEMENT, DEUTERIUM_ELEMENT, 1);
 		Deuterium->AddIsotope(Deuteron, 1);
 	}
 	log->info(2, "G4World: Deuterium element <", DEUTERIUM_ELEMENT, "> created with density <", d, ">");
 
-	// Deuterium gas
+	// Deuterium gas material.
 	if (G4NistManager::Instance()->FindMaterial(DEUTERIUMGAS_MATERIAL) == nullptr) {
 		d                                     = 0.000452 * CLHEP::g / CLHEP::cm3;
 		T                                     = 294.25 * CLHEP::kelvin;
@@ -253,7 +261,7 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 	}
 	log->info(2, "G4World: Deuterium gas material <", DEUTERIUMGAS_MATERIAL, "> created with density <", d, ">");
 
-	// Liquid Deuterium
+	// Liquid Deuterium material.
 	if (G4NistManager::Instance()->FindMaterial(LD2_MATERIAL) == nullptr) {
 		d                            = 0.169 * CLHEP::g / CLHEP::cm3;
 		T                            = 22.0 * CLHEP::kelvin;
@@ -266,7 +274,7 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 	}
 	log->info(2, "G4World: Liquid Deuterium material <", LD2_MATERIAL, "> created with density <", d, ">");
 
-	// Ammonia
+	// Ammonia (ND3) material definition.
 	if (G4NistManager::Instance()->FindMaterial(ND3_MATERIAL) == nullptr) {
 		Z                            = 7;
 		a                            = 14.01 * CLHEP::g / CLHEP::mole;
@@ -285,22 +293,22 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 
 	// ---- Helium 3
 
-	// helion isotope
+	// Helion isotope and Helium3 element definition.
 	if (G4NistManager::Instance()->FindOrBuildElement(HELIUM3_ELEMENT) == nullptr) {
 		Z           = 2;
 		N           = 3;
 		a           = 3.0160293 * CLHEP::g / CLHEP::mole;
 		auto Helion = new G4Isotope(HELION_ISOTOPE, Z, N, a);
 
-		// helium 3 element
+		// Helium-3 element: isotope composition is explicitly set to the Helion isotope.
 		Helium3 = new G4Element(HELIUM3_ELEMENT, HELIUM3_ELEMENT, 1);
 		Helium3->AddIsotope(Helion, 1);
 	}
 	log->info(2, "G4World: Helium 3 element <", HELIUM3_ELEMENT, "> created with density <", d, ">");
 
-	// helium 3 material gas
+	// Helium-3 gas material definition.
 	if (G4NistManager::Instance()->FindMaterial(HELIUM3GAS_MATERIAL) == nullptr) {
-		// Density at 21.1°C (70°F) : 0.1650 kg/m3
+		// Density at 21.1°C (70°F): 0.1650 kg/m3.
 		d                                   = 0.1650 * CLHEP::mg / CLHEP::cm3;
 		T                                   = 294.25 * CLHEP::kelvin;
 		g4materialsMap[HELIUM3GAS_MATERIAL] = new G4Material(HELIUM3GAS_MATERIAL,
@@ -314,20 +322,20 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 
 
 	// ---- Tritium
+
+	// Triton isotope and Tritium element definition.
 	if (G4NistManager::Instance()->FindOrBuildElement(TRITIUM_ELEMENT) == nullptr) {
-		// Tritium isotope
 		Z           = 1;
 		N           = 3;
 		a           = 3.0160492 * CLHEP::g / CLHEP::mole;
 		auto Triton = new G4Isotope(TRITON_ISOTOPE, Z, N, a);
 
-		// Tritium element
 		Tritium = new G4Element(TRITIUM_ELEMENT, TRITIUM_ELEMENT, 1);
 		Tritium->AddIsotope(Triton, 1);
 	}
 	log->info(2, "G4World: Tritium element <", TRITIUM_ELEMENT, "> created with density <", d, ">");
 
-	// Tritium gas
+	// Tritium gas material definition.
 	if (G4NistManager::Instance()->FindMaterial(TRITIUMGAS_MATERIAL) == nullptr) {
 		d                                   = 0.0034 * CLHEP::g / CLHEP::cm3;
 		T                                   = 40.0 * CLHEP::kelvin;
@@ -338,26 +346,6 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		g4materialsMap[TRITIUMGAS_MATERIAL]->AddElement(Tritium, 1);
 	}
 	log->info(2, "G4World: Tritium gas material <", TRITIUMGAS_MATERIAL, "> created with density <", d, ">");
-
-	//	// example how to get / print materials from G4
-	//	G4MaterialTable* matTable = (G4MaterialTable*) G4Material::GetMaterialTable();
-	//
-	//
-	//	for(unsigned i=0; i<matTable->size(); ++i)
-	//	{
-	//		G4Material* thisMat = (*(matTable))[i];
-	//
-	//		cout << " MATERIAL :" <<  thisMat->GetName()  << endl;
-	//
-	//
-	//		for ( auto& [material, component]: thisMat->GetMatComponents() ) {
-	//			cout << " name: " << material->GetName() << " " << component << endl;
-	//		}
-	//
-	//		for ( auto element: *thisMat->GetElementVector() ) {
-	//			cout << " name: " << element << endl;
-	//		}
-	//	}
 }
 
 
@@ -365,35 +353,35 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
                                     SystemMap*                       gsystemsMap,
                                     const std::string&               backup_material,
                                     int                              check_overlaps) {
-	// instantiating gSystemManager
+	// Instantiate a manager used to register and create factories.
 	GManager manager(gopts);
 
-	// Creating the native factory no matter what
+	// Creating the native factory no matter what (it is the default for ASCII/SQLite/MySQL systems).
 	log->info(2, "G4World: registering default factory <", G4SYSTEMNATFACTORY, ">");
-
 	manager.RegisterObjectFactory<G4NativeSystemFactory>(G4SYSTEMNATFACTORY, gopts);
 
-	// registering factories in the manager
-	// and adding them to g4systemFactory
+	// Register factories based on the system factory label, then create/initialize them lazily.
 	for (auto& [gsystemName, gsystem] : *gsystemsMap) {
 		std::string factory   = gsystem->getFactoryName();
 		std::string g4Factory = g4FactoryNameFromSystemFactory(factory);
 
 		log->info(2, "G4World: creating factory <", g4Factory, "> to for system <", gsystemName, ">");
 
-		// registering factories
-		// this will always be false because the native factory is already registered
+		// Register needed factory types:
+		// this will always be false for the default native label because it was registered above.
 		if (factory == GSYSTEMASCIIFACTORYLABEL || factory == GSYSTEMSQLITETFACTORYLABEL ||
-		    factory == GSYSTEMMYSQLTFACTORYLABEL) {
-			// if factory not found, registering it in the manager and loading it into the map
-			if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) { manager.RegisterObjectFactory<G4NativeSystemFactory>(g4Factory, gopts); }
+			factory == GSYSTEMMYSQLTFACTORYLABEL) {
+			if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) {
+				manager.RegisterObjectFactory<G4NativeSystemFactory>(g4Factory, gopts);
+			}
 		}
 		else if (factory == GSYSTEMCADTFACTORYLABEL) {
-			// if factory not found, registering it in the manager and loading it into the map
-			if (g4systemFactory.find(GSYSTEMCADTFACTORYLABEL) == g4systemFactory.end()) { manager.RegisterObjectFactory<G4CadSystemFactory>(g4Factory, gopts); }
+			if (g4systemFactory.find(GSYSTEMCADTFACTORYLABEL) == g4systemFactory.end()) {
+				manager.RegisterObjectFactory<G4CadSystemFactory>(g4Factory, gopts);
+			}
 		}
 
-		// factories are registered, creating them
+		// Create and initialize the concrete factory instance once per label.
 		if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) {
 			g4systemFactory[g4Factory] = manager.CreateObject<G4ObjectsFactory>(g4Factory);
 			g4systemFactory[g4Factory]->initialize_context(check_overlaps, backup_material);
@@ -402,20 +390,23 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
 }
 
 void G4World::buildMaterials(SystemMap* system_map) {
-	// looping over gsystem in the gsystemsMap,
-	// every GMaterial that is not built (due to dependencies) increments allRemainingMaterials
+	// Build materials across all systems. Some materials may depend on other materials/elements,
+	// so we iterate until all dependencies are resolved or the resolution stalls.
 	std::vector<GMaterial*> thisIterationRemainingMaterials;
 	unsigned long           allRemainingMaterials = 0;
 	do {
 		thisIterationRemainingMaterials.clear();
 
 		for (const auto& [systemName, system] : *system_map) {
-			// looping over getGVolumesMap in that system
+			// Loop over the material map in each system and attempt to build each material.
 			for (const auto& [gmaterialName, gmaterialPtr] : system->getGMaterialMap()) {
-				if (createG4Material(gmaterialPtr) == false) { thisIterationRemainingMaterials.push_back(gmaterialPtr.get()); }
+				if (createG4Material(gmaterialPtr) == false) {
+					thisIterationRemainingMaterials.push_back(gmaterialPtr.get());
+				}
 			}
 		}
 
+		// Dependency-stall detection for material building.
 		if (allRemainingMaterials != 0 && !thisIterationRemainingMaterials.empty()) {
 			if (allRemainingMaterials >= thisIterationRemainingMaterials.size()) {
 				for (auto& gmaterialLeft : thisIterationRemainingMaterials) { log->warning(gmaterialLeft->getName()); }

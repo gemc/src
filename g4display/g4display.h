@@ -1,40 +1,52 @@
 #pragma once
 
+/**
+ * \file g4display.h
+ * \brief Declaration of the \ref G4Display main widget.
+ *
+ * \ref G4Display is the top-level Qt widget for the g4display module. It hosts one or more tabs
+ * that control Geant4 visualization through GUI interactions.
+ *
+ */
+
 // C++
-#include <memory> // Required for std::unique_ptr
+#include <memory>
 
 // gemc
-#include "gbase.h" // Provides application options/configuration
+#include "gbase.h"
 
 // qt
-#include <QtWidgets/QWidget>   // Required for QWidget parent parameter
-
-
+#include <QtWidgets/QWidget>
 
 /**
- * @brief The main widget for controlling Geant4 visualization.
- * @class G4Display
+ * \class G4Display
+ * \brief Main GUI container for Geant4 visualization controls.
  *
- * This class acts as a container (using QTabWidget) for different panels
- * that control various aspects of the Geant4 visualization, such as camera,
- * lighting, slicing, and other utilities. It owns the primary logger instance
- * for the display module.
+ * G4Display:
+ * - owns/uses the module logger (via its GBase inheritance),
+ * - builds a \c QTabWidget containing visualization control panels (e.g. \ref G4DisplayView),
+ * - is typically embedded into a higher-level application window.
+ *
+ * Ownership model:
+ * - Tabs are created as child widgets of the \ref G4Display instance; Qt manages their lifetime.
+ * - Copy is disabled to avoid unintended QWidget copying and logger ownership issues.
  */
-class G4Display : public GBase<G4Display>, public QWidget  {
-
+class G4Display : public GBase<G4Display>, public QWidget
+{
 public:
-    /**
-     * @brief Constructs the G4Display widget.
-     * @param gopt Pointer to the GOptions object containing application settings. Used to configure the logger.
-     * @param parent Optional parent QWidget for Qt's memory management.
-     */
-    explicit G4Display(const std::shared_ptr<GOptions>& gopt, QWidget *parent = nullptr);
+	/**
+	 * \brief Construct the main display widget.
+	 *
+	 * The constructor initializes the base logger for the \c "g4display" module and creates the tabbed UI.
+	 *
+	 * \param gopt   Shared options object used to configure the module and logging.
+	 * \param parent Optional Qt parent widget for ownership management.
+	 */
+	explicit G4Display(const std::shared_ptr<GOptions>& gopt, QWidget* parent = nullptr);
 
-
-	// Disable copy constructor and assignment operator to prevent slicing
-	// and issues with unique_ptr ownership.
+	/// Copy is disabled (Qt widgets are not safely copyable and ownership should remain explicit).
 	G4Display(const G4Display&) = delete;
+
+	/// Assignment is disabled for the same reason as copy construction.
 	G4Display& operator=(const G4Display&) = delete;
-
-
 };

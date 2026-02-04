@@ -2,15 +2,26 @@
 /**
  * @file   g4volume.h
  * @ingroup Geometry
- * @brief  Thin RAII wrapper that stores the Geant4 solid/logical/physical triple.
+ * @brief  Thin wrapper that stores the Geant4 solid/logical/physical triple for one GEMC volume.
  *
- * A `gemc::G4Volume` does **not** own the Geant4 objects; it merely keeps the
- * pointers so they can be shared between geometry‑building steps.  These helpers
- * are inexpensive, inline, and never throw.
+ * @details
+ * G4System factories progressively build Geant4 geometry in three stages:
+ *   1. create a \c G4VSolid
+ *   2. wrap it into a \c G4LogicalVolume (material + visualization)
+ *   3. place it into the geometry tree as a \c G4VPhysicalVolume
+ *
+ * This class stores the three pointers so that different build steps can share the same
+ * already-created objects without having to re-query Geant4 stores.
+ *
+ * @note
+ * This wrapper does **not** own any Geant4 object. Pointer lifetimes are managed by Geant4
+ * stores and by the code that registers volumes into those stores.
  */
 
+// c++
 #include <memory>
 
+// gemc
 #include "glogger.h"
 
 // ─── Geant4 includes ───────────────────────────────────────────────
@@ -22,79 +33,110 @@
 
 /**
  * @class G4Volume
- * @brief Convenience container holding a Geant4 *solid*, *logical*, and
- *        *physical* volume associated with a single GEMC `GVolume`.
+ * @ingroup Geometry
+ * @brief Convenience container holding a Geant4 *solid*, *logical*, and *physical* volume.
  *
- * The setters simply cache the given pointer and emit a DEBUG log entry.
- * No pointer is deleted here—the lifetime is managed by Geant4’s own stores.
+ * @details
+ * A G4Volume instance is created and cached in a map keyed by the Geant4 name.
+ * Each setter stores the corresponding pointer and emits a debug message.
+ *
+ * Typical usage is internal to the geometry factories:
+ * - buildSolid() stores a \c G4VSolid*
+ * - buildLogical() stores a \c G4LogicalVolume*
+ * - buildPhysical() stores a \c G4VPhysicalVolume*
+ *
+ * @note No pointer is deleted here.
  */
-class G4Volume {
+class G4Volume
+{
 public:
-    /** Default‑construct an empty wrapper (all pointers set to `nullptr`). */
-    G4Volume() = default;
+	/**
+	 * @brief Default construct an empty wrapper (all pointers set to \c nullptr).
+	 */
+	G4Volume() = default;
 
-    /** Destructor – no‑op because we do not own the pointers. */
-    ~G4Volume() = default;
+	/**
+	 * @brief Destructor (no-op).
+	 * @details This class does not own the stored pointers.
+	 */
+	~G4Volume() = default;
 
-    // ────── getters ────────────────────────────────────────────────
-    /**
-     * @brief Retrieve the underlying `G4VSolid*`.
-     * @return Raw pointer which may be `nullptr`.
-     */
-    [[nodiscard]] G4VSolid* getSolid() const noexcept { return solidVolume; }
+	// ────── getters ────────────────────────────────────────────────
 
-    /**
-     * @brief Retrieve the underlying `G4LogicalVolume*`.
-     * @return Raw pointer which may be `nullptr`.
-     */
-    [[nodiscard]] G4LogicalVolume* getLogical() const noexcept { return logicalVolume; }
+	/**
+	 * @brief Return the stored \c G4VSolid pointer.
+	 * @return Raw pointer, possibly \c nullptr if the solid has not been created yet.
+	 */
+	[[nodiscard]] G4VSolid* getSolid() const noexcept { return solidVolume; }
 
-    /**
-     * @brief Retrieve the underlying `G4VPhysicalVolume*`.
-     * @return Raw pointer which may be `nullptr`.
-     */
-    [[nodiscard]] G4VPhysicalVolume* getPhysical() const noexcept { return physicalVolume; }
+	/**
+	 * @brief Return the stored \c G4LogicalVolume pointer.
+	 * @return Raw pointer, possibly \c nullptr if the logical volume has not been created yet.
+	 */
+	[[nodiscard]] G4LogicalVolume* getLogical() const noexcept { return logicalVolume; }
 
-    // ────── setters ────────────────────────────────────────────────
-    /**
-     * @brief Store a `G4VSolid*` and log the assignment.
-     * @param s   Pointer to the Geant4 solid.
-     * @param log Logger used for debug output.
-     */
-    void setSolid(G4VSolid* s, const std::shared_ptr<GLogger>& log);
+	/**
+	 * @brief Return the stored \c G4VPhysicalVolume pointer.
+	 * @return Raw pointer, possibly \c nullptr if the physical volume has not been placed yet.
+	 */
+	[[nodiscard]] G4VPhysicalVolume* getPhysical() const noexcept { return physicalVolume; }
 
-    /**
-     * @brief Store a `G4LogicalVolume*` and log the assignment.
-     * @param l   Pointer to the Geant4 logical volume.
-     * @param log Logger used for debug output.
-     */
-    void setLogical(G4LogicalVolume* l, const std::shared_ptr<GLogger>& log);
+	// ────── setters ────────────────────────────────────────────────
 
-    /**
-     * @brief Store a `G4VPhysicalVolume*` and log the assignment.
-     * @param p   Pointer to the Geant4 physical volume.
-     * @param log Logger used for debug output.
-     */
-    void setPhysical(G4VPhysicalVolume* p, const std::shared_ptr<GLogger>& log);
+	/**
+	 * @brief Store a \c G4VSolid pointer and log the assignment.
+	 *
+	 * @param s   Solid pointer to store (may be \c nullptr).
+	 * @param log Logger used for debug output.
+	 *
+	 * @details
+	 * The call only stores the pointer; it does not validate or take ownership.
+	 */
+	void setSolid(G4VSolid* s, const std::shared_ptr<GLogger>& log);
 
-    /**
-     * @brief Attach a `G4FieldManager` to the logical volume, if present.
-     * @param fm                    Field manager to apply.
-     * @param forceToAllDaughters   Propagate to daughters if `true`.
-     *
-     * Does nothing if `logicalVolume` is `nullptr`.
-     */
-    void setFieldManager(G4FieldManager* fm, bool forceToAllDaughters);
+	/**
+	 * @brief Store a \c G4LogicalVolume pointer and log the assignment.
+	 *
+	 * @param l   Logical volume pointer to store (may be \c nullptr).
+	 * @param log Logger used for debug output.
+	 *
+	 * @details
+	 * The call only stores the pointer; it does not validate or take ownership.
+	 */
+	void setLogical(G4LogicalVolume* l, const std::shared_ptr<GLogger>& log);
+
+	/**
+	 * @brief Store a \c G4VPhysicalVolume pointer and log the assignment.
+	 *
+	 * @param p   Physical volume pointer to store (may be \c nullptr).
+	 * @param log Logger used for debug output.
+	 *
+	 * @details
+	 * The call only stores the pointer; it does not validate or take ownership.
+	 */
+	void setPhysical(G4VPhysicalVolume* p, const std::shared_ptr<GLogger>& log);
+
+	/**
+	 * @brief Attach a \c G4FieldManager to the stored logical volume, if present.
+	 *
+	 * @param fm                  Field manager to attach.
+	 * @param forceToAllDaughters If \c true, propagate the field manager to all daughter logical volumes.
+	 *
+	 * @details
+	 * If no logical volume has been created yet (\ref G4Volume::getLogical "getLogical()" returns \c nullptr),
+	 * the method does nothing.
+	 */
+	void setFieldManager(G4FieldManager* fm, bool forceToAllDaughters);
 
 private:
-    // ────── data members ───────────────────────────────────────────
-    /** Pointer to the Geant4 solid (maybe `nullptr`). */
-    G4VSolid* solidVolume {nullptr};
+	// ────── data members ───────────────────────────────────────────
 
-    /** Pointer to the Geant4 logical volume (may be `nullptr`). */
-    G4LogicalVolume* logicalVolume {nullptr};
+	/** Stored \c G4VSolid pointer (may be \c nullptr). */
+	G4VSolid* solidVolume{nullptr};
 
-    /** Pointer to the Geant4 physical volume (may be `nullptr`). */
-    G4VPhysicalVolume* physicalVolume {nullptr};
+	/** Stored \c G4LogicalVolume pointer (may be \c nullptr). */
+	G4LogicalVolume* logicalVolume{nullptr};
+
+	/** Stored \c G4VPhysicalVolume pointer (may be \c nullptr). */
+	G4VPhysicalVolume* physicalVolume{nullptr};
 };
-

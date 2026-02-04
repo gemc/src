@@ -1,30 +1,17 @@
 #pragma once
 
 /**
- * \file G4SceneProperties.h
- * \brief Provides the G4SceneProperties class to initialize scene properties for the Geant4 UImanager.
+ * \file g4SceneProperties.h
+ * \brief Declaration of the \ref G4SceneProperties helper used to initialize Geant4 scene visualization.
  *
- * \mainpage G4 Scene Properties Module
+ * \ref G4SceneProperties provides convenience methods to generate Geant4 visualization commands for:
+ * - creating/opening a viewer,
+ * - applying camera defaults,
+ * - configuring viewer precision,
+ * - inserting optional scene text annotations.
  *
- * \section intro_sec Introduction
- * The G4SceneProperties class is used to configure scene properties such as
- * adding text annotations or labels to the Geant4 visualization. It reads configuration
- * options from a GOptions object and logs important information using a GLogger instance.
+ * The generated commands are intended to be sent to \c G4UImanager by the caller.
  *
- * \section details_sec Details
- * This module is intended to be part of the initialization process for Geant4 visualization.
- * The class provides a method to generate a list of scene text commands, which are then used
- * to add textual elements to the display.
- *
- * \section usage_sec Usage
- * Create an instance of G4SceneProperties by providing a pointer to a GOptions object.
- * Call the addSceneTexts() method with the same (or another) GOptions pointer to retrieve
- * a vector of text commands that can be applied to the Geant4 UImanager.
- *
- * \n\n
- * \author \n &copy; Maurizio Ungaro
- * \author e-mail: ungaro@jlab.org
- * \n\n\n
  */
 
 // C++
@@ -37,43 +24,61 @@
 // g4display
 #include "g4display_options.h"
 
-
 /**
  * \class G4SceneProperties
- * \brief Initializes scene properties for the Geant4 visualization.
+ * \brief Helper for constructing Geant4 visualization command sequences.
  *
- * The G4SceneProperties class provides helper functions to configure the scene in Geant4.
- * It offers the ability to generate text commands that add labels or annotations to the scene.
- * Configuration is obtained from a GOptions instance, and logging is performed using a GLogger.
+ * \ref G4SceneProperties encapsulates the “policy” of how a scene is initialized from options:
+ * - determine whether GUI mode is enabled (\c --gui),
+ * - optionally enable DAWN output (\c --useDawn),
+ * - open a viewer driver and apply initial camera/viewer settings,
+ * - add optional text annotations configured via the \c g4text option.
+ *
+ * The helper does not apply commands directly; it returns a list of command strings so the caller can decide
+ * when to execute them (typically right after the Geant4 visualization system is initialized).
  */
-class G4SceneProperties  : public GBase<G4SceneProperties> {
-
+class G4SceneProperties : public GBase<G4SceneProperties>
+{
 public:
-    /**
-     * \brief Constructs a G4SceneProperties object.
-     *
-     * Initializes the scene properties based on configuration options. The constructor
-     * uses the provided GOptions pointer to configure internal settings and logs the
-     * initialization details.
-     *
-     * \param gopts Pointer to the GOptions object containing configuration parameters.
-     */
-    explicit G4SceneProperties(const std::shared_ptr<GOptions>& gopts) : GBase(gopts, G4SCENE_LOGGER) {}
+	/**
+	 * \brief Construct a scene-properties helper bound to a set of options.
+	 *
+	 * \param gopts Shared options object used for module configuration and logging.
+	 */
+	explicit G4SceneProperties(const std::shared_ptr<GOptions>& gopts)
+		: GBase(gopts, G4SCENE_LOGGER) {
+	}
 
-    /**
-     * \brief Generates a vector of scene text commands.
-     *
-     * Reads scene text-related configuration from the provided GOptions object and
-     * constructs a vector of strings. Each string represents a command (e.g., to add a text label)
-     * that can be applied to the Geant4 UImanager.
-     *
-     * \param gopts Pointer to the GOptions object containing scene text configuration.
-     * \return A vector of strings representing the scene text commands.
-     */
-    std::vector<std::string> addSceneTexts(const std::shared_ptr<GOptions>& gopts);
+	/**
+	 * \brief Build commands that insert configured text annotations into the scene.
+	 *
+	 * The \c g4text option is parsed into a list of g4display::G4SceneText objects, and then mapped to
+	 * Geant4 commands of the form:
+	 * - \c /vis/scene/add/text  (3D text that belongs to the scene),
+	 * - \c /vis/scene/add/text2D (2D text, when the Z coordinate is explicitly provided).
+	 *
+	 * For each entry the method:
+	 * - sets \c /vis/set/textColour,
+	 * - issues the appropriate \c /vis/scene/add/... command with position and size,
+	 * - restores the default text color by issuing \c /vis/set/textColour with no arguments.
+	 *
+	 * \param gopts Shared options object used to read text configuration.
+	 * \return Vector of Geant4 command strings that insert the configured text into the current scene.
+	 */
+	std::vector<std::string> addSceneTexts(const std::shared_ptr<GOptions>& gopts);
 
+	/**
+	 * \brief Build the full command sequence for scene initialization.
+	 *
+	 * The returned command list typically includes:
+	 * - scene creation (\c /vis/scene/create),
+	 * - optional DAWN viewer setup (when \c useDawn is enabled),
+	 * - viewer open and initial configuration (when \c gui is enabled),
+	 * - insertion of scene texts (when configured),
+	 * - camera direction and precision settings.
+	 *
+	 * \param gopts Shared options object used to derive viewer/camera configuration.
+	 * \return Vector of Geant4 command strings for scene initialization.
+	 */
 	std::vector<std::string> scene_commands(const std::shared_ptr<GOptions>& gopts);
-
-
 };
-

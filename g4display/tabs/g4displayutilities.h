@@ -2,68 +2,61 @@
 
 /**
  * \file g4displayutilities.h
- * \brief Declaration of the G4DisplayUtilities widget.
+ * \brief Declaration of the \ref G4DisplayUtilities widget.
  *
- * \mainpage G4 Display Utilities Module
+ * This header declares a Qt widget used as an auxiliary “Utilities” tab in \ref G4Display.
+ * The intent is to provide display-related helpers that do not belong in the main view-control tab.
  *
- * \section intro_sec Introduction
- * The G4DisplayUtilities module provides a Qt widget that encapsulates various
- * display-related utilities for interacting with the Geant4 UI manager. This widget
- * can be used to control or display visualization parameters within a Geant4-based simulation.
- *
- * \section details_sec Details
- * The G4DisplayUtilities class inherits from QWidget and uses Qt's parent-child mechanism
- * to manage its child widgets automatically. It also logs messages using a GLogger instance.
- *
- * \section usage_sec Usage
- * To use this widget, create an instance by providing pointers to a GOptions object and a
- * GLogger instance. The widget does not require manual deletion of its child widgets, as
- * Qt handles this automatically through the parent-child relationship.
- *
-* \n\n
- * \author \n &copy; Maurizio Ungaro
- * \author e-mail: ungaro@jlab.org
- * \n\n\n
  */
 
-#include <QtWidgets>      // Includes all necessary Qt widget headers
-#include "glogger.h"      // GLogger for logging messages
-#include "G4UImanager.hh" // Geant4 UI Manager
+#include <QtWidgets>      // Qt widgets (QWidget, layouts, etc.)
+#include "glogger.h"      // Glogger (module logger)
+#include "G4UImanager.hh" // Geant4 UI manager
 
 /**
  * \class G4DisplayUtilities
- * \brief A utility widget for Geant4 display functionalities.
+ * \brief “Utilities” tab for \ref G4Display.
  *
- * G4DisplayUtilities provides a container for display utilities that interact with
- * Geant4's UImanager, making it easier to control and manage visualization settings.
+ * This widget is placed in the “Utilities” tab of \ref G4Display. It is intended to host
+ * miscellaneous visualization helpers such as:
+ * - status/diagnostic panes (e.g. an in-GUI log board),
+ * - quick command launchers for common viewer operations,
+ * - future convenience widgets that do not fit in \ref G4DisplayView.
+ *
+ * Lifetime and ownership:
+ * - Child widgets created with \c this as parent are owned by Qt and deleted automatically.
+ * - Logging uses the shared Glogger instance passed by the parent \ref G4Display.
  */
-class G4DisplayUtilities : public QWidget {
-    Q_OBJECT
+class G4DisplayUtilities : public QWidget
+{
+	Q_OBJECT
 
 public:
-    /**
-     * \brief Constructs a G4DisplayUtilities widget.
-     *
-     * This constructor initializes the widget with configuration options and a logger.
-     * The widget's parent is set via the QWidget base class, ensuring that all child widgets
-     * are automatically managed.
-     *
-     * \param gopt Pointer to the GOptions object used for configuration.
-     * \param logger Pointer to the shared GLogger instance for logging.
-     * \param parent Optional parent QWidget.
-     */
-    G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt, std::shared_ptr<GLogger> logger, QWidget* parent = nullptr);
+	/**
+	 * \brief Construct the utilities tab widget.
+	 *
+	 * The constructor stores a shared logger and builds the tab contents.
+	 *
+	 * \param gopt   Shared options object used by the module (may be unused in early implementations).
+	 * \param logger Shared logger instance (created/owned upstream, typically by \ref G4Display).
+	 * \param parent Optional Qt parent widget for ownership management.
+	 */
+	G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt,
+	                   std::shared_ptr<GLogger>         logger,
+	                   QWidget*                         parent = nullptr);
 
-    /**
-     * \brief Destructor.
-     *
-     * Logs a debug message upon destruction. Child widgets are automatically deleted by Qt.
-     */
-    ~G4DisplayUtilities() {
-	    log->debug(DESTRUCTOR, "G4DisplayUtilities");
-    }
+	/**
+	 * \brief Destructor.
+	 *
+	 * Emits a debug-level log message. Child widgets are deleted by Qt parent-child ownership.
+	 */
+	~G4DisplayUtilities() override { log->debug(DESTRUCTOR, "G4DisplayUtilities"); }
 
 private:
-	std::shared_ptr<GLogger> log;        ///< Logger instance for logging messages.
+	/**
+	 * \brief Shared logger for this widget.
+	 *
+	 * The logger is expected to remain valid for the lifetime of this widget.
+	 */
+	std::shared_ptr<GLogger> log;
 };
-
