@@ -9,6 +9,8 @@
 #include "gsystem_options.h"
 
 /**
+ * \ingroup gemc_gsystem_factories
+ *
  * \class GSystemFactory
  * \brief Abstract base class for loading a GSystem from a specific source.
  *

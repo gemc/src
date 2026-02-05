@@ -9,6 +9,8 @@
 #include <utility>
 
 /**
+ * \ingroup gemc_gsystem_core
+ *
  * \class GVolume
  * \brief Geometry volume record loaded into a GSystem.
  *

@@ -4,6 +4,8 @@
 #include "systemFactory.h"
 
 /**
+ * \ingroup gemc_gsystem_factories_cad
+ *
  * \class GSystemCADFactory
  * \brief Load a system from CAD assets (e.g. STL) found in a directory.
  *

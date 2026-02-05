@@ -10,8 +10,6 @@
  * - common error codes used by geometry/material loaders;
  * - factory labels and naming conventions.
  *
- * \note These are module-local conventions; external libraries are not referenced
- * via \ref here (the project uses tag files for cross-module linking).
  */
 
 // Assumptions:

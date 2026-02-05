@@ -9,6 +9,8 @@
 #include <string>
 
 /**
+ * \ingroup gemc_gsystem_core
+ *
  * \class GSystem
  * \brief Represents a single detector system (e.g., calorimeter, tracker).
  *

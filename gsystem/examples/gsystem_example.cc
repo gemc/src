@@ -2,6 +2,8 @@
 * \file gsystem_example.cc
  * \brief Minimal example: construct a world from command-line options.
  *
+ * \ingroup gemc_gsystem_examples
+ *
  * \details
  * This example demonstrates the smallest executable that:
  * - creates a GOptions instance using gsystem module option definitions;

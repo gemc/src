@@ -3,6 +3,41 @@
  *
  * \tableofcontents
  *
+ * \defgroup gemc_gsystem gsystem
+ * \brief GEMC detector-system module (gsystem): geometry + materials loading and world assembly.
+ *
+ * \defgroup gemc_gsystem_core Core types
+ * \ingroup gemc_gsystem
+ * \brief Core data types: GWorld, GSystem, GVolume, GMaterial, GModifier.
+ *
+ * \defgroup gemc_gsystem_modifiers Modifiers
+ * \ingroup gemc_gsystem
+ * \brief Post-load volume modifications (shift/tilt/existence).
+ *
+ * \defgroup gemc_gsystem_factories Factories
+ * \ingroup gemc_gsystem
+ * \brief System loaders (sqlite / ascii / CAD / GDML) and factory infrastructure.
+ *
+ * \defgroup gemc_gsystem_factories_sqlite SQLite factory
+ * \ingroup gemc_gsystem_factories
+ * \brief sqlite-backed loader implementation.
+ *
+ * \defgroup gemc_gsystem_factories_text Text factory
+ * \ingroup gemc_gsystem_factories
+ * \brief ASCII text loader implementation.
+ *
+ * \defgroup gemc_gsystem_factories_cad CAD factory
+ * \ingroup gemc_gsystem_factories
+ * \brief CAD (STL directory) loader implementation.
+ *
+ * \defgroup gemc_gsystem_factories_gdml GDML factory
+ * \ingroup gemc_gsystem_factories
+ * \brief GDML loader placeholder.
+ *
+ * \defgroup gemc_gsystem_examples Examples
+ * \ingroup gemc_gsystem
+ * \brief Small example programs for the module.
+ *
  * @section intro_sec Introduction
  *
  * The gsystem module provides the infrastructure that turns detector configuration into

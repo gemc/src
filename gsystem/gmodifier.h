@@ -3,6 +3,8 @@
 #include <iostream>
 
 /**
+ * \ingroup gemc_gsystem_modifiers
+ *
  * \class GModifier
  * \brief Describes a post-load modification to a single volume.
  *

@@ -13,6 +13,8 @@
 #include <memory>
 
 /**
+ * \ingroup gemc_gsystem_core
+ *
  * \class GWorld
  * \brief Builds the “world” as a collection of systems, volumes, and post-load modifiers.
  *

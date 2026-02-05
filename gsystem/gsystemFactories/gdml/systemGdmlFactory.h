@@ -4,6 +4,8 @@
 #include "systemFactory.h"
 
 /**
+ * \ingroup gemc_gsystem_factories_gdml
+ *
  * \class GSystemGDMLFactory
  * \brief Placeholder factory for GDML-based systems.
  *

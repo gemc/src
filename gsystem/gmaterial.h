@@ -9,6 +9,8 @@
 #include <numeric>
 
 /**
+ * \ingroup gemc_gsystem_core
+ *
  * \class GMaterial
  * \brief Material definition belonging to a detector system.
  *

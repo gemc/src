@@ -7,6 +7,8 @@
 #include "sqlite3.h"
 
 /**
+ * \ingroup gemc_gsystem_factories_sqlite
+ *
  * \class GSystemSQLiteFactory
  * \brief Load a GSystem from a sqlite database.
  *
