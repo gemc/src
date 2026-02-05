@@ -22,19 +22,25 @@ G4ThreadLocal GMagneto* GDetectorConstruction::gmagneto = nullptr;
 GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
 	: GBase(gopts, GDETECTOR_LOGGER),
 	  G4VUserDetectorConstruction(), // Geant4 base class.
-	  gopt(gopts) { digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>(); }
+	  gopt(gopts) {
+	// Map is populated after SDs exist, in the SD/field construction path.
+	digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>();
+}
 
+// Builds (or rebuilds) the GEMC world and then the Geant4 world.
 G4VPhysicalVolume* GDetectorConstruction::Construct() {
 	log->debug(NORMAL, FUNCTION_NAME);
 
 	// Clean any old geometry.
+	// This is required when reloading geometry, to prevent stale stores and duplicated objects.
 	G4GeometryManager::GetInstance()->OpenGeometry();
 	G4PhysicalVolumeStore::Clean();
 	G4LogicalVolumeStore::Clean();
 	G4SolidStore::Clean();
 	G4ReflectionFactory::Instance()->Clean();
 
-	// Delete old geometry objects if they exist
+	// Delete old geometry objects if they exist.
+	// These shared_ptr resets guarantee we won't keep references to stale world objects.
 	gworld.reset();
 	g4world.reset();
 
@@ -64,10 +70,14 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 	return g4world->getG4Volume(ROOTWORLDGVOLUMENAME)->getPhysical();
 }
 
+// Installs sensitive detectors and EM fields for the constructed geometry.
 void GDetectorConstruction::ConstructSDandField() {
 	auto sdManager = G4SDManager::GetSDMpointer();
 
 	log->debug(NORMAL, FUNCTION_NAME);
+
+	// Local cache of sensitive detectors keyed by digitization name.
+	// Multiple volumes can share the same digitization name and therefore reuse one SD instance.
 	std::unordered_map<std::string, GSensitiveDetector*> sensitiveDetectorsMap;
 
 	// Loop over all systems and their volumes.
@@ -78,6 +88,8 @@ void GDetectorConstruction::ConstructSDandField() {
 			auto*       g4volume         = g4world->getG4Volume(g4name)->getLogical();
 
 			// Ensure the Geant4 logical volume exists.
+			// Some GEMC volumes can be "copy-of" another volume; in that case, reuse the
+			// referenced Geant4 logical volume rather than failing.
 			if (g4volume == nullptr) {
 				std::string copyOf = gvolumePtr->getCopyOf();
 				if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
@@ -105,18 +117,22 @@ void GDetectorConstruction::ConstructSDandField() {
 				}
 				else { log->info(2, "Sensitive detector <", digitizationName, "> is already created and available for volume <", g4name, ">"); }
 
-				// Register the volume touchable with the sensitive detector
+				// Register the volume touchable with the sensitive detector.
+				// The touchable encodes identity and dimension metadata needed by digitization.
 				const auto& vdimensions     = gvolumePtr->getDetectorDimensions();
 				const auto& identity        = gvolumePtr->getGIdentity();
 				auto        this_gtouchable = std::make_shared<GTouchable>(gopt, digitizationName, identity, vdimensions);
 				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name, this_gtouchable);
 
+				// Register the detector with Geant4 and attach it to the logical volume.
 				sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName]);
 				g4volume->SetSensitiveDetector(sensitiveDetectorsMap[digitizationName]);
 				log->info(2, "Logical Volume  <" + g4name + "> has been successfully assigned to SD.", sensitiveDetectorsMap[digitizationName]);
 			}
 
 			// Process electromagnetic fields.
+			// If a volume declares an EM field, ensure the field container exists and install
+			// a per-volume field manager configured by the named field map.
 			const auto& field_name = gvolumePtr->getEMField();
 			if (field_name != "" && field_name != UNINITIALIZEDSTRINGQUANTITY) {
 				if (gmagneto == nullptr) { gmagneto = new GMagneto(gopt); }
@@ -128,8 +144,10 @@ void GDetectorConstruction::ConstructSDandField() {
 	}
 
 	// Load digitization plugins after constructing sensitive detectors.
+	// This populates digitization_routines_map for each sensitive detector name.
 	loadDigitizationPlugins();
 
+	// Bind each digitization routine to its corresponding sensitive detector.
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
 	for (auto& sdname : sdetectors) {
 		sensitiveDetectorsMap[sdname]->assign_digi_routine(digitization_routines_map->at(sdname));
@@ -137,6 +155,7 @@ void GDetectorConstruction::ConstructSDandField() {
 	}
 }
 
+// Loads (or dynamically resolves) the digitization routine for each sensitive detector.
 void GDetectorConstruction::loadDigitizationPlugins() {
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
 
@@ -158,6 +177,8 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 			log->info(0, "Loading new digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, gdynamicdigitization::load_dynamicRoutine(sdname, gopt));
 		}
+
+		// Ensure each routine uses the correct logger and is configured for readout.
 		digitization_routines_map->at(sdname)->set_loggers(gopt);
 
 		if (digitization_routines_map->at(sdname)->defineReadoutSpecs()) { log->info(1, "Digitization routine <" + sdname + "> has been successfully defined."); }

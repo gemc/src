@@ -1,9 +1,15 @@
+// Right-side properties panel construction for GTree.
+// Doxygen documentation is authoritative in the header; this file provides a
+// short implementation-focused description and inline comments.
+
 #include <QLabel>
 #include <QVBoxLayout>
 
 #include "gtree.h"
 
+// Build the right-side panel that shows properties and controls for the selected item.
 QWidget* GTree::right_widget() {
+    // Container is parented to the GTree widget so Qt manages lifetime.
     auto* container = new QWidget(this);
     auto* vlayout = new QVBoxLayout(container);
 
@@ -18,6 +24,7 @@ QWidget* GTree::right_widget() {
     bottomPanel = new QWidget(container);
     auto* blayout = new QVBoxLayout(bottomPanel);
 
+    // Representation buttons (wireframe / surface / cloud).
     std::vector<std::string> bicons;
     bicons.push_back(":/gtree/images/wireframe");
     bicons.push_back(":/gtree/images/surface");
@@ -25,6 +32,7 @@ QWidget* GTree::right_widget() {
     styleButtons = new GQTButtonsWidget(96, 96, bicons, false);
     blayout->addWidget(styleButtons, 1);
 
+    // Opacity controls: label + slider + numeric value.
     auto* opacityContainer = new QWidget(bottomPanel);
     auto* opacityLayout = new QHBoxLayout(opacityContainer);
     opacityLayout->setContentsMargins(0, 0, 0, 0);
@@ -63,7 +71,8 @@ QWidget* GTree::right_widget() {
     blayout->addWidget(densityLabel);
     blayout->addStretch();
 
-    bottomPanel->setVisible(false); // hidden until a tree item is clicked
+    // Hidden until a volume or system is selected in the tree.
+    bottomPanel->setVisible(false);
 
     vlayout->addWidget(bottomPanel);
     vlayout->addStretch();

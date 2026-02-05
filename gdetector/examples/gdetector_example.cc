@@ -1,3 +1,19 @@
+/**
+ * @file gdetector_example.cc
+ * @brief Example: build detector geometry, load digitization routines, and run a small
+ *        multi-threaded digitization loop.
+ *
+ * @anchor gdetector_example
+ *
+ * This example demonstrates:
+ * - Constructing aggregated module options via gdetector::defineOptions()
+ * - Creating \ref GDetectorConstruction and reloading geometry from systems
+ * - Using digitization routines to load constants/translation tables and process hits
+ * - Collecting per-event data from multiple worker threads
+ *
+ * @ingroup gdetector_examples
+ */
+
 // gdetector
 #include "gdetectorConstruction.h"
 #include "gdetector_options.h"
@@ -18,6 +34,28 @@
 #include <memory>         // smart pointers
 
 
+/**
+ * @brief Runs a digitization loop across multiple worker threads and collects event data.
+ *
+ * Each worker thread:
+ * - Claims the next event number via an atomic counter
+ * - Instantiates an event header and event data container
+ * - Retrieves the digitization routine for the chosen sensitive detector name
+ * - Loads constants and translation tables for the chosen (run, variation)
+ * - Creates a fixed number of synthetic hits and digitizes them
+ * - Optionally logs a summary of digitized hit counts
+ *
+ * @param nevents   Total number of events to process.
+ * @param nthreads  Number of worker threads to run.
+ * @param gopts     Shared options instance used to configure created objects.
+ * @param log       Shared logger instance used for informational and debug output.
+ * @param gdetector Detector-construction object providing digitization routines.
+ *
+ * @return Vector of collected event data objects.
+ *
+ * @note This function demonstrates the threading pattern only; the example uses a fixed
+ *       sensitive detector name ("flux") and synthetic hit generation for clarity.
+ */
 auto run_simulation_in_threads(int                                                 nevents,
                                int                                                 nthreads,
                                const std::shared_ptr<GOptions>&                    gopts,
@@ -47,6 +85,8 @@ auto run_simulation_in_threads(int                                              
 
 			int localCount = 0; // events built by *this* worker
 
+			// Per-thread staging buffer (thread_local) used before final collection.
+			// The collection step below uses a mutex to merge results into "collected".
 			thread_local std::vector<std::shared_ptr<GEventDataCollection>> localRunData;
 
 			while (true) {
@@ -92,6 +132,9 @@ auto run_simulation_in_threads(int                                              
 					log->info(0, "worker ", tid, " event ", evn, " has ", digitized_data.size(), " digitized hits");
 				}
 
+				// NOTE: This example does not currently push eventData into localRunData.
+				// localRunData is retained to demonstrate a typical staging/merge pattern
+				// used in multi-threaded pipelines.
 				++localCount; // tally for this worker
 			}
 
@@ -110,7 +153,20 @@ auto run_simulation_in_threads(int                                              
 }
 
 
-// emulation of a run of events, collecting and publish data in separate threads
+/**
+ * @brief Example program entry point.
+ *
+ * This program:
+ * - Builds a GOptions instance using gdetector::defineOptions()
+ * - Creates a module logger using the gdetector logger name
+ * - Configures a Geant4 run manager and a reference physics list
+ * - Constructs \ref GDetectorConstruction and reloads geometry from system definitions
+ * - Runs a small multi-threaded digitization loop
+ *
+ * @param argc Standard program argument count.
+ * @param argv Standard program argument vector.
+ * @return Process exit code.
+ */
 int main(int argc, char* argv[]) {
 	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.
 	auto gopts = std::make_shared<GOptions>(argc, argv, gdetector::defineOptions());

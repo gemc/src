@@ -1,3 +1,7 @@
+// Implementation of the GTree Qt widget and its internal per-volume cache model.
+// Doxygen documentation is authoritative in the header; this file uses short
+// non-Doxygen comments to summarize behavior.
+
 // Qt
 #include <QHeaderView>
 #include <QTextEdit>
@@ -19,6 +23,7 @@
 #include "gutilities.h"
 #include "G4SystemOfUnits.hh"   // for mm, cm, g/cm3, etc.
 
+// Cache a volume's hierarchy, material and visualization attributes for the UI model.
 G4Ttree_item::G4Ttree_item(G4Volume* g4volume) {
     auto pvolume = g4volume->getPhysical();
     auto lvolume = g4volume->getLogical();
@@ -29,13 +34,13 @@ G4Ttree_item::G4Ttree_item(G4Volume* g4volume) {
         auto mlvolume = pvolume->GetMotherLogical();
         mother = mlvolume->GetName();
         material = lvolume->GetMaterial()->GetName();
-        mass = lvolume->GetMass(false, true);
     }
     else {
         mother = MOTHEROFUSALL;
         material = "G4_Galactic";
     }
 
+    // Read visualization attributes from the logical volume.
     auto visAttributes = lvolume->GetVisAttributes();
     auto gcolor = visAttributes->GetColour();
 
@@ -50,30 +55,33 @@ G4Ttree_item::G4Ttree_item(G4Volume* g4volume) {
 
     is_visible = visAttributes->IsVisible();
 
+    // Store scaled physics quantities for display (g, cm3, g/cm3).
     mass = lvolume->GetMass(false, true) / (CLHEP::g);
     volume = svolume->GetCubicVolume() / CLHEP::cm3;
     density = (mass / volume);
 }
 
 
+// Extract a short display name from a full "system/volume" name.
 std::string G4Ttree_item::vname_from_v4name(std::string v4name) {
     // return name after '/'
     return v4name.substr(v4name.find_last_of('/') + 1);
 }
 
+// Extract the system prefix from a full "system/volume" name.
 std::string G4Ttree_item::system_from_v4name(std::string v4name) {
     // return name before '/'
     return v4name.substr(0, v4name.find_last_of('/'));
 }
 
 
-// GTree Constructor
-// Initializes the Widget base class and the unique_ptr for the logger.
+// Construct the widget, build the internal model, create the UI, and connect signals.
 GTree::GTree(const std::shared_ptr<GOptions>& gopt,
              std::unordered_map<std::string, G4Volume*> g4volumes_map,
              QWidget* parent) :
     QWidget(parent),
     GBase(gopt, GTREE_LOGGER) {
+    // Build the internal representation used to populate the UI tree.
     build_tree(g4volumes_map);
 
     // create the UI
@@ -125,6 +133,7 @@ GTree::GTree(const std::shared_ptr<GOptions>& gopt,
     log->debug(NORMAL, SFUNCTION_NAME, "GTree added");
 }
 
+// Build the Qt tree view from the internal system/volume model.
 void GTree::populateTree() {
     // for each system
     for (auto& [systemName, volMap] : g4_systems_tree) {
@@ -134,7 +143,7 @@ void GTree::populateTree() {
         systemItem->setFlags(systemItem->flags() | Qt::ItemIsUserCheckable);
         systemItem->setCheckState(0, Qt::Checked);
 
-        // we'll build the volume hierarchy inside this system
+        // We'll build the volume hierarchy inside this system using a lookup map.
         std::map<std::string, QTreeWidgetItem*> itemLookup;
 
         // --------------------------------------------------------------------
@@ -164,6 +173,7 @@ void GTree::populateTree() {
 
             QTreeWidgetItem* parentItem = systemItem;
 
+            // If a mother exists and is present in this system's lookup, attach under it.
             if (!mother.empty() && mother != "root") {
                 auto itM = itemLookup.find(mother);
                 if (itM != itemLookup.end()) {
@@ -192,6 +202,7 @@ void GTree::populateTree() {
                 .arg(c.name())
             );
 
+            // Store the full volume name as a property so the slot can retrieve it.
             colorBtn->setProperty("volumeName", QString::fromStdString(volName));
             connect(colorBtn, &QPushButton::clicked, this, &GTree::onColorButtonClicked);
 
@@ -203,6 +214,7 @@ void GTree::populateTree() {
 }
 
 
+// Build the internal system/volume model from the provided volume map.
 void GTree::build_tree(std::unordered_map<std::string, G4Volume*> g4volumes_map) {
     // loop over map
     for (auto [name, g4volume] : g4volumes_map) {
@@ -227,6 +239,7 @@ void GTree::build_tree(std::unordered_map<std::string, G4Volume*> g4volumes_map)
     }
 }
 
+// Apply visibility checkbox changes to the selected item and its direct children.
 void GTree::onItemChanged(QTreeWidgetItem* item, int column) {
     if (column != 0) return; // we care about visibility column only
 
@@ -290,6 +303,7 @@ void GTree::onItemChanged(QTreeWidgetItem* item, int column) {
 }
 
 
+// Open the color dialog and apply a new RGB color to the selected volume.
 void GTree::onColorButtonClicked() {
     auto* btn = qobject_cast<QPushButton*>(sender());
     if (!btn)
@@ -316,11 +330,13 @@ void GTree::onColorButtonClicked() {
 }
 
 
+// Send a Geant4 UI command to toggle visibility for a specific volume.
 void GTree::set_visibility(const std::string& volumeName, bool visible) {
     std::string vis_int = visible ? "1" : "0";
 
     std::string command = "/vis/geometry/set/visibility " + volumeName + " -1 " + vis_int;
 
+    // World visibility uses a different depth value.
     if (volumeName == ROOTWORLDGVOLUMENAME) {
         command = "/vis/geometry/set/visibility " + volumeName + " 0 " + vis_int;
     }
@@ -328,6 +344,7 @@ void GTree::set_visibility(const std::string& volumeName, bool visible) {
     gutilities::apply_uimanager_commands(command);
 }
 
+// Send a Geant4 UI command to set RGB color for a specific volume.
 void GTree::set_color(const std::string& volumeName, const QColor& c) {
     int r, g, b;
     c.getRgb(&r, &g, &b);
@@ -340,11 +357,13 @@ void GTree::set_color(const std::string& volumeName, const QColor& c) {
     gutilities::apply_uimanager_commands(command);
 }
 
+// Return number of direct children in the Qt tree for the given item.
 int GTree::get_ndaughters(QTreeWidgetItem* item) const {
     if (!item) return 0;
     return item->childCount();
 }
 
+// Find the cached model record for a volume by its full name.
 G4Ttree_item* GTree::findTreeItem(const std::string& fullName) {
     for (const auto& [systemName, volMap] : g4_systems_tree) {
         auto it = volMap.find(fullName);
@@ -356,6 +375,7 @@ G4Ttree_item* GTree::findTreeItem(const std::string& fullName) {
 }
 
 
+// Update the right-side panel according to the clicked item.
 void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
     if (!bottomPanel)
         return;
@@ -419,6 +439,8 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
             densityLabel->setText(
                 tr("Average Density: %1 g / cm3").arg(titem->get_density())
             );
+
+            // Sync the slider position to the cached alpha channel.
             double op = titem->get_opacity();
             int sliderVal = static_cast<int>(op * 100.0 + 0.5);
             {
@@ -440,6 +462,7 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
     }
 }
 
+// Keep the right-side panel updated when selection changes via keyboard navigation.
 void GTree::onCurrentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* previous) {
     Q_UNUSED(previous);
     if (!current)
@@ -452,7 +475,12 @@ void GTree::onCurrentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem* prev
     onTreeItemClicked(current, 0);
 }
 
+// Apply a representation command based on the currently selected style button.
 void GTree::changeStyle() {
+
+    // No-op if no volume is selected (system selected or nothing selected).
+    if (current_volume_name.empty())
+        return;
 
     int button_index = styleButtons->button_pressed();
 
@@ -467,10 +495,16 @@ void GTree::changeStyle() {
     else if (button_index == 2) {
         command = "/vis/geometry/set/forceCloud " + current_volume_name + " 0 1 ";
     }
+    else {
+        // Unknown button index: avoid issuing an empty or malformed UI command.
+        return;
+    }
 
     gutilities::apply_uimanager_commands(command);
 }
 
+
+// Convert slider position to alpha and apply it to the currently selected volume.
 void GTree::onOpacitySliderChanged(int value) {
     if (current_volume_name.empty())
         return; // no volume selected
@@ -484,6 +518,7 @@ void GTree::onOpacitySliderChanged(int value) {
     set_opacity(current_volume_name, opacity);
 }
 
+// Update alpha for a volume while preserving cached RGB components.
 void GTree::set_opacity(const std::string& volumeName, double opacity) {
 
     // find current color for this volume from our tree model
@@ -502,6 +537,7 @@ void GTree::set_opacity(const std::string& volumeName, double opacity) {
         + std::to_string(b) + " "
         + std::to_string(opacity);
 
+    // Keep the model synchronized with the command we are sending.
     item->set_color(c);
     item->set_opacity(opacity);
 

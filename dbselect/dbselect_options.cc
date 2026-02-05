@@ -3,7 +3,7 @@
 // gemc
 #include "gdetector_options.h"
 
-// namespace to define options
+// dbselect option definition implementation (see header for authoritative documentation).
 namespace dbselect {
 GOptions defineOptions() {
 	GOptions goptions(DBSELECT_LOGGER);

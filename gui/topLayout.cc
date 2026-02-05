@@ -8,6 +8,10 @@
 
 
 void GemcGUI::createTopButtons(QHBoxLayout* topLayout) {
+	// Build the top run-control row:
+	// - number-of-events field
+	// - run/cycle/stop/exit buttons
+	// - current event counter label
 	auto* nEventsLabel = new QLabel(tr("N. Events:"));
 
 	auto* runButton = new QPushButton(tr("Run"));
@@ -32,6 +36,7 @@ void GemcGUI::createTopButtons(QHBoxLayout* topLayout) {
 	closeButton->setToolTip("Quit GEMC");
 	closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
 
+	// The label stores the cumulative number of processed events (as displayed to the user).
 	eventNumberLabel = new QLabel(tr("Event Number: 0"));
 
 	topLayout->addWidget(nEventsLabel);
@@ -44,6 +49,9 @@ void GemcGUI::createTopButtons(QHBoxLayout* topLayout) {
 	topLayout->addStretch(40);
 	topLayout->addWidget(closeButton);
 
+	// Wire UI events to slots:
+	// - text edits update the backend event count
+	// - buttons trigger run/cycle/stop/quit behavior
 	connect(nEvents, &QLineEdit::textChanged, this, &GemcGUI::neventsChanged);
 	connect(closeButton, &QPushButton::clicked, this, &GemcGUI::gquit);
 	connect(runButton, &QPushButton::clicked, this, &GemcGUI::beamOn);
@@ -53,22 +61,26 @@ void GemcGUI::createTopButtons(QHBoxLayout* topLayout) {
 
 
 void GemcGUI::gquit() {
+	// Request application shutdown through Qt's application object.
 	qApp->quit();
 }
 
 
 void GemcGUI::neventsChanged() {
+	// Push the new event count into the backend so the next run uses the updated value.
 	int newNevents = nEvents->text().toInt();
 	eventDispenser->setNumberOfEvents(newNevents);
 }
 
 void GemcGUI::beamOn() {
+	// Run a batch once, then update the GUI counter label.
 	eventDispenser->processEvents();
 	updateGui();
 }
 
 
 void GemcGUI::cycleBeamOn() {
+	// Enable periodic processing (2 seconds interval) and process events for this cycle.
 	gtimer->start(2000);
 	eventDispenser->processEvents();
 }

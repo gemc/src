@@ -8,16 +8,18 @@
 #include "gtree.h"
 
 void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
-                                 GDetectorConstruction* dc,
-                                 GBoard* gb) {
-    rightContent = new QStackedWidget;
+								 GDetectorConstruction* dc,
+								 GBoard* gb) {
+	// The stacked widget hosts all right-side pages. The left button bar selects the current index.
+	rightContent = new QStackedWidget;
 
-    rightContent->addWidget(new G4Display(gopts));
-    rightContent->addWidget(new G4Dialog(gopts, gb));
-    rightContent->addWidget(new DBSelectView(gopts, dc));
-    rightContent->addWidget(new GTree(gopts, dc->get_g4volumes_map()));
+	// Page order must match the left button bar order so indexes remain consistent.
+	rightContent->addWidget(new G4Display(gopts));
+	rightContent->addWidget(new G4Dialog(gopts, gb));
+	rightContent->addWidget(new DBSelectView(gopts, dc));
+	rightContent->addWidget(new GTree(gopts, dc->get_g4volumes_map()));
 
-    // set content and press the button to highlight it
-    rightContent->setCurrentIndex(0);
-    leftButtons->press_button(0);
+	// Default to the first page and update the left bar visual highlight accordingly.
+	rightContent->setCurrentIndex(0);
+	leftButtons->press_button(0);
 }
