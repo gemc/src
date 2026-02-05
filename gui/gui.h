@@ -11,8 +11,9 @@
 #include "gQtButtonsWidget.h"
 #include "eventDispenser.h"
 #include "gdetectorConstruction.h"
-#include "gboard.h"
 
+// gboard
+#include "gui_session.h"
 
 /**
  * @class GemcGUI
@@ -31,8 +32,8 @@
  *
  * @note This class is a \c QWidget and uses Qt signals/slots (Q_OBJECT).
  */
-class GemcGUI : public QWidget {
-
+class GemcGUI : public QWidget
+{
 	// metaobject required for non-qt slots
 	Q_OBJECT
 
@@ -72,7 +73,7 @@ private:
 	 * Ownership/cleanup follows the current implementation which explicitly deletes this pointer
 	 * in ~GemcGUI().
 	 */
-	GQTButtonsWidget* leftButtons;  // left bar buttons
+	GQTButtonsWidget* leftButtons; // left bar buttons
 
 	/**
 	 * @brief Right-side stacked widget containing the active GUI pages.
@@ -80,7 +81,7 @@ private:
 	 * The active page index is set from the selection in leftButtons. Ownership/cleanup follows the
 	 * current implementation which explicitly deletes this pointer in ~GemcGUI().
 	 */
-	QStackedWidget*   rightContent; // pages controlled by left bar buttons
+	QStackedWidget* rightContent; // pages controlled by left bar buttons
 
 	/**
 	 * @brief Editable field containing the number of events to process when running.
@@ -91,7 +92,7 @@ private:
 	 * Ownership/cleanup follows the current implementation which explicitly deletes this pointer
 	 * in ~GemcGUI().
 	 */
-	QLineEdit*        nEvents;
+	QLineEdit* nEvents;
 
 	/**
 	 * @brief Label displaying the cumulative event number.
@@ -101,7 +102,7 @@ private:
 	 * Ownership/cleanup follows the current implementation which explicitly deletes this pointer
 	 * in ~GemcGUI().
 	 */
-	QLabel*           eventNumberLabel;
+	QLabel* eventNumberLabel;
 
 	/**
 	 * @brief Timer used to implement periodic event processing in “Cycle” mode.
@@ -109,7 +110,7 @@ private:
 	 * The timer timeout triggers \ref GemcGUI::cycleBeamOn "cycleBeamOn()".
 	 * The timer is created with \c this as parent, so Qt will normally manage its lifetime.
 	 */
-	QTimer*           gtimer; // for cycling events
+	QTimer* gtimer; // for cycling events
 
 	/**
 	 * @brief Backend responsible for event processing and run control.
@@ -120,6 +121,14 @@ private:
 	 * - Process events when the user clicks Run or enables Cycle.
 	 */
 	std::shared_ptr<EventDispenser> eventDispenser;
+
+	/**
+	 * @brief GUI session tying together options and the board for the lifetime of this widget.
+	 *
+	 * The constructor creates the session and stores it here so its lifetime matches GemcGUI.
+	 * This makes the ownership explicit and avoids relying on "constructor side effects" only.
+	 */
+	std::unique_ptr<GUI_Session> guiSession;
 
 private:
 	/**

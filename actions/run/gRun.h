@@ -7,33 +7,65 @@
 #include "goptions.h"
 #include "gdynamicdigitization.h"
 
+/**
+ * @file gRun.h
+ * @brief Declares GRun, the per-thread run container.
+ *
+ * @ingroup gactions_module
+ */
+
 constexpr const char* GRUN_LOGGER = "grun";
 
 using GHitsCollection = G4THitsCollection<GHit>;
 
+/**
+ * @brief Namespace collecting helpers for the run container.
+ *
+ * @ingroup gactions_module
+ */
 namespace grun {
+/**
+ * @brief Returns the options associated with the run container scope.
+ *
+ * @return A GOptions instance for the run container logger scope.
+ */
 inline GOptions defineOptions() { return GOptions(GRUN_LOGGER); }
-}
+} // namespace grun
 
-// In Geant4 a run consists of a sequence of events and starts with BeamOn() method of G4RunManager.
-// A Geant4 run is represented by a G4Run class object.
-// G4GRun is created by G4MTRunManager, initialized in gemc.cc
-// The pointers to the digitization and streamer are kept to be passed along RecordEvent (digitized event) and Merge (streams it out)
+
+/**
+ * @class GRun
+ * @brief Thread-local run object created for each Geant4 run.
+ *
+ * In Geant4, a run is a sequence of events started by the run manager BeamOn().
+ * In multithreaded mode, each worker thread creates its own run object; Geant4 may
+ * later merge worker runs into a global run.
+ *
+ * GEMC uses this run object as the place where run-level services can be attached.
+ * In particular, the digitization routines map is stored so that event-level logic
+ * can reference consistent digitization behavior for the lifetime of the run.
+ *
+ * Creation:
+ * - Instances are created by the run action via GRunAction::GenerateRun().
+ *
+ * @ingroup gactions_module
+ */
 class GRun : public GBase<GRun>, public G4Run {
 public:
+	/**
+	 * @brief Constructs the run object for the current thread.
+	 *
+	 * @param gopts Shared configuration used by this run for logging and run-level behavior.
+	 * @param digi_map Shared digitization routines map used throughout the run.
+	 */
 	GRun(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
 
 private:
-	// digitization map, populated in ConstructSDandField
+	/**
+	 * @brief Digitization routines map used to digitize hit collections during the run.
+	 *
+	 * The map is provided by higher-level initialization code and is expected to
+	 * remain valid for the run lifetime.
+	 */
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;
 };
-
-// RecordEvent is called at the end of every event
-// Method to be overwritten by the user for recording events in this (thread-local) run.
-// The observables defined in each run should be filled here with the information from the hits
-// void RecordEvent(const G4Event*) override;
-// Method to be overwritten by the user for merging local Run objects to the global Run object
-// void Merge(const G4Run*) override;
-// this could be in merge: vector of events data in the run (local thread, merged in GRun::Merge in the global thread)
-// vector<GEventDataCollection*> runData;
-// inline vector<GEventDataCollection*> getRunData() const { return runData; }

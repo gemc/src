@@ -1,8 +1,7 @@
 // gui
 #include "gui.h"
 
-// gboard
-#include "gui_session.h"
+
 
 GemcGUI::GemcGUI(std::shared_ptr<GOptions>       gopts,
                  std::shared_ptr<EventDispenser> ed,
@@ -18,7 +17,7 @@ GemcGUI::GemcGUI(std::shared_ptr<GOptions>       gopts,
 	auto* gboard = new GBoard(gopts, this);
 
 	// Session object ties together options and the board; it is kept alive for the GUI lifetime.
-	auto gui_session = std::make_unique<GUI_Session>(gopts, gboard);
+	guiSession = std::make_unique<GUI_Session>(gopts, gboard);
 
 	// Create the right stacked content pages (display, dialog, setup, tree) and synchronize default selection.
 	createRightContent(gopts, dc, gboard); // instantiates rightContent: g4control, g4dialog, etc
@@ -69,12 +68,10 @@ void GemcGUI::updateGui() {
 
 
 GemcGUI::~GemcGUI() {
-	// Explicit deletion matches the current ownership strategy for these members.
-	delete leftButtons;
-	delete rightContent;
-	delete nEvents;
-	delete eventNumberLabel;
+	// All widgets are owned via Qt parent/child relationships once placed into the layout hierarchy.
+	// Rely on Qt to destroy children when GemcGUI is destroyed.
 }
+
 
 void GemcGUI::change_page(QListWidgetItem* current, QListWidgetItem* previous) {
 

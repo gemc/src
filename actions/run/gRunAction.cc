@@ -7,7 +7,7 @@
 #include "G4MTRunManager.hh"
 
 
-// Constructor for workers
+// Constructor for workers: stores shared services and logs thread identity.
 GRunAction::GRunAction(std::shared_ptr<GOptions> gopt, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
 	GBase(gopt, GRUNACTION_LOGGER),
 	goptions(gopt),
@@ -18,28 +18,27 @@ GRunAction::GRunAction(std::shared_ptr<GOptions> gopt, std::shared_ptr<gdynamicd
 }
 
 
-// TODO: this is not local?
-// executed after BeamOn
+// Executed after BeamOn(): create the thread-local run container.
 G4Run* GRunAction::GenerateRun() {
 	log->debug(NORMAL, FUNCTION_NAME);
 
 	return new GRun(goptions, digitization_routines_map);
 }
 
-// invoked at the beginning of BeamOn (before physics tables are computed)
+// Invoked at the beginning of BeamOn (before physics tables are computed).
 void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 
 	int thread_id      = G4Threading::G4GetThreadId();
 	int run            = aRun->GetRunID();
 	int neventsThisRun = aRun->GetNumberOfEventToBeProcessed();
 
-	// define gstreamer_map
+	// Lazily define the per-thread streamer map for worker threads only.
 	if (!IsMaster() && gstreamer_map == nullptr) {
 		log->info(0, " Defining gstreamers for thread id ", thread_id);
 		gstreamer_map = gstreamer::gstreamersMapPtr(goptions, thread_id);
 	}
 
-	// (re)-open for this run
+	// (Re)-open streamer connections for this run on worker threads.
 	if (!IsMaster()) {
 		for (auto& [name, gstreamer] : *gstreamer_map) {
 			if (!gstreamer->openConnection()) {
@@ -53,7 +52,7 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 	log->info(2, FUNCTION_NAME, " ", what_am_i, " [", thread_id, "],  for run ", run, ", events to be processed: ", neventsThisRun);
 }
 
-// invoked at the very end of the run processing
+// Invoked at the very end of the run processing: close worker-thread streamer connections.
 void GRunAction::EndOfRunAction(const G4Run* aRun) {
 
 	//	const GRun* theRun = static_cast<const GRun*>(aRun);
@@ -70,7 +69,7 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 	}
 }
 
-// in EndOfRunAction:
+// (Legacy/experimental streaming logic remains commented out below.)
 
 
 // TODO: 2 more is too much we need some calculation here

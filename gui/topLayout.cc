@@ -81,7 +81,9 @@ void GemcGUI::beamOn() {
 
 void GemcGUI::cycleBeamOn() {
 	// Enable periodic processing (2 seconds interval) and process events for this cycle.
-	gtimer->start(2000);
+	if (!gtimer->isActive()) {
+		gtimer->start(2000);
+	}
 	eventDispenser->processEvents();
 }
 

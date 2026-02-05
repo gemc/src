@@ -37,7 +37,7 @@
  *
  * - **Page switching**
  *   - The left button widget emits a selection-change signal.
- *   - The slot \ref GemcGUI::change_page "change_page()" reads the selected index and applies it to the
+ *   - A private slot \c change_page reads the selected index and applies it to the
  *     \c QStackedWidget, updating the visible page.
  *
  *
