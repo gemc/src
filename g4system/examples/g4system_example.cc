@@ -1,6 +1,6 @@
 /**
-* @file   g4system_example.cc
- * @ingroup Geometry
+ * @file   g4system_example.cc
+ * @ingroup g4system
  *
  * @anchor g4system_example_anchor
  *
@@ -23,6 +23,20 @@
 #include "g4world.h"
 #include "g4system_options.h"
 
+/**
+ * @brief Entry point for the g4system example program.
+ *
+ * @param argc Number of command-line arguments.
+ * @param argv Command-line arguments passed to the global option system.
+ * @return EXIT_SUCCESS on completion.
+ *
+ * @details
+ * The program:
+ * - creates a global GOptions instance configured with \ref g4system::defineOptions "defineOptions()"
+ * - instantiates a GWorld using those options
+ * - builds the Geant4 world via G4World
+ * - prints basic diagnostics to the example logger
+ */
 int main(int argc, char* argv[]) {
 	// Create global option set with g4system options registered.
 	auto gopts = std::make_shared<GOptions>(argc, argv, g4system::defineOptions());

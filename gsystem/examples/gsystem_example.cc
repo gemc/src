@@ -1,8 +1,10 @@
 /**
 * \file gsystem_example.cc
- * \brief Minimal example: construct a world from command-line options.
- *
  * \ingroup gemc_gsystem_examples
+ *
+ * \anchor gsystem_example_anchor
+ *
+ * \brief Minimal example : construct a world from command-line options.
  *
  * \details
  * This example demonstrates the smallest executable that:
@@ -20,6 +22,8 @@
  * \author \n &copy; Maurizio Ungaro
  */
 
+#include "gworld.h"
+
 /**
  * \brief Program entry point.
  *
@@ -28,12 +32,19 @@
  * \return EXIT_SUCCESS on clean construction/destruction.
  *
  * \details
- * The world is allocated and then explicitly deleted to match existing ownership style.
- * In user code, prefer automatic storage or smart pointers where possible.
+ * Execution flow:
+ * - Build a shared GOptions instance using \c gsystem::defineOptions().
+ * - Construct a GWorld, which triggers full loading:
+ *   - system discovery via \c gsystem::getSystems();
+ *   - factory instantiation;
+ *   - materials loading;
+ *   - geometry loading;
+ *   - modifier loading and application;
+ *   - final Geant4 name assignment bookkeeping.
+ *
+ * This program uses explicit \c new / \c delete to match existing ownership style in examples.
+ * In user applications, prefer automatic storage duration or smart pointers where appropriate.
  */
-#include "gworld.h"
-
-// the geometry comes linked from one of the examples
 int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, gsystem::defineOptions());
 	auto world = new GWorld(gopts);

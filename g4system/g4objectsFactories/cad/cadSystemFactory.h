@@ -1,7 +1,7 @@
 #pragma once
 /**
  * @file   cadSystemFactory.h
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief  Factory that converts CAD files (PLY / STL) into Geant4 tessellated solids via CADMesh.
  *
  * @details
@@ -10,11 +10,12 @@
  * - \c .ply
  * - \c .stl
  *
- * The implementation uses CADMesh (single-header library) and enables the Assimp reader backend.
+ * The implementation uses CADMesh (single-header library) and enables an Assimp reader backend
+ * in the implementation translation unit.
  *
  * Requirements:
- * - \c CADMesh.hh must be available on the include path.
- * - The Assimp backend is enabled in the implementation translation unit.
+ * - \c CADMesh.hh must be available on the include path
+ * - Assimp must be available if the Assimp reader backend is enabled
  */
 
 // c++
@@ -26,12 +27,13 @@
 
 /**
  * @class G4CadSystemFactory
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief Builds a tessellated solid from CAD files using CADMesh.
  *
  * @details
- * The factory implements \ref G4ObjectsFactory::buildSolid "buildSolid()" and relies on the base class
- * for logical/physical creation. The solid is cached in the \c G4Volume wrapper map.
+ * The factory implements \ref G4CadSystemFactory::buildSolid "buildSolid()" to produce a \c G4VSolid.
+ * Logical and physical construction are provided by the base class and therefore follow the same
+ * material lookup, visualization attribute, and placement rules used by other factories.
  */
 class G4CadSystemFactory final : public G4ObjectsFactory
 {
@@ -54,6 +56,11 @@ protected:
 	 * @return Pointer to the created solid, or \c nullptr if dependencies are missing or format unsupported.
 	 *
 	 * @details
+	 * The method performs:
+	 * - dependency checks (copy/boolean operands) through the shared base logic
+	 * - wrapper retrieval/creation for caching
+	 * - extension-based dispatch to the CADMesh reader
+	 *
 	 * Recognized extensions are:
 	 * - \c ply
 	 * - \c stl

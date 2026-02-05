@@ -1,13 +1,12 @@
 /**
  * @file   checkAndReturnParameters.cc
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief  Implementation of G4NativeSystemFactory helpers, including the parameter-count validator.
  */
 
 // g4system
 #include "g4NativeObjectsFactory.h"
 #include "g4system/g4systemConventions.h"
-
 
 // Validate and parse the constructor parameter list for native Geant4 solids.
 // Header documentation is authoritative; this implementation comment is intentionally brief.
@@ -41,7 +40,7 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 	else if (type == "G4Orb") possibleNumberOfParameters = {1};
 	else if (type == "G4Torus") possibleNumberOfParameters = {5};
 
-		// Polycones: special rule supporting multiple constructor layouts.
+	// Polycones: special rule supporting multiple constructor layouts.
 	else if (type == "G4Polycone" || type == "G4GenericPolycone") {
 		// first constructor -> (nPars mod 3) == 0
 		// second constructor -> ((nPars-3) mod 2) == 0

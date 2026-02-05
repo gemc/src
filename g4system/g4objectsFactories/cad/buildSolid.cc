@@ -1,6 +1,6 @@
 /**
  * @file   buildSolid.cc
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief  Implementation of the CAD-mesh solid builder for G4CadSystemFactory.
  */
 

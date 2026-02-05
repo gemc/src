@@ -1,16 +1,16 @@
 #pragma once
 /**
  * @file   g4volume.h
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief  Thin wrapper that stores the Geant4 solid/logical/physical triple for one GEMC volume.
  *
  * @details
- * G4System factories progressively build Geant4 geometry in three stages:
+ * g4system factories progressively build Geant4 geometry in three stages:
  *   1. create a \c G4VSolid
  *   2. wrap it into a \c G4LogicalVolume (material + visualization)
  *   3. place it into the geometry tree as a \c G4VPhysicalVolume
  *
- * This class stores the three pointers so that different build steps can share the same
+ * This class caches the three pointers so that different build steps can share the same
  * already-created objects without having to re-query Geant4 stores.
  *
  * @note
@@ -30,20 +30,19 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4VSolid.hh"
 
-
 /**
  * @class G4Volume
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief Convenience container holding a Geant4 *solid*, *logical*, and *physical* volume.
  *
  * @details
- * A G4Volume instance is created and cached in a map keyed by the Geant4 name.
- * Each setter stores the corresponding pointer and emits a debug message.
+ * A G4Volume instance is typically created and cached in a map keyed by the Geant4 volume name.
+ * Each setter stores the corresponding pointer and emits a debug message through the provided logger.
  *
  * Typical usage is internal to the geometry factories:
- * - buildSolid() stores a \c G4VSolid*
- * - buildLogical() stores a \c G4LogicalVolume*
- * - buildPhysical() stores a \c G4VPhysicalVolume*
+ * - solid creation stores a \c G4VSolid*
+ * - logical creation stores a \c G4LogicalVolume*
+ * - physical placement stores a \c G4VPhysicalVolume*
  *
  * @note No pointer is deleted here.
  */

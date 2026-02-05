@@ -1,4 +1,13 @@
 // g4world.cc : implementation of the Geant4 world builder and material initialization.
+/**
+ * @file   g4world.cc
+ * @ingroup g4system_geometry
+ * @brief  Implementation of G4World, including factory creation, material building, and volume dependency resolution.
+ *
+ * @details
+ * Header documentation in \c g4world.h is authoritative. This file focuses on implementation details and
+ * uses short, non-Doxygen comments to explain complex control-flow blocks (dependency retries, stall detection).
+ */
 
 // gemc
 #include "g4world.h"
@@ -112,7 +121,6 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 	}
 }
 
-
 /*──────────────────────── look-ups ──────────────────────────*/
 
 const G4Volume* G4World::getG4Volume(const std::string& volumeName) const {
@@ -126,7 +134,6 @@ void G4World::setFieldManagerForVolume(const std::string& volumeName,
 	auto it = g4volumesMap.find(volumeName);
 	if (it != g4volumesMap.end()) it->second->setFieldManager(fm, forceToAllDaughters);
 }
-
 
 // ---- g4FactoryNameFromSystemFactory -----------------------------------------------------------
 std::string G4World::g4FactoryNameFromSystemFactory(const std::string& factory) const {
@@ -206,13 +213,11 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial>& gmaterial) {
 	return true;
 }
 
-
 void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 	// Create a small set of commonly-used isotopes/elements/materials if they are missing.
 	// These are defined using Geant4 primitives and then registered in the local map for reference.
 	int    Z, N;
 	double a, d, T;
-
 
 	// ----  Hydrogen
 
@@ -231,7 +236,6 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		g4materialsMap[HGAS_MATERIAL]->AddElement(Hydrogen, 1);
 	}
 	log->info(2, "G4World: Hydrogen gas material <", HGAS_MATERIAL, "> created with density <", d, ">");
-
 
 	// ----  Deuterium
 
@@ -320,7 +324,6 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 	}
 	log->info(2, "G4World: Helium 3 gas material <", HELIUM3GAS_MATERIAL, "> created with density <", d, ">");
 
-
 	// ---- Tritium
 
 	// Triton isotope and Tritium element definition.
@@ -347,7 +350,6 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 	}
 	log->info(2, "G4World: Tritium gas material <", TRITIUMGAS_MATERIAL, "> created with density <", d, ">");
 }
-
 
 void G4World::createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
                                     SystemMap*                       gsystemsMap,
@@ -418,7 +420,6 @@ void G4World::buildMaterials(SystemMap* system_map) {
 	}
 	while (!thisIterationRemainingMaterials.empty());
 }
-
 
 bool G4World::build_g4volume(const GVolume* s, G4ObjectsFactory* objectsFactory) {
 	log->info(2, "G4World: using factory <", objectsFactory->className(),

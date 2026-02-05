@@ -1,9 +1,8 @@
 /**
  * @file   buildSolid.cc
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief  Implementation of G4NativeSystemFactory::buildSolid().
  */
-
 
 // g4system
 #include "g4NativeObjectsFactory.h"
@@ -19,7 +18,6 @@
 #include "G4Trap.hh"
 #include "G4Trd.hh"
 #include "G4Polycone.hh"
-
 
 // Build a native Geant4 solid for the given volume definition.
 // Header documentation is authoritative; this implementation comment is intentionally brief.

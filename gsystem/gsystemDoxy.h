@@ -1,7 +1,4 @@
 /**
- * \mainpage GEMC Detector System Module (gsystem)
- *
- * \tableofcontents
  *
  * \defgroup gemc_gsystem gsystem
  * \brief GEMC detector-system module (gsystem): geometry + materials loading and world assembly.
@@ -14,7 +11,7 @@
  * \ingroup gemc_gsystem
  * \brief Post-load volume modifications (shift/tilt/existence).
  *
- * \defgroup gemc_gsystem_factories Factories
+ * \defgroup gemc_gsystem_factories Factory
  * \ingroup gemc_gsystem
  * \brief System loaders (sqlite / ascii / CAD / GDML) and factory infrastructure.
  *
@@ -37,6 +34,8 @@
  * \defgroup gemc_gsystem_examples Examples
  * \ingroup gemc_gsystem
  * \brief Small example programs for the module.
+ *
+ * \mainpage GEMC Detector System Module (gsystem)
  *
  * @section intro_sec Introduction
  *
@@ -68,20 +67,29 @@
  * @section verbosity_sec Verbosity and logging
  *
  * Most classes in this module derive from GBase and therefore use a GLogger.
- * Typical verbosity behavior:
- * - Level 0: high-level milestones and key warnings (e.g. missing optional files).
+ *
+ * Typical verbosity behavior (convention for classes derived from GBase / using GLogger):
+ * - Level 0: high-level milestones and key warnings (e.g. missing optional files, major fallbacks).
  * - Level 1: normal informational messages (e.g. which systems/factories are loading).
- * - Level 2: detailed diagnostics (e.g. expanded SQL queries, per-column dumps).
- * - Debug: very fine-grained tracing such as constructor/function entry markers.
+ * - Level 2: detailed diagnostics (e.g. expanded SQL queries, per-column dumps, per-volume summaries).
+ * - Debug: very fine-grained tracing such as constructor/function entry markers, internal state snapshots.
  *
  * The exact interpretation is logger-dependent, but the module is structured so that higher
  * levels add detail without changing semantics.
  *
  * @section examples_sec Examples
  *
- * @subsection example_gsystem Example: gsystem_example.cc
- * A minimal program that constructs GOptions using gsystem option definitions and then
- * constructs a GWorld, triggering full system load (factories, volumes/materials, modifiers).
+ * @subsection example_gsystem Example : gsystem_example.cc
+ * Minimal program that:
+ * - builds a GOptions instance with \c gsystem::defineOptions();
+ * - constructs a GWorld, triggering full system load (factories, volumes/materials, modifiers).
+ *
+ * See the example's full documentation here: \ref gsystem_example_anchor "gsystem_example.cc".
+ *
+ * Example snippet:
+ * \code
+ * ./gsystem_example -gsystem="[{name: b1, factory: sqlite, variation: default}]" -sql=gemc.db
+ * \endcode
  *
  * @section notes_sec Design notes
  *

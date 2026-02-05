@@ -1,4 +1,14 @@
 // geant4Dependencies.cc : dependency checks used by factory default implementations.
+/**
+ * @file   geant4Dependencies.cc
+ * @ingroup g4system_geometry
+ * @brief  Dependency checks used by g4system factories before constructing solids and placements.
+ *
+ * @details
+ * Header documentation in \c g4objectsFactory.h is authoritative. This file implements:
+ * - solid dependency checks (copy-of and boolean-operand existence)
+ * - physical dependency checks (candidate logical, copy-source logical, and mother logical existence)
+ */
 
 // guts
 #include "gutilities.h"
@@ -6,7 +16,6 @@
 // g4system
 #include "gsystemConventions.h"
 #include "g4objectsFactory.h"
-
 
 bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
                                               std::unordered_map<std::string,
@@ -25,7 +34,6 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
 	log->debug(NORMAL, className(), " checkSolidDependencies: checking dependencies for <",
 	           s->getName(), ">", message);
 
-
 	/*──────────────────────────────────── copyOf: volumeName ───────────────────────────────────*/
 	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
 		auto volume_copy = gsystem + "/" + copyOf;
@@ -37,7 +45,6 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
 		          ">, which already exists, which does not exist yet");
 		return false;
 	}
-
 
 	/*──────────────────────────────────── Boolean solid operations ──────────────────────────────*/
 	else if (solidsOpr != "" && solidsOpr != UNINITIALIZEDSTRINGQUANTITY) {
@@ -57,7 +64,6 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
 		}
 		return false;
 	}
-
 
 	/*────────────────────────────────────    default path     ──────────────────────────────────*/
 	return true; // ordinary primitive – no extra prerequisites

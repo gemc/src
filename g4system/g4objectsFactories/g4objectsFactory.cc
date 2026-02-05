@@ -1,7 +1,11 @@
 /**
  * @file   g4objectsFactory.cc
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief  Default implementations shared by all detector-specific factories.
+ *
+ * @details
+ * Header documentation in \c g4objectsFactory.h is authoritative. This file provides reusable default
+ * behaviors for logical/physical construction and common helpers (visual attributes, position/rotation parsing).
  */
 
 #include "g4objectsFactory.h"
@@ -26,14 +30,12 @@ void G4ObjectsFactory::initialize_context(int                check_overlaps,
 	backupMaterial = backup_mat;
 }
 
-
 // Convenience: retrieve the solid pointer for a named volume from the wrapper map.
 G4VSolid* G4ObjectsFactory::getSolidFromMap(const std::string&                          vname,
                                             std::unordered_map<std::string, G4Volume*>* g4s) {
 	auto it = g4s->find(vname);
 	return (it != g4s->end()) ? it->second->getSolid() : nullptr;
 }
-
 
 // Convenience: retrieve the logical pointer for a named volume from the wrapper map.
 G4LogicalVolume* G4ObjectsFactory::getLogicalFromMap(const std::string&                          volume_name,
@@ -48,7 +50,6 @@ G4VPhysicalVolume* G4ObjectsFactory::getPhysicalFromMap(const std::string&      
 	auto it = g4s->find(vname);
 	return (it != g4s->end()) ? it->second->getPhysical() : nullptr;
 }
-
 
 G4VisAttributes G4ObjectsFactory::createVisualAttributes(const GVolume* s) {
 	// Convert GEMC color + opacity into a Geant4 color. The helper returns a \c G4Colour.
@@ -68,7 +69,6 @@ G4VisAttributes G4ObjectsFactory::createVisualAttributes(const GVolume* s) {
 	s->getStyle() ? attr.SetForceSolid(true) : attr.SetForceWireframe(true);
 	return attr;
 }
-
 
 G4RotationMatrix* G4ObjectsFactory::getRotation(const GVolume* s) {
 	// Parse a rotation string expressed as three angles and apply them in X/Y/Z order.
@@ -98,7 +98,6 @@ G4ThreeVector G4ObjectsFactory::getPosition(const GVolume* s) {
 	}
 	return pos;
 }
-
 
 G4LogicalVolume* G4ObjectsFactory::buildLogical(const GVolume*                              s,
                                                 std::unordered_map<std::string, G4Volume*>* g4s) {
@@ -144,7 +143,6 @@ G4LogicalVolume* G4ObjectsFactory::buildLogical(const GVolume*                  
 	return logical;
 }
 
-
 G4VPhysicalVolume* G4ObjectsFactory::buildPhysical(const GVolume*                              s,
                                                    std::unordered_map<std::string, G4Volume*>* g4s) {
 	// Nonexistent volumes are ignored by design.
@@ -184,7 +182,6 @@ G4VPhysicalVolume* G4ObjectsFactory::buildPhysical(const GVolume*               
 	}
 	return thisG4Volume->getPhysical();
 }
-
 
 bool G4ObjectsFactory::build_g4volume(const GVolume*                              s,
                                       std::unordered_map<std::string, G4Volume*>* g4s) {

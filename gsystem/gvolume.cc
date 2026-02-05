@@ -16,7 +16,8 @@ using namespace gutilities;
 // need to set pCopyNo with unique identifier
 // see c++ thread safe ID generation function
 GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
-                 const std::string&              s, vector<string> pars,
+                 const std::string&              s,
+                 std::vector<std::string>        pars,
                  const std::string&              importPath) :
 	GBase(logger),
 	system(s),
@@ -122,7 +123,7 @@ std::ostream& operator<<(std::ostream& stream, const GVolume& gVol) {
 }
 
 
-GVolume::GVolume(const string& rootVolumeDefinition, const std::shared_ptr<GLogger>& logger) : GBase(logger) {
+GVolume::GVolume(const std::string& rootVolumeDefinition, const std::shared_ptr<GLogger>& logger) : GBase(logger) {
 	// The ROOT/world definition is tokenized by spaces:
 	// <solidType> <dim1> <dim2> ... <material>
 	vector<string> rootDefinitions = getStringVectorFromStringWithDelimiter(rootVolumeDefinition, " ");

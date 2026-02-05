@@ -28,7 +28,6 @@
  * - post-load modifiers (shift/tilt/existence) applied by GWorld;
  * - final Geant4 naming assigned during GWorld bookkeeping.
  *
- * \note External library types (e.g. Geant4 solids) should be referenced using \c, not \ref.
  */
 class GVolume : public GBase<GVolume>
 {
@@ -43,8 +42,20 @@ public:
 	 *
 	 * \details The parameter vector is positional; the implementation parses it in order.
 	 * If the vector size is incorrect, the constructor logs an error.
+	 *
+	 * The positional semantics are stable across DB and ASCII sources, and include:
+	 * - identity (name, mother, description);
+	 * - solid (type, parameters);
+	 * - placement (pos, rot);
+	 * - rendering (visibility, style, color, opacity);
+	 * - behavior (material, emfield, digitization, identifiers);
+	 * - advanced features (copyOf, solidsOpr, mirror);
+	 * - existence flag;
+	 * - provenance (variation, run).
 	 */
-	GVolume(const std::shared_ptr<GLogger>& log, const std::string& system, std::vector<std::string> pars,
+	GVolume(const std::shared_ptr<GLogger>& log,
+	        const std::string&              system,
+	        std::vector<std::string>        pars,
 	        const std::string&              importPath = UNINITIALIZEDSTRINGQUANTITY);
 
 	/**
@@ -54,18 +65,21 @@ public:
 	 * \param log Logger used for diagnostics.
 	 *
 	 * \details This constructor is used when the world volume is injected automatically.
-	 * It creates a top-level volume whose mother is MOTHEROFUSALL.
+	 * It creates a top-level volume whose mother is MOTHEROFUSALL and whose position/rotation
+	 * default to DEFAULTPOSITION / DEFAULTROTATION.
 	 */
 	explicit GVolume(const std::string& rootVolumeDefinition, const std::shared_ptr<GLogger>& log);
-	// special constructor for root volume
 
 	/**
 	 * \brief Polymorphic deep-copy.
 	 *
 	 * \return A heap-allocated clone of the current object.
+	 *
+	 * \details The clone is a deep copy of this value object; it is safe to mutate independently
+	 * of the original (subject to external invariants such as unique naming in maps).
 	 */
 	[[nodiscard]] virtual std::unique_ptr<GVolume> clone() const {
-		return std::make_unique<GVolume>(*this); // Make a copy of the current object
+		return std::make_unique<GVolume>(*this);
 	}
 
 	/// \brief Virtual destructor (safe deletion through base pointers).
@@ -83,24 +97,24 @@ private:
 	std::string parameters; ///< Solid constructor parameters string (units may be embedded).
 
 	// solid visualization style
-	bool        visible; ///< Visibility flag: 0=invisible, 1=visible.
-	int         style;   ///< Visual style: 0=wireframe, 1=solid.
-	std::string color;   ///< Color in RRGGBB format (optional last digit is transparency).
-	double      opacity; ///< Opacity parsed from configuration (convention depends on renderer).
+	bool        visible{}; ///< Visibility flag: 0=invisible, 1=visible.
+	int         style{};   ///< Visual style: 0=wireframe, 1=solid.
+	std::string color;     ///< Color in RRGGBB format (optional last digit is transparency).
+	double      opacity{}; ///< Opacity parsed from configuration (convention depends on renderer).
 
 	// logical attributes
 	std::string material; ///< Material name (used to resolve to a GMaterial).
 	std::string emfield;  ///< Associated magnetic/electric field label.
 
 	// physical attributes
-	std::string pos;   ///< Placement position relative to mother.
-	std::string rot;   ///< Placement rotation relative to mother (x,y,z Euler angles).
-	std::string shift; ///< Position modifier (applied post-load by GWorld).
-	std::string tilt;  ///< Rotation modifier (applied post-load by GWorld).
-	bool        exist; ///< Existence modifier (applied post-load by GWorld).
+	std::string pos;     ///< Placement position relative to mother.
+	std::string rot;     ///< Placement rotation relative to mother (x,y,z Euler angles).
+	std::string shift;   ///< Position modifier (applied post-load by GWorld).
+	std::string tilt;    ///< Rotation modifier (applied post-load by GWorld).
+	bool        exist{}; ///< Existence modifier (applied post-load by GWorld).
 
 	std::string digitization; ///< Digitization label and collection identifier.
-	std::string gidentity;    ///< Identifier string (e.g. "sector: 2, layer: 4, wire: 33").
+	std::string gidentity;    ///< Identifier string (e.g. \c "sector: 2, layer: 4, wire: 33").
 
 	// special cases
 	std::string copyOf;    ///< Name of gvolume to copy from (if supported by downstream logic).
@@ -121,7 +135,7 @@ private:
 	int         runno{};   ///< Run number used when loading this volume.
 
 	/// \brief Stream operator used for logging volume summaries.
-	friend std::ostream& operator<<(std::ostream& stream, const GVolume&); // Logs infos on screen.
+	friend std::ostream& operator<<(std::ostream& stream, const GVolume&);
 
 public:
 	/// \name Identity and naming
@@ -138,11 +152,12 @@ public:
 	 *
 	 * \return Vector of numeric values. If parameters are unset, returns \c {0}.
 	 *
-	 * \note Parsing is delegated to gutilities helpers that interpret unit strings.
+	 * \details Parsing is delegated to gutilities helpers that interpret unit strings.
+	 * The returned vector has one entry per dimension token found in \c parameters.
 	 */
 	[[nodiscard]] std::vector<double> getDetectorDimensions() const {
 		if (parameters == UNINITIALIZEDSTRINGQUANTITY) { return {0}; }
-		else { return gutilities::getG4NumbersFromString(parameters); }
+		return gutilities::getG4NumbersFromString(parameters);
 	}
 
 	/// \name Solid definition
@@ -190,13 +205,49 @@ public:
 
 	/// \name Modifier application (performed by GWorld)
 	///@{
+	/**
+	 * \brief Apply an additional translation to this volume.
+	 *
+	 * \param s Shift expression string (units embedded), usually parsed later by placement logic.
+	 *
+	 * \details This stores the modifier; it does not update \c pos directly. Downstream
+	 * placement code is expected to interpret \c pos + \c shift.
+	 */
 	void applyShift(std::string s) { shift = std::move(s); }
+
+	/**
+	 * \brief Apply an additional rotation to this volume.
+	 *
+	 * \param t Tilt expression string (units embedded), usually parsed later by placement logic.
+	 *
+	 * \details This stores the modifier; it does not update \c rot directly. Downstream
+	 * placement code is expected to interpret \c rot + \c tilt.
+	 */
 	void applyTilt(std::string t) { tilt = std::move(t); }
+
+	/**
+	 * \brief Enable or disable this volume in the final assembled world.
+	 *
+	 * \param e Existence flag.
+	 *
+	 * \details When set to \c false, the volume should be treated as removed from the world.
+	 * The mechanics of "removal" are handled by downstream geometry construction.
+	 */
 	void modifyExistence(bool e) { exist = e; }
+
+	/// \brief Override the mother name (placement parent) after loading.
 	void resetMotherName(std::string m) { motherName = std::move(m); }
+
+	/// \brief Override the color after loading.
 	void setColor(std::string c) { color = std::move(c); }
+
+	/// \brief Override the material name after loading.
 	void setMaterial(std::string m) { material = std::move(m); }
+
+	/// \brief Override the digitization label after loading.
 	void setDigitization(std::string d) { digitization = std::move(d); }
+
+	/// \brief Override the identity string after loading.
 	void setGIdentity(std::string g) { gidentity = std::move(g); }
 	///@}
 
@@ -204,16 +255,20 @@ public:
 	 * \brief Return the import filename (path) for imported volumes.
 	 *
 	 * \return The original import filename stored by the factory.
+	 *
+	 * \details This is typically meaningful for CAD/GDML imports and may be \c "none"
+	 * for volumes loaded from DB/ASCII.
 	 */
 	std::string getImportedFile() { return importFilename; }
 
 	/**
 	 * \brief Assign Geant4 names after all volumes are loaded.
 	 *
-	 * \param g4n Fully-qualified volume name (\c <system>/<name>).
-	 * \param g4m Fully-qualified mother name (\c <motherSystem>/<motherName>).
+	 * \param g4n Fully-qualified volume name (\c "<system>/<name>").
+	 * \param g4m Fully-qualified mother name (\c "<motherSystem>/<motherName>").
 	 *
-	 * \note This is called by GWorld during the final bookkeeping step.
+	 * \details This is called by GWorld during the final bookkeeping step. The values
+	 * are stored and used later when constructing the runtime geometry.
 	 */
 	inline void assignG4Names(const std::string& g4n, const std::string& g4m) {
 		g4name       = g4n;

@@ -1,11 +1,10 @@
 /**
 * @file   g4volume.cc
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief  Implementation of the small pointer-holder utilities in G4Volume.
  */
 
 #include "g4volume.h"
-
 
 // Store the solid pointer and emit a debug trace to help diagnose factory/build ordering.
 void G4Volume::setSolid(G4VSolid* s, const std::shared_ptr<GLogger>& log) {

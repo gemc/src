@@ -1,7 +1,7 @@
 #pragma once
 /**
  * @file   g4systemConventions.h
- * @ingroup Geometry
+ * @ingroup g4system
  * @brief  Conventions, labels, and error codes used by the g4system geometry/material layer.
  *
  * @details

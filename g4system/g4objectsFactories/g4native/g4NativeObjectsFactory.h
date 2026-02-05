@@ -1,7 +1,7 @@
 #pragma once
 /**
  * @file   g4NativeObjectsFactory.h
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief  Factory that builds Geant4 native primitive solids (\c G4Box, \c G4Cons, \c G4Trap, ...) from GEMC \c GVolume records.
  *
  * @details
@@ -17,6 +17,7 @@
 
 // g4system
 #include "g4NativeObjectsFactory.h"
+#include "g4systemConventions.h"
 
 // gemc utility helpers
 #include "gutilities.h"
@@ -25,7 +26,7 @@
 
 /**
  * @class G4NativeSystemFactory
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief Implements solid creation for Geant4 CSG primitives and validates constructor parameter counts.
  *
  * @details

@@ -1,5 +1,46 @@
 /**
+ * @defgroup g4system GEMC Geant4 System
+ * @brief Geant4 geometry/material construction module within GEMC.
+ *
+ * This top-level group contains the g4system submodules responsible for translating
+ * GEMC detector descriptions into Geant4 geometry objects.
+ */
+
+/**
+ * @defgroup g4system_factory g4system Factory / Plugin Loader
+ * @ingroup g4system
+ * @brief Runtime creation of system builders and object factories.
+ *
+ * The classes in this group implement the plug-in mechanism that allows GEMC to
+ * instantiate detector-specific builders at runtime based on the factory name stored
+ * in the database configuration.
+ *
+ * Typical responsibilities:
+ * - Register available factories with a manager
+ * - Create a concrete factory instance by name
+ * - Provide a common initialization context (options, logging, overlap checks, etc.)
+ */
+
+/**
+ * @defgroup g4system_geometry g4system Geometry Builders
+ * @ingroup g4system
+ * @brief Builders that convert GEMC volume/material records into Geant4 geometry.
+ *
+ * This group contains the world builder and object factories responsible for translating
+ * GEMC geometry records into:
+ * - Geant4 solids
+ * - Geant4 logical volumes (material + visual attributes)
+ * - Geant4 physical volumes (placements and hierarchy)
+ *
+ * The core design supports out-of-order construction by performing dependency checks and
+ * retrying volumes/materials until prerequisites (mother volume, copy-of source, boolean
+ * operands, etc.) are available.
+ */
+
+/**
  * @mainpage GEMC Geant4 System
+ *
+ * \tableofcontents
  *
  * @section intro_sec Introduction
  * The g4system module is the **geometry factory layer** that translates detector
@@ -10,12 +51,12 @@
  * a factory and registering it, without changing the core world-building logic.
  *
  * @section modules_sec Module overview
- * - @ref Factory   “Factory / Plugin Loader” – runtime creation of C++ classes
- * - @ref Geometry  “Geometry Builders”       – conversion from GEMC DB → Geant4
+ * - @ref g4system_factory  : Runtime creation of system builders and object factories
+ * - @ref g4system_geometry : Conversion from GEMC DB records into Geant4 geometry/material objects
  *
  * @section verbosity_sec Verbosity and debug output
- * Most classes in this module use the common logging infrastructure (classes derived from the
- * logger-enabled base). The following behavior is typical:
+ * Most classes in this module use the common logging infrastructure (classes derived from
+ * the logger-enabled base). The following behavior is typical:
  * - Verbosity level 0 prints essential progress and high-level configuration (major steps,
  *   critical warnings).
  * - Verbosity level 1 prints additional context useful during standard validation (counts,
@@ -38,48 +79,6 @@
  * - \ref g4system_example_anchor "g4system_example.cc" : Minimal instantiation of the module, world creation,
  *   and basic diagnostic queries (volume count, sensitive detector list).
  *
- * \author &copy; Maurizio Ungaro
- * \author e-mail: ungaro@jlab.org
- */
-
-
-/**
- * @defgroup G4System GEMC Geant4 System
- * @brief Geant4 geometry construction module within GEMC.
- *
- * This top-level group contains the g4system submodules responsible for translating
- * GEMC detector descriptions into Geant4 geometry objects.
- */
-
-
-/**
- * @defgroup Factory Factory / Plugin Loader
- * @ingroup G4System
- * @brief Runtime creation of system builders and object factories.
- *
- * The classes in this group implement the plug-in mechanism that allows GEMC to
- * instantiate detector-specific builders at runtime based on the factory name stored
- * in the database configuration.
- *
- * Typical responsibilities:
- * - Register available factories with a manager.
- * - Create a concrete factory instance by name.
- * - Provide a common initialization context (options, logging, overlap checks, etc.).
- */
-
-
-/**
- * @defgroup Geometry Geometry Builders
- * @ingroup G4System
- * @brief Builders that convert GEMC volume/material records into Geant4 geometry.
- *
- * This group contains the world builder and object factories responsible for translating
- * GEMC geometry records into:
- * - Geant4 solids
- * - Geant4 logical volumes (material + visual attributes)
- * - Geant4 physical volumes (placements and hierarchy)
- *
- * The core design supports out-of-order construction by performing dependency checks and
- * retrying volumes/materials until prerequisites (mother volume, copy-of source, boolean
- * operands, etc.) are available.
+ * @author &copy; Maurizio Ungaro
+ * @author e-mail: ungaro@jlab.org
  */

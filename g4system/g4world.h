@@ -1,7 +1,7 @@
 #pragma once
 /**
  * @file   g4world.h
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief  High-level builder that turns a GEMC world description into Geant4 geometry.
  *
  * @details
@@ -35,10 +35,9 @@
 // geant4
 #include "G4NistManager.hh"
 
-
 /**
  * @class G4World
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief Builds a full Geant4 geometry "world" from a GEMC GWorld description.
  *
  * @details

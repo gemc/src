@@ -1,7 +1,7 @@
 #pragma once
 /**
  * @file   g4objectsFactory.h
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief  Abstract factory that converts a GEMC DB \c GVolume into Geant4 objects.
  *
  * @details
@@ -35,10 +35,9 @@
 #include "G4ThreeVector.hh"
 #include "G4VisAttributes.hh"
 
-
 /**
  * @class G4ObjectsFactory
- * @ingroup Geometry
+ * @ingroup g4system_geometry
  * @brief Base class orchestrating the conversion of a \c GVolume into a Geant4 representation.
  *
  * @details
