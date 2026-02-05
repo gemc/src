@@ -6,16 +6,44 @@
 #include "gfieldConventions.h"
 
 /**
- * @brief Represents a world containing collections of GFields and G4FieldManagers.
+ * @defgroup gfield_module GField module
  *
- * GMagneto manages the lifecycle and access to magnetic field objects (`GField`) and their
- * corresponding field managers (`G4FieldManager`).
+ * @brief Plugin-driven magnetic-field framework.
+ *
+ * The module provides:
+ * - A common abstract interface for magnetic fields (\ref GField),
+ * - A lightweight configuration carrier (\ref GFieldDefinition),
+ * - A manager that loads plugins and builds \c G4FieldManager instances (\ref GMagneto),
+ * - Option definitions for fields implemented in this module (namespace gfields).
+ *
+ * The actual magnetic-field behavior is implemented in plugins (shared libraries) that expose a
+ * C factory symbol (see \ref GField::instantiate "instantiate()").
+ */
+
+/**
+ * @brief Manager for magnetic fields and their associated \c G4FieldManager objects.
+ * @ingroup gfield_module
+ *
+ * Ownership model:
+ * - \ref GMagneto "GMagneto" owns a map of field objects (\ref GField) created via dynamic plugin loading.
+ * - For each field it also owns a corresponding \c G4FieldManager created by \ref GField::create_FieldManager "create_FieldManager()".
+ *
+ * Lifecycle:
+ * - Fields and managers are constructed during \ref GMagneto::GMagneto "GMagneto()" based on the field definitions
+ *   produced by gfields::get_GFieldDefinition().
+ * - Maps live for the lifetime of the \ref GMagneto "GMagneto" instance.
  */
 class GMagneto : public GBase<GMagneto> {
 public:
 	/**
-	 * @brief Constructs a GMagneto object and loads field definitions from options.
-	 * @param gopts Pointer to the GOptions object containing configuration options.
+	 * @brief Construct and initialize the magnetic field registry.
+	 * @param gopts Shared options used for configuration and logging.
+	 *
+	 * This constructor:
+	 * 1. Builds the list of \ref GFieldDefinition "GFieldDefinition" objects from options,
+	 * 2. Loads each corresponding plugin library using the factory manager,
+	 * 3. Instantiates the field and calls \ref GField::load_field_definitions "load_field_definitions()",
+	 * 4. Creates and stores a \c G4FieldManager via \ref GField::create_FieldManager "create_FieldManager()".
 	 */
 	explicit GMagneto(const std::shared_ptr<GOptions>& gopts);
 
@@ -23,22 +51,26 @@ private:
 	using gFieldMap    = std::unordered_map<std::string, std::shared_ptr<GField>>;
 	using gFieldMgrMap = std::unordered_map<std::string, std::shared_ptr<G4FieldManager>>;
 
-	std::shared_ptr<gFieldMap>    fields_map;     ///< Map of field names to GField objects.
-	std::shared_ptr<gFieldMgrMap> fields_manager; ///< Map of field names to G4FieldManager objects.
+	/// Map of user field names to instantiated field objects.
+	std::shared_ptr<gFieldMap> fields_map;
+
+	/// Map of user field names to their corresponding \c G4FieldManager objects.
+	std::shared_ptr<gFieldMgrMap> fields_manager;
 
 public:
 	/**
-	 * @brief Checks if a field with the given name exists.
-	 * @param name Name of the field to check.
-	 * @return True if the field exists, false otherwise.
+	 * @brief Check whether a field with the given name exists.
+	 * @param name Field name key.
+	 * @return True if \c name is present in the internal field map.
 	 */
 	bool isField(const std::string& name) const { return fields_map->find(name) != fields_map->end(); }
 
 	/**
-	 * @brief Retrieves a GField object by its name.
-	 * @param name Name of the field to retrieve.
-	 * @return Pointer to the GField object.
-	 * @throws Logs an error and exits if the field is not found.
+	 * @brief Retrieve a field object by name.
+	 * @param name Field name key.
+	 * @return Shared pointer to the requested \ref GField "GField" instance.
+	 *
+	 * If the field is not found, an error is logged and execution is terminated by the logger.
 	 */
 	std::shared_ptr<GField> getField(std::string name) {
 		bool not_found = (fields_map->find(name) == fields_map->end());
@@ -48,21 +80,21 @@ public:
 	}
 
 	/**
-	 * @brief Retrieves a G4FieldManager object by its name.
-	 * @param name Name of the field manager to retrieve.
-	 * @return Pointer to the G4FieldManager object.
-	 * @throws Logs an error and exits if the field manager is not found.
+	 * @brief Retrieve the \c G4FieldManager associated with a given field name.
+	 * @param name Field name key.
+	 * @return Shared pointer to the requested \c G4FieldManager.
+	 *
+	 * If the field manager is not found, an error is logged and execution is terminated by the logger.
 	 */
 	std::shared_ptr<G4FieldManager> getFieldMgr(std::string name) {
 
-		// print out the whole map
+		// Debug visibility: print out the full map of registered field managers.
 		for (const auto& [key, value] : *fields_manager) {
-			log->info(0, "GFieldManager >", key, "< >", value);
+			log->info(2, "GFieldManager >", key, "< >", value);
 		}
 
 		if (fields_manager->find(name) == fields_manager->end()) { log->error(ERR_WRONG_FIELD_NOT_FOUND, "GField >", name, "< not found. Exiting."); }
 
 		return fields_manager->at(name);
 	}
-
 };

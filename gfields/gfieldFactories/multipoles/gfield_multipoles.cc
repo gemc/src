@@ -16,13 +16,17 @@
 extern "C" GField* GFieldFactory(const std::shared_ptr<GOptions>& g) { return static_cast<GField*>(new GField_MultipolesFactory(g)); }
 
 
-// for now this implementation follows gemc
-// references of this implementation:
-// - https://cds.cern.ch/record/1333874/files/1.pdf
-// - https://uspas.fnal.gov/materials/12MSU/magnet_elements.pdf
-// - https://cas.web.cern.ch/sites/default/files/lectures/bruges-2009/wolski-1.pdf
-// notice strength is defined at a reference radius of 1m
+// Implementation notes (non-Doxygen):
+// - This follows common accelerator multipole conventions for transverse fields.
+// - Strength is defined at a reference radius of 1 m (see r0 below).
+// - References (background reading):
+//   - https://cds.cern.ch/record/1333874/files/1.pdf
+//   - https://uspas.fnal.gov/materials/12MSU/magnet_elements.pdf
+//   - https://cas.web.cern.ch/sites/default/files/lectures/bruges-2009/wolski-1.pdf
 void GField_MultipolesFactory::GetFieldValue(const double pos[3], G4double* bfield) const {
+	// Evaluate an ideal multipole field at the query point in the lab frame.
+	// The computation is performed in a magnet-local frame and then rotated back.
+
 	// ======= Configuration / conventions =======
 	// strength: Tesla at reference radius r0 for all multipole orders
 	const double r0 = CLHEP::m; // reference radius; make this a member if you want
@@ -74,6 +78,7 @@ void GField_MultipolesFactory::GetFieldValue(const double pos[3], G4double* bfie
 			break;
 		default: break;
 		}
+
 		// Roll back to lab
 		G4ThreeVector B_lab = B_local;
 		if (rotaxis == 0) B_lab.rotateX(+rotation_angle);
@@ -148,6 +153,7 @@ void GField_MultipolesFactory::GetFieldValue(const double pos[3], G4double* bfie
 }
 
 
+// Load and cache multipole parameters from the provided field definition (non-Doxygen summary).
 void GField_MultipolesFactory::load_field_definitions(GFieldDefinition gfd) {
 	gfield_definitions = gfd;
 
@@ -158,12 +164,15 @@ void GField_MultipolesFactory::load_field_definitions(GFieldDefinition gfd) {
 	rotation_angle       = get_field_parameter_double("rotation_angle");
 	auto rot_axis_option = gfield_definitions.field_parameters["rotaxis"];
 	longitudinal         = false;
+
+	// Longitudinal mode: return a uniform axial field aligned with rotaxis.
 	if (gfield_definitions.field_parameters["longitudinal"] == "true") {
 		longitudinal = true;
 		log->info(1, "Longitudinal field");
 	}
 	else { log->info(1, "Transverse field"); }
 
+	// Parse rotaxis as a single axis character.
 	if (rot_axis_option == "X" || rot_axis_option == "x") { rotaxis = 0; }
 	else if (rot_axis_option == "Y" || rot_axis_option == "y") { rotaxis = 1; }
 	else if (rot_axis_option == "Z" || rot_axis_option == "z") { rotaxis = 2; }
@@ -171,6 +180,7 @@ void GField_MultipolesFactory::load_field_definitions(GFieldDefinition gfd) {
 		log->error(ERR_WRONG_FIELD_ROTATION, "GField_MultipolesFactory::load_field_definitions: Rotation axis " + gfield_definitions.field_parameters["rotaxis"] +
 		                                     " not supported. Exiting.");
 	}
+
 	log->info(1, "Rotation axis: ", rotaxis);
 	strength = get_field_parameter_double("strength");
 }

@@ -1,4 +1,4 @@
-// gphysics 
+// gphysics
 #include "gphysics.h"
 #include "gphysics_options.h"
 #include "gphysicsConventions.h"
@@ -8,7 +8,6 @@
 
 // geant4 version
 #include "G4Version.hh"
-
 
 // geant4
 
@@ -26,6 +25,11 @@
 #include "G4PhysicsConstructorFactory.hh"
 
 
+// Implementation note (non-Doxygen):
+// The public API and semantics are documented in gphysics.h. This translation unit focuses on:
+// - Reading options
+// - Instantiating the requested reference physics list using the Geant4 extensible factory
+// - Registering default add-on constructors
 GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 	GBase(gopts, GPHYSICS_LOGGER),
 	physList(nullptr) {
@@ -35,10 +39,10 @@ GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 	std::string gphysList = gopts->getScalarString("phys_list");
 
 	if (showPhys) {
+		// Diagnostic mode: print what Geant4 advertises and return without building a list.
 		printAvailable();
 		return;
 	}
-
 
 	// g4alt::G4PhysListFactoryAlt is the extensible factory
 	// including the G4PhysListFactoryAlt.hh header and the line:
@@ -46,11 +50,14 @@ GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 	// would make this a drop-in replacement, but we'll list the explicit
 	// namespace here just for clarity
 	g4alt::G4PhysListFactory factory;
+
+	// The Geant4 factory syntax is whitespace-sensitive; normalize user input.
 	std::string              g4physList = gutilities::removeAllSpacesFromString(gphysList);
 
 	physList = factory.GetReferencePhysList(g4physList);
 
-	// register step limiters
+	// Register step limiters (module default add-on).
+	// This is intentionally registered even when users select a standard reference list.
 	physList->RegisterPhysics(new G4StepLimiterPhysics());
 
 	if (!physList) { log->error(ERR_PHYSLISTERROR, "physics list <" + gphysList + "> could not be loaded."); }
@@ -59,8 +66,8 @@ GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 }
 
 
-// calls PrintAvailablePhysLists
-// if verbosity is > 0 calls PrintAvailablePhysicsConstructors
+// Implementation note (non-Doxygen):
+// Prints Geant4 version metadata and queries Geant4 registries for the available lists/constructors.
 void GPhysics::printAvailable() const {
 	std::string g4ver = gutilities::replaceCharInStringWithChars(G4Version, "$", "");
 

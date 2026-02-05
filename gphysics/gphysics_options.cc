@@ -10,15 +10,16 @@ namespace gphysics {
 
 using std::string;
 
-// returns array of options definitions
+// Non-Doxygen implementation note:
+// Full semantics are documented in gphysics_options.h. Here we assemble the help text and register options.
 GOptions defineOptions() {
-
 
 	GOptions goptions(GPHYSICS_LOGGER);
 
 	string physicsListHelp = "Geant4 Version " + string(G4VERSION_TAG);
 
-	// TODO: this should be done automatically
+	// The help text below includes a curated list of physics lists and constructors.
+	// TODO: this should be done automatically by querying Geant4 registries at runtime.
 	physicsListHelp += " Physics List: it contains a Geant4 physics module, optional e.m. replacement, and optional physics constructors\n";
 	// below is the output of ./formatPhysList.py -gemc
 	// this should be done more automatically in the future
@@ -147,6 +148,5 @@ GOptions defineOptions() {
 
 	return goptions;
 }
-
 
 }
