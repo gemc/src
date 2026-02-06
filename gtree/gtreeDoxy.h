@@ -60,18 +60,35 @@
  * to Geant4 visualization internals.
  *
  *
- * @section options_sec Available Options and usage
+ * @section options_sec Available Options and their usage
  *
- * This module does not define additional options directly, but its option set is
- * composed by `gtree::defineOptions()` which aggregates options from the dbselect
- * option set (via `dbselect::defineOptions()`).
+ * This module currently does not define additional module-specific option keys.
  *
- * Common usage pattern:
- * - Build the option set with `gtree::defineOptions()`
- * - Construct `GOptions` from `argc/argv`
- * - Create the widget using that `GOptions`
+ * The module’s option schema is composed by \c gtree::defineOptions(), which aggregates:
+ * - \c dbselect::defineOptions()
  *
- * See the example @ref gtree_example "gtree_example" for a minimal runnable setup.
+ * As a result, the following commonly used keys apply when running the example programs:
+ *
+ * - `sql`
+ *   - Type: string
+ *   - Meaning: sqlite database file used to load geometry/system configuration
+ *   - Behavior:
+ *     - passed through the aggregated dbselect/gsystem option sets
+ *
+ * - `experiment`
+ *   - Type: string
+ *   - Meaning: default experiment selection used by database-backed loaders and selectors
+ *   - Behavior:
+ *     - may be used to choose which experiment subtree is presented/selected upstream
+ *
+ * - `gui`
+ *   - Type: boolean (switch)
+ *   - Meaning: enable GUI execution path for examples
+ *   - Behavior:
+ *     - when \c true, example programs typically start a Qt event loop and show the widget
+ *   - Note: this switch is defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" and is globally available.
+ *
+ * Refer to the dbselect documentation for the full, authoritative list of aggregated keys.
  *
  *
  * @section verbosity_sec Module verbosity

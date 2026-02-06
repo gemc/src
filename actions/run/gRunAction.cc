@@ -1,6 +1,7 @@
 // gemc
 #include "gRunAction.h"
 #include "gRun.h"
+#include "../gactionConventions.h"
 
 // geant4
 #include "G4Threading.hh"
@@ -39,13 +40,19 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 	}
 
 	// (Re)-open streamer connections for this run on worker threads.
+	// (Re)-open streamer connections for this run on worker threads.
 	if (!IsMaster()) {
-		for (auto& [name, gstreamer] : *gstreamer_map) {
-			if (!gstreamer->openConnection()) {
-				log->error(1, "Failed to open connection for GStreamer ", name, " in thread ", thread_id);
+		if (gstreamer_map == nullptr) {
+			log->error(1, FUNCTION_NAME, " gstreamer_map is null in thread ", thread_id, " - cannot open connections.");
+		} else {
+			for (auto& [name, gstreamer] : *gstreamer_map) {
+				if (!gstreamer->openConnection()) {
+					log->error(ERR_STREAMERMAP_NOT_EXISTING, "Failed to open connection for GStreamer ", name, " in thread ", thread_id);
+				}
 			}
 		}
 	}
+
 
 	std::string what_am_i = IsMaster() ? "Master" : "Worker";
 
@@ -61,12 +68,19 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 	std::string what_am_i = IsMaster() ? "Master" : "Worker";
 
 	if (!IsMaster()) {
-		for (const auto& [name, gstreamer] : *gstreamer_map) {
-			log->info(2, FUNCTION_NAME, " ", what_am_i, " [", thread_id, "],  for run ", run,
-			          " closing connection for gstreamer ", name);
-			if (!gstreamer->closeConnection()) { log->error(1, "Failed to close connection for GStreamer ", name, " in thread ", thread_id); }
+		if (gstreamer_map == nullptr) {
+			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME, " gstreamer_map is null in thread ", thread_id, " - cannot close connections.");
+		} else {
+			for (const auto& [name, gstreamer] : *gstreamer_map) {
+				log->info(2, FUNCTION_NAME, " ", what_am_i, " [", thread_id, "],  for run ", run,
+						  " closing connection for gstreamer ", name);
+				if (!gstreamer->closeConnection()) {
+					log->error(1, "Failed to close connection for GStreamer ", name, " in thread ", thread_id);
+				}
+			}
 		}
 	}
+
 }
 
 // (Legacy/experimental streaming logic remains commented out below.)

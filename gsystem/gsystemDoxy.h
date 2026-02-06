@@ -64,6 +64,61 @@
  * - \c CAD    : imports volumes from CAD assets (e.g. STL).
  * - \c GDML   : placeholder for future GDML support.
  *
+ * @section options_sec Available Options and their usage
+ *
+ * This module reads the following option keys from the runtime option provider:
+ *
+ * - `gsystem`
+ *   - Type: sequence of maps
+ *   - Meaning: list of detector subsystems to load and assemble into the world
+ *   - Behavior:
+ *     - each entry becomes one \c GSystem created by \c gsystem::getSystems()
+ *     - the selected factory controls the source backend (sqlite / ascii / CAD / GDML placeholder)
+ *   - Subkeys used by this module:
+ *     - `name` (string, mandatory): system name (and/or source identifier)
+ *     - `factory` (string): factory label (default: sqlite)
+ *     - `variation` (string): geometry variation (default: \c "default")
+ *     - `annotations` (string): optional system annotations (default: \c UNINITIALIZEDSTRINGQUANTITY)
+ *
+ * - `gmodifier`
+ *   - Type: sequence of maps
+ *   - Meaning: post-load volume modification rules applied by the world
+ *   - Behavior:
+ *     - each entry becomes one \c GModifier created by \c gsystem::getModifiers()
+ *   - Subkeys used by this module:
+ *     - `name` (string): volume name (default: \c goptions::NODFLT sentinel)
+ *     - `shift` (string): shift triple (default: \c GSYSTEMNOMODIFIER)
+ *     - `tilt` (string): tilt triple (default: \c GSYSTEMNOMODIFIER)
+ *     - `isPresent` (bool): if \c false, remove volume from world (default: \c true)
+ *
+ * - `sql`
+ *   - Type: string
+ *   - Meaning: sqlite file path (or SQL host, depending on factory) used as the default geometry source
+ *   - Behavior:
+ *     - used as the base database/location when creating systems
+ *     - overridden by `ascii_db` when \c factory == \c "ascii"
+ *
+ * - `ascii_db`
+ *   - Type: string
+ *   - Meaning: alternative search path/root used by the ASCII factory
+ *   - Behavior:
+ *     - when a system entry selects the ASCII factory, this value replaces `sql` as the source root
+ *
+ * - `experiment`
+ *   - Type: string
+ *   - Meaning: experiment selection shared by all systems
+ *   - Behavior:
+ *     - passed into each created \c GSystem as the experiment context
+ *
+ * - `runno`
+ *   - Type: integer
+ *   - Meaning: conditions/run number shared by all systems
+ *   - Behavior:
+ *     - passed into each created \c GSystem as the run context used for variation/run-dependent selection
+ *
+ * Note: this module’s option schema is composed by \c gsystem::defineOptions(), and it also aggregates
+ * options from \c gfactory::defineOptions(). Any additional plugin-loader options are documented there.
+ *
  * @section verbosity_sec Verbosity and logging
  *
  * Most classes in this module derive from GBase and therefore use a GLogger.

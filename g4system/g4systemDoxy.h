@@ -54,6 +54,45 @@
  * - @ref g4system_factory  : Runtime creation of system builders and object factories
  * - @ref g4system_geometry : Conversion from GEMC DB records into Geant4 geometry/material objects
  *
+ * @section options_sec Available Options and their usage
+ *
+ * This module reads the following option keys from the runtime option provider:
+ *
+ * - `useBackupMaterial`
+ *   - Type: string
+ *   - Meaning: fallback Geant4 material name used when a requested material is not found
+ *   - Behavior:
+ *     - when unset (equal to \c NO_USE_DEFAULT_MATERIAL), GEMC treats missing materials as fatal
+ *     - when set to a valid Geant4 material (e.g. `G4_AIR`), missing materials are replaced by this fallback
+ *
+ * - `check_overlaps`
+ *   - Type: integer
+ *   - Meaning: request for Geant4 overlap checks during geometry construction
+ *   - Behavior:
+ *     - `0` disables overlap checks
+ *     - `1` checks overlaps at physical volume construction time
+ *     - `2` triggers the Geant4 overlap validator with the default surface sampling
+ *     - values `> 100` trigger the Geant4 overlap validator with that many surface points
+ *
+ * - `showPredefinedMaterials`
+ *   - Type: boolean (switch)
+ *   - Meaning: print the inventory of GEMC predefined materials
+ *
+ * - `printSystemsMaterials`
+ *   - Type: boolean (switch)
+ *   - Meaning: print the materials used by the loaded systems in this simulation
+ *
+ * - `checkOverlaps`
+ *   - Type: boolean (switch)
+ *   - Meaning: enable Geant4 overlap checks at construction time (human-readable switch)
+ *   - Note: some code paths use `check_overlaps` (integer) for mode selection; keep these consistent in applications.
+ *
+ * This module’s option schema is composed by \c g4system::defineOptions(), which aggregates:
+ * - \c gsystem::defineOptions()
+ *
+ * Additional keys contributed by \c gsystem::defineOptions() (e.g. `sql`, `gsystem`, `experiment`, `runno`)
+ * control what geometry is loaded and therefore indirectly affect this module.
+ *
  * @section verbosity_sec Verbosity and debug output
  * Most classes in this module use the common logging infrastructure (classes derived from
  * the logger-enabled base). The following behavior is typical:

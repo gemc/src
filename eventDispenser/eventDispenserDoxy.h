@@ -29,6 +29,43 @@
  * - Query the computed distribution with \ref EventDispenser::getRunEvents "getRunEvents()".
  * - Run the workflow using \ref EventDispenser::processEvents "processEvents()".
  *
+ * @section options_sec Available Options and their usage
+ *
+ * This module reads the following option keys from the runtime option provider:
+ *
+ * - `n`
+ *   - Type: integer
+ *   - Meaning: requested number of events to process
+ *   - Behavior:
+ *     - `0` typically means "no events requested" (module may still initialize and report configuration)
+ *     - positive values are used to compute the per-run event allocation
+ *
+ * - `run`
+ *   - Type: integer
+ *   - Meaning: conditions run number used when no run-weight file is provided
+ *   - Behavior:
+ *     - used as the single run number for the full event set when `run_weights` is unset
+ *   - Note: not to be confused with the Geant4 internal run id (\c g4runno), which GEMC manages separately.
+ *
+ * - `run_weights`
+ *   - Type: string (path)
+ *   - Meaning: text file containing run numbers and relative weights
+ *   - Behavior:
+ *     - when set, the module reads the file and distributes events across the listed run numbers
+ *     - weights are interpreted as relative ratios and normalized internally
+ *   - File format:
+ *     - two columns: `<run_number> <weight>`
+ *     - example:
+ *       - `11 0.1`
+ *       - `12 0.7`
+ *       - `13 0.2`
+ *
+ * This module’s option schema is composed by \c eventDispenser::defineOptions(), which aggregates:
+ * - \c gdynamicdigitization::defineOptions()
+ *
+ * Additional keys contributed by \c gdynamicdigitization::defineOptions() affect digitization selection
+ * and per-run initialization behavior. Refer to that module’s documentation for the full list.
+ *
  * \section verbosity_sec Module verbosity
  * EventDispenser uses the standard GEMC logging infrastructure (classes derived from glogger).
  * The practical meaning of verbosity levels is:

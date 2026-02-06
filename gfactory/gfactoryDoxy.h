@@ -20,6 +20,16 @@
  *
  * The primary entry point is the GManager class.
  *
+ * @section options_sec Available Options and their usage
+ *
+ * This module currently does not define or consume any module-specific option keys.
+ *
+ * Notes:
+ * - Many components using this module log through \c PLUGIN_LOGGER and therefore can be influenced
+ *   by global logging controls (e.g. `verbosity`, `debug`) defined by \ref GOptions::GOptions "GOptions(argc,argv,...)".
+ * - Plugin search paths and loading policies are typically implemented at the consumer level and documented
+ *   by those consuming modules (e.g. gfields, g4system factories).
+ *
  * \section conventions Conventions and expectations
  * - **Naming**: dynamic plugin files are expected to follow the convention `<name>.gplugin`.
  * - **Dynamic instantiation**:

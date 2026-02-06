@@ -38,6 +38,30 @@
  *   destructor markers that help trace object lifetime and ownership transitions.
  * - Debug output is intended for developers and may be verbose and implementation-specific.
  *
+ * @section options_sec Available Options and their usage
+ *
+ * This module reads the following option keys from the runtime option provider:
+ *
+ * - `verbosity`
+ *   - Type: structured option (sequence/map, implementation-defined by \ref GOptions)
+ *   - Meaning: per-logger verbosity configuration
+ *   - Behavior:
+ *     - loggers query their verbosity level using their configured logger name as a key
+ *     - typical levels:
+ *       - `0` prints baseline informational output
+ *       - `1` prints additional informational output
+ *       - `2` prints the most detailed informational output
+ *
+ * - `debug`
+ *   - Type: structured option (sequence/map, implementation-defined by \ref GOptions)
+ *   - Meaning: per-logger debug enablement / debug level configuration
+ *   - Behavior:
+ *     - loggers query their debug configuration using their configured logger name as a key
+ *     - values are commonly `false`/`true` (mapped to 0/1) or an integer level, depending on consumer expectations
+ *
+ * Note: \ref GOptions::GOptions "GOptions(argc,argv,...)" defines these keys as global conventions so any module
+ * can participate in consistent logging without re-defining these options.
+ *
  * \section header_sec Message header format
  * Each emitted message is prepended with a compact header that includes:
  * - The configured logger name (a logical subsystem identifier).

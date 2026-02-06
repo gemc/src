@@ -63,19 +63,38 @@
  *   computed count of matching geometry entries.
  * - Changing variation/run recomputes counts and availability.
  *
- * @section dbselect_options Available Options and usage
+ * @section options_sec Available Options and their usage
  *
- * The module’s options are defined by dbselect::defineOptions(), which aggregates the
- * options provided by gdetector::defineOptions().
+ * This module reads the following option keys from the runtime option provider:
  *
- * The dbselect code path uses the following option keys:
- * - \c --sql : path or identifier of the SQLite database file to open (read-only).
- * - \c --experiment : default experiment name to preselect in the view.
- * - \c --gui : if enabled, the example starts a Qt event loop and shows the widget.
+ * - `sql`
+ *   - Type: string
+ *   - Meaning: path (or identifier) of the SQLite database file to open (read-only)
+ *   - Behavior:
+ *     - the database is opened during \c DBSelectView construction
+ *     - the value is also used as the default geometry source when building a \c SystemList
+ *   - Note: this key is commonly provided by the aggregated gsystem/g4system option sets.
  *
- * If additional options are added by gdetector::defineOptions(), they may also affect
- * detector construction and geometry reload behavior. Refer to the gdetector option
- * documentation for the full list.
+ * - `experiment`
+ *   - Type: string
+ *   - Meaning: default experiment name to preselect in the view
+ *   - Behavior:
+ *     - when present, the view attempts to select that experiment on startup
+ *     - if the experiment is not found, the view falls back to the first available experiment
+ *
+ * - `gui`
+ *   - Type: boolean (switch)
+ *   - Meaning: enable GUI execution path for examples / host applications
+ *   - Behavior:
+ *     - when \c true, example programs typically start a Qt event loop and show the widget
+ *     - when \c false, examples may run in CLI mode (no widget created)
+ *   - Note: this switch is defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" and is globally available.
+ *
+ * This module’s option schema is composed by \c dbselect::defineOptions(), which aggregates:
+ * - \c gdetector::defineOptions()
+ *
+ * Additional keys contributed by \c gdetector::defineOptions() may affect detector construction
+ * and geometry reload behavior. Refer to the gdetector documentation for the full list.
  *
  * @section dbselect_verbosity Module verbosity
  *

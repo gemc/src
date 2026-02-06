@@ -23,6 +23,17 @@
  *   - converts common ANSI SGR sequences to HTML
  *   - appends the result to GBoard
  *
+ * @section options_sec Available Options and their usage
+ *
+ * This module currently does not define or consume any module-specific option keys.
+ *
+ * Notes:
+ * - Host applications commonly control whether the GUI is enabled through the global `gui` switch
+ *   defined by \ref GOptions::GOptions "GOptions(argc,argv,...)".
+ * - Logger routing and verbosity for this module are typically controlled by the global `verbosity`
+ *   and `debug` structured options (also defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" ),
+ *   using the logger name \c gboard (see \c GBOARD_LOGGER).
+ *
  * ## Ownership and lifecycle
  *
  * - GBoard is a Qt widget: it owns its child widgets via Qt parent/child ownership.

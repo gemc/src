@@ -33,6 +33,15 @@
  * buttons either vertically (\c QVBoxLayout) or horizontally (\c QHBoxLayout). The widget tracks the last
  * pressed button index and emits a signal whenever that index changes.
  *
+ * @section options_sec Available Options and their usage
+ *
+ * This module currently does not define or consume any module-specific option keys.
+ *
+ * Notes:
+ * - Host applications typically decide GUI creation and logging via global keys defined by
+ *   \ref GOptions::GOptions "GOptions(argc,argv,...)" (for example `gui`, `verbosity`, and `debug`),
+ *   but these widgets themselves do not read options directly.
+ *
  * \section usage_sec Usage
  * The typical usage pattern is:
  * - Construct the widget with the desired dimensions and labels/icons.

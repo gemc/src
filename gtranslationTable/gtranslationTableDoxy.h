@@ -29,6 +29,16 @@
  * - \ref GTranslationTable::addGElectronicWithIdentity "addGElectronicWithIdentity()"
  * - \ref GTranslationTable::getElectronics "getElectronics()"
  *
+ * @section options_sec Available Options and their usage
+ *
+ * This module currently does not define or consume any module-specific option keys.
+ *
+ * Notes:
+ * - The module is constructed with a \c std::shared_ptr<GOptions> primarily so it can participate
+ *   in the standard logging configuration pathway (via \c TRANSLATIONTABLE_LOGGER).
+ * - Global keys defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" (e.g. `verbosity`, `debug`)
+ *   may still affect the logger behavior associated with this module.
+ *
  * \section verbosity_sec Module verbosity
  *
  * This module logs through the project logger infrastructure (GLogger) by way of GBase.

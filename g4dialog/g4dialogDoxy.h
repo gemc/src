@@ -22,6 +22,17 @@
  * - **Command execution**: paste a selected command into the prompt and execute it.
  * - **History**: avoid retyping by recalling previously executed commands.
  *
+ * @section options_sec Available Options and their usage
+ *
+ * This module currently does not define additional module-specific option keys.
+ *
+ * Notes:
+ * - The surrounding application may still use global switches/options defined by
+ *   \ref GOptions::GOptions "GOptions(argc,argv,...)" (for example `gui`, `verbosity`, and `debug`)
+ *   to control whether a Qt event loop is started and how much logging is emitted.
+ * - Visualization-related options are defined by other modules (e.g. g4display) and may be used
+ *   in the same executable, but they are not consumed directly by this module.
+ *
  * \section g4dialog_verbosity Verbosity and logging
  *
  * This module follows the GEMC-style logging conventions via GBase/Glogger integration.

@@ -12,8 +12,6 @@
  * @defgroup gsplash_core Core API
  * @ingroup gsplash_module
  * @brief Public classes and functions for the GSplash module.
- *
- * The core group contains the GSplash class and the small options helper in the gsplash namespace.
  * @{
  */
 
@@ -70,22 +68,17 @@
  *   to keep the splash responsive while the application is still initializing.
  *
  *
- * \section gsplash_options Available Options and their usage
+ * \section options_sec Available Options and their usage
  *
- * This module defines its own options namespace helper:
- * - \c gsplash::defineOptions() returns a GOptions object configured for this module.
+ * This module reads the following option keys from the runtime option provider:
  *
- * Typical usage in an application:
- * \code
- * auto gopts = std::make_shared<GOptions>(argc, argv, gsplash::defineOptions());
- * auto splash = GSplash::create(gopts, "example.png");
- * if (splash) {
- *   splash->message("Initializing...");
- * }
- * \endcode
- *
- * The following runtime switches are expected by this module:
- * - \c --gui : when enabled, GSplash will create and show the splash screen; when disabled it returns nullptr.
+ * - `gui`
+ *   - Type: boolean (switch)
+ *   - Meaning: enable GUI initialization path
+ *   - Behavior:
+ *     - when `false`, \ref GSplash::create "GSplash::create()" returns \c nullptr and all message calls are no-ops
+ *     - when `true`, \ref GSplash::create "GSplash::create()" attempts to create and show the splash screen
+ *   - Note: this switch is defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" and is globally available.
  *
  *
  * \section gsplash_verbosity Module verbosity

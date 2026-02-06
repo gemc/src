@@ -56,16 +56,24 @@
  * When debug is enabled, the module prints constructor-level diagnostics (for example when the GPhysics
  * object is instantiated).
  *
- * @section gphysics_options Available Options and their usage
- * The options are defined by gphysics::defineOptions() and are typically consumed by passing the resulting
- * GOptions instance to the application option parser.
+ * @section options_sec Available Options and their usage
  *
- * - **phys_list**: selects the Geant4 reference list and optional extensions. The string may contain:
- *   - A base reference list name (for example \c FTFP_BERT).
- *   - An optional electromagnetic replacement suffix (for example \c _LIV).
- *   - Additional physics constructors separated by \c '+' (for example \c +G4OpticalPhysics).
+ * This module reads the following option keys from the runtime option provider:
  *
- * - **showPhysics**: prints available physics lists and constructors and exits.
+ * - `phys_list`
+ *   - Type: string
+ *   - Meaning: Geant4 reference physics list selection, with optional EM replacement and optional extra constructors
+ *   - Behavior:
+ *     - base list is selected by name (e.g. `FTFP_BERT`)
+ *     - EM replacement may be appended via an underscore suffix (e.g. `_LIV`)
+ *     - additional physics constructors may be appended using `+` (e.g. `+G4OpticalPhysics`)
+ *   - Note: the accepted tokens depend on the Geant4 version and the registered factory inventory.
+ *
+ * - `showPhysics`
+ *   - Type: boolean (switch)
+ *   - Meaning: print available physics lists and constructors and exit
+ *   - Behavior:
+ *     - when enabled, the module prints the curated list and terminates early
  *
  * @section gphysics_examples Examples
  * - \ref gphysics_example_main "gphysics_example" : Minimal example that defines options and instantiates GPhysics.

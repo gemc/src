@@ -18,6 +18,15 @@
 /// - \c particleCounter : the identity vector is sufficient (no additional discriminating factor).
 /// - \c dosimeter : track id is the discriminating factor in addition to the identity vector (radiation digitization).
 ///
+/// \section options_sec Available Options and their usage
+///
+/// This module currently does not define or consume any module-specific option keys.
+///
+/// Notes:
+/// - The module participates in the standard logging configuration via \c TOUCHABLE_LOGGER.
+/// - Global keys defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" (e.g. `verbosity`, `debug`)
+///   may influence logger behavior for this module, but no runtime configuration keys are read by the data structure.
+///
 /// \section gtouchable_examples Examples
 /// \tableofcontents
 ///

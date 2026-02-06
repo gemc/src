@@ -34,22 +34,27 @@
  * - **Stepping:** \ref GField::create_FieldManager "create_FieldManager()" creates the stepping components:
  *   \c G4Mag_UsualEqRhs, an integration stepper, a \c G4ChordFinder, and finally the \c G4FieldManager.
  *
- * @section gfield_options Available Options and usage
- * The module currently defines one field option family implemented in this module:
+ * @section options_sec Available Options and their usage
  *
- * @subsection gfield_options_gmultipoles gmultipoles
- * Use \c gmultipoles to define one or more ideal multipole fields. Each entry becomes one named field loaded via a plugin.
+ * This module reads the following option keys from the runtime option provider:
  *
- * Typical fields:
- * - \c name : unique field key used by \ref GMagneto::getField "getField()" and \ref GMagneto::getFieldMgr "getFieldMgr()".
- * - \c integration_stepper : string name of a supported stepper (default: \c G4DormandPrince745).
- * - \c minimum_step : minimum step for the \c G4ChordFinder.
- * - \c pole_number : even integer >= 2 (2=dipole, 4=quadrupole, ...).
- * - \c vx, \c vy, \c vz : origin in Geant4 length units.
- * - \c rotation_angle : roll angle about \c rotaxis.
- * - \c rotaxis : one of X, Y, Z.
- * - \c strength : Tesla (defined at 1 m reference radius for multipoles).
- * - \c longitudinal : if \c true, return a uniform axial field aligned with \c rotaxis (solenoid-like).
+ * - `gmultipoles`
+ *   - Type: sequence of maps
+ *   - Meaning: define one or more ideal multipole fields (each entry becomes one named field)
+ *   - Behavior:
+ *     - each entry is translated into a \ref GFieldDefinition "GFieldDefinition"
+ *     - each definition is associated with the plugin type \c "multipoles"
+ *     - the field implementation parses unit-bearing strings during field initialization
+ *   - Subkeys used by this module:
+ *     - `name` (string, mandatory): unique field key used by \ref GMagneto::getField "getField()"
+ *     - `integration_stepper` (string): Geant4 integration stepper name
+ *     - `minimum_step` (string): Geant4 length expression for the chord-finder minimum step
+ *     - `pole_number` (string, mandatory): even integer >= 2 (2=dipole, 4=quadrupole, ...)
+ *     - `vx`, `vy`, `vz` (string): origin coordinates (Geant4 length units)
+ *     - `rotation_angle` (string): roll rotation about \c rotaxis (Geant4 angle units)
+ *     - `rotaxis` (string, mandatory): one of X, Y, Z
+ *     - `strength` (string, mandatory): field strength in Tesla (defined at 1 m reference radius for multipoles)
+ *     - `longitudinal` (string/boolean-like): if \c true, return a uniform field aligned with \c rotaxis (solenoid-like)
  *
  * @section gfield_verbosity Module verbosity
  * The module uses the loggers \c gfield and \c gmagneto.
