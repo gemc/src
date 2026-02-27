@@ -5,11 +5,11 @@ import html
 
 modules_map = {
     "base": "guts goptions glogging gbase textProgressBar utilities",
-    "plugins": "gfactory gdynamicDigitization gsd gfields",
-    "sensitivity": "gtouchable ghit",
+    "plugins": "gfactory gfields gstreamer",
+    "sensitivity": "gtouchable ghit gdynamicDigitization gsd",
     "gui": "gboard gqtbuttonswidget g4display g4dialog gsplash gtree dbselect gui",
     "detector": "gsystem g4system gdetector gtranslationTable",
-    "i/o": "gdata gstreamer eventDispenser",
+    "i/o": "gdata  eventDispenser",
     "geant4": "gparticle gphysics  actions",
 }
 
