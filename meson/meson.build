@@ -1,16 +1,20 @@
 # qt
 qt6 = import('qt6')
 qt6_deps = dependency('qt6',
-                      modules : ['Core', 'Gui', 'Widgets', 'OpenGLWidgets', 'Svg'],
+                      modules : ['Core',
+                                 'Gui',
+                                 'Widgets',
+                                 'OpenGLWidgets',
+                                 'Svg'],
                       static : true,
                       include_type : 'system') # treat as system include paths - no warnings
 
-# check system: pkg-config --cflags --libs gl
-ogl_deps = dependency('opengl', required : true)
-
 sys = host_machine.system()
 
-# pkg-config --cflags --libs gl.
+# pkg-config --cflags --libs gl
+ogl_deps = dependency('opengl', required : true)
+
+# pkg-config --cflags --libs sqlite3
 if sys == 'darwin'
     sqlite_dep = dependency('sqlite3', required : true)
 else
@@ -18,21 +22,15 @@ else
     sqlite_dep = dependency('sqlite3', static : false, required : true)
 endif
 
-
-# pkg-config --cflags --libs zlib
-zlib_dep = dependency('zlib', static : false, required : true)  # Use shared libz.so instead of libz.az
-
-# clhep: pkg-config
-clhep_deps = dependency('clhep',
-                        version : '>=2.4.7.1',
-                        include_type : 'system') # treat as system include paths - no warnings
-
 # expat required as geant4 is linked statically
 # Geant4’s GIDI/XML parsing in G4processes uses Expat
 expat_dep = dependency('expat', required: true)
 
+# pkg-config --cflags --libs zlib
+zlib_dep = dependency('zlib', static : false, required : true)  # Use shared libz.so instead of libz.az
 
-fs = import('fs')
+# pkg-config --cflags --libs clhep
+clhep_deps = dependency('clhep',  version : '>=2.4.7.1',  include_type : 'system') # treat as system include paths - no warnings
 
 # feature: feature toggle (uncomment options() above)
 root_opt = get_option('root')
@@ -98,8 +96,17 @@ if not fs.exists(geant4_pc) or not fs.exists(geant4_core_pc)
     run_command(g4_pkgconfig_script, gemc_prefix, check : true)
 endif
 geant4_dep = dependency('geant4', version : '>=11.3.2', method : 'pkg-config', include_type : 'system') # treat as system include paths - no warnings
-
 geant4_core_dep = dependency('geant4_core', version : '>=11.3.2', method : 'pkg-config')
+geant4_deps = [geant4_dep]
+geant4_core_deps = [geant4_core_dep]
+if sys == 'linux'
+    # Only on Linux: pull in GLX/X11 stack for G4OpenGL(.a)
+    geant4_deps += [
+        dependency('x11', required : true),
+        dependency('xmu', required : true),
+        dependency('gl', required : true),
+    ]
+endif
 
 # cmake template - but still not working
 #geant4_dep = dependency(
@@ -114,23 +121,11 @@ geant4_core_dep = dependency('geant4_core', version : '>=11.3.2', method : 'pkg-
 #    ],
 #)
 
-geant4_deps = [geant4_dep]
-geant4_core_deps = [geant4_core_dep]
-if sys == 'linux'
-    # Only on Linux: pull in GLX/X11 stack for G4OpenGL(.a)
-    geant4_deps += [
-        dependency('x11', required : true),
-        dependency('xmu', required : true),
-        dependency('gl', required : true),
-    ]
-endif
-
 
 
 cmake = import('cmake')
 cmake_opts = cmake.subproject_options()
 cmake_opts.add_cmake_defines({
-                                 'BUILD_SHARED_LIBS' : false, # or false if you want static assimp
                                  'BUILD_STATIC_LIBS' : true,
                                  'ZLIB_USE_STATIC_LIBS' : false, # prefer shared zlib
                                  'CMAKE_POSITION_INDEPENDENT_CODE' : true,
@@ -165,8 +160,6 @@ else
                                  })
 endif
 
-
-cmake_opts.append_compile_args('cpp', '-Wno-shadow')
 
 # TODO: remove temp workaround for _LIBCPP_ENABLE_ASSERTIONS deprecation
 cmake_opts.append_compile_args('cpp',
@@ -217,3 +210,4 @@ project_test_env.set(
     'allocator_may_return_null=1',
     'suppressions=' + meson.project_source_root() / 'meson' / 'tsan.supp',
 )
+
