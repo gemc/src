@@ -1,4 +1,4 @@
-#include "ginternalDigitization.h"
+#include "gParticleCounterDigitization.h"
 
 // See header for API docs.
 bool GParticleCounterDigitization::defineReadoutSpecsImpl() {

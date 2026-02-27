@@ -1,4 +1,4 @@
-#include "ginternalDigitization.h"
+#include "gFluxDigitization.h"
 
 // See header for API docs.
 bool GFluxDigitization::defineReadoutSpecsImpl() {

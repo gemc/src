@@ -8,7 +8,7 @@
  * comments to avoid duplicating the header documentation.
  */
 
-#include "ginternalDigitization.h"
+#include "gDosimeterDigitization.h"
 #include <fstream>
 
 // See header for API docs.

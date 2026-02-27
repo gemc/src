@@ -21,7 +21,9 @@ LD += {
     ),
     'headers' : files(
         'gdynamicdigitization_options.h',
-        'ginternalDigitization.h',
+        'gFluxDigitization.h',
+        'gParticleCounterDigitization.h',
+        'gDosimeterDigitization.h',
         'greadoutSpecs.h'
     ),
 
