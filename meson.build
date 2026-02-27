@@ -3,15 +3,9 @@
 project('gemc', 'cpp',
         default_options : ['default_library=static', 'default_both_libraries=static', 'libdir=lib'],
         version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip(),
-        meson_version : '>= 1.9.0'
+        meson_version : '>= 1.10.1'
 )
-
-# TODO: remove temp workaround for _LIBCPP_ENABLE_ASSERTIONS deprecation
-add_project_arguments(
-    '-U_LIBCPP_ENABLE_ASSERTIONS', # <-- Unset the deprecated macro
-    '-D_LIBCPP_HARDENING_MODE_DEBUG=true',
-    language : 'cpp'
-)
+project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 
 # additional debug options useful for profiling
 if get_option('buildtype') == 'debug'
@@ -26,7 +20,6 @@ test_env.set('PYTHONDONTWRITEBYTECODE', '1')
 test_env.prepend('PYTHONPATH', api_dir)
 
 
-project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '
 
 # init lists
 ############
@@ -37,10 +30,7 @@ empty_dict = { 'na' : [''] }
 lib_target_maps = {}
 python_exe = import('python').find_installation('python3')
 
-
 subdir('meson')
-add_project_arguments('-Wno-shadow', language : ['cpp'])
-
 
 # Fill dictionary
 #################
@@ -203,6 +193,7 @@ foreach L : LD
                  priority : -20)
         endforeach
     endif
+
     foreach include_dir : additional_includes
         if not all_includes.contains(include_dir)
             all_includes += include_dir
@@ -211,6 +202,7 @@ foreach L : LD
     if not all_includes.contains(this_lib_name) and not (sources.contains('') and headers.contains(''))
         all_includes += this_lib_name
     endif
+
 endforeach
 
 # compile gemc
