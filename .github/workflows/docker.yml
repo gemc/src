@@ -14,10 +14,15 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  pull_request:
+  merge_group:
   push:
-    branches: [ main ]   # publish on main updates
-    tags: [ 'v*' ]       # also publish on version tags
-  pull_request:          # PRs: build only (no push)
+    branches: [ main ]
+    tags: [ '*' ]
+    paths-ignore:
+      - "**/*.md"
+      - "releases/**"
+      - "doc/**"
 
 jobs:
   overview:
