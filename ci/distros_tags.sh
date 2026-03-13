@@ -20,9 +20,9 @@ lc() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; } # portable lowercasing
 # Single source of truth (order preserved)
 OS_VERSIONS=(
   "ubuntu=24.04"
-  "fedora=40"
+  "fedora=42"
   "almalinux=9.4"
-  "debian=12"
+  "debian=13"
   "archlinux=latest"
 )
 
