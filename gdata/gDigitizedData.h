@@ -38,6 +38,7 @@
 #include <map>
 #include <vector>
 #include <atomic>
+#include <ostream>
 
 // gemc
 #include "ghit.h"
@@ -50,19 +51,19 @@
 constexpr const char* GDIGITIZED_DATA_LOGGER = "digitized_data";
 
 namespace gdigi_data {
-/**
- * \brief Defines GOptions for the digitized-data logger domain.
- *
- * \details
- * Higher-level aggregators (event/run collections) typically include this in their
- * composite option groups so that digitized-data logging can be enabled/controlled consistently.
- *
- * \return An options group rooted at the \ref GDIGITIZED_DATA_LOGGER domain.
- */
-inline GOptions defineOptions() {
-	auto goptions = GOptions(GDIGITIZED_DATA_LOGGER);
-	return goptions;
-}
+	/**
+	 * \brief Defines GOptions for the digitized-data logger domain.
+	 *
+	 * \details
+	 * Higher-level aggregators (event/run collections) typically include this in their
+	 * composite option groups so that digitized-data logging can be enabled/controlled consistently.
+	 *
+	 * \return An options group rooted at the \ref GDIGITIZED_DATA_LOGGER domain.
+	 */
+	inline GOptions defineOptions() {
+		auto goptions = GOptions(GDIGITIZED_DATA_LOGGER);
+		return goptions;
+	}
 } // namespace gdigi_data
 
 /**
@@ -301,4 +302,7 @@ private:
 
 	/// Static thread-safe counter used only by \ref GDigitizedData::create "create()" (examples/tests).
 	static std::atomic<int> globalDigitizedDataCounter;
+
+protected:
+	friend std::ostream& operator<<(std::ostream& os, const GDigitizedData& data);
 };

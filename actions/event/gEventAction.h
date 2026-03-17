@@ -22,12 +22,12 @@ constexpr const char* EVENTACTION_LOGGER = "geventaction";
  * @ingroup gactions_module
  */
 namespace geventaction {
-/**
- * @brief Returns the options associated with the event action.
- *
- * @return A GOptions instance for the event action logger scope.
- */
-inline GOptions defineOptions() { return GOptions(EVENTACTION_LOGGER); }
+	/**
+	 * @brief Returns the options associated with the event action.
+	 *
+	 * @return A GOptions instance for the event action logger scope.
+	 */
+	inline GOptions defineOptions() { return GOptions(EVENTACTION_LOGGER); }
 } // namespace geventaction
 
 
@@ -51,7 +51,8 @@ inline GOptions defineOptions() { return GOptions(EVENTACTION_LOGGER); }
  *
  * @ingroup gactions_module
  */
-class GEventAction : public GBase<GEventAction>, public G4UserEventAction {
+class GEventAction : public GBase<GEventAction>, public G4UserEventAction
+{
 public:
 	/**
 	 * @brief Constructs the event action.
@@ -96,7 +97,7 @@ private:
 	 * - The digitization routines map (collection name -> routine).
 	 * - The per-thread streamer map.
 	 */
-	GRunAction* run_action;
+	GRunAction* run_action = nullptr; // non-owning
 };
 
 

@@ -31,6 +31,10 @@ G4Run* GRunAction::GenerateRun() {
 void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 	int thread_id      = G4Threading::G4GetThreadId();
 	int run            = aRun->GetRunID();
+
+	auto run_header = std::make_unique<GRunHeader>(goptions, run, thread_id);
+	run_data = std::make_unique<GRunDataCollection>(goptions, std::move(run_header));
+
 	int neventsThisRun = aRun->GetNumberOfEventToBeProcessed();
 
 
@@ -62,7 +66,7 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 			}
 			log->info(2, FUNCTION_NAME, "Worker thread [", thread_id, "]: opening connection for ",
 					  KGRN, name, RST,
-					  " for run ", run);
+					  " for run ", run, ". Number of events to be processed: ", neventsThisRun);
 		}
 	}
 	else if (IsMaster() && need_a_run_streamer) {
@@ -81,7 +85,7 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 			}
 			log->info(2, FUNCTION_NAME, "Master Thread: opening connection for ",
 					  KGRN, name, RST,
-					  " for run ", run);
+					  " for run ", run, ". Number of events to be processed: ", neventsThisRun);
 		}
 	}
 }

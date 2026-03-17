@@ -40,6 +40,7 @@
 #include <map>
 #include <vector>
 #include <atomic>
+#include <ostream>
 
 // gemc
 #include "ghit.h"
@@ -242,4 +243,7 @@ private:
 
 	/// Static thread-safe counter used only by \ref GTrueInfoData::create "create()" (examples/tests).
 	static std::atomic<int> globalTrueInfoDataCounter;
+
+protected:
+	friend std::ostream& operator<<(std::ostream& os, const GTrueInfoData& data);
 };

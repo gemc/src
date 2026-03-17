@@ -91,10 +91,15 @@ public:
 	}
 
 
-	void collect_event_data_collectioncons(std::string&                           sdName,
-											const std::unique_ptr<GTrueInfoData>&  tdata,
-											const std::unique_ptr<GDigitizedData>& ddata) {
-	//	run_data->collect_event_data_collectionconst(sdName, tdata, ddata);
+	void collect_event_data_collections(
+		std::string                     hcSDName,
+		std::unique_ptr<GTrueInfoData>  true_data,
+		std::unique_ptr<GDigitizedData> digi_data) {
+		run_data->collect_event_data_collections(
+			hcSDName,
+			std::move(true_data),
+			std::move(digi_data)
+			);
 	}
 
 private:
@@ -149,8 +154,8 @@ private:
 	 */
 	std::shared_ptr<const gstreamer::gstreamersMap> gstreamer_run_map;
 
-	// accumulate collection
-	std::shared_ptr<GRunDataCollection> run_data;
+	// accumulate collection in each thread, consumed by eventAction
+	std::unique_ptr<GRunDataCollection> run_data;
 
 	bool need_a_thread_streamer = false;
 	bool need_a_run_streamer    = false;

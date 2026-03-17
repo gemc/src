@@ -97,6 +97,7 @@ public:
 		: GBase(gopts, GRUNDATA_LOGGER), grun_header(std::move(header)) {
 	}
 
+
 	/**
 	 * \brief Integrate one event data collection into this run summary.
 	 *
@@ -112,9 +113,9 @@ public:
 	 * \param edc Event-level container to integrate.
 	 */
 	void collect_event_data_collection(const std::shared_ptr<GEventDataCollection> edc);
-	void collect_event_data_collectioncons(std::string&                           sdName,
-											const std::unique_ptr<GTrueInfoData>&  tdata,
-											const std::unique_ptr<GDigitizedData>& ddata);
+	void collect_event_data_collections(std::string&                    sdName,
+										std::unique_ptr<GTrueInfoData>  tdata,
+										std::unique_ptr<GDigitizedData> ddata);
 
 	/**
 	 * \brief Access the owned run header.

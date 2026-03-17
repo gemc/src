@@ -19,7 +19,6 @@ void GRunDataCollection::collectDetectorTrueInfoData(const std::string&         
 
 	// Integrate true-hit data into the run-level accumulator for this detector.
 	gdataCollectionMap[sdName]->collectTrueInfosData(std::make_unique<GTrueInfoData>(*data));
-	log->info(2, "GRunDataCollection: collected detector TrueInfoData for ", sdName);
 }
 
 void GRunDataCollection::collectDetectorDigitizedData(const std::string&                     sdName,
@@ -30,8 +29,7 @@ void GRunDataCollection::collectDetectorDigitizedData(const std::string&        
 	}
 
 	// Integrate digitized-hit data into the run-level accumulator for this detector.
-	gdataCollectionMap[sdName]->collectDigitizedData(std::make_unique<GDigitizedData>(*data));
-	log->info(2, "GRunDataCollection: collected  detector DigitizedData for ", sdName);
+	gdataCollectionMap[sdName]->collectDigitizedData(data);
 }
 
 void GRunDataCollection::collect_event_data_collection(const std::shared_ptr<GEventDataCollection> edc) {
@@ -56,9 +54,12 @@ void GRunDataCollection::collect_event_data_collection(const std::shared_ptr<GEv
 	}
 }
 
-void GRunDataCollection::collect_event_data_collectioncons(std::string&                           sdName,
-															const std::unique_ptr<GTrueInfoData>&  tdata,
-															const std::unique_ptr<GDigitizedData>& ddata) {
+void GRunDataCollection::collect_event_data_collections(std::string&                    sdName,
+														std::unique_ptr<GTrueInfoData>  tdata,
+														std::unique_ptr<GDigitizedData> ddata) {
 	collectDetectorTrueInfoData(sdName, tdata);
 	collectDetectorDigitizedData(sdName, ddata);
+
+	log->info(2, 	*gdataCollectionMap[sdName]);
+
 }

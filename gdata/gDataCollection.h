@@ -39,6 +39,7 @@
 // c++
 #include <memory>
 #include <vector>
+#include <ostream>
 
 /**
  * \brief Per-sensitive-detector container that owns true and digitized hit data.
@@ -212,4 +213,42 @@ private:
 	 * - Run usage: vector usually has one element that acts as an accumulator.
 	 */
 	std::vector<std::unique_ptr<GDigitizedData>> digitizedData;
+
+protected:
+	friend std::ostream& operator<<(std::ostream& os, const GDataCollection& collection) {
+		os << "GDataCollection{";
+
+		os << "trueInfosData=[";
+		for (size_t i = 0; i < collection.trueInfosData.size(); ++i) {
+			if (i != 0) {
+				os << ", ";
+			}
+			if (collection.trueInfosData[i]) {
+				os << *collection.trueInfosData[i];
+			}
+			else {
+				os << "null";
+			}
+		}
+		os << "]";
+
+		os << ", digitizedData=[";
+		for (size_t i = 0; i < collection.digitizedData.size(); ++i) {
+			if (i != 0) {
+				os << ", ";
+			}
+			if (collection.digitizedData[i]) {
+				os << *collection.digitizedData[i];
+			}
+			else {
+				os << "null";
+			}
+		}
+		os << "]";
+
+		os << "}";
+		return os;
+	}
+
+
 };

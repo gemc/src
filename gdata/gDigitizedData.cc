@@ -153,3 +153,81 @@ std::string GDigitizedData::getIdentityString() const {
 	identifierString += gidentity.back().getName() + "->" + std::to_string(gidentity.back().getValue());
 	return identifierString;
 }
+
+
+std::ostream& operator<<(std::ostream& os, const GDigitizedData& data) {
+	os << "GDigitizedData{identity=\"" << data.getIdentityString() << "\"";
+
+	if (!data.intObservablesMap.empty()) {
+		os << ", intObservables={";
+		bool first = true;
+		for (const auto& [name, value] : data.intObservablesMap) {
+			if (!first) {
+				os << ", ";
+			}
+			os << name << ": " << value;
+			first = false;
+		}
+		os << "}";
+	}
+
+	if (!data.doubleObservablesMap.empty()) {
+		os << ", doubleObservables={";
+		bool first = true;
+		for (const auto& [name, value] : data.doubleObservablesMap) {
+			if (!first) {
+				os << ", ";
+			}
+			os << name << ": " << value;
+			first = false;
+		}
+		os << "}";
+	}
+
+	if (!data.arrayIntObservablesMap.empty()) {
+		os << ", arrayIntObservables={";
+		bool firstMap = true;
+		for (const auto& [name, values] : data.arrayIntObservablesMap) {
+			if (!firstMap) {
+				os << ", ";
+			}
+			os << name << ": [";
+			bool firstVal = true;
+			for (const auto& value : values) {
+				if (!firstVal) {
+					os << ", ";
+				}
+				os << value;
+				firstVal = false;
+			}
+			os << "]";
+			firstMap = false;
+		}
+		os << "}";
+	}
+
+	if (!data.arrayDoubleObservablesMap.empty()) {
+		os << ", arrayDoubleObservables={";
+		bool firstMap = true;
+		for (const auto& [name, values] : data.arrayDoubleObservablesMap) {
+			if (!firstMap) {
+				os << ", ";
+			}
+			os << name << ": [";
+			bool firstVal = true;
+			for (const auto& value : values) {
+				if (!firstVal) {
+					os << ", ";
+				}
+				os << value;
+				firstVal = false;
+			}
+			os << "]";
+			firstMap = false;
+		}
+		os << "}";
+	}
+
+	os << "}";
+	return os;
+}

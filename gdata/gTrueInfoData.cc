@@ -4,7 +4,7 @@
  *
  * \details
  * See \ref gTrueInfoData.h for the authoritative API documentation, data-model notes,
- * and event-vs-run usage semantics.
+ * and event vs. run usage semantics.
  */
 
 // See header for API docs.
@@ -24,11 +24,11 @@ std::atomic<int> GTrueInfoData::globalTrueInfoDataCounter{0};
 GTrueInfoData::GTrueInfoData(const std::shared_ptr<GOptions>& gopts, const GHit* ghit)
 	: GBase(gopts, GTRUEDATA_LOGGER) {
 	// The "identity" is a vector of (name,value) pairs that uniquely identifies
-	// the hit within a detector (e.g. sector/layer/component).
+	// the hit within a detector (e.g., sector/layer/component).
 	//
 	// Ownership and lifetime:
 	// - This constructor does not own the GHit pointer.
-	// - We copy the identifier vector out of the hit so the GTrueInfoData is self-contained
+	// - We copy the identifier vector out of the hit, so the GTrueInfoData is self-contained
 	//   and safe to use after the originating hit object has gone out of scope.
 	gidentity = ghit->getGID();
 }
@@ -83,4 +83,38 @@ std::string GTrueInfoData::getIdentityString() const {
 	}
 	identifierString += gidentity.back().getName() + "->" + std::to_string(gidentity.back().getValue());
 	return identifierString;
+}
+
+
+std::ostream& operator<<(std::ostream& os, const GTrueInfoData& data) {
+	os << "GTrueInfoData{identity=\"" << data.getIdentityString() << "\"";
+
+	if (!data.doubleObservablesMap.empty()) {
+		os << ", doubleObservables={";
+		bool first = true;
+		for (const auto& [name, value] : data.doubleObservablesMap) {
+			if (!first) {
+				os << ", ";
+			}
+			os << name << ": " << value;
+			first = false;
+		}
+		os << "}";
+	}
+
+	if (!data.stringVariablesMap.empty()) {
+		os << ", stringObservables={";
+		bool first = true;
+		for (const auto& [name, value] : data.stringVariablesMap) {
+			if (!first) {
+				os << ", ";
+			}
+			os << name << ": \"" << value << "\"";
+			first = false;
+		}
+		os << "}";
+	}
+
+	os << "}";
+	return os;
 }

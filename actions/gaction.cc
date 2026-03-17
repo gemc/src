@@ -11,6 +11,7 @@ GAction::GAction(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigiti
 	digitization_routines_map(digi_map) {  }
 
 
+// Master
 void GAction::BuildForMaster() const {
 	// Master-thread registration: register the run action only.
 	log->debug(NORMAL, FUNCTION_NAME);
@@ -18,7 +19,7 @@ void GAction::BuildForMaster() const {
 	SetUserAction(new GRunAction(goptions, digitization_routines_map));
 }
 
-
+// Workers
 void GAction::Build() const {
 	// Worker-thread registration: primary generator, run action, then event action.
 	auto thread_id = G4Threading::G4GetThreadId();
@@ -27,7 +28,7 @@ void GAction::Build() const {
 
 	SetUserAction(new GPrimaryGeneratorAction(goptions));
 
-	auto* run_action = new GRunAction(goptions, digitization_routines_map);
+	auto run_action = new GRunAction(goptions, digitization_routines_map);
 	SetUserAction(run_action);
 
 	SetUserAction(new GEventAction(goptions, run_action));

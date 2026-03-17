@@ -85,8 +85,9 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 						eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
 					}
 					else if (digitization_routine->collection_mode() == CollectionMode::run) {
-						run_action->collect_event_data_collectioncons(hcSDName, std::move(true_data),
-																	   std::move(digi_data));
+						run_action->collect_event_data_collections(hcSDName,
+																   std::move(true_data),
+																   std::move(digi_data));
 					}
 				}
 
