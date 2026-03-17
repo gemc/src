@@ -5,10 +5,9 @@
 
 GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts) :
 	GBase(gopts, GPRIMARYGENERATORACTION_LOGGER),
-	gparticleGun(nullptr) {
-	// Allocate the particle gun and load configured particle definitions.
-	gparticleGun = new G4ParticleGun();
-	gparticles   = gparticle::getGParticles(gopts, log);
+	gparticleGun(std::make_unique<G4ParticleGun>()) {
+	// Load configured particle definitions.
+	gparticles = gparticle::getGParticles(gopts, log);
 
 	if (gparticles.empty()) {
 		// Ensure a valid generator configuration by creating a default particle.
@@ -18,17 +17,14 @@ GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts
 	}
 }
 
-GPrimaryGeneratorAction::~GPrimaryGeneratorAction() {
-	// Release the internally owned particle gun.
-	delete gparticleGun;
-}
-
 
 void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 	// Generate primaries by iterating over all configured particle definitions.
-	for (auto& gparticle : gparticles) {
+	for (const auto& gparticle : gparticles) {
 		log->info(2, gparticle);
 
-		gparticle->shootParticle(gparticleGun, anEvent);
+		if (gparticle != nullptr) {
+			gparticle->shootParticle(gparticleGun.get(), anEvent);
+		}
 	}
 }

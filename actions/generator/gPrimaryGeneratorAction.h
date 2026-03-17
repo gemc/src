@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+
 // gemc
 #include "goptions.h"
 #include "gbase.h"
@@ -24,15 +27,19 @@ constexpr const char* GPRIMARYGENERATORACTION_LOGGER = "generator";
  * @ingroup gactions_module
  */
 namespace gprimaryaction {
+
 /**
  * @brief Returns the options associated with the primary generator action.
  *
  * This module currently returns an empty option set; options may be provided by
- * other generator-related helpers (e.g., gparticle options).
+ * other generator-related helpers (for example, gparticle options).
  *
  * @return A GOptions instance for the primary generator action logger scope.
  */
-inline GOptions defineOptions() { return GOptions(GPRIMARYGENERATORACTION_LOGGER); }
+inline GOptions defineOptions() {
+	return GOptions(GPRIMARYGENERATORACTION_LOGGER);
+}
+
 } // namespace gprimaryaction
 
 
@@ -59,12 +66,14 @@ public:
 	 *
 	 * @param gopts Shared configuration object used to retrieve particle definitions and logging settings.
 	 */
-	GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts);
+	explicit GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts);
 
-	/**
-	 * @brief Destructor. Releases the internally owned particle gun.
-	 */
-	~GPrimaryGeneratorAction() override;
+	~GPrimaryGeneratorAction() override = default;
+
+	GPrimaryGeneratorAction(const GPrimaryGeneratorAction&)            = delete;
+	GPrimaryGeneratorAction& operator=(const GPrimaryGeneratorAction&) = delete;
+	GPrimaryGeneratorAction(GPrimaryGeneratorAction&&)                 = delete;
+	GPrimaryGeneratorAction& operator=(GPrimaryGeneratorAction&&)      = delete;
 
 	/**
 	 * @brief Generates the primaries for the given event.
@@ -80,9 +89,9 @@ private:
 	/**
 	 * @brief Geant4 particle gun used as the emission mechanism for all configured particles.
 	 *
-	 * Ownership: this class owns the pointer and deletes it in the destructor.
+	 * Ownership is exclusive to this class.
 	 */
-	G4ParticleGun* gparticleGun;
+	std::unique_ptr<G4ParticleGun> gparticleGun;
 
 	/**
 	 * @brief List of configured particles to be generated for each event.
