@@ -2,6 +2,7 @@
 #include "gRunAction.h"
 #include "gRun.h"
 #include "../gactionConventions.h"
+#include "gutsConventions.h"
 
 // geant4
 #include "G4Threading.hh"
@@ -13,7 +14,7 @@ GRunAction::GRunAction(std::shared_ptr<GOptions> gopt, std::shared_ptr<gdynamicd
 	GBase(gopt, GRUNACTION_LOGGER),
 	goptions(gopt),
 	digitization_routines_map(digi_map) {
-	auto desc= std::to_string(G4Threading::G4GetThreadId());
+	auto desc = std::to_string(G4Threading::G4GetThreadId());
 
 	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
 }
@@ -28,59 +29,96 @@ G4Run* GRunAction::GenerateRun() {
 
 // Invoked at the beginning of BeamOn (before physics tables are computed).
 void GRunAction::BeginOfRunAction(const G4Run* aRun) {
-
 	int thread_id      = G4Threading::G4GetThreadId();
 	int run            = aRun->GetRunID();
 	int neventsThisRun = aRun->GetNumberOfEventToBeProcessed();
 
-	// Lazily define the per-thread streamer map for worker threads only.
-	if (!IsMaster() && gstreamer_map == nullptr) {
-		log->info(0, " Defining gstreamers for thread id ", thread_id);
-		gstreamer_map = gstreamer::gstreamersMapPtr(goptions, thread_id);
-	}
 
-	// (Re)-open streamer connections for this run on worker threads.
-	// (Re)-open streamer connections for this run on worker threads.
-	if (!IsMaster()) {
-		if (gstreamer_map == nullptr) {
-			log->error(1, FUNCTION_NAME, " gstreamer_map is null in thread ", thread_id, " - cannot open connections.");
-		} else {
-			for (auto& [name, gstreamer] : *gstreamer_map) {
-				if (!gstreamer->openConnection()) {
-					log->error(ERR_STREAMERMAP_NOT_EXISTING, "Failed to open connection for GStreamer ", name, " in thread ", thread_id);
-				}
-			}
+	// loop over  digitization map to check their collection modes
+	for (const auto& [plugin, digiRoutine] : *digitization_routines_map) {
+		if (digiRoutine->collection_mode() == CollectionMode::event) {
+			need_a_thread_streamer = true;
+		}
+		else if (digiRoutine->collection_mode() == CollectionMode::run) {
+			need_a_run_streamer = true;
 		}
 	}
 
+	if (!IsMaster() && need_a_thread_streamer) {
+		if (gstreamer_threads_map == nullptr) {
+			log->info(1, "Defining thread gstreamers for run ", run, " in thread ", thread_id);
+			gstreamer_threads_map = gstreamer::gstreamersMapPtr(goptions, thread_id);
+		}
 
-	std::string what_am_i = IsMaster() ? "Master" : "Worker";
-
-	log->info(2, FUNCTION_NAME, " ", what_am_i, " [", thread_id, "],  for run ", run, ", events to be processed: ", neventsThisRun);
+		if (gstreamer_threads_map == nullptr) {
+			log->error(1, FUNCTION_NAME, " gstreamer_threads_map is null in thread ", thread_id,
+					   " - cannot open connections.");
+		}
+		for (auto& [name, gstreamer] : *gstreamer_threads_map) {
+			if (!gstreamer->openConnection()) {
+				log->error(ERR_STREAMERMAP_NOT_EXISTING,
+						   "Failed to open connection for GStreamer ", name,
+						   " in thread ", thread_id);
+			}
+			log->info(2, FUNCTION_NAME, "Worker thread [", thread_id, "]: opening connection for ",
+					  KGRN, name, RST,
+					  " for run ", run);
+		}
+	}
+	else if (IsMaster() && need_a_run_streamer) {
+		if (gstreamer_run_map == nullptr) {
+			log->info(1, "Defining run gstreamers for run ", run);
+			gstreamer_run_map = gstreamer::gstreamersMapPtr(goptions);
+		}
+		if (gstreamer_run_map == nullptr) {
+			log->error(1, FUNCTION_NAME, " gstreamer_run_map is null in master thread ",
+					   " - cannot open connections.");
+		}
+		for (auto& [name, gstreamer] : *gstreamer_run_map) {
+			if (!gstreamer->openConnection()) {
+				log->error(ERR_STREAMERMAP_NOT_EXISTING,
+						   "Failed to open connection for GStreamer in master thread", name);
+			}
+			log->info(2, FUNCTION_NAME, "Master Thread: opening connection for ",
+					  KGRN, name, RST,
+					  " for run ", run);
+		}
+	}
 }
 
 // Invoked at the very end of the run processing: close worker-thread streamer connections.
 void GRunAction::EndOfRunAction(const G4Run* aRun) {
-
 	//	const GRun* theRun = static_cast<const GRun*>(aRun);
 	int         thread_id = G4Threading::G4GetThreadId();
 	int         run       = aRun->GetRunID();
 	std::string what_am_i = IsMaster() ? "Master" : "Worker";
 
-	if (!IsMaster()) {
-		if (gstreamer_map == nullptr) {
-			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME, " gstreamer_map is null in thread ", thread_id, " - cannot close connections.");
-		} else {
-			for (const auto& [name, gstreamer] : *gstreamer_map) {
-				log->info(2, FUNCTION_NAME, " ", what_am_i, " [", thread_id, "],  for run ", run,
-						  " closing connection for gstreamer ", name);
-				if (!gstreamer->closeConnection()) {
-					log->error(1, "Failed to close connection for GStreamer ", name, " in thread ", thread_id);
-				}
+	if (!IsMaster() && need_a_thread_streamer) {
+		if (gstreamer_threads_map == nullptr) {
+			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME, " gstreamer_map is null in thread ", thread_id,
+					   " - cannot close connections.");
+		}
+		for (const auto& [name, gstreamer] : *gstreamer_threads_map) {
+			log->info(2, FUNCTION_NAME, " ", what_am_i, " [", thread_id, "],  for run ", run,
+					  " closing connection for gstreamer ", name);
+			if (!gstreamer->closeConnection()) {
+				log->error(1, "Failed to close connection for GStreamer ", name, " in thread ", thread_id);
 			}
 		}
 	}
-
+	else if (IsMaster() && need_a_run_streamer) {
+		if (gstreamer_run_map == nullptr) {
+			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME, " gstreamer_map is null in master thread ",
+					   " - cannot close connections.");
+		}
+		for (const auto& [name, gstreamer] : *gstreamer_run_map) {
+			log->info(2, FUNCTION_NAME, " ", what_am_i, " for run ", run,
+					  " closing connection for gstreamer ", name);
+			if (!gstreamer->closeConnection()) {
+				log->error(1, "Failed to close connection for GStreamer ", name, " in master thread");
+			}
+		}
+	}
 }
 
 // (Legacy/experimental streaming logic remains commented out below.)

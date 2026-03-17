@@ -31,7 +31,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	if (!HCsThisEvent) return;
 	if (!run_action) {
 		log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-		           " run_action is null - cannot access digitization routines or streamers.");
+				   " run_action is null - cannot access digitization routines or streamers.");
 	}
 
 	int thread_id = G4Threading::G4GetThreadId();
@@ -50,44 +50,56 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 			auto        digi_map = run_action->get_digitization_routines_map();
 			if (!digi_map) {
 				log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-				           " no digitization routines map available for collection ", hcSDName,
-				           " in thread ", thread_id);
+						   " no digitization routines map available for collection ", hcSDName,
+						   " in thread ", thread_id);
 			}
 
 			log->info(2, FUNCTION_NAME, " worker ", thread_id,
-			          " for event number ", eventID,
-			          " for collection number ", hci + 1,
-			          " collection name: ", hcSDName);
+					  " for event number ", eventID,
+					  " for collection number ", hci + 1,
+					  " collection name: ", hcSDName);
 
 			// Select the digitization routine by hit collection name, then publish through all streamers.
 			auto it = digi_map->find(hcSDName);
 			if (it == digi_map->end()) {
 				log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-				           " no digitization routine registered for collection ", hcSDName,
-				           " in thread ", thread_id);
+						   " no digitization routine registered for collection ", hcSDName,
+						   " in thread ", thread_id);
 			}
+
 			auto digitization_routine = it->second;
 
-			auto gstreamers_map = run_action->get_streamer_map();
-			if (!gstreamers_map) {
-				log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME, " no gstreamer map available in thread ",
-				           thread_id);
-			}
-
+			// only digitize if it will be published
 			if (digitization_routine != nullptr) {
 				// Loop over hits in this collection and append produced data to the event container.
 				for (size_t hitIndex = 0; hitIndex < thisGHC->GetSize(); hitIndex++) {
 					auto thisHit = (GHit*)thisGHC->GetHit(hitIndex);
+
 					// PRAGMA TODO: switch these on/off with options
 					auto true_data = digitization_routine->collectTrueInformation(thisHit, hitIndex);
 					auto digi_data = digitization_routine->digitizeHit(thisHit, hitIndex);
-					eventDataCollection->addDetectorDigitizedData(hcSDName, std::move(digi_data));
-					eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
+
+					// add hit data for this event
+					if (digitization_routine->collection_mode() == CollectionMode::event) {
+						eventDataCollection->addDetectorDigitizedData(hcSDName, std::move(digi_data));
+						eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
+					}
+					else if (digitization_routine->collection_mode() == CollectionMode::run) {
+						run_action->collect_event_data_collectioncons(hcSDName, std::move(true_data),
+																	   std::move(digi_data));
+					}
 				}
 
-				for (const auto& [name, gstreamer] : *gstreamers_map) {
-					// Publish the event to the gstreamer.
-					gstreamer->publishEventData(eventDataCollection);
+				// publish this event to the gstreamer
+				// if this is a per run event, the run action will publish it
+				if (digitization_routine->collection_mode() == CollectionMode::event) {
+					// this will exit if the map is not found
+					auto gstreamers_threads_map = run_action->get_streamer_threads_map();
+
+					for (const auto& [name, gstreamer] : *gstreamers_threads_map) {
+						// Publish the event to the gstreamer.
+						gstreamer->publishEventData(eventDataCollection);
+					}
 				}
 			}
 		}

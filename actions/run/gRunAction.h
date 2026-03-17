@@ -8,7 +8,9 @@
 #include "gbase.h"
 #include "gdynamicdigitization.h"
 #include "gstreamer.h"
-// #include "frame/gFrameDataCollection.h"
+#include "run/gRunDataCollection.h"
+#include "actions/gactionConventions.h"
+
 
 /**
  * @file gRunAction.h
@@ -25,12 +27,12 @@ constexpr const char* GRUNACTION_LOGGER = "grunaction";
  * @ingroup gactions_module
  */
 namespace grunaction {
-/**
- * @brief Returns the options associated with the run action.
- *
- * @return A GOptions instance for the run action logger scope.
- */
-inline GOptions defineOptions() { return GOptions(GRUNACTION_LOGGER); }
+	/**
+	 * @brief Returns the options associated with the run action.
+	 *
+	 * @return A GOptions instance for the run action logger scope.
+	 */
+	inline GOptions defineOptions() { return GOptions(GRUNACTION_LOGGER); }
 } // namespace grunaction
 
 
@@ -51,7 +53,8 @@ inline GOptions defineOptions() { return GOptions(GRUNACTION_LOGGER); }
  *
  * @ingroup gactions_module
  */
-class GRunAction : public GBase<GRunAction>, public G4UserRunAction {
+class GRunAction : public GBase<GRunAction>, public G4UserRunAction
+{
 public:
 	/**
 	 * @brief Constructs the run action.
@@ -69,19 +72,29 @@ public:
 	 *
 	 * @return Shared pointer to the digitization routines map.
 	 */
-	auto get_digitization_routines_map() const -> std::shared_ptr<gdynamicdigitization::dRoutinesMap>  {
+	[[nodiscard]] auto get_digitization_routines_map() const -> std::shared_ptr<gdynamicdigitization::dRoutinesMap> {
 		return digitization_routines_map;
 	}
 
 	/**
-	 * @brief Returns the per-thread streamer map, if it has been created.
+	 * @brief Returns the per-thread streamer map if it has been created.
 	 *
 	 * The map is instantiated lazily for worker threads at the beginning of a run.
 	 *
-	 * @return Shared pointer to the streamer map (may be nullptr if not yet created or on master).
+	 * @return Shared pointer to the streamer map (maybe nullptr if not yet created or on master).
 	 */
-	auto get_streamer_map() const -> std::shared_ptr<const gstreamer::gstreamersMap> {
-		return gstreamer_map;
+	[[nodiscard]] auto get_streamer_threads_map() const -> std::shared_ptr<const gstreamer::gstreamersMap> {
+		if (!gstreamer_threads_map) {
+			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME, " no gstreamer thread map available");
+		}
+		return gstreamer_threads_map;
+	}
+
+
+	void collect_event_data_collectioncons(std::string&                           sdName,
+											const std::unique_ptr<GTrueInfoData>&  tdata,
+											const std::unique_ptr<GDigitizedData>& ddata) {
+	//	run_data->collect_event_data_collectionconst(sdName, tdata, ddata);
 	}
 
 private:
@@ -129,9 +142,19 @@ private:
 	/**
 	 * @brief Per-thread streamer map (worker threads only), instantiated at run start.
 	 */
-	std::shared_ptr<const gstreamer::gstreamersMap> gstreamer_map;
-};
+	std::shared_ptr<const gstreamer::gstreamersMap> gstreamer_threads_map;
 
+	/**
+	 * @brief run streamer map (master thread only), instantiated at run start.
+	 */
+	std::shared_ptr<const gstreamer::gstreamersMap> gstreamer_run_map;
+
+	// accumulate collection
+	std::shared_ptr<GRunDataCollection> run_data;
+
+	bool need_a_thread_streamer = false;
+	bool need_a_run_streamer    = false;
+};
 
 
 // vector of frame data in the run (local thread, merged in GRun::Merge in the global thread)
