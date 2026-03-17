@@ -238,8 +238,8 @@ protected:
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool publishEventTrueInfoData([[maybe_unused]] const std::string& detectorName,
-	                                            [[maybe_unused]] const std::vector<const GTrueInfoData*>&
-	                                            trueInfoData) {
+												[[maybe_unused]] const std::vector<const GTrueInfoData*>&
+												trueInfoData) {
 		log->debug(NORMAL, "GStreamer::publishEventTrueInfoData for detector ", detectorName);
 		return publishEventTrueInfoDataImpl(detectorName, trueInfoData);
 	}
@@ -251,7 +251,7 @@ protected:
 	 * \return \c true on success, \c false on failure.
 	 */
 	virtual bool publishEventTrueInfoDataImpl([[maybe_unused]] const std::string&                       detectorName,
-	                                          [[maybe_unused]] const std::vector<const GTrueInfoData*>& trueInfoData) {
+											  [[maybe_unused]] const std::vector<const GTrueInfoData*>& trueInfoData) {
 		return false;
 	}
 
@@ -267,8 +267,8 @@ protected:
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool publishEventDigitizedData([[maybe_unused]] const std::string& detectorName,
-	                                             [[maybe_unused]] const std::vector<const GDigitizedData*>&
-	                                             digitizedData) {
+												 [[maybe_unused]] const std::vector<const GDigitizedData*>&
+												 digitizedData) {
 		log->debug(NORMAL, "GStreamer::publishEventDigitizedData for detector ", detectorName);
 		return publishEventDigitizedDataImpl(detectorName, digitizedData);
 	}
@@ -280,8 +280,8 @@ protected:
 	 * \return \c true on success, \c false on failure.
 	 */
 	virtual bool publishEventDigitizedDataImpl([[maybe_unused]] const std::string& detectorName,
-	                                           [[maybe_unused]] const std::vector<const GDigitizedData*>&
-	                                           digitizedData) { return false; }
+											   [[maybe_unused]] const std::vector<const GDigitizedData*>&
+											   digitizedData) { return false; }
 
 
 	/**
@@ -434,53 +434,53 @@ public:
 
 
 namespace gstreamer {
-using gstreamersMap = std::unordered_map<std::string, std::shared_ptr<GStreamer>>;
+	using gstreamersMap = std::unordered_map<std::string, std::shared_ptr<GStreamer>>;
 
-/**
- * \brief Create a per-thread map of streamer instances based on configured outputs.
- *
- * This helper is intended to run inside a worker thread. It:
- * - Parses the configured gstreamer outputs from options.
- * - Specializes each output definition with \p thread_id (appends \c "_t<id>" to the base filename).
- * - Dynamically loads the corresponding plugin and registers the object.
- * - Stores each streamer in the returned map and configures it with \ref GStreamer::define_gstreamer "define_gstreamer()".
- *
- * Note:
- * - The returned map is owned by the caller via a shared pointer.
- * - Opening connections is intentionally left to the caller (to keep API flexibility).
- *
- * \param gopts Options container.
- * \param thread_id Worker thread id used to specialize output names.
- * \return Shared pointer to a map from plugin name to streamer instance.
- */
-inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_ptr<GOptions>& gopts,
-                                                             int                              thread_id) {
-	auto log = std::make_shared<GLogger>(gopts, "gstreamersMap worker for thread id" + std::to_string(thread_id),
-	                                     GSTREAMER_LOGGER);
+	/**
+	 * \brief Create a per-thread map of streamer instances based on configured outputs.
+	 *
+	 * This helper is intended to run inside a worker thread. It:
+	 * - Parses the configured gstreamer outputs from options.
+	 * - Specializes each output definition with \p thread_id (appends \c "_t<id>" to the base filename).
+	 * - Dynamically loads the corresponding plugin and registers the object.
+	 * - Stores each streamer in the returned map and configures it with \ref GStreamer::define_gstreamer "define_gstreamer()".
+	 *
+	 * Note:
+	 * - The returned map is owned by the caller via a shared pointer.
+	 * - Opening connections is intentionally left to the caller (to keep API flexibility).
+	 *
+	 * \param gopts Options container.
+	 * \param thread_id Worker thread id used to specialize output names.
+	 * \return Shared pointer to a map from plugin name to streamer instance.
+	 */
+	inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_ptr<GOptions>& gopts,
+																 int                              thread_id = -1) {
+		auto log = std::make_shared<GLogger>(gopts, "gstreamersMap worker for thread id" + std::to_string(thread_id),
+											 GSTREAMER_LOGGER);
 
-	GManager manager(gopts);
+		GManager manager(gopts);
 
-	auto gstreamers = std::make_shared<gstreamersMap>();
+		auto gstreamers = std::make_shared<gstreamersMap>();
 
-	for (const auto& gstreamer_def : gstreamer::getGStreamerDefinition(gopts)) {
-		auto        gstreamer_def_thread = GStreamerDefinition(gstreamer_def, thread_id);
-		std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
+		for (const auto& gstreamer_def : gstreamer::getGStreamerDefinition(gopts)) {
+			auto        gstreamer_def_thread = GStreamerDefinition(gstreamer_def, thread_id);
+			std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
 
-		// Load and register the streamer plugin. The loader returns a shared_ptr<GStreamer>.
-		auto streamer = manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts);
-		gstreamers->emplace(gstreamer_plugin, streamer);
+			// Load and register the streamer plugin. The loader returns a shared_ptr<GStreamer>.
+			auto streamer = manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts);
+			gstreamers->emplace(gstreamer_plugin, streamer);
 
-		// Bind the per-thread definition (in particular the per-thread filename) to the streamer instance.
-		gstreamers->at(gstreamer_plugin)->define_gstreamer(gstreamer_def_thread);
+			// Bind the per-thread definition (in particular the per-thread filename) to the streamer instance.
+			gstreamers->at(gstreamer_plugin)->define_gstreamer(gstreamer_def_thread);
 
-		// Connection opening is intentionally not performed here. This is typically done by the caller
-		// to control error handling and output lifetime explicitly.
-		// Example:
-		// if (!gstreamers->at(gstreamer_plugin)->openConnection()) {
-		// 	log->error(1, "Failed to open connection for GStreamer ", gstreamer_plugin, " in thread ", gstreamer_def_thread.tid);
-		// }
+			// Connection opening is intentionally not performed here. This is typically done by the caller
+			// to control error handling and output lifetime explicitly.
+			// Example:
+			// if (!gstreamers->at(gstreamer_plugin)->openConnection()) {
+			// 	log->error(1, "Failed to open connection for GStreamer ", gstreamer_plugin, " in thread ", gstreamer_def_thread.tid);
+			// }
+		}
+
+		return gstreamers;
 	}
-
-	return gstreamers;
-}
 } // namespace gstreamer

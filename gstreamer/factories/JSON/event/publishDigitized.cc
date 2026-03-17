@@ -54,10 +54,10 @@ bool GstreamerJsonFactory::publishEventDigitizedDataImpl(const std::string&     
 	// Append detector digitized array inside digitized_by_detector.
 	// If this is not the first detector in digitized_by_detector, add comma.
 	const std::string updated                    = current_event.str();
-	const bool        digitized_has_any_detector =
-		(updated.find("\"digitized_by_detector\": {") != std::string::npos) &&
-		(updated.find("\"digitized_by_detector\": {") < updated.size() - 1) &&
-		(updated.find("\"digitized_by_detector\": {") != std::string::npos);
+	// const bool        digitized_has_any_detector =
+	// 	(updated.find("\"digitized_by_detector\": {") != std::string::npos) &&
+	// 	(updated.find("\"digitized_by_detector\": {") < updated.size() - 1) &&
+	// 	(updated.find("\"digitized_by_detector\": {") != std::string::npos);
 
 	// We cannot robustly determine "first" by parsing; instead, we append with a comma if the last
 	// character before we append is not '{'.

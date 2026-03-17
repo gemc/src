@@ -16,7 +16,7 @@ bool GstreamerRootFactory::openConnection() {
 		log->error(
 			ERR_CANTOPENOUTPUT, "GstreamerRootFactory: could not create file " + filename() + " (file is a zombie)");
 	}
-	else { log->info(0, "GstreamerRootFactory: opened file " + filename()); }
+	else { log->info(1, "GstreamerRootFactory: opened file " + filename()); }
 
 	return true;
 }

@@ -59,7 +59,8 @@ GRootTree::GRootTree(const std::string&        detectorName,
 
 // fill the header tree
 bool GRootTree::fillTree(const std::unique_ptr<GEventHeader>& gevent_header) {
-	log->info(0, "Filling header tree for local event n. ", gevent_header->getG4LocalEvn(), " threadID ",
+
+	log->info(2, "Filling header tree for local event n. ", gevent_header->getG4LocalEvn(), " threadID ",
 	          gevent_header->getThreadID());
 
 	// clearing previous header info
