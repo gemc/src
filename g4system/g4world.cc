@@ -67,7 +67,7 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 				if (!build_g4volume(gvolume, objectsFactory)) {
 					// Only track volumes that are meant to exist; nonexistent volumes are skipped quietly.
 					if (gvolume->getExistence()) {
-						log->warning(" >> adding volumeName <", volumeName, "> to the list of remaining volumes");
+						log->info(2, " >> adding volumeName <", volumeName, "> to the list of remaining volumes");
 						thisIterationRemainingVolumes.push_back(gvolume);
 					}
 				}
