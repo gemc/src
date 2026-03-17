@@ -92,7 +92,7 @@ bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int             
 			}
 		}
 
-		log->info(0, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
+		log->info(1, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
 
 		// Expected file format: repeated pairs (factor, energyMeV).
 		double p0, p1;

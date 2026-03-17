@@ -17,8 +17,6 @@
 #include "gdataConventions.h"
 #include "gtouchableConventions.h"
 
-// c++
-#include <iostream>
 
 // See header for API docs.
 std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(GHit* ghit, size_t hitn) {
@@ -60,7 +58,6 @@ void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, const GHit* 
 
 	if (translationTable == nullptr) {
 		log->error(EC__TTNOTFOUNDINTT, "Translation Table not found");
-		return;
 	}
 
 	// Translate a TT id into a crate/slot/channel triple.
@@ -69,7 +66,6 @@ void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, const GHit* 
 	// The translation table uses a sentinel to indicate an uninitialized hardware address.
 	if (haddress.front() == UNINITIALIZEDNUMBERQUANTITY) {
 		log->error(EC__GIDENTITYNOTFOUNDINTT, "Translation Table found, but haddress was not initialized");
-		return;
 	}
 
 	gdata.includeVariable(CRATESTRINGID, haddress[0]);
@@ -96,7 +92,7 @@ void GTouchableModifiers::insertIdAndWeight(const std::string& touchableName, in
 
 // See header for API docs.
 void GTouchableModifiers::insertIdWeightAndTime(const std::string& touchableName, int idValue, double weight,
-                                                double             time) {
+												double             time) {
 	// Stored as a flat vector: (id, weight, time, id, weight, time, ...)
 	modifierWeightsAndTimesMap[touchableName].push_back(idValue);
 	modifierWeightsAndTimesMap[touchableName].push_back(weight);
@@ -120,7 +116,7 @@ void GTouchableModifiers::assignOverallWeight(const std::string& tname, double t
 
 // See header for API docs.
 double GDynamicDigitization::processStepTimeImpl([[maybe_unused]] const std::shared_ptr<GTouchable>& gTouchID,
-                                                 [[maybe_unused]] G4Step*                            thisStep) {
+												 [[maybe_unused]] G4Step*                            thisStep) {
 	// Default time definition: global time of the post-step point.
 	return thisStep->GetPostStepPoint()->GetGlobalTime();
 }

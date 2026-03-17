@@ -31,6 +31,8 @@ public:
 	/// Inherit the base constructor (const std::shared_ptr<GOptions>&).
 	using GDynamicDigitization::GDynamicDigitization;
 
+	CollectionMode collection_mode() const override { return CollectionMode::run; }
+
 	/**
 	 * \brief Defines readout specifications for dosimeter digitization.
 	 *

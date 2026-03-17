@@ -140,6 +140,23 @@ public:
 	}
 };
 
+enum CollectionMode
+{
+	event,
+	run,
+	frame
+};
+
+inline constexpr const char* to_string(CollectionMode mode)
+{
+	switch (mode) {
+	case event: return "event";
+	case run:   return "run";
+	case frame: return "frame";
+	}
+	return "unknown";
+}
+
 /**
  * \class GDynamicDigitization
  * \brief Abstract base class for dynamically loaded digitization plugins.
@@ -170,6 +187,8 @@ public:
 	/// Virtual destructor.
 	virtual ~GDynamicDigitization() = default;
 
+	virtual CollectionMode collection_mode() const { return CollectionMode::event; }
+
 	/**
 	 * \brief Computes the time associated with a simulation step for electronics binning.
 	 *
@@ -181,7 +200,7 @@ public:
 	 * \return Time value used for electronics time binning (unit follows project conventions).
 	 */
 	[[nodiscard]] double processStepTime(const std::shared_ptr<GTouchable>& gTouchID,
-	                                     [[maybe_unused]] G4Step*           thisStep) {
+										 [[maybe_unused]] G4Step*           thisStep) {
 		check_if_log_defined();
 		log->debug(NORMAL, FUNCTION_NAME);
 		return processStepTimeImpl(gTouchID, thisStep);
@@ -197,7 +216,7 @@ public:
 	 * \return Time value used for electronics time binning.
 	 */
 	[[nodiscard]] virtual double processStepTimeImpl(const std::shared_ptr<GTouchable>& gTouchID,
-	                                                 [[maybe_unused]] G4Step*           thisStep);
+													 [[maybe_unused]] G4Step*           thisStep);
 
 	/**
 	 * \brief Processes a touchable based on the current step and readout specs.
@@ -268,7 +287,7 @@ public:
 	[[nodiscard]] std::unique_ptr<GTrueInfoData> collectTrueInformation(GHit* ghit, size_t hitn) {
 		check_if_log_defined();
 		log->info(2, "GDynamicDigitization::collect true information for hit number ", hitn, " with size ",
-		          ghit->nsteps(), " steps");
+				  ghit->nsteps(), " steps");
 		return collectTrueInformationImpl(ghit, hitn);
 	}
 
@@ -348,7 +367,7 @@ public:
 	[[nodiscard]] bool loadTT([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
 		check_if_log_defined();
 		log->debug(NORMAL, "GDynamicDigitization::load Translation Table for run ", runno, " with variation ",
-		           variation);
+				   variation);
 		return loadTTImpl(runno, variation);
 	}
 
@@ -479,43 +498,43 @@ protected:
 };
 
 namespace gdynamicdigitization {
-using dRoutinesMap = std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>;
+	using dRoutinesMap = std::unordered_map<std::string, std::shared_ptr<GDynamicDigitization>>;
 
-/**
- * \brief Loads a single dynamic routine and returns it.
- *
- * \param plugin_name Name of the plugin library/object.
- * \param gopts Shared options.
- * \return Loaded plugin instance.
- */
-inline std::shared_ptr<GDynamicDigitization> load_dynamicRoutine(const std::string&               plugin_name,
-                                                                 const std::shared_ptr<GOptions>& gopts) {
-	GManager manager(gopts);
-	return manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin_name, gopts);
-}
-
-/**
- * \brief Loads multiple dynamic routines and returns an immutable shared map.
- *
- * The returned map is shared and treated as immutable to prevent accidental mutation
- * across threads.
- *
- * \param plugin_names Names of plugins to load.
- * \param gopts Shared options.
- * \return Shared pointer to an immutable map of plugin name -> routine instance.
- */
-inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<std::string>&  plugin_names,
-                                                              const std::shared_ptr<GOptions>& gopts) {
-	auto     log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GDIGITIZATION_LOGGER);
-	GManager manager(gopts);
-
-	auto routines = std::make_shared<dRoutinesMap>();
-
-	for (const auto& plugin : plugin_names) {
-		routines->emplace(plugin, manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin, gopts));
-		log->info(0, "dynamicRoutinesMap[", plugin, "]: ", (*routines)[plugin]);
+	/**
+	 * \brief Loads a single dynamic routine and returns it.
+	 *
+	 * \param plugin_name Name of the plugin library/object.
+	 * \param gopts Shared options.
+	 * \return Loaded plugin instance.
+	 */
+	inline std::shared_ptr<GDynamicDigitization> load_dynamicRoutine(const std::string&               plugin_name,
+																	 const std::shared_ptr<GOptions>& gopts) {
+		GManager manager(gopts);
+		return manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin_name, gopts);
 	}
 
-	return routines;
-}
+	/**
+	 * \brief Loads multiple dynamic routines and returns an immutable shared map.
+	 *
+	 * The returned map is shared and treated as immutable to prevent accidental mutation
+	 * across threads.
+	 *
+	 * \param plugin_names Names of plugins to load.
+	 * \param gopts Shared options.
+	 * \return Shared pointer to an immutable map of plugin name -> routine instance.
+	 */
+	inline std::shared_ptr<const dRoutinesMap> dynamicRoutinesMap(const std::vector<std::string>&  plugin_names,
+																  const std::shared_ptr<GOptions>& gopts) {
+		auto     log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GDIGITIZATION_LOGGER);
+		GManager manager(gopts);
+
+		auto routines = std::make_shared<dRoutinesMap>();
+
+		for (const auto& plugin : plugin_names) {
+			routines->emplace(plugin, manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin, gopts));
+			log->info(0, "dynamicRoutinesMap[", plugin, "]: ", (*routines)[plugin]);
+		}
+
+		return routines;
+	}
 } // namespace gdynamicdigitization
