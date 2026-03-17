@@ -1,8 +1,11 @@
 #pragma once
 
+#include <memory>
+#include <mutex>
+#include <vector>
+
 // geant4
 #include "G4UserRunAction.hh"
-
 
 // gemc
 #include "gbase.h"
@@ -45,11 +48,14 @@ namespace grunaction {
  * - At the start of each run on worker threads, create the per-thread streamer map
  *   (once) and open streamer connections for the run.
  * - At the end of each run on worker threads, close streamer connections.
+ * - Accumulate run-level data on each worker thread and expose a master-side
+ *   aggregation path at end of run.
  *
  * Threading:
  * - Worker threads own their local streamer map instance.
- * - The master thread typically does not create streamers and primarily exists to
- *   coordinate the run lifecycle.
+ * - The master thread owns the run-level streamer map when run-mode digitizers exist.
+ * - Worker-produced run data are collected into a process-wide protected pool,
+ *   then accessed by the master in EndOfRunAction().
  *
  * @ingroup gactions_module
  */
@@ -62,7 +68,15 @@ public:
 	 * @param gopts Shared configuration used by the run action and by the created run object.
 	 * @param digi_map Shared digitization routines map to be passed into the created run object.
 	 */
-	GRunAction(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
+	explicit GRunAction(std::shared_ptr<GOptions> gopts,
+	                    std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
+
+	~GRunAction() override = default;
+
+	GRunAction(const GRunAction&)            = delete;
+	GRunAction& operator=(const GRunAction&) = delete;
+	GRunAction(GRunAction&&)                 = delete;
+	GRunAction& operator=(GRunAction&&)      = delete;
 
 	/**
 	 * @brief Returns the shared digitization routines map.
@@ -72,7 +86,8 @@ public:
 	 *
 	 * @return Shared pointer to the digitization routines map.
 	 */
-	[[nodiscard]] auto get_digitization_routines_map() const -> std::shared_ptr<gdynamicdigitization::dRoutinesMap> {
+	[[nodiscard]] auto get_digitization_routines_map() const
+		-> std::shared_ptr<gdynamicdigitization::dRoutinesMap> {
 		return digitization_routines_map;
 	}
 
@@ -81,28 +96,58 @@ public:
 	 *
 	 * The map is instantiated lazily for worker threads at the beginning of a run.
 	 *
-	 * @return Shared pointer to the streamer map (maybe nullptr if not yet created or on master).
+	 * @return Shared pointer to the streamer map, or nullptr if not available.
 	 */
-	[[nodiscard]] auto get_streamer_threads_map() const -> std::shared_ptr<const gstreamer::gstreamersMap> {
+	[[nodiscard]] auto get_streamer_threads_map() const
+		-> std::shared_ptr<const gstreamer::gstreamersMap> {
 		if (!gstreamer_threads_map) {
 			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME, " no gstreamer thread map available");
 		}
 		return gstreamer_threads_map;
 	}
 
+	/**
+	 * @brief Adds one digitized/truth payload pair to the current thread run-level collection.
+	 *
+	 * @param hcSDName Hit collection / sensitive detector name.
+	 * @param true_data Truth-information payload for one hit.
+	 * @param digi_data Digitized payload for one hit.
+	 */
+	void collect_event_data_collections(std::string hcSDName,
+	                                    std::unique_ptr<GTrueInfoData> true_data,
+	                                    std::unique_ptr<GDigitizedData> digi_data) {
+		if (run_data == nullptr) {
+			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+			           " run_data is null - cannot collect run-level payload for collection ", hcSDName);
+			return;
+		}
 
-	void collect_event_data_collections(
-		std::string                     hcSDName,
-		std::unique_ptr<GTrueInfoData>  true_data,
-		std::unique_ptr<GDigitizedData> digi_data) {
 		run_data->collect_event_data_collections(
 			hcSDName,
 			std::move(true_data),
-			std::move(digi_data)
-			);
+			std::move(digi_data));
 	}
 
 private:
+	using CompletedRunData = std::vector<std::unique_ptr<GRunDataCollection>>;
+
+	/**
+	 * @brief Moves the current worker-thread run data into the global completed-run pool.
+	 *
+	 * This is used to collect run-level data produced on worker threads so that
+	 * the master thread can inspect them at the end of the run.
+	 */
+	void stash_worker_run_data();
+
+	/**
+	 * @brief Moves all completed worker run-data objects out of the global pool.
+	 *
+	 * This method is intended to be called by the master thread at the end of the run.
+	 *
+	 * @return A vector containing all worker-produced run data accumulated so far.
+	 */
+	[[nodiscard]] CompletedRunData take_completed_worker_run_data();
+
 	/**
 	 * @brief Creates and returns the run object for the current thread.
 	 *
@@ -120,6 +165,9 @@ private:
 	 * - Lazily instantiate the streamer map (once).
 	 * - Open each streamer connection for the run.
 	 *
+	 * Master-thread behavior:
+	 * - Lazily instantiate the run streamer map (once), if needed.
+	 *
 	 * @param run The Geant4 run descriptor for the current run.
 	 */
 	void BeginOfRunAction(const G4Run* run) override;
@@ -129,6 +177,11 @@ private:
 	 *
 	 * Worker-thread behavior:
 	 * - Close each streamer connection for the run.
+	 * - Transfer per-thread run data into the protected completed-run pool.
+	 *
+	 * Master-thread behavior:
+	 * - Close each master run streamer connection for the run.
+	 * - Collect all worker run data accumulated during the run.
 	 *
 	 * @param run The Geant4 run descriptor for the current run.
 	 */
@@ -150,15 +203,34 @@ private:
 	std::shared_ptr<const gstreamer::gstreamersMap> gstreamer_threads_map;
 
 	/**
-	 * @brief run streamer map (master thread only), instantiated at run start.
+	 * @brief Run streamer map (master thread only), instantiated at run start.
 	 */
 	std::shared_ptr<const gstreamer::gstreamersMap> gstreamer_run_map;
 
-	// accumulate collection in each thread, consumed by eventAction
+	/**
+	 * @brief Per-thread run-level data accumulated from event threads for run-mode digitizers.
+	 */
 	std::unique_ptr<GRunDataCollection> run_data;
 
+	/**
+	 * @brief True if at least one digitizer requires event-mode streaming.
+	 */
 	bool need_a_thread_streamer = false;
-	bool need_a_run_streamer    = false;
+
+	/**
+	 * @brief True if at least one digitizer requires run-mode streaming.
+	 */
+	bool need_a_run_streamer = false;
+
+	/**
+	 * @brief Process-wide pool of worker-completed run data.
+	 */
+	static std::mutex completed_run_data_mutex;
+
+	/**
+	 * @brief Process-wide storage for worker-completed run data awaiting master collection.
+	 */
+	static CompletedRunData completed_worker_run_data;
 };
 
 

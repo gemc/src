@@ -58,7 +58,15 @@ public:
 	 * @param gopts Shared configuration used by this run for logging and run-level behavior.
 	 * @param digi_map Shared digitization routines map used throughout the run.
 	 */
-	GRun(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
+	explicit GRun(std::shared_ptr<GOptions> gopts,
+	              std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
+
+	~GRun() override = default;
+
+	GRun(const GRun&)            = delete;
+	GRun& operator=(const GRun&) = delete;
+	GRun(GRun&&)                 = delete;
+	GRun& operator=(GRun&&)      = delete;
 
 private:
 	/**
