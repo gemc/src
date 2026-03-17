@@ -22,6 +22,9 @@ void GRunDataCollection::collectDetectorDigitizedData(const std::string&        
 }
 
 void GRunDataCollection::collect_event_data_collection(const std::shared_ptr<GEventDataCollection> edc) {
+	// Count one integrated event.
+	grun_header->increment_events_processed();
+
 	// Retrieve the detector map for the event: sdName -> per-detector collection.
 	auto& dcm = edc->getDataCollectionMap();
 
@@ -39,6 +42,7 @@ void GRunDataCollection::collect_event_data_collection(const std::shared_ptr<GEv
 
 void GRunDataCollection::collect_event_data_collections(const std::string&              sdName,
 														std::unique_ptr<GDigitizedData> ddata) {
+	
 	collectDetectorDigitizedData(sdName, ddata);
 
 	log->info(2, *gdataCollectionMap[sdName]);
@@ -46,6 +50,9 @@ void GRunDataCollection::collect_event_data_collections(const std::string&      
 
 
 void GRunDataCollection::merge(const GRunDataCollection& other) {
+
+	grun_header->add_events_processed(other.get_events_processed());
+
 	const auto& other_map = other.getDataCollectionMap();
 
 	for (const auto& [sdName, other_data_collection] : other_map) {

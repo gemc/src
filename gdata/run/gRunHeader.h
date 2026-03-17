@@ -115,6 +115,13 @@ public:
 	 */
 	void increment_events_processed() { events_processed++; }
 
+	/**
+ * \brief Add a number of processed events to the counter.
+ *
+ * \param count Number of processed events to add.
+ */
+	void add_events_processed(int count) { events_processed += count; }
+
 private:
 	int events_processed{0}; ///< Number of events integrated into the run summary.
 	int runID;               ///< Run identifier.
