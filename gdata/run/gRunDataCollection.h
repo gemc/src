@@ -36,30 +36,30 @@
 constexpr const char* GRUNDATA_LOGGER = "grun_data";
 
 namespace grun_data {
-/**
- * \brief Aggregated options for run-level data collection.
- *
- * \details
- * Combines options from:
- * - event header + event data collection
- * - run header + run data collection
- * - true/digitized data
- * - touchable (for hit identity creation in examples)
- *
- * This is intended to provide a single "options bundle" for examples and applications.
- *
- * \return Composite options group rooted at \ref GRUNDATA_LOGGER.
- */
-inline auto defineOptions() -> GOptions {
-	auto goptions = GOptions(GRUNDATA_LOGGER);
-	goptions      += geventheader::defineOptions();
-	goptions      += gevent_data::defineOptions();
-	goptions      += grun_header::defineOptions();
-	goptions      += gtrue_data::defineOptions();
-	goptions      += gdigi_data::defineOptions();
-	goptions      += gtouchable::defineOptions();
-	return goptions;
-}
+	/**
+	 * \brief Aggregated options for run-level data collection.
+	 *
+	 * \details
+	 * Combines options from:
+	 * - event header + event data collection
+	 * - run header + run data collection
+	 * - true/digitized data
+	 * - touchable (for hit identity creation in examples)
+	 *
+	 * This is intended to provide a single "options bundle" for examples and applications.
+	 *
+	 * \return Composite options group rooted at \ref GRUNDATA_LOGGER.
+	 */
+	inline auto defineOptions() -> GOptions {
+		auto goptions = GOptions(GRUNDATA_LOGGER);
+		goptions      += geventheader::defineOptions();
+		goptions      += gevent_data::defineOptions();
+		goptions      += grun_header::defineOptions();
+		goptions      += gtrue_data::defineOptions();
+		goptions      += gdigi_data::defineOptions();
+		goptions      += gtouchable::defineOptions();
+		return goptions;
+	}
 } // namespace grun_data
 
 /**
@@ -112,6 +112,9 @@ public:
 	 * \param edc Event-level container to integrate.
 	 */
 	void collect_event_data_collection(const std::shared_ptr<GEventDataCollection> edc);
+	void collect_event_data_collectioncons(std::string&                           sdName,
+											const std::unique_ptr<GTrueInfoData>&  tdata,
+											const std::unique_ptr<GDigitizedData>& ddata);
 
 	/**
 	 * \brief Access the owned run header.

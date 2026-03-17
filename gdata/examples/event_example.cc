@@ -201,7 +201,7 @@ static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const s
  * \param log Logger instance.
  */
 static void validate_event_structure(const std::shared_ptr<GEventDataCollection>& edc,
-                                     const std::shared_ptr<GLogger>&              log) {
+									 const std::shared_ptr<GLogger>&              log) {
 	const auto& dcm = edc->getDataCollectionMap();
 	if (dcm.empty()) {
 		log->info(0, "VALIDATION: event ", edc->getEventNumber(), " has no detectors (unexpected in this example).");
@@ -229,7 +229,7 @@ static void validate_event_structure(const std::shared_ptr<GEventDataCollection>
 		// consistency check for this demo-style producer.
 		if (truthHits.size() != digiHits.size()) {
 			log->info(0, "VALIDATION: detector <", sdName, "> truthHits(", truthHits.size(),
-			          ") != digitizedHits(", digiHits.size(), ") in event ", edc->getEventNumber());
+					  ") != digitizedHits(", digiHits.size(), ") in event ", edc->getEventNumber());
 		}
 	}
 }
@@ -249,9 +249,9 @@ static void validate_event_structure(const std::shared_ptr<GEventDataCollection>
  * \return Vector of event containers (one per event).
  */
 static auto run_simulation_in_threads(int                              nevents,
-                                      int                              nthreads,
-                                      const std::shared_ptr<GOptions>& gopt,
-                                      const std::shared_ptr<GLogger>&  log)
+									  int                              nthreads,
+									  const std::shared_ptr<GOptions>& gopt,
+									  const std::shared_ptr<GLogger>&  log)
 	-> std::vector<std::shared_ptr<GEventDataCollection>> {
 	std::mutex                                         collectorMtx;
 	std::vector<std::shared_ptr<GEventDataCollection>> collected;

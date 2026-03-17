@@ -11,7 +11,7 @@
 #include "gRunDataCollection.h"
 
 void GRunDataCollection::collectDetectorTrueInfoData(const std::string&                    sdName,
-                                                     const std::unique_ptr<GTrueInfoData>& data) {
+													 const std::unique_ptr<GTrueInfoData>& data) {
 	// Ensure the detector entry exists.
 	if (gdataCollectionMap.find(sdName) == gdataCollectionMap.end()) {
 		gdataCollectionMap[sdName] = std::make_unique<GDataCollection>();
@@ -23,7 +23,7 @@ void GRunDataCollection::collectDetectorTrueInfoData(const std::string&         
 }
 
 void GRunDataCollection::collectDetectorDigitizedData(const std::string&                     sdName,
-                                                      const std::unique_ptr<GDigitizedData>& data) {
+													  const std::unique_ptr<GDigitizedData>& data) {
 	// Ensure the detector entry exists, same as for truth data.
 	if (gdataCollectionMap.find(sdName) == gdataCollectionMap.end()) {
 		gdataCollectionMap[sdName] = std::make_unique<GDataCollection>();
@@ -54,4 +54,11 @@ void GRunDataCollection::collect_event_data_collection(const std::shared_ptr<GEv
 			collectDetectorDigitizedData(sdname, digitized_data_hit);
 		}
 	}
+}
+
+void GRunDataCollection::collect_event_data_collectioncons(std::string&                           sdName,
+															const std::unique_ptr<GTrueInfoData>&  tdata,
+															const std::unique_ptr<GDigitizedData>& ddata) {
+	collectDetectorTrueInfoData(sdName, tdata);
+	collectDetectorDigitizedData(sdName, ddata);
 }

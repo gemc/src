@@ -113,9 +113,9 @@ using PerDetectorDoubles = std::map<std::string, std::map<std::string, double>>;
 using PerDetectorInts    = std::map<std::string, std::map<std::string, long long>>;
 
 static auto generate_events_in_threads(int                              nevents,
-                                       int                              nthreads,
-                                       const std::shared_ptr<GOptions>& gopt,
-                                       const std::shared_ptr<GLogger>&  log)
+									   int                              nthreads,
+									   const std::shared_ptr<GOptions>& gopt,
+									   const std::shared_ptr<GLogger>&  log)
 	-> std::vector<std::shared_ptr<GEventDataCollection>> {
 	std::mutex                                         collectorMtx;
 	std::vector<std::shared_ptr<GEventDataCollection>> collected;
@@ -165,9 +165,9 @@ static auto generate_events_in_threads(int                              nevents,
 }
 
 static void compute_reference_sums(const std::vector<std::shared_ptr<GEventDataCollection>>& events,
-                                   PerDetectorDoubles&                                       truth_ref,
-                                   PerDetectorInts&                                          digi_int_ref,
-                                   PerDetectorDoubles&                                       digi_dbl_ref) {
+								   PerDetectorDoubles&                                       truth_ref,
+								   PerDetectorInts&                                          digi_int_ref,
+								   PerDetectorDoubles&                                       digi_dbl_ref) {
 	for (const auto& edc : events) {
 		if (!edc) continue;
 
@@ -199,7 +199,7 @@ static void compute_reference_sums(const std::vector<std::shared_ptr<GEventDataC
 }
 
 static auto integrate_into_run(const std::vector<std::shared_ptr<GEventDataCollection>>& events,
-                               const std::shared_ptr<GOptions>&                          gopt)
+							   const std::shared_ptr<GOptions>&                          gopt)
 	-> std::shared_ptr<GRunDataCollection> {
 	auto grun_header = std::make_unique<GRunHeader>(gopt, 1); // run id 1, thread id default -1
 	auto run_data    = std::make_shared<GRunDataCollection>(gopt, std::move(grun_header));
@@ -213,10 +213,10 @@ static auto integrate_into_run(const std::vector<std::shared_ptr<GEventDataColle
 }
 
 static void validate_run_against_reference(const std::shared_ptr<GRunDataCollection>& run_data,
-                                           const PerDetectorDoubles&                  truth_ref,
-                                           const PerDetectorInts&                     digi_int_ref,
-                                           const PerDetectorDoubles&                  digi_dbl_ref,
-                                           const std::shared_ptr<GLogger>&            log) {
+										   const PerDetectorDoubles&                  truth_ref,
+										   const PerDetectorInts&                     digi_int_ref,
+										   const PerDetectorDoubles&                  digi_dbl_ref,
+										   const std::shared_ptr<GLogger>&            log) {
 	log->info(0, "============================================================");
 	log->info(0, "RUN SUMMARY (integrated): runID=", run_data->getRunNumber());
 	log->info(0, "============================================================");
@@ -234,7 +234,7 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 		const auto& digiVec  = det->getDigitizedData();
 
 		log->info(0, "Detector <", sdName, ">: integrated truth entries=", truthVec.size(),
-		          " integrated digitized entries=", digiVec.size());
+				  " integrated digitized entries=", digiVec.size());
 
 		// ---- Truth integrated entry
 		if (!truthVec.empty() && truthVec.front()) {
