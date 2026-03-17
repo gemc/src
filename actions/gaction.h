@@ -18,8 +18,9 @@
  * @file gaction.h
  * @brief Declares GAction, the Geant4 action-initialization entry point for GEMC.
  *
- * GAction derives from the Geant4 action initialization interface (\c G4VUserActionInitialization)
- * and wires together the run, event, and primary generation actions used by GEMC.
+ * GAction derives from the Geant4 action initialization interface
+ * (\c G4VUserActionInitialization) and wires together the run, event,
+ * and primary generation actions used by GEMC.
  *
  * @ingroup gactions_module
  */
@@ -55,6 +56,7 @@ inline GOptions defineOptions() {
 	goptions += grun::defineOptions();
 	return goptions;
 }
+
 } // namespace gaction
 
 
@@ -84,7 +86,15 @@ public:
 	 * @param gopts Shared configuration object used by all actions constructed by this initializer.
 	 * @param digi_map Shared map from sensitive detector / hit collection name to digitization routines.
 	 */
-	GAction(std::shared_ptr<GOptions> gopts, std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
+	explicit GAction(std::shared_ptr<GOptions> gopts,
+	                 std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
+
+	~GAction() override = default;
+
+	GAction(const GAction&)            = delete;
+	GAction& operator=(const GAction&) = delete;
+	GAction(GAction&&)                 = delete;
+	GAction& operator=(GAction&&)      = delete;
 
 	/**
 	 * @brief Registers user actions for worker threads (and sequential mode).
@@ -117,8 +127,7 @@ private:
 	/**
 	 * @brief Digitization routines map used by run/event actions to digitize hit collections.
 	 *
-	 * The map is populated elsewhere (e.g., during sensitive detector and field construction)
-	 * and is shared across threads as a read-mostly structure.
+	 * The map is populated elsewhere and is shared across threads as a read-mostly structure.
 	 */
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;
 };
