@@ -43,7 +43,7 @@ namespace geventaction {
  *     - Resolve the digitization routine associated with the collection name.
  *     - Convert hits into digitized data and true-information data.
  *     - Add these products to the event data container.
- *   - Publish the completed event data to all configured streamers for the thread.
+ *   - Publish the completed event data to all configured streamers.
  *
  * Ownership:
  * - The run_action pointer is non-owning; it is expected to remain valid for the
@@ -61,7 +61,14 @@ public:
 	 * @param run_a Non-owning pointer to the thread's GRunAction instance, used to access
 	 *              digitization routines and the streamer map.
 	 */
-	GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a);
+	explicit GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a);
+
+	~GEventAction() override = default;
+
+	GEventAction(const GEventAction&)            = delete;
+	GEventAction& operator=(const GEventAction&) = delete;
+	GEventAction(GEventAction&&)                 = delete;
+	GEventAction& operator=(GEventAction&&)      = delete;
 
 	/**
 	 * @brief Called by Geant4 at the beginning of an event.
@@ -86,6 +93,13 @@ public:
 
 private:
 	/**
+	 * @brief Publishes a completed event data collection to all thread streamers.
+	 *
+	 * @param event_data The fully populated event data collection to publish.
+	 */
+	void publish_event_data(const std::shared_ptr<GEventDataCollection>& event_data) const;
+
+	/**
 	 * @brief Shared configuration used for constructing event products and controlling logging.
 	 */
 	std::shared_ptr<GOptions> goptions;
@@ -97,9 +111,8 @@ private:
 	 * - The digitization routines map (collection name -> routine).
 	 * - The per-thread streamer map.
 	 */
-	GRunAction* run_action = nullptr; // non-owning
+	GRunAction* run_action = nullptr;
 };
-
 
 // looping over output factories
 // for (auto [factoryName, streamerFactory] : *gstreamerFactoryMap) {
