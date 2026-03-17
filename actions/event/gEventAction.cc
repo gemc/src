@@ -3,6 +3,7 @@
 
 // geant4
 #include "G4EventManager.hh"
+#include "G4Threading.hh"
 
 // gemc
 #include "event/gEventDataCollection.h"
@@ -13,96 +14,128 @@ GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* ru
 	goptions(gopt),
 	run_action(run_a) {
 	// Constructor: store shared config and a non-owning pointer to the run action for this thread.
-	auto desc = "GEventAction " + std::to_string(G4Threading::G4GetThreadId());
+	const auto desc = "GEventAction " + std::to_string(G4Threading::G4GetThreadId());
 	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
 }
 
 void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) {
-	// Begin-of-event hook: logs event id and thread id for tracing.
-	int thread_id = G4Threading::G4GetThreadId();
-	int eventID   = event->GetEventID();
+	// Begin-of-event hook: log event id and thread id for tracing.
+	const auto thread_id = G4Threading::G4GetThreadId();
+	const auto event_id  = event->GetEventID();
 
-	log->debug(CONSTRUCTOR, FUNCTION_NAME, " event id ", eventID, " in thread ", thread_id);
+	log->debug(NORMAL, FUNCTION_NAME, " event id ", event_id, " in thread ", thread_id);
 }
 
 void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	// End-of-event hook: collect hit collections, digitize hits, and publish the event to streamers.
-	G4HCofThisEvent* HCsThisEvent = event->GetHCofThisEvent();
-	if (!HCsThisEvent) return;
-	if (!run_action) {
-		log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-				   " run_action is null - cannot access digitization routines or streamers.");
+	auto* const hcs_this_event = event->GetHCofThisEvent();
+	if (hcs_this_event == nullptr) {
+		return;
 	}
 
-	int thread_id = G4Threading::G4GetThreadId();
-	int eventID   = event->GetEventID();
+	if (run_action == nullptr) {
+		log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+		           " run_action is null - cannot access digitization routines or streamers.");
+		return;
+	}
 
-	// Create the event data container that will receive digitized data and truth information.
-	auto gevent_header       = std::make_unique<GEventHeader>(goptions, eventID, thread_id);
+	const auto thread_id = G4Threading::G4GetThreadId();
+	const auto event_id  = event->GetEventID();
+
+	auto gevent_header       = std::make_unique<GEventHeader>(goptions, event_id, thread_id);
 	auto eventDataCollection = std::make_shared<GEventDataCollection>(goptions, std::move(gevent_header));
 
+	const auto digi_map = run_action->get_digitization_routines_map();
+	if (digi_map == nullptr) {
+		log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
+		           " no digitization routines map available in thread ", thread_id);
+		return;
+	}
+
+	bool has_event_mode_payload = false;
+
 	// Loop over all hit collections produced by sensitive detectors in this event.
-	for (G4int hci = 0; hci < HCsThisEvent->GetNumberOfCollections(); hci++) {
-		auto thisGHC = (GHitsCollection*)HCsThisEvent->GetHC(hci);
+	for (G4int hci = 0; hci < hcs_this_event->GetNumberOfCollections(); ++hci) {
+		auto* const this_ghc = static_cast<GHitsCollection*>(hcs_this_event->GetHC(hci));
+		if (this_ghc == nullptr) {
+			continue;
+		}
 
-		if (thisGHC) {
-			std::string hcSDName = thisGHC->GetSDname();
-			auto        digi_map = run_action->get_digitization_routines_map();
-			if (!digi_map) {
-				log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-						   " no digitization routines map available for collection ", hcSDName,
-						   " in thread ", thread_id);
+		const std::string hcSDName = this_ghc->GetSDname();
+
+		log->info(2, FUNCTION_NAME, " worker ", thread_id,
+		          " for event number ", event_id,
+		          " for collection number ", hci + 1,
+		          " collection name: ", hcSDName);
+
+		// Select the digitization routine by hit collection name.
+		const auto it = digi_map->find(hcSDName);
+		if (it == digi_map->end()) {
+			log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
+			           " no digitization routine registered for collection ", hcSDName,
+			           " in thread ", thread_id);
+			continue;
+		}
+
+		const auto& digitization_routine = it->second;
+		if (digitization_routine == nullptr) {
+			log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
+			           " digitization routine is null for collection ", hcSDName,
+			           " in thread ", thread_id);
+			continue;
+		}
+
+		const auto collection_mode = digitization_routine->collection_mode();
+
+		// Loop over hits in this collection and append produced data to the appropriate container.
+		for (size_t hitIndex = 0; hitIndex < this_ghc->GetSize(); ++hitIndex) {
+			auto* const this_hit = static_cast<GHit*>(this_ghc->GetHit(hitIndex));
+			if (this_hit == nullptr) {
+				continue;
 			}
 
-			log->info(2, FUNCTION_NAME, " worker ", thread_id,
-					  " for event number ", eventID,
-					  " for collection number ", hci + 1,
-					  " collection name: ", hcSDName);
+			auto true_data = digitization_routine->collectTrueInformation(this_hit, hitIndex);
+			auto digi_data = digitization_routine->digitizeHit(this_hit, hitIndex);
 
-			// Select the digitization routine by hit collection name, then publish through all streamers.
-			auto it = digi_map->find(hcSDName);
-			if (it == digi_map->end()) {
-				log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-						   " no digitization routine registered for collection ", hcSDName,
-						   " in thread ", thread_id);
+			if (collection_mode == CollectionMode::event) {
+				eventDataCollection->addDetectorDigitizedData(hcSDName, std::move(digi_data));
+				eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
+				has_event_mode_payload = true;
 			}
-
-			auto digitization_routine = it->second;
-
-			// only digitize if it will be published
-			if (digitization_routine != nullptr) {
-				// Loop over hits in this collection and append produced data to the event container.
-				for (size_t hitIndex = 0; hitIndex < thisGHC->GetSize(); hitIndex++) {
-					auto thisHit = (GHit*)thisGHC->GetHit(hitIndex);
-
-					// PRAGMA TODO: switch these on/off with options
-					auto true_data = digitization_routine->collectTrueInformation(thisHit, hitIndex);
-					auto digi_data = digitization_routine->digitizeHit(thisHit, hitIndex);
-
-					// add hit data for this event
-					if (digitization_routine->collection_mode() == CollectionMode::event) {
-						eventDataCollection->addDetectorDigitizedData(hcSDName, std::move(digi_data));
-						eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
-					}
-					else if (digitization_routine->collection_mode() == CollectionMode::run) {
-						run_action->collect_event_data_collections(hcSDName,
-																   std::move(true_data),
-																   std::move(digi_data));
-					}
-				}
-
-				// publish this event to the gstreamer
-				// if this is a per run event, the run action will publish it
-				if (digitization_routine->collection_mode() == CollectionMode::event) {
-					// this will exit if the map is not found
-					auto gstreamers_threads_map = run_action->get_streamer_threads_map();
-
-					for (const auto& [name, gstreamer] : *gstreamers_threads_map) {
-						// Publish the event to the gstreamer.
-						gstreamer->publishEventData(eventDataCollection);
-					}
-				}
+			else if (collection_mode == CollectionMode::run) {
+				run_action->collect_event_data_collections(
+					hcSDName,
+					std::move(true_data),
+					std::move(digi_data));
 			}
 		}
+	}
+
+	// Publish once per event, after all event-mode collections have been processed.
+	if (has_event_mode_payload) {
+		publish_event_data(eventDataCollection);
+	}
+}
+
+void GEventAction::publish_event_data(const std::shared_ptr<GEventDataCollection>& event_data) const {
+	if (run_action == nullptr || event_data == nullptr) {
+		return;
+	}
+
+	const auto gstreamers_threads_map = run_action->get_streamer_threads_map();
+	if (gstreamers_threads_map == nullptr) {
+		log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
+		           " no thread streamer map available - event will not be published.");
+		return;
+	}
+
+	for (const auto& [name, gstreamer] : *gstreamers_threads_map) {
+		if (gstreamer == nullptr) {
+			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
+			           " null gstreamer instance for streamer ", name);
+			continue;
+		}
+
+		gstreamer->publishEventData(event_data);
 	}
 }
