@@ -110,7 +110,7 @@ public:
 				log->error(ERR_DLHANDLENOTFOUND, "File ", dlFileName, " found, but handle is null. dlopen_error >> ",
 				           dlopen_error);
 			}
-			else { log->info(0, "Loaded ", dlFileName); }
+			else { log->info(1, "Loaded ", dlFileName); }
 		}
 		else { log->error(ERR_DLNOTFOUND, "could not find ", dlFileName); }
 	}
