@@ -10,17 +10,6 @@
 
 #include "gRunDataCollection.h"
 
-void GRunDataCollection::collectDetectorTrueInfoData(const std::string&                    sdName,
-													 const std::unique_ptr<GTrueInfoData>& data) {
-	// Ensure the detector entry exists.
-	if (gdataCollectionMap.find(sdName) == gdataCollectionMap.end()) {
-		gdataCollectionMap[sdName] = std::make_unique<GDataCollection>();
-	}
-
-	// Integrate true-hit data into the run-level accumulator for this detector.
-	gdataCollectionMap[sdName]->collectTrueInfosData(std::make_unique<GTrueInfoData>(*data));
-}
-
 void GRunDataCollection::collectDetectorDigitizedData(const std::string&                     sdName,
 													  const std::unique_ptr<GDigitizedData>& data) {
 	// Ensure the detector entry exists, same as for truth data.
@@ -40,12 +29,6 @@ void GRunDataCollection::collect_event_data_collection(const std::shared_ptr<GEv
 	for (auto& [sdname, ptr] : dcm) {
 		if (!ptr) continue;
 
-		// True-hit entries for this detector in this event.
-		auto& true_infos_data = ptr->getTrueInfoData();
-		for (auto& true_info_hit : true_infos_data) {
-			collectDetectorTrueInfoData(sdname, true_info_hit);
-		}
-
 		// Digitized-hit entries for this detector in this event.
 		auto& digitized_data = ptr->getDigitizedData();
 		for (auto& digitized_data_hit : digitized_data) {
@@ -54,12 +37,28 @@ void GRunDataCollection::collect_event_data_collection(const std::shared_ptr<GEv
 	}
 }
 
-void GRunDataCollection::collect_event_data_collections(std::string&                    sdName,
-														std::unique_ptr<GTrueInfoData>  tdata,
+void GRunDataCollection::collect_event_data_collections(const std::string&              sdName,
 														std::unique_ptr<GDigitizedData> ddata) {
-	collectDetectorTrueInfoData(sdName, tdata);
 	collectDetectorDigitizedData(sdName, ddata);
 
-	log->info(2, 	*gdataCollectionMap[sdName]);
+	log->info(2, *gdataCollectionMap[sdName]);
+}
 
+
+void GRunDataCollection::merge(const GRunDataCollection& other) {
+	const auto& other_map = other.getDataCollectionMap();
+
+	for (const auto& [sdName, other_data_collection] : other_map) {
+		if (!other_data_collection) {
+			continue;
+		}
+
+		// Merge already-integrated digitized data for this detector.
+		const auto& other_digitized_data = other_data_collection->getDigitizedData();
+		for (const auto& digitized_data_hit : other_digitized_data) {
+			if (digitized_data_hit) {
+				collectDetectorDigitizedData(sdName, digitized_data_hit);
+			}
+		}
+	}
 }
