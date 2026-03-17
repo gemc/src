@@ -50,6 +50,13 @@ private:
 	bool publishEventDigitizedDataImpl(const std::string&                        detectorName,
 	                                   const std::vector<const GDigitizedData*>& digitizedData) override;
 
+	// Run stream hooks.
+	bool startRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) override;
+	bool endRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) override;
+	// bool publishRunDigitizedDataImpl(const std::string&                        detectorName,
+	// 								   const std::vector<const GDigitizedData*>& digitizedData) override;
+
+
 	// Frame stream hooks.
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;
 	bool endStreamImpl(const GFrameDataCollection* frameRunData) override;

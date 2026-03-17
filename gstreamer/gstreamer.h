@@ -6,6 +6,7 @@
 
 // gemc
 #include "event/gEventDataCollection.h"
+#include "run/gRunDataCollection.h"
 #include "frame/gFrameDataCollection.h"
 #include "gfactory.h"
 #include "gbase.h"
@@ -119,6 +120,10 @@ public:
 	 */
 	void publishEventData(const std::shared_ptr<GEventDataCollection>& event_data);
 
+
+	void publishRunData(const std::shared_ptr<GRunDataCollection>& run_data);
+
+
 	// runs the protected virtual methods below to write frames from a run to file
 	// void publishFrameRunData(const std::shared_ptr<GFrameDataCollection>& frameRunData);
 
@@ -200,6 +205,21 @@ protected:
 	 * \return \c true on success, \c false on failure.
 	 */
 	virtual bool startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
+		return false;
+	}
+
+
+	[[nodiscard]] bool startRun([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
+		if (!run_data) { log->error(ERR_PUBLISH_ERROR, "run_data is null in GStreamer::startRun"); }
+		if (!run_data->getHeader()) {
+			log->error(ERR_PUBLISH_ERROR, "run header is null in GStreamer::startRun");
+		}
+
+		log->debug(NORMAL, "GStreamer::startRun");
+		return startRunImpl(run_data);
+	}
+
+	virtual bool startRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
 		return false;
 	}
 
@@ -302,6 +322,19 @@ protected:
 	virtual bool endEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 		return false;
 	}
+
+	[[nodiscard]] bool endRun([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
+		log->debug(NORMAL, "GStreamer::endRun");
+		return endRunImpl(run_data);
+	}
+
+	virtual bool endRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
+		return false;
+	}
+
+	virtual bool publishRunDigitizedDataImpl([[maybe_unused]] const std::string& detectorName,
+											   [[maybe_unused]] const std::vector<const GDigitizedData*>&
+											   digitizedData) { return false; }
 
 	// Frame stream virtual methods.
 	// These hooks are provided for plugins that serialize frame-based data.
