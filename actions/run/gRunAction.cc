@@ -14,7 +14,7 @@ GRunAction::CompletedRunData GRunAction::completed_worker_run_data;
 
 // Constructor for workers: stores shared services and logs thread identity.
 GRunAction::GRunAction(std::shared_ptr<GOptions>                           gopt,
-					   std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
+                       std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
 	GBase(gopt, GRUNACTION_LOGGER),
 	goptions(std::move(gopt)),
 	digitization_routines_map(std::move(digi_map)) {
@@ -49,7 +49,8 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 		for (const auto& [plugin, digiRoutine] : *digitization_routines_map) {
 			if (digiRoutine == nullptr) {
 				log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-						   " null digitization routine registered for plugin ", plugin);
+				           " null digitization routine registered for plugin ", plugin);
+				continue;
 			}
 
 			if (digiRoutine->collection_mode() == CollectionMode::event) {
@@ -62,7 +63,7 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 	}
 	else {
 		log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-				   " digitization_routines_map is null - streamer mode detection skipped.");
+		           " digitization_routines_map is null - streamer mode detection skipped.");
 	}
 
 	if (!IsMaster() && need_a_thread_streamer) {
@@ -73,24 +74,26 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 
 		if (gstreamer_threads_map == nullptr) {
 			log->error(1, FUNCTION_NAME, " gstreamer_threads_map is null in thread ", thread_id,
-					   " - cannot open connections.");
+			           " - cannot open connections.");
+			return;
 		}
 
 		for (const auto& [name, gstreamer] : *gstreamer_threads_map) {
 			if (gstreamer == nullptr) {
 				log->error(ERR_STREAMERMAP_NOT_EXISTING,
-						   "Null GStreamer entry ", name, " in thread ", thread_id);
+				           "Null GStreamer entry ", name, " in thread ", thread_id);
+				continue;
 			}
 
 			if (!gstreamer->openConnection()) {
 				log->error(ERR_STREAMERMAP_NOT_EXISTING,
-						   "Failed to open connection for GStreamer ", name,
-						   " in thread ", thread_id);
+				           "Failed to open connection for GStreamer ", name,
+				           " in thread ", thread_id);
 			}
 
 			log->info(2, FUNCTION_NAME, "Worker thread [", thread_id, "]: opening connection for ",
-					  KGRN, name, RST,
-					  " for run ", run, ". Number of events to be processed: ", neventsThisRun);
+			          KGRN, name, RST,
+			          " for run ", run, ". Number of events to be processed: ", neventsThisRun);
 		}
 	}
 	else if (IsMaster() && need_a_run_streamer) {
@@ -101,23 +104,25 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 
 		if (gstreamer_run_map == nullptr) {
 			log->error(1, FUNCTION_NAME, " gstreamer_run_map is null in master thread ",
-					   " - cannot open connections.");
+			           " - cannot open connections.");
+			return;
 		}
 
 		for (const auto& [name, gstreamer] : *gstreamer_run_map) {
 			if (gstreamer == nullptr) {
 				log->error(ERR_STREAMERMAP_NOT_EXISTING,
-						   "Null GStreamer entry ", name, " in master thread");
+				           "Null GStreamer entry ", name, " in master thread");
+				continue;
 			}
 
 			if (!gstreamer->openConnection()) {
 				log->error(ERR_STREAMERMAP_NOT_EXISTING,
-						   "Failed to open connection for GStreamer in master thread ", name);
+				           "Failed to open connection for GStreamer in master thread ", name);
 			}
 
 			log->info(2, FUNCTION_NAME, "Master Thread: opening connection for ",
-					  KGRN, name, RST,
-					  " for run ", run, ". Number of events to be processed: ", neventsThisRun);
+			          KGRN, name, RST,
+			          " for run ", run, ". Number of events to be processed: ", neventsThisRun);
 		}
 	}
 }
@@ -131,39 +136,23 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 	if (!IsMaster() && need_a_thread_streamer) {
 		if (gstreamer_threads_map == nullptr) {
 			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
-					   " gstreamer_map is null in thread ", thread_id,
-					   " - cannot close connections.");
+			           " gstreamer_map is null in thread ", thread_id,
+			           " - cannot close connections.");
 		}
-		for (const auto& [name, gstreamer] : *gstreamer_threads_map) {
-			log->info(2, FUNCTION_NAME, " ", what_am_i, " [", thread_id, "], for run ", run,
-					  " closing connection for gstreamer ", name);
+		else {
+			for (const auto& [name, gstreamer] : *gstreamer_threads_map) {
+				log->info(2, FUNCTION_NAME, " ", what_am_i, " [", thread_id, "], for run ", run,
+				          " closing connection for gstreamer ", name);
 
-			if (gstreamer == nullptr) {
-				log->error(ERR_STREAMERMAP_NOT_EXISTING,
-						   "Null GStreamer entry ", name, " in thread ", thread_id);
-			}
+				if (gstreamer == nullptr) {
+					log->error(ERR_STREAMERMAP_NOT_EXISTING,
+					           "Null GStreamer entry ", name, " in thread ", thread_id);
+					continue;
+				}
 
-			if (!gstreamer->closeConnection()) {
-				log->error(1, "Failed to close connection for GStreamer ", name, " in thread ", thread_id);
-			}
-		}
-	}
-	else if (IsMaster() && need_a_run_streamer) {
-		if (gstreamer_run_map == nullptr) {
-			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
-					   " gstreamer_map is null in master thread - cannot close connections.");
-		}
-		for (const auto& [name, gstreamer] : *gstreamer_run_map) {
-			log->info(2, FUNCTION_NAME, " ", what_am_i, " for run ", run,
-					  " closing connection for gstreamer ", name);
-
-			if (gstreamer == nullptr) {
-				log->error(ERR_STREAMERMAP_NOT_EXISTING,
-						   "Null GStreamer entry ", name, " in master thread");
-			}
-
-			if (!gstreamer->closeConnection()) {
-				log->error(1, "Failed to close connection for GStreamer ", name, " in master thread");
+				if (!gstreamer->closeConnection()) {
+					log->error(1, "Failed to close connection for GStreamer ", name, " in thread ", thread_id);
+				}
 			}
 		}
 	}
@@ -174,14 +163,53 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 		return;
 	}
 
-	// Master thread collects all completed worker run_data objects.
-	auto merged_worker_run_data = take_completed_worker_run_data();
-	log->info(2, FUNCTION_NAME,
-			  " master collected ", static_cast<int>(merged_worker_run_data.size()),
-			  " worker run_data object(s) for run ", run);
+	if (IsMaster() && need_a_run_streamer) {
+		// Master thread collects all completed worker run_data objects.
+		auto completed_run_data = take_completed_worker_run_data();
+		log->info(2, FUNCTION_NAME,
+		          " master collected ", static_cast<int>(completed_run_data.size()),
+		          " worker run_data object(s) for run ", run);
 
-	// If a true structural merge into a single GRunDataCollection is desired,
-	// it should be implemented in GRunDataCollection and invoked here.
+		std::shared_ptr<GRunDataCollection> merged_run_data;
+
+		for (auto& worker_run_data : completed_run_data) {
+			if (worker_run_data == nullptr) {
+				continue;
+			}
+
+			if (merged_run_data == nullptr) {
+				auto merged_header = std::make_unique<GRunHeader>(goptions, run, thread_id);
+				merged_run_data    = std::make_shared<GRunDataCollection>(goptions, std::move(merged_header));
+			}
+
+			merged_run_data->merge(*worker_run_data);
+		}
+
+		if (merged_run_data != nullptr) {
+			publish_run_data(merged_run_data);
+		}
+
+		if (gstreamer_run_map == nullptr) {
+			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
+			           " gstreamer_map is null in master thread - cannot close connections.");
+			return;
+		}
+
+		for (const auto& [name, gstreamer] : *gstreamer_run_map) {
+			log->info(2, FUNCTION_NAME, " ", what_am_i, " for run ", run,
+			          " closing connection for gstreamer ", name);
+
+			if (gstreamer == nullptr) {
+				log->error(ERR_STREAMERMAP_NOT_EXISTING,
+				           "Null GStreamer entry ", name, " in master thread");
+				continue;
+			}
+
+			if (!gstreamer->closeConnection()) {
+				log->error(1, "Failed to close connection for GStreamer ", name, " in master thread");
+			}
+		}
+	}
 }
 
 void GRunAction::stash_worker_run_data() {
@@ -203,9 +231,31 @@ auto GRunAction::take_completed_worker_run_data() -> CompletedRunData {
 }
 
 
+void GRunAction::publish_run_data(const std::shared_ptr<GRunDataCollection>& run_data) const {
+	if (run_data == nullptr) {
+		log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+		           " run_data is null - cannot publish merged run data.");
+		return;
+	}
+
+	if (gstreamer_run_map == nullptr) {
+		log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
+		           " no run streamer map available - run data will not be published.");
+		return;
+	}
+
+	for (const auto& [name, gstreamer] : *gstreamer_run_map) {
+		if (gstreamer == nullptr) {
+			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
+			           " null gstreamer instance for run streamer ", name);
+			continue;
+		}
+
+		gstreamer->publishRunData(run_data);
+	}
+}
 
 // (Legacy/experimental streaming logic remains commented out below.)
-
 
 // TODO: 2 more is too much we need some calculation here
 // int nFramesToCreate = neventsThisRun * eventDuration / frameDuration + 2;

@@ -68,11 +68,12 @@ public:
 	 * @param gopts Shared configuration used by the run action and by the created run object.
 	 * @param digi_map Shared digitization routines map to be passed into the created run object.
 	 */
-	explicit GRunAction(std::shared_ptr<GOptions> gopts,
-	                    std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
+	explicit GRunAction(std::shared_ptr<GOptions>                           gopts,
+						std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
 
 	~GRunAction() override = default;
 
+	// Let's make it clear: GRunAction is not copyable or moveable
 	GRunAction(const GRunAction&)            = delete;
 	GRunAction& operator=(const GRunAction&) = delete;
 	GRunAction(GRunAction&&)                 = delete;
@@ -110,21 +111,17 @@ public:
 	 * @brief Adds one digitized/truth payload pair to the current thread run-level collection.
 	 *
 	 * @param hcSDName Hit collection / sensitive detector name.
-	 * @param true_data Truth-information payload for one hit.
 	 * @param digi_data Digitized payload for one hit.
 	 */
-	void collect_event_data_collections(std::string hcSDName,
-	                                    std::unique_ptr<GTrueInfoData> true_data,
-	                                    std::unique_ptr<GDigitizedData> digi_data) {
+	void collect_event_data_collections(const std::string&              hcSDName,
+										std::unique_ptr<GDigitizedData> digi_data) {
 		if (run_data == nullptr) {
 			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-			           " run_data is null - cannot collect run-level payload for collection ", hcSDName);
-			return;
+					   " run_data is null - cannot collect run-level payload for collection ", hcSDName);
 		}
 
 		run_data->collect_event_data_collections(
 			hcSDName,
-			std::move(true_data),
 			std::move(digi_data));
 	}
 
@@ -229,8 +226,12 @@ private:
 
 	/**
 	 * @brief Process-wide storage for worker-completed run data awaiting master collection.
+	 * The lock mechanism ensure the workers accumulation is complete
 	 */
 	static CompletedRunData completed_worker_run_data;
+
+	void publish_run_data(const std::shared_ptr<GRunDataCollection>& run_data) const;
+
 };
 
 

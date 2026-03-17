@@ -35,7 +35,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 
 	if (run_action == nullptr) {
 		log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-		           " run_action is null - cannot access digitization routines or streamers.");
+				   " run_action is null - cannot access digitization routines or streamers.");
 		return;
 	}
 
@@ -48,7 +48,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	const auto digi_map = run_action->get_digitization_routines_map();
 	if (digi_map == nullptr) {
 		log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-		           " no digitization routines map available in thread ", thread_id);
+				   " no digitization routines map available in thread ", thread_id);
 		return;
 	}
 
@@ -64,24 +64,24 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 		const std::string hcSDName = this_ghc->GetSDname();
 
 		log->info(2, FUNCTION_NAME, " worker ", thread_id,
-		          " for event number ", event_id,
-		          " for collection number ", hci + 1,
-		          " collection name: ", hcSDName);
+				  " for event number ", event_id,
+				  " for collection number ", hci + 1,
+				  " collection name: ", hcSDName);
 
 		// Select the digitization routine by hit collection name.
 		const auto it = digi_map->find(hcSDName);
 		if (it == digi_map->end()) {
 			log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-			           " no digitization routine registered for collection ", hcSDName,
-			           " in thread ", thread_id);
+					   " no digitization routine registered for collection ", hcSDName,
+					   " in thread ", thread_id);
 			continue;
 		}
 
 		const auto& digitization_routine = it->second;
 		if (digitization_routine == nullptr) {
 			log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-			           " digitization routine is null for collection ", hcSDName,
-			           " in thread ", thread_id);
+					   " digitization routine is null for collection ", hcSDName,
+					   " in thread ", thread_id);
 			continue;
 		}
 
@@ -105,7 +105,6 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 			else if (collection_mode == CollectionMode::run) {
 				run_action->collect_event_data_collections(
 					hcSDName,
-					std::move(true_data),
 					std::move(digi_data));
 			}
 		}
@@ -125,14 +124,14 @@ void GEventAction::publish_event_data(const std::shared_ptr<GEventDataCollection
 	const auto gstreamers_threads_map = run_action->get_streamer_threads_map();
 	if (gstreamers_threads_map == nullptr) {
 		log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
-		           " no thread streamer map available - event will not be published.");
+				   " no thread streamer map available - event will not be published.");
 		return;
 	}
 
 	for (const auto& [name, gstreamer] : *gstreamers_threads_map) {
 		if (gstreamer == nullptr) {
 			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
-			           " null gstreamer instance for streamer ", name);
+					   " null gstreamer instance for streamer ", name);
 			continue;
 		}
 
