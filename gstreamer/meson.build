@@ -33,6 +33,7 @@ ascii_plugin_files = [files(
                           'factories/ASCII/event/publishTrueInfo.cc',
                           'factories/ASCII/event/publishDigitized.cc',
                           'factories/ASCII/run/run.cc',
+                          'factories/ASCII/run/publishDigitized.cc',
                           'factories/ASCII/stream/stream.cc',
                           'factories/ASCII/stream/frameHeader.cc',
                           'factories/ASCII/stream/publishPayload.cc',

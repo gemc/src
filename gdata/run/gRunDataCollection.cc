@@ -42,7 +42,7 @@ void GRunDataCollection::collect_event_data_collection(const std::shared_ptr<GEv
 
 void GRunDataCollection::collect_event_data_collections(const std::string&              sdName,
 														std::unique_ptr<GDigitizedData> ddata) {
-	
+
 	collectDetectorDigitizedData(sdName, ddata);
 
 	log->info(2, *gdataCollectionMap[sdName]);
@@ -52,6 +52,7 @@ void GRunDataCollection::collect_event_data_collections(const std::string&      
 void GRunDataCollection::merge(const GRunDataCollection& other) {
 
 	grun_header->add_events_processed(other.get_events_processed());
+	grun_header->add_events_with_payload(other.get_events_with_payload());
 
 	const auto& other_map = other.getDataCollectionMap();
 

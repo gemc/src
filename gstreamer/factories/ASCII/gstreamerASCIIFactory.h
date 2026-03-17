@@ -46,15 +46,15 @@ private:
 	bool endEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) override;
 	bool publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header) override;
 	bool publishEventTrueInfoDataImpl(const std::string&                       detectorName,
-	                                  const std::vector<const GTrueInfoData*>& trueInfoData) override;
+									  const std::vector<const GTrueInfoData*>& trueInfoData) override;
 	bool publishEventDigitizedDataImpl(const std::string&                        detectorName,
-	                                   const std::vector<const GDigitizedData*>& digitizedData) override;
+									   const std::vector<const GDigitizedData*>& digitizedData) override;
 
 	// Run stream hooks.
 	bool startRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) override;
 	bool endRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) override;
-	// bool publishRunDigitizedDataImpl(const std::string&                        detectorName,
-	// 								   const std::vector<const GDigitizedData*>& digitizedData) override;
+	bool publishRunDigitizedDataImpl(const std::string&                        detectorName,
+									 const std::vector<const GDigitizedData*>& digitizedData) override;
 
 
 	// Frame stream hooks.

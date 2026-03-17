@@ -41,7 +41,19 @@ void GStreamer::publishRunData(const std::shared_ptr<GRunDataCollection>& run_da
 
 
 
+	// possibly can filter out writing event data based on sdname
+	for (const auto& [sdname, gDataCollection] : run_data->getDataCollectionMap()) {
+		const GDataCollection* tdptr = gDataCollection.get();
 
+		// extract the vector of raw pointers to publish
+		std::vector<const GDigitizedData*> digitizedPtrs;
+		digitizedPtrs.reserve(tdptr->getDigitizedData().size());
+
+		for (const auto& hit : tdptr->getDigitizedData()) { digitizedPtrs.push_back(hit.get()); }
+
+		log->info(2, SFUNCTION_NAME, "->publishEventDigitizedData for detector -> ", sdname,
+				  gutilities::success_or_fail(publishRunDigitizedDataImpl(sdname, digitizedPtrs)));
+	}
 
 	log->info(2, "GStreamer::endEvent -> ",
 			  gutilities::success_or_fail(endRun(run_data)));

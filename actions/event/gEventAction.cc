@@ -28,14 +28,17 @@ void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) {
 
 void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	// End-of-event hook: collect hit collections, digitize hits, and publish the event to streamers.
-	auto* const hcs_this_event = event->GetHCofThisEvent();
-	if (hcs_this_event == nullptr) {
-		return;
-	}
-
 	if (run_action == nullptr) {
 		log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 				   " run_action is null - cannot access digitization routines or streamers.");
+		return;
+	}
+
+	// Count every processed event once, independently of whether it produces any payload.
+	run_action->increment_run_events_processed();
+
+	auto* const hcs_this_event = event->GetHCofThisEvent();
+	if (hcs_this_event == nullptr) {
 		return;
 	}
 
@@ -53,6 +56,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	}
 
 	bool has_event_mode_payload = false;
+	bool has_run_mode_payload   = false;
 
 	// Loop over all hit collections produced by sensitive detectors in this event.
 	for (G4int hci = 0; hci < hcs_this_event->GetNumberOfCollections(); ++hci) {
@@ -103,12 +107,21 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 				has_event_mode_payload = true;
 			}
 			else if (collection_mode == CollectionMode::run) {
-				run_action->collect_event_data_collections(
-					hcSDName,
-					std::move(digi_data));
+				if (digi_data != nullptr) {
+					run_action->collect_event_data_collections(
+						hcSDName,
+						std::move(digi_data));
+					has_run_mode_payload = true;
+				}
 			}
 		}
 	}
+
+	// Count this event once for run-level accumulation if any run-mode payload was produced.
+	if (has_run_mode_payload) {
+		run_action->increment_run_events_with_payload();
+	}
+
 
 	// Publish once per event, after all event-mode collections have been processed.
 	if (has_event_mode_payload) {

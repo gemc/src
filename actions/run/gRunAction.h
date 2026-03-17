@@ -125,6 +125,40 @@ public:
 			std::move(digi_data));
 	}
 
+	void increment_run_events_processed() {
+		if (run_data == nullptr) {
+			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+					   " run_data is null - cannot increment processed events.");
+			return;
+		}
+
+		auto& header = run_data->getHeader();
+		if (header == nullptr) {
+			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+					   " run_data header is null - cannot increment processed events.");
+			return;
+		}
+
+		header->increment_events_processed();
+	}
+
+	void increment_run_events_with_payload() {
+		if (run_data == nullptr) {
+			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+					   " run_data is null - cannot increment payload events.");
+			return;
+		}
+
+		auto& header = run_data->getHeader();
+		if (header == nullptr) {
+			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+					   " run_data header is null - cannot increment payload events.");
+			return;
+		}
+
+		header->increment_events_with_payload();
+	}
+
 private:
 	using CompletedRunData = std::vector<std::unique_ptr<GRunDataCollection>>;
 
@@ -231,7 +265,6 @@ private:
 	static CompletedRunData completed_worker_run_data;
 
 	void publish_run_data(const std::shared_ptr<GRunDataCollection>& run_data) const;
-
 };
 
 

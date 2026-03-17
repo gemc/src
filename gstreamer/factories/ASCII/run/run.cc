@@ -10,6 +10,7 @@ bool GstreamerTextFactory::startRunImpl([[maybe_unused]] const std::shared_ptr<G
 	auto runId = run_data->getHeader()->getRunID();
 	ofile << "Run number " << runId << " {\n";
 	ofile << GTAB << "Number of events: " <<  run_data->getHeader()->get_events_processed() << "\n";
+	ofile << GTAB << "Number of events with payload: " <<  run_data->getHeader()->get_events_with_payload() << "\n";
 
 	return true;
 }

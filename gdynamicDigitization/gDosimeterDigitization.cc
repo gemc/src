@@ -35,7 +35,6 @@ std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(GHit* gh
 	auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);
 
 	// Store the detector identity and the total deposited energy.
-	gdata->includeVariable(identity.getName(), identity.getValue());
 	gdata->includeVariable("eTot", ghit->getTotalEnergyDeposited());
 
 	// Per-step information used to build the NIEL-weight.
@@ -59,7 +58,7 @@ std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(GHit* gh
 		}
 	}
 
-	gdata->includeVariable("nielWeight", nielWeight);
+	// gdata->includeVariable("nielWeight", nielWeight);
 
 	return gdata;
 }

@@ -8,7 +8,7 @@
  * A run collection integrates event-level data into a run summary.
  *
  * It owns:
- * - a \ref GRunHeader describing run ID and integrated event count
+ * - a \ref GRunHeader describing run ID and event counters
  * - a map from sensitive detector name to \ref GDataCollection (the per-detector accumulator)
  *
  * Integration is performed by consuming \ref GEventDataCollection objects and:
@@ -20,10 +20,10 @@
  * - one integrated \ref GDigitizedData entry per detector
  *   (vector size 1), depending on how \ref GDataCollection integration is used.
  *
- * \note Event counter
- * This class currently does not increment \c GRunHeader::events_processed.
- * If you want that counter to reflect integrated events, the caller (or this class)
- * must call \ref GRunHeader::increment_events_processed "increment_events_processed()" once per integrated event.
+ * \note Event counters
+ * This class stores event counters in \ref GRunHeader:
+ * - \c events_processed tracks total processed events
+ * - \c events_with_payload tracks events that contributed at least one run-mode payload
  */
 
 #include "gRunHeader.h"
@@ -83,7 +83,7 @@ public:
 	 * \brief Construct a run data collection.
 	 *
 	 * \details
-	 * The header stores metadata such as run ID and (optionally) number of integrated events.
+	 * The header stores metadata such as run ID and event counters.
 	 *
 	 * Ownership:
 	 * - \p header is moved into this object and owned exclusively.
@@ -106,6 +106,8 @@ public:
 	 * The integration semantics for individual hits are implemented in \ref GDataCollection :
 	 * - first hit creates the integrated entry
 	 * - subsequent hits contribute by summation of scalars
+	 *
+	 * This method increments \c events_processed once for the integrated event.
 	 *
 	 * \param edc Event-level container to integrate.
 	 */
@@ -139,7 +141,7 @@ public:
 	[[nodiscard]] auto getRunNumber() const -> int { return grun_header->getRunID(); }
 
 	/**
-	 * \brief Number of events integrated into this run summary.
+	 * \brief Total number of processed events associated with this run summary.
 	 *
 	 * \details
 	 * This value is stored in \ref GRunHeader and incremented by
@@ -148,6 +150,17 @@ public:
 	 * \return Count stored in the header.
 	 */
 	[[nodiscard]] auto get_events_processed() const -> int { return grun_header->get_events_processed(); }
+
+	/**
+	 * \brief Number of processed events that contributed run-mode payload.
+	 *
+	 * \details
+	 * This value is stored in \ref GRunHeader and incremented by
+	 * \ref GRunHeader::increment_events_with_payload "increment_events_with_payload()".
+	 *
+	 * \return Count stored in the header.
+	 */
+	[[nodiscard]] auto get_events_with_payload() const -> int { return grun_header->get_events_with_payload(); }
 
 	/**
 	 * \brief Merge another run-level accumulator into this one.
@@ -159,6 +172,10 @@ public:
 	 *
 	 * Detector entries are merged by detector name. For each detector:
 	 * - digitized integrated data are accumulated into this object
+	 *
+	 * Event counters are also merged:
+	 * - total processed events
+	 * - events with payload
 	 *
 	 * \param other Source run accumulator to merge into this object.
 	 */

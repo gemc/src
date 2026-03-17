@@ -14,8 +14,9 @@
  * A run header is a minimal metadata object associated with a \ref GRunDataCollection.
  *
  * It records:
- * - \c runID            : run identifier (application-defined)
- * - \c events_processed : number of events integrated into this run summary so far
+ * - \c runID               : run identifier (application-defined)
+ * - \c events_processed    : total number of events seen by the run action
+ * - \c events_with_payload : number of events that contributed at least one run-mode payload
  *
  * The constructor emits a brief log summary. In multi-threaded contexts, an optional
  * thread ID can be attached for diagnostics and provenance.
@@ -43,20 +44,25 @@ inline auto defineOptions() -> GOptions {
 } // namespace grun_header
 
 /**
- * \brief Minimal run metadata: run ID and integrated-event counter.
+ * \brief Minimal run metadata: run ID and run-level event counters.
  *
  * \details
  * This object is typically owned by \ref GRunDataCollection as a \c std::unique_ptr.
  * It provides:
  * - stable access to run identifier
- * - a simple counter tracking how many events were integrated
+ * - a simple counter tracking how many events were processed
+ * - a simple counter tracking how many events contributed run-mode payload
  *
- * The counter is incremented via \ref GRunHeader::increment_events_processed "increment_events_processed()".
+ * The counters are incremented via:
+ * - \ref GRunHeader::increment_events_processed "increment_events_processed()"
+ * - \ref GRunHeader::increment_events_with_payload "increment_events_with_payload()"
  *
  * \note
- * \ref GRunDataCollection does not automatically increment this counter in the current implementation.
- * If you want the value to reflect integrated events, ensure the caller (or the run collection)
- * invokes \ref GRunHeader::increment_events_processed "increment_events_processed()" once per event.
+ * \ref GRunDataCollection does not automatically decide which events contributed payload.
+ * The caller (or higher-level run/event action code) must invoke:
+ * - \ref GRunHeader::increment_events_processed "increment_events_processed()" once per processed event
+ * - \ref GRunHeader::increment_events_with_payload "increment_events_with_payload()" once per event
+ *   that produced at least one run-mode payload
  */
 class GRunHeader : public GBase<GRunHeader>
 {
@@ -67,7 +73,8 @@ public:
 	 * \details
 	 * The constructor logs:
 	 * - run ID
-	 * - initial event count (usually 0)
+	 * - initial total processed-event count (usually 0)
+	 * - initial payload-event count (usually 0)
 	 * - optional thread ID if provided
 	 *
 	 * \param gopts Shared options object used to configure logging and behavior.
@@ -80,13 +87,15 @@ public:
 		if (tid != -1) {
 			log->info(1, "\n",
 			          TPOINTITEM, " Run ID:  ", rid, "\n",
-			          TPOINTITEM, " Number of events collected:  ", events_processed,
+			          TPOINTITEM, " Number of events processed:  ", events_processed, "\n",
+			          TPOINTITEM, " Number of events with payload:  ", events_with_payload, "\n",
 			          TPOINTITEM, " Thread ID:  ", tid);
 		}
 		else {
 			log->info(1, "\n",
 			          TPOINTITEM, " Run ID:  ", rid, "\n",
-			          TPOINTITEM, " Number of events collected:  ", events_processed);
+			          TPOINTITEM, " Number of events processed:  ", events_processed, "\n",
+			          TPOINTITEM, " Number of events with payload:  ", events_with_payload);
 		}
 	}
 
@@ -97,32 +106,61 @@ public:
 	[[nodiscard]] auto getRunID() const -> int { return runID; }
 
 	/**
-	 * \brief Get the number of events integrated into this run summary so far.
+	 * \brief Get the total number of events processed in this run summary so far.
 	 *
 	 * \details
 	 * This value is incremented by \ref GRunHeader::increment_events_processed "increment_events_processed()".
-	 * Typical usage is "once per event integrated into the run accumulator".
+	 * Typical usage is "once per processed event reaching end-of-event handling".
 	 *
 	 * \return Number of processed events.
 	 */
 	[[nodiscard]] auto get_events_processed() const -> int { return events_processed; }
 
 	/**
+	 * \brief Get the number of events that contributed run-mode payload in this run summary so far.
+	 *
+	 * \details
+	 * This value is incremented by
+	 * \ref GRunHeader::increment_events_with_payload "increment_events_with_payload()".
+	 * Typical usage is "once per event that contributed at least one run-mode payload".
+	 *
+	 * \return Number of payload-producing events.
+	 */
+	[[nodiscard]] auto get_events_with_payload() const -> int { return events_with_payload; }
+
+	/**
 	 * \brief Increment the number of processed events.
 	 *
 	 * \details
-	 * Intended to be called once per event integrated into the run accumulator.
+	 * Intended to be called once per processed event.
 	 */
 	void increment_events_processed() { events_processed++; }
 
 	/**
- * \brief Add a number of processed events to the counter.
- *
- * \param count Number of processed events to add.
- */
+	 * \brief Increment the number of events that produced run-mode payload.
+	 *
+	 * \details
+	 * Intended to be called once per event that contributed at least one run-mode payload
+	 * to the run accumulator.
+	 */
+	void increment_events_with_payload() { events_with_payload++; }
+
+	/**
+	 * \brief Add a number of processed events to the counter.
+	 *
+	 * \param count Number of processed events to add.
+	 */
 	void add_events_processed(int count) { events_processed += count; }
 
+	/**
+	 * \brief Add a number of payload-producing events to the counter.
+	 *
+	 * \param count Number of payload-producing events to add.
+	 */
+	void add_events_with_payload(int count) { events_with_payload += count; }
+
 private:
-	int events_processed{0}; ///< Number of events integrated into the run summary.
-	int runID;               ///< Run identifier.
+	int events_processed{0};    ///< Total number of processed events in the run summary.
+	int events_with_payload{0}; ///< Number of processed events that contributed run-mode payload.
+	int runID;                  ///< Run identifier.
 };

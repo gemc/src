@@ -7,8 +7,8 @@ gparticle:
   - name: gamma
     p: 6
     vz: -17
-    delta_vx: 8
-    delta_vy: 8
+    delta_vx: 3
+    delta_vy: 3
     multiplicity: 1
 
 verbosity:
