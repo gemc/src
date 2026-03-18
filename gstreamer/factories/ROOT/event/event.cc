@@ -1,7 +1,9 @@
 // gstreamer
 #include "gstreamerROOTFactory.h"
 
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Emit lightweight lifecycle logs around event publication for the ROOT backend.
+
 bool GstreamerRootFactory::startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 	log->info(2, "Start of event ", event_data->getHeader()->getG4LocalEvn(), " in ", filename());
 

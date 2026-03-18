@@ -2,6 +2,9 @@
 #include "gstreamerJSONFactory.h"
 #include "gstreamerConventions.h"
 
+// Implementation summary:
+// Append the frame header block to the JSON object currently being assembled.
+
 bool GstreamerJsonFactory::publishFrameHeaderImpl(const GFrameHeader* gframeHeader) {
 	if (!is_building_frame) {
 		log->error(ERR_PUBLISH_ERROR, "publishFrameHeaderImpl called without an active frame in GstreamerJsonFactory");
@@ -12,7 +15,6 @@ bool GstreamerJsonFactory::publishFrameHeaderImpl(const GFrameHeader* gframeHead
 		return false;
 	}
 
-	// Minimal header encoding (extend as needed).
 	current_frame << "\"header\": {"
 				  << "\"frame_id\": " << gframeHeader->getFrameID()
 				  << "}";

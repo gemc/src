@@ -60,7 +60,17 @@ inline auto defineOptions() -> GOptions {
 } // namespace gevent_data
 
 /**
+ * \defgroup gdata_event_collection GData event collection
+ * \brief Event-level ownership of detector-local truth and digitized hit data.
+ *
+ * \details
+ * This topic documents the event container that owns one event header together with the map of
+ * detector-local GDataCollection objects. It is the main aggregation layer used before run-level integration.
+ */
+
+/**
  * \brief Owns all detector-local data for one event.
+ * \ingroup gdata_event_collection
  *
  * \details
  * The object combines:
@@ -87,7 +97,7 @@ public:
 	 * \param header Owned event header.
 	 */
 	GEventDataCollection(const std::shared_ptr<GOptions>& gopts, std::unique_ptr<GEventHeader> header)
-		: GBase(gopts, GDATAEVENTHEADER_LOGGER), gevent_header(std::move(header)) {
+		: GBase(gopts, GEVENTDATA_LOGGER), gevent_header(std::move(header)) {
 	}
 
 	/**

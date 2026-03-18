@@ -2,8 +2,9 @@
 #include "gstreamerCSVFactory.h"
 #include "gstreamerConventions.h"
 
-// using \n instead of endl so flushing isn't forced at each line
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Frame-header publication is currently a no-op for the CSV backend.
+
 bool GstreamerCsvFactory::publishFrameHeaderImpl([[maybe_unused]] const GFrameHeader* gframeHeader) {
 	return true;
 }

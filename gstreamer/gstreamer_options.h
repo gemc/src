@@ -9,28 +9,32 @@
 /**
  * \file gstreamer_options.h
  * \brief Option and configuration helpers for the gstreamer module.
+ * \ingroup gstreamer_options_api
  */
 
 /**
  * \brief Logger category name used by gstreamer components.
  *
- * This string is passed to the GEMC logging system so that verbosity and routing can be configured
- * consistently for the entire module.
+ * This string identifies the module in the logging system so that all classes and helper
+ * functions participating in gstreamer output can be configured consistently for verbosity
+ * and routing.
  */
 constexpr const char* GSTREAMER_LOGGER = "gstreamer";
 
 /**
- * \brief Utility struct describing one configured output for the gstreamer module.
+ * \struct GStreamerDefinition
+ * \ingroup gstreamer_options_api
+ * \brief Lightweight description of one configured gstreamer output.
  *
- * A \ref GStreamerDefinition is typically produced from a user option node and then specialized
- * per-thread by appending a thread suffix to the base filename.
+ * A streamer definition is the normalized representation of one object inside the
+ * \c -gstreamer option node. It captures:
+ * - the output \ref format plugin selector
+ * - the output \ref rootname base name
+ * - the semantic \ref type of data to be written
+ * - the optional \ref tid used to specialize filenames in multithreaded execution
  *
- * Members:
- * - \ref format : output format selector (e.g. \c "root", \c "ascii", \c "jlabsro", \c "csv").
- * - \ref rootname : user-provided base filename (without extension). A per-thread suffix may be appended.
- * - \ref type : semantic output type (e.g. \c "event" or \c "stream"). Plugins may use this to select
- *   which hooks are implemented.
- * - \ref tid : thread id used to specialize the filename; negative means "not thread specialized".
+ * The struct does not own any file or plugin resources. It is purely a value object used during
+ * configuration parsing and streamer instantiation.
  */
 struct GStreamerDefinition
 {
@@ -38,77 +42,92 @@ struct GStreamerDefinition
 	GStreamerDefinition() = default;
 
 	/**
-	 * \brief Construct from explicit fields.
-	 * \param f Output format token.
-	 * \param n Base filename (without extension).
-	 * \param t Output type token.
+	 * \brief Construct a definition from explicit field values.
+	 *
+	 * \param f Output format token used to choose the plugin implementation.
+	 * \param n Base output filename without extension.
+	 * \param t Semantic output type such as \c "event" or \c "stream".
 	 */
 	GStreamerDefinition(std::string f, std::string n, std::string t) :
 		format(std::move(f)), rootname(std::move(n)), type(std::move(t)) {
 	}
 
 	/**
-	 * \brief Construct a per-thread variant of an existing definition.
+	 * \brief Construct a per-thread specialization from an existing definition.
 	 *
-	 * If \p t is non-negative, the constructor appends \c "_t<tid>" to \ref rootname.
-	 * If \p t is negative, the original \ref rootname is preserved and \ref tid remains negative.
+	 * When \p t is non-negative, the constructor appends \c "_t<tid>" to the source
+	 * \ref rootname so that each worker thread naturally writes to a distinct output name.
+	 * When \p t is negative, the original base name is preserved unchanged.
 	 *
-	 * \param other Source definition (usually shared across all threads).
-	 * \param t Thread id. Use a negative value to disable filename specialization.
+	 * \param other Source definition to copy.
+	 * \param t Worker thread identifier. A negative value disables filename specialization.
 	 */
 	GStreamerDefinition(const GStreamerDefinition& other, int t) :
 		format(other.format), rootname(other.rootname + "_t" + std::to_string(t)), type(other.type), tid(t) {
 		if (tid < 0) {
-			rootname = other.rootname; // if tid is negative, use the original rootname
+			rootname = other.rootname;
 		}
 	}
 
-	/// \brief Output format token used to select a plugin.
+	/// \brief Output format token used to select the plugin implementation.
 	std::string format;
 
-	/// \brief Base filename (without extension), possibly specialized by thread id.
+	/// \brief Base output filename without extension, optionally specialized by thread id.
 	std::string rootname;
 
-	/// \brief Semantic output type token (e.g. \c "event" or \c "stream").
+	/// \brief Semantic output type, typically \c "event" or \c "stream".
 	std::string type;
 
-	/// \brief Thread id used to specialize \ref rootname; negative means "not specialized".
+	/// \brief Worker thread id associated with this definition, or a negative value when not specialized.
 	int tid = -1;
 
 	/**
-	 * \brief Return the plugin library / object name used by the dynamic loader.
+	 * \brief Return the plugin library name expected by the dynamic loader.
 	 *
-	 * The convention is: \c "gstreamer_<format>_plugin".
+	 * The naming convention used by this module is:
+	 * \code
+	 * gstreamer_<format>_plugin
+	 * \endcode
 	 *
-	 * \return The plugin name derived from \ref format.
+	 * \return Plugin object name derived from the current \ref format field.
 	 */
 	[[nodiscard]] std::string gstreamerPluginName() const { return "gstreamer_" + format + "_plugin"; }
 };
 
 
 namespace gstreamer {
+
 /**
- * \brief Parse gstreamer output definitions from options.
+ * \ingroup gstreamer_options_api
+ * \brief Parse all configured gstreamer output definitions from the options container.
  *
- * This reads the \c "gstreamer" option node and creates a list of \ref GStreamerDefinition objects.
- * Each entry is expected to contain:
- * - \c format : plugin format token.
- * - \c filename : base output filename (without extension).
- * - \c type : output type token (defaults to \c "event" when omitted).
+ * This function reads the \c "gstreamer" option node and converts each object entry into a
+ * \ref GStreamerDefinition value. Each entry is expected to provide:
+ * - \c format : plugin format selector
+ * - \c filename : base output filename
+ * - \c type : semantic output type, defaulting to \c "event" when omitted
  *
- * \param gopts Options container.
- * \return Vector of configured output definitions.
+ * The returned vector preserves the order found in the option node, which is useful when the
+ * caller wants output instantiation or reporting to follow user configuration order.
+ *
+ * \param gopts Parsed options container supplying the \c "gstreamer" node.
+ * \return Vector of configured streamer definitions.
  */
 std::vector<GStreamerDefinition> getGStreamerDefinition(const std::shared_ptr<GOptions>& gopts);
 
 /**
- * \brief Contribute gstreamer options to the global option set.
+ * \ingroup gstreamer_options_api
+ * \brief Define the options contributed by the gstreamer module.
  *
- * The returned GOptions aggregates:
- * - gstreamer options (buffer settings and output definitions)
- * - options from dependent modules (e.g. gdynamicdigitization)
+ * The returned GOptions object contains:
+ * - gstreamer-specific options such as \c ebuffer and \c -gstreamer
+ * - the option definitions contributed by dependent modules currently aggregated here
  *
- * \return A fully populated GOptions instance for this module.
+ * This function is typically used by applications and examples as the module entry point for
+ * command-line configuration.
+ *
+ * \return Fully populated option definition object for the module.
  */
 GOptions defineOptions();
+
 }

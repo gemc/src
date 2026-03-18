@@ -1,10 +1,12 @@
 /**
- * \file GDigitizedData.cc
- * \brief Implementation of GDigitizedData.
+ * \file gDigitizedData.cc
+ * \brief Implements GDigitizedData.
  *
- * \details
- * The header GDigitizedData.h contains the authoritative API documentation, including
- * filtering semantics and event-versus-integration usage.
+ * Non-Doxygen implementation summary:
+ * - copies hit identity at construction so the object is independent of the source hit lifetime
+ * - stores scalar observables with overwrite semantics for event usage
+ * - accumulates scalar observables by summation for integrated usage
+ * - builds filtered map snapshots that separate SRO from non-SRO content
  */
 
 #include "gDigitizedData.h"
@@ -51,13 +53,16 @@ bool GDigitizedData::validVarName(const std::string& varName, int which) {
 	bool isSROVar = (varName == CRATESTRINGID || varName == SLOTSTRINGID || varName == CHANNELSTRINGID ||
 	                 varName == CHARGEATELECTRONICS || varName == TIMEATELECTRONICS);
 
+	// which == 0 means the caller wants non-SRO variables only.
 	if (which == 0) {
 		if (isSROVar) { return false; }
 	}
+	// which == 1 means the caller wants SRO variables only.
 	else if (which == 1) {
 		if (!isSROVar) { return false; }
 	}
 
+	// Any other selector currently behaves like "no additional filtering".
 	return true;
 }
 

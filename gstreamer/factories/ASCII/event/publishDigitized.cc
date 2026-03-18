@@ -2,10 +2,12 @@
 #include "gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-// using \n instead of endl so flushing isn't forced at each line
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Write one detector digitized bank for the current event in human-readable text form.
+// Use '\n' instead of std::endl so each line does not force a flush.
+
 bool GstreamerTextFactory::publishEventDigitizedDataImpl(const std::string&                        detectorName,
-                                                         const std::vector<const GDigitizedData*>& digitizedData) {
+														 const std::vector<const GDigitizedData*>& digitizedData) {
 	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
 
 	ofile << GTAB << "Detector <" << detectorName << "> Digitized Bank {\n";
@@ -15,7 +17,8 @@ bool GstreamerTextFactory::publishEventDigitizedDataImpl(const std::string&     
 
 		ofile << GTABTAB << "Hit address: " << identifierString << " {\n";
 
-		// argument passed to getter: 0 = do not get sro vars
+		// Argument passed to getter:
+		// 0 means "do not include SRO variables".
 		for (const auto& [variableName, value] : dgtzHit->getIntObservablesMap(0)) {
 			ofile << GTABTABTAB << variableName << ": " << value << "\n";
 		}

@@ -2,20 +2,17 @@
 #include "gstreamerCSVFactory.h"
 #include "gstreamerConventions.h"
 
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Manage the lifetime of the two CSV streams used by the plugin.
 
 bool GstreamerCsvFactory::openConnection() {
-	// Both streams must be open for the CSV plugin to operate.
-	if (ofile_true_info.is_open() && ofile_true_info.is_open()) {
-		// Already open for this thread; nothing to do.
+	// Both streams must be open for the CSV backend to operate correctly.
+	if (ofile_true_info.is_open() && ofile_digitized.is_open()) {
 		return true;
 	}
 
 	if (!ofile_true_info.is_open()) {
-		ofile_true_info.clear(); // clear fail/eof bits from last use
-		// std::ios::out — open for writing.
-		// std::ios::trunc — if the file already exists, truncate it to size 0 on open (wipe its contents). If it doesn’t exist, it will be created.
-		// another variant: std::ios::app: append
+		ofile_true_info.clear();
 		ofile_true_info.open(filename_true_info(), std::ios::out | std::ios::trunc);
 
 		if (!ofile_true_info.is_open() || !ofile_true_info) {
@@ -23,31 +20,24 @@ bool GstreamerCsvFactory::openConnection() {
 		}
 
 		log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: opened file " + filename_true_info());
-
 	}
 
 	if (!ofile_digitized.is_open()) {
-		ofile_digitized.clear(); // clear fail/eof bits from last use
-		// std::ios::out — open for writing.
-		// std::ios::trunc — if the file already exists, truncate it to size 0 on open (wipe its contents). If it doesn’t exist, it will be created.
-		// another variant: std::ios::app: append
+		ofile_digitized.clear();
 		ofile_digitized.open(filename_digitized(), std::ios::out | std::ios::trunc);
 
-		if (!ofile_digitized.is_open() || !ofile_true_info) {
+		if (!ofile_digitized.is_open() || !ofile_digitized) {
 			log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename_digitized());
 		}
 
 		log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: opened file " + filename_digitized());
-
 	}
-
 
 	return true;
 }
 
 bool GstreamerCsvFactory::closeConnectionImpl() {
-	// Ensure any buffered events are written before closing the files.
-	flushEventBuffer();
+	// The public closeConnection() wrapper already flushes buffered events before this method runs.
 
 	if (ofile_true_info.is_open()) ofile_true_info.close();
 	if (ofile_digitized.is_open()) ofile_digitized.close();
@@ -61,7 +51,6 @@ bool GstreamerCsvFactory::closeConnectionImpl() {
 
 	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_true_info());
 	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_digitized());
-
 
 	return true;
 }

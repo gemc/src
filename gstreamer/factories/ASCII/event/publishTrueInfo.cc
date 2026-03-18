@@ -2,10 +2,12 @@
 #include "gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-// using \n instead of endl so flushing isn't forced at each line
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Write one detector true-information bank for the current event in text form.
+// Use '\n' instead of std::endl so each line does not force a flush.
+
 bool GstreamerTextFactory::publishEventTrueInfoDataImpl(const std::string&                       detectorName,
-                                                        const std::vector<const GTrueInfoData*>& trueInfoData) {
+														const std::vector<const GTrueInfoData*>& trueInfoData) {
 	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
 
 	ofile << GTAB << "Detector <" << detectorName << "> True Info Bank {\n";

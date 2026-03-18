@@ -2,15 +2,17 @@
 #include "gstreamerCSVFactory.h"
 #include "gstreamerConventions.h"
 
-// using \n instead of endl so flushing isn't forced at each line
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Flatten event-level true-information detector data into one CSV row per hit.
+
 bool GstreamerCsvFactory::publishEventTrueInfoDataImpl(const std::string&                       detectorName,
                                                        const std::vector<const GTrueInfoData*>& trueInfoData) {
 	if (!ofile_true_info.is_open()) {
 		log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_true_info());
 	}
 
-	// First non-empty event: print header from the first hit so columns match the hit variable maps.
+	// Emit the header row from the first non-empty detector collection so column names
+	// reflect the actual variable schema.
 	if (!is_first_event_with_truedata) {
 		if (trueInfoData.size() > 0) {
 			ofile_true_info << "evn, timestamp, thread_id, detector, ";
@@ -29,7 +31,7 @@ bool GstreamerCsvFactory::publishEventTrueInfoDataImpl(const std::string&       
 
 			for (const auto& [name, value] : dmap) {
 				ofile_true_info << name;
-				if (++i < total) ofile_true_info << ", "; // not last, write comma
+				if (++i < total) ofile_true_info << ", ";
 			}
 
 			ofile_true_info << "\n";
@@ -38,7 +40,7 @@ bool GstreamerCsvFactory::publishEventTrueInfoDataImpl(const std::string&       
 		}
 	}
 
-	// If we emitted a header, we have a stable column set and can write rows.
+	// Write one row per true-information hit.
 	if (is_first_event_with_truedata) {
 		for (auto trueInfoHit : trueInfoData) {
 			const auto& smap = trueInfoHit->getStringVariablesMap();
@@ -52,7 +54,7 @@ bool GstreamerCsvFactory::publishEventTrueInfoDataImpl(const std::string&       
 			for (const auto& [variableName, value] : smap) { ofile_true_info << value << ", "; }
 			for (const auto& [variableName, value] : dmap) {
 				ofile_true_info << value;
-				if (++i < total) ofile_true_info << ", "; // not last, write comma
+				if (++i < total) ofile_true_info << ", ";
 				else ofile_true_info << "\n";
 			}
 		}

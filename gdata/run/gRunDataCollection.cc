@@ -1,10 +1,12 @@
 /**
  * \file gRunDataCollection.cc
- * \brief Implementation of GRunDataCollection.
+ * \brief Implements GRunDataCollection.
  *
- * \details
- * The header gRunDataCollection.h contains the authoritative API documentation, including
- * current integration semantics and merge behavior.
+ * Non-Doxygen implementation summary:
+ * - creates detector-level accumulators lazily on first use
+ * - integrates digitized hit data from event containers into per-detector summaries
+ * - updates run-level counters through the owned run header
+ * - merges another already-integrated run container by combining counters and detector accumulators
  */
 
 #include "gRunDataCollection.h"

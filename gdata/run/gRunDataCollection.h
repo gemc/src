@@ -13,7 +13,8 @@
  *
  * Current implementation status:
  * - event integration currently processes digitized detector data
- * - truth-side aggregation is not currently performed by \ref GRunDataCollection::collect_event_data_collection "collect_event_data_collection()"
+ * - truth-side aggregation is not currently performed by
+ *   \ref GRunDataCollection::collect_event_data_collection "collect_event_data_collection()"
  *
  * Resulting structure:
  * - one detector entry per sensitive detector that contributed data
@@ -57,7 +58,17 @@ inline auto defineOptions() -> GOptions {
 } // namespace grun_data
 
 /**
+ * \defgroup gdata_run_collection GData run collection
+ * \brief Run-level detector summary built by integrating many event collections.
+ *
+ * \details
+ * This topic documents the object responsible for collecting detector data across events. It owns
+ * the run header and the per-detector summary map and also supports merging partial run accumulators.
+ */
+
+/**
  * \brief Owns and updates the run-level detector summary map.
+ * \ingroup gdata_run_collection
  *
  * \details
  * The object integrates event content detector by detector.

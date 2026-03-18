@@ -40,7 +40,17 @@ inline auto defineOptions() -> GOptions {
 } // namespace grun_header
 
 /**
+ * \defgroup gdata_run_header GData run header
+ * \brief Minimal metadata and counters associated with one run summary.
+ *
+ * \details
+ * This topic documents the header object owned by the run-level collection. It stores the run
+ * identifier together with bookkeeping counters tracking processed events and events contributing payload.
+ */
+
+/**
  * \brief Stores minimal run metadata and run-level event counters.
+ * \ingroup gdata_run_header
  *
  * \details
  * Main responsibilities:
@@ -112,7 +122,7 @@ public:
 	 * \brief Increments the processed-event counter by one.
 	 *
 	 * \details
-	 * Intended to be called once per event entering the run summary flow.
+	 * Intended to be called once per event entering the run-summary flow.
 	 */
 	void increment_events_processed() { events_processed++; }
 

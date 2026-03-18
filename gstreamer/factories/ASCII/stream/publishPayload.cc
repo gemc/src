@@ -2,12 +2,15 @@
 #include "gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Serialize the frame payload as a simple list of payload rows.
+
 bool GstreamerTextFactory::publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) {
 	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
 
 	ofile << GTAB << "Payload  {\n";
 
+	// Each GIntegralPayload contributes one line made of its packed integer values.
 	for (auto pload : *payload) {
 		for (auto pvar : pload->getPayload()) { ofile << GTABTAB << pvar; }
 		ofile << "\n";

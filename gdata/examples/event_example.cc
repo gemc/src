@@ -1,59 +1,68 @@
 /**
  * \file event_example.cc
- * \brief Event-level example demonstrating how to build and inspect \ref GEventDataCollection objects.
+ * \anchor event_example
+ * \brief Event-level example demonstrating how to build and inspect GEventDataCollection objects.
+ *
+ * \details
+ * Summary:
+ * - builds event containers
+ * - appends truth and digitized hit objects under one or more detector names
+ * - inspects the resulting structure, including filtered digitized observables
+ *
+ * Link to the example overview:
+ * - \ref event_example
  */
 
 /**
- * \defgroup gdata_event_example Event data collection example
- *
+ * \defgroup gdata_example_event_collection Event data collection example
  * \brief Event-level construction and inspection of per-detector hit data.
  *
  * \details
  * This example emulates a simplified event loop where each event produces hit data for one or more
- * sensitive detectors and stores them into a \ref GEventDataCollection.
+ * sensitive detectors and stores them into a GEventDataCollection.
  *
- * The \ref GEventDataCollection owns *per-hit* objects (event-level semantics). For each hit, two
- * complementary views may be produced and stored:
- * - \ref GTrueInfoData stores simulation-level ("truth") observables derived from tracking
- *   (energy deposition, step-averaged kinematics, positions, times, provenance labels, ...).
- * - \ref GDigitizedData stores electronics-level ("digitized") observables produced by
- *   detector response and digitization logic (ADC/TDC-like quantities, calibrated values, readout coordinates, ...).
+ * The GEventDataCollection owns per-hit objects. For each hit, two complementary views may be
+ * produced and stored:
+ * - GTrueInfoData stores simulation-level truth observables derived from tracking
+ * - GDigitizedData stores electronics-level observables produced by detector response and digitization logic
  *
  * For each event, data are organized as:
  * \code
- *   sdName -> GDataCollection
- *              - vector<unique_ptr<GTrueInfoData>>   (one per hit)
- *              - vector<unique_ptr<GDigitizedData>>  (one per hit)
+ * sdName -> GDataCollection
+ *             - vector<unique_ptr<GTrueInfoData>>   one entry per stored truth hit
+ *             - vector<unique_ptr<GDigitizedData>>  one entry per stored digitized hit
  * \endcode
- *
+ */
+
+/** @ingroup gdata_example_event_collection
  * \section gdata_event_demo What this example demonstrates
- * - Creating event containers with the factory \ref GEventDataCollection::create "create()".
- * - Adding *additional hits* and *additional detectors* to the same event with:
+ * - creating event containers with the factory \ref GEventDataCollection::create "create()"
+ * - adding additional hits and additional detector keys with:
  *   - \ref GEventDataCollection::addDetectorTrueInfoData "addDetectorTrueInfoData()"
  *   - \ref GEventDataCollection::addDetectorDigitizedData "addDetectorDigitizedData()"
- * - Inspecting stored data:
+ * - inspecting stored data:
  *   - per-detector hit counts
- *   - identity strings (\ref GTrueInfoData::getIdentityString "getIdentityString()",
- *     \ref GDigitizedData::getIdentityString "getIdentityString()")
+ *   - identity strings from
+ *     \ref GTrueInfoData::getIdentityString "getIdentityString()" and
+ *     \ref GDigitizedData::getIdentityString "getIdentityString()"
  *   - truth and digitized observable maps
- * - Demonstrating filtering of streaming-readout (SRO) keys for digitized data:
- *   - \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap(int)"
- *   - \ref GDigitizedData::getDblObservablesMap "getDblObservablesMap(int)"
+ * - demonstrating filtering of streaming-readout keys for digitized data with:
+ *   - \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap()"
+ *   - \ref GDigitizedData::getDblObservablesMap "getDblObservablesMap()"
  *
  * \section gdata_event_threading Threading model
  * The example uses a simple work-distribution pattern:
- * - A shared atomic counter assigns event numbers.
- * - Each worker thread builds independent \ref GEventDataCollection objects.
- * - Results are appended to a shared vector under a mutex.
+ * - a shared atomic counter assigns event numbers
+ * - each worker thread builds independent GEventDataCollection objects
+ * - results are appended to a shared vector under a mutex
  *
- * \note \ref GEventHeader::create "create()" and the test factories
- *       \ref GTrueInfoData::create "create()" and \ref GDigitizedData::create "create()"
- *       use internal thread-safe counters, so concurrent execution is supported for this
- *       example-style workload.
+ * \note
+ * GEventHeader::create(), GTrueInfoData::create(), and GDigitizedData::create()
+ * use internal thread-safe counters, so concurrent execution is supported for this example-style workload.
  *
  * \section gdata_event_usage Usage
  * Build this example together with the GData library components and required GEMC utilities
- * (logging, options, threads abstraction). Then run it to print a readable dump of each generated
+ * such as logging, options, and thread helpers. Run it to print a readable dump of each generated
  * event container.
  *
  * \author \n &copy; Maurizio Ungaro
@@ -63,7 +72,7 @@
  */
 
 // gdata
-#include "event/gEventDataCollection.h" // explicit include for clarity in the example
+#include "event/gEventDataCollection.h" // Explicit include for the example entry point.
 
 // gemc
 #include "glogger.h"
@@ -79,18 +88,18 @@
 #include <vector>
 
 /**
- * \brief Convert a scalar map into a compact, deterministic string for logging.
+ * \brief Converts a scalar map into a compact deterministic string.
  *
  * \details
- * This helper exists purely for examples/tests. It prints key/value pairs in the order given
+ * This helper exists only for examples and tests. It prints key/value pairs in the order provided
  * by the container.
  *
  * Determinism note:
- * - \c std::map iterates in lexicographic key order, which makes the output stable across runs.
+ * - \c std::map iterates in lexicographic key order, so the textual output is stable across runs
  *
  * \tparam MapType A map-like type with string keys and printable scalar values.
  * \param m The map to stringify.
- * \return A single-line representation like "{k1=v1, k2=v2}".
+ * \return One single-line representation such as \c "{k1=v1, k2=v2}".
  */
 template <typename MapType>
 static std::string map_to_string(const MapType& m) {
@@ -107,20 +116,23 @@ static std::string map_to_string(const MapType& m) {
 }
 
 /**
- * \brief Log a human-readable summary of all detector data contained in one event.
+ * \brief Logs a human-readable summary of all detector data stored in one event.
  *
  * \details
- * This performs a deep inspection of the \ref GEventDataCollection structure:
- * - loops over detectors (\c sdName)
+ * This function performs a deep inspection of the event structure:
+ * - loops over detectors in the event data map
  * - prints the number of truth hits and digitized hits
- * - for each hit prints identity and observables
+ * - prints identity strings and observables for each stored hit object
  *
- * For digitized data, this prints both filtered views to demonstrate SRO separation:
- * - \c which=0: non-SRO (physics/content) keys
- * - \c which=1: SRO-only keys (crate/slot/channel/timeAtElectronics/chargeAtElectronics)
+ * For digitized data, both filtered views are printed to demonstrate SRO separation:
+ * - \c which = 0 : non-SRO observables
+ * - \c which = 1 : SRO-only observables
  *
- * \param edc The event to inspect.
- * \param log Logger used to emit messages.
+ * The function is intentionally verbose because it is meant to show the structure of the module
+ * rather than to be used in production logging.
+ *
+ * \param edc Event collection to inspect.
+ * \param log Logger used to emit formatted messages.
  */
 static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const std::shared_ptr<GLogger>& log) {
 	log->info(0, "------------------------------------------------------------");
@@ -144,7 +156,7 @@ static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const s
 
 		log->info(0, "Detector <", sdName, ">: truthHits=", truthHits.size(), " digitizedHits=", digiHits.size());
 
-		// ---- Truth hits
+		// Truth hits are printed first so the example shows the simulation-side view before the readout-side view.
 		for (size_t i = 0; i < truthHits.size(); ++i) {
 			const auto& th = truthHits[i];
 			if (!th) continue;
@@ -164,7 +176,7 @@ static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const s
 			}
 		}
 
-		// ---- Digitized hits
+		// Digitized hits are printed with both SRO and non-SRO filtered views.
 		for (size_t i = 0; i < digiHits.size(); ++i) {
 			const auto& dh = digiHits[i];
 			if (!dh) continue;
@@ -180,25 +192,26 @@ static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const s
 			log->info(0, "    dbl  non-SRO: ", map_to_string(dbls_non_sro));
 			log->info(0, "    dbl  SRO:     ", map_to_string(dbls_sro_only));
 
-			// Convenience accessor demo (shows sentinel if missing).
+			// Demonstrate the convenience accessor for one common SRO quantity.
 			log->info(0, "    timeAtElectronics() = ", dh->getTimeAtElectronics());
 		}
 	}
 }
 
 /**
- * \brief Lightweight invariant checks for this example.
+ * \brief Performs lightweight invariant checks for the generated event structure.
  *
  * \details
- * This performs a few sanity checks that are useful when evolving the library:
- * - the event has at least one detector
- * - each detector collection has non-null hit pointers
+ * The checks are intentionally non-fatal so the example can continue and print diagnostics:
+ * - the event should contain at least one detector entry
+ * - detector collections should not be null
+ * - stored hit pointers should not be null
+ * - truth and digitized vector sizes are compared for convenience, although the API does not require them to match
  *
- * This is intentionally non-fatal. It logs diagnostics rather than aborting so the example
- * can continue printing the full event content for debugging.
+ * This is useful when evolving the example or validating future refactoring of container ownership.
  *
- * \param edc The event to validate.
- * \param log Logger instance.
+ * \param edc Event collection to validate.
+ * \param log Logger instance used to report diagnostics.
  */
 static void validate_event_structure(const std::shared_ptr<GEventDataCollection>& edc,
 									 const std::shared_ptr<GLogger>&              log) {
@@ -224,9 +237,7 @@ static void validate_event_structure(const std::shared_ptr<GEventDataCollection>
 			if (!digiHits[i]) log->info(0, "VALIDATION: detector <", sdName, "> digitized hit ", i, " is null.");
 		}
 
-		// A common expectation in production is matching truth and digitized hit counts per detector.
-		// This is not enforced by the API (you can add one without the other), but it is a useful
-		// consistency check for this demo-style producer.
+		// Matching truth and digitized counts are often expected by example producers, even though the API allows them to differ.
 		if (truthHits.size() != digiHits.size()) {
 			log->info(0, "VALIDATION: detector <", sdName, "> truthHits(", truthHits.size(),
 					  ") != digitizedHits(", digiHits.size(), ") in event ", edc->getEventNumber());
@@ -235,18 +246,22 @@ static void validate_event_structure(const std::shared_ptr<GEventDataCollection>
 }
 
 /**
- * \brief Produce a set of events using multiple worker threads.
+ * \brief Produces a set of events using multiple worker threads.
  *
  * \details
  * Each event is created via \ref GEventDataCollection::create "create()", then extended to demonstrate:
  * - adding additional hits under the same detector key
- * - adding a second detector key
+ * - adding a second detector key to the same event
+ *
+ * Each thread builds events independently, stores them temporarily in a thread-local vector,
+ * and appends them to the shared result vector under a mutex. This keeps synchronization simple
+ * while still exercising the example factories in parallel.
  *
  * \param nevents  Total number of events to generate.
- * \param nthreads Number of worker threads.
- * \param gopt     Shared options.
- * \param log      Logger.
- * \return Vector of event containers (one per event).
+ * \param nthreads Number of worker threads to launch.
+ * \param gopt     Shared options object.
+ * \param log      Logger used for progress messages.
+ * \return Vector of generated event containers, one shared pointer per event.
  */
 static auto run_simulation_in_threads(int                              nevents,
 									  int                              nthreads,
@@ -257,10 +272,10 @@ static auto run_simulation_in_threads(int                              nevents,
 	std::vector<std::shared_ptr<GEventDataCollection>> collected;
 	collected.reserve(static_cast<size_t>(nevents));
 
-	// Thread-safe integer event counter starts at 1 (local to this example run).
+	// Thread-safe event counter local to this example run.
 	std::atomic<int> next{1};
 
-	// Pool of threads. (jthread_alias joins on destruction.)
+	// Thread pool. The alias joins on destruction.
 	std::vector<jthread_alias> pool;
 	pool.reserve(nthreads);
 
@@ -270,7 +285,7 @@ static auto run_simulation_in_threads(int                              nevents,
 
 			int localCount = 0;
 
-			// Thread-local staging buffer to reduce lock contention on the shared vector.
+			// Thread-local staging buffer reduces lock contention on the shared collector vector.
 			thread_local std::vector<std::shared_ptr<GEventDataCollection>> localEvents;
 			localEvents.clear();
 
@@ -278,16 +293,16 @@ static auto run_simulation_in_threads(int                              nevents,
 				int evn = next.fetch_add(1, std::memory_order_relaxed);
 				if (evn > nevents) { break; }
 
-				// Create one event container (factory inserts one dummy hit for detector "ctof").
+				// Create one event container. The factory inserts one dummy hit for detector "ctof".
 				auto edc = GEventDataCollection::create(gopt);
 
-				// ---- Extend the event with extra content to exercise the API more thoroughly.
+				// Extend the event so the example exercises more than the minimal factory path.
 
-				// (1) Add a second hit under the existing detector ("ctof").
+				// Add a second hit under the existing detector key.
 				edc->addDetectorDigitizedData("ctof", GDigitizedData::create(gopt));
 				edc->addDetectorTrueInfoData("ctof", GTrueInfoData::create(gopt));
 
-				// (2) Add a second detector key ("ec") with one hit.
+				// Add a second detector with one hit pair.
 				edc->addDetectorDigitizedData("ec", GDigitizedData::create(gopt));
 				edc->addDetectorTrueInfoData("ec", GTrueInfoData::create(gopt));
 
@@ -308,11 +323,28 @@ static auto run_simulation_in_threads(int                              nevents,
 	return collected;
 }
 
+/**
+ * \brief Entry point for the event example.
+ *
+ * \details
+ * The program:
+ * - constructs the option bundle for event-level data containers
+ * - creates a logger
+ * - generates a small set of example events in parallel
+ * - validates each event structure
+ * - prints a readable dump of each event
+ *
+ * The event count is intentionally small so the output remains easy to inspect manually.
+ *
+ * \param argc Argument count forwarded to GOptions.
+ * \param argv Argument vector forwarded to GOptions.
+ * \return \c EXIT_SUCCESS on normal completion.
+ */
 int main(int argc, char* argv[]) {
 	// Aggregate options for event-level data collection.
 	auto gopts = std::make_shared<GOptions>(argc, argv, gevent_data::defineOptions());
 
-	// Event-data logger (domain: GEVENTDATA_LOGGER).
+	// Event-data logger.
 	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GEVENTDATA_LOGGER);
 
 	// Keep these small by default so the example output remains readable.
@@ -321,7 +353,7 @@ int main(int argc, char* argv[]) {
 
 	auto events = run_simulation_in_threads(nevents, nthreads, gopts, log);
 
-	// Demonstration: inspect and validate each event container.
+	// Inspect and validate each generated event container.
 	for (const auto& edc : events) {
 		if (!edc) continue;
 		validate_event_structure(edc, log);

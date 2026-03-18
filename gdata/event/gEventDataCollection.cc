@@ -1,10 +1,11 @@
 /**
 * \file gEventDataCollection.cc
- * \brief Implementation of GEventDataCollection.
+ * \brief Implements GEventDataCollection.
  *
- * \details
- * The header gEventDataCollection.h contains the authoritative API documentation, ownership rules,
- * and event-level semantics for this class.
+ * Non-Doxygen implementation summary:
+ * - creates detector entries lazily on first insertion
+ * - transfers ownership of truth and digitized hit objects into detector-local containers
+ * - defines example/test counters for the event container and event header factories
  */
 
 #include "gEventDataCollection.h"

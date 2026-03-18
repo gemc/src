@@ -5,6 +5,9 @@
 // c++
 #include <sstream>
 
+// Implementation summary:
+// Start and finalize one JSON event object using the ordered event publish sequence.
+
 bool GstreamerJsonFactory::startEventImpl(const std::shared_ptr<GEventDataCollection>& event_data) {
 	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
 	if (!event_data) {
@@ -16,25 +19,24 @@ bool GstreamerJsonFactory::startEventImpl(const std::shared_ptr<GEventDataCollec
 		return false;
 	}
 
+	// Ensure the top-level JSON document is initialized for event output.
 	ensureFileInitializedForType("event");
 
-	// Reset per-event assembly.
+	// Reset all per-event assembly state.
 	is_building_event = true;
 	current_event.str(std::string());
 	current_event.clear();
 	current_event_has_header       = false;
 	current_event_has_any_detector = false;
 
-	// Cache a few commonly used fields for convenience / diagnostics.
+	// Cache the event number early so it is available to the root event object.
 	event_number = event_data->getHeader()->getG4LocalEvn();
 
-	// Build the event object incrementally.
 	current_event << "{";
 	current_event << "\"event_number\": " << event_number;
 
-	// Header and detectors will be appended by subsequent publish calls.
+	// Open the header object now. publishEventHeaderImpl() fills its contents.
 	current_event << ", \"header\": {";
-	// Header fields will be inserted by publishEventHeaderImpl; keep the object open for now.
 	return true;
 }
 
@@ -44,28 +46,23 @@ bool GstreamerJsonFactory::endEventImpl(const std::shared_ptr<GEventDataCollecti
 		return false;
 	}
 
-	// Close header object if it was never completed (should not happen in normal flow).
+	// If the caller skipped the header step, emit a minimal fallback so the JSON remains valid.
 	if (!current_event_has_header) {
-		// Emit a minimal header block so the JSON remains valid.
 		current_event << "\"timestamp\": \"\", \"thread_id\": -1";
 	}
-	current_event << "}"; // close "header"
+	current_event << "}";
 
-	// Ensure detectors object exists even if empty (predictable schema).
+	// Keep the event schema predictable even when no detector banks were published.
 	if (!current_event_has_any_detector) {
 		current_event << ", \"detectors\": {}";
 	}
 
-	current_event << "}"; // close event object
+	current_event << "}";
 
-	// Write to file.
 	writeTopLevelEntry(current_event.str());
 
-	// Reset state.
 	is_building_event = false;
 
-	// event_data is intentionally unused (kept for signature consistency and future diagnostics).
 	(void)event_data;
-
 	return true;
 }

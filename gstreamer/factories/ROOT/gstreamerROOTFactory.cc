@@ -5,10 +5,9 @@
 // keeps the include independent of TROOT
 #include <ROOT/RConfig.hxx>
 
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Enable ROOT thread safety at plugin load time and provide lazy tree-creation helpers.
 
-// enable root thread safety in a static call that
-// runs before control returns from dlopen() as soon as libGstreamerRootFactory.so is loaded.
 namespace {
 	struct EnableRootTS
 	{
@@ -18,10 +17,11 @@ namespace {
 		}
 	};
 
-	static EnableRootTS _enableROOTLocks; // global object, static storage duration.
-}                                         // unnamed namespace
+	static EnableRootTS _enableROOTLocks;
+}
 
-// Return the header tree pointer from the map. If it's not there, initialize the smart pointer.
+// Implementation summary:
+// Return the event-header tree, creating it on first use.
 const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTree(
 	[[maybe_unused]] const std::unique_ptr<GEventHeader>& event_header) {
 	rootfile->cd();
@@ -35,18 +35,18 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTr
 		log->error(ERR_PUBLISH_ERROR, "event header is null in GstreamerRootFactory::getOrInstantiateHeaderTree");
 	}
 
-	// If the key does not exist, this inserts a new entry with a default value
-	// and returns a reference to it.
+	// operator[] either returns the existing entry or creates an empty one.
 	auto& treePtr = gRootTrees[EVENTHEADERTREENAME];
 	if (!treePtr) {
 		log->info(2, "GstreamerRootFactory", "Creating ROOT", EVENTHEADERTREENAME, " tree");
-		treePtr = std::make_unique<GRootTree>(event_header, log); // add the new tree to the map
+		treePtr = std::make_unique<GRootTree>(event_header, log);
 	}
 
 	return treePtr;
 }
 
-// Return the header tree pointer from the map. If it's not there, initialize the smart pointer.
+// Implementation summary:
+// Return the run-header tree, creating it on first use.
 const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTree(
 	[[maybe_unused]] const std::unique_ptr<GRunHeader>& run_header) {
 	rootfile->cd();
@@ -60,18 +60,17 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTr
 		log->error(ERR_PUBLISH_ERROR, "run header is null in GstreamerRootFactory::getOrInstantiateHeaderTree");
 	}
 
-	// If the key does not exist, this inserts a new entry with a default value
-	// and returns a reference to it.
 	auto& treePtr = gRootTrees[RUNHEADERTREENAME];
 	if (!treePtr) {
 		log->info(2, "GstreamerRootFactory", "Creating ROOT", RUNHEADERTREENAME, " tree");
-		treePtr = std::make_unique<GRootTree>(run_header, log); // add the new tree to the map
+		treePtr = std::make_unique<GRootTree>(run_header, log);
 	}
 
 	return treePtr;
 }
 
-// gdata passed here is guaranteed not a nullptr
+// Implementation summary:
+// Return the true-information detector tree, creating it lazily from the first sample hit.
 const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateTrueInfoDataTree(
 	const std::string&   detectorName,
 	const GTrueInfoData* gdata) {
@@ -80,13 +79,14 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateTrueInfo
 	auto& treePtr = gRootTrees[treeName];
 	if (!treePtr) {
 		log->info(2, "GstreamerRootFactory", "Creating GTrueInfoData ROOT tree for ", detectorName);
-		treePtr = std::make_unique<GRootTree>(treeName, gdata, log); // add the new tree to the map
+		treePtr = std::make_unique<GRootTree>(treeName, gdata, log);
 	}
 
 	return treePtr;
 }
 
-// gdata passed here is guaranteed not a nullptr
+// Implementation summary:
+// Return the digitized detector tree, creating it lazily from the first sample hit.
 const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateDigitizedDataTree(
 	const std::string&    detectorName,
 	const GDigitizedData* gdata) {
@@ -95,14 +95,15 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateDigitize
 	auto& treePtr = gRootTrees[treeName];
 	if (!treePtr) {
 		log->info(2, "GstreamerRootFactory", "Creating GDigitizedData ROOT tree for ", detectorName);
-		treePtr = std::make_unique<GRootTree>(treeName, gdata, log); // add the new tree to the map
+		treePtr = std::make_unique<GRootTree>(treeName, gdata, log);
 	}
 
 	return treePtr;
 }
 
 
-// tells the DLL how to create a GStreamerFactory in each plugin .so/.dylib
+// Implementation summary:
+// Export the factory symbol required by the plugin loader.
 extern "C" GStreamer* GStreamerFactory(const std::shared_ptr<GOptions>& g) {
 	return static_cast<GStreamer*>(new GstreamerRootFactory(g));
 }

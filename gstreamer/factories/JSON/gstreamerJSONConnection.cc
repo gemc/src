@@ -5,9 +5,12 @@
 // c++
 #include <iomanip>
 
+// Implementation summary:
+// Manage the JSON output stream and the lifetime of the top-level JSON document.
+
 bool GstreamerJsonFactory::openConnection() {
 	if (ofile.is_open()) {
-		// Already open for this thread; nothing to do.
+		// Already open for this streamer instance.
 		return true;
 	}
 
@@ -21,7 +24,8 @@ bool GstreamerJsonFactory::openConnection() {
 
 	log->info(1, SFUNCTION_NAME, "GstreamerJsonFactory: opened file " + filename());
 
-	// Defer writing the top-level JSON object until we know whether this is an event or stream writer.
+	// The top-level JSON container depends on whether this instance ends up writing
+	// events or frames, so defer initialization until the first publish call.
 	is_file_initialized         = false;
 	wrote_first_top_level_entry = false;
 	top_level_type.clear();
@@ -30,10 +34,9 @@ bool GstreamerJsonFactory::openConnection() {
 }
 
 bool GstreamerJsonFactory::closeConnectionImpl() {
-	// Ensure buffered events are written before closing the JSON structure.
-	flushEventBuffer();
+	// The public closeConnection() wrapper already flushes buffered events before this method runs.
 
-	// Close the JSON document if we ever started it.
+	// Finalize the top-level JSON structure only if it was ever started.
 	closeTopLevelObjectIfNeeded();
 
 	if (ofile.is_open()) ofile.close();
@@ -51,8 +54,10 @@ void GstreamerJsonFactory::ensureFileInitializedForType(const std::string& type)
 
 	top_level_type = type;
 
-	// Single top-level object with a single array.
-	// { "type":"event", "events":[ ... ] }
+	// Single top-level object with exactly one active array:
+	//   { "type": "event",  "events": [ ... ] }
+	// or
+	//   { "type": "stream", "frames": [ ... ] }
 	ofile << "{\n";
 	ofile << "  \"type\": \"" << jsonEscape(type) << "\",\n";
 
@@ -68,26 +73,26 @@ void GstreamerJsonFactory::ensureFileInitializedForType(const std::string& type)
 }
 
 void GstreamerJsonFactory::writeTopLevelEntry(const std::string& entry_json) {
-	// The caller must have initialized the file for the correct type.
+	// This helper assumes the correct top-level array has already been opened.
 	if (!is_file_initialized) {
 		log->error(ERR_PUBLISH_ERROR, "JSON file is not initialized in GstreamerJsonFactory::writeTopLevelEntry");
 		return;
 	}
 
-	// Comma-separate entries inside the array.
+	// Entries inside the top-level array are comma-separated.
 	if (wrote_first_top_level_entry) {
 		ofile << ",\n";
 	}
 	wrote_first_top_level_entry = true;
 
-	// Indent entries consistently.
+	// Keep a stable indentation level for readability.
 	ofile << "    " << entry_json;
 }
 
 void GstreamerJsonFactory::closeTopLevelObjectIfNeeded() {
 	if (!is_file_initialized) return;
 
-	// Close array and object.
+	// Close the active top-level array and then the containing object.
 	ofile << "\n  ]\n";
 	ofile << "}\n";
 	is_file_initialized = false;

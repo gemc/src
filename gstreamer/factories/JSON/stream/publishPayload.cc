@@ -2,6 +2,9 @@
 #include "gstreamerJSONFactory.h"
 #include "gstreamerConventions.h"
 
+// Implementation summary:
+// Append the frame payload block to the JSON object currently being assembled.
+
 bool GstreamerJsonFactory::publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) {
 	if (!is_building_frame) {
 		log->error(ERR_PUBLISH_ERROR, "publishPayloadImpl called without an active frame in GstreamerJsonFactory");
@@ -12,7 +15,7 @@ bool GstreamerJsonFactory::publishPayloadImpl(const std::vector<GIntegralPayload
 		return false;
 	}
 
-	// Separate header from payload if header was written.
+	// Separate the payload block from the header block if both are present.
 	if (current_frame_has_header) current_frame << ", ";
 
 	current_frame << "\"payload\": [";
@@ -24,7 +27,7 @@ bool GstreamerJsonFactory::publishPayloadImpl(const std::vector<GIntegralPayload
 		if (wrote_first) current_frame << ", ";
 		wrote_first = true;
 
-		// Payload is a vector<int>. Encode as JSON array.
+		// Each payload object is written as one JSON array of integers.
 		current_frame << "[";
 		const auto vec = pl->getPayload();
 

@@ -2,7 +2,8 @@
 #include "gstreamerJLABSROFactory.h"
 #include "gstreamerConventions.h"
 
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Manage the lifetime of the binary output stream for the JLAB SRO backend.
 
 bool GstreamerJSROFactory::openConnection() {
 	ofile = new std::ofstream(filename());
@@ -22,5 +23,6 @@ bool GstreamerJSROFactory::closeConnectionImpl() {
 	}
 
 	delete ofile;
+	ofile = nullptr;
 	return true;
 }

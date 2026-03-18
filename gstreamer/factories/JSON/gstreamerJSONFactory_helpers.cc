@@ -1,8 +1,10 @@
 // gstreamer
 #include "gstreamerJSONFactory.h"
 
-// Basic JSON escaping for keys and string values.
-// This is intentionally minimal and avoids any external JSON dependency.
+// Implementation summary:
+// Minimal helper used by the JSON plugin to escape keys and string values
+// without relying on an external JSON library.
+
 std::string GstreamerJsonFactory::jsonEscape(const std::string& s) {
 	std::string out;
 	out.reserve(s.size() + 8);
@@ -24,9 +26,8 @@ std::string GstreamerJsonFactory::jsonEscape(const std::string& s) {
 		case '\t': out += "\\t";
 			break;
 		default:
-			// Control characters must be escaped in JSON.
+			// JSON requires control characters below 0x20 to be escaped.
 			if (c < 0x20) {
-				// Emit as \u00XX
 				static const char* hex = "0123456789abcdef";
 				out                    += "\\u00";
 				out                    += hex[(c >> 4) & 0xF];

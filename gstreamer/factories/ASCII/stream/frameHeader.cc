@@ -2,8 +2,10 @@
 #include "gstreamerASCIIFactory.h"
 #include "gstreamerConventions.h"
 
-// using \n instead of endl so flushing isn't forced at each line
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Serialize the frame header as an indented text block.
+// Use '\n' instead of std::endl so each line does not force a flush.
+
 bool GstreamerTextFactory::publishFrameHeaderImpl(const GFrameHeader* gframeHeader) {
 	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
 

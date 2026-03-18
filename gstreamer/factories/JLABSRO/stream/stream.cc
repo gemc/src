@@ -2,7 +2,8 @@
 #include "gstreamerJLABSROFactory.h"
 #include "gstreamerConventions.h"
 
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Build the packed frame record in memory before the header and payload are written out.
 
 bool GstreamerJSROFactory::startStreamImpl(const GFrameDataCollection* frameRunData) {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
@@ -12,14 +13,16 @@ bool GstreamerJSROFactory::startStreamImpl(const GFrameDataCollection* frameRunD
 	long int                              frameID       = header->getFrameID();
 	const std::vector<GIntegralPayload*>* intPayloadvec = frameRunData->getIntegralPayload();
 
+	// Reserve enough words for the packed binary header.
 	frame_data.resize(header_offset, 0);
 
+	// The first frame emits the SRO "super magic" words ahead of the normal records.
 	if (frameID == 1) {
 		std::vector<std::uint32_t> const super_magic = {0xC0DA2019, 0XC0DA0001};
 		ofile->write(reinterpret_cast<const char*>(super_magic.data()), sizeof(std::uint32_t) * 2);
 	}
 
-	// fill dataFrameHeader here or in publishFrameHeader
+	// Populate the binary record header directly inside the word buffer.
 	DataFrameHeader& dataFrameHeader = *reinterpret_cast<DataFrameHeader*>(frame_data.data());
 
 	dataFrameHeader.source_id      = 0;
@@ -30,8 +33,7 @@ bool GstreamerJSROFactory::startStreamImpl(const GFrameDataCollection* frameRunD
 	dataFrameHeader.ts_sec         = llswap((frameID * 65536) / static_cast<int>(1e9));
 	dataFrameHeader.ts_nsec        = llswap((frameID * 65536) % static_cast<int>(1e9));
 
-
-	//make payload data
+	// Build the payload words grouped by slot.
 	unsigned int crate = 0;
 	unsigned int slot, channel, charge, time;
 	unsigned int slots = 16;
@@ -55,12 +57,12 @@ bool GstreamerJSROFactory::startStreamImpl(const GFrameDataCollection* frameRunD
 			time                         = payload[4];
 
 			if (i == slot) {
-				//	      if(hit<100) cout << time << endl;
 				frame_data.push_back(charge | (channel << 13) | ((time / 4) << 17));
 				++hit_counter;
 			}
 		}
 
+		// Empty slots remove the marker word entirely.
 		if (hit_counter == 0) {
 			frame_data.pop_back();
 		}
@@ -72,6 +74,7 @@ bool GstreamerJSROFactory::startStreamImpl(const GFrameDataCollection* frameRunD
 			((hit_counter) << 16) | starting_point;
 	}
 
+	// Finalize the size fields after payload assembly is complete.
 	DataFrameHeader& dfh = *reinterpret_cast<DataFrameHeader*>(frame_data.data());
 
 	dfh.payload_length    = (uint32_t)frame_data.size() * sizeof(unsigned int) - sizeof(DataFrameHeader);

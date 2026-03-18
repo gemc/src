@@ -45,7 +45,17 @@ inline GOptions defineOptions() {
 } // namespace geventheader
 
 /**
+ * \defgroup gdata_event_header GData event header
+ * \brief Minimal metadata associated with one event container.
+ *
+ * \details
+ * This topic documents the event header used by event-level collections. It stores a local event
+ * number, a diagnostic thread identifier, and a human-readable timestamp assigned at construction.
+ */
+
+/**
  * \brief Stores minimal metadata for one event.
+ * \ingroup gdata_event_header
  *
  * \details
  * The object provides a compact event label and provenance bundle containing:

@@ -18,57 +18,68 @@
 
 /**
  * \file gstreamer.h
- * \brief Core streaming interface for gstreamer output plugins.
+ * \brief Core streaming interface and helper utilities for the gstreamer module.
+ * \ingroup gstreamer_core_api
  */
 
 /**
  * \class GStreamer
- * \brief Abstract base class for streaming GEMC event or frame data to output media.
+ * \ingroup gstreamer_core_api
+ * \brief Abstract base class for all gstreamer output plugins.
  *
- * \section gstreamer_lifecycle Lifecycle
- * A typical usage sequence for a concrete streamer is:
- * 1. Construct a derived streamer (usually through plugin loading).
- * 2. Configure it by calling \ref define_gstreamer "define_gstreamer()"
- *    and \ref set_loggers "set_loggers()".
- * 3. Open the underlying output medium via \ref openConnection "openConnection()".
- * 4. Publish data:
- *    - Events: call \ref publishEventData "publishEventData()" for each event.
- *      Events are buffered and written out when the buffer reaches a configured limit,
- *      or when \ref closeConnection "closeConnection()" is invoked.
- *    - Frames: frame streaming hooks exist, but frame publishing is currently plugin-defined
- *      (the base class provides the protected hook sequence).
- * 5. Close the output medium via \ref closeConnection "closeConnection()".
+ * \details
+ * A concrete streamer is responsible for serializing GEMC data collections into a specific
+ * backend format. The base class centralizes the common workflow:
+ * - connection lifecycle management
+ * - event buffering
+ * - ordered publish sequences for event, run, and frame data
+ * - logger setup and configuration propagation
  *
- * \section gstreamer_buffering Buffering model
- * The base class stores a per-streamer in-memory buffer of \c std::shared_ptr<GEventDataCollection>.
- * The buffer is flushed by \ref flushEventBuffer "flushEventBuffer()" when:
- * - the number of buffered events reaches \c bufferFlushLimit, or
- * - \ref closeConnection "closeConnection()" is called, or
- * - \ref startStream "startStream()" is called (to avoid mixing event and frame streams).
+ * Concrete plugins override only the protected implementation hooks they support.
  *
- * During flushing, each event is treated as read-only: the base class extracts raw pointers
- * from hit containers and passes those raw pointers to plugin hooks. The raw pointers remain
- * valid for the duration of the flush because the owning event shared pointer is kept alive
- * by the buffer.
+ * \section gstreamer_class_lifecycle Lifecycle
+ * A typical plugin instance follows this lifecycle:
+ * - construct the concrete streamer
+ * - bind one output definition through \ref define_gstreamer "define_gstreamer()"
+ * - load runtime settings through \ref set_loggers "set_loggers()"
+ * - call \ref openConnection "openConnection()"
+ * - publish run, event, or frame data
+ * - call \ref closeConnection "closeConnection()"
  *
- * \section gstreamer_threading Threading expectations
- * The gstreamer module is typically used with one streamer instance per worker thread.
- * The helper gstreamer::gstreamersMapPtr() creates such per-thread streamer maps.
- * The base class itself does not provide external synchronization; therefore:
- * - Do not share a single streamer instance across multiple threads unless the derived class
- *   implements its own locking.
+ * For event-based output, publication is buffered. Events are accumulated in memory and written
+ * in batches when the configured buffer threshold is reached or when the connection is closed.
  *
- * \section gstreamer_plugins Plugin factory symbol
- * Streamer plugins are loaded through a dynamic loader. Each plugin must expose an extern "C"
- * function named \c GStreamerFactory that returns a new \ref GStreamer instance. The helper
- * \ref instantiate "instantiate()" resolves that symbol via \c dlsym.
+ * \section gstreamer_class_buffering Buffering model
+ * Event publication uses an internal buffer of
+ * \c std::shared_ptr<GEventDataCollection>. This design ensures that all event-owned objects remain
+ * alive for the full duration of a flush. During the flush, the base class extracts raw pointers
+ * from the detector collections and passes them to plugin hooks as read-only views.
+ *
+ * The buffer is flushed when:
+ * - the number of queued events reaches \ref bufferFlushLimit
+ * - \ref closeConnection "closeConnection()" is called
+ * - \ref startStream "startStream()" is called, to avoid mixing buffered event data with frame data
+ *
+ * \section gstreamer_class_threading Threading expectations
+ * The class itself does not perform external synchronization. The intended usage pattern is one
+ * streamer instance per worker thread. The helper \ref gstreamer::gstreamersMapPtr "gstreamersMapPtr()"
+ * follows that model by creating a per-thread map of streamer objects.
+ *
+ * Sharing one streamer instance across threads is only safe if the derived plugin implements its
+ * own synchronization policy.
+ *
+ * \section gstreamer_class_factory Plugin factory symbol
+ * Concrete plugins are loaded dynamically and must expose an \c extern "C" factory function named
+ * \c GStreamerFactory. The static helper \ref instantiate "instantiate()" resolves that symbol from
+ * a dynamic library handle and constructs the plugin object.
  */
 class GStreamer : public GBase<GStreamer>
 {
 public:
 	/**
-	 * \brief Construct a streamer and bind it to module logging.
-	 * \param g Options container used to initialize logging and configuration.
+	 * \brief Construct the streamer base and initialize module logging.
+	 *
+	 * \param g Parsed options container used by the base logger infrastructure.
 	 */
 	explicit GStreamer(const std::shared_ptr<GOptions>& g) : GBase(g, GSTREAMER_LOGGER) {
 	}
@@ -76,24 +87,26 @@ public:
 	/**
 	 * \brief Virtual destructor.
 	 *
-	 * The destructor is virtual to ensure derived destructors run correctly when deleting
-	 * through a base pointer.
+	 * A virtual destructor is required because streamer instances are manipulated through base-class
+	 * pointers while the actual object type is a concrete plugin.
 	 */
 	virtual ~GStreamer() = default;
 
 	/**
-	 * \brief Open the output medium (file, socket, etc.).
+	 * \brief Open the output medium used by this streamer.
 	 *
-	 * Derived classes override this to acquire resources and validate accessibility.
+	 * Concrete plugins override this to acquire their backend resources, such as files, sockets,
+	 * or format-specific handles.
+	 *
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] virtual bool openConnection() { return false; }
 
 	/**
-	 * \brief Close the output medium after flushing any buffered events.
+	 * \brief Close the output medium after flushing buffered events.
 	 *
-	 * This calls \ref flushEventBuffer "flushEventBuffer()" first, then delegates to
-	 * \ref closeConnectionImpl "closeConnectionImpl()".
+	 * This public wrapper guarantees that pending event data are published before the plugin-specific
+	 * close logic executes.
 	 *
 	 * \return \c true on success, \c false on failure.
 	 */
@@ -103,90 +116,102 @@ public:
 	}
 
 	/**
-	 * \brief Implementation hook for closing the output medium.
+	 * \brief Plugin-specific close implementation hook.
 	 *
-	 * Derived classes override this to release resources (close files, detach trees, etc.).
+	 * Concrete plugins override this to release backend resources after the common wrapper has
+	 * already handled event-buffer flushing.
+	 *
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] virtual bool closeConnectionImpl() { return false; }
 
 	/**
-	 * \brief Buffer an event for later serialization.
+	 * \brief Queue one event for publication.
 	 *
-	 * The event is appended to an internal buffer. When the buffer reaches the configured
-	 * limit (\c bufferFlushLimit), the streamer flushes all buffered events in a single pass.
+	 * The event is appended to the internal event buffer. Once the number of buffered events reaches
+	 * \ref bufferFlushLimit, the base class flushes the entire buffer by calling the event publish
+	 * hook sequence on the derived plugin.
 	 *
-	 * \param event_data Event container to publish.
+	 * \param event_data Event data collection to publish.
 	 */
 	void publishEventData(const std::shared_ptr<GEventDataCollection>& event_data);
 
-
+	/**
+	 * \brief Publish one run-level data collection immediately.
+	 *
+	 * Run data are not buffered. The base class dispatches the run publish sequence directly to the
+	 * plugin-specific hooks.
+	 *
+	 * \param run_data Run data collection to publish.
+	 */
 	void publishRunData(const std::shared_ptr<GRunDataCollection>& run_data);
 
-
-	// runs the protected virtual methods below to write frames from a run to file
-	// void publishFrameRunData(const std::shared_ptr<GFrameDataCollection>& frameRunData);
-
 	/**
-	 * \brief Return the semantic stream type for this streamer.
+	 * \brief Return the semantic stream type associated with this streamer instance.
 	 *
-	 * This value comes from \ref gstreamer_definitions and is typically configured via options.
-	 * \return The type string (e.g. \c "event" or \c "stream").
+	 * The type comes from the configured \ref GStreamerDefinition and is typically \c "event" or
+	 * \c "stream".
+	 *
+	 * \return Stream type string stored in the current definition.
 	 */
 	[[nodiscard]] inline std::string getStreamType() const { return gstreamer_definitions.type; }
 
 	/**
 	 * \brief Assign the output definition used by this streamer instance.
 	 *
-	 * The caller may specify a thread id to specialize the filename. A negative thread id keeps
-	 * the original base filename unchanged.
+	 * The assigned definition determines the format token, base filename, type, and optional
+	 * thread-specialized naming.
 	 *
-	 * \param gstreamerDefinition Output definition (format, base filename, type).
-	 * \param tid Thread id used to specialize the filename (defaults to -1, meaning "no specialization").
+	 * \param gstreamerDefinition Streamer definition to bind to this instance.
+	 * \param tid Worker thread id used to specialize the filename. The default value keeps the
+	 * original name unchanged.
 	 */
 	inline void define_gstreamer(const GStreamerDefinition& gstreamerDefinition, int tid = -1) {
 		gstreamer_definitions = GStreamerDefinition(gstreamerDefinition, tid);
 	}
 
 	/**
-	 * \brief Return the list of supported output formats.
+	 * \brief Return the list of output format tokens supported by the module.
 	 *
-	 * This is a function-local static instead of a global variable to avoid static destruction order issues.
-	 * \return Reference to a stable list of supported format tokens.
+	 * This list represents the built-in plugin formats recognized by the module-level validation
+	 * helpers and option help text.
+	 *
+	 * \return Reference to the static supported-format list.
 	 */
 	static const std::vector<std::string>& supported_formats();
 
 	/**
-	 * \brief Check whether a format token is supported.
-	 * \param format Format token to validate (case-insensitive).
-	 * \return \c true if the format is supported, \c false otherwise.
+	 * \brief Validate whether a format token is supported.
+	 *
+	 * Validation is case-insensitive.
+	 *
+	 * \param format Format token to validate.
+	 * \return \c true when the token matches one of the supported formats, \c false otherwise.
 	 */
 	static bool is_valid_format(const std::string& format);
 
 	/**
-	 * \brief Configure streamer settings derived from options.
+	 * \brief Load streamer runtime settings from the parsed options container.
 	 *
-	 * Currently this extracts \c ebuffer and sets \c bufferFlushLimit.
-	 * \param g Options container.
+	 * At present this method configures the event buffer flush limit from the \c ebuffer option.
+	 *
+	 * \param g Parsed options container supplying module configuration.
 	 */
 	void set_loggers(const std::shared_ptr<GOptions>& g) {
 		bufferFlushLimit = g->getScalarInt("ebuffer");
 	}
 
 protected:
-	/// \brief Output definition used by this streamer (format, base name, type, thread id).
+	/// \brief Output definition currently bound to this streamer instance.
 	GStreamerDefinition gstreamer_definitions;
 
-	// Event virtual methods called during buffer flushing, in order.
-	// Each hook returns a bool for "success/failure" to support uniform logging and diagnostics.
-
 	/**
-	 * \brief Begin an event publish sequence.
+	 * \brief Begin publishing one buffered event.
 	 *
-	 * This wrapper validates \p event_data and its header, logs a debug trace, then calls
-	 * \ref startEventImpl "startEventImpl()".
+	 * The wrapper validates the input event and its header, emits debug logging, and delegates the
+	 * actual backend-specific behavior to the derived implementation.
 	 *
-	 * \param event_data Event being published.
+	 * \param event_data Event collection being published.
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool startEvent([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
@@ -200,18 +225,19 @@ protected:
 	}
 
 	/**
-	 * \brief Implementation hook for beginning an event publish sequence.
-	 * \param event_data Event being published.
+	 * \brief Plugin-specific implementation hook called at the start of one event publish sequence.
+	 *
+	 * \param event_data Event collection being published.
 	 * \return \c true on success, \c false on failure.
 	 */
 	virtual bool startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 		return false;
 	}
 
-
 	/**
-	 * \brief End an event publish sequence.
-	 * \param event_data Event being published.
+	 * \brief End publishing one buffered event.
+	 *
+	 * \param event_data Event collection being published.
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool endEvent([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
@@ -220,22 +246,22 @@ protected:
 	}
 
 	/**
-	 * \brief Implementation hook for ending an event publish sequence.
-	 * \param event_data Event being published.
+	 * \brief Plugin-specific implementation hook called at the end of one event publish sequence.
+	 *
+	 * \param event_data Event collection being published.
 	 * \return \c true on success, \c false on failure.
 	 */
 	virtual bool endEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 		return false;
 	}
 
-
 	/**
-	 * \brief Publish the event header.
+	 * \brief Publish the event header for the current event sequence.
 	 *
-	 * This wrapper validates \p gevent_header, logs a debug trace, then calls
-	 * \ref publishEventHeaderImpl "publishEventHeaderImpl()".
+	 * The wrapper validates the header pointer, emits debug logging, and delegates serialization to
+	 * the plugin implementation.
 	 *
-	 * \param gevent_header Event header unique pointer owned by the event container.
+	 * \param gevent_header Unique pointer owned by the source event collection.
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool publishEventHeader([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header) {
@@ -245,8 +271,9 @@ protected:
 	}
 
 	/**
-	 * \brief Implementation hook for publishing the event header.
-	 * \param gevent_header Event header unique pointer owned by the event container.
+	 * \brief Plugin-specific implementation hook for serializing one event header.
+	 *
+	 * \param gevent_header Unique pointer owned by the source event collection.
 	 * \return \c true on success, \c false on failure.
 	 */
 	virtual bool publishEventHeaderImpl([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header) {
@@ -254,62 +281,67 @@ protected:
 	}
 
 	/**
-	 * \brief Publish true (MC) information hits for one detector.
+	 * \brief Publish the true-information hit bank for one detector.
 	 *
-	 * The \p trueInfoData vector contains raw pointers that remain valid during the flush because
-	 * the owning hit containers are owned by the buffered event.
+	 * The vector contains raw pointers into event-owned hit objects. Those objects remain valid for
+	 * the duration of the flush because the owning event remains stored in the internal buffer.
 	 *
-	 * \param detectorName Detector / sensitive detector name (map key in the event collection).
-	 * \param trueInfoData Raw pointers to true info hits. The vector index corresponds to hit index.
+	 * \param detectorName Detector or sensitive-detector name identifying the collection.
+	 * \param trueInfoData Raw-pointer view of the detector true-information hits.
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool publishEventTrueInfoData([[maybe_unused]] const std::string& detectorName,
-												[[maybe_unused]] const std::vector<const GTrueInfoData*>&
-												trueInfoData) {
+												[[maybe_unused]] const std::vector<const GTrueInfoData*>& trueInfoData) {
 		log->debug(NORMAL, "GStreamer::publishEventTrueInfoData for detector ", detectorName);
 		return publishEventTrueInfoDataImpl(detectorName, trueInfoData);
 	}
 
 	/**
-	 * \brief Implementation hook for publishing true info hits for one detector.
-	 * \param detectorName Detector / sensitive detector name.
-	 * \param trueInfoData Raw pointers to true info hits.
+	 * \brief Plugin-specific implementation hook for one detector true-information collection.
+	 *
+	 * \param detectorName Detector or sensitive-detector name.
+	 * \param trueInfoData Raw-pointer view of the detector true-information hits.
 	 * \return \c true on success, \c false on failure.
 	 */
-	virtual bool publishEventTrueInfoDataImpl([[maybe_unused]] const std::string&                       detectorName,
+	virtual bool publishEventTrueInfoDataImpl([[maybe_unused]] const std::string& detectorName,
 											  [[maybe_unused]] const std::vector<const GTrueInfoData*>& trueInfoData) {
 		return false;
 	}
 
-
 	/**
-	 * \brief Publish digitized hits for one detector.
+	 * \brief Publish the digitized hit bank for one detector.
 	 *
-	 * The \p digitizedData vector contains raw pointers that remain valid during the flush because
-	 * the owning hit containers are owned by the buffered event.
+	 * The vector contains raw pointers into event-owned digitized hit objects and is valid for the
+	 * duration of the flush.
 	 *
-	 * \param detectorName Detector / sensitive detector name (map key in the event collection).
-	 * \param digitizedData Raw pointers to digitized hits. The vector index corresponds to hit index.
+	 * \param detectorName Detector or sensitive-detector name identifying the collection.
+	 * \param digitizedData Raw-pointer view of the detector digitized hits.
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool publishEventDigitizedData([[maybe_unused]] const std::string& detectorName,
-												 [[maybe_unused]] const std::vector<const GDigitizedData*>&
-												 digitizedData) {
+												 [[maybe_unused]] const std::vector<const GDigitizedData*>& digitizedData) {
 		log->debug(NORMAL, "GStreamer::publishEventDigitizedData for detector ", detectorName);
 		return publishEventDigitizedDataImpl(detectorName, digitizedData);
 	}
 
 	/**
-	 * \brief Implementation hook for publishing digitized hits for one detector.
-	 * \param detectorName Detector / sensitive detector name.
-	 * \param digitizedData Raw pointers to digitized hits.
+	 * \brief Plugin-specific implementation hook for one detector digitized collection.
+	 *
+	 * \param detectorName Detector or sensitive-detector name.
+	 * \param digitizedData Raw-pointer view of the detector digitized hits.
 	 * \return \c true on success, \c false on failure.
 	 */
 	virtual bool publishEventDigitizedDataImpl([[maybe_unused]] const std::string& detectorName,
-											   [[maybe_unused]] const std::vector<const GDigitizedData*>&
-											   digitizedData) { return false; }
+											   [[maybe_unused]] const std::vector<const GDigitizedData*>& digitizedData) {
+		return false;
+	}
 
-
+	/**
+	 * \brief Begin publishing one run-level collection.
+	 *
+	 * \param run_data Run collection being published.
+	 * \return \c true on success, \c false on failure.
+	 */
 	[[nodiscard]] bool startRun([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
 		if (!run_data) { log->error(ERR_PUBLISH_ERROR, "run_data is null in GStreamer::startRun"); }
 		if (!run_data->getHeader()) {
@@ -320,52 +352,90 @@ protected:
 		return startRunImpl(run_data);
 	}
 
-
+	/**
+	 * \brief Plugin-specific implementation hook called at the start of a run publish sequence.
+	 *
+	 * \param run_data Run collection being published.
+	 * \return \c true on success, \c false on failure.
+	 */
 	virtual bool startRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
 		return false;
 	}
 
+	/**
+	 * \brief End publishing one run-level collection.
+	 *
+	 * \param run_data Run collection being published.
+	 * \return \c true on success, \c false on failure.
+	 */
 	[[nodiscard]] bool endRun([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
 		log->debug(NORMAL, "GStreamer::endRun");
 		return endRunImpl(run_data);
 	}
 
+	/**
+	 * \brief Plugin-specific implementation hook called at the end of a run publish sequence.
+	 *
+	 * \param run_data Run collection being published.
+	 * \return \c true on success, \c false on failure.
+	 */
 	virtual bool endRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
 		return false;
 	}
 
+	/**
+	 * \brief Publish the run header for the current run sequence.
+	 *
+	 * \param run_header Unique pointer owned by the source run collection.
+	 * \return \c true on success, \c false on failure.
+	 */
 	bool publishRunHeader([[maybe_unused]] const std::unique_ptr<GRunHeader>& run_header) {
 		log->debug(NORMAL, "GStreamer::publishRunHeader");
 		return publishRunHeaderImpl(run_header);
 	}
 
+	/**
+	 * \brief Plugin-specific implementation hook for serializing one run header.
+	 *
+	 * \param run_header Unique pointer owned by the source run collection.
+	 * \return \c true on success, \c false on failure.
+	 */
 	virtual bool publishRunHeaderImpl([[maybe_unused]] const std::unique_ptr<GRunHeader>& run_header) {
 		return false;
 	}
 
+	/**
+	 * \brief Publish run-level digitized data for one detector.
+	 *
+	 * \param detectorName Detector or sensitive-detector name identifying the collection.
+	 * \param digitizedData Raw-pointer view of the detector digitized data.
+	 * \return \c true on success, \c false on failure.
+	 */
 	bool publishRunDigitizedData([[maybe_unused]] const std::string& detectorName,
-										 [[maybe_unused]] const std::vector<const GDigitizedData*>&
-										 digitizedData) {
+								 [[maybe_unused]] const std::vector<const GDigitizedData*>& digitizedData) {
 		log->debug(NORMAL, "GStreamer::publishRunDigitizedData for detector ", detectorName);
 		return publishRunDigitizedDataImpl(detectorName, digitizedData);
 	}
 
-
+	/**
+	 * \brief Plugin-specific implementation hook for one detector run-level digitized collection.
+	 *
+	 * \param detectorName Detector or sensitive-detector name.
+	 * \param digitizedData Raw-pointer view of the detector digitized data.
+	 * \return \c true on success, \c false on failure.
+	 */
 	virtual bool publishRunDigitizedDataImpl([[maybe_unused]] const std::string& detectorName,
-											 [[maybe_unused]] const std::vector<const GDigitizedData*>&
-											 digitizedData) { return false; }
-
-	// Frame stream virtual methods.
-	// These hooks are provided for plugins that serialize frame-based data.
-	// The base class flushes event buffers before starting a frame stream.
+											 [[maybe_unused]] const std::vector<const GDigitizedData*>& digitizedData) {
+		return false;
+	}
 
 	/**
-	 * \brief Begin a frame stream publish sequence.
+	 * \brief Begin publishing one frame stream record.
 	 *
-	 * This wrapper flushes pending events (to avoid mixing event and frame streams),
-	 * logs a debug trace, then calls \ref startStreamImpl "startStreamImpl()".
+	 * Pending event data are flushed first so the output sequence remains well defined if a plugin
+	 * supports both event and frame publication modes.
 	 *
-	 * \param frameRunData Frame container being published.
+	 * \param frameRunData Frame collection being published.
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool startStream([[maybe_unused]] const GFrameDataCollection* frameRunData) {
@@ -375,15 +445,17 @@ protected:
 	}
 
 	/**
-	 * \brief Implementation hook for beginning a frame stream publish sequence.
-	 * \param frameRunData Frame container being published.
+	 * \brief Plugin-specific implementation hook called at the start of a frame stream record.
+	 *
+	 * \param frameRunData Frame collection being published.
 	 * \return \c true on success, \c false on failure.
 	 */
 	virtual bool startStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) { return false; }
 
 	/**
-	 * \brief Publish a frame header.
-	 * \param gframeHeader Frame header pointer.
+	 * \brief Publish one frame header.
+	 *
+	 * \param gframeHeader Frame header pointer supplied by the caller.
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool publishFrameHeader([[maybe_unused]] const GFrameHeader* gframeHeader) {
@@ -392,15 +464,17 @@ protected:
 	}
 
 	/**
-	 * \brief Implementation hook for publishing a frame header.
-	 * \param gframeHeader Frame header pointer.
+	 * \brief Plugin-specific implementation hook for serializing one frame header.
+	 *
+	 * \param gframeHeader Frame header pointer supplied by the caller.
 	 * \return \c true on success, \c false on failure.
 	 */
 	virtual bool publishFrameHeaderImpl([[maybe_unused]] const GFrameHeader* gframeHeader) { return false; }
 
 	/**
-	 * \brief Publish a frame payload.
-	 * \param payload Pointer to payload vector.
+	 * \brief Publish one frame payload.
+	 *
+	 * \param payload Pointer to the frame integral-payload vector.
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool publishPayload([[maybe_unused]] const std::vector<GIntegralPayload*>* payload) {
@@ -409,15 +483,17 @@ protected:
 	}
 
 	/**
-	 * \brief Implementation hook for publishing a frame payload.
-	 * \param payload Pointer to payload vector.
+	 * \brief Plugin-specific implementation hook for serializing one frame payload.
+	 *
+	 * \param payload Pointer to the frame integral-payload vector.
 	 * \return \c true on success, \c false on failure.
 	 */
 	virtual bool publishPayloadImpl([[maybe_unused]] const std::vector<GIntegralPayload*>* payload) { return false; }
 
 	/**
-	 * \brief End a frame stream publish sequence.
-	 * \param frameRunData Frame container being published.
+	 * \brief End publishing one frame stream record.
+	 *
+	 * \param frameRunData Frame collection being published.
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool endStream([[maybe_unused]] const GFrameDataCollection* frameRunData) {
@@ -426,56 +502,54 @@ protected:
 	}
 
 	/**
-	 * \brief Implementation hook for ending a frame stream publish sequence.
-	 * \param frameRunData Frame container being published.
+	 * \brief Plugin-specific implementation hook called at the end of a frame stream record.
+	 *
+	 * \param frameRunData Frame collection being published.
 	 * \return \c true on success, \c false on failure.
 	 */
 	virtual bool endStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) { return false; }
 
 	/**
-	 * \brief Flush the internal event buffer, writing all buffered events to the output medium.
+	 * \brief Flush all buffered events to the backend in publish order.
 	 *
-	 * The flush sequence is:
-	 * - \ref startEvent "startEvent()"
-	 * - \ref publishEventHeader "publishEventHeader()"
-	 * - \ref publishEventTrueInfoData "publishEventTrueInfoData()" for each detector collection
-	 * - \ref publishEventDigitizedData "publishEventDigitizedData()" for each detector collection
-	 * - \ref endEvent "endEvent()"
-	 *
-	 * After flushing, the buffer is cleared.
+	 * For each buffered event, the base class executes the event publish sequence and then clears
+	 * the internal buffer. This method is called automatically when buffering reaches its threshold,
+	 * when the connection is closed, and before frame streaming begins.
 	 */
 	void flushEventBuffer();
 
 private:
 	/**
-	 * \brief Return the final output filename for this streamer instance.
+	 * \brief Return the final backend-specific output filename.
 	 *
-	 * This must be implemented by derived classes and typically uses \ref gstreamer_definitions.rootname
-	 * plus a format-specific extension.
+	 * Derived plugins must implement this method to append the correct extension or otherwise map
+	 * the current \ref gstreamer_definitions configuration to a final backend name.
 	 *
-	 * \return Output filename (including extension).
+	 * \return Output filename for the current streamer instance.
 	 */
-	[[nodiscard]] virtual std::string filename() const = 0; // must be implemented in derived classes
+	[[nodiscard]] virtual std::string filename() const = 0;
 
-	/// \brief Buffered events waiting to be flushed. The shared pointers keep event-owned data alive.
+	/// \brief Buffered events waiting to be flushed to the backend.
 	std::vector<std::shared_ptr<GEventDataCollection>> eventBuffer;
 
-	/// \brief Buffer flush threshold. Default is conservative and may be overridden via options.
-	size_t bufferFlushLimit = 10; // default; can be overridden
+	/// \brief Maximum number of buffered events before automatic flush.
+	size_t bufferFlushLimit = 10;
 
 public:
 	/**
-	 * \brief Instantiate a streamer plugin by resolving the \c GStreamerFactory symbol from a dynamic library.
+	 * \brief Instantiate a streamer plugin from a dynamic library handle.
+	 *
+	 * The method resolves the required \c GStreamerFactory symbol and invokes it with the supplied
+	 * options object.
 	 *
 	 * \param h Dynamic library handle.
-	 * \param g Options container passed to the plugin constructor.
-	 * \return A new streamer instance, or \c nullptr if the handle or symbol is invalid.
+	 * \param g Parsed options container forwarded to the plugin constructor.
+	 * \return Newly created plugin instance, or \c nullptr when the handle or symbol is invalid.
 	 */
 	static GStreamer* instantiate(const dlhandle h, std::shared_ptr<GOptions> g) {
 		if (!h) return nullptr;
 		using fptr = GStreamer* (*)(std::shared_ptr<GOptions>);
 
-		// Must match the extern "C" declaration in the derived factories.
 		auto sym = dlsym(h, "GStreamerFactory");
 		if (!sym) return nullptr;
 
@@ -486,24 +560,23 @@ public:
 
 
 namespace gstreamer {
+
 	using gstreamersMap = std::unordered_map<std::string, std::shared_ptr<GStreamer>>;
 
 	/**
-	 * \brief Create a per-thread map of streamer instances based on configured outputs.
+	 * \ingroup gstreamer_core_api
+	 * \brief Create a per-thread map of configured streamer instances.
 	 *
-	 * This helper is intended to run inside a worker thread. It:
-	 * - Parses the configured gstreamer outputs from options.
-	 * - Specializes each output definition with \p thread_id (appends \c "_t<id>" to the base filename).
-	 * - Dynamically loads the corresponding plugin and registers the object.
-	 * - Stores each streamer in the returned map and configures it with \ref GStreamer::define_gstreamer "define_gstreamer()".
+	 * This helper parses all configured output definitions, specializes each one for the requested
+	 * worker thread, dynamically loads the corresponding plugin, and stores the resulting streamer
+	 * object in the returned map.
 	 *
-	 * Note:
-	 * - The returned map is owned by the caller via a shared pointer.
-	 * - Opening connections is intentionally left to the caller (to keep API flexibility).
+	 * The helper intentionally does not open the backend connection. That step is left to the caller
+	 * so applications can decide how to handle failures and when to start the output lifetime.
 	 *
-	 * \param gopts Options container.
-	 * \param thread_id Worker thread id used to specialize output names.
-	 * \return Shared pointer to a map from plugin name to streamer instance.
+	 * \param gopts Parsed options container supplying streamer definitions.
+	 * \param thread_id Worker thread id used to specialize output names. The default leaves names unchanged.
+	 * \return Shared pointer to a constant map from plugin object name to streamer instance.
 	 */
 	inline std::shared_ptr<const gstreamersMap> gstreamersMapPtr(const std::shared_ptr<GOptions>& gopts,
 																 int                              thread_id = -1) {
@@ -518,21 +591,15 @@ namespace gstreamer {
 			auto        gstreamer_def_thread = GStreamerDefinition(gstreamer_def, thread_id);
 			std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
 
-			// Load and register the streamer plugin. The loader returns a shared_ptr<GStreamer>.
+			// Load the plugin object for this configured output.
 			auto streamer = manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts);
 			gstreamers->emplace(gstreamer_plugin, streamer);
 
-			// Bind the per-thread definition (in particular the per-thread filename) to the streamer instance.
+			// Bind the thread-specialized definition to the plugin instance.
 			gstreamers->at(gstreamer_plugin)->define_gstreamer(gstreamer_def_thread);
-
-			// Connection opening is intentionally not performed here. This is typically done by the caller
-			// to control error handling and output lifetime explicitly.
-			// Example:
-			// if (!gstreamers->at(gstreamer_plugin)->openConnection()) {
-			// 	log->error(1, "Failed to open connection for GStreamer ", gstreamer_plugin, " in thread ", gstreamer_def_thread.tid);
-			// }
 		}
 
 		return gstreamers;
 	}
+
 } // namespace gstreamer

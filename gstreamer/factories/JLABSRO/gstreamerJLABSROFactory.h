@@ -9,18 +9,18 @@
 
 /**
  * \file gstreamerJLABSROFactory.h
- * \brief JLAB SRO frame streamer plugin definitions.
- *
- * This plugin is specialized for producing binary frame records with a packed header (DataFrameHeader)
- * followed by payload words.
+ * \brief JLAB SRO binary frame streamer declarations.
+ * \ingroup gstreamer_plugin_jlabsro_api
  */
 
 #pragma pack(push, 1)
 /**
- * \brief Packed frame header written at the beginning of each frame record.
+ * \struct DataFrameHeader
+ * \ingroup gstreamer_plugin_jlabsro_api
+ * \brief Packed binary frame header written ahead of each JLAB SRO payload.
  *
- * Packing  is required to ensure that the binary layout matches the expected
- * on-disk/on-wire format without compiler-inserted padding bytes.
+ * This structure mirrors the exact binary layout expected by the target format. Packing is used so
+ * the compiler does not insert alignment padding between fields.
  */
 struct DataFrameHeader
 {
@@ -39,94 +39,97 @@ struct DataFrameHeader
 
 /**
  * \class GstreamerJSROFactory
- * \brief JLAB SRO gstreamer plugin producing binary frame streams (\c ".ev" files).
+ * \ingroup gstreamer_plugin_jlabsro_api
+ * \brief JLAB SRO plugin producing packed binary frame streams in \c ".ev" files.
  *
- * Output model:
- * - The plugin constructs a frame header and payload in a \c std::vector<unsigned int> buffer.
- * - The header and payload are written in two steps via the frame hook sequence:
- *   - publishFrameHeaderImpl() writes the packed header
- *   - publishPayloadImpl() writes the payload words
+ * This plugin is specialized for frame-stream output. It builds the current frame record into an
+ * in-memory word buffer containing:
+ * - one packed \ref DataFrameHeader
+ * - one payload section assembled from the incoming integral payload data
  *
- * Threading:
- * - Intended usage is one instance per worker thread (one output file per thread).
- * - The output file is owned as a raw \c std::ofstream* to match existing code; lifetime is managed
- *   in openConnection()/closeConnectionImpl().
+ * The buffer is then written in stages through the frame publish sequence.
+ *
+ * Threading model:
+ * - one instance per worker thread is the intended usage
+ * - the output stream is managed manually through a raw pointer to match the current implementation
  */
 class GstreamerJSROFactory : public GStreamer
 {
 public:
-	//	GstreamerJSROFactory() = default;
-
-	// inherit the base (const std::shared_ptr<GOptions>&) ctor
+	/// \brief Inherit the constructor taking the parsed options container.
 	using GStreamer::GStreamer;
 
 private:
-	// open and close the output media
+	/**
+	 * \brief Open the binary \c ".ev" output file.
+	 *
+	 * \return \c true on success, \c false otherwise.
+	 */
 	bool openConnection() override;
+
+	/**
+	 * \brief Close the binary output file.
+	 *
+	 * \return \c true on success, \c false otherwise.
+	 */
 	bool closeConnectionImpl() override;
 
-	// frame streams
+	/**
+	 * \brief Begin assembly of one binary frame record.
+	 *
+	 * The implementation prepares the packed header and assembles the frame payload words derived
+	 * from the incoming integral payload vectors.
+	 *
+	 * \param frameRunData Frame collection being serialized.
+	 * \return \c true on success, \c false otherwise.
+	 */
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;
+
+	/**
+	 * \brief End one binary frame record.
+	 *
+	 * \param frameRunData Frame collection being serialized.
+	 * \return \c true on success, \c false otherwise.
+	 */
 	bool endStreamImpl(const GFrameDataCollection* frameRunData) override;
+
+	/**
+	 * \brief Write the packed frame header portion of the current frame record.
+	 *
+	 * \param gframeHeader Frame header associated with the current record.
+	 * \return \c true on success, \c false otherwise.
+	 */
 	bool publishFrameHeaderImpl(const GFrameHeader* gframeHeader) override;
+
+	/**
+	 * \brief Write the payload portion of the current frame record.
+	 *
+	 * \param payload Integral payload collection associated with the current record.
+	 * \return \c true on success, \c false otherwise.
+	 */
 	bool publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) override;
 
-	// JLAB specific
+	/**
+	 * \brief Swap the two 32-bit halves of a 64-bit value.
+	 *
+	 * This helper is used while assembling packed header fields in the current implementation.
+	 *
+	 * \param val Input 64-bit value.
+	 * \return Reordered 64-bit value.
+	 */
 	static inline std::uint64_t llswap(unsigned long long val) { return (val >> 32) | (val << 32); }
 
 private:
-	/// \brief Output stream pointer for the binary \c ".ev" file.
+	/// \brief Binary output stream pointer for the current \c ".ev" file.
 	std::ofstream* ofile = nullptr;
 
-	/// \brief Buffer holding the current frame header and payload words.
+	/// \brief Word buffer containing the packed header followed by the current frame payload.
 	std::vector<unsigned int> frame_data{};
 
-	/// \brief Return the output filename for this instance (\c ".ev").
+	/**
+	 * \brief Return the final binary output filename for this plugin instance.
+	 *
+	 * \return Base output name plus the \c ".ev" extension.
+	 */
 	std::string filename() const override { return gstreamer_definitions.rootname + ".ev"; }
 };
-
-
-/**
- 
- Note on Pragma Pack
- 
- 
- #pragma pack instructs the compiler to pack structure members with particular alignment.
- Most compilers, when you declare a struct, will insert padding between members to ensure that
- they are aligned to appropriate addresses in memory (usually a multiple of the type's size).
- This avoids the performance penalty (or outright error) on some architectures associated
- with accessing variables that are not aligned properly.
- 
- For example, given 4-byte integers and the following struct:
- 
- struct Test
- {
- char AA;
- int BB;
- char CC;
- };
- The compiler could choose to lay the struct out in memory like this:
- 
- |   1        |   2       |   3      |   4     |
- 
- | AA(1)   |  pad......................... |
- | BB(1)   | BB(2) | BB(3) | BB(4) |
- | CC(1)   | pad.......................... |
- 
- and sizeof(Test) would be 4 × 3 = 12, even though it only contains 6 bytes of data.
- The most common use case for the #pragma (to my knowledge) is when working with hardware devices
- where you need to ensure that the compiler does not insert padding into the data and each member
- follows the previous one.
- 
- With #pragma pack(1), the struct above would be laid out like this:
- 
- |     1    |
- 
- | AA(1) |
- | BB(1) |
- | BB(2) |
- | BB(3) |
- | BB(4) |
- | CC(1) |
- 
- */

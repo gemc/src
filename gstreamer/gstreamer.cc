@@ -1,12 +1,15 @@
-// gstreamer 
+// gstreamer
 #include "gstreamer.h"
 
 // gemc
 #include "gutilities.h"
 
+// Implementation summary:
+// Common base-class logic for format validation, buffered event publication,
+// and immediate run publication. Concrete serialization remains in plugin hooks.
 
 const std::vector<std::string>& GStreamer::supported_formats() {
-	// Note: keep this list in sync with the available gstreamer_<format>_plugin factories.
+	// Keep this list aligned with the available gstreamer_<format>_plugin factories.
 	static const std::vector<std::string> formats = {"jlabsro", "root", "ascii", "csv", "json"};
 	return formats;
 }
@@ -20,21 +23,25 @@ bool GStreamer::is_valid_format(const std::string& format) {
 
 // pragma todo: pass someting like map<string, bitset> to each detector to decide which data to publish
 void GStreamer::publishEventData(const std::shared_ptr<GEventDataCollection>& event_data) {
-	// event_data and its header must not be null
+	// The event collection and its header are required for any plugin to publish
+	// a meaningful event record.
 	if (!event_data) { log->error(ERR_PUBLISH_ERROR, "event data is null in GStreamer::publishEventData"); }
 	if (!event_data->getHeader()) {
 		log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::publishEventData");
 	}
 
-	// add to the buffer
+	// Retain ownership of the event until the buffer is flushed. This guarantees
+	// that raw pointers extracted later from hit collections remain valid.
 	eventBuffer.emplace_back(event_data);
 
-	// flush if the buffer is full
+	// Once the configured threshold is reached, publish all buffered events in one pass.
 	if (eventBuffer.size() >= bufferFlushLimit) { flushEventBuffer(); }
 }
 
 
-// no buffer needed here, publish the whole run data
+// Implementation summary:
+// Run data are published immediately instead of being buffered. The publish order
+// mirrors the base-class run sequence: start, header, detector banks, end.
 void GStreamer::publishRunData(const std::shared_ptr<GRunDataCollection>& run_data) {
 	log->info(2, "GStreamer::publishRunData->startRun: ",
 			  gutilities::success_or_fail(startRun(run_data)));
@@ -42,11 +49,13 @@ void GStreamer::publishRunData(const std::shared_ptr<GRunDataCollection>& run_da
 	log->info(2, SFUNCTION_NAME, "->publishRunHeader -> ",
 		  gutilities::success_or_fail(publishRunHeader(run_data->getHeader())));
 
-	// possibly can filter out writing event data based on sdname
+	// Iterate over each detector collection and expose it to the plugin as a
+	// vector of raw pointers. The owning run collection remains alive throughout
+	// this method call.
 	for (const auto& [sdname, gDataCollection] : run_data->getDataCollectionMap()) {
 		const GDataCollection* tdptr = gDataCollection.get();
 
-		// extract the vector of raw pointers to publish
+		// Extract digitized hits into a flat raw-pointer view expected by the hooks.
 		std::vector<const GDigitizedData*> digitizedPtrs;
 		digitizedPtrs.reserve(tdptr->getDigitizedData().size());
 
@@ -64,7 +73,8 @@ void GStreamer::publishRunData(const std::shared_ptr<GRunDataCollection>& run_da
 void GStreamer::flushEventBuffer() {
 	log->info(2, "GStreamer::flushEventBuffer -> flushing ", eventBuffer.size(), " events to file");
 
-	// events are read only by the streamer
+	// Each buffered event is treated as read-only while the plugin hooks serialize it.
+	// The buffer's shared_ptr ownership keeps all event-owned hit objects alive during the flush.
 	for (const auto& eventData : eventBuffer) {
 		log->info(2, SFUNCTION_NAME, "->startEvent: ",
 				  gutilities::success_or_fail(startEvent(eventData)));
@@ -72,11 +82,12 @@ void GStreamer::flushEventBuffer() {
 		log->info(2, SFUNCTION_NAME, "->publishEventHeader -> ",
 				  gutilities::success_or_fail(publishEventHeader(eventData->getHeader())));
 
-		// possibly can filter out writing event data based on sdname
+		// Publish one detector collection at a time.
 		for (const auto& [sdname, gDataCollection] : eventData->getDataCollectionMap()) {
 			const GDataCollection* tdptr = gDataCollection.get();
 
-			// extract the vector of raw pointers to publish
+			// Convert ownership-bearing containers into temporary raw-pointer views.
+			// Plugins consume these views immediately and do not own the pointed data.
 			std::vector<const GTrueInfoData*>  trueInfoPtrs;
 			std::vector<const GDigitizedData*> digitizedPtrs;
 			trueInfoPtrs.reserve(tdptr->getTrueInfoData().size());
@@ -95,6 +106,7 @@ void GStreamer::flushEventBuffer() {
 		log->info(2, "GStreamer::endEvent -> ", gutilities::success_or_fail(endEvent(eventData)));
 	}
 
+	// All buffered events have now been handed to the plugin hooks.
 	eventBuffer.clear();
 }
 

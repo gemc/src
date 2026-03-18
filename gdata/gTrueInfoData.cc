@@ -1,10 +1,12 @@
 /**
  * \file gTrueInfoData.cc
- * \brief Implementation of GTrueInfoData.
+ * \brief Implements GTrueInfoData.
  *
- * \details
- * The header gTrueInfoData.h contains the authoritative API documentation, usage semantics,
- * and data-model notes for this class.
+ * Non-Doxygen implementation summary:
+ * - copies hit identity at construction so the object is independent of the source hit lifetime
+ * - stores per-hit variables with overwrite semantics
+ * - accumulates numeric variables by summation for integrated usage
+ * - builds a compact identity string for logs and stream output
  */
 
 #include "gTrueInfoData.h"

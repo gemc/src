@@ -2,7 +2,9 @@
 #include "gstreamerCSVFactory.h"
 #include "gstreamerConventions.h"
 
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Frame streaming is currently a no-op for the CSV backend.
+
 bool GstreamerCsvFactory::startStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) {
 	return true;
 }

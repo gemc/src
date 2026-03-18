@@ -2,24 +2,37 @@
 
 /**
  * \file gIntegralPayload.h
- * \brief Defines \ref GIntegralPayload, one integrated electronics payload sample.
+ * \brief Defines GIntegralPayload, one integrated electronics payload sample.
  *
  * \details
  * A payload is the minimal set of fields typically needed to represent a readout sample:
- * - crate / slot / channel : readout address (hardware coordinates)
- * - charge                : integrated amplitude (or ADC proxy)
- * - time                  : time coordinate (or TDC proxy)
+ * - crate / slot / channel : readout address or hardware coordinates
+ * - charge                 : integrated amplitude or ADC proxy
+ * - time                   : time coordinate or TDC proxy
  *
- * This struct is used by \ref GFrameDataCollection to store per-frame integrated samples.
+ * This struct is used by GFrameDataCollection to store per-frame integrated samples.
  *
  * \note
- * This class is intentionally lightweight and stores values as integers. Interpretation (units,
- * calibration, mapping to hardware) is the responsibility of higher-level producers/consumers.
+ * This class is intentionally lightweight and stores values as integers. Interpretation, units,
+ * calibration, and mapping to hardware are the responsibility of higher-level producers/consumers.
  */
 
 #include "glogger.h"
 #include <vector>
 
+/**
+ * \defgroup gdata_integral_payload GData integral payload
+ * \brief Fixed-layout frame payload representing one integrated readout sample.
+ *
+ * \details
+ * This topic documents the compact payload object stored inside frame collections. The payload is
+ * intentionally small and ordered so it can be exported as a packed integer vector when needed.
+ */
+
+/**
+ * \brief Stores one integrated readout payload sample.
+ * \ingroup gdata_integral_payload
+ */
 struct GIntegralPayload
 {
 public:
@@ -28,13 +41,13 @@ public:
 	 *
 	 * \details
 	 * Stores the provided values and emits a debug log message.
-	 * Logging is intended for diagnostics in examples/tests and can be controlled via logger configuration.
+	 * Logging is intended for diagnostics in examples/tests and can be controlled through logger configuration.
 	 *
-	 * \param c      Crate number (readout address component).
-	 * \param s      Slot number (module position within the crate).
-	 * \param ch     Channel number within the slot/module.
-	 * \param q      Integrated charge (or ADC proxy).
-	 * \param t      Time value (or TDC proxy).
+	 * \param c      Crate number, the first readout-address component.
+	 * \param s      Slot number, the module position within the crate.
+	 * \param ch     Channel number within the slot or module.
+	 * \param q      Integrated charge or ADC proxy.
+	 * \param t      Time value or TDC proxy.
 	 * \param logger Logger instance used for debug traces.
 	 */
 	GIntegralPayload(int c, int s, int ch, int q, int t, std::shared_ptr<GLogger> logger)
@@ -44,10 +57,11 @@ public:
 	}
 
 	/**
-	 * \brief Destructor (logs for debug builds/configurations).
+	 * \brief Destructor.
 	 *
 	 * \details
-	 * The payload owns no external resources; destruction is only relevant for lifecycle tracing.
+	 * The payload owns no external resources.
+	 * Destruction logging is useful mainly for lifecycle tracing in tests and examples.
 	 */
 	~GIntegralPayload() {
 		log->debug(DESTRUCTOR, "GIntegralPayload crate ", crate, " slot ", slot, " channel ", channel, " charge ",
@@ -55,15 +69,15 @@ public:
 	}
 
 	/**
-	 * \brief Export payload as a fixed-order vector of integers.
+	 * \brief Exports the payload as a fixed-order vector of integers.
 	 *
 	 * \details
 	 * Order is:
-	 * 0) crate
-	 * 1) slot
-	 * 2) channel
-	 * 3) charge
-	 * 4) time
+	 * - element 0 : crate
+	 * - element 1 : slot
+	 * - element 2 : channel
+	 * - element 3 : charge
+	 * - element 4 : time
 	 *
 	 * This ordering matches the expectation in
 	 * \ref GFrameDataCollection::addIntegralPayload "addIntegralPayload()".
@@ -81,10 +95,10 @@ public:
 	}
 
 private:
-	std::shared_ptr<GLogger> log;     ///< Logger instance (diagnostics only).
+	std::shared_ptr<GLogger> log;     ///< Logger instance used only for diagnostics.
 	int                      crate;   ///< Crate number.
-	int                      slot;    ///< Slot number.
-	int                      channel; ///< Channel number.
-	int                      charge;  ///< Integrated charge / ADC proxy.
-	int                      time;    ///< Time / TDC proxy.
+	int                      slot;    ///< Slot number inside the crate.
+	int                      channel; ///< Channel number inside the slot or module.
+	int                      charge;  ///< Integrated charge or ADC-like value.
+	int                      time;    ///< Time coordinate or TDC-like value.
 };

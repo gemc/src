@@ -5,13 +5,11 @@
 // c++
 #include<vector>
 
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Write only the packed binary header section of the current frame record.
+
 bool GstreamerJSROFactory::publishFrameHeaderImpl([[maybe_unused]] const GFrameHeader* gframeHeader) {
 	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
-
-	// fill dataFrameHeader here or in startStream
-	//vector<unsigned int> frame_data;
-	//	dataFrameHeader = *reinterpret_cast<DataFrameHeader*>(frame_data.data());
 
 	ofile->write(reinterpret_cast<const char*>(frame_data.data()), sizeof(DataFrameHeader));
 

@@ -1,16 +1,16 @@
 #pragma once
 
 /**
- * \file GDataCollection.h
- * \brief Defines the GDataCollection class, the per-detector container of true and digitized data.
+ * \file gDataCollection.h
+ * \brief Defines the GDataCollection class, the per-detector container of truth and digitized hit data.
  *
  * \details
  * GDataCollection is the detector-local aggregation unit used by higher-level containers.
- * One instance corresponds to one sensitive detector entry and stores:
+ * One instance usually corresponds to one sensitive detector entry and stores:
  * - truth-side objects of type GTrueInfoData
  * - digitized objects of type GDigitizedData
  *
- * It supports two distinct usage patterns:
+ * It supports two distinct usage patterns.
  *
  * Event mode:
  * - append one truth object and/or one digitized object per hit
@@ -37,7 +37,18 @@
 #include <vector>
 
 /**
+ * \defgroup gdata_detector_collection GData detector collection
+ * \brief Detector-local ownership and accumulation of truth and digitized hit objects.
+ *
+ * \details
+ * This topic covers the container that sits between hit-level objects and higher-level event or
+ * run aggregators. It is the place where event-style append semantics and integrated accumulation
+ * semantics are both implemented at detector scope.
+ */
+
+/**
  * \brief Per-sensitive-detector container that owns truth and digitized data objects.
+ * \ingroup gdata_detector_collection
  *
  * \details
  * In higher-level maps, a GDataCollection is usually keyed by the sensitive detector name.
@@ -47,8 +58,8 @@
  * - \c digitizedData : digitized objects, typically one per hit in event mode
  *
  * Usage modes:
- * - Event mode: vectors grow by appending objects
- * - Integrated mode: the first vector element acts as the running accumulator
+ * - Event mode : vectors grow by appending objects
+ * - Integrated mode : the first vector element acts as the running accumulator
  */
 class GDataCollection
 {
@@ -88,12 +99,12 @@ public:
 	 * \param data Source truth object whose values are copied or accumulated.
 	 */
 	void collectTrueInfosData(const std::unique_ptr<GTrueInfoData>& data) {
-		// First integrated contribution creates the accumulator entry.
+		// The first integrated contribution creates the detector-local accumulator entry.
 		if (trueInfosData.empty()) {
 			trueInfosData.push_back(std::make_unique<GTrueInfoData>(*data));
 		}
 		else {
-			// Subsequent contributions add numeric observables into the first stored entry.
+			// Subsequent contributions add only numeric observables into the first stored entry.
 			for (const auto& [varName, value] : data->getDoubleVariablesMap()) {
 				trueInfosData.front()->accumulateVariable(varName, value);
 			}
@@ -118,12 +129,12 @@ public:
 	 * \param data Source digitized object whose values are copied or accumulated.
 	 */
 	void collectDigitizedData(const std::unique_ptr<GDigitizedData>& data) {
-		// First integrated contribution creates the accumulator entry.
+		// The first integrated contribution creates the detector-local accumulator entry.
 		if (digitizedData.empty()) {
 			digitizedData.push_back(std::make_unique<GDigitizedData>(*data));
 		}
 		else {
-			// Only non-SRO observables are accumulated in integrated mode.
+			// Only non-SRO scalar observables are accumulated in integrated mode.
 			for (const auto& [varName, value] : data->getIntObservablesMap(0)) {
 				digitizedData.front()->accumulateVariable(varName, value);
 			}
@@ -143,6 +154,7 @@ public:
 	 * \param data Digitized object to store.
 	 */
 	void addDigitizedData(std::unique_ptr<GDigitizedData> data) {
+		// Event-mode insertion appends the new hit object and transfers ownership into the container.
 		digitizedData.push_back(std::move(data));
 	}
 
@@ -156,6 +168,7 @@ public:
 	 * \param data Truth object to store.
 	 */
 	void addTrueInfoData(std::unique_ptr<GTrueInfoData> data) {
+		// Event-mode insertion appends the new hit object and transfers ownership into the container.
 		trueInfosData.push_back(std::move(data));
 	}
 

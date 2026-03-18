@@ -11,50 +11,37 @@
 #include <vector>
 
 /**
+ * \file gstreamerJSONFactory.h
+ * \brief JSON streamer plugin declarations.
+ * \ingroup gstreamer_plugin_json_api
+ */
+
+/**
  * \class GstreamerJsonFactory
+ * \ingroup gstreamer_plugin_json_api
+ * \brief JSON plugin writing structured event or frame output into a single JSON document.
  *
- * \brief Writes gstreamer output to a JSON file.
+ * The plugin writes one top-level JSON object per output file. Depending on the active stream type,
+ * the document contains either:
+ * - an \c "events" array
+ * - or a \c "frames" array
  *
- * This factory writes either:
- * - **event streams**: a JSON object containing an `"events"` array
- * - **frame streams**: a JSON object containing a `"frames"` array
+ * Event objects are assembled incrementally following the publish sequence driven by the base class.
+ * This allows the plugin to receive event header, detector true-information, and detector digitized
+ * content in a well-defined order and serialize them into one structured JSON entry.
  *
- * The top-level structure is always a single JSON object:
- * \code
- * {
- *   "type": "event",
- *   "events": [
- *     { ... event 1 ... },
- *     { ... event 2 ... }
- *   ]
- * }
- * \endcode
+ * The plugin performs lightweight JSON escaping internally and intentionally avoids introducing an
+ * external JSON dependency.
  *
- * \note The gstreamer core publishes event data in this order:
- * - \c startEventImpl(...)
- * - \c publishEventHeaderImpl(...)
- * - \c publishEventTrueInfoDataImpl(...) for each detector
- * - \c publishEventDigitizedDataImpl(...) for each detector
- * - \c endEventImpl(...)
- *
- * The JSON factory relies on that ordering to build a well-formed event object incrementally.
- *
- * \note For hit objects, this factory uses:
- *
- * - getIdentityString() for the hit address
- * - getDoubleVariablesMap() and
- * - getStringVariablesMap() for true info variables
- * - getIdentityString() for the hit address
- * - getIntObservablesMap(0) and
- * - getDblObservablesMap(0) for digitized observables
- *
+ * Threading model:
+ * - one instance per worker thread is the intended usage
+ * - copy and move are disabled to prevent accidental sharing of stream and assembly state
  */
 class GstreamerJsonFactory : public GStreamer {
 public:
-	/// Inherit the base constructor: \c GStreamer(const std::shared_ptr<GOptions>&).
+	/// \brief Inherit the constructor taking the parsed options container.
 	using GStreamer::GStreamer;
 
-	/// One instance per thread: forbid copy/move to prevent accidental sharing of output streams.
 	GstreamerJsonFactory(const GstreamerJsonFactory&)            = delete;
 	GstreamerJsonFactory& operator=(const GstreamerJsonFactory&) = delete;
 	GstreamerJsonFactory(GstreamerJsonFactory&&)                 = delete;
@@ -62,140 +49,158 @@ public:
 
 private:
 	/**
-	 * \brief Opens the JSON output file for the current thread.
+	 * \brief Open the JSON output file for this plugin instance.
 	 *
-	 * The file is truncated on open. The factory always writes a single top-level JSON object.
-	 * \return \c true if the file is open (or already open), \c false otherwise.
+	 * The file is truncated on open. The top-level JSON object is not written immediately because
+	 * the plugin waits until it knows whether the output will contain events or frames.
+	 *
+	 * \return \c true when the file is ready for writing, \c false otherwise.
 	 */
 	bool openConnection() override;
 
 	/**
-	 * \brief Closes the JSON output file.
-	 *
-	 * This method flushes any buffered events (via \c flushEventBuffer()) and then
-	 * writes the closing JSON brackets for the top-level object.
+	 * \brief Close the JSON output file after finishing the top-level JSON structure.
 	 *
 	 * \return \c true on success, \c false otherwise.
 	 */
 	bool closeConnectionImpl() override;
 
 	/**
-	 * \brief Starts a new event object.
+	 * \brief Begin assembly of one JSON event object.
 	 *
-	 * This initializes internal state for event assembly. The event is written to the
-	 * `"events"` array when \c endEventImpl(...) is called.
+	 * The implementation resets all event-local assembly state and starts the event object.
 	 *
-	 * \param event_data Event data collection; must not be null and must have a header.
-	 * \return \c true to continue publishing, \c false on fatal error.
+	 * \param event_data Event collection being serialized.
+	 * \return \c true on success, \c false otherwise.
 	 */
 	bool startEventImpl(const std::shared_ptr<GEventDataCollection>& event_data) override;
 
 	/**
-	 * \brief Finalizes and writes the current event object into the JSON file.
+	 * \brief Finalize and write the current JSON event object.
 	 *
-	 * \param event_data Event data collection; used only for diagnostics and consistency.
-	 * \return \c true if the event was written, \c false otherwise.
+	 * \param event_data Event collection being serialized.
+	 * \return \c true on success, \c false otherwise.
 	 */
 	bool endEventImpl(const std::shared_ptr<GEventDataCollection>& event_data) override;
 
 	/**
-	 * \brief Stores header fields for the current event.
+	 * \brief Append event header information to the current JSON event object.
 	 *
-	 * \param gevent_header Event header; must not be null.
-	 * \return \c true if header fields were stored, \c false otherwise.
+	 * \param gevent_header Event header for the current event.
+	 * \return \c true on success, \c false otherwise.
 	 */
 	bool publishEventHeaderImpl(const std::unique_ptr<GEventHeader>& gevent_header) override;
 
 	/**
-	 * \brief Appends true information hits for a given detector to the current event.
+	 * \brief Append one detector true-information block to the current JSON event object.
 	 *
-	 * \param detectorName Sensitive detector name (used as key in the `"detectors"` object).
-	 * \param trueInfoData Array of raw pointers to hit objects (read-only).
-	 * \return \c true if the detector block was appended, \c false otherwise.
+	 * \param detectorName Detector name used as the JSON key.
+	 * \param trueInfoData True-information hits for that detector.
+	 * \return \c true on success, \c false otherwise.
 	 */
 	bool publishEventTrueInfoDataImpl(const std::string& detectorName,
 	                                  const std::vector<const GTrueInfoData*>& trueInfoData) override;
 
 	/**
-	 * \brief Appends digitized hits for a given detector to the current event.
+	 * \brief Append one detector digitized block to the current JSON event object.
 	 *
-	 * \param detectorName Sensitive detector name (used as key in the `"detectors"` object).
-	 * \param digitizedData Array of raw pointers to hit objects (read-only).
-	 * \return \c true if the detector block was appended, \c false otherwise.
+	 * \param detectorName Detector name used as the JSON key.
+	 * \param digitizedData Digitized hits for that detector.
+	 * \return \c true on success, \c false otherwise.
 	 */
 	bool publishEventDigitizedDataImpl(const std::string& detectorName,
 	                                   const std::vector<const GDigitizedData*>& digitizedData) override;
 
 	/**
-	 * \brief Starts a new frame-stream record.
+	 * \brief Begin assembly of one JSON frame record.
 	 *
-	 * \note The gstreamer core flushes the event buffer before starting a stream
-	 * (\c GStreamer::startStream), so a single file will not mix buffered events
-	 * with frames.
-	 *
-	 * \param frameRunData Frame collection; can be null (error will be logged).
-	 * \return \c true to continue, \c false otherwise.
+	 * \param frameRunData Frame collection associated with the record.
+	 * \return \c true on success, \c false otherwise.
 	 */
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;
 
 	/**
-	 * \brief Ends the current frame-stream record.
-	 * \param frameRunData Frame collection; optional.
+	 * \brief Finalize and write the current JSON frame record.
+	 *
+	 * \param frameRunData Frame collection associated with the record.
 	 * \return \c true on success, \c false otherwise.
 	 */
 	bool endStreamImpl(const GFrameDataCollection* frameRunData) override;
 
 	/**
-	 * \brief Publishes frame header information into the current frame record.
-	 * \param gframeHeader Frame header; can be null (error will be logged).
+	 * \brief Append frame header information to the current JSON frame record.
+	 *
+	 * \param gframeHeader Frame header associated with the record.
 	 * \return \c true on success, \c false otherwise.
 	 */
 	bool publishFrameHeaderImpl(const GFrameHeader* gframeHeader) override;
 
 	/**
-	 * \brief Publishes the integral payload for the current frame record.
-	 * \param payload Payload vector; can be null (error will be logged).
+	 * \brief Append frame payload information to the current JSON frame record.
+	 *
+	 * \param payload Payload vector associated with the record.
 	 * \return \c true on success, \c false otherwise.
 	 */
 	bool publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) override;
 
 private:
-	// Output stream (one instance per worker thread).
+	/// \brief Output stream bound to the JSON file for this plugin instance.
 	std::ofstream ofile;
 
-	// True if the file header (opening braces) has been written.
+	/// \brief Tracks whether the top-level JSON object has already been started.
 	bool is_file_initialized = false;
 
-	// Tracks whether we've already written at least one entry inside the current top-level array.
+	/// \brief Tracks whether at least one top-level entry has been written into the active array.
 	bool wrote_first_top_level_entry = false;
 
-	// Active top-level mode: "event" or "stream".
+	/// \brief Active top-level stream type, typically \c "event" or \c "stream".
 	std::string top_level_type;
 
-	// Event assembly state.
+	/// \brief Tracks whether the plugin is currently assembling an event object.
 	bool is_building_event = false;
+
+	/// \brief String buffer holding the current event JSON object under construction.
 	std::ostringstream current_event;
+
+	/// \brief Tracks whether the current event already contains header content.
 	bool current_event_has_header = false;
+
+	/// \brief Tracks whether the current event already contains at least one detector block.
 	bool current_event_has_any_detector = false;
 
-	// Frame assembly state (minimal support).
+	/// \brief Tracks whether the plugin is currently assembling a frame object.
 	bool is_building_frame = false;
+
+	/// \brief String buffer holding the current frame JSON object under construction.
 	std::ostringstream current_frame;
+
+	/// \brief Tracks whether the current frame already contains header content.
 	bool current_frame_has_header = false;
+
+	/// \brief Tracks whether the current frame already contains payload content.
 	bool current_frame_has_payload = false;
 
-	// Cached header fields (used by event writers).
+	/// \brief Cached timestamp from the current event header.
 	std::string timestamp;
-	int         event_number = -1;
-	int         thread_id    = -1;
+
+	/// \brief Cached event number for the current event object.
+	int event_number = -1;
+
+	/// \brief Cached thread id from the current event header.
+	int thread_id    = -1;
 
 private:
+	/**
+	 * \brief Return the final JSON output filename for this plugin instance.
+	 *
+	 * \return Base output name plus the \c ".json" extension.
+	 */
 	[[nodiscard]] std::string filename() const override { return gstreamer_definitions.rootname + ".json"; }
 
 private:
-	// Helper utilities (kept private and not cross-referenced).
+	// Private helper utilities. These remain undocumented by cross-reference on purpose.
 	static std::string jsonEscape(const std::string& s);
-	void              ensureFileInitializedForType(const std::string& type);
-	void              writeTopLevelEntry(const std::string& entry_json);
-	void              closeTopLevelObjectIfNeeded();
+	void ensureFileInitializedForType(const std::string& type);
+	void writeTopLevelEntry(const std::string& entry_json);
+	void closeTopLevelObjectIfNeeded();
 };

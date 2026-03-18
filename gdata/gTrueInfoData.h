@@ -5,8 +5,8 @@
  * \brief Container for simulation-level observables associated with a single hit.
  *
  * \details
- * GTrueInfoData stores the "true" quantities produced at the simulation stage, before any
- * detector electronics or digitization transforms them into readout-like values.
+ * GTrueInfoData stores the true quantities produced at the simulation stage, before any
+ * detector electronics or digitization transform them into readout-like values.
  *
  * Typical examples include:
  * - deposited energy
@@ -22,10 +22,10 @@
  * - \c stringVariablesMap   : string-based categorical or provenance metadata
  *
  * Usage modes:
- * - Event mode: create one object per hit and fill with
- *   \ref GTrueInfoData::includeVariable "includeVariable()".
- * - Run/integrated mode: use one object as an accumulator and update it with
- *   \ref GTrueInfoData::accumulateVariable "accumulateVariable()".
+ * - Event mode : create one object per hit and fill with
+ *   \ref GTrueInfoData::includeVariable "includeVariable()"
+ * - Run/integrated mode : use one object as an accumulator and update it with
+ *   \ref GTrueInfoData::accumulateVariable "accumulateVariable()"
  *
  * Identity model:
  * - each object stores a copy of the hit identity vector extracted from GHit
@@ -70,7 +70,17 @@ inline GOptions defineOptions() {
 } // namespace gtrue_data
 
 /**
+ * \defgroup gdata_true_info_data GData truth hit data
+ * \brief Simulation-level observables stored for one hit before digitization.
+ *
+ * \details
+ * This topic documents the truth-side hit data model. It covers numeric and string observables,
+ * hit-identity preservation, and additive accumulation semantics used in integrated containers.
+ */
+
+/**
  * \brief Stores simulation-level observables for one hit.
+ * \ingroup gdata_true_info_data
  *
  * \details
  * A GTrueInfoData object represents the truth-side data model for one hit.
@@ -245,8 +255,10 @@ private:
 	 *
 	 * \details
 	 * This map stores scalar numeric values for either:
-	 * - one event-level hit, or
-	 * - one integrated accumulator entry, depending on usage
+	 * - one event-level hit
+	 * - one integrated accumulator entry
+	 *
+	 * The exact meaning depends on the container using this object.
 	 */
 	std::map<std::string, double> doubleObservablesMap;
 

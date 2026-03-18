@@ -1,4 +1,23 @@
 /**
+ * \file gdataDoxy.h
+ * \brief Main Doxygen page for the GData module.
+ */
+
+/**
+ * \defgroup gdata_module_overview GData module overview
+ * \brief Top-level documentation entry point for the GData module.
+ *
+ * \details
+ * This topic groups the major concepts implemented by the module:
+ * - truth-side hit data
+ * - digitized hit data
+ * - detector-local aggregation
+ * - event-level aggregation
+ * - run-level aggregation
+ * - frame-level aggregation
+ */
+
+/**
  * \mainpage GData Library
  *
  * \section gdata_intro Introduction
@@ -16,36 +35,40 @@
  *
  * The design emphasizes:
  * - schema flexibility through keyed maps rather than hard-coded layouts
- * - explicit ownership of inserted objects
+ * - explicit ownership transfer of inserted objects
  * - stable integration behavior for run-style accumulation
+ * - separation of conventional streaming-readout keys from detector-specific observables
  *
  * \section gdata_ownership Ownership and lifecycle
  *
- * The module follows a layered ownership model:
+ * The module follows a layered ownership model.
+ *
+ * Hit-level lifecycle:
+ * - GTrueInfoData and GDigitizedData objects are usually created per hit
+ * - each object copies the originating hit identity so it remains valid after the source hit expires
+ *
+ * Detector-level lifecycle:
+ * - ownership of hit objects is transferred into GDataCollection through \c std::unique_ptr
+ * - in event mode, detector vectors grow by appending one object per hit
+ * - in integrated mode, the first entry typically becomes the detector-local accumulator
  *
  * Event-level lifecycle:
- * - GTrueInfoData and GDigitizedData objects are usually created per hit
- * - ownership is transferred into GDataCollection through \c std::unique_ptr
- * - detector collections are then owned by GEventDataCollection
+ * - GEventDataCollection owns one GEventHeader
+ * - GEventDataCollection owns the per-detector map of GDataCollection objects
  *
  * Run-level lifecycle:
  * - GRunDataCollection owns one GRunHeader and one detector-summary map
- * - detector-local accumulation is handled by GDataCollection
- * - the first stored entry typically becomes the accumulator for integrated data
+ * - detector-local accumulation is delegated to GDataCollection
  *
  * Frame-level lifecycle:
  * - GFrameDataCollection currently owns its frame header and payload objects through raw pointers
  * - callers must not delete those objects after ownership has been transferred
  *
- * Design note:
- * - event containers represent many per-hit entries
- * - integrated containers typically represent one accumulated entry per detector
- *
  * \section gdata_architecture Architecture
  *
  * \subsection gdata_arch_layers Design notes
  *
- * The module is organized around progressively larger aggregation scopes:
+ * The module is organized around progressively larger aggregation scopes.
  *
  * Hit scope:
  * - GTrueInfoData
@@ -70,8 +93,10 @@
  * Important design notes:
  * - keyed maps allow detector-specific schemas without changing the core types
  * - integration is additive rather than statistical
- * - streaming-readout keys can be separated from non-SRO observables for output and validation
- * - current run integration focuses on digitized content
+ * - digitized filtering separates conventional SRO fields from non-SRO content
+ * - event containers model many hit entries
+ * - run containers usually model one integrated entry per detector
+ * - frame containers model time-window grouping rather than event grouping
  *
  * \section gdata_options Available Options and their usage
  *
@@ -83,6 +108,10 @@
  * - \c grun_header::defineOptions()
  * - \c grun_data::defineOptions()
  *
+ * If options inherited from GOptions::defineOptions() also apply in the surrounding application,
+ * they remain valid for this module because all of these helpers build or aggregate GOptions
+ * subtrees that are later combined by the application.
+ *
  * Typical usage:
  * \code
  * auto gopts = std::make_shared<GOptions>(argc, argv, gevent_data::defineOptions());
@@ -90,7 +119,7 @@
  *
  * Aggregated bundles:
  * - \c gevent_data::defineOptions() includes event-header, true-data, digitized-data, and touchable options
- * - \c grun_data::defineOptions() includes event and run related options needed by the run example
+ * - \c grun_data::defineOptions() includes event, run, digitized, and touchable-related options needed by the run example
  *
  * Usage pattern:
  * - use the smallest bundle that matches the module you are instantiating
@@ -117,15 +146,15 @@
  *
  * \section gdata_examples_overview Available examples
  *
- * The examples directory contains small standalone programs that illustrate the intended ownership
+ * The examples directory contains small standalone programs illustrating the intended ownership
  * and aggregation patterns in this module.
  *
- * \subsection event_example Event example
+ * \subsection event_example_summary Event example
  * Summary:
  * - demonstrates event-level construction of detector data
  * - shows how truth and digitized hit-side objects are inserted and inspected
  *
- * Link:
+ * Link to example mainpage:
  * - \ref event_example
  *
  * Example snippet:
@@ -135,12 +164,12 @@
  * edc->addDetectorTrueInfoData("ctof", GTrueInfoData::create(gopts));
  * \endcode
  *
- * \subsection run_example Run example
+ * \subsection run_example_summary Run example
  * Summary:
  * - demonstrates accumulation of many event collections into one run summary
  * - compares integrated results against reference sums computed directly from events
  *
- * Link:
+ * Link to example mainpage:
  * - \ref run_example
  *
  * Example snippet:
@@ -149,12 +178,12 @@
  * runData->collect_event_data_collection(edc);
  * \endcode
  *
- * \subsection gframe_example Frame example
+ * \subsection gframe_example_summary Frame example
  * Summary:
  * - demonstrates frame/time-window grouping of packed readout payloads
  * - shows the relationship between frame headers and integral payload storage
  *
- * Link:
+ * Link to example mainpage:
  * - \ref gframe_example
  *
  * Example snippet:

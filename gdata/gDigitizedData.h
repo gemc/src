@@ -1,13 +1,13 @@
 #pragma once
 
 /**
- * \file GDigitizedData.h
+ * \file gDigitizedData.h
  * \brief Container for digitized observables associated with one simulated hit.
  *
  * \details
  * GDigitizedData represents the post-digitization view of a hit.
  * It stores the quantities produced after detector-response and electronics logic have transformed
- * the simulation truth into readout-oriented observables.
+ * simulation truth into readout-oriented observables.
  *
  * The class is intentionally schema-flexible:
  * - scalar values are stored in keyed maps
@@ -15,10 +15,10 @@
  * - detector-specific content can be extended without changing the core library ABI
  *
  * Stored categories:
- * - \c intObservablesMap           : integer-valued scalar observables
- * - \c doubleObservablesMap        : floating-point scalar observables
- * - \c arrayIntObservablesMap      : integer arrays
- * - \c arrayDoubleObservablesMap   : floating-point arrays
+ * - \c intObservablesMap         : integer-valued scalar observables
+ * - \c doubleObservablesMap      : floating-point scalar observables
+ * - \c arrayIntObservablesMap    : integer arrays
+ * - \c arrayDoubleObservablesMap : floating-point arrays
  *
  * Identity:
  * - the object copies the hit identity from the source GHit
@@ -78,7 +78,18 @@ inline GOptions defineOptions() {
 } // namespace gdigi_data
 
 /**
+ * \defgroup gdata_digitized_data GData digitized hit data
+ * \brief Electronics-level observables stored for a single hit.
+ *
+ * \details
+ * This topic documents the hit-local digitized data model used after detector response and
+ * electronics processing. It covers scalar and array observables, filtering of SRO keys,
+ * and accumulation semantics used for integrated containers.
+ */
+
+/**
  * \brief Stores digitized, electronics-level observables for one hit.
+ * \ingroup gdata_digitized_data
  *
  * \details
  * A GDigitizedData instance models one hit after detector-response and digitization processing.
@@ -93,9 +104,9 @@ inline GOptions defineOptions() {
  * - provide filtered access that separates streaming-readout keys from physics-like content
  *
  * Typical usage:
- * - Event mode: fill one object per hit with
+ * - Event mode : fill one object per hit with
  *   \ref GDigitizedData::includeVariable "includeVariable()"
- * - Integrated mode: keep one object as an accumulator and update it with
+ * - Integrated mode : keep one object as an accumulator and update it with
  *   \ref GDigitizedData::accumulateVariable "accumulateVariable()"
  *
  * \note

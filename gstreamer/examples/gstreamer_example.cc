@@ -8,72 +8,85 @@
 #include "gthreads.h"
 
 // c++
-#include <atomic>         // std::atomic<T>: lock-free, thread-safe integers, flags…
-#include <ranges>         // std::views::iota – range of integers 0,1,…,n-1
+#include <atomic>
+#include <ranges>
 #include <vector>
-#include <memory>         // smart pointers
+#include <memory>
 #include <unordered_map>
 
 /**
  * \file gstreamer_example.cc
- * \brief Multithreaded example showing how to publish events to gstreamer plugins.
+ * \ingroup gstreamer_examples_api
+ * \anchor gstreamer_example
+ * \brief Multithreaded example showing how to publish synthetic event data through the gstreamer module.
  *
- * This example demonstrates a typical flow:
- * - Build a shared GOptions instance including gstreamer options via gstreamer::defineOptions().
- * - Initialize one gstreamer map per worker thread using gstreamer::gstreamersMapPtr().
- * - Open streamer connections inside the worker thread (one streamer instance per thread).
- * - Build synthetic event data (true + digitized hits) using gdynamicdigitization routines.
- * - Publish events via \ref GStreamer::publishEventData "publishEventData()".
- * - Close connections at the end (which also flushes any remaining buffered events).
+ * Summary:
+ * This example creates one streamer map per worker thread, builds synthetic detector hits,
+ * digitizes them, publishes them through all configured streamers, and closes all outputs at
+ * the end of execution.
+ *
+ * Related module documentation:
+ * - \ref gstreamer_module "gstreamer module"
+ *
+ * Typical command-line usage:
+ * \code
+ * ./gstreamer_example \
+ *   -gstreamer="[{format: ascii, filename: out_ascii}, {format: json, filename: out_json}]" \
+ *   -ebuffer=20
+ * \endcode
  */
 
 const std::string plugin_name = "test_gdynamic_plugin";
 
 /**
- * \brief Run a synthetic event simulation in multiple worker threads and publish results via gstreamer.
+ * \brief Run a synthetic multithreaded event loop and publish the results through configured streamers.
  *
- * Threading model:
- * - A single atomic counter assigns distinct event numbers to workers.
- * - Each worker thread owns its own streamer map (no streamer sharing across threads).
- * - Each worker publishes events to all configured streamers, relying on the streamer buffering
- *   (configured via the \c ebuffer option).
+ * This function demonstrates the intended ownership and threading model of the gstreamer module:
+ * - one shared configuration object is used by all workers
+ * - one atomic counter distributes event numbers across threads
+ * - each worker creates its own streamer map through
+ *   \ref gstreamer::gstreamersMapPtr "gstreamersMapPtr()"
+ * - each streamer instance is used only by the thread that created it
  *
- * \param nevents Total number of events to produce across all threads.
- * \param nthreads Number of worker threads.
- * \param log Logger used for progress and diagnostics.
- * \param dynamicRoutinesMap Map of dynamic digitization routines keyed by plugin name.
- * \param gopts Options container used to configure streamers and other modules.
+ * Event construction flow:
+ * - create an event header for the current thread
+ * - create one event collection
+ * - create a small synthetic set of hits for detector \c "ctof"
+ * - derive both true-information and digitized representations from the dynamic routine
+ * - publish the event to every configured streamer
+ *
+ * The example intentionally uses a compact synthetic dataset so the control flow remains easy to
+ * understand while still exercising the full event publication sequence.
+ *
+ * \param nevents Total number of events to generate across all workers.
+ * \param nthreads Number of worker threads to launch.
+ * \param log Shared logger used for progress and diagnostic messages.
+ * \param dynamicRoutinesMap Dynamic digitization routines keyed by plugin name.
+ * \param gopts Parsed options container used to configure the module and dependent components.
  */
 void run_simulation_in_threads(int                                                              nevents,
                                int                                                              nthreads,
                                const std::shared_ptr<GLogger>&                                  log,
                                const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& dynamicRoutinesMap,
                                const std::shared_ptr<GOptions>&                                 gopts) {
-	// Thread-safe integer counter starts at 1.
-	// fetch_add returns the old value *and* bumps.
-	// Zero contention: each thread fetches the next free event number.
+	// Shared atomic event counter used to distribute work without external locking.
 	std::atomic<int> next{1};
 
-	// Pool of jthreads. jthread joins in its destructor so we don’t need an
-	// explicit loop at the end.
-	// Each element represents one worker thread running your event-processing lambda.
-	// std::vector<std::jthread> pool; use this when C++20 is widely available.
-	std::vector<jthread_alias> pool; // was std::vector<std::jthread>
-
+	// Thread pool. Each worker owns its local streamer map and processes an arbitrary number of events.
+	std::vector<jthread_alias> pool;
 	pool.reserve(nthreads);
 
 	for (int tid = 0; tid < nthreads; ++tid) {
-		// The capture [&, tid] gives the thread references to variables like tid
-		pool.emplace_back([&, tid] // capture tid *by value*
+		pool.emplace_back([&, tid]
 		{
-			// Start thread with a lambda.
 			log->info(0, "worker ", tid, " started");
 
-			int localCount = 0; // events built by *this* worker
-			thread_local std::vector<std::unique_ptr<GEventDataCollection>> localRunData;
+			int localCount = 0;
 
-			// Create one streamer map for this thread and open all output connections.
+			// Create all configured streamers for this worker thread.
 			auto gstreamer_map = gstreamer::gstreamersMapPtr(gopts, tid);
+
+			// Open every backend connection before entering the event loop.
 			for (auto& [name, gstreamer] : *gstreamer_map) {
 				if (!gstreamer->openConnection()) {
 					log->error(1, "Failed to open connection for GStreamer ", name, " in thread ", tid);
@@ -81,19 +94,15 @@ void run_simulation_in_threads(int                                              
 			}
 
 			while (true) {
-				// Repeatedly asks the shared atomic counter for “the next unclaimed event
-				// number,” processes that event, stores the result, and goes back for more.
-				// memory_order_relaxed: we only need *atomicity*, no ordering.
+				// Claim the next event number atomically.
 				int evn = next.fetch_add(1, std::memory_order_relaxed);
-				// atomically returns the current value and increments it by 1.
-				if (evn > nevents) break; // exit the while loop
+				if (evn > nevents) break;
 
-				// Create an event header and event container for this thread.
+				// Build one event collection with a thread-specific header.
 				auto gevent_header = GEventHeader::create(gopts, tid);
 				auto eventData     = std::make_shared<GEventDataCollection>(gopts, std::move(gevent_header));
 
-				// Create a small synthetic detector dataset:
-				// each event has 10 hits, and each hit is converted into true and digitized data.
+				// Populate a small synthetic detector dataset.
 				for (unsigned i = 1; i < 11; i++) {
 					auto hit       = GHit::create(gopts);
 					auto true_data = dynamicRoutinesMap->at(plugin_name)->collectTrueInformation(hit, i);
@@ -104,19 +113,18 @@ void run_simulation_in_threads(int                                              
 				}
 
 				log->info(0, "worker ", tid, " event ", evn, " has ",
-				          eventData->getDataCollectionMap().at("ctof")->getDigitizedData().size(), " digitized hits");
+				          eventData->getDataCollectionMap().at("ctof")->getDigitizedData().size(),
+				          " digitized hits");
 
-				// Publish the event to each configured streamer.
-				// The streamer may buffer and flush based on its configured ebuffer value.
+				// Publish the event to each configured streamer instance.
 				for (const auto& [name, gstreamer] : *gstreamer_map) {
 					gstreamer->publishEventData(eventData);
 				}
 
-				++localCount; // tally for this worker
+				++localCount;
 			}
 
-			// Close streamer connections.
-			// Close implies a flush of any remaining buffered events.
+			// Close all output backends. This also flushes any buffered events.
 			for (const auto& [name, gstreamer] : *gstreamer_map) {
 				if (!gstreamer->closeConnection()) {
 					log->error(1, "Failed to close connection for GStreamer ", name, " in thread ", tid);
@@ -124,23 +132,34 @@ void run_simulation_in_threads(int                                              
 			}
 
 			log->info(0, "worker ", tid, " processed ", localCount, " events");
-		}); // jthread constructor launches the thread immediately
-	}       // pool’s destructor blocks until every jthread has joined
+		});
+	}
 }
 
-
-// emulation of a run of events, collecting and publish data in separate threads
+/**
+ * \brief Entry point for the multithreaded gstreamer example.
+ *
+ * Responsibilities:
+ * - define and parse module options through gstreamer::defineOptions()
+ * - create a logger for the example
+ * - load the test dynamic digitization routine
+ * - run the synthetic multithreaded event loop
+ *
+ * \param argc Number of command-line arguments.
+ * \param argv Command-line argument vector.
+ * \return \c EXIT_SUCCESS on normal completion.
+ */
 int main(int argc, char* argv[]) {
-	// Create GOptions using gstreamer::defineOptions, which aggregates options from gstreamer and gdynamicdigitization.
+	// Build the module option set and parse the command line.
 	auto gopts = std::make_shared<GOptions>(argc, argv, gstreamer::defineOptions());
 
-	// Create a module logger for this example.
+	// Create a logger scoped to this example.
 	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GSTREAMER_LOGGER);
 
 	constexpr int nevents  = 200;
 	constexpr int nthreads = 4;
 
-	// Load dynamic digitization routines and their constants.
+	// Load the dynamic digitization plugin used to generate synthetic detector content.
 	auto dynamicRoutinesMap = gdynamicdigitization::dynamicRoutinesMap({plugin_name}, gopts);
 	if (dynamicRoutinesMap->at(plugin_name)->loadConstants(1, "default") == false) {
 		log->error(1, "Failed to load constants for dynamic routine", plugin_name,

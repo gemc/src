@@ -1,7 +1,9 @@
 // gstreamer
 #include "gstreamerROOTFactory.h"
 
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Emit lightweight lifecycle logs around run publication for the ROOT backend.
+
 bool GstreamerRootFactory::startRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
 	log->info(2, "Start of run ", run_data->getHeader()->getRunID(), " in ", filename());
 

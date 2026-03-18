@@ -2,7 +2,9 @@
 #include "gstreamerROOTFactory.h"
 #include "gstreamerConventions.h"
 
-// Non-Doxygen implementation file: behavior is documented in the header.
+// Implementation summary:
+// Frame-stream hooks are currently placeholders for the ROOT backend.
+
 bool GstreamerRootFactory::startStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) {
 	if (rootfile == nullptr) {
 		log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory::startStream: file is not initialized");
