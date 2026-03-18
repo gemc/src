@@ -67,6 +67,8 @@ csv_plugin_files = [files(
                         'factories/CSV/event/eventHeader.cc',
                         'factories/CSV/event/publishTrueInfo.cc',
                         'factories/CSV/event/publishDigitized.cc',
+                        'factories/CSV/run/run.cc',
+                        'factories/CSV/run/publishDigitized.cc',
                         'factories/CSV/stream/stream.cc',
                         'factories/CSV/stream/frameHeader.cc',
                         'factories/CSV/stream/publishPayload.cc',

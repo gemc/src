@@ -4,8 +4,10 @@
 
 // gemc
 #include "gtouchableConventions.h"
-#include "ginternalDigitization.h"
 #include "gsystemConventions.h"
+#include "gDosimeterDigitization.h"
+#include "gFluxDigitization.h"
+#include "gParticleCounterDigitization.h"
 
 // geant4
 #include "G4SDManager.hh"

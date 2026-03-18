@@ -4,7 +4,7 @@
 
 // using \n instead of endl so flushing isn't forced at each line
 // Non-Doxygen implementation file: behavior is documented in the header.
-bool GstreamerCsvFactory::publishEventDigitizedDataImpl(const std::string&                        detectorName,
+bool GstreamerCsvFactory::publishRunDigitizedDataImpl(const std::string&                        detectorName,
                                                         const std::vector<const GDigitizedData*>& digitizedData) {
 	if (!ofile_digitized.is_open()) {
 		log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_digitized());
@@ -23,10 +23,11 @@ bool GstreamerCsvFactory::publishEventDigitizedDataImpl(const std::string&      
 			size_t total = dmap.size();
 			size_t i     = 0;
 
-			log->debug(NORMAL, SFUNCTION_NAME, "Writing header for run ", runId, " with ", total,
+			log->debug(NORMAL, SFUNCTION_NAME, "Writing header for event ", event_number, " with ", total,
 			           " variables");
 
 			for (const auto& [name, value] : imap) { ofile_digitized << name << ", "; }
+
 			for (const auto& [name, value] : dmap) {
 				ofile_digitized << name;
 				if (++i < total) ofile_digitized << ", "; // not last, write comma

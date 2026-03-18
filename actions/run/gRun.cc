@@ -5,7 +5,8 @@
 #include "gRun.h"
 
 
-// Constructor: initializes the thread-local run object and stores shared services.
+// Construct the thread-local run object and retain access to the shared
+// digitization-routine map for the lifetime of the run.
 GRun::GRun(std::shared_ptr<GOptions> gopt,
 		   std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
 	GBase(gopt, GRUN_LOGGER),

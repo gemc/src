@@ -9,7 +9,7 @@
 
 /**
  * @file gEventAction.h
- * @brief Declares GEventAction, responsible for per-event lifecycle hooks and event publication.
+ * @brief Declares GEventAction, the per-event processing action for the GEMC actions module.
  *
  * @ingroup gactions_module
  */
@@ -17,15 +17,15 @@
 constexpr const char* EVENTACTION_LOGGER = "geventaction";
 
 /**
- * @brief Namespace collecting helpers for the event action.
+ * @brief Namespace containing helpers related to event-action configuration.
  *
  * @ingroup gactions_module
  */
 namespace geventaction {
 	/**
-	 * @brief Returns the options associated with the event action.
+	 * @brief Returns the options associated with the event-action logger scope.
 	 *
-	 * @return A GOptions instance for the event action logger scope.
+	 * @return A GOptions object scoped to the event-action logger name.
 	 */
 	inline GOptions defineOptions() { return GOptions(EVENTACTION_LOGGER); }
 } // namespace geventaction
@@ -33,21 +33,25 @@ namespace geventaction {
 
 /**
  * @class GEventAction
- * @brief Handles event begin/end callbacks and triggers digitization + streaming.
+ * @brief Handles event begin/end callbacks, hit digitization, and event-level publication.
  *
- * Responsibilities:
- * - At event begin: optionally log event/thread identification.
- * - At event end:
- *   - Retrieve the hit collections for the event.
- *   - For each hit collection:
- *     - Resolve the digitization routine associated with the collection name.
- *     - Convert hits into digitized data and true-information data.
- *     - Add these products to the event data container.
- *   - Publish the completed event data to all configured streamers.
+ * This class is the worker-side event action used by GEMC. It participates in the
+ * per-event lifecycle driven by Geant4 and is responsible for transforming hit
+ * collections into GEMC data products.
+ *
+ * The event processing workflow implemented here is:
+ * - begin-of-event logging and lightweight tracing;
+ * - retrieval of the event hit collections at end of event;
+ * - lookup of the digitization routine associated with each collection name;
+ * - conversion of hits into digitized payload and true-information payload;
+ * - storage of event-mode output in the event data collection;
+ * - storage of run-mode output in the run-level collection owned by GRunAction;
+ * - publication of completed event data through the worker-thread streamers.
  *
  * Ownership:
- * - The run_action pointer is non-owning; it is expected to remain valid for the
- *   lifetime of the thread actions (it is created and registered by GAction).
+ * - The shared configuration object is retained by shared ownership.
+ * - The run_action pointer is non-owning and is expected to remain valid for the
+ *   lifetime of the worker-thread action set created by GAction.
  *
  * @ingroup gactions_module
  */
@@ -57,9 +61,9 @@ public:
 	/**
 	 * @brief Constructs the event action.
 	 *
-	 * @param gopt Shared configuration used to construct event data containers and control logging.
-	 * @param run_a Non-owning pointer to the thread's GRunAction instance, used to access
-	 *              digitization routines and the streamer map.
+	 * @param gopt Shared configuration object used for event-product construction and logging.
+	 * @param run_a Non-owning pointer to the thread-local GRunAction instance that provides
+	 *              access to digitization routines, run-level accumulation, and streamers.
 	 */
 	explicit GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a);
 
@@ -73,43 +77,49 @@ public:
 	/**
 	 * @brief Called by Geant4 at the beginning of an event.
 	 *
-	 * Typical usage in this module is logging and lightweight per-event bookkeeping.
+	 * In this implementation, the method is mainly used for event/thread tracing and
+	 * lightweight diagnostics.
 	 *
-	 * @param event The Geant4 event descriptor.
+	 * @param event Geant4 event descriptor for the event being started.
 	 */
 	void BeginOfEventAction(const G4Event* event) override;
 
 	/**
 	 * @brief Called by Geant4 at the end of an event.
 	 *
-	 * This method performs the event-level workflow:
-	 * - Collect hit collections.
-	 * - Digitize hits and collect truth information.
-	 * - Publish the resulting event data to streamers.
+	 * This method performs the main event-processing logic of the module:
+	 * - count the event in the run-level bookkeeping;
+	 * - retrieve the hit collections associated with the event;
+	 * - resolve the proper digitization routine for each collection;
+	 * - digitize each hit and collect its truth information;
+	 * - route produced payload to event-mode or run-mode accumulation depending on
+	 *   the digitizer collection mode;
+	 * - publish the event data once all event-mode collections have been processed.
 	 *
-	 * @param event The Geant4 event descriptor.
+	 * @param event Geant4 event descriptor for the event being completed.
 	 */
 	void EndOfEventAction(const G4Event* event) override;
 
 private:
 	/**
-	 * @brief Publishes a completed event data collection to all thread streamers.
+	 * @brief Publishes a completed event data collection to all worker-thread streamers.
 	 *
-	 * @param event_data The fully populated event data collection to publish.
+	 * @param event_data Shared event-data object containing the completed event payload.
 	 */
 	void publish_event_data(const std::shared_ptr<GEventDataCollection>& event_data) const;
 
 	/**
-	 * @brief Shared configuration used for constructing event products and controlling logging.
+	 * @brief Shared configuration used to build event products and control logging.
 	 */
 	std::shared_ptr<GOptions> goptions;
 
 	/**
-	 * @brief Non-owning pointer to the thread's run action.
+	 * @brief Non-owning pointer to the thread-local run action associated with this event action.
 	 *
-	 * This is used to access:
-	 * - The digitization routines map (collection name -> routine).
-	 * - The per-thread streamer map.
+	 * The run action provides:
+	 * - access to the shared digitization-routine map;
+	 * - access to the worker-thread streamer map;
+	 * - access to run-level accumulation counters and containers.
 	 */
 	GRunAction* run_action = nullptr;
 };

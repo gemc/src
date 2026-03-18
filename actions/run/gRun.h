@@ -9,7 +9,7 @@
 
 /**
  * @file gRun.h
- * @brief Declares GRun, the per-thread run container.
+ * @brief Declares GRun, the thread-local run container used by the GEMC actions module.
  *
  * @ingroup gactions_module
  */
@@ -19,15 +19,15 @@ constexpr const char* GRUN_LOGGER = "grun";
 using GHitsCollection = G4THitsCollection<GHit>;
 
 /**
- * @brief Namespace collecting helpers for the run container.
+ * @brief Namespace containing helpers related to the run-container scope.
  *
  * @ingroup gactions_module
  */
 namespace grun {
 /**
- * @brief Returns the options associated with the run container scope.
+ * @brief Returns the options associated with the run-container logger scope.
  *
- * @return A GOptions instance for the run container logger scope.
+ * @return A GOptions object scoped to the run-container logger name.
  */
 inline GOptions defineOptions() { return GOptions(GRUN_LOGGER); }
 } // namespace grun
@@ -35,28 +35,29 @@ inline GOptions defineOptions() { return GOptions(GRUN_LOGGER); }
 
 /**
  * @class GRun
- * @brief Thread-local run object created for each Geant4 run.
+ * @brief Thread-local run object created by the GEMC run action.
  *
- * In Geant4, a run is a sequence of events started by the run manager BeamOn().
- * In multithreaded mode, each worker thread creates its own run object; Geant4 may
- * later merge worker runs into a global run.
+ * In Geant4, a run represents a sequence of events managed under one BeamOn() request.
+ * In multithreaded execution, each worker thread owns its own run object, and Geant4
+ * may later merge worker-side run information into a master-level view.
  *
- * GEMC uses this run object as the place where run-level services can be attached.
- * In particular, the digitization routines map is stored so that event-level logic
- * can reference consistent digitization behavior for the lifetime of the run.
+ * In this module, GRun acts as the run object instantiated through
+ * the private method \c GenerateRun(). Its current role is intentionally small:
+ * it stores access to the shared digitization-routine map so the run-level execution
+ * context has a consistent view of the digitization configuration throughout the run.
  *
- * Creation:
- * - Instances are created by the run action via GRunAction::GenerateRun().
+ * Even though the class is lightweight, it is the natural extension point for future
+ * run-scoped services and state that should live for the duration of a thread-local run.
  *
  * @ingroup gactions_module
  */
 class GRun : public GBase<GRun>, public G4Run {
 public:
 	/**
-	 * @brief Constructs the run object for the current thread.
+	 * @brief Constructs the run object for the current execution thread.
 	 *
-	 * @param gopts Shared configuration used by this run for logging and run-level behavior.
-	 * @param digi_map Shared digitization routines map used throughout the run.
+	 * @param gopts Shared configuration object used for logging and any run-scoped behavior.
+	 * @param digi_map Shared digitization-routine map associated with this run context.
 	 */
 	explicit GRun(std::shared_ptr<GOptions> gopts,
 	              std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
@@ -70,10 +71,11 @@ public:
 
 private:
 	/**
-	 * @brief Digitization routines map used to digitize hit collections during the run.
+	 * @brief Shared digitization-routine map retained for the lifetime of the run object.
 	 *
-	 * The map is provided by higher-level initialization code and is expected to
-	 * remain valid for the run lifetime.
+	 * The map associates collection names with the routines used to transform raw hit
+	 * data into GEMC digitized and truth-level payload. Storing it here ensures the
+	 * run object and the components operating within the run observe the same configuration.
 	 */
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;
 };

@@ -37,26 +37,26 @@ std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(GHit* gh
 	// Store the detector identity and the total deposited energy.
 	gdata->includeVariable("eTot", ghit->getTotalEnergyDeposited());
 
-	// Per-step information used to build the NIEL-weight.
-	auto pids      = ghit->getPids();
-	auto pEnergies = ghit->getEs();
-
-	double nielWeight = 0;
-
-	// Accumulate NIEL factor step-by-step. This treats each step independently and sums
-	// the interpolated factors for supported particle species.
-	for (size_t stepIndex = 0; stepIndex < pids.size(); stepIndex++) {
-		// Use absolute PID so negative particle IDs (e.g. -11) are handled.
-		int pid = std::abs(pids[stepIndex]);
-
-		// Only a few particle types are supported by the calibration data files.
-		if (pid == 11 || pid == 211 || pid == 2212 || pid == 2112) {
-			// Convert from total energy to kinetic-like quantity used by the NIEL tables
-			// by subtracting the particle rest mass (in MeV).
-			double E   = pEnergies[stepIndex] - pMassMeV[pid];
-			nielWeight += getNielFactorForParticleAtEnergy(pid, E);
-		}
-	}
+	// // Per-step information used to build the NIEL-weight.
+	// auto pids      = ghit->getPids();
+	// auto pEnergies = ghit->getEs();
+	//
+	// double nielWeight = 0;
+	//
+	// // Accumulate NIEL factor step-by-step. This treats each step independently and sums
+	// // the interpolated factors for supported particle species.
+	// for (size_t stepIndex = 0; stepIndex < pids.size(); stepIndex++) {
+	// 	// Use absolute PID so negative particle IDs (e.g. -11) are handled.
+	// 	int pid = std::abs(pids[stepIndex]);
+	//
+	// 	// Only a few particle types are supported by the calibration data files.
+	// 	if (pid == 11 || pid == 211 || pid == 2212 || pid == 2112) {
+	// 		// Convert from total energy to kinetic-like quantity used by the NIEL tables
+	// 		// by subtracting the particle rest mass (in MeV).
+	// 		double E   = pEnergies[stepIndex] - pMassMeV[pid];
+	// 		nielWeight += getNielFactorForParticleAtEnergy(pid, E);
+	// 	}
+	// }
 
 	// gdata->includeVariable("nielWeight", nielWeight);
 

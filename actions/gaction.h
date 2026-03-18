@@ -16,11 +16,12 @@
 
 /**
  * @file gaction.h
- * @brief Declares GAction, the Geant4 action-initialization entry point for GEMC.
+ * @brief Declares GAction, the Geant4 action-initialization entry point for the GEMC actions module.
  *
- * GAction derives from the Geant4 action initialization interface
- * (\c G4VUserActionInitialization) and wires together the run, event,
- * and primary generation actions used by GEMC.
+ * GAction is the module-level class responsible for registering the Geant4 user
+ * actions used by GEMC. It derives from \c G4VUserActionInitialization and is
+ * queried by the Geant4 run manager to create the action objects appropriate for
+ * worker threads, sequential execution, and the master thread.
  *
  * @ingroup gactions_module
  */
@@ -28,25 +29,26 @@
 constexpr const char* GACTION_LOGGER = "gaction";
 
 /**
- * @brief Namespace collecting helpers for the actions subsystem.
+ * @brief Namespace containing helpers related to action-subsystem configuration.
+ *
+ * The functions in this namespace are intended to support module setup by providing
+ * a single place where all action-related option definitions can be collected.
  *
  * @ingroup gactions_module
  */
 namespace gaction {
 
 /**
- * @brief Builds and returns the complete set of options required by the actions subsystem.
+ * @brief Builds the aggregate option set required by the actions subsystem.
  *
- * This helper is intended to be used by the application/module setup to define all
- * actions-related options in one place.
+ * This helper creates a logger-scoped GOptions object for the action module and
+ * then merges into it the option definitions contributed by the event action,
+ * run action, primary generator action, and run container helpers.
  *
- * It aggregates:
- * - event action options
- * - run action options
- * - primary generator options
- * - run container options
+ * The returned object is meant to be merged into the wider application configuration
+ * before constructing GAction.
  *
- * @return A GOptions instance populated with the union of all action-related options.
+ * @return A GOptions object containing the union of all action-related option definitions.
  */
 inline GOptions defineOptions() {
 	auto goptions = GOptions(GACTION_LOGGER);
@@ -62,29 +64,39 @@ inline GOptions defineOptions() {
 
 /**
  * @class GAction
- * @brief Registers GEMC user actions for worker and master threads.
+ * @brief Registers GEMC user actions for worker threads, sequential execution, and the master thread.
  *
- * Geant4 uses an action initialization class (\c G4VUserActionInitialization) to instantiate
- * user action objects. These action objects are typically thread-local:
+ * Geant4 uses an action-initialization object derived from \c G4VUserActionInitialization
+ * to obtain the user actions that will participate in a simulation.
  *
- * - Build() is invoked for worker threads and also for sequential mode.
- * - BuildForMaster() is invoked for the master thread, and is commonly used to register
- *   only the run action.
+ * In this module, GAction applies that lifecycle as follows:
+ * - \ref GAction::Build "Build()" is invoked for worker threads and also for sequential mode.
+ *   It registers:
+ *   - GPrimaryGeneratorAction
+ *   - GRunAction
+ *   - GEventAction
+ * - \ref GAction::BuildForMaster "BuildForMaster()" is invoked for the master thread.
+ *   It registers:
+ *   - GRunAction only
  *
- * This class holds:
- * - A shared pointer to GOptions, used by the constructed actions to read runtime configuration.
- * - A shared pointer to the digitization routines map, used by the run and event actions to
- *   digitize hits and publish results.
+ * This split mirrors the Geant4 execution model:
+ * - The master thread coordinates the run and can execute run-level hooks.
+ * - Worker threads execute event processing and therefore require generator
+ *   and event actions in addition to the run action.
+ *
+ * Internally, this class stores the shared configuration object and the shared
+ * digitization-routine map so that every action created by this initializer
+ * receives a consistent view of the runtime configuration.
  *
  * @ingroup gactions_module
  */
 class GAction : public GBase<GAction>, public G4VUserActionInitialization {
 public:
 	/**
-	 * @brief Constructs the action initializer.
+	 * @brief Constructs the action initializer used by the Geant4 run manager.
 	 *
 	 * @param gopts Shared configuration object used by all actions constructed by this initializer.
-	 * @param digi_map Shared map from sensitive detector / hit collection name to digitization routines.
+	 * @param digi_map Shared map associating collection names with digitization routines.
 	 */
 	explicit GAction(std::shared_ptr<GOptions> gopts,
 	                 std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
@@ -97,37 +109,46 @@ public:
 	GAction& operator=(GAction&&)      = delete;
 
 	/**
-	 * @brief Registers user actions for worker threads (and sequential mode).
+	 * @brief Registers the user actions required by worker threads and sequential execution.
 	 *
-	 * Expected registrations include:
-	 * - The primary generator action.
-	 * - The run action.
-	 * - The event action.
+	 * This method is called by Geant4 when action objects must be created for an
+	 * execution context that processes events.
 	 *
-	 * The constructed actions receive the shared configuration and digitization map.
+	 * The registration order used here is:
+	 * - GPrimaryGeneratorAction, to generate event primaries.
+	 * - GRunAction, to manage run begin/end hooks and create GRun.
+	 * - GEventAction, to process hit collections, digitize them, and publish event data.
+	 *
+	 * The event action receives the run-action instance created in this method so it
+	 * can access thread-local run services such as digitization-routine lookup and
+	 * streamer access.
 	 */
 	void Build() const override;
 
 	/**
-	 * @brief Registers user actions for the master thread.
+	 * @brief Registers the user actions required by the master thread.
 	 *
-	 * In multithreaded mode, the master thread typically registers only the run action.
+	 * In multithreaded execution, the master thread does not process individual events.
+	 * For that reason, only GRunAction is registered here. That action handles the
+	 * master-side run lifecycle, including merged run-data publication when needed.
 	 */
 	void BuildForMaster() const override;
 
 private:
 	/**
-	 * @brief Shared configuration used to construct and configure all action objects.
+	 * @brief Shared configuration used when constructing all action objects.
 	 *
-	 * This pointer is kept so that Build() and BuildForMaster() can construct the action objects
-	 * using the same configuration instance.
+	 * This pointer is stored so both \ref GAction::Build "Build()" and
+	 * \ref GAction::BuildForMaster "BuildForMaster()" create actions using the same
+	 * runtime configuration object.
 	 */
 	std::shared_ptr<GOptions> goptions;
 
 	/**
-	 * @brief Digitization routines map used by run/event actions to digitize hit collections.
+	 * @brief Shared digitization-routine map passed to run and event processing actions.
 	 *
-	 * The map is populated elsewhere and is shared across threads as a read-mostly structure.
+	 * The map associates collection names with the routines that know how to transform
+	 * raw hit information into GEMC digitized and truth-level payload.
 	 */
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;
 };

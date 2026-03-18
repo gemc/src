@@ -12,7 +12,8 @@ std::mutex                   GRunAction::completed_run_data_mutex;
 GRunAction::CompletedRunData GRunAction::completed_worker_run_data;
 
 
-// Constructor for workers: stores shared services and logs thread identity.
+// Construct the run action and retain access to shared configuration and
+// digitization services for the current execution context.
 GRunAction::GRunAction(std::shared_ptr<GOptions>                           gopt,
                        std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
 	GBase(gopt, GRUNACTION_LOGGER),
@@ -23,14 +24,15 @@ GRunAction::GRunAction(std::shared_ptr<GOptions>                           gopt,
 }
 
 
-// Executed after BeamOn(): create the thread-local run container.
+// Create the thread-local run object used by Geant4 for this execution context.
 G4Run* GRunAction::GenerateRun() {
 	log->debug(NORMAL, FUNCTION_NAME);
 
 	return new GRun(goptions, digitization_routines_map);
 }
 
-// Invoked at the beginning of BeamOn (before physics tables are computed).
+// Initialize run-scoped bookkeeping, determine which streamer categories are
+// needed for this run, and open the appropriate connections.
 void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 	const auto thread_id = G4Threading::G4GetThreadId();
 	const auto run       = aRun->GetRunID();
@@ -40,11 +42,12 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 
 	const auto neventsThisRun = aRun->GetNumberOfEventToBeProcessed();
 
-	// Reset per-run state before recomputing it.
+	// Reset the per-run mode flags before scanning the digitization routines.
 	need_a_thread_streamer = false;
 	need_a_run_streamer    = false;
 
-	// Loop over the digitization map to determine required collection modes.
+	// Inspect the available digitization routines to determine whether this run
+	// requires event-mode publication, run-mode publication, or both.
 	if (digitization_routines_map != nullptr) {
 		for (const auto& [plugin, digiRoutine] : *digitization_routines_map) {
 			if (digiRoutine == nullptr) {
@@ -66,6 +69,8 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 		           " digitization_routines_map is null - streamer mode detection skipped.");
 	}
 
+	// Worker threads own event-mode publication, so they lazily build and open
+	// thread-local streamers only when at least one event-mode digitizer exists.
 	if (!IsMaster() && need_a_thread_streamer) {
 		if (gstreamer_threads_map == nullptr) {
 			log->info(1, "Defining thread gstreamers for run ", run, " in thread ", thread_id);
@@ -96,6 +101,8 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 			          " for run ", run, ". Number of events to be processed: ", neventsThisRun);
 		}
 	}
+	// The master thread owns run-mode publication, so it opens the run streamers
+	// only when at least one digitizer accumulates payload at run scope.
 	else if (IsMaster() && need_a_run_streamer) {
 		if (gstreamer_run_map == nullptr) {
 			log->info(1, "Defining run gstreamers for run ", run);
@@ -127,7 +134,8 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 	}
 }
 
-// Invoked at the very end of the run processing: close streamer connections and aggregate worker run data.
+// Close streamers at run end and, when running on the master thread, merge and
+// publish the run-level payload accumulated by workers.
 void GRunAction::EndOfRunAction(const G4Run* aRun) {
 	const auto        thread_id = G4Threading::G4GetThreadId();
 	const auto        run       = aRun->GetRunID();
@@ -157,14 +165,16 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 		}
 	}
 
-	// Worker threads contribute their completed run_data objects to the protected pool.
+	// Worker threads do not publish merged run data. Instead, they hand their
+	// completed run-level accumulation to the shared pool and return.
 	if (!IsMaster()) {
 		stash_worker_run_data();
 		return;
 	}
 
 	if (IsMaster() && need_a_run_streamer) {
-		// Master thread collects all completed worker run_data objects.
+		// Gather all worker-produced run data for this run and merge them into a
+		// single master-side run-data object before publication.
 		auto completed_run_data = take_completed_worker_run_data();
 		log->info(2, FUNCTION_NAME,
 		          " master collected ", static_cast<int>(completed_run_data.size()),
@@ -177,6 +187,8 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 				continue;
 			}
 
+			// Create the merged destination lazily only if there is at least one
+			// valid worker contribution to merge.
 			if (merged_run_data == nullptr) {
 				auto merged_header = std::make_unique<GRunHeader>(goptions, run, thread_id);
 				merged_run_data    = std::make_shared<GRunDataCollection>(goptions, std::move(merged_header));
@@ -185,6 +197,7 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 			merged_run_data->merge(*worker_run_data);
 		}
 
+		// Publish the merged run-level payload once, after all workers have contributed.
 		if (merged_run_data != nullptr) {
 			publish_run_data(merged_run_data);
 		}
@@ -212,6 +225,8 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 	}
 }
 
+// Move this worker's completed run-data object into the protected static pool
+// so it can later be collected by the master thread.
 void GRunAction::stash_worker_run_data() {
 	if (run_data == nullptr) {
 		return;
@@ -221,6 +236,7 @@ void GRunAction::stash_worker_run_data() {
 	completed_worker_run_data.emplace_back(std::move(run_data));
 }
 
+// Extract and clear the protected pool of completed worker run-data objects.
 auto GRunAction::take_completed_worker_run_data() -> CompletedRunData {
 	std::scoped_lock lock(completed_run_data_mutex);
 
@@ -231,6 +247,7 @@ auto GRunAction::take_completed_worker_run_data() -> CompletedRunData {
 }
 
 
+// Publish the merged run-level payload to every configured master-side run streamer.
 void GRunAction::publish_run_data(const std::shared_ptr<GRunDataCollection>& run_data) const {
 	if (run_data == nullptr) {
 		log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,

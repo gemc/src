@@ -14,7 +14,7 @@
 
 /**
  * @file gPrimaryGeneratorAction.h
- * @brief Declares GPrimaryGeneratorAction, the primary particle generation action.
+ * @brief Declares GPrimaryGeneratorAction, the primary-particle generation action for the GEMC actions module.
  *
  * @ingroup gactions_module
  */
@@ -22,19 +22,21 @@
 constexpr const char* GPRIMARYGENERATORACTION_LOGGER = "generator";
 
 /**
- * @brief Namespace collecting helpers for the primary generator action.
+ * @brief Namespace containing helpers related to primary-generator configuration.
  *
  * @ingroup gactions_module
  */
 namespace gprimaryaction {
 
 /**
- * @brief Returns the options associated with the primary generator action.
+ * @brief Returns the options associated with the primary-generator action scope.
  *
- * This module currently returns an empty option set; options may be provided by
- * other generator-related helpers (for example, gparticle options).
+ * In the current implementation this helper returns a logger-scoped GOptions object
+ * without adding dedicated primary-generator switches directly in this file.
+ * Generator behavior is instead mainly driven by the particle definitions loaded
+ * through the generator support code.
  *
- * @return A GOptions instance for the primary generator action logger scope.
+ * @return A GOptions object scoped to the primary-generator logger name.
  */
 inline GOptions defineOptions() {
 	return GOptions(GPRIMARYGENERATORACTION_LOGGER);
@@ -45,26 +47,32 @@ inline GOptions defineOptions() {
 
 /**
  * @class GPrimaryGeneratorAction
- * @brief Generates primary vertices for each event.
+ * @brief Generates the primary vertices for each Geant4 event.
  *
- * This action constructs a Geant4 particle gun (\c G4ParticleGun) and a list of
- * configured Gparticle objects. For each event, it iterates over the list and
- * delegates to each Gparticle instance to configure the gun and shoot into the event.
+ * This class is the GEMC implementation of the Geant4 primary-generator action.
+ * It owns a \c G4ParticleGun and a list of configured Gparticle objects.
  *
- * If no particles are configured, a default particle is created and used.
+ * For every event, \ref GPrimaryGeneratorAction::GeneratePrimaries "GeneratePrimaries()"
+ * iterates over the configured particle definitions and delegates the actual shooting
+ * operation to each Gparticle instance. This allows the generator configuration to be
+ * data-driven while still using the Geant4 particle-gun mechanism underneath.
+ *
+ * If no particle definitions are found in the configuration, the constructor creates
+ * a default particle so the simulation still has a valid primary source.
  *
  * @ingroup gactions_module
  */
 class GPrimaryGeneratorAction : public GBase<GPrimaryGeneratorAction>, public G4VUserPrimaryGeneratorAction {
 public:
 	/**
-	 * @brief Constructs the primary generator action.
+	 * @brief Constructs the primary-generator action.
 	 *
-	 * - Allocates the \c G4ParticleGun instance.
-	 * - Loads configured particles using gparticle::getGParticles().
-	 * - If none are defined, creates a default particle.
+	 * Construction performs the following steps:
+	 * - allocate the \c G4ParticleGun instance used for emission;
+	 * - read the configured particle definitions through gparticle support helpers;
+	 * - create a default particle if no explicit particle definition is available.
 	 *
-	 * @param gopts Shared configuration object used to retrieve particle definitions and logging settings.
+	 * @param gopts Shared configuration object used to retrieve generator settings and logging controls.
 	 */
 	explicit GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts);
 
@@ -76,28 +84,34 @@ public:
 	GPrimaryGeneratorAction& operator=(GPrimaryGeneratorAction&&)      = delete;
 
 	/**
-	 * @brief Generates the primaries for the given event.
+	 * @brief Generates the primary content for one event.
 	 *
-	 * The method loops over the configured Gparticle list, logs particle details
-	 * at higher verbosity, and invokes the per-particle shooting routine.
+	 * The method loops over all configured Gparticle objects. For each non-null entry,
+	 * it asks the particle object to configure the internal \c G4ParticleGun and to
+	 * inject the resulting primary information into the supplied event.
 	 *
-	 * @param event The Geant4 event that will receive the generated primaries.
+	 * This design allows multiple configured particle definitions to contribute to a
+	 * single Geant4 event.
+	 *
+	 * @param event The event that will receive the generated primary vertices and particles.
 	 */
 	void GeneratePrimaries(G4Event* event) override;
 
 private:
 	/**
-	 * @brief Geant4 particle gun used as the emission mechanism for all configured particles.
+	 * @brief Particle-gun instance used to materialize configured primaries into the event.
 	 *
-	 * Ownership is exclusive to this class.
+	 * The gun is owned exclusively by this class and reused across events. Individual
+	 * Gparticle objects configure it before shooting their contribution to the event.
 	 */
 	std::unique_ptr<G4ParticleGun> gparticleGun;
 
 	/**
-	 * @brief List of configured particles to be generated for each event.
+	 * @brief List of configured particle definitions used during event generation.
 	 *
-	 * Each entry represents an independent particle definition and is asked to
-	 * produce one primary (or a set of primaries) via its shooting routine.
+	 * Each entry represents one generator-side particle description. During event
+	 * generation the list is traversed in order, and each non-null entry is given
+	 * the opportunity to contribute primary content to the event.
 	 */
 	std::vector<GparticlePtr> gparticles;
 };

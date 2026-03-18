@@ -26,7 +26,7 @@
 class GstreamerCsvFactory : public GStreamer
 {
 public:
-	/// \brief Inherit the base constructor taking (const std::shared_ptr<GOptions>&).
+	/// \brief Inherit the base constructor, taking (const std::shared_ptr<GOptions>&).
 	using GStreamer::GStreamer;
 
 	// One instance per thread: forbid copy/move to prevent accidental sharing.
@@ -50,6 +50,13 @@ private:
 	                                  const std::vector<const GTrueInfoData*>& trueInfoData) override;
 	bool publishEventDigitizedDataImpl(const std::string&                        detectorName,
 	                                   const std::vector<const GDigitizedData*>& digitizedData) override;
+
+	// Run stream hooks.
+	bool startRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) override;
+	bool endRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) override;
+	bool publishRunDigitizedDataImpl(const std::string&                        detectorName,
+									 const std::vector<const GDigitizedData*>& digitizedData) override;
+
 
 	// Frame stream hooks (present for interface completeness; currently implemented as no-ops).
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;
@@ -84,6 +91,9 @@ private:
 
 	/// \brief Cached event number for the current event (copied in startEventImpl()).
 	int event_number;
+
+	/// \brief Cached run number for the current event (copied in startRunImpl()).
+	int runId;
 
 	/// \brief Cached thread id for the current event (copied in publishEventHeaderImpl()).
 	int thread_id;

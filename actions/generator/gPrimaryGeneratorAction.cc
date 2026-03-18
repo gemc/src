@@ -3,14 +3,17 @@
 #include "gPrimaryGeneratorAction.h"
 
 
+// Build the primary-generator action, load the configured particle definitions,
+// and guarantee a valid fallback particle when no explicit configuration is present.
 GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts) :
 	GBase(gopts, GPRIMARYGENERATORACTION_LOGGER),
 	gparticleGun(std::make_unique<G4ParticleGun>()) {
-	// Load configured particle definitions.
+	// Load all configured particle descriptions from the shared options object.
 	gparticles = gparticle::getGParticles(gopts, log);
 
 	if (gparticles.empty()) {
-		// Ensure a valid generator configuration by creating a default particle.
+		// Fall back to a default particle definition so the generator remains usable
+		// even when no explicit particle configuration was provided.
 		auto default_particle = Gparticle::create_default_gparticle(log);
 		log->info(1, "No gparticle was defined. Creating default:", *default_particle);
 		gparticles.emplace_back(default_particle);
@@ -18,8 +21,9 @@ GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts
 }
 
 
+// For each configured particle definition, configure the shared particle gun and
+// inject the corresponding primary information into the current event.
 void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
-	// Generate primaries by iterating over all configured particle definitions.
 	for (const auto& gparticle : gparticles) {
 		log->info(2, gparticle);
 

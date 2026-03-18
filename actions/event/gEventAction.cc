@@ -9,32 +9,34 @@
 #include "event/gEventDataCollection.h"
 
 
+// Construct the event action and keep access to shared configuration plus the
+// non-owning thread-local run action used during event finalization.
 GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a) :
 	GBase(gopt, EVENTACTION_LOGGER),
 	goptions(gopt),
 	run_action(run_a) {
-	// Constructor: store shared config and a non-owning pointer to the run action for this thread.
 	const auto desc = "GEventAction " + std::to_string(G4Threading::G4GetThreadId());
 	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
 }
 
+// Begin-of-event hook used mainly for tracing event and thread identifiers.
 void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) {
-	// Begin-of-event hook: log event id and thread id for tracing.
 	const auto thread_id = G4Threading::G4GetThreadId();
 	const auto event_id  = event->GetEventID();
 
 	log->debug(NORMAL, FUNCTION_NAME, " event id ", event_id, " in thread ", thread_id);
 }
 
+// Finalize the event by reading hit collections, digitizing them, routing the
+// resulting payload according to collection mode, and publishing event-mode output.
 void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
-	// End-of-event hook: collect hit collections, digitize hits, and publish the event to streamers.
 	if (run_action == nullptr) {
 		log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 				   " run_action is null - cannot access digitization routines or streamers.");
 		return;
 	}
 
-	// Count every processed event once, independently of whether it produces any payload.
+	// Count each processed event once, even when it produces no payload.
 	run_action->increment_run_events_processed();
 
 	auto* const hcs_this_event = event->GetHCofThisEvent();
@@ -58,7 +60,8 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	bool has_event_mode_payload = false;
 	bool has_run_mode_payload   = false;
 
-	// Loop over all hit collections produced by sensitive detectors in this event.
+	// Loop over every hit collection produced during this event and dispatch each
+	// collection to the digitization routine registered under its collection name.
 	for (G4int hci = 0; hci < hcs_this_event->GetNumberOfCollections(); ++hci) {
 		auto* const this_ghc = static_cast<GHitsCollection*>(hcs_this_event->GetHC(hci));
 		if (this_ghc == nullptr) {
@@ -72,7 +75,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 				  " for collection number ", hci + 1,
 				  " collection name: ", hcSDName);
 
-		// Select the digitization routine by hit collection name.
+		// Resolve the digitization routine responsible for this collection.
 		const auto it = digi_map->find(hcSDName);
 		if (it == digi_map->end()) {
 			log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
@@ -91,7 +94,8 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 
 		const auto collection_mode = digitization_routine->collection_mode();
 
-		// Loop over hits in this collection and append produced data to the appropriate container.
+		// Process all hits in the collection. Event-mode digitizers append to the
+		// event container, while run-mode digitizers append to the run container.
 		for (size_t hitIndex = 0; hitIndex < this_ghc->GetSize(); ++hitIndex) {
 			auto* const this_hit = static_cast<GHit*>(this_ghc->GetHit(hitIndex));
 			if (this_hit == nullptr) {
@@ -117,18 +121,18 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 		}
 	}
 
-	// Count this event once for run-level accumulation if any run-mode payload was produced.
+	// Record whether this event contributed at least one run-mode payload entry.
 	if (has_run_mode_payload) {
 		run_action->increment_run_events_with_payload();
 	}
 
-
-	// Publish once per event, after all event-mode collections have been processed.
+	// Publish event-mode output once, after all collections have been processed.
 	if (has_event_mode_payload) {
 		publish_event_data(eventDataCollection);
 	}
 }
 
+// Send the completed event-data object to every configured worker-thread streamer.
 void GEventAction::publish_event_data(const std::shared_ptr<GEventDataCollection>& event_data) const {
 	if (run_action == nullptr || event_data == nullptr) {
 		return;
