@@ -5,256 +5,294 @@
  * \brief Container for digitized observables associated with one simulated hit.
  *
  * \details
- * \ref GDigitizedData represents the *post-digitization* view of a hit: quantities produced
- * after detector response and electronics logic.
+ * GDigitizedData represents the post-digitization view of a hit.
+ * It stores the quantities produced after detector-response and electronics logic have transformed
+ * the simulation truth into readout-oriented observables.
  *
- * The design goal is schema flexibility: digitization plugins can define custom observables
- * using string keys without requiring the core library to hard-code bank layouts.
+ * The class is intentionally schema-flexible:
+ * - scalar values are stored in keyed maps
+ * - optional array-valued observables can represent richer payloads such as samples or waveforms
+ * - detector-specific content can be extended without changing the core library ABI
  *
- * ## Stored observable categories
- * - \c intObservablesMap    : scalar integer observables (indices, integerized electronics, etc.)
- * - \c doubleObservablesMap : scalar floating observables (ADC-like values, energies, calibrated times)
- * - \c arrayIntObservablesMap / \c arrayDoubleObservablesMap : optional vector-valued observables
+ * Stored categories:
+ * - \c intObservablesMap           : integer-valued scalar observables
+ * - \c doubleObservablesMap        : floating-point scalar observables
+ * - \c arrayIntObservablesMap      : integer arrays
+ * - \c arrayDoubleObservablesMap   : floating-point arrays
  *
- * ## Per-event vs per-run semantics
- * - \ref GDigitizedData::includeVariable "includeVariable()"
- *   sets/overwrites the observable for a single hit (event-level filling).
- * - \ref GDigitizedData::accumulateVariable "accumulateVariable()"
- *   adds the value into the stored observable (run-level integration).
+ * Identity:
+ * - the object copies the hit identity from the source GHit
+ * - the identity is preserved independently of the originating hit lifetime
+ * - a readable representation is available through
+ *   \ref GDigitizedData::getIdentityString "getIdentityString()"
  *
- * ## Streaming-readout (SRO) keys
- * The conventional readout keys defined in \ref gdataConventions.h :
- * - crate, slot, channel, timeAtElectronics, chargeAtElectronics
+ * Event and integration semantics:
+ * - \ref GDigitizedData::includeVariable "includeVariable()" stores or overwrites per-hit values
+ * - \ref GDigitizedData::accumulateVariable "accumulateVariable()" adds contributions for integrated use
  *
- * are treated specially by the filtering accessors:
+ * Streaming-readout filtering:
+ * The conventional keys defined in gdataConventions.h :
+ * - crate
+ * - slot
+ * - channel
+ * - timeAtElectronics
+ * - chargeAtElectronics
+ *
+ * are treated as streaming-readout identifiers and can be separated from non-SRO observables with:
  * - \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap()"
  * - \ref GDigitizedData::getDblObservablesMap "getDblObservablesMap()"
- *
- * This supports backends that want to separate "readout addressing" from "physics-like" observables.
  */
 
-// c++
-#include <string>
-#include <map>
-#include <vector>
 #include <atomic>
+#include <map>
 #include <ostream>
+#include <string>
+#include <vector>
 
 // gemc
-#include "ghit.h"
 #include "gbase.h"
+#include "ghit.h"
 
 // gdata
-#include "gdataConventions.h" // CRATESTRINGID, SLOTSTRINGID, CHANNELSTRINGID, TIMEATELECTRONICS, ...
+#include "gdataConventions.h"
 
-/// Logger domain name used by \ref GDigitizedData (controls verbosity/category in GLogger).
+/// Logger domain name used by GDigitizedData.
 constexpr const char* GDIGITIZED_DATA_LOGGER = "digitized_data";
 
 namespace gdigi_data {
-	/**
-	 * \brief Defines GOptions for the digitized-data logger domain.
-	 *
-	 * \details
-	 * Higher-level aggregators (event/run collections) typically include this in their
-	 * composite option groups so that digitized-data logging can be enabled/controlled consistently.
-	 *
-	 * \return An options group rooted at the \ref GDIGITIZED_DATA_LOGGER domain.
-	 */
-	inline GOptions defineOptions() {
-		auto goptions = GOptions(GDIGITIZED_DATA_LOGGER);
-		return goptions;
-	}
+
+/**
+ * \brief Defines the options subtree used by the digitized-data logger domain.
+ *
+ * \details
+ * Higher-level modules can aggregate this option group into their own configuration bundles
+ * so that verbosity and related behavior for GDigitizedData can be controlled centrally.
+ *
+ * \return Options group rooted at \c GDIGITIZED_DATA_LOGGER.
+ */
+inline GOptions defineOptions() {
+	auto goptions = GOptions(GDIGITIZED_DATA_LOGGER);
+	return goptions;
+}
+
 } // namespace gdigi_data
 
 /**
- * \brief Container for digitized (electronics-level) observables for one hit.
+ * \brief Stores digitized, electronics-level observables for one hit.
  *
  * \details
- * A \ref GDigitizedData instance corresponds to *one hit* after digitization.
- * It is designed to be schema-flexible (map-based storage) while still allowing:
- * - deterministic inspection via map iteration
- * - selective export of readout keys (SRO filtering)
- * - run-level integration via summation of scalars
+ * A GDigitizedData instance models one hit after detector-response and digitization processing.
+ * It is typically attached to:
+ * - a detector-level container through GDataCollection
+ * - an event-level container through GEventDataCollection
+ * - a run/integrated container when used as an accumulator
  *
- * Common usage patterns:
- * 1) Event-level: create a new instance per hit; fill using \ref GDigitizedData::includeVariable "includeVariable()".
- * 2) Run-level: keep a single instance as an accumulator; integrate contributions with
- *    \ref GDigitizedData::accumulateVariable "accumulateVariable()".
+ * Main responsibilities:
+ * - hold integer and floating scalar observables
+ * - optionally hold array-valued observables
+ * - provide filtered access that separates streaming-readout keys from physics-like content
  *
- * \note Accumulation is summation only; compute averages/rates in the consumer if needed.
+ * Typical usage:
+ * - Event mode: fill one object per hit with
+ *   \ref GDigitizedData::includeVariable "includeVariable()"
+ * - Integrated mode: keep one object as an accumulator and update it with
+ *   \ref GDigitizedData::accumulateVariable "accumulateVariable()"
+ *
+ * \note
+ * Accumulation is summation only. No averaging or normalization is performed by this class.
  */
 class GDigitizedData : public GBase<GDigitizedData>
 {
 public:
 	/**
-	 * \brief Construct digitized data by copying identity from a hit.
+	 * \brief Constructs the object and copies the hit identity from the source hit.
 	 *
 	 * \details
-	 * The constructor copies the hit identity (\c GIdentifier vector) from \p ghit.
-	 * The identity can be rendered as a human-readable string via
-	 * \ref GDigitizedData::getIdentityString "getIdentityString()".
+	 * The constructor initializes the base logging domain and copies the vector of GIdentifier
+	 * entries from the provided hit so that this object becomes self-contained.
 	 *
-	 * Ownership:
-	 * - \p ghit is not owned and only needs to be valid during construction.
+	 * Ownership and lifetime:
+	 * - \p ghit is not owned
+	 * - \p ghit only needs to remain valid during construction
+	 * - after construction, this object no longer depends on the source hit
 	 *
-	 * \param gopts Shared options object used to configure logging and behavior.
-	 * \param ghit  Pointer to the hit providing identity information (not owned).
+	 * \param gopts Shared options used to configure logging and related behavior.
+	 * \param ghit  Source hit providing the identity vector.
 	 */
 	GDigitizedData(const std::shared_ptr<GOptions>& gopts, const GHit* ghit);
 
 	/**
-	 * \brief Return a human-readable identity string for debugging and labeling.
+	 * \brief Builds a readable identity string from the stored hit identifiers.
 	 *
 	 * \details
-	 * Format:
+	 * The generated format is:
 	 * \code
-	 *   name1->value1, name2->value2, ...
+	 * name1->value1, name2->value2, ...
 	 * \endcode
 	 *
-	 * \return Identity string assembled from the hit identifiers.
+	 * \return Identity string assembled from the stored \c gidentity vector.
 	 */
 	[[nodiscard]] std::string getIdentityString() const;
 
 	/**
-	 * \name Per-hit insertion API
-	 * \brief Store/overwrite observables for a single hit.
+	 * \brief Stores or overwrites one integer observable for this hit.
 	 *
 	 * \details
-	 * These methods are typically called by digitization logic that computes observables
-	 * for the current hit and wants to attach them to the output record.
+	 * This method is usually used during event-level filling.
+	 * Repeated insertion with the same key replaces the previous value.
 	 *
-	 * Overwrite semantics:
-	 * - Calling includeVariable() with an existing key replaces the stored value.
-	 * @{
+	 * \param vname Observable key.
+	 * \param value Integer value to store.
 	 */
-
-	/// Store/overwrite an integer observable for this hit (event-level).
 	void includeVariable(const std::string& vname, int value);
 
-	/// Store/overwrite a double observable for this hit (event-level).
-	void includeVariable(const std::string& vname, double value);
-	/** @} */
-
 	/**
-	 * \name Run-level integration API
-	 * \brief Accumulate observables across hits/events (summation).
+	 * \brief Stores or overwrites one floating-point observable for this hit.
 	 *
 	 * \details
-	 * These are used when a single \ref GDigitizedData is serving as an accumulator.
-	 * - If the key does not exist, it is created.
-	 * - If it exists, the new contribution is added to the stored value.
+	 * This method is usually used during event-level filling.
+	 * Repeated insertion with the same key replaces the previous value.
 	 *
-	 * \note No normalization is performed.
-	 * @{
+	 * \param vname Observable key.
+	 * \param value Floating-point value to store.
 	 */
+	void includeVariable(const std::string& vname, double value);
 
-	/// Accumulate an integer observable (run-level integration).
+	/**
+	 * \brief Accumulates one integer observable into the current object.
+	 *
+	 * \details
+	 * This method supports run-level or integrated accumulation.
+	 *
+	 * Behavior:
+	 * - if the key does not exist, it is created with \p value
+	 * - if the key already exists, \p value is added to the stored entry
+	 *
+	 * \param vname Observable key.
+	 * \param value Contribution to add to the running sum.
+	 */
 	void accumulateVariable(const std::string& vname, int value);
 
-	/// Accumulate a double observable (run-level integration).
-	void accumulateVariable(const std::string& vname, double value);
-	/** @} */
-
 	/**
-	 * \brief Return a filtered copy of the integer observables map.
+	 * \brief Accumulates one floating-point observable into the current object.
 	 *
 	 * \details
-	 * Filtering is based on whether a key is considered "streaming readout" (SRO):
-	 * - \p which = 0: returns non-SRO variables (digitization outputs / physics-like quantities)
-	 * - \p which = 1: returns only SRO variables (crate/slot/channel/timeAtElectronics/chargeAtElectronics)
+	 * This method supports run-level or integrated accumulation.
 	 *
-	 * \param which Filter mode (0 = non-SRO, 1 = SRO only).
-	 * \return A filtered copy of the integer observables.
+	 * Behavior:
+	 * - if the key does not exist, it is created with \p value
+	 * - if the key already exists, \p value is added to the stored entry
+	 *
+	 * \param vname Observable key.
+	 * \param value Contribution to add to the running sum.
+	 */
+	void accumulateVariable(const std::string& vname, double value);
+
+	/**
+	 * \brief Returns a filtered copy of the integer observables map.
+	 *
+	 * \details
+	 * The \p which argument selects the filtering mode:
+	 * - \c 0 : return non-SRO variables only
+	 * - \c 1 : return SRO variables only
+	 *
+	 * SRO variables are the conventional readout keys defined in gdataConventions.h.
+	 *
+	 * \param which Filter selector.
+	 * \return Filtered copy of the integer observables.
 	 */
 	[[nodiscard]] std::map<std::string, int> getIntObservablesMap(int which) const;
 
 	/**
-	 * \brief Return a filtered copy of the double observables map.
+	 * \brief Returns a filtered copy of the floating-point observables map.
 	 *
 	 * \details
-	 * Uses the same filtering semantics as
+	 * The \p which argument uses the same semantics as
 	 * \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap()".
 	 *
-	 * \param which Filter mode (0 = non-SRO, 1 = SRO only).
-	 * \return A filtered copy of the double observables.
+	 * \param which Filter selector.
+	 * \return Filtered copy of the floating-point observables.
 	 */
 	[[nodiscard]] std::map<std::string, double> getDblObservablesMap(int which) const;
 
 	/**
-	 * \brief Convenience accessor for \c TIMEATELECTRONICS.
+	 * \brief Returns the conventional \c timeAtElectronics integer observable when present.
 	 *
 	 * \details
-	 * If the key is not present, returns \ref TIMEATELECTRONICSNOTDEFINED (a sentinel).
-	 * This avoids quietly inserting defaults and makes missing-data bugs easier to detect.
+	 * If the key is absent, the method returns the sentinel value
+	 * \ref TIMEATELECTRONICSNOTDEFINED.
 	 *
-	 * \return The time at electronics if present, otherwise \c TIMEATELECTRONICSNOTDEFINED.
+	 * This method provides a compact accessor for a commonly used SRO quantity without forcing
+	 * callers to inspect the observables map directly.
+	 *
+	 * \return Stored \c timeAtElectronics value, or \c TIMEATELECTRONICSNOTDEFINED if missing.
 	 */
 	int getTimeAtElectronics();
 
 	/**
-	 * \brief Retrieve one integer observable by name.
+	 * \brief Returns one integer observable by key.
 	 *
 	 * \details
-	 * If the key is missing, an error is emitted via GLogger using \ref ERR_VARIABLENOTFOUND.
-	 * Return behavior after logging depends on the logger configuration (fatal vs non-fatal).
+	 * If the key is missing, an error is reported with the stable error code
+	 * \ref ERR_VARIABLENOTFOUND.
 	 *
-	 * \param varName Observable name/key.
-	 * \return The stored integer value.
+	 * \param varName Observable key.
+	 * \return Stored integer value.
 	 */
 	int getIntObservable(const std::string& varName);
 
 	/**
-	 * \brief Retrieve one double observable by name.
+	 * \brief Returns one floating-point observable by key.
 	 *
 	 * \details
-	 * If the key is missing, an error is emitted via GLogger using \ref ERR_VARIABLENOTFOUND.
+	 * If the key is missing, an error is reported with the stable error code
+	 * \ref ERR_VARIABLENOTFOUND.
 	 *
-	 * \param varName Observable name/key.
-	 * \return The stored double value.
+	 * \param varName Observable key.
+	 * \return Stored floating-point value.
 	 */
 	double getDblObservable(const std::string& varName);
 
 	/**
-	 * \brief Get the array-valued integer observables map.
+	 * \brief Returns a copy of the array-valued integer observables.
 	 *
 	 * \details
-	 * Array observables are optional and may represent:
-	 * - waveforms
-	 * - time slices / samples
-	 * - multi-hit or multi-sample payloads
+	 * These arrays are producer-defined and may represent multi-sample or structured readout content.
 	 *
-	 * \return A copy of the array integer observables map.
+	 * \return Copy of the integer-array observables map.
 	 */
 	[[nodiscard]] inline std::map<std::string, std::vector<int>> getArrayIntObservablesMap() const {
 		return arrayIntObservablesMap;
 	}
 
 	/**
-	 * \brief Get the array-valued double observables map.
+	 * \brief Returns a copy of the array-valued floating-point observables.
 	 *
 	 * \details
-	 * No filtering is applied to array-valued maps; their interpretation is producer-defined.
+	 * No SRO filtering is applied to array-valued content.
+	 * Interpretation remains detector- or producer-specific.
 	 *
-	 * \return A copy of the array double observables map.
+	 * \return Copy of the floating-point-array observables map.
 	 */
 	[[nodiscard]] inline std::map<std::string, std::vector<double>> getArrayDblObservablesMap() const {
 		return arrayDoubleObservablesMap;
 	}
 
 	/**
-	 * \brief Test/example factory: create a digitized hit with deterministic dummy data.
+	 * \brief Creates deterministic example data for tests and examples.
 	 *
 	 * \details
-	 * This method exists to support examples and unit tests. It does not represent
-	 * real detector digitization; instead it generates predictable values using a
-	 * thread-safe counter.
+	 * This helper is intended only for demonstrations and tests.
+	 * It does not model real detector digitization.
 	 *
-	 * The returned object includes:
-	 * - SRO keys: crate/slot/channel/timeAtElectronics
-	 * - one non-SRO observable: "adc"
+	 * The returned object contains:
+	 * - the conventional SRO keys \c crate, \c slot, \c channel, and \c timeAtElectronics
+	 * - one non-SRO floating observable, \c adc
+	 *
+	 * Uniqueness across calls is derived from a static atomic counter.
 	 *
 	 * \param gopts Shared options.
-	 * \return A new digitized hit object.
+	 * \return Newly created example object.
 	 */
 	static std::unique_ptr<GDigitizedData> create(const std::shared_ptr<GOptions>& gopts) {
 		auto hit       = GHit::create(gopts);
@@ -270,37 +308,43 @@ public:
 	}
 
 private:
-	/// Scalar integer observables for this digitized hit.
+	/// Scalar integer observables associated with this digitized hit.
 	std::map<std::string, int> intObservablesMap;
 
-	/// Scalar double observables for this digitized hit.
+	/// Scalar floating-point observables associated with this digitized hit.
 	std::map<std::string, double> doubleObservablesMap;
 
 	/// Optional array-valued integer observables.
 	std::map<std::string, std::vector<int>> arrayIntObservablesMap;
 
-	/// Optional array-valued double observables.
+	/// Optional array-valued floating-point observables.
 	std::map<std::string, std::vector<double>> arrayDoubleObservablesMap;
 
-	/// Identity extracted from the originating hit.
+	/// Detector identity copied from the originating hit.
 	std::vector<GIdentifier> gidentity;
 
 	/**
-	 * \brief Helper used by filtering accessors to decide whether a key is returned.
+	 * \brief Returns whether a key belongs in the requested filtered view.
 	 *
 	 * \details
-	 * A key is considered SRO if it matches the conventional strings defined in
-	 * \ref gdataConventions.h. The filter mode is:
-	 * - which=0: include non-SRO keys only
-	 * - which=1: include SRO keys only
+	 * Filtering modes:
+	 * - \c which = 0 : accept non-SRO keys only
+	 * - \c which = 1 : accept SRO keys only
 	 *
-	 * \param varName Observable name/key.
-	 * \param which   0 = non-SRO, 1 = SRO only.
-	 * \return True if the variable should be included under the requested filter.
+	 * The check uses the conventional key names defined in gdataConventions.h.
+	 *
+	 * \param varName Observable key to classify.
+	 * \param which   Requested filter selector.
+	 * \return \c true if the variable should be included in the selected view.
 	 */
 	[[nodiscard]] static bool validVarName(const std::string& varName, int which);
 
-	/// Static thread-safe counter used only by \ref GDigitizedData::create "create()" (examples/tests).
+	/**
+	 * \brief Global example/test counter used by \ref GDigitizedData::create "create()".
+	 *
+	 * \details
+	 * This counter is only used to generate deterministic dummy content in examples and tests.
+	 */
 	static std::atomic<int> globalDigitizedDataCounter;
 
 protected:

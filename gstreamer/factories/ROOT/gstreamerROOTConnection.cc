@@ -16,7 +16,8 @@ bool GstreamerRootFactory::openConnection() {
 		log->error(
 			ERR_CANTOPENOUTPUT, "GstreamerRootFactory: could not create file " + filename() + " (file is a zombie)");
 	}
-	else { log->info(1, "GstreamerRootFactory: opened file " + filename()); }
+
+	log->info(1, SFUNCTION_NAME, "GstreamerRootFactory: opened file " + filename());
 
 	return true;
 }
@@ -26,6 +27,8 @@ bool GstreamerRootFactory::closeConnectionImpl() {
 	rootfile->Write();
 	gRootTrees.clear(); // clear all trees to detach from the file. W/o this we have crash on exit
 	rootfile->Close();
+
+	log->info(1, SFUNCTION_NAME, "GstreamerRootFactory: closed file " + filename());
 
 	return true;
 }

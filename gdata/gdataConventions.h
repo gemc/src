@@ -2,66 +2,65 @@
 
 /**
  * \file gdataConventions.h
- * \brief Shared constants and error codes for the GData library.
+ * \brief Shared constants and error codes for the GData module.
  *
  * \details
- * The GData library stores and transports observables using string keys (e.g. "adc", "tdc",
- * "crate", "slot", ...). This header centralizes commonly used identifiers to:
- * - prevent spelling drift across modules
- * - allow deterministic filtering/export behavior
- * - provide stable, documented keys for plugins and backends
+ * This header centralizes common keys and error codes used throughout the module so that:
+ * - producers and consumers use the same observable names
+ * - output backends can rely on stable key spelling
+ * - diagnostics can use stable numeric error codes
  *
- * It also defines numeric error codes used with GLogger::error "error()"
- * so that higher-level tooling can interpret failure modes in a stable way.
- *
- * Design intent:
- * - These constants represent part of the "public schema contract" between producers and consumers.
- * - Changing a key string can break downstream analysis/export unless migration is handled explicitly.
+ * The string constants declared here are part of the public schema contract of this module.
+ * Changing one of these values affects interoperability with:
+ * - detector plugins
+ * - exporters
+ * - validation tools
+ * - downstream analysis code
  */
 
 /**
- * \name Error / exit codes
- * \brief Numeric error codes used by GData components for consistent reporting.
+ * \name Error and reporting codes
+ * \brief Stable numeric codes used by GData components when reporting failures.
  *
  * \details
- * These codes are intended to be stable across releases so that scripts, wrappers, and
- * downstream applications can classify failures without parsing log strings.
+ * These values are intended to remain stable so that scripts and higher-level tools can classify
+ * failures without depending on exact log-message text.
  * @{
  */
-constexpr int ERR_GSDETECTORNOTFOUND = 601; ///< Requested sensitive detector is missing from a collection/map.
-constexpr int ERR_VARIABLENOTFOUND   = 602; ///< Requested observable key is missing from an observables map.
-constexpr int ERR_WRONGPAYLOAD       = 603; ///< A payload vector has the wrong size/shape for the expected format.
+constexpr int ERR_GSDETECTORNOTFOUND = 601; ///< Requested sensitive detector entry is missing.
+constexpr int ERR_VARIABLENOTFOUND   = 602; ///< Requested observable key is missing.
+constexpr int ERR_WRONGPAYLOAD       = 603; ///< Packed payload vector has an unexpected size or layout.
 /** @} */
 
 /**
- * \name Streaming / readout identifiers (SRO keys)
- * \brief Conventional keys used to label electronics readout coordinates and timing.
+ * \name Streaming-readout key names
+ * \brief Conventional observable keys used to represent electronics addressing and timing.
  *
  * \details
- * "SRO" (streaming readout) keys are treated specially by some APIs.
+ * These keys identify readout coordinates or closely related electronics-level quantities.
+ * They are treated specially by the filtered accessors:
+ * - \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap()"
+ * - \ref GDigitizedData::getDblObservablesMap "getDblObservablesMap()"
  *
- * For example, \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap()"
- * and \ref GDigitizedData::getDblObservablesMap "getDblObservablesMap()"
- * accept a \c which argument that allows:
- * - selecting only SRO keys (crate/slot/channel/time/charge)
- * - selecting only non-SRO keys (physics-like digitized observables)
- *
- * This enables output backends to store readout addressing separately from digitization results.
+ * This separation allows output code to distinguish between:
+ * - channel-addressing information
+ * - detector- or digitization-specific physics-like observables
  * @{
  */
-constexpr const char* CRATESTRINGID       = "crate";   ///< Electronics crate index.
-constexpr const char* SLOTSTRINGID        = "slot";    ///< Slot index within a crate (module position).
-constexpr const char* CHANNELSTRINGID     = "channel"; ///< Channel index within a slot/module.
-constexpr const char* CHARGEATELECTRONICS = "chargeAtElectronics";
-///< Charge (or ADC-integrated proxy) at electronics stage.
-constexpr const char* TIMEATELECTRONICS = "timeAtElectronics"; ///< Time (or TDC proxy) at electronics stage.
+constexpr const char* CRATESTRINGID       = "crate";   ///< Electronics crate identifier.
+constexpr const char* SLOTSTRINGID        = "slot";    ///< Slot index within the crate.
+constexpr const char* CHANNELSTRINGID     = "channel"; ///< Channel index within the slot or module.
+constexpr const char* CHARGEATELECTRONICS = "chargeAtElectronics"; ///< Electronics-stage charge or ADC proxy.
+constexpr const char* TIMEATELECTRONICS   = "timeAtElectronics";   ///< Electronics-stage time or TDC proxy.
 /** @} */
 
 /**
- * \brief Sentinel value returned when \ref TIMEATELECTRONICS is requested but not present.
+ * \brief Sentinel value returned when \c timeAtElectronics is requested but not present.
  *
  * \details
- * This is intentionally an "unlikely" value to help catch missing-data bugs quickly.
- * Used by \ref GDigitizedData::getTimeAtElectronics "getTimeAtElectronics()".
+ * This value is intentionally chosen to be unlikely in normal data so that missing-data situations
+ * are easier to detect during debugging and validation.
+ *
+ * It is returned by \ref GDigitizedData::getTimeAtElectronics "getTimeAtElectronics()".
  */
 constexpr int TIMEATELECTRONICSNOTDEFINED = -123456;

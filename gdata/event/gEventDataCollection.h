@@ -2,37 +2,31 @@
 
 /**
  * \file gEventDataCollection.h
- * \brief Defines \ref GEventDataCollection, event-level aggregation of per-detector hit data.
+ * \brief Defines GEventDataCollection, the event-level aggregation of detector hit data.
  *
  * \details
- * An event data collection groups all hit data produced during a single event.
- * The primary organization is:
+ * GEventDataCollection groups all detector-local hit data produced during one event.
  *
+ * Primary organization:
  * \code
- *   detector name (std::string)  ->  GDataCollection
- *                                    - vector<unique_ptr<GTrueInfoData>>
- *                                    - vector<unique_ptr<GDigitizedData>>
+ * detector name (std::string) -> GDataCollection
+ *                                - vector<unique_ptr<GTrueInfoData>>
+ *                                - vector<unique_ptr<GDigitizedData>>
  * \endcode
  *
- * ## Event-level semantics
- * - each call to \ref GEventDataCollection::addDetectorTrueInfoData "addDetectorTrueInfoData()"
- *   or \ref GEventDataCollection::addDetectorDigitizedData "addDetectorDigitizedData()"
- *   appends one hit entry to the specified detector’s vectors.
- * - the detector entry is created on demand if it does not already exist.
+ * Event semantics:
+ * - each insertion appends one hit-side object to the target detector entry
+ * - detector entries are created lazily on first use
+ * - ownership of inserted objects is transferred to this collection
  *
- * ## Ownership
- * - The event collection owns all hit entries via \c std::unique_ptr.
- * - The caller transfers ownership when adding data (via \c std::move).
- *
- * ## Intended usage
- * A typical event loop will:
- * - create one \ref GEventDataCollection per event
- * - for each hit produced by simulation/digitization, push truth/digitized records into the event container
- * - pass the finished event container downstream (output, run integration, analysis, etc.)
+ * Typical workflow:
+ * - create one event container
+ * - add truth and digitized objects as hits are produced
+ * - pass the completed event container downstream for output, analysis, or run integration
  */
 
-#include "gEventHeader.h"
 #include "gDataCollection.h"
+#include "gEventHeader.h"
 
 // C++
 #include <map>
@@ -41,18 +35,18 @@
 constexpr const char* GEVENTDATA_LOGGER = "gevent_data";
 
 namespace gevent_data {
+
 /**
- * \brief Aggregated options for event-level data collection.
+ * \brief Aggregates the option groups needed by event-level data containers.
  *
  * \details
- * Combines options from:
- * - event header
- * - true/digitized data
- * - touchable (for identity creation in examples)
+ * The returned bundle includes:
+ * - event-header options
+ * - true-data options
+ * - digitized-data options
+ * - touchable-related options used by example identity creation
  *
- * This provides a single "options bundle" for event-level examples/applications.
- *
- * \return Composite options group rooted at \ref GEVENTDATA_LOGGER.
+ * \return Composite options group rooted at \c GEVENTDATA_LOGGER.
  */
 inline auto defineOptions() -> GOptions {
 	auto goptions = GOptions(GEVENTDATA_LOGGER);
@@ -62,77 +56,76 @@ inline auto defineOptions() -> GOptions {
 	goptions      += gtouchable::defineOptions();
 	return goptions;
 }
+
 } // namespace gevent_data
 
 /**
- * \brief Event container that owns per-detector hit data for one event.
+ * \brief Owns all detector-local data for one event.
  *
  * \details
- * The container is built around a map from sensitive detector name to \ref GDataCollection.
- * Each detector collection stores per-hit truth and digitized objects.
+ * The object combines:
+ * - one owned GEventHeader describing the event
+ * - one map of detector names to GDataCollection instances
  *
- * The header (\ref GEventHeader) stores identifying metadata such as:
- * - local event number
- * - thread ID label
- * - timestamp string
+ * Each detector entry can contain:
+ * - zero or more truth objects
+ * - zero or more digitized objects
  *
- * \note
- * This class intentionally does not enforce invariants such as "truth hits must equal digitized hits".
- * If an application requires such invariants, it should validate them at a higher level.
+ * The class does not enforce structural invariants such as matching truth and digitized counts.
+ * Applications that require such guarantees should validate them at a higher level.
  */
 class GEventDataCollection : public GBase<GEventDataCollection>
 {
 public:
 	/**
-	 * \brief Construct an event data collection with an owned header.
+	 * \brief Constructs an event data collection with an owned header.
 	 *
 	 * \details
-	 * Ownership:
-	 * - \p header is moved into this object and is owned exclusively.
+	 * Ownership of \p header is transferred to the collection.
 	 *
-	 * \param gopts   Shared options object used to configure logging and behavior.
-	 * \param header  Owned event header.
+	 * \param gopts  Shared options used to configure logging and related behavior.
+	 * \param header Owned event header.
 	 */
 	GEventDataCollection(const std::shared_ptr<GOptions>& gopts, std::unique_ptr<GEventHeader> header)
 		: GBase(gopts, GDATAEVENTHEADER_LOGGER), gevent_header(std::move(header)) {
 	}
 
 	/**
-	 * \brief Append one true-hit entry to the specified detector.
+	 * \brief Appends one truth object to the specified detector entry.
 	 *
 	 * \details
-	 * - If \p sdName is new, a per-detector \ref GDataCollection is created automatically.
-	 * - Ownership of \p data is transferred to this event container.
+	 * If the detector key does not exist yet, a new GDataCollection is created automatically.
+	 * Ownership of \p data is transferred to the target detector entry.
 	 *
-	 * \param sdName Sensitive detector name (map key).
-	 * \param data   True-hit object; ownership is transferred to this collection.
+	 * \param sdName Sensitive detector name used as the map key.
+	 * \param data   Truth object to store.
 	 */
 	void addDetectorTrueInfoData(const std::string& sdName, std::unique_ptr<GTrueInfoData> data);
 
 	/**
-	 * \brief Append one digitized-hit entry to the specified detector.
+	 * \brief Appends one digitized object to the specified detector entry.
 	 *
 	 * \details
-	 * - If \p sdName is new, a per-detector \ref GDataCollection is created automatically.
-	 * - Ownership of \p data is transferred to this event container.
+	 * If the detector key does not exist yet, a new GDataCollection is created automatically.
+	 * Ownership of \p data is transferred to the target detector entry.
 	 *
-	 * \param sdName Sensitive detector name (map key).
-	 * \param data   Digitized-hit object; ownership is transferred to this collection.
+	 * \param sdName Sensitive detector name used as the map key.
+	 * \param data   Digitized object to store.
 	 */
 	void addDetectorDigitizedData(const std::string& sdName, std::unique_ptr<GDigitizedData> data);
 
 	/**
-	 * \brief Access the owned event header.
-	 * \return Const reference to the header unique_ptr.
+	 * \brief Returns read-only access to the owned event header.
+	 *
+	 * \return Const reference to the owned event-header pointer.
 	 */
 	[[nodiscard]] auto getHeader() const -> const std::unique_ptr<GEventHeader>& { return gevent_header; }
 
 	/**
-	 * \brief Access the per-detector map for this event.
+	 * \brief Returns read-only access to the detector map for this event.
 	 *
 	 * \details
-	 * Key: sensitive detector name.
-	 * Value: per-detector \ref GDataCollection containing per-hit entries.
+	 * Keys are sensitive detector names and values are per-detector GDataCollection instances.
 	 *
 	 * \return Const reference to the detector map.
 	 */
@@ -141,28 +134,28 @@ public:
 	}
 
 	/**
-	 * \brief Convenience accessor for the event number.
+	 * \brief Returns the event number stored in the owned header.
 	 *
 	 * \details
-	 * Equivalent to \ref GEventHeader::getG4LocalEvn "getG4LocalEvn()" on the owned header.
+	 * This is a convenience wrapper around the header accessor.
 	 *
-	 * \return Event number stored in the header.
+	 * \return Event number.
 	 */
 	[[nodiscard]] auto getEventNumber() const -> int { return gevent_header->getG4LocalEvn(); }
 
 	/**
-	 * \brief Test/example factory: create an event collection with one dummy hit for "ctof".
+	 * \brief Creates a minimal example event containing one detector entry and one hit pair.
 	 *
 	 * \details
-	 * This method exists to support examples/tests. It:
-	 * - creates a new \ref GEventHeader via \ref GEventHeader::create "create()"
-	 * - constructs an event data collection
-	 * - inserts one \ref GDigitizedData and one \ref GTrueInfoData entry under detector "ctof"
-	 *
-	 * This provides a minimal "event contains something" baseline for examples.
+	 * This helper is intended for examples and tests.
+	 * It creates:
+	 * - a fresh GEventHeader
+	 * - a new event container
+	 * - one digitized object under detector \c ctof
+	 * - one truth object under detector \c ctof
 	 *
 	 * \param gopts Shared options.
-	 * \return Shared pointer to the created event data collection.
+	 * \return Shared pointer to the created event collection.
 	 */
 	static auto create(const std::shared_ptr<GOptions>& gopts) -> std::shared_ptr<GEventDataCollection> {
 		auto header = GEventHeader::create(gopts);
@@ -178,11 +171,12 @@ public:
 	}
 
 private:
-	std::unique_ptr<GEventHeader> gevent_header; ///< Owned event header.
+	/// Owned event header describing this event.
+	std::unique_ptr<GEventHeader> gevent_header;
 
 	/// Per-detector data map keyed by sensitive detector name.
 	std::map<std::string, std::unique_ptr<GDataCollection>> gdataCollectionMap;
 
-	/// Static thread-safe event counter - used for testing/examples only.
+	/// Static thread-safe counter reserved for tests or future example helpers.
 	static std::atomic<int> globalEventDataCollectionCounter;
 };

@@ -27,22 +27,23 @@
 #if defined(__clang__) || defined(__GNUC__)
 #define FUNCTION_NAME std::string(__PRETTY_FUNCTION__) + std::string(" > ")
 #elif defined(_MSC_VER)
-#define FUNCTION_NAME   __FUNCSIG__ + std::string(" > ")
+#define FUNCTION_NAME std::string(__FUNCSIG__) + std::string(" > ")
 #else
-#define FUNCTION_NAME   __func__ + std::string(" > ") // fallback
+#define FUNCTION_NAME std::string(__func__) + std::string(" > ")
 #endif
 
 /**
  * \def SFUNCTION_NAME
- * \brief Portable macro that expands to the current function name (standard C++11 `__func__`).
+ * \brief Portable macro that expands to the current unqualified function name.
  *
- * This version is intentionally minimal and stable across compilers, but it does not include
- * the full signature like \ref FUNCTION_NAME "FUNCTION_NAME()".
+ * This macro uses standard C++11 `__func__`, so for member functions it expands only to the
+ * function name, not to `ClassName::functionName`.
+ *
+ * Use \ref FUNCTION_NAME "FUNCTION_NAME()" when compiler-specific qualified signatures are needed.
  *
  * \note The resulting string includes a trailing `" > "` so callers can concatenate it directly.
  */
-#define SFUNCTION_NAME  __func__ + std::string(" > ")  // Always portable and standard since C++11
-
+#define SFUNCTION_NAME std::string(__func__) + std::string(" > ")
 
 /**
  * \enum debug_type

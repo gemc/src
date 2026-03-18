@@ -209,19 +209,25 @@ protected:
 	}
 
 
-	[[nodiscard]] bool startRun([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
-		if (!run_data) { log->error(ERR_PUBLISH_ERROR, "run_data is null in GStreamer::startRun"); }
-		if (!run_data->getHeader()) {
-			log->error(ERR_PUBLISH_ERROR, "run header is null in GStreamer::startRun");
-		}
-
-		log->debug(NORMAL, "GStreamer::startRun");
-		return startRunImpl(run_data);
+	/**
+	 * \brief End an event publish sequence.
+	 * \param event_data Event being published.
+	 * \return \c true on success, \c false on failure.
+	 */
+	[[nodiscard]] bool endEvent([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
+		log->debug(NORMAL, "GStreamer::endEvent");
+		return endEventImpl(event_data);
 	}
 
-	virtual bool startRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
+	/**
+	 * \brief Implementation hook for ending an event publish sequence.
+	 * \param event_data Event being published.
+	 * \return \c true on success, \c false on failure.
+	 */
+	virtual bool endEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 		return false;
 	}
+
 
 	/**
 	 * \brief Publish the event header.
@@ -304,22 +310,18 @@ protected:
 											   digitizedData) { return false; }
 
 
-	/**
-	 * \brief End an event publish sequence.
-	 * \param event_data Event being published.
-	 * \return \c true on success, \c false on failure.
-	 */
-	[[nodiscard]] bool endEvent([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
-		log->debug(NORMAL, "GStreamer::endEvent");
-		return endEventImpl(event_data);
+	[[nodiscard]] bool startRun([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
+		if (!run_data) { log->error(ERR_PUBLISH_ERROR, "run_data is null in GStreamer::startRun"); }
+		if (!run_data->getHeader()) {
+			log->error(ERR_PUBLISH_ERROR, "run header is null in GStreamer::startRun");
+		}
+
+		log->debug(NORMAL, "GStreamer::startRun");
+		return startRunImpl(run_data);
 	}
 
-	/**
-	 * \brief Implementation hook for ending an event publish sequence.
-	 * \param event_data Event being published.
-	 * \return \c true on success, \c false on failure.
-	 */
-	virtual bool endEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
+
+	virtual bool startRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
 		return false;
 	}
 
@@ -332,9 +334,26 @@ protected:
 		return false;
 	}
 
+	bool publishRunHeader([[maybe_unused]] const std::unique_ptr<GRunHeader>& run_header) {
+		log->debug(NORMAL, "GStreamer::publishRunHeader");
+		return publishRunHeaderImpl(run_header);
+	}
+
+	virtual bool publishRunHeaderImpl([[maybe_unused]] const std::unique_ptr<GRunHeader>& run_header) {
+		return false;
+	}
+
+	bool publishRunDigitizedData([[maybe_unused]] const std::string& detectorName,
+										 [[maybe_unused]] const std::vector<const GDigitizedData*>&
+										 digitizedData) {
+		log->debug(NORMAL, "GStreamer::publishRunDigitizedData for detector ", detectorName);
+		return publishRunDigitizedDataImpl(detectorName, digitizedData);
+	}
+
+
 	virtual bool publishRunDigitizedDataImpl([[maybe_unused]] const std::string& detectorName,
-											   [[maybe_unused]] const std::vector<const GDigitizedData*>&
-											   digitizedData) { return false; }
+											 [[maybe_unused]] const std::vector<const GDigitizedData*>&
+											 digitizedData) { return false; }
 
 	// Frame stream virtual methods.
 	// These hooks are provided for plugins that serialize frame-based data.

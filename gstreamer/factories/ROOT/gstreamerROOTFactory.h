@@ -45,6 +45,14 @@ private:
 	bool publishEventDigitizedDataImpl(const std::string&                        detectorName,
 	                                   const std::vector<const GDigitizedData*>& digitizedData) override;
 
+	// Run stream hooks.
+	bool startRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) override;
+	bool endRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) override;
+	bool publishRunHeaderImpl([[maybe_unused]] const std::unique_ptr<GRunHeader>& run_header) override;
+	bool publishRunDigitizedDataImpl(const std::string&                        detectorName,
+									 const std::vector<const GDigitizedData*>& digitizedData) override;
+
+
 	// frame streams
 	bool startStreamImpl(const GFrameDataCollection* frameRunData) override;
 	bool endStreamImpl(const GFrameDataCollection* frameRunData) override;
@@ -55,6 +63,8 @@ private:
 	// Note: these are private helpers; do not cross-reference them with \ref in documentation.
 	const std::unique_ptr<GRootTree>& getOrInstantiateHeaderTree(
 		[[maybe_unused]] const std::unique_ptr<GEventHeader>& event_header);
+	const std::unique_ptr<GRootTree>& getOrInstantiateHeaderTree(
+		[[maybe_unused]] const std::unique_ptr<GRunHeader>& run_header);
 	const std::unique_ptr<GRootTree>& getOrInstantiateTrueInfoDataTree(const std::string&   treeName,
 	                                                                   const GTrueInfoData* gdata);
 	const std::unique_ptr<GRootTree>& getOrInstantiateDigitizedDataTree(const std::string&    treeName,

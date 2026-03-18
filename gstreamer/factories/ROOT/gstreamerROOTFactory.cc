@@ -10,16 +10,16 @@
 // enable root thread safety in a static call that
 // runs before control returns from dlopen() as soon as libGstreamerRootFactory.so is loaded.
 namespace {
-struct EnableRootTS
-{
-	EnableRootTS() {
-		ROOT::EnableThreadSafety();
-		std::cout << "GstreamerRootFactory: ROOT thread safety enabled" << std::endl;
-	}
-};
+	struct EnableRootTS
+	{
+		EnableRootTS() {
+			ROOT::EnableThreadSafety();
+			std::cout << "GstreamerRootFactory: ROOT thread safety enabled" << std::endl;
+		}
+	};
 
-static EnableRootTS _enableROOTLocks; // global object, static storage duration.
-}                                     // unnamed namespace
+	static EnableRootTS _enableROOTLocks; // global object, static storage duration.
+}                                         // unnamed namespace
 
 // Return the header tree pointer from the map. If it's not there, initialize the smart pointer.
 const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTree(
@@ -37,10 +37,35 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTr
 
 	// If the key does not exist, this inserts a new entry with a default value
 	// and returns a reference to it.
-	auto& treePtr = gRootTrees[HEADERTREENAME];
+	auto& treePtr = gRootTrees[EVENTHEADERTREENAME];
 	if (!treePtr) {
-		log->info(2, "GstreamerRootFactory", "Creating ROOT", HEADERTREENAME, " tree");
+		log->info(2, "GstreamerRootFactory", "Creating ROOT", EVENTHEADERTREENAME, " tree");
 		treePtr = std::make_unique<GRootTree>(event_header, log); // add the new tree to the map
+	}
+
+	return treePtr;
+}
+
+// Return the header tree pointer from the map. If it's not there, initialize the smart pointer.
+const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTree(
+	[[maybe_unused]] const std::unique_ptr<GRunHeader>& run_header) {
+	rootfile->cd();
+
+	if (!log) {
+		std::cerr << "FATAL: log is null in GstreamerRootFactory::getOrInstantiateHeaderTree" << std::endl;
+		std::terminate();
+	}
+
+	if (!run_header) {
+		log->error(ERR_PUBLISH_ERROR, "run header is null in GstreamerRootFactory::getOrInstantiateHeaderTree");
+	}
+
+	// If the key does not exist, this inserts a new entry with a default value
+	// and returns a reference to it.
+	auto& treePtr = gRootTrees[RUNHEADERTREENAME];
+	if (!treePtr) {
+		log->info(2, "GstreamerRootFactory", "Creating ROOT", RUNHEADERTREENAME, " tree");
+		treePtr = std::make_unique<GRootTree>(run_header, log); // add the new tree to the map
 	}
 
 	return treePtr;

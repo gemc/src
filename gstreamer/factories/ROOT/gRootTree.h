@@ -9,16 +9,17 @@
 
 // gemc
 #include "event/gEventDataCollection.h"
+#include "run/gRunDataCollection.h"
 
-#include "gstreamerConventions.h"
-
-#define HEADERTREENAME "event_header"
-#define TRUEINFONAMEPREFIX   "true_info_"
+#define EVENTHEADERTREENAME "event_header"
+#define RUNHEADERTREENAME   "run_header"
+#define TRUEINFONAMEPREFIX  "true_info_"
 #define DIGITIZEDNAMEPREFIX  "digitized_"
 
 #define ERR_GSTREAMERROOTTREENOTFOUND   850
 
-#define HEADERTREENAMEDESC    "Event Header"
+#define EVENTHEADERTREENAMEDESC    "Event Header"
+#define RUNHEADERTREENAMEDESC    "Run Header"
 #define TRUEINFOTREENAMEDESC  "True Info Data"
 #define DIGITIZEDTREENAMEDESC "Digitized Data"
 
@@ -63,6 +64,10 @@ public:
 	 */
 	GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header, std::shared_ptr<GLogger>& log);
 
+
+	GRootTree([[maybe_unused]] const std::unique_ptr<GRunHeader>& grun_header, std::shared_ptr<GLogger>& log);
+
+
 	/**
 	 * \brief Construct a true info tree and register branches from the provided hit.
 	 *
@@ -98,6 +103,10 @@ public:
 	 * \return \c true on success.
 	 */
 	bool fillTree(const std::unique_ptr<GEventHeader>& gevent_header);
+
+
+	bool fillTree(const std::unique_ptr<GRunHeader>& run_header);
+
 
 	/**
 	 * \brief Fill the true info tree for one event and one detector.

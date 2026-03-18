@@ -6,11 +6,11 @@ using std::vector;
 
 // Return Header Tree with initialized leafs
 GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header,
-                     std::shared_ptr<GLogger>&                             logger) : log(logger) {
+					 std::shared_ptr<GLogger>&                             logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree header");
 
 	// With AUTO FLUSH AND AUTOSAVE
-	root_tree = std::make_unique<TTree>(HEADERTREENAME, HEADERTREENAMEDESC);
+	root_tree = std::make_unique<TTree>(EVENTHEADERTREENAME, EVENTHEADERTREENAMEDESC);
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
 	// write root data buffers to disk automatically once their in-memory size exceeds 20 MB
 	root_tree->SetAutoSave(50 * 1024 * 1024);
@@ -22,10 +22,26 @@ GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& geven
 }
 
 
+GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GRunHeader>& grun_header,
+					 std::shared_ptr<GLogger>&                           logger)  : log(logger) {
+
+	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree header");
+
+	// With AUTO FLUSH AND AUTOSAVE
+	root_tree = std::make_unique<TTree>(RUNHEADERTREENAME, RUNHEADERTREENAMEDESC);
+	root_tree->SetAutoFlush(20 * 1024 * 1024);
+	// write root data buffers to disk automatically once their in-memory size exceeds 20 MB
+	root_tree->SetAutoSave(50 * 1024 * 1024);
+	// save a snapshot of the entire tree (including metadata), useful for recovery after a crash
+
+	registerVariable("runID", grun_header->getRunID());
+}
+
+
 // Return True Info Tree with initialized leafs
 GRootTree::GRootTree(const std::string&        detectorName,
-                     const GTrueInfoData*      gdata,
-                     std::shared_ptr<GLogger>& logger) : log(logger) {
+					 const GTrueInfoData*      gdata,
+					 std::shared_ptr<GLogger>& logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree True Info");
 
 	// With AUTO FLUSH AND AUTOSAVE
@@ -42,8 +58,8 @@ GRootTree::GRootTree(const std::string&        detectorName,
 
 // Return Digitized Data Tree with initialized leafs
 GRootTree::GRootTree(const std::string&        detectorName,
-                     const GDigitizedData*     gdata,
-                     std::shared_ptr<GLogger>& logger) : log(logger) {
+					 const GDigitizedData*     gdata,
+					 std::shared_ptr<GLogger>& logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree Digitized Data");
 
 	// With AUTO FLUSH AND AUTOSAVE
@@ -59,9 +75,8 @@ GRootTree::GRootTree(const std::string&        detectorName,
 
 // fill the header tree
 bool GRootTree::fillTree(const std::unique_ptr<GEventHeader>& gevent_header) {
-
 	log->info(2, "Filling header tree for local event n. ", gevent_header->getG4LocalEvn(), " threadID ",
-	          gevent_header->getThreadID());
+			  gevent_header->getThreadID());
 
 	// clearing previous header info
 	intVarsMap["g4localEventNumber"].clear();
@@ -71,6 +86,18 @@ bool GRootTree::fillTree(const std::unique_ptr<GEventHeader>& gevent_header) {
 	intVarsMap["g4localEventNumber"].emplace_back(gevent_header->getG4LocalEvn());
 	intVarsMap["threadID"].emplace_back(gevent_header->getThreadID());
 	stringVarsMap["timeStamp"].emplace_back(gevent_header->getTimeStamp());
+
+	root_tree->Fill();
+
+	return true;
+}
+
+
+bool GRootTree::fillTree(const std::unique_ptr<GRunHeader>& grun_header) {
+	log->info(2, "Filling header tree for run n. ", grun_header->getRunID());
+
+	intVarsMap["runID"].clear();
+	intVarsMap["g4localEventNumber"].emplace_back(grun_header->getRunID());
 
 	root_tree->Fill();
 
@@ -123,7 +150,7 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] in
 	if (intVarsMap.find(varname) == intVarsMap.end()) { root_tree->Branch(varname.c_str(), &intVarsMap[varname]); }
 	else {
 		log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable < ", varname,
-		           "< already exist in the int variable map of tree ", root_tree->GetName());
+				   "< already exist in the int variable map of tree ", root_tree->GetName());
 	}
 }
 
@@ -133,7 +160,7 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] do
 	}
 	else {
 		log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable < ", varname,
-		           "< already exist in the int variable map of tree ", root_tree->GetName());
+				   "< already exist in the int variable map of tree ", root_tree->GetName());
 	}
 }
 
@@ -143,6 +170,6 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] co
 	}
 	else {
 		log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable < ", varname,
-		           "< already exist in the int variable map of tree ", root_tree->GetName());
+				   "< already exist in the int variable map of tree ", root_tree->GetName());
 	}
 }

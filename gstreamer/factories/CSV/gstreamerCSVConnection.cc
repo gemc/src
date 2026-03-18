@@ -22,7 +22,8 @@ bool GstreamerCsvFactory::openConnection() {
 			log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename_true_info());
 		}
 
-		log->info(0, "GstreamerCsvFactory: opened file " + filename_true_info());
+		log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: opened file " + filename_true_info());
+
 	}
 
 	if (!ofile_digitized.is_open()) {
@@ -36,7 +37,8 @@ bool GstreamerCsvFactory::openConnection() {
 			log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename_digitized());
 		}
 
-		log->info(0, "GstreamerCsvFactory: opened file " + filename_digitized());
+		log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: opened file " + filename_digitized());
+
 	}
 
 
@@ -56,6 +58,10 @@ bool GstreamerCsvFactory::closeConnectionImpl() {
 	if (ofile_digitized.is_open()) {
 		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_digitized());
 	}
+
+	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_true_info());
+	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_digitized());
+
 
 	return true;
 }

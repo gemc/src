@@ -2,217 +2,227 @@
 
 /**
  * \file gTrueInfoData.h
- * \brief Container for "true" (simulation-level) observables associated with one hit.
+ * \brief Container for simulation-level observables associated with a single hit.
  *
  * \details
- * \ref GTrueInfoData stores *truth* information typically derived from Geant4 tracking:
- * energy deposition, step-averaged positions, time, particle/process metadata, etc.
+ * GTrueInfoData stores the "true" quantities produced at the simulation stage, before any
+ * detector electronics or digitization transforms them into readout-like values.
  *
- * ## Why maps?
- * Observables are stored as name->value maps to support detector/digitization plugins that:
- * - define custom variables without recompiling the core library
- * - evolve their schema over time without breaking binary interfaces
+ * Typical examples include:
+ * - deposited energy
+ * - average position and time over the contributing steps
+ * - categorical metadata such as process or volume names
  *
- * ## Stored observable categories
- * - \c doubleObservablesMap : numeric truth quantities (edep, x/y/z, time, etc.)
- * - \c stringVariablesMap   : categorical/provenance values (process name, volume name, ...)
+ * The container is intentionally schema-flexible. Instead of hard-coding a fixed bank layout,
+ * observables are stored in keyed maps so that detectors and plugins can evolve their content
+ * without requiring ABI changes in this module.
  *
- * ## Per-event vs per-run semantics
- * - \ref GTrueInfoData::includeVariable "includeVariable()"
- *   sets/overwrites a variable for a single hit (event-level).
- * - \ref GTrueInfoData::accumulateVariable "accumulateVariable()"
- *   adds into a running sum (run-level integration).
+ * Stored categories:
+ * - \c doubleObservablesMap : numeric truth quantities
+ * - \c stringVariablesMap   : string-based categorical or provenance metadata
  *
- * ## Identity
- * Each \ref GTrueInfoData stores the hit identity (\c gidentity), copied from  GHit.
- * This is typically a vector of named indices (e.g. sector/layer/component) that uniquely identify
- * where the hit occurred. The identity is intended to be stable and human-readable via
- * \ref GTrueInfoData::getIdentityString "getIdentityString()".
+ * Usage modes:
+ * - Event mode: create one object per hit and fill with
+ *   \ref GTrueInfoData::includeVariable "includeVariable()".
+ * - Run/integrated mode: use one object as an accumulator and update it with
+ *   \ref GTrueInfoData::accumulateVariable "accumulateVariable()".
  *
- * \note Threading
- * - Regular instances have no shared mutable state.
- * - The static factory \ref GTrueInfoData::create "create()" uses
- *   \c globalTrueInfoDataCounter which is atomic.
+ * Identity model:
+ * - each object stores a copy of the hit identity vector extracted from GHit
+ * - the identity is preserved independently of the originating hit lifetime
+ * - a readable representation is available through
+ *   \ref GTrueInfoData::getIdentityString "getIdentityString()"
+ *
+ * Threading:
+ * - regular instances do not share mutable state
+ * - the example/test factory \ref GTrueInfoData::create "create()" uses a static atomic counter
  */
 
-// c++
-#include <string>
-#include <map>
-#include <vector>
 #include <atomic>
+#include <map>
 #include <ostream>
+#include <string>
+#include <vector>
 
 // gemc
-#include "ghit.h"
 #include "gbase.h"
+#include "ghit.h"
 
-/// Logger domain name used by \ref GTrueInfoData (controls verbosity/category in GLogger).
+/// Logger domain name used by GTrueInfoData.
 constexpr const char* GTRUEDATA_LOGGER = "true_data";
 
 namespace gtrue_data {
+
 /**
- * \brief Defines GOptions for the true-data logger domain.
+ * \brief Defines the options subtree used by the true-data logger domain.
  *
  * \details
- * This helper allows higher-level option aggregators (event/run collections) to pull in
- * configuration for this logger domain without knowing details about how GLogger is set up.
+ * Higher-level modules can aggregate this option group into their own configuration bundles
+ * so that verbosity and related behavior for GTrueInfoData can be controlled centrally.
  *
- * Typical usage:
- * \code
- *   GOptions opts("some_domain");
- *   opts += gtrue_data::defineOptions();
- * \endcode
- *
- * \return An options group rooted at the \ref GTRUEDATA_LOGGER domain.
+ * \return Options group rooted at \c GTRUEDATA_LOGGER.
  */
 inline GOptions defineOptions() {
 	auto goptions = GOptions(GTRUEDATA_LOGGER);
 	return goptions;
 }
+
 } // namespace gtrue_data
 
 /**
- * \brief Container for true (simulation-level) observables for one hit.
+ * \brief Stores simulation-level observables for one hit.
  *
  * \details
- * A \ref GTrueInfoData instance conceptually corresponds to *one simulated hit*.
+ * A GTrueInfoData object represents the truth-side data model for one hit.
+ * It is typically produced from tracking or stepping information and later attached to:
+ * - a detector-level collection via GDataCollection
+ * - an event-level collection via GEventDataCollection
+ * - an integrated summary when used as an accumulator
  *
- * - It stores numeric and string observables keyed by name.
- * - It stores an identity vector derived from GHit, typically encoding geometry indices.
+ * Main responsibilities:
+ * - hold numeric truth observables
+ * - hold string metadata associated with the hit
+ * - preserve a copy of the detector identity for later labeling, debugging, and export
  *
- * The container supports two usage patterns:
- * 1) **Event-level storage**: create a new instance per hit and populate it using
- *    \ref GTrueInfoData::includeVariable "includeVariable()".
- * 2) **Run-level integration**: keep a single instance as an accumulator and call
- *    \ref GTrueInfoData::accumulateVariable "accumulateVariable()"
- *    to sum contributions across hits/events.
+ * Accumulation model:
+ * - \ref GTrueInfoData::includeVariable "includeVariable()" overwrites a stored value for event filling
+ * - \ref GTrueInfoData::accumulateVariable "accumulateVariable()" sums contributions for integration
  *
- * \note Accumulation is summation only; do not expect averages unless you compute them externally.
+ * \note
+ * Accumulation is purely additive. Any normalization, averaging, or rate computation belongs
+ * in higher-level consumer code.
  */
 class GTrueInfoData : public GBase<GTrueInfoData>
 {
 public:
 	/**
-	 * \brief Construct true-hit data by copying identity from a hit.
+	 * \brief Constructs the object and copies the hit identity from the source hit.
 	 *
 	 * \details
-	 * - Copies the hit identity vector (\c GIdentifier list) from \p ghit.
-	 * - Initializes the base logger domain to \ref GTRUEDATA_LOGGER.
+	 * The constructor initializes the base logging domain and copies the vector of GIdentifier
+	 * entries from the provided hit so that this object becomes self-contained.
 	 *
-	 * Ownership:
-	 * - \p ghit is **not owned**; it must remain valid only for the duration of the constructor.
+	 * Ownership and lifetime:
+	 * - \p ghit is not owned
+	 * - \p ghit only needs to remain valid during construction
+	 * - after construction, this object no longer depends on the source hit
 	 *
-	 * \param gopts Shared options object used to configure logging and behavior.
-	 * \param ghit  Pointer to the hit providing identity information (not owned).
+	 * \param gopts Shared options used to configure logging and related behavior.
+	 * \param ghit  Source hit providing the identity vector.
 	 */
 	GTrueInfoData(const std::shared_ptr<GOptions>& gopts, const GHit* ghit);
 
 	/**
-	 * \brief Return a human-readable identity string for debugging and labeling.
+	 * \brief Builds a readable identity string from the stored hit identifiers.
 	 *
 	 * \details
-	 * Format:
+	 * The generated format is:
 	 * \code
-	 *   name1->value1, name2->value2, ...
+	 * name1->value1, name2->value2, ...
 	 * \endcode
 	 *
-	 * The underlying identity is the \c gidentity vector copied from the GHit.
+	 * This string is intended for:
+	 * - logs
+	 * - debugging output
+	 * - human-readable summaries
 	 *
-	 * \return Identity string assembled from the hit identifiers.
+	 * \return Identity string assembled from the stored \c gidentity vector.
 	 */
 	[[nodiscard]] std::string getIdentityString() const;
 
 	/**
-	 * \brief Store/overwrite a numeric "true" observable for this hit.
+	 * \brief Stores or overwrites one numeric truth observable.
 	 *
 	 * \details
-	 * Overwrite semantics:
-	 * - If \p varName already exists, the stored value is replaced.
-	 * - If it does not exist, a new entry is created.
+	 * This method is typically used during event-level filling.
+	 * Repeated insertion with the same key replaces the previous value.
 	 *
-	 * Typical numeric truth keys (examples, not enforced):
-	 * - "totalEDeposited"
-	 * - "avgTime"
-	 * - "avgx", "avgy", "avgz"
+	 * Common examples include:
+	 * - total deposited energy
+	 * - average time
+	 * - average coordinates
 	 *
-	 * \param varName Observable name/key.
-	 * \param var     Value to store.
+	 * \param varName Observable key.
+	 * \param var     Numeric value to store.
 	 */
 	void includeVariable(const std::string& varName, double var);
 
 	/**
-	 * \brief Store/overwrite a string "true" observable for this hit.
+	 * \brief Stores or overwrites one string truth observable.
 	 *
 	 * \details
-	 * String observables are typically used for categorical metadata such as:
-	 * - physics process name
-	 * - volume name
-	 * - particle name
+	 * This method is intended for per-hit metadata that is better represented as text, such as:
+	 * - process names
+	 * - particle names
+	 * - volume labels
 	 * - provenance tags
 	 *
-	 * Semantics:
-	 * - Overwrite: repeated calls with the same key replace the stored value.
+	 * Repeated insertion with the same key replaces the previous value.
 	 *
-	 * \param varName Observable name/key.
-	 * \param var     String value to store (moved into the map).
+	 * \param varName Observable key.
+	 * \param var     String value to store.
 	 */
 	void includeVariable(const std::string& varName, std::string var);
 
 	/**
-	 * \brief Accumulate a numeric observable into this object (run-level integration).
+	 * \brief Accumulates a numeric observable into the current object.
 	 *
 	 * \details
-	 * Summation semantics:
-	 * - If \p vname is absent, it is created with \p value.
-	 * - If present, \p value is added to the existing entry.
+	 * This method supports run-level or integrated accumulation.
 	 *
-	 * This method is typically used when integrating many hits/events into a run-level summary.
+	 * Behavior:
+	 * - if the key does not exist, it is created with \p value
+	 * - if the key already exists, \p value is added to the stored entry
 	 *
-	 * \param vname Observable name/key.
-	 * \param value Contribution to add.
+	 * \param vname Observable key.
+	 * \param value Contribution to add to the running sum.
 	 */
 	void accumulateVariable(const std::string& vname, double value);
 
 	/**
-	 * \brief Get a copy of all numeric truth observables.
+	 * \brief Returns a copy of the numeric truth observables.
 	 *
 	 * \details
-	 * Returning by value keeps the internal storage encapsulated and avoids exposing a mutable reference.
-	 * For very large maps, consider whether a const reference accessor is desirable at higher layers.
+	 * Returning by value preserves encapsulation and prevents external mutation of the internal map.
 	 *
-	 * \return Copy of the double observables map.
+	 * \return Copy of the double-valued observables map.
 	 */
 	[[nodiscard]] inline std::map<std::string, double> getDoubleVariablesMap() const {
 		return doubleObservablesMap;
 	}
 
 	/**
-	 * \brief Get a copy of all string truth observables.
+	 * \brief Returns a copy of the string truth observables.
 	 *
 	 * \details
-	 * String observables are typically per-hit categorical/provenance values and are not accumulated
-	 * by \ref GDataCollection in run mode.
+	 * These values are usually categorical or provenance-oriented and are typically not merged
+	 * during run-level integration in GDataCollection.
 	 *
-	 * \return Copy of the string observables map.
+	 * \return Copy of the string-valued observables map.
 	 */
 	[[nodiscard]] inline std::map<std::string, std::string> getStringVariablesMap() const {
 		return stringVariablesMap;
 	}
 
 	/**
-	 * \brief Test/example factory: create a true-hit object with deterministic dummy data.
+	 * \brief Creates deterministic example data for tests and examples.
 	 *
 	 * \details
-	 * This method exists to support examples and unit tests. It does **not** represent real
-	 * physics truth generation. Values are created using a thread-safe counter so that:
-	 * - each call produces different values
-	 * - behavior is deterministic given call order
+	 * This helper is intended only for demonstrations and tests.
+	 * It does not model real detector truth generation.
 	 *
-	 * The returned object includes a small set of conventional truth keys used in examples:
-	 * - "totalEDeposited", "avgTime", "avgx", "avgy", "avgz", and "hitn".
+	 * The returned object contains a small conventional set of numeric variables:
+	 * - \c totalEDeposited
+	 * - \c avgTime
+	 * - \c avgx
+	 * - \c avgy
+	 * - \c avgz
+	 * - \c hitn
+	 *
+	 * Uniqueness across calls is derived from a static atomic counter.
 	 *
 	 * \param gopts Shared options.
-	 * \return Newly created true-hit object.
+	 * \return Newly created example object.
 	 */
 	static std::unique_ptr<GTrueInfoData> create(const std::shared_ptr<GOptions>& gopts) {
 		auto hit            = GHit::create(gopts);
@@ -224,24 +234,45 @@ public:
 		true_info_data->includeVariable("avgx", counter * 0.01);
 		true_info_data->includeVariable("avgy", counter * 0.02);
 		true_info_data->includeVariable("avgz", counter * 0.03);
-
-		// Stored as double by implicit conversion; useful as a simple monotonically increasing tag.
 		true_info_data->includeVariable("hitn", counter);
 
 		return true_info_data;
 	}
 
 private:
-	/// Numeric truth observables (per-hit or run-integrated depending on usage).
+	/**
+	 * \brief Numeric truth observables.
+	 *
+	 * \details
+	 * This map stores scalar numeric values for either:
+	 * - one event-level hit, or
+	 * - one integrated accumulator entry, depending on usage
+	 */
 	std::map<std::string, double> doubleObservablesMap;
 
-	/// String truth observables (per-hit metadata/provenance).
+	/**
+	 * \brief String truth observables.
+	 *
+	 * \details
+	 * This map stores textual metadata associated with a hit, such as provenance or labels.
+	 */
 	std::map<std::string, std::string> stringVariablesMap;
 
-	/// Identity extracted from the originating hit (vector of named indices).
+	/**
+	 * \brief Identity copied from the originating hit.
+	 *
+	 * \details
+	 * The vector contains the detector-identifying indices used to uniquely label where the hit
+	 * occurred, for example sector, layer, or component.
+	 */
 	std::vector<GIdentifier> gidentity;
 
-	/// Static thread-safe counter used only by \ref GTrueInfoData::create "create()" (examples/tests).
+	/**
+	 * \brief Global example/test counter used by \ref GTrueInfoData::create "create()".
+	 *
+	 * \details
+	 * This counter is only used to generate deterministic dummy content in examples and tests.
+	 */
 	static std::atomic<int> globalTrueInfoDataCounter;
 
 protected:

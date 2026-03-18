@@ -39,7 +39,8 @@ void GStreamer::publishRunData(const std::shared_ptr<GRunDataCollection>& run_da
 	log->info(2, "GStreamer::publishRunData->startRun: ",
 			  gutilities::success_or_fail(startRun(run_data)));
 
-
+	log->info(2, SFUNCTION_NAME, "->publishRunHeader -> ",
+		  gutilities::success_or_fail(publishRunHeader(run_data->getHeader())));
 
 	// possibly can filter out writing event data based on sdname
 	for (const auto& [sdname, gDataCollection] : run_data->getDataCollectionMap()) {
@@ -52,7 +53,7 @@ void GStreamer::publishRunData(const std::shared_ptr<GRunDataCollection>& run_da
 		for (const auto& hit : tdptr->getDigitizedData()) { digitizedPtrs.push_back(hit.get()); }
 
 		log->info(2, SFUNCTION_NAME, "->publishEventDigitizedData for detector -> ", sdname,
-				  gutilities::success_or_fail(publishRunDigitizedDataImpl(sdname, digitizedPtrs)));
+				  gutilities::success_or_fail(publishRunDigitizedData(sdname, digitizedPtrs)));
 	}
 
 	log->info(2, "GStreamer::endEvent -> ",

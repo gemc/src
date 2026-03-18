@@ -19,7 +19,7 @@ bool GstreamerJsonFactory::openConnection() {
 		return false;
 	}
 
-	log->info(0, "GstreamerJsonFactory: opened file " + filename());
+	log->info(1, SFUNCTION_NAME, "GstreamerJsonFactory: opened file " + filename());
 
 	// Defer writing the top-level JSON object until we know whether this is an event or stream writer.
 	is_file_initialized         = false;
@@ -39,8 +39,9 @@ bool GstreamerJsonFactory::closeConnectionImpl() {
 	if (ofile.is_open()) ofile.close();
 	if (ofile.is_open()) {
 		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file ", filename());
-		return false;
 	}
+
+	log->info(1, SFUNCTION_NAME, "GstreamerJsonFactory: closed file " + filename());
 
 	return true;
 }

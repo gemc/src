@@ -21,7 +21,8 @@ bool GstreamerTextFactory::openConnection() {
 		log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename());
 	}
 
-	log->info(0, "GstreamerTextFactory: opened file " + filename());
+	log->info(1, SFUNCTION_NAME, "GstreamerTextFactory: opened file " + filename());
+
 	return true;
 }
 
@@ -30,8 +31,9 @@ bool GstreamerTextFactory::closeConnectionImpl() {
 	flushEventBuffer();
 
 	if (ofile.is_open()) ofile.close();
-
 	if (ofile.is_open()) { log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename()); }
+
+	log->info(1, SFUNCTION_NAME, "GstreamerTextFactory: closed file " + filename());
 
 	return true;
 }

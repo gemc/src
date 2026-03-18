@@ -2,105 +2,98 @@
 
 /**
  * \file GDataCollection.h
- * \brief Defines the \ref GDataCollection class for storing hit data for a detector.
+ * \brief Defines the GDataCollection class, the per-detector container of true and digitized data.
  *
  * \details
- * A \ref GDataCollection is the per-sensitive-detector container used by both:
- * - \ref GEventDataCollection (event-level): stores many hits (one entry per hit)
- * - \ref GRunDataCollection   (run-level): integrates hits/events into a single entry
+ * GDataCollection is the detector-local aggregation unit used by higher-level containers.
+ * One instance corresponds to one sensitive detector entry and stores:
+ * - truth-side objects of type GTrueInfoData
+ * - digitized objects of type GDigitizedData
  *
- * It holds two independent collections:
- * - \ref GTrueInfoData   "truth" observables derived from simulation / Geant4 tracking.
- * - \ref GDigitizedData  "digitized" observables produced by electronics/digitization logic.
+ * It supports two distinct usage patterns:
  *
- * ## Ownership model
- * - **Event-level**:
- *   - \ref GDataCollection::addTrueInfoData "addTrueInfoData()"
- *     and \ref GDataCollection::addDigitizedData "addDigitizedData()"
- *     transfer ownership of per-hit objects.
- *   - Storage is \c std::vector<std::unique_ptr<...>> so destruction is automatic.
- * - **Run-level integration**:
- *   - \ref GDataCollection::collectTrueInfosData "collectTrueInfosData()"
- *     and \ref GDataCollection::collectDigitizedData "collectDigitizedData()"
- *     implement accumulation into a single "integrated entry" (typically vector size == 1).
+ * Event mode:
+ * - append one truth object and/or one digitized object per hit
+ * - ownership of inserted objects is transferred to this container
  *
- * ## Integration semantics (important)
- * - Truth integration: currently accumulates **double observables only** (strings are not merged).
- * - Digitized integration: accumulates **non-SRO** integer and double observables (which=0) only.
- *   SRO keys are intentionally excluded because they represent per-hit readout coordinates.
+ * Integrated mode:
+ * - accumulate many contributions into the first stored entry of each vector
+ * - truth accumulation currently merges only floating-point truth variables
+ * - digitized accumulation currently merges only non-SRO scalar observables
  *
- * \note This class is intentionally small and does not enforce invariants such as "truth and
- * digitized must have same hit count". Higher-level code may enforce those policies.
+ * Design notes:
+ * - the class does not require truth and digitized vectors to have matching sizes
+ * - detector naming is managed by higher-level maps such as those in GEventDataCollection
+ *   and GRunDataCollection
+ * - vector index meaning depends on whether the object is used in event or integrated mode
  */
 
-#include "gTrueInfoData.h"
 #include "gDigitizedData.h"
+#include "gTrueInfoData.h"
 
 // c++
 #include <memory>
-#include <vector>
 #include <ostream>
+#include <vector>
 
 /**
- * \brief Per-sensitive-detector container that owns true and digitized hit data.
+ * \brief Per-sensitive-detector container that owns truth and digitized data objects.
  *
  * \details
- * A \ref GDataCollection is keyed by sensitive detector name in higher-level containers
- * (e.g. in \ref GEventDataCollection::getDataCollectionMap "getDataCollectionMap()").
+ * In higher-level maps, a GDataCollection is usually keyed by the sensitive detector name.
  *
- * The container stores:
- * - \c trueInfosData  : vector of per-hit truth objects (or size 1 in run-integrated usage)
- * - \c digitizedData  : vector of per-hit digitized objects (or size 1 in run-integrated usage)
+ * Stored content:
+ * - \c trueInfosData : truth objects, typically one per hit in event mode
+ * - \c digitizedData : digitized objects, typically one per hit in event mode
  *
- * Two usage modes are supported:
- * - **Event mode**: append one entry per hit (ownership transfer).
- * - **Run mode**: repeatedly integrate hits so the first entry becomes an accumulator.
- *
- * \note In run mode, the "accumulator" is implemented as the first element of each vector.
- *       Consumers should treat vector size > 1 as a sign of event-level content.
+ * Usage modes:
+ * - Event mode: vectors grow by appending objects
+ * - Integrated mode: the first vector element acts as the running accumulator
  */
 class GDataCollection
 {
 public:
 	/**
-	 * \brief Constructs an empty data collection for a single sensitive detector.
+	 * \brief Constructs an empty detector-local data collection.
 	 *
 	 * \details
-	 * The detector name itself is stored at higher layers (e.g. as a key in
-	 * \ref GEventDataCollection::getDataCollectionMap "getDataCollectionMap()").
+	 * The object starts with empty truth and digitized vectors.
+	 * Detector naming is handled by the owning map at higher levels.
 	 */
 	explicit GDataCollection() = default;
 
 	/**
-	 * \brief Destructor for \ref GDataCollection.
+	 * \brief Destroys the collection and all owned hit objects.
 	 *
 	 * \details
-	 * All stored hit objects are owned via \c std::unique_ptr and are released automatically.
+	 * Both truth and digitized entries are stored in \c std::unique_ptr containers,
+	 * so destruction is automatic and exception-safe.
 	 */
 	~GDataCollection() = default;
 
 	/**
-	 * \brief Integrate ("collect") true-hit data into a run-level aggregate entry.
+	 * \brief Integrates one truth object into the detector-level accumulator.
 	 *
 	 * \details
-	 * Intended for run-level accumulation where a detector accumulates hit contributions:
-	 * - On the first call, a deep copy of \p data is stored as the first element.
-	 * - On subsequent calls, each **double** observable from \p data is accumulated into the
-	 *   first element via \ref GTrueInfoData::accumulateVariable "accumulateVariable()".
+	 * This method is intended for integrated usage.
 	 *
-	 * Notes / design choices:
-	 * - Only the **double** observables are accumulated here.
-	 * - String observables are treated as per-hit metadata and are not merged.
-	 * - This method performs summation; if you need averages, normalize in the consumer.
+	 * Behavior:
+	 * - if the truth vector is empty, a deep copy of \p data becomes the first accumulator entry
+	 * - otherwise, each numeric truth observable from \p data is summed into the first entry
 	 *
-	 * \param data Source true-hit object (not owned; values are copied/accumulated).
+	 * Current integration policy:
+	 * - only numeric truth observables are accumulated
+	 * - string truth observables are not merged
+	 *
+	 * \param data Source truth object whose values are copied or accumulated.
 	 */
 	void collectTrueInfosData(const std::unique_ptr<GTrueInfoData>& data) {
-		// first event
+		// First integrated contribution creates the accumulator entry.
 		if (trueInfosData.empty()) {
 			trueInfosData.push_back(std::make_unique<GTrueInfoData>(*data));
 		}
 		else {
+			// Subsequent contributions add numeric observables into the first stored entry.
 			for (const auto& [varName, value] : data->getDoubleVariablesMap()) {
 				trueInfosData.front()->accumulateVariable(varName, value);
 			}
@@ -108,30 +101,29 @@ public:
 	}
 
 	/**
-	 * \brief Integrate ("collect") digitized data into a run-level aggregate entry.
+	 * \brief Integrates one digitized object into the detector-level accumulator.
 	 *
 	 * \details
-	 * Intended for run-level accumulation:
-	 * - On the first call, a deep copy of \p data is stored as the first element.
-	 * - On subsequent calls, integer and double observables are accumulated into the first
-	 *   element via \ref GDigitizedData::accumulateVariable "accumulateVariable()".
+	 * This method is intended for integrated usage.
 	 *
-	 * Filtering policy:
-	 * - This method uses \c which=0 when reading observables maps, i.e. it excludes
-	 *   streaming readout keys (crate/slot/channel/timeAtElectronics/chargeAtElectronics).
+	 * Behavior:
+	 * - if the digitized vector is empty, a deep copy of \p data becomes the first accumulator entry
+	 * - otherwise, non-SRO integer and floating-point observables from \p data are summed into
+	 *   the first entry
 	 *
-	 * Rationale:
-	 * - SRO keys identify per-hit readout coordinates and are not meaningful to sum across hits.
+	 * Current integration policy:
+	 * - only scalar observables are accumulated
+	 * - SRO keys are excluded by requesting filtered maps with \c which = 0
 	 *
-	 * \param data Source digitized-hit object (not owned; values are copied/accumulated).
+	 * \param data Source digitized object whose values are copied or accumulated.
 	 */
 	void collectDigitizedData(const std::unique_ptr<GDigitizedData>& data) {
-		// first event
+		// First integrated contribution creates the accumulator entry.
 		if (digitizedData.empty()) {
 			digitizedData.push_back(std::make_unique<GDigitizedData>(*data));
 		}
 		else {
-			// argument passed: 0: do not get SRO var
+			// Only non-SRO observables are accumulated in integrated mode.
 			for (const auto& [varName, value] : data->getIntObservablesMap(0)) {
 				digitizedData.front()->accumulateVariable(varName, value);
 			}
@@ -142,54 +134,54 @@ public:
 	}
 
 	/**
-	 * \brief Add one digitized-hit entry (event-level ownership transfer).
+	 * \brief Appends one digitized object in event mode.
 	 *
 	 * \details
-	 * Event-level API: each hit corresponds to one \ref GDigitizedData object that is owned
-	 * by this collection after insertion.
+	 * Ownership of \p data is transferred to this collection.
+	 * Each appended object normally corresponds to one hit for this detector in one event.
 	 *
-	 * \param data Digitized-hit object; ownership is moved into this collection.
+	 * \param data Digitized object to store.
 	 */
 	void addDigitizedData(std::unique_ptr<GDigitizedData> data) {
-		digitizedData.push_back(std::move(data)); // taking ownership of the unique_ptr
+		digitizedData.push_back(std::move(data));
 	}
 
 	/**
-	 * \brief Add one true-hit entry (event-level ownership transfer).
+	 * \brief Appends one truth object in event mode.
 	 *
 	 * \details
-	 * Event-level API: each hit corresponds to one \ref GTrueInfoData object that is owned
-	 * by this collection after insertion.
+	 * Ownership of \p data is transferred to this collection.
+	 * Each appended object normally corresponds to one hit for this detector in one event.
 	 *
-	 * \param data True-hit object; ownership is moved into this collection.
+	 * \param data Truth object to store.
 	 */
 	void addTrueInfoData(std::unique_ptr<GTrueInfoData> data) {
-		trueInfosData.push_back(std::move(data)); // taking ownership of the unique_ptr
+		trueInfosData.push_back(std::move(data));
 	}
 
 	/**
-	 * \brief Read-only access to stored true-hit data.
+	 * \brief Returns read-only access to the stored truth objects.
 	 *
 	 * \details
-	 * Interpretation depends on usage:
-	 * - Event-level: vector size == number of hits stored for the detector.
-	 * - Run-level: vector size is typically 1 (the integrated entry).
+	 * Interpretation depends on the usage mode:
+	 * - in event mode, vector size usually matches the number of truth hits for the detector
+	 * - in integrated mode, the vector usually contains one accumulator entry
 	 *
-	 * \return Const reference to the owned vector of true-hit objects.
+	 * \return Const reference to the owned vector of truth objects.
 	 */
 	[[nodiscard]] auto getTrueInfoData() const -> const std::vector<std::unique_ptr<GTrueInfoData>>& {
 		return trueInfosData;
 	}
 
 	/**
-	 * \brief Read-only access to stored digitized-hit data.
+	 * \brief Returns read-only access to the stored digitized objects.
 	 *
 	 * \details
-	 * Interpretation depends on usage:
-	 * - Event-level: vector size == number of hits stored for the detector.
-	 * - Run-level: vector size is typically 1 (the integrated entry).
+	 * Interpretation depends on the usage mode:
+	 * - in event mode, vector size usually matches the number of digitized hits for the detector
+	 * - in integrated mode, the vector usually contains one accumulator entry
 	 *
-	 * \return Const reference to the owned vector of digitized-hit objects.
+	 * \return Const reference to the owned vector of digitized objects.
 	 */
 	[[nodiscard]] auto getDigitizedData() const -> const std::vector<std::unique_ptr<GDigitizedData>>& {
 		return digitizedData;
@@ -197,20 +189,26 @@ public:
 
 private:
 	/**
-	 * \brief True-hit entries for this detector.
+	 * \brief Stored truth objects for this detector.
 	 *
 	 * \details
-	 * - Event usage: each element corresponds to one hit (vector index == hit index).
-	 * - Run usage: vector usually has one element that acts as an accumulator.
+	 * Event mode:
+	 * - one element per hit
+	 *
+	 * Integrated mode:
+	 * - usually one element acting as the accumulator
 	 */
 	std::vector<std::unique_ptr<GTrueInfoData>> trueInfosData;
 
 	/**
-	 * \brief Digitized-hit entries for this detector.
+	 * \brief Stored digitized objects for this detector.
 	 *
 	 * \details
-	 * - Event usage: each element corresponds to one hit.
-	 * - Run usage: vector usually has one element that acts as an accumulator.
+	 * Event mode:
+	 * - one element per hit
+	 *
+	 * Integrated mode:
+	 * - usually one element acting as the accumulator
 	 */
 	std::vector<std::unique_ptr<GDigitizedData>> digitizedData;
 
@@ -249,6 +247,4 @@ protected:
 		os << "}";
 		return os;
 	}
-
-
 };

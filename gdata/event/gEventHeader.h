@@ -9,67 +9,66 @@
 
 /**
  * \file gEventHeader.h
- * \brief Defines \ref GEventHeader metadata for an event data collection.
+ * \brief Defines GEventHeader, the metadata header associated with one event container.
  *
  * \details
- * The event header records:
- * - a local event number (\c g4localEventNumber)
- * - a thread identifier (\c threadID)
- * - a timestamp string (\c timeStamp)
+ * GEventHeader stores the minimal identifying metadata for one event:
+ * - a local event number
+ * - a thread identifier
+ * - a formatted timestamp string
  *
- * In production GEMC/Geant4, event number and thread ID would typically come from Geant4
- * (e.g. \c G4Event and \c G4Threading). In this library, \ref GEventHeader::create "create()"
- * provides a deterministic generator for examples and tests.
+ * Typical usage:
+ * - construct explicitly when event identity is already known
+ * - use \ref GEventHeader::create "create()" in examples and tests to generate deterministic headers
  *
- * Timestamp behavior:
- * - Time stamp is generated using local system time at construction.
- *
- * \note Threading
- * The factory \ref GEventHeader::create "create()" uses an atomic counter so that concurrent calls
- * from multiple threads produce unique event numbers in examples/tests.
+ * The header is normally owned by GEventDataCollection.
  */
 
 constexpr const char* GDATAEVENTHEADER_LOGGER = "event_header";
 
 namespace geventheader {
+
 /**
- * \brief Defines GOptions for the event-header logger domain.
+ * \brief Defines the options subtree used by the event-header logger domain.
  *
  * \details
- * Event header logging can be enabled/controlled by including this in composite option bundles.
+ * Higher-level modules can aggregate this option group into their own configuration bundles
+ * so that event-header verbosity can be controlled centrally.
  *
- * \return An options group rooted at the \ref GDATAEVENTHEADER_LOGGER domain.
+ * \return Options group rooted at \c GDATAEVENTHEADER_LOGGER.
  */
 inline GOptions defineOptions() {
 	auto goptions = GOptions(GDATAEVENTHEADER_LOGGER);
 	return goptions;
 }
+
 } // namespace geventheader
 
 /**
- * \brief Minimal event metadata header: event number, thread id, and timestamp.
+ * \brief Stores minimal metadata for one event.
  *
  * \details
- * This object is typically owned by \ref GEventDataCollection as a \c std::unique_ptr.
+ * The object provides a compact event label and provenance bundle containing:
+ * - the local event number
+ * - the thread identifier used for diagnostics
+ * - a construction-time timestamp string
  *
- * It is primarily used for:
- * - labeling events in logs/output
- * - reproducing the event/thread provenance for debugging
+ * Ownership:
+ * - this object is typically owned exclusively by GEventDataCollection
  */
 class GEventHeader : public GBase<GEventHeader>
 {
 public:
 	/**
-	 * \brief Construct an event header with explicit values.
+	 * \brief Constructs an event header with explicit event and thread identifiers.
 	 *
 	 * \details
-	 * The constructor:
-	 * - assigns \c timeStamp based on local time
-	 * - emits an informational log summarizing the header values
+	 * The constructor also assigns a local-time timestamp string and emits an informational
+	 * summary through the logger.
 	 *
-	 * \param gopts Shared options object used to configure logging and behavior.
+	 * \param gopts Shared options used to configure logging and related behavior.
 	 * \param n     Local event number.
-	 * \param tid   Thread ID associated with this event.
+	 * \param tid   Thread identifier associated with the event.
 	 */
 	GEventHeader(const std::shared_ptr<GOptions>& gopts, int n, int tid)
 		: GBase(gopts, GDATAEVENTHEADER_LOGGER), g4localEventNumber(n), threadID(tid) {
@@ -82,65 +81,67 @@ public:
 	}
 
 	/**
-	 * \brief Factory method used by examples/tests to create a header with a unique event number.
+	 * \brief Creates a header with a unique event number for tests and examples.
 	 *
 	 * \details
-	 * If \p tid is negative, a default thread ID is derived from the event number
-	 * (currently mod 8) to mimic multi-threaded execution.
-	 *
-	 * Threading notes:
-	 * - Uses an atomic counter so that concurrent calls from multiple threads produce unique event numbers.
+	 * If \p tid is negative, a synthetic thread identifier is derived from the event number.
+	 * The generated event number comes from a static atomic counter so concurrent example code
+	 * can obtain unique values.
 	 *
 	 * \param gopts Shared options.
-	 * \param tid   Optional thread ID override.
+	 * \param tid   Optional thread identifier override.
 	 * \return Newly created event header.
 	 */
 	static std::unique_ptr<GEventHeader> create(const std::shared_ptr<GOptions>& gopts, int tid = -1) {
 		int eventNumber = globalEventHeaderCounter.fetch_add(1, std::memory_order_relaxed);
 		int threadID_   = tid;
 		if (threadID_ < 0) {
-			threadID_ = eventNumber % 8; // default to 8 threads if not provided
+			threadID_ = eventNumber % 8;
 		}
 		return std::make_unique<GEventHeader>(gopts, eventNumber, threadID_);
 	}
 
 	/**
-	 * \brief Get the formatted timestamp string.
-	 * \return Timestamp string.
+	 * \brief Returns the formatted timestamp string.
+	 *
+	 * \return Timestamp assigned at construction.
 	 */
 	[[nodiscard]] inline std::string getTimeStamp() const { return timeStamp; }
 
 	/**
-	 * \brief Get the local event number.
+	 * \brief Returns the local event number.
 	 *
 	 * \details
-	 * This is "run-local" in typical Geant4 usage (i.e. it resets each run).
+	 * In typical Geant4-style usage, this value is run-local.
 	 *
-	 * \return Event number.
+	 * \return Local event number.
 	 */
 	[[nodiscard]] inline int getG4LocalEvn() const { return g4localEventNumber; }
 
 	/**
-	 * \brief Get the thread ID associated with this event.
-	 * \return Thread ID.
+	 * \brief Returns the thread identifier associated with the event.
+	 *
+	 * \return Thread identifier.
 	 */
 	[[nodiscard]] inline int getThreadID() const { return threadID; }
 
 private:
-	int g4localEventNumber; ///< Event number (run-local in typical Geant4 usage).
-	int threadID;           ///< Thread ID (diagnostic/labeling).
+	/// Event number local to the current run or example sequence.
+	int g4localEventNumber;
+
+	/// Thread identifier used for diagnostics and provenance labeling.
+	int threadID;
 
 	/**
-	 * \brief Create a timestamp string using local time.
+	 * \brief Builds the formatted timestamp string using local time.
 	 *
 	 * \details
 	 * Format:
 	 * \code
-	 *   "Mon 01.30.2026 15:04:05"
+	 * Mon 01.30.2026 15:04:05
 	 * \endcode
-	 * (weekday mm.dd.yyyy hh:mm:ss).
 	 *
-	 * \return Timestamp string.
+	 * \return Formatted timestamp string.
 	 */
 	static std::string assignTimeStamp() {
 		time_t     now = time(nullptr);
@@ -150,8 +151,9 @@ private:
 		return {buffer};
 	}
 
-	std::string timeStamp; ///< Timestamp string.
+	/// Timestamp string assigned at construction.
+	std::string timeStamp;
 
-	/// Static thread-safe event counter - used for testing/examples only.
+	/// Static thread-safe event counter used only by \ref GEventHeader::create "create()".
 	static std::atomic<int> globalEventHeaderCounter;
 };
