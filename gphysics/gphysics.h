@@ -10,7 +10,7 @@
  * @class GPhysics
  * @ingroup gphysics_module
  *
- * @brief Builds and exposes a Geant4 modular physics list based on runtime options.
+ * \brief Builds and exposes a Geant4 modular physics list based on runtime options.
  *
  * GPhysics is a thin integration layer between GEMC options and the Geant4 extensible physics list
  * factory. It is not derived from \c G4VModularPhysicsList; instead, it creates a physics list instance
@@ -27,7 +27,7 @@
 class GPhysics : public GBase<GPhysics> {
 public:
 	/**
-	 * @brief Constructs the physics list builder and (unless requested otherwise) instantiates the physics list.
+	 * \brief Constructs the physics list builder and (unless requested otherwise) instantiates the physics list.
 	 *
 	 * The constructor reads the relevant options from the provided GOptions instance:
 	 * - If the \c showPhysics switch is enabled, the constructor prints the available Geant4 lists/constructors
@@ -35,14 +35,14 @@ public:
 	 * - Otherwise, it requests the reference physics list specified by the \c phys_list option and registers
 	 *   additional constructors required by the module defaults.
 	 *
-	 * @param gopts Shared options container used to retrieve \c phys_list and \c showPhysics.
+	 * \param gopts Shared options container used to retrieve \c phys_list and \c showPhysics.
 	 */
 	GPhysics(const std::shared_ptr<GOptions>& gopts);
 
 	/**
-	 * @brief Returns the instantiated Geant4 modular physics list.
+	 * \brief Returns the instantiated Geant4 modular physics list.
 	 *
-	 * @return Pointer to the \c G4VModularPhysicsList created by this module, or \c nullptr if the list
+	 * \return Pointer to the \c G4VModularPhysicsList created by this module, or \c nullptr if the list
 	 *         could not be created or if \c showPhysics was requested.
 	 */
 	[[nodiscard]] G4VModularPhysicsList* getPhysList() const { return physList; }
@@ -53,7 +53,7 @@ private:
 	void printAvailable() const;
 
 	/**
-	 * @brief Pointer to the physics list created through the Geant4 factory.
+	 * \brief Pointer to the physics list created through the Geant4 factory.
 	 *
 	 * This pointer is handed to the consumer (typically the application run manager).
 	 * This class does not own the object lifetime.

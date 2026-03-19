@@ -6,11 +6,15 @@
 
 // Construct the action initializer and keep shared services available for later
 // action registration on worker and master execution contexts.
-GAction::GAction(std::shared_ptr<GOptions> gopts,
+GAction::GAction(std::shared_ptr<GOptions>                           gopts,
 				 std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
 	GBase(gopts, GACTION_LOGGER),
 	goptions(std::move(gopts)),
-	digitization_routines_map(std::move(digi_map)) { }
+	digitization_routines_map(std::move(digi_map)) {
+
+	log->debug(CONSTRUCTOR, FUNCTION_NAME);
+
+}
 
 
 // Register the master-thread actions.

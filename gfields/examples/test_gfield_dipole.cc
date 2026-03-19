@@ -2,15 +2,15 @@
  * @defgroup gfield_examples GField examples
  * @ingroup gfield_module
  *
- * @brief Example programs demonstrating how to configure and use the GField module.
+ * \brief Example programs demonstrating how to configure and use the GField module.
  *
  * Each example provides a minimal, focused workflow that can be referenced from the module mainpage.
  */
 
 /**
- * @file test_gfield_dipole.cc
+ * \file test_gfield_dipole.cc
  * @ingroup gfield_examples
- * @brief Example program that loads a dipole field and evaluates it at random points.
+ * \brief Example program that loads a dipole field and evaluates it at random points.
  *
  * @anchor example_test_gfield_dipole
  *
@@ -35,10 +35,10 @@
 using namespace std;
 
 /**
- * @brief Entry point of the example program.
- * @param argc Number of command-line arguments.
- * @param argv Command-line argument array.
- * @return Exit status (EXIT_SUCCESS on normal completion).
+ * \brief Entry point of the example program.
+ * \param argc Number of command-line arguments.
+ * \param argv Command-line argument array.
+ * \return Exit status (EXIT_SUCCESS on normal completion).
  *
  * Expected configuration:
  * - The program expects that options define a field named \c "dipole" (for example via \c gmultipoles).

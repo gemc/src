@@ -12,8 +12,8 @@
 #include <QTimer>
 
 /**
- * @file gboard_example.cc
- * @brief Example program showing how to route Geant4 output into a GBoard widget.
+ * \file gboard_example.cc
+ * \brief Example program showing how to route Geant4 output into a GBoard widget.
  *
  * This example demonstrates two modes:
  * - **GUI mode** (enabled with \c --gui): creates a \c QApplication, shows a \c QMainWindow containing GBoard,
@@ -31,7 +31,7 @@
  */
 
 /**
- * @brief Entry point for the gboard example application.
+ * \brief Entry point for the gboard example application.
  *
  * Responsibilities:
  * - Initializes options and logging.
@@ -40,9 +40,9 @@
  * - In GUI mode, installs GUI_Session to route Geant4 UI output to the board.
  * - Exits either after the Qt event loop ends (GUI) or immediately (CLI).
  *
- * @param argc Standard C/C++ argument count.
- * @param argv Standard C/C++ argument vector.
- * @return \c EXIT_SUCCESS on normal completion, otherwise a non-zero status.
+ * \param argc Standard C/C++ argument count.
+ * \param argv Standard C/C++ argument vector.
+ * \return \c EXIT_SUCCESS on normal completion, otherwise a non-zero status.
  */
 int main(int argc, char* argv[]) {
 	// Initialize options and logging.

@@ -21,7 +21,6 @@
 #include "G4Material.hh"
 #include "gtouchable.h"
 #include "gutilities.h"
-#include "G4SystemOfUnits.hh"   // for mm, cm, g/cm3, etc.
 
 // Cache a volume's hierarchy, material and visualization attributes for the UI model.
 G4Ttree_item::G4Ttree_item(G4Volume* g4volume) {

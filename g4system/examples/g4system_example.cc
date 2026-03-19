@@ -1,10 +1,10 @@
 /**
- * @file   g4system_example.cc
+ * \file   g4system_example.cc
  * @ingroup g4system
  *
  * @anchor g4system_example_anchor
  *
- * @brief Example showing how to instantiate g4system options, build a GEMC world, and build the Geant4 world.
+ * \brief Example showing how to instantiate g4system options, build a GEMC world, and build the Geant4 world.
  *
  * @details
  * This example demonstrates:
@@ -24,11 +24,11 @@
 #include "g4system_options.h"
 
 /**
- * @brief Entry point for the g4system example program.
+ * \brief Entry point for the g4system example program.
  *
- * @param argc Number of command-line arguments.
- * @param argv Command-line arguments passed to the global option system.
- * @return EXIT_SUCCESS on completion.
+ * \param argc Number of command-line arguments.
+ * \param argv Command-line arguments passed to the global option system.
+ * \return EXIT_SUCCESS on completion.
  *
  * @details
  * The program:

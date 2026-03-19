@@ -1,6 +1,6 @@
 /**
  * @defgroup gtree_module GTree module
- * @brief Qt-based geometry tree browser for interactive visualization control.
+ * \brief Qt-based geometry tree browser for interactive visualization control.
  *
  * @details
  * This module provides a Qt widget that presents the detector geometry as a

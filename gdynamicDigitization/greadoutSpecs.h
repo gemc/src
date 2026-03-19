@@ -43,6 +43,10 @@ private:
 	/// Bitset controlling which hit information is computed/stored.
 	HitBitSet hitBitSet;
 
+	// the corresponding logical volume will its user limits to
+	// G4UserLimits(maxStep, maxStep));
+	double maxStep;
+
 public:
 	/**
 	 * \brief Constructs a GReadoutSpecs object.
@@ -52,14 +56,20 @@ public:
 	 * \param tw Electronics time window (width of one time cell).
 	 * \param gst Grid start time (time offset for binning).
 	 * \param hbs Hit bitset controlling which hit fields are stored/computed.
+	 * \param ms Max step for the logical volume
 	 * \param log Logger used for informational output.
 	 */
-	GReadoutSpecs(const double tw, const double gst, const HitBitSet hbs, const std::shared_ptr<GLogger>& log) :
+	GReadoutSpecs(const double                    tw,
+				  const double                    gst,
+				  const HitBitSet                 hbs,
+				  const double                    ms,
+				  const std::shared_ptr<GLogger>& log) :
 		timeWindow(tw),
 		gridStartTime(gst),
-		hitBitSet(hbs) {
+		hitBitSet(hbs),
+		maxStep(ms) {
 		log->info(1, "GReadoutSpecs: timeWindow=", timeWindow, ", gridStartTime=", gridStartTime, ", hitBitSet=",
-		          hitBitSet);
+				  hitBitSet);
 	}
 
 	/**
@@ -68,6 +78,8 @@ public:
 	 * \return The HitBitSet that defines what hit information is stored.
 	 */
 	[[nodiscard]] inline HitBitSet getHitBitSet() const { return hitBitSet; }
+
+	[[nodiscard]] inline double getMaxStep() const { return maxStep; }
 
 	/**
 	 * \brief Computes the 1-based electronics time-cell index for a given time.
@@ -85,7 +97,7 @@ public:
 	 * \return 1-based time-cell index as an integer.
 	 */
 	[[nodiscard]] inline int timeCellIndex(double time) const {
-		return static_cast<int>(std::floor((time - gridStartTime) / timeWindow) + 1);
+		return static_cast<int>(std::floor(( time - gridStartTime ) / timeWindow) + 1);
 	}
 };
 

@@ -49,6 +49,7 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc) {
 // Applies plugin filtering and touchable transformation, then creates new hits or updates existing hits.
 G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4TouchableHistory* g4th) {
 	// If there is a decision to skip this hit based on deposited energy, return immediately.
+
 	double depe = thisStep->GetTotalEnergyDeposit();
 	if (digitization_routine->decisionToSkipHit(depe)) { return true; }
 

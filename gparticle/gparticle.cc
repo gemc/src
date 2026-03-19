@@ -68,9 +68,6 @@ Gparticle::Gparticle(const std::string&              aname,
 	pid = get_pdg_id();
 
 	log->debug(CONSTRUCTOR, "Gparticle");
-
-	// Print a full configuration summary at verbosity level 2.
-	log->info(2, *this);
 }
 
 
@@ -88,12 +85,19 @@ void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent) {
 			double mass = particleDef->GetPDGMass();
 			particleGun->SetParticleDefinition(particleDef);
 
+			auto beamDirection = calculateBeamDirection();
+			auto vertex        = calculateVertex();
+
+
 			// Shoot one primary vertex per multiplicity.
 			for (int i = 0; i < multiplicity; i++) {
 				particleGun->SetParticleEnergy(calculateKinEnergy(mass));
-				particleGun->SetParticleMomentumDirection(calculateBeamDirection());
-				particleGun->SetParticlePosition(calculateVertex());
+				particleGun->SetParticleMomentumDirection(beamDirection);
+				particleGun->SetParticlePosition(vertex);
 				particleGun->GeneratePrimaryVertex(anEvent);
+
+				log->info(2, *this);
+
 			}
 		}
 		else {
@@ -105,6 +109,9 @@ void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent) {
 		log->error(ERR_GPARTICLETABLENOTFOUND,
 		           "G4ParticleTable not found - G4ParticleGun*: ", particleGun);
 	}
+
+
+
 }
 
 

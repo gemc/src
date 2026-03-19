@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """
-! @file version.py
-! @brief Generates the C++ header `gversion.h` from Git metadata.
+! \file version.py
+! \brief Generates the C++ header `gversion.h` from Git metadata.
 !
 ! @details
 ! This script is typically run as part of a build or release pipeline.
@@ -19,7 +19,7 @@ from datetime import datetime
 
 def get_git_version():
     """
-    ! @brief Retrieves version and release date from Git.
+    ! \brief Retrieves version and release date from Git.
     !
     ! @details
     ! - Version is the latest annotated tag (or a commit identifier if no tags exist),
@@ -27,7 +27,7 @@ def get_git_version():
     ! - Release date is obtained by looking up the commit date for that tag via:
     !   `git log -1 --format=%ai <tag>`.
     !
-    ! @return A tuple `(version_tag, release_date)` where `release_date` is formatted as `YYYY-MM-DD`.
+    ! \return A tuple `(version_tag, release_date)` where `release_date` is formatted as `YYYY-MM-DD`.
     !         Returns `(None, None)` on failure.
     """
     try:
@@ -43,7 +43,7 @@ def get_git_version():
 
 def generate_header_file(version, release_date):
     """
-    ! @brief Writes the generated C++ header `gversion.h`.
+    ! \brief Writes the generated C++ header `gversion.h`.
     !
     ! @details
     ! The header defines global C-string constants:
@@ -56,8 +56,8 @@ def generate_header_file(version, release_date):
     ! These are included by C++ code (e.g., `goptions.cc`) to display version information and
     ! to save it into YAML configuration output.
     !
-    ! @param version Version string derived from Git.
-    ! @param release_date Release date string formatted as `YYYY-MM-DD`.
+    ! \param version Version string derived from Git.
+    ! \param release_date Release date string formatted as `YYYY-MM-DD`.
     """
     header_content = f"""\
 #pragma once
@@ -75,7 +75,7 @@ const char* gauthor = "Maurizio Ungaro, ungaro@jlab.org";
 
 def main():
     """
-    ! @brief Script entry point: queries Git and generates `gversion.h`.
+    ! \brief Script entry point: queries Git and generates `gversion.h`.
     !
     ! @details
     ! If Git metadata cannot be obtained, the script prints an error message and does not

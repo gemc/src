@@ -1,6 +1,6 @@
 /**
- * @file goption.cc
- * @brief Implementation of \ref GOption : the option container used by \ref GOptions : .
+ * \file goption.cc
+ * \brief Implementation of \ref GOption : the option container used by \ref GOptions : .
  *
  * @details
  * \ref GOption : supports:

@@ -1,8 +1,8 @@
 #pragma once
 /**
- * @file   g4NativeObjectsFactory.h
+ * \file   g4NativeObjectsFactory.h
  * @ingroup g4system_geometry
- * @brief  Factory that builds Geant4 native primitive solids (\c G4Box, \c G4Cons, \c G4Trap, ...) from GEMC \c GVolume records.
+ * \brief  Factory that builds Geant4 native primitive solids (\c G4Box, \c G4Cons, \c G4Trap, ...) from GEMC \c GVolume records.
  *
  * @details
  * This factory is responsible for solids that map directly to Geant4 CSG primitives.
@@ -27,7 +27,7 @@
 /**
  * @class G4NativeSystemFactory
  * @ingroup g4system_geometry
- * @brief Implements solid creation for Geant4 CSG primitives and validates constructor parameter counts.
+ * \brief Implements solid creation for Geant4 CSG primitives and validates constructor parameter counts.
  *
  * @details
  * The method \ref G4NativeSystemFactory::buildSolid "buildSolid()" dispatches on \c s->getType()
@@ -42,18 +42,18 @@ public:
 	using G4ObjectsFactory::G4ObjectsFactory;
 
 	/**
-	 * @brief Human-readable name used for logging.
-	 * @return \c "G4NativeSystemFactory".
+	 * \brief Human-readable name used for logging.
+	 * \return \c "G4NativeSystemFactory".
 	 */
 	[[nodiscard]] std::string_view className() const override { return "G4NativeSystemFactory"; }
 
 protected:
 	/**
-	 * @brief Create (or reuse) a native Geant4 solid based on the \c GVolume "type".
+	 * \brief Create (or reuse) a native Geant4 solid based on the \c GVolume "type".
 	 *
-	 * @param s   GEMC volume definition containing the type and parameters.
-	 * @param g4s Map holding cached \c G4Volume wrappers.
-	 * @return Pointer to the created/reused solid, or \c nullptr if dependencies are missing or type unsupported.
+	 * \param s   GEMC volume definition containing the type and parameters.
+	 * \param g4s Map holding cached \c G4Volume wrappers.
+	 * \return Pointer to the created/reused solid, or \c nullptr if dependencies are missing or type unsupported.
 	 *
 	 * @details
 	 * The method performs:
@@ -66,10 +66,10 @@ protected:
 	                     std::unordered_map<std::string, G4Volume*>* g4s) override;
 
 	/**
-	 * @brief Validate the number of parameters for the given primitive and return them as numeric values.
+	 * \brief Validate the number of parameters for the given primitive and return them as numeric values.
 	 *
-	 * @param s Pointer to the GEMC volume record whose \c getParameters() string is to be parsed.
-	 * @return A \c std::vector<double> holding the converted values in the order expected by the constructor.
+	 * \param s Pointer to the GEMC volume record whose \c getParameters() string is to be parsed.
+	 * \return A \c std::vector<double> holding the converted values in the order expected by the constructor.
 	 *
 	 * @details
 	 * Some primitives have fixed parameter counts, while others have special rules:

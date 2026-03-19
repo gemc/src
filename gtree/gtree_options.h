@@ -1,9 +1,9 @@
 #pragma once
 
 /**
- * @file gtree_options.h
+ * \file gtree_options.h
  * @ingroup gtree_module
- * @brief Option-set definition entry point for the GTree module.
+ * \brief Option-set definition entry point for the GTree module.
  *
  * @details
  * The GTree module composes its options through `gtree::defineOptions()`.
@@ -19,9 +19,9 @@ constexpr const char* GTREE_LOGGER = "gtree";
 namespace gtree {
 
 /**
- * @brief Build and return the option set required by the GTree module.
+ * \brief Build and return the option set required by the GTree module.
  *
- * @return A fully constructed GOptions instance configured for the `gtree` logger
+ * \return A fully constructed GOptions instance configured for the `gtree` logger
  *         and augmented with the dbselect option set.
  *
  * @details

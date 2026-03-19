@@ -1,6 +1,6 @@
 /**
- * @file gactionsDoxy.h
- * @brief Doxygen entry point for the GEMC actions module.
+ * \file gactionsDoxy.h
+ * \brief Doxygen entry point for the GEMC actions module.
  *
  * This file defines the module-level Doxygen group and the main documentation page
  * for the action subsystem responsible for Geant4 action registration and execution.
@@ -8,7 +8,7 @@
 
 /**
  * @defgroup gactions_module GEMC actions module
- * @brief Geant4 action initialization and per-thread action components for GEMC.
+ * \brief Geant4 action initialization and per-thread action components for GEMC.
  *
  * This module contains the classes that register and execute the Geant4 user actions
  * used by GEMC during a run. It centralizes the action lifecycle, threading model,

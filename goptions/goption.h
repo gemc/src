@@ -1,6 +1,6 @@
 /**
- * @file goption.h
- * @brief Definitions of \ref GVariable : and \ref GOption : used by \ref GOptions : .
+ * \file goption.h
+ * \brief Definitions of \ref GVariable : and \ref GOption : used by \ref GOptions : .
  */
 
 #pragma once
@@ -21,7 +21,7 @@
 
 /**
  * @struct GVariable
- * @brief Describes a schema entry: key name, default value, and user-facing description.
+ * \brief Describes a schema entry: key name, default value, and user-facing description.
  *
  * @details
  * \ref GVariable : is primarily used when defining options:
@@ -37,48 +37,48 @@ struct GVariable
 	std::string description; ///< Human-readable description used in help output.
 
 	/**
-	 * @brief Constructor for initializing a variable with a string default.
-	 * @param n Name of the variable.
-	 * @param val Default value (string) or \ref goptions::NODFLT : .
-	 * @param d Description displayed in help.
+	 * \brief Constructor for initializing a variable with a string default.
+	 * \param n Name of the variable.
+	 * \param val Default value (string) or \ref goptions::NODFLT : .
+	 * \param d Description displayed in help.
 	 */
 	GVariable(std::string n, std::string val, std::string d)
 		: name(std::move(n)), value(std::move(val)), description(std::move(d)) {
 	}
 
 	/**
-	 * @brief Constructor for initializing a variable with a double default.
-	 * @param n Name of the variable.
-	 * @param val Default value (double), converted to string.
-	 * @param d Description displayed in help.
+	 * \brief Constructor for initializing a variable with a double default.
+	 * \param n Name of the variable.
+	 * \param val Default value (double), converted to string.
+	 * \param d Description displayed in help.
 	 */
 	GVariable(std::string n, double val, std::string d)
 		: name(std::move(n)), description(std::move(d)) { value = std::to_string(val); }
 
 	/**
-	 * @brief Constructor for initializing a variable with a C-string default.
-	 * @param n Name of the variable.
-	 * @param val Default value (C-string).
-	 * @param d Description displayed in help.
+	 * \brief Constructor for initializing a variable with a C-string default.
+	 * \param n Name of the variable.
+	 * \param val Default value (C-string).
+	 * \param d Description displayed in help.
 	 */
 	GVariable(std::string n, const char* val, std::string d)
 		: name(std::move(n)), value(val), description(std::move(d)) {
 	}
 
 	/**
-	 * @brief Constructor for initializing a variable with an integer default.
-	 * @param n Name of the variable.
-	 * @param val Default value (int), converted to string.
-	 * @param d Description displayed in help.
+	 * \brief Constructor for initializing a variable with an integer default.
+	 * \param n Name of the variable.
+	 * \param val Default value (int), converted to string.
+	 * \param d Description displayed in help.
 	 */
 	GVariable(std::string n, int val, std::string d)
 		: name(std::move(n)), description(std::move(d)) { value = std::to_string(val); }
 
 	/**
-	 * @brief Constructor for initializing a variable with a boolean default.
-	 * @param n Name of the variable.
-	 * @param val Default value (bool), stored as "true" or "false".
-	 * @param d Description displayed in help.
+	 * \brief Constructor for initializing a variable with a boolean default.
+	 * \param n Name of the variable.
+	 * \param val Default value (bool), stored as "true" or "false".
+	 * \param d Description displayed in help.
 	 */
 	GVariable(std::string n, bool val, std::string d)
 		: name(std::move(n)), description(std::move(d)) { value = val ? "true" : "false"; }
@@ -86,7 +86,7 @@ struct GVariable
 
 /**
  * @class GOption
- * @brief Stores one configuration option (scalar or structured), including schema defaults and current value.
+ * \brief Stores one configuration option (scalar or structured), including schema defaults and current value.
  *
  * @details
  * \ref GOption : encapsulates:
@@ -105,7 +105,7 @@ class GOption
 {
 public:
 	/**
-	 * @brief Constructor for a scalar option with a default value.
+	 * \brief Constructor for a scalar option with a default value.
 	 *
 	 * @details
 	 * Builds YAML nodes of the form:
@@ -117,8 +117,8 @@ public:
 	 * - \c defaultValue (schema/default snapshot),
 	 * - \c value (current resolved value), initially equal to the default.
 	 *
-	 * @param dv Scalar option descriptor (name, default value, description).
-	 * @param h Multi-line help text shown in detailed help.
+	 * \param dv Scalar option descriptor (name, default value, description).
+	 * \param h Multi-line help text shown in detailed help.
 	 */
 	GOption(GVariable dv, std::string h) : name(dv.name), description(dv.description), help(h) {
 		defaultValue = YAML::Load(name + ": " + dv.value);
@@ -126,7 +126,7 @@ public:
 	}
 
 	/**
-	 * @brief Constructor for a structured option schema (map/sequence).
+	 * \brief Constructor for a structured option schema (map/sequence).
 	 *
 	 * @details
 	 * The schema is defined by @p dv, where each \ref GVariable : entry corresponds to one key.
@@ -145,10 +145,10 @@ public:
 	 * For cumulative options, the current \c value is intentionally left unset until user values are provided,
 	 * because mandatory keys require explicit user input.
 	 *
-	 * @param n Option name.
-	 * @param desc One-line description shown in summary help.
-	 * @param dv Schema entries (keys, defaults, descriptions).
-	 * @param h Multi-line help text shown in detailed help.
+	 * \param n Option name.
+	 * \param desc One-line description shown in summary help.
+	 * \param dv Schema entries (keys, defaults, descriptions).
+	 * \param h Multi-line help text shown in detailed help.
 	 */
 	GOption(std::string n, std::string desc, std::vector<GVariable> dv, std::string h)
 		: name(n), description(desc), help(h) {
@@ -167,7 +167,7 @@ public:
 	}
 
 	/**
-	 * @brief Updates a structured sub-option using dot-notation semantics.
+	 * \brief Updates a structured sub-option using dot-notation semantics.
 	 *
 	 * @details
 	 * For a command-line payload like:
@@ -182,8 +182,8 @@ public:
 	 * - If the stored value is a YAML map: the map entry @p subkey is updated.
 	 * - If @p subkey does not exist in the stored structured value, the program exits with \c EC__NOOPTIONFOUND .
 	 *
-	 * @param subkey The sub-option key to update.
-	 * @param subvalue The new value expressed as a string; it is parsed as YAML.
+	 * \param subkey The sub-option key to update.
+	 * \param subvalue The new value expressed as a string; it is parsed as YAML.
 	 */
 	void set_sub_option_value(const std::string& subkey, const std::string& subvalue);
 
@@ -199,7 +199,7 @@ private:
 	std::vector<std::string> mandatory_keys; ///< Keys that must be present in every cumulative entry.
 
 	/**
-	 * @brief Saves the current option value to a YAML configuration file.
+	 * \brief Saves the current option value to a YAML configuration file.
 	 *
 	 * @details
 	 * Serialization behavior:
@@ -208,12 +208,12 @@ private:
 	 *
 	 * This method is invoked by the option manager during configuration snapshot writing.
 	 *
-	 * @param yamlConf Output stream for the YAML configuration file.
+	 * \param yamlConf Output stream for the YAML configuration file.
 	 */
 	void saveOption(std::ofstream* yamlConf) const;
 
 	/**
-	 * @brief Prints help text for this option.
+	 * \brief Prints help text for this option.
 	 *
 	 * @details
 	 * Output behavior:
@@ -222,12 +222,12 @@ private:
 	 *
 	 * This method is used by the option manager when generating console help output.
 	 *
-	 * @param detailed If true, prints schema defaults and extended help.
+	 * \param detailed If true, prints schema defaults and extended help.
 	 */
 	void printHelp(bool detailed) const;
 
 	/**
-	 * @brief Builds detailed help text for this option.
+	 * \brief Builds detailed help text for this option.
 	 *
 	 * @details
 	 * Detailed help includes:
@@ -235,12 +235,12 @@ private:
 	 * - the per-key description strings,
 	 * - and the free-form multi-line help text (often containing examples).
 	 *
-	 * @return Multi-line detailed help string.
+	 * \return Multi-line detailed help string.
 	 */
 	std::string detailedHelp() const;
 
 	/**
-	 * @brief Sets a scalar option value from a command-line string.
+	 * \brief Sets a scalar option value from a command-line string.
 	 *
 	 * @details
 	 * The input string is normalized for compatibility with legacy comma-delimited payloads.
@@ -248,12 +248,12 @@ private:
 	 *
 	 * This method is called by the option manager while parsing scalar command-line tokens.
 	 *
-	 * @param v Input string value.
+	 * \param v Input string value.
 	 */
 	void set_scalar_value(const std::string& v);
 
 	/**
-	 * @brief Sets the option value from a parsed YAML node.
+	 * \brief Sets the option value from a parsed YAML node.
 	 *
 	 * @details
 	 * For cumulative structured options:
@@ -266,19 +266,19 @@ private:
 	 *
 	 * This method is called by the option manager while parsing YAML files or structured command-line tokens.
 	 *
-	 * @param v Parsed YAML node.
+	 * \param v Parsed YAML node.
 	 */
 	void set_value(const YAML::Node& v);
 
 	/**
-	 * @brief Checks whether all mandatory keys are present in a candidate YAML node.
+	 * \brief Checks whether all mandatory keys are present in a candidate YAML node.
 	 *
 	 * @details
 	 * Mandatory keys are those whose schema default was \ref goptions::NODFLT : .
 	 * The check is applied to each element of a cumulative sequence.
 	 *
-	 * @param v Candidate YAML node (typically one element of a sequence).
-	 * @return True if all mandatory keys are present; false otherwise.
+	 * \param v Candidate YAML node (typically one element of a sequence).
+	 * \return True if all mandatory keys are present; false otherwise.
 	 */
 	bool does_the_option_set_all_necessary_values(const YAML::Node& v);
 

@@ -1,7 +1,7 @@
 /**
- * @file   buildSolid.cc
+ * \file   buildSolid.cc
  * @ingroup g4system_geometry
- * @brief  Implementation of the CAD-mesh solid builder for G4CadSystemFactory.
+ * \brief  Implementation of the CAD-mesh solid builder for G4CadSystemFactory.
  */
 
 // gemc

@@ -1,6 +1,6 @@
 /**
  * @defgroup gsplash_module GSplash module
- * @brief Splash-screen helper for GUI runs.
+ * \brief Splash-screen helper for GUI runs.
  *
  * This module provides the GSplash class, a small utility that shows a splash image and
  * allows overlaying status messages during application startup or long initialization phases.
@@ -11,7 +11,7 @@
 /**
  * @defgroup gsplash_core Core API
  * @ingroup gsplash_module
- * @brief Public classes and functions for the GSplash module.
+ * \brief Public classes and functions for the GSplash module.
  * @{
  */
 
@@ -20,7 +20,7 @@
 /**
  * @defgroup gsplash_examples Examples
  * @ingroup gsplash_module
- * @brief End-to-end example programs demonstrating GSplash usage.
+ * \brief End-to-end example programs demonstrating GSplash usage.
  *
  * @{
  */

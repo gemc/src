@@ -2,7 +2,7 @@
 
 /**
  * @defgroup gparticle_module gparticle
- * @brief Single-particle (and multi-particle) generator configuration and shooting utilities.
+ * \brief Single-particle (and multi-particle) generator configuration and shooting utilities.
  *
  * The gparticle module provides:
  * - A lightweight particle specification container: \ref Gparticle
@@ -13,24 +13,24 @@
 
 /**
  * @defgroup gparticle_topics Topics
- * @brief High-level documentation topics for the gparticle module.
+ * \brief High-level documentation topics for the gparticle module.
  */
 
 /**
  * @defgroup gparticle_options_topic Options and configuration
- * @brief How gparticle is configured through structured options.
+ * \brief How gparticle is configured through structured options.
  * @ingroup gparticle_topics
  */
 
 /**
  * @defgroup gparticle_examples_topic Examples
- * @brief Example programs demonstrating how to use the gparticle module.
+ * \brief Example programs demonstrating how to use the gparticle module.
  * @ingroup gparticle_topics
  */
 
 /**
- * @file gparticleDoxy.h
- * @brief Doxygen entry point for the gparticle module documentation.
+ * \file gparticleDoxy.h
+ * \brief Doxygen entry point for the gparticle module documentation.
  *
  * This header contains the module-level documentation (mainpage, groups, and
  * example links). It is intentionally not included by the code.

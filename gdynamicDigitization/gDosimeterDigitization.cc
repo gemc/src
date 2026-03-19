@@ -18,24 +18,31 @@ bool GDosimeterDigitization::defineReadoutSpecsImpl() {
 	double timeWindow    = 10;                  // electronic readout time-window of the detector
 	double gridStartTime = 0;                   // defines the windows grid
 	auto   hitBitSet     = HitBitSet("000001"); // defines what information to be stored in the hit
+	double maxStep       = 1 * CLHEP::mm;
 
 	// Readout specs are immutable after initialization and shared by all processed hits.
-	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, log);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, maxStep, log);
 
 	return true;
 }
 
 // See header for API docs.
 std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(GHit* ghit, [[maybe_unused]] size_t hitn) {
-	check_if_log_defined();
+	auto etot    = ghit->getTotalEnergyDeposited();
+	auto edepRMS = ghit->getEdepRMS();
+	auto mass    = ghit->getMass();
 
-	// Expected to be a single-identity detector: take the first identity entry.
-	GIdentifier identity = ghit->getGID().front();
+	auto dose    = etot / mass;
+	auto doseRMS = edepRMS / mass;
 
 	auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);
 
 	// Store the detector identity and the total deposited energy.
-	gdata->includeVariable("eTot", ghit->getTotalEnergyDeposited());
+	gdata->includeVariable("etot", etot / MeV);
+	gdata->includeVariable("dose", dose / gemc_units::picogray);
+	gdata->includeVariable("doseRMS", doseRMS / gemc_units::picogray);
+
+	//log->info(0, FUNCTION_NAME, "Edep: ", etot, ", hitn:", ghit->getEdeps().size());
 
 	// // Per-step information used to build the NIEL-weight.
 	// auto pids      = ghit->getPids();
@@ -65,7 +72,7 @@ std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(GHit* gh
 
 // See header for API docs.
 bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int                runno,
-                                               [[maybe_unused]] std::string const& variation) {
+											   [[maybe_unused]] std::string const& variation) {
 	// Map from particle id to the calibration filename (text, 2 columns).
 	std::map<int, std::string> nielDataFiles;
 	nielDataFiles[11]   = "niel_electron.txt";
@@ -87,7 +94,7 @@ bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int             
 			inputfile.open(dataFileWithPath);
 			if (!inputfile) {
 				log->error(EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ",
-				           dataFileWithPath);
+						   dataFileWithPath);
 			}
 		}
 
@@ -142,7 +149,7 @@ double GDosimeterDigitization::getNielFactorForParticleAtEnergy(int pid, double 
 		const auto energy_high     = E_nielfactorMap[pid][j];
 
 		value = nielfactor_low +
-			(nielfactor_high - nielfactor_low) / (energy_high - energy_low) * (energyMeV - energy_low);
+				( nielfactor_high - nielfactor_low ) / ( energy_high - energy_low ) * ( energyMeV - energy_low );
 	}
 	else if (j == 0) {
 		// energy below the first threshold: clamp to first value.

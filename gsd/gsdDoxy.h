@@ -2,15 +2,15 @@
 // Make sure that the next string after subsubsection or subsection is indexed correctly
 
 /**
- * @file gsdDoxy.h
+ * \file gsdDoxy.h
  * @ingroup gsd_module
- * @brief Doxygen documentation entry point for the GSensitiveDetector module.
+ * \brief Doxygen documentation entry point for the GSensitiveDetector module.
  */
 
 /**
  * @defgroup gsd_module gsd : GSensitiveDetector module
  *
- * @brief Sensitive-detector glue between Geant4 hit processing and GEMC digitization plugins.
+ * \brief Sensitive-detector glue between Geant4 hit processing and GEMC digitization plugins.
  *
  * This group documents the module implemented by GSensitiveDetector and its integration
  * with dynamic digitization routines.

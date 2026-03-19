@@ -38,14 +38,14 @@ public:
 	 * The progress bar represents values in the inclusive range [minimum, maximum]. The output is
 	 * throttled to at most TEXTPROGRESSBARNSTEPS printed updates across the full range.
 	 *
-	 * @param w        The visual width of the bar (number of character cells between the delimiters).
-	 * @param t        The title/prefix printed before the bar (e.g. `"  processing: "`).
-	 * @param minimum  The minimum progress value (start of the range).
-	 * @param maximum  The maximum progress value (end of the range).
-	 * @param s        The character used to open the bar (default: `'['`).
-	 * @param e        The character used to close the bar (default: `']'`).
-	 * @param m        The character used to fill completed portions of the bar (default: `'='`).
-	 * @param a        The character used to indicate the current advancing position (default: `'>'`).
+	 * \param w        The visual width of the bar (number of character cells between the delimiters).
+	 * \param t        The title/prefix printed before the bar (e.g. `"  processing: "`).
+	 * \param minimum  The minimum progress value (start of the range).
+	 * \param maximum  The maximum progress value (end of the range).
+	 * \param s        The character used to open the bar (default: `'['`).
+	 * \param e        The character used to close the bar (default: `']'`).
+	 * \param m        The character used to fill completed portions of the bar (default: `'='`).
+	 * \param a        The character used to indicate the current advancing position (default: `'>'`).
 	 *
 	 * \note If the range is too small to compute a meaningful step size, updates may be suppressed
 	 * (see TextProgressBar::setProgress "setProgress()").
@@ -79,7 +79,7 @@ public:
 	 *   for throttled printing.
 	 * - The provided value is outside the configured range (\c p < min or \c p > max).
 	 *
-	 * @param p Current progress value (typically a loop index or processed item count).
+	 * \param p Current progress value (typically a loop index or processed item count).
 	 */
 	void setProgress(int p);
 

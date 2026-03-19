@@ -1,12 +1,10 @@
 // geant4
 #include "G4RunManagerFactory.hh"
 #include "G4VisExecutive.hh"
-
 #include "G4UIterminal.hh"
 #include "G4UItcsh.hh"
-
 #include "G4UIQt.hh"
-//#include "G4TransportationParameters.hh"
+#include "G4TransportationParameters.hh"
 
 // gemc
 #include "gemc_options.h"
@@ -26,6 +24,7 @@ int main(int argc, char* argv[]) {
 	auto gui      = gopts->getSwitch("gui");
 	auto nthreads = gemc::get_nthreads(gopts, log);
 
+
 	// createQtApplication returns a QApplication if gui is true
 	// otherwise, it returns a QCoreApplication and sets the Geant4 CoutDestination to a GBatch_Session
 	auto app = gemc::makeQtApplication(argc, argv, gui);
@@ -33,15 +32,20 @@ int main(int argc, char* argv[]) {
 	// splash screen - nullptr if in batch mode
 	auto spash_screen = GSplash::create(gopts, "gemcArchitecture");
 
-	// init geant4 run manager with then number of threads coming from options. always fails if unavailable
-	auto runManager = std::unique_ptr<G4RunManager>(G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default, true, nthreads));
 
 	// random engine set by options
 	gemc::start_random_engine(gopts, log);
 
+	// init geant4 run manager with then number of threads coming from options. always fails if unavailable
+	auto runManager = std::unique_ptr<G4RunManager>(G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default, true, nthreads));
+
+
 	// must be a raw pointer because geant4 takes ownership
 	auto gdetector = new GDetectorConstruction(gopts);
 	runManager->SetUserInitialization(gdetector);
+
+	// define new units
+	gemc::define_new_gemc_units();
 
 	// starting gphysics, exit immediately if phys list requested
 	auto gphysics = new GPhysics(gopts);
@@ -55,16 +59,17 @@ int main(int argc, char* argv[]) {
 	auto verbosities = gemc::verbosity_commands(gopts, log);
 	gemc::run_manager_commands(gopts, log, verbosities);
 
-	//
-	// G4double warningE = 10.0 * CLHEP::keV;
-	// G4double importantE = 1 * CLHEP::GeV;
-	// G4int numTrials = 30;
-	//
-	// auto transportParams = G4TransportationParameters::Instance();
-	// transportParams->SetWarningEnergy(warningE);
-	// transportParams->SetImportantEnergy(importantE);
-	// transportParams->SetNumberOfTrials(numTrials);
-	//
+
+
+	G4double warningE = 10.0 * CLHEP::keV;
+	G4double importantE = 1 * CLHEP::GeV;
+	G4int numTrials = 30;
+
+	auto transportParams = G4TransportationParameters::Instance();
+	transportParams->SetWarningEnergy(warningE);
+	transportParams->SetImportantEnergy(importantE);
+	transportParams->SetNumberOfTrials(numTrials);
+
 
 
 	// G4VisExecutive can take a verbosity argument - see /vis/verbose guidance

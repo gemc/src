@@ -1,6 +1,6 @@
 /**
- * @file gdetector_example.cc
- * @brief Example: build detector geometry, load digitization routines, and run a small
+ * \file gdetector_example.cc
+ * \brief Example: build detector geometry, load digitization routines, and run a small
  *        multi-threaded digitization loop.
  *
  * @anchor gdetector_example
@@ -35,7 +35,7 @@
 
 
 /**
- * @brief Runs a digitization loop across multiple worker threads and collects event data.
+ * \brief Runs a digitization loop across multiple worker threads and collects event data.
  *
  * Each worker thread:
  * - Claims the next event number via an atomic counter
@@ -45,13 +45,13 @@
  * - Creates a fixed number of synthetic hits and digitizes them
  * - Optionally logs a summary of digitized hit counts
  *
- * @param nevents   Total number of events to process.
- * @param nthreads  Number of worker threads to run.
- * @param gopts     Shared options instance used to configure created objects.
- * @param log       Shared logger instance used for informational and debug output.
- * @param gdetector Detector-construction object providing digitization routines.
+ * \param nevents   Total number of events to process.
+ * \param nthreads  Number of worker threads to run.
+ * \param gopts     Shared options instance used to configure created objects.
+ * \param log       Shared logger instance used for informational and debug output.
+ * \param gdetector Detector-construction object providing digitization routines.
  *
- * @return Vector of collected event data objects.
+ * \return Vector of collected event data objects.
  *
  * @note This function demonstrates the threading pattern only; the example uses a fixed
  *       sensitive detector name ("flux") and synthetic hit generation for clarity.
@@ -154,7 +154,7 @@ auto run_simulation_in_threads(int                                              
 
 
 /**
- * @brief Example program entry point.
+ * \brief Example program entry point.
  *
  * This program:
  * - Builds a GOptions instance using gdetector::defineOptions()
@@ -163,9 +163,9 @@ auto run_simulation_in_threads(int                                              
  * - Constructs \ref GDetectorConstruction and reloads geometry from system definitions
  * - Runs a small multi-threaded digitization loop
  *
- * @param argc Standard program argument count.
- * @param argv Standard program argument vector.
- * @return Process exit code.
+ * \param argc Standard program argument count.
+ * \param argv Standard program argument vector.
+ * \return Process exit code.
  */
 int main(int argc, char* argv[]) {
 	// Create GOptions using gdata::defineOptions, which aggregates options from gdata and gtouchable.

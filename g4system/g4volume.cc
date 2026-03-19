@@ -1,7 +1,7 @@
 /**
-* @file   g4volume.cc
+* \file   g4volume.cc
  * @ingroup g4system_geometry
- * @brief  Implementation of the small pointer-holder utilities in G4Volume.
+ * \brief  Implementation of the small pointer-holder utilities in G4Volume.
  */
 
 #include "g4volume.h"

@@ -1,8 +1,8 @@
 #pragma once
 /**
- * @file   g4volume.h
+ * \file   g4volume.h
  * @ingroup g4system_geometry
- * @brief  Thin wrapper that stores the Geant4 solid/logical/physical triple for one GEMC volume.
+ * \brief  Thin wrapper that stores the Geant4 solid/logical/physical triple for one GEMC volume.
  *
  * @details
  * g4system factories progressively build Geant4 geometry in three stages:
@@ -33,7 +33,7 @@
 /**
  * @class G4Volume
  * @ingroup g4system_geometry
- * @brief Convenience container holding a Geant4 *solid*, *logical*, and *physical* volume.
+ * \brief Convenience container holding a Geant4 *solid*, *logical*, and *physical* volume.
  *
  * @details
  * A G4Volume instance is typically created and cached in a map keyed by the Geant4 volume name.
@@ -50,12 +50,12 @@ class G4Volume
 {
 public:
 	/**
-	 * @brief Default construct an empty wrapper (all pointers set to \c nullptr).
+	 * \brief Default construct an empty wrapper (all pointers set to \c nullptr).
 	 */
 	G4Volume() = default;
 
 	/**
-	 * @brief Destructor (no-op).
+	 * \brief Destructor (no-op).
 	 * @details This class does not own the stored pointers.
 	 */
 	~G4Volume() = default;
@@ -63,30 +63,30 @@ public:
 	// ────── getters ────────────────────────────────────────────────
 
 	/**
-	 * @brief Return the stored \c G4VSolid pointer.
-	 * @return Raw pointer, possibly \c nullptr if the solid has not been created yet.
+	 * \brief Return the stored \c G4VSolid pointer.
+	 * \return Raw pointer, possibly \c nullptr if the solid has not been created yet.
 	 */
 	[[nodiscard]] G4VSolid* getSolid() const noexcept { return solidVolume; }
 
 	/**
-	 * @brief Return the stored \c G4LogicalVolume pointer.
-	 * @return Raw pointer, possibly \c nullptr if the logical volume has not been created yet.
+	 * \brief Return the stored \c G4LogicalVolume pointer.
+	 * \return Raw pointer, possibly \c nullptr if the logical volume has not been created yet.
 	 */
 	[[nodiscard]] G4LogicalVolume* getLogical() const noexcept { return logicalVolume; }
 
 	/**
-	 * @brief Return the stored \c G4VPhysicalVolume pointer.
-	 * @return Raw pointer, possibly \c nullptr if the physical volume has not been placed yet.
+	 * \brief Return the stored \c G4VPhysicalVolume pointer.
+	 * \return Raw pointer, possibly \c nullptr if the physical volume has not been placed yet.
 	 */
 	[[nodiscard]] G4VPhysicalVolume* getPhysical() const noexcept { return physicalVolume; }
 
 	// ────── setters ────────────────────────────────────────────────
 
 	/**
-	 * @brief Store a \c G4VSolid pointer and log the assignment.
+	 * \brief Store a \c G4VSolid pointer and log the assignment.
 	 *
-	 * @param s   Solid pointer to store (may be \c nullptr).
-	 * @param log Logger used for debug output.
+	 * \param s   Solid pointer to store (may be \c nullptr).
+	 * \param log Logger used for debug output.
 	 *
 	 * @details
 	 * The call only stores the pointer; it does not validate or take ownership.
@@ -94,10 +94,10 @@ public:
 	void setSolid(G4VSolid* s, const std::shared_ptr<GLogger>& log);
 
 	/**
-	 * @brief Store a \c G4LogicalVolume pointer and log the assignment.
+	 * \brief Store a \c G4LogicalVolume pointer and log the assignment.
 	 *
-	 * @param l   Logical volume pointer to store (may be \c nullptr).
-	 * @param log Logger used for debug output.
+	 * \param l   Logical volume pointer to store (may be \c nullptr).
+	 * \param log Logger used for debug output.
 	 *
 	 * @details
 	 * The call only stores the pointer; it does not validate or take ownership.
@@ -105,10 +105,10 @@ public:
 	void setLogical(G4LogicalVolume* l, const std::shared_ptr<GLogger>& log);
 
 	/**
-	 * @brief Store a \c G4VPhysicalVolume pointer and log the assignment.
+	 * \brief Store a \c G4VPhysicalVolume pointer and log the assignment.
 	 *
-	 * @param p   Physical volume pointer to store (may be \c nullptr).
-	 * @param log Logger used for debug output.
+	 * \param p   Physical volume pointer to store (may be \c nullptr).
+	 * \param log Logger used for debug output.
 	 *
 	 * @details
 	 * The call only stores the pointer; it does not validate or take ownership.
@@ -116,10 +116,10 @@ public:
 	void setPhysical(G4VPhysicalVolume* p, const std::shared_ptr<GLogger>& log);
 
 	/**
-	 * @brief Attach a \c G4FieldManager to the stored logical volume, if present.
+	 * \brief Attach a \c G4FieldManager to the stored logical volume, if present.
 	 *
-	 * @param fm                  Field manager to attach.
-	 * @param forceToAllDaughters If \c true, propagate the field manager to all daughter logical volumes.
+	 * \param fm                  Field manager to attach.
+	 * \param forceToAllDaughters If \c true, propagate the field manager to all daughter logical volumes.
 	 *
 	 * @details
 	 * If no logical volume has been created yet (\ref G4Volume::getLogical "getLogical()" returns \c nullptr),

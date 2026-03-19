@@ -1,8 +1,8 @@
 /**
- * @file gtree_example.cc
+ * \file gtree_example.cc
  * @anchor gtree_example
  * @ingroup gtree_module
- * @brief Example application demonstrating how to instantiate and run the GTree widget.
+ * \brief Example application demonstrating how to instantiate and run the GTree widget.
  *
  * @details
  * This example shows a minimal workflow:
@@ -40,11 +40,11 @@
 
 
 /**
- * @brief Example program entry point that launches the geometry tree browser.
+ * \brief Example program entry point that launches the geometry tree browser.
  *
- * @param argc Standard command line argument count.
- * @param argv Standard command line argument vector.
- * @return Process exit code. In GUI mode this is the Qt application return code.
+ * \param argc Standard command line argument count.
+ * \param argv Standard command line argument vector.
+ * \return Process exit code. In GUI mode this is the Qt application return code.
  *
  * @details
  * Execution outline:

@@ -2,7 +2,7 @@
 
 /**
  * @defgroup gparticle_options_topic Options and configuration
- * @brief How gparticle is configured through structured options.
+ * \brief How gparticle is configured through structured options.
  *
  * @ingroup gparticle_topics
  */
@@ -16,8 +16,8 @@
 constexpr const char* GPARTICLE_LOGGER = "gparticle";
 
 /**
- * @file gparticle_options.h
- * @brief Public API for defining and parsing gparticle-related options.
+ * \file gparticle_options.h
+ * \brief Public API for defining and parsing gparticle-related options.
  *
  * This header contains the authoritative documentation for the option utilities.
  * The corresponding implementation file only provides a short non-Doxygen
@@ -28,7 +28,7 @@ constexpr const char* GPARTICLE_LOGGER = "gparticle";
 
 namespace gparticle {
 /**
- * @brief Defines the structured options used by the gparticle module.
+ * \brief Defines the structured options used by the gparticle module.
  *
  * This function returns a fully populated GOptions instance containing the
  * option specification for \c -gparticle.
@@ -40,14 +40,14 @@ namespace gparticle {
  * The help text produced by this option definition includes usage guidance
  * and examples of the supported syntax.
  *
- * @return A GOptions instance containing the gparticle option schema.
+ * \return A GOptions instance containing the gparticle option schema.
  *
  * @ingroup gparticle_options_topic
  */
 GOptions defineOptions();
 
 /**
- * @brief Builds the list of generator particles from structured options.
+ * \brief Builds the list of generator particles from structured options.
  *
  * This function reads the \c gparticle option node from the provided GOptions
  * instance and creates a \c std::vector of \ref Gparticle shared pointers.
@@ -60,10 +60,10 @@ GOptions defineOptions();
  * The provided logger is passed to each \ref Gparticle instance to ensure that
  * particle-level diagnostics are emitted consistently.
  *
- * @param gopts The parsed option container that holds the \c gparticle node.
- * @param logger Logger used for diagnostics and propagated into each particle.
+ * \param gopts The parsed option container that holds the \c gparticle node.
+ * \param logger Logger used for diagnostics and propagated into each particle.
  *
- * @return Vector of \ref Gparticle instances representing the configured primaries.
+ * \return Vector of \ref Gparticle instances representing the configured primaries.
  *
  * @ingroup gparticle_options_topic
  */

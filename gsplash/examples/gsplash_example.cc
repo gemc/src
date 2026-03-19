@@ -1,7 +1,7 @@
 /**
- * @file gsplash_example.cc
+ * \file gsplash_example.cc
  * @ingroup gsplash_examples
- * @brief Example program demonstrating GSplash usage in GUI and CLI modes.
+ * \brief Example program demonstrating GSplash usage in GUI and CLI modes.
  *
  * \anchor gsplash_example
  *
@@ -26,7 +26,7 @@
 #include <QMainWindow>
 
 /**
- * @brief Entry point for the GSplash example.
+ * \brief Entry point for the GSplash example.
  *
  * The program demonstrates two execution modes:
  * - GUI mode: enabled by the \c --gui switch, creates a \c QApplication, shows a main window, and displays a splash.
@@ -34,9 +34,9 @@
  *
  * The timeout value is read from the \c tt scalar option and used to exit the GUI event loop.
  *
- * @param argc Number of command-line arguments.
- * @param argv Array of command-line arguments.
- * @return EXIT_SUCCESS on normal completion.
+ * \param argc Number of command-line arguments.
+ * \param argv Array of command-line arguments.
+ * \return EXIT_SUCCESS on normal completion.
  */
 int main(int argc, char* argv[]) {
 	// Initialize options and logging for the module.

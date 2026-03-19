@@ -13,10 +13,10 @@
  * @section topics_sec Topics
  *
  * @defgroup gdetector_module gdetector module (geometry + SD/field + digitization bridge)
- * @brief Core APIs and implementation for building geometry and installing SD/field and digitization.
+ * \brief Core APIs and implementation for building geometry and installing SD/field and digitization.
  *
  * @defgroup gdetector_examples gdetector examples
- * @brief Runnable examples showing typical module usage patterns.
+ * \brief Runnable examples showing typical module usage patterns.
  *
  * @ingroup gdetector_module
  *

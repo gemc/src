@@ -14,7 +14,7 @@
 
 /**
  * @typedef dlhandle
- * @brief Opaque handle returned by \c dlopen and consumed by \c dlsym / \c dlclose.
+ * \brief Opaque handle returned by \c dlopen and consumed by \c dlsym / \c dlclose.
  */
 typedef void* dlhandle;
 
@@ -29,7 +29,7 @@ static void     close_lib(dlhandle handle);
 
 /**
  * @struct DynamicLib
- * @brief Helper that loads a shared library and holds its POSIX handle.
+ * \brief Helper that loads a shared library and holds its POSIX handle.
  *
  * This structure centralizes:
  * - *file discovery* (try user path, then GEMC install `lib/`, then `build/` for test runs),
@@ -54,9 +54,9 @@ private:
 	std::string dlFileName;
 
 	/**
-	 * @brief Check whether a file exists on disk.
-	 * @param name Path to check.
-	 * @return true if the file exists and `stat()` succeeds.
+	 * \brief Check whether a file exists on disk.
+	 * \param name Path to check.
+	 * \return true if the file exists and `stat()` succeeds.
 	 */
 	bool doesFileExists(const std::string& name) {
 		struct stat buffer{};
@@ -71,10 +71,10 @@ public:
 	DynamicLib() = default;
 
 	/**
-	 * @brief Construct and attempt to load a dynamic library.
+	 * \brief Construct and attempt to load a dynamic library.
 	 *
-	 * @param logger Logger used for messages and errors.
-	 * @param path   Library filename or path (e.g., `myplugin.gplugin`).
+	 * \param logger Logger used for messages and errors.
+	 * \param path   Library filename or path (e.g., `myplugin.gplugin`).
 	 *
 	 * The constructor attempts multiple locations (see class description) and, if found,
 	 * opens the library via \c load_lib().
@@ -116,14 +116,14 @@ public:
 	}
 
 	/**
-	 * @brief POSIX handle of the dynamic library.
+	 * \brief POSIX handle of the dynamic library.
 	 *
 	 * This is the value returned by \c dlopen and is later consumed by \c dlsym.
 	 */
 	dlhandle handle = nullptr;
 
 	/**
-	 * @brief Destructor closes the library handle (if loaded).
+	 * \brief Destructor closes the library handle (if loaded).
 	 *
 	 * @note \c dlclose is called only if \ref handle "handle" is not null.
 	 */
@@ -137,15 +137,15 @@ public:
 
 
 /**
- * @brief Open a shared library using \c dlopen.
+ * \brief Open a shared library using \c dlopen.
  *
  * This helper attempts:
  * - direct open if the caller supplied an explicit path (contains `/`), else
  * - open from the current working directory (`./<lib>`), then
  * - fall back to the system search path (`LD_LIBRARY_PATH`, RPATH/RUNPATH, system dirs).
  *
- * @param lib Library name or path.
- * @return A non-null handle on success; null on failure. Caller may inspect \c dlerror.
+ * \param lib Library name or path.
+ * \return A non-null handle on success; null on failure. Caller may inspect \c dlerror.
  */
 dlhandle load_lib(const std::string& lib) // never throws
 {
@@ -166,7 +166,7 @@ dlhandle load_lib(const std::string& lib) // never throws
 }
 
 /**
- * @brief Close a library handle using \c dlclose.
- * @param handle Handle returned by \c dlopen.
+ * \brief Close a library handle using \c dlclose.
+ * \param handle Handle returned by \c dlopen.
  */
 static void close_lib(dlhandle handle) { dlclose(handle); }

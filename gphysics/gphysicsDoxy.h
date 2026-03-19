@@ -3,7 +3,7 @@
 /**
  * @defgroup gphysics_module gphysics module : Geant4 physics list selection and construction
  *
- * @brief Module responsible for selecting and instantiating a Geant4 physics list from user options.
+ * \brief Module responsible for selecting and instantiating a Geant4 physics list from user options.
  *
  * This module provides a small integration layer between GEMC options (via GOptions) and
  * Geant4 physics list factories. It enables users to select a reference physics list and to

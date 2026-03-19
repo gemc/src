@@ -56,7 +56,7 @@
  * from the detector collections and passes them to plugin hooks as read-only views.
  *
  * The buffer is flushed when:
- * - the number of queued events reaches \ref bufferFlushLimit
+ * - the number of queued events reaches \c bufferFlushLimit
  * - \ref closeConnection "closeConnection()" is called
  * - \ref startStream "startStream()" is called, to avoid mixing buffered event data with frame data
  *
@@ -129,7 +129,7 @@ public:
 	 * \brief Queue one event for publication.
 	 *
 	 * The event is appended to the internal event buffer. Once the number of buffered events reaches
-	 * \ref bufferFlushLimit, the base class flushes the entire buffer by calling the event publish
+	 * \c bufferFlushLimit, the base class flushes the entire buffer by calling the event publish
 	 * hook sequence on the derived plugin.
 	 *
 	 * \param event_data Event data collection to publish.

@@ -1,10 +1,10 @@
 /**
- * @file test_dbselect.cc
+ * \file test_dbselect.cc
  * @ingroup dbselect_module
  *
  * @anchor test_dbselect
  *
- * @brief Example program demonstrating how to use the dbselect module in GUI or CLI mode.
+ * \brief Example program demonstrating how to use the dbselect module in GUI or CLI mode.
  *
  * Summary:
  * This example creates a GOptions instance using dbselect::defineOptions(), initializes
@@ -42,7 +42,7 @@
 
 
 /**
- * @brief Program entry point for the dbselect example.
+ * \brief Program entry point for the dbselect example.
  *
  * Responsibilities:
  * - Build a shared GOptions configuration from argc/argv using dbselect::defineOptions().
@@ -55,9 +55,9 @@
  * - Otherwise:
  *   - run in CLI mode (currently a minimal stub returning success).
  *
- * @param argc Standard command-line argument count.
- * @param argv Standard command-line argument vector.
- * @return Application exit code (Qt loop exit code in GUI mode, otherwise \c EXIT_SUCCESS).
+ * \param argc Standard command-line argument count.
+ * \param argv Standard command-line argument vector.
+ * \return Application exit code (Qt loop exit code in GUI mode, otherwise \c EXIT_SUCCESS).
  */
 int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, dbselect::defineOptions());

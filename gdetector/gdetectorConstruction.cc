@@ -3,6 +3,7 @@
 #include "gdetector_options.h"
 
 // gemc
+#include "gdynamicdigitizationConventions.h"
 #include "gtouchableConventions.h"
 #include "gsystemConventions.h"
 #include "gDosimeterDigitization.h"
@@ -17,7 +18,7 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4ReflectionFactory.hh"
 #include "G4RunManager.hh"
-#include "gdynamicdigitizationConventions.h"
+#include "G4UserLimits.hh"
 
 G4ThreadLocal GMagneto* GDetectorConstruction::gmagneto = nullptr;
 
@@ -64,8 +65,8 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 
 	// tally with number :
 	log->info(0, "Tally summary: \n - ", gworld->get_number_of_volumes() - 1, " volumes\n - ",
-	          g4world->number_of_volumes(), " geant4 built volumes\n - ",
-	          nsdetectors, " sensitive detectors\n");
+			  g4world->number_of_volumes(), " geant4 built volumes\n - ",
+			  nsdetectors, " sensitive detectors\n");
 
 
 	// Return the physical volume for the ROOT world volume.
@@ -100,14 +101,14 @@ void GDetectorConstruction::ConstructSDandField() {
 					auto copyG4Volume = g4world->getG4Volume(volume_copy)->getLogical();
 					if (copyG4Volume != nullptr) { g4volume = copyG4Volume; }
 					else {
-						log->error(ERR_GVOLUMENOTFOUND, FUNCTION_NAME, " Logical volume copy <" + volume_copy + "> not found.");
+						log->error(ERR_GVOLUMENOTFOUND, FUNCTION_NAME,
+								   " Logical volume copy <" + volume_copy + "> not found.");
 					}
 				}
 			}
 			if (g4volume == nullptr) {
-						log->error(ERR_GVOLUMENOTFOUND, FUNCTION_NAME, " Logical volume <" + g4name + "> not found.");
+				log->error(ERR_GVOLUMENOTFOUND, FUNCTION_NAME, " Logical volume <" + g4name + "> not found.");
 			}
-
 
 			// Skip volumes with no digitization.
 			if (digitizationName != "" && digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
@@ -117,19 +118,30 @@ void GDetectorConstruction::ConstructSDandField() {
 
 					sensitiveDetectorsMap[digitizationName] = new GSensitiveDetector(digitizationName, gopt);
 				}
-				else { log->info(2, "Sensitive detector <", digitizationName, "> is already created and available for volume <", g4name, ">"); }
+				else {
+					log->info(2, "Sensitive detector <", digitizationName,
+							  "> is already created and available for volume <", g4name, ">");
+				}
 
 				// Register the volume touchable with the sensitive detector.
 				// The touchable encodes identity and dimension metadata needed by digitization.
 				const auto& vdimensions     = gvolumePtr->getDetectorDimensions();
 				const auto& identity        = gvolumePtr->getGIdentity();
-				auto        this_gtouchable = std::make_shared<GTouchable>(gopt, digitizationName, identity, vdimensions);
+				const auto& mass            = g4volume->GetMass();
+				auto        this_gtouchable = std::make_shared<
+					GTouchable>(gopt, digitizationName, identity, vdimensions, mass);
 				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name, this_gtouchable);
 
 				// Register the detector with Geant4 and attach it to the logical volume.
 				sdManager->AddNewDetector(sensitiveDetectorsMap[digitizationName]);
 				g4volume->SetSensitiveDetector(sensitiveDetectorsMap[digitizationName]);
-				log->info(2, "Logical Volume  <" + g4name + "> has been successfully assigned to SD.", sensitiveDetectorsMap[digitizationName]);
+
+				//	auto maxStep =
+
+				//g4volume->SetUserLimits(new G4UserLimits(0.1*mm, 0.1*mm));
+
+				log->info(2, "Logical Volume  <" + g4name + "> has been successfully assigned to SD.",
+						  sensitiveDetectorsMap[digitizationName]);
 			}
 
 			// Process electromagnetic fields.
@@ -138,7 +150,8 @@ void GDetectorConstruction::ConstructSDandField() {
 			const auto& field_name = gvolumePtr->getEMField();
 			if (field_name != "" && field_name != UNINITIALIZEDSTRINGQUANTITY) {
 				if (gmagneto == nullptr) { gmagneto = new GMagneto(gopt); }
-				log->info(2, "Volume <", volumeName, "> has field: <", field_name, ">. Looking into field map definitions.");
+				log->info(2, "Volume <", volumeName, "> has field: <", field_name,
+						  ">. Looking into field map definitions.");
 				log->info(2, "Setting field manager for volume <", g4name, "> with field <", field_name, ">");
 				g4world->setFieldManagerForVolume(g4name, gmagneto->getFieldMgr(field_name).get(), true);
 			}
@@ -152,8 +165,27 @@ void GDetectorConstruction::ConstructSDandField() {
 	// Bind each digitization routine to its corresponding sensitive detector.
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
 	for (auto& sdname : sdetectors) {
-		sensitiveDetectorsMap[sdname]->assign_digi_routine(digitization_routines_map->at(sdname));
-		log->info(1, "Digitization routine <" + sdname + "> has been successfully assigned to SD.", sensitiveDetectorsMap[sdname]);
+		auto   digitization_routine = digitization_routines_map->at(sdname);
+		double maxStep              = digitization_routine->readoutSpecs->getMaxStep();
+
+		sensitiveDetectorsMap[sdname]->assign_digi_routine(digitization_routine);
+		log->info(1, "Digitization routine <" + sdname + "> has been successfully assigned to SD.",
+				  sensitiveDetectorsMap[sdname]);
+
+		// Loop over all systems and their volumes.
+		// and assign max step to the corresponding logical volume
+		for (const auto& [systemName, gsystemPtr] : *gworld->getSystemsMap()) {
+			for (const auto& [volumeName, gvolumePtr] : gsystemPtr->getGVolumesMap()) {
+				auto const& digitizationName = gvolumePtr->getDigitization();
+				if (digitizationName == sdname) {
+					auto const& g4name   = gvolumePtr->getG4Name();
+					auto*       g4volume = g4world->getG4Volume(g4name)->getLogical();
+					g4volume->SetUserLimits(new G4UserLimits(maxStep, maxStep));
+					log->info(1, "Setting G4UserLimits for volume <", g4name, "> with maxStep <", maxStep, ">");
+				}
+			}
+		}
+
 	}
 }
 
@@ -183,7 +215,9 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 		// Ensure each routine uses the correct logger and is configured for readout.
 		digitization_routines_map->at(sdname)->set_loggers(gopt);
 
-		if (digitization_routines_map->at(sdname)->defineReadoutSpecs()) { log->info(1, "Digitization routine <" + sdname + "> has been successfully defined."); }
+		if (digitization_routines_map->at(sdname)->defineReadoutSpecs()) {
+			log->info(1, "Digitization routine <" + sdname + "> has been successfully defined.");
+		}
 		else { log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">"); }
 	}
 }

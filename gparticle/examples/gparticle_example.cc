@@ -1,6 +1,6 @@
 /**
- * @file gparticle_example.cc
- * @brief Example program demonstrating option parsing for the gparticle module.
+ * \file gparticle_example.cc
+ * \brief Example program demonstrating option parsing for the gparticle module.
  *
  * This example shows how to:
  * - Build the gparticle option schema using gparticle::defineOptions()
@@ -30,7 +30,7 @@
 
 
 /**
- * @brief Program entry point.
+ * \brief Program entry point.
  *
  * The program performs the following steps:
  * 1. Creates a GOptions instance that includes the gparticle option definitions.
@@ -40,9 +40,9 @@
  * 5. Parses the configured particles by calling gparticle::getGParticles().
  * 6. Cleans up the run manager and exits.
  *
- * @param argc Number of command-line arguments.
- * @param argv Command-line arguments.
- * @return Process exit code.
+ * \param argc Number of command-line arguments.
+ * \param argv Command-line arguments.
+ * \return Process exit code.
  */
 int main(int argc, char* argv[]) {
 	// Build options with the gparticle schema so -gparticle can be parsed.

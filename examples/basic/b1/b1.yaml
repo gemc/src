@@ -1,14 +1,14 @@
 experiment: examples
 runno: 1
-n: 50
-nthreads: 4
+n: 500
+nthreads: 2
 
 gparticle:
   - name: gamma
     p: 6
-    vz: -17
-    delta_vx: 3
-    delta_vy: 3
+    vz: -15
+    delta_vx: 0.0
+    delta_vy: 0.0
     multiplicity: 1
 
 verbosity:

@@ -1,8 +1,8 @@
 #pragma once
 /**
- * @file   g4systemConventions.h
+ * \file   g4systemConventions.h
  * @ingroup g4system
- * @brief  Conventions, labels, and error codes used by the g4system geometry/material layer.
+ * \brief  Conventions, labels, and error codes used by the g4system geometry/material layer.
  *
  * @details
  * This header centralizes:

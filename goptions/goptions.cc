@@ -1,6 +1,6 @@
 /**
- * @file goptions.cc
- * @brief Implementation of \ref GOptions : the command-line and YAML option manager.
+ * \file goptions.cc
+ * \brief Implementation of \ref GOptions : the command-line and YAML option manager.
  *
  * @details
  * Documentation for the public API lives in `goptions.h`. This translation unit focuses on
@@ -188,7 +188,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	saveOptions();
 }
 
-// Implementation note: public API docs are in goptions.h (avoid duplicate @param blocks).
+// Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 void GOptions::defineSwitch(const std::string& name, const std::string& description) {
 	if (switches.find(name) == switches.end()) {
 		switches[name] = GSwitch(description);
@@ -200,7 +200,7 @@ void GOptions::defineSwitch(const std::string& name, const std::string& descript
 	}
 }
 
-// Implementation note: public API docs are in goptions.h (avoid duplicate @param blocks).
+// Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 void GOptions::defineOption(const GVariable& gvar, const std::string& help) {
 	if (doesOptionExist(gvar.name)) {
 		std::cerr << FATALERRORL << "The " << YELLOWHHL << gvar.name << RSTHHR
@@ -212,7 +212,7 @@ void GOptions::defineOption(const GVariable& gvar, const std::string& help) {
 	}
 }
 
-// Implementation note: public API docs are in goptions.h (avoid duplicate @param blocks).
+// Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 void GOptions::defineOption(const std::string&            name, const std::string& description,
                             const std::vector<GVariable>& gvars,
                             const std::string&            help) {
@@ -226,7 +226,7 @@ void GOptions::defineOption(const std::string&            name, const std::strin
 	}
 }
 
-// Implementation note: public API docs are in goptions.h (avoid duplicate @param blocks).
+// Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 int GOptions::getScalarInt(const std::string& tag) const {
 	auto it = getOptionIterator(tag);
 	if (it == goptions.end()) {
@@ -237,7 +237,7 @@ int GOptions::getScalarInt(const std::string& tag) const {
 	return it->value.begin()->second.as<int>();
 }
 
-// Implementation note: public API docs are in goptions.h (avoid duplicate @param blocks).
+// Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 double GOptions::getScalarDouble(const std::string& tag) const {
 	auto it = getOptionIterator(tag);
 	if (it == goptions.end()) {
@@ -248,7 +248,7 @@ double GOptions::getScalarDouble(const std::string& tag) const {
 	return it->value.begin()->second.as<double>();
 }
 
-// Implementation note: public API docs are in goptions.h (avoid duplicate @param blocks).
+// Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 std::string GOptions::getScalarString(const std::string& tag) const {
 	auto it = getOptionIterator(tag);
 	if (it == goptions.end()) {
@@ -378,7 +378,7 @@ std::vector<GOption>::const_iterator GOptions::getOptionIterator(const std::stri
 	                    [&name](const GOption& option) { return option.name == name; });
 }
 
-// Implementation note: public API docs are in goptions.h (avoid duplicate @param blocks).
+// Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 bool GOptions::getSwitch(const std::string& tag) const {
 	auto it = switches.find(tag);
 	if (it != switches.end()) {
@@ -391,7 +391,7 @@ bool GOptions::getSwitch(const std::string& tag) const {
 	}
 }
 
-// Implementation note: public API docs are in goptions.h (avoid duplicate @param blocks).
+// Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 YAML::Node GOptions::getOptionMapInNode(const string& option_name, const string& map_key) const {
 	auto sequence_node = getOptionNode(option_name);
 
@@ -408,7 +408,7 @@ YAML::Node GOptions::getOptionMapInNode(const string& option_name, const string&
 	exit(EC__NOOPTIONFOUND);
 }
 
-// Template documentation lives in the header to avoid duplicate @param blocks.
+// Template documentation lives in the header to avoid duplicate \param blocks.
 template <typename T>
 T GOptions::get_variable_in_option(const YAML::Node& node, const std::string& variable_name, const T& default_value) {
 	if (node[variable_name]) {
@@ -427,7 +427,7 @@ template string GOptions::get_variable_in_option<string>(const YAML::Node& node,
 template bool GOptions::get_variable_in_option<bool>(const YAML::Node& node, const std::string& variable_name,
                                                      const bool&       default_value);
 
-// Implementation note: public API docs are in goptions.h (avoid duplicate @param blocks).
+// Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 int GOptions::getVerbosityFor(const std::string& tag) const {
 	YAML::Node verbosity_node = getOptionNode("verbosity");
 	for (auto v : verbosity_node) {
@@ -441,7 +441,7 @@ int GOptions::getVerbosityFor(const std::string& tag) const {
 	exit(EC__NOOPTIONFOUND);
 }
 
-// Implementation note: public API docs are in goptions.h (avoid duplicate @param blocks).
+// Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 int GOptions::getDebugFor(const std::string& tag) const {
 	YAML::Node debug_node = getOptionNode("debug");
 	for (auto d : debug_node) {
@@ -466,7 +466,7 @@ int GOptions::getDebugFor(const std::string& tag) const {
 	exit(EC__NOOPTIONFOUND);
 }
 
-// Private method: no Doxygen block here to avoid duplicate @param docs.
+// Private method: no Doxygen block here to avoid duplicate \param docs.
 void GOptions::printHelp() const {
 	long int fill_width = string(HELPFILLSPACE).size() + 1;
 	cout.fill('.');
@@ -509,12 +509,12 @@ void GOptions::printHelp() const {
 	exit(EXIT_SUCCESS);
 }
 
-// Private method: no Doxygen block here to avoid duplicate @param docs.
+// Private method: no Doxygen block here to avoid duplicate \param docs.
 void GOptions::printWebHelp() const {
 	exit(EXIT_SUCCESS);
 }
 
-// Private method: no Doxygen block here to avoid duplicate @param docs.
+// Private method: no Doxygen block here to avoid duplicate \param docs.
 void GOptions::saveOptions() const {
 	for (auto& s : switches) {
 		string status = s.second.getStatus() ? "true" : "false";
@@ -526,7 +526,7 @@ void GOptions::saveOptions() const {
 	yamlConf->close();
 }
 
-// Private method: no Doxygen block here to avoid duplicate @param docs.
+// Private method: no Doxygen block here to avoid duplicate \param docs.
 void GOptions::print_version() {
 	string asterisks = "*******************************************************************";
 	cout << endl << asterisks << endl;

@@ -25,7 +25,6 @@ GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts
 // inject the corresponding primary information into the current event.
 void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 	for (const auto& gparticle : gparticles) {
-		log->info(2, gparticle);
 
 		if (gparticle != nullptr) {
 			gparticle->shootParticle(gparticleGun.get(), anEvent);

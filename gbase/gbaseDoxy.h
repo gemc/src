@@ -1,8 +1,8 @@
 #pragma once
 
 /**
- * @file gbaseDoxy.h
- * @brief Doxygen entry point for the Base module.
+ * \file gbaseDoxy.h
+ * \brief Doxygen entry point for the Base module.
  *
  * This header is documentation-only and is meant to be used as the primary landing
  * page for the module in generated Doxygen output.

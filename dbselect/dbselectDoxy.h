@@ -1,7 +1,7 @@
 /**
  * @defgroup dbselect_module dbselect module
  *
- * @brief Qt-based selection view for SQLite-backed geometry “experiment/system” configurations.
+ * \brief Qt-based selection view for SQLite-backed geometry “experiment/system” configurations.
  *
  * This module provides a small GUI/CLI-oriented utility layer to inspect and select
  * geometry configurations stored in an SQLite database (via the \c geometry table),

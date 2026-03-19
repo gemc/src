@@ -8,8 +8,8 @@
 #include "gdynamicdigitization.h"
 
 /**
- * @file gRun.h
- * @brief Declares GRun, the thread-local run container used by the GEMC actions module.
+ * \file gRun.h
+ * \brief Declares GRun, the thread-local run container used by the GEMC actions module.
  *
  * @ingroup gactions_module
  */
@@ -19,15 +19,15 @@ constexpr const char* GRUN_LOGGER = "grun";
 using GHitsCollection = G4THitsCollection<GHit>;
 
 /**
- * @brief Namespace containing helpers related to the run-container scope.
+ * \brief Namespace containing helpers related to the run-container scope.
  *
  * @ingroup gactions_module
  */
 namespace grun {
 /**
- * @brief Returns the options associated with the run-container logger scope.
+ * \brief Returns the options associated with the run-container logger scope.
  *
- * @return A GOptions object scoped to the run-container logger name.
+ * \return A GOptions object scoped to the run-container logger name.
  */
 inline GOptions defineOptions() { return GOptions(GRUN_LOGGER); }
 } // namespace grun
@@ -35,7 +35,7 @@ inline GOptions defineOptions() { return GOptions(GRUN_LOGGER); }
 
 /**
  * @class GRun
- * @brief Thread-local run object created by the GEMC run action.
+ * \brief Thread-local run object created by the GEMC run action.
  *
  * In Geant4, a run represents a sequence of events managed under one BeamOn() request.
  * In multithreaded execution, each worker thread owns its own run object, and Geant4
@@ -54,10 +54,10 @@ inline GOptions defineOptions() { return GOptions(GRUN_LOGGER); }
 class GRun : public GBase<GRun>, public G4Run {
 public:
 	/**
-	 * @brief Constructs the run object for the current execution thread.
+	 * \brief Constructs the run object for the current execution thread.
 	 *
-	 * @param gopts Shared configuration object used for logging and any run-scoped behavior.
-	 * @param digi_map Shared digitization-routine map associated with this run context.
+	 * \param gopts Shared configuration object used for logging and any run-scoped behavior.
+	 * \param digi_map Shared digitization-routine map associated with this run context.
 	 */
 	explicit GRun(std::shared_ptr<GOptions> gopts,
 	              std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
@@ -71,7 +71,7 @@ public:
 
 private:
 	/**
-	 * @brief Shared digitization-routine map retained for the lifetime of the run object.
+	 * \brief Shared digitization-routine map retained for the lifetime of the run object.
 	 *
 	 * The map associates collection names with the routines used to transform raw hit
 	 * data into GEMC digitized and truth-level payload. Storing it here ensures the

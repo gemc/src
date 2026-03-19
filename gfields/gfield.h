@@ -13,7 +13,7 @@ constexpr const char* GFIELD_LOGGER   = "gfield";
 constexpr const char* GMAGNETO_LOGGER = "gmagneto";
 
 /**
- * @brief Lightweight configuration carrier used to load and configure a \ref GField "GField" plugin.
+ * \brief Lightweight configuration carrier used to load and configure a \ref GField "GField" plugin.
  * @ingroup gfield_module
  *
  * A \ref GFieldDefinition "GFieldDefinition" is typically built from user options (see gfields::get_GFieldDefinition()).
@@ -25,7 +25,7 @@ constexpr const char* GMAGNETO_LOGGER = "gmagneto";
  */
 struct GFieldDefinition {
 	/**
-	 * @brief Default constructor.
+	 * \brief Default constructor.
 	 */
 	GFieldDefinition() = default;
 
@@ -45,15 +45,15 @@ struct GFieldDefinition {
 	std::map<std::string, std::string> field_parameters;
 
 	/**
-	 * @brief Add or overwrite a parameter in the field-parameter map.
-	 * @param key Parameter key (e.g. "strength").
-	 * @param value Parameter value expression (e.g. "2.0*tesla").
+	 * \brief Add or overwrite a parameter in the field-parameter map.
+	 * \param key Parameter key (e.g. "strength").
+	 * \param value Parameter value expression (e.g. "2.0*tesla").
 	 */
 	void add_map_parameter(const std::string& key, const std::string& value) { field_parameters[key] = value; }
 
 	/**
-	 * @brief Derive the plugin name for the field definition.
-	 * @return Plugin name string.
+	 * \brief Derive the plugin name for the field definition.
+	 * \return Plugin name string.
 	 *
 	 * Convention:
 	 * - This method returns \c "gfield" + type + \c "Factory".
@@ -62,10 +62,10 @@ struct GFieldDefinition {
 	std::string gfieldPluginName() const { return "gfield" + type + "Factory"; }
 
 	/**
-	 * @brief Stream formatter used for logging/debug output.
-	 * @param stream Output stream.
-	 * @param gfd Field definition to print.
-	 * @return The same stream for chaining.
+	 * \brief Stream formatter used for logging/debug output.
+	 * \param stream Output stream.
+	 * \param gfd Field definition to print.
+	 * \return The same stream for chaining.
 	 *
 	 * This prints the core integration parameters and then each entry in \ref GFieldDefinition::field_parameters "field_parameters".
 	 */
@@ -85,7 +85,7 @@ struct GFieldDefinition {
 };
 
 /**
- * @brief Abstract base class representing a magnetic field.
+ * \brief Abstract base class representing a magnetic field.
  * @ingroup gfield_module
  *
  * A concrete field implementation must provide \ref GField::GetFieldValue "GetFieldValue()" and may override
@@ -100,23 +100,23 @@ class GField : public GBase<GField>, public G4MagneticField {
 
 public:
 	/**
-	 * @brief Construct the field base with the provided options (for logging and configuration access).
-	 * @param gopt Shared options object.
+	 * \brief Construct the field base with the provided options (for logging and configuration access).
+	 * \param gopt Shared options object.
 	 */
 	explicit GField(const std::shared_ptr<GOptions>& gopt) : GBase(gopt, GFIELD_LOGGER) {}
 
 	/**
-	 * @brief Compute the magnetic field vector at a given position.
-	 * @param x Position in the lab frame as \c {x,y,z}.
-	 * @param bfield Output array filled with \c {Bx,By,Bz}.
+	 * \brief Compute the magnetic field vector at a given position.
+	 * \param x Position in the lab frame as \c {x,y,z}.
+	 * \param bfield Output array filled with \c {Bx,By,Bz}.
 	 *
 	 * This method is the key interface used by Geant4 when transporting tracks in a field.
 	 */
 	virtual void GetFieldValue(const double x[3], double* bfield) const = 0;
 
 	/**
-	 * @brief Create a \c G4FieldManager configured for this field.
-	 * @return Newly allocated \c G4FieldManager pointer.
+	 * \brief Create a \c G4FieldManager configured for this field.
+	 * \return Newly allocated \c G4FieldManager pointer.
 	 *
 	 * The manager is created using:
 	 * - \c G4Mag_UsualEqRhs as the equation of motion,
@@ -129,30 +129,30 @@ public:
 	G4FieldManager* create_FieldManager();
 
 	/**
-	 * @brief Store the field definition used to configure this field instance.
-	 * @param gfd Field definition to copy into internal storage.
+	 * \brief Store the field definition used to configure this field instance.
+	 * \param gfd Field definition to copy into internal storage.
 	 *
 	 * Concrete implementations typically override this method to parse and cache frequently used parameters.
 	 */
 	virtual void load_field_definitions(GFieldDefinition gfd) { gfield_definitions = gfd; }
 
 	/**
-	 * @brief Convenience accessor for integer-valued parameters stored in \ref GFieldDefinition::field_parameters "field_parameters".
-	 * @param key Map key to retrieve.
-	 * @return Parsed integer value.
+	 * \brief Convenience accessor for integer-valued parameters stored in \ref GFieldDefinition::field_parameters "field_parameters".
+	 * \param key Map key to retrieve.
+	 * \return Parsed integer value.
 	 */
 	int get_field_parameter_int(const std::string& key) { return stoi(gfield_definitions.field_parameters[key]); }
 
 	/**
-	 * @brief Convenience accessor for floating-point parameters stored in \ref GFieldDefinition::field_parameters "field_parameters".
-	 * @param key Map key to retrieve.
-	 * @return Parsed floating-point value.
+	 * \brief Convenience accessor for floating-point parameters stored in \ref GFieldDefinition::field_parameters "field_parameters".
+	 * \param key Map key to retrieve.
+	 * \return Parsed floating-point value.
 	 */
 	double get_field_parameter_double(const std::string& key) { return stod(gfield_definitions.field_parameters[key]); }
 
 	/**
-	 * @brief Hook for configuring module loggers from options.
-	 * @param g Shared options object.
+	 * \brief Hook for configuring module loggers from options.
+	 * \param g Shared options object.
 	 *
 	 * This module currently does not add additional logger wiring here.
 	 */
@@ -161,7 +161,7 @@ public:
 
 private:
 	/**
-	 * @brief Supported Geant4 integrator stepper names.
+	 * \brief Supported Geant4 integrator stepper names.
 	 *
 	 * The names in this list are compared against the user-provided \ref GFieldDefinition::integration_stepper "integration_stepper".
 	 * If the requested stepper is not found, the default from gfieldConventions.h is used.
@@ -186,10 +186,10 @@ protected:
 
 public:
 	/**
-	 * @brief Instantiate a field object from a plugin handle.
-	 * @param h Dynamic library handle.
-	 * @param g Shared options passed to the plugin factory.
-	 * @return Newly allocated field pointer, or \c nullptr on failure.
+	 * \brief Instantiate a field object from a plugin handle.
+	 * \param h Dynamic library handle.
+	 * \param g Shared options passed to the plugin factory.
+	 * \return Newly allocated field pointer, or \c nullptr on failure.
 	 *
 	 * The plugin must export a C symbol named \c "GFieldFactory" with a compatible signature.
 	 * This method looks up that symbol and calls it to construct the concrete \ref GField "GField" instance.

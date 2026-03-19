@@ -1,7 +1,7 @@
 /**
- * @file   g4objectsFactory.cc
+ * \file   g4objectsFactory.cc
  * @ingroup g4system_geometry
- * @brief  Default implementations shared by all detector-specific factories.
+ * \brief  Default implementations shared by all detector-specific factories.
  *
  * @details
  * Header documentation in \c g4objectsFactory.h is authoritative. This file provides reusable default

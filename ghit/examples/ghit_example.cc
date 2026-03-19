@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
 	HitBitSet hitBitSet;
 
 	// Create a concrete touchable corresponding to a detector element identity.
-	auto a_ctof_gtouchable = GTouchable(gopts, "readout", "sector: 6, paddle: 10", {10.0, 20.0, 30.0});
+	auto a_ctof_gtouchable = GTouchable(gopts, "readout", "sector: 6, paddle: 10", {10.0, 20.0, 30.0}, 100.0*CLHEP::g);
 
 	// Create a hit tied to that touchable. (No step is provided here, so vectors start empty.)
 	auto a_hit = new GHit(std::make_shared<GTouchable>(a_ctof_gtouchable), hitBitSet);

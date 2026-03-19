@@ -1,7 +1,7 @@
 /**
- * @file   checkAndReturnParameters.cc
+ * \file   checkAndReturnParameters.cc
  * @ingroup g4system_geometry
- * @brief  Implementation of G4NativeSystemFactory helpers, including the parameter-count validator.
+ * \brief  Implementation of G4NativeSystemFactory helpers, including the parameter-count validator.
  */
 
 // g4system

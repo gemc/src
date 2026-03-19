@@ -1,6 +1,6 @@
 /**
- * @file goptionsConventions.h
- * @brief Conventions, constants, and error codes for the \ref GOptions : / \ref GOption : subsystem.
+ * \file goptionsConventions.h
+ * \brief Conventions, constants, and error codes for the \ref GOptions : / \ref GOption : subsystem.
  *
  * @details
  * This header collects:
@@ -17,7 +17,7 @@
 #pragma once
 
 /**
- * @brief Padding used when printing option/switch help.
+ * \brief Padding used when printing option/switch help.
  *
  * @details
  * This string controls the width of the left column used by the help output produced by
@@ -35,7 +35,7 @@
 #define HELPFILLSPACE "                               "
 
 /**
- * @brief Reserved option tag used to store version information.
+ * \brief Reserved option tag used to store version information.
  *
  * @details
  * \ref GOptions : registers this as a structured option so version metadata can be written to the saved YAML.
@@ -47,7 +47,7 @@
 // exit codes: 100s
 /**
  * @name Option parsing exit codes
- * @brief Process exit codes used by \ref GOptions : and \ref GOption : .
+ * \brief Process exit codes used by \ref GOptions : and \ref GOption : .
  *
  * @details
  * These codes are used in \c exit(code) calls to allow scripts/tests to distinguish failure modes.
@@ -68,7 +68,7 @@
 
 namespace goptions {
 /**
- * @brief Marker literal indicating "no default value" for a structured option key.
+ * \brief Marker literal indicating "no default value" for a structured option key.
  *
  * @details
  * When a \ref GVariable : in a structured option schema uses value \ref goptions::NODFLT : :

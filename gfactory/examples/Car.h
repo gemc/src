@@ -9,7 +9,7 @@
 
 /**
  * @class Car
- * @brief Example base class used to demonstrate dynamic factory loading.
+ * \brief Example base class used to demonstrate dynamic factory loading.
  *
  * This type is intentionally small and serves as a reference pattern for:
  * - a plugin base class deriving from `GBase`, and
@@ -25,15 +25,15 @@ public:
 	~Car() override = default;
 
 	/**
-	 * @brief Construct the base with a shared options/configuration instance.
+	 * \brief Construct the base with a shared options/configuration instance.
 	 *
-	 * @param g Shared options object used to initialize logging via `GBase`.
+	 * \param g Shared options object used to initialize logging via `GBase`.
 	 */
 	explicit Car(const std::shared_ptr<GOptions>& g) : GBase(g, PLUGIN_LOGGER) {
 	}
 
 	/**
-	 * @brief Example pure-virtual behavior implemented by each plugin.
+	 * \brief Example pure-virtual behavior implemented by each plugin.
 	 *
 	 * In the example program, this is invoked through a `std::shared_ptr<Car>`
 	 * returned by the dynamic loader.
@@ -41,7 +41,7 @@ public:
 	virtual void go() = 0;
 
 	/**
-	 * @brief Wire loggers into the object.
+	 * \brief Wire loggers into the object.
 	 *
 	 * This is called by \ref GManager::LoadAndRegisterObjectFromLibrary "LoadAndRegisterObjectFromLibrary()"
 	 * after instantiation. For the example, it is a no-op.
@@ -50,7 +50,7 @@ public:
 	}
 
 	/**
-	 * @brief Example data member shared by all derived cars.
+	 * \brief Example data member shared by all derived cars.
 	 *
 	 * Used by the example to show that base-class state is accessible through the loaded object.
 	 */
@@ -61,7 +61,7 @@ public:
 	// passes GOptions into the factory so the created object can be configured consistently.
 
 	/**
-	 * @brief Resolve the plugin factory symbol and instantiate a derived `Car`.
+	 * \brief Resolve the plugin factory symbol and instantiate a derived `Car`.
 	 *
 	 * This helper performs the dynamic lookup of the extern "C" factory function from the shared library.
 	 * The derived plugin library must export a symbol with the exact name:
@@ -70,10 +70,10 @@ public:
 	 * The expected signature is:
 	 * - `extern "C" Car* CarFactory(const std::shared_ptr<GOptions>&);`
 	 *
-	 * @param h POSIX dynamic-library handle (from \c dlopen).
-	 * @param g Options/configuration to pass into the derived constructor.
+	 * \param h POSIX dynamic-library handle (from \c dlopen).
+	 * \param g Options/configuration to pass into the derived constructor.
 	 *
-	 * @return A raw pointer to a newly allocated derived `Car`, or null on failure.
+	 * \return A raw pointer to a newly allocated derived `Car`, or null on failure.
 	 *
 	 * @warning Ownership of the returned pointer is with the caller. In this module, the pointer is
 	 *          immediately wrapped in `std::shared_ptr<Car>` by the manager.

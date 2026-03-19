@@ -1,8 +1,8 @@
 #pragma once
 
 /**
- * @file gbase.h
- * @brief Lightweight CRTP base class that provides a pre-configured logger to derived types.
+ * \file gbase.h
+ * \brief Lightweight CRTP base class that provides a pre-configured logger to derived types.
  *
  * This header defines:
  * - A small utility function, demangle(), used to turn compiler-specific type names
@@ -34,7 +34,7 @@
 #include <memory>
 
 /**
- * @brief Convert a mangled C++ type name into a human-readable form when available.
+ * \brief Convert a mangled C++ type name into a human-readable form when available.
  *
  * This helper is typically used with \c typeid(T).name() to make log messages and
  * diagnostics easier to understand.
@@ -52,8 +52,8 @@
  * - Demangling may allocate and is not intended for tight inner loops; it is typically
  *   used for initialization/log headers and occasional diagnostics.
  *
- * @param name A mangled type name, usually produced by \c typeid(T).name().
- * @return A demangled string if demangling succeeds, otherwise the original \p name.
+ * \param name A mangled type name, usually produced by \c typeid(T).name().
+ * \return A demangled string if demangling succeeds, otherwise the original \p name.
  */
 std::string inline demangle(const char* name) {
 	int status      = 0;
@@ -64,7 +64,7 @@ std::string inline demangle(const char* name) {
 
 #else
 /**
- * @brief Fallback demangle implementation for non-GNU toolchains.
+ * \brief Fallback demangle implementation for non-GNU toolchains.
  *
  * On compilers/platforms where GNU-style demangling is not available, this function
  * simply returns the input string unchanged.
@@ -72,8 +72,8 @@ std::string inline demangle(const char* name) {
  * This is a deliberate portability choice: the calling code can rely on the function
  * existing everywhere, while still benefiting from readable names where supported.
  *
- * @param name A mangled type name, usually produced by \c typeid(T).name().
- * @return The original \p name (no demangling performed).
+ * \param name A mangled type name, usually produced by \c typeid(T).name().
+ * \return The original \p name (no demangling performed).
  */
 std::string demangle(const char* name) {
 	return name; // No demangling on non-GNU compilers
@@ -82,7 +82,7 @@ std::string demangle(const char* name) {
 
 
 /**
- * @brief CRTP base class that provides logging facilities to the derived class.
+ * \brief CRTP base class that provides logging facilities to the derived class.
  *
  * The template parameter \c Derived is the concrete type inheriting from this base:
  * \code
@@ -116,7 +116,7 @@ class GBase
 {
 public:
 	/**
-	 * @brief Construct a base that creates (and owns) a logger for the derived instance.
+	 * \brief Construct a base that creates (and owns) a logger for the derived instance.
 	 *
 	 * This constructor:
 	 * - Creates a  GLogger using the provided \c GOptions.
@@ -128,8 +128,8 @@ public:
 	 * Expected invariants after construction:
 	 * - The protected member \c log is non-null (unless  GLogger construction throws).
 	 *
-	 * @param gopt Shared configuration/options used to initialize  GLogger.
-	 * @param logger_name Optional logger identifier or channel name (may be empty).
+	 * \param gopt Shared configuration/options used to initialize  GLogger.
+	 * \param logger_name Optional logger identifier or channel name (may be empty).
 	 */
 	explicit GBase(const std::shared_ptr<GOptions>& gopt, std::string logger_name = "") {
 		log = std::make_shared<GLogger>(gopt, getDerivedName(), logger_name);
@@ -138,7 +138,7 @@ public:
 
 	// sharing logger for heavy creations like gtouchable
 	/**
-	 * @brief Construct a base that reuses an existing logger.
+	 * \brief Construct a base that reuses an existing logger.
 	 *
 	 * This is intended for cases where logger construction is expensive or where a group
 	 * of objects should share identical logging configuration and output destination.
@@ -151,13 +151,13 @@ public:
 	 * - Passing a null \p logger is permitted by the type system; if null is passed, the
 	 *   derived object simply has no logger and lifecycle logging is suppressed.
 	 *
-	 * @param logger Shared logger instance to be reused by this object.
+	 * \param logger Shared logger instance to be reused by this object.
 	 */
 	explicit GBase(const std::shared_ptr<GLogger>& logger) : log(logger) {
 	}
 
 	/**
-	 * @brief Destructor that logs object destruction when a logger is available.
+	 * \brief Destructor that logs object destruction when a logger is available.
 	 *
 	 * Behavior:
 	 * - If \c log is non-null, emits a standard destructor message.
@@ -171,7 +171,7 @@ public:
 
 	// Important: because we declared a destructor, default these explicitly.
 	/**
-	 * @brief Copy constructor (shallow copy of the logger pointer).
+	 * \brief Copy constructor (shallow copy of the logger pointer).
 	 *
 	 * Copying a \ref GBase copies the \c std::shared_ptr<GLogger>, meaning both objects will
 	 * refer to the same logger instance.
@@ -184,7 +184,7 @@ public:
 	GBase(const GBase&) = default; // shallow copy of shared_ptr
 
 	/**
-	 * @brief Copy assignment (shallow copy of the logger pointer).
+	 * \brief Copy assignment (shallow copy of the logger pointer).
 	 *
 	 * After assignment, both objects will refer to the same logger instance.
 	 * This operation does not emit any log messages.
@@ -192,7 +192,7 @@ public:
 	GBase& operator=(const GBase&) = default;
 
 	/**
-	 * @brief Move constructor.
+	 * \brief Move constructor.
 	 *
 	 * Moves the internal \c std::shared_ptr<GLogger> from the source object.
 	 * Marked \c noexcept to preserve move semantics in standard containers.
@@ -205,7 +205,7 @@ public:
 	GBase(GBase&&) noexcept = default; // otherwise move would be suppressed
 
 	/**
-	 * @brief Move assignment operator.
+	 * \brief Move assignment operator.
 	 *
 	 * Moves the internal \c std::shared_ptr<GLogger> from the source object.
 	 * Marked \c noexcept to preserve move semantics in standard containers.
@@ -216,7 +216,7 @@ public:
 
 private:
 	/**
-	 * @brief Obtain a readable name for the derived type.
+	 * \brief Obtain a readable name for the derived type.
 	 *
 	 * The returned value is used for logger initialization and lifecycle messages.
 	 * On GNU-compatible toolchains, the type name may be demangled for readability.
@@ -226,13 +226,13 @@ private:
 	 * - Derived classes should treat the component name as an internal logging label, not
 	 *   as part of their public API contract.
 	 *
-	 * @return A readable derived type name suitable for logs and diagnostics.
+	 * \return A readable derived type name suitable for logs and diagnostics.
 	 */
 	[[nodiscard]] std::string getDerivedName() const { return demangle(typeid(Derived).name()); }
 
 protected:
 	/**
-	 * @brief Shared logger used by the derived class for emitting messages.
+	 * \brief Shared logger used by the derived class for emitting messages.
 	 *
 	 * This member is protected so derived classes can log with minimal ceremony.
 	 *

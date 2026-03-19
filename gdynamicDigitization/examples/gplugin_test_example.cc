@@ -8,9 +8,9 @@ bool GPlugin_test_example::defineReadoutSpecsImpl() {
 	double timeWindow    = 10;                  // electronics time-window (width of one time cell)
 	double gridStartTime = 0;                   // time grid origin
 	auto   hitBitSet     = HitBitSet("100000"); // bitset defining which hit information is computed/stored
+	double maxStep       = 1 * CLHEP::mm;
 
-	// The readoutSpecs object is shared and treated as immutable after initialization.
-	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, log);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, maxStep, log);
 
 	return true;
 }
@@ -34,7 +34,7 @@ bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] std::st
 	var4 = "hello";
 
 	log->info(0, " Constants loaded for run number ", runno, " for ctof. var1  is ", var1,
-	          ", var2 pointer is ", var2, ", variation is ", variation);
+			  ", var2 pointer is ", var2, ", variation is ", variation);
 
 	return true;
 }

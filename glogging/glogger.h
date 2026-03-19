@@ -61,7 +61,7 @@ enum debug_type { NORMAL, CONSTRUCTOR, DESTRUCTOR };
 
 /**
  * @class GLogger
- * @brief Handles structured logging with verbosity and debug levels.
+ * \brief Handles structured logging with verbosity and debug levels.
  *
  * GLogger centralizes formatted output for simulation components. Messages are emitted to the
  * Geant4 streams (`G4cout`/`G4cerr`) and can be filtered based on configuration obtained from
@@ -86,7 +86,7 @@ class GLogger
 {
 public:
 	/**
-	 * @brief Constructs a GLogger instance and resolves its runtime configuration.
+	 * \brief Constructs a GLogger instance and resolves its runtime configuration.
 	 *
 	 * The constructor queries the provided GOptions to resolve:
 	 * - The verbosity level associated with \p lname.
@@ -95,9 +95,9 @@ public:
 	 * It also emits a constructor-style debug message via
 	 * \ref GLogger::debug "debug()" (only if debug is enabled for this logger name).
 	 *
-	 * @param gopts Shared pointer to the GOptions instance used for verbosity/debug lookup.
-	 * @param cname Caller-provided class name (informational; currently not used for filtering).
-	 * @param lname The logger name (subsystem identifier). This is used as the lookup key in
+	 * \param gopts Shared pointer to the GOptions instance used for verbosity/debug lookup.
+	 * \param cname Caller-provided class name (informational; currently not used for filtering).
+	 * \param lname The logger name (subsystem identifier). This is used as the lookup key in
 	 * GOptions.
 	 */
 	explicit GLogger(const std::shared_ptr<GOptions>& gopts, const std::string& cname, const std::string& lname = "")
@@ -111,7 +111,7 @@ public:
 	}
 
 	/**
-	 * @brief Default constructor.
+	 * \brief Default constructor.
 	 *
 	 * This constructor does not resolve verbosity/debug settings and leaves the logger in a
 	 * default-initialized state. It is primarily useful for scenarios where a logger instance
@@ -123,7 +123,7 @@ public:
 	GLogger() = default;
 
 	/**
-	 * @brief Destructor.
+	 * \brief Destructor.
 	 *
 	 * Emits a destructor-style debug message via \ref GLogger::debug "debug()"
 	 * (only if debug is enabled).
@@ -203,25 +203,25 @@ public:
 	}
 
 	/**
-	 * @brief Convenience overload of \ref GLogger::info "info()" that defaults to level 0.
+	 * \brief Convenience overload of \ref GLogger::info "info()" that defaults to level 0.
 	 *
 	 * This overload is intended for the most common informational messages that should always be
 	 * printed irrespective of verbosity configuration.
 	 *
 	 * @tparam Args Variadic template parameters for any streamable types.
-	 * @param args Streamable message components.
+	 * \param args Streamable message components.
 	 */
 	template <typename... Args>
 	void info(Args&&... args) const { info(0, std::forward<Args>(args)...); }
 
 	/**
-	 * @brief Logs a warning message.
+	 * \brief Logs a warning message.
 	 *
 	 * Warning messages are always printed and are typically used for recoverable problems,
 	 * suspicious conditions, or degraded behavior that does not warrant immediate termination.
 	 *
 	 * @tparam Args Variadic template parameters for any streamable types.
-	 * @param args Message parts to be logged.
+	 * \param args Message parts to be logged.
 	 *
 	 * @details This method does not consult verbosity or debug levels.
 	 */
@@ -233,7 +233,7 @@ public:
 	}
 
 	/**
-	 * @brief Logs an error message and terminates the process.
+	 * \brief Logs an error message and terminates the process.
 	 *
 	 * This method prints:
 	 * - The provided message.
@@ -242,8 +242,8 @@ public:
 	 * Then it terminates the process via \c std::exit(exit_code).
 	 *
 	 * @tparam Args Variadic template parameters for any streamable types.
-	 * @param exit_code The program exit code to return to the calling environment.
-	 * @param args Message parts to be logged before exiting.
+	 * \param exit_code The program exit code to return to the calling environment.
+	 * \param args Message parts to be logged before exiting.
 	 *
 	 * @note This function is marked \c [[noreturn]] because it always terminates the process.
 	 */
@@ -257,13 +257,13 @@ public:
 	}
 
 	/**
-	 * @brief Logs a critical message.
+	 * \brief Logs a critical message.
 	 *
 	 * Critical messages are always printed and are intended for high-visibility output that
 	 * should stand out (for example : major state transitions, run headers, or emphasized notices).
 	 *
 	 * @tparam Args Variadic template parameters for any streamable types.
-	 * @param args Message parts to be logged.
+	 * \param args Message parts to be logged.
 	 */
 	template <typename... Args>
 	void critical(Args&&... args) const {
@@ -273,12 +273,12 @@ public:
 	}
 
 	/**
-	 * @brief Returns the caller-provided class name associated with this logger instance.
+	 * \brief Returns the caller-provided class name associated with this logger instance.
 	 *
 	 * This value is currently informational and can be used by callers to include the originating
 	 * class in their own message composition if desired.
 	 *
-	 * @return The stored class name string.
+	 * \return The stored class name string.
 	 */
 	[[nodiscard]] std::string get_class_name() const { return class_name; }
 

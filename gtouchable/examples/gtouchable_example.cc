@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, TOUCHABLE_LOGGER); // duplicate a touchable logger
 
 	// Reference touchable used for comparisons.
-	auto a_ctof_gtouchable = GTouchable(gopts, "readout", "sector: 5, paddle: 5", {10.0, 20.0, 30.0});
+	auto a_ctof_gtouchable = GTouchable(gopts, "readout", "sector: 5, paddle: 5", {10.0, 20.0, 30.0}, 100.0*CLHEP::g);
 
 	for (unsigned i = 1; i < 10; i++) {
 		// Create a synthetic test touchable with a deterministic identity pattern.

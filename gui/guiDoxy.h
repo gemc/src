@@ -68,7 +68,7 @@
 /**
  * @defgroup gemc_gui_module GEMC GUI Module
  *
- * @brief Qt user interface widgets that integrate with the GEMC run control and visualization pages.
+ * \brief Qt user interface widgets that integrate with the GEMC run control and visualization pages.
  *
  * This group collects the GUI-facing classes and helpers that assemble the main window and connect
  * user actions to the event-processing backend.

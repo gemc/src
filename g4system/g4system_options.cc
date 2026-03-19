@@ -1,8 +1,8 @@
 // g4system_options.cc : option definitions for the g4system module.
 /**
- * @file   g4system_options.cc
+ * \file   g4system_options.cc
  * @ingroup g4system
- * @brief  Implementation of g4system option registration.
+ * \brief  Implementation of g4system option registration.
  *
  * @details
  * Header documentation in \c g4system_options.h is authoritative. This file contains the concrete

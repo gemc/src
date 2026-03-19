@@ -1,6 +1,6 @@
 /**
- * @file gswitch.h
- * @brief Definition of \ref GSwitch : the boolean command-line switch type used by \ref GOptions : .
+ * \file gswitch.h
+ * \brief Definition of \ref GSwitch : the boolean command-line switch type used by \ref GOptions : .
  */
 
 #pragma once
@@ -9,7 +9,7 @@
 
 /**
  * @class GSwitch
- * @brief Represents a boolean command-line switch with a description and a status.
+ * \brief Represents a boolean command-line switch with a description and a status.
  *
  * @details
  * A switch is a presence-based boolean flag:
@@ -28,7 +28,7 @@ class GSwitch
 {
 public:
 	/**
-	 * @brief Default constructor.
+	 * \brief Default constructor.
 	 *
 	 * @details
 	 * Constructs an empty \ref GSwitch : with default-initialized members. This constructor is required
@@ -38,20 +38,20 @@ public:
 	GSwitch() = default;
 
 	/**
-	 * @brief Parameterized constructor.
+	 * \brief Parameterized constructor.
 	 *
 	 * @details
 	 * Initializes the switch description and forces the status to `false` (off).
 	 * This guarantees that defining a switch never enables it implicitly; only parsing or explicit
 	 * programmatic calls enable it.
 	 *
-	 * @param d Human-readable description of what enabling this switch does.
+	 * \param d Human-readable description of what enabling this switch does.
 	 */
 	GSwitch(const std::string& d) : description(d), status(false) {
 	}
 
 	/**
-	 * @brief Turns the switch on.
+	 * \brief Turns the switch on.
 	 *
 	 * @details
 	 * Sets the internal status to `true`. In practice, \ref GOptions : calls this when it encounters
@@ -60,7 +60,7 @@ public:
 	void turnOn() { status = true; }
 
 	/**
-	 * @brief Turns the switch off.
+	 * \brief Turns the switch off.
 	 *
 	 * @details
 	 * Sets the internal status to `false`. This is typically used programmatically (not by parsing)
@@ -69,22 +69,22 @@ public:
 	void turnOff() { status = false; }
 
 	/**
-	 * @brief Retrieves the current status of the switch.
+	 * \brief Retrieves the current status of the switch.
 	 *
-	 * @return `true` if the switch is on; `false` otherwise.
+	 * \return `true` if the switch is on; `false` otherwise.
 	 */
 	bool getStatus() const { return status; }
 
 	/**
-	 * @brief Retrieves the description of the switch.
+	 * \brief Retrieves the description of the switch.
 	 *
-	 * @return A const reference to the switch's description string.
+	 * \return A const reference to the switch's description string.
 	 */
 	const std::string& getDescription() const { return description; }
 
 private:
 	/**
-	 * @brief Human-readable description of the switch.
+	 * \brief Human-readable description of the switch.
 	 *
 	 * @details
 	 * Displayed in help output and in per-switch help text.
@@ -93,7 +93,7 @@ private:
 	std::string description;
 
 	/**
-	 * @brief Current on/off status.
+	 * \brief Current on/off status.
 	 *
 	 * @details
 	 * - `true`  : switch enabled (present on the command line or explicitly enabled)

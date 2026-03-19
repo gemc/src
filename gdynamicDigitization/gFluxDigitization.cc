@@ -2,21 +2,18 @@
 
 // See header for API docs.
 bool GFluxDigitization::defineReadoutSpecsImpl() {
-	check_if_log_defined();
-
 	double    timeWindow    = 10;  // electronic readout time-window of the detector
 	double    gridStartTime = 0;   // defines the windows grid
 	HitBitSet hitBitSet("000001"); // defines what information to be stored in the hit
+	double    maxStep = 1 * CLHEP::mm;
 
-	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, log);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, maxStep, log);
 
 	return true;
 }
 
 // See header for API docs.
 std::unique_ptr<GDigitizedData> GFluxDigitization::digitizeHitImpl(GHit* ghit, size_t hitn) {
-	check_if_log_defined();
-
 	GIdentifier identity = ghit->getGID().front();
 
 	auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);

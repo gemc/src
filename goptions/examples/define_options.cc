@@ -1,6 +1,6 @@
 /**
- * @file define_options.cc
- * @brief Example program showing how to define and use \ref GOptions : .
+ * \file define_options.cc
+ * \brief Example program showing how to define and use \ref GOptions : .
  *
  * @details
  * This example demonstrates an end-to-end pattern commonly used in GEMC-style modules:
@@ -26,7 +26,7 @@
 using namespace std;
 
 /**
- * @brief Builds and returns a set of example options (definitions only).
+ * \brief Builds and returns a set of example options (definitions only).
  *
  * @details
  * This function intentionally does **not** parse any inputs. Instead, it returns a \ref GOptions :
@@ -50,7 +50,7 @@ using namespace std;
  * - Structured `gparticle`: a schema representing generator particles as a sequence of maps, including
  *   mandatory keys flagged using \c goptions::NODFLT.
  *
- * @return A \ref GOptions : object populated with example switches and options.
+ * \return A \ref GOptions : object populated with example switches and options.
  */
 GOptions defineOptions() {
 	GOptions goptions;
@@ -87,7 +87,7 @@ GOptions defineOptions() {
 }
 
 /**
- * @brief Example entry point: parse inputs and read back resolved values.
+ * \brief Example entry point: parse inputs and read back resolved values.
  *
  * @details
  * This `main()` illustrates the common consumption flow:
@@ -109,9 +109,9 @@ GOptions defineOptions() {
  *   define_options -gparticle="[{name: e-, p: 2300, theta: 23.0}]"
  *   \endcode
  *
- * @param argc Number of command-line arguments.
- * @param argv Array of command-line argument strings.
- * @return Process exit code (\c EXIT_SUCCESS on success).
+ * \param argc Number of command-line arguments.
+ * \param argv Array of command-line argument strings.
+ * \return Process exit code (\c EXIT_SUCCESS on success).
  */
 int main(int argc, char* argv[]) {
 	// Construct a parsing instance: this will parse YAML files and command-line arguments immediately.

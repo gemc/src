@@ -1,6 +1,6 @@
 /**
- * @file test_gbase.cc
- * @brief Example program demonstrating how to derive from \c GBase and use logging.
+ * \file test_gbase.cc
+ * \brief Example program demonstrating how to derive from \c GBase and use logging.
  *
  * This example shows two common usage patterns:
  * 1) A derived type that constructs its own logger via \c GOptions.

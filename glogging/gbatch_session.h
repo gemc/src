@@ -8,7 +8,7 @@
 
 /**
  * @class GBatch_Session
- * @brief Batch-mode \c G4UIsession that tees Geant4 output to files and the terminal.
+ * \brief Batch-mode \c G4UIsession that tees Geant4 output to files and the terminal.
  *
  * This class is designed to be passed to the Geant4 UI manager so that all \c G4cout and \c G4cerr
  * traffic is redirected through \c G4UIsession callbacks. In batch/production runs, this enables
@@ -32,7 +32,7 @@ class GBatch_Session : public G4UIsession
 {
 public:
 	/**
-	 * @brief Constructs the batch session and opens the log streams.
+	 * \brief Constructs the batch session and opens the log streams.
 	 *
 	 * This constructor opens \c gemc.log and \c gemc.err for writing.
 	 *
@@ -50,10 +50,10 @@ public:
 	}
 
 	/**
-	 * @brief Receives Geant4 standard output and tees it to \c gemc.log and \c std::cout.
+	 * \brief Receives Geant4 standard output and tees it to \c gemc.log and \c std::cout.
 	 *
-	 * @param coutString The message fragment provided by Geant4 for standard output.
-	 * @return Always returns 0 to indicate the message was handled.
+	 * \param coutString The message fragment provided by Geant4 for standard output.
+	 * \return Always returns 0 to indicate the message was handled.
 	 *
 	 * \note This method flushes both the file stream and \c std::cout to keep logs consistent
 	 * in long-running batch jobs.
@@ -67,10 +67,10 @@ public:
 	}
 
 	/**
-	 * @brief Receives Geant4 standard error and tees it to \c gemc.err and \c std::cerr.
+	 * \brief Receives Geant4 standard error and tees it to \c gemc.err and \c std::cerr.
 	 *
-	 * @param cerrString The message fragment provided by Geant4 for standard error.
-	 * @return Always returns 0 to indicate the message was handled.
+	 * \param cerrString The message fragment provided by Geant4 for standard error.
+	 * \return Always returns 0 to indicate the message was handled.
 	 *
 	 * \note This method flushes both the file stream and \c std::cerr to reduce the chance of
 	 * losing diagnostic output if the process terminates unexpectedly.

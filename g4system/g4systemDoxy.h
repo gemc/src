@@ -1,6 +1,6 @@
 /**
  * @defgroup g4system GEMC Geant4 System
- * @brief Geant4 geometry/material construction module within GEMC.
+ * \brief Geant4 geometry/material construction module within GEMC.
  *
  * This top-level group contains the g4system submodules responsible for translating
  * GEMC detector descriptions into Geant4 geometry objects.
@@ -9,7 +9,7 @@
 /**
  * @defgroup g4system_factory g4system Factory / Plugin Loader
  * @ingroup g4system
- * @brief Runtime creation of system builders and object factories.
+ * \brief Runtime creation of system builders and object factories.
  *
  * The classes in this group implement the plug-in mechanism that allows GEMC to
  * instantiate detector-specific builders at runtime based on the factory name stored
@@ -24,7 +24,7 @@
 /**
  * @defgroup g4system_geometry g4system Geometry Builders
  * @ingroup g4system
- * @brief Builders that convert GEMC volume/material records into Geant4 geometry.
+ * \brief Builders that convert GEMC volume/material records into Geant4 geometry.
  *
  * This group contains the world builder and object factories responsible for translating
  * GEMC geometry records into:

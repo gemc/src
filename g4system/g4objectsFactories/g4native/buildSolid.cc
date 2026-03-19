@@ -1,7 +1,7 @@
 /**
- * @file   buildSolid.cc
+ * \file   buildSolid.cc
  * @ingroup g4system_geometry
- * @brief  Implementation of G4NativeSystemFactory::buildSolid().
+ * \brief  Implementation of G4NativeSystemFactory::buildSolid().
  */
 
 // g4system

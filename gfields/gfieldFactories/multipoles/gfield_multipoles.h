@@ -7,14 +7,14 @@
  * @defgroup gfield_multipoles_factory GField multipoles factory
  * @ingroup gfield_module
  *
- * @brief Multipole magnetic-field plugin implementation.
+ * \brief Multipole magnetic-field plugin implementation.
  *
  * This group contains the implementation of the multipole magnetic field factory used by the
  * GField framework. The plugin is dynamically loaded by name via GFieldDefinition::gfieldPluginName().
  */
 
 /**
- * @brief Factory class implementing an ideal multipole magnetic field.
+ * \brief Factory class implementing an ideal multipole magnetic field.
  * @ingroup gfield_multipoles_factory
  *
  * This class is a concrete GField implementation that evaluates an idealized multipole field
@@ -40,17 +40,17 @@ class GField_MultipolesFactory : public GField {
 
 public:
 	/**
-	 * @brief Construct the multipole field factory using the module options.
-	 * @param gopt Shared options object used by the base class (logging, configuration).
+	 * \brief Construct the multipole field factory using the module options.
+	 * \param gopt Shared options object used by the base class (logging, configuration).
 	 *
 	 * The options are owned externally and are expected to outlive this object.
 	 */
 	explicit GField_MultipolesFactory(const std::shared_ptr<GOptions>& gopt) : GField(gopt) {}
 
 	/**
-	 * @brief Evaluate the magnetic field B at a given position.
-	 * @param pos Position in the lab frame as \c {x,y,z}.
-	 * @param bfield Output array filled with \c {Bx,By,Bz} in Tesla.
+	 * \brief Evaluate the magnetic field B at a given position.
+	 * \param pos Position in the lab frame as \c {x,y,z}.
+	 * \param bfield Output array filled with \c {Bx,By,Bz} in Tesla.
 	 *
 	 * This method is the Geant4 entry point used by the field propagator. The implementation:
 	 * 1. Translates the query point into magnet-centered coordinates using \c origin.
@@ -61,8 +61,8 @@ public:
 	void GetFieldValue(const double pos[3], G4double* bfield) const override;
 
 	/**
-	 * @brief Load and cache field-definition parameters for fast field evaluation.
-	 * @param gfd Field definition populated from options.
+	 * \brief Load and cache field-definition parameters for fast field evaluation.
+	 * \param gfd Field definition populated from options.
 	 *
 	 * The input definition is copied into the base class storage and the frequently used parameters
 	 * are parsed and cached into member variables (e.g. pole number, origin, rotation).
@@ -80,7 +80,7 @@ private:
 	G4double rotation_angle = 0.0;
 
 	/**
-	 * @brief Axis index defining the magnet longitudinal axis and rotation axis.
+	 * \brief Axis index defining the magnet longitudinal axis and rotation axis.
 	 *
 	 * Encoding:
 	 * - 0 : X axis
@@ -90,7 +90,7 @@ private:
 	int rotaxis = 2;
 
 	/**
-	 * @brief Multipole strength in Tesla at the reference radius (currently fixed to 1 m in the implementation).
+	 * \brief Multipole strength in Tesla at the reference radius (currently fixed to 1 m in the implementation).
 	 *
 	 * In transverse multipole mode this is the field magnitude at `r=r0` for the effective order.
 	 * In longitudinal mode it is the uniform axial field magnitude.

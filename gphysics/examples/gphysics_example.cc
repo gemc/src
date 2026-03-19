@@ -1,10 +1,10 @@
 /**
-* @file gphysics_example.cc
+* \file gphysics_example.cc
  * @anchor gphysics_example_main
  *
  * @ingroup gphysics_module
  *
- * @brief Minimal example showing how to define gphysics options and instantiate GPhysics.
+ * \brief Minimal example showing how to define gphysics options and instantiate GPhysics.
  *
  * This example demonstrates the typical integration pattern:
  * - Create a GOptions object using gphysics::defineOptions().
@@ -28,7 +28,7 @@
 #include "goptions.h"
 
 /**
- * @brief Program entry point.
+ * \brief Program entry point.
  *
  * This function:
  * - Parses command line arguments into a GOptions instance configured with gphysics::defineOptions().
@@ -36,9 +36,9 @@
  *   - Print available physics lists/constructors if \c showPhysics is enabled, or
  *   - Build the reference physics list selected by \c phys_list.
  *
- * @param argc Number of command line arguments.
- * @param argv Array of command line argument strings.
- * @return Process exit code (\c EXIT_SUCCESS on normal completion).
+ * \param argc Number of command line arguments.
+ * \param argv Array of command line argument strings.
+ * \return Process exit code (\c EXIT_SUCCESS on normal completion).
  */
 int main(int argc, char* argv[]) {
 	auto gopts =  std::make_shared<GOptions>(argc, argv, gphysics::defineOptions());

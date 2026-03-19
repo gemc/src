@@ -97,6 +97,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 		// Process all hits in the collection. Event-mode digitizers append to the
 		// event container, while run-mode digitizers append to the run container.
 		for (size_t hitIndex = 0; hitIndex < this_ghc->GetSize(); ++hitIndex) {
+
 			auto* const this_hit = static_cast<GHit*>(this_ghc->GetHit(hitIndex));
 			if (this_hit == nullptr) {
 				continue;

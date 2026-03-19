@@ -1,8 +1,8 @@
 // geant4Dependencies.cc : dependency checks used by factory default implementations.
 /**
- * @file   geant4Dependencies.cc
+ * \file   geant4Dependencies.cc
  * @ingroup g4system_geometry
- * @brief  Dependency checks used by g4system factories before constructing solids and placements.
+ * \brief  Dependency checks used by g4system factories before constructing solids and placements.
  *
  * @details
  * Header documentation in \c g4objectsFactory.h is authoritative. This file implements:

@@ -5,8 +5,8 @@
 #include "gsd.h"
 
 /**
- * @file gdetector_options.cc
- * @brief Implements the gdetector module option aggregation.
+ * \file gdetector_options.cc
+ * \brief Implements the gdetector module option aggregation.
  *
  * Header documentation in gdetector_options.h remains authoritative for API usage.
  *
@@ -18,12 +18,12 @@
 namespace gdetector {
 
 /**
- * @brief Builds the aggregated option set used by the gdetector module.
+ * \brief Builds the aggregated option set used by the gdetector module.
  *
  * This is a thin composition layer that merges option groups defined by the
  * dependent modules into a single returned object.
  *
- * @return Aggregated options instance tagged with the gdetector logger name.
+ * \return Aggregated options instance tagged with the gdetector logger name.
  */
 GOptions defineOptions() {
 	// Create the root option container for this module.

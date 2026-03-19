@@ -8,7 +8,7 @@
 /**
  * @defgroup gfield_module GField module
  *
- * @brief Plugin-driven magnetic-field framework.
+ * \brief Plugin-driven magnetic-field framework.
  *
  * The module provides:
  * - A common abstract interface for magnetic fields (\ref GField),
@@ -21,7 +21,7 @@
  */
 
 /**
- * @brief Manager for magnetic fields and their associated \c G4FieldManager objects.
+ * \brief Manager for magnetic fields and their associated \c G4FieldManager objects.
  * @ingroup gfield_module
  *
  * Ownership model:
@@ -36,8 +36,8 @@
 class GMagneto : public GBase<GMagneto> {
 public:
 	/**
-	 * @brief Construct and initialize the magnetic field registry.
-	 * @param gopts Shared options used for configuration and logging.
+	 * \brief Construct and initialize the magnetic field registry.
+	 * \param gopts Shared options used for configuration and logging.
 	 *
 	 * This constructor:
 	 * 1. Builds the list of \ref GFieldDefinition "GFieldDefinition" objects from options,
@@ -59,16 +59,16 @@ private:
 
 public:
 	/**
-	 * @brief Check whether a field with the given name exists.
-	 * @param name Field name key.
-	 * @return True if \c name is present in the internal field map.
+	 * \brief Check whether a field with the given name exists.
+	 * \param name Field name key.
+	 * \return True if \c name is present in the internal field map.
 	 */
 	bool isField(const std::string& name) const { return fields_map->find(name) != fields_map->end(); }
 
 	/**
-	 * @brief Retrieve a field object by name.
-	 * @param name Field name key.
-	 * @return Shared pointer to the requested \ref GField "GField" instance.
+	 * \brief Retrieve a field object by name.
+	 * \param name Field name key.
+	 * \return Shared pointer to the requested \ref GField "GField" instance.
 	 *
 	 * If the field is not found, an error is logged and execution is terminated by the logger.
 	 */
@@ -80,9 +80,9 @@ public:
 	}
 
 	/**
-	 * @brief Retrieve the \c G4FieldManager associated with a given field name.
-	 * @param name Field name key.
-	 * @return Shared pointer to the requested \c G4FieldManager.
+	 * \brief Retrieve the \c G4FieldManager associated with a given field name.
+	 * \param name Field name key.
+	 * \return Shared pointer to the requested \c G4FieldManager.
 	 *
 	 * If the field manager is not found, an error is logged and execution is terminated by the logger.
 	 */

@@ -5,8 +5,9 @@ bool GParticleCounterDigitization::defineReadoutSpecsImpl() {
 	double timeWindow    = 10;                  // electronic readout time-window of the detector
 	double gridStartTime = 0;                   // defines the window grid
 	auto   hitBitSet     = HitBitSet("000000"); // defines what information to be stored in the hit
+	double maxStep       = 1 * CLHEP::mm;
 
-	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, log);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, maxStep, log);
 
 	return true;
 }

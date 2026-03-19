@@ -1,8 +1,8 @@
 // g4world.cc : implementation of the Geant4 world builder and material initialization.
 /**
- * @file   g4world.cc
+ * \file   g4world.cc
  * @ingroup g4system_geometry
- * @brief  Implementation of G4World, including factory creation, material building, and volume dependency resolution.
+ * \brief  Implementation of G4World, including factory creation, material building, and volume dependency resolution.
  *
  * @details
  * Header documentation in \c g4world.h is authoritative. This file focuses on implementation details and

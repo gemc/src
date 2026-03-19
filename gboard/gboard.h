@@ -11,19 +11,19 @@ constexpr const char* GBOARD_LOGGER = "gboard";
 
 /**
  * @namespace gboard
- * @brief Helper namespace for the gboard module.
+ * \brief Helper namespace for the gboard module.
  *
  * This namespace currently hosts small configuration helpers (such as the module option definition).
  * Keeping these in a namespace avoids polluting the global symbol space.
  */
 namespace gboard {
 /**
- * @brief Defines the module options used by the gboard components.
+ * \brief Defines the module options used by the gboard components.
  *
  * The returned options are rooted at the module logger name (\c GBOARD_LOGGER).
  * The concrete set of switches/scalars is populated by the underlying GOptions infrastructure.
  *
- * @return A fully constructed GOptions instance for this module.
+ * \return A fully constructed GOptions instance for this module.
  */
 inline GOptions defineOptions() {
 	GOptions goptions(GBOARD_LOGGER);
@@ -34,7 +34,7 @@ inline GOptions defineOptions() {
 
 /**
  * @class GBoard
- * @brief A Qt widget that displays read-only log text with a compact "top bar" UI.
+ * \brief A Qt widget that displays read-only log text with a compact "top bar" UI.
  *
  * GBoard is intended to be used as a log sink and viewer:
  * - **Append-only ingestion**: new log lines are added through \ref GBoard::appendLog "appendLog()".
@@ -58,7 +58,7 @@ class GBoard : public QWidget, public GBase<GBoard>
 
 public:
 	/**
-	 * @brief Constructs a new GBoard widget.
+	 * \brief Constructs a new GBoard widget.
 	 *
 	 * The widget instantiates its internal UI:
 	 * - search line edit (filter)
@@ -66,8 +66,8 @@ public:
 	 * - save button
 	 * - log display area (\c QTextEdit, read-only, rich-text enabled)
 	 *
-	 * @param gopt Shared pointer to the module options/logging configuration.
-	 * @param parent Parent widget (default is nullptr).
+	 * \param gopt Shared pointer to the module options/logging configuration.
+	 * \param parent Parent widget (default is nullptr).
 	 */
 	explicit GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent = nullptr);
 
@@ -77,7 +77,7 @@ public:
 	GBoard& operator=(GBoard&&)      = delete;
 
 	/**
-	 * @brief Appends a log line to the internal history and updates the display.
+	 * \brief Appends a log line to the internal history and updates the display.
 	 *
 	 * The input is treated as an **HTML fragment** (not a full HTML document):
 	 * - It is stored verbatim into \c fullLogLines.
@@ -85,31 +85,31 @@ public:
 	 *
 	 * Empty or whitespace-only fragments are ignored.
 	 *
-	 * @param text HTML fragment representing one log line.
+	 * \param text HTML fragment representing one log line.
 	 */
 	void appendLog(const QString& text);
 
 private
 slots :
 	/**
-	 * @brief Updates the current filter and refreshes the visible log view.
+	 * \brief Updates the current filter and refreshes the visible log view.
 	 *
 	 * Filtering is case-insensitive and matches by substring search in the stored HTML fragment.
 	 * The filter is applied against \c fullLogLines; no data is discarded by filtering.
 	 *
-	 * @param filterText User-entered text used to filter log lines.
+	 * \param filterText User-entered text used to filter log lines.
 	 */
 	void filterLog(const QString& filterText);
 
 	/**
-	 * @brief Clears the entire log history and refreshes the display.
+	 * \brief Clears the entire log history and refreshes the display.
 	 *
 	 * This removes all stored lines from \c fullLogLines and empties the visible \c QTextEdit.
 	 */
 	void clearLog();
 
 	/**
-	 * @brief Saves the currently displayed log to disk via a file dialog.
+	 * \brief Saves the currently displayed log to disk via a file dialog.
 	 *
 	 * The export is written as **plain text** using \c QTextEdit::toPlainText().
 	 * This ensures the saved file is a conventional log format even when the display uses rich text.
@@ -117,7 +117,7 @@ slots :
 	void saveLog();
 
 	/**
-	 * @brief Rebuilds the visible log view from the stored history.
+	 * \brief Rebuilds the visible log view from the stored history.
 	 *
 	 * This method:
 	 * - Ensures execution on the GUI thread.
@@ -132,28 +132,28 @@ slots :
 
 private:
 	/**
-	 * @brief Search field used to capture the active filter string.
+	 * \brief Search field used to capture the active filter string.
 	 *
 	 * Owned by this widget (Qt parent is \c this).
 	 */
 	QLineEdit* searchLineEdit{}; ///< Input field for search/filter text
 
 	/**
-	 * @brief Clears stored log lines and refreshes the UI.
+	 * \brief Clears stored log lines and refreshes the UI.
 	 *
 	 * Owned by this widget (Qt parent is \c this).
 	 */
 	QToolButton* clearButton{}; ///< Button to clear the log
 
 	/**
-	 * @brief Opens the save dialog and writes the current log view to disk.
+	 * \brief Opens the save dialog and writes the current log view to disk.
 	 *
 	 * Owned by this widget (Qt parent is \c this).
 	 */
 	QToolButton* saveButton{}; ///< Button to save the log
 
 	/**
-	 * @brief The main read-only log view.
+	 * \brief The main read-only log view.
 	 *
 	 * Rich text is enabled to support colored/formatted output (for example from ANSI conversion).
 	 * Owned by this widget (Qt parent is \c this).
@@ -161,14 +161,14 @@ private:
 	QTextEdit* logTextEdit{}; ///< The main text area for displaying logs
 
 	/**
-	 * @brief Stored full history of received log lines (HTML fragments).
+	 * \brief Stored full history of received log lines (HTML fragments).
 	 *
 	 * This is the authoritative storage used for filtering and rebuilding the display.
 	 */
 	QStringList fullLogLines;
 
 	/**
-	 * @brief Active filter string (trimmed).
+	 * \brief Active filter string (trimmed).
 	 *
 	 * When empty, all log lines are displayed. When non-empty, only matching lines are shown.
 	 */

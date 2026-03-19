@@ -81,6 +81,22 @@ double GHit::getTotalEnergyDeposited() {
 	return totalEnergyDeposited.value();
 }
 
+double GHit::getEdepRMS() {
+	if (!edepRMS.has_value()) {
+		// Cache the sum of per-step energy depositions.
+		double edep = 0;
+		double edep2 = 0;
+		for (const auto& ei : edeps) {
+			edep += ei;
+			edep2 += ei * ei;
+		}
+		double rms2 = std::fabs(edep2 - edep * edep );
+		edepRMS = std::sqrt(rms2);
+	}
+	return edepRMS.value();
+}
+
+
 double GHit::getAverageTime() {
 	if (averageTime == UNINITIALIZEDNUMBERQUANTITY) {
 		double tote = getTotalEnergyDeposited();

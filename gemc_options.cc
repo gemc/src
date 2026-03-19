@@ -60,7 +60,7 @@ namespace gemc {
         help += std::string(HELPFILLSPACE) + " - local time \n";
         help += std::string(HELPFILLSPACE) + " - process id \n";
         help += std::string(HELPFILLSPACE) + " - clock function \n";
-        goptions.defineOption(GVariable("seed", SEEDNOTSET, "randomEngineName"), help);
+        goptions.defineOption(GVariable("seed", SEEDNOTSET, "seed"), help);
 
 
 		// load other

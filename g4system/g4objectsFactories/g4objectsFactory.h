@@ -1,8 +1,8 @@
 #pragma once
 /**
- * @file   g4objectsFactory.h
+ * \file   g4objectsFactory.h
  * @ingroup g4system_geometry
- * @brief  Abstract factory that converts a GEMC DB \c GVolume into Geant4 objects.
+ * \brief  Abstract factory that converts a GEMC DB \c GVolume into Geant4 objects.
  *
  * @details
  * Subclasses implement \ref G4ObjectsFactory::buildSolid "buildSolid()" to create the \c G4VSolid.
@@ -38,7 +38,7 @@
 /**
  * @class G4ObjectsFactory
  * @ingroup g4system_geometry
- * @brief Base class orchestrating the conversion of a \c GVolume into a Geant4 representation.
+ * \brief Base class orchestrating the conversion of a \c GVolume into a Geant4 representation.
  *
  * @details
  * The public entry point \ref G4ObjectsFactory::build_g4volume "build_g4volume()" ensures that a volume has:
@@ -56,17 +56,17 @@ public:
 	~G4ObjectsFactory() override = default;
 
 	/**
-	 * @brief Construct a factory using the global option set.
-	 * @param g Shared option set used to initialize the logging base and other behaviors.
+	 * \brief Construct a factory using the global option set.
+	 * \param g Shared option set used to initialize the logging base and other behaviors.
 	 */
 	explicit G4ObjectsFactory(const std::shared_ptr<GOptions>& g) : GBase(g, G4SFACTORY_LOGGER) {
 	}
 
 	/**
-	 * @brief Configure overlap checking and backup material behavior for this factory.
+	 * \brief Configure overlap checking and backup material behavior for this factory.
 	 *
-	 * @param checkOverlaps  Forwarded to placement calls to enable overlap checking.
-	 * @param backupMaterial Material name used if a requested material is missing.
+	 * \param checkOverlaps  Forwarded to placement calls to enable overlap checking.
+	 * \param backupMaterial Material name used if a requested material is missing.
 	 *
 	 * @details
 	 * - If \c backupMaterial is empty, a missing material is treated as an error.
@@ -76,11 +76,11 @@ public:
 	                        const std::string& backupMaterial);
 
 	/**
-	 * @brief Build (or retrieve) solid, logical, and physical volumes for a given \c GVolume.
+	 * \brief Build (or retrieve) solid, logical, and physical volumes for a given \c GVolume.
 	 *
-	 * @param s   Pointer to the GEMC volume definition.
-	 * @param g4s Map that stores and caches the resulting \c G4Volume wrappers.
-	 * @return \c true if solid, logical, and physical objects were successfully created; otherwise \c false.
+	 * \param s   Pointer to the GEMC volume definition.
+	 * \param g4s Map that stores and caches the resulting \c G4Volume wrappers.
+	 * \return \c true if solid, logical, and physical objects were successfully created; otherwise \c false.
 	 *
 	 * @details
 	 * This method calls:
@@ -95,8 +95,8 @@ public:
 	                                                     G4Volume*>* g4s);
 
 	/**
-	 * @brief Short, human-readable factory name for logging.
-	 * @return String view valid for the lifetime of the factory.
+	 * \brief Short, human-readable factory name for logging.
+	 * \return String view valid for the lifetime of the factory.
 	 */
 	[[nodiscard]] virtual std::string_view className() const = 0;
 
@@ -104,11 +104,11 @@ protected:
 	// ──────── pure & virtual hooks for subclasses ──────────────────
 
 	/**
-	 * @brief Build the \c G4VSolid for a volume.
+	 * \brief Build the \c G4VSolid for a volume.
 	 *
-	 * @param s   Volume definition to convert.
-	 * @param g4s Map of cached \c G4Volume wrappers.
-	 * @return Pointer to the created/retrieved solid, or \c nullptr on failure or missing dependencies.
+	 * \param s   Volume definition to convert.
+	 * \param g4s Map of cached \c G4Volume wrappers.
+	 * \return Pointer to the created/retrieved solid, or \c nullptr on failure or missing dependencies.
 	 *
 	 * @details
 	 * Subclasses implement the actual conversion from the GEMC type/parameters to a Geant4 solid.
@@ -117,11 +117,11 @@ protected:
 	                             std::unordered_map<std::string, G4Volume*>* g4s) = 0;
 
 	/**
-	 * @brief Build or retrieve the \c G4LogicalVolume for a volume.
+	 * \brief Build or retrieve the \c G4LogicalVolume for a volume.
 	 *
-	 * @param s   Volume definition to convert.
-	 * @param g4s Map of cached \c G4Volume wrappers.
-	 * @return Pointer to the created/retrieved logical volume, or \c nullptr if dependencies are missing.
+	 * \param s   Volume definition to convert.
+	 * \param g4s Map of cached \c G4Volume wrappers.
+	 * \return Pointer to the created/retrieved logical volume, or \c nullptr if dependencies are missing.
 	 *
 	 * @details
 	 * The default implementation:
@@ -134,11 +134,11 @@ protected:
 	                                      std::unordered_map<std::string, G4Volume*>* g4s);
 
 	/**
-	 * @brief Build or retrieve the \c G4VPhysicalVolume for a volume.
+	 * \brief Build or retrieve the \c G4VPhysicalVolume for a volume.
 	 *
-	 * @param s   Volume definition to convert.
-	 * @param g4s Map of cached \c G4Volume wrappers.
-	 * @return Pointer to the created/retrieved physical volume, or \c nullptr if dependencies are missing.
+	 * \param s   Volume definition to convert.
+	 * \param g4s Map of cached \c G4Volume wrappers.
+	 * \return Pointer to the created/retrieved physical volume, or \c nullptr if dependencies are missing.
 	 *
 	 * @details
 	 * The default implementation:
@@ -161,11 +161,11 @@ protected:
 	                                             std::unordered_map<std::string, G4Volume*>* g4s);
 
 	/**
-	 * @brief Get or create a \c G4Volume wrapper entry in the map.
+	 * \brief Get or create a \c G4Volume wrapper entry in the map.
 	 *
-	 * @param volume_name Key used for the volume.
-	 * @param g4s         Map holding cached wrappers.
-	 * @return Pointer to an existing wrapper if found, otherwise a newly allocated wrapper.
+	 * \param volume_name Key used for the volume.
+	 * \param g4s         Map holding cached wrappers.
+	 * \return Pointer to an existing wrapper if found, otherwise a newly allocated wrapper.
 	 *
 	 * @details
 	 * The wrapper is created once and reused for solid/logical/physical caching across build passes.
@@ -179,18 +179,18 @@ protected:
 	}
 
 	/**
-	 * @brief Build visualization attributes from the volume definition.
-	 * @param s Volume definition containing color/opacity/style/visibility.
-	 * @return A \c G4VisAttributes instance configured accordingly.
+	 * \brief Build visualization attributes from the volume definition.
+	 * \param s Volume definition containing color/opacity/style/visibility.
+	 * \return A \c G4VisAttributes instance configured accordingly.
 	 */
 	G4VisAttributes createVisualAttributes(const GVolume* s);
 
 	/**
-	 * @brief Check whether all prerequisites to build a solid are satisfied.
+	 * \brief Check whether all prerequisites to build a solid are satisfied.
 	 *
-	 * @param s   Candidate volume.
-	 * @param g4s Map containing all created wrappers so far.
-	 * @return \c true if dependencies are satisfied, otherwise \c false.
+	 * \param s   Candidate volume.
+	 * \param g4s Map containing all created wrappers so far.
+	 * \return \c true if dependencies are satisfied, otherwise \c false.
 	 *
 	 * @details
 	 * The function handles mutually exclusive scenarios:
@@ -202,11 +202,11 @@ protected:
 	                            std::unordered_map<std::string, G4Volume*>* g4s);
 
 	/**
-	 * @brief Logical dependency check placeholder.
+	 * \brief Logical dependency check placeholder.
 	 *
-	 * @param s   Candidate volume.
-	 * @param g4s Map containing all created wrappers so far.
-	 * @return Always \c true for now.
+	 * \param s   Candidate volume.
+	 * \param g4s Map containing all created wrappers so far.
+	 * \return Always \c true for now.
 	 *
 	 * @details
 	 * The hook exists for future extensions (material prerequisites, sensitive detector constraints, etc.).
@@ -215,11 +215,11 @@ protected:
 	                                     std::unordered_map<std::string, G4Volume*>* g4s);
 
 	/**
-	 * @brief Verify prerequisites to build a physical placement.
+	 * \brief Verify prerequisites to build a physical placement.
 	 *
-	 * @param s   Candidate volume.
-	 * @param g4s Map containing all created wrappers so far.
-	 * @return \c true if the candidate logical volume and mother logical volume exist; otherwise \c false.
+	 * \param s   Candidate volume.
+	 * \param g4s Map containing all created wrappers so far.
+	 * \return \c true if the candidate logical volume and mother logical volume exist; otherwise \c false.
 	 *
 	 * @details
 	 * This check ensures:
@@ -233,16 +233,16 @@ protected:
 	// ──────── geometric helpers ────────────────────────────────────
 
 	/**
-	 * @brief Parse rotation string and build a Geant4 rotation matrix.
-	 * @param s Volume definition containing rotation specification.
-	 * @return Newly allocated \c G4RotationMatrix pointer.
+	 * \brief Parse rotation string and build a Geant4 rotation matrix.
+	 * \param s Volume definition containing rotation specification.
+	 * \return Newly allocated \c G4RotationMatrix pointer.
 	 */
 	static G4RotationMatrix* getRotation(const GVolume* s);
 
 	/**
-	 * @brief Parse position and optional shift strings to compute placement translation.
-	 * @param s Volume definition containing position and optional shift.
-	 * @return Translation vector to use for placement.
+	 * \brief Parse position and optional shift strings to compute placement translation.
+	 * \param s Volume definition containing position and optional shift.
+	 * \return Translation vector to use for placement.
 	 */
 	static G4ThreeVector getPosition(const GVolume* s);
 
@@ -250,7 +250,7 @@ protected:
 	int checkOverlaps{0};
 
 	/**
-	 * @brief Backup material name used if the requested material is absent.
+	 * \brief Backup material name used if the requested material is absent.
 	 *
 	 * Empty string means: no fallback; missing material lookup becomes fatal.
 	 */

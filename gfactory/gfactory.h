@@ -1,7 +1,7 @@
 #pragma once
 /**
- * @file gfactory.h
- * @brief Generic factory/manager for GEMC plugin objects.
+ * \file gfactory.h
+ * \brief Generic factory/manager for GEMC plugin objects.
  *
  * This header provides a small, type-erased factory system that supports:
  * - **Static factories**: register a C++ type and instantiate it by name.
@@ -25,7 +25,7 @@
 
 /**
  * @class GFactoryBase
- * @brief Type-erased factory interface used by \ref GManager "GManager".
+ * \brief Type-erased factory interface used by \ref GManager "GManager".
  *
  * \ref GManager "GManager" stores factories for many unrelated types inside a single container.
  * This is achieved by type-erasing the creation operation into \ref GFactoryBase::Create "Create()",
@@ -41,9 +41,9 @@ public:
 	virtual ~GFactoryBase() = default;
 
 	/**
-	 * @brief Instantiate the concrete product.
+	 * \brief Instantiate the concrete product.
 	 *
-	 * @return A raw, heap-allocated object pointer cast to `void*`.
+	 * \return A raw, heap-allocated object pointer cast to `void*`.
 	 *
 	 * @warning Ownership is transferred to the caller.
 	 */
@@ -52,7 +52,7 @@ public:
 
 /**
  * @class GFactory
- * @brief Concrete factory that creates objects of type @p T.
+ * \brief Concrete factory that creates objects of type @p T.
  *
  * This factory assumes that @p T can be constructed from `const std::shared_ptr<GOptions>&`.
  * The options object is captured at factory construction time and forwarded during instantiation.
@@ -66,9 +66,9 @@ class GFactory final : public GFactoryBase
 {
 public:
 	/**
-	 * @brief Construct a factory bound to a specific configuration/options instance.
+	 * \brief Construct a factory bound to a specific configuration/options instance.
 	 *
-	 * @param gopts Shared options/configuration object forwarded to each constructed instance.
+	 * \param gopts Shared options/configuration object forwarded to each constructed instance.
 	 *
 	 * @note The factory stores a copy of the shared pointer; it does not take exclusive ownership.
 	 */
@@ -79,8 +79,8 @@ public:
 	}
 
 	/**
-	 * @brief Allocate a new instance of @p T.
-	 * @return The newly allocated object as `void*` (caller owns it).
+	 * \brief Allocate a new instance of @p T.
+	 * \return The newly allocated object as `void*` (caller owns it).
 	 */
 	[[nodiscard]] void* Create() override { return static_cast<void*>(new T(gopts_)); }
 
@@ -91,7 +91,7 @@ private:
 
 /**
  * @class GManager
- * @brief Factory registry and dynamic-library manager for run-time creation of plugin objects.
+ * \brief Factory registry and dynamic-library manager for run-time creation of plugin objects.
  *
  * \ref GManager "GManager" provides two related services:
  *
@@ -122,9 +122,9 @@ class GManager : public GBase<GManager>
 {
 public:
 	/**
-	 * @brief Construct a manager instance.
+	 * \brief Construct a manager instance.
 	 *
-	 * @param gopt Shared options object used to configure the base logger and behavior.
+	 * \param gopt Shared options object used to configure the base logger and behavior.
 	 *
 	 * @note The manager uses the `PLUGIN_LOGGER` channel for plugin-related output.
 	 */
@@ -140,17 +140,17 @@ public:
 	GManager& operator=(GManager&&) noexcept = default;
 
 	/**
-	 * @brief Destructor.
+	 * \brief Destructor.
 	 *
 	 * Calls \ref GManager::clearDLMap "clearDLMap()" to release any loaded libraries.
 	 */
 	~GManager() override { clearDLMap(); }
 
 	/**
-	 * @brief Register a concrete factory under a string key.
+	 * \brief Register a concrete factory under a string key.
 	 *
 	 * @tparam Derived Concrete type to instantiate.
-	 * @param name Factory key used later by \ref GManager::CreateObject "CreateObject()".
+	 * \param name Factory key used later by \ref GManager::CreateObject "CreateObject()".
 	 *
 	 * @note This overload registers the type only. The factory must still be constructible as required by
 	 *       \ref GFactory "GFactory".
@@ -159,22 +159,22 @@ public:
 	void RegisterObjectFactory(std::string_view name);
 
 	/**
-	 * @brief Register a concrete factory under a string key using a specific options object.
+	 * \brief Register a concrete factory under a string key using a specific options object.
 	 *
 	 * @tparam Derived Concrete type to instantiate.
-	 * @param name  Factory key used later by \ref GManager::CreateObject "CreateObject()".
-	 * @param gopts Options forwarded to the factory and then to constructed objects.
+	 * \param name  Factory key used later by \ref GManager::CreateObject "CreateObject()".
+	 * \param gopts Options forwarded to the factory and then to constructed objects.
 	 */
 	template <class Derived>
 	void RegisterObjectFactory(std::string_view name, const std::shared_ptr<GOptions>& gopts);
 
 	/**
-	 * @brief Create an instance of a previously registered factory.
+	 * \brief Create an instance of a previously registered factory.
 	 *
 	 * @tparam Base Base type to cast the created object to.
-	 * @param name  Factory key.
+	 * \param name  Factory key.
 	 *
-	 * @return A pointer to a heap-allocated object cast to @p Base.
+	 * \return A pointer to a heap-allocated object cast to @p Base.
 	 *
 	 * @warning The caller owns the returned pointer and must delete it.
 	 */
@@ -182,23 +182,23 @@ public:
 	[[nodiscard]] Base* CreateObject(std::string_view name) const;
 
 	/**
-	 * @brief Load a plugin library and instantiate an object from it.
+	 * \brief Load a plugin library and instantiate an object from it.
 	 *
 	 * The product type @p T must provide a static method `instantiate(dlhandle, std::shared_ptr<GOptions>)`
 	 * that performs the symbol lookup and returns a raw pointer.
 	 *
 	 * @tparam T Product base type.
-	 * @param name  Plugin name (used to form `<name>.gplugin`).
-	 * @param gopts Options to pass to the instantiated object.
+	 * \param name  Plugin name (used to form `<name>.gplugin`).
+	 * \param gopts Options to pass to the instantiated object.
 	 *
-	 * @return `std::shared_ptr<T>` owning the created object; its deleter also retains the library.
+	 * \return `std::shared_ptr<T>` owning the created object; its deleter also retains the library.
 	 */
 	template <class T>
 	[[nodiscard]] std::shared_ptr<T> LoadAndRegisterObjectFromLibrary(std::string_view                 name,
 	                                                                  const std::shared_ptr<GOptions>& gopts);
 
 	/**
-	 * @brief Release all loaded dynamic libraries.
+	 * \brief Release all loaded dynamic libraries.
 	 *
 	 * This is safe to call multiple times.
 	 */
@@ -206,9 +206,9 @@ public:
 
 private:
 	/**
-	 * @brief Register/load a dynamic library into the internal map.
+	 * \brief Register/load a dynamic library into the internal map.
 	 *
-	 * @param name Plugin base name; the library filename is constructed as `<name>.gplugin`.
+	 * \param name Plugin base name; the library filename is constructed as `<name>.gplugin`.
 	 */
 	void registerDL(std::string_view name);
 
