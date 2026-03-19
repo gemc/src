@@ -10,8 +10,8 @@
 #include <thread>
 
 /**
- * @file gthreads.h
- * @brief Small compatibility wrapper providing a jthread-like type.
+ * \file gthreads.h
+ * \brief Small compatibility wrapper providing a jthread-like type.
  *
  * This header defines \c jthread_alias, which maps to:
  * - \c std::jthread when the standard library provides it (C++20 and library support), or
@@ -32,7 +32,7 @@
 
 /**
  * @typedef jthread_alias
- * @brief Alias to \c std::jthread when available.
+ * \brief Alias to \c std::jthread when available.
  *
  * When \c std::jthread exists, it provides automatic joining and cooperative cancellation
  * (via stop tokens) in the standard way.
@@ -46,7 +46,7 @@ using jthread_alias = std::jthread;
 
 /**
  * @class jthread_alias
- * @brief Fallback RAII "join-on-destruction" thread wrapper.
+ * \brief Fallback RAII "join-on-destruction" thread wrapper.
  *
  * This class is used when \c std::jthread is not available in the standard library.
  *
@@ -72,7 +72,7 @@ using jthread_alias = std::jthread;
 class jthread_alias
 {
 	/**
-	 * @brief Owned thread instance.
+	 * \brief Owned thread instance.
 	 *
 	 * Invariant: \c t_ is either default-constructed (not joinable), moved-from (not joinable),
 	 * or represents a running/finished thread that may be joinable.
@@ -81,19 +81,19 @@ class jthread_alias
 
 public:
 	/**
-	 * @brief Construct an empty (non-joinable) wrapper.
+	 * \brief Construct an empty (non-joinable) wrapper.
 	 *
 	 * After default construction, \ref jthread_alias::joinable "joinable()" returns @c false.
 	 */
 	jthread_alias() noexcept = default;
 
 	/**
-	 * @brief Start a new thread by forwarding arguments to the underlying \c std::thread.
+	 * \brief Start a new thread by forwarding arguments to the underlying \c std::thread.
 	 *
 	 * @tparam F Callable type.
 	 * @tparam Args Argument pack forwarded to @p f.
-	 * @param f Callable to run in the new thread.
-	 * @param args Arguments passed to @p f.
+	 * \param f Callable to run in the new thread.
+	 * \param args Arguments passed to @p f.
 	 *
 	 * @note This constructor is \c explicit to avoid accidental implicit thread starts.
 	 */
@@ -109,7 +109,7 @@ public:
 	jthread_alias& operator=(const jthread_alias&) = delete;
 
 	/**
-	 * @brief Join the underlying thread on destruction if still joinable.
+	 * \brief Join the underlying thread on destruction if still joinable.
 	 *
 	 * This mirrors the "safe by default" behavior typically sought with \c std::jthread.
 	 *
@@ -118,13 +118,13 @@ public:
 	~jthread_alias() { if (t_.joinable()) t_.join(); }
 
 	/**
-	 * @brief Check whether the underlying thread can be joined.
-	 * @return @c true if joinable, @c false otherwise.
+	 * \brief Check whether the underlying thread can be joined.
+	 * \return @c true if joinable, @c false otherwise.
 	 */
 	bool joinable() const noexcept { return t_.joinable(); }
 
 	/**
-	 * @brief Join the underlying thread.
+	 * \brief Join the underlying thread.
 	 *
 	 * Preconditions match \c std::thread::join.
 	 *
@@ -134,7 +134,7 @@ public:
 	void join() { t_.join(); }
 
 	/**
-	 * @brief Detach the underlying thread.
+	 * \brief Detach the underlying thread.
 	 *
 	 * After detaching, the wrapper no longer represents a joinable thread, and the destructor
 	 * will not join.
@@ -142,22 +142,22 @@ public:
 	void detach() { t_.detach(); }
 
 	/**
-	 * @brief Get the underlying thread id.
-	 * @return The \c std::thread::id of the owned thread.
+	 * \brief Get the underlying thread id.
+	 * \return The \c std::thread::id of the owned thread.
 	 */
 	std::thread::id get_id() const noexcept { return t_.get_id(); }
 
 	/**
-	 * @brief Access the native handle of the underlying thread.
-	 * @return Native handle as returned by \c std::thread::native_handle.
+	 * \brief Access the native handle of the underlying thread.
+	 * \return Native handle as returned by \c std::thread::native_handle.
 	 *
 	 * @note This is provided for integration with low-level platform APIs when needed.
 	 */
 	auto native_handle() { return t_.native_handle(); }
 
 	/**
-	 * @brief Swap the underlying thread with another wrapper.
-	 * @param other Wrapper to swap with.
+	 * \brief Swap the underlying thread with another wrapper.
+	 * \param other Wrapper to swap with.
 	 *
 	 * After swapping, each wrapper owns the other's prior thread.
 	 */

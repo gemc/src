@@ -8,8 +8,8 @@ using namespace std;
 
 
 /**
- * @file string_vector_from_string.cc
- * @brief Example program demonstrating tokenization via gutilities helpers.
+ * \file string_vector_from_string.cc
+ * \brief Example program demonstrating tokenization via gutilities helpers.
  *
  * This example reads a single command-line argument containing a whitespace-separated list
  * of tokens (typically provided in quotes) and prints each token on its own line.
@@ -25,7 +25,7 @@ using namespace std;
  */
 
 /**
- * @brief Program entry point.
+ * \brief Program entry point.
  *
  * Expected usage:
  * - Exactly one argument containing a whitespace-separated list of tokens.
@@ -34,9 +34,9 @@ using namespace std;
  * - If the argument count is incorrect, prints a fatal-style message and returns failure.
  * - Otherwise tokenizes the string and prints each resulting token.
  *
- * @param argc Argument count.
- * @param argv Argument vector.
- * @return \c EXIT_SUCCESS on success, \c EXIT_FAILURE on incorrect usage.
+ * \param argc Argument count.
+ * \param argv Argument vector.
+ * \return \c EXIT_SUCCESS on success, \c EXIT_FAILURE on incorrect usage.
  */
 int main(int argc, char* argv[]) {
 	if (argc != 2) {

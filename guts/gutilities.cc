@@ -5,6 +5,10 @@
 // Numbers / strings with units / io interface to CLHEP units
 #include "CLHEP/Units/PhysicalConstants.h"
 
+// geant4
+#include "G4UImanager.hh"
+
+
 // c++
 // algorithm for 'transform'
 #include <algorithm>
@@ -172,7 +176,7 @@ string fillDigits(const string& word, const string& c, int ndigits) {
 #include <locale.h>   // strtod_l / _strtod_l
 
 /**
- * @brief Parse an entire numeric string as a double using the "C" numeric locale.
+ * \brief Parse an entire numeric string as a double using the "C" numeric locale.
  *
  * This translation-unit local helper exists to make numeric parsing robust against the
  * process locale (for example when a user's environment uses a comma decimal separator).
@@ -181,9 +185,9 @@ string fillDigits(const string& word, const string& c, int ndigits) {
  * - Parsing succeeds only if the entire input is consumed (no trailing characters).
  * - The conversion uses the "C" numeric locale, independent of the process locale.
  *
- * @param sv String view containing the numeric text.
- * @param out Parsed value on success.
- * @return @c true when the full string was successfully parsed; @c false otherwise.
+ * \param sv String view containing the numeric text.
+ * \param out Parsed value on success.
+ * \return @c true when the full string was successfully parsed; @c false otherwise.
  *
  * @note This is a private helper function. Refer to it textually as \c parse_double_clocale
  *       (no \ref to private symbols).

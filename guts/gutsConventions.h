@@ -3,8 +3,8 @@
 #include <string>
 
 /**
- * @file gutsConventions.h
- * @brief Common constants and console-formatting macros used across gutilities and related code.
+ * \file gutsConventions.h
+ * \brief Common constants and console-formatting macros used across gutilities and related code.
  *
  * This header centralizes *conventions* that are intentionally shared across the project:
  * - Sentinel values for "uninitialized" numeric and string quantities.
@@ -22,7 +22,7 @@
 
 /**
  * @def UNINITIALIZEDNUMBERQUANTITY
- * @brief Sentinel value representing an uninitialized numeric quantity.
+ * \brief Sentinel value representing an uninitialized numeric quantity.
  *
  * This constant is used when a numeric quantity is optional or not yet set and a distinct,
  * easily-detectable value is needed. Typical examples include:
@@ -37,7 +37,7 @@
 
 /**
  * @def UNINITIALIZEDSTRINGQUANTITY
- * @brief Sentinel string representing an uninitialized string quantity.
+ * \brief Sentinel string representing an uninitialized string quantity.
  *
  * This string literal is used as a conventional marker for unset/missing strings in
  * configuration-like flows.
@@ -51,7 +51,7 @@
 
 /**
  * @def EC__FILENOTFOUND
- * @brief Process exit code used when an expected file cannot be opened or found.
+ * \brief Process exit code used when an expected file cannot be opened or found.
  *
  * This exit code is used by code paths that treat a missing file as fatal (i.e., cannot continue).
  * It is intentionally stable so wrapper scripts and CI can classify failures.
@@ -60,7 +60,7 @@
 
 /**
  * @def EC__G4NUMBERERROR
- * @brief Process exit code used when parsing a Geant4-style numeric string fails.
+ * \brief Process exit code used when parsing a Geant4-style numeric string fails.
  *
  * Used by utilities that parse @c "<number>*<unit>" style strings. Errors include:
  * - Invalid numeric text
@@ -74,7 +74,7 @@
 
 /**
  * @def KBOLD
- * @brief ANSI escape sequence for bold text.
+ * \brief ANSI escape sequence for bold text.
  *
  * @note Bold support depends on the terminal emulator. On some terminals it may appear as
  *       increased brightness rather than a true bold weight.
@@ -83,49 +83,49 @@
 
 /**
  * @def KRED
- * @brief ANSI escape sequence for red foreground text.
+ * \brief ANSI escape sequence for red foreground text.
  */
 #define KRED "\x1B[31m"
 
 /**
  * @def KGRN
- * @brief ANSI escape sequence for green foreground text.
+ * \brief ANSI escape sequence for green foreground text.
  */
 #define KGRN "\x1B[32m"
 
 /**
  * @def KYEL
- * @brief ANSI escape sequence for yellow foreground text.
+ * \brief ANSI escape sequence for yellow foreground text.
  */
 #define KYEL "\x1B[33m"
 
 /**
  * @def KBLU
- * @brief ANSI escape sequence for blue foreground text.
+ * \brief ANSI escape sequence for blue foreground text.
  */
 #define KBLU "\x1B[34m"
 
 /**
  * @def KMAG
- * @brief ANSI escape sequence for magenta foreground text.
+ * \brief ANSI escape sequence for magenta foreground text.
  */
 #define KMAG "\x1B[35m"
 
 /**
  * @def KCYN
- * @brief ANSI escape sequence for cyan foreground text.
+ * \brief ANSI escape sequence for cyan foreground text.
  */
 #define KCYN "\x1B[36m"
 
 /**
  * @def KWHT
- * @brief ANSI escape sequence for white foreground text.
+ * \brief ANSI escape sequence for white foreground text.
  */
 #define KWHT "\x1B[37m"
 
 /**
  * @def RST
- * @brief ANSI escape sequence to reset text formatting to defaults.
+ * \brief ANSI escape sequence to reset text formatting to defaults.
  *
  * Use this after applying a color/attribute sequence to avoid "leaking" formatting into
  * subsequent console output.
@@ -136,9 +136,9 @@
 
 /**
  * @def FRED(x)
- * @brief Wrap @p x in red text and reset formatting afterwards.
+ * \brief Wrap @p x in red text and reset formatting afterwards.
  *
- * @param x String literal to wrap (typically a short label).
+ * \param x String literal to wrap (typically a short label).
  * @note These macros operate on string literals; they are meant for building other labels
  *       and prefixes, not for formatting arbitrary runtime strings.
  */
@@ -146,43 +146,43 @@
 
 /**
  * @def FGRN(x)
- * @brief Wrap @p x in green text and reset formatting afterwards.
+ * \brief Wrap @p x in green text and reset formatting afterwards.
  */
 #define FGRN(x) KGRN x RST  ///< Macro to wrap text in green color.
 
 /**
  * @def FYEL(x)
- * @brief Wrap @p x in yellow text and reset formatting afterwards.
+ * \brief Wrap @p x in yellow text and reset formatting afterwards.
  */
 #define FYEL(x) KYEL x RST  ///< Macro to wrap text in yellow color.
 
 /**
  * @def FBLU(x)
- * @brief Wrap @p x in blue text and reset formatting afterwards.
+ * \brief Wrap @p x in blue text and reset formatting afterwards.
  */
 #define FBLU(x) KBLU x RST  ///< Macro to wrap text in blue color.
 
 /**
  * @def FMAG(x)
- * @brief Wrap @p x in magenta text and reset formatting afterwards.
+ * \brief Wrap @p x in magenta text and reset formatting afterwards.
  */
 #define FMAG(x) KMAG x RST  ///< Macro to wrap text in magenta color.
 
 /**
  * @def FCYN(x)
- * @brief Wrap @p x in cyan text and reset formatting afterwards.
+ * \brief Wrap @p x in cyan text and reset formatting afterwards.
  */
 #define FCYN(x) KCYN x RST  ///< Macro to wrap text in cyan color.
 
 /**
  * @def FWHT(x)
- * @brief Wrap @p x in white text and reset formatting afterwards.
+ * \brief Wrap @p x in white text and reset formatting afterwards.
  */
 #define FWHT(x) KWHT x RST  ///< Macro to wrap text in white color.
 
 /**
  * @def BOLD(x)
- * @brief Wrap @p x in bold formatting and reset afterwards.
+ * \brief Wrap @p x in bold formatting and reset afterwards.
  *
  * This is commonly composed with the color wrappers to produce prominent labels.
  */
@@ -190,13 +190,13 @@
 
 /**
  * @def UNDL(x)
- * @brief Wrap @p x in underline formatting and reset afterwards.
+ * \brief Wrap @p x in underline formatting and reset afterwards.
  */
 #define UNDL(x) "\x1B[4m" x RST ///< Macro to wrap text with underline.
 
 /**
  * @def FATALERRORL
- * @brief Standardized fatal error label prefix (bold red).
+ * \brief Standardized fatal error label prefix (bold red).
  *
  * Typically used at the start of an error message sent to @c std::cerr, for example:
  * @code{.cpp}
@@ -207,7 +207,7 @@
 
 /**
  * @def GWARNING
- * @brief Standardized warning label prefix (bold yellow).
+ * \brief Standardized warning label prefix (bold yellow).
  *
  * Typically used at the start of a warning message sent to @c std::cerr.
  */
@@ -215,13 +215,13 @@
 
 /**
  * @def CONSTRUCTORLOG
- * @brief Glyph used to annotate constructor log messages.
+ * \brief Glyph used to annotate constructor log messages.
  */
 #define CONSTRUCTORLOG "↑"  ///< Log symbol for constructor.
 
 /**
  * @def DESTRUCTORLOG
- * @brief Glyph used to annotate destructor log messages.
+ * \brief Glyph used to annotate destructor log messages.
  */
 #define DESTRUCTORLOG "↓"   ///< Log symbol for destructor.
 
@@ -229,25 +229,25 @@
 
 /**
  * @def POINTITEM
- * @brief Bullet glyph used for list formatting in console logs.
+ * \brief Bullet glyph used for list formatting in console logs.
  */
 #define POINTITEM "•"          ///< Symbol for point item.
 
 /**
  * @def CIRCLEITEM
- * @brief Hollow bullet glyph used for list formatting in console logs.
+ * \brief Hollow bullet glyph used for list formatting in console logs.
  */
 #define CIRCLEITEM "◦"         ///< Symbol for circle item.
 
 /**
  * @def SQUAREITEM
- * @brief Square glyph used for list formatting in console logs.
+ * \brief Square glyph used for list formatting in console logs.
  */
 #define SQUAREITEM "◻︎"        ///< Symbol for square item.
 
 /**
  * @def ARROWITEM
- * @brief Arrow glyph used for list formatting in console logs.
+ * \brief Arrow glyph used for list formatting in console logs.
  */
 #define ARROWITEM "➤"          ///< Symbol for arrow item.
 
@@ -264,7 +264,7 @@
 
 /**
  * @def GTAB
- * @brief Standard indentation unit used by console-formatting macros.
+ * \brief Standard indentation unit used by console-formatting macros.
  *
  * Intended for human-readable, visually aligned console output. These are not meant to be
  * used for machine-parsed logs.
@@ -310,7 +310,7 @@
 
 /**
  * @def HHL
- * @brief Left highlight glyph.
+ * \brief Left highlight glyph.
  *
  * Used for lightweight highlighting in console output. Often paired with @ref HHR.
  */
@@ -318,7 +318,7 @@
 
 /**
  * @def HHR
- * @brief Right highlight glyph.
+ * \brief Right highlight glyph.
  *
  * Used for lightweight highlighting in console output. Often paired with @ref HHL.
  */
