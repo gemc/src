@@ -16,7 +16,7 @@
  * - a static \ref Car::instantiate "instantiate()" helper that resolves an extern "C" factory symbol
  *   from a \c dlopen handle and returns a newly allocated instance.
  *
- * @note In real modules, the base class typically defines the stable ABI/API that plugins implement.
+ * \note In real modules, the base class typically defines the stable ABI/API that plugins implement.
  */
 class Car : public GBase<Car>
 {

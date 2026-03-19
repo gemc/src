@@ -189,7 +189,7 @@ string fillDigits(const string& word, const string& c, int ndigits) {
  * \param out Parsed value on success.
  * \return @c true when the full string was successfully parsed; @c false otherwise.
  *
- * @note This is a private helper function. Refer to it textually as \c parse_double_clocale
+ * \note This is a private helper function. Refer to it textually as \c parse_double_clocale
  *       (no \ref to private symbols).
  */
 static bool parse_double_clocale(std::string_view sv, double& out) {

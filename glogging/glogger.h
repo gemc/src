@@ -245,7 +245,7 @@ public:
 	 * \param exit_code The program exit code to return to the calling environment.
 	 * \param args Message parts to be logged before exiting.
 	 *
-	 * @note This function is marked \c [[noreturn]] because it always terminates the process.
+	 * \note This function is marked \c [[noreturn]] because it always terminates the process.
 	 */
 	template <typename... Args>
 	[[noreturn]] void error(int exit_code, Args&&... args) const {

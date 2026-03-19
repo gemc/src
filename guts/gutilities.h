@@ -110,7 +110,7 @@ std::vector<std::string> getStringVectorFromString(const std::string& input);
  * \param replacement The string to replace each occurrence of characters in @p toReplace.
  * \return A new string with specified characters replaced by the replacement string.
  *
- * @note This function replaces *characters* (not substrings) and may increase the output size
+ * \note This function replaces *characters* (not substrings) and may increase the output size
  *       if @p replacement is longer than one character.
  */
 std::string replaceCharInStringWithChars(const std::string& input, const std::string& toReplace,
@@ -161,7 +161,7 @@ string fillDigits(const string& word, const string& c, int ndigits);
  * \param path The input file path.
  * \return The filename extracted from the path.
  *
- * @note This is a string-based helper. It does not query the filesystem and does not normalize paths.
+ * \note This is a string-based helper. It does not query the filesystem and does not normalize paths.
  */
 std::string getFileFromPath(const std::string& path);
 
@@ -174,7 +174,7 @@ std::string getFileFromPath(const std::string& path);
  * \param path The input file path.
  * \return The directory path extracted from the path.
  *
- * @note This is a string-based helper. It does not query the filesystem and does not normalize paths.
+ * \note This is a string-based helper. It does not query the filesystem and does not normalize paths.
  */
 std::string getDirFromPath(const std::string& path);
 
@@ -191,7 +191,7 @@ std::string getDirFromPath(const std::string& path);
  * \param filename Filename to append when probing directory entries.
  * \return Full path string for the first match, or @c std::nullopt if no match is found.
  *
- * @note This function probes the filesystem. It is appropriate for "search path" style logic.
+ * \note This function probes the filesystem. It is appropriate for "search path" style logic.
  */
 std::optional<std::string> searchForFileInLocations(
 	const std::vector<std::string>& locations,
@@ -203,7 +203,7 @@ std::optional<std::string> searchForFileInLocations(
  * \param path The path to check for a directory.
  * \return @c true if the directory exists, @c false otherwise.
  *
- * @note This probes the filesystem and may fail for permission reasons; failures are treated
+ * \note This probes the filesystem and may fail for permission reasons; failures are treated
  *       as "does not exist" in the current implementation.
  */
 bool directoryExists(const std::string& path);
@@ -231,7 +231,7 @@ string searchForDirInLocations(const string& dirName, const vector<string>& poss
  * \param extensions A vector of extensions to check against.
  * \return @c true if the filename has one of the specified extensions, @c false otherwise.
  *
- * @note Extensions are matched exactly as provided (case-sensitive).
+ * \note Extensions are matched exactly as provided (case-sensitive).
  */
 bool hasExtension(const string& filename, const vector<string>& extensions);
 
@@ -244,7 +244,7 @@ bool hasExtension(const string& filename, const vector<string>& extensions);
  * \param extensions A vector of file extensions to filter the files.
  * \return A vector of file names that have the specified extensions.
  *
- * @note Returned values are filenames (not absolute paths).
+ * \note Returned values are filenames (not absolute paths).
  */
 vector<string> getListOfFilesInDirectory(const string& dirName, const vector<string>& extensions);
 
@@ -350,7 +350,7 @@ string parseFileAndRemoveComments(const string& filename, const string& commentC
  * \param secondDelimiter The delimiter marking the end of the substring.
  * \return The substring found between the specified delimiters, or an empty string if delimiters are not found.
  *
- * @note Only the first occurrence of each delimiter is considered.
+ * \note Only the first occurrence of each delimiter is considered.
  */
 string retrieveStringBetweenChars(const string& input, const string& firstDelimiter, const string& secondDelimiter);
 
@@ -381,7 +381,7 @@ vector<string> getStringVectorFromStringWithDelimiter(const string& input, const
  * \param str The string to convert.
  * \return The lowercase version of the input string.
  *
- * @note This uses the C locale's @c ::tolower behavior (byte-wise). It is intended for ASCII-ish tokens
+ * \note This uses the C locale's @c ::tolower behavior (byte-wise). It is intended for ASCII-ish tokens
  *       such as configuration keywords and unit identifiers.
  */
 string convertToLowercase(const string& str);
@@ -456,7 +456,7 @@ inline constexpr const char* to_string(randomModel m) noexcept {
  * \return Constructed \c G4Colour.
  * @throws std::invalid_argument on malformed input.
  *
- * @note This helper is intended for configuration-driven color selection.
+ * \note This helper is intended for configuration-driven color selection.
  */
 G4Colour makeG4Colour(std::string_view code, double opacity);
 
@@ -492,7 +492,7 @@ namespace gutilities {
  * \return Canonical executable path.
  * @throws std::runtime_error on platform API failures.
  *
- * @note This utility is used to infer installation layout relative to the executable.
+ * \note This utility is used to infer installation layout relative to the executable.
  */
 inline std::filesystem::path executable_path() {
 #if defined(__APPLE__)
@@ -543,7 +543,7 @@ inline std::filesystem::path executable_path() {
  * \return Filesystem path to the inferred GEMC root.
  * @throws std::runtime_error if the layout check fails.
  *
- * @note This function encodes a layout expectation. If the installation structure changes,
+ * \note This function encodes a layout expectation. If the installation structure changes,
  *       update the documented assumptions here and the corresponding implementation.
  */
 inline std::filesystem::path gemc_root() {
@@ -588,7 +588,7 @@ inline std::filesystem::path gemc_root() {
  * \param s Input view.
  * \return @c true if @p s represents an "unset" value, @c false otherwise.
  *
- * @note This is used for robust configuration parsing where users may specify "NULL", "null", "~", or empty values.
+ * \note This is used for robust configuration parsing where users may specify "NULL", "null", "~", or empty values.
  */
 bool is_unset(std::string_view s);
 
@@ -598,7 +598,7 @@ bool is_unset(std::string_view s);
  * \param condition Boolean test.
  * \return @c "success" when @p condition is true; otherwise @c "fail".
  *
- * @note Intended for short, human-readable status reporting and logs.
+ * \note Intended for short, human-readable status reporting and logs.
  */
 inline std::string success_or_fail(bool condition) { return condition ? "success" : "fail"; }
 
@@ -610,7 +610,7 @@ inline std::string success_or_fail(bool condition) { return condition ? "success
  *
  * \param commands Command string to apply.
  *
- * @note This intentionally does not validate the command string; validation is delegated to the UI manager.
+ * \note This intentionally does not validate the command string; validation is delegated to the UI manager.
  */
 void apply_uimanager_commands(const std::string& commands);
 }

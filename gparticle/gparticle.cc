@@ -10,7 +10,6 @@
 
 // geant4
 #include "G4ParticleTable.hh"
-#include "G4Event.hh"
 #include "Randomize.hh"
 
 using std::to_string;
@@ -21,26 +20,26 @@ using std::string;
 // Constructor based on parameters.
 // Detailed API documentation is in gparticle.h.
 Gparticle::Gparticle(const std::string&              aname,
-                     int                             amultiplicity,
-                     double                          ap,
-                     double                          adelta_p,
-                     const std::string&              punit,
-                     const std::string&              arandomMomentumModel,
-                     double                          atheta,
-                     double                          adelta_theta,
-                     const std::string&              arandomThetaModel,
-                     double                          aphi,
-                     double                          adelta_phi,
-                     const std::string&              aunit,
-                     double                          avx,
-                     double                          avy,
-                     double                          avz,
-                     double                          adelta_vx,
-                     double                          adelta_vy,
-                     double                          adelta_vz,
-                     const std::string&              vunit,
-                     const std::string&              arandomVertexModel,
-                     const std::shared_ptr<GLogger>& logger) :
+					 int                             amultiplicity,
+					 double                          ap,
+					 double                          adelta_p,
+					 const std::string&              punit,
+					 const std::string&              arandomMomentumModel,
+					 double                          atheta,
+					 double                          adelta_theta,
+					 const std::string&              arandomThetaModel,
+					 double                          aphi,
+					 double                          adelta_phi,
+					 const std::string&              aunit,
+					 double                          avx,
+					 double                          avy,
+					 double                          avz,
+					 double                          adelta_vx,
+					 double                          adelta_vy,
+					 double                          adelta_vz,
+					 const std::string&              vunit,
+					 const std::string&              arandomVertexModel,
+					 const std::shared_ptr<GLogger>& logger) :
 	name(aname),
 	multiplicity(amultiplicity),
 	// Convert user values + unit strings into Geant4 numeric values through gutilities.
@@ -53,15 +52,15 @@ Gparticle::Gparticle(const std::string&              aname,
 	phi(gutilities::getG4Number(to_string(aphi) + "*" + aunit)),
 	delta_phi(gutilities::getG4Number(to_string(adelta_phi) + "*" + aunit)),
 	v(G4ThreeVector(
-		gutilities::getG4Number(to_string(avx) + "*" + vunit),
-		gutilities::getG4Number(to_string(avy) + "*" + vunit),
-		gutilities::getG4Number(to_string(avz) + "*" + vunit)
-	)),
+					gutilities::getG4Number(to_string(avx) + "*" + vunit),
+					gutilities::getG4Number(to_string(avy) + "*" + vunit),
+					gutilities::getG4Number(to_string(avz) + "*" + vunit)
+				   )),
 	delta_v(G4ThreeVector(
-		gutilities::getG4Number(to_string(adelta_vx) + "*" + vunit),
-		gutilities::getG4Number(to_string(adelta_vy) + "*" + vunit),
-		gutilities::getG4Number(to_string(adelta_vz) + "*" + vunit)
-	)),
+						  gutilities::getG4Number(to_string(adelta_vx) + "*" + vunit),
+						  gutilities::getG4Number(to_string(adelta_vy) + "*" + vunit),
+						  gutilities::getG4Number(to_string(adelta_vz) + "*" + vunit)
+						 )),
 	randomVertexModel(gutilities::stringToRandomModel(arandomVertexModel)),
 	log(logger) {
 	// Resolve PDG id immediately so errors are detected early and configuration printing is complete.
@@ -85,33 +84,32 @@ void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent) {
 			double mass = particleDef->GetPDGMass();
 			particleGun->SetParticleDefinition(particleDef);
 
-			auto beamDirection = calculateBeamDirection();
-			auto vertex        = calculateVertex();
-
 
 			// Shoot one primary vertex per multiplicity.
 			for (int i = 0; i < multiplicity; i++) {
-				particleGun->SetParticleEnergy(calculateKinEnergy(mass));
+				auto kenergy       = calculateKinEnergy(mass);
+				auto beamDirection = calculateBeamDirection();
+				auto vertex        = calculateVertex();
+
+				setRunTimeQuantities(kenergy, beamDirection, vertex);
+
+				particleGun->SetParticleEnergy(kenergy);
 				particleGun->SetParticleMomentumDirection(beamDirection);
 				particleGun->SetParticlePosition(vertex);
 				particleGun->GeneratePrimaryVertex(anEvent);
 
 				log->info(2, *this);
-
 			}
 		}
 		else {
 			log->error(ERR_GPARTICLENOTFOUND,
-			           "Particle <", name, "> not found in G4ParticleTable* ", particleTable);
+					   "Particle <", name, "> not found in G4ParticleTable* ", particleTable);
 		}
 	}
 	else {
 		log->error(ERR_GPARTICLETABLENOTFOUND,
-		           "G4ParticleTable not found - G4ParticleGun*: ", particleGun);
+				   "G4ParticleTable not found - G4ParticleGun*: ", particleGun);
 	}
-
-
-
 }
 
 
@@ -135,10 +133,10 @@ G4ThreeVector Gparticle::calculateBeamDirection() {
 	double phiRad   = randomizeNumberFromSigmaWithModel(phi, delta_phi, gutilities::uniform) / CLHEP::rad;
 
 	G4ThreeVector pdir = G4ThreeVector(
-		cos(phiRad) * sin(thetaRad),
-		sin(phiRad) * sin(thetaRad),
-		cos(thetaRad)
-	);
+									   cos(phiRad) * sin(thetaRad),
+									   sin(phiRad) * sin(thetaRad),
+									   cos(thetaRad)
+									  );
 
 	return pdir;
 }
@@ -147,48 +145,48 @@ G4ThreeVector Gparticle::calculateVertex() {
 	double x, y, z;
 
 	switch (randomVertexModel) {
-	case gutilities::uniform:
-		// Component-wise uniform sampling around the nominal vertex.
-		x = randomizeNumberFromSigmaWithModel(v.x(), delta_v.x(), gutilities::uniform);
-		y = randomizeNumberFromSigmaWithModel(v.y(), delta_v.y(), gutilities::uniform);
-		z = randomizeNumberFromSigmaWithModel(v.z(), delta_v.z(), gutilities::uniform);
-		break;
+		case gutilities::uniform:
+			// Component-wise uniform sampling around the nominal vertex.
+			x = randomizeNumberFromSigmaWithModel(v.x(), delta_v.x(), gutilities::uniform);
+			y = randomizeNumberFromSigmaWithModel(v.y(), delta_v.y(), gutilities::uniform);
+			z = randomizeNumberFromSigmaWithModel(v.z(), delta_v.z(), gutilities::uniform);
+			break;
 
-	case gutilities::gaussian:
-		// Component-wise Gaussian sampling around the nominal vertex (deltas used as sigmas).
-		x = randomizeNumberFromSigmaWithModel(v.x(), delta_v.x(), gutilities::gaussian);
-		y = randomizeNumberFromSigmaWithModel(v.y(), delta_v.y(), gutilities::gaussian);
-		z = randomizeNumberFromSigmaWithModel(v.z(), delta_v.z(), gutilities::gaussian);
-		break;
+		case gutilities::gaussian:
+			// Component-wise Gaussian sampling around the nominal vertex (deltas used as sigmas).
+			x = randomizeNumberFromSigmaWithModel(v.x(), delta_v.x(), gutilities::gaussian);
+			y = randomizeNumberFromSigmaWithModel(v.y(), delta_v.y(), gutilities::gaussian);
+			z = randomizeNumberFromSigmaWithModel(v.z(), delta_v.z(), gutilities::gaussian);
+			break;
 
-	case gutilities::sphere: {
-		// Sample an offset inside a sphere-like region whose maximum radius is delta_v.r().
-		// Assumes all three components have comparable spread such that delta_v.r() is meaningful.
-		double radius;
-		double max_radius = delta_v.r();
+		case gutilities::sphere: {
+			// Sample an offset inside a sphere-like region whose maximum radius is delta_v.r().
+			// Assumes all three components have comparable spread such that delta_v.r() is meaningful.
+			double radius;
+			double max_radius = delta_v.r();
 
-		// Rejection sampling: generate a random point in a cube until it lies within the radius bound.
-		do {
-			x      = randomizeNumberFromSigmaWithModel(0, max_radius, gutilities::uniform);
-			y      = randomizeNumberFromSigmaWithModel(0, max_radius, gutilities::uniform);
-			z      = randomizeNumberFromSigmaWithModel(0, max_radius, gutilities::uniform);
-			radius = x * x + y * y + z * z;
+			// Rejection sampling: generate a random point in a cube until it lies within the radius bound.
+			do {
+				x      = randomizeNumberFromSigmaWithModel(0, max_radius, gutilities::uniform);
+				y      = randomizeNumberFromSigmaWithModel(0, max_radius, gutilities::uniform);
+				z      = randomizeNumberFromSigmaWithModel(0, max_radius, gutilities::uniform);
+				radius = x * x + y * y + z * z;
+			}
+			while (radius > max_radius);
+
+			// Offset the sampled point by the nominal vertex.
+			x = x + v.x();
+			y = y + v.y();
+			z = z + v.z();
+			break;
 		}
-		while (radius > max_radius);
 
-		// Offset the sampled point by the nominal vertex.
-		x = x + v.x();
-		y = y + v.y();
-		z = z + v.z();
-		break;
-	}
-
-	default:
-		// Unknown model: fall back to deterministic vertex.
-		x = v.x();
-		y = v.y();
-		z = v.z();
-		break;
+		default:
+			// Unknown model: fall back to deterministic vertex.
+			x = v.x();
+			y = v.y();
+			z = v.z();
+			break;
 	}
 
 	return {x, y, z};
@@ -197,38 +195,38 @@ G4ThreeVector Gparticle::calculateVertex() {
 
 double Gparticle::randomizeNumberFromSigmaWithModel(double center, double delta, gutilities::randomModel model) const {
 	switch (model) {
-	case gutilities::uniform:
-		// Uniform in [center-delta, center+delta].
-		return center + (2.0 * G4UniformRand() - 1.0) * delta;
+		case gutilities::uniform:
+			// Uniform in [center-delta, center+delta].
+			return center + ( 2.0 * G4UniformRand() - 1.0 ) * delta;
 
-	case gutilities::gaussian:
-		// Gaussian with mean=center and sigma=delta.
-		return G4RandGauss::shoot(center, delta);
+		case gutilities::gaussian:
+			// Gaussian with mean=center and sigma=delta.
+			return G4RandGauss::shoot(center, delta);
 
-	case gutilities::cosine: {
-		// assuming this is an angle with corrected units
-		// For cosine-weighted sampling we work in radians, sample theta with sin(theta) weighting,
-		// and then enforce the requested [center-delta, center+delta] range.
-		double lower      = (center - delta) / CLHEP::rad;
-		double upper      = (center + delta) / CLHEP::rad;
-		double center_rad = 0;
+		case gutilities::cosine: {
+			// assuming this is an angle with corrected units
+			// For cosine-weighted sampling we work in radians, sample theta with sin(theta) weighting,
+			// and then enforce the requested [center-delta, center+delta] range.
+			double lower      = ( center - delta ) / CLHEP::rad;
+			double upper      = ( center + delta ) / CLHEP::rad;
+			double center_rad = 0;
 
-		if (lower < upper) {
-			// Generate theta such that cos(theta) is uniform, which corresponds to sin(theta) weighting.
-			do { center_rad = acos(1 - 2 * G4UniformRand()); }
-			while (center_rad < lower || center_rad > upper);
+			if (lower < upper) {
+				// Generate theta such that cos(theta) is uniform, which corresponds to sin(theta) weighting.
+				do { center_rad = acos(1 - 2 * G4UniformRand()); }
+				while (center_rad < lower || center_rad > upper);
+			}
+			else {
+				// Degenerate range: fall back to the stored theta value.
+				center_rad = theta / CLHEP::rad;
+			}
+
+			return center_rad * CLHEP::rad;
 		}
-		else {
-			// Degenerate range: fall back to the stored theta value.
-			center_rad = theta / CLHEP::rad;
-		}
 
-		return center_rad * CLHEP::rad;
-	}
-
-	default:
-		// Unknown model: no randomization.
-		return center;
+		default:
+			// Unknown model: no randomization.
+			return center;
 	}
 }
 
@@ -246,7 +244,7 @@ std::ostream& operator<<(std::ostream& os, const Gparticle& gp) {
 	// helper: plain value
 	auto show = [&](const std::string& label, const auto& value) {
 		os << left << setw(label_w) << label << ' '
-			<< right << setw(value_w) << value << '\n';
+			<< setw(value_w) << right << setw(value_w) << value << '\n';
 	};
 
 	// helper: double value with N decimals
@@ -264,13 +262,13 @@ std::ostream& operator<<(std::ostream& os, const Gparticle& gp) {
 
 	// helper: value ± error (both doubles)
 	auto show_pm = [&](const std::string& label,
-	                   double             val, double err,
-	                   int                prec = 3) {
+					   double             val, double err,
+					   int                prec = 3) {
 		std::streamsize old_prec  = os.precision();
 		auto            old_flags = os.flags();
 
 		os << left << setw(label_w) << label << ' '
-			<< right << setw(value_w) << std::fixed
+			<< right << setw(value_w) << std::fixed << setw(value_w)
 			<< std::setprecision(prec) << val
 			<< "  ± " << std::setprecision(prec) << err << '\n';
 
@@ -296,25 +294,33 @@ std::ostream& operator<<(std::ostream& os, const Gparticle& gp) {
 	showf(" mass [MeV]:", gp.get_mass());
 
 	show_pm(" p [MeV]:",
-	        gp.p,
-	        gp.delta_p / CLHEP::MeV);
+			gp.p / CLHEP::MeV,
+			gp.delta_p / CLHEP::MeV);
 
 	show(" p model:", to_string(gp.randomMomentumModel));
 
 	show_pm(" theta [deg]:",
-	        gp.theta / CLHEP::deg,
-	        gp.delta_theta / CLHEP::deg);
+			gp.theta / CLHEP::deg,
+			gp.delta_theta / CLHEP::deg);
 
 	show(" theta model:", to_string(gp.randomThetaModel));
 
 	show_pm(" phi  [deg]:",
-	        gp.phi / CLHEP::deg,
-	        gp.delta_phi / CLHEP::deg);
+			gp.phi / CLHEP::deg,
+			gp.delta_phi / CLHEP::deg);
 
 	os << left << setw(label_w) << " vertex [cm]:" << ' '
 		<< gp.v << "  ± " << gp.delta_v << '\n';
 
 	show(" vertex model:", to_string(gp.randomVertexModel));
+
+	showf(" kinematic energy [MeV]:", gp.kinenergy / CLHEP::MeV);
+	os << left << setw(label_w) << " beam direction :" << ' '
+		<< gp.beamDirection << '\n';
+
+	os << left << setw(label_w) << " vertex :" << ' '
+		<< gp.vertex << '\n';
+
 
 	return os;
 }
@@ -329,12 +335,12 @@ int Gparticle::get_pdg_id() {
 		if (particleDef != nullptr) { return particleDef->GetPDGEncoding(); }
 		else {
 			log->error(ERR_GPARTICLENOTFOUND,
-			           "Particle <", name, "> not found in G4ParticleTable* ", particleTable);
+					   "Particle <", name, "> not found in G4ParticleTable* ", particleTable);
 		}
 	}
 	else {
 		log->error(ERR_GPARTICLETABLENOTFOUND,
-		           "G4ParticleTable not found - G4ParticleGun*: ", particleTable);
+				   "G4ParticleTable not found - G4ParticleGun*: ", particleTable);
 	}
 }
 

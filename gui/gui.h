@@ -30,7 +30,7 @@
  * constructed using shared configuration objects (GOptions, GDetectorConstruction, and GBoard) so that
  * the GUI pages remain synchronized with the simulation configuration.
  *
- * @note This class is a \c QWidget and uses Qt signals/slots (Q_OBJECT).
+ * \note This class is a \c QWidget and uses Qt signals/slots (Q_OBJECT).
  */
 class GemcGUI : public QWidget
 {

@@ -53,7 +53,7 @@
  *
  * \return Vector of collected event data objects.
  *
- * @note This function demonstrates the threading pattern only; the example uses a fixed
+ * \note This function demonstrates the threading pattern only; the example uses a fixed
  *       sensitive detector name ("flux") and synthetic hit generation for clarity.
  */
 auto run_simulation_in_threads(int                                                 nevents,

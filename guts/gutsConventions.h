@@ -15,7 +15,7 @@
  * The goal is to keep error messages and console output consistent across all modules that
  * rely on these utilities.
  *
- * @note These are macros on purpose: they are intended to be lightweight, header-only,
+ * \note These are macros on purpose: they are intended to be lightweight, header-only,
  *       and usable in low-level code paths (including error handling) without additional
  *       dependencies.
  */
@@ -76,7 +76,7 @@
  * @def KBOLD
  * \brief ANSI escape sequence for bold text.
  *
- * @note Bold support depends on the terminal emulator. On some terminals it may appear as
+ * \note Bold support depends on the terminal emulator. On some terminals it may appear as
  *       increased brightness rather than a true bold weight.
  */
 #define KBOLD "\x1B[1m"
@@ -139,7 +139,7 @@
  * \brief Wrap @p x in red text and reset formatting afterwards.
  *
  * \param x String literal to wrap (typically a short label).
- * @note These macros operate on string literals; they are meant for building other labels
+ * \note These macros operate on string literals; they are meant for building other labels
  *       and prefixes, not for formatting arbitrary runtime strings.
  */
 #define FRED(x) KRED x RST  ///< Macro to wrap text in red color.

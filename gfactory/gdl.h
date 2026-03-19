@@ -125,7 +125,7 @@ public:
 	/**
 	 * \brief Destructor closes the library handle (if loaded).
 	 *
-	 * @note \c dlclose is called only if \ref handle "handle" is not null.
+	 * \note \c dlclose is called only if \ref handle "handle" is not null.
 	 */
 	~DynamicLib() {
 		if (handle != nullptr) {

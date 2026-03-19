@@ -122,7 +122,7 @@ public:
 	 * \brief Return a copy of the current volume map (name → wrapper pointer).
 	 * \return Copy of the internal map.
 	 *
-	 * @note This returns a copy intentionally; callers cannot mutate internal state through it.
+	 * \note This returns a copy intentionally; callers cannot mutate internal state through it.
 	 */
 	[[nodiscard]] std::unordered_map<std::string, G4Volume*> get_g4volumes_map() const {
 		return g4volumesMap;

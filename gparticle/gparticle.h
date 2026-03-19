@@ -103,26 +103,26 @@ public:
 	 * \param logger Logger used for diagnostics and error reporting.
 	 */
 	Gparticle(const std::string&              name,
-	          int                             multiplicity,
-	          double                          p,
-	          double                          delta_p,
-	          const std::string&              punit,
-	          const std::string&              randomMomentumModel,
-	          double                          theta,
-	          double                          delta_theta,
-	          const std::string&              thetaModel,
-	          double                          phi,
-	          double                          delta_phi,
-	          const std::string&              aunit,
-	          double                          avx,
-	          double                          avy,
-	          double                          avz,
-	          double                          adelta_vx,
-	          double                          adelta_vy,
-	          double                          adelta_vz,
-	          const std::string&              vunit,
-	          const std::string&              randomVertexModel,
-	          const std::shared_ptr<GLogger>& logger);
+			  int                             multiplicity,
+			  double                          p,
+			  double                          delta_p,
+			  const std::string&              punit,
+			  const std::string&              randomMomentumModel,
+			  double                          theta,
+			  double                          delta_theta,
+			  const std::string&              thetaModel,
+			  double                          phi,
+			  double                          delta_phi,
+			  const std::string&              aunit,
+			  double                          avx,
+			  double                          avy,
+			  double                          avz,
+			  double                          adelta_vx,
+			  double                          adelta_vy,
+			  double                          adelta_vz,
+			  const std::string&              vunit,
+			  const std::string&              randomVertexModel,
+			  const std::shared_ptr<GLogger>& logger);
 
 	/**
 	 * \brief Copying is disabled.
@@ -175,28 +175,28 @@ public:
 	 */
 	static std::shared_ptr<Gparticle> create_default_gparticle(const std::shared_ptr<GLogger>& log) {
 		return std::make_shared<Gparticle>(
-			"e-",
-			1,
-			1,
-			0,
-			"GeV",
-			"uniform",
-			0,
-			0,
-			"uniform",
-			0,
-			0,
-			"deg",
-			0,
-			0,
-			0,
-			0,
-			0,
-			0,
-			"cm",
-			"uniform",
-			log
-		);
+										   "e-",
+										   1,
+										   1,
+										   0,
+										   "GeV",
+										   "uniform",
+										   0,
+										   0,
+										   "uniform",
+										   0,
+										   0,
+										   "deg",
+										   0,
+										   0,
+										   0,
+										   0,
+										   0,
+										   0,
+										   "cm",
+										   "uniform",
+										   log
+										  );
 	}
 
 private:
@@ -272,8 +272,8 @@ private:
 	 * \return Randomized value (in the same units as @p center).
 	 */
 	[[nodiscard]] double randomizeNumberFromSigmaWithModel(double                  center,
-	                                                       double                  delta,
-	                                                       gutilities::randomModel model) const;
+														   double                  delta,
+														   gutilities::randomModel model) const;
 
 	/** \brief Computes (and randomizes) the momentum magnitude for this particle. */
 	double calculateMomentum();
@@ -293,6 +293,18 @@ private:
 
 	/** \brief Resolves and returns the PDG encoding for the configured particle name. */
 	int get_pdg_id();
+
+
+	// assigned at shootParticle for each multiplicity
+	double        kinenergy;
+	G4ThreeVector beamDirection;
+	G4ThreeVector vertex;
+
+	void setRunTimeQuantities(double ke, G4ThreeVector bd, G4ThreeVector v) {
+		kinenergy     = ke;
+		beamDirection = bd;
+		vertex        = v;
+	}
 };
 
 /**

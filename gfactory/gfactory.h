@@ -31,7 +31,7 @@
  * This is achieved by type-erasing the creation operation into \ref GFactoryBase::Create "Create()",
  * which returns a raw pointer as `void*`.
  *
- * @note The returned pointer is owned by the caller of \ref GManager::CreateObject "CreateObject()".
+ * \note The returned pointer is owned by the caller of \ref GManager::CreateObject "CreateObject()".
  * The caller is responsible for deleting it (typically via a base-class pointer).
  */
 class GFactoryBase
@@ -59,7 +59,7 @@ public:
  *
  * @tparam T Concrete type to allocate with `new T(...)`.
  *
- * @note This class exists primarily to satisfy the \ref GFactoryBase "GFactoryBase" interface.
+ * \note This class exists primarily to satisfy the \ref GFactoryBase "GFactoryBase" interface.
  */
 template <class T>
 class GFactory final : public GFactoryBase
@@ -70,7 +70,7 @@ public:
 	 *
 	 * \param gopts Shared options/configuration object forwarded to each constructed instance.
 	 *
-	 * @note The factory stores a copy of the shared pointer; it does not take exclusive ownership.
+	 * \note The factory stores a copy of the shared pointer; it does not take exclusive ownership.
 	 */
 	explicit GFactory(const std::shared_ptr<GOptions>& gopts)
 		: gopts_(gopts) {
@@ -126,7 +126,7 @@ public:
 	 *
 	 * \param gopt Shared options object used to configure the base logger and behavior.
 	 *
-	 * @note The manager uses the `PLUGIN_LOGGER` channel for plugin-related output.
+	 * \note The manager uses the `PLUGIN_LOGGER` channel for plugin-related output.
 	 */
 	explicit GManager(const std::shared_ptr<GOptions>& gopt) : GBase(gopt, PLUGIN_LOGGER) {
 	}
@@ -152,7 +152,7 @@ public:
 	 * @tparam Derived Concrete type to instantiate.
 	 * \param name Factory key used later by \ref GManager::CreateObject "CreateObject()".
 	 *
-	 * @note This overload registers the type only. The factory must still be constructible as required by
+	 * \note This overload registers the type only. The factory must still be constructible as required by
 	 *       \ref GFactory "GFactory".
 	 */
 	template <class Derived>

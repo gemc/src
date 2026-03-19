@@ -37,7 +37,7 @@
  * When \c std::jthread exists, it provides automatic joining and cooperative cancellation
  * (via stop tokens) in the standard way.
  *
- * @note The rest of the codebase should prefer \c jthread_alias so the implementation choice
+ * \note The rest of the codebase should prefer \c jthread_alias so the implementation choice
  *       remains centralized in this header.
  */
 using jthread_alias = std::jthread;
@@ -95,7 +95,7 @@ public:
 	 * \param f Callable to run in the new thread.
 	 * \param args Arguments passed to @p f.
 	 *
-	 * @note This constructor is \c explicit to avoid accidental implicit thread starts.
+	 * \note This constructor is \c explicit to avoid accidental implicit thread starts.
 	 */
 	template <class F, class... Args>
 	explicit jthread_alias(F&& f, Args&&... args)
@@ -151,7 +151,7 @@ public:
 	 * \brief Access the native handle of the underlying thread.
 	 * \return Native handle as returned by \c std::thread::native_handle.
 	 *
-	 * @note This is provided for integration with low-level platform APIs when needed.
+	 * \note This is provided for integration with low-level platform APIs when needed.
 	 */
 	auto native_handle() { return t_.native_handle(); }
 

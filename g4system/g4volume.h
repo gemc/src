@@ -44,7 +44,7 @@
  * - logical creation stores a \c G4LogicalVolume*
  * - physical placement stores a \c G4VPhysicalVolume*
  *
- * @note No pointer is deleted here.
+ * \note No pointer is deleted here.
  */
 class G4Volume
 {
