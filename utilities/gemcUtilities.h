@@ -18,8 +18,8 @@
 namespace gemc {
 
 /**
- * @file gemcUtilities.h
- * @brief Utility helpers for runtime setup, command preparation, and random-engine initialization.
+ * \file gemcUtilities.h
+ * \brief Utility helpers for runtime setup, command preparation, and random-engine initialization.
  *
  * This header contains small, self-contained utilities used during GEMC startup:
  * - Qt application instantiation for GUI and batch modes
@@ -31,7 +31,7 @@ namespace gemc {
 
 /**
  * @defgroup gemc_utilities_module GEMC Utilities Module
- * @brief Runtime utilities used during GEMC initialization and configuration.
+ * \brief Runtime utilities used during GEMC initialization and configuration.
  *
  * This module is focused on **startup/runtime glue code**:
  * - determining thread counts from user options
@@ -45,7 +45,7 @@ namespace gemc {
  */
 
 /**
- * @brief Create a Qt application instance suitable for GUI or batch execution.
+ * \brief Create a Qt application instance suitable for GUI or batch execution.
  *
  * - When @p gui is `true`, this function returns a `QApplication` instance
  *   (returned as a `std::unique_ptr<QCoreApplication>` for uniform handling).
@@ -60,12 +60,12 @@ namespace gemc {
  * - In batch mode, the created `GBatch_Session` is **released** and then owned
  *   by Geant4 via `SetCoutDestination`. The caller must not delete it.
  *
- * @param argc Standard `main()` argument count (passed by reference as required by Qt).
- * @param argv Standard `main()` argument array (passed through to Qt).
- * @param gui If `true`, create a `QApplication`; otherwise create a `QCoreApplication`
+ * \param argc Standard `main()` argument count (passed by reference as required by Qt).
+ * \param argv Standard `main()` argument array (passed through to Qt).
+ * \param gui If `true`, create a `QApplication`; otherwise create a `QCoreApplication`
  *            and redirect Geant4 cout to a `GBatch_Session`.
  *
- * @return A `std::unique_ptr<QCoreApplication>` owning either a `QCoreApplication`
+ * \return A `std::unique_ptr<QCoreApplication>` owning either a `QCoreApplication`
  *         or a `QApplication` instance.
  */
 inline std::unique_ptr<QCoreApplication>
@@ -81,7 +81,7 @@ makeQtApplication(int& argc, char* argv[], bool gui) {
 }
 
 /**
- * @brief Determine the number of worker threads to use for the run.
+ * \brief Determine the number of worker threads to use for the run.
  *
  * This helper reads the `nthreads` option from @p gopts and clamps it to the
  * available CPU core count reported by `G4Threading::G4GetNumberOfCores()`.
@@ -93,31 +93,31 @@ makeQtApplication(int& argc, char* argv[], bool gui) {
  *
  * The function logs the chosen number of threads using @p log.
  *
- * @param gopts Runtime options provider. The key used is `nthreads`.
- * @param log Logger used to report the chosen thread count.
+ * \param gopts Runtime options provider. The key used is `nthreads`.
+ * \param log Logger used to report the chosen thread count.
  *
- * @return The number of threads that should be used.
+ * \return The number of threads that should be used.
  */
 int get_nthreads(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
 
 /**
- * @brief Build a list of Geant4 UI commands that reduce verbosity across subsystems.
+ * \brief Build a list of Geant4 UI commands that reduce verbosity across subsystems.
  *
  * The returned commands are intended to keep Geant4 output quiet in typical runs.
  * They include `.../verbose 0` style settings for major categories such as:
  * control, hit, process, tracking, geometry navigator, event, cuts, run, material,
  * visualization, and particle messages.
  *
- * @param gopts Runtime options provider (currently unused by this implementation).
- * @param log Logger (currently unused by this implementation).
+ * \param gopts Runtime options provider (currently unused by this implementation).
+ * \param log Logger (currently unused by this implementation).
  *
- * @return A list of UI command strings to be executed in order.
+ * \return A list of UI command strings to be executed in order.
  */
 std::vector<std::string> verbosity_commands(const std::shared_ptr<GOptions>& gopts,
                                            const std::shared_ptr<GLogger>& log);
 
 /**
- * @brief Build a list of Geant4 UI commands needed at startup.
+ * \brief Build a list of Geant4 UI commands needed at startup.
  *
  * This function prepares commands based on options:
  * - `check_overlaps` (typically provided by the G4 system options set)
@@ -132,31 +132,33 @@ std::vector<std::string> verbosity_commands(const std::shared_ptr<GOptions>& gop
  *   drawing the volume, configuring trajectories/hits, background color,
  *   disabling/enabling auto-refresh around setup, and finally flushing the viewer.
  *
- * @param gopts Runtime options provider. Keys used include `check_overlaps` and `gui`.
- * @param log Logger used to report which overlap test (if any) will be executed.
+ * \param gopts Runtime options provider. Keys used include `check_overlaps` and `gui`.
+ * \param log Logger used to report which overlap test (if any) will be executed.
  *
- * @return A list of UI command strings to be executed in order.
+ * \return A list of UI command strings to be executed in order.
  */
 std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>& gopts,
                                           const std::shared_ptr<GLogger>& log);
 
 /**
- * @brief Execute a sequence of Geant4 UI commands through the UI manager.
+ * \brief Execute a sequence of Geant4 UI commands through the UI manager.
  *
  * This function obtains the global UI manager pointer and applies each command
  * in @p commands in order. Each command is logged at an informational verbosity
  * suitable for tracing configuration activity.
  *
- * @param gopts Runtime options provider (currently unused by this implementation).
- * @param log Logger used to trace command execution.
- * @param commands List of UI command strings to apply, in order.
+ * \param gopts Runtime options provider (currently unused by this implementation).
+ * \param log Logger used to trace command execution.
+ * \param commands List of UI command strings to apply, in order.
  */
 void run_manager_commands(const std::shared_ptr<GOptions>& gopts,
                           const std::shared_ptr<GLogger>& log,
                           const std::vector<std::string>& commands);
 
+void define_new_gemc_units();
+
 /**
- * @brief Select and start the random engine, then seed it.
+ * \brief Select and start the random engine, then seed it.
  *
  * This function reads:
  * - `randomEngine` : the name of the random engine implementation
@@ -174,8 +176,8 @@ void run_manager_commands(const std::shared_ptr<GOptions>& gopts,
  * If an unknown engine name is provided, an error is logged using the module error code
  * `EC__RANDOMENGINENOTFOUND`.
  *
- * @param gopts Runtime options provider. Keys used: `randomEngine`, `seed`.
- * @param log Logger used to report the chosen engine and seed, or errors.
+ * \param gopts Runtime options provider. Keys used: `randomEngine`, `seed`.
+ * \param log Logger used to report the chosen engine and seed, or errors.
  */
 void start_random_engine(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log);
 
