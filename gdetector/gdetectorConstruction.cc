@@ -180,7 +180,11 @@ void GDetectorConstruction::ConstructSDandField() {
 				if (digitizationName == sdname) {
 					auto const& g4name   = gvolumePtr->getG4Name();
 					auto*       g4volume = g4world->getG4Volume(g4name)->getLogical();
-					g4volume->SetUserLimits(new G4UserLimits(maxStep, maxStep));
+
+					// g4volume->SetUserLimits(new G4UserLimits(maxStep, maxStep)); // this will also kill track cause
+					// the second argument is max track length
+					g4volume->SetUserLimits(new G4UserLimits(maxStep));
+
 					log->info(1, "Setting G4UserLimits for volume <", g4name, "> with maxStep <", maxStep, ">");
 				}
 			}

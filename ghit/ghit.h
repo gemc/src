@@ -206,8 +206,6 @@ private:
 	 */
 	std::optional<double> totalEnergyDeposited;
 
-	std::optional<double> edepRMS;
-
 
 	/**
 	 * \brief Cached average time across steps.
@@ -386,9 +384,6 @@ public:
 	 * This method caches the result the first time it is called.
 	 */
 	double getTotalEnergyDeposited();
-
-
-	double getEdepRMS();
 
 	/**
 	 * \brief Get the average time associated with the hit.

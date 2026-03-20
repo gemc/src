@@ -218,6 +218,21 @@ public:
 	[[nodiscard]] virtual double processStepTimeImpl(const std::shared_ptr<GTouchable>& gTouchID,
 													 [[maybe_unused]] G4Step*           thisStep);
 
+	[[nodiscard]] std::vector<std::string> variables_to_normalize() {
+		check_if_log_defined();
+
+		log->debug(NORMAL, FUNCTION_NAME);
+
+		return variables_to_normalizeImpl();
+	}
+
+
+	[[nodiscard]] virtual std::vector<std::string> variables_to_normalizeImpl() {
+		std::vector<std::string> variables;
+		return variables;
+	}
+
+
 	/**
 	 * \brief Processes a touchable based on the current step and readout specs.
 	 *

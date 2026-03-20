@@ -132,8 +132,8 @@ public:
 		}
 
 		run_data->collect_event_data_collections(
-			hcSDName,
-			std::move(digi_data));
+												 hcSDName,
+												 std::move(digi_data));
 	}
 
 	/**
@@ -146,14 +146,12 @@ public:
 		if (run_data == nullptr) {
 			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 					   " run_data is null - cannot increment processed events.");
-			return;
 		}
 
 		auto& header = run_data->getHeader();
 		if (header == nullptr) {
 			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 					   " run_data header is null - cannot increment processed events.");
-			return;
 		}
 
 		header->increment_events_processed();
@@ -169,14 +167,12 @@ public:
 		if (run_data == nullptr) {
 			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 					   " run_data is null - cannot increment payload events.");
-			return;
 		}
 
 		auto& header = run_data->getHeader();
 		if (header == nullptr) {
 			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 					   " run_data header is null - cannot increment payload events.");
-			return;
 		}
 
 		header->increment_events_with_payload();
@@ -307,6 +303,29 @@ private:
 	 * and clears it before performing merged run publication.
 	 */
 	static CompletedRunData completed_worker_run_data;
+
+	/**
+	 * \brief Normalizes selected run-level observables by the total number of processed events.
+	 *
+	 * \details
+	 * For each detector entry in \p run_data, this method inspects the stored integrated
+	 * digitized payload(s) and divides every observable named in \p to_normalize by:
+	 *
+	 * \code
+	 * run_data->get_events_processed()
+	 * \endcode
+	 *
+	 * Missing variables are ignored.
+	 *
+	 * Integer observables are rewritten as floating-point observables after normalization.
+	 * Only non-SRO scalar observables are considered.
+	 *
+	 * \param run_data     Run-level data collection to modify in place.
+	 */
+	void normalize_run_data(const std::shared_ptr<GRunDataCollection>& run_data) const;
+
+	// coming from digitization routine
+	std::unordered_map<std::string, std::vector<std::string>> to_normalize;
 };
 
 

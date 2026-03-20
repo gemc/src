@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-get_geant4_tags() { echo "11.4.0 11.3.2"; } # space separated list.
+get_geant4_tags() { echo "11.4.1"; } # space separated list.
 get_gemc_tags() { echo "dev"; }
 get_cpu_architectures() { echo "arm64 amd64"; } # space separated list.
 get_runner() {
