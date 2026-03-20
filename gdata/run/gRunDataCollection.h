@@ -146,6 +146,19 @@ public:
 	}
 
 	/**
+	 * \brief Returns mutable access to the detector summary map.
+	 *
+	 * \details
+	 * This accessor is intended for workflows that need to update integrated detector payloads
+	 * after collection, such as run-final normalization on the master thread.
+	 *
+	 * \return Mutable reference to the detector map.
+	 */
+	[[nodiscard]] auto getMutableDataCollectionMap() -> std::map<std::string, std::unique_ptr<GDataCollection>>& {
+		return gdataCollectionMap;
+	}
+
+	/**
 	 * \brief Returns the run number stored in the owned header.
 	 *
 	 * \return Run identifier.
