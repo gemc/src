@@ -178,7 +178,7 @@ public:
 	 * \details
 	 * Interpretation depends on the usage mode:
 	 * - in event mode, vector size usually matches the number of truth hits for the detector
-	 * - in integrated mode, the vector usually contains one accumulator entry
+	 * - in integrated mode, vector usually contains one accumulator entry
 	 *
 	 * \return Const reference to the owned vector of truth objects.
 	 */
@@ -192,11 +192,24 @@ public:
 	 * \details
 	 * Interpretation depends on the usage mode:
 	 * - in event mode, vector size usually matches the number of digitized hits for the detector
-	 * - in integrated mode, the vector usually contains one accumulator entry
+	 * - in integrated mode, vector usually contains one accumulator entry
 	 *
 	 * \return Const reference to the owned vector of digitized objects.
 	 */
 	[[nodiscard]] auto getDigitizedData() const -> const std::vector<std::unique_ptr<GDigitizedData>>& {
+		return digitizedData;
+	}
+
+	/**
+	 * \brief Returns mutable access to the stored digitized objects.
+	 *
+	 * \details
+	 * This accessor is intended for workflows that need to update detector-local integrated
+	 * digitized payloads after collection, such as final normalization at run end.
+	 *
+	 * \return Mutable reference to the owned vector of digitized objects.
+	 */
+	[[nodiscard]] auto getMutableDigitizedData() -> std::vector<std::unique_ptr<GDigitizedData>>& {
 		return digitizedData;
 	}
 
