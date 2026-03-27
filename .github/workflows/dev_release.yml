@@ -20,7 +20,7 @@ jobs:
       TAG_NAME: "dev"             # reuse the same tag each night
       RELEASE_TITLE: "Dev Nightly"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

@@ -20,7 +20,7 @@ jobs:
       matrix_sanitize: ${{ steps.scan.outputs.matrix_sanitize }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - id: scan
         name: Build matrix
@@ -54,7 +54,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Sanitizer - ${{ matrix.sanitizer }}
         shell: bash
@@ -89,7 +89,7 @@ jobs:
 
       - name: Upload sanitizer logs (artifact)
         if: ${{ always() }} # run regardless of earlier step outcomes
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: logs-${{ matrix.baseos }}-${{ matrix.arch }}-${{ matrix.sanitizer }}
           path: ${{ github.workspace }}/_artifacts/logs-${{ matrix.baseos }}-${{ matrix.arch }}-${{ matrix.sanitizer }}.tgz

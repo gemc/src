@@ -53,7 +53,7 @@ jobs:
     if: github.event.head_commit.committer.name != 'github-merge-queue[bot]'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       # Add any setup steps before running the `GitHub/codeql-action/init` action.
       # This includes steps like installing compilers or runtimes (`actions/setup-node`
