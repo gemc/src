@@ -1,5 +1,5 @@
 # Build & Publish GitHub Container Registry (GHCR) Images
-name: Build GEMC Images
+name: Deploy and Test
 permissions:
   contents: read
   packages: write
