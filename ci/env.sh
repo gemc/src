@@ -12,27 +12,29 @@ function enable_git_describe {
 
 function show_gemc_installation {
 
-  echo "- Content of \$GEMC=$GEMC" >> $gemc_install_show
-  ls -lrt $GEMC >> $gemc_install_show
+  {
+    echo "- Content of \$GEMC=$GEMC" 
+    ls -lrt $GEMC 
 
-  echo "- Content of \$GEMC/bin=$GEMC/bin" >> $gemc_install_show
-  ls -lrt $GEMC/bin >> $gemc_install_show
+    echo "- Content of \$GEMC/bin=$GEMC/bin" 
+    ls -lrt $GEMC/bin 
 
-  if [ -d $GEMC/lib ]; then
-    echo "- Content of \$GEMC/lib=$GEMC/lib" >> $gemc_install_show
-    ls -lrt $GEMC/lib >> $gemc_install_show
-  fi
+    if [ -d $GEMC/lib ]; then
+      echo "- Content of \$GEMC/lib=$GEMC/lib" 
+      ls -lrt $GEMC/lib 
+    fi
 
-  echo " ldd of $GEMC/bin/gemc:" >> $gemc_install_show
+    echo " ldd of $GEMC/bin/gemc:" 
 
-  # if on unix, use ldd , if on mac, use otool -L
-  if [[ "$(uname)" == "Darwin" ]]; then
-    otool -L $GEMC/bin/gemc >> $gemc_install_show
-  else
-    ldd $GEMC/bin/gemc >> $gemc_install_show
-  fi
+    # if on unix, use ldd , if on mac, use otool -L
+    if [[ "$(uname)" == "Darwin" ]]; then
+      otool -L $GEMC/bin/gemc 
+    else
+      ldd $GEMC/bin/gemc 
+    fi
 
-  echo " > To check gemc installation:  cat $gemc_install_show"
+    echo " > To check gemc installation:  cat $gemc_install_show"
+  } | tee -a  $gemc_install_show
 
 }
 

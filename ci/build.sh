@@ -23,8 +23,8 @@ meson_option=$(meson_setup_options $1)
 
 {
   echo
-  echo " > Removing $GEMC directory"
   rm -rf $GEMC
+  echo " > Removed $GEMC directory"
   echo " > Running meson setup build $=meson_option"
   meson setup build $=meson_option
 } | tee -a $setup_log

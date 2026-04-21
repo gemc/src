@@ -1,1 +1,0 @@
-../../examples/basic/b1/geometry.py

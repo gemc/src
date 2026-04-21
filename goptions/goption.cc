@@ -246,7 +246,7 @@ string GOption::detailedHelp() const {
 
 			for (auto it = this_node.begin(); it != this_node.end(); ++it) {
 				cout << TGREENPOINTITEM << " " << KGRN << it->first.as<string>() << RST
-					<< ": " << gvar_descs[i] << ". Default value: " << it->second.as<string>() << endl;
+					<< ": " << gvar_descs[i] << "Default value: " << it->second.as<string>() << endl;
 			}
 		}
 	}
