@@ -10,18 +10,26 @@
 source ci/env.sh
 meson_option=$(meson_setup_options $1)
 
-echo " > Geant-config: $(which geant4-config) : $(geant4-config --version)" | tee $setup_log
-echo " > Root-config: $(which root-config) : $(root-config --version)" | tee -a $setup_log
-echo
-echo " > Meson Interactive Options: $test_interactive_option"
-echo " > Meson Setup Options: $meson_option"
-echo " > Using $jobs cores"
-echo
+{
+  echo " > Geant-config: $(command -v geant4-config) : $(geant4-config --version)"
+  echo " > Root-config: $(command -v root-config) : $(root-config --version)"
+  echo
+  echo " > Meson Interactive Options: $test_interactive_option"
+  echo " > Meson Setup Options: $meson_option"
+  echo " > Using $jobs cores"
+  echo
+} | tee -a "$setup_log"
 
 
-echo
-echo " > Running meson setup build $=meson_option" | tee -a $setup_log
-meson setup build $=meson_option >> $setup_log
+{
+  echo
+  echo " > Removing $GEMC directory"
+  rm -rf $GEMC
+  echo " > Running meson setup build $=meson_option"
+  meson setup build $=meson_option
+} | tee -a $setup_log
+
+
 if [ $? -ne 0 ]; then
   echo " > Meson Configure failed. Log: "
   cat $setup_log
