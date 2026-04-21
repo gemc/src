@@ -13,7 +13,7 @@ bool GstreamerTextFactory::publishEventTrueInfoDataImpl(const std::string&      
 	ofile << GTAB << "Detector <" << detectorName << "> True Info Bank {\n";
 
 	for (auto trueInfoHit : trueInfoData) {
-		std::string identifierString = trueInfoHit->getIdentityString();
+		auto identifierString = getIdentityString(trueInfoHit->getIdentity());
 
 		ofile << GTABTAB << "Hit address: " << identifierString << " {\n";
 

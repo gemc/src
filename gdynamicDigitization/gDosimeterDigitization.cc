@@ -28,11 +28,12 @@ bool GDosimeterDigitization::defineReadoutSpecsImpl() {
 
 // See header for API docs.
 std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(GHit* ghit, [[maybe_unused]] size_t hitn) {
+
+	auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);
+
 	auto etot = ghit->getTotalEnergyDeposited();
 	auto mass = ghit->getMass();
 	auto dose = etot / mass;
-
-	auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);
 
 	// Store the detector identity and the total deposited energy.
 	gdata->includeVariable("etot", etot / MeV);

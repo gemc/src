@@ -23,8 +23,6 @@
  * Identity:
  * - the object copies the hit identity from the source GHit
  * - the identity is preserved independently of the originating hit lifetime
- * - a readable representation is available through
- *   \ref GDigitizedData::getIdentityString "getIdentityString()"
  *
  * Event and integration semantics:
  * - \ref GDigitizedData::includeVariable "includeVariable()" stores or overwrites per-hit values
@@ -131,19 +129,6 @@ public:
 	 * \param ghit  Source hit providing the identity vector.
 	 */
 	GDigitizedData(const std::shared_ptr<GOptions>& gopts, const GHit* ghit);
-
-	/**
-	 * \brief Builds a readable identity string from the stored hit identifiers.
-	 *
-	 * \details
-	 * The generated format is:
-	 * \code
-	 * name1->value1, name2->value2, ...
-	 * \endcode
-	 *
-	 * \return Identity string assembled from the stored \c gidentity vector.
-	 */
-	[[nodiscard]] std::string getIdentityString() const;
 
 	/**
 	 * \brief Stores or overwrites one integer observable for this hit.
@@ -288,6 +273,14 @@ public:
 	[[nodiscard]] inline std::map<std::string, std::vector<double>> getArrayDblObservablesMap() const {
 		return arrayDoubleObservablesMap;
 	}
+
+	/**
+	 *
+	 * \brief Returns the identifier vectory
+	 *
+	 * @return gidentity
+	 */
+	[[nodiscard]] inline const std::vector<GIdentifier>& getIdentity() const { return gidentity; }
 
 	/**
 	 * \brief Creates deterministic example data for tests and examples.

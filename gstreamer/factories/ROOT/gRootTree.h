@@ -148,11 +148,11 @@ private:
 	/// \brief Integer branch storage keyed by variable name.
 	std::map<std::string, std::vector<int>> intVarsMap;
 
-	/// \brief Floating-point branch storage keyed by variable name.
+	/// \brief Floating-point branch storage keyed by the variable name.
 	std::map<std::string, std::vector<double>> doubleVarsMap;
 
-	/// \brief String branch storage keyed by variable name.
-	std::map<std::string, std::vector<std::string>> stringVarsMap;
+	/// \brief String branch storage keyed by the variable name.
+	std::map<std::string, std::vector<std::string>>stringVarsMap;
 
 	/**
 	 * \brief Register one integer branch.
@@ -160,7 +160,7 @@ private:
 	 * \param varname Branch name.
 	 * \param value Sample value used only to select the overload.
 	 */
-	void registerVariable(const std::string& varname, int value);
+	void registerVariable(const std::string& varname, int value, bool can_ignore_duplicates = false);
 
 	/**
 	 * \brief Register one floating-point branch.

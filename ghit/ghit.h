@@ -56,7 +56,7 @@ public:
 	 *                a simple hard-coded scheme but keeps this field for future expansion.
 	 */
 	GHit(std::shared_ptr<GTouchable> gt, HitBitSet hbs, const G4Step* thisStep = nullptr,
-	     const std::string&          cScheme                                   = "default");
+		 const std::string&          cScheme                                   = "default");
 
 	/**
 	 * \brief Destructor.
@@ -483,4 +483,22 @@ inline void GHit::operator delete(void* hit) {
 	if (!GHitAllocator) { GHitAllocator = new G4Allocator<GHit>; }
 
 	GHitAllocator->FreeSingle((GHit*)hit);
+}
+
+[[nodiscard]] inline std::string getIdentityString(std::vector<GIdentifier> gidentity) {
+	// Build a compact label from the stored identifier vector.
+	std::string identifierString;
+	for (size_t i = 0; i < gidentity.size() - 1; i++) {
+		identifierString += gidentity[i].getName() + "->" + std::to_string(gidentity[i].getValue()) + ", ";
+	}
+	identifierString += gidentity.back().getName() + "->" + std::to_string(gidentity.back().getValue());
+	return identifierString;
+}
+
+[[nodiscard]] inline std::map<std::string, int> getIdentityMap(std::vector<GIdentifier> gidentity) {
+	std::map<std::string, int> identityMap;
+	for (auto& id : gidentity) {
+		identityMap[id.getName()] = id.getValue();
+	}
+	return identityMap;
 }

@@ -42,9 +42,6 @@
  *   - \ref GEventDataCollection::addDetectorDigitizedData "addDetectorDigitizedData()"
  * - inspecting stored data:
  *   - per-detector hit counts
- *   - identity strings from
- *     \ref GTrueInfoData::getIdentityString "getIdentityString()" and
- *     \ref GDigitizedData::getIdentityString "getIdentityString()"
  *   - truth and digitized observable maps
  * - demonstrating filtering of streaming-readout keys for digitized data with:
  *   - \ref GDigitizedData::getIntObservablesMap "getIntObservablesMap()"
@@ -164,7 +161,9 @@ static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const s
 			const auto doubles = th->getDoubleVariablesMap();
 			const auto strings = th->getStringVariablesMap();
 
-			log->info(0, "  [truth hit ", i, "] id={", th->getIdentityString(), "}");
+			auto idString = getIdentityString(th->getIdentity());
+
+			log->info(0, "  [truth hit ", i, "] id={",idString, "}");
 			log->info(0, "    doubles: ", map_to_string(doubles));
 
 			// Strings are often empty in this toy factory, but the code shows how to inspect them.
@@ -186,7 +185,9 @@ static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const s
 			const auto dbls_non_sro  = dh->getDblObservablesMap(0);
 			const auto dbls_sro_only = dh->getDblObservablesMap(1);
 
-			log->info(0, "  [digi  hit ", i, "] id={", dh->getIdentityString(), "}");
+			auto idString = getIdentityString(dh->getIdentity());
+
+			log->info(0, "  [digi  hit ", i, "] id={",idString, "}");
 			log->info(0, "    int  non-SRO: ", map_to_string(ints_non_sro));
 			log->info(0, "    int  SRO:     ", map_to_string(ints_sro));
 			log->info(0, "    dbl  non-SRO: ", map_to_string(dbls_non_sro));

@@ -37,7 +37,8 @@ bool GstreamerJsonFactory::publishEventTrueInfoDataImpl(const std::string& detec
 
 		current_event << "{";
 
-		const std::string addr = hit->getIdentityString();
+		auto addr = getIdentityString(hit->getIdentity());
+
 		current_event << "\"address\": \"" << jsonEscape(addr) << "\"";
 
 		current_event << ", \"vars\": {";

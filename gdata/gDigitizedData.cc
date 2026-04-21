@@ -127,18 +127,12 @@ double GDigitizedData::getDblObservable(const std::string& varName) {
 	return doubleObservablesMap[varName];
 }
 
-std::string GDigitizedData::getIdentityString() const {
-	// Build a compact label from the stored identifier vector.
-	std::string identifierString;
-	for (size_t i = 0; i < gidentity.size() - 1; i++) {
-		identifierString += gidentity[i].getName() + "->" + std::to_string(gidentity[i].getValue()) + ", ";
-	}
-	identifierString += gidentity.back().getName() + "->" + std::to_string(gidentity.back().getValue());
-	return identifierString;
-}
 
 std::ostream& operator<<(std::ostream& os, const GDigitizedData& data) {
-	os << "GDigitizedData{identity=\"" << data.getIdentityString() << "\"";
+
+	auto idString = getIdentityString(data.gidentity);
+
+	os << "GDigitizedData{identity=\"" << idString  << "\"";
 
 	if (!data.intObservablesMap.empty()) {
 		os << ", intObservables={";

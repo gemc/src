@@ -18,7 +18,6 @@ std::unique_ptr<GDigitizedData> GFluxDigitization::digitizeHitImpl(GHit* ghit, s
 
 	auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);
 
-	gdata->includeVariable(identity.getName(), identity.getValue());
 	gdata->includeVariable("hitn", static_cast<int>(hitn));
 	gdata->includeVariable("totEdep", ghit->getTotalEnergyDeposited());
 	gdata->includeVariable("time", ghit->getAverageTime());

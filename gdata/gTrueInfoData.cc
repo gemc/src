@@ -48,18 +48,11 @@ void GTrueInfoData::accumulateVariable(const std::string& vname, double value) {
 	}
 }
 
-std::string GTrueInfoData::getIdentityString() const {
-	// Build a compact label from the stored identifier vector.
-	std::string identifierString;
-	for (size_t i = 0; i < gidentity.size() - 1; i++) {
-		identifierString += gidentity[i].getName() + "->" + std::to_string(gidentity[i].getValue()) + ", ";
-	}
-	identifierString += gidentity.back().getName() + "->" + std::to_string(gidentity.back().getValue());
-	return identifierString;
-}
 
 std::ostream& operator<<(std::ostream& os, const GTrueInfoData& data) {
-	os << "GTrueInfoData{identity=\"" << data.getIdentityString() << "\"";
+	auto idString = getIdentityString(data.gidentity);
+
+	os << "GTrueInfoData{identity=\"" << idString << "\"";
 
 	if (!data.doubleObservablesMap.empty()) {
 		os << ", doubleObservables={";

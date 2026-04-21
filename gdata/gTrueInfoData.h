@@ -30,8 +30,6 @@
  * Identity model:
  * - each object stores a copy of the hit identity vector extracted from GHit
  * - the identity is preserved independently of the originating hit lifetime
- * - a readable representation is available through
- *   \ref GTrueInfoData::getIdentityString "getIdentityString()"
  *
  * Threading:
  * - regular instances do not share mutable state
@@ -121,24 +119,6 @@ public:
 	 * \param ghit  Source hit providing the identity vector.
 	 */
 	GTrueInfoData(const std::shared_ptr<GOptions>& gopts, const GHit* ghit);
-
-	/**
-	 * \brief Builds a readable identity string from the stored hit identifiers.
-	 *
-	 * \details
-	 * The generated format is:
-	 * \code
-	 * name1->value1, name2->value2, ...
-	 * \endcode
-	 *
-	 * This string is intended for:
-	 * - logs
-	 * - debugging output
-	 * - human-readable summaries
-	 *
-	 * \return Identity string assembled from the stored \c gidentity vector.
-	 */
-	[[nodiscard]] std::string getIdentityString() const;
 
 	/**
 	 * \brief Stores or overwrites one numeric truth observable.
@@ -248,6 +228,14 @@ public:
 
 		return true_info_data;
 	}
+
+	/**
+	 *
+	 * \brief Returns the identifier vectory
+	 *
+	 * @return gidentity
+	 */
+	[[nodiscard]] inline const std::vector<GIdentifier>& getIdentity() const { return gidentity; }
 
 private:
 	/**

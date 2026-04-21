@@ -24,10 +24,40 @@ GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& geven
 	registerVariable("timeStamp", gevent_header->getTimeStamp());
 }
 
+// fill the GEventHeader tree
+bool GRootTree::fillTree(const std::unique_ptr<GEventHeader>& gevent_header) {
+	log->info(2, "Filling header tree for local event n. ", gevent_header->getG4LocalEvn(), " threadID ",
+			  gevent_header->getThreadID());
+
+	// Clear the vectors backing the branches before writing the next entry.
+	intVarsMap["g4localEventNumber"].clear();
+	intVarsMap["threadID"].clear();
+	stringVarsMap["timeStamp"].clear();
+
+	intVarsMap["g4localEventNumber"].emplace_back(gevent_header->getG4LocalEvn());
+	intVarsMap["threadID"].emplace_back(gevent_header->getThreadID());
+	stringVarsMap["timeStamp"].emplace_back(gevent_header->getTimeStamp());
+
+	root_tree->Fill();
+
+	return true;
+}
+
+// fill the GRunHeader tree
+bool GRootTree::fillTree(const std::unique_ptr<GRunHeader>& grun_header) {
+	log->info(2, "Filling header tree for run n. ", grun_header->getRunID());
+
+	// Clear and refill the vectors backing the run-header branches.
+	intVarsMap["runID"].clear();
+	intVarsMap["runID"].emplace_back(grun_header->getRunID());
+
+	root_tree->Fill();
+
+	return true;
+}
 
 GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GRunHeader>& grun_header,
-					 std::shared_ptr<GLogger>&                           logger)  : log(logger) {
-
+					 std::shared_ptr<GLogger>&                           logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree header");
 
 	root_tree = std::make_unique<TTree>(RUNHEADERTREENAME, RUNHEADERTREENAMEDESC);
@@ -50,6 +80,10 @@ GRootTree::GRootTree(const std::string&        detectorName,
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
 	root_tree->SetAutoSave(50 * 1024 * 1024);
 
+	// add identity vars
+	auto identityMap = getIdentityMap(gdata->getIdentity());
+	for (auto& [varname, value] : identityMap) { registerVariable(varname, value); }
+
 	for (auto& [varname, value] : gdata->getDoubleVariablesMap()) { registerVariable(varname, value); }
 	for (auto& [varname, value] : gdata->getStringVariablesMap()) { registerVariable(varname, value); }
 }
@@ -67,49 +101,32 @@ GRootTree::GRootTree(const std::string&        detectorName,
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
 	root_tree->SetAutoSave(50 * 1024 * 1024);
 
-	for (auto& [varname, value] : gdata->getIntObservablesMap(0)) { registerVariable(varname, value); }
+	// add identity vars
+	auto identityMap = getIdentityMap(gdata->getIdentity());
+	for (auto& [varname, value] : identityMap) { registerVariable(varname, value, true); }
+
+	for (auto& [varname, value] : gdata->getIntObservablesMap(0)) {
+		registerVariable(varname, value);
+	}
 	for (auto& [varname, value] : gdata->getDblObservablesMap(0)) { registerVariable(varname, value); }
 }
 
-// fill the header tree
-bool GRootTree::fillTree(const std::unique_ptr<GEventHeader>& gevent_header) {
-	log->info(2, "Filling header tree for local event n. ", gevent_header->getG4LocalEvn(), " threadID ",
-			  gevent_header->getThreadID());
-
-	// Clear the vectors backing the branches before writing the next entry.
-	intVarsMap["g4localEventNumber"].clear();
-	intVarsMap["threadID"].clear();
-	stringVarsMap["timeStamp"].clear();
-
-	intVarsMap["g4localEventNumber"].emplace_back(gevent_header->getG4LocalEvn());
-	intVarsMap["threadID"].emplace_back(gevent_header->getThreadID());
-	stringVarsMap["timeStamp"].emplace_back(gevent_header->getTimeStamp());
-
-	root_tree->Fill();
-
-	return true;
-}
-
-
-bool GRootTree::fillTree(const std::unique_ptr<GRunHeader>& grun_header) {
-	log->info(2, "Filling header tree for run n. ", grun_header->getRunID());
-
-	// Clear and refill the vectors backing the run-header branches.
-	intVarsMap["runID"].clear();
-	intVarsMap["runID"].emplace_back(grun_header->getRunID());
-
-	root_tree->Fill();
-
-	return true;
-}
 
 // fill the True Info Tree
 bool GRootTree::fillTree(const vector<const GTrueInfoData*>& trueInfoData) {
 	// Reset all branch vectors before repopulating them for this detector collection.
+	for (auto& [varname, values] : intVarsMap) { values.clear(); }
 	for (auto& [varname, values] : doubleVarsMap) { values.clear(); }
 	for (auto& [varname, values] : stringVarsMap) { values.clear(); }
 
+
 	for (auto& dataHits : trueInfoData) {
+		// fill identity vars
+		auto identityMap = getIdentityMap(dataHits->getIdentity());
+		for (auto& [varname, value] : identityMap) {
+			intVarsMap[varname].push_back(value);
+		}
+
 		for (auto& [varname, value] : dataHits->getDoubleVariablesMap()) { doubleVarsMap[varname].push_back(value); }
 		for (auto& [varname, value] : dataHits->getStringVariablesMap()) { stringVarsMap[varname].push_back(value); }
 	}
@@ -124,8 +141,17 @@ bool GRootTree::fillTree(const vector<const GDigitizedData*>& digitizedData) {
 	// Reset all branch vectors before repopulating them for this detector collection.
 	for (auto& [varname, values] : intVarsMap) { values.clear(); }
 	for (auto& [varname, values] : doubleVarsMap) { values.clear(); }
+	for (auto& [varname, values] : stringVarsMap) { values.clear(); }
+
 
 	for (auto& dataHits : digitizedData) {
+		// fill identity vars
+		auto identityMap = getIdentityMap(dataHits->getIdentity());
+		for (auto& [varname, value] : identityMap) {
+			intVarsMap[varname].push_back(value);
+		}
+
+
 		for (auto& [varname, value] : dataHits->getIntObservablesMap(0)) { intVarsMap[varname].push_back(value); }
 		for (auto& [varname, value] : dataHits->getDblObservablesMap(0)) { doubleVarsMap[varname].push_back(value); }
 	}
@@ -139,11 +165,16 @@ bool GRootTree::fillTree(const vector<const GDigitizedData*>& digitizedData) {
 // Register one branch and bind it to the appropriate backing vector map.
 // The second parameter is used only to select the correct overload.
 
-void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] int value) {
-	if (intVarsMap.find(varname) == intVarsMap.end()) { root_tree->Branch(varname.c_str(), &intVarsMap[varname]); }
+void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] int value, bool can_ignore_duplicates) {
+	if (can_ignore_duplicates) {
+		root_tree->Branch(varname.c_str(), &intVarsMap[varname]);
+	}
 	else {
-		log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable < ", varname,
-				   "< already exist in the int variable map of tree ", root_tree->GetName());
+		if (intVarsMap.find(varname) == intVarsMap.end()) { root_tree->Branch(varname.c_str(), &intVarsMap[varname]); }
+		else {
+			log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
+					   "> already registered in the int variable map of tree ", root_tree->GetName());
+		}
 	}
 }
 
@@ -152,8 +183,8 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] do
 		root_tree->Branch(varname.c_str(), &doubleVarsMap[varname]);
 	}
 	else {
-		log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable < ", varname,
-				   "< already exist in the double variable map of tree ", root_tree->GetName());
+		log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
+				   "> already registered in the double variable map of tree ", root_tree->GetName());
 	}
 }
 
@@ -162,7 +193,7 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] co
 		root_tree->Branch(varname.c_str(), &stringVarsMap[varname]);
 	}
 	else {
-		log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable < ", varname,
-				   "< already exist in the string variable map of tree ", root_tree->GetName());
+		log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
+				   "> already registered in the string variable map of tree ", root_tree->GetName());
 	}
 }

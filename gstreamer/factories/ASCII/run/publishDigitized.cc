@@ -14,7 +14,7 @@ bool GstreamerTextFactory::publishRunDigitizedDataImpl(const std::string&       
 	ofile << GTAB << "Detector <" << detectorName << "> Digitized Bank {\n";
 
 	for (auto dgtzHit : digitizedData) {
-		std::string identifierString = dgtzHit->getIdentityString();
+		auto identifierString = getIdentityString(dgtzHit->getIdentity());
 
 		ofile << GTABTAB << "Hit address: " << identifierString << " {\n";
 
