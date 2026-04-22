@@ -65,7 +65,7 @@ GOptions defineOptions() {
 	help        += "The particle is generated with a fixed or randomized momentum, angles, and vertex.  \n \n";
 	help        += "Examples: \n";
 	help        += "• 5 GeV electron along z: \n";
-	help        += "-gparticle=\"[{pname: e-, p: 5000}]\" \n \n";
+	help        += "-gparticle=\"[{name: e-, p: 5000}]\" \n \n";
 	help        += "• three particles, one electron and two protons, identical except spread in theta: \n \n";
 	help        +=
 		"-gparticle=\"[{name: e-, p: 2300, theta: 23.0}, {name: proton, multiplicity: 2, p: 1200, theta: 14.0, delta_theta: 10}]\"\n";

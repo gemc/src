@@ -55,12 +55,12 @@ def get_arguments(argv=None):
 	parser.add_argument("-r", "--run", default=1, help="Set run number")
 	parser.add_argument("-sql", "--dbhost", default='gemc.db', help="SQLite filename or MYSQL host")
 	# pyvista
-	parser.add_argument("-pv", "--pyvista", action="store_true", help="Show geometry using pyvista")
+	parser.add_argument("-pv", "--pyvista", action="store_true", help="Show geometry using pyvista (needs pyvista)")
 	parser.add_argument(
 		"-pvb", "--pvb", "--pyvista-background",
 		dest="pyvista_background",
 		action="store_true",
-		help="Use PyVista BackgroundPlotter (non-blocking GUI, implies --pyvista)",
+		help="Use PyVista BackgroundPlotter (non-blocking GUI, needs pyqt6 pyvistaqt)",
 	)
 	parser.add_argument("-pvw", "--width", type=int, default=2400, help="Set plotter width")
 	parser.add_argument("-pvh", "--height", type=int, default=1600, help="Set plotter height")

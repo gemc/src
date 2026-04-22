@@ -1,6 +1,6 @@
 experiment: examples
 runno: 1
-n: 500
+n: 10
 nthreads: 4
 
 gparticle:

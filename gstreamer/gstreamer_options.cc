@@ -43,20 +43,22 @@ GOptions defineOptions() {
 
 	// User-facing CLI help for the -gstreamer structured option.
 	// The file extension is added automatically by the selected plugin.
-	string help = "Define a Output format and name\n";
-	help        += "This option defines a GStreamer output. It can be used to write events or frame streams.\n";
-	help        += "\n";
-	help        += "The file extension is added automatically based on the format.\n";
-	help        += "Supported formats:\n";
-	for (auto& format : GStreamer::supported_formats()) { help += " - " + format + "\n"; }
-	help += "\n";
-	help += "Output types\n";
+	string help = "Define output formats and filenames. It can be used to select <events> or <frame> streams.\n";
+	help        += "The file extension is added automatically based on the format.\n \n";
+	help        += "\nSupported formats:\n \n";
+	for (auto& format : GStreamer::supported_formats()) { help += "  - " + format + "\n"; }
+	help += "\n \n";
+	help += "Output types:\n \n";
 	help += "\n";
 	help += " - event: write events\n";
-	help += " - stream: write frame stream\n";
-	help += "\n";
-	help += "Example that defines two gstreamer outputs:\n";
-	help += "-gstreamer=\"[{format: root, filename: out}, {format: jlabsro, filename: out}}]\"\n";
+	help += " - stream: write frame time snapshots\n";
+	help += "\n \n";
+	help += "Example that defines two gstreamer outputs:\n \n";
+	help += " -gstreamer=\"[{format: root, filename: out}, {format: csv, filename: out}]\"\n";
+	help += "\n \n";
+	help += "The produced files structure depends on the accumulation method used: \n \n";
+	help += " - event-based digitization (like <flux>) will have one file for every thread, with \"_tj\" appended to the filename \n";
+	help += " - run-based digitization (like <dosimeter>) will have one file only\n";
 
 	// Buffer flush limit:
 	// controls how many events each streamer instance may retain in memory
@@ -66,8 +68,8 @@ GOptions defineOptions() {
 
 	// Schema of each object in the -gstreamer array.
 	vector<GVariable> gstreamer = {
-		{"filename", goptions::NODFLT, "name of output file"},
-		{"format", goptions::NODFLT, "format of output file"},
+		{"filename", goptions::NODFLT, "name of output file. "},
+		{"format", goptions::NODFLT, "format of output file. "},
 		{"type", "event", "type of output file"},
 	};
 

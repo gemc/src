@@ -118,7 +118,8 @@ namespace gemc {
 		cmds.emplace_back("/vis/scene/endOfEventAction accumulate 10000");
 
 		// Background colors and root volume are the same.
-		cmds.push_back("/vis/viewer/set/background 0.46666667 0.53333333 0.6");
+		// Chosen to be the same as pyvistab for now
+		cmds.push_back("/vis/viewer/set/background 0.05 0.05 0.26");
 
 		// Re-enable refresh and flush once configuration is complete.
 		cmds.emplace_back("/vis/viewer/set/autoRefresh true");
