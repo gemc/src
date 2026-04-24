@@ -108,6 +108,8 @@ void GHit::randomizeHitForTesting(int nsteps) {
 		localPositions.emplace_back(G4UniformRand() * 10, G4UniformRand() * 10, G4UniformRand() * 10);
 		times.emplace_back(G4UniformRand() * 100);
 		edeps.emplace_back(G4UniformRand() * 10);
+		pids.emplace_back(11);
+		tids.emplace_back(i);
 		Es.emplace_back(G4UniformRand() * 10);
 
 		pids.emplace_back(static_cast<int>(G4UniformRand() * 1000)); // Random particle ID

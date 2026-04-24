@@ -51,6 +51,7 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 	// If there is a decision to skip this hit based on deposited energy, return immediately.
 
 	double depe = thisStep->GetTotalEnergyDeposit();
+
 	if (digitization_routine->decisionToSkipHit(depe)) { return true; }
 
 	// The hits collection should have been created in Initialize().
@@ -72,6 +73,7 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 	for (auto thisGTouchable : thisStepProcessedTouchables) {
 		// Track id is attached to the touchable to keep hit identity consistent across updates.
 		thisGTouchable->assignTrackId(thisStep->GetTrack()->GetTrackID());
+		thisGTouchable->assignPId(thisStep->GetTrack()->GetDefinition()->GetPDGEncoding());
 
 		if (isThisANewTouchable(thisGTouchable)) {
 			// New hit: constructor fills initial step information based on gHitBitSet.

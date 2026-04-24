@@ -14,30 +14,27 @@
 #include "gtouchable_options.h"
 #include "gtouchableConventions.h"
 
-// - readout: electronic Time Window is the discriminating factor.
-//   parameters and hitBitSet determined by defineReadoutSpecs in the plugin
-// - flux: track id is the discriminating factor, standard true infos variable
-// - particleCounter: no other discriminating factors, standard true infos variable
-// - dosimeter: track id is the discriminating factor, radiation digitization
-
 
 /**
  * \brief Enumeration representing the type of a touchable sensitive element.
  *
  * The type determines the **secondary** discriminating rule used after the identity vector:
- * - \c readout uses the electronics time-cell index.
- * - \c flux and \c dosimeter use the track id.
- * - \c particleCounter requires no additional discriminator beyond the identity vector.
+ * - \c readout: uses the electronics time-cell index. Steps ending in the same time are accumulated in the hits.
+ * - \c flux: uses track id to discriminate between hits.
+ * - \c particle_counter: uses particle id to discriminate between hits.
+ * - \c dosimeter: requires no additional discriminator beyond the identity vector. Meant to accumulate dose.
+ * - \c integral_counter: uses particle id to discriminate between hits.
  *
  * The mapping from a digitization string to a \c GTouchableType is implemented in the \c GTouchable constructors,
  * using the constants \c FLUXNAME, \c COUNTERNAME, and \c DOSIMETERNAME.
  */
 enum GTouchableType
 {
-	readout,         ///< Electronic readout with time-window discrimination (time-cell index).
-	flux,            ///< Flux-like discrimination using track id.
-	particleCounter, ///< Identity vector only; no additional discriminating factor.
-	dosimeter        ///< Radiation digitization; discrimination using track id.
+	readout,
+	flux,
+	particle_counter,
+	dosimeter,
+	integral_counter
 };
 
 // ------------------------------------------------------------------------
@@ -49,7 +46,7 @@ namespace gtouchable {
 	 *
 	 * The returned strings match the digitization type constants where applicable:
 	 * - \c flux -> \c FLUXNAME
-	 * - \c particleCounter -> \c COUNTERNAME
+	 * - \c particle_counter -> \c COUNTERNAME
 	 * - \c dosimeter -> \c DOSIMETERNAME
 	 *
 	 * \param t The touchable type.
@@ -59,8 +56,9 @@ namespace gtouchable {
 		switch (t) {
 			case GTouchableType::readout: return "readout";
 			case GTouchableType::flux: return FLUXNAME;
-			case GTouchableType::particleCounter: return COUNTERNAME;
+			case GTouchableType::particle_counter: return COUNTERNAME;
 			case GTouchableType::dosimeter: return DOSIMETERNAME;
+			case GTouchableType::integral_counter: return INTEGRAL_COUNTERNAME;
 			default: return "unknown-gtouchable";
 		}
 	}
@@ -133,8 +131,9 @@ private:
  * 2. If identities match, apply a type-specific discriminator:
  *    - \c readout compares \c stepTimeAtElectronicsIndex
  *    - \c flux compares \c trackId
- *    - \c dosimeter compares \c trackId
- *    - \c particleCounter always matches once identities match
+ *    - \c dosimeter always matches once identities match
+ *    - \c particle_counter compares \c pid
+ *    - \c integral_counter always matches once identities match
  *
  * The identity vector size mismatch is considered an exceptional situation and is logged at debug level.
  */
@@ -229,6 +228,15 @@ public:
 	 * \param tid Track id to store in the touchable.
 	 */
 	inline void assignTrackId(int tid) { trackId = tid; }
+
+	/**
+	 * \brief Assigns the particle id used by \c particle counter discrimination.
+	 *
+	 * This value is typically set during hit processing when the simulation step is known.
+	 *
+	 * \param p Particle id to store in the touchable.
+	 */
+	inline void assignPId(int p) { pid = p; }
 
 	/**
 	 * \brief Returns the energy multiplier used for energy sharing.
@@ -356,10 +364,11 @@ public:
 
 private:
 	GTouchableType gType; ///< Touchable type controlling the secondary discriminator.
-	std::vector<GIdentifier> gidentity; ///< Ordered identity vector defining the detector element address.
-	int trackId; ///< Track id used for \c flux and \c dosimeter discrimination.
-	double eMultiplier; ///< Energy multiplier for energy sharing (default 1; assigned by digitization).
-	int stepTimeAtElectronicsIndex; ///< Readout time-cell index used for \c readout discrimination.
+	std::vector<GIdentifier> gidentity;     ///< Ordered identity vector defining the detector element address.
+	int trackId;                            ///< Track id used for \c flux discrimination.
+	int pid;                                ///< Track id used for \c particle_counter  discrimination.
+	double eMultiplier;                     ///< Energy multiplier for energy sharing (default 1; assigned by digitization).
+	int stepTimeAtElectronicsIndex;         ///< Readout time-cell index used for \c readout discrimination.
 	std::vector<double> detectorDimensions; ///< Detector dimensions stored for digitization use.
 	double mass;
 

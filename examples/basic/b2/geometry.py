@@ -23,7 +23,7 @@ def build_geometry(configuration):
 	gvolume.make_box(worldLength * 0.5, worldLength * 0.5, worldLength * 0.5)
 	gvolume.material = 'G4_AIR'
 	gvolume.color = 'ghostwhite'
-	gvolume.opacity = 0
+	gvolume.style = 0
 	gvolume.publish(configuration)
 
 	tz = -(targetLength + trackerSize)
@@ -36,10 +36,10 @@ def build_geometry(configuration):
 	gvolume.publish(configuration)
 
 	gvolume = GVolume('tracker')
-	gvolume.description = 'Tracker'
+	gvolume.description = 'Chamber Tracker Container'
 	gvolume.make_tube(0, trackerSize, trackerSize, 0, 360)
 	gvolume.material = 'G4_AIR'
-	gvolume.visible = 0
+	gvolume.opacity = 0.1
 	gvolume.publish(configuration)
 
 
@@ -56,9 +56,12 @@ def build_geometry(configuration):
 		Zposition = firstPosition + copyNo * chamberSpacing
 		rmax = rmaxFirst + copyNo * rmaxIncr
 		gvolume = GVolume(f'Chamber_PV_{copyNo}')
-		gvolume.description = 'Tracker'
+		gvolume.mother = 'tracker'
+		gvolume.description = f'Chamber Tracker {copyNo}'
 		gvolume.make_tube(0, rmax, halfWidth, 0, 360)
 		gvolume.material = 'G4_Xe'
 		gvolume.color = 'metallic, papayawhip'
 		gvolume.set_position(0, 0, Zposition)
+		gvolume.digitization = 'flux'  # adds edep, pid, etc to hits
+		gvolume.set_identifier('mytracker', copyNo)
 		gvolume.publish(configuration)

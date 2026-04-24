@@ -27,7 +27,7 @@ GTouchable::GTouchable(const std::shared_ptr<GOptions>& gopt,
 	// Determine the type based on the digitization string.
 	// The string constants are defined in gtouchableConventions.h : FLUXNAME, COUNTERNAME, DOSIMETERNAME.
 	if (digitization == FLUXNAME) { gType = flux; }
-	else if (digitization == COUNTERNAME) { gType = particleCounter; }
+	else if (digitization == COUNTERNAME) { gType = particle_counter; }
 	else if (digitization == DOSIMETERNAME) { gType = dosimeter; }
 	else { gType = readout; }
 
@@ -65,7 +65,7 @@ GTouchable::GTouchable(const std::shared_ptr<GLogger>& logger,
 	// Determine the type based on the digitization string.
 	// The string constants are defined in gtouchableConventions.h : FLUXNAME, COUNTERNAME, DOSIMETERNAME.
 	if (digitization == FLUXNAME) { gType = flux; }
-	else if (digitization == COUNTERNAME) { gType = particleCounter; }
+	else if (digitization == COUNTERNAME) { gType = particle_counter; }
 	else if (digitization == DOSIMETERNAME) { gType = dosimeter; }
 	else { gType = readout; }
 
@@ -126,16 +126,21 @@ bool GTouchable::operator==(const GTouchable& that) const {
 					   " result:", result);
 			break;
 		case dosimeter:
-			typeComparison = this->trackId == that.trackId;
+			typeComparison = true;
+			log->debug(NORMAL, "    Touchable type is dosimeter. No additional comparison needed, returning true ✅");
+			break;
+
+		case particle_counter:
+			typeComparison = this->pid == that.pid;
 			result = typeComparison ? " ✅" : " ❌";
-			log->debug(NORMAL, "    Touchable type is dosimeter. Track id comparison: ", this->trackId, " ",
-					   that.trackId,
+			log->debug(NORMAL, "    Touchable type is flux. Track id comparison: ", this->trackId, " ", that.trackId,
 					   " result:", result);
 			break;
-		case particleCounter:
+
+		case integral_counter:
 			typeComparison = true;
 			log->debug(NORMAL,
-					   "    Touchable type is particleCounter. No additional comparison needed, returning true  ✅");
+					   "    Touchable type is integral_counter. No additional comparison needed, returning true ✅");
 			break;
 	}
 	return typeComparison;
@@ -160,10 +165,13 @@ std::ostream& operator<<(std::ostream& stream, const GTouchable& gtouchable) {
 			stream << KGRN << " (flux), " << RST << " g4 track id: " << gtouchable.trackId;
 			break;
 		case dosimeter:
-			stream << KGRN << " (dosimeter), " << RST << " g4 track id: " << gtouchable.trackId;
+			stream << KGRN << " (dosimeter), " << RST;
 			break;
-		case particleCounter:
-			stream << KGRN << " (particleCounter), " << RST << " g4 track id: " << gtouchable.trackId;
+		case particle_counter:
+			stream << KGRN << " (particle_counter), " << RST << " particle id: " << gtouchable.pid;
+			break;
+		case integral_counter:
+			stream << KGRN << " (integral_counter), " << RST;
 			break;
 	}
 

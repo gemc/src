@@ -60,9 +60,11 @@
 # - digitization:  A string defining the name of the plugin used to digitized the hit. Default is "none".
 #                   Here pre-defined plugin can be selected:
 #                   - flux: each tracks leaves a hit in the volume
-#                   - particleCounter: used to count particles types passing through a volume
+#                   - particle_counter: each particle type leaves a hit in the volume
+#                   - integral_counter: all track leaves a hit in the volume
+#                   - dosimeter: all track leaves a hit in the volume, the dose is accumulated over events
 #
-#                   In addition users can define their own plugin using c++, starting from predefined templates.
+#                   In addition, users can define their own plugin using c++, starting from predefined templates.
 #                   The plugin filename is <name>.gplugin
 #
 # - copyOf	       Not supported yet. Meant to make a copy of a volume

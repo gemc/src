@@ -174,6 +174,13 @@ private:
 	std::vector<int> pids;
 
 	/**
+	 * \brief Particle Track ID.
+	 *
+	 * Recorded when the corresponding \c HitBitSet bit is enabled.
+	 */
+	std::vector<int> tids;
+
+	/**
 	 * \brief Total energy per step (optional).
 	 *
 	 * Recorded when the corresponding \c HitBitSet bit is enabled.
@@ -298,6 +305,20 @@ public:
 	 * \warning This assumes the internal \c pids vector is non-empty.
 	 */
 	[[nodiscard]] inline int getPid() const { return pids.front(); }
+
+	/**
+	 * \brief Get per-step particle track id (when enabled).
+	 * \return A copy of the vector of per-step track IDs.
+	 */
+	[[nodiscard]] inline  std::vector<int> getTids() const { return tids; }
+
+	/**
+	 * \brief Convenience accessor for the first track ID.
+	 * \return The first particle ID.
+	 *
+	 * \warning This assumes the internal \c track vector is non-empty.
+	 */
+	[[nodiscard]] inline int getTid() const { return tids.front(); }
 
 	/**
 	 * \brief Get per-step total energies (when enabled).

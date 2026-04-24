@@ -21,7 +21,7 @@
 /**
  * \brief Digitization type name for simple particle counters.
  *
- * Particle-counter touchables require **no additional discriminating factor** beyond the identity vector.
+ * Particle-counter  use the **particle id** as the discriminating factor (in addition to the identity vector).
  * They also typically rely on standard "true infos" variables provided by the simulation.
  */
 #define COUNTERNAME "particle_counter"
@@ -29,10 +29,19 @@
 /**
  * \brief Digitization type name for dosimeters.
  *
- * Dosimeter touchables use the **track id** as the discriminating factor (in addition to the identity vector),
- * and are typically associated with radiation digitization.
+ * Dosimeter requires no additional discriminator beyond the identity vector. Meant to accumulate dose.
  */
 #define DOSIMETERNAME "dosimeter"
+
+/**
+ * \brief Digitization type name for integral_counter.
+ *
+ * integral_counter requires no additional discriminator beyond the identity vector. It is meant to accumulate
+ * all quantities within a sensitive cell
+ */
+#define INTEGRAL_COUNTERNAME "integral_counter"
+
+
 
 /**
  * \brief Sentinel value for an unset electronics time-cell index.

@@ -4,6 +4,7 @@
 // geant4
 #include "G4TouchableHistory.hh"
 #include "G4VProcess.hh"
+#include "subprojects/assimp/code/AssetLib/3MF/3MFXmlTags.h"
 
 // See header for API docs.
 
@@ -31,6 +32,10 @@ void GHit::addHitInfosForBitset(const HitBitSet hbs, const G4Step* step) {
 
 	edeps.push_back(edep);
 	times.push_back(time);
+
+	pids.push_back(step->GetTrack()->GetDefinition()->GetPDGEncoding());
+	tids.push_back(step->GetTrack()->GetTrackID());
+
 
 	// Iterate over each bit and call the helper method to add optional info.
 	for (size_t hbIndex = 0; hbIndex < hbs.size(); hbIndex++) {

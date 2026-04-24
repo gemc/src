@@ -2,9 +2,9 @@
 
 // See header for API docs.
 bool GParticleCounterDigitization::defineReadoutSpecsImpl() {
-	double timeWindow    = 10;                  // electronic readout time-window of the detector
-	double gridStartTime = 0;                   // defines the window grid
-	auto   hitBitSet     = HitBitSet("000000"); // defines what information to be stored in the hit
+	double timeWindow    = 10;                     // electronic readout time-window of the detector
+	double gridStartTime = 0;                      // defines the window grid
+	auto   hitBitSet     = HitBitSet("000001"); // defines what information to be stored in the hit
 	double maxStep       = 1 * CLHEP::mm;
 
 	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, maxStep, log);
@@ -23,6 +23,7 @@ std::unique_ptr<GDigitizedData> GParticleCounterDigitization::digitizeHitImpl(GH
 	gdata->includeVariable("totEdep", ghit->getTotalEnergyDeposited());
 	gdata->includeVariable("time", ghit->getAverageTime());
 	gdata->includeVariable("pid", ghit->getPid());
+	gdata->includeVariable("tid", ghit->getTid());
 	gdata->includeVariable("totalE", ghit->getE());
 
 	return gdata;

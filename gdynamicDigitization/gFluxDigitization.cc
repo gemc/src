@@ -2,10 +2,10 @@
 
 // See header for API docs.
 bool GFluxDigitization::defineReadoutSpecsImpl() {
-	double    timeWindow    = 10;  // electronic readout time-window of the detector
-	double    gridStartTime = 0;   // defines the windows grid
-	HitBitSet hitBitSet("000001"); // defines what information to be stored in the hit
-	double    maxStep = 1 * CLHEP::mm;
+	double timeWindow    = 10;                     // electronic readout time-window of the detector
+	double gridStartTime = 0;                      // defines the window grid
+	auto   hitBitSet     = HitBitSet("000001"); // defines what information to be stored in the hit
+	double maxStep       = 1 * CLHEP::mm;
 
 	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, maxStep, log);
 
@@ -14,6 +14,7 @@ bool GFluxDigitization::defineReadoutSpecsImpl() {
 
 // See header for API docs.
 std::unique_ptr<GDigitizedData> GFluxDigitization::digitizeHitImpl(GHit* ghit, size_t hitn) {
+	// Expected to be a single-identity detector: take the first identity entry.
 	GIdentifier identity = ghit->getGID().front();
 
 	auto gdata = std::make_unique<GDigitizedData>(gopts, ghit);
@@ -22,6 +23,7 @@ std::unique_ptr<GDigitizedData> GFluxDigitization::digitizeHitImpl(GHit* ghit, s
 	gdata->includeVariable("totEdep", ghit->getTotalEnergyDeposited());
 	gdata->includeVariable("time", ghit->getAverageTime());
 	gdata->includeVariable("pid", ghit->getPid());
+	gdata->includeVariable("tid", ghit->getTid());
 	gdata->includeVariable("totalE", ghit->getE());
 
 	return gdata;

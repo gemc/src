@@ -7,7 +7,7 @@ permissions:
 # default versions. This is overwritten by distros_tags.sh
 env:
   GEMC_TAG: dev           # default gemc tag
-  GEANT4_TAG: 11.4.0      # default geant4 tag
+  GEANT4_TAG: 11.4.1      # default geant4 tag
 
 concurrency:
   group: gemc-images-${{ github.ref }}

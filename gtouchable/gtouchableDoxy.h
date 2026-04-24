@@ -6,7 +6,7 @@
 ///
 /// A \c GTouchable is uniquely described by:
 /// - A list of identifiers (the *identity vector*), e.g. \c "sector: 2, layer: 4, wire: 33".
-/// - A discriminator rule that depends on the touchable type (readout/flux/particleCounter/dosimeter).
+/// - A discriminator rule that depends on the touchable type (readout/flux/particle_counter/dosimeter/integral_counter).
 ///
 /// Conceptually, a touchable is the “address” of a detector element *plus* the extra context required to decide
 /// whether two hits belong to the same readout cell (and therefore can be merged).
@@ -15,8 +15,9 @@
 /// The module supports the following touchable types:
 /// - \c readout : electronic time window is the discriminating factor in addition to the identity vector.
 /// - \c flux : track id is the discriminating factor in addition to the identity vector.
-/// - \c particleCounter : the identity vector is sufficient (no additional discriminating factor).
-/// - \c dosimeter : track id is the discriminating factor in addition to the identity vector (radiation digitization).
+/// - \c particle_counter : particle id is the discriminating factor in addition to the identity vector.
+/// - \c integral_counter : the identity vector is enough (no additional discriminating factor).
+/// - \c dosimeter : the identity vector is enough (no additional discriminating factor).
 ///
 /// \section options_sec Available Options and their usage
 ///

@@ -4,19 +4,12 @@ n: 1
 nthreads: 4
 
 gparticle:
-  - name: e-
-    p: 1500
-    theta: 23.0
-    delta_theta: 4.0
-    delta_phi: 18.0
-    multiplicity: 1
-
+  - name: proton
+    p: 3000
+    vz: -250
 
 verbosity:
-  - ghits: 0
-  - gsystem: 0
   - gfield: 1
-  - general: 0
 
 debug:
   - gfield: true
@@ -32,5 +25,11 @@ gmultipoles:
     rotaxis: z
     rotation_angle: "30*deg"
 
+gstreamer:
+  - format: ascii
+    filename: out
+  - format: root
+    filename: out
+
 root: G4Box, 12*cm, 12*cm, 18*cm, G4_WATER
-phys_list: QBBC
+phys_list: FTFP_BERT

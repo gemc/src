@@ -24,10 +24,7 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 
 	std::vector<GIdentifier> identities = ghit->getGID();
 
-	// Include all identities first so they are always present in the record.
-	for (auto& identity : identities) {
-		trueInfoData->includeVariable(identity.getName(), identity.getValue());
-	}
+
 
 	// Bit 0 is expected to contain the always-present true-hit quantities.
 	ghit->calculateInfosForBit(0);
@@ -36,6 +33,8 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 	G4ThreeVector avgGlobalPos = ghit->getAvgGlobaPosition();
 	G4ThreeVector avgLocalPos  = ghit->getAvgLocalPosition();
 
+	trueInfoData->includeVariable("pid", ghit->getPid());
+	trueInfoData->includeVariable("tid", ghit->getTid());
 	trueInfoData->includeVariable("totalEDeposited", ghit->getTotalEnergyDeposited());
 	trueInfoData->includeVariable("avgTime", ghit->getAverageTime());
 	trueInfoData->includeVariable("avgx", avgGlobalPos.getX());
