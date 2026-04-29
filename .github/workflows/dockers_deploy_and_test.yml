@@ -116,7 +116,7 @@ jobs:
         run: echo "UPSTREAM_REV=$(git ls-remote https://github.com/gemc/src HEAD | cut -f1)" >> $GITHUB_ENV
 
       - name: Build & Push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           # ensure we have the latest base image
           pull: true
@@ -139,7 +139,7 @@ jobs:
 
       # export logs from the logs-export stage in the dockerfile to the runner’s filesystem (no docker pull)
       - name: Export logs (runner artifact)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           pull: true
           context: .
