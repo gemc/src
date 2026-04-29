@@ -16,7 +16,7 @@ jobs:
   dev-release:
     runs-on: ubuntu-latest
     env:
-      DEVMD_SINCE: "2024-08-09"   # optional fixed start date
+      DEVMD_SINCE: "2026-04-29"   # optional fixed start date
       TAG_NAME: "dev"             # reuse the same tag each night
       RELEASE_TITLE: "Dev Nightly"
     steps:
