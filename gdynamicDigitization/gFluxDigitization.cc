@@ -24,7 +24,7 @@ std::unique_ptr<GDigitizedData> GFluxDigitization::digitizeHitImpl(GHit* ghit, s
 	gdata->includeVariable("time", ghit->getAverageTime());
 	gdata->includeVariable("pid", ghit->getPid());
 	gdata->includeVariable("tid", ghit->getTid());
-	gdata->includeVariable("totalE", ghit->getE());
+	gdata->includeVariable("E", ghit->getE());
 
 	return gdata;
 }
