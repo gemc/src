@@ -1,8 +1,12 @@
 # Notice: if both static and dynamic libraries are present, the dynamic library will be used
 # Forcing suffix lib instead of variants like lib64
 project('gemc', 'cpp',
-        default_options : ['default_library=static', 'default_both_libraries=static', 'libdir=lib'],
-        version : run_command('git', 'describe', '--tags', '--abbrev=0', '--always', check : true).stdout().strip(),
+        default_options : [
+            'default_library=static',
+            'default_both_libraries=static',
+            'libdir=lib'
+        ],
+        version : run_command('ci/gemc_version.sh', check : true).stdout().strip(),
         meson_version : '>= 1.10.1'
 )
 project_description = 'GEMC (GEant Monte-Carlo) is a program based on Geant4 to simulate the passage of particles through matter. '

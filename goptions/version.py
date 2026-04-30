@@ -16,28 +16,57 @@
 
 import subprocess
 from datetime import datetime
+from pathlib import Path
+
 
 def get_git_version():
     """
     ! \brief Retrieves version and release date from Git.
     !
     ! @details
-    ! - Version is the latest annotated tag (or a commit identifier if no tags exist),
-    !   as returned by: `git describe --tags --abbrev=0 --always`.
-    ! - Release date is obtained by looking up the commit date for that tag via:
-    !   `git log -1 --format=%ai <tag>`.
+    ! - Version is obtained from `scripts/get_gemc_version.sh`.
+    ! - The script returns:
+    !   - `dev` for a normal development branch checkout
+    !   - the tag name, e.g. `0.1`, for an exact detached tag checkout
+    ! - Release date is obtained from Git using:
+    !   - `HEAD` if version is `dev`
+    !   - the tag itself if version is a release tag
     !
     ! \return A tuple `(version_tag, release_date)` where `release_date` is formatted as `YYYY-MM-DD`.
     !         Returns `(None, None)` on failure.
     """
+
     try:
-        # Run the git command to get the latest tag
-        tag = subprocess.check_output(['git', 'describe', '--tags', '--abbrev=0', '--always']).strip().decode('utf-8')
-        # Run another git command to get the date of the tag
-        date = subprocess.check_output(['git', 'log', '-1', '--format=%ai', tag]).strip().decode('utf-8')
-        return tag, datetime.strptime(date, '%Y-%m-%d %H:%M:%S %z').strftime('%Y-%m-%d')
-    except subprocess.CalledProcessError:
-        print("Error: Unable to get git version.")
+        repo_root = Path(__file__).resolve().parent
+        version_script = repo_root / "../ci" / "gemc_version.sh"
+
+        tag = subprocess.check_output(
+            ["bash", str(version_script)],
+            cwd=repo_root,
+            text=True
+        ).strip()
+
+        date_ref = "HEAD" if tag == "dev" else tag
+
+        date = subprocess.check_output(
+            ["git", "log", "-1", "--format=%ai", date_ref],
+            cwd=repo_root,
+            text=True
+        ).strip()
+
+        release_date = datetime.strptime(
+            date,
+            "%Y-%m-%d %H:%M:%S %z"
+        ).strftime("%Y-%m-%d")
+
+        return tag, release_date
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error: Unable to get git version: {e}")
+        return None, None
+
+    except FileNotFoundError as e:
+        print(f"Error: Version script not found: {e}")
         return None, None
 
 
