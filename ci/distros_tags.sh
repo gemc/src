@@ -2,7 +2,7 @@
 set -euo pipefail
 
 get_geant4_tags() { echo "11.4.1"; } # space separated list.
-get_gemc_tags() { echo "dev"; }
+get_gemc_tags() { echo "dev 0.1"; }
 get_cpu_architectures() { echo "arm64 amd64"; } # space separated list.
 get_runner() {
 	local arch=$1

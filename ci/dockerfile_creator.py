@@ -40,7 +40,7 @@ def install_gemc(geant4_version: str, gemc_version: str) -> str:
     if gemc_version == "dev":
         clone_arguments += ' --depth 1'
     else:
-        clone_arguments += f'--branch "{gemc_version}'
+        clone_arguments += f' --branch {gemc_version}'
     commands = f'\nRUN  git clone {clone_arguments} http://github.com/gemc/src /root/src \\\n'
     commands += f'     && cd /root/src \\\n'
     commands += f"     && DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . {remote_entrypoint()} \\\n"
@@ -73,7 +73,7 @@ import sys
 def main():
     parser = argparse.ArgumentParser(
         description="Print a dockerfile with install commands for a given base image and tag, gemc and geant4 versions",
-        epilog="Example: python3 ./ci/dockerfile_creator.py -i fedora -t 40 --geant4-version 11.4.0 --gemc-version dev"
+        epilog="Example: python3 ./ci/dockerfile_creator.py -i fedora -t 42 --geant4-version 11.4.1 --gemc-version dev"
     )
     # Required *conceptually*, but we want: if missing, show usage (not a long error)
     parser.add_argument(
@@ -82,10 +82,10 @@ def main():
     )
     parser.add_argument(
         "-t", "--image_tag",
-        help="Base image tag (e.g., 40 for fedora, 24.04 for ubuntu, etc.)"
+        help="Base image tag (e.g., 42 for fedora, 24.04 for ubuntu, etc.)"
     )
     parser.add_argument(
-        "--geant4-version", default="11.4.0",
+        "--geant4-version", default="11.4.1",
         help="Version of Geant4 to install (default: %(default)s)"
     )
     parser.add_argument(
