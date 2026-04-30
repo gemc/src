@@ -69,6 +69,7 @@ jobs:
       CACHE_REF: type=registry,ref=${{ needs.discover.outputs.image }}:cache-${{ matrix.arch }}
       TAG4: ${{ format('{0}-{1}-{2}', matrix.gemc_tag, matrix.image, matrix.image_tag) }}
       LOGNAME: ${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.image, matrix.image_tag, matrix.arch) }}
+      DOCKER_BUILD_SUMMARY: false
 
     steps:
       - name: Checkout repository
@@ -117,8 +118,6 @@ jobs:
 
       - name: Build & Push
         uses: docker/build-push-action@v7
-        env:
-          DOCKER_BUILD_SUMMARY: false
         with:
           # ensure we have the latest base image
           pull: true
