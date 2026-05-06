@@ -28,6 +28,16 @@ from typing import Optional, Tuple
 from gsqlite import create_sqlite_database
 from gutils import GColors
 
+def _is_jupyter() -> bool:
+    try:
+        from IPython import get_ipython
+        shell = get_ipython()
+        return shell is not None and "IPKernelApp" in shell.config
+    except ImportError:
+        return False
+
+_in_jupyter = _is_jupyter()
+
 has_pyvista: bool = False
 pv: Optional[object] = None
 BackgroundPlotterCls = None
@@ -147,13 +157,16 @@ class GConfiguration:
 
 		if self._plotter is None:
 			if self.use_background_plotter and BackgroundPlotterCls is not None:
-				# Non-blocking background window
 				self._plotter = BackgroundPlotterCls(show=True)
 			else:
-				# Normal blocking Plotter
-				self._plotter = self.pv.Plotter()
+				if _in_jupyter:
+					self._plotter = self.pv.Plotter(
+						notebook=True,
+						window_size=(self.args.width, self.args.height),
+					)
+				else:
+					self._plotter = self.pv.Plotter()
 
-			# One-time scene setup
 			self._plotter.add_axes()
 			self._plotter.set_background("#303048", top="#000020")
 			self._plotter.camera_position = "iso"
@@ -304,71 +317,92 @@ class GConfiguration:
 						p.app.exec_()
 				else:
 					# Normal Plotter path
-					if block:
+					if _in_jupyter:
+
+						cpos = self._configure_camera_from_bounds(
+							margin=-12.8,
+							distance_scale=3.0,
+						)
+						return p.show(
+							jupyter_backend="html",
+							cpos=cpos,
+							return_viewer=True,
+						)
+
+
+					elif block:
 						p.show()
 
-	def _configure_camera_from_bounds(self):
+	def _configure_camera_from_bounds(self, margin: float = 0.8, distance_scale: float = 4.0):
 		if not self.use_pyvista:
-			return
+			return None
 
 		p = self.plotter
 		if p is None:
-			return
+			return None
 
-		# If nothing is added yet, bounds can be degenerate
 		try:
 			xmin, xmax, ymin, ymax, zmin, zmax = p.bounds
 		except Exception:
-			return
+			return None
 
-		# Guard against empty scene
-		if any(not np.isfinite(v) for v in (xmin, xmax, ymin, ymax, zmin, zmax)):
-			return
-		if xmax == xmin and ymax == ymin and zmax == zmin:
-			return
+		vals = (xmin, xmax, ymin, ymax, zmin, zmax)
+		if any(not np.isfinite(v) for v in vals):
+			return None
 
-		center = np.array([(xmin + xmax) / 2,
-		                   (ymin + ymax) / 2,
-		                   (zmin + zmax) / 2])
-		scene_len = np.linalg.norm([xmax - xmin,
-		                            ymax - ymin,
-		                            zmax - zmin])
+		dx = xmax - xmin
+		dy = ymax - ymin
+		dz = zmax - zmin
 
-		# iso direction
-		direction = np.array([1.0, 1.0, 1.0]) / np.sqrt(3.0)
-		distance = 2.5 * scene_len if scene_len > 0 else 1.0
+		if dx <= 0 and dy <= 0 and dz <= 0:
+			return None
 
-		pos = center + direction * distance
-		p.camera_position = [tuple(pos), tuple(center), (0, 0, 1)]
+		center = np.array([
+			0.5 * (xmin + xmax),
+			0.5 * (ymin + ymax),
+			0.5 * (zmin + zmax),
+		])
 
-		if self.args.add_axes_at_zero:
-			# if you have this helper on the plotter; otherwise use your own
-			try:
-				p.add_axes_at_origin(xlabel="X", ylabel="Y", zlabel="Z")
-			except AttributeError:
-				pass
+		scene_len = np.linalg.norm([dx, dy, dz])
+		if scene_len <= 0:
+			scene_len = max(dx, dy, dz, 1.0)
 
-		# Optional: keep your original “nice” orientation
+		direction = np.array([1.0, 1.0, 1.0])
+		direction /= np.linalg.norm(direction)
+
+		# Larger distance_scale = more zoomed out
+		distance = distance_scale * scene_len
+		position = center + direction * distance
+
+		cpos = [
+			tuple(position),
+			tuple(center),
+			(0, 0, 1),
+		]
+
+		p.camera_position = cpos
+
+		# Important for html/local backend: avoid parallel projection here.
 		try:
-			p.view_zy()  # or view_isometric, etc.
-		except AttributeError:
+			p.disable_parallel_projection()
+		except Exception:
+			pass
+
+		# Larger view_angle = more zoomed out in perspective projection.
+		try:
+			p.camera.view_angle = 45.0
+		except Exception:
 			pass
 
 		try:
-			p.enable_anti_aliasing()
-		except AttributeError:
+			p.reset_camera_clipping_range()
+		except Exception:
 			pass
-
-		try:
-			p.enable_parallel_projection()
-		except AttributeError:
-			pass
-
-		# Sometimes helps with clipping issues
-		if hasattr(p, "reset_camera_clipped_range"):
-			p.reset_camera_clipped_range()
 
 		self._camera_initialized = True
+		return cpos
+
+
 
 
 # autogeometry utility to executes show() at exit
@@ -386,6 +420,11 @@ def autogeometry(
 		enable_pyvista: Optional[bool] = None,
 		use_background_plotter: Optional[bool] = None,
 ):
+	# in jupyter: always enable pyvista, never use atexit
+	if _in_jupyter:
+		enable_pyvista = True
+		auto_show = False
+
 	cfg = GConfiguration(
 		experiment,
 		application,
