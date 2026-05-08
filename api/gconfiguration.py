@@ -72,8 +72,8 @@ def get_arguments(argv=None):
 		action="store_true",
 		help="Use PyVista BackgroundPlotter (non-blocking GUI, needs pyqt6 pyvistaqt)",
 	)
-	parser.add_argument("-pvw", "--width", type=int, default=2400, help="Set plotter width")
-	parser.add_argument("-pvh", "--height", type=int, default=1600, help="Set plotter height")
+	parser.add_argument("-pvw", "--width", type=int, default=1200, help="Set plotter width")
+	parser.add_argument("-pvh", "--height", type=int, default=800, help="Set plotter height")
 	parser.add_argument("-pvx", "--x", type=int, default=0, help="Set plotter x position")
 	parser.add_argument("-pvy", "--y", type=int, default=0, help="Set plotter y position")
 	parser.add_argument("-axes", "--add_axes_at_zero", action="store_true",
@@ -169,7 +169,6 @@ class GConfiguration:
 
 			self._plotter.add_axes()
 			self._plotter.set_background("#303048", top="#000020")
-			self._plotter.camera_position = "iso"
 
 		return self._plotter
 
@@ -320,7 +319,6 @@ class GConfiguration:
 					if _in_jupyter:
 
 						cpos = self._configure_camera_from_bounds(
-							margin=-12.8,
 							distance_scale=3.0,
 						)
 						return p.show(
@@ -367,8 +365,9 @@ class GConfiguration:
 		if scene_len <= 0:
 			scene_len = max(dx, dy, dz, 1.0)
 
-		direction = np.array([1.0, 1.0, 1.0])
-		direction /= np.linalg.norm(direction)
+		# View from +X toward the geometry center.
+		# With this view_up, +Z goes left-to-right on screen.
+		direction = np.array([1.0, 0.0, 0.0])
 
 		# Larger distance_scale = more zoomed out
 		distance = distance_scale * scene_len
@@ -377,7 +376,7 @@ class GConfiguration:
 		cpos = [
 			tuple(position),
 			tuple(center),
-			(0, 0, 1),
+			(0, -1, 0),
 		]
 
 		p.camera_position = cpos

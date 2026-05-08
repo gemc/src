@@ -1,0 +1,40 @@
+name: Update Binder tutorials on release
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  update-binder-repo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout binder-tutorials repo
+        uses: actions/checkout@v4
+        with:
+          repository: gemc/binder-tutorials
+          token: ${{ secrets.BINDER_REPO_PAT }}   # PAT with repo write access
+          path: binder-tutorials
+
+      - name: Patch the Dockerfile with the new release tag
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          sed -i "s|FROM gemc/gemc:.*|FROM gemc/gemc:${TAG}|" \
+            binder-tutorials/Dockerfile
+          echo "Updated Dockerfile to gemc/gemc:${TAG}"
+
+      - name: Commit and push
+        working-directory: binder-tutorials
+        run: |
+          git config user.name  "gemc-bot"
+          git config user.email "ungaro@jlab.org"
+          git add Dockerfile
+          git commit -m "chore: bump GEMC to ${{ github.event.release.tag_name }}"
+          git push
+
+      - name: Pre-warm Binder cache
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          REPO="gemc%2Fbinder-tutorials"
+          curl -s "https://mybinder.org/build/gh/${REPO}/main" \
+            --max-time 300 --no-buffer | tail -5
+          echo "Binder pre-warm triggered for ${TAG}"
