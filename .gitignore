@@ -1,7 +1,4 @@
 goptions/gversion.h
 *.o
 moc*.cc
-*__materials*.txt
-*__geometry*.txt
-*__mirrors*.txt
 .DS_Store
