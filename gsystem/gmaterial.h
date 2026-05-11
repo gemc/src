@@ -25,8 +25,7 @@
  * its own materials and associates them to volumes by name.
  *
  */
-class GMaterial : public GBase<GMaterial>
-{
+class GMaterial : public GBase<GMaterial> {
 public:
 	/**
 	 * \brief Construct a material from a serialized parameter list.
@@ -40,7 +39,7 @@ public:
 	 * parses the fields. Optical/scintillation properties may be "unset" (typically
 	 * UNINITIALIZEDSTRINGQUANTITY) and are skipped.
 	 */
-	GMaterial(const std::string& system, std::vector<std::string> pars, const std::shared_ptr<GLogger>& logger);
+	GMaterial(const std::string &system, std::vector<std::string> pars, const std::shared_ptr<GLogger> &logger);
 
 	/**
 	 * \brief Clone the material (polymorphic deep-copy).
@@ -55,8 +54,8 @@ public:
 	virtual ~GMaterial() = default;
 
 private:
-	std::string system;      ///< System of provenance (which detector subsystem defines this material).
-	std::string name;        ///< Material name (key used for volume→material association).
+	std::string system; ///< System of provenance (which detector subsystem defines this material).
+	std::string name; ///< Material name (key used for volume→material association).
 	std::string description; ///< Human-readable description for documentation and logs.
 
 	/**
@@ -72,9 +71,9 @@ private:
 	 * - \c "G4_N 0.7 G4_O 0.3"
 	 */
 	///@{
-	double                   density{};    ///< Material density, in g/cm3.
-	std::vector<std::string> components;   ///< Component identifiers (elements or referenced materials).
-	std::vector<double>      amounts;      ///< Component amounts: integer-ish atoms or fractional mass.
+	double density{}; ///< Material density, in g/cm3.
+	std::vector<std::string> components; ///< Component identifiers (elements or referenced materials).
+	std::vector<double> amounts; ///< Component amounts: integer-ish atoms or fractional mass.
 	///@}
 
 	/**
@@ -85,11 +84,11 @@ private:
 	 * Consistency is validated during parsing once the final optical vector is loaded.
 	 */
 	///@{
-	std::vector<double> photonEnergy;       ///< Photon energies (with units) at which properties are tabulated.
-	std::vector<double> indexOfRefraction;  ///< Refractive index values evaluated at \c photonEnergy.
-	std::vector<double> absorptionLength;   ///< Absorption length values evaluated at \c photonEnergy.
-	std::vector<double> reflectivity;       ///< Reflectivity values evaluated at \c photonEnergy.
-	std::vector<double> efficiency;         ///< Detection/absorption efficiency evaluated at \c photonEnergy.
+	std::vector<double> photonEnergy; ///< Photon energies (with units) at which properties are tabulated.
+	std::vector<double> indexOfRefraction; ///< Refractive index values evaluated at \c photonEnergy.
+	std::vector<double> absorptionLength; ///< Absorption length values evaluated at \c photonEnergy.
+	std::vector<double> reflectivity; ///< Reflectivity values evaluated at \c photonEnergy.
+	std::vector<double> efficiency; ///< Detection/absorption efficiency evaluated at \c photonEnergy.
 	///@}
 
 	/**
@@ -100,15 +99,15 @@ private:
 	 * are stored as scalars.
 	 */
 	///@{
-	std::vector<double> fastcomponent;      ///< Fast scintillation spectrum values evaluated at \c photonEnergy.
-	std::vector<double> slowcomponent;      ///< Slow scintillation spectrum values evaluated at \c photonEnergy.
+	std::vector<double> fastcomponent; ///< Fast scintillation spectrum values evaluated at \c photonEnergy.
+	std::vector<double> slowcomponent; ///< Slow scintillation spectrum values evaluated at \c photonEnergy.
 
-	double scintillationyield{};            ///< Light yield in photons/MeV (single value).
-	double resolutionscale{};               ///< Broadens the photon statistics distribution.
-	double fasttimeconstant{};              ///< Fast scintillation time constant (time units).
-	double slowtimeconstant{};              ///< Slow scintillation time constant (time units).
-	double yieldratio{};                    ///< Fraction of total yield attributed to the fast component.
-	double birksConstant{};                 ///< Birks constant for quenching model (units depend on convention).
+	double scintillationyield{}; ///< Light yield in photons/MeV (single value).
+	double resolutionscale{}; ///< Broadens the photon statistics distribution.
+	double fasttimeconstant{}; ///< Fast scintillation time constant (time units).
+	double slowtimeconstant{}; ///< Slow scintillation time constant (time units).
+	double yieldratio{}; ///< Fraction of total yield attributed to the fast component.
+	double birksConstant{}; ///< Birks constant for quenching model (units depend on convention).
 	///@}
 
 	/**
@@ -116,7 +115,7 @@ private:
 	 * \brief Other tabulated optical processes evaluated over \c photonEnergy.
 	 */
 	///@{
-	std::vector<double> rayleigh;           ///< Rayleigh scattering attenuation coefficients evaluated at \c photonEnergy.
+	std::vector<double> rayleigh; ///< Rayleigh scattering attenuation coefficients evaluated at \c photonEnergy.
 	///@}
 
 	/**
@@ -131,7 +130,7 @@ private:
 	 *
 	 * If the token count is odd, the trailing token is ignored by construction.
 	 */
-	void setComponentsFromString(const std::string& composition);
+	void setComponentsFromString(const std::string &composition);
 
 	/**
 	 * \brief Parse and store one property vector (or scalar) based on property name.
@@ -145,10 +144,10 @@ private:
 	 * The method performs a vector-size consistency check once the final optical vector is processed,
 	 * ensuring all provided property vectors match \c photonEnergy.
 	 */
-	void getMaterialPropertyFromString(const std::string& parameter, const std::string& propertyName);
+	void getMaterialPropertyFromString(const std::string &parameter, const std::string &propertyName);
 
 	/// \brief Stream operator used for logging material summaries.
-	friend std::ostream& operator<<(std::ostream& stream, const GMaterial&);
+	friend std::ostream &operator<<(std::ostream &stream, const GMaterial &);
 
 	/**
 	 * \brief Assign a scalar parameter if it is set and parseable.
@@ -161,16 +160,16 @@ private:
 	 * \details This helper interprets "unset" values using the same convention as parsing
 	 * utilities (e.g. UNINITIALIZEDSTRINGQUANTITY). Malformed scalars are treated as unset.
 	 */
-	bool assign_if_set(const std::vector<std::string>& pars, size_t& i, double& out);
+	bool assign_if_set(const std::vector<std::string> &pars, size_t &i, double &out);
 
 public:
 	/// \name Identity and description
 	///@{
-	[[nodiscard]] std::string              getName() const { return name; }
-	[[nodiscard]] std::string              getDescription() const { return description; }
-	[[nodiscard]] double                   getDensity() const { return density; }
+	[[nodiscard]] std::string getName() const { return name; }
+	[[nodiscard]] std::string getDescription() const { return description; }
+	[[nodiscard]] double getDensity() const { return density; }
 	[[nodiscard]] std::vector<std::string> getComponents() const { return components; }
-	[[nodiscard]] std::vector<double>      getAmounts() const { return amounts; }
+	[[nodiscard]] std::vector<double> getAmounts() const { return amounts; }
 	///@}
 
 	/// \name Optical properties
@@ -184,14 +183,14 @@ public:
 
 	/// \name Scintillation properties
 	///@{
-	[[nodiscard]] std::vector<double> getFastcomponent() const { return fastcomponent; }
-	[[nodiscard]] std::vector<double> getSlowcomponent() const { return slowcomponent; }
-	[[nodiscard]] double              getScintillationyield() const { return scintillationyield; }
-	[[nodiscard]] double              getResolutionscale() const { return resolutionscale; }
-	[[nodiscard]] double              getFasttimeconstant() const { return fasttimeconstant; }
-	[[nodiscard]] double              getSlowtimeconstant() const { return slowtimeconstant; }
-	[[nodiscard]] double              getYieldratio() const { return yieldratio; }
-	[[nodiscard]] double              getBirksConstant() const { return birksConstant; }
+	[[nodiscard]] std::vector<double> getFastComponent() const { return fastcomponent; }
+	[[nodiscard]] std::vector<double> getSlowComponent() const { return slowcomponent; }
+	[[nodiscard]] double getScintillationYield() const { return scintillationyield; }
+	[[nodiscard]] double getResolutionScale() const { return resolutionscale; }
+	[[nodiscard]] double getFasttimeConstant() const { return fasttimeconstant; }
+	[[nodiscard]] double getSlowtimeConstant() const { return slowtimeconstant; }
+	[[nodiscard]] double getYieldratio() const { return yieldratio; }
+	[[nodiscard]] double getBirksConstant() const { return birksConstant; }
 	///@}
 
 	/// \name Additional optical properties

@@ -18,19 +18,18 @@
 #include <sstream>
 
 
-GMaterial::GMaterial(const std::string& s, std::vector<std::string> pars, const std::shared_ptr<GLogger>& logger) :
-	GBase(logger),
-	system(s) {
+GMaterial::GMaterial(const std::string &s, std::vector<std::string> pars,
+                     const std::shared_ptr<GLogger> &logger) : GBase(logger),
+                                                               system(s) {
 	if (pars.size() != GMATERIALNUMBEROFPARS) {
 		log->error(ERR_GWRONGNUMBEROFPARS,
 		           "Incorrect number of material parameters for ", pars[0], ". Expected ",
 		           GMATERIALNUMBEROFPARS, " but we got ", pars.size());
-	}
-	else {
+	} else {
 		// The parameter vector is a serialized DB/ASCII row. Parsing is positional.
 		size_t i = 0;
 
-		name    = gutilities::removeAllSpacesFromString(pars[i++]);
+		name = gutilities::removeAllSpacesFromString(pars[i++]);
 		density = stod(gutilities::removeAllSpacesFromString(pars[i++]));
 
 		// The "composition" field is tokenized into (component, amount) pairs.
@@ -50,6 +49,7 @@ GMaterial::GMaterial(const std::string& s, std::vector<std::string> pars, const 
 		getMaterialPropertyFromString(pars[i++], "fastcomponent");
 		getMaterialPropertyFromString(pars[i++], "slowcomponent");
 
+		// assign_if_set increment index
 		assign_if_set(pars, i, scintillationyield);
 		assign_if_set(pars, i, resolutionscale);
 		assign_if_set(pars, i, fasttimeconstant);
@@ -63,7 +63,7 @@ GMaterial::GMaterial(const std::string& s, std::vector<std::string> pars, const 
 }
 
 
-std::ostream& operator<<(std::ostream& stream, const GMaterial& gMat) {
+std::ostream &operator<<(std::ostream &stream, const GMaterial &gMat) {
 	stream << std::endl;
 	stream << "   - Material: " << gMat.name << "  in system  " << gMat.system << ": " << std::endl;
 	stream << "     Density:          " << gMat.density << std::endl;
@@ -82,7 +82,7 @@ std::ostream& operator<<(std::ostream& stream, const GMaterial& gMat) {
 
 
 // sets components and amounts
-void GMaterial::setComponentsFromString(const std::string& composition) {
+void GMaterial::setComponentsFromString(const std::string &composition) {
 	std::vector<std::string> allComponents = gutilities::getStringVectorFromString(composition);
 
 	// Interpret alternating tokens as (component, amount) pairs.
@@ -94,7 +94,7 @@ void GMaterial::setComponentsFromString(const std::string& composition) {
 
 
 // load property from DB entry based on its name
-void GMaterial::getMaterialPropertyFromString(const std::string& parameter, const std::string& propertyName) {
+void GMaterial::getMaterialPropertyFromString(const std::string &parameter, const std::string &propertyName) {
 	// Nothing to do if the parameter is not assigned.
 	if (gutilities::removeLeadingAndTrailingSpacesFromString(parameter) == UNINITIALIZEDSTRINGQUANTITY) { return; }
 
@@ -107,35 +107,42 @@ void GMaterial::getMaterialPropertyFromString(const std::string& parameter, cons
 
 		// Removing whitespaces.
 		std::string trimmedComponent = gutilities::removeLeadingAndTrailingSpacesFromString(component);
+		// Non set properties
 
 		// Vector-valued properties append one value per token.
-		if (propertyName == "photonEnergy") { photonEnergy.push_back(gutilities::getG4Number(trimmedComponent)); }
-		else if (propertyName == "indexOfRefraction") {
+		if (propertyName == "photonEnergy") {
+			photonEnergy.push_back(gutilities::getG4Number(trimmedComponent));
+		} else if (propertyName == "indexOfRefraction") {
 			indexOfRefraction.push_back(gutilities::getG4Number(trimmedComponent));
-		}
-		else if (propertyName == "absorptionLength") {
+		} else if (propertyName == "absorptionLength") {
 			absorptionLength.push_back(gutilities::getG4Number(trimmedComponent));
-		}
-		else if (propertyName == "reflectivity") { reflectivity.push_back(gutilities::getG4Number(trimmedComponent)); }
-		else if (propertyName == "efficiency") { efficiency.push_back(gutilities::getG4Number(trimmedComponent)); }
-		else if (propertyName == "fastcomponent") {
+		} else if (propertyName == "reflectivity") {
+			reflectivity.push_back(gutilities::getG4Number(trimmedComponent));
+		} else if (propertyName == "efficiency") {
+			efficiency.push_back(gutilities::getG4Number(trimmedComponent));
+		} else if (propertyName == "fastcomponent") {
 			fastcomponent.push_back(gutilities::getG4Number(trimmedComponent));
-		}
-		else if (propertyName == "slowcomponent") {
+		} else if (propertyName == "slowcomponent") {
 			slowcomponent.push_back(gutilities::getG4Number(trimmedComponent));
 		}
 		// Scalar-valued properties overwrite with the last parsed token.
 		else if (propertyName == "scintillationyield") {
 			scintillationyield = gutilities::getG4Number(trimmedComponent);
+		} else if (propertyName == "resolutionscale") {
+			resolutionscale = gutilities::getG4Number(trimmedComponent);
+		} else if (propertyName == "fasttimeconstant") {
+			fasttimeconstant = gutilities::getG4Number(trimmedComponent);
+		} else if (propertyName == "slowtimeconstant") {
+			slowtimeconstant = gutilities::getG4Number(trimmedComponent);
+		} else if (propertyName == "yieldratio") {
+			yieldratio = gutilities::getG4Number(trimmedComponent);
+		} else if (propertyName == "birkConstant") {
+			birksConstant = gutilities::getG4Number(trimmedComponent);
+		} else if (propertyName == "rayleigh") {
+			rayleigh.push_back(gutilities::getG4Number(trimmedComponent));
 		}
-		else if (propertyName == "resolutionscale") { resolutionscale = gutilities::getG4Number(trimmedComponent); }
-		else if (propertyName == "fasttimeconstant") { fasttimeconstant = gutilities::getG4Number(trimmedComponent); }
-		else if (propertyName == "slowtimeconstant") { slowtimeconstant = gutilities::getG4Number(trimmedComponent); }
-		else if (propertyName == "yieldratio") { yieldratio = gutilities::getG4Number(trimmedComponent); }
-		else if (propertyName == "birkConstant") { birksConstant = gutilities::getG4Number(trimmedComponent); }
-		else if (propertyName == "rayleigh") { rayleigh.push_back(gutilities::getG4Number(trimmedComponent)); }
 
-
+		// validation triggered by rayleigh
 		if (propertyName == "rayleigh") {
 			// Rayleigh is loaded last: at this point we can validate that all other optical vectors
 			// either are empty (not specified) or match the photonEnergy vector length.
@@ -184,11 +191,11 @@ void GMaterial::getMaterialPropertyFromString(const std::string& parameter, cons
 }
 
 
-bool GMaterial::assign_if_set(const std::vector<std::string>& pars, size_t& i, double& out) {
+bool GMaterial::assign_if_set(const std::vector<std::string> &pars, size_t &i, double &out) {
 	if (i >= pars.size()) return false;
 
 	const std::string trimmed =
-		gutilities::removeLeadingAndTrailingSpacesFromString(pars[i++]); // owns storage
+			gutilities::removeLeadingAndTrailingSpacesFromString(pars[i++]); // owns storage
 
 	std::string_view sv(trimmed);
 	if (gutilities::is_unset(sv)) return false;
@@ -196,8 +203,7 @@ bool GMaterial::assign_if_set(const std::vector<std::string>& pars, size_t& i, d
 	try {
 		out = std::stod(trimmed);
 		return true;
-	}
-	catch (const std::exception&) {
+	} catch (const std::exception &) {
 		// Do not error here: malformed optional scalars are treated as "not set".
 		return false;
 	}
