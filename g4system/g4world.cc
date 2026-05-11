@@ -21,11 +21,10 @@
 #include "g4objectsFactories/cad/cadSystemFactory.h"
 
 
-
 // c++
 #include <vector>
 
-G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
+G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 	: GBase(gopts, G4SYSTEM_LOGGER) {
 	auto gsystemMap = gworld->getSystemsMap();
 
@@ -45,19 +44,19 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 
 	// Phase 4: build volumes. Some volumes depend on mothers that may not exist yet,
 	// so we iterate until the remaining list becomes empty or the dependency resolution stalls.
-	std::vector<GVolume*> thisIterationRemainingVolumes;
-	unsigned long         allRemainingVolumes = 0;
+	std::vector<GVolume *> thisIterationRemainingVolumes;
+	unsigned long allRemainingVolumes = 0;
 
 	do {
 		thisIterationRemainingVolumes.clear();
 
 		// Loop over all systems and attempt to build all volumes in each system.
-		for (auto& [systemName, gsystem] : *gsystemMap) {
-			std::string g4Factory      = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
-			auto        objectsFactory = get_factory(g4Factory);
+		for (auto &[systemName, gsystem]: *gsystemMap) {
+			std::string g4Factory = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
+			auto objectsFactory = get_factory(g4Factory);
 
-			for (auto& [volumeName, gvolumePtr] : gsystem->getGVolumesMap()) {
-				auto* gvolume = gvolumePtr.get();
+			for (auto &[volumeName, gvolumePtr]: gsystem->getGVolumesMap()) {
+				auto *gvolume = gvolumePtr.get();
 
 				// Try to build; if dependencies are missing, remember it for the next iteration.
 				if (!build_g4volume(gvolume, objectsFactory)) {
@@ -74,7 +73,7 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 				log->info(2, "G4World: ", systemName, " : ",
 				          thisIterationRemainingVolumes.size(),
 				          " remaining motherless g4volumes to be built:");
-				for (auto* gvolumeLeft : thisIterationRemainingVolumes) {
+				for (auto *gvolumeLeft: thisIterationRemainingVolumes) {
 					log->info(2, "G4World: ", gvolumeLeft->getName(),
 					          " with mother <", gvolumeLeft->getG4MotherName(), "> ");
 				}
@@ -85,7 +84,7 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 		// If the number of remaining volumes does not decrease across iterations, dependencies are not solvable.
 		if (allRemainingVolumes != 0 && !thisIterationRemainingVolumes.empty()) {
 			if (allRemainingVolumes >= thisIterationRemainingVolumes.size()) {
-				for (auto* gvolumeLeft : thisIterationRemainingVolumes) {
+				for (auto *gvolumeLeft: thisIterationRemainingVolumes) {
 					log->warning(" >> ", gvolumeLeft->getName(),
 					             " with mother <", gvolumeLeft->getG4MotherName(), "> not built");
 				}
@@ -93,25 +92,24 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 				           "dependencies are not being resolved: their number should diminish. "
 				           "Above are the outstanding gvolumes");
 			}
-		}
-		else { allRemainingVolumes = thisIterationRemainingVolumes.size(); }
-	}
-	while (!thisIterationRemainingVolumes.empty());
+		} else { allRemainingVolumes = thisIterationRemainingVolumes.size(); }
+	} while (!thisIterationRemainingVolumes.empty());
 
 	// Optional diagnostic output: list known materials from the Geant4 NIST manager.
 	if (gopts->getSwitch("showPredefinedMaterials")) { G4NistManager::Instance()->ListMaterials("all"); }
 
 	// Optional diagnostic output: print materials used in the simulation.
 	if (gopts->getSwitch("printSystemsMaterials")) {
-		auto matTable = (G4MaterialTable*)G4Material::GetMaterialTable();
-		for (auto thisMat : *matTable) {
+		auto matTable = (G4MaterialTable *) G4Material::GetMaterialTable();
+		for (auto thisMat: *matTable) {
 			log->info(0, 2, "G4World: GEMC Material: <", thisMat->GetName(), ">, density: ",
 			          thisMat->GetDensity() / (CLHEP::g / CLHEP::cm3), "g/cm3");
 
 			// Print each component; negative/zero values mean "fractional mass", positive means "number of atoms".
-			for (auto& [material, component] : thisMat->GetMatComponents()) {
-				if (component > 0.0) { log->info(0, "element", material->GetName(), "number of atoms: ", component); }
-				else { log->info(0, "element", material->GetName(), "fractional mass: ", component); }
+			for (auto &[material, component]: thisMat->GetMatComponents()) {
+				if (component > 0.0) {
+					log->info(0, "element", material->GetName(), "number of atoms: ", component);
+				} else { log->info(0, "element", material->GetName(), "fractional mass: ", component); }
 			}
 		}
 	}
@@ -119,35 +117,34 @@ G4World::G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts)
 
 /*──────────────────────── look-ups ──────────────────────────*/
 
-const G4Volume* G4World::getG4Volume(const std::string& volumeName) const {
+const G4Volume *G4World::getG4Volume(const std::string &volumeName) const {
 	auto it = g4volumesMap.find(volumeName);
 	return (it != g4volumesMap.end()) ? it->second : nullptr;
 }
 
-void G4World::setFieldManagerForVolume(const std::string& volumeName,
-                                       G4FieldManager*    fm,
-                                       bool               forceToAllDaughters) {
+void G4World::setFieldManagerForVolume(const std::string &volumeName,
+                                       G4FieldManager *fm,
+                                       bool forceToAllDaughters) {
 	auto it = g4volumesMap.find(volumeName);
 	if (it != g4volumesMap.end()) it->second->setFieldManager(fm, forceToAllDaughters);
 }
 
 // ---- g4FactoryNameFromSystemFactory -----------------------------------------------------------
-std::string G4World::g4FactoryNameFromSystemFactory(const std::string& factory) const {
+std::string G4World::g4FactoryNameFromSystemFactory(const std::string &factory) const {
 	// Map GEMC system factory labels to g4system object factory labels.
 	if (factory == GSYSTEMASCIIFACTORYLABEL ||
-		factory == GSYSTEMSQLITETFACTORYLABEL ||
-		factory == GSYSTEMMYSQLTFACTORYLABEL) { return G4SYSTEMNATFACTORY; }
-	else if (factory == GSYSTEMCADTFACTORYLABEL) { return G4SYSTEMCADFACTORY; }
-	else {
+	    factory == GSYSTEMSQLITETFACTORYLABEL ||
+	    factory == GSYSTEMMYSQLTFACTORYLABEL) { return G4SYSTEMNATFACTORY; } else if (
+		factory == GSYSTEMCADTFACTORYLABEL) { return G4SYSTEMCADFACTORY; } else {
 		log->error(ERR_G4SYSTEMFACTORYNOTFOUND,
 		           "gsystemFactory factory <", factory, "> is not mapped to any G4SystemFactory");
 	}
 }
 
-void G4World::createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
-                                    SystemMap*                       gsystemsMap,
-                                    const std::string&               backup_material,
-                                    int                              check_overlaps) {
+void G4World::createG4SystemFactory(const std::shared_ptr<GOptions> &gopts,
+                                    SystemMap *gsystemsMap,
+                                    const std::string &backup_material,
+                                    int check_overlaps) {
 	// Instantiate a manager used to register and create factories.
 	GManager manager(gopts);
 
@@ -156,8 +153,8 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
 	manager.RegisterObjectFactory<G4NativeSystemFactory>(G4SYSTEMNATFACTORY, gopts);
 
 	// Register factories based on the system factory label, then create/initialize them lazily.
-	for (auto& [gsystemName, gsystem] : *gsystemsMap) {
-		std::string factory   = gsystem->getFactoryName();
+	for (auto &[gsystemName, gsystem]: *gsystemsMap) {
+		std::string factory = gsystem->getFactoryName();
 		std::string g4Factory = g4FactoryNameFromSystemFactory(factory);
 
 		log->info(2, "G4World: creating factory <", g4Factory, "> to for system <", gsystemName, ">");
@@ -165,12 +162,11 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
 		// Register needed factory types:
 		// this will always be false for the default native label because it was registered above.
 		if (factory == GSYSTEMASCIIFACTORYLABEL || factory == GSYSTEMSQLITETFACTORYLABEL ||
-			factory == GSYSTEMMYSQLTFACTORYLABEL) {
+		    factory == GSYSTEMMYSQLTFACTORYLABEL) {
 			if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) {
 				manager.RegisterObjectFactory<G4NativeSystemFactory>(g4Factory, gopts);
 			}
-		}
-		else if (factory == GSYSTEMCADTFACTORYLABEL) {
+		} else if (factory == GSYSTEMCADTFACTORYLABEL) {
 			if (g4systemFactory.find(GSYSTEMCADTFACTORYLABEL) == g4systemFactory.end()) {
 				manager.RegisterObjectFactory<G4CadSystemFactory>(g4Factory, gopts);
 			}
@@ -184,17 +180,17 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
 	}
 }
 
-void G4World::buildMaterials(SystemMap* system_map) {
+void G4World::buildMaterials(SystemMap *system_map) {
 	// Build materials across all systems. Some materials may depend on other materials/elements,
 	// so we iterate until all dependencies are resolved or the resolution stalls.
-	std::vector<GMaterial*> thisIterationRemainingMaterials;
-	unsigned long           allRemainingMaterials = 0;
+	std::vector<GMaterial *> thisIterationRemainingMaterials;
+	unsigned long allRemainingMaterials = 0;
 	do {
 		thisIterationRemainingMaterials.clear();
 
-		for (const auto& [systemName, system] : *system_map) {
+		for (const auto &[systemName, system]: *system_map) {
 			// Loop over the material map in each system and attempt to build each material.
-			for (const auto& [gmaterialName, gmaterialPtr] : system->getGMaterialMap()) {
+			for (const auto &[gmaterialName, gmaterialPtr]: system->getGMaterialMap()) {
 				if (createG4Material(gmaterialPtr) == false) {
 					thisIterationRemainingMaterials.push_back(gmaterialPtr.get());
 				}
@@ -204,17 +200,15 @@ void G4World::buildMaterials(SystemMap* system_map) {
 		// Dependency-stall detection for material building.
 		if (allRemainingMaterials != 0 && !thisIterationRemainingMaterials.empty()) {
 			if (allRemainingMaterials >= thisIterationRemainingMaterials.size()) {
-				for (auto& gmaterialLeft : thisIterationRemainingMaterials) { log->warning(gmaterialLeft->getName()); }
+				for (auto &gmaterialLeft: thisIterationRemainingMaterials) { log->warning(gmaterialLeft->getName()); }
 				log->error(ERR_G4DEPENDENCIESNOTSOLVED,
 				           "Dependencies are not being resolved: their number should diminish. Above are the Outstanding gmaterials");
 			}
-		}
-		else { allRemainingMaterials = thisIterationRemainingMaterials.size(); }
-	}
-	while (!thisIterationRemainingMaterials.empty());
+		} else { allRemainingMaterials = thisIterationRemainingMaterials.size(); }
+	} while (!thisIterationRemainingMaterials.empty());
 }
 
-bool G4World::build_g4volume(const GVolume* s, G4ObjectsFactory* objectsFactory) {
+bool G4World::build_g4volume(const GVolume *s, G4ObjectsFactory *objectsFactory) {
 	log->info(2, "G4World: using factory <", objectsFactory->className(),
 	          "> to build g4volume <", s->getG4Name(), ">");
 
