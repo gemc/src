@@ -217,6 +217,7 @@ class GConfiguration:
 			self.matFileName = self.system + "__materials_" + str(self.variation) + ".txt"
 			self.mirFileName = self.system + "__mirrors_" + str(self.variation) + ".txt"
 
+
 	# overwrites any existing geometry file.
 	def initialize_storage(self):
 		print()
@@ -256,7 +257,6 @@ class GConfiguration:
 			except OSError as e:
 				sys.exit(f"Error opening file {self.geoFileName}: {e}")
 			try:
-
 				with open(self.matFileName, "w") as file:
 					pass
 			except OSError as e:

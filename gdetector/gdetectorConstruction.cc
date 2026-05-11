@@ -20,7 +20,7 @@
 #include "G4RunManager.hh"
 #include "G4UserLimits.hh"
 
-G4ThreadLocal GMagneto* GDetectorConstruction::gmagneto = nullptr;
+G4ThreadLocal GMagneto *GDetectorConstruction::gmagneto = nullptr;
 
 GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
 	: GBase(gopts, GDETECTOR_LOGGER),
@@ -31,7 +31,7 @@ GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
 }
 
 // Builds (or rebuilds) the GEMC world and then the Geant4 world.
-G4VPhysicalVolume* GDetectorConstruction::Construct() {
+G4VPhysicalVolume *GDetectorConstruction::Construct() {
 	log->debug(NORMAL, FUNCTION_NAME);
 
 	// Clean any old geometry.
@@ -52,8 +52,7 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 	if (gsystems.empty()) {
 		log->debug(NORMAL, FUNCTION_NAME, "creating world from options");
 		gworld = std::make_shared<GWorld>(gopt);
-	}
-	else {
+	} else {
 		log->debug(NORMAL, FUNCTION_NAME, "creating world from a gsystem vector of size ", gsystems.size());
 		gworld = std::make_shared<GWorld>(gopt, gsystems);
 	}
@@ -65,8 +64,8 @@ G4VPhysicalVolume* GDetectorConstruction::Construct() {
 
 	// tally with number :
 	log->info(0, "Tally summary: \n - ", gworld->get_number_of_volumes() - 1, " volumes\n - ",
-			  g4world->number_of_volumes(), " geant4 built volumes\n - ",
-			  nsdetectors, " sensitive detectors\n");
+	          g4world->number_of_volumes(), " geant4 built volumes\n - ",
+	          nsdetectors, " sensitive detectors\n");
 
 
 	// Return the physical volume for the ROOT world volume.
@@ -81,14 +80,14 @@ void GDetectorConstruction::ConstructSDandField() {
 
 	// Local cache of sensitive detectors keyed by digitization name.
 	// Multiple volumes can share the same digitization name and therefore reuse one SD instance.
-	std::unordered_map<std::string, GSensitiveDetector*> sensitiveDetectorsMap;
+	std::unordered_map<std::string, GSensitiveDetector *> sensitiveDetectorsMap;
 
 	// Loop over all systems and their volumes.
-	for (const auto& [systemName, gsystemPtr] : *gworld->getSystemsMap()) {
-		for (const auto& [volumeName, gvolumePtr] : gsystemPtr->getGVolumesMap()) {
-			auto const& digitizationName = gvolumePtr->getDigitization();
-			auto const& g4name           = gvolumePtr->getG4Name();
-			auto*       g4volume         = g4world->getG4Volume(g4name)->getLogical();
+	for (const auto &[systemName, gsystemPtr]: *gworld->getSystemsMap()) {
+		for (const auto &[volumeName, gvolumePtr]: gsystemPtr->getGVolumesMap()) {
+			auto const &digitizationName = gvolumePtr->getDigitization();
+			auto const &g4name = gvolumePtr->getG4Name();
+			auto *g4volume = g4world->getG4Volume(g4name)->getLogical();
 
 			// Ensure the Geant4 logical volume exists.
 			// Some GEMC volumes can be "copy-of" another volume; in that case, reuse the
@@ -96,13 +95,12 @@ void GDetectorConstruction::ConstructSDandField() {
 			if (g4volume == nullptr) {
 				std::string copyOf = gvolumePtr->getCopyOf();
 				if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
-					auto gsystem      = gvolumePtr->getSystem();
-					auto volume_copy  = gsystem + "/" + copyOf;
+					auto gsystem = gvolumePtr->getSystem();
+					auto volume_copy = gsystem + "/" + copyOf;
 					auto copyG4Volume = g4world->getG4Volume(volume_copy)->getLogical();
-					if (copyG4Volume != nullptr) { g4volume = copyG4Volume; }
-					else {
+					if (copyG4Volume != nullptr) { g4volume = copyG4Volume; } else {
 						log->error(ERR_GVOLUMENOTFOUND, FUNCTION_NAME,
-								   " Logical volume copy <" + volume_copy + "> not found.");
+						           " Logical volume copy <" + volume_copy + "> not found.");
 					}
 				}
 			}
@@ -117,18 +115,17 @@ void GDetectorConstruction::ConstructSDandField() {
 					log->info(2, "Creating new sensitive detector <", digitizationName, "> for volume <", g4name, ">");
 
 					sensitiveDetectorsMap[digitizationName] = new GSensitiveDetector(digitizationName, gopt);
-				}
-				else {
+				} else {
 					log->info(2, "Sensitive detector <", digitizationName,
-							  "> is already created and available for volume <", g4name, ">");
+					          "> is already created and available for volume <", g4name, ">");
 				}
 
 				// Register the volume touchable with the sensitive detector.
 				// The touchable encodes identity and dimension metadata needed by digitization.
-				const auto& vdimensions     = gvolumePtr->getDetectorDimensions();
-				const auto& identity        = gvolumePtr->getGIdentity();
-				const auto& mass            = g4volume->GetMass();
-				auto        this_gtouchable = std::make_shared<
+				const auto &vdimensions = gvolumePtr->getDetectorDimensions();
+				const auto &identity = gvolumePtr->getGIdentity();
+				const auto &mass = g4volume->GetMass();
+				auto this_gtouchable = std::make_shared<
 					GTouchable>(gopt, digitizationName, identity, vdimensions, mass);
 				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name, this_gtouchable);
 
@@ -141,17 +138,17 @@ void GDetectorConstruction::ConstructSDandField() {
 				//g4volume->SetUserLimits(new G4UserLimits(0.1*mm, 0.1*mm));
 
 				log->info(2, "Logical Volume  <" + g4name + "> has been successfully assigned to SD.",
-						  sensitiveDetectorsMap[digitizationName]);
+				          sensitiveDetectorsMap[digitizationName]);
 			}
 
 			// Process electromagnetic fields.
 			// If a volume declares an EM field, ensure the field container exists and install
 			// a per-volume field manager configured by the named field map.
-			const auto& field_name = gvolumePtr->getEMField();
+			const auto &field_name = gvolumePtr->getEMField();
 			if (field_name != "" && field_name != UNINITIALIZEDSTRINGQUANTITY) {
 				if (gmagneto == nullptr) { gmagneto = new GMagneto(gopt); }
 				log->info(2, "Volume <", volumeName, "> has field: <", field_name,
-						  ">. Looking into field map definitions.");
+				          ">. Looking into field map definitions.");
 				log->info(2, "Setting field manager for volume <", g4name, "> with field <", field_name, ">");
 				g4world->setFieldManagerForVolume(g4name, gmagneto->getFieldMgr(field_name).get(), true);
 			}
@@ -164,22 +161,22 @@ void GDetectorConstruction::ConstructSDandField() {
 
 	// Bind each digitization routine to its corresponding sensitive detector.
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
-	for (auto& sdname : sdetectors) {
-		auto   digitization_routine = digitization_routines_map->at(sdname);
-		double maxStep              = digitization_routine->readoutSpecs->getMaxStep();
+	for (auto &sdname: sdetectors) {
+		auto digitization_routine = digitization_routines_map->at(sdname);
+		double maxStep = digitization_routine->readoutSpecs->getMaxStep();
 
 		sensitiveDetectorsMap[sdname]->assign_digi_routine(digitization_routine);
 		log->info(1, "Digitization routine <" + sdname + "> has been successfully assigned to SD.",
-				  sensitiveDetectorsMap[sdname]);
+		          sensitiveDetectorsMap[sdname]);
 
 		// Loop over all systems and their volumes.
 		// and assign max step to the corresponding logical volume
-		for (const auto& [systemName, gsystemPtr] : *gworld->getSystemsMap()) {
-			for (const auto& [volumeName, gvolumePtr] : gsystemPtr->getGVolumesMap()) {
-				auto const& digitizationName = gvolumePtr->getDigitization();
+		for (const auto &[systemName, gsystemPtr]: *gworld->getSystemsMap()) {
+			for (const auto &[volumeName, gvolumePtr]: gsystemPtr->getGVolumesMap()) {
+				auto const &digitizationName = gvolumePtr->getDigitization();
 				if (digitizationName == sdname) {
-					auto const& g4name   = gvolumePtr->getG4Name();
-					auto*       g4volume = g4world->getG4Volume(g4name)->getLogical();
+					auto const &g4name = gvolumePtr->getG4Name();
+					auto *g4volume = g4world->getG4Volume(g4name)->getLogical();
 
 					// g4volume->SetUserLimits(new G4UserLimits(maxStep, maxStep)); // this will also kill track cause
 					// the second argument is max track length
@@ -189,7 +186,6 @@ void GDetectorConstruction::ConstructSDandField() {
 				}
 			}
 		}
-
 	}
 }
 
@@ -197,20 +193,17 @@ void GDetectorConstruction::ConstructSDandField() {
 void GDetectorConstruction::loadDigitizationPlugins() {
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
 
-	for (auto& sdname : sdetectors) {
+	for (auto &sdname: sdetectors) {
 		if (sdname == FLUXNAME) {
 			log->info(1, "Loading flux digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, std::make_shared<GFluxDigitization>(gopt));
-		}
-		else if (sdname == COUNTERNAME) {
+		} else if (sdname == COUNTERNAME) {
 			log->info(1, "Loading particle counter digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, std::make_shared<GParticleCounterDigitization>(gopt));
-		}
-		else if (sdname == DOSIMETERNAME) {
+		} else if (sdname == DOSIMETERNAME) {
 			log->info(1, "Loading dosimeter digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, std::make_shared<GDosimeterDigitization>(gopt));
-		}
-		else {
+		} else {
 			// if it's not in the map already, add it
 			log->info(0, "Loading new digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, gdynamicdigitization::load_dynamicRoutine(sdname, gopt));
@@ -221,8 +214,7 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 
 		if (digitization_routines_map->at(sdname)->defineReadoutSpecs()) {
 			log->info(1, "Digitization routine <" + sdname + "> has been successfully defined.");
-		}
-		else { log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">"); }
+		} else { log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">"); }
 	}
 }
 
@@ -242,6 +234,5 @@ void GDetectorConstruction::reload_geometry(SystemList sl) {
 	if (rm) {
 		rm->DefineWorldVolume(Construct());
 		ConstructSDandField();
-	}
-	else { log->error(1, "GDetectorConstruction::reload_geometry", "Geant4 Run manager not found."); }
+	} else { log->error(1, "GDetectorConstruction::reload_geometry", "Geant4 Run manager not found."); }
 }

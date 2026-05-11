@@ -17,6 +17,9 @@ examples_map = {
         'b1' : { 'runs' : ['1'], 'variations' : ['default', 'test'] },
         'b2' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] },
         'b3' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] }
+    },
+    'optical' : {
+        'simple_flux' : { 'runs' : ['1'], 'variations' : ['default', 'CO2', 'C4F10'] },
     }
 }
 
@@ -44,7 +47,7 @@ foreach branch : examples_map.keys()
                      args : [example_dir + example + '.py', '-f', format, '-sql', sql_db, '-v', variation], # the sql flag is ignored for ascii format
                      workdir : example_dir,
                      is_parallel : false,
-                     env: test_env,
+                     env : test_env,
                      priority : 10)
                 test(run_test_name_asci,
                      gemc,
@@ -72,7 +75,7 @@ foreach branch : examples_map.keys()
                      args : [example_dir + example + '.py', '-f', format, '-sql', sql_db, '-r', run_value], # the sql flag is ignored for ascii format
                      workdir : example_dir,
                      is_parallel : false,
-                     env: test_env,
+                     env : test_env,
                      priority : 9)
                 test(run_test_name_asci,
                      gemc,
