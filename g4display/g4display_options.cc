@@ -60,7 +60,7 @@ GOptions defineOptions() {
 
 	// g4view
 	std::vector<GVariable> g4view = {
-		{"driver", std::string(GDEFAULTVIEWERDRIVER), "Geant4 vis driver"},
+		{"driver", std::string(GDEFAULTVIEWERDRIVER), "Geant4 vis driver. Use TOOLSSG_OFFSCREEN in batch mode. "},
 		{"dimension", std::string(GDEFAULTVIEWERSIZE), "g4 viewer dimension"},
 		{"position", std::string(GDEFAULTVIEWERPOS), "g4 viewer position"},
 		{"segsPerCircle", GDEFAULTVSEGPERCIRCLE, "Number of segments per circle"}
@@ -69,10 +69,11 @@ GOptions defineOptions() {
 	help = "Defines the geant4 viewer properties:  \n ";
 	help += " - screen dimensions  \n ";
 	help += " - screen position  \n ";
-	help += " - resolution in terms of segments per circle  \n ";
-	help +=
-		" Example: -g4view={viewer: \"OGL\", dimension: \"1100x800\", position: \"+200+100\", segsPerCircle: 100}  \n \n";
-	help += "-g4view=\"[{dimensions: 1200x1000}]\"\n";
+	help += " - resolution in terms of segments per circle  \n \n ";
+	help += " Examples: \n \n ";
+	help += " -g4view=\"[{dimension: 1200x1000}]\"\n";
+	help += " -g4view=\"[{driver: OGL, dimension: 1100x800, position: +200+100, segsPerCircle: 100}]\" \n";
+	help += " -g4view=\"[{driver: TOOLSSG_OFFSCREEN, segsPerCircle: 200}]\" ← will take a screenshot at the end of each run \n";
 
 	goptions.defineOption("g4view", "Defines the geant4 viewer properties", g4view, help);
 
