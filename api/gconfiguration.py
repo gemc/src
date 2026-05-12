@@ -28,13 +28,15 @@ from typing import Optional, Tuple
 from gsqlite import create_sqlite_database
 from gutils import GColors
 
+
 def _is_jupyter() -> bool:
-    try:
-        from IPython import get_ipython
-        shell = get_ipython()
-        return shell is not None and "IPKernelApp" in shell.config
-    except ImportError:
-        return False
+	try:
+		from IPython import get_ipython
+		shell = get_ipython()
+		return shell is not None and "IPKernelApp" in shell.config
+	except ImportError:
+		return False
+
 
 _in_jupyter = _is_jupyter()
 
@@ -106,8 +108,8 @@ class GConfiguration:
 		self.experiment = experiment
 		self.system = system
 		self.runno = self.args.run if self.args.run else runno
-		self.factory = self.args.factory if self.args.factory else factory  # Prioritize command-line argument
-		self.variation = self.args.variation if self.args.variation else variation  # Prioritize command-line argument
+		self.factory = self.args.factory if self.args.factory else factory # Prioritize command-line argument
+		self.variation = self.args.variation if self.args.variation else variation # Prioritize command-line argument
 		self.dbhost = self.args.dbhost
 		self.sqlitedb: sqlite3.Connection = None
 		self.verbosity = verbosity
@@ -116,6 +118,17 @@ class GConfiguration:
 		self.geoFileName = None
 		self.matFileName = None
 		self.mirFileName = None
+
+		# Keep track of which ascii file sets have already been reset
+		# during this python process.
+		#
+		# This matters when switching variations:
+		#   default  -> variation1 -> default
+		#
+		# We want to remove stale files the first time a variation is used,
+		# but we do not want to erase files again if the script switches back
+		# to a variation that was already initialized in this same run.
+		self.initialized_ascii_file_sets = set()
 
 		# pyvista
 		# CLI background flag
@@ -147,7 +160,12 @@ class GConfiguration:
 		self._plotter: Optional[object] = None
 		self._camera_initialized = False
 
-		self.init_variation(self.variation)
+		# Set the initial variation and file names.
+		#
+		# Do not reset ascii files here because initialize_storage()
+		# is called immediately after this and already owns that job.
+		self.init_variation(self.variation, reset_storage=False)
+
 		self.initialize_storage()
 
 	@property
@@ -207,16 +225,88 @@ class GConfiguration:
 			self._plotter.close()
 			self._plotter = None
 
-	def init_variation(self, newVariation):
+
+	def ascii_storage_files(self):
+		"""
+		Return the ascii output files for the current system / variation.
+
+		Geometry, materials, and mirrors are treated as one file set.
+		That way switching to a new variation resets the corresponding
+		files together.
+		"""
+		return (
+			self.geoFileName,
+			self.matFileName,
+			self.mirFileName,
+		)
+
+	def reset_ascii_storage_files(self):
+		"""
+		Remove and recreate the ascii files for the current system / variation.
+
+		This gives ascii output the same practical behavior as sqlite:
+		when a system / variation is initialized, old output for that same
+		system / variation is removed before new rows are written.
+
+		Important:
+		GVolume.publish() should still open the geometry file with 'a+',
+		because each volume publishes one row. The file reset belongs here,
+		at the configuration / variation level, not inside each volume.
+		"""
+		for file_name in self.ascii_storage_files():
+			if not file_name:
+				continue
+
+			try:
+				# Remove the old file first instead of appending to stale content.
+				# This is the part that prevents duplicate ascii rows from
+				# previous runs of the same system / variation.
+				if os.path.exists(file_name):
+					os.remove(file_name)
+
+				# Recreate an empty file immediately.
+				# Later publish() calls can safely append volume rows to it.
+				with open(file_name, "w") as file:
+					pass
+
+			except OSError as e:
+				sys.exit(f"Error resetting ascii file {file_name}: {e}")
+
+	def ensure_ascii_storage_initialized(self):
+		"""
+		Reset the ascii files for the current system / variation once.
+
+		The guard is needed because init_variation() may be called more than
+		once in a script. Without this guard, switching back to a variation
+		that was already populated during the same run would erase the rows
+		just written in that run.
+		"""
+		if self.factory != "ascii":
+			return
+
+		file_set = self.ascii_storage_files()
+
+		if file_set in self.initialized_ascii_file_sets:
+			return
+
+		self.reset_ascii_storage_files()
+		self.initialized_ascii_file_sets.add(file_set)
+
+	def init_variation(self, newVariation, reset_storage=True):
 		if self.variation != newVariation:
 			self.variation = newVariation
 			print(f"  ❖ Variation switched to: {self.variation}")
+
 		# filenames
 		if self.factory == "ascii":
 			self.geoFileName = self.system + "__geometry_" + str(self.variation) + ".txt"
 			self.matFileName = self.system + "__materials_" + str(self.variation) + ".txt"
 			self.mirFileName = self.system + "__mirrors_" + str(self.variation) + ".txt"
 
+			# When changing variations after construction, make sure the
+			# corresponding ascii files are fresh before new rows are appended.
+			if reset_storage:
+				self.ensure_ascii_storage_initialized()
 
 	# overwrites any existing geometry file.
 	def initialize_storage(self):
@@ -251,22 +341,12 @@ class GConfiguration:
 					sys.exit(f"Error connecting to SQLite database: {e}")
 
 		elif self.factory in ["ascii"]:
-			try:
-				with open(self.geoFileName, "w") as file:
-					pass  # just to open and overwrite
-			except OSError as e:
-				sys.exit(f"Error opening file {self.geoFileName}: {e}")
-			try:
-				with open(self.matFileName, "w") as file:
-					pass
-			except OSError as e:
-				sys.exit(f"Error opening file {self.matFileName}: {e}")
-
-			try:
-				with open(self.mirFileName, "w") as file:
-					pass
-			except OSError as e:
-				sys.exit(f"Error opening file {self.mirFileName}: {e}")
+			# For ascii, initialize_storage() should prepare fresh output files
+			# for the current system / variation.
+			#
+			# This replaces the previous repeated open(..., "w") blocks with
+			# the same behavior plus variation-aware protection.
+			self.ensure_ascii_storage_initialized()
 
 	def show(self, block: bool = True):
 		print()
@@ -400,8 +480,6 @@ class GConfiguration:
 
 		self._camera_initialized = True
 		return cpos
-
-
 
 
 # autogeometry utility to executes show() at exit
