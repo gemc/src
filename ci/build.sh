@@ -97,6 +97,14 @@ esac
 
 echo " > Running meson test with options:"  "${meson_args[@]}" | tee -a "$test_log"
 meson test "${meson_args[@]}" >> "$test_log"
+if [ $? -ne 0 ]; then
+  echo " > Meson Tests failed. Log: "
+  cat $test_log
+  exit 1
+else
+  echo " > Meson Tests Successful"
+  echo
+fi
 echo "   - Successful: $(grep -m1 'Ok:' "$test_log" | awk '{print $2}')" | tee -a "$test_log"
 echo "   - Failures: $(grep -m1 'Fail:' "$test_log" | awk '{print $2}')" | tee -a "$test_log"
 echo " > Complete test log: $test_log"
