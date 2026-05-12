@@ -54,10 +54,10 @@ material_definitions = {
 
 # common panel geometry
 panels = [
-	("BackplateLeft", -255, 0, 245, 500, 1),
-	("BackplateRight", 255, 0, 245, 500, 2),
-	("BackplateBottom", 0, -255, 500, 245, 3),
-	("BackplateTop", 0, 255, 500, 245, 4),
+	("detector_left", -255, 0, 245, 500, 1),
+	("detector_right", 255, 0, 245, 500, 2),
+	("detector_bottom", 0, -255, 500, 245, 3),
+	("detector_top", 0, 255, 500, 245, 4),
 ]
 
 for variation, material in variation_material.items():
@@ -90,7 +90,7 @@ for variation, material in variation_material.items():
 	radiator.make_box(500, 500, 500)
 	radiator.material = material
 	radiator.color = "66ccff"
-	radiator.opacity = 0.1
+	radiator.style = 2
 	radiator.publish(cfg)
 
 	for name, x, y, half_x, half_y, panel_id in panels:

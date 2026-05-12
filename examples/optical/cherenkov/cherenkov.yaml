@@ -1,6 +1,6 @@
 experiment: examples
 runno: 1
-n: 100
+n: 5
 nthreads: 1
 
 # Required for optical-photon flux hits because optical photons deposit zero energy.
@@ -10,6 +10,8 @@ gparticle:
   - name: e-
     p: 1000
     vz: -50
+    delta_theta: 20
+    delta_phi: 180
 
 gsystem:
   - name: cherenkov

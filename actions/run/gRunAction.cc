@@ -3,29 +3,35 @@
 #include "gRun.h"
 #include "../gactionConventions.h"
 #include "gutsConventions.h"
+#include "g4display_options.h"
 
 // geant4
 #include "G4Threading.hh"
 #include "G4MTRunManager.hh"
+#include "G4UImanager.hh"
 
-std::mutex                   GRunAction::completed_run_data_mutex;
+std::mutex GRunAction::completed_run_data_mutex;
 GRunAction::CompletedRunData GRunAction::completed_worker_run_data;
 
 
 // Construct the run action and retain access to shared configuration and
 // digitization services for the current execution context.
-GRunAction::GRunAction(std::shared_ptr<GOptions>                           gopt,
-					   std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
-	GBase(gopt, GRUNACTION_LOGGER),
+GRunAction::GRunAction(std::shared_ptr<GOptions> gopt,
+                       std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) : GBase(gopt, GRUNACTION_LOGGER),
 	goptions(std::move(gopt)),
 	digitization_routines_map(std::move(digi_map)) {
 	const auto desc = std::to_string(G4Threading::G4GetThreadId());
 	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
+
+	auto g4view = g4display::getG4View(goptions);
+	if (g4view.driver == "TOOLSSG_OFFSCREEN") {
+		take_screenshots = true;
+	}
 }
 
 
 // Create the thread-local run object used by Geant4 for this execution context.
-G4Run* GRunAction::GenerateRun() {
+G4Run *GRunAction::GenerateRun() {
 	log->debug(NORMAL, FUNCTION_NAME);
 
 	return new GRun(goptions, digitization_routines_map);
@@ -33,40 +39,38 @@ G4Run* GRunAction::GenerateRun() {
 
 // Initialize run-scoped bookkeeping, determine which streamer categories are
 // needed for this run, and open the appropriate connections.
-void GRunAction::BeginOfRunAction(const G4Run* aRun) {
+void GRunAction::BeginOfRunAction(const G4Run *aRun) {
 	const auto thread_id = G4Threading::G4GetThreadId();
-	const auto run       = aRun->GetRunID();
+	const auto run = aRun->GetRunID();
 
 	auto run_header = std::make_unique<GRunHeader>(goptions, run, thread_id);
-	run_data        = std::make_unique<GRunDataCollection>(goptions, std::move(run_header));
+	run_data = std::make_unique<GRunDataCollection>(goptions, std::move(run_header));
 
 	const auto neventsThisRun = aRun->GetNumberOfEventToBeProcessed();
 
 	// Reset the per-run mode flags before scanning the digitization routines.
 	need_a_thread_streamer = false;
-	need_a_run_streamer    = false;
+	need_a_run_streamer = false;
 
 	// Inspect the available digitization routines to determine whether this run
 	// requires event-mode publication, run-mode publication, or both.
 	if (digitization_routines_map != nullptr) {
-		for (const auto& [plugin, digiRoutine] : *digitization_routines_map) {
+		for (const auto &[plugin, digiRoutine]: *digitization_routines_map) {
 			if (digiRoutine == nullptr) {
 				log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-						   " null digitization routine registered for plugin ", plugin);
+				           " null digitization routine registered for plugin ", plugin);
 			}
 
 			if (digiRoutine->collection_mode() == CollectionMode::event) {
 				need_a_thread_streamer = true;
-			}
-			else if (digiRoutine->collection_mode() == CollectionMode::run) {
+			} else if (digiRoutine->collection_mode() == CollectionMode::run) {
 				to_normalize[plugin] = digiRoutine->variables_to_normalize();
 				need_a_run_streamer = true;
 			}
 		}
-	}
-	else {
+	} else {
 		log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-				   " digitization_routines_map is null - streamer mode detection skipped.");
+		           " digitization_routines_map is null - streamer mode detection skipped.");
 	}
 
 
@@ -80,24 +84,24 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 
 		if (gstreamer_threads_map == nullptr) {
 			log->error(1, FUNCTION_NAME, " gstreamer_threads_map is null in thread ", thread_id,
-					   " - cannot open connections.");
+			           " - cannot open connections.");
 		}
 
-		for (const auto& [name, gstreamer] : *gstreamer_threads_map) {
+		for (const auto &[name, gstreamer]: *gstreamer_threads_map) {
 			if (gstreamer == nullptr) {
 				log->error(ERR_STREAMERMAP_NOT_EXISTING,
-						   "Null GStreamer entry ", name, " in thread ", thread_id);
+				           "Null GStreamer entry ", name, " in thread ", thread_id);
 			}
 
 			if (!gstreamer->openConnection()) {
 				log->error(ERR_STREAMERMAP_NOT_EXISTING,
-						   "Failed to open connection for GStreamer ", name,
-						   " in thread ", thread_id);
+				           "Failed to open connection for GStreamer ", name,
+				           " in thread ", thread_id);
 			}
 
 			log->info(2, FUNCTION_NAME, "Worker thread [", thread_id, "]: opening connection for ",
-					  KGRN, name, RST,
-					  " for run ", run, ". Number of events to be processed: ", neventsThisRun);
+			          KGRN, name, RST,
+			          " for run ", run, ". Number of events to be processed: ", neventsThisRun);
 		}
 	}
 	// The master thread owns run-mode publication, so it opens the run streamers
@@ -110,48 +114,47 @@ void GRunAction::BeginOfRunAction(const G4Run* aRun) {
 
 		if (gstreamer_run_map == nullptr) {
 			log->error(1, FUNCTION_NAME, " gstreamer_run_map is null in master thread ",
-					   " - cannot open connections.");
+			           " - cannot open connections.");
 		}
 
-		for (const auto& [name, gstreamer] : *gstreamer_run_map) {
+		for (const auto &[name, gstreamer]: *gstreamer_run_map) {
 			if (gstreamer == nullptr) {
 				log->error(ERR_STREAMERMAP_NOT_EXISTING,
-						   "Null GStreamer entry ", name, " in master thread");
+				           "Null GStreamer entry ", name, " in master thread");
 			}
 
 			if (!gstreamer->openConnection()) {
 				log->error(ERR_STREAMERMAP_NOT_EXISTING,
-						   "Failed to open connection for GStreamer in master thread ", name);
+				           "Failed to open connection for GStreamer in master thread ", name);
 			}
 
 			log->info(2, FUNCTION_NAME, "Master Thread: opening connection for ",
-					  KGRN, name, RST,
-					  " for run ", run, ". Number of events to be processed: ", neventsThisRun);
+			          KGRN, name, RST,
+			          " for run ", run, ". Number of events to be processed: ", neventsThisRun);
 		}
 	}
 }
 
 // Close streamers at run end and, when running on the master thread, merge and
 // publish the run-level payload accumulated by workers.
-void GRunAction::EndOfRunAction(const G4Run* aRun) {
-	const auto        thread_id = G4Threading::G4GetThreadId();
-	const auto        run       = aRun->GetRunID();
+void GRunAction::EndOfRunAction(const G4Run *aRun) {
+	const auto thread_id = G4Threading::G4GetThreadId();
+	const auto runNumber = aRun->GetRunID();
 	const std::string what_am_i = IsMaster() ? "Master" : "Worker";
 
 	if (!IsMaster() && need_a_thread_streamer) {
 		if (gstreamer_threads_map == nullptr) {
 			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
-					   " gstreamer_map is null in thread ", thread_id,
-					   " - cannot close connections.");
-		}
-		else {
-			for (const auto& [name, gstreamer] : *gstreamer_threads_map) {
-				log->info(2, FUNCTION_NAME, " ", what_am_i, " [", thread_id, "], for run ", run,
-						  " closing connection for gstreamer ", name);
+			           " gstreamer_map is null in thread ", thread_id,
+			           " - cannot close connections.");
+		} else {
+			for (const auto &[name, gstreamer]: *gstreamer_threads_map) {
+				log->info(2, FUNCTION_NAME, " ", what_am_i, " [", thread_id, "], for run ", runNumber,
+				          " closing connection for gstreamer ", name);
 
 				if (gstreamer == nullptr) {
 					log->error(ERR_STREAMERMAP_NOT_EXISTING,
-							   "Null GStreamer entry ", name, " in thread ", thread_id);
+					           "Null GStreamer entry ", name, " in thread ", thread_id);
 				}
 
 				if (!gstreamer->closeConnection()) {
@@ -173,12 +176,12 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 		// single master-side run-data object before publication.
 		auto completed_run_data = take_completed_worker_run_data();
 		log->info(2, FUNCTION_NAME,
-				  " master collected ", static_cast<int>(completed_run_data.size()),
-				  " worker run_data object(s) for run ", run);
+		          " master collected ", static_cast<int>(completed_run_data.size()),
+		          " worker run_data object(s) for run ", runNumber);
 
 		std::shared_ptr<GRunDataCollection> merged_run_data;
 
-		for (auto& worker_run_data : completed_run_data) {
+		for (auto &worker_run_data: completed_run_data) {
 			if (worker_run_data == nullptr) {
 				continue;
 			}
@@ -186,8 +189,8 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 			// Create the merged destination lazily only if there is at least one
 			// valid worker contribution to merge.
 			if (merged_run_data == nullptr) {
-				auto merged_header = std::make_unique<GRunHeader>(goptions, run, thread_id);
-				merged_run_data    = std::make_shared<GRunDataCollection>(goptions, std::move(merged_header));
+				auto merged_header = std::make_unique<GRunHeader>(goptions, runNumber, thread_id);
+				merged_run_data = std::make_shared<GRunDataCollection>(goptions, std::move(merged_header));
 			}
 
 			merged_run_data->merge(*worker_run_data);
@@ -200,16 +203,16 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 
 		if (gstreamer_run_map == nullptr) {
 			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
-					   " gstreamer_map is null in master thread - cannot close connections.");
+			           " gstreamer_map is null in master thread - cannot close connections.");
 		}
 
-		for (const auto& [name, gstreamer] : *gstreamer_run_map) {
-			log->info(2, FUNCTION_NAME, " ", what_am_i, " for run ", run,
-					  " closing connection for gstreamer ", name);
+		for (const auto &[name, gstreamer]: *gstreamer_run_map) {
+			log->info(2, FUNCTION_NAME, " ", what_am_i, " for run ", runNumber,
+			          " closing connection for gstreamer ", name);
 
 			if (gstreamer == nullptr) {
 				log->error(ERR_STREAMERMAP_NOT_EXISTING,
-						   "Null GStreamer entry ", name, " in master thread");
+				           "Null GStreamer entry ", name, " in master thread");
 			}
 
 			if (!gstreamer->closeConnection()) {
@@ -217,6 +220,23 @@ void GRunAction::EndOfRunAction(const G4Run* aRun) {
 			}
 		}
 	}
+
+	if (IsMaster() && take_screenshots) {
+		take_screenshot(runNumber);
+	}
+}
+
+void GRunAction::take_screenshot(int runno) {
+	auto ui = G4UImanager::GetUIpointer();
+	ui->ApplyCommand("/vis/tsg/offscreen/set/size 3000 2000");
+
+	ui->ApplyCommand(
+		"/vis/tsg/offscreen/set/file gemc_run_" +
+		std::to_string(runno) + ".png"
+	);
+
+	// This is what actually writes the PNG for TOOLSSG_OFFSCREEN.
+	ui->ApplyCommand("/vis/viewer/rebuild");
 }
 
 // Move this worker's completed run-data object into the protected static pool
@@ -242,21 +262,21 @@ auto GRunAction::take_completed_worker_run_data() -> CompletedRunData {
 
 
 // Publish the merged run-level payload to every configured master-side run streamer.
-void GRunAction::publish_run_data(const std::shared_ptr<GRunDataCollection>& run_data_collaction) const {
+void GRunAction::publish_run_data(const std::shared_ptr<GRunDataCollection> &run_data_collaction) const {
 	if (run_data_collaction == nullptr) {
 		log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-				   " run_data is null - cannot publish merged run data.");
+		           " run_data is null - cannot publish merged run data.");
 	}
 
 	if (gstreamer_run_map == nullptr) {
 		log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
-				   " no run streamer map available - run data will not be published.");
+		           " no run streamer map available - run data will not be published.");
 	}
 
-	for (const auto& [name, gstreamer] : *gstreamer_run_map) {
+	for (const auto &[name, gstreamer]: *gstreamer_run_map) {
 		if (gstreamer == nullptr) {
 			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
-					   " null gstreamer instance for run streamer ", name);
+			           " null gstreamer instance for run streamer ", name);
 		}
 
 
@@ -267,54 +287,55 @@ void GRunAction::publish_run_data(const std::shared_ptr<GRunDataCollection>& run
 }
 
 
-void GRunAction::normalize_run_data(const std::shared_ptr<GRunDataCollection>& run_data_collaction) const {
+void GRunAction::normalize_run_data(const std::shared_ptr<GRunDataCollection> &run_data_collaction) const {
 	if (run_data_collaction == nullptr) {
 		log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-				   " run_data_collaction is null - cannot normalize run data.");
+		           " run_data_collaction is null - cannot normalize run data.");
 	}
 
 	const int events_processed = run_data_collaction->get_events_processed();
 	if (events_processed <= 0) {
 		log->warning(FUNCTION_NAME,
-					 " events_processed is ", events_processed,
-					 " - skipping normalization.");
+		             " events_processed is ", events_processed,
+		             " - skipping normalization.");
 		return;
 	}
 
 	const double norm = static_cast<double>(events_processed);
 
-	for (auto& [sdName, dataCollection] : run_data_collaction->getMutableDataCollectionMap()) {
+	for (auto &[sdName, dataCollection]: run_data_collaction->getMutableDataCollectionMap()) {
 		if (dataCollection == nullptr) {
 			log->warning(FUNCTION_NAME,
-						 " detector ", sdName,
-						 " has null data collection - skipping.");
+			             " detector ", sdName,
+			             " has null data collection - skipping.");
 			continue;
 		}
 
-		auto& digitizedData = dataCollection->getMutableDigitizedData();
+		auto &digitizedData = dataCollection->getMutableDigitizedData();
 		if (digitizedData.empty() || digitizedData.front() == nullptr) {
 			continue;
 		}
 
-		auto& digitized = digitizedData.front();
+		auto &digitized = digitizedData.front();
 		// we are in a const method so we can't loop directky over to_normalize[sdName]
 		// cause this call could modify the map!
 
 		auto it = to_normalize.find(sdName);
 		if (it != to_normalize.end()) {
-			for (const auto& varName : it->second) {
+			for (const auto &varName: it->second) {
 				const auto intVars = digitized->getIntObservablesMap(0);
-				const auto intIt   = intVars.find(varName);
+				const auto intIt = intVars.find(varName);
 				if (intIt != intVars.end()) {
 					digitized->includeVariable(varName, static_cast<double>(intIt->second) / norm);
 					continue;
 				}
 
 				const auto dblVars = digitized->getDblObservablesMap(0);
-				const auto dblIt   = dblVars.find(varName);
+				const auto dblIt = dblVars.find(varName);
 				if (dblIt != dblVars.end()) {
 					digitized->includeVariable(varName, dblIt->second / norm);
-				}			}
+				}
+			}
 		}
 	}
 }

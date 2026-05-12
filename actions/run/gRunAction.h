@@ -326,6 +326,11 @@ private:
 
 	// coming from digitization routine
 	std::unordered_map<std::string, std::vector<std::string>> to_normalize;
+
+
+	// screenshots
+	bool take_screenshots = false;
+	void take_screenshot(int runno);
 };
 
 

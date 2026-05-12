@@ -14,6 +14,7 @@
 #include "glogger.h"
 #include "gtouchable.h"
 #include "gutilities.h"
+#include "g4display_options.h"
 
 namespace gemc {
 	// return the number of cores from options.
@@ -78,6 +79,7 @@ namespace gemc {
 		// check_overlaps is typically provided by the Geant4 system options set.
 		auto check_overlaps = gopts->getScalarInt("check_overlaps"); // notice: from g4system options
 		auto gui            = gopts->getSwitch("gui");
+		auto g4view = g4display::getG4View(gopts);
 
 		std::vector<std::string> cmds;
 
@@ -99,17 +101,21 @@ namespace gemc {
 		// - geometry changes
 		cmds.emplace_back("/run/initialize");
 
-		// If there is no GUI, initialization commands are sufficient.
-		if (!gui) return cmds;
 
-		// GUI mode: set up a minimal visualization scene with trajectories and hits.
-		cmds.emplace_back("/vis/drawVolume");
 
-		// Disable auto refresh and quieten vis messages whilst scene and trajectories are established.
-		cmds.emplace_back("/vis/viewer/set/autoRefresh false");
-		cmds.emplace_back("/vis/viewer/set/viewpointVector -1 0 0");
-		cmds.emplace_back("/vis/viewer/set/lightsVector -1 0 0");
+		// If there is no GUI, or no need for batch screenshot, initialization commands are enough.
+		if (!gui && g4view.driver != "TOOLSSG_OFFSCREEN") return cmds;
 
+		// do not draw volumes in batch screenshot
+		if (g4view.driver != "TOOLSSG_OFFSCREEN") {
+			cmds.emplace_back("/vis/drawVolume");
+			// Disable auto refresh and quieten vis messages whilst scene and trajectories are established.
+			cmds.emplace_back("/vis/viewer/set/autoRefresh false");
+			cmds.emplace_back("/vis/viewer/set/viewpointVector -1 0 0");
+			cmds.emplace_back("/vis/viewer/set/lightsVector -1 0 0");
+		}
+
+		// GUI / batch screenshot mode: set up a minimal visualization scene with trajectories and hits.
 		cmds.emplace_back("/vis/scene/add/trajectories smooth");
 		cmds.emplace_back("/vis/modeling/trajectories/create/drawByCharge");
 		cmds.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true");
@@ -121,11 +127,15 @@ namespace gemc {
 		// Chosen to be the same as pyvistab for now
 		cmds.push_back("/vis/viewer/set/background 0.05 0.05 0.26");
 
-		// Re-enable refresh and flush once configuration is complete.
-		cmds.emplace_back("/vis/viewer/set/autoRefresh true");
-		cmds.emplace_back("/vis/viewer/flush");
-	//	cmds.emplace_back("/tracking/verbose 2");
+		// do not draw volumes in batch screenshot
+		if (g4view.driver != "TOOLSSG_OFFSCREEN") {
+			// Re-enable refresh and flush once configuration is complete.
+			cmds.emplace_back("/vis/viewer/set/autoRefresh true");
+			cmds.emplace_back("/vis/viewer/flush");
+		}
 
+
+	//	cmds.emplace_back("/tracking/verbose 2");
 		return cmds;
 	}
 

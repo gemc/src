@@ -92,9 +92,11 @@ int main(int argc, char* argv[]) {
 		auto* uiQtSession       = new G4UIQt(1, argv);
 		auto* g4SceneProperties = new G4SceneProperties(gopts);
 		auto scene_commands = g4SceneProperties->scene_commands(gopts);
-		// add init_commands to scene_commands
 
+		// add init_commands to scene_commands
 		scene_commands.insert(scene_commands.end(), init_commands.begin(), init_commands.end());
+
+		// run scene_commands
 		gemc::run_manager_commands(gopts, log, scene_commands);
 
 		GemcGUI gemcGui(gopts, geventDispenser, gdetector);

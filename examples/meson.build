@@ -19,7 +19,7 @@ examples_map = {
         'b3' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] }
     },
     'optical' : {
-        'simple_flux' : { 'runs' : ['1'], 'variations' : ['default', 'CO2', 'C4F10'] },
+        'cherenkov' : { 'runs' : ['1'], 'variations' : ['default', 'CO2', 'C4F10'] },
     }
 }
 
