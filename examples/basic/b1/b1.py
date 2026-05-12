@@ -10,6 +10,7 @@ gvolume.make_box(1.2*100.0, 1.2*100.0, 1.2*150.0)
 gvolume.material = 'G4_AIR'
 gvolume.color = '889922'
 gvolume.style = 0
+gvolume.opacity = 0.1
 gvolume.publish(cfg)
 
 gvolume = GVolume('Envelope')
@@ -48,9 +49,9 @@ gvolume.mother = 'Envelope'
 gvolume.description = 'B1 Shape2'
 gvolume.make_trapezoid(shape2_dxa * 0.5, shape2_dxb * 0.5, shape2_dya * 0.5, shape2_dyb * 0.5, shape2_dz * 0.5)
 gvolume.material = 'G4_BONE_COMPACT_ICRU'
-gvolume.color = 'lightgray'
+gvolume.color = 'lightpink'
 gvolume.set_position(0, -10, 70)
 gvolume.digitization = 'dosimeter'     # collects edep, dose
 gvolume.set_identifier('mydosimeter', 1)
-gvolume.opacity = 0.1
+gvolume.opacity = 0.7
 gvolume.publish(cfg)

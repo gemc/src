@@ -27,6 +27,11 @@ absorption = {
 	"CO2": "50*m        50*m        40*m        30*m        20*m",
 	"C4F10": "6*m        6*m         6*m         5*m         4*m",
 }
+colors = {
+	"CF4": "red",
+	"CO2": "blue",
+	"C4F10": "green"
+}
 
 material_definitions = {
 	"CF4": {
@@ -80,8 +85,7 @@ for variation, material in variation_material.items():
 	world.description = "Air world for Cherenkov validation"
 	world.make_box(600, 600, 600)
 	world.material = "G4_AIR"
-	world.color = "ghostwhite"
-	world.style = 0
+	world.visible = 0
 	world.publish(cfg)
 
 	radiator = GVolume("radiator")
@@ -89,7 +93,7 @@ for variation, material in variation_material.items():
 	radiator.description = f"1 m cube radiator using {material}"
 	radiator.make_box(500, 500, 500)
 	radiator.material = material
-	radiator.color = "66ccff"
+	radiator.color = colors[material]
 	radiator.style = 2
 	radiator.publish(cfg)
 
@@ -105,7 +109,7 @@ for variation, material in variation_material.items():
 		# by crossing into a material without matching optical properties.
 		backplate.material = material
 
-		backplate.color = "lightgray"
+		backplate.color = "slategray"
 		backplate.digitization = "flux"
-		backplate.set_identifier("detector", 1)
+		backplate.set_identifier("detector", panel_id)
 		backplate.publish(cfg)

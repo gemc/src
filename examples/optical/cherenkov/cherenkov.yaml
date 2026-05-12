@@ -1,6 +1,6 @@
 experiment: examples
 runno: 1
-n: 5
+n: 100
 nthreads: 1
 
 # Required for optical-photon flux hits because optical photons deposit zero energy.
@@ -10,16 +10,15 @@ gparticle:
   - name: e-
     p: 1000
     vz: -50
-    delta_theta: 20
-    delta_phi: 180
 
 gsystem:
   - name: cherenkov
+    variation: CO2
 
 gstreamer:
   - format: csv
-    filename: out
+    filename: CO2
   - format: root
-    filename: out
+    filename: CO2
 
 phys_list: FTFP_BERT + G4OpticalPhysics
