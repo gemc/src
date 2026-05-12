@@ -20,16 +20,14 @@ void GSystemTextFactory::loadGeometry(GSystem* system) {
 
 	if (IN != nullptr) {
 		log->info(1, "Loading geometry for system ", system->getName(),
-		          " using factory ", system->getFactoryName()
-		);
+		          " using factory ", system->getFactoryName() );
 
 		// Each non-empty line is a serialized parameter row separated by '|'.
 		while (!IN->eof()) {
 			std::string dbline;
 			getline(*IN, dbline);
 
-			if (dbline.empty())
-				continue;
+			if (dbline.empty()) { continue; }
 
 			// Extract gvolume parameters.
 			std::vector<std::string> gvolumePars =
