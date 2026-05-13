@@ -1,7 +1,22 @@
 experiment: examples
 runno: 1
-n: 12
-nthreads: 4
+nthreads: 1
+
+verbosity:
+  - g4system: 1
+  - gemc: 1
+
+gsystem:
+  - name: simple_flux
+    factory: sqlite
+
+gstreamer:
+  - format: csv
+    filename: CO2
+  - format: root
+    filename: CO2
+
+phys_list: QBBC
 
 gparticle:
   - name: proton
@@ -10,15 +25,3 @@ gparticle:
     delta_vx: 0.1
     delta_vy: 0.1
     multiplicity: 10
-
-verbosity:
-  - gparticle: 0
-  - g4system: 0
-  - gfield: 0
-  - gemc: 0
-
-gsystem:
-  - name: simple_flux
-    factory: sqlite
-
-phys_list: QBBC

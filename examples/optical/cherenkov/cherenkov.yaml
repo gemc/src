@@ -1,15 +1,10 @@
 experiment: examples
 runno: 1
-n: 100
 nthreads: 1
 
-# Required for optical-photon flux hits because optical photons deposit zero energy.
-recordZeroEdep: true
-
-gparticle:
-  - name: e-
-    p: 1000
-    vz: -50
+verbosity:
+  - g4system: 1
+  - gemc: 1
 
 gsystem:
   - name: cherenkov
@@ -22,3 +17,13 @@ gstreamer:
     filename: CO2
 
 phys_list: FTFP_BERT + G4OpticalPhysics
+
+gparticle:
+  - name: e-
+    p: 1000
+    vz: -50
+
+# Required for optical-photon flux hits because optical photons deposit zero energy.
+recordZeroEdep: true
+
+

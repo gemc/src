@@ -1,22 +1,27 @@
 experiment: examples
 runno: 1
-n: 1
-nthreads: 4
+nthreads: 1
+
+verbosity:
+  - gfield: 1
+  - gemc: 1
+
+gsystem:
+  - name: b2
+    factory: sqlite
+
+gstreamer:
+  - format: csv
+    filename: CO2
+  - format: root
+    filename: CO2
+
+phys_list: FTFP_BERT
 
 gparticle:
   - name: proton
     p: 3000
     vz: -250
-
-verbosity:
-  - gfield: 1
-
-debug:
-  - gfield: true
-
-gsystem:
-  - name: b2
-    factory: sqlite
 
 gmultipoles:
   - name: dipole
@@ -25,11 +30,4 @@ gmultipoles:
     rotaxis: z
     rotation_angle: "30*deg"
 
-gstreamer:
-  - format: ascii
-    filename: out
-  - format: root
-    filename: out
-
 root: G4Box, 12*cm, 12*cm, 18*cm, G4_WATER
-phys_list: FTFP_BERT
