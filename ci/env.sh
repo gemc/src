@@ -40,7 +40,7 @@ function show_gemc_installation {
 
 function meson_setup_options {
     # valid options: address, thread, undefined, memory, leak
-    local install_dir="${SIM_HOME:?SIM_HOME not set}/gemc"
+    local install_dir="${SIM_HOME:?SIM_HOME not set}/gemc/dev"
 
     meson_options=""
     buildtype=" -Dbuildtype=debug "

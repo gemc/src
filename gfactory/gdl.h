@@ -104,11 +104,12 @@ public:
 		}
 
 		if (doesFileExists(dlFileName)) {
+			dlFileName = std::filesystem::absolute(dlFileName).string();
 			handle = load_lib(dlFileName);
 			if (handle == nullptr) {
 				char const* const dlopen_error = dlerror();
 				log->error(ERR_DLHANDLENOTFOUND, "File ", dlFileName, " found, but handle is null. dlopen_error >> ",
-				           dlopen_error);
+				           dlopen_error != nullptr ? dlopen_error : "unknown dlopen error");
 			}
 			else { log->info(1, "Loaded ", dlFileName); }
 		}
