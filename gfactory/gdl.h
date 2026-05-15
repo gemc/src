@@ -152,16 +152,22 @@ dlhandle load_lib(const std::string& lib) // never throws
 {
 	dlhandle h = nullptr;
 
+#if defined(__linux__) && defined(RTLD_NODELETE)
+	constexpr int dlopen_flags = RTLD_NOW | RTLD_NODELETE;
+#else
+	constexpr int dlopen_flags = RTLD_NOW;
+#endif
+
 	// If the caller already supplied a path (has a slash) just try it.
-	if (lib.find('/') != std::string::npos) { h = dlopen(lib.c_str(), RTLD_NOW); }
+	if (lib.find('/') != std::string::npos) { h = dlopen(lib.c_str(), dlopen_flags); }
 	else {
 		// 1. Try the file in the current working directory.
 		std::string cwdPath = "./" + lib;
-		h                   = dlopen(cwdPath.c_str(), RTLD_NOW);
+		h                   = dlopen(cwdPath.c_str(), dlopen_flags);
 
 		// 2. Fallback to the normal search path so LD_LIBRARY_PATH,
 		//    RPATH/RUNPATH, system dirs, etc. are still honoured.
-		if (!h) { h = dlopen(lib.c_str(), RTLD_NOW); }
+		if (!h) { h = dlopen(lib.c_str(), dlopen_flags); }
 	}
 	return h; // may be nullptr – caller should check and use dlerror()
 }

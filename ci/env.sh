@@ -11,26 +11,27 @@ function enable_git_describe {
 }
 
 function show_gemc_installation {
-
   {
-    echo "- Content of \$GEMC=$GEMC" 
-    ls -lrt $GEMC 
+  	local install_dir="${SIM_HOME:?SIM_HOME not set}/gemc/dev"
 
-    echo "- Content of \$GEMC/bin=$GEMC/bin" 
-    ls -lrt $GEMC/bin 
+    echo "- Content of $install_dir=$install_dir"
+    ls -lrt $install_dir
 
-    if [ -d $GEMC/lib ]; then
-      echo "- Content of \$GEMC/lib=$GEMC/lib" 
-      ls -lrt $GEMC/lib 
+    echo "- Content of \$install_dir/bin=$install_dir/bin"
+    ls -lrt $install_dir/bin
+
+    if [ -d $install_dir/lib ]; then
+      echo "- Content of \$install_dir/lib=$install_dir/lib"
+      ls -lrt $install_dir/lib
     fi
 
-    echo " ldd of $GEMC/bin/gemc:" 
+    echo " ldd of $install_dir/bin/gemc:"
 
     # if on unix, use ldd , if on mac, use otool -L
     if [[ "$(uname)" == "Darwin" ]]; then
-      otool -L $GEMC/bin/gemc 
+      otool -L $install_dir/bin/gemc
     else
-      ldd $GEMC/bin/gemc 
+      ldd $install_dir/bin/gemc
     fi
 
     echo " > To check gemc installation:  cat $gemc_install_show"

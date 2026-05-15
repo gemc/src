@@ -17,6 +17,10 @@
 #include "gaction.h"
 #include "gstreamer.h"
 
+// c++
+#include <cstdio>
+#include <cstdlib>
+
 int main(int argc, char* argv[]) {
 
 	auto gopts = std::make_shared<GOptions>(argc, argv, gemc::defineOptions());
@@ -37,14 +41,13 @@ int main(int argc, char* argv[]) {
 	// random engine set by options
 	gemc::start_random_engine(gopts, log);
 
-	// Pre-load streamer plugins before Geant4 creates worker threads. Sanitized Linux
-	// builds can fail late dlopen() calls from workers with static TLS exhaustion.
-	auto preloaded_gstreamer_map = gstreamer::preloadGStreamerPlugins(gopts);
-	(void) preloaded_gstreamer_map;
-
 	// init geant4 run manager with then number of threads coming from options. always fails if unavailable
 	auto runManager = std::unique_ptr<G4RunManager>(G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default, true, nthreads));
 
+	// Pre-load streamer plugins before Geant4 creates worker threads. Sanitized Linux
+	// builds can fail late dlopen() calls from workers with static TLS exhaustion.
+	// Declaring this after runManager makes it destruct before runManager at shutdown.
+	auto preloaded_gstreamer_map = gstreamer::preloadGStreamerPlugins(gopts);
 
 	// must be a raw pointer because geant4 takes ownership
 	auto gdetector = new GDetectorConstruction(gopts);
@@ -111,6 +114,7 @@ int main(int argc, char* argv[]) {
 		spash_screen->finish(&gemcGui);
 		app_result = QApplication::exec();
 
+		preloaded_gstreamer_map.reset();
 		runManager.reset();
 		delete g4SceneProperties;
 		delete uiQtSession;
@@ -133,10 +137,20 @@ int main(int argc, char* argv[]) {
 		delete session;
 	}
 
-
-	delete visManager;
+	geventDispenser.reset();
+	preloaded_gstreamer_map.reset();
+	runManager.reset();
+	// Avoid explicit G4VisExecutive teardown in batch shutdown. On Linux/Geant4 11.4
+	// this can double-free the process-wide G4Colour table during static exit.
 
 	log->info(0, "Simulation completed, arrivederci! ");
+
+#if defined(__linux__)
+	if (!gui) {
+		std::fflush(nullptr);
+		std::_Exit(app_result);
+	}
+#endif
 
 	return app_result;
 }

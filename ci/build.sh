@@ -3,7 +3,7 @@
 # Purpose: compiles gemc with optional sanitizers or debugging options.
 
 # Container run:
-# docker run --rm -it  ghcr.io/gemc/g4install:11.4.1-fedora-40  bash -li
+# docker run --rm -it  ghcr.io/gemc/g4install:11.4.1-ubuntu-24.04  bash -li
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # ./ci/build.sh
 
@@ -108,6 +108,6 @@ else
   echo " > Meson Tests Successful"
   echo
 fi
-echo "   - Successful: $(grep -m1 'Ok:' "$test_log" | awk '{print $2}')" | tee -a "$test_log"
-echo "   - Failures: $(grep -m1 'Fail:' "$test_log" | awk '{print $2}')" | tee -a "$test_log"
+echo "   - Successful: $(grep 'Ok:' "$test_log" | tail -n 1 | awk '{print $2}')" | tee -a "$test_log"
+echo "   - Failures: $(grep 'Fail:' "$test_log" | tail -n 1 | awk '{print $2}')" | tee -a "$test_log"
 echo " > Complete test log: $test_log"

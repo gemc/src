@@ -614,6 +614,7 @@ namespace gstreamer {
 	 * \return Shared pointer that should be retained until threaded streaming is complete.
 	 */
 	inline std::shared_ptr<const gstreamersMap> preloadGStreamerPlugins(const std::shared_ptr<GOptions>& gopts) {
+		if (gstreamer::getGStreamerDefinition(gopts).empty()) { return std::make_shared<gstreamersMap>(); }
 		return gstreamersMapPtr(gopts);
 	}
 
