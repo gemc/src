@@ -79,10 +79,13 @@ sanitizer_tests=(
   api_template_replace_geometry_withG4Box
   api_template_build_geometry_in_test_of_replacing_geometry_withG4Box_with_formatascii
   api_run_gemc_with_replaced_geometry_using_G4Box_with_formatascii
-  test_gstreamer_csv_verbose
   test_gparticle_double_verbose
   test_event_dispenser_verbose
   examples_geo_basic_simple_flux_ascii_variation_default
+)
+
+undefined_preload_tests=(
+  test_gstreamer_csv_verbose
 )
 
 
@@ -98,6 +101,7 @@ case "$1" in
     ;;
 esac
 
+: > "$test_log"
 echo " > Running meson test with options:"  "${meson_args[@]}" | tee -a "$test_log"
 meson test "${meson_args[@]}" >> "$test_log"
 if [ $? -ne 0 ]; then
@@ -108,6 +112,24 @@ else
   echo " > Meson Tests Successful"
   echo
 fi
-echo "   - Successful: $(grep 'Ok:' "$test_log" | tail -n 1 | awk '{print $2}')" | tee -a "$test_log"
-echo "   - Failures: $(grep 'Fail:' "$test_log" | tail -n 1 | awk '{print $2}')" | tee -a "$test_log"
+
+if [ "$1" = "undefined" ]; then
+  gstreamer_csv_plugin="$PWD/build/gstreamer_csv_plugin.gplugin"
+  # UBSan on Linux can exhaust static TLS before GEMC's runtime dlopen() loads
+  # this plugin. Preloading it makes the dynamic loader reserve TLS at process
+  # startup while keeping the workaround scoped to the affected sanitizer test.
+  echo " > Running undefined sanitizer preload tests with LD_PRELOAD=$gstreamer_csv_plugin" | tee -a "$test_log"
+  LD_PRELOAD="$gstreamer_csv_plugin" meson test "${test_options[@]}" -v "${undefined_preload_tests[@]}" >> "$test_log"
+  if [ $? -ne 0 ]; then
+    echo " > Meson Tests failed. Log: "
+    cat $test_log
+    exit 1
+  else
+    echo " > Meson preload tests successful"
+    echo
+  fi
+fi
+
+echo "   - Successful: $(grep 'Ok:' "$test_log" | awk '{sum += $2} END {print sum + 0}')" | tee -a "$test_log"
+echo "   - Failures: $(grep 'Fail:' "$test_log" | awk '{sum += $2} END {print sum + 0}')" | tee -a "$test_log"
 echo " > Complete test log: $test_log"

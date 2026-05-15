@@ -44,7 +44,7 @@ jobs:
           echo '${{ steps.scan.outputs.matrix_sanitize }}'
 
   build-with-sanitizer:
-    name: ${{ matrix.baseos }} ${{ matrix.arch }} - ${{ matrix.sanitizer }}
+    name: ${{ matrix.gemc_tag }} [${{ matrix.baseos }}/${{ matrix.baseos_tag }} ${{ matrix.arch }}] ${{ matrix.sanitizer }}
     needs: [ discover ]
     strategy:
       fail-fast: false

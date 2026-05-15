@@ -58,7 +58,7 @@ jobs:
   # uses matrix_build
   build_arch:
     if: ${{ github.event_name != 'pull_request' }}
-    name: ${{ matrix.arch }} ${{ matrix.gemc_tag }} ${{ matrix.image }}:${{ matrix.image_tag }}
+    name: ${{ matrix.gemc_tag }} [${{ matrix.image }}/${{ matrix.image_tag }} ${{ matrix.arch }}]
     needs: [ overview, discover ]
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -173,7 +173,7 @@ jobs:
   # from already-pushed per-arch image tags.
   manifest:
     if: ${{ github.event_name != 'pull_request' }}
-    name: Manifest ${{ matrix.gemc_tag }} ${{ matrix.image }}:${{ matrix.image_tag }}
+    name: ${{ matrix.gemc_tag }} [${{ matrix.image }}/${{ matrix.image_tag }}]
     needs: [ build_arch, discover ]
     runs-on: ubuntu-latest
     # If arm64 was skipped (e.g., archlinux), still publish amd64-only manifest.
