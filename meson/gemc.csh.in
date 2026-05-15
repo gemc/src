@@ -1,0 +1,29 @@
+# Source this file to use this GEMC installation from csh or tcsh.
+
+setenv GEMC_HOME "@GEMC_PREFIX@"
+
+if ( $?PATH ) then
+    setenv PATH "${GEMC_HOME}/@GEMC_BINDIR@:${GEMC_HOME}/api:${PATH}"
+else
+    setenv PATH "${GEMC_HOME}/@GEMC_BINDIR@:${GEMC_HOME}/api"
+endif
+
+if ( $?LD_LIBRARY_PATH ) then
+    setenv LD_LIBRARY_PATH "${GEMC_HOME}/@GEMC_LIBDIR@:${LD_LIBRARY_PATH}"
+else
+    setenv LD_LIBRARY_PATH "${GEMC_HOME}/@GEMC_LIBDIR@"
+endif
+
+if ( $?DYLD_LIBRARY_PATH ) then
+    setenv DYLD_LIBRARY_PATH "${GEMC_HOME}/@GEMC_LIBDIR@:${DYLD_LIBRARY_PATH}"
+else
+    setenv DYLD_LIBRARY_PATH "${GEMC_HOME}/@GEMC_LIBDIR@"
+endif
+
+# GEMC's API modules live in GEMC_HOME/api. The analyzer package is installed
+# as GEMC_HOME/analyzer, so GEMC_HOME itself must also be on PYTHONPATH.
+if ( $?PYTHONPATH ) then
+    setenv PYTHONPATH "${GEMC_HOME}/api:${GEMC_HOME}:${PYTHONPATH}"
+else
+    setenv PYTHONPATH "${GEMC_HOME}/api:${GEMC_HOME}"
+endif

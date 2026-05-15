@@ -54,7 +54,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-      
+        with:
+          fetch-depth: 0
+
+      - name: Verify CodeQL source root
+        shell: bash
+        run: |
+          git rev-parse --show-toplevel
+          test "$(git rev-parse --show-toplevel)" = "${GITHUB_WORKSPACE}"
+
       # Add any setup steps before running the `GitHub/codeql-action/init` action.
       # This includes steps like installing compilers or runtimes (`actions/setup-node`
       # or others). This is typically only required for manual builds.

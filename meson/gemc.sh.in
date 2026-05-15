@@ -1,0 +1,11 @@
+# Source this file to use this GEMC installation from a Bourne-compatible shell.
+
+export GEMC_HOME="@GEMC_PREFIX@"
+
+export PATH="${GEMC_HOME}/@GEMC_BINDIR@:${GEMC_HOME}/api${PATH:+:${PATH}}"
+export LD_LIBRARY_PATH="${GEMC_HOME}/@GEMC_LIBDIR@${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+export DYLD_LIBRARY_PATH="${GEMC_HOME}/@GEMC_LIBDIR@${DYLD_LIBRARY_PATH:+:${DYLD_LIBRARY_PATH}}"
+
+# GEMC's API modules live in GEMC_HOME/api. The analyzer package is installed
+# as GEMC_HOME/analyzer, so GEMC_HOME itself must also be on PYTHONPATH.
+export PYTHONPATH="${GEMC_HOME}/api:${GEMC_HOME}${PYTHONPATH:+:${PYTHONPATH}}"

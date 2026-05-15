@@ -40,7 +40,7 @@ function show_gemc_installation {
 
 function meson_setup_options {
     # valid options: address, thread, undefined, memory, leak
-    local install_dir="${GEMC:?GEMC not set}"
+    local install_dir="${SIM_HOME:?SIM_HOME not set}/gemc"
 
     meson_options=""
     buildtype=" -Dbuildtype=debug "
@@ -87,6 +87,8 @@ function meson_setup_options {
     echo "${args[@]}"
 }
 
+export GEMC="${SIM_HOME:?SIM_HOME not set}/gemc"
+
 log_dir=$SIM_HOME/logs
 test_interactive_option=""
 
@@ -104,10 +106,6 @@ else
   enable_git_describe
 	log_dir=/root/src/logs
 fi
-
-
-export GEMC=${SIM_HOME}/gemc/dev
-
 
 # detect cores and cap at 16
 cores=$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc)
