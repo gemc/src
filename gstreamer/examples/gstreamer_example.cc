@@ -166,6 +166,11 @@ int main(int argc, char* argv[]) {
 		           "for run number 1 with variation 'default'.");
 	}
 
+	// Load streamer plugins before worker threads start. Sanitized Linux builds can fail
+	// late dlopen() calls from workers with static TLS exhaustion.
+	auto preloaded_gstreamer_map = gstreamer::preloadGStreamerPlugins(gopts);
+	(void) preloaded_gstreamer_map;
+
 	run_simulation_in_threads(nevents, nthreads, log, dynamicRoutinesMap, gopts);
 
 	return EXIT_SUCCESS;

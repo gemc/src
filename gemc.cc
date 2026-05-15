@@ -15,6 +15,7 @@
 #include "gui.h"
 #include "gdetectorConstruction.h"
 #include "gaction.h"
+#include "gstreamer.h"
 
 int main(int argc, char* argv[]) {
 
@@ -35,6 +36,11 @@ int main(int argc, char* argv[]) {
 
 	// random engine set by options
 	gemc::start_random_engine(gopts, log);
+
+	// Pre-load streamer plugins before Geant4 creates worker threads. Sanitized Linux
+	// builds can fail late dlopen() calls from workers with static TLS exhaustion.
+	auto preloaded_gstreamer_map = gstreamer::preloadGStreamerPlugins(gopts);
+	(void) preloaded_gstreamer_map;
 
 	// init geant4 run manager with then number of threads coming from options. always fails if unavailable
 	auto runManager = std::unique_ptr<G4RunManager>(G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default, true, nthreads));

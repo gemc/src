@@ -602,4 +602,19 @@ namespace gstreamer {
 		return gstreamers;
 	}
 
+	/**
+	 * \ingroup gstreamer_core_api
+	 * \brief Preload configured streamer plugins before worker threads are started.
+	 *
+	 * Linux sanitizer builds can fail when a plugin with static TLS is first loaded from
+	 * a worker thread. Keeping this map alive preserves the dlopen handles while later
+	 * per-thread streamer instances are created.
+	 *
+	 * \param gopts Parsed options container supplying streamer definitions.
+	 * \return Shared pointer that should be retained until threaded streaming is complete.
+	 */
+	inline std::shared_ptr<const gstreamersMap> preloadGStreamerPlugins(const std::shared_ptr<GOptions>& gopts) {
+		return gstreamersMapPtr(gopts);
+	}
+
 } // namespace gstreamer

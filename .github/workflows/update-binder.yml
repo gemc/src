@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout binder-tutorials repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: gemc/binder-tutorials
           token: ${{ secrets.BINDER_REPO_PAT }}   # PAT with repo write access

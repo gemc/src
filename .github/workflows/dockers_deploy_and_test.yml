@@ -220,7 +220,7 @@ jobs:
 
       - name: Download logs artifacts (all arches)
         if: ${{ always() }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: logs-${{ env.TAG4 }}-*
           path: ${{ runner.temp }}/downloaded-logs
@@ -248,5 +248,3 @@ jobs:
           name: summary-${{ env.TAG4 }}-manifest
           path: ${{ env.MANIFEST_SUMMARY_FILE }}
           if-no-files-found: warn
-
-
