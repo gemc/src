@@ -16,12 +16,16 @@ using std::vector;
 vector<GStreamerDefinition> getGStreamerDefinition(const std::shared_ptr<GOptions>& gopts) {
 	vector<GStreamerDefinition> goutputs;
 
+	if (!gopts->doesOptionExist("gstreamer")) { return goutputs; }
+
 	// The "gstreamer" option node contains a list of output objects.
 	// Each object is flattened into one GStreamerDefinition:
 	//   - format   : plugin selector
 	//   - filename : output base name
 	//   - type     : semantic stream type, defaulting to "event"
 	auto goutput_node = gopts->getOptionNode("gstreamer");
+
+	if (!goutput_node || goutput_node.IsNull() || !goutput_node.IsSequence()) { return goutputs; }
 
 	for (auto goutput_item : goutput_node) {
 		goutputs.emplace_back(
