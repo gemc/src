@@ -12,9 +12,9 @@ gsystem:
 
 gstreamer:
   - format: csv
-    filename: CO2
+    filename: cherenkov
   - format: root
-    filename: CO2
+    filename: cherenkov
 
 phys_list: FTFP_BERT + G4OpticalPhysics
 

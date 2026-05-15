@@ -12,9 +12,9 @@ gsystem:
 
 gstreamer:
   - format: csv
-    filename: CO2
+    filename: simple_flux
   - format: root
-    filename: CO2
+    filename: simple_flux
 
 phys_list: QBBC
 
