@@ -29,7 +29,7 @@ moc_headers = files(
 )
 
 geo_build = {
-    'test_dbselect_geo' : [files('examples/example.py')]
+    'test_gtree_geo' : [files('examples/example.py')]
 }
 
 qrc_examples_sources = files(
@@ -52,4 +52,3 @@ LD += {
     'geo_build' : geo_build,
     'examples' : examples
 }
-

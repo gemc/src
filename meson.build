@@ -243,6 +243,10 @@ general_gemc = ['-verbosity.gemc=2', '-debug.gemc=true', '-check_overlaps=2',
 
 root = ['-gstreamer="[{format: root, filename: out}]"']
 ascii = ['-gstreamer="[{format: ascii, filename: out}]"']
+gstreamer_test = ascii
+if root_dep.found()
+    gstreamer_test = ['-gstreamer="[{format: root, filename: out}, {format: ascii, filename: out} ]"']
+endif
 
 gemc_test_sqlite = dbhost + gsystem + general_gemc
 
@@ -263,8 +267,7 @@ test_options = [
                                  '-verbosity.gtouchable=2', '-debug.gtouchable=true'] },
     { 'gstreamer_verbose' : ['-verbosity.digitized_data=2', '-debug.digitized_data=true',
                              '-verbosity.gstreamer=2', '-debug.gstreamer=true',
-                             '-verbosity.true_data=2', '-debug.true_data=true',
-                             '-gstreamer="[{format: root, filename: out}, {format: ascii, filename: out} ]"'] },
+                             '-verbosity.true_data=2', '-debug.true_data=true'] + gstreamer_test },
     { 'gfield_verbose' : ['-verbosity.gfield=1', '-debug.gfield=true',
                           '-gmultipoles="[{name: dipole, pole_number: 2, strength: 2, rotaxis: Z, longitudinal: true}]"',
                           '-gparticle="[{name: e-, p: 2300, theta: 23.0}]"'] }
@@ -289,6 +292,25 @@ endforeach
 
 subdir('api')
 subdir('examples')
+
+install_subdir('analyzer',
+               install_dir : '.',
+               exclude_directories : ['__pycache__'])
+
+gemc_env_conf = configuration_data()
+gemc_env_conf.set('GEMC_PREFIX', get_option('prefix'))
+gemc_env_conf.set('GEMC_BINDIR', get_option('bindir'))
+gemc_env_conf.set('GEMC_LIBDIR', get_option('libdir'))
+
+configure_file(input : 'meson/gemc.sh.in',
+               output : 'gemc.sh',
+               configuration : gemc_env_conf,
+               install_dir : '.')
+
+configure_file(input : 'meson/gemc.csh.in',
+               output : 'gemc.csh',
+               configuration : gemc_env_conf,
+               install_dir : '.')
 
 post_install = run_command('echo', 'Installation completed!', check : true)
 

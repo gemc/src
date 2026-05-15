@@ -128,7 +128,7 @@ output = read_output("tmp/b2_t0.root", kind="root")
 df = output.get_frame("digitized", detector="flux")
 ```
 
-## Command Line Usage
+## Command-Line Usage
 
 Run `python3 -m analyzer` from the GEMC source directory, where the `analyzer`
 package directory is visible to Python.
@@ -176,7 +176,7 @@ Add an x-axis range with:
 python3 -B analyzer/svg_plot.py tmp/b2_t0_digitized.csv totEdep --out tmp/b2_totEdep.svg --bins 30 --xlim 0.0 0.1
 ```
 
-## Run The B2 Example
+## Run the B2 Example
 
 Run these commands from the GEMC source directory:
 

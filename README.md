@@ -1,4 +1,4 @@
-# GEMC: Geant4 Monte-Carlo 
+# GEMC: Geant4 Monte-Carlo
 
 
     A database-driven Monte Carlo simulation program
@@ -26,14 +26,12 @@
 
 ### Deployment
 
-[![CI][CI-badge]][CI]                
+[![CI][CI-badge]][CI]
 
-[![Docs][Docs-badge]][Docs]          
+[![Docs][Docs-badge]][Docs]
 
 
-[![Site][Site-badge]][Site]          
-
-       
+[![Site][Site-badge]][Site]
 
 
 [CI]: https://github.com/gemc/src/actions/workflows/dockers_deploy_and_test.yml
@@ -49,7 +47,7 @@
 [Site]: https://github.com/gemc/home/actions/workflows/jekyll.yml
 [Site-badge]: https://github.com/gemc/home/actions/workflows/jekyll.yml/badge.svg
 
-[Sanitize]: ttps://github.com/gemc/src/actions/workflows/sanitize.yml
+[Sanitize]: https://github.com/gemc/src/actions/workflows/sanitize.yml
 [Sanitize-badge]: https://github.com/gemc/src/actions/workflows/sanitize.yml/badge.svg
 
 [CodeQL]: https://github.com/gemc/src/actions/workflows/codeql.yml
@@ -65,4 +63,4 @@
 
 ### Nightly
 
-[![Nightly][Nightly-badge]][Nightly] 
+[![Nightly][Nightly-badge]][Nightly]

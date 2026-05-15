@@ -45,7 +45,7 @@ foreach volume: g4objects.keys()
          args : [system_template, '-gv', volume, '-gvp',  pars.replace(' ', '')])
 endforeach
 
-test('api_show_template_code_for_G4Cons',
+test('api_show_template_code_for_G4Cons_silent',
      python_exe,
      is_parallel: false,
      env: test_env,

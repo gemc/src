@@ -76,8 +76,7 @@ if (not root_dep.found()) and (not root_opt.disabled())
         endif
     else
         if root_opt.enabled()
-            warning('ROOT was explicitly enabled (-Droot=enabled) but root-config was not found.')
-            warning('ROOT-dependent features will be disabled.')
+            error('ROOT was explicitly enabled (-Droot=enabled) but root-config was not found.')
         else
             warning('ROOT not found; ROOT-dependent features will be disabled.')
         endif
@@ -210,4 +209,3 @@ project_test_env.set(
     'allocator_may_return_null=1',
     'suppressions=' + meson.project_source_root() / 'meson' / 'tsan.supp',
 )
-

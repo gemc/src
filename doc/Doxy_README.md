@@ -1,12 +1,12 @@
 # Doxygen Documentation for GEMC
 
 
-## To add a library to the doxygen CI:
+## To Add a Library to the Doxygen CI
 
-- modify ci/doxygen.sh to include the library being added
-- add a <library>Doxy.h header file to describe the library, possibly with:
+- Modify `ci/doxygen.sh` to include the library being added.
+- Add a `<library>Doxy.h` header file to describe the library, possibly with:
   - overview
   - conventions
   - examples
-  - api
-- review headers and code to add proper documentation
+  - API
+- Review headers and code to add proper documentation.

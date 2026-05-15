@@ -3,7 +3,7 @@
 # Purpose: compiles gemc with optional sanitizers or debugging options.
 
 # Container run:
-# docker run --rm -it  ghcr.io/gemc/g4install:11.4.0-fedora-40  bash -li
+# docker run --rm -it  ghcr.io/gemc/g4install:11.4.1-fedora-40  bash -li
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # ./ci/build.sh
 
@@ -75,6 +75,9 @@ test_options=(
 # Specific tests to run when sanitizer is enabled
 sanitizer_tests=(
   -v
+  api_create_template_system_withG4Box
+  api_template_replace_geometry_withG4Box
+  api_template_build_geometry_in_test_of_replacing_geometry_withG4Box_with_formatascii
   api_run_gemc_with_replaced_geometry_using_G4Box_with_formatascii
   test_gstreamer_csv_verbose
   test_gparticle_double_verbose

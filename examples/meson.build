@@ -55,12 +55,14 @@ foreach branch : examples_map.keys()
                      workdir : example_dir,
                      is_parallel : false,
                      priority : -10)
-                test(run_test_name_root,
-                     gemc,
-                     args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', variation: ' + variation + '}]"', root_output, '-sql=' + sql_db],
-                     workdir : example_dir,
-                     is_parallel : false,
-                     priority : -11)
+                if root_dep.found()
+                    test(run_test_name_root,
+                         gemc,
+                         args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', variation: ' + variation + '}]"', root_output, '-sql=' + sql_db],
+                         workdir : example_dir,
+                         is_parallel : false,
+                         priority : -11)
+                endif
             endforeach
 
             # Geometry building tests (runs loop): Loop over runs with fixed variation "default"
@@ -83,12 +85,14 @@ foreach branch : examples_map.keys()
                      workdir : example_dir,
                      is_parallel : false,
                      priority : -12)
-                test(run_test_name_root,
-                     gemc,
-                     args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', runno:' + run_value + '}]"', root_output, '-sql=' + sql_db],
-                     workdir : example_dir,
-                     is_parallel : false,
-                     priority : -13)
+                if root_dep.found()
+                    test(run_test_name_root,
+                         gemc,
+                         args : [yaml_file, '-gsystem="[{name: ' + example + ', factory: ' + format + ', runno:' + run_value + '}]"', root_output, '-sql=' + sql_db],
+                         workdir : example_dir,
+                         is_parallel : false,
+                         priority : -13)
+                endif
             endforeach
 
         endforeach
