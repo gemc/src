@@ -7,7 +7,8 @@
 
 bool GstreamerCsvFactory::openConnection() {
 	// Both streams must be open for the CSV backend to operate correctly.
-	if (ofile_true_info.is_open() && ofile_digitized.is_open()) {
+	if (ofile_true_info.is_open() && ofile_digitized.is_open() &&
+	    ofile_generated.is_open() && ofile_generated_tracked.is_open()) {
 		return true;
 	}
 
@@ -33,6 +34,26 @@ bool GstreamerCsvFactory::openConnection() {
 		log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: opened file " + filename_digitized());
 	}
 
+	if (!ofile_generated.is_open()) {
+		ofile_generated.clear();
+		ofile_generated.open(filename_generated(), std::ios::out | std::ios::trunc);
+		if (!ofile_generated.is_open() || !ofile_generated) {
+			log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename_generated());
+		}
+		ofile_generated << "evn, timestamp, thread_id, bank, name, pid, type, multiplicity, p, theta, phi, vx, vy, vz\n";
+		log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: opened file " + filename_generated());
+	}
+
+	if (!ofile_generated_tracked.is_open()) {
+		ofile_generated_tracked.clear();
+		ofile_generated_tracked.open(filename_generated_tracked(), std::ios::out | std::ios::trunc);
+		if (!ofile_generated_tracked.is_open() || !ofile_generated_tracked) {
+			log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename_generated_tracked());
+		}
+		ofile_generated_tracked << "evn, timestamp, thread_id, bank, name, pid, type, multiplicity, p, theta, phi, vx, vy, vz\n";
+		log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: opened file " + filename_generated_tracked());
+	}
+
 	return true;
 }
 
@@ -41,6 +62,8 @@ bool GstreamerCsvFactory::closeConnectionImpl() {
 
 	if (ofile_true_info.is_open()) ofile_true_info.close();
 	if (ofile_digitized.is_open()) ofile_digitized.close();
+	if (ofile_generated.is_open()) ofile_generated.close();
+	if (ofile_generated_tracked.is_open()) ofile_generated_tracked.close();
 
 	if (ofile_true_info.is_open()) {
 		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_true_info());
@@ -48,9 +71,45 @@ bool GstreamerCsvFactory::closeConnectionImpl() {
 	if (ofile_digitized.is_open()) {
 		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_digitized());
 	}
+	if (ofile_generated.is_open()) {
+		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_generated());
+	}
+	if (ofile_generated_tracked.is_open()) {
+		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_generated_tracked());
+	}
 
 	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_true_info());
 	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_digitized());
+	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_generated());
+	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_generated_tracked());
+
+	return true;
+}
+
+std::ofstream& GstreamerCsvFactory::generated_stream_for_bank(const std::string& bankName) {
+	return bankName == "generated_tracked" ? ofile_generated_tracked : ofile_generated;
+}
+
+bool GstreamerCsvFactory::publishEventGeneratedParticlesImpl(const std::string& bankName,
+                                                             const GGeneratedParticleBank& particles) {
+	auto& stream = generated_stream_for_bank(bankName);
+	if (!stream.is_open()) {
+		log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access generated CSV stream");
+	}
+
+	for (const auto& particle : particles) {
+		stream << event_number << ", " << timestamp << ", " << thread_id << ", " << bankName << ", "
+		       << particle.name << ", "
+		       << particle.pid << ", "
+		       << particle.type << ", "
+		       << particle.multiplicity << ", "
+		       << particle.p << ", "
+		       << particle.theta << ", "
+		       << particle.phi << ", "
+		       << particle.vx << ", "
+		       << particle.vy << ", "
+		       << particle.vz << "\n";
+	}
 
 	return true;
 }

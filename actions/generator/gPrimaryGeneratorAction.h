@@ -52,6 +52,8 @@ inline GOptions defineOptions() {
  *
  * This class is the GEMC implementation of the Geant4 primary-generator action.
  * It owns a \c G4ParticleGun and a list of configured Gparticle objects.
+ * Inline particles from \c -gparticle are generated for every event, while
+ * \c -gparticlefile sources are indexed by Geant4 event id.
  *
  * For every event, \ref GPrimaryGeneratorAction::GeneratePrimaries "GeneratePrimaries()"
  * iterates over the configured particle definitions and delegates the actual shooting
@@ -60,6 +62,11 @@ inline GOptions defineOptions() {
  *
  * If no particle definitions are found in the configuration, the constructor creates
  * a default particle so the simulation still has a valid primary source.
+ *
+ * The class also exposes thread-local generated-particle snapshots for event
+ * output. The \c generated snapshot includes inline particles and all parsed
+ * file rows. The \c generated_tracked snapshot includes inline particles and
+ * only the file rows propagated in Geant4.
  *
  * @ingroup gactions_module
  */
@@ -98,6 +105,43 @@ public:
 	 */
 	void GeneratePrimaries(G4Event* event) override;
 
+	/**
+	 * \brief Returns the current event's Geant4-propagated generated particles.
+	 *
+	 * \return Thread-local generated particles for the active event.
+	 */
+	static const GParticleEvent& currentGeneratedParticles();
+
+	/**
+	 * \brief Returns the current event's Geant4-tracked generated particles.
+	 *
+	 * This view contains inline particles and file-backed particles propagated
+	 * in Geant4.
+	 *
+	 * \return Thread-local tracked generated particles for the active event.
+	 */
+	static const GParticleEvent& currentGeneratedTrackedParticles();
+
+	/**
+	 * \brief Returns the current event's full generated-particle records.
+	 *
+	 * This is the source for the \c generated output bank. It includes inline
+	 * particles and every parsed file-backed particle row.
+	 *
+	 * \return Thread-local generated-particle records for the active event.
+	 */
+	static const GParticleRecordEvent& currentGeneratedParticleRecords();
+
+	/**
+	 * \brief Returns the current event's Geant4-tracked generated-particle records.
+	 *
+	 * This is the source for the \c generated_tracked output bank. It includes
+	 * inline particles and only file-backed particles propagated in Geant4.
+	 *
+	 * \return Thread-local tracked generated-particle records for the active event.
+	 */
+	static const GParticleRecordEvent& currentGeneratedTrackedParticleRecords();
+
 private:
 	/**
 	 * \brief Particle-gun instance used to materialize configured primaries into the event.
@@ -124,4 +168,24 @@ private:
 	 * matching file event record.
 	 */
 	GParticleEvents gparticleFileEvents;
+
+	/**
+	 * \brief File-backed generated-particle records, indexed by Geant4 event id.
+	 *
+	 * This record view preserves all parsed file particles for the
+	 * \c generated output bank, including rows that are not propagated in Geant4.
+	 */
+	GParticleRecordEvents allGparticleFileRecordEvents;
+
+	/// \brief Thread-local \ref GParticleEvent snapshot for the current event.
+	static thread_local GParticleEvent current_generated_particles;
+
+	/// \brief Thread-local tracked \ref GParticleEvent snapshot for the current event.
+	static thread_local GParticleEvent current_generated_tracked_particles;
+
+	/// \brief Thread-local full generated-particle record snapshot for the current event.
+	static thread_local GParticleRecordEvent current_generated_particle_records;
+
+	/// \brief Thread-local tracked generated-particle record snapshot for the current event.
+	static thread_local GParticleRecordEvent current_generated_tracked_particle_records;
 };

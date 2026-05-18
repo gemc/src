@@ -28,6 +28,7 @@ bool GstreamerJsonFactory::startEventImpl(const std::shared_ptr<GEventDataCollec
 	current_event.clear();
 	current_event_has_header       = false;
 	current_event_has_any_detector = false;
+	current_event_has_generated    = false;
 
 	// Cache the event number early so it is available to the root event object.
 	event_number = event_data->getHeader()->getG4LocalEvn();
@@ -64,5 +65,50 @@ bool GstreamerJsonFactory::endEventImpl(const std::shared_ptr<GEventDataCollecti
 	is_building_event = false;
 
 	(void)event_data;
+	return true;
+}
+
+bool GstreamerJsonFactory::publishEventGeneratedParticlesImpl(const std::string& bankName,
+                                                              const GGeneratedParticleBank& particles) {
+	if (!is_building_event) {
+		log->error(ERR_PUBLISH_ERROR,
+		           "publishEventGeneratedParticlesImpl called without an active event in GstreamerJsonFactory");
+		return false;
+	}
+
+	if (!current_event_has_generated) {
+		current_event << ", \"generated\": {";
+		current_event_has_generated = true;
+	}
+	else {
+		current_event << ", ";
+	}
+
+	current_event << "\"" << jsonEscape(bankName) << "\": [";
+
+	bool wrote_first_particle = false;
+	for (const auto& particle : particles) {
+		if (wrote_first_particle) { current_event << ", "; }
+		wrote_first_particle = true;
+
+		current_event << "{"
+		              << "\"name\": \"" << jsonEscape(particle.name) << "\""
+		              << ", \"pid\": " << particle.pid
+		              << ", \"type\": " << particle.type
+		              << ", \"multiplicity\": " << particle.multiplicity
+		              << ", \"p\": " << particle.p
+		              << ", \"theta\": " << particle.theta
+		              << ", \"phi\": " << particle.phi
+		              << ", \"vx\": " << particle.vx
+		              << ", \"vy\": " << particle.vy
+		              << ", \"vz\": " << particle.vz
+		              << "}";
+	}
+
+	current_event << "]";
+	if (bankName == "generated_tracked") {
+		current_event << "}";
+	}
+
 	return true;
 }

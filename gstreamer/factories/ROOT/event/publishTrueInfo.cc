@@ -17,3 +17,11 @@ bool GstreamerRootFactory::publishEventTrueInfoDataImpl(const std::string&      
 
 	return false;
 }
+
+bool GstreamerRootFactory::publishEventGeneratedParticlesImpl(const std::string& bankName,
+                                                              const GGeneratedParticleBank& particles) {
+	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
+
+	const auto& generatedTree = getOrInstantiateGeneratedParticleTree(bankName, particles);
+	return generatedTree->fillTree(particles);
+}

@@ -73,6 +73,13 @@ void GRunAction::BeginOfRunAction(const G4Run *aRun) {
 		           " digitization_routines_map is null - streamer mode detection skipped.");
 	}
 
+	for (const auto& streamer_definition : gstreamer::getGStreamerDefinition(goptions)) {
+		if (streamer_definition.type == "event") {
+			need_a_thread_streamer = true;
+			break;
+		}
+	}
+
 
 	// Worker threads own event-mode publication, so they lazily build and open
 	// thread-local streamers only when at least one event-mode digitizer exists.

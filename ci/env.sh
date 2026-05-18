@@ -113,11 +113,11 @@ cores=$(getconf _NPROCESSORS_ONLN 2>/dev/null || nproc)
 jobs=$((cores < 16 ? cores : 16))
 
 mkdir -p $log_dir
-setup_log=$log_dir/setup.log
-compile_log=$log_dir/build.log
-install_log=$log_dir/install.log
-test_log=$log_dir/test.log
-gemc_install_show=$log_dir/gemc.log
+setup_log=$log_dir/01_setup.log
+compile_log=$log_dir/02_build.log
+install_log=$log_dir/03_install.log
+gemc_install_show=$log_dir/04_show_install.log
+test_log=$log_dir/05_tests.log
 
 touch $setup_log $compile_log $install_log $test_log
 echo

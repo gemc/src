@@ -21,6 +21,7 @@
  * It serializes the publish sequence into a structured plain-text representation containing:
  * - event boundaries
  * - event header content
+ * - generated-particle banks
  * - detector true-information banks
  * - detector digitized banks
  * - run boundaries and run-level digitized content
@@ -104,6 +105,19 @@ private:
 	 */
 	bool publishEventDigitizedDataImpl(const std::string& detectorName,
 									   const std::vector<const GDigitizedData*>& digitizedData) override;
+
+	/**
+	 * \brief Write one generated-particle bank in text form.
+	 *
+	 * The bank name is written explicitly, normally \c generated or
+	 * \c generated_tracked.
+	 *
+	 * \param bankName Generated-particle bank name.
+	 * \param particles Generated-particle rows belonging to this event.
+	 * \return \c true on success, \c false otherwise.
+	 */
+	bool publishEventGeneratedParticlesImpl(const std::string& bankName,
+	                                        const GGeneratedParticleBank& particles) override;
 
 	/**
 	 * \brief Begin one run block in the text output.

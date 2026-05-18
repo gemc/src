@@ -29,6 +29,7 @@
  * Event objects are assembled incrementally following the publish sequence driven by the base class.
  * This allows the plugin to receive event header, detector true-information, and detector digitized
  * content in a well-defined order and serialize them into one structured JSON entry.
+ * Generated-particle banks are written under the event-level \c "generated" object.
  *
  * The plugin performs lightweight JSON escaping internally and intentionally avoids introducing an
  * external JSON dependency.
@@ -112,6 +113,19 @@ private:
 	                                   const std::vector<const GDigitizedData*>& digitizedData) override;
 
 	/**
+	 * \brief Append one generated-particle bank to the current JSON event object.
+	 *
+	 * The bank is keyed by \p bankName under the event-level \c "generated"
+	 * object. Current bank names are \c generated and \c generated_tracked.
+	 *
+	 * \param bankName Generated-particle bank name.
+	 * \param particles Generated-particle rows belonging to this event.
+	 * \return \c true on success, \c false otherwise.
+	 */
+	bool publishEventGeneratedParticlesImpl(const std::string& bankName,
+	                                        const GGeneratedParticleBank& particles) override;
+
+	/**
 	 * \brief Begin assembly of one JSON frame record.
 	 *
 	 * \param frameRunData Frame collection associated with the record.
@@ -167,6 +181,9 @@ private:
 
 	/// \brief Tracks whether the current event already contains at least one detector block.
 	bool current_event_has_any_detector = false;
+
+	/// \brief Tracks whether the current event already contains generated-particle banks.
+	bool current_event_has_generated = false;
 
 	/// \brief Tracks whether the plugin is currently assembling a frame object.
 	bool is_building_frame = false;

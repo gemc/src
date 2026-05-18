@@ -101,6 +101,18 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateDigitize
 	return treePtr;
 }
 
+const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateGeneratedParticleTree(
+	const std::string& treeName,
+	const GGeneratedParticleBank& particles) {
+	auto& treePtr = gRootTrees[treeName];
+	if (!treePtr) {
+		log->info(2, "GstreamerRootFactory", "Creating generated-particle ROOT tree for ", treeName);
+		treePtr = std::make_unique<GRootTree>(treeName, particles, log);
+	}
+
+	return treePtr;
+}
+
 
 // Implementation summary:
 // Export the factory symbol required by the plugin loader.

@@ -7,6 +7,31 @@
 
 // gemc
 #include "event/gEventDataCollection.h"
+#include "../generator/gPrimaryGeneratorAction.h"
+
+namespace {
+GGeneratedParticleBank make_generated_particle_bank(const GParticleRecordEvent& particles) {
+	GGeneratedParticleBank bank;
+	bank.reserve(particles.size());
+
+	for (const auto& particle : particles) {
+		bank.push_back({
+			particle.name,
+			particle.pid,
+			particle.type,
+			particle.multiplicity,
+			particle.p,
+			particle.theta,
+			particle.phi,
+			particle.vx,
+			particle.vy,
+			particle.vz
+		});
+	}
+
+	return bank;
+}
+}
 
 
 // Construct the event action and keep access to shared configuration plus the
@@ -39,16 +64,24 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	// Count each processed event once, even when it produces no payload.
 	run_action->increment_run_events_processed();
 
-	auto* const hcs_this_event = event->GetHCofThisEvent();
-	if (hcs_this_event == nullptr) {
-		return;
-	}
-
 	const auto thread_id = G4Threading::G4GetThreadId();
 	const auto event_id  = event->GetEventID();
 
 	auto gevent_header       = std::make_unique<GEventHeader>(goptions, event_id, thread_id);
 	auto eventDataCollection = std::make_shared<GEventDataCollection>(goptions, std::move(gevent_header));
+	eventDataCollection->setGeneratedParticles(
+		make_generated_particle_bank(GPrimaryGeneratorAction::currentGeneratedParticleRecords()));
+	eventDataCollection->setGeneratedTrackedParticles(
+		make_generated_particle_bank(GPrimaryGeneratorAction::currentGeneratedTrackedParticleRecords()));
+
+	auto* const hcs_this_event = event->GetHCofThisEvent();
+	if (hcs_this_event == nullptr) {
+		if (!eventDataCollection->getGeneratedParticles().empty() ||
+		    !eventDataCollection->getGeneratedTrackedParticles().empty()) {
+			publish_event_data(eventDataCollection);
+		}
+		return;
+	}
 
 	const auto digi_map = run_action->get_digitization_routines_map();
 	if (digi_map == nullptr) {
@@ -128,7 +161,9 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	}
 
 	// Publish event-mode output once, after all collections have been processed.
-	if (has_event_mode_payload) {
+	if (has_event_mode_payload ||
+	    !eventDataCollection->getGeneratedParticles().empty() ||
+	    !eventDataCollection->getGeneratedTrackedParticles().empty()) {
 		publish_event_data(eventDataCollection);
 	}
 }
@@ -136,6 +171,10 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 // Send the completed event-data object to every configured worker-thread streamer.
 void GEventAction::publish_event_data(const std::shared_ptr<GEventDataCollection>& event_data) const {
 	if (run_action == nullptr || event_data == nullptr) {
+		return;
+	}
+
+	if (!run_action->has_streamer_threads_map()) {
 		return;
 	}
 

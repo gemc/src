@@ -5,13 +5,18 @@
  * \brief Defines GEventDataCollection, the event-level aggregation of detector hit data.
  *
  * \details
- * GEventDataCollection groups all detector-local hit data produced during one event.
+ * GEventDataCollection groups detector-local hit data and generated-particle
+ * metadata produced during one event.
  *
  * Primary organization:
  * \code
  * detector name (std::string) -> GDataCollection
  *                                - vector<unique_ptr<GTrueInfoData>>
  *                                - vector<unique_ptr<GDigitizedData>>
+ *
+ * generated particle banks:
+ *                                - generated
+ *                                - generated_tracked
  * \endcode
  *
  * Event semantics:
@@ -31,8 +36,59 @@
 // C++
 #include <map>
 #include <string>
+#include <vector>
 
 constexpr const char* GEVENTDATA_LOGGER = "gevent_data";
+
+/**
+ * \brief Serialization record for one generated particle in event output.
+ *
+ * This lightweight structure mirrors \c GParticleRecord without depending on
+ * the gparticle module from gdata. It is used by event streamers to publish
+ * generated-particle metadata alongside detector hit banks.
+ *
+ * The \c generated bank contains inline \c -gparticle definitions and every
+ * parsed \c -gparticlefile row. The \c generated_tracked bank contains inline
+ * \c -gparticle definitions and only the file rows propagated in Geant4,
+ * normally rows with \c type == 1.
+ */
+struct GGeneratedParticleData
+{
+	/// Particle name when known, otherwise a source-format identifier.
+	std::string name;
+
+	/// PDG id or source particle id.
+	int pid = 0;
+
+	/// Generator source type. For Lund input, \c type == 1 means Geant4-propagated.
+	int type = 1;
+
+	/// Number of copies represented by this row.
+	int multiplicity = 1;
+
+	/// Momentum magnitude in GEMC internal units.
+	double p = 0;
+
+	/// Polar angle in GEMC internal angular units.
+	double theta = 0;
+
+	/// Azimuthal angle in GEMC internal angular units.
+	double phi = 0;
+
+	/// Vertex x coordinate in GEMC internal length units.
+	double vx = 0;
+
+	/// Vertex y coordinate in GEMC internal length units.
+	double vy = 0;
+
+	/// Vertex z coordinate in GEMC internal length units.
+	double vz = 0;
+};
+
+/**
+ * \brief Event-local generated-particle bank.
+ */
+using GGeneratedParticleBank = std::vector<GGeneratedParticleData>;
 
 namespace gevent_data {
 
@@ -65,7 +121,8 @@ inline auto defineOptions() -> GOptions {
  *
  * \details
  * This topic documents the event container that owns one event header together with the map of
- * detector-local GDataCollection objects. It is the main aggregation layer used before run-level integration.
+ * detector-local GDataCollection objects plus optional generated-particle banks.
+ * It is the main aggregation layer used before run-level integration.
  */
 
 /**
@@ -76,6 +133,7 @@ inline auto defineOptions() -> GOptions {
  * The object combines:
  * - one owned GEventHeader describing the event
  * - one map of detector names to GDataCollection instances
+ * - optional generated-particle banks used by event streamers
  *
  * Each detector entry can contain:
  * - zero or more truth objects
@@ -144,6 +202,46 @@ public:
 	}
 
 	/**
+	 * \brief Stores the full generated-particle bank for this event.
+	 *
+	 * The bank named \c generated contains inline \c -gparticle definitions
+	 * plus all parsed \c -gparticlefile rows, including file particles that
+	 * are not propagated in Geant4.
+	 *
+	 * \param particles Generated-particle rows to store.
+	 */
+	void setGeneratedParticles(GGeneratedParticleBank particles) {
+		generated_particles = std::move(particles);
+	}
+
+	/**
+	 * \brief Stores the Geant4-tracked generated-particle bank for this event.
+	 *
+	 * The bank named \c generated_tracked contains inline \c -gparticle
+	 * definitions plus only the file particles propagated in Geant4, normally
+	 * those with source \c type == 1.
+	 *
+	 * \param particles Generated-particle rows to store.
+	 */
+	void setGeneratedTrackedParticles(GGeneratedParticleBank particles) {
+		generated_tracked_particles = std::move(particles);
+	}
+
+	/**
+	 * \brief Returns the full generated-particle bank.
+	 *
+	 * \return Rows published as the \c generated output bank.
+	 */
+	[[nodiscard]] const GGeneratedParticleBank& getGeneratedParticles() const { return generated_particles; }
+
+	/**
+	 * \brief Returns the Geant4-tracked generated-particle bank.
+	 *
+	 * \return Rows published as the \c generated_tracked output bank.
+	 */
+	[[nodiscard]] const GGeneratedParticleBank& getGeneratedTrackedParticles() const { return generated_tracked_particles; }
+
+	/**
 	 * \brief Returns the event number stored in the owned header.
 	 *
 	 * \details
@@ -186,6 +284,12 @@ private:
 
 	/// Per-detector data map keyed by sensitive detector name.
 	std::map<std::string, std::unique_ptr<GDataCollection>> gdataCollectionMap;
+
+	/// Full generated-particle bank published as \c generated.
+	GGeneratedParticleBank generated_particles;
+
+	/// Geant4-propagated generated-particle bank published as \c generated_tracked.
+	GGeneratedParticleBank generated_tracked_particles;
 
 	/// Static thread-safe counter reserved for tests or future example helpers.
 	static std::atomic<int> globalEventDataCollectionCounter;

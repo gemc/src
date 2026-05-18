@@ -7,6 +7,8 @@
  * The gparticle module provides:
  * - A lightweight particle specification container: \ref Gparticle
  * - Option parsing utilities to build one or more \ref Gparticle objects from structured CLI options
+ * - File-reader utilities for event-indexed \c -gparticlefile input
+ * - Generated-particle records used by event output banks
  *
  * @ingroup gparticle_topics
  */
@@ -54,8 +56,43 @@
  * - Randomization models (uniform/gaussian/cosine/sphere) as provided by gutilities
  *
  * Option parsing is performed via the functions in the gparticle namespace.
- * Those functions translate a structured option node (e.g. \c -gparticle=...)
- * into a vector of \ref Gparticle instances.
+ * Those functions translate structured option nodes, such as \c -gparticle=...
+ * and \c -gparticlefile=..., into inline particles, file-backed event
+ * particles, and output-bank records.
+ *
+ * @section gparticle_file_input File-backed particles
+ *
+ * The \c -gparticlefile option configures one or more generated-particle files:
+ * @code
+ * -gparticlefile="[{format: lund, filename: events.lund}]"
+ * @endcode
+ *
+ * Each file source has a \c format token and a \c filename. Built-in readers
+ * are registered statically, while external formats can be provided by dynamic
+ * plugins named \c gparticle_<format>_plugin that export
+ * \c GParticleReaderFactory.
+ *
+ * Readers expose two related views of the same input:
+ * - \ref GParticleEvents : event-indexed \ref Gparticle objects that can be
+ *   propagated in Geant4.
+ * - \ref GParticleRecordEvents : event-indexed metadata records used for
+ *   output banks. Records can represent particles that are not propagated in
+ *   Geant4 and particles whose ids are not known to \c G4ParticleTable.
+ *
+ * For Lund files, rows with \c type == 1 are propagated in Geant4. All parsed
+ * rows are preserved in the record view.
+ *
+ * @section gparticle_output_banks Generated-particle output banks
+ *
+ * During event generation GEMC publishes two generated-particle banks:
+ * - \c generated : inline \c -gparticle definitions plus all particles parsed
+ *   from \c -gparticlefile sources, including rows not propagated in Geant4.
+ * - \c generated_tracked : inline \c -gparticle definitions plus only the
+ *   file-backed particles propagated in Geant4, normally rows with
+ *   \c type == 1.
+ *
+ * Both banks carry particle name, pid, source type, multiplicity, momentum,
+ * theta, phi, and vertex coordinates.
  *
  * @section gparticle_verbosity Verbosity
  *

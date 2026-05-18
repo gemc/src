@@ -88,6 +88,27 @@ GRootTree::GRootTree(const std::string&        detectorName,
 	for (auto& [varname, value] : gdata->getStringVariablesMap()) { registerVariable(varname, value); }
 }
 
+GRootTree::GRootTree(const std::string& treeName,
+					 [[maybe_unused]] const GGeneratedParticleBank& particles,
+					 std::shared_ptr<GLogger>& logger) : log(logger) {
+	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree Generated Particles");
+
+	root_tree = std::make_unique<TTree>(treeName.c_str(), GENERATEDTREENAMEDESC);
+	root_tree->SetAutoFlush(20 * 1024 * 1024);
+	root_tree->SetAutoSave(50 * 1024 * 1024);
+
+	registerVariable("pid", 0);
+	registerVariable("type", 0);
+	registerVariable("multiplicity", 0);
+	registerVariable("p", 0.0);
+	registerVariable("theta", 0.0);
+	registerVariable("phi", 0.0);
+	registerVariable("vx", 0.0);
+	registerVariable("vy", 0.0);
+	registerVariable("vz", 0.0);
+	registerVariable("name", std::string());
+}
+
 
 // Implementation summary:
 // Create a digitized detector tree whose branch schema is inferred
@@ -157,6 +178,28 @@ bool GRootTree::fillTree(const vector<const GDigitizedData*>& digitizedData) {
 	}
 	root_tree->Fill();
 
+	return true;
+}
+
+bool GRootTree::fillTree(const GGeneratedParticleBank& particles) {
+	for (auto& [varname, values] : intVarsMap) { values.clear(); }
+	for (auto& [varname, values] : doubleVarsMap) { values.clear(); }
+	for (auto& [varname, values] : stringVarsMap) { values.clear(); }
+
+	for (const auto& particle : particles) {
+		intVarsMap["pid"].push_back(particle.pid);
+		intVarsMap["type"].push_back(particle.type);
+		intVarsMap["multiplicity"].push_back(particle.multiplicity);
+		doubleVarsMap["p"].push_back(particle.p);
+		doubleVarsMap["theta"].push_back(particle.theta);
+		doubleVarsMap["phi"].push_back(particle.phi);
+		doubleVarsMap["vx"].push_back(particle.vx);
+		doubleVarsMap["vy"].push_back(particle.vy);
+		doubleVarsMap["vz"].push_back(particle.vz);
+		stringVarsMap["name"].push_back(particle.name);
+	}
+
+	root_tree->Fill();
 	return true;
 }
 

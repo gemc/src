@@ -30,3 +30,28 @@ bool GstreamerTextFactory::publishEventTrueInfoDataImpl(const std::string&      
 
 	return true;
 }
+
+bool GstreamerTextFactory::publishEventGeneratedParticlesImpl(const std::string& bankName,
+                                                              const GGeneratedParticleBank& particles) {
+	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
+
+	ofile << GTAB << "Generated Particle Bank <" << bankName << "> {\n";
+
+	for (const auto& particle : particles) {
+		ofile << GTABTAB << "Particle {\n";
+		ofile << GTABTABTAB << "name: " << particle.name << "\n";
+		ofile << GTABTABTAB << "pid: " << particle.pid << "\n";
+		ofile << GTABTABTAB << "type: " << particle.type << "\n";
+		ofile << GTABTABTAB << "multiplicity: " << particle.multiplicity << "\n";
+		ofile << GTABTABTAB << "p: " << particle.p << "\n";
+		ofile << GTABTABTAB << "theta: " << particle.theta << "\n";
+		ofile << GTABTABTAB << "phi: " << particle.phi << "\n";
+		ofile << GTABTABTAB << "vx: " << particle.vx << "\n";
+		ofile << GTABTABTAB << "vy: " << particle.vy << "\n";
+		ofile << GTABTABTAB << "vz: " << particle.vz << "\n";
+		ofile << GTABTAB << "}\n";
+	}
+
+	ofile << GTAB << "}\n";
+	return true;
+}

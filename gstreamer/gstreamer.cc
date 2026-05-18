@@ -82,6 +82,13 @@ void GStreamer::flushEventBuffer() {
 		log->info(2, SFUNCTION_NAME, "->publishEventHeader -> ",
 				  gutilities::success_or_fail(publishEventHeader(eventData->getHeader())));
 
+		log->info(2, SFUNCTION_NAME, "->publishEventGeneratedParticles -> generated: ",
+		          gutilities::success_or_fail(publishEventGeneratedParticles("generated",
+		                                                                     eventData->getGeneratedParticles())));
+		log->info(2, SFUNCTION_NAME, "->publishEventGeneratedParticles -> generated_tracked: ",
+		          gutilities::success_or_fail(publishEventGeneratedParticles("generated_tracked",
+		                                                                     eventData->getGeneratedTrackedParticles())));
+
 		// Publish one detector collection at a time.
 		for (const auto& [sdname, gDataCollection] : eventData->getDataCollectionMap()) {
 			const GDataCollection* tdptr = gDataCollection.get();

@@ -31,11 +31,16 @@ namespace gparticle {
  * \brief Defines the structured options used by the gparticle module.
  *
  * This function returns a fully populated GOptions instance containing the
- * option specification for \c -gparticle.
+ * option specifications for \c -gparticle and \c -gparticlefile.
  *
  * The \c -gparticle option is expected to represent a list of particle
  * definitions. Each list item maps keys (e.g. \c name, \c p, \c theta, \c vx)
  * to typed values, which are then used to construct \ref Gparticle objects.
+ *
+ * The \c -gparticlefile option is expected to represent a list of file source
+ * definitions. Each source provides a \c format token and a \c filename. The
+ * format token selects a built-in reader or a dynamic plugin following the
+ * \c gparticle_<format>_plugin naming convention.
  *
  * The help text produced by this option definition includes usage guidance
  * and examples of the supported syntax.
@@ -61,6 +66,10 @@ GOptions defineOptions();
  * The provided logger is passed to each \ref Gparticle instance to ensure that
  * particle-level diagnostics are emitted consistently.
  *
+ * File-backed particles returned here are the Geant4-propagated subset. To
+ * access all parsed file particles for output, including non-propagated rows,
+ * use \c gparticle::getGParticleRecordEventsFromSources().
+ *
  * \param gopts The parsed option container that holds the \c gparticle node.
  * \param logger Logger used for diagnostics and propagated into each particle.
  *
@@ -71,6 +80,19 @@ GOptions defineOptions();
 std::vector<GparticlePtr> getGParticles(const std::shared_ptr<GOptions>& gopts,
                                         std::shared_ptr<GLogger>&        logger);
 
+/**
+ * \brief Builds inline generator particles from only the \c -gparticle option.
+ *
+ * Unlike \ref getGParticles(), this function does not read \c -gparticlefile
+ * sources. It is used when inline particles must be kept separate from
+ * file-backed event records.
+ *
+ * \param gopts Parsed option container.
+ * \param logger Logger used for diagnostics and propagated into each particle.
+ * \return Vector of inline \ref Gparticle instances.
+ *
+ * @ingroup gparticle_options_topic
+ */
 std::vector<GparticlePtr> getGParticlesFromOption(const std::shared_ptr<GOptions>& gopts,
                                                   std::shared_ptr<GLogger>&        logger);
 } // namespace gparticle

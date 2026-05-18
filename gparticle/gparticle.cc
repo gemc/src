@@ -39,8 +39,10 @@ Gparticle::Gparticle(const std::string&              aname,
 					 double                          adelta_vz,
 					 const std::string&              vunit,
 					 const std::string&              arandomVertexModel,
-					 const std::shared_ptr<GLogger>& logger) :
+					 const std::shared_ptr<GLogger>& logger,
+					 int                             agenerator_type) :
 	name(aname),
+	generator_type(agenerator_type),
 	multiplicity(amultiplicity),
 	// Convert user values + unit strings into Geant4 numeric values through gutilities.
 	p(gutilities::getG4Number(to_string(ap) + "*" + punit)),

@@ -15,6 +15,7 @@
 #define RUNHEADERTREENAME   "run_header"
 #define TRUEINFONAMEPREFIX  "true_info_"
 #define DIGITIZEDNAMEPREFIX "digitized_"
+#define GENERATEDTREENAMEDESC "Generated Particles"
 
 #define ERR_GSTREAMERROOTTREENOTFOUND 850
 
@@ -46,6 +47,8 @@
  *
  * For hit-based trees, one branch vector entry corresponds to one hit in the published detector
  * collection. The same hit index therefore lines up across all branch vectors in a given tree fill.
+ * Generated-particle trees use the same vector-branch model, with one branch vector entry per
+ * generated-particle row in the bank.
  */
 class GRootTree
 {
@@ -103,6 +106,18 @@ public:
 	GRootTree(const std::string& detectorName, const GDigitizedData* gdata, std::shared_ptr<GLogger>& log);
 
 	/**
+	 * \brief Construct a generated-particle tree and register its branches.
+	 *
+	 * The schema contains \c name, \c pid, \c type, \c multiplicity,
+	 * \c p, \c theta, \c phi, \c vx, \c vy, and \c vz.
+	 *
+	 * \param treeName Final ROOT tree name, normally \c generated or \c generated_tracked.
+	 * \param particles Sample bank used to initialize the schema.
+	 * \param log Logger used for diagnostics.
+	 */
+	GRootTree(const std::string& treeName, const GGeneratedParticleBank& particles, std::shared_ptr<GLogger>& log);
+
+	/**
 	 * \brief Fill the event-header tree with one event header entry.
 	 *
 	 * The method clears the branch storage vectors, inserts the current header values, and calls
@@ -140,6 +155,16 @@ public:
 	 * \return \c true on success.
 	 */
 	bool fillTree(const std::vector<const GDigitizedData*>& digitizedData);
+
+	/**
+	 * \brief Fill a generated-particle tree with one event bank.
+	 *
+	 * Each generated-particle row contributes one entry to each registered branch vector.
+	 *
+	 * \param particles Generated-particle bank for the current event.
+	 * \return \c true on success.
+	 */
+	bool fillTree(const GGeneratedParticleBank& particles);
 
 private:
 	/// \brief Owned ROOT tree instance receiving all branch data.

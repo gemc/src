@@ -114,6 +114,10 @@ public:
 		return gstreamer_threads_map;
 	}
 
+	[[nodiscard]] bool has_streamer_threads_map() const {
+		return gstreamer_threads_map != nullptr;
+	}
+
 	/**
 	 * \brief Adds one run-mode digitized payload to the current thread run-data collection.
 	 *

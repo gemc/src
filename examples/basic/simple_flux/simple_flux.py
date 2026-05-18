@@ -15,7 +15,7 @@ gvolume.publish(cfg)
 
 target_dz = 20
 target_radius = 5
-gvolume = GVolume("Target")
+gvolume = GVolume("target")
 gvolume.mother = "root"
 gvolume.description = "Simple Carbon Target"
 gvolume.make_tube(0, target_radius, target_dz, 0, 360)

@@ -101,6 +101,10 @@ public:
 	 * \param vunit Unit string used to interpret vertex components (e.g. \c "cm", \c "mm").
 	 * \param randomVertexModel Random model name for vertex (e.g. \c "uniform", \c "gaussian", \c "sphere").
 	 * \param logger Logger used for diagnostics and error reporting.
+	 * \param generator_type Generator source type associated with this particle. Inline
+	 *        \c -gparticle definitions use the default value \c 1. File-backed particles
+	 *        preserve the source-file type field when the format provides one, such as
+	 *        the Lund \c type column.
 	 */
 	Gparticle(const std::string&              name,
 			  int                             multiplicity,
@@ -122,7 +126,8 @@ public:
 			  double                          adelta_vz,
 			  const std::string&              vunit,
 			  const std::string&              randomVertexModel,
-			  const std::shared_ptr<GLogger>& logger);
+			  const std::shared_ptr<GLogger>& logger,
+			  int                             generator_type = 1);
 
 	/**
 	 * \brief Copying is disabled.
@@ -199,9 +204,73 @@ public:
 										  );
 	}
 
+	/**
+	 * \brief Returns the particle name stored in this generator definition.
+	 *
+	 * \return Particle name used for Geant4 lookup and generated-particle output.
+	 */
+	[[nodiscard]] const std::string& getName() const { return name; }
+
+	/**
+	 * \brief Returns the resolved PDG particle id.
+	 *
+	 * \return PDG id resolved from \c G4ParticleTable during construction.
+	 */
+	[[nodiscard]] int getPid() const { return pid; }
+
+	/**
+	 * \brief Returns how many copies are generated per event.
+	 *
+	 * \return Configured particle multiplicity.
+	 */
+	[[nodiscard]] int getMultiplicity() const { return multiplicity; }
+
+	/**
+	 * \brief Returns the nominal momentum magnitude.
+	 *
+	 * \return Momentum after unit conversion to GEMC internal units.
+	 */
+	[[nodiscard]] double getMomentum() const { return p; }
+
+	/**
+	 * \brief Returns the nominal polar angle.
+	 *
+	 * \return Theta after unit conversion to GEMC internal angular units.
+	 */
+	[[nodiscard]] double getTheta() const { return theta; }
+
+	/**
+	 * \brief Returns the nominal azimuthal angle.
+	 *
+	 * \return Phi after unit conversion to GEMC internal angular units.
+	 */
+	[[nodiscard]] double getPhi() const { return phi; }
+
+	/**
+	 * \brief Returns the nominal vertex position.
+	 *
+	 * \return Vertex after unit conversion to GEMC internal length units.
+	 */
+	[[nodiscard]] const G4ThreeVector& getVertex() const { return v; }
+
+	/**
+	 * \brief Returns the generator source type.
+	 *
+	 * For inline \c -gparticle entries this is normally \c 1. For file-backed
+	 * entries this preserves the source format's type field; in Lund files,
+	 * type \c 1 is the subset propagated to Geant4 and included in the
+	 * \c generated_tracked output bank.
+	 *
+	 * \return Generator source type.
+	 */
+	[[nodiscard]] int getGeneratorType() const { return generator_type; }
+
 private:
 	/** \brief Particle name used to look up the definition in \c G4ParticleTable. */
 	std::string name;
+
+	/** \brief Generator source type, for example the Lund particle type column. */
+	int generator_type;
 
 	/** \brief Resolved PDG encoding for the particle. */
 	int pid;

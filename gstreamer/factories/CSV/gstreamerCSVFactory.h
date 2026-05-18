@@ -20,6 +20,8 @@
  * This plugin separates true-information and digitized data into distinct output files:
  * - \c "<rootname>_true_info.csv"
  * - \c "<rootname>_digitized.csv"
+ * - \c "<rootname>_generated.csv"
+ * - \c "<rootname>_generated_tracked.csv"
  *
  * For each file, the first non-empty collection determines the column set. A header row is then
  * emitted once, and every subsequent hit is written as one flattened row.
@@ -111,6 +113,20 @@ private:
 	                                   const std::vector<const GDigitizedData*>& digitizedData) override;
 
 	/**
+	 * \brief Write one generated-particle bank into its CSV file.
+	 *
+	 * The \c generated bank is written to \c <rootname>_generated.csv. The
+	 * \c generated_tracked bank is written to
+	 * \c <rootname>_generated_tracked.csv.
+	 *
+	 * \param bankName Generated-particle bank name.
+	 * \param particles Generated-particle rows belonging to this event.
+	 * \return \c true on success, \c false otherwise.
+	 */
+	bool publishEventGeneratedParticlesImpl(const std::string& bankName,
+	                                        const GGeneratedParticleBank& particles) override;
+
+	/**
 	 * \brief Begin one run publication cycle.
 	 *
 	 * The implementation caches the run identifier for later use in diagnostics and row generation.
@@ -182,6 +198,12 @@ private:
 	/// \brief Output stream for the digitized CSV file.
 	std::ofstream ofile_digitized;
 
+	/// \brief Output stream for the full generated-particle CSV file.
+	std::ofstream ofile_generated;
+
+	/// \brief Output stream for the Geant4-tracked generated-particle CSV file.
+	std::ofstream ofile_generated_tracked;
+
 	/**
 	 * \brief Return the generic filename base for this plugin.
 	 *
@@ -205,6 +227,30 @@ private:
 	 * \return Base output name plus \c "_digitized.csv".
 	 */
 	[[nodiscard]] std::string filename_digitized() const { return gstreamer_definitions.rootname + "_digitized.csv"; }
+
+	/**
+	 * \brief Return the full generated-particle CSV filename.
+	 *
+	 * \return Base output name plus \c "_generated.csv".
+	 */
+	[[nodiscard]] std::string filename_generated() const { return gstreamer_definitions.rootname + "_generated.csv"; }
+
+	/**
+	 * \brief Return the Geant4-tracked generated-particle CSV filename.
+	 *
+	 * \return Base output name plus \c "_generated_tracked.csv".
+	 */
+	[[nodiscard]] std::string filename_generated_tracked() const {
+		return gstreamer_definitions.rootname + "_generated_tracked.csv";
+	}
+
+	/**
+	 * \brief Selects the generated-particle CSV stream for a bank name.
+	 *
+	 * \param bankName Generated-particle bank name.
+	 * \return Output stream associated with the bank.
+	 */
+	std::ofstream& generated_stream_for_bank(const std::string& bankName);
 
 	/// \brief Tracks whether the true-information CSV header row has already been emitted.
 	bool is_first_event_with_truedata = false;

@@ -53,7 +53,8 @@
  * Event publication uses an internal buffer of
  * \c std::shared_ptr<GEventDataCollection>. This design ensures that all event-owned objects remain
  * alive for the full duration of a flush. During the flush, the base class extracts raw pointers
- * from the detector collections and passes them to plugin hooks as read-only views.
+ * from the detector collections and passes them to plugin hooks as read-only views. Generated
+ * particle banks are passed by const reference from the owning event collection.
  *
  * The buffer is flushed when:
  * - the number of queued events reaches \c bufferFlushLimit
@@ -322,6 +323,31 @@ protected:
 												 [[maybe_unused]] const std::vector<const GDigitizedData*>& digitizedData) {
 		log->debug(NORMAL, "GStreamer::publishEventDigitizedData for detector ", detectorName);
 		return publishEventDigitizedDataImpl(detectorName, digitizedData);
+	}
+
+	[[nodiscard]] bool publishEventGeneratedParticles([[maybe_unused]] const std::string& bankName,
+	                                                  [[maybe_unused]] const GGeneratedParticleBank& particles) {
+		log->debug(NORMAL, "GStreamer::publishEventGeneratedParticles for bank ", bankName);
+		return publishEventGeneratedParticlesImpl(bankName, particles);
+	}
+
+	/**
+	 * \brief Plugin-specific implementation hook for a generated-particle event bank.
+	 *
+	 * The base class calls this hook for the \c generated and
+	 * \c generated_tracked banks when they are present in the event collection.
+	 * The \c generated bank contains all configured/generated particles,
+	 * including file rows that were not propagated in Geant4. The
+	 * \c generated_tracked bank contains inline particles and only file rows
+	 * propagated by Geant4.
+	 *
+	 * \param bankName Output bank name, currently \c generated or \c generated_tracked.
+	 * \param particles Generated-particle rows owned by the source event.
+	 * \return \c true on success, \c false on failure.
+	 */
+	virtual bool publishEventGeneratedParticlesImpl([[maybe_unused]] const std::string& bankName,
+	                                                [[maybe_unused]] const GGeneratedParticleBank& particles) {
+		return true;
 	}
 
 	/**

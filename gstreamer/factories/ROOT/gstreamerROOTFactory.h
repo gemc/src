@@ -24,6 +24,8 @@
  * - one header tree is created for run headers
  * - one true-information tree is created lazily per detector
  * - one digitized tree is created lazily per detector
+ * - generated-particle trees are created lazily for \c generated and
+ *   \c generated_tracked banks
  *
  * Tree creation is demand-driven. The first hit seen for a detector determines the variable schema
  * used to build the corresponding \c TTree via GRootTree.
@@ -96,6 +98,19 @@ private:
 	 */
 	bool publishEventDigitizedDataImpl(const std::string& detectorName,
 	                                   const std::vector<const GDigitizedData*>& digitizedData) override;
+
+	/**
+	 * \brief Publish one generated-particle bank into its ROOT tree.
+	 *
+	 * Current bank names are \c generated and \c generated_tracked; each bank
+	 * becomes a ROOT tree with the same name.
+	 *
+	 * \param bankName Generated-particle bank name used as the tree name.
+	 * \param particles Generated-particle rows for the current event.
+	 * \return \c true on success, \c false otherwise.
+	 */
+	bool publishEventGeneratedParticlesImpl(const std::string& bankName,
+	                                        const GGeneratedParticleBank& particles) override;
 
 	/**
 	 * \brief Begin one run publication cycle.
@@ -172,6 +187,15 @@ private:
 	                                                                   const GTrueInfoData* gdata);
 	const std::unique_ptr<GRootTree>& getOrInstantiateDigitizedDataTree(const std::string& treeName,
 	                                                                    const GDigitizedData* gdata);
+	/**
+	 * \brief Returns the generated-particle tree for a bank, creating it on first use.
+	 *
+	 * \param treeName ROOT tree name, normally \c generated or \c generated_tracked.
+	 * \param particles Sample bank used to initialize the tree schema.
+	 * \return Reference to the owned ROOT tree adapter.
+	 */
+	const std::unique_ptr<GRootTree>& getOrInstantiateGeneratedParticleTree(const std::string& treeName,
+	                                                                        const GGeneratedParticleBank& particles);
 
 	/// \brief Map of lazily created ROOT trees keyed by logical tree name.
 	std::unordered_map<std::string, std::unique_ptr<GRootTree>> gRootTrees;

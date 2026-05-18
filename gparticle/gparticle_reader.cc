@@ -15,10 +15,38 @@ GParticleReader::GParticleReader(const std::shared_ptr<GOptions>& gopts) : GBase
 }
 
 GParticleEvents GParticleReader::loadParticleEvents(const GParticleSourceDefinition& source,
-                                                    const std::shared_ptr<GLogger>& logger) {
+                                                    const std::shared_ptr<GLogger>& logger,
+                                                    [[maybe_unused]] bool propagated_only) {
 	GParticleEvents events;
 	auto            particles = loadParticles(source, logger);
 	if (!particles.empty()) { events.emplace_back(std::move(particles)); }
+	return events;
+}
+
+GParticleRecordEvents GParticleReader::loadParticleRecordEvents(const GParticleSourceDefinition& source,
+                                                                const std::shared_ptr<GLogger>& logger) {
+	GParticleRecordEvents events;
+	for (const auto& event : loadParticleEvents(source, logger)) {
+		GParticleRecordEvent record_event;
+		record_event.reserve(event.size());
+		for (const auto& particle : event) {
+			if (particle == nullptr) { continue; }
+			const auto& vertex = particle->getVertex();
+			record_event.push_back({
+				particle->getName(),
+				particle->getPid(),
+				particle->getGeneratorType(),
+				particle->getMultiplicity(),
+				particle->getMomentum(),
+				particle->getTheta(),
+				particle->getPhi(),
+				vertex.x(),
+				vertex.y(),
+				vertex.z()
+			});
+		}
+		events.emplace_back(std::move(record_event));
+	}
 	return events;
 }
 
@@ -69,7 +97,8 @@ std::vector<GparticlePtr> getGParticlesFromSources(const std::shared_ptr<GOption
 }
 
 GParticleEvents getGParticleEventsFromSources(const std::shared_ptr<GOptions>& gopts,
-                                              std::shared_ptr<GLogger>&        logger) {
+                                              std::shared_ptr<GLogger>&        logger,
+                                              bool                            propagated_only) {
 	GParticleEvents           events;
 	GManager                  manager(gopts);
 
@@ -92,7 +121,44 @@ GParticleEvents getGParticleEventsFromSources(const std::shared_ptr<GOptions>& g
 			continue;
 		}
 
-		auto source_events = reader->loadParticleEvents(source, logger);
+		auto source_events = reader->loadParticleEvents(source, logger, propagated_only);
+		if (source_events.size() > events.size()) { events.resize(source_events.size()); }
+
+		for (size_t event_index = 0; event_index < source_events.size(); event_index++) {
+			events[event_index].insert(events[event_index].end(),
+			                           source_events[event_index].begin(),
+			                           source_events[event_index].end());
+		}
+	}
+
+	return events;
+}
+
+GParticleRecordEvents getGParticleRecordEventsFromSources(const std::shared_ptr<GOptions>& gopts,
+                                                          std::shared_ptr<GLogger>&        logger) {
+	GParticleRecordEvents    events;
+	GManager                 manager(gopts);
+
+	manager.RegisterObjectFactory<GParticleLundReader>("lund", gopts);
+
+	for (const auto& source : getGParticleSourceDefinitions(gopts)) {
+		std::shared_ptr<GParticleReader> reader;
+
+		const auto& builtins = supported_static_reader_formats();
+		if (std::find(builtins.begin(), builtins.end(), source.format) != builtins.end()) {
+			reader = std::shared_ptr<GParticleReader>(manager.CreateObject<GParticleReader>(source.format));
+		}
+		else {
+			reader = manager.LoadAndRegisterObjectFromLibrary<GParticleReader>(source.gparticlePluginName(), gopts);
+		}
+
+		if (reader == nullptr) {
+			logger->error(ERR_GPARTICLEREADERNOTFOUND,
+			              "Could not create gparticle reader for format <", source.format, ">");
+			continue;
+		}
+
+		auto source_events = reader->loadParticleRecordEvents(source, logger);
 		if (source_events.size() > events.size()) { events.resize(source_events.size()); }
 
 		for (size_t event_index = 0; event_index < source_events.size(); event_index++) {

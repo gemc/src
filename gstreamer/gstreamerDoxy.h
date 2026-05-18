@@ -125,11 +125,30 @@
  * output model. For event publication, the base class drives a fixed sequence:
  * - \ref GStreamer::startEvent "startEvent()"
  * - \ref GStreamer::publishEventHeader "publishEventHeader()"
+ * - \ref GStreamer::publishEventGeneratedParticles "publishEventGeneratedParticles()"
  * - \ref GStreamer::publishEventTrueInfoData "publishEventTrueInfoData()"
  * - \ref GStreamer::publishEventDigitizedData "publishEventDigitizedData()"
  * - \ref GStreamer::endEvent "endEvent()"
  *
  * Similar hook sequences exist for run data and frame streams.
+ *
+ * \subsection gstreamer_arch_generated Generated-particle banks
+ * Event output includes two generated-particle banks when generator metadata is
+ * available:
+ * - \c generated : inline \c -gparticle definitions plus every parsed
+ *   \c -gparticlefile particle, including rows that are not propagated in Geant4.
+ * - \c generated_tracked : inline \c -gparticle definitions plus only the
+ *   \c -gparticlefile particles that are propagated in Geant4. For Lund input,
+ *   this corresponds to rows with \c type == 1.
+ *
+ * Both banks publish the same columns: particle name, pid, source type,
+ * multiplicity, momentum, theta, phi, and vertex components. The concrete
+ * representation is backend-specific:
+ * - ASCII writes named generated-particle bank blocks.
+ * - CSV writes \c <rootname>_generated.csv and
+ *   \c <rootname>_generated_tracked.csv.
+ * - JSON writes both banks under the event-level \c generated object.
+ * - ROOT writes TTrees named \c generated and \c generated_tracked.
  *
  * \subsection gstreamer_arch_design Design notes
  * Design choices in this module include:
