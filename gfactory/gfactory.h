@@ -276,6 +276,9 @@ std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view  
 	if (pluginLib && pluginLib->handle) {
 		// The product type performs the symbol lookup and raw allocation.
 		T* raw = T::instantiate(pluginLib->handle, gopts);
+		if (raw == nullptr) {
+			log->error(ERR_FACTORYNOTFOUND, "Plugin ", name, " could not instantiate its factory object.");
+		}
 
 		// Standardize logger wiring on the instance.
 		raw->set_loggers(gopts);

@@ -1,6 +1,10 @@
 // gparticle
 #include "gparticle_options.h"
 #include "gparticleConventions.h"
+#include "gparticle_reader.h"
+
+// gemc
+#include "gfactory_options.h"
 
 // namespace to define options
 namespace gparticle {
@@ -9,7 +13,7 @@ using std::vector;
 
 // Build a vector of configured Gparticle instances from the structured "gparticle" option node.
 // The detailed API contract is documented in gparticle_options.h.
-vector<GparticlePtr> getGParticles(const std::shared_ptr<GOptions>& gopts, std::shared_ptr<GLogger>& logger) {
+vector<GparticlePtr> getGParticlesFromOption(const std::shared_ptr<GOptions>& gopts, std::shared_ptr<GLogger>& logger) {
 	// Retrieve the structured option node that contains an array of particle definitions.
 	auto gparticle_node = gopts->getOptionNode("gparticle");
 
@@ -52,6 +56,13 @@ vector<GparticlePtr> getGParticles(const std::shared_ptr<GOptions>& gopts, std::
 		));
 	}
 
+	return gparticles;
+}
+
+vector<GparticlePtr> getGParticles(const std::shared_ptr<GOptions>& gopts, std::shared_ptr<GLogger>& logger) {
+	auto gparticles       = getGParticlesFromOption(gopts, logger);
+	auto source_particles = getGParticlesFromSources(gopts, logger);
+	gparticles.insert(gparticles.end(), source_particles.begin(), source_particles.end());
 	return gparticles;
 }
 
@@ -104,6 +115,25 @@ GOptions defineOptions() {
 	};
 
 	goptions.defineOption("gparticle", "define the generator particle(s)", gparticle_v, help);
+
+	string file_help = "Adds particles to the event generator from particle-definition files. \n";
+	file_help        += "The option is cumulative and each entry selects a reader by format and filename. \n \n";
+	file_help        += "Built-in formats: \n";
+	for (const auto& format : supported_static_reader_formats()) { file_help += "  - " + format + "\n"; }
+	file_help += "\n";
+	file_help += "Formats are case-insensitive. Additional formats can be provided by dynamic plugins named ";
+	file_help += "gparticle_<format>_plugin.gplugin exporting GParticleReaderFactory. \n \n";
+	file_help += "Example: \n";
+	file_help += "-gparticlefile=\"[{format: lund, filename: a.lund}]\" \n";
+
+	vector<GVariable> gparticlefile_v = {
+		{"format", goptions::NODFLT, "Particle file format, for example \"lund\""},
+		{"filename", goptions::NODFLT, "Input filename containing particle definitions"}
+	};
+
+	goptions.defineOption("gparticlefile", "define generator particles from file(s)", gparticlefile_v, file_help);
+
+	goptions += gfactory::defineOptions();
 
 	return goptions;
 }

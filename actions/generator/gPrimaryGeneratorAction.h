@@ -7,6 +7,7 @@
 #include "goptions.h"
 #include "gbase.h"
 #include "gparticle_options.h"
+#include "gparticle_reader.h"
 
 // geant4
 #include "G4VUserPrimaryGeneratorAction.hh"
@@ -114,4 +115,13 @@ private:
 	 * the opportunity to contribute primary content to the event.
 	 */
 	std::vector<GparticlePtr> gparticles;
+
+	/**
+	 * \brief File-backed particle events, indexed by Geant4 event id.
+	 *
+	 * These records are kept separate from \ref gparticles so worker threads do not
+	 * replay the full file on every event. Each generated event consumes only the
+	 * matching file event record.
+	 */
+	GParticleEvents gparticleFileEvents;
 };

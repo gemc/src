@@ -44,4 +44,13 @@
 /** \brief \c G4ParticleTable could not be obtained (unexpected runtime state). */
 #define ERR_GPARTICLETABLENOTFOUND   903
 
+/** \brief Particle reader factory could not be found or instantiated. */
+#define ERR_GPARTICLEREADERNOTFOUND  904
+
+/** \brief Particle input file could not be opened. */
+#define ERR_GPARTICLEFILEOPEN        905
+
+/** \brief Particle input file contained malformed or unsupported data. */
+#define ERR_GPARTICLEFILEFORMAT      906
+
 /** @} */

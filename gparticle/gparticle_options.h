@@ -49,8 +49,9 @@ GOptions defineOptions();
 /**
  * \brief Builds the list of generator particles from structured options.
  *
- * This function reads the \c gparticle option node from the provided GOptions
- * instance and creates a \c std::vector of \ref Gparticle shared pointers.
+ * This function reads the \c gparticle option node and the optional
+ * \c gparticlefile file-source node from the provided GOptions instance and
+ * creates a \c std::vector of \ref Gparticle shared pointers.
  *
  * For each entry in the structured node:
  * - mandatory fields are validated (e.g. \c name)
@@ -69,4 +70,7 @@ GOptions defineOptions();
  */
 std::vector<GparticlePtr> getGParticles(const std::shared_ptr<GOptions>& gopts,
                                         std::shared_ptr<GLogger>&        logger);
+
+std::vector<GparticlePtr> getGParticlesFromOption(const std::shared_ptr<GOptions>& gopts,
+                                                  std::shared_ptr<GLogger>&        logger);
 } // namespace gparticle
