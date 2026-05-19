@@ -24,6 +24,12 @@ DEFAULT_LABELS: Mapping[str, str] = {
 	"totalE": "Total Energy (MeV)",
 }
 
+VARIABLE_ALIASES: Mapping[str, tuple[str, ...]] = {
+	"E": ("totalE", "etot"),
+	"totalEDeposited": ("totEdep",),
+	"etot": ("totalE",),
+}
+
 
 def plot_variable(
 	output: GemcOutput | pd.DataFrame,
@@ -73,9 +79,10 @@ def plot_histogram(
 ) -> tuple[plt.Figure, plt.Axes]:
 	"""Plot one numeric variable as a histogram, optionally grouped by a column."""
 
-	if variable not in frame.columns:
-		available = ", ".join(frame.columns)
-		raise KeyError(f"Column '{variable}' not found. Available columns: {available}")
+	variable = _resolve_variable(frame, variable)
+
+	if frame.empty:
+		raise ValueError("Selected data table is empty.")
 
 	values = pd.to_numeric(frame[variable], errors="coerce").dropna()
 	if values.empty:
@@ -124,3 +131,13 @@ def plot_histogram(
 		plt.show()
 
 	return fig, ax
+
+
+def _resolve_variable(frame: pd.DataFrame, variable: str) -> str:
+	if variable not in frame.columns:
+		for alias in VARIABLE_ALIASES.get(variable, ()):
+			if alias in frame.columns:
+				return alias
+		available = ", ".join(frame.columns)
+		raise KeyError(f"Column '{variable}' not found. Available columns: {available}")
+	return variable

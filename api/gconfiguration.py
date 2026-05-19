@@ -19,7 +19,7 @@
 
 # python
 import sqlite3
-import os, argparse, sys
+import os, argparse, sys, json, zipfile
 
 from dataclasses import dataclass
 from typing import Optional, Tuple
@@ -78,6 +78,10 @@ def get_arguments(argv=None):
 	parser.add_argument("-pvh", "--height", type=int, default=800, help="Set plotter height")
 	parser.add_argument("-pvx", "--x", type=int, default=0, help="Set plotter x position")
 	parser.add_argument("-pvy", "--y", type=int, default=0, help="Set plotter y position")
+	parser.add_argument("-pvvtk", "--pyvista-vtksz", default=None,
+	                    help="Export PyVista scene as a VTK.js .vtksz file; .vtksz is added if omitted")
+	parser.add_argument("-pvz", "--pyvista-vtksz-zoom", type=float, default=0.25,
+	                    help="Initial VTK.js scene zoom for --pyvista-vtksz; smaller values zoom out")
 	parser.add_argument("-axes", "--add_axes_at_zero", action="store_true",
 	                    help="Add 10cm axes at (0, 0, 0)")
 
@@ -103,6 +107,7 @@ class GConfiguration:
 			args=None,
 			enable_pyvista: Optional[bool] = None,
 			use_background_plotter: bool = None,
+			pyvista_vtksz: Optional[str] = None,
 	):
 		self.args = get_arguments()  # expose args to scripts that use this class
 		self.experiment = experiment
@@ -133,12 +138,21 @@ class GConfiguration:
 		# pyvista
 		# CLI background flag
 		background_flag = bool(getattr(self.args, "pyvista_background", False))
+		self.pyvista_vtksz = pyvista_vtksz if pyvista_vtksz is not None else getattr(
+			self.args, "pyvista_vtksz", None
+		)
+		self.pyvista_vtksz_zoom = getattr(self.args, "pyvista_vtksz_zoom", 0.25)
+		self.show_pyvista_window = (
+			self.args.pyvista
+			or background_flag
+			or (enable_pyvista is True and not self.pyvista_vtksz)
+		)
 
 		# Decide if PyVista is wanted:
 		#   - programmatic enable_pyvista overrides CLI (True/False)
-		#   - otherwise: --pyvista OR --pvb imply pyvista
+		#   - otherwise: --pyvista, --pvb, or --pyvista-vtksz imply pyvista
 		if enable_pyvista is None:
-			wants_pyvista = self.args.pyvista or background_flag
+			wants_pyvista = self.args.pyvista or background_flag or bool(self.pyvista_vtksz)
 		else:
 			wants_pyvista = enable_pyvista
 
@@ -159,6 +173,7 @@ class GConfiguration:
 
 		self._plotter: Optional[object] = None
 		self._camera_initialized = False
+		self._pyvista_vtksz_exported = False
 
 		# Set the initial variation and file names.
 		#
@@ -224,6 +239,92 @@ class GConfiguration:
 		if self._plotter is not None:
 			self._plotter.close()
 			self._plotter = None
+
+	def export_vtksz(self, filename: Optional[str] = None, zoom: Optional[float] = None):
+		"""Export the current PyVista scene as a VTK.js OfflineLocalView file."""
+		if not self.use_pyvista:
+			return None
+
+		output = filename if filename is not None else self.pyvista_vtksz
+		if not output:
+			return None
+		if not output.endswith(".vtksz"):
+			output = f"{output}.vtksz"
+
+		p = self.plotter
+		if p is None:
+			return None
+
+		self._configure_camera_from_bounds()
+		try:
+			p.camera.view_angle = 70.0
+		except Exception:
+			pass
+		try:
+			p.render()
+		except Exception:
+			pass
+
+		try:
+			argv = sys.argv
+			sys.argv = [argv[0]]
+			exported = p.export_vtksz(output)
+		except ImportError as e:
+			sys.exit(f"{GColors.RED}Error exporting PyVista VTK.js scene: {e}{GColors.END}")
+		finally:
+			sys.argv = argv
+
+		output_zoom = self.pyvista_vtksz_zoom if zoom is None else zoom
+		self._adjust_vtksz_camera(exported, zoom=output_zoom)
+
+		self._pyvista_vtksz_exported = True
+		print(f"  ❖ Exported PyVista VTK.js scene: {exported}")
+		return exported
+
+	def _adjust_vtksz_camera(self, filename, zoom: float = 0.25):
+		if zoom <= 0:
+			return
+
+		try:
+			with zipfile.ZipFile(filename, "r") as zf:
+				entries = {name: zf.read(name) for name in zf.namelist()}
+		except (OSError, zipfile.BadZipFile):
+			return
+
+		if "index.json" not in entries:
+			return
+
+		try:
+			data = json.loads(entries["index.json"].decode("utf-8"))
+		except (UnicodeDecodeError, json.JSONDecodeError):
+			return
+
+		def adjust_node(node):
+			if not isinstance(node, dict):
+				return
+
+			if "Camera" in str(node.get("type", "")):
+				properties = node.get("properties", {})
+				position = properties.get("position")
+				focal_point = properties.get("focalPoint")
+				if position and focal_point and len(position) == 3 and len(focal_point) == 3:
+					properties["position"] = [
+						focal_point[i] + (position[i] - focal_point[i]) / zoom
+						for i in range(3)
+					]
+				properties["viewAngle"] = 45.0
+				properties["parallelProjection"] = False
+				properties.pop("parallelScale", None)
+
+			for child in node.get("dependencies", []):
+				adjust_node(child)
+
+		adjust_node(data.get("scene"))
+		entries["index.json"] = json.dumps(data).encode("utf-8")
+
+		with zipfile.ZipFile(filename, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+			for name, content in entries.items():
+				zf.writestr(name, content)
 
 
 	def ascii_storage_files(self):
@@ -389,6 +490,9 @@ class GConfiguration:
 				except AttributeError:
 					pass  # BackgroundPlotter may not expose ren_win directly
 
+				if self.pyvista_vtksz and not self._pyvista_vtksz_exported:
+					self.export_vtksz(self.pyvista_vtksz)
+
 				if self.use_background_plotter:
 					# BackgroundPlotter path
 					if block and hasattr(p, "app"):
@@ -408,7 +512,7 @@ class GConfiguration:
 						)
 
 
-					elif block:
+					elif block and self.show_pyvista_window:
 						p.show()
 
 	def _configure_camera_from_bounds(self, margin: float = 0.8, distance_scale: float = 4.0):
@@ -496,6 +600,7 @@ def autogeometry(
 		auto_show: bool = True,
 		enable_pyvista: Optional[bool] = None,
 		use_background_plotter: Optional[bool] = None,
+		pyvista_vtksz: Optional[str] = None,
 ):
 	# in jupyter: always enable pyvista, never use atexit
 	if _in_jupyter:
@@ -507,6 +612,7 @@ def autogeometry(
 		application,
 		enable_pyvista=enable_pyvista,
 		use_background_plotter=use_background_plotter,
+		pyvista_vtksz=pyvista_vtksz,
 	)
 
 	if auto_show:

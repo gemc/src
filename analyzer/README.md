@@ -63,6 +63,17 @@ The digitized B2 output includes columns like:
 hitn, pid, tid, E, time, totEdep
 ```
 
+The true-info output includes tracking columns like:
+
+```text
+processName, avgTime, avgx, avgy, avgz, hitn, pid, tid, totalEDeposited
+```
+
+When the matching digitized CSV is available, the analyzer also adds `E` to
+true-info tables by matching rows on event, detector, hit, PID, and track ID.
+In that case `E` is the track total energy, while `totalEDeposited` remains
+the deposited energy.
+
 The ROOT streamer writes one ROOT file per worker thread. For one thread and
 `filename: b2`, the file is typically:
 

@@ -44,9 +44,10 @@ def read_csv_output(path: str | Path) -> GemcOutput:
 	output = GemcOutput(source=str(path))
 
 	if path.suffix == ".csv":
-		frame = _read_csv(path)
+		frame = _read_csv_with_fallback(path)
 		stream = _classify_csv_stream(path)
 		if stream == "true_info":
+			frame = _with_track_energy(frame, _matching_digitized_csv(path))
 			output.true_info[path.stem] = frame
 		else:
 			output.digitized[path.stem] = frame
@@ -55,7 +56,7 @@ def read_csv_output(path: str | Path) -> GemcOutput:
 	for stream, suffix in CSV_STREAM_SUFFIXES.items():
 		candidate = Path(str(path) + suffix)
 		if candidate.exists():
-			frame = _read_csv(candidate)
+			frame = _read_csv_with_fallback(candidate)
 			if stream == "true_info":
 				output.true_info["csv"] = frame
 			else:
@@ -64,6 +65,7 @@ def read_csv_output(path: str | Path) -> GemcOutput:
 	if not output.true_info and not output.digitized:
 		raise FileNotFoundError(f"No GEMC CSV files found for '{path}'.")
 
+	_add_track_energy_columns(output)
 	return output
 
 
@@ -102,6 +104,61 @@ def read_root_output(path: str | Path) -> GemcOutput:
 
 def _read_csv(path: Path) -> pd.DataFrame:
 	return pd.read_csv(path, sep=",", skipinitialspace=True)
+
+
+def _read_csv_with_fallback(path: Path) -> pd.DataFrame:
+	try:
+		return _read_csv(path)
+	except pd.errors.EmptyDataError:
+		fallback = _thread_csv_fallback(path)
+		if fallback is not None:
+			return _read_csv(fallback)
+		raise
+
+
+def _thread_csv_fallback(path: Path) -> Path | None:
+	"""
+	Return the run-level CSV matching an empty worker-thread CSV, if present.
+
+	Some accumulated digitizations, such as dosimeter output, write their final
+	table to ``name_digitized.csv`` while the corresponding ``name_t0_digitized.csv``
+	worker file exists but is empty.
+	"""
+	name = path.name
+	if "_t0_" not in name:
+		return None
+
+	candidate = path.with_name(name.replace("_t0_", "_", 1))
+	if candidate.exists() and candidate.stat().st_size > 0:
+		return candidate
+	return None
+
+
+def _matching_digitized_csv(path: Path) -> pd.DataFrame | None:
+	candidate = path.with_name(path.name.replace(CSV_STREAM_SUFFIXES["true_info"], CSV_STREAM_SUFFIXES["digitized"]))
+	if candidate == path or not candidate.exists() or candidate.stat().st_size == 0:
+		return None
+	return _read_csv_with_fallback(candidate)
+
+
+def _add_track_energy_columns(output: GemcOutput) -> None:
+	for name, frame in list(output.true_info.items()):
+		digitized = output.digitized.get(name)
+		if digitized is None and len(output.digitized) == 1:
+			digitized = next(iter(output.digitized.values()))
+		output.true_info[name] = _with_track_energy(frame, digitized)
+
+
+def _with_track_energy(frame: pd.DataFrame, digitized: pd.DataFrame | None) -> pd.DataFrame:
+	if "E" in frame.columns or digitized is None or "E" not in digitized.columns:
+		return frame
+
+	keys = [key for key in ("evn", "thread_id", "detector", "hitn", "pid", "tid") if key in frame.columns and key in digitized.columns]
+	if not keys:
+		return frame
+
+	energy = digitized[keys + ["E"]].drop_duplicates(subset=keys)
+	return frame.merge(energy, on=keys, how="left")
 
 
 def _classify_csv_stream(path: Path) -> str:
