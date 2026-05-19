@@ -18,6 +18,7 @@
 // c++
 #include <optional>
 #include <atomic>
+#include <map>
 
 /**
  * \class GHit
@@ -164,6 +165,22 @@ private:
 	 */
 	std::vector<G4ThreeVector> localPositions;
 
+	/**
+	 * \brief Track vertex positions per recorded step.
+	 *
+	 * Values are derived from \c G4Track::GetVertexPosition().
+	 */
+	std::vector<G4ThreeVector> trackVertexPositions;
+
+	/**
+	 * \brief Mother-track vertex positions per recorded step.
+	 *
+	 * Values are looked up by parent track id from the per-thread track vertex cache.
+	 * If the mother track has not been seen by a sensitive hit, the uninitialized
+	 * numeric sentinel is stored for each coordinate.
+	 */
+	std::vector<G4ThreeVector> motherTrackVertexPositions;
+
 	// Optional per-step data, controlled by HitBitSet (see ghitConventions.h : meaning of each bit)
 
 	/**
@@ -179,6 +196,13 @@ private:
 	 * Recorded when the corresponding \c HitBitSet bit is enabled.
 	 */
 	std::vector<int> tids;
+
+	/**
+	 * \brief Parent track IDs per step.
+	 *
+	 * Geant4 uses parent id 0 for primary tracks.
+	 */
+	std::vector<int> motherTids;
 
 	/**
 	 * \brief Total energy per step (optional).
@@ -263,6 +287,15 @@ private:
 	 */
 	static std::atomic<int> globalHitCounter;
 
+	/**
+	 * \brief Per-thread cache of track-id to track-vertex position.
+	 *
+	 * This is cleared at the beginning of each sensitive-detector event and is used
+	 * to attach mother-track vertex coordinates when the parent track was already
+	 * seen by GEMC hit processing.
+	 */
+	static thread_local std::map<int, G4ThreeVector> trackVertexById;
+
 public:
 	// -------------------------------------------------------------------------
 	// Inline accessors (returning copies by design)
@@ -293,6 +326,38 @@ public:
 	[[nodiscard]] inline std::vector<G4ThreeVector> getLocalPositions() const { return localPositions; }
 
 	/**
+	 * \brief Get per-step current-track vertex positions.
+	 * \return A copy of the vector of track vertex positions.
+	 */
+	[[nodiscard]] inline std::vector<G4ThreeVector> getTrackVertexPositions() const { return trackVertexPositions; }
+
+	/**
+	 * \brief Convenience accessor for the first current-track vertex position.
+	 * \return The first track vertex position.
+	 *
+	 * \warning This assumes the internal \c trackVertexPositions vector is non-empty.
+	 */
+	[[nodiscard]] inline G4ThreeVector getTrackVertexPosition() const { return trackVertexPositions.front(); }
+
+	/**
+	 * \brief Get per-step mother-track vertex positions.
+	 * \return A copy of the vector of mother-track vertex positions.
+	 */
+	[[nodiscard]] inline std::vector<G4ThreeVector> getMotherTrackVertexPositions() const {
+		return motherTrackVertexPositions;
+	}
+
+	/**
+	 * \brief Convenience accessor for the first mother-track vertex position.
+	 * \return The first mother-track vertex position.
+	 *
+	 * \warning This assumes the internal \c motherTrackVertexPositions vector is non-empty.
+	 */
+	[[nodiscard]] inline G4ThreeVector getMotherTrackVertexPosition() const {
+		return motherTrackVertexPositions.front();
+	}
+
+	/**
 	 * \brief Get per-step particle PDG encodings (when enabled).
 	 * \return A copy of the vector of per-step particle IDs.
 	 */
@@ -319,6 +384,20 @@ public:
 	 * \warning This assumes the internal \c track vector is non-empty.
 	 */
 	[[nodiscard]] inline int getTid() const { return tids.front(); }
+
+	/**
+	 * \brief Get per-step mother track IDs.
+	 * \return A copy of the vector of mother track IDs.
+	 */
+	[[nodiscard]] inline std::vector<int> getMotherTids() const { return motherTids; }
+
+	/**
+	 * \brief Convenience accessor for the first mother track ID.
+	 * \return The first mother track ID.
+	 *
+	 * \warning This assumes the internal \c motherTids vector is non-empty.
+	 */
+	[[nodiscard]] inline int getMotherTid() const { return motherTids.front(); }
 
 	/**
 	 * \brief Get per-step total energies (when enabled).
@@ -448,6 +527,13 @@ public:
 	 * \param thisStep Step to extract per-step values from (must not be null).
 	 */
 	void addHitInfosForBitset(HitBitSet hbs, const G4Step* thisStep);
+
+	/**
+	 * \brief Clear the per-thread track vertex cache.
+	 *
+	 * Called at the beginning of each sensitive-detector event.
+	 */
+	static void clearTrackVertexCache();
 
 	/**
 	 * \brief Randomize internal vectors for test-only usage.

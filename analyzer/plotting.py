@@ -22,12 +22,28 @@ DEFAULT_LABELS: Mapping[str, str] = {
 	"avgTime": "Average Time",
 	"E": "Energy (MeV)",
 	"totalE": "Total Energy (MeV)",
+	"p": "Momentum (MeV)",
+	"theta": "Theta (rad)",
+	"phi": "Phi (rad)",
+	"vx": "Track Vertex X (mm)",
+	"vy": "Track Vertex Y (mm)",
+	"vz": "Track Vertex Z (mm)",
+	"mvx": "Mother Track Vertex X (mm)",
+	"mvy": "Mother Track Vertex Y (mm)",
+	"mvz": "Mother Track Vertex Z (mm)",
+	"mtid": "Mother Track ID",
 }
 
 VARIABLE_ALIASES: Mapping[str, tuple[str, ...]] = {
 	"E": ("totalE", "etot"),
 	"totalEDeposited": ("totEdep",),
 	"etot": ("totalE",),
+	"track_vx": ("vx",),
+	"track_vy": ("vy",),
+	"track_vz": ("vz",),
+	"mother_vx": ("mvx",),
+	"mother_vy": ("mvy",),
+	"mother_vz": ("mvz",),
 }
 
 

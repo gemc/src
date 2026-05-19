@@ -109,7 +109,7 @@ for variation, material in variation_material.items():
 		# by crossing into a material without matching optical properties.
 		backplate.material = material
 
-		backplate.color = "slategray"
+		backplate.color = "lightpink"
 		backplate.digitization = "flux"
 		backplate.set_identifier("detector", panel_id)
 		backplate.publish(cfg)

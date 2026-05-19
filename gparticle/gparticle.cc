@@ -76,6 +76,7 @@ Gparticle::Gparticle(const std::string&              aname,
 // Detailed API documentation is in gparticle.h.
 void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent) {
 	auto particleTable = G4ParticleTable::GetParticleTable();
+	runtimeRecords.clear();
 
 	if (particleTable) {
 		// Resolve the particle definition by name.
@@ -89,11 +90,23 @@ void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent) {
 
 			// Shoot one primary vertex per multiplicity.
 			for (int i = 0; i < multiplicity; i++) {
-				auto kenergy       = calculateKinEnergy(mass);
-				auto beamDirection = calculateBeamDirection();
+				auto pmev = calculateMomentum();
+				auto kenergy = sqrt(pmev * pmev + mass * mass) - mass;
+				auto thetaRad = randomizeNumberFromSigmaWithModel(theta, delta_theta, randomThetaModel) / CLHEP::rad;
+				auto phiRad   = randomizeNumberFromSigmaWithModel(phi, delta_phi, gutilities::uniform) / CLHEP::rad;
+				auto beamDirection = calculateBeamDirection(thetaRad, phiRad);
 				auto vertex        = calculateVertex();
 
 				setRunTimeQuantities(kenergy, beamDirection, vertex);
+				runtimeRecords.push_back({
+					name,
+					pid,
+					generator_type,
+					pmev,
+					thetaRad * CLHEP::rad,
+					phiRad * CLHEP::rad,
+					vertex
+				});
 
 				particleGun->SetParticleEnergy(kenergy);
 				particleGun->SetParticleMomentumDirection(beamDirection);
@@ -129,11 +142,7 @@ double Gparticle::calculateKinEnergy(double mass) {
 }
 
 
-G4ThreeVector Gparticle::calculateBeamDirection() {
-	// Convert to radians for trigonometric functions.
-	double thetaRad = randomizeNumberFromSigmaWithModel(theta, delta_theta, randomThetaModel) / CLHEP::rad;
-	double phiRad   = randomizeNumberFromSigmaWithModel(phi, delta_phi, gutilities::uniform) / CLHEP::rad;
-
+G4ThreeVector Gparticle::calculateBeamDirection(double thetaRad, double phiRad) {
 	G4ThreeVector pdir = G4ThreeVector(
 									   cos(phiRad) * sin(thetaRad),
 									   sin(phiRad) * sin(thetaRad),

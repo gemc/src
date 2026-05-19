@@ -28,6 +28,28 @@ GParticleRecord make_particle_record(const GparticlePtr& particle) {
 		vertex.z()
 	};
 }
+
+GParticleRecord make_particle_record(const GparticleRuntimeRecord& particle) {
+	return {
+		particle.name,
+		particle.pid,
+		particle.type,
+		1,
+		particle.p,
+		particle.theta,
+		particle.phi,
+		particle.vertex.x(),
+		particle.vertex.y(),
+		particle.vertex.z()
+	};
+}
+
+void append_runtime_records(GParticleRecordEvent& records, const GparticlePtr& particle) {
+	if (particle == nullptr) { return; }
+	for (const auto& runtime_record : particle->getRuntimeRecords()) {
+		records.emplace_back(make_particle_record(runtime_record));
+	}
+}
 }
 
 // Build the primary-generator action, load the configured particle definitions,
@@ -62,10 +84,8 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 	current_generated_particles.insert(current_generated_particles.end(), gparticles.begin(), gparticles.end());
 	current_generated_tracked_particles.insert(current_generated_tracked_particles.end(), gparticles.begin(), gparticles.end());
 	current_generated_particle_records.reserve(gparticles.size());
-	current_generated_tracked_particle_records.reserve(gparticles.size());
 	for (const auto& gparticle : gparticles) {
 		current_generated_particle_records.emplace_back(make_particle_record(gparticle));
-		current_generated_tracked_particle_records.emplace_back(make_particle_record(gparticle));
 	}
 
 	const auto event_id = anEvent->GetEventID();
@@ -80,15 +100,13 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 		current_generated_tracked_particles.insert(current_generated_tracked_particles.end(),
 		                                           event_particles.begin(),
 		                                           event_particles.end());
-		for (const auto& gparticle : event_particles) {
-			current_generated_tracked_particle_records.emplace_back(make_particle_record(gparticle));
-		}
 	}
 
 	for (const auto& gparticle : gparticles) {
 
 		if (gparticle != nullptr) {
 			gparticle->shootParticle(gparticleGun.get(), anEvent);
+			append_runtime_records(current_generated_tracked_particle_records, gparticle);
 		}
 	}
 
@@ -100,6 +118,7 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 		for (const auto& gparticle : gparticleFileEvents[static_cast<size_t>(event_id)]) {
 			if (gparticle != nullptr) {
 				gparticle->shootParticle(gparticleGun.get(), anEvent);
+				append_runtime_records(current_generated_tracked_particle_records, gparticle);
 			}
 		}
 	}

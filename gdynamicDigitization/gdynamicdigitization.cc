@@ -32,9 +32,12 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 	// Average positions are computed at the hit level by GHit and returned here.
 	G4ThreeVector avgGlobalPos = ghit->getAvgGlobaPosition();
 	G4ThreeVector avgLocalPos  = ghit->getAvgLocalPosition();
+	G4ThreeVector trackVertex = ghit->getTrackVertexPosition();
+	G4ThreeVector motherTrackVertex = ghit->getMotherTrackVertexPosition();
 
 	trueInfoData->includeVariable("pid", ghit->getPid());
 	trueInfoData->includeVariable("tid", ghit->getTid());
+	trueInfoData->includeVariable("mtid", ghit->getMotherTid());
 	trueInfoData->includeVariable("totalEDeposited", ghit->getTotalEnergyDeposited());
 	trueInfoData->includeVariable("avgTime", ghit->getAverageTime());
 	trueInfoData->includeVariable("avgx", avgGlobalPos.getX());
@@ -43,6 +46,12 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 	trueInfoData->includeVariable("avglx", avgLocalPos.getX());
 	trueInfoData->includeVariable("avgly", avgLocalPos.getY());
 	trueInfoData->includeVariable("avglz", avgLocalPos.getZ());
+	trueInfoData->includeVariable("vx", trackVertex.getX());
+	trueInfoData->includeVariable("vy", trackVertex.getY());
+	trueInfoData->includeVariable("vz", trackVertex.getZ());
+	trueInfoData->includeVariable("mvx", motherTrackVertex.getX());
+	trueInfoData->includeVariable("mvy", motherTrackVertex.getY());
+	trueInfoData->includeVariable("mvz", motherTrackVertex.getZ());
 	trueInfoData->includeVariable("hitn", static_cast<int>(hitn)); // assume hitn < INT_MAX
 
 	// Bit 1 typically includes metadata like the process name.

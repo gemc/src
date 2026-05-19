@@ -1,6 +1,9 @@
 // ghit
 #include "ghit.h"
 
+// glibrary
+#include "gutsConventions.h"
+
 // geant4
 #include "G4TouchableHistory.hh"
 #include "G4VProcess.hh"
@@ -33,8 +36,27 @@ void GHit::addHitInfosForBitset(const HitBitSet hbs, const G4Step* step) {
 	edeps.push_back(edep);
 	times.push_back(time);
 
-	pids.push_back(step->GetTrack()->GetDefinition()->GetPDGEncoding());
-	tids.push_back(step->GetTrack()->GetTrackID());
+	auto track = step->GetTrack();
+	auto trackVertex = track->GetVertexPosition();
+	int  trackId = track->GetTrackID();
+	int  motherTrackId = track->GetParentID();
+
+	trackVertexById.emplace(trackId, trackVertex);
+
+	G4ThreeVector motherTrackVertex(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY,
+	                                UNINITIALIZEDNUMBERQUANTITY);
+	if (motherTrackId > 0) {
+		auto motherVertex = trackVertexById.find(motherTrackId);
+		if (motherVertex != trackVertexById.end()) {
+			motherTrackVertex = motherVertex->second;
+		}
+	}
+
+	trackVertexPositions.push_back(trackVertex);
+	motherTrackVertexPositions.push_back(motherTrackVertex);
+	pids.push_back(track->GetDefinition()->GetPDGEncoding());
+	tids.push_back(trackId);
+	motherTids.push_back(motherTrackId);
 
 
 	// Iterate over each bit and call the helper method to add optional info.

@@ -32,6 +32,7 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc) {
 
 	// Clearing touchableVector at the start of the event (per-event hit identity cache).
 	touchableVector.clear();
+	GHit::clearTrackVertexCache();
 
 	// Initializing gHitsCollection using the Geant4 G4THitsCollection constructor (expects detector and collection names).
 	gHitsCollection = new GHitsCollection(sdName, collectionName[0]);

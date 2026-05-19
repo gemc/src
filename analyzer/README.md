@@ -66,13 +66,19 @@ hitn, pid, tid, E, time, totEdep
 The true-info output includes tracking columns like:
 
 ```text
-processName, avgTime, avgx, avgy, avgz, hitn, pid, tid, totalEDeposited
+processName, avgTime, avgx, avgy, avgz, hitn, pid, tid, mtid, vx, vy, vz, mvx, mvy, mvz, totalEDeposited
 ```
 
 When the matching digitized CSV is available, the analyzer also adds `E` to
 true-info tables by matching rows on event, detector, hit, PID, and track ID.
 In that case `E` is the track total energy, while `totalEDeposited` remains
 the deposited energy.
+
+The `vx`, `vy`, and `vz` columns are the current track vertex coordinates.
+The `mvx`, `mvy`, and `mvz` columns are the mother-track vertex coordinates
+when the mother track was available to GEMC hit processing; otherwise they use
+the GEMC uninitialized numeric sentinel. The `mtid` column stores the mother
+track id.
 
 The ROOT streamer writes one ROOT file per worker thread. For one thread and
 `filename: b2`, the file is typically:
@@ -100,7 +106,7 @@ Read one digitized CSV file:
 ```python
 from analyzer import read_output
 
-output = read_output("tmp/b2_t0_digitized.csv")
+output = read_output("b2_t0_digitized.csv")
 df = output.get_frame("digitized")
 print(df.columns)
 ```
@@ -110,7 +116,7 @@ Read a CSV root name when both files exist:
 ```python
 from analyzer import read_output
 
-output = read_output("tmp/b2_t0", kind="csv")
+output = read_output("b2_t0", kind="csv")
 print(output.summary())
 ```
 
@@ -119,7 +125,7 @@ Plot `totEdep` grouped by `pid`:
 ```python
 from analyzer import plot_variable, read_output
 
-output = read_output("tmp/b2_t0_digitized.csv")
+output = read_output("b2_t0_digitized.csv")
 plot_variable(
     output,
     "totEdep",
@@ -135,7 +141,7 @@ Read ROOT output:
 ```python
 from analyzer import read_output
 
-output = read_output("tmp/b2_t0.root", kind="root")
+output = read_output("b2_t0.root", kind="root")
 df = output.get_frame("digitized", detector="flux")
 ```
 
@@ -145,31 +151,37 @@ Run `python3 -m analyzer` from the GEMC source directory, where the `analyzer`
 package directory is visible to Python.
 
 The `-m` flag takes a module name, not a filesystem path. Do not run
-`python3 -m ../analyzer`. If your shell is inside `tmp/`, either move back to
-the source directory or set `PYTHONPATH=..`.
+`python3 -m ../analyzer`. If your shell is in another directory, move back to
+the source directory or set `PYTHONPATH`.
 
 Print a summary:
 
 ```sh
-python3 -m analyzer tmp/b2_t0_digitized.csv
+python3 -m analyzer b2_t0_digitized.csv
 ```
 
 Plot a digitized variable with matplotlib:
 
 ```sh
-python3 -m analyzer tmp/b2_t0_digitized.csv totEdep --kind csv --xlim 0.0 0.1
+python3 -m analyzer b2_t0_digitized.csv totEdep --kind csv --xlim 0.0 0.1
 ```
 
 Save a plot instead of showing it:
 
 ```sh
-python3 -m analyzer tmp/b2_t0_digitized.csv totEdep --kind csv --save tmp/b2_totEdep.png
+python3 -m analyzer b2_t0_digitized.csv totEdep --kind csv --save b2_totEdep.png
 ```
 
 Plot ROOT output with matplotlib:
 
 ```sh
-python3 -m analyzer tmp/b2_t0.root totEdep --kind root --detector flux --save tmp/b2_totEdep.png
+python3 -m analyzer b2_t0.root totEdep --kind root --detector flux --save b2_totEdep.png
+```
+
+Plot a true-info track vertex coordinate:
+
+```sh
+python3 -m analyzer b2_t0_true_info.csv vx --kind csv --data true_info --save b2_vertex_x.png
 ```
 
 ## Dependency-Free SVG Plot
@@ -178,51 +190,47 @@ If `pandas`, `numpy`, or `matplotlib` are unavailable, create an SVG histogram
 directly from the CSV file:
 
 ```sh
-python3 -B analyzer/svg_plot.py tmp/b2_t0_digitized.csv totEdep --out tmp/b2_totEdep.svg --bins 30
+python3 -B analyzer/svg_plot.py b2_t0_digitized.csv totEdep --out b2_totEdep.svg --bins 30
 ```
 
 Add an x-axis range with:
 
 ```sh
-python3 -B analyzer/svg_plot.py tmp/b2_t0_digitized.csv totEdep --out tmp/b2_totEdep.svg --bins 30 --xlim 0.0 0.1
+python3 -B analyzer/svg_plot.py b2_t0_digitized.csv totEdep --out b2_totEdep.svg --bins 30 --xlim 0.0 0.1
 ```
 
 ## Run the B2 Example
 
-Run these commands from the GEMC source directory:
-
-```sh
-mkdir -p tmp
-```
+Run these commands from the GEMC source directory.
 
 Build the B2 geometry into a local SQLite database:
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/opt/projects/gemc/src/api \
-python3 examples/basic/b2/b2.py -f sqlite -sql tmp/gemc.db
+python3 examples/basic/b2/b2.py -f sqlite -sql gemc.db
 ```
 
-Run GEMC with CSV output rooted at `tmp/b2`:
+Run GEMC with CSV output rooted at `b2`:
 
 ```sh
 build/gemc examples/basic/b2/b2.yaml \
   '-gsystem=[{name: b2, factory: sqlite}]' \
-  '-gstreamer=[{format: csv, filename: tmp/b2}]' \
-  -sql=tmp/gemc.db \
+  '-gstreamer=[{format: csv, filename: b2}]' \
+  -sql=gemc.db \
   -n=20
 ```
 
 With one worker thread, this produces:
 
 ```text
-tmp/b2_t0_digitized.csv
-tmp/b2_t0_true_info.csv
+b2_t0_digitized.csv
+b2_t0_true_info.csv
 ```
 
 Inspect the digitized CSV header:
 
 ```sh
-head -1 tmp/b2_t0_digitized.csv
+head -1 b2_t0_digitized.csv
 ```
 
 Expected columns include:
@@ -234,31 +242,31 @@ evn, timestamp, thread_id, detector, hitn, pid, tid, E, time, totEdep
 Create the `totEdep` plot with the main analyzer API:
 
 ```sh
-python3 -m analyzer tmp/b2_t0_digitized.csv totEdep --kind csv --save tmp/b2_totEdep.png
+python3 -m analyzer b2_t0_digitized.csv totEdep --kind csv --save b2_totEdep.png
 ```
 
 Or create the same style of histogram without third-party Python packages:
 
 ```sh
-python3 -B analyzer/svg_plot.py tmp/b2_t0_digitized.csv totEdep --out tmp/b2_totEdep.svg --bins 30
+python3 -B analyzer/svg_plot.py b2_t0_digitized.csv totEdep --out b2_totEdep.svg --bins 30
 ```
 
 ### Run B2 With ROOT Output
 
-To produce ROOT output instead of CSV, keep the same `tmp/gemc.db` and run:
+To produce ROOT output instead of CSV, keep the same `gemc.db` and run:
 
 ```sh
 build/gemc examples/basic/b2/b2.yaml \
   '-gsystem=[{name: b2, factory: sqlite}]' \
-  '-gstreamer=[{format: root, filename: tmp/b2}]' \
-  -sql=tmp/gemc.db \
+  '-gstreamer=[{format: root, filename: b2}]' \
+  -sql=gemc.db \
   -n=20
 ```
 
 With one worker thread, this produces:
 
 ```text
-tmp/b2_t0.root
+b2_t0.root
 ```
 
 Read the ROOT file from Python if you want to inspect or manipulate the data
@@ -267,7 +275,7 @@ before plotting:
 ```python
 from analyzer import plot_variable, read_output
 
-output = read_output("tmp/b2_t0.root", kind="root")
+output = read_output("b2_t0.root", kind="root")
 print(output.summary())
 
 df = output.get_frame("digitized", detector="flux")
@@ -287,28 +295,14 @@ The Python inspection step is not required for plotting. To plot directly from
 the command line, use:
 
 ```sh
-python3 -m analyzer tmp/b2_t0.root totEdep --kind root --detector flux --save tmp/b2_root_totEdep.png
-```
-
-If your shell is inside `tmp/`, do not use `python3 -m ../analyzer`. The `-m`
-flag accepts a module name, not a relative path. Use either:
-
-```sh
-cd ..
-python3 -m analyzer tmp/b2_t0.root totEdep --kind root --detector flux --save tmp/b2_root_totEdep.png
-```
-
-or:
-
-```sh
-PYTHONPATH=.. python3 -m analyzer b2_t0.root totEdep --kind root --detector flux --save b2_root_totEdep.png
+python3 -m analyzer b2_t0.root totEdep --kind root --detector flux --save b2_root_totEdep.png
 ```
 
 If matplotlib reports that its default cache directory is not writable, set a
 writable `MPLCONFIGDIR`:
 
 ```sh
-PYTHONPATH=.. MPLCONFIGDIR=. python3 -m analyzer b2_t0.root totEdep --kind root --detector flux --save b2_root_totEdep.png
+MPLCONFIGDIR=. python3 -m analyzer b2_t0.root totEdep --kind root --detector flux --save b2_root_totEdep.png
 ```
 
 ## Extending Readers

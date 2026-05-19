@@ -16,6 +16,7 @@ using std::string;
 using std::vector;
 
 std::atomic<int> GHit::globalHitCounter{0};
+thread_local std::map<int, G4ThreeVector> GHit::trackVertexById;
 
 // MT definitions, as from:
 // https://twiki.cern.ch/twiki/bin/view/Geant4/QuickMigrationGuideForGeant4V10
@@ -97,6 +98,10 @@ bool GHit::setColorSchema() {
 	return false;
 }
 
+void GHit::clearTrackVertexCache() {
+	trackVertexById.clear();
+}
+
 void GHit::randomizeHitForTesting(int nsteps) {
 	// This function is for testing purposes only.
 	// It randomizes the hit's global position and energy deposition.
@@ -106,10 +111,14 @@ void GHit::randomizeHitForTesting(int nsteps) {
 	for (int i = 0; i < nsteps + 1; ++i) {
 		globalPositions.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
 		localPositions.emplace_back(G4UniformRand() * 10, G4UniformRand() * 10, G4UniformRand() * 10);
+		trackVertexPositions.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
+		motherTrackVertexPositions.emplace_back(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY,
+		                                        UNINITIALIZEDNUMBERQUANTITY);
 		times.emplace_back(G4UniformRand() * 100);
 		edeps.emplace_back(G4UniformRand() * 10);
 		pids.emplace_back(11);
 		tids.emplace_back(i);
+		motherTids.emplace_back(0);
 		Es.emplace_back(G4UniformRand() * 10);
 
 		pids.emplace_back(static_cast<int>(G4UniformRand() * 1000)); // Random particle ID
