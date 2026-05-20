@@ -586,29 +586,8 @@ def gmesh_to_geant4_solid_and_params(gm, length_unit='mm', angle_unit='deg'):
 		param_string = f"{px}*{length_unit}, {py}*{length_unit}, {pz}*{length_unit}"
 		return "G4Box", param_string
 
-	# Cylinder (pv.Cylinder -> G4Tubs)
-	# We'll assume direction=(0,0,1) in local coords,
-	# so height is along Z, radius in XY.
-	if _is_cylinder_like(mesh):
-		rx = 0.5 * (xmax - xmin)
-		ry = 0.5 * (ymax - ymin)
-		rmax = 0.5 * ((xmax - xmin) + (ymax - ymin)) / 2.0
-		rmin = 0.0  # solid tube
-		half_z = 0.5 * (zmax - zmin)
-
-		sphi = 0.0
-		dphi = 360.0
-
-		param_string = (
-			f"{rmin}*{length_unit}, "
-			f"{rmax}*{length_unit}, "
-			f"{half_z}*{length_unit}, "
-			f"{sphi}*{angle_unit}, "
-			f"{dphi}*{angle_unit}"
-		)
-		return "G4Tubs", param_string
-
-	# Sphere (pv.Sphere -> G4Sphere)
+	# Sphere must be checked before cylinder: a sphere also passes _is_cylinder_like
+	# (both are "round in XY") so we disambiguate first by requiring all three extents equal.
 	if _is_sphere_like(mesh):
 		rx = 0.5 * (xmax - xmin)
 		ry = 0.5 * (ymax - ymin)
@@ -630,6 +609,23 @@ def gmesh_to_geant4_solid_and_params(gm, length_unit='mm', angle_unit='deg'):
 			f"{dtheta}*{angle_unit}"
 		)
 		return "G4Sphere", param_string
+
+	# Cylinder (pv.Cylinder -> G4Tubs)
+	# height along Z, radius in XY.
+	if _is_cylinder_like(mesh):
+		rmax = 0.5 * ((xmax - xmin) + (ymax - ymin)) / 2.0
+		rmin = 0.0
+		half_z = 0.5 * (zmax - zmin)
+		sphi = 0.0
+		dphi = 360.0
+		param_string = (
+			f"{rmin}*{length_unit}, "
+			f"{rmax}*{length_unit}, "
+			f"{half_z}*{length_unit}, "
+			f"{sphi}*{angle_unit}, "
+			f"{dphi}*{angle_unit}"
+		)
+		return "G4Tubs", param_string
 
 	# Not recognized yet (cones/polycones/etc.)
 	return None, None

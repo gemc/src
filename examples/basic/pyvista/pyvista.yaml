@@ -1,0 +1,21 @@
+experiment: examples
+runno: 1
+nthreads: 1
+
+verbosity:
+  - g4system: 1
+  - gemc: 1
+
+gsystem:
+  - name: pyvista
+    factory: sqlite
+
+phys_list: QBBC
+
+gparticle:
+  - name: proton
+    p: 1000
+    vz: -5
+    delta_vx: 0.5
+    delta_vy: 0.5
+    multiplicity: 5
