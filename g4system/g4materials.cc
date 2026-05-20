@@ -95,16 +95,17 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial> &gmaterial) {
 		addProperty("ABSLENGTH", gmaterial->getAbsorptionLength());
 		addProperty("REFLECTIVITY", gmaterial->getReflectivity());
 		addProperty("EFFICIENCY", gmaterial->getEfficiency());
-		addProperty("FASTCOMPONENT", gmaterial->getFastComponent());
-		addProperty("SLOWCOMPONENT", gmaterial->getSlowComponent());
+		// Geant4 11.x renamed the scintillation property keys (formerly FASTCOMPONENT etc.)
+		addProperty("SCINTILLATIONCOMPONENT1", gmaterial->getFastComponent());
+		addProperty("SCINTILLATIONCOMPONENT2", gmaterial->getSlowComponent());
 
 		// scalar properties
 		addConstantProperty("SCINTILLATIONYIELD", gmaterial->getScintillationYield());
 		addConstantProperty("RESOLUTIONSCALE", gmaterial->getResolutionScale());
 
-		addConstantProperty("FASTTIMECONSTANT", gmaterial->getFasttimeConstant() * CLHEP::ns);
-		addConstantProperty("SLOWTIMECONSTANT", gmaterial->getSlowtimeConstant() * CLHEP::ns);
-		addConstantProperty("YIELDRATIO", gmaterial->getYieldratio());
+		addConstantProperty("SCINTILLATIONTIMECONSTANT1", gmaterial->getFasttimeConstant() * CLHEP::ns);
+		addConstantProperty("SCINTILLATIONTIMECONSTANT2", gmaterial->getSlowtimeConstant() * CLHEP::ns);
+		addConstantProperty("SCINTILLATIONYIELD1", gmaterial->getYieldratio());
 
 		double getBirksConstant = gmaterial->getBirksConstant();
 		if (getBirksConstant != 0) {
