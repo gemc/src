@@ -108,6 +108,13 @@ private:
 	double slowtimeconstant{}; ///< Slow scintillation time constant (time units).
 	double yieldratio{}; ///< Fraction of total yield attributed to the fast component.
 	double birksConstant{}; ///< Birks constant for quenching model (units depend on convention).
+
+	bool scintillationyieldSet{}; ///< True when the scalar was explicitly provided.
+	bool resolutionscaleSet{}; ///< True when the scalar was explicitly provided.
+	bool fasttimeconstantSet{}; ///< True when the scalar was explicitly provided.
+	bool slowtimeconstantSet{}; ///< True when the scalar was explicitly provided.
+	bool yieldratioSet{}; ///< True when the scalar was explicitly provided.
+	bool birksConstantSet{}; ///< True when the scalar was explicitly provided.
 	///@}
 
 	/**
@@ -191,6 +198,12 @@ public:
 	[[nodiscard]] double getSlowtimeConstant() const { return slowtimeconstant; }
 	[[nodiscard]] double getYieldratio() const { return yieldratio; }
 	[[nodiscard]] double getBirksConstant() const { return birksConstant; }
+	[[nodiscard]] bool hasScintillationYield() const { return scintillationyieldSet; }
+	[[nodiscard]] bool hasResolutionScale() const { return resolutionscaleSet; }
+	[[nodiscard]] bool hasFasttimeConstant() const { return fasttimeconstantSet; }
+	[[nodiscard]] bool hasSlowtimeConstant() const { return slowtimeconstantSet; }
+	[[nodiscard]] bool hasYieldratio() const { return yieldratioSet; }
+	[[nodiscard]] bool hasBirksConstant() const { return birksConstantSet; }
 	///@}
 
 	/// \name Additional optical properties

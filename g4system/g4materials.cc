@@ -81,12 +81,9 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial> &gmaterial) {
 			hasOpticalProperties = true;
 		};
 
-		auto addConstantProperty = [&](const char *propertyName, double value) {
-			// default values initialied to zero
-			if (value == 0) { return; }
-
+		auto addConstantProperty = [&](const char *propertyName, double value, bool isSet) {
+			if (!isSet) { return; }
 			materialPropertiesTable->AddConstProperty(propertyName, value);
-
 			hasOpticalProperties = true;
 		};
 
@@ -100,15 +97,20 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial> &gmaterial) {
 		addProperty("SCINTILLATIONCOMPONENT2", gmaterial->getSlowComponent());
 
 		// scalar properties
-		addConstantProperty("SCINTILLATIONYIELD", gmaterial->getScintillationYield());
-		addConstantProperty("RESOLUTIONSCALE", gmaterial->getResolutionScale());
+		addConstantProperty("SCINTILLATIONYIELD", gmaterial->getScintillationYield(),
+		                    gmaterial->hasScintillationYield());
+		addConstantProperty("RESOLUTIONSCALE", gmaterial->getResolutionScale(),
+		                    gmaterial->hasResolutionScale());
 
-		addConstantProperty("SCINTILLATIONTIMECONSTANT1", gmaterial->getFasttimeConstant() * CLHEP::ns);
-		addConstantProperty("SCINTILLATIONTIMECONSTANT2", gmaterial->getSlowtimeConstant() * CLHEP::ns);
-		addConstantProperty("SCINTILLATIONYIELD1", gmaterial->getYieldratio());
+		addConstantProperty("SCINTILLATIONTIMECONSTANT1", gmaterial->getFasttimeConstant() * CLHEP::ns,
+		                    gmaterial->hasFasttimeConstant());
+		addConstantProperty("SCINTILLATIONTIMECONSTANT2", gmaterial->getSlowtimeConstant() * CLHEP::ns,
+		                    gmaterial->hasSlowtimeConstant());
+		addConstantProperty("SCINTILLATIONYIELD1", gmaterial->getYieldratio(),
+		                    gmaterial->hasYieldratio());
 
 		double getBirksConstant = gmaterial->getBirksConstant();
-		if (getBirksConstant != 0) {
+		if (gmaterial->hasBirksConstant()) {
 			g4materialsMap[materialName]->GetIonisation()->SetBirksConstant(getBirksConstant);
 			hasOpticalProperties = true;
 		}

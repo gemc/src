@@ -50,12 +50,12 @@ GMaterial::GMaterial(const std::string &s, std::vector<std::string> pars,
 		getMaterialPropertyFromString(pars[i++], "slowcomponent");
 
 		// assign_if_set increment index
-		assign_if_set(pars, i, scintillationyield);
-		assign_if_set(pars, i, resolutionscale);
-		assign_if_set(pars, i, fasttimeconstant);
-		assign_if_set(pars, i, slowtimeconstant);
-		assign_if_set(pars, i, yieldratio);
-		assign_if_set(pars, i, birksConstant);
+		scintillationyieldSet = assign_if_set(pars, i, scintillationyield);
+		resolutionscaleSet    = assign_if_set(pars, i, resolutionscale);
+		fasttimeconstantSet   = assign_if_set(pars, i, fasttimeconstant);
+		slowtimeconstantSet   = assign_if_set(pars, i, slowtimeconstant);
+		yieldratioSet         = assign_if_set(pars, i, yieldratio);
+		birksConstantSet      = assign_if_set(pars, i, birksConstant);
 
 		// Other optical processes: the final vector load triggers cross-vector size validation.
 		getMaterialPropertyFromString(pars[i++], "rayleigh");
