@@ -17,9 +17,9 @@ target_dz = 20
 target_radius = 5
 gvolume = GVolume("target")
 gvolume.mother = "root"
-gvolume.description = "Simple Carbon Target"
+gvolume.description = "Liquid hydrogen target"
 gvolume.make_tube(0, target_radius, target_dz, 0, 360)
-gvolume.material = "G4_C"
+gvolume.material = "G4_lH2"
 gvolume.color = "metallic, darkgreen"
 gvolume.publish(cfg)
 

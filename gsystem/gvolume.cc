@@ -83,6 +83,7 @@ std::ostream& operator<<(std::ostream& stream, const GVolume& gVol) {
 	string style = "unknown";
 	if (gVol.style == 0) { style = "wireframe"; }
 	else if (gVol.style == 1) { style = "solid"; }
+	else if (gVol.style == 2) { style = "cloud"; }
 	string visibility = "yes";
 	if (!gVol.visible) { visibility = "no"; }
 

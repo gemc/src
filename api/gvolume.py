@@ -49,7 +49,8 @@
 #            Default is "1".
 #
 # - style:  1 means display the volume as a solid,
-#           0 means display as wireframe.
+#           0 means display as wireframe,
+#           2 means display as a cloud.
 #           Default is "1".
 #
 # - color: A hexadecimal color value string, two chars for each f Red, Green, Blue (RGB) colors.  Default is "778899".
@@ -101,7 +102,7 @@ class GVolume:
 		self.mfield = None
 
 		self.visible = 1  # 0 is invisible, 1 is visible
-		self.style = 1  # 0 is wireframe, 1 is solid
+		self.style = 1  # 0 is wireframe, 1 is solid, 2 is cloud
 		self.color = DEFAULTCOLOR  # stored for pyvista use
 		self.opacity = 1
 		self.gcolor = DEFAULTCOLOR  # this one goes to the databases
@@ -768,4 +769,3 @@ class GVolume:
 		# gv.style stays default (solid vs wireframe)
 
 		return gv
-

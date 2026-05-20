@@ -308,10 +308,18 @@ class GConfiguration:
 				position = properties.get("position")
 				focal_point = properties.get("focalPoint")
 				if position and focal_point and len(position) == 3 and len(focal_point) == 3:
+					zoom_scale = 1.0 / zoom
 					properties["position"] = [
-						focal_point[i] + (position[i] - focal_point[i]) / zoom
+						focal_point[i] + (position[i] - focal_point[i]) * zoom_scale
 						for i in range(3)
 					]
+					clipping_range = properties.get("clippingRange")
+					if clipping_range and len(clipping_range) == 2:
+						clipping_scale = max(1.0, zoom_scale)
+						properties["clippingRange"] = [
+							max(float(clipping_range[0]) / clipping_scale, 1.0e-6),
+							float(clipping_range[1]) * clipping_scale,
+						]
 				properties["viewAngle"] = 45.0
 				properties["parallelProjection"] = False
 				properties.pop("parallelScale", None)

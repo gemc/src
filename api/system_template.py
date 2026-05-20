@@ -162,21 +162,12 @@ def write_templates(system, variations):
 	with open(f'{mat_script}', 'w') as pm:
 		pm.write('from gmaterial import GMaterial\n\n')
 		pm.write('def define_materials(configuration):\n\n')
-		pm.write('	# example of material: epoxy glue, defined with number of atoms\n')
-		pm.write('	gmaterial = GMaterial("epoxy")\n')
-		pm.write('	gmaterial.description = "epoxy glue 1.16 g/cm3"\n')
-		pm.write('	gmaterial.density = 1.16\n')
-		pm.write('	gmaterial.addNAtoms("H",  32)\n')
-		pm.write('	gmaterial.addNAtoms("N",   2)\n')
-		pm.write('	gmaterial.addNAtoms("O",   4)\n')
-		pm.write('	gmaterial.addNAtoms("C",  15)\n')
-		pm.write('	gmaterial.publish(configuration)\n\n')
-		pm.write('	# example of material: carbon fiber, defined using the fractional mass\n')
-		pm.write('	gmaterial = GMaterial("carbonFiber")\n')
-		pm.write('	gmaterial.description = "carbon fiber - 1.75g/cm3"\n')
-		pm.write('	gmaterial.density = 1.75\n')
-		pm.write('	gmaterial.addMaterialWithFractionalMass("G4_C",  0.745)\n')
-		pm.write('	gmaterial.addMaterialWithFractionalMass("epoxy", 0.255)\n')
+		pm.write('	# example of material: methane gas, defined with number of atoms\n')
+		pm.write('	gmaterial = GMaterial("methaneGas")\n')
+		pm.write('	gmaterial.description = "methane gas CH4 0.000667 g/cm3"\n')
+		pm.write('	gmaterial.density = 0.000667\n')
+		pm.write('	gmaterial.addNAtoms("C", 1)\n')
+		pm.write('	gmaterial.addNAtoms("H", 4)\n')
 		pm.write('	gmaterial.publish(configuration)\n\n\n\n')
 
 	# ask_to_overwrite_file(geo_script)
@@ -188,10 +179,10 @@ def write_templates(system, variations):
 		pg.write('	build_target(configuration)\n\n')
 		pg.write('def build_flux_box(configuration):\n')
 		pg.write('	gvolume = GVolume(\'flux_box\')\n')
-		pg.write('	gvolume.description = \'carbon fiber box\'\n')
+		pg.write('	gvolume.description = \'air flux box\'\n')
 		pg.write('	gvolume.make_box(40.0, 40.0, 2.0)\n')
 		pg.write('	gvolume.set_position(0, 0, 100)\n')
-		pg.write('	gvolume.material    = \'carbonFiber\'\n')
+		pg.write('	gvolume.material    = \'G4_AIR\'\n')
 		pg.write('	gvolume.color       = \'3399FF\'\n')
 		pg.write('	gvolume.style       = 1\n')
 		pg.write('	gvolume.digitization = \'flux\'\n')
@@ -200,9 +191,9 @@ def write_templates(system, variations):
 
 		pg.write('def build_target(configuration):\n')
 		pg.write('	gvolume = GVolume(\'target\')\n')
-		pg.write('	gvolume.description = \'epoxy target\'\n')
+		pg.write('	gvolume.description = \'methane gas target\'\n')
 		pg.write('	gvolume.make_tube(0, 20, 40, 0, 360)\n')
-		pg.write('	gvolume.material    = \'epoxy\'\n')
+		pg.write('	gvolume.material    = \'methaneGas\'\n')
 		pg.write('	gvolume.publish(configuration)\n\n\n\n')
 
 	# ask_to_overwrite_file(yaml)
@@ -374,7 +365,7 @@ def log_gvolume(subroutine_name, silent, write_to, volume_type, parameters: [str
 		volume_definitions.append(
 			'# gvolume.color = \'838EDE\'                            # default: \'778899\'')
 		volume_definitions.append(
-			'# gvolume.style = \'0\'                                 # (1 = surface, 0 = wireframe) default is 1')
+			'# gvolume.style = \'0\'                                 # (1 = surface, 0 = wireframe, 2 = cloud) default is 1')
 		volume_definitions.append(
 			'# gvolume.visible = \'0\'                               # (1 = visible, 0 = invisible) default is 1')
 		volume_definitions.append(

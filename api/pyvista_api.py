@@ -182,8 +182,8 @@ def render_volume(gvolume, gconfiguration):
 		pv = gconfiguration.pv
 		pars = get_dimensions(gvolume)
 		bcenter = get_center(gvolume)
-		mstyle = "surface" if gvolume.style == 1 else "wireframe"
-		mlinewidth = 1.0 if gvolume.style == 1 else 10
+		mstyle = "surface" if gvolume.style in (1, 2) else "wireframe"
+		mlinewidth = 1.0 if gvolume.style in (1, 2) else 10
 		if gvolume.visible == 0:
 			alpha = 0.05  # nearly invisible
 			mlinewidth = 1.0
@@ -208,14 +208,95 @@ def render_volume(gvolume, gconfiguration):
 			return
 
 		mesh = move_to_center(mesh, bcenter)
+		smooth_shading = gvolume.solid != 'G4Box'
 
-		actor = gconfiguration.add_mesh(mesh, color=rgb, smooth_shading=True, opacity=alpha,
-		                                style=mstyle, line_width=mlinewidth)
-		actor.prop.ambient = 0.15  # a touch of ambient so faces aren’t pitch black
-		if metallic:
-			actor.prop.interpolation = "pbr"
-			actor.prop.metallic = 0.4
-			actor.prop.roughness = 0.4
+		if gvolume.style == 2 and gvolume.visible != 0:
+			actor = gconfiguration.add_mesh(
+				mesh,
+				color=rgb,
+				smooth_shading=smooth_shading,
+				opacity=min(alpha, 0.025),
+				style="surface",
+				line_width=1.0,
+			)
+			cloud = cloud_points_from_surface(pv, mesh)
+			cloud_actor = gconfiguration.add_mesh(
+				cloud,
+				color=rgb,
+				opacity=min(alpha, 0.18),
+				style="points",
+				point_size=4,
+				render_points_as_spheres=True,
+				lighting=False,
+			)
+			configure_actor_lighting(cloud_actor, metallic=False)
+		else:
+			actor = gconfiguration.add_mesh(mesh, color=rgb, smooth_shading=smooth_shading, opacity=alpha,
+			                                style=mstyle, line_width=mlinewidth)
+		configure_actor_lighting(actor, metallic=metallic)
+
+
+def configure_actor_lighting(actor, metallic=False):
+	if actor is None:
+		return
+
+	actor.prop.ambient = 0.25
+	actor.prop.diffuse = 0.75
+
+	if not metallic:
+		actor.prop.specular = 0.0
+		return
+
+	actor.prop.specular = 0.15
+	try:
+		actor.prop.interpolation = "pbr"
+		actor.prop.metallic = 0.4
+		actor.prop.roughness = 0.4
+	except Exception:
+		pass
+
+
+def cloud_points_from_surface(pv, mesh, n_points=8000):
+	"""Create a deterministic PyVista point cloud sampled from a mesh surface."""
+	try:
+		surface = mesh.extract_surface(algorithm="dataset_surface").triangulate()
+	except Exception:
+		return mesh
+
+	try:
+		points = np.asarray(surface.points)
+		faces = np.asarray(surface.faces).reshape((-1, 4))[:, 1:4]
+		triangles = points[faces]
+		areas = 0.5 * np.linalg.norm(
+			np.cross(triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0]),
+			axis=1,
+		)
+		total_area = areas.sum()
+		if total_area <= 0:
+			return pv.PolyData(points)
+
+		rng = np.random.default_rng(12345)
+		triangle_ids = rng.choice(len(triangles), size=n_points, p=areas / total_area)
+		selected = triangles[triangle_ids]
+
+		u = rng.random(n_points)
+		v = rng.random(n_points)
+		flip = (u + v) > 1.0
+		u[flip] = 1.0 - u[flip]
+		v[flip] = 1.0 - v[flip]
+
+		sampled = (
+			selected[:, 0]
+			+ u[:, None] * (selected[:, 1] - selected[:, 0])
+			+ v[:, None] * (selected[:, 2] - selected[:, 0])
+		)
+
+		bounds = np.array(mesh.bounds, dtype=float)
+		scene_scale = max(bounds[1] - bounds[0], bounds[3] - bounds[2], bounds[5] - bounds[4], 1.0)
+		sampled += rng.normal(scale=0.003 * scene_scale, size=sampled.shape)
+		return pv.PolyData(sampled)
+	except Exception:
+		return pv.PolyData(surface.points)
 
 
 def move_to_center(mesh, target_center):

@@ -98,7 +98,7 @@ private:
 
 	// solid visualization style
 	bool        visible{}; ///< Visibility flag: 0=invisible, 1=visible.
-	int         style{};   ///< Visual style: 0=wireframe, 1=solid.
+	int         style{};   ///< Visual style: 0=wireframe, 1=solid, 2=cloud.
 	std::string color;     ///< Color in RRGGBB format (optional last digit is transparency).
 	double      opacity{}; ///< Opacity parsed from configuration (convention depends on renderer).
 
