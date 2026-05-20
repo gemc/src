@@ -51,6 +51,12 @@ bool GstreamerJsonFactory::endEventImpl(const std::shared_ptr<GEventDataCollecti
 	if (!current_event_has_header) {
 		current_event << "\"timestamp\": \"\", \"thread_id\": -1";
 	}
+
+	// Detector publishers leave the "detectors" object open so digitized data
+	// can be appended after true-information banks without rewriting strings.
+	if (current_event_has_any_detector) {
+		current_event << "}";
+	}
 	current_event << "}";
 
 	// Keep the event schema predictable even when no detector banks were published.

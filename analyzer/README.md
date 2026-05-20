@@ -157,19 +157,19 @@ the source directory or set `PYTHONPATH`.
 Print a summary:
 
 ```sh
-python3 -m analyzer b2_t0_digitized.csv
+python3 -m analyzer digitized.csv
 ```
 
 Plot a digitized variable with matplotlib:
 
 ```sh
-python3 -m analyzer b2_t0_digitized.csv totEdep --kind csv --xlim 0.0 0.1
+python3 -m analyzer digitized.csv totEdep --kind csv --xlim 0.0 0.1
 ```
 
 Save a plot instead of showing it:
 
 ```sh
-python3 -m analyzer b2_t0_digitized.csv totEdep --kind csv --save b2_totEdep.png
+python3 -m analyzer digitized.csv totEdep --kind csv --save b2_totEdep.png
 ```
 
 Plot ROOT output with matplotlib:
@@ -181,7 +181,7 @@ python3 -m analyzer b2_t0.root totEdep --kind root --detector flux --save b2_tot
 Plot a true-info track vertex coordinate:
 
 ```sh
-python3 -m analyzer b2_t0_true_info.csv vx --kind csv --data true_info --save b2_vertex_x.png
+python3 -m analyzer true_info.csv vx --kind csv --data true_info --save b2_vertex_x.png
 ```
 
 ## Dependency-Free SVG Plot
@@ -242,7 +242,7 @@ evn, timestamp, thread_id, detector, hitn, pid, tid, E, time, totEdep
 Create the `totEdep` plot with the main analyzer API:
 
 ```sh
-python3 -m analyzer b2_t0_digitized.csv totEdep --kind csv --save b2_totEdep.png
+python3 -m analyzer digitized.csv totEdep --kind csv --save b2_totEdep.png
 ```
 
 Or create the same style of histogram without third-party Python packages:

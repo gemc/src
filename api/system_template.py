@@ -209,7 +209,7 @@ def write_templates(system, variations):
 	with open(f'{yaml}', 'w') as pj:
 		pj.write('runno: 1\n')
 		pj.write('n: 100\n\n')
-		pj.write('nthreads: 4\n\n')
+		pj.write('nthreads: 1\n\n')
 		pj.write('gparticle:\n')
 		pj.write('  - name: proton\n')
 		pj.write('    p: 1500\n')
@@ -221,7 +221,9 @@ def write_templates(system, variations):
 		pj.write('    factory: sqlite\n\n')
 		pj.write('gstreamer:\n')
 		pj.write(f'  - filename: {system}\n')
-		pj.write('    format: ascii\n\n')
+		pj.write('    format: csv\n')
+		pj.write(f'  - filename: {system}\n')
+		pj.write('    format: json\n\n')
 		pj.write('root: G4Box, 15*cm, 15*cm, 15*cm, G4_AIR\n')
 
 	# ask_to_overwrite_file(readme)
