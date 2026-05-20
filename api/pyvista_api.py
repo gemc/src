@@ -1,5 +1,6 @@
 from g4_units import convert_list
 import numpy as np
+import warnings
 
 
 def euler_matrix_zyx(deg_rx, deg_ry, deg_rz):
@@ -259,7 +260,9 @@ def configure_actor_lighting(actor, metallic=False):
 def cloud_points_from_surface(pv, mesh, n_points=8000):
 	"""Create a deterministic PyVista point cloud sampled from a mesh surface."""
 	try:
-		surface = mesh.extract_surface(algorithm="dataset_surface").triangulate()
+		with warnings.catch_warnings():
+			warnings.simplefilter("ignore")
+			surface = mesh.extract_surface(algorithm="dataset_surface").triangulate()
 	except Exception:
 		return mesh
 
