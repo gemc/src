@@ -24,6 +24,7 @@ std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr
 	// Project options onto simple structs for downstream use.
 	auto g4view = g4display::getG4View(gopts);
 	auto g4camera = g4display::getG4Camera(gopts);
+	auto g4light = g4display::getG4Light(gopts);
 
 	std::vector<std::string> commands;
 
@@ -47,11 +48,14 @@ std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr
 		double toDegrees = 180 / 3.1415;
 		double thetaValue = gutilities::getG4Number(g4camera.theta) * toDegrees;
 		double phiValue = gutilities::getG4Number(g4camera.phi) * toDegrees;
+		double lightThetaValue = gutilities::getG4Number(g4light.theta) * toDegrees;
+		double lightPhiValue = gutilities::getG4Number(g4light.phi) * toDegrees;
 
 		// Disable auto refresh and quieten vis messages whilst scene and trajectories are established.
 		cmds.emplace_back("/vis/viewer/set/autoRefresh false");
 
 		cmds.emplace_back("/vis/viewer/set/viewpointThetaPhi " + std::to_string(thetaValue) + " " + std::to_string(phiValue));
+		cmds.emplace_back("/vis/viewer/set/lightsThetaPhi " + std::to_string(lightThetaValue) + " " + std::to_string(lightPhiValue));
 		cmds.emplace_back("/vis/viewer/set/lineSegmentsPerCircle " + std::to_string(g4view.segsPerCircle));
 
 		cmds.emplace_back("/vis/viewer/set/autoRefresh true");

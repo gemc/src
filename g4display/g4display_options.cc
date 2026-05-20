@@ -32,6 +32,17 @@ G4Camera getG4Camera(const std::shared_ptr<GOptions>& gopts) {
 	return gcamera;
 }
 
+// Read the g4light option and return a G4Light struct.
+G4Light getG4Light(const std::shared_ptr<GOptions>& gopts) {
+	G4Light glight;
+
+	// Light angles are stored as strings (often with units), and can be parsed later.
+	glight.phi   = gopts->getOptionMapInNode("g4light", "phi").as<std::string>();
+	glight.theta = gopts->getOptionMapInNode("g4light", "theta").as<std::string>();
+
+	return glight;
+}
+
 // Read the dawn options and return a G4Dawn struct.
 G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts) {
 	G4Dawn gdawn;
@@ -87,6 +98,17 @@ GOptions defineOptions() {
 	help += "Example: -g4camera=\"[{phi: 20*deg, theta: 15*deg}]\"  \n ";
 
 	goptions.defineOption("g4camera", "Defines the geant4 camera view point", g4camera, help);
+
+	// g4light
+	std::vector<GVariable> g4light = {
+		{"phi", "0*deg", "geant4 light source phi"},
+		{"theta", "0*deg", "geant4 light source theta"}
+	};
+
+	help = "Defines the geant4 light source direction  \n \n ";
+	help += "Example: -g4light=\"[{phi: 20*deg, theta: 15*deg}]\"  \n ";
+
+	goptions.defineOption("g4light", "Defines the geant4 light source direction", g4light, help);
 
 	// dawn
 	help = "Defines the dawn camera view point and take a dawn screenshot \n \n ";

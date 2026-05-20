@@ -10,6 +10,7 @@
  * The public API here is:
  * - \ref g4display::getG4View
  * - \ref g4display::getG4Camera
+ * - \ref g4display::getG4Light
  * - \ref g4display::getG4Dawn
  * - \ref g4display::defineOptions
  *
@@ -69,6 +70,27 @@ struct G4Camera
 G4Camera getG4Camera(const std::shared_ptr<GOptions>& gopts);
 
 /**
+ * \struct G4Light
+ * \brief Light angle configuration derived from the \c g4light option node.
+ *
+ * The \c phi and \c theta strings are stored as provided in the option node and are typically parsed later
+ * into degrees for \c /vis/viewer/set/lightsThetaPhi.
+ */
+struct G4Light
+{
+	std::string phi;
+	std::string theta;
+};
+
+/**
+ * \brief Read the \c g4light option node and return a projected \ref G4Light struct.
+ *
+ * \param gopts Shared options object to query.
+ * \return \ref G4Light populated from the \c g4light node.
+ */
+G4Light getG4Light(const std::shared_ptr<GOptions>& gopts);
+
+/**
  * \struct G4Dawn
  * \brief DAWN view configuration derived from the \c dawn option node.
  *
@@ -96,6 +118,7 @@ G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts);
  * This function builds a GOptions object for the module, including:
  * - \c g4view : viewer driver/window settings and precision.
  * - \c g4camera : initial camera angles.
+ * - \c g4light : initial light-source angles.
  * - \c dawn / \c useDawn : DAWN view configuration and enable switch.
  * - \c g4text : optional scene text entries (added via g4display::addSceneTextsOptions).
  *

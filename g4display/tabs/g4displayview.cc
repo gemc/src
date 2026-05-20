@@ -32,6 +32,9 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	G4Camera jcamera    = getG4Camera(gopts);
 	double   thetaValue = getG4Number(jcamera.theta);
 	double   phiValue   = getG4Number(jcamera.phi);
+	G4Light jlight       = getG4Light(gopts);
+	double  lightThetaValue = getG4Number(jlight.theta);
+	double  lightPhiValue   = getG4Number(jlight.phi);
 
 	// Toggle buttons for common viewer/scene flags.
 	vector<string> toggle_button_titles;
@@ -169,7 +172,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	lightTheta = new QSlider(Qt::Horizontal);
 	lightTheta->setRange(0, 180);
 	lightTheta->setSingleStep(1);
-	lightTheta->setValue(thetaValue);
+	lightTheta->setValue(lightThetaValue);
 	lightTheta->setTracking(true);
 
 	auto lightThetaLabel = new QLabel(tr("θ"));
@@ -192,7 +195,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	lightPhi = new QSlider(Qt::Horizontal);
 	lightPhi->setRange(0, 360);
 	lightPhi->setSingleStep(1);
-	lightPhi->setValue(phiValue);
+	lightPhi->setValue(lightPhiValue);
 	lightPhi->setTracking(true);
 
 	auto lightPhiLabel = new QLabel(tr("ɸ"));
