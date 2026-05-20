@@ -184,7 +184,7 @@ def render_volume(gvolume, gconfiguration):
 		pars = get_dimensions(gvolume)
 		bcenter = get_center(gvolume)
 		mstyle = "surface" if gvolume.style in (1, 2) else "wireframe"
-		mlinewidth = 1.0 if gvolume.style in (1, 2) else 10
+		mlinewidth = 1.0 if gvolume.style in (1, 2) else 1.0
 		if gvolume.visible == 0:
 			alpha = 0.05  # nearly invisible
 			mlinewidth = 1.0
@@ -232,8 +232,20 @@ def render_volume(gvolume, gconfiguration):
 			)
 			configure_actor_lighting(cloud_actor, metallic=False)
 		else:
-			actor = gconfiguration.add_mesh(mesh, color=rgb, smooth_shading=smooth_shading, opacity=alpha,
-			                                style=mstyle, line_width=mlinewidth)
+			if mstyle == "wireframe":
+				# Render only feature edges so that triangulated solids (e.g. G4Tubs) show
+				# clean outlines rather than every triangle edge looking like a solid surface.
+				edges = mesh.extract_feature_edges(
+					feature_angle=30,
+					boundary_edges=True,
+					feature_edges=True,
+					manifold_edges=False,
+					non_manifold_edges=False,
+				)
+				actor = gconfiguration.add_mesh(edges, color=rgb, opacity=alpha, line_width=mlinewidth)
+			else:
+				actor = gconfiguration.add_mesh(mesh, color=rgb, smooth_shading=smooth_shading,
+				                                opacity=alpha, style=mstyle, line_width=mlinewidth)
 		configure_actor_lighting(actor, metallic=metallic)
 
 
