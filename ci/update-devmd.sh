@@ -18,7 +18,7 @@ fi
 echo "[devmd] branch = $BRANCH"
 
 # --- Time window (optional) ---
-SINCE="2026-04-29" # Manually set the start date for commits
+SINCE="2026-05-21" # Manually set the start date for commits
 
 UNTIL="${DEVMD_UNTIL:-}"   # e.g. 2025-09-01
 FLAGS=""
