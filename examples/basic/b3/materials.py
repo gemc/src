@@ -1,4 +1,4 @@
-from gmaterial import GMaterial
+from pygemc import GMaterial
 
 def define_materials(configuration):
 

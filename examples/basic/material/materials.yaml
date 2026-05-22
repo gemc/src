@@ -24,4 +24,4 @@ gparticle:
     vz: -3
     delta_vx: 0.1
     delta_vy: 0.1
-    multiplicity: 10
+    multiplicity: 1

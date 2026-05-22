@@ -1,12 +1,7 @@
 examples_dir = get_option('prefix') + '/examples/'
-test_env = environment()
-test_env.set('PYTHONDONTWRITEBYTECODE', '1')
-test_env.prepend('PYTHONPATH', api_dir)
 
 test_outdir = meson.current_build_dir()
 sql_db = get_option('prefix') + '/examples/gemc.db'
-
-python_exe = import('python').find_installation('python3')
 
 install_subdir(meson.current_source_dir(), install_dir : '.')
 

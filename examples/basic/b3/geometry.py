@@ -1,4 +1,4 @@
-from gvolume import GVolume
+from pygemc import GVolume
 import math
 
 

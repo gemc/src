@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-from gconfiguration import autogeometry
-from gvolume import GVolume
+from pygemc import autogeometry, GVolume
 
 cfg = autogeometry("examples", "simple_flux")
 

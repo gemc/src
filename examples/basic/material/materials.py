@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from gconfiguration import autogeometry
-from gvolume import GVolume
-from gmaterial import GMaterial
+from pygemc import autogeometry
+from pygemc import GVolume
+from pygemc import GMaterial
 
 cfg = autogeometry("examples", "material")
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import pyvista as pv
-from pyvista_api import GMesh, pvmeshes_from_gmeshes, set_yz_view_x_into_screen
+from pygemc.api.pyvista_api import GMesh, pvmeshes_from_gmeshes, set_yz_view_x_into_screen
 
 
 def make_basic_shapes():

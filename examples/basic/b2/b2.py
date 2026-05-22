@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from gconfiguration import autogeometry
-from gvolume import GVolume
+from pygemc import autogeometry
+from pygemc import GVolume
 
 cfg = autogeometry("examples", "b2")
 

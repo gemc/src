@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # gemc api:
-from gconfiguration import autogeometry
+from pygemc import autogeometry
 
 # build_geometry and define_materials are in geometry.py, materials.py
 from geometry import build_geometry

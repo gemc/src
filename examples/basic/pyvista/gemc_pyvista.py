@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from gconfiguration import autogeometry
-from gvolume import GVolume
+from pygemc import autogeometry
+from pygemc import GVolume
 from pyvista_basic_shapes import make_basic_shapes
 
 cfg = autogeometry("examples", "pyvista")
