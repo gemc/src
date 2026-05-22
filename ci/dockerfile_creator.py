@@ -46,7 +46,7 @@ def install_gemc(geant4_version: str, gemc_version: str) -> str:
     commands += f"     && DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . {remote_entrypoint()} \\\n"
     commands += f'     && module load geant4/{geant4_version} \\\n'
     commands += f'     &&  ./ci/build.sh  \\\n'
-    commands += f'     && echo "export PATH=\\${{SIM_HOME}}/gemc/dev/bin:\\${{PATH}}" >> {remote_entrypoint_addon()} \n'
+    commands += f'     && echo "export PATH=\\${{SIM_HOME}}/gemc/dev/bin:\\${{SIM_HOME}}/gemc/dev/python_env/bin:\\${{PATH}}" >> {remote_entrypoint_addon()} \n'
     return commands
 
 
