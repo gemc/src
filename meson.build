@@ -18,11 +18,9 @@ if get_option('buildtype') == 'debug'
     add_project_arguments('-O2', language : 'cpp')
 endif
 
-api_dir = join_paths(get_option('prefix'), 'api')
+# Do not to write .pyc bytecode cache files
 test_env = environment()
 test_env.set('PYTHONDONTWRITEBYTECODE', '1')
-test_env.prepend('PYTHONPATH', api_dir)
-
 
 
 # init lists
@@ -32,8 +30,6 @@ all_libs = []
 all_includes = []
 empty_dict = { 'na' : [''] }
 lib_target_maps = {}
-python_exe = import('python').find_installation('python3')
-
 subdir('meson')
 
 # Fill dictionary
@@ -66,8 +62,16 @@ subdir('gdetector')
 subdir('dbselect')
 subdir('gtree')
 subdir('gui')
-subdir('actions') # TODO: example
+subdir('actions')
 subdir('utilities')
+
+# Set up Python environment via pygemc subproject.
+# This creates a venv at <prefix>/python_env, installs pygemc into it,
+# and returns venv_bin so python_exe points at the venv's python3.
+# All tests that need 'import pygemc' or gemc-system-template use this Python.
+pygemc_sub = subproject('pygemc')
+venv_bin   = pygemc_sub.get_variable('venv_bin')
+python_exe = import('python').find_installation(venv_bin / 'python3')
 
 # compilation loop
 foreach L : LD
@@ -290,12 +294,8 @@ foreach opt_dict : test_options
 endforeach
 
 
-subdir('api')
 subdir('examples')
-
-install_subdir('analyzer',
-               install_dir : '.',
-               exclude_directories : ['__pycache__'])
+subdir('tests')
 
 gemc_env_conf = configuration_data()
 gemc_env_conf.set('GEMC_PREFIX', get_option('prefix'))
@@ -313,14 +313,3 @@ configure_file(input : 'meson/gemc.csh.in',
                install_dir : '.')
 
 post_install = run_command('echo', 'Installation completed!', check : true)
-
-# generate pkg-config file
-# needs testing - add libraries?
-#pkg = import('pkgconfig')
-#pkg.generate(
-#    name : meson.project_name(),
-#    description : project_description,
-#    requires : ['yaml-cpp', 'qt6', 'clhep', 'geant4'], # pkg-config dependencies only
-#    version : meson.project_version(),
-#    #    libraries : all_libs
-#)
