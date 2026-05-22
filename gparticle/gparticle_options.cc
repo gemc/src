@@ -72,12 +72,12 @@ vector<GparticlePtr> getGParticles(const std::shared_ptr<GOptions>& gopts, std::
 GOptions defineOptions() {
 	GOptions goptions(GPARTICLE_LOGGER);
 
-	string help = "Adds a particle to the event generator \n ";
+	string help = "Adds a particle to the event generator. \n ";
 	help        += "The particle is generated with a fixed or randomized momentum, angles, and vertex.  \n \n";
 	help        += "Examples: \n";
-	help        += "• 5 GeV electron along z: \n";
+	help        += " - 5 GeV electron along z: \n";
 	help        += "-gparticle=\"[{name: e-, p: 5000}]\" \n \n";
-	help        += "• three particles, one electron and two protons, identical except spread in theta: \n \n";
+	help        += " - one electron and two protons, with the protons spread in theta: \n \n";
 	help        +=
 		"-gparticle=\"[{name: e-, p: 2300, theta: 23.0}, {name: proton, multiplicity: 2, p: 1200, theta: 14.0, delta_theta: 10}]\"\n";
 
@@ -86,11 +86,11 @@ GOptions defineOptions() {
 	// - default value (or "no default" marker)
 	// - user-facing description used by help/usage output
 	vector<GVariable> gparticle_v = {
-		{"name", goptions::NODFLT, "Particle name (mandatory),  for example \"proton\""},
+		{"name", goptions::NODFLT, "Particle name (mandatory), for example \"proton\""},
 		{"multiplicity", 1, "How many copies of this particle will be generated in each event"},
 		{"p", goptions::NODFLT, "Particle momentum"},
 		{"delta_p", 0, "Particle momentum range, centered on p."},
-		{"punit", "MeV", "Geant4 Unit for the particle momentum. "},
+		{"punit", "MeV", "Geant4 unit for the particle momentum. "},
 		{"randomMomentumModel", "uniform", "Momentum randomization. 'gaussian' (use deltas as sigmas)"},
 		{"theta", 0, "Particle polar angle. "},
 		{"delta_theta", 0, "Particle polar angle range, centered on theta. "},

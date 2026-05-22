@@ -47,7 +47,7 @@ GOptions defineOptions() {
 
 	// User-facing CLI help for the -gstreamer structured option.
 	// The file extension is added automatically by the selected plugin.
-	string help = "Define output formats and filenames. It can be used to select <events> or <frame> streams.\n";
+	string help = "Define output formats and filenames. It can be used to select event or stream outputs.\n";
 	help        += "The file extension is added automatically based on the format.\n \n";
 	help        += "\nSupported formats:\n \n";
 	for (auto& format : GStreamer::supported_formats()) { help += "  - " + format + "\n"; }
@@ -61,8 +61,8 @@ GOptions defineOptions() {
 	help += " -gstreamer=\"[{format: root, filename: out}, {format: csv, filename: out}]\"\n";
 	help += "\n \n";
 	help += "The produced files structure depends on the accumulation method used: \n \n";
-	help += " - event-based digitization (like <flux>) will have one file for every thread, with \"_tj\" appended to the filename \n";
-	help += " - run-based digitization (like <dosimeter>) will have one file only\n";
+	help += " - event-based digitization (like flux) will have one file for every thread, with \"_t<thread>\" appended to the filename \n";
+	help += " - run-based digitization (like dosimeter) will have one file only\n";
 
 	// Buffer flush limit:
 	// controls how many events each streamer instance may retain in memory

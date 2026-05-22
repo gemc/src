@@ -71,8 +71,8 @@
  * \subsection goptions_main_dot Dot-notation updates for structured sub-options
  * Some structured options are updated using dot-notation:
  * \code{.sh}
- * myprog -verbosity.general=1
- * myprog -debug.general=true
+ * myprog -verbosity.gemc=1
+ * myprog -debug.gemc=true
  * \endcode
  *
  * This updates a single subkey within a structured option via

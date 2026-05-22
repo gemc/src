@@ -102,7 +102,7 @@ GOptions defineOptions() {
  *   \endcode
  * - Dot-notation (if supported by the target option; shown here for illustration):
  *   \code{.sh}
- *   define_options -verbosity.general=1
+ *   define_options -verbosity.gemc=1
  *   \endcode
  * - Structured option payload (quoted so the shell does not split YAML-like characters):
  *   \code{.sh}
@@ -122,4 +122,3 @@ int main(int argc, char* argv[]) {
 
 	return EXIT_SUCCESS;
 }
-

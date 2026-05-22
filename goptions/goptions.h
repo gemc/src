@@ -244,10 +244,10 @@ public:
 	 *
 	 * @details
 	 * Accepts values as either booleans ("true"/"false") or integers. This allows a command line such as:
-	 * - `-debug.general=true`
-	 * - `-debug.general=1`
+	 * - `-debug.gemc=true`
+	 * - `-debug.gemc=1`
 	 *
-	 * \param tag Debug key (e.g., "general").
+	 * \param tag Debug key (e.g., "gemc").
 	 * \return Debug level as integer.
 	 */
 	[[nodiscard]] int getDebugFor(const std::string& tag) const;
@@ -323,7 +323,7 @@ public:
 	 * \brief Schema entries used to define the `verbosity` and `debug` structured options.
 	 *
 	 * @details
-	 * Each \ref GVariable : in this vector is used as a schema key (e.g., "general", "ghits", etc.)
+	 * Each \ref GVariable : in this vector is used as a schema key (e.g., "gemc", "gparticle", etc.)
 	 * with an integer default value and a short description.
 	 */
 	std::vector<GVariable> option_verbosity_names;

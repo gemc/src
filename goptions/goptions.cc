@@ -72,16 +72,16 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	help        += " - 0: (default) = shush\n";
 	help        += " - 1: log detailed information\n";
 	help        += " - 2: log extra detailed information\n \n";
-	help        += "Example: -verbosity.general=1 \n \n";
-	help        += "This option can be repeated.\n \n";
+	help        += "Example: -verbosity.gemc=1 \n \n";
+	help        += "The YAML value can include multiple logger keys.\n \n";
 	defineOption("verbosity", "Sets the log verbosity for various classes", option_verbosity_names, help);
 
 	// debug option: boolean or integer, depending on consumer expectations
 	help = "Debug information Types: \n \n";
 	help += " - false: (default): do not print debug information\n";
 	help += " - true: print debug information\n\n";
-	help += "Example: -debug.general=true \n \n";
-	help += "This option can be repeated.\n \n";
+	help += "Example: -debug=\"[{gemc: true}]\" \n \n";
+	help += "The YAML value can include multiple logger keys.\n \n";
 	defineOption("debug", "Sets the debug level for various classes", option_verbosity_names, help);
 
 	// Process help/version command-line arguments.
@@ -134,7 +134,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 					valuePart = valuePart.substr(1, valuePart.length() - 2);
 				}
 
-				// Dot-notation targets a subkey in a structured option (e.g., verbosity.general).
+				// Dot-notation targets a subkey in a structured option (e.g., verbosity.gemc).
 				size_t dotPos = keyPart.find('.');
 				if (dotPos != string::npos) {
 					string mainOption = keyPart.substr(0, dotPos);

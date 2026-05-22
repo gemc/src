@@ -172,10 +172,10 @@ public:
 	 * @details
 	 * For a command-line payload like:
 	 * \code{.sh}
-	 * -verbosity.general=2
+	 * -verbosity.gemc=2
 	 * \endcode
 	 * \ref GOptions : locates the \ref GOption : for "verbosity" and calls this method to update
-	 * the "general" entry.
+	 * the "gemc" entry.
 	 *
 	 * Update rules:
 	 * - If the stored value is a YAML sequence of maps: every map entry that contains @p subkey is updated.
