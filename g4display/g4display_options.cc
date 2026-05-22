@@ -71,27 +71,27 @@ GOptions defineOptions() {
 
 	// g4view
 	std::vector<GVariable> g4view = {
-		{"driver", std::string(GDEFAULTVIEWERDRIVER), "Geant4 vis driver. Use TOOLSSG_OFFSCREEN in batch mode. "},
-		{"dimension", std::string(GDEFAULTVIEWERSIZE), "g4 viewer dimension"},
-		{"position", std::string(GDEFAULTVIEWERPOS), "g4 viewer position"},
+		{"driver", std::string(GDEFAULTVIEWERDRIVER), "Geant4 visualization driver. Use TOOLSSG_OFFSCREEN in batch mode. "},
+		{"dimension", std::string(GDEFAULTVIEWERSIZE), "Geant4 viewer dimension"},
+		{"position", std::string(GDEFAULTVIEWERPOS), "Geant4 viewer position"},
 		{"segsPerCircle", GDEFAULTVSEGPERCIRCLE, "Number of segments per circle"}
 	};
 
-	help = "Defines the geant4 viewer properties:  \n ";
+	help = "Defines the Geant4 viewer properties:  \n ";
 	help += " - screen dimensions  \n ";
 	help += " - screen position  \n ";
 	help += " - resolution in terms of segments per circle  \n \n ";
 	help += " Examples: \n \n ";
 	help += " -g4view=\"[{dimension: 1200x1000}]\"\n";
 	help += " -g4view=\"[{driver: OGL, dimension: 1100x800, position: +200+100, segsPerCircle: 100}]\" \n";
-	help += " -g4view=\"[{driver: TOOLSSG_OFFSCREEN, segsPerCircle: 200}]\" ← will take a screenshot at the end of each run \n";
+	help += " -g4view=\"[{driver: TOOLSSG_OFFSCREEN, segsPerCircle: 200}]\" takes a screenshot at the end of each run \n";
 
 	goptions.defineOption("g4view", "Defines the geant4 viewer properties", g4view, help);
 
 	// g4camera
 	std::vector<GVariable> g4camera = {
-		{"phi", "0*deg", "geant4 camera phi"},
-		{"theta", "0*deg", "geant4 camera theta"}
+		{"phi", "0*deg", "Geant4 camera phi"},
+		{"theta", "0*deg", "Geant4 camera theta"}
 	};
 
 	help = "Defines the geant4 camera view point  \n \n ";
@@ -101,8 +101,8 @@ GOptions defineOptions() {
 
 	// g4light
 	std::vector<GVariable> g4light = {
-		{"phi", "0*deg", "geant4 light source phi"},
-		{"theta", "0*deg", "geant4 light source theta"}
+		{"phi", "0*deg", "Geant4 light source phi"},
+		{"theta", "0*deg", "Geant4 light source theta"}
 	};
 
 	help = "Defines the geant4 light source direction  \n \n ";

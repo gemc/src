@@ -91,20 +91,20 @@ GOptions defineOptions() {
 	std::vector<GVariable> gsystem = {
 		{"name", goptions::NODFLT, "system name (mandatory). For ascii factories, it may include the path to the file"},
 		{"factory", GSYSTEMSQLITETFACTORYLABEL, "factory name."},
-		{"variation", "default", "geometry variation)"},
+		{"variation", "default", "geometry variation"},
 		{"annotations", UNINITIALIZEDSTRINGQUANTITY, "optional system annotations. Examples: \"mats_only\" "}
 	};
 	goptions.defineOption(GSYSTEM_LOGGER, "defines the group of volumes in a system", gsystem, help);
 
 	// Modifier
-	help = "The volume modifer can shift, tilt, or delete a volume from the gworld \n \n";
-	help += R"RAWS(Example: +gmodifier={volume: "targetCell", tilt: "0*deg, 0*deg, -10*deg" })RAWS";
+	help = "The volume modifier can shift, tilt, or delete a volume from the gworld \n \n";
+	help += R"RAWS(Example: -gmodifier="[{name: targetCell, tilt: '0*deg, 0*deg, -10*deg'}]")RAWS";
 
 	std::vector<GVariable> gmodifier = {
-		{"name", goptions::NODFLT, "volume name (optional)"},
+		{"name", goptions::NODFLT, "volume name (mandatory)"},
 		{"shift", GSYSTEMNOMODIFIER, "volume shift added to existing position"},
 		{"tilt", GSYSTEMNOMODIFIER, "volume tilt added to existing rotation"},
-		{"isPresent", true, "f set to false, remove volume from world i"}
+		{"isPresent", true, "If set to false, remove the volume from the world"}
 	};
 	goptions.defineOption("gmodifier", "modify volume existence or placement", gmodifier, help);
 
@@ -126,11 +126,11 @@ GOptions defineOptions() {
 
 	// add the experiment option to define the experiment, common for all systems
 	goptions.defineOption(GVariable("experiment", "examples", "experiment selection"),
-	                      "Each experiment have a subset of unique systems");
+	                      "Each experiment has a subset of unique systems");
 
 	// add run number options, common for all systems
 	goptions.defineOption(GVariable("runno", 1, "run number"),
-	                      "All systems share this  run number");
+	                      "All systems share this run number");
 
 	return goptions;
 }
