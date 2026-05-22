@@ -1,0 +1,4 @@
+[wrap-git]
+url = https://github.com/gemc/pygemc
+revision = main
+depth = 1
