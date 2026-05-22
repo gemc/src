@@ -56,7 +56,7 @@ namespace gemc {
 
         // random seed
         help = "Random Seed: set the random seed to an integer value. Default: \n";
-        help += std::string(HELPFILLSPACE) + "If the random seed is set to -12345, the seed will be set using a combinration of: \n";
+        help += std::string(HELPFILLSPACE) + "If the random seed is set to -12345, the seed will be set using a combination of: \n";
         help += std::string(HELPFILLSPACE) + " - local time \n";
         help += std::string(HELPFILLSPACE) + " - process id \n";
         help += std::string(HELPFILLSPACE) + " - clock function \n";
