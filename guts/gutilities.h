@@ -567,9 +567,9 @@ inline std::filesystem::path gemc_root() {
 	// }
 
 	// Sanity check
-	if (!std::filesystem::exists(root / "api")) {
+	if (!std::filesystem::exists(root / "lib")) {
 		throw std::runtime_error(
-			"Cannot locate directory <api> under " + root.string() +
+			"Cannot locate directory <lib> under " + root.string() +
 			". Check installation layout or GEMC environment variable."
 		);
 	}
