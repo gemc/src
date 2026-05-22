@@ -16,7 +16,7 @@ verbosity:
   - ghits: 0
   - gsystem: 0
   - gfield: 1
-  - general: 0
+  - gemc: 0
 
 debug:
   - gfield: true
