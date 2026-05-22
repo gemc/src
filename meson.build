@@ -297,19 +297,4 @@ endforeach
 subdir('examples')
 subdir('tests')
 
-gemc_env_conf = configuration_data()
-gemc_env_conf.set('GEMC_PREFIX', get_option('prefix'))
-gemc_env_conf.set('GEMC_BINDIR', get_option('bindir'))
-gemc_env_conf.set('GEMC_LIBDIR', get_option('libdir'))
-
-configure_file(input : 'meson/gemc.sh.in',
-               output : 'gemc.sh',
-               configuration : gemc_env_conf,
-               install_dir : '.')
-
-configure_file(input : 'meson/gemc.csh.in',
-               output : 'gemc.csh',
-               configuration : gemc_env_conf,
-               install_dir : '.')
-
 post_install = run_command('echo', 'Installation completed!', check : true)
