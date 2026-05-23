@@ -566,11 +566,12 @@ inline std::filesystem::path gemc_root() {
 	//     root = std::filesystem::path(env);
 	// }
 
-	// Sanity check
-	if (!std::filesystem::exists(root / "lib")) {
+	// Only enforce the installed lib/ layout when running from bin/.
+	// When running from the build tree, plugins are found via DynamicLib's build/ fallback.
+	if (exe_dir.filename() == "bin" && !std::filesystem::exists(root / "lib")) {
 		throw std::runtime_error(
 			"Cannot locate directory <lib> under " + root.string() +
-			". Check installation layout or GEMC environment variable."
+			". Check installation layout."
 		);
 	}
 

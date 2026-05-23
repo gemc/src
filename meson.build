@@ -66,12 +66,15 @@ subdir('actions')
 subdir('utilities')
 
 # Set up Python environment via pygemc subproject.
-# This creates a venv at <prefix>/python_env, installs pygemc into it,
-# and returns venv_bin so python_exe points at the venv's python3.
-# All tests that need 'import pygemc' or gemc-system-template use this Python.
+# The subproject creates a build-tree venv so configure works even when the
+# install prefix does not exist yet (ci/build.sh does 'rm -rf $GEMC' first).
+# venv_bin points at that build-tree venv for tests.
+# At install time, ci/install_python_env.py creates a fresh venv at the prefix.
 pygemc_sub = subproject('pygemc')
 venv_bin   = pygemc_sub.get_variable('venv_bin')
 python_exe = import('python').find_installation(venv_bin / 'python3')
+pygemc_src = meson.project_source_root() / 'subprojects' / 'pygemc'
+meson.add_install_script(find_program('python3'), 'ci/install_python_env.py', pygemc_src)
 
 # compilation loop
 foreach L : LD
