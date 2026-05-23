@@ -74,7 +74,8 @@ pygemc_sub = subproject('pygemc')
 venv_bin   = pygemc_sub.get_variable('venv_bin')
 python_exe = import('python').find_installation(venv_bin / 'python3')
 pygemc_src = meson.project_source_root() / 'subprojects' / 'pygemc'
-meson.add_install_script(find_program('python3'), 'ci/install_python_env.py', pygemc_src)
+#meson.add_install_script(find_program('python3'), 'ci/install_python_env.py', pygemc_src)
+meson.add_install_script(find_program('python3'), files('ci/install_python_env.py'), pygemc_src)
 
 # compilation loop
 foreach L : LD
