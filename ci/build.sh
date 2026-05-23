@@ -29,8 +29,8 @@ meson_option=$(meson_setup_options $1)
   meson setup build $=meson_option
 } | tee -a $setup_log
 
-
-if [ $? -ne 0 ]; then
+# $? reflects tee's exit code in a pipeline; use ${pipestatus[1]} for meson's.
+if [ ${pipestatus[1]} -ne 0 ]; then
   echo " > Meson Configure failed. Log: "
   cat $setup_log
   exit 1

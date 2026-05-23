@@ -97,13 +97,16 @@ jobs:
         shell: bash
         run: |
           echo "Starting manual build for CodeQL..."
-          
+
+          apt-get update
+          apt-get install -y python3-venv
+
           export DOCKER_ENTRYPOINT_SOURCE_ONLY=1
           . /usr/local/bin/docker-entrypoint.sh
           module load geant4
-          
-          ./ci/build.sh 
-          
+
+          ./ci/build.sh
+
           echo "Manual build finished."
 
       - name: Perform CodeQL Analysis
