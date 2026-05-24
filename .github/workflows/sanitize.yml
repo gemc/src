@@ -58,6 +58,8 @@ jobs:
 
       - name: Sanitizer - ${{ matrix.sanitizer }}
         shell: bash
+        env:
+          GEMC_SKIP_PYTHON_ENV_INSTALL: "1"
         run: |
           set -euo pipefail
           

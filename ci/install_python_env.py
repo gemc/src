@@ -17,6 +17,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+if os.environ.get('GEMC_SKIP_PYTHON_ENV_INSTALL') == '1':
+    print(' > Skipping Python environment installation (GEMC_SKIP_PYTHON_ENV_INSTALL=1)')
+    sys.exit(0)
+
 prefix    = Path(os.environ['MESON_INSTALL_PREFIX'])
 pygemc_src = sys.argv[1]
 venv_dir  = prefix / 'python_env'
@@ -25,5 +29,8 @@ print(f' > Installing Python environment at {venv_dir}')
 subprocess.run([sys.executable, '-m', 'venv', str(venv_dir)], check=True)
 
 venv_python = str(venv_dir / 'bin' / 'python3')
-# Non-editable install so the venv is self-contained after installation.
-subprocess.run([venv_python, '-m', 'pip', 'install', '--no-cache-dir', pygemc_src], check=True)
+subprocess.run([venv_python, '-m', 'pip', 'install', '--no-cache-dir', '--upgrade',
+                'pip', 'setuptools', 'wheel'], check=True)
+# --no-build-isolation avoids pip spawning an extra ephemeral build env, reducing memory use.
+subprocess.run([venv_python, '-m', 'pip', 'install', '--no-cache-dir', '--no-build-isolation',
+                pygemc_src], check=True)
