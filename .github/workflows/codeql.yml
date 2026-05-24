@@ -95,6 +95,8 @@ jobs:
       # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
       - if: matrix.build-mode == 'manual'
         shell: bash
+        env:
+          GEMC_SKIP_PYTHON_ENV_INSTALL: "1"
         run: |
           echo "Starting manual build for CodeQL..."
 

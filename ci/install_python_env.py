@@ -31,6 +31,4 @@ subprocess.run([sys.executable, '-m', 'venv', str(venv_dir)], check=True)
 venv_python = str(venv_dir / 'bin' / 'python3')
 subprocess.run([venv_python, '-m', 'pip', 'install', '--no-cache-dir', '--upgrade',
                 'pip', 'setuptools', 'wheel'], check=True)
-# --no-build-isolation avoids pip spawning an extra ephemeral build env, reducing memory use.
-subprocess.run([venv_python, '-m', 'pip', 'install', '--no-cache-dir', '--no-build-isolation',
-                pygemc_src], check=True)
+subprocess.run([venv_python, '-m', 'pip', 'install', '--no-cache-dir', pygemc_src], check=True)
