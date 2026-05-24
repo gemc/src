@@ -18,10 +18,12 @@
 | OS        |  version |  architecture |
 |:----------|---------:|--------------:|
 | ubuntu    |    24.04 |  amd64, arm64 |
-| fedora    |       40 |  amd64, arm64 |
+| ubuntu    |    26.04 |  amd64, arm64 |
+| fedora    |       44 |  amd64, arm64 |
 | almalinux |      9.4 |  amd64, arm64 |
-| debian    |       12 |  amd64, arm64 |
-| archlinux |       12 |         amd64 |
+| almalinux |       10 |  amd64, arm64 |
+| debian    |       13 |  amd64, arm64 |
+| archlinux |   latest |         amd64 |
 
 
 ### Deployment
