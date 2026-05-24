@@ -26,4 +26,4 @@ subprocess.run([sys.executable, '-m', 'venv', str(venv_dir)], check=True)
 
 venv_python = str(venv_dir / 'bin' / 'python3')
 # Non-editable install so the venv is self-contained after installation.
-subprocess.run([venv_python, '-m', 'pip', 'install', pygemc_src], check=True)
+subprocess.run([venv_python, '-m', 'pip', 'install', '--no-cache-dir', pygemc_src], check=True)

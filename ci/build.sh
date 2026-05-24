@@ -75,10 +75,7 @@ test_options=(
 # Specific tests to run when sanitizer is enabled
 sanitizer_tests=(
   -v
-  api_create_template_system_withG4Box
-  api_template_replace_geometry_withG4Box
-  api_template_build_geometry_in_test_of_replacing_geometry_withG4Box_with_formatascii
-  api_run_gemc_with_replaced_geometry_using_G4Box_with_formatascii
+  test_generator_lund_file_events
   test_gparticle_double_verbose
   test_event_dispenser_verbose
   examples_geo_basic_simple_flux_ascii_variation_default
