@@ -30,7 +30,8 @@ subprocess.run([sys.executable, '-m', 'venv', str(venv_dir)], check=True)
 
 venv_python = str(venv_dir / 'bin' / 'python3')
 subprocess.run([venv_python, '-m', 'pip', 'install', '--no-cache-dir',
-                '--upgrade', 'pip', 'setuptools', 'hatchling', 'hatch-vcs'], check=True)
+                '--upgrade', 'pip', 'setuptools', 'wheel', 'build',
+                'hatchling', 'hatch-vcs'], check=True)
 
 pip_args = [venv_python, '-m', 'pip', 'install', '--no-cache-dir']
 if os.environ.get('GEMC_NO_BUILD_ISOLATION') == '1':
