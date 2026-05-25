@@ -32,8 +32,6 @@ def docker_header(image: str, image_tag: str, geant4_tag: str) -> str:
     commands += f"# run bash instead of sh\n"
     commands += f"SHELL [\"/bin/bash\", \"-c\"]\n\n"
     commands += f"ENV AUTOBUILD=1\n"
-    if 'almalinux' in image.lower():
-        commands += f"ENV GEMC_NO_BUILD_ISOLATION=1\n"
     return commands
 
 

@@ -30,13 +30,5 @@ subprocess.run([sys.executable, '-m', 'venv', str(venv_dir)], check=True)
 
 venv_python = str(venv_dir / 'bin' / 'python3')
 subprocess.run([venv_python, '-m', 'pip', 'install', '--no-cache-dir',
-                '--upgrade', 'pip', 'setuptools', 'wheel', 'build',
-                'hatchling', 'hatch-vcs'], check=True)
-
-pip_args = [venv_python, '-m', 'pip', 'install', '--no-cache-dir']
-if os.environ.get('GEMC_NO_BUILD_ISOLATION') == '1':
-    # Avoids pip spawning an extra isolated build env; reduces memory pressure on
-    # constrained runners (e.g. AlmaLinux arm64). Requires pip/setuptools pre-installed above.
-    pip_args.append('--no-build-isolation')
-pip_args.append(pygemc_src)
-subprocess.run(pip_args, check=True)
+                '--upgrade', 'pip', 'setuptools', 'wheel'], check=True)
+subprocess.run([venv_python, '-m', 'pip', 'install', '--no-cache-dir', pygemc_src], check=True)
