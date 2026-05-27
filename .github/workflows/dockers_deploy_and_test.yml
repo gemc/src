@@ -1,5 +1,7 @@
 # Build & Publish GitHub Container Registry (GHCR) Images
 name: Deploy and Test
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch' && 'pygemc workflow dispatch' || github.ref_name }}
 permissions:
   contents: read
   packages: write
