@@ -14,6 +14,9 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  # Allows this workflow to be triggered from other repositories (e.g. pygemc)
+  workflow_dispatch:
+
   pull_request:
   merge_group:
   push:
