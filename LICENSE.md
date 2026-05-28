@@ -9,10 +9,10 @@ permalink: /license/
 
 # GEMC Software License
 
-*Version 1.0, August 25, 2025*
+*Version 1.0, May 28, 2026*
 
 > [!WARNING]
-> Copyright (c) 2006–2025,
+> Copyright (c) 2006–2026,
 > Maurizio Ungaro and Thomas Jefferson National Accelerator Facility (`Jefferson Lab`).
 > <br/>
 > All rights not expressly granted under this license are reserved.
@@ -122,8 +122,8 @@ under the conditions of this license.
 
 ## 6\. Patents
 
-You may not include this software, in whole or in part, in any patent o
-r patent application in respect of any modification of this software developed
+You may not include this software, in whole or in part, in any patent or
+patent application in respect of any modification of this software developed
 by you.
 
 <br/>
