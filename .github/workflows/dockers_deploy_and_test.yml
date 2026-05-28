@@ -20,12 +20,15 @@ on:
   workflow_dispatch:
 
   pull_request:
+    paths-ignore:
+      - "**/README*"
   merge_group:
   push:
     branches: [ main ]
     tags: [ '*' ]
     paths-ignore:
       - "**/*.md"
+      - "**/README*"
       - "releases/**"
       - "doc/**"
 
