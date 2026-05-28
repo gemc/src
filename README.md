@@ -6,6 +6,7 @@
 [![CodeQL][codeql-badge]][codeql]
 [![Nightly Dev Release][nightly-badge]][nightly]
 [![Homepage][site-badge]][site]
+[![pygemc PyPI][pypi-badge]][pypi]
 [![License][license-badge]][license]
 
 GEMC, the GEant Monte-Carlo, is a database-driven [Geant4](https://geant4.web.cern.ch) application for detector and radiation-transport simulations. It keeps detector descriptions outside the compiled C++ application: users define geometry, materials, optics, mirrors, sensitive detectors, and run configuration in Python or data files, then GEMC loads those definitions at run time and executes the full Geant4 simulation pipeline.
@@ -114,7 +115,7 @@ See the [installation page](https://gemc.github.io/home/installation/) for Docke
 
 ## Python Geometry Workflow
 
-Detector systems are usually written with `pygemc`:
+Detector systems are usually written with [`pygemc`](https://pypi.org/project/pygemc/), the GEMC Python package:
 
 ```python
 from pygemc import GVolume, autogeometry
@@ -298,5 +299,7 @@ GEMC is distributed under the project license in [`LICENSE.md`](LICENSE.md). The
 [nightly-badge]: https://github.com/gemc/src/actions/workflows/dev_release.yml/badge.svg
 [site]: https://github.com/gemc/home/actions/workflows/jekyll.yml
 [site-badge]: https://github.com/gemc/home/actions/workflows/jekyll.yml/badge.svg
+[pypi]: https://pypi.org/project/pygemc/
+[pypi-badge]: https://img.shields.io/pypi/v/pygemc.svg?cacheSeconds=300
 [license]: LICENSE.md
 [license-badge]: https://img.shields.io/badge/license-GEMC-blue.svg
