@@ -22,6 +22,9 @@ on:
   pull_request:
     paths-ignore:
       - "**/README*"
+      - "**/CODE_OF_CONDUCT.md"
+      - "**/CONTRIBUTING.md"
+      - "**/SECURITY.md"
   merge_group:
   push:
     branches: [ main ]
@@ -29,6 +32,9 @@ on:
     paths-ignore:
       - "**/*.md"
       - "**/README*"
+      - "**/CODE_OF_CONDUCT.md"
+      - "**/CONTRIBUTING.md"
+      - "**/SECURITY.md"
       - "releases/**"
       - "doc/**"
 

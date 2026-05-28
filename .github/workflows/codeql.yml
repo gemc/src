@@ -5,10 +5,16 @@ on:
     branches: [ "main" ]
     paths-ignore:
       - "**/README*"
+      - "**/CODE_OF_CONDUCT.md"
+      - "**/CONTRIBUTING.md"
+      - "**/SECURITY.md"
   pull_request:
     branches: [ "main" ]
     paths-ignore:
       - "**/README*"
+      - "**/CODE_OF_CONDUCT.md"
+      - "**/CONTRIBUTING.md"
+      - "**/SECURITY.md"
   schedule:
     - cron: '20 2 * * 5'
 

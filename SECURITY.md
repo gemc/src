@@ -1,34 +1,55 @@
 # GEMC Security Policy
 
-**Contact:** gemc@jlab.org  
-**Do not open public issues for security bugs.**
+**Contact:** ungaro@jlab.org
+
+Do not open public issues for security vulnerabilities.
 
 ## Supported Versions
 
-We provide security fixes for:
-- The default branch (next release)
+Security fixes are handled for the active development branch and the most recent public release when applicable.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| dev     | :white_check_mark: |
-| 1.0     | :x:                |
+| Version | Supported |
+| --- | --- |
+| `main` / `dev` | Yes |
+| Latest release | Yes, when applicable |
+| Older releases | No |
 
+## Reporting a Vulnerability
 
-## Report a Vulnerability
-Email **gemc@jlab.org** with:
-- What the issue is and why it matters
-- Steps to reproduce (a minimal PoC if possible)
-- Affected version / commit and environment
+Email **ungaro@jlab.org** with as much detail as you can safely share:
 
-If you prefer to use GitHub’s private reporting (if enabled), use **Security → Report a vulnerability**.
+- A short summary of the issue and why it matters.
+- Steps to reproduce, preferably with a minimal proof of concept.
+- Affected repository, version, commit, container image, or installation method.
+- Operating system, compiler, Python version, Geant4 version, and relevant build options.
+- Whether the issue is already public or known elsewhere.
+
+If GitHub private vulnerability reporting is enabled for the repository, you may also use **Security -> Report a vulnerability**.
 
 ## What to Expect
-- We’ll acknowledge your report and start triage as soon as we can.
-- We’ll work on a fix and coordinate a release or mitigation.
-- We’ll credit you (name or handle) if you want.
+
+After a report is received, maintainers will:
+
+- Acknowledge the report as soon as practical.
+- Triage the issue and may ask for additional information.
+- Work on a fix, mitigation, or coordinated disclosure plan.
+- Credit the reporter if desired and appropriate.
+
+Please avoid public disclosure until maintainers have had a reasonable opportunity to investigate and address the issue.
 
 ## Scope
-- In scope: GEMC code in the official repositories and our published container images.
-- Out of scope: vulnerabilities that are only in third-party dependencies (please report upstream; you can CC us).
 
-Thanks for helping keep GEMC users safe.
+In scope:
+
+- GEMC source code in official GEMC repositories.
+- The `pygemc` Python API and command-line tools.
+- Official GEMC container images and build scripts.
+- Documentation or examples that could lead users to unsafe behavior.
+
+Out of scope:
+
+- Vulnerabilities only in third-party dependencies. Report those upstream; you may copy GEMC maintainers if GEMC users are affected.
+- Local misconfiguration unrelated to GEMC.
+- Denial-of-service reports based only on intentionally extreme local resource usage.
+
+Thank you for helping keep GEMC users safe.

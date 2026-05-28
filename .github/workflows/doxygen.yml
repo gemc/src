@@ -9,6 +9,9 @@ on:
       - '*'
     paths-ignore:
       - "**/README*"
+      - "**/CODE_OF_CONDUCT.md"
+      - "**/CONTRIBUTING.md"
+      - "**/SECURITY.md"
   workflow_dispatch:
 
 jobs:

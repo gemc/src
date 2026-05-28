@@ -1,100 +1,90 @@
 # Contributing to GEMC
 
-We welcome contributions of code, documentation, tests, examples, and bug reports. This guide explains how to propose changes via GitHub.
+Contributions to GEMC are welcome. Useful contributions include source code, Python API improvements, documentation, examples, tests, bug reports, build-system fixes, and reproducible simulation problems.
 
-> **Quickstart**
-> 1. Open an issue to discuss your idea or bug.
-> 2. Fork the repo and clone your fork.
-> 3. Create a feature branch.
-> 4. Commit changes with clear messages and add tests/docs.
-> 5. Keep your fork in sync with `upstream`.
-> 6. Open a pull request (PR) from your branch.
+Keep changes focused and reviewable. A small pull request with clear motivation is easier to review and safer to merge than a broad rewrite.
 
----
+## Before You Start
 
-## 1) Before you start: open an issue
-Have a feature in mind? Open an issue describing the problem, proposed solution, and any alternatives. For obvious, small bug fixes, opening a PR directly is fine—but filing an issue first is still appreciated.
+Open an issue before working on large changes, new features, build-system changes, public APIs, file formats, or behavior that affects examples and documentation. Small typo fixes, narrow documentation edits, and obvious bug fixes can go directly to a pull request.
 
-If you’re not sure where to help, ask in an issue—documentation improvements are always welcome.
+For security vulnerabilities, do not open a public issue. Follow [`SECURITY.md`](SECURITY.md).
 
-## 2) Fork and clone
+## Development Setup
 
-Create your fork on GitHub, then:
+Fork `gemc/src` on GitHub, then clone your fork:
 
-```bash
-git clone https://github.com/<your-username>/src.git gemc
-cd gemc
-git remote add upstream https://github.com/gemc/src.git
-git remote -v
+```shell
+git clone https://github.com/<your-username>/src.git gemc-src
+cd gemc-src
 ```
 
-## 3) Create a branch
+## Build and Test
 
-Use a descriptive branch name:
+Use the project Meson build. The normal local command for building and installing the current tree is:
 
-```bash
-# Replace "main" with "master" if your fork uses that as the default
-git switch -c feature/my-awesome-idea
-# or: git checkout -b feature/my-awesome-idea
+```shell
+meson install -C build
 ```
 
-## 4) Keep your fork in sync
-Update your local default branch and your feature branch regularly:
+List available tests:
 
-```bash
-git fetch upstream
-git switch main
-git merge upstream/main    # or: git rebase upstream/main
-git push origin main
-
-# Update your feature branch
-git switch feature/my-awesome-idea
-git rebase main            # keeps history clean; use merge if you prefer
+```shell
+meson test -C build --list
 ```
 
-## 5) Code standards & tests
+Run the relevant test with logs:
 
-- **Style**: Match the existing project style. If a .clang-format/formatter is present, use it before committing.
-- **C++/Python APIs**: Keep naming, headers, and error handling consistent with the code around your changes.
-- **Tests**: Add or update tests for any behavior change.
-- **Docs**: Update README/installation/examples and any relevant docs when behavior or options change.
-- **Small, focused PR**s: Prefer multiple small PRs over one very large PR.
-
-## 6) Commit messages
-
-Write clear, imperative messages:
-
-```bash
-
-Short summary (max ~72 chars)
-
-Longer explanation of what and why,
-including any breaking changes or migration notes.
+```shell
+meson test -C build -v --print-errorlogs <testname>
 ```
 
-If your PR closes an issue, end the description with: Closes #<issue-number>.
+When a change touches shared code, run the smallest useful set of related tests plus any examples that exercise the behavior. If a test cannot be run locally, say why in the pull request.
 
-## 7) Open a Pull Request
-From your fork/branch, open a PR against gemc/source:
+## Contribution Guidelines
 
-**Checklist**
+- Match the style of the surrounding C++ or Python code.
+- Prefer clear, local fixes over broad refactors.
+- Add or update tests for behavior changes.
+- Update README files, examples, and website documentation when user-facing behavior changes.
+- Keep generated files, build output, caches, and local IDE files out of commits.
+- Do not mix unrelated cleanup with feature or bug-fix work.
+- For geometry or visualization changes, include screenshots or links to generated images when that helps review.
 
-- Clear title and concise description
-- Link to related issues; include Closes #123 when appropriate
-- Include screenshots for UI/visual changes
-- Tests pass locally; CI is green
-- Docs/examples updated as needed
+## Commit Messages
 
-Reviews in this project are thorough. Feedback is offered in good spirit to improve clarity, performance, and maintainability.
+Use short, imperative commit summaries:
 
-## 8) Communication & support
+```text
+Fix flux digitization timestamp output
+```
 
-- Questions / help: Open an issue.
-- Security vulnerabilities: Do not open a public issue. Email gemc@jlab.org.
-- Conduct: All interactions are governed by our Code of Conduct.
+When the reasoning is not obvious, add a body explaining what changed and why. If the pull request closes an issue, include `Closes #123` in the pull request description.
 
-## 9) Licensing of contributions
-By contributing, you agree that your contributions are licensed under the GEMC Software License v1.0 and 
-that publications using GEMC should cite:
+## Pull Requests
 
-M. Ungaro, “Geant4 Monte-Carlo (GEMC) A database-driven simulation program,” EPJ Web of Conferences 295, 05005 (2024), https://doi.org/10.1051/epjconf/202429505005
+Open a pull request from your fork to `gemc/src`.
+
+Before requesting review, check that:
+
+- The title and description explain the change.
+- Related issues are linked.
+- Relevant tests or examples were run and listed.
+- Documentation and examples were updated if needed.
+- The pull request is focused on one topic.
+
+Reviews may ask for changes to improve correctness, maintainability, performance, documentation, or test coverage.
+
+## Communication
+
+- General questions: open an issue.
+- Security vulnerabilities: email **ungaro@jlab.org** instead of opening a public issue.
+- Conduct concerns: email **ungaro@jlab.org** and see [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+
+## Licensing and Citation
+
+By contributing, you agree that your contributions are licensed under the GEMC Software License v1.0. See [`LICENSE.md`](LICENSE.md).
+
+If you use GEMC in scientific work, cite:
+
+> M. Ungaro, "Geant4 Monte-Carlo (GEMC) A database-driven simulation program," EPJ Web of Conferences 295, 05005 (2024). https://doi.org/10.1051/epjconf/202429505005

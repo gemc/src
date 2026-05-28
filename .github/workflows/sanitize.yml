@@ -12,9 +12,15 @@ on:
     tags: [ 'v*' ]
     paths-ignore:
       - "**/README*"
+      - "**/CODE_OF_CONDUCT.md"
+      - "**/CONTRIBUTING.md"
+      - "**/SECURITY.md"
   pull_request:
     paths-ignore:
       - "**/README*"
+      - "**/CODE_OF_CONDUCT.md"
+      - "**/CONTRIBUTING.md"
+      - "**/SECURITY.md"
 
 jobs:
   discover:

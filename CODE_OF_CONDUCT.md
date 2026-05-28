@@ -1,50 +1,62 @@
 # GEMC Community Code of Conduct
 
 ## Our Pledge
-We, as members, contributors, and maintainers of GEMC, pledge to make participation 
-in our project and community a harassment-free experience for everyone, regardless of 
-age, body size, visible or invisible disability, ethnicity, experience level, 
-education, gender identity and expression, level of experience, nationality, personal 
-appearance, race, religion, or sexual identity and orientation.
+
+GEMC is a scientific software project. We want project spaces to be useful, respectful, and welcoming for everyone, regardless of age, body size, visible or invisible disability, ethnicity, experience level, education, gender identity and expression, nationality, personal appearance, race, religion, sexual identity and orientation, or any other personal characteristic.
 
 ## Our Standards
-Examples of behavior that contributes to a positive environment include:
-- Being respectful of differing viewpoints and experiences
-- Giving and gracefully accepting constructive feedback
-- Focusing on what is best for the community
-- Showing empathy and kindness to other community members
 
-Examples of unacceptable behavior include:
-- Harassment, intimidation, or discrimination
-- Trolling, insulting or derogatory comments, and personal or political attacks
-- Sexualized language or imagery
-- Public or private harassment, or publishing others’ private information
-- Sustained disruption of discussions or reviews
-- Spam or advertising unrelated to the project
+Examples of behavior that helps the project:
 
-## Enforcement Responsibilities
-Project maintainers are responsible for clarifying and enforcing standards of acceptable 
-behavior and may take appropriate and fair corrective action in response to any behavior 
-they deem inappropriate, threatening, offensive, or harmful.
+- Being respectful of different viewpoints and experiences.
+- Giving and accepting constructive technical feedback.
+- Focusing discussion on the work, evidence, and project goals.
+- Asking for clarification before assuming intent.
+- Helping new users and contributors find the right documentation, issue, or maintainer.
+
+Examples of unacceptable behavior:
+
+- Harassment, intimidation, discrimination, or threats.
+- Personal attacks, insults, trolling, or sustained disruption of discussions and reviews.
+- Sexualized language or imagery in project spaces.
+- Publishing private information without explicit permission.
+- Repeatedly ignoring maintainer requests to stop a behavior.
+- Spam, advertising, or unrelated promotion.
 
 ## Scope
-This Code of Conduct applies within all project spaces and also applies when an 
-individual is representing the project in public spaces.
+
+This Code of Conduct applies in all GEMC project spaces, including repositories, issues, pull requests, discussions, documentation, examples, release channels, and project-related meetings. It also applies when someone is representing GEMC in public spaces, such as conferences, workshops, mailing lists, or social platforms.
+
+## Enforcement Responsibilities
+
+Maintainers are responsible for clarifying standards and may remove, edit, or reject comments, commits, issues, pull requests, documentation, or other contributions that do not follow this Code of Conduct. Maintainers may also restrict participation when behavior is inappropriate, threatening, offensive, or harmful.
+
+Maintainers who are involved in a reported incident should not handle that report. An uninvolved maintainer or reviewer should be brought in.
 
 ## Reporting
-If you experience or witness unacceptable behavior, report it to **gemc@jlab.org**. 
-Reports will be reviewed and handled confidentially to the extent possible. 
-If the incident involves a maintainer, the project will bring in an uninvolved reviewer.
+
+Report Code of Conduct concerns to **ungaro@jlab.org**.
+
+Please include, when possible:
+
+- What happened and where it happened.
+- Links, screenshots, or other context.
+- Names or handles of people involved.
+- Whether the situation is ongoing or urgent.
+
+Reports will be handled confidentially to the extent possible. Retaliation against a person who reports a concern or participates in an investigation is itself a violation of this Code of Conduct.
 
 ## Enforcement
-All complaints will be reviewed and investigated promptly and fairly. 
-Maintainers are obligated to respect the privacy and security of the reporter of any incident.
 
-### Enforcement Guidelines
-- **Correction** — For minor, one-off issues. Consequence: private or public clarification of expectations.
-- **Warning** — For a single significant incident or repeated minor issues. Consequence: written warning and expectations for change.
-- **Temporary Restriction** — For repeated violations. Consequence: temporary removal from interactions (issues, PRs, etc.).
-- **Permanent Ban** — For severe or repeated violations. Consequence: permanent removal from community spaces.
+Maintainers will review reports promptly and fairly. Responses may include:
+
+- **Correction**: Private or public clarification of expectations.
+- **Warning**: Written warning and expectations for change.
+- **Temporary restriction**: Temporary removal from issues, pull requests, discussions, or other project spaces.
+- **Permanent restriction**: Permanent removal from project spaces for severe or repeated violations.
+
+The response will be based on the impact and severity of the behavior, the safety of the community, and any relevant pattern of prior conduct.
 
 ## Attribution
+
 This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org), version 2.1.
