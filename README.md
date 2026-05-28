@@ -68,6 +68,12 @@ The template command creates a small detector system, the Python script writes `
 
 ## Installation
 
+Choose the installation path based on what you need:
+
+- Use the [PyPI `pygemc` package](https://pypi.org/project/pygemc/) for Python geometry building, PyVista previews, and output analysis without the compiled `gemc` simulator.
+- Build GEMC from source for the full Geant4 simulation executable and the bundled `pygemc` Python environment.
+- Use Docker when you want a ready-to-run development environment without managing local Geant4 dependencies.
+
 ### From Source
 
 GEMC uses [Meson](https://mesonbuild.com). A normal source build is:
@@ -80,11 +86,26 @@ meson compile -C build
 meson install -C build
 ```
 
-After installation, add the GEMC binary directory and the installed Python environment to your shell:
+After installation, add the GEMC binary directory and the bundled Python environment to your shell:
 
 ```shell
-export GEMC_VERSION=dev
+export GEMC_HOME=/path/to/gemc
+export PATH=$GEMC_HOME/bin:$GEMC_HOME/python_env/bin:$PATH
+```
+
+For versioned installs such as `/path/to/gemc/0.2`, keep the version in the path:
+
+```shell
+export GEMC_VERSION=0.2
 export PATH=/path/to/gemc/$GEMC_VERSION/bin:/path/to/gemc/$GEMC_VERSION/python_env/bin:$PATH
+```
+
+Verify both the simulator and Python tools:
+
+```shell
+gemc -v
+gemc-system-template --help
+gemc-analyzer --help
 ```
 
 Build options:
