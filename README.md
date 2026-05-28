@@ -1,68 +1,301 @@
-# GEMC: Geant4 Monte-Carlo
+# GEMC
 
+[![Deploy and Test][ci-badge]][ci]
+[![Doxygen][docs-badge]][docs]
+[![Sanitize][sanitize-badge]][sanitize]
+[![CodeQL][codeql-badge]][codeql]
+[![Nightly Dev Release][nightly-badge]][nightly]
+[![Homepage][site-badge]][site]
+[![License][license-badge]][license]
 
-    A database-driven Monte Carlo simulation program
+GEMC, the GEant Monte-Carlo, is a database-driven [Geant4](https://geant4.web.cern.ch) application for detector and radiation-transport simulations. It keeps detector descriptions outside the compiled C++ application: users define geometry, materials, optics, mirrors, sensitive detectors, and run configuration in Python or data files, then GEMC loads those definitions at run time and executes the full Geant4 simulation pipeline.
 
+The project goal is to make Geant4-based simulation accessible to users who want to prototype detector systems without writing a custom Geant4 application, while still preserving C++ extension points for advanced detector response and output workflows.
 
-![GEMC Architecture](https://gemc.github.io/home/assets/images/gemcArchitecture.png "GEMC Architecture")
+![GEMC architecture](https://gemc.github.io/home/assets/images/gemcArchitecture.png)
 
+## Highlights
 
-<br/>
-<br/>
+- Python-first detector definition through [`pygemc`](https://github.com/gemc/pygemc)
+- Geometry and material storage in SQLite or GEMC ASCII databases
+- Geometry imports from native GEMC databases, GDML, and CAD meshes
+- Run-number and variation support for reusable detector configurations
+- Built-in sensitive detector digitizations: `flux`, `dosimeter`, and `particle_counter`
+- Dynamic C++ plugin infrastructure for custom digitization, fields, particle readers, and output streamers
+- Event generation from command-line/YAML particle definitions and Lund files
+- Output streamers for ASCII, CSV, JSON, JLAB SRO, and optional ROOT output
+- Magnetic-field support, including a built-in multipole field plugin
+- Interactive Geant4/Qt visualization and off-screen image generation
+- PyVista geometry preview, interactive Qt display, and VTK.js export from Python geometry scripts
+- Python analyzer for plotting GEMC CSV and ROOT output
+- Meson-based C++ build with CI-tested Docker images for Linux `amd64` and `arm64`
 
+## Repository Layout
 
-## Continuous Integration
+| Path | Purpose |
+| --- | --- |
+| `actions/`, `g4system/`, `gdetector/`, `gphysics/` | Geant4 application integration and detector construction |
+| `gsystem/` | Geometry-system loading from SQLite, ASCII, CAD, and GDML sources |
+| `gdynamicDigitization/` | Built-in and dynamically loaded digitization routines |
+| `gstreamer/` | Output plugins for event, run, and frame data |
+| `gparticle/` | Particle generation and particle-file readers |
+| `gfields/` | Magnetic-field abstractions and field plugins |
+| `examples/` | Complete Python/YAML examples used by tests and documentation |
+| `subprojects/pygemc/` | Meson subproject copy of the Python API |
+| `ci/` | Build, Docker, release, and documentation automation |
 
-### Platforms
+## Quickstart
 
-| OS        |  version |  architecture |
-|:----------|---------:|--------------:|
-| ubuntu    |    24.04 |  amd64, arm64 |
-| ubuntu    |    26.04 |  amd64, arm64 |
-| fedora    |       44 |  amd64, arm64 |
-| almalinux |      9.4 |  amd64, arm64 |
-| almalinux |       10 |  amd64, arm64 |
-| debian    |       13 |  amd64, arm64 |
-| archlinux |   latest |         amd64 |
+The fastest way to try GEMC is through the hosted examples:
 
+- [Documentation and examples](https://gemc.github.io/home/)
+- [Installation guide](https://gemc.github.io/home/installation/)
+- [Quickstart tutorial](https://gemc.github.io/home/documentation/quickstart/)
+- [Examples gallery](https://gemc.github.io/home/examples/)
 
-### Deployment
+A minimal local workflow looks like this after installation:
 
-[![CI][CI-badge]][CI]
+```shell
+gemc-system-template -s counter
+cd counter
+./counter.py
+gemc counter.yaml
+gemc-analyzer counter_t0_digitized.csv totEdep --kind csv --bins 50
+```
 
-[![Docs][Docs-badge]][Docs]
+The template command creates a small detector system, the Python script writes `gemc.db`, `gemc` runs the simulation, and `gemc-analyzer` plots a variable from the CSV output.
 
+## Installation
 
-[![Site][Site-badge]][Site]
+### From Source
 
+GEMC uses [Meson](https://mesonbuild.com). A normal source build is:
 
-[CI]: https://github.com/gemc/src/actions/workflows/dockers_deploy_and_test.yml
-[CI-badge]: https://github.com/gemc/src/actions/workflows/dockers_deploy_and_test.yml/badge.svg
+```shell
+git clone --recurse-submodules https://github.com/gemc/src.git gemc-src
+cd gemc-src
+meson setup build --native-file=core.ini --prefix=/path/to/gemc
+meson compile -C build
+meson install -C build
+```
 
+After installation, add the GEMC binary directory and the installed Python environment to your shell:
 
-[Docs]: https://github.com/gemc/src/actions/workflows/doxygen.yml
-[Docs-badge]: https://github.com/gemc/src/actions/workflows/doxygen.yml/badge.svg
+```shell
+export GEMC_VERSION=dev
+export PATH=/path/to/gemc/$GEMC_VERSION/bin:/path/to/gemc/$GEMC_VERSION/python_env/bin:$PATH
+```
 
-[Nightly]: https://github.com/gemc/src/actions/workflows/dev_release.yml
-[Nightly-badge]: https://github.com/gemc/src/actions/workflows/dev_release.yml/badge.svg
+Build options:
 
-[Site]: https://github.com/gemc/home/actions/workflows/jekyll.yml
-[Site-badge]: https://github.com/gemc/home/actions/workflows/jekyll.yml/badge.svg
+- `-Droot=enabled` enables ROOT output when ROOT is installed.
+- `-Di_test=true` enables GUI-oriented tests.
+- `meson install -C build` builds and installs the current tree.
 
-[Sanitize]: https://github.com/gemc/src/actions/workflows/sanitize.yml
-[Sanitize-badge]: https://github.com/gemc/src/actions/workflows/sanitize.yml/badge.svg
+### Docker
 
-[CodeQL]: https://github.com/gemc/src/actions/workflows/codeql.yml
-[CodeQL-badge]: https://github.com/gemc/src/actions/workflows/codeql.yml/badge.svg
+Pre-built development images are published to GitHub Container Registry. For example:
 
+```shell
+docker run -it --rm -v "$PWD":/work ghcr.io/gemc/src:dev-ubuntu-24.04 bash
+```
 
+Published image families include:
 
-### Metrics
+| OS | Version | Architectures |
+| --- | --- | --- |
+| AlmaLinux | 10 | `amd64`, `arm64` |
+| Arch Linux | latest | `amd64` |
+| Debian | 13 | `amd64`, `arm64` |
+| Fedora | 44 | `amd64`, `arm64` |
+| Ubuntu | 24.04, 26.04 | `amd64`, `arm64` |
 
-[![Sanitize][Sanitize-badge]][Sanitize]
+See the [installation page](https://gemc.github.io/home/installation/) for Docker, browser GUI, and Apptainer examples.
 
-[![CodeQL][CodeQL-badge]][CodeQL]
+## Python Geometry Workflow
 
-### Nightly
+Detector systems are usually written with `pygemc`:
 
-[![Nightly][Nightly-badge]][Nightly]
+```python
+from pygemc import GVolume, autogeometry
+
+cfg = autogeometry("examples", "counter")
+
+flux = GVolume("flux_box")
+flux.description = "air flux box"
+flux.make_box(40.0, 40.0, 2.0)
+flux.set_position(0, 0, 100)
+flux.material = "G4_AIR"
+flux.color = "3399FF"
+flux.digitization = "flux"
+flux.set_identifier("box", 2)
+flux.publish(cfg)
+```
+
+Geometry scripts can write SQLite or ASCII databases, display geometry with PyVista, or export VTK.js files:
+
+```shell
+./counter.py --factory sqlite
+./counter.py -pv
+./counter.py -pvvtk counter -pvz 0.25
+```
+
+### PyVista Visualization
+
+PyVista is part of the normal GEMC geometry workflow. It lets users inspect detector geometry before running Geant4, export portable VTK.js scenes for documentation, and catch placement or rotation mistakes while editing Python geometry scripts.
+
+| B1 | B2 |
+| --- | --- |
+| <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=https://gemc.github.io/home/assets/images/examples/b1/b1.vtksz"><img src="https://gemc.github.io/home/assets/images/examples/b1/geometry.png" alt="B1 PyVista geometry" width="200" height="200"></a> | <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=https://gemc.github.io/home/assets/images/examples/b2/b2.vtksz"><img src="https://gemc.github.io/home/assets/images/examples/b2/geometry.png" alt="B2 PyVista geometry" width="200" height="200"></a> |
+| Materials | Simple Flux |
+| <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=https://gemc.github.io/home/assets/images/examples/materials/material.vtksz"><img src="https://gemc.github.io/home/assets/images/examples/materials/geometry.png" alt="Materials PyVista geometry" width="200" height="200"></a> | <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=https://gemc.github.io/home/assets/images/examples/simple_flux/simple_flux.vtksz"><img src="https://gemc.github.io/home/assets/images/examples/simple_flux/geometry.png" alt="Simple Flux PyVista geometry" width="200" height="200"></a> |
+
+Open the linked interactive PyVista scenes generated from the GEMC examples.
+
+GitHub README pages cannot embed `.vtksz` scenes directly, so the image above links to the hosted VTK.js viewer.
+
+## Running Simulations
+
+GEMC is configured with YAML files and equivalent command-line options. A compact steering file can define the run number, event count, generator, geometry systems, output streamers, and world volume:
+
+```yaml
+runno: 1
+n: 100
+nthreads: 1
+
+gparticle:
+  - name: proton
+    p: 1500
+    vz: -5.0
+
+gsystem:
+  - name: counter
+    factory: sqlite
+
+gstreamer:
+  - filename: counter
+    format: csv
+  - filename: counter
+    format: json
+
+root: G4Box, 15*cm, 15*cm, 15*cm, G4_AIR
+```
+
+Run in batch mode:
+
+```shell
+gemc counter.yaml
+```
+
+Run with the Geant4 GUI:
+
+```shell
+gemc counter.yaml -gui
+```
+
+Generate an off-screen Geant4 image:
+
+```shell
+gemc counter.yaml -n=10 \
+  -g4view="[{driver: TOOLSSG_OFFSCREEN, segsPerCircle: 200}]" \
+  -g4camera="[{phi: -10*deg, theta: 250*deg}]" \
+  -g4light="[{phi: 160*deg, theta: 120*deg}]"
+```
+
+## Output and Analysis
+
+The output layer is plugin-based. Built-in streamer formats include:
+
+| Format | Notes |
+| --- | --- |
+| `ascii` | Human-readable text output |
+| `csv` | Per-thread CSV tables for digitized hits, true information, generated particles, and tracked generated particles |
+| `json` | Structured event output |
+| `jlabsro` | Binary JLAB SRO frame records |
+| `root` | ROOT TTrees, available when GEMC is built with ROOT |
+
+Analyze CSV or ROOT output with:
+
+```shell
+gemc-analyzer counter_t0_digitized.csv totEdep --kind csv --bins 50
+gemc-analyzer out.root E --kind root --detector flux --save energy.png
+```
+
+## Examples
+
+The repository includes examples under `examples/`, with matching documentation and rendered assets on the project site:
+
+- `examples/basic/simple_flux`: flux digitization and output analysis
+- `examples/basic/b1`: Geant4 basic B1-style geometry
+- `examples/basic/b2`: Geant4 basic B2-style geometry
+- `examples/basic/material`: material and optical-property definitions
+- `examples/basic/pyvista`: PyVista visualization examples
+- `examples/optical/cherenkov`: optical photon and Cherenkov workflow
+
+## Development
+
+Build and install:
+
+```shell
+meson install -C build
+```
+
+List tests:
+
+```shell
+meson test -C build --list
+```
+
+Run one test with logs:
+
+```shell
+meson test -C build -v --print-errorlogs <testname>
+```
+
+The CI system also builds Docker images, runs the Meson test suite, runs sanitizer builds, generates Doxygen documentation, performs CodeQL analysis, and publishes nightly development release notes.
+
+## Documentation
+
+- [Project homepage](https://gemc.github.io/home/)
+- [Installation](https://gemc.github.io/home/installation/)
+- [User documentation](https://gemc.github.io/home/documentation/)
+- [Examples](https://gemc.github.io/home/examples/)
+- [Doxygen workflow](https://github.com/gemc/src/actions/workflows/doxygen.yml)
+- [GEMC2 / CLAS12 repository](https://github.com/gemc/clas12Tags)
+
+This repository is GEMC version 3 and newer. CLAS12 GEMC2 simulations are maintained separately in `gemc/clas12Tags`.
+
+## Contributing
+
+Contributions are welcome through normal pull requests. Before opening a pull request, run the relevant Meson tests and keep changes focused. See:
+
+- [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+- [`SECURITY.md`](SECURITY.md)
+
+## Citation
+
+If you use GEMC in scientific work, cite:
+
+> M. Ungaro, "Geant4 Monte-Carlo (GEMC) A database-driven simulation program," EPJ Web of Conferences 295, 05005 (2024). https://doi.org/10.1051/epjconf/202429505005
+
+BibTeX and additional citation formats are in [`CITATION.md`](CITATION.md).
+
+## License
+
+GEMC is distributed under the project license in [`LICENSE.md`](LICENSE.md). The software also depends on separately licensed third-party components, including Geant4, CLHEP, Qt, ROOT, SQLite, and Assimp.
+
+[ci]: https://github.com/gemc/src/actions/workflows/dockers_deploy_and_test.yml
+[ci-badge]: https://github.com/gemc/src/actions/workflows/dockers_deploy_and_test.yml/badge.svg
+[docs]: https://github.com/gemc/src/actions/workflows/doxygen.yml
+[docs-badge]: https://github.com/gemc/src/actions/workflows/doxygen.yml/badge.svg
+[sanitize]: https://github.com/gemc/src/actions/workflows/sanitize.yml
+[sanitize-badge]: https://github.com/gemc/src/actions/workflows/sanitize.yml/badge.svg
+[codeql]: https://github.com/gemc/src/actions/workflows/codeql.yml
+[codeql-badge]: https://github.com/gemc/src/actions/workflows/codeql.yml/badge.svg
+[nightly]: https://github.com/gemc/src/actions/workflows/dev_release.yml
+[nightly-badge]: https://github.com/gemc/src/actions/workflows/dev_release.yml/badge.svg
+[site]: https://github.com/gemc/home/actions/workflows/jekyll.yml
+[site-badge]: https://github.com/gemc/home/actions/workflows/jekyll.yml/badge.svg
+[license]: LICENSE.md
+[license-badge]: https://img.shields.io/badge/license-GEMC-blue.svg
