@@ -8,7 +8,7 @@ verbosity:
 
 gsystem:
   - name: cherenkov
-    variation: CO2
+    variation: mediumIndexRadiator
 
 gstreamer:
   - format: csv
@@ -25,5 +25,4 @@ gparticle:
 
 # Required for optical-photon flux hits because optical photons deposit zero energy.
 recordZeroEdep: true
-
 

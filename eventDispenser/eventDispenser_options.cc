@@ -21,7 +21,7 @@ GOptions defineOptions() {
 
 	// Option: number of events
 	std::string help = "Example: -n=200\n";
-	goptions.defineOption(GVariable("n", 0, "number of events to process"), help);
+	goptions.defineOption(GVariable("n", 1, "number of events to process"), help);
 
 	// Option: run number
 	// Clarify that this is the *conditions run number* (constants/TT selection), not the Geant4 internal run id.

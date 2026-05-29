@@ -6,54 +6,56 @@ from pygemc import GMaterial
 
 cfg = autogeometry("examples", "cherenkov")
 
-# Using 3 gases with different refractive indices
+# Using 3 demonstration radiators with neutral names. Their optical constants
+# are for demonstration and are not intended to define real materials.
 variation_material = {
-    "default": "CF4",
-    "CO2": "CO2",
-    "C4F10": "C4F10",
+    "default": "lowIndexRadiator",
+    "mediumIndexRadiator": "mediumIndexRadiator",
+    "highIndexRadiator": "highIndexRadiator",
 }
 
 photon_energy = "2.0*eV 3.0*eV 4.0*eV 5.0*eV 6.0*eV"
 
 # Optical properties
-# Refractive index and absorbtion at 2, 3, 4, 5, 6 eV
+# Refractive index and absorption at 2, 3, 4, 5, 6 eV.
+# These refractive-index tables are demonstration values and avoid material
+# names that imply a specific real-world gas.
 rindex = {
-    "CF4": "1.000481811 1.000487934 1.000496771 1.000508615 1.000523881",
-    "CO2": "1.000448007 1.000458006 1.000472449 1.000492454 1.000519671",
-    "C4F10": "1.001306001 1.001329786 1.001364578 1.001412079 1.001474826",
+    "lowIndexRadiator":    "1.0010 1.0011 1.0012 1.0013 1.0013",
+    "mediumIndexRadiator": "1.0110 1.0120 1.0130 1.0140 1.0150",
+    "highIndexRadiator":   "1.0500 1.0510 1.0520 1.0530 1.0530",
 }
 absorption = {
-    "CF4": "100*m       100*m       100*m       100*m       100*m",
-    "CO2": "50*m        50*m        40*m        30*m        20*m",
-    "C4F10": "6*m        6*m         6*m         5*m         4*m",
+    "lowIndexRadiator": "100*m       100*m       100*m       100*m       100*m",
+    "mediumIndexRadiator": "50*m        50*m        40*m        30*m        20*m",
+    "highIndexRadiator": "6*m        6*m         6*m         5*m         4*m",
 }
 colors = {
-    "CF4": "red",
-    "CO2": "blue",
-    "C4F10": "green"
+    "lowIndexRadiator": "red",
+    "mediumIndexRadiator": "blue",
+    "highIndexRadiator": "green"
 }
 
 material_definitions = {
-    "CF4": {
-        "name": "CF4",
-        "description": "CF4 gas with optical properties",
-        # g/cm3, approximately 20 C and 1 atm
-        "density": 0.003658,
-        "atoms": [("C", 1), ("F", 4)],
+    "lowIndexRadiator": {
+        "name": "lowIndexRadiator",
+        "description": "Low-index demonstration radiator",
+        "density": 0.003,
+        "atoms": [("H", 2)],
     },
 
-    "CO2": {
-        "name": "CO2",
-        "description": "CO2 gas at 1 atm with optical properties",
-        "density": 0.001842,
-        "atoms": [("C", 1), ("O", 2)],
+    "mediumIndexRadiator": {
+        "name": "mediumIndexRadiator",
+        "description": "Medium-index demonstration radiator",
+        "density": 0.003,
+        "atoms": [("H", 2)],
     },
 
-    "C4F10": {
-        "name": "C4F10",
-        "description": "C4F10 gas with optical properties",
-        "density": 0.00973,
-        "atoms": [("C", 4), ("F", 10)],
+    "highIndexRadiator": {
+        "name": "highIndexRadiator",
+        "description": "High-index demonstration radiator",
+        "density": 0.003,
+        "atoms": [("H", 2)],
     },
 }
 
@@ -105,7 +107,7 @@ for variation, material in variation_material.items():
         backplate.make_box(half_x, half_y, 1)
         backplate.set_position(x, y, 499)
 
-        # Use same gas as the radiator so optical photons are not killed
+        # Use the same material as the radiator so optical photons are not killed
         # by crossing into a material without matching optical properties.
         backplate.material = material
 
