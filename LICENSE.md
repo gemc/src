@@ -3,10 +3,6 @@ layout: default
 permalink: /license/
 ---
 
-{% include mynotes.html %}
-
-[//]: # (Notice: I copied the content of src/LICENSE.md here to have it rendered by Jekyll)
-
 # GEMC Software License
 
 *Version 1.0, May 28, 2026*
