@@ -12,12 +12,14 @@ on:
     tags: [ 'v*' ]
     paths-ignore:
       - "**/README*"
+      - "**/LICENSE*"
       - "**/CODE_OF_CONDUCT.md"
       - "**/CONTRIBUTING.md"
       - "**/SECURITY.md"
   pull_request:
     paths-ignore:
       - "**/README*"
+      - "**/LICENSE*"
       - "**/CODE_OF_CONDUCT.md"
       - "**/CONTRIBUTING.md"
       - "**/SECURITY.md"
