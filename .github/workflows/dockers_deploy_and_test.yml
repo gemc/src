@@ -219,6 +219,7 @@ jobs:
       - name: Upload GEMC tarballs to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
         shell: bash
         run: |
           shopt -s nullglob
@@ -228,9 +229,9 @@ jobs:
             echo "No GEMC tarballs found"
             exit 1
           fi
-          gh release view "${TAG_NAME}" >/dev/null 2>&1 || \
-            gh release create "${TAG_NAME}" --title "Dev Nightly" --prerelease --notes "Dev nightly release."
-          gh release upload "${TAG_NAME}" "${tarballs[@]}" --clobber
+          gh release view "${TAG_NAME}" --repo "$REPO" >/dev/null 2>&1 || \
+            gh release create "${TAG_NAME}" --repo "$REPO" --title "Dev Nightly" --prerelease --notes "Dev nightly release."
+          gh release upload "${TAG_NAME}" --repo "$REPO" "${tarballs[@]}" --clobber
 
 
   # Manifest stitch

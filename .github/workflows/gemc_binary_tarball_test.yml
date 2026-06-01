@@ -1,5 +1,5 @@
 # Test GEMC binary tarballs in minimal OS images.
-name: Test GEMC Binary Tarballs
+name: Test Binary Tarballs
 
 permissions:
   contents: read
@@ -47,8 +47,7 @@ jobs:
           import sys
 
           sys.path.insert(0, "ci")
-          from functions import map_family
-          from packages import packages_install_command
+          from binary_packages import map_family, packages_install_command
 
           image = sys.argv[1]
           tag = sys.argv[2]
@@ -64,8 +63,7 @@ jobs:
               print("RUN pacman -Sy --noconfirm archlinux-keyring")
           elif image == "almalinux":
               print("RUN dnf install -y 'dnf-command(config-manager)' \\")
-              print("    && dnf config-manager --set-enabled crb \\")
-              print("    && dnf install -y almalinux-release-synergy")
+              print("    && dnf config-manager --set-enabled crb")
 
           print(packages_install_command(image, tag))
           PY
