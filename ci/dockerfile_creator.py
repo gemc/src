@@ -66,6 +66,7 @@ def package_install(geant4_version: str, gemc_version: str, image: str, image_ta
     commands += f'RUN  cd /root/src \\\n'
     commands += f"     && DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . {remote_entrypoint()} \\\n"
     commands += f'     && module load geant4/{geant4_version} \\\n'
+    commands += f'     && eval "$(geant4-config --sh)" \\\n'
     commands += f'     && GEANT4_VERSION={geant4_version} GEMC_PACKAGE_VERSION={gemc_version} \\\n'
     commands += f'        ./ci/package_install.sh "${{SIM_HOME}}/gemc/dev" /root/src/dist "{package_name}" \n'
     return commands

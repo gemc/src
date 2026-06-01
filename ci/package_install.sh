@@ -92,6 +92,11 @@ archive_name_from_data_dir() {
 }
 
 geant4_dataset_records=()
+
+if command -v geant4-config >/dev/null 2>&1; then
+  eval "$(geant4-config --sh)"
+fi
+
 while IFS='=' read -r env_name env_path; do
   [[ -n "${env_name}" && -n "${env_path}" ]] || continue
   if [[ ! -d "${env_path}" ]]; then
