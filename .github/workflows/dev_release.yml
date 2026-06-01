@@ -45,14 +45,6 @@ jobs:
           git tag -f "${TAG_NAME}" "${GITHUB_SHA}"
           git push --force origin "refs/tags/${TAG_NAME}"
 
-      - name: Delete existing release (if any)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release view "${TAG_NAME}" >/dev/null 2>&1 && \
-            gh release delete "${TAG_NAME}" -y || \
-            echo "No existing release to delete"
-
       - name: Create/Update release
         uses: ncipollo/release-action@v1
         with:
@@ -64,4 +56,5 @@ jobs:
           bodyFile: /tmp/release_notes.md
           prerelease: true
           allowUpdates: true
+          replacesArtifacts: false
           artifactErrorsFailBuild: false

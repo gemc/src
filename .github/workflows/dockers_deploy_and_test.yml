@@ -3,7 +3,7 @@ name: Deploy and Test
 run-name: >-
   ${{ github.event_name == 'workflow_dispatch' && 'pygemc workflow dispatch' || github.ref_name }}
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 # default versions. This is overwritten by distros_tags.sh
@@ -124,6 +124,8 @@ jobs:
           -t "${{ matrix.image_tag }}" \
           --gemc-version "${{ matrix.gemc_tag || env.GEMC_TAG }}" \
           --geant4-version "${{ matrix.geant4_tag || env.GEANT4_TAG }}" \
+          --with-package \
+          --package-arch "${{ matrix.arch }}" \
           > Dockerfile.generated
           cat Dockerfile.generated
 
@@ -165,6 +167,17 @@ jobs:
           cache-from: ${{ env.CACHE_REF }}
           outputs: type=local,dest=${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}
 
+      - name: Export GEMC tarball (runner artifact)
+        uses: docker/build-push-action@v7
+        with:
+          pull: true
+          context: .
+          file: ./Dockerfile.generated
+          target: package-export
+          push: false
+          cache-from: ${{ env.CACHE_REF }}
+          outputs: type=local,dest=${{ runner.temp }}/artifacts/package-${{ env.LOGNAME }}
+
       - name: Pack logs
         shell: bash
         run: |
@@ -180,6 +193,44 @@ jobs:
           name: logs-${{ env.LOGNAME }}
           path: ${{ env.LOG_TAR }}
           if-no-files-found: ignore
+
+      - name: Upload GEMC tarball artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: gemc-tarball-${{ env.LOGNAME }}
+          path: ${{ runner.temp }}/artifacts/package-${{ env.LOGNAME }}/*.tar.gz
+          if-no-files-found: error
+
+  release_tarballs:
+    if: ${{ github.event_name != 'pull_request' && always() }}
+    name: Attach GEMC tarballs to dev release
+    needs: [ build_arch, discover ]
+    runs-on: ubuntu-latest
+    env:
+      TAG_NAME: dev
+    steps:
+      - name: Download GEMC tarballs
+        uses: actions/download-artifact@v7
+        with:
+          pattern: gemc-tarball-*
+          path: ${{ runner.temp }}/gemc-release-artifacts
+          merge-multiple: true
+
+      - name: Upload GEMC tarballs to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          shopt -s nullglob
+          tarballs=("${{ runner.temp }}/gemc-release-artifacts/"*.tar.gz)
+          shopt -u nullglob
+          if (( ${#tarballs[@]} == 0 )); then
+            echo "No GEMC tarballs found"
+            exit 1
+          fi
+          gh release view "${TAG_NAME}" >/dev/null 2>&1 || \
+            gh release create "${TAG_NAME}" --title "Dev Nightly" --prerelease --notes "Dev nightly release."
+          gh release upload "${TAG_NAME}" "${tarballs[@]}" --clobber
 
 
   # Manifest stitch

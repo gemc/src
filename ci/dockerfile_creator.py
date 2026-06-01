@@ -35,7 +35,16 @@ def docker_header(image: str, image_tag: str, geant4_tag: str) -> str:
     return commands
 
 
-def install_gemc(geant4_version: str, gemc_version: str) -> str:
+def install_gemc(geant4_version: str, gemc_version: str, source: str) -> str:
+    if source == "context":
+        commands = f'\nCOPY . /root/src \n'
+        commands += f'RUN  cd /root/src \\\n'
+        commands += f"     && DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . {remote_entrypoint()} \\\n"
+        commands += f'     && module load geant4/{geant4_version} \\\n'
+        commands += f'     &&  ./ci/build.sh  \\\n'
+        commands += f'     && echo "export PATH=\\${{SIM_HOME}}/gemc/dev/bin:\\${{SIM_HOME}}/gemc/dev/python_env/bin:\\${{PATH}}" >> {remote_entrypoint_addon()} \n'
+        return commands
+
     clone_arguments = f'-c advice.detachedHead=false --recurse-submodules --single-branch'
     if gemc_version == "dev":
         clone_arguments += ' --depth 1'
@@ -50,6 +59,18 @@ def install_gemc(geant4_version: str, gemc_version: str) -> str:
     return commands
 
 
+def package_install(geant4_version: str, gemc_version: str, image: str, image_tag: str, package_arch: str) -> str:
+    package_name = f'gemc-{gemc_version}-geant4-{geant4_version}-{image}-{image_tag}-{package_arch}'
+    commands = '\n# release tarball build \n'
+    commands += 'FROM final AS package-build \n'
+    commands += f'RUN  cd /root/src \\\n'
+    commands += f"     && DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . {remote_entrypoint()} \\\n"
+    commands += f'     && module load geant4/{geant4_version} \\\n'
+    commands += f'     && GEANT4_VERSION={geant4_version} GEMC_PACKAGE_VERSION={gemc_version} \\\n'
+    commands += f'        ./ci/package_install.sh "${{SIM_HOME}}/gemc/dev" /root/src/dist "{package_name}" \n'
+    return commands
+
+
 def log_exporters() -> str:
     commands = '\n# logs exporter \n'
     commands += 'FROM scratch AS logs-export \n'
@@ -57,11 +78,29 @@ def log_exporters() -> str:
     return commands
 
 
-def create_dockerfile(image: str, image_tag: str, geant4_version: str, gemc_version: str) -> str:
+def package_exporters() -> str:
+    commands = '\n# release package exporter \n'
+    commands += 'FROM scratch AS package-export \n'
+    commands += 'COPY --from=package-build /root/src/dist / \n'
+    return commands
+
+
+def create_dockerfile(
+    image: str,
+    image_tag: str,
+    geant4_version: str,
+    gemc_version: str,
+    with_package: bool = False,
+    source: str = "clone",
+    package_arch: str = "amd64",
+) -> str:
     commands = ""
     commands += docker_header(image, image_tag, geant4_version)
-    commands += install_gemc(geant4_version, gemc_version)
+    commands += install_gemc(geant4_version, gemc_version, source)
     commands += log_exporters()
+    if with_package:
+        commands += package_install(geant4_version, gemc_version, image, image_tag, package_arch)
+        commands += package_exporters()
 
     return commands
 
@@ -92,6 +131,18 @@ def main():
         "--gemc-version", default="dev",
         help="Version of GEMC to install (default: %(default)s)"
     )
+    parser.add_argument(
+        "--with-package", action="store_true",
+        help="Add a package-export stage that emits a GEMC install tarball"
+    )
+    parser.add_argument(
+        "--source", choices=["clone", "context"], default="clone",
+        help="Build GEMC from a GitHub clone or from the Docker build context"
+    )
+    parser.add_argument(
+        "--package-arch", choices=["amd64", "arm64"], default="amd64",
+        help="Architecture suffix to use in the package artifact name"
+    )
 
     args = parser.parse_args()
 
@@ -107,6 +158,9 @@ def main():
         args.image_tag,
         args.geant4_version,
         args.gemc_version,
+        args.with_package,
+        args.source,
+        args.package_arch,
     )
     print(dockerfile)
 
