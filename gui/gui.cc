@@ -1,6 +1,10 @@
 // gui
 #include "gui.h"
 #include "gtree.h"
+#include "g4SceneProperties.h"
+
+// geant4
+#include "G4UImanager.hh"
 
 
 
@@ -84,6 +88,26 @@ void GemcGUI::refreshGeometryTree() {
 	geometryTree = refreshedTree;
 	rightContent->insertWidget(treeIndex, geometryTree);
 	rightContent->setCurrentIndex(currentIndex == treeIndex ? treeIndex : currentIndex);
+
+	if (detectorConstruction->get_g4volumes_map().size() > 1) {
+		G4SceneProperties g4SceneProperties(guiOptions);
+		auto* g4uim = G4UImanager::GetUIpointer();
+		if (!g4uim) { return; }
+
+		auto commands = g4SceneProperties.scene_commands(guiOptions);
+		commands.emplace_back("/run/initialize");
+		commands.emplace_back("/vis/drawVolume");
+		commands.emplace_back("/vis/scene/add/trajectories smooth");
+		commands.emplace_back("/vis/modeling/trajectories/create/drawByCharge");
+		commands.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true");
+		commands.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
+		commands.emplace_back("/vis/scene/add/hits");
+		commands.emplace_back("/vis/scene/endOfEventAction accumulate 10000");
+		commands.emplace_back("/vis/viewer/set/background 0.05 0.05 0.26");
+		commands.emplace_back("/vis/viewer/flush");
+
+		for (const auto& command : commands) { g4uim->ApplyCommand(command); }
+	}
 }
 
 

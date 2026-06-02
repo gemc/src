@@ -16,6 +16,7 @@
 #include "gdetectorConstruction.h"
 #include "gaction.h"
 #include "gstreamer.h"
+#include "gsystem_options.h"
 
 // c++
 #include <cstdio>
@@ -28,6 +29,7 @@ int main(int argc, char* argv[]) {
 
 	auto gui      = gopts->getSwitch("gui");
 	auto nthreads = gemc::get_nthreads(gopts, log);
+	auto has_startup_geometry = !gsystem::getSystems(gopts).empty();
 
 
 	// createQtApplication returns a QApplication if gui is true
@@ -89,7 +91,7 @@ int main(int argc, char* argv[]) {
 	auto geventDispenser = std::make_shared<EventDispenser>(gopts, gdetector->get_digitization_routines_map());
 
 	auto app_result    = EXIT_SUCCESS;
-	auto init_commands = gemc::initial_commands(gopts, log);
+	auto init_commands = gemc::initial_commands(gopts, log, has_startup_geometry);
 
 	if (gui) {
 		// initializing qt session
@@ -100,7 +102,8 @@ int main(int argc, char* argv[]) {
 		// notice g4SceneProperties has to be declared after this, so we have to duplicate it for batch mode
 		auto* uiQtSession       = new G4UIQt(1, argv);
 		auto* g4SceneProperties = new G4SceneProperties(gopts);
-		auto scene_commands = g4SceneProperties->scene_commands(gopts);
+		std::vector<std::string> scene_commands;
+		if (has_startup_geometry) { scene_commands = g4SceneProperties->scene_commands(gopts); }
 
 		// add init_commands to scene_commands
 		scene_commands.insert(scene_commands.end(), init_commands.begin(), init_commands.end());
@@ -122,7 +125,8 @@ int main(int argc, char* argv[]) {
 	else {
 		auto* session           = new G4UIterminal(new G4UItcsh);
 		auto* g4SceneProperties = new G4SceneProperties(gopts);
-		auto scene_commands = g4SceneProperties->scene_commands(gopts);
+		std::vector<std::string> scene_commands;
+		if (has_startup_geometry) { scene_commands = g4SceneProperties->scene_commands(gopts); }
 
 		// set display properties in batch mode
 		scene_commands.insert(scene_commands.end(), init_commands.begin(), init_commands.end());

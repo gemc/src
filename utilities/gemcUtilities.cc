@@ -75,7 +75,8 @@ namespace gemc {
 	}
 
 	std::vector<std::string> initial_commands(const std::shared_ptr<GOptions>&                 gopts,
-											  [[maybe_unused]] const std::shared_ptr<GLogger>& log) {
+											  [[maybe_unused]] const std::shared_ptr<GLogger>& log,
+											  bool configure_visualization) {
 		// check_overlaps is typically provided by the Geant4 system options set.
 		auto check_overlaps = gopts->getScalarInt("check_overlaps"); // notice: from g4system options
 		auto gui            = gopts->getSwitch("gui");
@@ -101,6 +102,7 @@ namespace gemc {
 		// - geometry changes
 		cmds.emplace_back("/run/initialize");
 
+		if (!configure_visualization) return cmds;
 
 
 		// If there is no GUI, or no need for batch screenshot, initialization commands are enough.
