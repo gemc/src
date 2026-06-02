@@ -1,7 +1,5 @@
 # Build & Publish GitHub Container Registry (GHCR) Images
 name: Deploy and Test
-run-name: >-
-  ${{ github.event_name == 'workflow_dispatch' && 'pygemc workflow dispatch' || github.ref_name }}
 permissions:
   contents: write
   packages: write
@@ -200,39 +198,6 @@ jobs:
           name: gemc-tarball-${{ env.LOGNAME }}
           path: ${{ runner.temp }}/artifacts/package-${{ env.LOGNAME }}/*.tar.gz
           if-no-files-found: error
-
-  release_tarballs:
-    if: ${{ github.event_name != 'pull_request' && always() }}
-    name: Attach GEMC tarballs to dev release
-    needs: [ build_arch, discover ]
-    runs-on: ubuntu-latest
-    env:
-      TAG_NAME: dev
-    steps:
-      - name: Download GEMC tarballs
-        uses: actions/download-artifact@v7
-        with:
-          pattern: gemc-tarball-*
-          path: ${{ runner.temp }}/gemc-release-artifacts
-          merge-multiple: true
-
-      - name: Upload GEMC tarballs to release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-        shell: bash
-        run: |
-          shopt -s nullglob
-          tarballs=("${{ runner.temp }}/gemc-release-artifacts/"*.tar.gz)
-          shopt -u nullglob
-          if (( ${#tarballs[@]} == 0 )); then
-            echo "No GEMC tarballs found"
-            exit 1
-          fi
-          gh release view "${TAG_NAME}" --repo "$REPO" >/dev/null 2>&1 || \
-            gh release create "${TAG_NAME}" --repo "$REPO" --title "Dev Nightly" --prerelease --notes "Dev nightly release."
-          gh release upload "${TAG_NAME}" --repo "$REPO" "${tarballs[@]}" --clobber
-
 
   # Manifest stitch
   # uses matrix_manifest so it's not repeated for each arch
