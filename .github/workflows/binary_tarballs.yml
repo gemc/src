@@ -1,0 +1,145 @@
+# Upload and test GEMC binary tarballs.
+name: Binary Tarballs
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: gemc-binary-tarballs-${{ github.event.workflow_run.id || github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_run:
+    workflows: [ "Deploy and Test" ]
+    types: [ completed ]
+  schedule:
+    # nightly, after the GEMC dev release window
+    - cron: '44 5 * * *'
+  workflow_dispatch:
+
+jobs:
+  release-tarballs:
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'pull_request' }}
+    name: Attach GEMC tarballs to dev release
+    runs-on: ubuntu-latest
+    env:
+      TAG_NAME: dev
+    steps:
+      - name: Download GEMC tarballs from deploy run
+        uses: actions/download-artifact@v7
+        with:
+          pattern: gemc-tarball-*
+          path: ${{ runner.temp }}/gemc-release-artifacts
+          merge-multiple: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Upload GEMC tarballs to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          shopt -s nullglob
+          tarballs=("${{ runner.temp }}/gemc-release-artifacts/"*.tar.gz)
+          shopt -u nullglob
+          if (( ${#tarballs[@]} == 0 )); then
+            echo "No GEMC tarballs found"
+            exit 1
+          fi
+          gh release view "${TAG_NAME}" --repo "$REPO" >/dev/null 2>&1 || \
+            gh release create "${TAG_NAME}" --repo "$REPO" --title "Dev Nightly" --prerelease --notes "Dev nightly release."
+          gh release upload "${TAG_NAME}" --repo "$REPO" "${tarballs[@]}" --clobber
+
+  discover:
+    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'pull_request') }}
+    name: Create Job Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix_build: ${{ steps.scan.outputs.matrix_build }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - id: scan
+        name: Build matrix
+        run: ./ci/distros_tags.sh
+
+  test-tarball:
+    if: ${{ always() && needs.discover.result == 'success' && (github.event_name != 'workflow_run' || needs.release-tarballs.result == 'success') }}
+    name: ${{ matrix.image }}:${{ matrix.image_tag }} ${{ matrix.arch }}
+    needs: [ discover, release-tarballs ]
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix_build) }}
+    env:
+      TEST_IMAGE: gemc-binary-test:${{ matrix.image }}-${{ matrix.image_tag }}-${{ matrix.arch }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Generate minimal package Dockerfile
+        shell: bash
+        run: |
+          python3 - "${{ matrix.image }}" "${{ matrix.image_tag }}" > Dockerfile.gemc-binary-test <<'PY'
+          import sys
+
+          sys.path.insert(0, "ci")
+          from binary_packages import map_family, packages_install_command
+
+          image = sys.argv[1]
+          tag = sys.argv[2]
+          family = map_family(image)
+
+          print(f"FROM {image}:{tag}")
+          print('SHELL ["/bin/bash", "-c"]')
+
+          # Repo/bootstrap steps needed for package installation only. This
+          # deliberately skips g4install's Geant4/CLHEP/Xerces/noVNC builds.
+          if family == "archlinux":
+              print("RUN pacman-key --init && pacman-key --populate")
+              print("RUN pacman -Sy --noconfirm archlinux-keyring")
+          elif image == "almalinux":
+              print("RUN dnf install -y 'dnf-command(config-manager)' \\")
+              print("    && dnf config-manager --set-enabled crb")
+
+          print(packages_install_command(image, tag))
+          PY
+          cat Dockerfile.gemc-binary-test
+
+      - name: Build minimal package image
+        shell: bash
+        run: |
+          docker build \
+            --pull \
+            --platform "${{ matrix.platform }}" \
+            -f Dockerfile.gemc-binary-test \
+            -t "${TEST_IMAGE}" \
+            .
+
+      - name: Test GEMC binary tarball installation
+        shell: bash
+        run: |
+          archive="gemc-${{ matrix.gemc_tag }}-geant4-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-${{ matrix.arch }}.tar.gz"
+          url="https://github.com/gemc/src/releases/download/${{ matrix.gemc_tag }}/${archive}"
+
+          docker run --rm \
+            --platform "${{ matrix.platform }}" \
+            -e GEMC_TARBALL_URL="${url}" \
+            -e GEMC_TARBALL_ARCHIVE="${archive}" \
+            "${TEST_IMAGE}" \
+            bash -lc '
+              set -euo pipefail
+              gemc_home=/root/gemc
+              mkdir -p "$gemc_home"
+              cd "$gemc_home"
+              curl -L -o "$GEMC_TARBALL_ARCHIVE" "$GEMC_TARBALL_URL"
+              tar -xzf "$GEMC_TARBALL_ARCHIVE" -C "$gemc_home" --strip-components=1
+              ./install_geant4_data.sh
+              source /root/gemc/gemc.env
+              gemc -v
+              test_gdynamic_plugin_load
+              test_gdata_event_verbose
+            '
