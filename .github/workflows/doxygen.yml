@@ -3,6 +3,9 @@ permissions:
   contents: read
   pull-requests: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches:
@@ -34,6 +37,7 @@ jobs:
   deploy-doxygen:
     needs: build-doxygen
     permissions:
+      actions: read
       pages: write
       id-token: write
     environment:

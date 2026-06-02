@@ -1,5 +1,8 @@
 name: "CodeQL Advanced"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches: [ "main" ]
@@ -29,9 +32,6 @@ jobs:
     #   - https://gh.io/using-larger-runners (GitHub.com only)
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
-    # Use a container with G4 installed
-    container: ghcr.io/gemc/g4install:11.4.0-ubuntu-24.04
-
     permissions:
       # required for all workflows
       security-events: write
@@ -50,7 +50,7 @@ jobs:
           - language: actions
             build-mode: none
           - language: c-cpp
-            build-mode: manual
+            build-mode: none
           - language: python
             build-mode: none
         # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
@@ -98,30 +98,6 @@ jobs:
 
           # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
           # queries: security-extended,security-and-quality
-
-      # If the analyze step fails for one of the languages you are analyzing with
-      # "We were unable to automatically build your code", modify the matrix above
-      # to set the build mode to "manual" for that language. Then modify this step
-      # to build your code.
-      # ℹ️ Command-line programs to run using the OS shell.
-      # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-      - if: matrix.build-mode == 'manual'
-        shell: bash
-        env:
-          GEMC_SKIP_PYTHON_ENV_INSTALL: "1"
-        run: |
-          echo "Starting manual build for CodeQL..."
-
-          apt-get update
-          apt-get install -y python3-venv
-
-          export DOCKER_ENTRYPOINT_SOURCE_ONLY=1
-          . /usr/local/bin/docker-entrypoint.sh
-          module load geant4
-
-          ./ci/build.sh
-
-          echo "Manual build finished."
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4

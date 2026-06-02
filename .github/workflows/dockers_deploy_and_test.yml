@@ -8,6 +8,7 @@ permissions:
 env:
   GEMC_TAG: dev           # default gemc tag
   GEANT4_TAG: 11.4.1      # default geant4 tag
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
   group: gemc-images-${{ github.ref }}
@@ -71,7 +72,7 @@ jobs:
   # uses matrix_build
   build_arch:
     if: ${{ github.event_name != 'pull_request' }}
-    name: ${{ matrix.gemc_tag }} [${{ matrix.image }}/${{ matrix.image_tag }} ${{ matrix.arch }}]
+    name: ${{ matrix.image }}/${{ matrix.image_tag }} ${{ matrix.arch }}
     needs: [ overview, discover ]
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -205,7 +206,7 @@ jobs:
   # from already-pushed per-arch image tags.
   manifest:
     if: ${{ github.event_name != 'pull_request' }}
-    name: ${{ matrix.gemc_tag }} [${{ matrix.image }}/${{ matrix.image_tag }}]
+    name: ${{ matrix.image }}/${{ matrix.image_tag }}
     needs: [ build_arch, discover ]
     runs-on: ubuntu-latest
     # If arm64 was skipped (e.g., archlinux), still publish amd64-only manifest.
