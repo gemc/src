@@ -11,6 +11,9 @@
 #include <QHeaderView>
 #include <QStringList>
 
+// c++
+#include <sstream>
+
 
 // Implementation notes:
 // - Doxygen documentation is authoritative in dbselectView.h.
@@ -600,6 +603,24 @@ void DBSelectView::reload_geometry() {
 
 	// Extract selection into a SystemList and provide visibility into what is being reloaded.
 	auto reloaded_system = get_gsystems();
+	if (!reloaded_system.empty()) {
+		std::ostringstream gsystemYaml;
+		gsystemYaml << "[";
+		for (size_t i = 0; i < reloaded_system.size(); ++i) {
+			const auto& gsys = reloaded_system[i];
+			if (i > 0) { gsystemYaml << ", "; }
+			gsystemYaml << "{name: " << gsys->getName()
+			            << ", factory: " << gsys->getFactoryName()
+			            << ", variation: " << gsys->getVariation();
+			if (gsys->getAnnotations() != UNINITIALIZEDSTRINGQUANTITY) {
+				gsystemYaml << ", annotations: " << gsys->getAnnotations();
+			}
+			gsystemYaml << "}";
+		}
+		gsystemYaml << "]";
+		gopt->setOptionValueFromString("gsystem", gsystemYaml.str());
+		gopt->setOptionValueFromString("runno", std::to_string(reloaded_system.front()->getRunno()));
+	}
 	for (auto& gsys : reloaded_system) {
 		log->info(2, SFUNCTION_NAME, ": reloaded system: ", gsys->getName());
 	}
