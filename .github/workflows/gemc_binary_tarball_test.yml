@@ -92,13 +92,13 @@ jobs:
             "${TEST_IMAGE}" \
             bash -lc '
               set -euo pipefail
-              gemc_home=/path/to/gemc
+              gemc_home=/root/gemc
               mkdir -p "$gemc_home"
               cd "$gemc_home"
               curl -L -o "$GEMC_TARBALL_ARCHIVE" "$GEMC_TARBALL_URL"
               tar -xzf "$GEMC_TARBALL_ARCHIVE" -C "$gemc_home" --strip-components=1
               ./install_geant4_data.sh
-              source /path/to/gemc/gemc.env
+              source /root/gemc/gemc.env
               gemc -v
               test_gdynamic_plugin_load
               test_gdata_event_verbose

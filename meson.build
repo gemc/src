@@ -88,6 +88,7 @@ foreach L : LD
     this_deps = L.get('dependencies', [])
     this_internal_libs = L.get('internal_dependencies', [])
     plugins = L.get('plugins', empty_dict)
+    plugin_dependencies = L.get('plugin_dependencies', empty_dict)
     additional_includes = L.get('additional_includes', [''])
     moc_headers = L.get('moc_headers', [''])
     moc_sources = []
@@ -138,11 +139,15 @@ foreach L : LD
 
     if plugins != empty_dict
         foreach name, sources : plugins
+            this_plugin_dependencies = [this_deps, zlib_dep]
+            if plugin_dependencies.has_key(name)
+                this_plugin_dependencies += plugin_dependencies[name]
+            endif
             shared_library(
                 name,
                 sources[0],
                 install : sources[1],
-                dependencies : [this_deps, zlib_dep],
+                dependencies : this_plugin_dependencies,
                 include_directories : all_includes + this_lib_name + additional_includes,
                 link_with : this_library_link_with,
                 name_suffix : 'gplugin',

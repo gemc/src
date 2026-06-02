@@ -99,12 +99,13 @@ streamer_plugins = {
 }
 
 streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_core_deps]
+streamer_plugin_dependencies = {}
 additional_includes = ['gstreamer', 'gstreamer/factories/ASCII', 'gstreamer/factories/CSV', 'gstreamer/factories/JLABSRO', 'gstreamer/factories/JSON']
 
 # Add ROOT bits if available
 if root_dep.found()
     streamer_plugins += { 'gstreamer_root_plugin' : root_plugin_files }
-    streamer_dependencies += root_dep
+    streamer_plugin_dependencies += { 'gstreamer_root_plugin' : [root_dep] }
     additional_includes += ['gstreamer/factories/ROOT']
 endif
 
@@ -141,6 +142,7 @@ LD += {
     'headers' : files('gstreamer.h', 'gstreamerConventions.h', 'gstreamer_options.h'),
     'plugins' : streamer_plugins,
     'dependencies' : streamer_dependencies,
+    'plugin_dependencies' : streamer_plugin_dependencies,
     'internal_dependencies' : internal_deps,
     'additional_includes' : additional_includes,
     'examples' : examples,
