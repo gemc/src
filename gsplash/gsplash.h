@@ -19,6 +19,7 @@
  * This string is passed to the base logging facilities to tag messages produced by GSplash.
  */
 constexpr const char* GSPLASH_LOGGER = "gsplash";
+constexpr const char* GSPLASH_TIME_OPTION = "splash_time";
 
 /**
  * @ingroup gsplash_core
@@ -35,10 +36,17 @@ namespace gsplash {
  *
  * Expected options consumed by GSplash at runtime include:
  * - \c --gui : when enabled, GSplash will create and show a splash screen; otherwise GSplash::create returns nullptr.
+ * - \c -splash_time : minimum time in seconds to keep the splash visible before closing it.
  *
  * \return A GOptions definition for the GSplash module.
  */
-inline GOptions defineOptions() { return GOptions(GSPLASH_LOGGER); }
+inline GOptions defineOptions() {
+	GOptions goptions(GSPLASH_LOGGER);
+	goptions.defineOption(GVariable(GSPLASH_TIME_OPTION, -1.0, "splash display time in seconds"),
+	                      "Minimum time in seconds to keep the splash image visible before closing it. "
+	                      "A negative value uses the application default.");
+	return goptions;
+}
 
 } // namespace gsplash
 
@@ -80,7 +88,8 @@ public:
 	 */
 	static std::unique_ptr<GSplash>
 	create(const std::shared_ptr<GOptions>& gopts,
-	       const std::string&               imageName = "gemcArchitecture");
+	       const std::string&               imageName = "gemcArchitecture",
+	       double                           splashTime = -1.0);
 
 	/**
 	 * \brief Displays a message on the splash screen immediately.
@@ -114,7 +123,7 @@ public:
 	 *
 	 * \param callingWindow The window that should receive focus after closing the splash.
 	 */
-	void finish(QWidget* callingWindow) const { if (splash != nullptr) { splash->finish(callingWindow); } }
+	void finish(QWidget* callingWindow) const;
 
 private:
 	/**
@@ -127,7 +136,8 @@ private:
 	 * \param imageName Splash image name or path. See class documentation for the selection rules.
 	 */
 	GSplash(const std::shared_ptr<GOptions>& gopts,
-	        const std::string&               imageName);
+	        const std::string&               imageName,
+	        double                           splashTime);
 
 	/**
 	 * \brief The underlying \c QSplashScreen widget.
@@ -135,5 +145,6 @@ private:
 	 * This pointer remains null when the image cannot be loaded; in that case, message methods are no-ops.
 	 */
 	std::unique_ptr<QSplashScreen> splash;
+	double                         splash_time = 0.0;
 
 };

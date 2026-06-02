@@ -13,7 +13,7 @@ GEMC, the GEant Monte-Carlo, is a database-driven [Geant4](https://geant4.web.ce
 
 The project goal is to make Geant4-based simulation accessible to users who want to prototype detector systems without writing a custom Geant4 application, while still preserving C++ extension points for advanced detector response and output workflows.
 
-![GEMC architecture](https://gemc.github.io/home/assets/images/gemcArchitecture.png)
+![GEMC architecture](https://gemc.github.io/home/assets/images/gemcArchitecture.svg)
 
 ## Highlights
 

@@ -16,8 +16,12 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 	// Page order must match the left button bar order so indexes remain consistent.
 	rightContent->addWidget(new G4Display(gopts));
 	rightContent->addWidget(new G4Dialog(gopts, gb));
-	rightContent->addWidget(new DBSelectView(gopts, dc));
-	rightContent->addWidget(new GTree(gopts, dc->get_g4volumes_map()));
+	auto* setupView = new DBSelectView(gopts, dc);
+	rightContent->addWidget(setupView);
+	connect(setupView, &DBSelectView::geometryReloaded, this, &GemcGUI::refreshGeometryTree);
+
+	geometryTree = new GTree(gopts, dc->get_g4volumes_map());
+	rightContent->addWidget(geometryTree);
 
 	// Default to the first page and update the left bar visual highlight accordingly.
 	rightContent->setCurrentIndex(0);

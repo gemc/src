@@ -282,6 +282,15 @@ public slots:
 	 * - Clear the modified state and refresh the UI.
 	 */
 	void reload_geometry();
+
+signals:
+	/**
+	 * \brief Emitted after detector construction has reloaded geometry from the selected systems.
+	 *
+	 * GUI containers use this signal to refresh pages whose models are built from detector
+	 * construction state, such as the geometry volume tree.
+	 */
+	void geometryReloaded();
 };
 
 

@@ -15,6 +15,8 @@
 // gboard
 #include "gui_session.h"
 
+class GTree;
+
 /**
  * @class GemcGUI
  * @ingroup gemc_gui_module
@@ -130,6 +132,10 @@ private:
 	 */
 	std::unique_ptr<GUI_Session> guiSession;
 
+	std::shared_ptr<GOptions> guiOptions;
+	GDetectorConstruction* detectorConstruction = nullptr;
+	GTree* geometryTree = nullptr;
+
 private:
 	/**
 	 * \brief Create and initialize the left-side page selection buttons.
@@ -157,6 +163,14 @@ private:
 	 * \param topLayout Layout that receives the top-row widgets (labels, buttons, counters).
 	 */
 	void createTopButtons(QHBoxLayout* topLayout);
+
+	/**
+	 * \brief Rebuild the volume tree page from the current detector construction state.
+	 *
+	 * Called after setup-tab geometry reloads so the Volumes tab reflects the same geometry
+	 * shown in the display.
+	 */
+	void refreshGeometryTree();
 
 	/**
 	 * \brief Update the GUI event counter label after running events.

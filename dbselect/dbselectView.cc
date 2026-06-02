@@ -610,4 +610,5 @@ void DBSelectView::reload_geometry() {
 	// Reload completes the edit cycle: clear modified state.
 	modified = false;
 	updateModifiedUI();
+	emit geometryReloaded();
 }

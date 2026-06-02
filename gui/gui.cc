@@ -1,5 +1,6 @@
 // gui
 #include "gui.h"
+#include "gtree.h"
 
 
 
@@ -8,7 +9,9 @@ GemcGUI::GemcGUI(std::shared_ptr<GOptions>       gopts,
                  GDetectorConstruction*          dc,
                  QWidget*                        parent) :
 	QWidget(parent),
-	eventDispenser(ed) {
+	eventDispenser(ed),
+	guiOptions(gopts),
+	detectorConstruction(dc) {
 
 	// Create the left navigation pane first; right content initialization uses it to sync selection state.
 	createLeftButtons();           // instantiates leftButtons
@@ -64,6 +67,23 @@ void GemcGUI::updateGui() {
 	newNEvents.append(std::to_string(nBefore + nThatWasRun).c_str());
 
 	eventNumberLabel->setText(newNEvents);
+}
+
+
+void GemcGUI::refreshGeometryTree() {
+	if (!rightContent || !detectorConstruction || !guiOptions || !geometryTree) { return; }
+
+	const int treeIndex = rightContent->indexOf(geometryTree);
+	if (treeIndex < 0) { return; }
+
+	const int currentIndex = rightContent->currentIndex();
+	auto* refreshedTree = new GTree(guiOptions, detectorConstruction->get_g4volumes_map());
+
+	rightContent->removeWidget(geometryTree);
+	geometryTree->deleteLater();
+	geometryTree = refreshedTree;
+	rightContent->insertWidget(treeIndex, geometryTree);
+	rightContent->setCurrentIndex(currentIndex == treeIndex ? treeIndex : currentIndex);
 }
 
 

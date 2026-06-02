@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 	auto app = gemc::makeQtApplication(argc, argv, gui);
 
 	// splash screen - nullptr if in batch mode
-	auto spash_screen = GSplash::create(gopts, "gemcArchitecture");
+	auto spash_screen = GSplash::create(gopts, "gemcArchitecture", 0.2);
 
 
 	// random engine set by options
