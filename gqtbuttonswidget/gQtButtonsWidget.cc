@@ -1,7 +1,9 @@
 #include "gQtButtonsWidget.h"
-#include <QFileInfo>
 #include <QBoxLayout>
+#include <QFile>
 #include <QListView>
+#include <QEvent>
+#include <QShowEvent>
 
 /* --- ButtonInfo Implementation ---
  *
@@ -14,23 +16,35 @@ ButtonInfo::ButtonInfo(const std::string& icon)
 	: buttonName(icon) {
 	thisButton = new QListWidgetItem();
 
-	// Initialize the item in the "normal" state.
-	thisButton->setIcon(iconForState(1));
-
 	// The list item must be enabled/selectable to behave as a clickable icon entry.
 	thisButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 }
 
-QIcon ButtonInfo::iconForState(int state) const {
+QIcon ButtonInfo::iconForState(int state, const QSize& iconSize, const QPalette& palette) const {
 	// Build the expected resource/file name for the requested state.
-	std::string filename = buttonName + "_" + std::to_string(state) + ".svg";
+	const std::string filename = buttonName + "_" + std::to_string(state) + ".svg";
 
-	// QFileInfo is used as an existence check; if missing, return an empty icon.
-	QFileInfo fileInfo(QString::fromStdString(filename));
-	if (fileInfo.exists() && fileInfo.isFile()) {
-		return QIcon(QString::fromStdString(filename));
+	QFile file(QString::fromStdString(filename));
+	if (!file.open(QIODevice::ReadOnly)) {
+		return QIcon();
 	}
-	return QIcon();
+
+	QString svg = QString::fromUtf8(file.readAll());
+	const QColor foreground = state == 2
+	                          ? palette.color(QPalette::HighlightedText)
+	                          : palette.color(QPalette::WindowText);
+	const QColor selectedBackground = palette.color(QPalette::Highlight);
+
+	svg.replace("width=\"48\" height=\"48\"",
+	            QString("width=\"%1\" height=\"%2\"").arg(iconSize.width()).arg(iconSize.height()));
+	svg.replace("currentColor", foreground.name(QColor::HexRgb));
+	svg.replace("#aaddff", selectedBackground.name(QColor::HexRgb), Qt::CaseInsensitive);
+
+	QPixmap pixmap;
+	if (!pixmap.loadFromData(svg.toUtf8(), "SVG")) {
+		return QIcon();
+	}
+	return QIcon(pixmap);
 }
 
 /* --- GQTButtonsWidget Implementation ---
@@ -57,13 +71,14 @@ GQTButtonsWidget::GQTButtonsWidget(double                          h, double v,
 	buttonsWidget->setViewMode(QListView::IconMode);
 	buttonsWidget->setIconSize(QSize(static_cast<int>(h), static_cast<int>(v)));
 
-	// Remove selection highlight to keep the visual "button" look consistent.
+	// SVG colors are resolved from the Qt palette in ButtonInfo::iconForState().
 	buttonsWidget->setStyleSheet(
 		"background-color: transparent; "
 		"QListWidget::item:selected { background: transparent; border: none; }");
 
 	// Insert each QListWidgetItem into the list widget.
 	for (auto& b : buttons) {
+		b->thisButton->setIcon(b->iconForState(1, buttonsWidget->iconSize(), buttonsWidget->palette()));
 		buttonsWidget->addItem(b->thisButton);
 	}
 
@@ -95,31 +110,53 @@ GQTButtonsWidget::GQTButtonsWidget(double                          h, double v,
 		"QListWidget::item { background: transparent; border: none; }"
 		"QListWidget::item:selected { background: transparent; border: none; outline: none; }"
 	);
+
+	refresh_icons();
 }
 
 void GQTButtonsWidget::press_button(int i) {
 	// Select the requested row and switch its icon to the "pressed" state.
 	buttonsWidget->setCurrentRow(i);
-	if (i >= 0 && i < static_cast<int>(buttons.size()))
-		buttonsWidget->item(i)->setIcon(buttons[i]->iconForState(2));
+	refresh_icons();
 }
 
 void GQTButtonsWidget::buttonWasPressed(QListWidgetItem* item) {
-	// Reset all items to normal state.
-	for (int i = 0; i < buttonsWidget->count(); i++) {
-		buttonsWidget->item(i)->setIcon(buttons[i]->iconForState(1));
-	}
-
-	// Set the icon for the pressed item.
-	int index = buttonsWidget->row(item);
-	item->setIcon(buttons[index]->iconForState(2));
+	buttonsWidget->setCurrentItem(item);
+	refresh_icons();
 }
 
 void GQTButtonsWidget::reset_buttons() {
 	// Restore every button icon to the "normal" state (state 1).
-	for (auto& b : buttons) {
-		b->thisButton->setIcon(b->iconForState(1));
+	buttonsWidget->setCurrentRow(-1);
+	refresh_icons();
+}
+
+void GQTButtonsWidget::refresh_icons() {
+	if (!buttonsWidget) { return; }
+
+	const int currentRow = buttonsWidget->currentRow();
+	const QPalette palette = buttonsWidget->palette();
+	const QSize iconSize = buttonsWidget->iconSize();
+
+	for (int row = 0; row < buttonsWidget->count(); row++) {
+		const int state = row == currentRow ? 2 : 1;
+		buttonsWidget->item(row)->setIcon(buttons[row]->iconForState(state, iconSize, palette));
 	}
+}
+
+void GQTButtonsWidget::changeEvent(QEvent* event) {
+	QWidget::changeEvent(event);
+
+	if (event->type() == QEvent::PaletteChange ||
+	    event->type() == QEvent::ApplicationPaletteChange ||
+	    event->type() == QEvent::StyleChange) {
+		refresh_icons();
+	}
+}
+
+void GQTButtonsWidget::showEvent(QShowEvent* event) {
+	QWidget::showEvent(event);
+	refresh_icons();
 }
 
 /* --- GQTToggleButtonWidget Implementation ---

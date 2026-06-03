@@ -1,7 +1,8 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource>
-        <file alias="gemcArchitecture">images/gemcArchitecture.svg</file>
+        <file alias="gemcArchitecture_light">images/gemcArchitecture_light.png</file>
+        <file alias="gemcArchitecture_dark">images/gemcArchitecture_dark.png</file>
         <file>gui/images/buttons/display_1.svg</file>
         <file>gui/images/buttons/display_2.svg</file>
         <file>gui/images/buttons/dialog_1.svg</file>

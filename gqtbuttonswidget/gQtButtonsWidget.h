@@ -10,6 +10,10 @@
 #include <QPushButton>
 #include <QVector>
 #include <QIcon>
+#include <QPalette>
+#include <QSize>
+#include <QEvent>
+#include <QShowEvent>
 
 /**
  * \struct ButtonInfo
@@ -67,7 +71,7 @@ struct ButtonInfo
 	 *
 	 * \return \c QIcon for the requested state or an empty icon if the file does not exist.
 	 */
-	QIcon iconForState(int state) const;
+	QIcon iconForState(int state, const QSize& iconSize, const QPalette& palette) const;
 
 private:
 	std::string buttonName; ///< Base icon name used to form state-specific filenames.
@@ -160,6 +164,20 @@ public:
 	 * It does not change the current selection row.
 	 */
 	void reset_buttons();
+
+private:
+	/**
+	 * \brief Re-render all icons from the current widget palette.
+	 *
+	 * Qt can finalize or change the application palette after construction, especially
+	 * when the widget is first shown. Re-rendering keeps SVG currentColor replacements
+	 * synchronized with the active light/dark theme.
+	 */
+	void refresh_icons();
+
+protected:
+	void changeEvent(QEvent* event) override;
+	void showEvent(QShowEvent* event) override;
 
 private:
 	/**
