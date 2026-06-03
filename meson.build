@@ -167,16 +167,18 @@ foreach L : LD
         # geometry, higher priority so it is run before the test
         if geo_build != empty_dict
             foreach name, geo_python_script : geo_build
-                examples_dir = get_option('prefix') + '/test/' + this_lib_name
+                install_examples_dir = get_option('prefix') + '/test/' + this_lib_name
+                test_examples_dir = meson.project_build_root() + '/test/' + this_lib_name
+                run_command('mkdir', '-p', test_examples_dir, check : true)
                 source_subdir = this_lib_name + '/examples/'
                 install_subdir(source_subdir,
-                               install_dir : examples_dir,
+                               install_dir : install_examples_dir,
                                strip_directory : true,
                                follow_symlinks : true)
                 test(name,
                      python_exe,
                      args : [geo_python_script],
-                     workdir : examples_dir,
+                     workdir : test_examples_dir,
                      is_parallel : false,
                      env : test_env,
                      priority : 20)
@@ -304,6 +306,7 @@ endforeach
 
 
 subdir('examples')
+meson.add_install_script(find_program('python3'), files('ci/install_examples_db.py'))
 subdir('tests')
 
 post_install = run_command('echo', 'Installation completed!', check : true)
