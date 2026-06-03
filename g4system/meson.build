@@ -2,7 +2,7 @@ sub_dir_name = meson.current_source_dir().split('/').get(-1)
 internal_deps = ['goptions', 'guts', 'glogging', 'gsystem', 'gfactory']
 
 example_source = files('examples/g4system_example.cc')
-examples_dir = get_option('prefix') + '/test/' + sub_dir_name
+examples_dir = meson.project_build_root() + '/test/' + sub_dir_name
 
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
 gsystem = ['-gsystem="[{name: b1}]"']

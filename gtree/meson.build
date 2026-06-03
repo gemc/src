@@ -10,7 +10,7 @@ example_source = files('examples/gtree_example.cc')
 verbosities = ['-verbosity.gtree=2',
                '-debug.gtree=true']
 
-examples_dir = get_option('prefix') + '/test/' + sub_dir_name
+examples_dir = meson.project_build_root() + '/test/' + sub_dir_name
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
 gsystem = ['-gsystem="[{name: b2}]"']
 

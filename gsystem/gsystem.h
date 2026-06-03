@@ -80,6 +80,18 @@ public:
 		return std::make_unique<GSystem>(*this);
 	}
 
+	/**
+	 * \brief Clone only the system selection metadata.
+	 *
+	 * \return A fresh, empty system descriptor with the same source, factory, run,
+	 *         variation, and annotation settings.
+	 *
+	 * \details Factories populate GSystem instances by adding materials and volumes.
+	 * GUI reload/run handoffs need to preserve the selected systems without
+	 * reusing already-populated maps.
+	 */
+	[[nodiscard]] std::shared_ptr<GSystem> descriptorClone(const std::shared_ptr<GOptions>& gopts) const;
+
 private:
 	std::string dbhost;      ///< Database host (sqlite filename or remote DB host).
 	std::string name;        ///< System name (parsed from \c sname).
@@ -122,7 +134,7 @@ public:
 	 * \details This is used primarily by file-based factories to resolve where to search
 	 * for system resources (e.g. ASCII geometry/material files, CAD directories).
 	 */
-	std::string getFilePath();
+	std::string getFilePath() const;
 
 	/**
 	 * \brief Sets the database host.

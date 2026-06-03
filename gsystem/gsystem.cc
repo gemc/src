@@ -70,6 +70,12 @@ GSystem::GSystem(const std::shared_ptr<GOptions>& gopts,
 	}
 }
 
+// See gsystem.h for API docs.
+std::shared_ptr<GSystem> GSystem::descriptorClone(const std::shared_ptr<GOptions>& gopts) const {
+	return std::make_shared<GSystem>(gopts, dbhost, getFilePath(), factoryName, experiment, runno, variation,
+	                                 annotations);
+}
+
 
 // MARK: GVOLUMES
 
@@ -191,7 +197,7 @@ const GMaterial* GSystem::getMaterialForGVolume(const std::string& volumeName) c
 
 
 // See gsystem.h for API docs.
-std::string GSystem::getFilePath() {
+std::string GSystem::getFilePath() const {
 	if (path.empty())
 		return name;
 	return path + "/" + name;

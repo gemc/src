@@ -2,7 +2,7 @@ sub_dir_name = meson.current_source_dir().split('/').get(-1)
 internal_deps = ['goptions', 'guts', 'gtouchable', 'gfactory']
 
 # notice the test run on the installation dir, which does has 'examples' stripped from the path
-examples_dir = get_option('prefix') + '/test/' + sub_dir_name
+examples_dir = meson.project_build_root() + '/test/' + sub_dir_name
 gsystem_sqlite = ['-gsystem="[{name: b1}]"', '-sql=' + examples_dir + '/gemc.db']
 gsystem_ascii = ['-gsystem="[{name: b1, factory: ascii}]"', '-ascii_db=' + examples_dir]
 example_pysource = files('examples/example.py')
