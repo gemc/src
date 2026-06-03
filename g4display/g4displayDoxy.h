@@ -17,7 +17,7 @@
  * The module is primarily composed of:
  * - \ref G4Display : main widget that hosts visualization control tabs.
  * - \ref G4DisplayView : tab that provides camera, lighting, slice controls, and view toggles.
- * - \ref G4DisplayUtilities : tab intended for auxiliary display utilities (currently a minimal placeholder).
+ * - \ref G4DisplayUtilities : tab with scene decoration and text controls.
  * - \ref G4SceneProperties : helper that generates Geant4 visualization commands for initial scene setup.
  * - g4display options helpers (see \ref g4display::defineOptions and related getters) used to map GOptions
  *   configuration into simple structs consumed by the GUI and scene initializers.

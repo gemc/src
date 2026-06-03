@@ -138,6 +138,7 @@ private:
 	GTree* geometryTree = nullptr;
 	bool geometryReloadedSinceRun = false;
 	bool viewerInitialized = false;
+	bool visualizationNeedsRunRestore = false;
 
 private:
 	/**
@@ -182,6 +183,14 @@ private:
 	 * trajectories are removed while their old geometry references are still valid.
 	 */
 	void resetVisualizationBeforeGeometryReload();
+
+	/**
+	 * \brief Redraw persistent scene models after display options changed in the GUI.
+	 *
+	 * The redraw updates geometry, text, and decorations immediately, and records that
+	 * trajectories/hits must be restored before the next BeamOn.
+	 */
+	void refreshVisualizationFromOptions();
 
 	/**
 	 * \brief Reinitialize reloaded geometry through Geant4 before event processing.

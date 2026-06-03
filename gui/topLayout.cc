@@ -12,6 +12,9 @@ void GemcGUI::createTopButtons(QHBoxLayout* topLayout) {
 	// - number-of-events field
 	// - run/cycle/stop/exit buttons
 	// - current event counter label
+	topLayout->setContentsMargins(0, 0, 0, 0);
+	topLayout->setSpacing(6);
+
 	auto* nEventsLabel = new QLabel(tr("N. Events:"));
 
 	auto* runButton = new QPushButton(tr("Run"));

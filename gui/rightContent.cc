@@ -3,6 +3,7 @@
 
 // gemc
 #include "g4display.h"
+#include "g4displayutilities.h"
 #include "g4dialog.h"
 #include "dbselectView.h"
 #include "gtree.h"
@@ -14,7 +15,13 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 	rightContent = new QStackedWidget;
 
 	// Page order must match the left button bar order so indexes remain consistent.
-	rightContent->addWidget(new G4Display(gopts));
+	auto* g4display = new G4Display(gopts);
+	rightContent->addWidget(g4display);
+	auto* displayUtilities = g4display->findChild<G4DisplayUtilities*>();
+	if (displayUtilities) {
+		connect(displayUtilities, &G4DisplayUtilities::sceneOptionsChanged,
+		        this, &GemcGUI::refreshVisualizationFromOptions);
+	}
 	rightContent->addWidget(new G4Dialog(gopts, gb));
 	auto* setupView = new DBSelectView(gopts, dc);
 	rightContent->addWidget(setupView);

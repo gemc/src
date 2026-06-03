@@ -8,7 +8,7 @@
  * - creating/opening a viewer,
  * - applying camera defaults,
  * - configuring viewer precision,
- * - inserting optional scene text annotations.
+ * - building optional scene text annotation and decoration commands.
  *
  * The generated commands are intended to be sent to \c G4UImanager by the caller.
  *
@@ -31,8 +31,7 @@
  * \ref G4SceneProperties encapsulates the “policy” of how a scene is initialized from options:
  * - determine whether GUI mode is enabled (\c --gui),
  * - optionally enable DAWN output (\c --useDawn),
- * - open a viewer driver and apply initial camera/viewer settings,
- * - add optional text annotations configured via the \c g4text option.
+ * - open a viewer driver and apply initial camera/viewer settings.
  *
  * The helper does not apply commands directly; it returns a list of command strings so the caller can decide
  * when to execute them (typically right after the Geant4 visualization system is initialized).
@@ -55,17 +54,26 @@ public:
 	 * The \c g4text option is parsed into a list of g4display::G4SceneText objects, and then mapped to
 	 * Geant4 commands of the form:
 	 * - \c /vis/scene/add/text  (3D text that belongs to the scene),
-	 * - \c /vis/scene/add/text2D (2D text, when the Z coordinate is explicitly provided).
+	 * - \c /vis/scene/add/text2D (2D overlay text).
 	 *
 	 * For each entry the method:
 	 * - sets \c /vis/set/textColour,
+	 * - optionally sets \c /vis/set/textLayout,
 	 * - issues the appropriate \c /vis/scene/add/... command with position and size,
-	 * - restores the default text color by issuing \c /vis/set/textColour with no arguments.
+	 * - restores text layout and color defaults where needed.
 	 *
 	 * \param gopts Shared options object used to read text configuration.
 	 * \return Vector of Geant4 command strings that insert the configured text into the current scene.
 	 */
 	std::vector<std::string> addSceneTexts(const std::shared_ptr<GOptions>& gopts);
+
+	/**
+	 * \brief Build commands for optional scene decorations such as scale, axes, logos, and frame.
+	 *
+	 * \param gopts Shared options object used to read decoration configuration.
+	 * \return Vector of Geant4 commands that add configured decorations.
+	 */
+	std::vector<std::string> addSceneDecorations(const std::shared_ptr<GOptions>& gopts);
 
 	/**
 	 * \brief Build the full command sequence for scene initialization.
@@ -74,7 +82,6 @@ public:
 	 * - scene creation (\c /vis/scene/create),
 	 * - optional DAWN viewer setup (when \c useDawn is enabled),
 	 * - viewer open and initial configuration (when \c gui is enabled),
-	 * - insertion of scene texts (when configured),
 	 * - camera direction and precision settings.
 	 *
 	 * \param gopts Shared options object used to derive viewer/camera configuration.

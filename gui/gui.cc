@@ -6,6 +6,9 @@
 // geant4
 #include "G4UImanager.hh"
 
+// c++
+#include <algorithm>
+
 
 namespace {
 void resetSceneBeforeGeometryReload(G4UImanager* g4uim) {
@@ -38,10 +41,17 @@ void restoreSceneModels(G4UImanager* g4uim, const std::shared_ptr<GOptions>& gop
 	if (!g4uim) { return; }
 
 	const auto g4view = g4display::getG4View(gopts);
+	G4SceneProperties g4SceneProperties(gopts);
+
 	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh false");
+	g4uim->ApplyCommand("/vis/scene/removeModel all");
+	g4uim->ApplyCommand("/vis/viewer/clearTransients");
+	g4uim->ApplyCommand("/vis/viewer/clear");
 	g4uim->ApplyCommand("/vis/drawVolume");
 	g4uim->ApplyCommand("/vis/viewer/set/background " + g4view.background);
 	g4uim->ApplyCommand("/vis/viewer/set/numberOfCloudPoints " + std::to_string(g4view.cloudPoints));
+	for (const auto& command : g4SceneProperties.addSceneTexts(gopts)) { g4uim->ApplyCommand(command); }
+	for (const auto& command : g4SceneProperties.addSceneDecorations(gopts)) { g4uim->ApplyCommand(command); }
 	if (includeEventModels) {
 		g4uim->ApplyCommand("/vis/scene/add/trajectories smooth");
 		g4uim->ApplyCommand("/vis/modeling/trajectories/create/drawByCharge");
@@ -85,19 +95,31 @@ GemcGUI::GemcGUI(std::shared_ptr<GOptions>       gopts,
 
 	// Bottom row contains left navigation and right content; stretch factor favors the content area.
 	auto* bottomLayout = new QHBoxLayout;
+	bottomLayout->setContentsMargins(0, 0, 0, 0);
+	bottomLayout->setSpacing(6);
 	// second argument is stretch factor. Right content can have 10 times more space.
 	bottomLayout->addWidget(leftButtons, 1);
 	bottomLayout->addWidget(rightContent, 10);
 
 	// Main layout: top controls, bottom panes, and board.
 	auto* mainLayout = new QVBoxLayout;
+	mainLayout->setContentsMargins(6, 6, 6, 6);
+	mainLayout->setSpacing(6);
 	mainLayout->addLayout(topLayout);
-	mainLayout->addLayout(bottomLayout);
-	mainLayout->addWidget(gboard);
+	mainLayout->addLayout(bottomLayout, 1);
+	mainLayout->addWidget(gboard, 0);
 
 	setLayout(mainLayout);
 	setWindowTitle(tr("GEMC: Geant4 Monte-Carlo"));
 	setFixedWidth(1000);
+	setMinimumHeight(760);
+	resize(1000, std::max(sizeHint().height(), 760));
+	QTimer::singleShot(0, this, [this]() {
+		adjustSize();
+		const int preferredHeight = std::max(sizeHint().height(), 760);
+		setMinimumHeight(preferredHeight);
+		resize(1000, preferredHeight);
+	});
 
 	// Timer used for cycle mode; timeouts are connected to cycleBeamOn().
 	gtimer = new QTimer(this);
@@ -128,6 +150,15 @@ void GemcGUI::resetVisualizationBeforeGeometryReload() {
 	resetSceneBeforeGeometryReload(G4UImanager::GetUIpointer());
 }
 
+void GemcGUI::refreshVisualizationFromOptions() {
+	if (!detectorConstruction || !detectorConstruction->has_built_geometry()) { return; }
+
+	auto* g4uim = G4UImanager::GetUIpointer();
+	if (!g4uim) { return; }
+
+	restoreSceneModels(g4uim, guiOptions, false);
+	visualizationNeedsRunRestore = true;
+}
 
 void GemcGUI::refreshGeometryTree() {
 	if (!rightContent || !detectorConstruction || !guiOptions || !geometryTree) { return; }
@@ -166,13 +197,15 @@ void GemcGUI::refreshGeometryTree() {
 }
 
 void GemcGUI::prepareGeometryForBeamOn() {
-	if (!geometryReloadedSinceRun || !detectorConstruction) { return; }
+	if ((!geometryReloadedSinceRun && !visualizationNeedsRunRestore) || !detectorConstruction) { return; }
 	if (!detectorConstruction->has_built_geometry()) { return; }
 
 	auto* g4uim = G4UImanager::GetUIpointer();
 	resetEventDrawingBeforeRun(g4uim);
 
-	detectorConstruction->prepare_geometry_for_run();
+	if (geometryReloadedSinceRun) {
+		detectorConstruction->prepare_geometry_for_run();
+	}
 
 	// Restore visualization models after geometry reinitialization.
 	// The run reinitialization can replace the world volume, so restore the same
@@ -180,6 +213,7 @@ void GemcGUI::prepareGeometryForBeamOn() {
 	restoreSceneModels(g4uim, guiOptions, true);
 
 	geometryReloadedSinceRun = false;
+	visualizationNeedsRunRestore = false;
 }
 
 

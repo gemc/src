@@ -46,6 +46,7 @@ g4text:
     size: 24
   - kind: 3D
     text: Shape1
+    color: red
     x: 0
     y: 6
     z: -4
@@ -55,6 +56,7 @@ g4text:
     dy: 4
   - kind: 3D
     text: Shape2
+    color: blue
     x: 6
     y: 7
     z: 10

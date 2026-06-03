@@ -117,6 +117,31 @@ struct G4Dawn
 G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts);
 
 /**
+ * \struct G4Decorations
+ * \brief Optional scene decorations derived from the \c g4decoration option node.
+ */
+struct G4Decorations
+{
+	bool        scale;
+	bool        axes;
+	bool        eventID;
+	bool        date;
+	bool        logo2D;
+	bool        logo;
+	bool        frame;
+	std::string frameColor;
+	double      frameLineWidth;
+};
+
+/**
+ * \brief Read the \c g4decoration option node and return scene decoration settings.
+ *
+ * \param gopts Shared options object to query.
+ * \return \ref G4Decorations populated from the \c g4decoration node.
+ */
+G4Decorations getG4Decorations(const std::shared_ptr<GOptions>& gopts);
+
+/**
  * \brief Define the full set of g4display options.
  *
  * This function builds a GOptions object for the module, including:

@@ -10,18 +10,17 @@
  */
 
 #include <QtWidgets>      // Qt widgets (QWidget, layouts, etc.)
+#include "g4Text.h"
 #include "glogger.h"      // Glogger (module logger)
+#include "goptions.h"
 #include "G4UImanager.hh" // Geant4 UI manager
 
 /**
  * \class G4DisplayUtilities
  * \brief “Utilities” tab for \ref G4Display.
  *
- * This widget is placed in the “Utilities” tab of \ref G4Display. It is intended to host
- * miscellaneous visualization helpers such as:
- * - status/diagnostic panes (e.g. an in-GUI log board),
- * - quick command launchers for common viewer operations,
- * - future convenience widgets that do not fit in \ref G4DisplayView.
+ * This widget is placed in the “Utilities” tab of \ref G4Display. It hosts scene decoration
+ * and text controls that redraw the persistent visualization scene when applied.
  *
  * Lifetime and ownership:
  * - Child widgets created with \c this as parent are owned by Qt and deleted automatically.
@@ -59,4 +58,39 @@ private:
 	 * The logger is expected to remain valid for the lifetime of this widget.
 	 */
 	std::shared_ptr<GLogger> log;
+	std::shared_ptr<GOptions> gopts;
+	std::vector<g4display::G4SceneText> sceneTexts;
+
+	QCheckBox* scaleCheck = nullptr;
+	QCheckBox* axesCheck = nullptr;
+	QCheckBox* eventIDCheck = nullptr;
+	QCheckBox* dateCheck = nullptr;
+	QCheckBox* logo2DCheck = nullptr;
+	QCheckBox* logo3DCheck = nullptr;
+	QCheckBox* frameCheck = nullptr;
+	QComboBox* frameColorCombo = nullptr;
+	QDoubleSpinBox* frameLineWidthSpin = nullptr;
+
+	QComboBox* textKindCombo = nullptr;
+	QComboBox* textColorCombo = nullptr;
+	QComboBox* textLayoutCombo = nullptr;
+	QLineEdit* textEdit = nullptr;
+	QDoubleSpinBox* textXSpin = nullptr;
+	QDoubleSpinBox* textYSpin = nullptr;
+	QDoubleSpinBox* textZSpin = nullptr;
+	QSpinBox* textSizeSpin = nullptr;
+	QDoubleSpinBox* textDxSpin = nullptr;
+	QDoubleSpinBox* textDySpin = nullptr;
+	QLineEdit* textUnitEdit = nullptr;
+
+private slots:
+	void applyDecorations();
+	void addText();
+	void clearTexts();
+
+signals:
+	void sceneOptionsChanged();
+
+private:
+	void syncOptionsFromControls();
 };

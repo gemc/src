@@ -18,11 +18,14 @@ G4Display::G4Display(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
 	// View tab: camera/light/slice/view flags.
 	dialogTabs->addTab(new G4DisplayView(gopt, log, this), tr("View"));
 
-	// Utilities tab: auxiliary tools (currently a placeholder).
-	dialogTabs->addTab(new G4DisplayUtilities(gopt, log, this), tr("Utilities"));
+	// Utilities tab: scene decoration and text tools.
+	auto* utilitiesTab = new G4DisplayUtilities(gopt, log, this);
+	dialogTabs->addTab(utilitiesTab, tr("Utilities"));
 
 	// Lay out the tab widget as the main content of this widget.
 	auto* mainLayout = new QVBoxLayout;
+	mainLayout->setContentsMargins(0, 0, 0, 0);
+	mainLayout->setSpacing(0);
 	mainLayout->addWidget(dialogTabs);
 	setLayout(mainLayout);
 

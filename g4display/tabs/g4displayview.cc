@@ -60,7 +60,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	// LCD font used to display theta/phi degrees next to sliders.
 	QFont flcd;
 	flcd.setFamilies({"Helvetica"}); // Qt6: prefer setFamilies over family string ctor
-	flcd.setPointSize(32);
+	flcd.setPointSize(24);
 	flcd.setBold(true);
 
 	// Initial camera configuration comes from options; values are converted to degrees for UI.
@@ -106,7 +106,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 
 	QLCDNumber* theta_LCD = new QLCDNumber(this);
 	theta_LCD->setFont(flcd);
-	theta_LCD->setMaximumSize(QSize(45, 45));
+	theta_LCD->setMaximumSize(QSize(42, 32));
 	theta_LCD->setSegmentStyle(QLCDNumber::Flat);
 
 	thetaDropdown = new QComboBox(this);
@@ -114,6 +114,8 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	thetaDropdown->setMaximumSize(QSize(100, 45));
 
 	auto cameraThetaLayout = new QHBoxLayout;
+	cameraThetaLayout->setContentsMargins(0, 0, 0, 0);
+	cameraThetaLayout->setSpacing(4);
 	cameraThetaLayout->addWidget(cameraThetaLabel);
 	cameraThetaLayout->addWidget(cameraTheta);
 	cameraThetaLayout->addWidget(theta_LCD);
@@ -129,7 +131,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 
 	QLCDNumber* phi_LCD = new QLCDNumber(this);
 	phi_LCD->setFont(flcd);
-	phi_LCD->setMaximumSize(QSize(45, 45));
+	phi_LCD->setMaximumSize(QSize(42, 32));
 	phi_LCD->setSegmentStyle(QLCDNumber::Flat);
 
 	phiDropdown = new QComboBox(this);
@@ -137,14 +139,17 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	phiDropdown->setMaximumSize(QSize(100, 45));
 
 	auto cameraPhiLayout = new QHBoxLayout;
+	cameraPhiLayout->setContentsMargins(0, 0, 0, 0);
+	cameraPhiLayout->setSpacing(4);
 	cameraPhiLayout->addWidget(cameraPhiLabel);
 	cameraPhiLayout->addWidget(cameraPhi);
 	cameraPhiLayout->addWidget(phi_LCD);
 	cameraPhiLayout->addWidget(phiDropdown);
 
 	QVBoxLayout* cameraDirectionLayout = new QVBoxLayout;
+	cameraDirectionLayout->setContentsMargins(6, 6, 6, 6);
+	cameraDirectionLayout->setSpacing(2);
 	cameraDirectionLayout->addLayout(cameraThetaLayout);
-	cameraDirectionLayout->addSpacing(12);
 	cameraDirectionLayout->addLayout(cameraPhiLayout);
 
 	QGroupBox* cameraAnglesGroup = new QGroupBox(tr("Camera Direction"));
@@ -189,9 +194,10 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	connect(precisionDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::set_precision);
 
 	QVBoxLayout* resolutionAndPerspectiveLayout = new QVBoxLayout;
+	resolutionAndPerspectiveLayout->setContentsMargins(6, 6, 6, 6);
+	resolutionAndPerspectiveLayout->setSpacing(4);
 	resolutionAndPerspectiveLayout->addWidget(projLabel);
 	resolutionAndPerspectiveLayout->addWidget(perspectiveDropdown);
-	resolutionAndPerspectiveLayout->addSpacing(12);
 	resolutionAndPerspectiveLayout->addWidget(sides_per_circlesLabel);
 	resolutionAndPerspectiveLayout->addWidget(precisionDropdown);
 
@@ -199,8 +205,9 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	propertyGroup->setLayout(resolutionAndPerspectiveLayout);
 
 	QHBoxLayout* cameraAndPerspective = new QHBoxLayout;
+	cameraAndPerspective->setContentsMargins(0, 0, 0, 0);
+	cameraAndPerspective->setSpacing(6);
 	cameraAndPerspective->addWidget(cameraAnglesGroup);
-	cameraAndPerspective->addSpacing(12);
 	cameraAndPerspective->addWidget(propertyGroup);
 
 	// -------------------------
@@ -217,7 +224,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 
 	QLCDNumber* ltheta_LCD = new QLCDNumber(this);
 	ltheta_LCD->setFont(flcd);
-	ltheta_LCD->setMaximumSize(QSize(45, 45));
+	ltheta_LCD->setMaximumSize(QSize(42, 32));
 	ltheta_LCD->setSegmentStyle(QLCDNumber::Flat);
 
 	lthetaDropdown = new QComboBox(this);
@@ -225,6 +232,8 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	lthetaDropdown->setMaximumSize(QSize(100, 45));
 
 	auto lightThetaLayout = new QHBoxLayout;
+	lightThetaLayout->setContentsMargins(0, 0, 0, 0);
+	lightThetaLayout->setSpacing(4);
 	lightThetaLayout->addWidget(lightThetaLabel);
 	lightThetaLayout->addWidget(lightTheta);
 	lightThetaLayout->addWidget(ltheta_LCD);
@@ -240,7 +249,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 
 	QLCDNumber* lphi_LCD = new QLCDNumber(this);
 	lphi_LCD->setFont(flcd);
-	lphi_LCD->setMaximumSize(QSize(45, 45));
+	lphi_LCD->setMaximumSize(QSize(42, 32));
 	lphi_LCD->setSegmentStyle(QLCDNumber::Flat);
 
 	lphiDropdown = new QComboBox(this);
@@ -248,14 +257,17 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	lphiDropdown->setMaximumSize(QSize(100, 45));
 
 	auto lightPhiLayout = new QHBoxLayout;
+	lightPhiLayout->setContentsMargins(0, 0, 0, 0);
+	lightPhiLayout->setSpacing(4);
 	lightPhiLayout->addWidget(lightPhiLabel);
 	lightPhiLayout->addWidget(lightPhi);
 	lightPhiLayout->addWidget(lphi_LCD);
 	lightPhiLayout->addWidget(lphiDropdown);
 
 	auto lightDirectionLayout = new QVBoxLayout;
+	lightDirectionLayout->setContentsMargins(6, 6, 6, 6);
+	lightDirectionLayout->setSpacing(2);
 	lightDirectionLayout->addLayout(lightThetaLayout);
-	lightDirectionLayout->addSpacing(12);
 	lightDirectionLayout->addLayout(lightPhiLayout);
 
 	QGroupBox* lightAnglesGroup = new QGroupBox(tr("Light Direction"));
@@ -334,15 +346,17 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	connect(cloudPointsSpinBox, qOverload<int>(&QSpinBox::valueChanged), this, &G4DisplayView::set_cloud_points);
 
 	QVBoxLayout* sceneLayout = new QVBoxLayout;
+	sceneLayout->setContentsMargins(6, 6, 6, 6);
+	sceneLayout->setSpacing(4);
 	sceneLayout->addWidget(cullingLabel);
 	sceneLayout->addWidget(cullingDropdown);
-	sceneLayout->addSpacing(12);
 	sceneLayout->addWidget(backgroundColorLabel);
 	auto* backgroundLayout = new QHBoxLayout;
+	backgroundLayout->setContentsMargins(0, 0, 0, 0);
+	backgroundLayout->setSpacing(4);
 	backgroundLayout->addWidget(backgroundColorDropdown);
 	backgroundLayout->addWidget(backgroundColorButton);
 	sceneLayout->addLayout(backgroundLayout);
-	sceneLayout->addSpacing(12);
 	sceneLayout->addWidget(cloudPointsLabel);
 	sceneLayout->addWidget(cloudPointsSpinBox);
 
@@ -350,8 +364,9 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	spropertyGroup->setLayout(sceneLayout);
 
 	QHBoxLayout* lightAndProperties = new QHBoxLayout;
+	lightAndProperties->setContentsMargins(0, 0, 0, 0);
+	lightAndProperties->setSpacing(6);
 	lightAndProperties->addWidget(lightAnglesGroup);
-	lightAndProperties->addSpacing(12);
 	lightAndProperties->addWidget(spropertyGroup);
 
 	// -------------------------
@@ -367,6 +382,8 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	sliceXInve->setChecked(false);
 
 	auto sliceXLayout = new QHBoxLayout;
+	sliceXLayout->setContentsMargins(0, 0, 0, 0);
+	sliceXLayout->setSpacing(4);
 	sliceXLayout->addWidget(new QLabel(tr("X: ")));
 	sliceXLayout->addWidget(sliceXEdit);
 	sliceXLayout->addStretch(1);
@@ -383,6 +400,8 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	sliceYInve->setChecked(false);
 
 	auto sliceYLayout = new QHBoxLayout;
+	sliceYLayout->setContentsMargins(0, 0, 0, 0);
+	sliceYLayout->setSpacing(4);
 	sliceYLayout->addWidget(new QLabel(tr("Y: ")));
 	sliceYLayout->addWidget(sliceYEdit);
 	sliceYLayout->addStretch(1);
@@ -399,6 +418,8 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	sliceZInve->setChecked(false);
 
 	auto sliceZLayout = new QHBoxLayout;
+	sliceZLayout->setContentsMargins(0, 0, 0, 0);
+	sliceZLayout->setSpacing(4);
 	sliceZLayout->addWidget(new QLabel(tr("Z: ")));
 	sliceZLayout->addWidget(sliceZEdit);
 	sliceZLayout->addStretch(1);
@@ -423,12 +444,16 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	connect(sliceUnion, &QRadioButton::toggled, this, &G4DisplayView::slice);
 
 	auto sliceChoiceLayout = new QHBoxLayout;
+	sliceChoiceLayout->setContentsMargins(6, 4, 6, 4);
+	sliceChoiceLayout->setSpacing(8);
 	sliceChoiceLayout->addWidget(sliceSectn);
 	sliceChoiceLayout->addWidget(sliceUnion);
 	sliceChoiceBox->setLayout(sliceChoiceLayout);
 
 	// Slices layout.
 	auto sliceLayout = new QVBoxLayout;
+	sliceLayout->setContentsMargins(0, 0, 0, 0);
+	sliceLayout->setSpacing(3);
 	sliceLayout->addLayout(sliceXLayout);
 	sliceLayout->addLayout(sliceYLayout);
 	sliceLayout->addLayout(sliceZLayout);
@@ -465,17 +490,21 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	field_npoints->setMaximumWidth(40);
 
 	QFont font = field_npoints->font();
-	font.setPointSize(24);
+	font.setPointSize(18);
 	field_npoints->setFont(font);
 
 	connect(field_npoints, &QLineEdit::returnPressed, this, &G4DisplayView::field_precision_changed);
 
 	// Buttons + field point count UI combined.
 	auto fieldPointsHBox = new QHBoxLayout;
+	fieldPointsHBox->setContentsMargins(6, 4, 6, 4);
+	fieldPointsHBox->setSpacing(4);
 	fieldPointsHBox->addWidget(field_npoints);
 	fieldPrecisionBox->setLayout(fieldPointsHBox);
 
 	auto buttons_field_HBox = new QHBoxLayout;
+	buttons_field_HBox->setContentsMargins(0, 0, 0, 0);
+	buttons_field_HBox->setSpacing(6);
 	buttons_field_HBox->addWidget(buttons_set1);
 	buttons_field_HBox->addWidget(fieldPrecisionBox);
 	fieldPrecisionBox->setMaximumHeight(3 * buttons_set1->height());
@@ -486,6 +515,8 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	// -------------------------
 
 	auto mainLayout = new QVBoxLayout;
+	mainLayout->setContentsMargins(6, 6, 6, 6);
+	mainLayout->setSpacing(6);
 	mainLayout->addLayout(buttons_field_HBox);
 	mainLayout->addLayout(cameraAndPerspective);
 	mainLayout->addLayout(lightAndProperties);

@@ -15,6 +15,12 @@
 // geant4
 #include "G4UImanager.hh"
 
+namespace {
+bool is3DTextKind(const std::string& kind) {
+	return kind == "3D" || kind == "3d" || kind == "text" || kind == "Text";
+}
+}
+
 std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr<GOptions> &gopts) {
 	std::vector<std::string> cmds;
 
@@ -25,8 +31,6 @@ std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr
 	auto g4view = g4display::getG4View(gopts);
 	auto g4camera = g4display::getG4Camera(gopts);
 	auto g4light = g4display::getG4Light(gopts);
-
-	std::vector<std::string> commands;
 
 	// Create a named scene. Caller is expected to apply these commands to the Geant4 UI manager.
 	cmds.emplace_back("/vis/scene/create gemc");
@@ -40,9 +44,6 @@ std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr
 	if (gui || g4view.driver == "TOOLSSG_OFFSCREEN") {
 		// Open the configured viewer driver with window geometry settings.
 		cmds.emplace_back("/vis/open " + g4view.driver + " " + g4view.dimension + g4view.position);
-
-		// Scene texts: generate and append per configured g4text option.
-		for (const std::string &c: addSceneTexts(gopts)) { commands.emplace_back(c); }
 
 		// Convert configured camera angles to degrees for the Geant4 viewer command.
 		double toDegrees = 180 / 3.1415;
@@ -66,6 +67,27 @@ std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr
 	return cmds;
 }
 
+std::vector<std::string> G4SceneProperties::addSceneDecorations(const std::shared_ptr<GOptions> &gopts) {
+	std::vector<std::string> commands;
+	const auto decorations = g4display::getG4Decorations(gopts);
+
+	if (decorations.scale) { commands.emplace_back("/vis/scene/add/scale"); }
+	if (decorations.axes) { commands.emplace_back("/vis/scene/add/axes"); }
+	if (decorations.eventID) { commands.emplace_back("/vis/scene/add/eventID"); }
+	if (decorations.date) { commands.emplace_back("/vis/scene/add/date"); }
+	if (decorations.logo2D) { commands.emplace_back("/vis/scene/add/logo2D"); }
+	if (decorations.logo) { commands.emplace_back("/vis/scene/add/logo"); }
+	if (decorations.frame) {
+		commands.emplace_back("/vis/set/colour " + decorations.frameColor);
+		commands.emplace_back("/vis/set/lineWidth " + std::to_string(decorations.frameLineWidth));
+		commands.emplace_back("/vis/scene/add/frame");
+		commands.emplace_back("/vis/set/colour");
+		commands.emplace_back("/vis/set/lineWidth");
+	}
+
+	return commands;
+}
+
 std::vector<std::string> G4SceneProperties::addSceneTexts(const std::shared_ptr<GOptions> &gopts) {
 	std::vector<std::string> commands;
 
@@ -74,18 +96,32 @@ std::vector<std::string> G4SceneProperties::addSceneTexts(const std::shared_ptr<
 	// Map each configured text item into Geant4 text commands.
 	for (const auto &text: text_to_add) {
 		commands.emplace_back("/vis/set/textColour " + text.color);
+		if (!text.layout.empty()) {
+			commands.emplace_back("/vis/set/textLayout " + text.layout);
+		}
 
-		std::string position = std::to_string(text.x) + " " + std::to_string(text.y);
-		std::string size = " " + std::to_string(text.size) + " ! ! ";
-
-		if (text.z != GNOT_SPECIFIED_SCENE_TEXT_Z) {
-			// Z specified: treat as 2D text positioned in 3D.
-			position += " " + std::to_string(text.z);
+		if (is3DTextKind(text.kind)) {
 			commands.emplace_back(
-				std::string("/vis/scene/add/text2D ").append(position).append(size).append(text.text));
+				"/vis/scene/add/text " +
+				std::to_string(text.x) + " " +
+				std::to_string(text.y) + " " +
+				std::to_string(text.z) + " " +
+				text.unit + " " +
+				std::to_string(text.size) + " " +
+				std::to_string(text.dx) + " " +
+				std::to_string(text.dy) + " " +
+				text.text);
 		} else {
-			// Z not specified: treat as normal scene text.
-			commands.emplace_back(std::string("/vis/scene/add/text ").append(position).append(size).append(text.text));
+			commands.emplace_back(
+				"/vis/scene/add/text2D " +
+				std::to_string(text.x) + " " +
+				std::to_string(text.y) + " " +
+				std::to_string(text.size) + " ! ! " +
+				text.text);
+		}
+
+		if (!text.layout.empty()) {
+			commands.emplace_back("/vis/set/textLayout left");
 		}
 
 		// Restore default text color.

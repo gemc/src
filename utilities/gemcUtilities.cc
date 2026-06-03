@@ -14,6 +14,7 @@
 #include "glogger.h"
 #include "gtouchable.h"
 #include "gutilities.h"
+#include "g4SceneProperties.h"
 #include "g4display_options.h"
 
 namespace gemc {
@@ -131,6 +132,9 @@ namespace gemc {
 		cmds.emplace_back("/vis/scene/endOfEventAction accumulate 10000");
 		cmds.push_back("/vis/viewer/set/background " + g4view.background);
 		cmds.push_back("/vis/viewer/set/numberOfCloudPoints " + std::to_string(g4view.cloudPoints));
+		G4SceneProperties g4SceneProperties(gopts);
+		for (const auto& command : g4SceneProperties.addSceneTexts(gopts)) { cmds.emplace_back(command); }
+		for (const auto& command : g4SceneProperties.addSceneDecorations(gopts)) { cmds.emplace_back(command); }
 
 		// do not draw volumes in batch screenshot
 		if (g4view.driver != "TOOLSSG_OFFSCREEN") {

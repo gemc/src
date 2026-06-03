@@ -24,8 +24,8 @@ namespace g4display {
  * Each configured item is converted into Geant4 visualization commands by \ref G4SceneProperties.
  *
  * Interpretation rules:
- * - If \c z is set to \c GNOT_SPECIFIED_SCENE_TEXT_Z, the text is treated as normal scene text (3D command).
- * - If \c z is explicitly provided, the text is treated as “2D text” (text2D command).
+ * - \c kind = "2D" creates a \c /vis/scene/add/text2D command.
+ * - \c kind = "3D" creates a \c /vis/scene/add/text command using \c x, \c y, \c z, \c unit, \c dx, and \c dy.
  */
 struct G4SceneText
 {
@@ -35,17 +35,32 @@ struct G4SceneText
 	/// Text color name understood by Geant4 (e.g. \c "black", \c "red").
 	std::string color;
 
+	/// Text kind: \c "2D" for text2D or \c "3D" for text attached in scene coordinates.
+	std::string kind;
+
+	/// Optional text layout such as \c "right"; empty keeps Geant4 default layout.
+	std::string layout;
+
 	/// X position.
 	double x;
 
 	/// Y position.
 	double y;
 
-	/// Z position; if left at default sentinel, Z is treated as “not specified”.
+	/// Z position used by 3D text.
 	double z = GNOT_SPECIFIED_SCENE_TEXT_Z;
+
+	/// Unit used by 3D text positions.
+	std::string unit;
 
 	/// Text size parameter passed to Geant4 visualization command.
 	int size;
+
+	/// 3D text X offset.
+	double dx;
+
+	/// 3D text Y offset.
+	double dy;
 };
 
 /**
@@ -66,9 +81,13 @@ std::vector<G4SceneText> getSceneTexts(const std::shared_ptr<GOptions>& gopts);
  * each item providing:
  * - \c text (required)
  * - \c color (default \c "black")
+ * - \c kind (default \c "2D"; use \c "3D" for \c /vis/scene/add/text)
+ * - \c layout (default empty; e.g. \c "right")
  * - \c x, \c y (default \c 0)
  * - \c z (default sentinel \c GNOT_SPECIFIED_SCENE_TEXT_Z)
+ * - \c unit (default \c "cm" for 3D text)
  * - \c size (default \c 24.0)
+ * - \c dx, \c dy (default \c 4.0 for 3D text offsets)
  *
  * \return A GOptions object containing the \c g4text option definition.
  */

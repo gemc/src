@@ -16,6 +16,14 @@ YAML::Node getG4ViewValue(const std::shared_ptr<GOptions>& gopts, const std::str
 	}
 	return gopts->getOptionMapInNode("g4view", key);
 }
+
+YAML::Node getOptionValue(const std::shared_ptr<GOptions>& gopts, const std::string& option, const std::string& key) {
+	auto node = gopts->getOptionNode(option);
+	if (node.IsMap() && node[key]) {
+		return node[key];
+	}
+	return gopts->getOptionMapInNode(option, key);
+}
 }
 
 // Read g4view option and return a projected G4View struct.
@@ -70,6 +78,22 @@ G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts) {
 	gdawn.theta = theta;
 
 	return gdawn;
+}
+
+G4Decorations getG4Decorations(const std::shared_ptr<GOptions>& gopts) {
+	G4Decorations decorations;
+
+	decorations.scale          = getOptionValue(gopts, "g4decoration", "scale").as<bool>();
+	decorations.axes           = getOptionValue(gopts, "g4decoration", "axes").as<bool>();
+	decorations.eventID        = getOptionValue(gopts, "g4decoration", "eventID").as<bool>();
+	decorations.date           = getOptionValue(gopts, "g4decoration", "date").as<bool>();
+	decorations.logo2D         = getOptionValue(gopts, "g4decoration", "logo2D").as<bool>();
+	decorations.logo           = getOptionValue(gopts, "g4decoration", "logo").as<bool>();
+	decorations.frame          = getOptionValue(gopts, "g4decoration", "frame").as<bool>();
+	decorations.frameColor     = getOptionValue(gopts, "g4decoration", "frameColor").as<std::string>();
+	decorations.frameLineWidth = getOptionValue(gopts, "g4decoration", "frameLineWidth").as<double>();
+
+	return decorations;
 }
 
 // Define and return the option set for the g4display module.
@@ -137,6 +161,24 @@ GOptions defineOptions() {
 
 	goptions.defineOption("dawn", "Defines the dawn view point", dawn, help);
 	goptions.defineSwitch("useDawn", "Take a dawn screenshot");
+
+	// g4decoration
+	std::vector<GVariable> g4decoration = {
+		{"scale", false, "add a simple scale line"},
+		{"axes", false, "add simple XYZ axes"},
+		{"eventID", false, "add event ID text at end of event"},
+		{"date", false, "add a date stamp"},
+		{"logo2D", false, "add the 2D Geant4 logo"},
+		{"logo", false, "add the 3D Geant4 logo"},
+		{"frame", false, "add a frame around the view"},
+		{"frameColor", "red", "frame color"},
+		{"frameLineWidth", 2.0, "frame line width"}
+	};
+
+	help = "Adds optional Geant4 scene decorations. \n \n";
+	help += "Example: -g4decoration=\"[{scale: true, axes: true, eventID: true, date: true, logo2D: true, logo: true, frame: true}]\" \n";
+
+	goptions.defineOption("g4decoration", "Adds optional Geant4 scene decorations", g4decoration, help);
 
 	// scenetext
 	goptions.addGOptions(addSceneTextsOptions());
