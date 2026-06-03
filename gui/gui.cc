@@ -12,7 +12,8 @@ void resetSceneBeforeGeometryReload(G4UImanager* g4uim) {
 	if (!g4uim) { return; }
 
 	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh false");
-	g4uim->ApplyCommand("/vis/scene/endOfEventAction refresh");
+	g4uim->ApplyCommand("/vis/scene/endOfEventAction accumulate 0");
+	g4uim->ApplyCommand("/vis/scene/endOfRunAction refresh");
 	g4uim->ApplyCommand("/vis/scene/removeModel all");
 	g4uim->ApplyCommand("/vis/viewer/clearTransients");
 	g4uim->ApplyCommand("/vis/viewer/clear");
@@ -25,23 +26,27 @@ void resetEventDrawingBeforeRun(G4UImanager* g4uim) {
 	if (!g4uim) { return; }
 
 	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh false");
-	g4uim->ApplyCommand("/vis/scene/endOfEventAction refresh");
+	g4uim->ApplyCommand("/vis/scene/endOfEventAction accumulate 0");
+	g4uim->ApplyCommand("/vis/scene/endOfRunAction refresh");
 	g4uim->ApplyCommand("/vis/viewer/clearTransients");
+	g4uim->ApplyCommand("/vis/viewer/clear");
 	g4uim->ApplyCommand("/vis/viewer/flush");
 	g4uim->ApplyCommand("/vis/viewer/clearTransients");
 }
 
-void restoreSceneModels(G4UImanager* g4uim) {
+void restoreSceneModels(G4UImanager* g4uim, bool includeEventModels) {
 	if (!g4uim) { return; }
 
 	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh false");
 	g4uim->ApplyCommand("/vis/drawVolume");
-	g4uim->ApplyCommand("/vis/scene/add/trajectories smooth");
-	g4uim->ApplyCommand("/vis/modeling/trajectories/create/drawByCharge");
-	g4uim->ApplyCommand("/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true");
-	g4uim->ApplyCommand("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
-	g4uim->ApplyCommand("/vis/scene/add/hits");
-	g4uim->ApplyCommand("/vis/scene/endOfEventAction accumulate 10000");
+	if (includeEventModels) {
+		g4uim->ApplyCommand("/vis/scene/add/trajectories smooth");
+		g4uim->ApplyCommand("/vis/modeling/trajectories/create/drawByCharge");
+		g4uim->ApplyCommand("/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true");
+		g4uim->ApplyCommand("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
+		g4uim->ApplyCommand("/vis/scene/add/hits");
+		g4uim->ApplyCommand("/vis/scene/endOfEventAction accumulate 10000");
+	}
 	g4uim->ApplyCommand("/vis/viewer/set/background 0.05 0.05 0.26");
 	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh true");
 	g4uim->ApplyCommand("/vis/viewer/flush");
@@ -154,7 +159,7 @@ void GemcGUI::refreshGeometryTree() {
 			viewerInitialized = true;
 		}
 
-		restoreSceneModels(g4uim);
+		restoreSceneModels(g4uim, false);
 	}
 }
 
@@ -170,7 +175,7 @@ void GemcGUI::prepareGeometryForBeamOn() {
 	// Restore visualization models after geometry reinitialization.
 	// The run reinitialization can replace the world volume, so restore the same
 	// persistent models used by refreshGeometryTree() before BeamOn draws events.
-	restoreSceneModels(g4uim);
+	restoreSceneModels(g4uim, true);
 
 	geometryReloadedSinceRun = false;
 }
