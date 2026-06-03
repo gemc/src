@@ -41,9 +41,13 @@ def main() -> int:
     db = examples_dir / "gemc.db"
     python = prefix / "python_env" / "bin" / "python3"
 
+    if os.environ.get("GEMC_SKIP_PYTHON_ENV_INSTALL") == "1":
+        print(" > Skipping examples database generation because Python environment installation was skipped")
+        return 0
+
     if not python.exists():
-        print(f" > Cannot generate examples database: {python} was not found", file=sys.stderr)
-        return 1
+        print(f" > Skipping examples database generation: {python} was not found")
+        return 0
 
     db.unlink(missing_ok=True)
 
