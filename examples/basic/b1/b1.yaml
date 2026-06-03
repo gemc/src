@@ -18,6 +18,51 @@ gstreamer:
 
 phys_list: QBBC
 
+g4view:
+  segsPerCircle: 100
+
+g4camera:
+  theta: 120*deg
+  phi: 150*deg
+
+g4decoration:
+  scale: true
+  axes: true
+  eventID: true
+  date: true
+  logo2D: true
+  logo: true
+  frame: true
+  frameColor: red
+  frameLineWidth: 2
+
+g4text:
+  - kind: 2D
+    text: exampleB1
+    color: green
+    layout: right
+    x: 0.9
+    y: -0.9
+    size: 24
+  - kind: 3D
+    text: Shape1
+    x: 0
+    y: 6
+    z: -4
+    unit: cm
+    size: 18
+    dx: 4
+    dy: 4
+  - kind: 3D
+    text: Shape2
+    x: 6
+    y: 7
+    z: 10
+    unit: cm
+    size: 18
+    dx: 4
+    dy: 4
+
 gparticle:
   - name: gamma
     p: 6
