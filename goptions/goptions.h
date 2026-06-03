@@ -228,6 +228,18 @@ public:
 	[[nodiscard]] YAML::Node getOptionMapInNode(const std::string& option_name, const std::string& map_key) const;
 
 	/**
+	 * \brief Updates an option value from a YAML-formatted string.
+	 *
+	 * \details This uses the same parser as command-line \c -name=value options,
+	 * allowing GUI modules to keep runtime options synchronized with user
+	 * selections.
+	 *
+	 * \param optionName Option name to update.
+	 * \param possibleYamlNode Scalar, map, or sequence encoded as YAML text.
+	 */
+	void setOptionValueFromString(const std::string& optionName, const std::string& possibleYamlNode);
+
+	/**
 	 * \brief Retrieves the verbosity level for the specified tag.
 	 *
 	 * @details

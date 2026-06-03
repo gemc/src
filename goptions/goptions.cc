@@ -366,6 +366,11 @@ void GOptions::setOptionValuesFromCommandLineArgument(const std::string& optionN
 	}
 }
 
+void GOptions::setOptionValueFromString(const std::string& optionName,
+                                        const std::string& possibleYamlNode) {
+	setOptionValuesFromCommandLineArgument(optionName, possibleYamlNode);
+}
+
 // Private method (private API): do not \ref; use \c getOptionIterator() in docs if needed.
 std::vector<GOption>::iterator GOptions::getOptionIterator(const std::string& name) {
 	return std::find_if(goptions.begin(), goptions.end(),
