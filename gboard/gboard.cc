@@ -47,15 +47,6 @@ GBoard::GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
 	logTextEdit->setMinimumHeight(200);
 	logTextEdit->setMinimumWidth(400);
 
-	// --- Dark theme (local to this widget) ---
-	// This uses a local stylesheet so the log board remains readable even in otherwise light GUIs.
-	this->setStyleSheet(
-		"QWidget { background-color: #0b0e12; color: #e6e6e6; }"
-		"QTextEdit { background-color: #0f1115; color: #e6e6e6; }"
-		// Override the style for the search line edit and the clear button
-		"QLineEdit#searchLineEdit { background-color: #ffffff; color: #000000; }"
-		"QToolButton#clearButton { background-color: #f0f0f0; color: #000000; }");
-
 	auto* layout = new QVBoxLayout(this);
 	layout->addLayout(topBarLayout);
 	layout->addWidget(logTextEdit, 1); // 1: stretchable

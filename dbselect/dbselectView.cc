@@ -243,7 +243,7 @@ void DBSelectView::setupUI() {
 
 	// Tree view and model.
 	experimentTree = new QTreeView(this);
-	experimentTree->setStyleSheet("QTreeView { alternate-background-color: #f0f0f0; }");
+	experimentTree->setAlternatingRowColors(true);
 	experimentTree->setSelectionMode(QAbstractItemView::SingleSelection);
 	experimentTree->setSelectionBehavior(QAbstractItemView::SelectRows);
 	experimentTree->header()->show();
@@ -330,7 +330,6 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem) {
 				else
 					varItem->setData("", Qt::EditRole);
 				varItem->setData(varList, Qt::UserRole);
-				varItem->setBackground(QColor("lightblue"));
 
 				// Column 3: run (editable, backed by UserRole list).
 				auto*       runItem = new QStandardItem();
@@ -340,7 +339,6 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem) {
 				else
 					runItem->setData("", Qt::EditRole);
 				runItem->setData(runList, Qt::UserRole);
-				runItem->setBackground(QColor("lightgreen"));
 
 				QList<QStandardItem*> rowItems;
 				rowItems << sysItem << entriesItem << varItem << runItem;
@@ -485,8 +483,8 @@ void DBSelectView::updateSystemItemAppearance(QStandardItem* systemItem) {
 	systemItem->setIcon(createStatusIcon(statusColor));
 
 	// Keep the system item readable regardless of icon state.
-	systemItem->setData(QColor("white"), Qt::BackgroundRole);
-	systemItem->setData(QColor("black"), Qt::ForegroundRole);
+	systemItem->setData(QVariant(), Qt::BackgroundRole);
+	systemItem->setData(QVariant(), Qt::ForegroundRole);
 }
 
 void DBSelectView::updateExperimentHeader() {

@@ -197,8 +197,8 @@ void GTree::populateTree() {
             colorBtn->setText(QString()); // no text
 
             colorBtn->setStyleSheet(
-                QString("QPushButton { background-color: %1; border: 1px solid black; }")
-                .arg(c.name())
+                QString("QPushButton { background-color: %1; border: 1px solid %2; }")
+                .arg(c.name(), palette().color(QPalette::Mid).name())
             );
 
             // Store the full volume name as a property so the slot can retrieve it.
@@ -320,8 +320,8 @@ void GTree::onColorButtonClicked() {
 
     // Update button appearance
     btn->setStyleSheet(
-        QString("QPushButton { background-color: %1; border: 1px solid black; }")
-        .arg(c.name())
+        QString("QPushButton { background-color: %1; border: 1px solid %2; }")
+        .arg(c.name(), palette().color(QPalette::Mid).name())
     );
 
     // tell your model
