@@ -20,6 +20,7 @@
  */
 constexpr const char* GSPLASH_LOGGER = "gsplash";
 constexpr const char* GSPLASH_TIME_OPTION = "splash_time";
+constexpr const char* GSPLASH_SCALE_OPTION = "splash_scale";
 
 /**
  * @ingroup gsplash_core
@@ -37,6 +38,7 @@ namespace gsplash {
  * Expected options consumed by GSplash at runtime include:
  * - \c --gui : when enabled, GSplash will create and show a splash screen; otherwise GSplash::create returns nullptr.
  * - \c -splash_time : minimum time in seconds to keep the splash visible before closing it.
+ * - \c -splash_scale : scale factor applied to the loaded splash image.
  *
  * \return A GOptions definition for the GSplash module.
  */
@@ -45,6 +47,9 @@ inline GOptions defineOptions() {
 	goptions.defineOption(GVariable(GSPLASH_TIME_OPTION, -1.0, "splash display time in seconds"),
 	                      "Minimum time in seconds to keep the splash image visible before closing it. "
 	                      "A negative value uses the application default.");
+	goptions.defineOption(GVariable(GSPLASH_SCALE_OPTION, 0.5, "splash image scale factor"),
+	                      "Scale factor applied to the splash image before display. "
+	                      "Use 1.0 for the image's original size.");
 	return goptions;
 }
 

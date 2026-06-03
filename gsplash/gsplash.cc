@@ -3,6 +3,7 @@
 #include <QElapsedTimer>
 #include <QThread>
 #include <algorithm>
+#include <cmath>
 using std::string;
 
 // Factory creation:
@@ -50,6 +51,16 @@ GSplash::GSplash(const std::shared_ptr<GOptions>& gopts, const string& imageName
 
 	// Create the splash only when we have a valid pixmap; otherwise leave it inactive.
 	if (!pixmap.isNull()) {
+		const auto splash_scale = gopts->getScalarDouble(GSPLASH_SCALE_OPTION);
+		if (std::isfinite(splash_scale) && splash_scale > 0.0 && splash_scale != 1.0) {
+			const QSize scaled_size(
+				std::max(1, static_cast<int>(std::round(pixmap.width() * splash_scale))),
+				std::max(1, static_cast<int>(std::round(pixmap.height() * splash_scale)))
+			);
+			if (scaled_size.isValid() && !scaled_size.isEmpty()) {
+				pixmap = pixmap.scaled(scaled_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+			}
+		}
 		splash = std::make_unique<QSplashScreen>(pixmap);
 		splash->show();
 		QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
