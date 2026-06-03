@@ -10,6 +10,7 @@
 #include <QStandardItemModel>
 #include <QHeaderView>
 #include <QStringList>
+#include <QTimer>
 
 // c++
 #include <sstream>
@@ -110,6 +111,7 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 	// Ensure the view starts unmodified.
 	modified = false;
 	updateModifiedUI();
+	QTimer::singleShot(0, this, &DBSelectView::resizeExperimentColumns);
 }
 
 bool DBSelectView::isGeometryTableValid() const {
@@ -613,6 +615,12 @@ void DBSelectView::updateModifiedUI() {
 	reloadButton->setEnabled(modified);
 
 	// Column sizing and tree expansion provide a readable default view after changes.
+	resizeExperimentColumns();
+}
+
+void DBSelectView::resizeExperimentColumns() {
+	if (!experimentTree) { return; }
+
 	experimentTree->resizeColumnToContents(0);
 	experimentTree->setColumnWidth(1, 100);
 	experimentTree->setColumnWidth(2, 150);

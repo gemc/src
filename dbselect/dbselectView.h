@@ -192,6 +192,14 @@ private:
 	void updateModifiedUI();
 
 	/**
+	 * \brief Apply the standard tree column sizing and expansion.
+	 *
+	 * Called after model updates and once more through the Qt event loop at startup,
+	 * when the view has finalized item/header sizes.
+	 */
+	void resizeExperimentColumns();
+
+	/**
 	 * \brief Create a small square icon filled with a given color for status display.
 	 *
 	 * \param color Fill color to use.
