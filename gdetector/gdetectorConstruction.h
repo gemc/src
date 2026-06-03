@@ -11,6 +11,8 @@
 #include "gbase.h"
 
 // c++
+#include <map>
+#include <string>
 #include <vector>
 
 /**
@@ -109,13 +111,24 @@ public:
 	 * \brief Reloads the geometry using a new list of GSystem objects.
 	 *
 	 * This method updates the internal systems list used by \c Construct().
-	 * If a Geant4 run manager exists, it triggers a re-definition of the world
-	 * volume and re-installs sensitive detectors and fields.
+	 * If a Geant4 run manager exists, it immediately replaces the master world
+	 * volume and re-installs sensitive detectors and fields so GUI pages can
+	 * inspect the reloaded geometry.
 	 *
 	 * \param sl New list of systems to build from. If empty, the previous system
 	 *           list is kept (useful for tests or when only forcing a rebuild).
 	 */
 	void reload_geometry(SystemList sl);
+
+	/**
+	 * \brief Reinitializes geometry through Geant4 before running events.
+	 *
+	 * Setup-tab reloads build an immediate master-world preview for the GUI.
+	 * Before \c BeamOn, call this method so Geant4 destroys old geometry stores
+	 * re-invokes detector construction, and initializes the run manager without
+	 * touching visualization models that still reference the preview world.
+	 */
+	void prepare_geometry_for_run();
 
 	/**
 	 * \brief Returns the digitization routine for a given sensitive detector name.
@@ -143,6 +156,16 @@ public:
 	 */
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> get_digitization_routines_map() const {
 		return digitization_routines_map;
+	}
+
+	/**
+	 * \brief Return whether a Geant4 world has been built.
+	 *
+	 * GUI pages can use this to avoid querying volume maps before startup or
+	 * setup-tab reload has constructed geometry.
+	 */
+	[[nodiscard]] bool has_built_geometry() const {
+		return g4world != nullptr;
 	}
 
 	/**
@@ -198,6 +221,19 @@ private:
 	static G4ThreadLocal GMagneto* gmagneto;
 
 	/**
+	 * \brief Thread-local registry mapping digitization name → GSensitiveDetector* for this thread.
+	 *
+	 * G4SDManager accumulates sensitive detectors across geometry reloads. At the start of
+	 * each ConstructSDandField() call, every SD in this map is deactivated so it does not
+	 * fire Initialize() on subsequent events. The same SD objects are then reused (rather
+	 * than recreated) for any digitization name that appears again in the new geometry —
+	 * avoiding the DET1010 "duplicate name" problem and the uninitialized-gHitsCollection
+	 * crash that results from it. Pointers remain valid because G4SDManager never frees
+	 * registered SDs.
+	 */
+	static G4ThreadLocal std::map<std::string, GSensitiveDetector*>* tlSDMap;
+
+	/**
 	 * \brief Loads digitization plugins after sensitive detectors have been set up.
 	 *
 	 * This method populates \ref GDetectorConstruction::digitization_routines_map and
@@ -207,10 +243,30 @@ private:
 	void loadDigitizationPlugins();
 
 	/**
-	 * \brief Collection of GSystem objects used when rebuilding geometry.
+	 * \brief True when loadDigitizationPlugins() must run on the next ConstructSDandField() call.
+	 *
+	 * Set to true by reload_geometry() and prepare_geometry_for_run() whenever the geometry
+	 * changes. Cleared to false after loadDigitizationPlugins() completes so that routine
+	 * BeamOn re-initializations (which call ConstructSDandField() on the master) do not
+	 * clear the shared map while worker threads may be concurrently reading it.
+	 */
+	bool digiplugins_need_reload = true;
+
+	/**
+	 * \brief Return fresh, unloaded descriptors for the selected systems.
+	 *
+	 * Factories mutate GSystem objects while loading geometry. GUI preview and
+	 * run initialization must therefore construct from fresh descriptors each
+	 * time rather than reusing already-populated system objects.
+	 */
+	[[nodiscard]] SystemList cloneSystemDescriptors(const SystemList& systems) const;
+
+	/**
+	 * \brief Collection of unloaded GSystem descriptors used when rebuilding geometry.
 	 *
 	 * If empty, geometry is built entirely from options (the typical "full GEMC run"
-	 * behavior). If populated, geometry is rebuilt using these systems (reload path).
+	 * behavior). If populated, geometry is rebuilt using fresh descriptor clones
+	 * of these systems (reload path).
 	 */
 	SystemList gsystems;
 };

@@ -60,7 +60,7 @@ auto run_simulation_in_threads(int                                              
                                int                                                 nthreads,
                                const std::shared_ptr<GOptions>&                    gopts,
                                const std::shared_ptr<GLogger>&                     log,
-                               const std::shared_ptr<const GDetectorConstruction>& gdetector) -> std::vector<std::shared_ptr<GEventDataCollection>> {
+                               const GDetectorConstruction*                         gdetector) -> std::vector<std::shared_ptr<GEventDataCollection>> {
 	std::mutex                                         collectorMtx;
 	std::vector<std::shared_ptr<GEventDataCollection>> collected;
 
@@ -182,7 +182,9 @@ int main(int argc, char* argv[]) {
 
 	runManager->SetUserInitialization(physicsList);
 
-	auto gdetector = std::make_shared<GDetectorConstruction>(gopts);
+	auto gdetector = new GDetectorConstruction(gopts);
+	runManager->SetUserInitialization(gdetector);
+
 	auto gsystems = gsystem::getSystems(gopts);
 	gdetector->reload_geometry(gsystems);
 
