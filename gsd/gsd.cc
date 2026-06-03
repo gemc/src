@@ -9,7 +9,8 @@
 GSensitiveDetector::GSensitiveDetector(const std::string&               sdName,
                                        const std::shared_ptr<GOptions>& goptions) :
 	GBase(goptions, GSENSITIVE_LOGGER),
-	G4VSensitiveDetector(sdName) {
+	G4VSensitiveDetector(sdName),
+	gHitsCollection(nullptr) {
 	log->info(2, FUNCTION_NAME, " for " + sdName);
 
 	// collectionName is a G4VSensitiveDetector G4CollectionNameVector.

@@ -158,6 +158,15 @@ public:
 	 */
 	void assign_digi_routine(std::shared_ptr<GDynamicDigitization> digi_routine) { digitization_routine = digi_routine; }
 
+	/**
+	 * \brief Clears the volume-to-touchable map so a reused SD reflects the current geometry.
+	 *
+	 * Called by GDetectorConstruction when an existing SD is reused for a new geometry load
+	 * rather than creating a fresh object. Stale touchable entries from the previous geometry
+	 * would otherwise cause incorrect hit identity lookups in ProcessHits().
+	 */
+	void resetTouchableMap() { gTouchableMap.clear(); }
+
 private:
 	/**
 	 * \brief Thread-local digitization routine used by this sensitive detector.
