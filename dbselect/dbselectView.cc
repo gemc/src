@@ -42,14 +42,30 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 
 	auto dbPath = gutilities::searchForFileInLocations(dirs, dbhost);
 	if (!dbPath) {
-		log->error(ERR_GSQLITEERROR, "Failed to find database file. Exiting.");
+		log->warning("Failed to find database file <", dbhost, ">. Setup tab will start empty.");
+		setupUI();
+		experimentModel->blockSignals(true);
+		experimentModel->setHorizontalHeaderLabels(QStringList() << "exp/system" << "volumes" << "variation" << "run");
+		experimentModel->blockSignals(false);
+		modified = false;
+		updateModifiedUI();
+		experimentHeaderLabel->setText(QString("Database \"%1\" was not found.").arg(QString::fromStdString(dbhost)));
+		return;
 	}
 
 	// Open read-only and ensure the expected table exists and is non-empty.
 	if (sqlite3_open_v2(dbPath.value().c_str(), &db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK || !isGeometryTableValid()) {
 		sqlite3_close(db);
 		db = nullptr;
-		log->error(ERR_GSQLITEERROR, " Failed to open or validate database", dbhost);
+		log->warning("Failed to open or validate database <", dbhost, ">. Setup tab will start empty.");
+		setupUI();
+		experimentModel->blockSignals(true);
+		experimentModel->setHorizontalHeaderLabels(QStringList() << "exp/system" << "volumes" << "variation" << "run");
+		experimentModel->blockSignals(false);
+		modified = false;
+		updateModifiedUI();
+		experimentHeaderLabel->setText(QString("Database \"%1\" could not be opened or validated.").arg(QString::fromStdString(dbhost)));
+		return;
 	}
 
 	log->info(1, "Opened database: " + dbhost, " found at ", dbPath.value());
@@ -249,6 +265,7 @@ void DBSelectView::setupUI() {
 
 void DBSelectView::loadExperiments() {
 	experimentModel->clear();
+	if (!db) { return; }
 
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT DISTINCT experiment FROM geometry";
@@ -336,6 +353,8 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem) {
 }
 
 int DBSelectView::getGeometryCount(const std::string& system, const std::string& variation, int run) const {
+	if (!db) { return 0; }
+
 	int         count = 0;
 	std::string query = "SELECT COUNT(*) FROM geometry WHERE experiment = ? AND system = ? AND variation = ? AND run = ?";
 
@@ -360,6 +379,8 @@ int DBSelectView::getGeometryCount(const std::string& system, const std::string&
 
 QStringList DBSelectView::getAvailableVariations(const std::string& system) const {
 	QStringList   varList;
+	if (!db) { return varList; }
+
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT DISTINCT variation FROM geometry WHERE system = ?";
 
@@ -380,6 +401,8 @@ QStringList DBSelectView::getAvailableVariations(const std::string& system) cons
 
 QStringList DBSelectView::getAvailableRuns(const std::string& system) {
 	QStringList   runList;
+	if (!db) { return runList; }
+
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT DISTINCT run FROM geometry WHERE system = ?";
 
@@ -397,6 +420,8 @@ QStringList DBSelectView::getAvailableRuns(const std::string& system) {
 }
 
 bool DBSelectView::systemAvailable(const std::string& system, const std::string& variation, int run) {
+	if (!db) { return false; }
+
 	std::string   query = "SELECT COUNT(*) FROM geometry WHERE system = ? AND variation = ? AND run = ?";
 	sqlite3_stmt* stmt  = nullptr;
 
@@ -624,6 +649,8 @@ void DBSelectView::reload_geometry() {
 	for (auto& gsys : reloaded_system) {
 		log->info(2, SFUNCTION_NAME, ": reloaded system: ", gsys->getName());
 	}
+
+	emit geometryAboutToReload();
 
 	// Delegate the actual reload to detector construction.
 	gDetectorConstruction->reload_geometry(reloaded_system);

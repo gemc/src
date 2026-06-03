@@ -12,7 +12,7 @@ verbosity = ['-verbosity.dbselect=2',
              '-verbosity.gsystem=2',
              '-debug.gsystem=true']
 
-examples_dir = get_option('prefix') + '/test/' + sub_dir_name
+examples_dir = meson.project_build_root() + '/test/' + sub_dir_name
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
 gsystem = ['-gsystem="[{name: b1}]"']
 
@@ -35,12 +35,16 @@ qrc_examples_sources = files(
 )
 
 geo_build = {
-    'test_dbselect_geo' : [files('examples/example.py')]
+    'test_dbselect_geo'    : [files('examples/example.py')],
+    'test_simple_flux_geo' : [files('examples/simple_flux.py')],
 }
+
+reload_source = files('examples/test_reload_sequence.cc')
 
 examples = {
     'test_db_select' : [example_source, with_gui + dbhost + gsystem],
     'test_db_select_verbose' : [example_source, with_gui + dbhost + gsystem + verbosity],
+    'test_reload_sequence' : [reload_source, dbhost],
 }
 
 LD += {
@@ -54,4 +58,3 @@ LD += {
     'geo_build' : geo_build,
     'examples' : examples
 }
-

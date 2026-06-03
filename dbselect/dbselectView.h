@@ -285,6 +285,14 @@ public slots:
 
 signals:
 	/**
+	 * \brief Emitted immediately before detector construction replaces the current geometry.
+	 *
+	 * GUI containers use this signal to clear visualization state while the existing Geant4
+	 * geometry is still valid, avoiding stale trajectory/hit references after the reload.
+	 */
+	void geometryAboutToReload();
+
+	/**
 	 * \brief Emitted after detector construction has reloaded geometry from the selected systems.
 	 *
 	 * GUI containers use this signal to refresh pages whose models are built from detector
