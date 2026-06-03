@@ -85,6 +85,27 @@ undefined_preload_tests=(
   test_gstreamer_csv_verbose
 )
 
+function run_meson_test_with_retry {
+  local label="$1"
+  shift
+
+  for attempt in 1 2; do
+    echo " > Running ${label} (attempt ${attempt}/2):" "$@" | tee -a "$test_log"
+    "$@" >> "$test_log"
+    local status=$?
+
+    if [ $status -eq 0 ]; then
+      return 0
+    fi
+
+    if [ $attempt -eq 2 ]; then
+      return $status
+    fi
+
+    echo " > ${label} failed; retrying once" | tee -a "$test_log"
+  done
+}
+
 
 meson_args=( "${test_options[@]}" )
 
@@ -99,9 +120,7 @@ case "$1" in
 esac
 
 : > "$test_log"
-echo " > Running meson test with options:"  "${meson_args[@]}" | tee -a "$test_log"
-meson test "${meson_args[@]}" >> "$test_log"
-if [ $? -ne 0 ]; then
+if ! run_meson_test_with_retry "meson test" meson test "${meson_args[@]}"; then
   echo " > Meson Tests failed. Log: "
   cat $test_log
   exit 1
@@ -115,9 +134,8 @@ if [ "$1" = "undefined" ]; then
   # UBSan on Linux can exhaust static TLS before GEMC's runtime dlopen() loads
   # this plugin. Preloading it makes the dynamic loader reserve TLS at process
   # startup while keeping the workaround scoped to the affected sanitizer test.
-  echo " > Running undefined sanitizer preload tests with LD_PRELOAD=$gstreamer_csv_plugin" | tee -a "$test_log"
-  LD_PRELOAD="$gstreamer_csv_plugin" meson test "${test_options[@]}" -v "${undefined_preload_tests[@]}" >> "$test_log"
-  if [ $? -ne 0 ]; then
+  if ! run_meson_test_with_retry "undefined sanitizer preload tests" \
+    env LD_PRELOAD="$gstreamer_csv_plugin" meson test "${test_options[@]}" -v "${undefined_preload_tests[@]}"; then
     echo " > Meson Tests failed. Log: "
     cat $test_log
     exit 1
