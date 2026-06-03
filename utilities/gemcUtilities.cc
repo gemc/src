@@ -129,10 +129,8 @@ namespace gemc {
 		cmds.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
 		cmds.emplace_back("/vis/scene/add/hits");
 		cmds.emplace_back("/vis/scene/endOfEventAction accumulate 10000");
-
-		// Background colors and root volume are the same.
-		// Chosen to be the same as pyvistab for now
-		cmds.push_back("/vis/viewer/set/background 0.05 0.05 0.26");
+		cmds.push_back("/vis/viewer/set/background " + g4view.background);
+		cmds.push_back("/vis/viewer/set/numberOfCloudPoints " + std::to_string(g4view.cloudPoints));
 
 		// do not draw volumes in batch screenshot
 		if (g4view.driver != "TOOLSSG_OFFSCREEN") {

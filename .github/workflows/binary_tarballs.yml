@@ -16,9 +16,6 @@ on:
   workflow_run:
     workflows: [ "Deploy and Test" ]
     types: [ completed ]
-  schedule:
-    # nightly, after the GEMC dev release window
-    - cron: '44 5 * * *'
   workflow_dispatch:
 
 jobs:

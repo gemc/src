@@ -87,6 +87,8 @@ private:
 	QComboBox* precisionDropdown       = nullptr;
 	QComboBox* cullingDropdown         = nullptr;
 	QComboBox* backgroundColorDropdown = nullptr;
+	QToolButton* backgroundColorButton = nullptr;
+	QSpinBox* cloudPointsSpinBox       = nullptr;
 
 	/// Light direction sliders (theta, phi), expressed in degrees.
 	QSlider* lightTheta = nullptr;
@@ -116,12 +118,21 @@ private:
 	/// Number of sample points used by the Geant4 magnetic field visualization model.
 	int field_NPOINTS = 5;
 
+	/// Current viewer background color.
+	QColor backgroundColor;
+
+	/// Number of points used by cloud volume rendering.
+	int cloudPoints = 1000;
+
 	/**
 	 * \brief Shared logger instance.
 	 *
 	 * This logger is provided by the parent module and is expected to outlive this widget.
 	 */
 	std::shared_ptr<GLogger> log;
+
+	void setBackgroundButtonColor(const QColor& color);
+	void setBackgroundDropdownColor(const QColor& color);
 
 private slots:
 	/**
@@ -211,6 +222,16 @@ private slots:
 	void set_background();
 
 	/**
+	 * \brief Open a color chooser and apply the selected viewer background color.
+	 */
+	void choose_background_color();
+
+	/**
+	 * \brief Apply the cloud volume rendering point count.
+	 */
+	void set_cloud_points();
+
+	/**
 	 * \brief Apply slice (cutaway plane) settings.
 	 *
 	 * Clears existing cutaway planes, sets cutaway mode (intersection/union), and adds planes for
@@ -243,4 +264,7 @@ private slots:
 	 * the magnetic field model commands so the new point count takes effect.
 	 */
 	void field_precision_changed();
+
+protected:
+	void showEvent(QShowEvent* event) override;
 };

@@ -103,20 +103,32 @@ void GOption::set_value(const YAML::Node& v) {
 	else {
 		// Non-cumulative structured update:
 		// Iterate over desired values and update matching keys in the existing stored structure.
-		for (const auto& map_element_in_desired_value : v) {
-			for (auto desired_value_iterator = map_element_in_desired_value.begin();
-			     desired_value_iterator != map_element_in_desired_value.end(); ++desired_value_iterator) {
+		const auto update_existing_value = [this](const YAML::Node& desired_key, const YAML::Node& desired_value) {
 				for (auto existing_map : value[name]) {
 					for (auto existing_map_iterator = existing_map.begin();
 					     existing_map_iterator != existing_map.end(); ++existing_map_iterator) {
 						auto first_key  = existing_map_iterator->first.as<string>();
-						auto second_key = desired_value_iterator->first.as<string>();
+						auto second_key = desired_key.as<string>();
 
 						// Only update entries whose key matches the requested update key.
 						if (first_key == second_key) {
-							existing_map[existing_map_iterator->first] = desired_value_iterator->second;
+							existing_map[existing_map_iterator->first] = desired_value;
 						}
 					}
+				}
+		};
+
+		if (v.IsMap()) {
+			for (auto desired_value_iterator = v.begin();
+			     desired_value_iterator != v.end(); ++desired_value_iterator) {
+				update_existing_value(desired_value_iterator->first, desired_value_iterator->second);
+			}
+		}
+		else {
+			for (const auto& map_element_in_desired_value : v) {
+				for (auto desired_value_iterator = map_element_in_desired_value.begin();
+				     desired_value_iterator != map_element_in_desired_value.end(); ++desired_value_iterator) {
+					update_existing_value(desired_value_iterator->first, desired_value_iterator->second);
 				}
 			}
 		}

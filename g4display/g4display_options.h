@@ -31,6 +31,8 @@ namespace g4display {
  * - \c dimension : window size string (e.g. \c "800x800")
  * - \c position : window position string (e.g. \c "+200+100")
  * - \c segsPerCircle : circle segmentation precision for curved primitives
+ * - \c background : viewer background color as three RGB values
+ * - \c cloudPoints : number of points used by cloud volume rendering
  */
 struct G4View
 {
@@ -38,6 +40,8 @@ struct G4View
 	std::string dimension;
 	std::string position;
 	int         segsPerCircle;
+	std::string background;
+	int         cloudPoints;
 };
 
 /**

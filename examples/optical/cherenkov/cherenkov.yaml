@@ -2,6 +2,10 @@ experiment: examples
 runno: 1
 nthreads: 1
 
+g4view:
+  background: "0.92 0.92 0.98"
+  cloudPoints: 4000
+
 verbosity:
   - g4system: 1
   - gemc: 1
@@ -25,4 +29,3 @@ gparticle:
 
 # Required for optical-photon flux hits because optical photons deposit zero energy.
 recordZeroEdep: true
-

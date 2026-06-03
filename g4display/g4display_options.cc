@@ -8,15 +8,27 @@
 #include "g4Text.h"
 
 namespace g4display {
+namespace {
+YAML::Node getG4ViewValue(const std::shared_ptr<GOptions>& gopts, const std::string& key) {
+	auto node = gopts->getOptionNode("g4view");
+	if (node.IsMap() && node[key]) {
+		return node[key];
+	}
+	return gopts->getOptionMapInNode("g4view", key);
+}
+}
+
 // Read g4view option and return a projected G4View struct.
 G4View getG4View(const std::shared_ptr<GOptions>& gopts) {
 	G4View g4view;
 
 	// Project the YAML-like option node values into strongly-typed fields.
-	g4view.driver        = gopts->getOptionMapInNode("g4view", "driver").as<std::string>();
-	g4view.dimension     = gopts->getOptionMapInNode("g4view", "dimension").as<std::string>();
-	g4view.position      = gopts->getOptionMapInNode("g4view", "position").as<std::string>();
-	g4view.segsPerCircle = gopts->getOptionMapInNode("g4view", "segsPerCircle").as<int>();
+	g4view.driver        = getG4ViewValue(gopts, "driver").as<std::string>();
+	g4view.dimension     = getG4ViewValue(gopts, "dimension").as<std::string>();
+	g4view.position      = getG4ViewValue(gopts, "position").as<std::string>();
+	g4view.segsPerCircle = getG4ViewValue(gopts, "segsPerCircle").as<int>();
+	g4view.background    = getG4ViewValue(gopts, "background").as<std::string>();
+	g4view.cloudPoints   = getG4ViewValue(gopts, "cloudPoints").as<int>();
 
 	return g4view;
 }
@@ -74,17 +86,21 @@ GOptions defineOptions() {
 		{"driver", std::string(GDEFAULTVIEWERDRIVER), "Geant4 visualization driver. Use TOOLSSG_OFFSCREEN in batch mode. "},
 		{"dimension", std::string(GDEFAULTVIEWERSIZE), "Geant4 viewer dimension"},
 		{"position", std::string(GDEFAULTVIEWERPOS), "Geant4 viewer position"},
-		{"segsPerCircle", GDEFAULTVSEGPERCIRCLE, "Number of segments per circle"}
+		{"segsPerCircle", GDEFAULTVSEGPERCIRCLE, "Number of segments per circle"},
+		{"background", "0.05 0.05 0.26", "Geant4 viewer background color as '<red> <green> <blue>'"},
+		{"cloudPoints", 1000, "Number of points used for cloud volume rendering"}
 	};
 
 	help = "Defines the Geant4 viewer properties:  \n ";
 	help += " - screen dimensions  \n ";
 	help += " - screen position  \n ";
 	help += " - resolution in terms of segments per circle  \n \n ";
+	help += " - viewer background color as '<red> <green> <blue>'  \n ";
+	help += " - number of cloud points for cloud volume rendering  \n \n ";
 	help += " Examples: \n \n ";
 	help += " -g4view=\"[{dimension: 1200x1000}]\"\n";
-	help += " -g4view=\"[{driver: OGL, dimension: 1100x800, position: +200+100, segsPerCircle: 100}]\" \n";
-	help += " -g4view=\"[{driver: TOOLSSG_OFFSCREEN, segsPerCircle: 200}]\" takes a screenshot at the end of each run \n";
+	help += " -g4view=\"[{driver: OGL, dimension: 1100x800, position: +200+100, segsPerCircle: 100, background: 0.05 0.05 0.26}]\" \n";
+	help += " -g4view=\"[{driver: TOOLSSG_OFFSCREEN, segsPerCircle: 200, cloudPoints: 3000}]\" takes a screenshot at the end of each run \n";
 
 	goptions.defineOption("g4view", "Defines the geant4 viewer properties", g4view, help);
 

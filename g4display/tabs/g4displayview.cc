@@ -2,10 +2,14 @@
 #include "g4display_options.h"
 #include "gutilities.h"
 
+#include <QPainter>
+
 using namespace g4display;
 
 // c++
+#include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <string>
 using namespace std;
 using namespace gutilities;
@@ -15,6 +19,37 @@ using namespace gutilities;
 
 // Implementation note:
 // Detailed Doxygen documentation for public behavior and slots is maintained in g4displayview.h (see rule 7).
+namespace {
+QColor colorFromG4Rgb(const std::string& rgb) {
+	std::istringstream stream(rgb);
+	double r = 0.05;
+	double g = 0.05;
+	double b = 0.26;
+	stream >> r >> g >> b;
+	return QColor::fromRgbF(std::clamp(r, 0.0, 1.0),
+	                        std::clamp(g, 0.0, 1.0),
+	                        std::clamp(b, 0.0, 1.0));
+}
+
+QString g4RgbFromColor(const QColor& color) {
+	return QString("%1 %2 %3")
+		.arg(color.redF(), 0, 'f', 5)
+		.arg(color.greenF(), 0, 'f', 5)
+		.arg(color.blueF(), 0, 'f', 5);
+}
+
+QIcon colorIcon(const QColor& color, const QColor& border) {
+	QPixmap pixmap(18, 18);
+	pixmap.fill(Qt::transparent);
+
+	QPainter painter(&pixmap);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.setBrush(color);
+	painter.setPen(border);
+	painter.drawRoundedRect(pixmap.rect().adjusted(1, 1, -2, -2), 3, 3);
+	return QIcon(pixmap);
+}
+}
 
 G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
                              std::shared_ptr<GLogger>         logger,
@@ -35,6 +70,9 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	G4Light jlight       = getG4Light(gopts);
 	double  lightThetaValue = getG4Number(jlight.theta);
 	double  lightPhiValue   = getG4Number(jlight.phi);
+	G4View  g4view = getG4View(gopts);
+	backgroundColor = colorFromG4Rgb(g4view.background);
+	cloudPoints = g4view.cloudPoints;
 
 	// Toggle buttons for common viewer/scene flags.
 	vector<string> toggle_button_titles;
@@ -249,40 +287,64 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 
 	QLabel* backgroundColorLabel = new QLabel(tr("Background Color:"));
 	backgroundColorDropdown      = new QComboBox;
-	backgroundColorDropdown->addItem(tr("lightslategray"));
-	backgroundColorDropdown->addItem(tr("ghostwhite"));
-	backgroundColorDropdown->addItem(tr("black"));
-	backgroundColorDropdown->addItem(tr("navy"));
-	backgroundColorDropdown->addItem(tr("whitesmoke"));
-	backgroundColorDropdown->addItem(tr("lightskyblue"));
-	backgroundColorDropdown->addItem(tr("deepskyblue"));
-	backgroundColorDropdown->addItem(tr("lightsteelblue"));
-	backgroundColorDropdown->addItem(tr("blueviolet"));
-	backgroundColorDropdown->addItem(tr("turquoise"));
-	backgroundColorDropdown->addItem(tr("mediumaquamarine"));
-	backgroundColorDropdown->addItem(tr("springgreen"));
-	backgroundColorDropdown->addItem(tr("lawngreen"));
-	backgroundColorDropdown->addItem(tr("yellowgreen"));
-	backgroundColorDropdown->addItem(tr("lemonchiffon"));
-	backgroundColorDropdown->addItem(tr("antiquewhite"));
-	backgroundColorDropdown->addItem(tr("wheat"));
-	backgroundColorDropdown->addItem(tr("sienna"));
-	backgroundColorDropdown->addItem(tr("snow"));
-	backgroundColorDropdown->addItem(tr("floralwhite"));
-	backgroundColorDropdown->addItem(tr("lightsalmon"));
-	backgroundColorDropdown->addItem(tr("orchid"));
-	backgroundColorDropdown->addItem(tr("plum"));
-	backgroundColorDropdown->setCurrentIndex(0);
+	const auto addBackgroundPreset = [this](const QString& name, const QString& rgb) {
+		backgroundColorDropdown->addItem(name, rgb);
+	};
+	addBackgroundPreset(tr("lightslategray"), "0.46667 0.53333 0.60000");
+	addBackgroundPreset(tr("ghostwhite"), "0.97255 0.97255 1.00000");
+	addBackgroundPreset(tr("black"), "0.00000 0.00000 0.00000");
+	addBackgroundPreset(tr("navy"), "0.00000 0.00000 0.50196");
+	addBackgroundPreset(tr("whitesmoke"), "0.96078 0.96078 0.96078");
+	addBackgroundPreset(tr("lightskyblue"), "0.52941 0.80784 0.98039");
+	addBackgroundPreset(tr("deepskyblue"), "0.00000 0.74902 1.00000");
+	addBackgroundPreset(tr("lightsteelblue"), "0.69020 0.76863 0.87059");
+	addBackgroundPreset(tr("blueviolet"), "0.54118 0.16863 0.88627");
+	addBackgroundPreset(tr("turquoise"), "0.25098 0.87843 0.81569");
+	addBackgroundPreset(tr("mediumaquamarine"), "0.40000 0.80392 0.66667");
+	addBackgroundPreset(tr("springgreen"), "0.00000 1.00000 0.49804");
+	addBackgroundPreset(tr("lawngreen"), "0.48627 0.98824 0.00000");
+	addBackgroundPreset(tr("yellowgreen"), "0.60392 0.80392 0.19608");
+	addBackgroundPreset(tr("lemonchiffon"), "1.00000 0.98039 0.80392");
+	addBackgroundPreset(tr("antiquewhite"), "0.98039 0.92157 0.84314");
+	addBackgroundPreset(tr("wheat"), "0.96078 0.87059 0.70196");
+	addBackgroundPreset(tr("sienna"), "0.62745 0.32157 0.17647");
+	addBackgroundPreset(tr("snow"), "1.00000 0.98039 0.98039");
+	addBackgroundPreset(tr("floralwhite"), "1.00000 0.98039 0.94118");
+	addBackgroundPreset(tr("lightsalmon"), "1.00000 0.62745 0.47843");
+	addBackgroundPreset(tr("orchid"), "0.85490 0.43922 0.83922");
+	addBackgroundPreset(tr("plum"), "0.86667 0.62745 0.86667");
+	setBackgroundDropdownColor(backgroundColor);
+
+	backgroundColorButton = new QToolButton(this);
+	backgroundColorButton->setToolTip(tr("Choose background color"));
+	backgroundColorButton->setAutoRaise(true);
+	backgroundColorButton->setIconSize(QSize(18, 18));
+	setBackgroundButtonColor(backgroundColor);
+
+	auto* cloudPointsLabel = new QLabel(tr("Number of Cloud Points:"));
+	cloudPointsSpinBox = new QSpinBox(this);
+	cloudPointsSpinBox->setRange(1, 100000000);
+	cloudPointsSpinBox->setSingleStep(100);
+	cloudPointsSpinBox->setGroupSeparatorShown(true);
+	cloudPointsSpinBox->setValue(std::max(1, cloudPoints));
 
 	connect(cullingDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::set_culling);
 	connect(backgroundColorDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::set_background);
+	connect(backgroundColorButton, &QToolButton::clicked, this, &G4DisplayView::choose_background_color);
+	connect(cloudPointsSpinBox, qOverload<int>(&QSpinBox::valueChanged), this, &G4DisplayView::set_cloud_points);
 
 	QVBoxLayout* sceneLayout = new QVBoxLayout;
 	sceneLayout->addWidget(cullingLabel);
 	sceneLayout->addWidget(cullingDropdown);
 	sceneLayout->addSpacing(12);
 	sceneLayout->addWidget(backgroundColorLabel);
-	sceneLayout->addWidget(backgroundColorDropdown);
+	auto* backgroundLayout = new QHBoxLayout;
+	backgroundLayout->addWidget(backgroundColorDropdown);
+	backgroundLayout->addWidget(backgroundColorButton);
+	sceneLayout->addLayout(backgroundLayout);
+	sceneLayout->addSpacing(12);
+	sceneLayout->addWidget(cloudPointsLabel);
+	sceneLayout->addWidget(cloudPointsSpinBox);
 
 	QGroupBox* spropertyGroup = new QGroupBox(tr("Scene Properties"));
 	spropertyGroup->setLayout(sceneLayout);
@@ -502,87 +564,67 @@ void G4DisplayView::set_culling() {
 	}
 }
 
+void G4DisplayView::setBackgroundButtonColor(const QColor& color) {
+	if (!backgroundColorButton) { return; }
+
+	backgroundColorButton->setIcon(colorIcon(color, palette().color(QPalette::Mid)));
+}
+
+void G4DisplayView::setBackgroundDropdownColor(const QColor& color) {
+	if (!backgroundColorDropdown) { return; }
+
+	QSignalBlocker blocker(backgroundColorDropdown);
+	const QString wanted = g4RgbFromColor(color);
+	for (int i = 0; i < backgroundColorDropdown->count(); ++i) {
+		const QColor candidate = colorFromG4Rgb(backgroundColorDropdown->itemData(i).toString().toStdString());
+		if (qAbs(candidate.redF() - color.redF()) < 0.0001 &&
+		    qAbs(candidate.greenF() - color.greenF()) < 0.0001 &&
+		    qAbs(candidate.blueF() - color.blueF()) < 0.0001) {
+			backgroundColorDropdown->setCurrentIndex(i);
+			return;
+		}
+	}
+
+	backgroundColorDropdown->addItem(tr("custom"), wanted);
+	backgroundColorDropdown->setCurrentIndex(backgroundColorDropdown->count() - 1);
+}
+
 void G4DisplayView::set_background() {
-	// Translate CSS-like names to normalized RGB values expected by Geant4.
-	string value = backgroundColorDropdown->currentText().toStdString();
+	const QString g4value = backgroundColorDropdown->currentData().toString();
+	if (g4value.isEmpty()) { return; }
 
-	string g4value = "0 0 0";
-	if (value.find("black") != string::npos) {
-		g4value = "0.0 0.0 0.0";
-	}
-	else if (value.find("navy") != string::npos) {
-		g4value = "0.0 0.0 0.50196";
-	}
-	else if (value.find("lightslategray") != string::npos) {
-		g4value = "0.46667 0.53333 0.60000";
-	}
-	else if (value.find("whitesmoke") != string::npos) {
-		g4value = "0.96078 0.96078 0.96078";
-	}
-	else if (value.find("ghostwhite") != string::npos) {
-		g4value = "0.97255 0.97255 1.00000";
-	}
-	else if (value.find("lightskyblue") != string::npos) {
-		g4value = "0.52941 0.80784 0.98039";
-	}
-	else if (value.find("deepskyblue") != string::npos) {
-		g4value = "0.00000 0.74902 1.00000";
-	}
-	else if (value.find("lightsteelblue") != string::npos) {
-		g4value = "0.69020 0.76863 0.87059";
-	}
-	else if (value.find("blueviolet") != string::npos) {
-		g4value = "0.54118 0.16863 0.88627";
-	}
-	else if (value.find("turquoise") != string::npos) {
-		g4value = "0.25098 0.87843 0.81569";
-	}
-	else if (value.find("mediumaquamarine") != string::npos) {
-		g4value = "0.40000 0.80392 0.66667";
-	}
-	else if (value.find("springgreen") != string::npos) {
-		g4value = "0.00000 1.00000 0.49804";
-	}
-	else if (value.find("lawngreen") != string::npos) {
-		g4value = "0.48627 0.98824 0.00000";
-	}
-	else if (value.find("yellowgreen") != string::npos) {
-		g4value = "0.60392 0.80392 0.19608";
-	}
-	else if (value.find("lemonchiffon") != string::npos) {
-		g4value = "1.00000 0.98039 0.80392";
-	}
-	else if (value.find("antiquewhite") != string::npos) {
-		g4value = "0.98039 0.92157 0.84314";
-	}
-	else if (value.find("wheat") != string::npos) {
-		g4value = "0.96078 0.87059 0.70196";
-	}
-	else if (value.find("sienna") != string::npos) {
-		g4value = "0.62745 0.32157 0.17647";
-	}
-	else if (value.find("snow") != string::npos) {
-		g4value = "1.00000 0.98039 0.98039";
-	}
-	else if (value.find("floralwhite") != string::npos) {
-		g4value = "1.00000 0.98039 0.94118";
-	}
-	else if (value.find("lightsalmon") != string::npos) {
-		g4value = "1.00000 0.62745 0.47843";
-	}
-	else if (value.find("orchid") != string::npos) {
-		g4value = "0.85490 0.43922 0.83922";
-	}
-	else if (value.find("plum") != string::npos) {
-		g4value = "0.86667 0.62745 0.86667";
-	}
-	else {
-		// Fallback to white for unexpected selections.
-		g4value = "1.0 1.0 1.0";
-	}
+	backgroundColor = colorFromG4Rgb(g4value.toStdString());
+	setBackgroundButtonColor(backgroundColor);
 
-	string command = "/vis/viewer/set/background " + g4value;
+	string command = "/vis/viewer/set/background " + g4value.toStdString();
 	G4UImanager::GetUIpointer()->ApplyCommand(command);
+}
+
+void G4DisplayView::choose_background_color() {
+	const QColor selected = QColorDialog::getColor(backgroundColor, this, tr("Select background color"));
+	if (!selected.isValid()) { return; }
+
+	backgroundColor = selected;
+	setBackgroundButtonColor(backgroundColor);
+	setBackgroundDropdownColor(backgroundColor);
+
+	const QString g4value = g4RgbFromColor(backgroundColor);
+	const string command = "/vis/viewer/set/background " + g4value.toStdString();
+	G4UImanager::GetUIpointer()->ApplyCommand(command);
+}
+
+void G4DisplayView::set_cloud_points() {
+	if (!cloudPointsSpinBox) { return; }
+
+	cloudPoints = cloudPointsSpinBox->value();
+	const string command = "/vis/viewer/set/numberOfCloudPoints " + to_string(cloudPoints);
+	G4UImanager::GetUIpointer()->ApplyCommand(command);
+}
+
+void G4DisplayView::showEvent(QShowEvent* event) {
+	QWidget::showEvent(event);
+	set_background();
+	set_cloud_points();
 }
 
 void G4DisplayView::changeLightDirection() {

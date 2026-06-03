@@ -57,6 +57,8 @@ std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr
 		cmds.emplace_back("/vis/viewer/set/viewpointThetaPhi " + std::to_string(thetaValue) + " " + std::to_string(phiValue));
 		cmds.emplace_back("/vis/viewer/set/lightsThetaPhi " + std::to_string(lightThetaValue) + " " + std::to_string(lightPhiValue));
 		cmds.emplace_back("/vis/viewer/set/lineSegmentsPerCircle " + std::to_string(g4view.segsPerCircle));
+		cmds.emplace_back("/vis/viewer/set/background " + g4view.background);
+		cmds.emplace_back("/vis/viewer/set/numberOfCloudPoints " + std::to_string(g4view.cloudPoints));
 
 		cmds.emplace_back("/vis/viewer/set/autoRefresh true");
 	}
