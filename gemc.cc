@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
 		// run scene_commands
 		gemc::run_manager_commands(gopts, log, scene_commands);
 
-		GemcGUI gemcGui(gopts, geventDispenser, gdetector);
+		GemcGUI gemcGui(gopts, geventDispenser, gdetector, has_startup_geometry);
 		gemcGui.show();
 
 		spash_screen->finish(&gemcGui);

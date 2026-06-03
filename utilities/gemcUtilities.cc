@@ -97,6 +97,11 @@ namespace gemc {
 			cmds.emplace_back("/geometry/test/run");
 		}
 
+		// In GUI mode without startup geometry, defer initialization until the setup
+		// tab has selected and loaded a real system. Initializing the synthetic ROOT
+		// world here leaves stale world/vis state behind after setup-tab reloads.
+		if (gui && !configure_visualization) { return cmds; }
+
 		// A re-initialize is required when:
 		// - physics changes
 		// - geometry changes

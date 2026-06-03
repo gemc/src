@@ -126,7 +126,8 @@ std::vector<std::string> verbosity_commands(const std::shared_ptr<GOptions>& gop
  * Behavior:
  * - If `check_overlaps == 2`, schedule an overlap test with a resolution of 50 points.
  * - If `check_overlaps >= 100`, schedule an overlap test with that many points.
- * - Always include `"/run/initialize"` after overlap configuration.
+ * - Include `"/run/initialize"` after overlap configuration, except in GUI mode
+ *   when no startup geometry is configured.
  * - If visualization setup is disabled, return the list after initialization.
  * - If `gui` is `false`, return the list after initialization.
  * - If `gui` is `true` and visualization setup is enabled, append visualization scene/viewer configuration commands:
@@ -135,7 +136,8 @@ std::vector<std::string> verbosity_commands(const std::shared_ptr<GOptions>& gop
  *
  * \param gopts Runtime options provider. Keys used include `check_overlaps` and `gui`.
  * \param log Logger used to report which overlap test (if any) will be executed.
- * \param configure_visualization If false, skip visualization commands after `/run/initialize`.
+ * \param configure_visualization If false, skip visualization commands after `/run/initialize`;
+ *                                in GUI mode this also defers initialization until setup reload.
  *
  * \return A list of UI command strings to be executed in order.
  */
