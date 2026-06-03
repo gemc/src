@@ -18,10 +18,12 @@ G4int GUI_Session::ReceiveG4cout(const G4String& coutString) {
 		QString fullQString = QString::fromStdString(coutString);
 
 		// Split into lines so that the board gets "log-like" incremental entries.
-		// - KeepEmptyParts preserves blank lines (useful for readability in logs).
-		// - The regex accepts both \n and Windows-style \r\n, plus Unicode line separator.
-		QRegularExpression lineBreakRegex("\r?\n|\u2028");
-		QStringList        lines = fullQString.split(lineBreakRegex, Qt::KeepEmptyParts);
+		// KeepEmptyParts preserves blank lines, while avoiding QRegularExpression
+		// compatibility issues with Unicode line separator escapes.
+		fullQString.replace("\r\n", "\n");
+		fullQString.replace('\r', '\n');
+		fullQString.replace(QChar(0x2028), '\n');
+		QStringList lines = fullQString.split('\n', Qt::KeepEmptyParts);
 
 		for (const QString& line : lines) {
 			// Convert ANSI attributes (if present) into HTML for rich-text display.
@@ -38,10 +40,11 @@ G4int GUI_Session::ReceiveG4cerr(const G4String& cerrString) {
 	if (board) {
 		QString fullQString = QString::fromStdString(cerrString);
 
-		// Use the same robust regex for splitting error output.
-		// Note: this string is written with escaping because it is a C++ string literal.
-		QRegularExpression lineBreakRegex("\\r?\\n|\\u2028");
-		QStringList        lines = fullQString.split(lineBreakRegex, Qt::KeepEmptyParts);
+		// Use the same line normalization as stdout.
+		fullQString.replace("\r\n", "\n");
+		fullQString.replace('\r', '\n');
+		fullQString.replace(QChar(0x2028), '\n');
+		QStringList lines = fullQString.split('\n', Qt::KeepEmptyParts);
 
 		for (const QString& line : lines) {
 			QString htmlLine = ansiToHtml(line);
