@@ -7,15 +7,58 @@
 #include "G4UImanager.hh"
 
 
+namespace {
+void resetSceneBeforeGeometryReload(G4UImanager* g4uim) {
+	if (!g4uim) { return; }
+
+	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh false");
+	g4uim->ApplyCommand("/vis/scene/endOfEventAction refresh");
+	g4uim->ApplyCommand("/vis/scene/removeModel all");
+	g4uim->ApplyCommand("/vis/viewer/clearTransients");
+	g4uim->ApplyCommand("/vis/viewer/clear");
+	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh true");
+	g4uim->ApplyCommand("/vis/viewer/flush");
+	g4uim->ApplyCommand("/vis/viewer/clearTransients");
+}
+
+void resetEventDrawingBeforeRun(G4UImanager* g4uim) {
+	if (!g4uim) { return; }
+
+	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh false");
+	g4uim->ApplyCommand("/vis/scene/endOfEventAction refresh");
+	g4uim->ApplyCommand("/vis/viewer/clearTransients");
+	g4uim->ApplyCommand("/vis/viewer/flush");
+	g4uim->ApplyCommand("/vis/viewer/clearTransients");
+}
+
+void restoreSceneModels(G4UImanager* g4uim) {
+	if (!g4uim) { return; }
+
+	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh false");
+	g4uim->ApplyCommand("/vis/drawVolume");
+	g4uim->ApplyCommand("/vis/scene/add/trajectories smooth");
+	g4uim->ApplyCommand("/vis/modeling/trajectories/create/drawByCharge");
+	g4uim->ApplyCommand("/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true");
+	g4uim->ApplyCommand("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
+	g4uim->ApplyCommand("/vis/scene/add/hits");
+	g4uim->ApplyCommand("/vis/scene/endOfEventAction accumulate 10000");
+	g4uim->ApplyCommand("/vis/viewer/set/background 0.05 0.05 0.26");
+	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh true");
+	g4uim->ApplyCommand("/vis/viewer/flush");
+}
+}
+
 
 GemcGUI::GemcGUI(std::shared_ptr<GOptions>       gopts,
                  std::shared_ptr<EventDispenser> ed,
                  GDetectorConstruction*          dc,
+                 bool                            viewerAlreadyInitialized,
                  QWidget*                        parent) :
 	QWidget(parent),
 	eventDispenser(ed),
 	guiOptions(gopts),
-	detectorConstruction(dc) {
+	detectorConstruction(dc),
+	viewerInitialized(viewerAlreadyInitialized) {
 
 	// Create the left navigation pane first; right content initialization uses it to sync selection state.
 	createLeftButtons();           // instantiates leftButtons
@@ -74,14 +117,27 @@ void GemcGUI::updateGui() {
 }
 
 
+void GemcGUI::resetVisualizationBeforeGeometryReload() {
+	resetSceneBeforeGeometryReload(G4UImanager::GetUIpointer());
+}
+
+
 void GemcGUI::refreshGeometryTree() {
 	if (!rightContent || !detectorConstruction || !guiOptions || !geometryTree) { return; }
+
+	geometryReloadedSinceRun = true;
 
 	const int treeIndex = rightContent->indexOf(geometryTree);
 	if (treeIndex < 0) { return; }
 
 	const int currentIndex = rightContent->currentIndex();
-	auto* refreshedTree = new GTree(guiOptions, detectorConstruction->get_g4volumes_map());
+	auto* g4uim = G4UImanager::GetUIpointer();
+	if (!g4uim) { return; }
+
+	const auto g4volumes = detectorConstruction->has_built_geometry()
+	                     ? detectorConstruction->get_g4volumes_map()
+	                     : std::unordered_map<std::string, G4Volume*>{};
+	auto* refreshedTree = new GTree(guiOptions, g4volumes);
 
 	rightContent->removeWidget(geometryTree);
 	geometryTree->deleteLater();
@@ -89,25 +145,34 @@ void GemcGUI::refreshGeometryTree() {
 	rightContent->insertWidget(treeIndex, geometryTree);
 	rightContent->setCurrentIndex(currentIndex == treeIndex ? treeIndex : currentIndex);
 
-	if (detectorConstruction->get_g4volumes_map().size() > 1) {
-		G4SceneProperties g4SceneProperties(guiOptions);
-		auto* g4uim = G4UImanager::GetUIpointer();
-		if (!g4uim) { return; }
+	if (g4volumes.size() > 1) {
+		if (!viewerInitialized) {
+			// First geometry load: no viewer exists yet; create the named scene and open one.
+			G4SceneProperties g4SceneProperties(guiOptions);
+			auto commands = g4SceneProperties.scene_commands(guiOptions);
+			for (const auto& command : commands) { g4uim->ApplyCommand(command); }
+			viewerInitialized = true;
+		}
 
-		auto commands = g4SceneProperties.scene_commands(guiOptions);
-		commands.emplace_back("/run/initialize");
-		commands.emplace_back("/vis/drawVolume");
-		commands.emplace_back("/vis/scene/add/trajectories smooth");
-		commands.emplace_back("/vis/modeling/trajectories/create/drawByCharge");
-		commands.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true");
-		commands.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
-		commands.emplace_back("/vis/scene/add/hits");
-		commands.emplace_back("/vis/scene/endOfEventAction accumulate 10000");
-		commands.emplace_back("/vis/viewer/set/background 0.05 0.05 0.26");
-		commands.emplace_back("/vis/viewer/flush");
-
-		for (const auto& command : commands) { g4uim->ApplyCommand(command); }
+		restoreSceneModels(g4uim);
 	}
+}
+
+void GemcGUI::prepareGeometryForBeamOn() {
+	if (!geometryReloadedSinceRun || !detectorConstruction) { return; }
+	if (!detectorConstruction->has_built_geometry()) { return; }
+
+	auto* g4uim = G4UImanager::GetUIpointer();
+	resetEventDrawingBeforeRun(g4uim);
+
+	detectorConstruction->prepare_geometry_for_run();
+
+	// Restore visualization models after geometry reinitialization.
+	// The run reinitialization can replace the world volume, so restore the same
+	// persistent models used by refreshGeometryTree() before BeamOn draws events.
+	restoreSceneModels(g4uim);
+
+	geometryReloadedSinceRun = false;
 }
 
 

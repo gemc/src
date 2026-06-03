@@ -74,6 +74,7 @@ void GemcGUI::neventsChanged() {
 
 void GemcGUI::beamOn() {
 	// Run a batch once, then update the GUI counter label.
+	prepareGeometryForBeamOn();
 	eventDispenser->processEvents();
 	updateGui();
 }
@@ -84,6 +85,7 @@ void GemcGUI::cycleBeamOn() {
 	if (!gtimer->isActive()) {
 		gtimer->start(2000);
 	}
+	prepareGeometryForBeamOn();
 	eventDispenser->processEvents();
 }
 

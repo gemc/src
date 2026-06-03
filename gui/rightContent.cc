@@ -18,9 +18,12 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 	rightContent->addWidget(new G4Dialog(gopts, gb));
 	auto* setupView = new DBSelectView(gopts, dc);
 	rightContent->addWidget(setupView);
+	connect(setupView, &DBSelectView::geometryAboutToReload, this, &GemcGUI::resetVisualizationBeforeGeometryReload);
 	connect(setupView, &DBSelectView::geometryReloaded, this, &GemcGUI::refreshGeometryTree);
 
-	geometryTree = new GTree(gopts, dc->get_g4volumes_map());
+	geometryTree = new GTree(gopts, dc && dc->has_built_geometry()
+	                                ? dc->get_g4volumes_map()
+	                                : std::unordered_map<std::string, G4Volume*>{});
 	rightContent->addWidget(geometryTree);
 
 	// Default to the first page and update the left bar visual highlight accordingly.

@@ -58,6 +58,7 @@ public:
 	GemcGUI(std::shared_ptr<GOptions>       gopts,
 	        std::shared_ptr<EventDispenser> ed,
 	        GDetectorConstruction*          dc,
+	        bool                            viewerAlreadyInitialized = false,
 	        QWidget*                        parent = nullptr);
 
 	/**
@@ -135,6 +136,8 @@ private:
 	std::shared_ptr<GOptions> guiOptions;
 	GDetectorConstruction* detectorConstruction = nullptr;
 	GTree* geometryTree = nullptr;
+	bool geometryReloadedSinceRun = false;
+	bool viewerInitialized = false;
 
 private:
 	/**
@@ -171,6 +174,24 @@ private:
 	 * shown in the display.
 	 */
 	void refreshGeometryTree();
+
+	/**
+	 * \brief Clear accumulated visualization state before Geant4 replaces the current geometry.
+	 *
+	 * This slot is connected to DBSelectView::geometryAboutToReload() so stale hits and
+	 * trajectories are removed while their old geometry references are still valid.
+	 */
+	void resetVisualizationBeforeGeometryReload();
+
+	/**
+	 * \brief Reinitialize reloaded geometry through Geant4 before event processing.
+	 *
+	 * The setup tab rebuilds an immediate preview world for display/tree updates.
+	 * If that happened since the last run, this method asks detector construction
+	 * to reinitialize geometry through the run manager before \c BeamOn starts MT
+	 * workers.
+	 */
+	void prepareGeometryForBeamOn();
 
 	/**
 	 * \brief Update the GUI event counter label after running events.
