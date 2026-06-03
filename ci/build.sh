@@ -92,14 +92,14 @@ function run_meson_test_with_retry {
   for attempt in 1 2; do
     echo " > Running ${label} (attempt ${attempt}/2):" "$@" | tee -a "$test_log"
     "$@" >> "$test_log"
-    local status=$?
+    local exit_code=$?
 
-    if [ $status -eq 0 ]; then
+    if [ $exit_code -eq 0 ]; then
       return 0
     fi
 
     if [ $attempt -eq 2 ]; then
-      return $status
+      return $exit_code
     fi
 
     echo " > ${label} failed; retrying once" | tee -a "$test_log"
