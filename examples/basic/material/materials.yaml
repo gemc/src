@@ -18,6 +18,69 @@ gstreamer:
 
 phys_list: FTFP_BERT + G4OpticalPhysics
 
+g4camera:
+  theta: 120*deg
+  phi: 150*deg
+
+g4decoration:
+  scale: true
+  scaleLength: 10
+  scaleUnit: mm
+  scaleDirection: z
+  scaleColor: "0.9 0.9 0.9"
+
+g4text:
+  - kind: 3D
+    text: G4_C
+    color: white
+    x: -5
+    y: 8
+    z: 0.5
+    unit: mm
+    size: 18
+    dx: 4
+    dy: 4
+  - kind: 3D
+    text: custom_water
+    color: cyan
+    x: -5
+    y: 8
+    z: 4.5
+    unit: mm
+    size: 18
+    dx: 4
+    dy: 4
+  - kind: 3D
+    text: air_water_mixture
+    color: green
+    x: -5
+    y: 8
+    z: 8.5
+    unit: mm
+    size: 18
+    dx: 4
+    dy: 4
+  - kind: 3D
+    text: my_scintillator
+    color: yellow
+    x: -5
+    y: 8
+    z: 12.5
+    unit: mm
+    size: 18
+    dx: 4
+    dy: 4
+  - kind: 3D
+    text: optical_glass
+    color: red
+    x: -5
+    y: 8
+    z: 16.5
+    unit: mm
+    size: 18
+    dx: 4
+    dy: 4
+
 gparticle:
   - name: proton
     p: 2000

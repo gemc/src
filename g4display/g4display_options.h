@@ -16,6 +16,9 @@
  *
  */
 
+#include <memory>
+#include <string>
+
 #include "goptions.h"
 
 constexpr const char* G4DISPLAY_LOGGER = "g4display";
@@ -123,6 +126,10 @@ G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts);
 struct G4Decorations
 {
 	bool        scale;
+	double      scaleLength;
+	std::string scaleUnit;
+	std::string scaleDirection;
+	std::string scaleColor;
 	bool        axes;
 	bool        eventID;
 	bool        date;

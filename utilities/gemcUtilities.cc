@@ -133,8 +133,10 @@ namespace gemc {
 		cmds.push_back("/vis/viewer/set/background " + g4view.background);
 		cmds.push_back("/vis/viewer/set/numberOfCloudPoints " + std::to_string(g4view.cloudPoints));
 		G4SceneProperties g4SceneProperties(gopts);
-		for (const auto& command : g4SceneProperties.addSceneTexts(gopts)) { cmds.emplace_back(command); }
+		const auto decorations = g4display::getG4Decorations(gopts);
 		for (const auto& command : g4SceneProperties.addSceneDecorations(gopts)) { cmds.emplace_back(command); }
+		for (const auto& command : g4SceneProperties.addSceneTexts(gopts)) { cmds.emplace_back(command); }
+		if (decorations.eventID) { cmds.emplace_back("/vis/scene/add/eventID"); }
 
 		// do not draw volumes in batch screenshot
 		if (g4view.driver != "TOOLSSG_OFFSCREEN") {

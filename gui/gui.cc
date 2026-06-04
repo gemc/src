@@ -50,15 +50,17 @@ void restoreSceneModels(G4UImanager* g4uim, const std::shared_ptr<GOptions>& gop
 	g4uim->ApplyCommand("/vis/drawVolume");
 	g4uim->ApplyCommand("/vis/viewer/set/background " + g4view.background);
 	g4uim->ApplyCommand("/vis/viewer/set/numberOfCloudPoints " + std::to_string(g4view.cloudPoints));
-	for (const auto& command : g4SceneProperties.addSceneTexts(gopts)) { g4uim->ApplyCommand(command); }
 	for (const auto& command : g4SceneProperties.addSceneDecorations(gopts)) { g4uim->ApplyCommand(command); }
+	for (const auto& command : g4SceneProperties.addSceneTexts(gopts)) { g4uim->ApplyCommand(command); }
 	if (includeEventModels) {
+		const auto decorations = g4display::getG4Decorations(gopts);
 		g4uim->ApplyCommand("/vis/scene/add/trajectories smooth");
 		g4uim->ApplyCommand("/vis/modeling/trajectories/create/drawByCharge");
 		g4uim->ApplyCommand("/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true");
 		g4uim->ApplyCommand("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
 		g4uim->ApplyCommand("/vis/scene/add/hits");
 		g4uim->ApplyCommand("/vis/scene/endOfEventAction accumulate 10000");
+		if (decorations.eventID) { g4uim->ApplyCommand("/vis/scene/add/eventID"); }
 	}
 	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh true");
 	g4uim->ApplyCommand("/vis/viewer/flush");

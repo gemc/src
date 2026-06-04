@@ -17,12 +17,16 @@ YAML::Node getG4ViewValue(const std::shared_ptr<GOptions>& gopts, const std::str
 	return gopts->getOptionMapInNode("g4view", key);
 }
 
-YAML::Node getOptionValue(const std::shared_ptr<GOptions>& gopts, const std::string& option, const std::string& key) {
+template<typename T>
+T getOptionValueOrDefault(const std::shared_ptr<GOptions>& gopts,
+                          const std::string& option,
+                          const std::string& key,
+                          const T& defaultValue) {
 	auto node = gopts->getOptionNode(option);
-	if (node.IsMap() && node[key]) {
-		return node[key];
+	if (node.IsMap()) {
+		return gopts->get_variable_in_option<T>(node, key, defaultValue);
 	}
-	return gopts->getOptionMapInNode(option, key);
+	return gopts->getOptionMapInNode(option, key).as<T>();
 }
 }
 
@@ -83,15 +87,19 @@ G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts) {
 G4Decorations getG4Decorations(const std::shared_ptr<GOptions>& gopts) {
 	G4Decorations decorations;
 
-	decorations.scale          = getOptionValue(gopts, "g4decoration", "scale").as<bool>();
-	decorations.axes           = getOptionValue(gopts, "g4decoration", "axes").as<bool>();
-	decorations.eventID        = getOptionValue(gopts, "g4decoration", "eventID").as<bool>();
-	decorations.date           = getOptionValue(gopts, "g4decoration", "date").as<bool>();
-	decorations.logo2D         = getOptionValue(gopts, "g4decoration", "logo2D").as<bool>();
-	decorations.logo           = getOptionValue(gopts, "g4decoration", "logo").as<bool>();
-	decorations.frame          = getOptionValue(gopts, "g4decoration", "frame").as<bool>();
-	decorations.frameColor     = getOptionValue(gopts, "g4decoration", "frameColor").as<std::string>();
-	decorations.frameLineWidth = getOptionValue(gopts, "g4decoration", "frameLineWidth").as<double>();
+	decorations.scale          = getOptionValueOrDefault<bool>(gopts, "g4decoration", "scale", false);
+	decorations.scaleLength    = getOptionValueOrDefault<double>(gopts, "g4decoration", "scaleLength", 10.0);
+	decorations.scaleUnit      = getOptionValueOrDefault<std::string>(gopts, "g4decoration", "scaleUnit", "mm");
+	decorations.scaleDirection = getOptionValueOrDefault<std::string>(gopts, "g4decoration", "scaleDirection", "z");
+	decorations.scaleColor     = getOptionValueOrDefault<std::string>(gopts, "g4decoration", "scaleColor", "0.9 0.9 0.9");
+	decorations.axes           = getOptionValueOrDefault<bool>(gopts, "g4decoration", "axes", false);
+	decorations.eventID        = getOptionValueOrDefault<bool>(gopts, "g4decoration", "eventID", false);
+	decorations.date           = getOptionValueOrDefault<bool>(gopts, "g4decoration", "date", false);
+	decorations.logo2D         = getOptionValueOrDefault<bool>(gopts, "g4decoration", "logo2D", false);
+	decorations.logo           = getOptionValueOrDefault<bool>(gopts, "g4decoration", "logo", false);
+	decorations.frame          = getOptionValueOrDefault<bool>(gopts, "g4decoration", "frame", false);
+	decorations.frameColor     = getOptionValueOrDefault<std::string>(gopts, "g4decoration", "frameColor", "red");
+	decorations.frameLineWidth = getOptionValueOrDefault<double>(gopts, "g4decoration", "frameLineWidth", 2.0);
 
 	return decorations;
 }
@@ -165,6 +173,10 @@ GOptions defineOptions() {
 	// g4decoration
 	std::vector<GVariable> g4decoration = {
 		{"scale", false, "add a simple scale line"},
+		{"scaleLength", 10.0, "scale length"},
+		{"scaleUnit", "mm", "scale length unit"},
+		{"scaleDirection", "z", "scale direction: x, y, or z"},
+		{"scaleColor", "0.9 0.9 0.9", "scale color as 'r g b' or a named color"},
 		{"axes", false, "add simple XYZ axes"},
 		{"eventID", false, "add event ID text at end of event"},
 		{"date", false, "add a date stamp"},

@@ -11,6 +11,7 @@
 
 #include <QtWidgets>      // Qt widgets (QWidget, layouts, etc.)
 #include "g4Text.h"
+#include "g4display_options.h"
 #include "glogger.h"      // Glogger (module logger)
 #include "goptions.h"
 #include "G4UImanager.hh" // Geant4 UI manager
@@ -68,6 +69,10 @@ private:
 	QCheckBox* logo2DCheck = nullptr;
 	QCheckBox* logo3DCheck = nullptr;
 	QCheckBox* frameCheck = nullptr;
+	QDoubleSpinBox* scaleLengthSpin = nullptr;
+	QLineEdit* scaleUnitEdit = nullptr;
+	QComboBox* scaleDirectionCombo = nullptr;
+	QComboBox* scaleColorCombo = nullptr;
 	QComboBox* frameColorCombo = nullptr;
 	QDoubleSpinBox* frameLineWidthSpin = nullptr;
 

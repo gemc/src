@@ -19,6 +19,18 @@ namespace {
 bool is3DTextKind(const std::string& kind) {
 	return kind == "3D" || kind == "3d" || kind == "text" || kind == "Text";
 }
+
+std::string colourToRGB(const std::string& colour) {
+	if (colour.find(' ') != std::string::npos) { return colour; }
+	if (colour == "black")   { return "0 0 0"; }
+	if (colour == "blue")    { return "0 0 1"; }
+	if (colour == "cyan")    { return "0 1 1"; }
+	if (colour == "green")   { return "0 1 0"; }
+	if (colour == "grey" || colour == "gray") { return "0.9 0.9 0.9"; }
+	if (colour == "red")     { return "1 0 0"; }
+	if (colour == "yellow")  { return "1 1 0"; }
+	return "1 1 1";
+}
 }
 
 std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr<GOptions> &gopts) {
@@ -71,9 +83,14 @@ std::vector<std::string> G4SceneProperties::addSceneDecorations(const std::share
 	std::vector<std::string> commands;
 	const auto decorations = g4display::getG4Decorations(gopts);
 
-	if (decorations.scale) { commands.emplace_back("/vis/scene/add/scale"); }
+	if (decorations.scale) {
+		commands.emplace_back("/vis/scene/add/scale " +
+		                      std::to_string(decorations.scaleLength) + " " +
+		                      decorations.scaleUnit + " " +
+		                      decorations.scaleDirection + " " +
+		                      colourToRGB(decorations.scaleColor));
+	}
 	if (decorations.axes) { commands.emplace_back("/vis/scene/add/axes"); }
-	if (decorations.eventID) { commands.emplace_back("/vis/scene/add/eventID"); }
 	if (decorations.date) { commands.emplace_back("/vis/scene/add/date"); }
 	if (decorations.logo2D) { commands.emplace_back("/vis/scene/add/logo2D"); }
 	if (decorations.logo) { commands.emplace_back("/vis/scene/add/logo"); }

@@ -61,6 +61,16 @@ G4DisplayUtilities::G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt,
 	logo3DCheck  = decorationCheckBox(tr("Logo 3D"), decorations.logo, this);
 	frameCheck   = decorationCheckBox(tr("Frame"), decorations.frame, this);
 
+	scaleLengthSpin = doubleSpin(decorations.scaleLength, 0.0, 100000.0, 1.0, this);
+	scaleUnitEdit = new QLineEdit(QString::fromStdString(decorations.scaleUnit), this);
+	scaleDirectionCombo = new QComboBox(this);
+	addItemsWithCurrent(scaleDirectionCombo, {"x", "y", "z"},
+	                    QString::fromStdString(decorations.scaleDirection));
+
+	scaleColorCombo = new QComboBox(this);
+	addItemsWithCurrent(scaleColorCombo, {"0.9 0.9 0.9", "white", "red", "green", "blue", "black", "yellow"},
+	                    QString::fromStdString(decorations.scaleColor));
+
 	frameColorCombo = new QComboBox(this);
 	addItemsWithCurrent(frameColorCombo, {"red", "green", "blue", "white", "black", "yellow"},
 	                    QString::fromStdString(decorations.frameColor));
@@ -75,10 +85,18 @@ G4DisplayUtilities::G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt,
 	decorationGrid->addWidget(logo2DCheck, 2, 0);
 	decorationGrid->addWidget(logo3DCheck, 2, 1);
 	decorationGrid->addWidget(frameCheck, 3, 0);
-	decorationGrid->addWidget(new QLabel(tr("Frame Color:")), 4, 0);
-	decorationGrid->addWidget(frameColorCombo, 4, 1);
-	decorationGrid->addWidget(new QLabel(tr("Frame Line Width:")), 5, 0);
-	decorationGrid->addWidget(frameLineWidthSpin, 5, 1);
+	decorationGrid->addWidget(new QLabel(tr("Scale Color:")), 4, 0);
+	decorationGrid->addWidget(scaleColorCombo, 4, 1);
+	decorationGrid->addWidget(new QLabel(tr("Scale Length:")), 5, 0);
+	decorationGrid->addWidget(scaleLengthSpin, 5, 1);
+	decorationGrid->addWidget(new QLabel(tr("Scale Unit:")), 6, 0);
+	decorationGrid->addWidget(scaleUnitEdit, 6, 1);
+	decorationGrid->addWidget(new QLabel(tr("Scale Direction:")), 7, 0);
+	decorationGrid->addWidget(scaleDirectionCombo, 7, 1);
+	decorationGrid->addWidget(new QLabel(tr("Frame Color:")), 8, 0);
+	decorationGrid->addWidget(frameColorCombo, 8, 1);
+	decorationGrid->addWidget(new QLabel(tr("Frame Line Width:")), 9, 0);
+	decorationGrid->addWidget(frameLineWidthSpin, 9, 1);
 
 	auto* applyDecorationsButton = new QPushButton(tr("Apply Decorations"), this);
 	connect(applyDecorationsButton, &QPushButton::clicked, this, &G4DisplayUtilities::applyDecorations);
@@ -112,29 +130,38 @@ G4DisplayUtilities::G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt,
 	textDySpin = doubleSpin(4.0, -100000.0, 100000.0, 0.5, this);
 	textUnitEdit = new QLineEdit(tr("cm"), this);
 
-	auto* textGrid = new QGridLayout;
-	textGrid->addWidget(new QLabel(tr("Kind:")), 0, 0);
-	textGrid->addWidget(textKindCombo, 0, 1);
-	textGrid->addWidget(new QLabel(tr("Color:")), 0, 2);
-	textGrid->addWidget(textColorCombo, 0, 3);
-	textGrid->addWidget(new QLabel(tr("Layout:")), 1, 0);
-	textGrid->addWidget(textLayoutCombo, 1, 1);
-	textGrid->addWidget(new QLabel(tr("Text:")), 1, 2);
-	textGrid->addWidget(textEdit, 1, 3);
-	textGrid->addWidget(new QLabel(tr("X:")), 2, 0);
-	textGrid->addWidget(textXSpin, 2, 1);
-	textGrid->addWidget(new QLabel(tr("Y:")), 2, 2);
-	textGrid->addWidget(textYSpin, 2, 3);
-	textGrid->addWidget(new QLabel(tr("Z:")), 3, 0);
-	textGrid->addWidget(textZSpin, 3, 1);
-	textGrid->addWidget(new QLabel(tr("Size:")), 3, 2);
-	textGrid->addWidget(textSizeSpin, 3, 3);
-	textGrid->addWidget(new QLabel(tr("Unit:")), 4, 0);
-	textGrid->addWidget(textUnitEdit, 4, 1);
-	textGrid->addWidget(new QLabel(tr("dX:")), 4, 2);
-	textGrid->addWidget(textDxSpin, 4, 3);
-	textGrid->addWidget(new QLabel(tr("dY:")), 5, 0);
-	textGrid->addWidget(textDySpin, 5, 1);
+	textDxSpin->setToolTip(tr("Pixel offset from the projected text anchor."));
+	textDySpin->setToolTip(tr("Pixel offset from the projected text anchor."));
+
+	auto* textPositionGrid = new QGridLayout;
+	textPositionGrid->addWidget(new QLabel(tr("X:")), 0, 0);
+	textPositionGrid->addWidget(textXSpin, 0, 1);
+	textPositionGrid->addWidget(new QLabel(tr("Y:")), 1, 0);
+	textPositionGrid->addWidget(textYSpin, 1, 1);
+	textPositionGrid->addWidget(new QLabel(tr("Z:")), 2, 0);
+	textPositionGrid->addWidget(textZSpin, 2, 1);
+	textPositionGrid->addWidget(new QLabel(tr("Size:")), 3, 0);
+	textPositionGrid->addWidget(textSizeSpin, 3, 1);
+
+	auto* textSettingsGrid = new QGridLayout;
+	textSettingsGrid->addWidget(new QLabel(tr("Kind:")), 0, 0);
+	textSettingsGrid->addWidget(textKindCombo, 0, 1);
+	textSettingsGrid->addWidget(new QLabel(tr("Text:")), 1, 0);
+	textSettingsGrid->addWidget(textEdit, 1, 1);
+	textSettingsGrid->addWidget(new QLabel(tr("Color:")), 2, 0);
+	textSettingsGrid->addWidget(textColorCombo, 2, 1);
+	textSettingsGrid->addWidget(new QLabel(tr("Layout:")), 3, 0);
+	textSettingsGrid->addWidget(textLayoutCombo, 3, 1);
+	textSettingsGrid->addWidget(new QLabel(tr("Unit:")), 4, 0);
+	textSettingsGrid->addWidget(textUnitEdit, 4, 1);
+	textSettingsGrid->addWidget(new QLabel(tr("dX (px):")), 5, 0);
+	textSettingsGrid->addWidget(textDxSpin, 5, 1);
+	textSettingsGrid->addWidget(new QLabel(tr("dY (px):")), 6, 0);
+	textSettingsGrid->addWidget(textDySpin, 6, 1);
+
+	auto* textGrid = new QHBoxLayout;
+	textGrid->addLayout(textPositionGrid);
+	textGrid->addLayout(textSettingsGrid);
 
 	auto* addTextButton = new QPushButton(tr("Add Text"), this);
 	connect(addTextButton, &QPushButton::clicked, this, &G4DisplayUtilities::addText);
@@ -169,6 +196,10 @@ void G4DisplayUtilities::syncOptionsFromControls() {
 	ostringstream decorations;
 	decorations << "{"
 		<< "scale: " << (scaleCheck->isChecked() ? "true" : "false") << ", "
+		<< "scaleLength: " << scaleLengthSpin->value() << ", "
+		<< "scaleUnit: " << yamlString(scaleUnitEdit->text().toStdString()) << ", "
+		<< "scaleDirection: " << yamlString(scaleDirectionCombo->currentText().toStdString()) << ", "
+		<< "scaleColor: " << yamlString(scaleColorCombo->currentText().toStdString()) << ", "
 		<< "axes: " << (axesCheck->isChecked() ? "true" : "false") << ", "
 		<< "eventID: " << (eventIDCheck->isChecked() ? "true" : "false") << ", "
 		<< "date: " << (dateCheck->isChecked() ? "true" : "false") << ", "
