@@ -184,4 +184,13 @@ public:
 	 * \param nevts Total number of events to assign to userRunno.
 	 */
 	void setNumberOfEvents(int nevts);
+
+	/**
+	 * \brief Force per-run digitization setup to run again on the next event batch.
+	 *
+	 * GUI geometry reloads can replace digitization routines without changing the run number.
+	 * Resetting the cached run keeps \ref processEvents() from skipping constants/TT setup
+	 * after a geometry variation change.
+	 */
+	void resetRunContext();
 };

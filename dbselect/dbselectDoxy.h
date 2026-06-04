@@ -15,8 +15,8 @@
  * @section dbselect_intro Introduction
  *
  * The dbselect module provides a Qt widget (\c DBSelectView) that presents experiments and
- * systems retrieved from an SQLite database. Users can enable/disable systems and choose
- * the corresponding variation and run, then trigger a geometry reload through a supplied
+ * system variations retrieved from an SQLite database. Users can enable/disable system
+ * variations and choose the corresponding run, then trigger a geometry reload through a supplied
  * \c GDetectorConstruction instance.
  *
  * The typical flow is:
@@ -52,16 +52,16 @@
  * - **Selection model:** a \c QStandardItemModel with four columns:
  *   - column 0: experiment or system name (checkable)
  *   - column 1: entry count (computed from the database)
- *   - column 2: variation (edited via a drop-down delegate)
+ *   - column 2: variation represented by the row
  *   - column 3: run (edited via a drop-down delegate)
  * - **Application bridge:** translating checked systems into a SystemList of \c GSystem
  *   objects via \ref DBSelectView::get_gsystems "get_gsystems()".
  *
  * UI behavior:
  * - Selecting an experiment checks only one experiment at a time.
- * - Enabling a system shows an availability indicator (green/red icon) driven by the
+ * - Enabling a system variation shows an availability indicator (green/red icon) driven by the
  *   computed count of matching geometry entries.
- * - Changing variation/run recomputes counts and availability.
+ * - Changing run recomputes counts and availability.
  *
  * @section options_sec Available Options and their usage
  *

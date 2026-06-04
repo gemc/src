@@ -24,10 +24,9 @@
  *
  * \brief Qt widget used to select experiment/system configurations from an SQLite geometry database.
  *
- * \c DBSelectView displays a tree of experiments and their systems obtained from an SQLite database.
- * Each system row allows:
- * - enabling/disabling the system via a checkbox,
- * - selecting a variation from a drop-down list,
+ * \c DBSelectView displays a tree of experiments and their system variations obtained from an SQLite database.
+ * Each system/variation row allows:
+ * - enabling/disabling that variation via a checkbox,
  * - selecting a run number from a drop-down list,
  * - viewing the number of matching geometry entries for the current selection,
  * - seeing an availability indicator (green/red icon) driven by database counts.
@@ -75,8 +74,8 @@ public:
 	/**
 	 * \brief Build and return the list of selected systems as a SystemList.
 	 *
-	 * The returned SystemList contains one \c GSystem for each checked system item in the model.
-	 * For each enabled system, the selected variation and run are taken from the corresponding
+	 * The returned SystemList contains one \c GSystem for each checked system/variation item in the model.
+	 * For each enabled row, the selected variation and run are taken from the corresponding
 	 * model columns.
 	 *
 	 * This function does not change the UI state; it is a pure extraction step.
@@ -94,7 +93,7 @@ private:
 	 * - a Reload button,
 	 * - a \c QTreeView backed by a \c QStandardItemModel with four columns
 	 *   (exp/system, volumes, variation, run),
-	 * - drop-down delegates for variation and run columns.
+	 * - a drop-down delegate for the run column.
 	 */
 	void setupUI();
 
@@ -107,12 +106,12 @@ private:
 	void loadExperiments();
 
 	/**
-	 * \brief Query the database for systems belonging to the current experiment and append them as children.
+	 * \brief Query the database for systems/variations belonging to the current experiment and append them as children.
 	 *
 	 * Child rows are created with:
 	 * - system item (checkable),
 	 * - entry count item (filled later),
-	 * - variation item with an editable value and the full list stored in \c Qt::UserRole,
+	 * - variation item identifying the row,
 	 * - run item with an editable value and the full list stored in \c Qt::UserRole.
 	 *
 	 * \param experimentItem The model item that represents the experiment parent row.
@@ -120,24 +119,15 @@ private:
 	void loadSystemsForExperiment(QStandardItem* experimentItem);
 
 	/**
-	 * \brief Retrieve available variations for a given system.
+	 * \brief Retrieve available runs for a given system variation.
 	 *
-	 * Variations are collected from \c SELECT DISTINCT variation FROM geometry WHERE system = ?.
-	 *
-	 * \param system System name key used in the database.
-	 * \return List of available variation strings.
-	 */
-	QStringList getAvailableVariations(const std::string& system) const;
-
-	/**
-	 * \brief Retrieve available runs for a given system.
-	 *
-	 * Runs are collected from \c SELECT DISTINCT run FROM geometry WHERE system = ?.
+	 * Runs are collected from the \c geometry table for the current experiment, system, and variation.
 	 *
 	 * \param system System name key used in the database.
+	 * \param variation Variation name key used in the database.
 	 * \return List of available run values converted to strings.
 	 */
-	QStringList getAvailableRuns(const std::string& system);
+	QStringList getAvailableRuns(const std::string& system, const std::string& variation) const;
 
 	/**
 	 * \brief Count matching geometry rows for a selection tuple.
@@ -273,7 +263,7 @@ private slots:
 	 *
 	 * Responsibilities:
 	 * - Enforce single-selection behavior for experiments (only one checked at a time).
-	 * - Update system row appearance when system checkbox, variation, or run changes.
+	 * - Update system row appearance when system checkbox or run changes.
 	 * - Mark the view as modified and refresh the header and layout.
 	 *
 	 * \param item The changed item in the model.
@@ -311,7 +301,7 @@ signals:
 
 
 //
-// A custom delegate for drop-down editing (for both variations and runs).
+// A custom delegate for drop-down editing.
 //
 /**
  * @ingroup dbselect_module

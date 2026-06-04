@@ -207,6 +207,9 @@ void GemcGUI::prepareGeometryForBeamOn() {
 
 	if (geometryReloadedSinceRun) {
 		detectorConstruction->prepare_geometry_for_run();
+		if (eventDispenser) {
+			eventDispenser->resetRunContext();
+		}
 	}
 
 	// Restore visualization models after geometry reinitialization.

@@ -172,25 +172,17 @@ void DBSelectView::applyGSystemSelections() {
 			if (!sysItem || !varItem || !runItem)
 				continue;
 
-			std::string sysName     = sysItem->text().toStdString();
-			bool        systemFound = false;
+			std::string sysName      = sysItem->text().toStdString();
+			std::string rowVariation = varItem->data(Qt::EditRole).toString().toStdString();
+			bool        systemFound  = false;
 
 			for (auto const& gsys : gsystems) {
-				if (gsys->getName() == sysName) {
+				if (gsys->getName() == sysName && gsys->getVariation() == rowVariation) {
 					systemFound = true;
 					sysItem->setCheckState(Qt::Checked);
 
-					// Variations: select configured value if present, otherwise default to first.
-					QStringList availableVariations = getAvailableVariations(sysName);
-					QString     selectedVar         = QString::fromStdString(gsys->getVariation());
-					if (availableVariations.contains(selectedVar))
-						varItem->setData(selectedVar, Qt::EditRole);
-					else if (!availableVariations.isEmpty())
-						varItem->setData(availableVariations.first(), Qt::EditRole);
-					varItem->setData(availableVariations, Qt::UserRole);
-
 					// Runs: select configured value if present, otherwise default to first.
-					QStringList availableRuns = getAvailableRuns(sysName);
+					QStringList availableRuns = getAvailableRuns(sysName, rowVariation);
 					QString     selectedRun   = QString::number(gsys->getRunno());
 					if (availableRuns.contains(selectedRun))
 						runItem->setData(selectedRun, Qt::EditRole);
@@ -255,8 +247,7 @@ void DBSelectView::setupUI() {
 
 	experimentTree->setModel(experimentModel);
 
-	// Variation/run columns are edited via drop-downs.
-	experimentTree->setItemDelegateForColumn(2, new ComboDelegate(this));
+	// Run values are edited via a drop-down.
 	experimentTree->setItemDelegateForColumn(3, new ComboDelegate(this));
 
 	mainLayout->addWidget(experimentTree);
@@ -269,6 +260,7 @@ void DBSelectView::loadExperiments() {
 	experimentModel->clear();
 	if (!db) { return; }
 
+	const std::string configuredExperiment = experiment;
 	sqlite3_stmt* stmt      = nullptr;
 	const char*   sql_query = "SELECT DISTINCT experiment FROM geometry";
 
@@ -303,11 +295,12 @@ void DBSelectView::loadExperiments() {
 	}
 
 	sqlite3_finalize(stmt);
+	experiment = configuredExperiment;
 }
 
 void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem) {
 	sqlite3_stmt* stmt      = nullptr;
-	const char*   sql_query = "SELECT DISTINCT system FROM geometry WHERE experiment = ?";
+	const char*   sql_query = "SELECT DISTINCT system, variation FROM geometry WHERE experiment = ? ORDER BY system, variation";
 
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) == SQLITE_OK) {
 		// Bind current experiment selection (member variable).
@@ -315,7 +308,8 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem) {
 
 		while (sqlite3_step(stmt) == SQLITE_ROW) {
 			const char* sysText = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-			if (sysText) {
+			const char* varText = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+			if (sysText && varText) {
 				auto* sysItem = new QStandardItem(QString::fromUtf8(sysText));
 				sysItem->setFlags(sysItem->flags() & ~Qt::ItemIsEditable);
 				sysItem->setCheckable(true);
@@ -324,18 +318,17 @@ void DBSelectView::loadSystemsForExperiment(QStandardItem* experimentItem) {
 				// Column 1: count of matching geometry entries (set later).
 				auto* entriesItem = new QStandardItem("");
 
-				// Column 2: variation (editable, backed by UserRole list).
+				// Column 2: variation represented by this row.
 				auto*       varItem = new QStandardItem();
-				QStringList varList = getAvailableVariations(sysText);
-				if (!varList.isEmpty())
-					varItem->setData(varList.first(), Qt::EditRole);
-				else
-					varItem->setData("", Qt::EditRole);
+				QString     variation = QString::fromUtf8(varText);
+				QStringList varList{variation};
+				varItem->setData(variation, Qt::EditRole);
 				varItem->setData(varList, Qt::UserRole);
+				varItem->setFlags(varItem->flags() & ~Qt::ItemIsEditable);
 
 				// Column 3: run (editable, backed by UserRole list).
 				auto*       runItem = new QStandardItem();
-				QStringList runList = getAvailableRuns(sysText);
+				QStringList runList = getAvailableRuns(sysText, varText);
 				if (!runList.isEmpty())
 					runItem->setData(runList.first(), Qt::EditRole);
 				else
@@ -377,37 +370,17 @@ int DBSelectView::getGeometryCount(const std::string& system, const std::string&
 	return count;
 }
 
-QStringList DBSelectView::getAvailableVariations(const std::string& system) const {
-	QStringList   varList;
-	if (!db) { return varList; }
-
-	sqlite3_stmt* stmt      = nullptr;
-	const char*   sql_query = "SELECT DISTINCT variation FROM geometry WHERE system = ?";
-
-	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) == SQLITE_OK) {
-		sqlite3_bind_text(stmt, 1, system.c_str(), -1, SQLITE_TRANSIENT);
-
-		while (sqlite3_step(stmt) == SQLITE_ROW) {
-			const char* varText = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
-			if (varText) {
-				varList << QString::fromUtf8(varText);
-			}
-		}
-	}
-
-	sqlite3_finalize(stmt);
-	return varList;
-}
-
-QStringList DBSelectView::getAvailableRuns(const std::string& system) {
+QStringList DBSelectView::getAvailableRuns(const std::string& system, const std::string& variation) const {
 	QStringList   runList;
 	if (!db) { return runList; }
 
 	sqlite3_stmt* stmt      = nullptr;
-	const char*   sql_query = "SELECT DISTINCT run FROM geometry WHERE system = ?";
+	const char*   sql_query = "SELECT DISTINCT run FROM geometry WHERE experiment = ? AND system = ? AND variation = ? ORDER BY run";
 
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) == SQLITE_OK) {
-		sqlite3_bind_text(stmt, 1, system.c_str(), -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmt, 1, experiment.c_str(), -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmt, 2, system.c_str(), -1, SQLITE_TRANSIENT);
+		sqlite3_bind_text(stmt, 3, variation.c_str(), -1, SQLITE_TRANSIENT);
 
 		while (sqlite3_step(stmt) == SQLITE_ROW) {
 			int runVal = sqlite3_column_int(stmt, 0);
@@ -545,6 +518,14 @@ void DBSelectView::onItemChanged(QStandardItem* item) {
 	else {
 		// Child item: system row change.
 		if (item->column() == 0) {
+			if (item->checkState() == Qt::Checked) {
+				for (int i = 0; i < item->parent()->rowCount(); ++i) {
+					QStandardItem* sibling = item->parent()->child(i, 0);
+					if (sibling && sibling != item && sibling->text() == item->text()) {
+						sibling->setCheckState(Qt::Unchecked);
+					}
+				}
+			}
 			updateSystemItemAppearance(item);
 		}
 		else if (item->column() == 2 || item->column() == 3) {
@@ -583,6 +564,7 @@ SystemList DBSelectView::get_gsystems() {
 				std::string systemName = sysItem->text().toStdString();
 				std::string variation  = varItem->data(Qt::EditRole).toString().toStdString();
 				int         run        = runItem->data(Qt::EditRole).toInt();
+				std::string expName    = expItem->text().toStdString();
 
 				log->info(2, SFUNCTION_NAME, ": adding systemName: ", systemName, " , variation: ", variation, ", for run:", run);
 
@@ -592,7 +574,7 @@ SystemList DBSelectView::get_gsystems() {
 						dbhost,
 						systemName,
 						GSYSTEMSQLITETFACTORYLABEL,
-						experiment,
+						expName,
 						run,
 						variation
 					));

@@ -82,6 +82,10 @@ void EventDispenser::setNumberOfEvents(int nevents_to_process) {
 	runEvents[userRunno] = nevents_to_process;
 }
 
+void EventDispenser::resetRunContext() {
+	currentRunno = -1;
+}
+
 
 // distributeEvents summary:
 // - Performs stochastic sampling to convert runWeights into integer runEvents counts.
