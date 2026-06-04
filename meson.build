@@ -27,43 +27,43 @@ test_env.set('PYTHONDONTWRITEBYTECODE', '1')
 ############
 LD = []
 all_libs = []
-all_includes = []
+all_includes = [include_directories('.')]  # source root resolves <gemc/module/header.h> → src/gemc/module/header.h
 empty_dict = { 'na' : [''] }
 lib_target_maps = {}
 subdir('meson')
 
 # Fill dictionary
 #################
-subdir('guts')
-subdir('goptions')
-subdir('glogging')
-subdir('gbase')
-subdir('gfactory')
-subdir('textProgressBar')
-subdir('gtouchable')
-subdir('ghit')
-subdir('gtranslationTable')
-subdir('gdata')
-subdir('gboard')
-subdir('gdynamicDigitization')
-subdir('gsystem') # uses api for testing
-subdir('gstreamer')
-subdir('eventDispenser')
-subdir('gqtbuttonswidget')
-subdir('g4display')
-subdir('g4dialog')
-subdir('g4system')
-subdir('gparticle')
-subdir('gphysics')
-subdir('gsplash')
-subdir('gsd') # TODO: example
-subdir('gfields')
-subdir('gdetector')
-subdir('dbselect')
-subdir('gtree')
-subdir('gui')
-subdir('actions')
-subdir('utilities')
+subdir('gemc/guts')
+subdir('gemc/goptions')
+subdir('gemc/glogging')
+subdir('gemc/gbase')
+subdir('gemc/gfactory')
+subdir('gemc/textProgressBar')
+subdir('gemc/gtouchable')
+subdir('gemc/ghit')
+subdir('gemc/gtranslationTable')
+subdir('gemc/gdata')
+subdir('gemc/gboard')
+subdir('gemc/gdynamicDigitization')
+subdir('gemc/gsystem') # uses api for testing
+subdir('gemc/gstreamer')
+subdir('gemc/eventDispenser')
+subdir('gemc/gqtbuttonswidget')
+subdir('gemc/g4display')
+subdir('gemc/g4dialog')
+subdir('gemc/g4system')
+subdir('gemc/gparticle')
+subdir('gemc/gphysics')
+subdir('gemc/gsplash')
+subdir('gemc/gsd') # TODO: example
+subdir('gemc/gfields')
+subdir('gemc/gdetector')
+subdir('gemc/dbselect')
+subdir('gemc/gtree')
+subdir('gemc/gui')
+subdir('gemc/actions')
+subdir('gemc/utilities')
 
 # Set up Python environment via pygemc subproject.
 # The subproject creates a build-tree venv so configure works even when the
@@ -122,7 +122,7 @@ foreach L : LD
 
     # header files
     if not headers.contains('')
-        install_headers(headers)
+        install_headers(headers, subdir : 'gemc' / this_lib_name, preserve_path : true)
     endif
 
     this_library_link_with = []
@@ -148,7 +148,7 @@ foreach L : LD
                 sources[0],
                 install : sources[1],
                 dependencies : this_plugin_dependencies,
-                include_directories : all_includes + this_lib_name + additional_includes,
+                include_directories : all_includes + ('gemc' / this_lib_name) + additional_includes,
                 link_with : this_library_link_with,
                 name_suffix : 'gplugin',
                 name_prefix : '',
@@ -170,7 +170,7 @@ foreach L : LD
                 install_examples_dir = get_option('prefix') + '/test/' + this_lib_name
                 test_examples_dir = meson.project_build_root() + '/test/' + this_lib_name
                 run_command('mkdir', '-p', test_examples_dir, check : true)
-                source_subdir = this_lib_name + '/examples/'
+                source_subdir = 'gemc' / this_lib_name / 'examples'
                 install_subdir(source_subdir,
                                install_dir : install_examples_dir,
                                strip_directory : true,
@@ -199,7 +199,7 @@ foreach L : LD
                 example_sources,
                 install : true,
                 dependencies : this_deps,
-                include_directories : all_includes + this_lib_name + additional_includes,
+                include_directories : all_includes + ('gemc' / this_lib_name) + additional_includes,
                 link_with : this_library_link_with,
                 # Builds the executable as a PIE (position-independent executable).
                 override_options : ['b_pie=true']
@@ -218,8 +218,8 @@ foreach L : LD
             all_includes += include_dir
         endif
     endforeach
-    if not all_includes.contains(this_lib_name) and not (sources.contains('') and headers.contains(''))
-        all_includes += this_lib_name
+    if not all_includes.contains('gemc' / this_lib_name) and not (sources.contains('') and headers.contains(''))
+        all_includes += 'gemc' / this_lib_name
     endif
 
 endforeach
@@ -229,14 +229,25 @@ qrc_gemc_sources = qt6.compile_resources(sources : 'qtresources.qrc')
 
 gemc_sources = ['gemc.cc', 'gemc_options.cc']
 gemc = executable(
-    'gemc',
-    gemc_sources + qrc_gemc_sources + qrc_compiled_sources,
+    'bin/gemc',
+    gemc_sources + qrc_gemc_sources,
     install : true,
+    install_dir : get_option('bindir'),
     dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, assimp_dep, zlib_dep],
     include_directories : all_includes,
     link_with : all_libs,
-    # Builds the executable as a PIE (position-independent executable).
     override_options : ['b_pie=true']
+)
+
+pkg = import('pkgconfig')
+pkg.generate(
+    name : 'gemc',
+    filebase : 'gemc',
+    description : project_description,
+    version : meson.project_version(),
+    libraries : all_libs,
+    libraries_private : [yaml_cpp_dep, clhep_deps, geant4_core_deps, zlib_dep],
+    subdirs : 'gemc',
 )
 
 # test gemc options. Adjust root to fit the geometry

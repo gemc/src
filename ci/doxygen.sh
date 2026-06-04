@@ -11,8 +11,10 @@ guts goptions glogging gbase gfactory textProgressBar gtouchable ghit gtranslati
 gsystem gstreamer eventDispenser gqtbuttonswidget g4display g4dialog g4system gparticle gphysics gsplash gsd
 gfields gdetector dbselect gtree gui actions utilities)
 
-script_dir="${0:A:h}"
 pages_dir="pages"
+script_dir="${0:A:h}"
+repo_root="${script_dir:h}"
+cd "$repo_root"
 
 usage() {
   cat <<'EOF'
@@ -46,15 +48,38 @@ inplace_sed() {
   fi
 }
 
-# Find module directory: supports either ./<module>/ or ./modules/<module>/
+# Find module directory: supports current ./gemc/<module>/ layout, plus older
+# ./<module>/ and ./modules/<module>/ layouts.
 module_dir_for() {
   local m="$1"
-  if [[ -d "modules/$m" ]]; then
+  if [[ -d "gemc/$m" ]]; then
+    print -- "gemc/$m"
+  elif [[ -d "modules/$m" ]]; then
     print -- "modules/$m"
   elif [[ -d "$m" ]]; then
     print -- "$m"
   else
     return 1
+  fi
+}
+
+pages_rel_for() {
+  local moddir="$1"
+  if [[ "$moddir" == */* ]]; then
+    print -- "../../$pages_dir"
+  else
+    print -- "../$pages_dir"
+  fi
+}
+
+set_doxy_key() {
+  local key="$1"
+  local value="$2"
+  local file="$3"
+  if grep -qE "^${key}[[:space:]]*=" "$file"; then
+    inplace_sed "s|^${key}[[:space:]]*=.*|${key}              = ${value}|g" "$file"
+  else
+    print -- "${key}              = ${value}" >> "$file"
   fi
 }
 
@@ -95,12 +120,9 @@ else
 fi
 
 # Copy CSS into each module output after HTML pass; keep source of truth in doc/mydoxygen.css
-css_src="doc/mydoxygen.css"
-[[ -f "$css_src" ]] || css_src="../doc/mydoxygen.css"
+css_src="ci/mydoxygen.css"
 
-# Absolute path to the canonical stylesheet in the repo root
-repo_root="${script_dir:h}"
-css_abs="$repo_root/doc/mydoxygen.css"
+css_abs="$repo_root/$css_src"
 [[ -f "$css_abs" ]] || die "Missing stylesheet: $css_abs"
 
 # ---- PASS 1: TAG-only ----
@@ -108,12 +130,15 @@ for m in $modules_to_build; do
   echo " [PASS 1] Generating TAG for $m"
   moddir="$(module_dir_for "$m")" || die "Module dir not found for '$m'"
   mkdir -p "$pages_dir/$m"
+  pages_rel="$(pages_rel_for "$moddir")"
 
   pushd "$moddir" >/dev/null
   ln -sf "$css_abs" mydoxygen.css
 
   "$script_dir/create_doxygen.sh" "$m"
   [[ -f Doxyfile ]] || die "Missing Doxyfile in '$moddir'"
+  set_doxy_key "OUTPUT_DIRECTORY" "$pages_rel" Doxyfile
+  set_doxy_key "GENERATE_TAGFILE" "$pages_rel/$m/$m.tag" Doxyfile
 
   # Ensure TAG pass doesn't emit HTML
   if grep -qE '^GENERATE_HTML[[:space:]]*=' Doxyfile; then
@@ -126,7 +151,7 @@ for m in $modules_to_build; do
   inplace_sed '/^TAGFILES\b/d' Doxyfile
 
   doxygen Doxyfile
-  [[ -f "../$pages_dir/$m/$m.tag" ]] || die "Tag file not produced: $pages_dir/$m/$m.tag"
+  [[ -f "$pages_rel/$m/$m.tag" ]] || die "Tag file not produced: $pages_dir/$m/$m.tag"
 
   popd >/dev/null
   echo
@@ -137,12 +162,15 @@ for m in $modules_to_build; do
   echo " [PASS 2] Generating HTML for $m (with cross-links)"
   moddir="$(module_dir_for "$m")" || die "Module dir not found for '$m'"
   mkdir -p "$pages_dir/$m"
+  pages_rel="$(pages_rel_for "$moddir")"
 
   pushd "$moddir" >/dev/null
   ln -sf "$css_abs" mydoxygen.css
 
   "$script_dir/create_doxygen.sh" "$m"
   [[ -f Doxyfile ]] || die "Missing Doxyfile in '$moddir'"
+  set_doxy_key "OUTPUT_DIRECTORY" "$pages_rel" Doxyfile
+  set_doxy_key "GENERATE_TAGFILE" "$pages_rel/$m/$m.tag" Doxyfile
 
   # Ensure HTML is enabled in pass 2
   if grep -qE '^GENERATE_HTML[[:space:]]*=' Doxyfile; then
@@ -156,8 +184,8 @@ for m in $modules_to_build; do
 
   for other in $doc_modules; do
     [[ "$other" == "$m" ]] && continue
-    if [[ -f "../$pages_dir/$other/$other.tag" ]]; then
-      echo "TAGFILES += ../$pages_dir/$other/$other.tag=../$other" >> Doxyfile
+    if [[ -f "$pages_rel/$other/$other.tag" ]]; then
+      echo "TAGFILES += $pages_rel/$other/$other.tag=../$other" >> Doxyfile
     fi
   done
 

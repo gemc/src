@@ -3,19 +3,19 @@
     <qresource>
         <file alias="gemcArchitecture_light">images/gemcArchitecture_light.png</file>
         <file alias="gemcArchitecture_dark">images/gemcArchitecture_dark.png</file>
-        <file>gui/images/buttons/display_1.svg</file>
-        <file>gui/images/buttons/display_2.svg</file>
-        <file>gui/images/buttons/dialog_1.svg</file>
-        <file>gui/images/buttons/dialog_2.svg</file>
-        <file>gui/images/buttons/setup_1.svg</file>
-        <file>gui/images/buttons/setup_2.svg</file>
-        <file>gui/images/buttons/tree_1.svg</file>
-        <file>gui/images/buttons/tree_2.svg</file>
-        <file>gtree/images/wireframe_1.svg</file>
-        <file>gtree/images/wireframe_2.svg</file>
-        <file>gtree/images/surface_1.svg</file>
-        <file>gtree/images/surface_2.svg</file>
-        <file>gtree/images/cloud_1.svg</file>
-        <file>gtree/images/cloud_2.svg</file>
+        <file alias="gui/images/buttons/display_1.svg">gemc/gui/images/buttons/display_1.svg</file>
+        <file alias="gui/images/buttons/display_2.svg">gemc/gui/images/buttons/display_2.svg</file>
+        <file alias="gui/images/buttons/dialog_1.svg">gemc/gui/images/buttons/dialog_1.svg</file>
+        <file alias="gui/images/buttons/dialog_2.svg">gemc/gui/images/buttons/dialog_2.svg</file>
+        <file alias="gui/images/buttons/setup_1.svg">gemc/gui/images/buttons/setup_1.svg</file>
+        <file alias="gui/images/buttons/setup_2.svg">gemc/gui/images/buttons/setup_2.svg</file>
+        <file alias="gui/images/buttons/tree_1.svg">gemc/gui/images/buttons/tree_1.svg</file>
+        <file alias="gui/images/buttons/tree_2.svg">gemc/gui/images/buttons/tree_2.svg</file>
+        <file alias="gtree/images/wireframe_1.svg">gemc/gtree/images/wireframe_1.svg</file>
+        <file alias="gtree/images/wireframe_2.svg">gemc/gtree/images/wireframe_2.svg</file>
+        <file alias="gtree/images/surface_1.svg">gemc/gtree/images/surface_1.svg</file>
+        <file alias="gtree/images/surface_2.svg">gemc/gtree/images/surface_2.svg</file>
+        <file alias="gtree/images/cloud_1.svg">gemc/gtree/images/cloud_1.svg</file>
+        <file alias="gtree/images/cloud_2.svg">gemc/gtree/images/cloud_2.svg</file>
     </qresource>
 </RCC>

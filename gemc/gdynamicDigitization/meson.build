@@ -1,0 +1,45 @@
+sub_dir_name = meson.current_source_dir().split('/').get(-1)
+internal_deps = ['goptions', 'guts', 'glogging', 'gtouchable', 'gdata', 'gtranslationTable', 'ghit', 'gfactory', 'gdata']
+
+example_source = files('examples/plugin_load_example.cc')
+verbosities = [
+    '-verbosity.plugins=2',
+    '-debug.plugins=true',
+    '-verbosity.gdigitization=2',
+    '-debug.gdigitization=true',
+]
+
+
+LD += {
+    'name' : sub_dir_name,
+    'sources' : files(
+        'gdynamicdigitization.cc',
+        'gFluxDigitization.cc',
+        'gPhotonDetectorDigitization.cc',
+        'gParticleCounterDigitization.cc',
+        'gDosimeterDigitization.cc',
+        'gdynamicdigitization_options.cc'
+    ),
+    'headers' : files(
+        'gdynamicdigitization.h',
+        'gdynamicdigitization_options.h',
+        'gFluxDigitization.h',
+        'gPhotonDetectorDigitization.h',
+        'gParticleCounterDigitization.h',
+        'gDosimeterDigitization.h',
+        'greadoutSpecs.h'
+    ),
+
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
+    'internal_dependencies' : internal_deps,
+
+    'plugins' : {
+        'test_gdynamic_plugin' : [files('examples/gplugin_test_example.cc'), true],
+    },
+    'examples' : {
+        'test_gdynamic_plugin_load' : [example_source, ''],
+        'test_gdynamic_plugin_load_verbose' : [example_source, verbosities],
+    }
+}
+
+install_subdir(meson.current_source_dir() + '/dosimeterData', install_dir : '.')
