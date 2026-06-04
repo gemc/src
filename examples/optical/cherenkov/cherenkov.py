@@ -70,17 +70,18 @@ panels = [
 for variation, material in variation_material.items():
     cfg.init_variation(variation)
 
-    mat = GMaterial(material_definitions[material]["name"])
-    mat.description = material_definitions[material]["description"]
-    mat.density = material_definitions[material]["density"]
+    for material_name, definition in material_definitions.items():
+        mat = GMaterial(definition["name"])
+        mat.description = definition["description"]
+        mat.density = definition["density"]
 
-    for element, natoms in material_definitions[material]["atoms"]:
-        mat.addNAtoms(element, natoms)
+        for element, natoms in definition["atoms"]:
+            mat.addNAtoms(element, natoms)
 
-    mat.photonEnergy = photon_energy
-    mat.indexOfRefraction = rindex[material]
-    mat.absorptionLength = absorption[material]
-    mat.publish(cfg)
+        mat.photonEnergy = photon_energy
+        mat.indexOfRefraction = rindex[material_name]
+        mat.absorptionLength = absorption[material_name]
+        mat.publish(cfg)
 
     # World
     world = GVolume("root")
