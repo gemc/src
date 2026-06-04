@@ -336,6 +336,10 @@ void GDetectorConstruction::prepare_geometry_for_run() {
 		GVisManagerGuard::set(nullptr);
 		// Geometry is being rebuilt: ensure loadDigitizationPlugins() runs inside Initialize().
 		digiplugins_need_reload = true;
+		// Optical processes such as G4Cerenkov cache material-property tables by
+		// material index. A setup-tab reload can introduce a different variation's
+		// optical material, so force physics tables to rebuild with the new material set.
+		rm->PhysicsHasBeenModified();
 		rm->ReinitializeGeometry(false, true);
 		rm->GeometryHasBeenModified();
 		rm->Initialize();
