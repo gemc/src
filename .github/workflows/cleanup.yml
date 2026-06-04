@@ -41,10 +41,12 @@ jobs:
           source ci/tags_config.sh
 
           tags=()
+          images=()
           for gemc_tag in $(get_gemc_tags); do
             for pair in "${OS_VERSIONS[@]}"; do
               os="${pair%%=*}"
               ver="${pair#*=}"
+              images+=("$os")
               base="${gemc_tag}-${os}-${ver}"
               tags+=("$base" "$base-amd64")
               if [[ "$os" != "archlinux" ]]; then
@@ -61,18 +63,23 @@ jobs:
             echo "json<<EOF"
             printf '%s\n' "${tags[@]}" | jq -R -s -c 'split("\n")[:-1] | unique'
             echo "EOF"
+            echo "images<<EOF"
+            printf '%s\n' "${images[@]}" | jq -R -s -c 'split("\n")[:-1] | unique'
+            echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
       - name: Cleanup GHCR package versions
         uses: actions/github-script@v8
         env:
           KEEP_TAGS: ${{ steps.keep-tags.outputs.json }}
+          MANAGED_IMAGES: ${{ steps.keep-tags.outputs.images }}
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
           UNTAGGED_RETENTION_DAYS: ${{ env.UNTAGGED_RETENTION_DAYS }}
           STALE_TAGGED_RETENTION_DAYS: ${{ env.STALE_TAGGED_RETENTION_DAYS }}
         with:
           script: |
             const keepTags = new Set(JSON.parse(process.env.KEEP_TAGS));
+            const managedImages = JSON.parse(process.env.MANAGED_IMAGES);
             const dryRun = process.env.DRY_RUN === 'true';
             const untaggedRetentionMs = Number(process.env.UNTAGGED_RETENTION_DAYS) * 24 * 60 * 60 * 1000;
             const staleTaggedRetentionMs = Number(process.env.STALE_TAGGED_RETENTION_DAYS) * 24 * 60 * 60 * 1000;
@@ -98,10 +105,14 @@ jobs:
             };
 
             const versions = await github.paginate(listVersions, packageArgs);
-            const managedTag = /^(dev|main)-[a-z0-9]+-[a-z0-9.]+(-(amd64|arm64))?$/;
             const cacheTag = /^cache-[a-z0-9_-]+$/;
+            const escapedImages = managedImages
+              .map((image) => image.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+              .join('|');
+            const managedTag = new RegExp(`^.+-(${escapedImages})-[a-z0-9.]+(-(amd64|arm64))?$`);
 
             core.info(`Keeping current tags: ${[...keepTags].sort().join(', ')}`);
+            core.info(`Managed image families: ${managedImages.sort().join(', ')}`);
             core.info(`Found ${versions.length} package versions in ghcr.io/${owner}/${packageName}`);
 
             let deleted = 0;
