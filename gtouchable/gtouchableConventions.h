@@ -19,6 +19,14 @@
 #define FLUXNAME "flux"
 
 /**
+ * \brief Digitization type name for optical-photon flux detectors.
+ *
+ * gPhotonDetector touchables use the **track id** as the discriminating factor, like flux,
+ * but the digitization routine records only optical photons.
+ */
+#define GPHOTON_DETECTORNAME "gPhotonDetector"
+
+/**
  * \brief Digitization type name for simple particle counters.
  *
  * Particle-counter  use the **particle id** as the discriminating factor (in addition to the identity vector).

@@ -26,6 +26,3 @@ gparticle:
   - name: e-
     p: 1000
     vz: -50
-
-# Required for optical-photon flux hits because optical photons deposit zero energy.
-recordZeroEdep: true

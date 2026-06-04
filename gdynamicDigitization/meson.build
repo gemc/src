@@ -15,6 +15,7 @@ LD += {
     'sources' : files(
         'gdynamicdigitization.cc',
         'gFluxDigitization.cc',
+        'gPhotonDetectorDigitization.cc',
         'gParticleCounterDigitization.cc',
         'gDosimeterDigitization.cc',
         'gdynamicdigitization_options.cc'
@@ -22,6 +23,7 @@ LD += {
     'headers' : files(
         'gdynamicdigitization_options.h',
         'gFluxDigitization.h',
+        'gPhotonDetectorDigitization.h',
         'gParticleCounterDigitization.h',
         'gDosimeterDigitization.h',
         'greadoutSpecs.h'

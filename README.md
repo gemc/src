@@ -21,7 +21,7 @@ The project goal is to make Geant4-based simulation accessible to users who want
 - Geometry and material storage in SQLite or GEMC ASCII databases
 - Geometry imports from native GEMC databases, GDML, and CAD meshes
 - Run-number and variation support for reusable detector configurations
-- Built-in sensitive detector digitizations: `flux`, `dosimeter`, and `particle_counter`
+- Built-in sensitive detector digitizations: `flux`, `gPhotonDetector`, `dosimeter`, and `particle_counter`
 - Dynamic C++ plugin infrastructure for custom digitization, fields, particle readers, and output streamers
 - Event generation from command-line/YAML particle definitions and Lund files
 - Output streamers for ASCII, CSV, JSON, JLAB SRO, and optional ROOT output

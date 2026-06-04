@@ -8,6 +8,7 @@
 #include "gsystemConventions.h"
 #include "gDosimeterDigitization.h"
 #include "gFluxDigitization.h"
+#include "gPhotonDetectorDigitization.h"
 #include "gParticleCounterDigitization.h"
 
 // geant4
@@ -262,6 +263,9 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 		if (sdname == FLUXNAME) {
 			log->info(1, "Loading flux digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, std::make_shared<GFluxDigitization>(gopt));
+		} else if (sdname == GPHOTON_DETECTORNAME) {
+			log->info(1, "Loading gPhotonDetector digitization plugin for routine <" + sdname + ">");
+			digitization_routines_map->emplace(sdname, std::make_shared<GPhotonDetectorDigitization>(gopt));
 		} else if (sdname == COUNTERNAME) {
 			log->info(1, "Loading particle counter digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, std::make_shared<GParticleCounterDigitization>(gopt));

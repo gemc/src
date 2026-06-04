@@ -54,7 +54,7 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 
 	double depe = thisStep->GetTotalEnergyDeposit();
 
-	if (digitization_routine->decisionToSkipHit(depe)) { return true; }
+	if (digitization_routine->decisionToSkipHit(depe, thisStep)) { return true; }
 
 	// The hits collection should have been created in Initialize().
 	if (gHitsCollection == nullptr) { log->error(ERR_NOCOLLECTION, "No hit collection found"); }

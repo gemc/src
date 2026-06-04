@@ -473,6 +473,20 @@ public:
     }
 
     /**
+     * \brief Decides whether a step should be skipped before hit creation.
+     *
+     * This overload gives digitization routines access to the full Geant4 step while
+     * preserving the legacy energy-only hook for existing plugins.
+     *
+     * \param energy Total deposited energy for the step.
+     * \param thisStep Geant4 step being processed.
+     * \return true if the step should be skipped.
+     */
+    virtual bool decisionToSkipHit(double energy, [[maybe_unused]] const G4Step* thisStep) {
+        return decisionToSkipHit(energy);
+    }
+
+    /**
      * \brief Sets the options pointer required by the digitization base.
      *
      * \param g Options object to store for later use.

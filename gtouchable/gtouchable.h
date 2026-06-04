@@ -21,6 +21,7 @@
  * The type determines the **secondary** discriminating rule used after the identity vector:
  * - \c readout: uses the electronics time-cell index. Steps ending in the same time are accumulated in the hits.
  * - \c flux: uses track id to discriminate between hits.
+ * - \c gPhotonDetector: uses track id to discriminate between optical-photon hits.
  * - \c particle_counter: uses particle id to discriminate between hits.
  * - \c dosimeter: requires no additional discriminator beyond the identity vector. Meant to accumulate dose.
  * - \c integral_counter: uses particle id to discriminate between hits.
@@ -32,6 +33,7 @@ enum GTouchableType
 {
 	readout,
 	flux,
+	gPhotonDetector,
 	particle_counter,
 	dosimeter,
 	integral_counter
@@ -56,6 +58,7 @@ namespace gtouchable {
 		switch (t) {
 			case GTouchableType::readout: return "readout";
 			case GTouchableType::flux: return FLUXNAME;
+			case GTouchableType::gPhotonDetector: return GPHOTON_DETECTORNAME;
 			case GTouchableType::particle_counter: return COUNTERNAME;
 			case GTouchableType::dosimeter: return DOSIMETERNAME;
 			case GTouchableType::integral_counter: return INTEGRAL_COUNTERNAME;
@@ -131,6 +134,7 @@ private:
  * 2. If identities match, apply a type-specific discriminator:
  *    - \c readout compares \c stepTimeAtElectronicsIndex
  *    - \c flux compares \c trackId
+ *    - \c gPhotonDetector compares \c trackId
  *    - \c dosimeter always matches once identities match
  *    - \c particle_counter compares \c pid
  *    - \c integral_counter always matches once identities match

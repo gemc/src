@@ -25,8 +25,9 @@ GTouchable::GTouchable(const std::shared_ptr<GOptions>& gopt,
 	detectorDimensions(dimensions),
 	mass(dm) {
 	// Determine the type based on the digitization string.
-	// The string constants are defined in gtouchableConventions.h : FLUXNAME, COUNTERNAME, DOSIMETERNAME.
+	// The string constants are defined in gtouchableConventions.h.
 	if (digitization == FLUXNAME) { gType = flux; }
+	else if (digitization == GPHOTON_DETECTORNAME) { gType = gPhotonDetector; }
 	else if (digitization == COUNTERNAME) { gType = particle_counter; }
 	else if (digitization == DOSIMETERNAME) { gType = dosimeter; }
 	else { gType = readout; }
@@ -63,8 +64,9 @@ GTouchable::GTouchable(const std::shared_ptr<GLogger>& logger,
 	detectorDimensions(dimensions),
 	mass(dm) {
 	// Determine the type based on the digitization string.
-	// The string constants are defined in gtouchableConventions.h : FLUXNAME, COUNTERNAME, DOSIMETERNAME.
+	// The string constants are defined in gtouchableConventions.h.
 	if (digitization == FLUXNAME) { gType = flux; }
+	else if (digitization == GPHOTON_DETECTORNAME) { gType = gPhotonDetector; }
 	else if (digitization == COUNTERNAME) { gType = particle_counter; }
 	else if (digitization == DOSIMETERNAME) { gType = dosimeter; }
 	else { gType = readout; }
@@ -125,6 +127,12 @@ bool GTouchable::operator==(const GTouchable& that) const {
 			log->debug(NORMAL, "    Touchable type is flux. Track id comparison: ", this->trackId, " ", that.trackId,
 					   " result:", result);
 			break;
+		case gPhotonDetector:
+			typeComparison = this->trackId == that.trackId;
+			result = typeComparison ? " ✅" : " ❌";
+			log->debug(NORMAL, "    Touchable type is gPhotonDetector. Track id comparison: ",
+					   this->trackId, " ", that.trackId, " result:", result);
+			break;
 		case dosimeter:
 			typeComparison = true;
 			log->debug(NORMAL, "    Touchable type is dosimeter. No additional comparison needed, returning true ✅");
@@ -163,6 +171,9 @@ std::ostream& operator<<(std::ostream& stream, const GTouchable& gtouchable) {
 			break;
 		case flux:
 			stream << KGRN << " (flux), " << RST << " g4 track id: " << gtouchable.trackId;
+			break;
+		case gPhotonDetector:
+			stream << KGRN << " (gPhotonDetector), " << RST << " g4 track id: " << gtouchable.trackId;
 			break;
 		case dosimeter:
 			stream << KGRN << " (dosimeter), " << RST;
