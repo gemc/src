@@ -4,7 +4,7 @@ nthreads: 1
 
 g4view:
   background: "0.92 0.92 0.98"
-  cloudPoints: 4000
+  cloudPoints: 60000
 
 verbosity:
   - g4system: 1

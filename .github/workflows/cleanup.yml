@@ -7,18 +7,137 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "List package versions that would be deleted, without deleting them"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 permissions:
   contents: read
   packages: write  # needed for deletions with GITHUB_TOKEN
 
+env:
+  UNTAGGED_RETENTION_DAYS: 2
+  STALE_TAGGED_RETENTION_DAYS: 14
 
 jobs:
   cleanup:
     name: ghcr.io cleanup
     runs-on: ubuntu-latest
     steps:
-      - uses: dataaxiom/ghcr-cleanup-action@v1
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - id: keep-tags
+        name: Compute current image tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          source ci/tags_config.sh
+
+          tags=()
+          for gemc_tag in $(get_gemc_tags); do
+            for pair in "${OS_VERSIONS[@]}"; do
+              os="${pair%%=*}"
+              ver="${pair#*=}"
+              base="${gemc_tag}-${os}-${ver}"
+              tags+=("$base" "$base-amd64")
+              if [[ "$os" != "archlinux" ]]; then
+                tags+=("$base-arm64")
+              fi
+            done
+          done
+
+          for arch in $(get_cpu_architectures); do
+            tags+=("cache-$arch")
+          done
+
+          {
+            echo "json<<EOF"
+            printf '%s\n' "${tags[@]}" | jq -R -s -c 'split("\n")[:-1] | unique'
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Cleanup GHCR package versions
+        uses: actions/github-script@v8
+        env:
+          KEEP_TAGS: ${{ steps.keep-tags.outputs.json }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          UNTAGGED_RETENTION_DAYS: ${{ env.UNTAGGED_RETENTION_DAYS }}
+          STALE_TAGGED_RETENTION_DAYS: ${{ env.STALE_TAGGED_RETENTION_DAYS }}
         with:
-          delete-untagged: true
-          older-than: 2 days
+          script: |
+            const keepTags = new Set(JSON.parse(process.env.KEEP_TAGS));
+            const dryRun = process.env.DRY_RUN === 'true';
+            const untaggedRetentionMs = Number(process.env.UNTAGGED_RETENTION_DAYS) * 24 * 60 * 60 * 1000;
+            const staleTaggedRetentionMs = Number(process.env.STALE_TAGGED_RETENTION_DAYS) * 24 * 60 * 60 * 1000;
+            const now = Date.now();
+
+            const owner = context.repo.owner;
+            const packageName = context.repo.repo.toLowerCase();
+            const ownerType = context.payload.repository.owner.type;
+            const isOrg = ownerType === 'Organization';
+            const listVersions = isOrg
+              ? github.rest.packages.getAllPackageVersionsForPackageOwnedByOrg
+              : github.rest.packages.getAllPackageVersionsForPackageOwnedByUser;
+            const deleteVersion = isOrg
+              ? github.rest.packages.deletePackageVersionForOrg
+              : github.rest.packages.deletePackageVersionForUser;
+            const ownerArgs = isOrg ? { org: owner } : { username: owner };
+
+            const packageArgs = {
+              ...ownerArgs,
+              package_type: 'container',
+              package_name: packageName,
+              per_page: 100,
+            };
+
+            const versions = await github.paginate(listVersions, packageArgs);
+            const managedTag = /^(dev|main)-[a-z0-9]+-[a-z0-9.]+(-(amd64|arm64))?$/;
+            const cacheTag = /^cache-[a-z0-9_-]+$/;
+
+            core.info(`Keeping current tags: ${[...keepTags].sort().join(', ')}`);
+            core.info(`Found ${versions.length} package versions in ghcr.io/${owner}/${packageName}`);
+
+            let deleted = 0;
+            for (const version of versions) {
+              const tags = version.metadata?.container?.tags ?? [];
+              const updatedAt = new Date(version.updated_at).getTime();
+              const ageMs = now - updatedAt;
+              const tagList = tags.length ? tags.join(', ') : '<untagged>';
+
+              let reason = null;
+              if (tags.length === 0 && ageMs > untaggedRetentionMs) {
+                reason = `untagged older than ${process.env.UNTAGGED_RETENTION_DAYS} days`;
+              } else if (
+                tags.length > 0 &&
+                ageMs > staleTaggedRetentionMs &&
+                tags.every((tag) => !keepTags.has(tag)) &&
+                tags.every((tag) => managedTag.test(tag) || cacheTag.test(tag))
+              ) {
+                reason = `stale managed tags older than ${process.env.STALE_TAGGED_RETENTION_DAYS} days`;
+              }
+
+              if (!reason) {
+                core.info(`keep ${version.id}: ${tagList}`);
+                continue;
+              }
+
+              core.info(`${dryRun ? 'would delete' : 'delete'} ${version.id}: ${tagList} (${reason})`);
+              if (!dryRun) {
+                await deleteVersion({
+                  ...ownerArgs,
+                  package_type: 'container',
+                  package_name: packageName,
+                  package_version_id: version.id,
+                });
+              }
+              deleted += 1;
+            }
+
+            core.notice(`${dryRun ? 'Would delete' : 'Deleted'} ${deleted} package version(s).`);

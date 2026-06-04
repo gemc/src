@@ -31,7 +31,7 @@ absorption = {
     "highIndexRadiator": "6*m        6*m         6*m         5*m         4*m",
 }
 colors = {
-    "lowIndexRadiator": "red",
+    "lowIndexRadiator": "cyan",
     "mediumIndexRadiator": "blue",
     "highIndexRadiator": "green"
 }
