@@ -413,7 +413,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	sliceXLayout->setSpacing(4);
 	sliceXLayout->addWidget(new QLabel(tr("X: ")));
 	sliceXLayout->addWidget(sliceXEdit);
-	sliceXLayout->addStretch(1);
+	sliceXLayout->addSpacing(16);
 	sliceXLayout->addWidget(sliceXActi);
 	sliceXLayout->addWidget(sliceXInve);
 	sliceXLayout->addStretch(1);
@@ -431,7 +431,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	sliceYLayout->setSpacing(4);
 	sliceYLayout->addWidget(new QLabel(tr("Y: ")));
 	sliceYLayout->addWidget(sliceYEdit);
-	sliceYLayout->addStretch(1);
+	sliceYLayout->addSpacing(16);
 	sliceYLayout->addWidget(sliceYActi);
 	sliceYLayout->addWidget(sliceYInve);
 	sliceYLayout->addStretch(1);
@@ -449,7 +449,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	sliceZLayout->setSpacing(4);
 	sliceZLayout->addWidget(new QLabel(tr("Z: ")));
 	sliceZLayout->addWidget(sliceZEdit);
-	sliceZLayout->addStretch(1);
+	sliceZLayout->addSpacing(16);
 	sliceZLayout->addWidget(sliceZActi);
 	sliceZLayout->addWidget(sliceZInve);
 	sliceZLayout->addStretch(1);

@@ -89,6 +89,17 @@ QWidget* GTree::right_widget() {
     blayout->addWidget(descriptionLabel);
     blayout->addStretch();
 
+    // Inspect button: opens the selected volume in a dedicated viewer window.
+    blayout->addSpacing(10);
+    inspectButton = new QPushButton(bottomPanel);
+    inspectButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    inspectButton->setStyleSheet(
+        "QPushButton { border: 2px solid black; border-radius: 4px; padding: 4px 8px; }"
+        "QPushButton:hover { background-color: palette(highlight); color: palette(highlighted-text); }"
+    );
+    connect(inspectButton, &QPushButton::clicked, this, &GTree::inspectVolume);
+    blayout->addWidget(inspectButton);
+
     // Hidden until a volume or system is selected in the tree.
     bottomPanel->setVisible(false);
 

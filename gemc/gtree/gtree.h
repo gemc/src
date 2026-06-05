@@ -12,6 +12,7 @@
 #include <QTreeWidgetItem>
 #include <QColor>
 #include <QLabel>
+#include <QPushButton>
 #include <QSlider>
 
 class QTimer;
@@ -352,6 +353,14 @@ private:
     QLabel*  opacityLabel  = nullptr;
 
     /**
+     * \brief Full-width button that opens the selected volume in a new viewer window.
+     *
+     * The label is updated to "Inspect <volumename>" whenever a volume item is selected.
+     * Hidden while a system node is selected.
+     */
+    QPushButton* inspectButton = nullptr;
+
+    /**
      * \brief Build the internal system/volume model from the supplied volume map.
      * \param g4volumes_map Map from full volume names to `G4Volume*` wrappers.
      */
@@ -483,6 +492,16 @@ private slots:
      * \param value Slider integer value in [0,100].
      */
     void onOpacitySliderChanged(int value);
+
+    /**
+     * \brief Open the currently selected volume in a new viewer window.
+     *
+     * Detects the active viewer's driver at runtime so the new window uses
+     * the same graphics back-end (e.g. TOOLSSG_QT_GLES).  A fresh scene
+     * containing only the target volume is created, keeping the main scene
+     * untouched.
+     */
+    void inspectVolume();
 
     /**
      * \brief Advance one step of the twinkle color animation; restore original on completion.

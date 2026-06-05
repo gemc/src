@@ -23,6 +23,11 @@
 // geant4
 #include "G4VisAttributes.hh"
 #include "G4Material.hh"
+#include "G4VisManager.hh"
+#include "G4VViewer.hh"
+#include "G4VSceneHandler.hh"
+#include "G4VGraphicsSystem.hh"
+#include "G4UImanager.hh"
 #include "gtouchable.h"
 #include "gutilities.h"
 
@@ -607,10 +612,18 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
             opacityLabel->setText(QString::number(op, 'f', 2));
             opacitySlider->setVisible(true);
         }
+
+        // Update the inspect button with the selected volume's leaf name.
+        if (inspectButton) {
+            const QString leaf = QString::fromStdString(G4Ttree_item::vname_from_v4name(current_volume_name));
+            inspectButton->setText(tr("Inspect %1").arg(leaf));
+            inspectButton->setVisible(true);
+        }
     }
     else {
         styleButtons->setVisible(false);
         opacitySlider->setVisible(false);
+        if (inspectButton) inspectButton->setVisible(false);
         // Systems don't have a single material etc.
         materialLabel->setText(tr(""));
         massLabel->setText(tr(""));
@@ -726,6 +739,57 @@ void GTree::onTwinkleStep() {
             + std::to_string(twinkleSavedOpacity);
         gutilities::apply_uimanager_commands(cmd);
     }
+}
+
+
+// Open the selected volume in a new viewer window of the same driver type.
+void GTree::inspectVolume() {
+    if (current_volume_name.empty()) return;
+
+    G4UImanager* uim = G4UImanager::GetUIpointer();
+    if (!uim) return;
+
+    // Resolve the active driver and save the viewer name so we can return focus
+    // to the original window after opening the inspect window.
+    std::string driverName        = "TOOLSSG_QT_GLES";
+    std::string originalViewerName;
+    auto* vm = G4VisManager::GetInstance();
+    if (vm) {
+        const auto* viewer = vm->GetCurrentViewer();
+        if (viewer) {
+            originalViewerName = viewer->GetName();
+            const auto* sh = viewer->GetSceneHandler();
+            if (sh) {
+                const auto* gs = sh->GetGraphicsSystem();
+                if (gs) driverName = gs->GetNickname();
+            }
+        }
+    }
+
+    const std::string leafName = G4Ttree_item::vname_from_v4name(current_volume_name);
+
+    // Open a new window, populate it with only the target volume, and flush.
+    // /vis/open creates a new viewer whose scene handler attaches to the current (full) scene.
+    // /vis/scene/create makes a new empty scene but does NOT re-attach the handler.
+    // /vis/sceneHandler/attach must come before /vis/scene/add/volume to wire the new handler
+    // to the new empty scene; otherwise the first flush renders the full detector.
+    uim->ApplyCommand("/vis/open " + driverName);
+    uim->ApplyCommand("/vis/scene/create");
+    uim->ApplyCommand("/vis/sceneHandler/attach");
+    uim->ApplyCommand("/vis/scene/add/volume " + current_volume_name + " -1");
+    uim->ApplyCommand("/vis/viewer/set/background 1 1 1 1");
+    uim->ApplyCommand("/vis/viewer/set/lineSegmentsPerCircle 100");
+    // 2D label: large black text centred near the top of the window.
+    // "! !" tells Geant4 to use the colour and layout set by /vis/set/text*.
+    uim->ApplyCommand("/vis/set/textColour black");
+    uim->ApplyCommand("/vis/set/textLayout centre");
+    uim->ApplyCommand("/vis/scene/add/text2D 0 0.85 36 ! ! " + leafName);
+    uim->ApplyCommand("/vis/viewer/flush");
+
+    // Return Geant4's "current viewer" to the original window so all GUI controls
+    // (camera, scene properties, tree widget) continue to act on the main view.
+    if (!originalViewerName.empty())
+        uim->ApplyCommand("/vis/viewer/select " + originalViewerName);
 }
 
 
