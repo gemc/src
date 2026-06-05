@@ -9,6 +9,26 @@
 #include "systemSqliteFactory.h"
 #include "gsystemConventions.h"
 
+namespace {
+	bool geometry_column_exists(sqlite3* db, const std::string& column_name) {
+		sqlite3_stmt* stmt = nullptr;
+		int rc = sqlite3_prepare_v2(db, "SELECT name FROM PRAGMA_TABLE_INFO('geometry')", -1, &stmt, nullptr);
+		if (rc != SQLITE_OK) { return false; }
+
+		bool exists = false;
+		while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+			const unsigned char* colText = sqlite3_column_text(stmt, 0);
+			if (colText != nullptr && column_name == reinterpret_cast<const char*>(colText)) {
+				exists = true;
+				break;
+			}
+		}
+
+		sqlite3_finalize(stmt);
+		return exists;
+	}
+}
+
 void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 	// skip ROOT system
 	if (system->getName() == ROOTWORLDGVOLUMENAME) { return; }
@@ -20,10 +40,16 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 	if (db == nullptr) { log->error(ERR_GSQLITEERROR, "Database pointer is still null after initialization."); }
 
 
-	const char* sql_query =
-		"SELECT DISTINCT * FROM geometry WHERE experiment = ? AND system = ? AND variation = ? AND run = ?";
+	const std::string placement_column = geometry_column_exists(db, "g4placement_type")
+	                                   ? "g4placement_type"
+	                                   : "'" DEFAULTG4PLACEMENTTYPE "' AS g4placement_type";
+	const std::string sql_query =
+		"SELECT DISTINCT name, solid, parameters, material, mother, position, rotations, " +
+		placement_column +
+		", mfield, visible, style, color, opacity, digitization, identifier, copyOf, solidsOpr, mirror, "
+		"exist, description FROM geometry WHERE experiment = ? AND system = ? AND variation = ? AND run = ?";
 	sqlite3_stmt* stmt = nullptr;
-	int           rc   = sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr);
+	int           rc   = sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr);
 	if (rc != SQLITE_OK) {
 		log->error(ERR_GSQLITEERROR, "Sqlite error preparing count query in loadGeometry: ",
 		           sqlite3_errmsg(db), " (", rc, ") using query: ", sql_query);
@@ -69,11 +95,7 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 			log->info(2, "<sqlite> column: ", (colName ? colName : "NULL"), " = ",
 			          (colText ? reinterpret_cast<const char*>(colText) : "NULL"), " (column ", i, ")");
 
-			// The first columns are metadata; columns beyond index 4 are GVolume constructor parameters.
-			if (i > 4) {
-				colText = sqlite3_column_text(stmt, i);
-				gvolumePars.emplace_back(colText ? reinterpret_cast<const char*>(colText) : "");
-			}
+			gvolumePars.emplace_back(colText ? reinterpret_cast<const char*>(colText) : "");
 		}
 		system->addGVolume(gvolumePars);
 		gvolumePars.clear();

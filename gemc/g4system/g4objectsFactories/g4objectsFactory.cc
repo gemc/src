@@ -5,7 +5,7 @@
  *
  * @details
  * Header documentation in \c g4objectsFactory.h is authoritative. This file provides reusable default
- * behaviors for logical/physical construction and common helpers (visual attributes, position/rotation parsing).
+ * behaviors for logical/physical construction and common helpers.
  */
 
 #include "g4objectsFactory.h"
@@ -21,7 +21,70 @@
 #include "G4PVPlacement.hh"
 
 // c++
+#include <algorithm>
+#include <cctype>
+#include <iostream>
 #include <string_view>
+#include <vector>
+
+namespace {
+	std::vector<std::string> tokenizeRotation(std::string rotation) {
+		std::replace(rotation.begin(), rotation.end(), ',', ' ');
+		return gutilities::getStringVectorFromString(rotation);
+	}
+
+	std::string lowercase(std::string value) {
+		std::transform(value.begin(), value.end(), value.begin(),
+		               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+		return value;
+	}
+
+	void requireRotationTokenCount(const std::vector<std::string> &tokens,
+	                               size_t expected,
+	                               const GVolume *s) {
+		if (tokens.size() == expected) { return; }
+		std::cerr << "     >> ERROR: rotation <" << s->getRot() << "> for " << s->getName()
+		          << " has wrong number of entries. Exiting." << std::endl;
+		exit(1);
+	}
+
+	void applyOrderedRotation(G4RotationMatrix *rot,
+	                          const std::string &order,
+	                          const std::vector<double> &angles,
+	                          const GVolume *s) {
+		if (order == "xzy") {
+			rot->rotateX(angles[0]);
+			rot->rotateZ(angles[1]);
+			rot->rotateY(angles[2]);
+		}
+		else if (order == "yxz") {
+			rot->rotateY(angles[0]);
+			rot->rotateX(angles[1]);
+			rot->rotateZ(angles[2]);
+		}
+		else if (order == "yzx") {
+			rot->rotateY(angles[0]);
+			rot->rotateZ(angles[1]);
+			rot->rotateX(angles[2]);
+		}
+		else if (order == "zxy") {
+			rot->rotateZ(angles[0]);
+			rot->rotateX(angles[1]);
+			rot->rotateY(angles[2]);
+		}
+		else if (order == "zyx") {
+			rot->rotateZ(angles[0]);
+			rot->rotateY(angles[1]);
+			rot->rotateX(angles[2]);
+		}
+		else {
+			std::cerr << "     >> ERROR: Ordered rotation <" << order << "> for " << s->getName()
+			          << " is wrong, it's none of the following: xzy, yxz, yzx, zxy or zyx. Exiting."
+			          << std::endl;
+			exit(1);
+		}
+	}
+}
 
 // Configure factory behavior (overlap checking + backup material).
 void G4ObjectsFactory::initialize_context(int check_overlaps,
@@ -86,17 +149,41 @@ G4VisAttributes G4ObjectsFactory::createVisualAttributes(const GVolume *s) {
 }
 
 G4RotationMatrix *G4ObjectsFactory::getRotation(const GVolume *s) {
-	// Parse a rotation string expressed as three angles and apply them in X/Y/Z order.
 	auto rot = new G4RotationMatrix();
 
-	const auto rotDef = gutilities::getStringVectorFromStringWithDelimiter(s->getRot(), ",");
-	if (rotDef.size() == 3) {
-		const auto pars = gutilities::getG4NumbersFromStringVector(rotDef);
+	const auto tokens = tokenizeRotation(s->getRot());
+	if (tokens.empty()) { return rot; }
+
+	const auto rotationType = tokens[0];
+	if (rotationType != "ordered:" && rotationType != "doubleRotation:") {
+		requireRotationTokenCount(tokens, 3, s);
+		const auto pars = gutilities::getG4NumbersFromStringVector(tokens);
 		rot->rotateX(pars[0]);
 		rot->rotateY(pars[1]);
 		rot->rotateZ(pars[2]);
 	}
-	// (ordered rotation parsing omitted for brevity – keep original logic)
+	else if (rotationType == "doubleRotation:") {
+		requireRotationTokenCount(tokens, 7, s);
+		const auto pars = gutilities::getG4NumbersFromStringVector(
+			{tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]});
+		rot->rotateX(pars[0]);
+		rot->rotateY(pars[1]);
+		rot->rotateZ(pars[2]);
+		rot->rotateX(pars[3]);
+		rot->rotateY(pars[4]);
+		rot->rotateZ(pars[5]);
+	}
+	else if (rotationType == "ordered:") {
+		requireRotationTokenCount(tokens, 5, s);
+		const auto order = lowercase(tokens[1]);
+		const auto pars = gutilities::getG4NumbersFromStringVector({tokens[2], tokens[3], tokens[4]});
+		applyOrderedRotation(rot, order, pars, s);
+	}
+	else {
+		std::cerr << "     >> ERROR: rotation type <" << rotationType << "> unknown. Exiting."
+		          << std::endl;
+		exit(1);
+	}
 	return rot;
 }
 
@@ -183,17 +270,38 @@ G4VPhysicalVolume *G4ObjectsFactory::buildPhysical(const GVolume *s,
 
 	// Create the placement only once; subsequent calls return the cached physical volume.
 	if (!thisG4Volume->getPhysical()) {
-		G4RotationMatrix rotation_instance = *getRotation(s);
-		G4ThreeVector translation_instance = getPosition(s);
+		auto *rotation = getRotation(s);
+		G4ThreeVector translation = getPosition(s);
+		const auto placementType = s->getG4PlacementType();
 
-		thisG4Volume->setPhysical(new G4PVPlacement(G4Transform3D(rotation_instance, translation_instance),
-		                                            logicalVolume,
-		                                            g4name,
-		                                            getLogicalFromMap(s->getG4MotherName(), g4s),
-		                                            false,
-		                                            s->getPCopyNo(),
-		                                            checkOverlaps > 0),
-		                          log);
+		if (placementType == "active") {
+			G4RotationMatrix rotation_instance = *rotation;
+			delete rotation;
+			thisG4Volume->setPhysical(new G4PVPlacement(G4Transform3D(rotation_instance, translation),
+			                                            logicalVolume,
+			                                            g4name,
+			                                            getLogicalFromMap(s->getG4MotherName(), g4s),
+			                                            false,
+			                                            s->getPCopyNo(),
+			                                            checkOverlaps > 0),
+			                          log);
+		}
+		else if (placementType == "passive") {
+			thisG4Volume->setPhysical(new G4PVPlacement(rotation,
+			                                            translation,
+			                                            logicalVolume,
+			                                            g4name,
+			                                            getLogicalFromMap(s->getG4MotherName(), g4s),
+			                                            false,
+			                                            s->getPCopyNo(),
+			                                            checkOverlaps > 0),
+			                          log);
+		}
+		else {
+			log->error(ERR_G4PLACEMENTTYPE,
+			           "GVolume <", s->getName(), "> has unsupported g4placement_type <",
+			           placementType, ">. Use 'active' or 'passive'.");
+		}
 	}
 	return thisG4Volume->getPhysical();
 }

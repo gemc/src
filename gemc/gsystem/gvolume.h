@@ -22,6 +22,7 @@
  * - solid definition (type + parameters);
  * - visualization attributes (visibility/style/color/opacity);
  * - placement attributes (mother/pos/rot);
+ * - Geant4 placement constructor convention;
  * - logical attributes (material, EM field);
  * - digitization/identity metadata;
  * - optional import filename for CAD/GDML sourced volumes;
@@ -47,6 +48,7 @@ public:
 	 * - identity (name, mother, description);
 	 * - solid (type, parameters);
 	 * - placement (pos, rot);
+	 * - Geant4 placement constructor convention;
 	 * - rendering (visibility, style, color, opacity);
 	 * - behavior (material, emfield, digitization, identifiers);
 	 * - advanced features (copyOf, solidsOpr, mirror);
@@ -109,6 +111,7 @@ private:
 	// physical attributes
 	std::string pos;     ///< Placement position relative to mother.
 	std::string rot;     ///< Placement rotation relative to mother (x,y,z Euler angles).
+	std::string g4placementType; ///< Placement constructor convention: \c active or \c passive.
 	std::string shift;   ///< Position modifier (applied post-load by GWorld).
 	std::string tilt;    ///< Rotation modifier (applied post-load by GWorld).
 	bool        exist{}; ///< Existence modifier (applied post-load by GWorld).
@@ -186,6 +189,7 @@ public:
 	[[nodiscard]] bool        getExistence() const { return exist; }
 	[[nodiscard]] std::string getPos() const { return pos; }
 	[[nodiscard]] std::string getRot() const { return rot; }
+	[[nodiscard]] std::string getG4PlacementType() const { return g4placementType; }
 	[[nodiscard]] std::string getShift() const { return shift; }
 	[[nodiscard]] std::string getTilt() const { return tilt; }
 	///@}

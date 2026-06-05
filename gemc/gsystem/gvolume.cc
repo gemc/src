@@ -22,6 +22,10 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 	GBase(logger),
 	system(s),
 	importFilename(importPath) {
+	if (pars.size() == GVOLUMELEGACYNUMBEROFPARS) {
+		pars.insert(pars.begin() + 7, DEFAULTG4PLACEMENTTYPE);
+	}
+
 	if (pars.size() != GVOLUMENUMBEROFPARS) {
 		// Dump received parameters to help diagnose mismatched schema or input corruption.
 		for (auto& parameter : pars) { log->warning(" - parameter ", parameter); }
@@ -50,6 +54,10 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 		motherName     = removeAllSpacesFromString(pars[i++]);
 		pos            = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		rot            = removeLeadingAndTrailingSpacesFromString(pars[i++]);
+		g4placementType = removeAllSpacesFromString(pars[i++]);
+		if (g4placementType == "" || g4placementType == UNINITIALIZEDSTRINGQUANTITY) {
+			g4placementType = DEFAULTG4PLACEMENTTYPE;
+		}
 		emfield        = removeAllSpacesFromString(pars[i++]);
 		string pvis    = removeAllSpacesFromString(pars[i++]);
 		visible        = (pvis == "1") ? true : false;
@@ -108,6 +116,7 @@ std::ostream& operator<<(std::ostream& stream, const GVolume& gVol) {
 	stream << "   - Mother:          " << gVol.motherName << std::endl;
 	stream << "   - Positions:       " << gVol.pos << std::endl;
 	stream << "   - Rotation(s):     " << gVol.rot << std::endl;
+	stream << "   - G4 Placement:    " << gVol.g4placementType << std::endl;
 	if (gVol.emfield != "" && gVol.emfield != UNINITIALIZEDSTRINGQUANTITY)
 		stream << "   - E.M. emfield:      " << gVol.
 			emfield << std::endl;
@@ -124,7 +133,9 @@ std::ostream& operator<<(std::ostream& stream, const GVolume& gVol) {
 }
 
 
-GVolume::GVolume(const std::string& rootVolumeDefinition, const std::shared_ptr<GLogger>& logger) : GBase(logger) {
+GVolume::GVolume(const std::string& rootVolumeDefinition,
+                 const std::shared_ptr<GLogger>& logger) :
+	GBase(logger) {
 	// The ROOT/world definition is tokenized by spaces:
 	// <solidType> <dim1> <dim2> ... <material>
 	vector<string> rootDefinitions = getStringVectorFromStringWithDelimiter(rootVolumeDefinition, " ");
@@ -142,6 +153,7 @@ GVolume::GVolume(const std::string& rootVolumeDefinition, const std::shared_ptr<
 	motherName   = MOTHEROFUSALL;
 	pos          = DEFAULTPOSITION;
 	rot          = DEFAULTROTATION;
+	g4placementType = DEFAULTG4PLACEMENTTYPE;
 	emfield      = "";
 	visible      = false;
 	style        = 0; // wireframe

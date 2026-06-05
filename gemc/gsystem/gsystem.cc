@@ -136,17 +136,19 @@ void GSystem::addVolumeFromFile(const std::string& importType, const std::string
 	pars.emplace_back(ROOTWORLDGVOLUMENAME);        // 02 mother: default is ROOTWORLDGVOLUMENAME
 	pars.emplace_back("0*cm, 0*cm, 0*cm");          // 06 position
 	pars.emplace_back("0*deg, 0*deg, 0*deg");       // 07 rotation
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 08 electromagnetic field
-	pars.emplace_back("1");                         // 09 visible
-	pars.emplace_back("1");                         // 10 style
-	pars.emplace_back("999999");                    // 11 color
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 12 digitization
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 13 gidentity
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 14 copyOf
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 16 solidsOpr
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 17 mirrot
-	pars.emplace_back("1");                         // 18 exist flag
-	pars.emplace_back(filename);                    // 19 description: contains full path
+	pars.emplace_back(DEFAULTG4PLACEMENTTYPE);      // 08 Geant4 placement constructor convention
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 09 electromagnetic field
+	pars.emplace_back("1");                         // 10 visible
+	pars.emplace_back("1");                         // 11 style
+	pars.emplace_back("999999");                    // 12 color
+	pars.emplace_back("1");                         // 13 opacity
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 14 digitization
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 15 gidentity
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 16 copyOf
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 17 solidsOpr
+	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 18 mirror
+	pars.emplace_back("1");                         // 19 exist flag
+	pars.emplace_back(filename);                    // 20 description: contains full path
 
 	addGVolume(pars);
 }

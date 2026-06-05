@@ -27,9 +27,11 @@
  */
 ///@{
 /// Number of database parameters defining a gvolume entry.
-#define GVOLUMENUMBEROFPARS    21
+#define GVOLUMENUMBEROFPARS          22
+/// Number of database parameters defining a legacy gvolume entry without g4placement_type.
+#define GVOLUMELEGACYNUMBEROFPARS    21
 /// Number of database parameters defining a gmaterial entry.
-#define GMATERIALNUMBEROFPARS  18
+#define GMATERIALNUMBEROFPARS        18
 ///@}
 
 // -----------------------------------------------------------------------------
@@ -47,6 +49,7 @@
 ///@{
 #define DEFAULTPOSITION "0*cm, 0*cm, 0*cm"
 #define DEFAULTROTATION "0*deg, 0*deg, 0*deg"
+#define DEFAULTG4PLACEMENTTYPE "active"
 ///@}
 
 // -----------------------------------------------------------------------------
@@ -72,6 +75,7 @@
 #define ERR_GSQLITEERROR                     209
 #define ERR_GMATERIALALREADYPRESENT          210
 #define ERR_EXPERIMENTNOTFOUND               211
+#define ERR_G4PLACEMENTTYPE                  212
 ///@}
 
 // -----------------------------------------------------------------------------
