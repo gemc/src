@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QColorDialog>
 #include <QSignalBlocker>
+#include <QTimer>
 
 // gtree
 #include "gtree.h"
@@ -483,6 +484,16 @@ void GTree::changeStyle() {
 
     int button_index = styleButtons->button_pressed();
 
+    if (button_index == 3) {
+        // Action button: deselect it immediately (it is not a persistent style toggle).
+        {
+            QSignalBlocker blocker(styleButtons->buttonsWidget);
+            styleButtons->reset_buttons();
+        }
+        centreTwinkle();
+        return;
+    }
+
     std::string command;
 
     if (button_index == 0) {
@@ -500,6 +511,58 @@ void GTree::changeStyle() {
     }
 
     gutilities::apply_uimanager_commands(command);
+}
+
+
+// Centre the viewer on the selected volume and kick off the twinkle animation.
+void GTree::centreTwinkle() {
+    G4Ttree_item* item = findTreeItem(current_volume_name);
+    if (!item) return;
+
+    twinkleVolumeName   = current_volume_name;
+    twinkleSavedColor   = item->get_color();
+    twinkleSavedOpacity = item->get_opacity();
+    twinkleTick         = 0;
+
+    gutilities::apply_uimanager_commands("/vis/viewer/centreOn " + twinkleVolumeName);
+
+    if (!twinkleTimer) {
+        twinkleTimer = new QTimer(this);
+        connect(twinkleTimer, &QTimer::timeout, this, &GTree::onTwinkleStep);
+    }
+    if (twinkleTimer->isActive())
+        twinkleTimer->stop();
+
+    twinkleTimer->start(180);
+}
+
+
+// Cycle through flash colors, then restore the original colour and alpha.
+void GTree::onTwinkleStep() {
+    constexpr int kSteps = 5;
+    static const QColor kFlash[kSteps] = {
+        QColor(255,  50,  50),  // red
+        QColor(255, 220,   0),  // yellow
+        QColor( 50, 255,  50),  // green
+        QColor(  0, 220, 255),  // cyan
+        QColor(220,  50, 255),  // magenta
+    };
+
+    if (twinkleTick < kSteps) {
+        set_color(twinkleVolumeName, kFlash[twinkleTick]);
+        ++twinkleTick;
+    } else {
+        twinkleTimer->stop();
+        const double r = twinkleSavedColor.redF();
+        const double g = twinkleSavedColor.greenF();
+        const double b = twinkleSavedColor.blueF();
+        const std::string cmd = "/vis/geometry/set/colour " + twinkleVolumeName + " 0 "
+            + std::to_string(r) + " "
+            + std::to_string(g) + " "
+            + std::to_string(b) + " "
+            + std::to_string(twinkleSavedOpacity);
+        gutilities::apply_uimanager_commands(cmd);
+    }
 }
 
 

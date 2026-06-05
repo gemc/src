@@ -7,5 +7,7 @@
         <file>../../gtree/images/surface_2.svg</file>
         <file>../../gtree/images/cloud_1.svg</file>
         <file>../../gtree/images/cloud_2.svg</file>
+        <file>../../gtree/images/centre_1.svg</file>
+        <file>../../gtree/images/centre_2.svg</file>
     </qresource>
 </RCC>

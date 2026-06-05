@@ -29,6 +29,7 @@ QWidget* GTree::right_widget() {
     bicons.push_back(":/gtree/images/wireframe");
     bicons.push_back(":/gtree/images/surface");
     bicons.push_back(":/gtree/images/cloud");
+    bicons.push_back(":/gtree/images/centre");
     styleButtons = new GQTButtonsWidget(96, 96, bicons, false);
     blayout->addWidget(styleButtons, 1);
 

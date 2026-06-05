@@ -17,5 +17,7 @@
         <file alias="gtree/images/surface_2.svg">gemc/gtree/images/surface_2.svg</file>
         <file alias="gtree/images/cloud_1.svg">gemc/gtree/images/cloud_1.svg</file>
         <file alias="gtree/images/cloud_2.svg">gemc/gtree/images/cloud_2.svg</file>
+        <file alias="gtree/images/centre_1.svg">gemc/gtree/images/centre_1.svg</file>
+        <file alias="gtree/images/centre_2.svg">gemc/gtree/images/centre_2.svg</file>
     </qresource>
 </RCC>

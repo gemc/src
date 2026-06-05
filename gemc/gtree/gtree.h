@@ -13,6 +13,8 @@
 #include <QLabel>
 #include <QSlider>
 
+class QTimer;
+
 // cpp
 #include <map>
 #include <memory>
@@ -286,7 +288,7 @@ private:
     QWidget* bottomPanel = nullptr; // appears only when an item is selected
 
     /**
-     * \brief Representation buttons (wireframe / solid / cloud).
+     * \brief Representation buttons (wireframe / solid / cloud / centre-and-twinkle).
      */
     GQTButtonsWidget* styleButtons;  // left bar buttons
 
@@ -376,6 +378,18 @@ private:
      */
     std::string current_volume_name;
 
+    // Twinkle animation state
+    QTimer*     twinkleTimer       = nullptr;
+    int         twinkleTick        = 0;
+    QColor      twinkleSavedColor;
+    double      twinkleSavedOpacity = 1.0;
+    std::string twinkleVolumeName;
+
+    /**
+     * \brief Centre the viewer on the selected volume and start the twinkle animation.
+     */
+    void centreTwinkle();
+
 private slots:
     /**
      * \brief React to checkbox state changes in the tree.
@@ -420,6 +434,7 @@ private slots:
      * - 0: force wireframe
      * - 1: force solid
      * - 2: force cloud
+     * - 3: centre viewer on volume and twinkle colors to highlight it
      */
     void changeStyle();
 
@@ -428,4 +443,9 @@ private slots:
      * \param value Slider integer value in [0,100].
      */
     void onOpacitySliderChanged(int value);
+
+    /**
+     * \brief Advance one step of the twinkle color animation; restore original on completion.
+     */
+    void onTwinkleStep();
 };
