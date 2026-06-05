@@ -1,0 +1,397 @@
+/* -----------------------------------------------------------
+   Modern clean Doxygen theme (drop-in mydoxygen.css)
+   - readable typography
+   - subtle borders
+   - modern code blocks
+   - responsive-ish layout
+------------------------------------------------------------ */
+
+/* ---------- Design tokens ---------- */
+:root {
+	--bg: #ffffff;
+	--fg: #1f2328;
+	--muted: #59636e;
+
+	--link: #1d6ff2;
+	--link-hover: #0b4fbf;
+
+	--border: #e5e7eb;
+	--border-strong: #d1d5db;
+
+	--panel: #f6f8fa;
+	--panel-2: #fbfcfe;
+
+	--code-bg: #f6f8fa;
+	--code-border: #e5e7eb;
+
+	--accent: #2da44e;         /* subtle green accent */
+	--warn: #d97706;
+	--danger: #dc2626;
+
+	--radius: 10px;
+	--radius-sm: 8px;
+
+	--shadow: 0 1px 2px rgba(0,0,0,0.06);
+	--shadow-soft: 0 6px 16px rgba(0,0,0,0.08);
+
+	--font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* ---------- Page base ---------- */
+html, body {
+	background: var(--bg);
+	color: var(--fg);
+	margin: 0;
+	padding: 0;
+	font-family: var(--font-sans);
+	font-size: 16px;
+	line-height: 1.55;
+}
+
+/* Doxygen often hard-sets widths; keep content readable */
+div.contents {
+	max-width: 1100px;
+	width: auto;
+	margin: 0 auto;
+	padding: 0 18px;
+	box-sizing: border-box;
+}
+
+/* Some themes put text in .textblock */
+div.contents .textblock {
+	color: var(--fg);
+}
+
+/* ---------- Headings ---------- */
+div.contents h1,
+div.contents h2,
+div.contents h3,
+div.contents h4,
+div.contents h5,
+div.contents h6,
+div.contents .textblock h1,
+div.contents .textblock h2,
+div.contents .textblock h3 {
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	color: var(--fg);
+	margin: 1.2em 0 0.5em;
+}
+
+div.contents .textblock h1 {
+	font-size: 1.75rem;
+	border-bottom: 1px solid var(--border);
+	padding-bottom: 0.35em;
+}
+
+div.contents h2,
+div.contents .textblock h2 {
+	font-size: 1.35rem;
+	border-bottom: 1px solid var(--border);
+	padding-bottom: 0.25em;
+}
+
+div.contents h3,
+div.contents .textblock h3 {
+	font-size: 1.15rem;
+}
+
+/* Doxygen group header */
+h1.groupheader {
+	font-size: 1.25rem;
+	margin-top: 1.5em;
+}
+
+/* Project title at top */
+.title {
+	font-size: 1.9rem;
+	font-weight: 650;
+	margin: 22px 0 10px;
+	color: var(--fg);
+}
+
+/* ---------- Paragraphs / lists ---------- */
+div.contents p,
+div.contents .textblock p {
+	font-size: 1rem;
+	color: var(--fg);
+	margin: 0.65em 0;
+}
+
+div.contents ul, div.contents ol {
+	margin: 0.6em 0 0.9em 1.2em;
+}
+
+div.contents li {
+	margin: 0.25em 0;
+}
+
+/* ---------- Links ---------- */
+a, a.el, a.qindex, a.qindexHL {
+	color: var(--link);
+	text-decoration: none;
+}
+
+a:hover, a.el:hover {
+	color: var(--link-hover);
+	text-decoration: underline;
+}
+
+a.qindexHL {
+	background: #1f2937;
+	color: #fff;
+	border: 1px solid #111827;
+	border-radius: 6px;
+	padding: 2px 6px;
+}
+
+/* ---------- Navigation / tabs ---------- */
+div.qindex, div.navtab {
+	background: var(--panel);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	box-shadow: var(--shadow);
+	text-align: center;
+}
+
+div.qindex, div.navpath {
+	width: 100%;
+}
+
+div.navtab {
+	margin-right: 15px;
+}
+
+.navpath { display: none; } /* keep your original preference */
+
+/* Tabs bar */
+.tabs, .tabs2, .tabs3 {
+	background: var(--panel);
+	border: 1px solid var(--border);
+	border-top: 1px solid var(--border-strong);
+	border-left: none;
+	border-right: none;
+	border-bottom: 1px solid var(--border);
+	padding: 0;
+	margin: 0;
+	font-size: 0.95rem;
+}
+
+#navrow1 {
+	border-top: none;
+	margin-top: 1.2em;
+}
+
+#navrow1 .tablist a, #navrow2 .tablist a, #navrow3 .tablist a, #navrow4 .tablist a {
+	padding: 8px 10px;
+	border-right: 1px solid var(--border);
+	margin: 0;
+}
+
+.tablist li.current a {
+	font-weight: 650;
+	color: var(--fg);
+}
+
+/* ---------- Code blocks ---------- */
+pre, code, tt {
+	font-family: var(--font-mono);
+}
+
+div.contents code {
+	font-size: 0.95rem;
+	background: rgba(175, 184, 193, 0.2);
+	border: 1px solid rgba(175, 184, 193, 0.25);
+	border-radius: 6px;
+	padding: 0.08em 0.35em;
+}
+
+pre.fragment,
+div.contents .textblock pre,
+div.fragment,
+div.contents pre code {
+	font-family: var(--font-mono);
+	font-size: 0.95rem;
+	line-height: 1.45;
+	background: var(--code-bg);
+	border: 1px solid var(--code-border);
+	border-radius: var(--radius);
+	padding: 12px 14px;
+	overflow: auto;
+	box-shadow: var(--shadow);
+}
+
+/* Doxygen line numbering container */
+div.line {
+	text-indent: 0;
+	padding-left: 0;
+	margin: 0;
+}
+
+span.lineno {
+	background: transparent;
+	color: var(--muted);
+	padding-right: 10px;
+}
+
+/* ---------- Member lists / declarations ---------- */
+table.memberdecls {
+	border-spacing: 0;
+	width: 100%;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	overflow: hidden;
+	box-shadow: var(--shadow);
+}
+
+.memberdecls td, .fieldtable tr {
+	transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.mdescLeft, .mdescRight,
+.memItemLeft, .memItemRight,
+.memTemplItemLeft, .memTemplItemRight, .memTemplParams {
+	background: var(--panel-2);
+	border: none;
+	padding: 10px 10px;
+}
+
+.mdescLeft, .mdescRight {
+	color: var(--muted);
+}
+
+.memSeparator {
+	border-bottom: 1px solid var(--border);
+	line-height: 1px;
+}
+
+/* Hide the old memtitle strip, keep content clean */
+.memtitle { display: none; }
+
+/* Member header */
+.memproto, dl.reflist dt {
+	border: 1px solid var(--border);
+	background: var(--panel);
+	padding: 10px 12px;
+	color: var(--fg);
+	font-weight: 650;
+	border-top-left-radius: var(--radius);
+	border-top-right-radius: var(--radius);
+	text-shadow: none;
+}
+
+.memdoc, dl.reflist dd {
+	border: 1px solid var(--border);
+	border-top: none;
+	padding: 12px 14px;
+	background: var(--bg);
+	border-bottom-left-radius: var(--radius);
+	border-bottom-right-radius: var(--radius);
+}
+
+.memnav {
+	background: var(--panel);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	box-shadow: var(--shadow);
+}
+
+/* Labels */
+span.mlabel {
+	background: #eef6ff;
+	border: 1px solid #cfe3ff;
+	color: #0b4fbf;
+	text-shadow: none;
+	padding: 2px 6px;
+	border-radius: 999px;
+	font-size: 0.85rem;
+}
+
+/* ---------- Tables ---------- */
+table.doxtable, table.fieldtable {
+	width: 100%;
+	border-collapse: collapse;
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	overflow: hidden;
+	box-shadow: var(--shadow);
+	margin: 10px 0 16px;
+}
+
+table.doxtable th, table.fieldtable th {
+	background: var(--panel);
+	color: var(--fg);
+	border-bottom: 1px solid var(--border);
+	padding: 10px 12px;
+	text-align: left;
+	font-size: 1rem;
+}
+
+table.doxtable td, table.fieldtable td {
+	border-top: 1px solid var(--border);
+	padding: 10px 12px;
+}
+
+/* Index tables */
+td.indexkey, td.indexvalue {
+	background: var(--panel-2);
+	border: 1px solid var(--border);
+	padding: 6px 10px;
+}
+
+/* ---------- Blockquotes / notes ---------- */
+blockquote {
+	background: #f8fafc;
+	border-left: 4px solid #cfe3ff;
+	margin: 12px 0;
+	padding: 10px 14px;
+	border-radius: var(--radius-sm);
+	color: var(--muted);
+}
+
+/* Doxygen note/warn/todo sections */
+dl.section {
+	margin: 10px 0;
+	padding: 10px 12px;
+	border-radius: var(--radius-sm);
+	border: 1px solid var(--border);
+	background: var(--panel-2);
+}
+
+dl.note { border-left: 4px solid var(--warn); }
+dl.warning, dl.attention { border-left: 4px solid var(--danger); }
+dl.todo { border-left: 4px solid #0ea5e9; }
+dl.pre, dl.post, dl.invariant { border-left: 4px solid var(--accent); }
+
+/* ---------- Footer ---------- */
+hr { display: none; }
+
+address.footer, #footer {
+	color: var(--muted);
+	font-size: 0.95rem;
+}
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width: 900px) {
+	div.contents {
+		max-width: 100%;
+		padding: 0 12px;
+	}
+	.title { font-size: 1.6rem; }
+	div.contents .textblock h1 { font-size: 1.45rem; }
+}
+
+/* ---------- Code colorization (optional, subdued) ---------- */
+span.keyword { color: #0b4fbf; }
+span.keywordtype { color: #0550ae; }
+span.keywordflow { color: #8250df; }
+span.comment { color: #6a737d; }
+span.preprocessor { color: #9a6700; }
+span.stringliteral { color: #0a3069; }
+span.charliteral { color: #116329; }
+
+/* Remove right-side floating TOC box everywhere */
+div.toc, #toc, .toc {
+	display: none !important;
+}
