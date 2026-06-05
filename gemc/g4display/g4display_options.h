@@ -132,7 +132,9 @@ struct G4Decorations
 	std::string scaleColor;
 	bool        axes;
 	bool        eventID;
+	int         eventIDSize;
 	bool        date;
+	int         dateSize;
 	bool        logo2D;
 	bool        logo;
 	bool        frame;

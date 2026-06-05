@@ -1,22 +1,88 @@
 
-## Commits on main since 2026-04-29
+## Commits on main since 2026-05-21
 
-- 2026-05-11 **25c7e49** — actually using bool in constructor _(by Maurizio Ungaro)_
-- 2026-05-11 **9d97b83** — camel case for some properties _(by Maurizio Ungaro)_
-- 2026-05-11 **9008d56** — reinstating tabs as indent _(by Maurizio Ungaro)_
-- 2026-05-11 **c37f546** — added optical properties and moved materials routines in g4materials.cc _(by Maurizio Ungaro)_
-- 2026-05-09 **94c1907** — updated upcoming release notes _(by Maurizio Ungaro)_
-- 2026-05-08 **e0a655b** — smaller pyvista window and default view direction _(by Maurizio Ungaro)_
-- 2026-05-06 **abe982a** — small fixes in release _(by Maurizio Ungaro)_
-- 2026-05-06 **63258e7** — added jupyter mode _(by Maurizio Ungaro)_
-- 2026-05-01 **702a949** — using new assimp _(by Maurizio Ungaro)_
-- 2026-04-30 **f63a63a** — no build summary on workflow _(by Maurizio Ungaro)_
-- 2026-04-30 **2f632aa** — updating version from git tag and added 0.1 to docker registry _(by Maurizio Ungaro)_
-- 2026-04-30 **f427985** — added 0.1 to containers to build, added gemc_version.sh to get github tag _(by Maurizio Ungaro)_
-- 2026-04-30 **a8298e2** — removed geant4 from image name and removed Docker Build from the workflow summary _(by Maurizio Ungaro)_
-- 2026-04-29 **85040fd** — updating build-push-action for release candidate 0.1 _(by Maurizio Ungaro)_
-- 2026-04-29 **b50b3f6** — release candidate 0.1 _(by Maurizio Ungaro)_
-- 2026-04-29 **1106d68** — consistency with documentation _(by Maurizio Ungaro)_
-- 2026-04-29 **6313541** — track energy va name change _(by Maurizio Ungaro)_
+- 2026-06-05 **ccd929f** — moved g4dialog at the bottom in the src _(by Maurizio Ungaro)_
+- 2026-06-05 **af0bfc3** — moved g4dialog at the bottom _(by Maurizio Ungaro)_
+- 2026-06-05 **686151c** — doxygen style was missing _(by Maurizio Ungaro)_
+- 2026-06-05 **62d9902** — default background color is white _(by Maurizio Ungaro)_
+- 2026-06-04 **5f8ce87** — move all modules under gemc/ and adopt <gemc/module/header.h> namespaced includes _(by Maurizio Ungaro)_
+- 2026-06-04 **821da1c** — reload run fixed for different variations with the caviat that optical properties must be carried across reload _(by Maurizio Ungaro)_
+- 2026-06-04 **c642d6f** — added  rm->PhysicsHasBeenModified(); in case different materials are introduced _(by Maurizio Ungaro)_
+- 2026-06-04 **0bc6f56** — added additional db variations to setup _(by Maurizio Ungaro)_
+- 2026-06-04 **2c91e1c** — added new gPhotonDetector routine, similar to flux but only records optical photons. it does not require recordZeroEdep to be set. cherenkov detector modified to use it _(by Maurizio Ungaro)_
+- 2026-06-04 **2addd73** — better images cleanup _(by Maurizio Ungaro)_
+- 2026-06-04 **03e8771** — new cleanup _(by Maurizio Ungaro)_
+- 2026-06-04 **460fb74** — fixed cleanup workflow and separated annotations in their own yaml _(by Maurizio Ungaro)_
+- 2026-06-03 **67ca363** — added text, scale, frame, date and id _(by Maurizio Ungaro)_
+- 2026-06-03 **36f31f6** — added decorations, modified B1 accordingly, redraw visualization scene for GUI decoration updates _(by Maurizio Ungaro)_
+- 2026-06-03 **e5fabf3** — added decorations, modified B1 accordingly, redraw visualization scene for GUI decoration updates _(by Maurizio Ungaro)_
+- 2026-06-03 **feafac7** — Add yaml and display control for cloud point count and background color _(by Maurizio Ungaro)_
+- 2026-06-03 **81728ea** — Avoid zsh reserved status variable in test retry helper _(by Maurizio Ungaro)_
+- 2026-06-03 **d8e7c2a** — splash theme, geometry tweaks, addressed sanitizer and testing retry meson tests in the workflows _(by Maurizio Ungaro)_
+- 2026-06-03 **18d686c** —  Skip examples DB generation when Python env is unavailable _(by Maurizio Ungaro)_
+- 2026-06-03 **e48e61d** — Resize setup tree columns after initial population _(by Maurizio Ungaro)_
+- 2026-06-03 **2c44785** — Clear accumulated event drawings on geometry reload _(by Maurizio Ungaro)_
+- 2026-06-03 **f41e923** — use theme aware splash _(by Maurizio Ungaro)_
+- 2026-06-03 **8baeab5** — Use Qt palette colors for GUI theme compatibility _(by Maurizio Ungaro)_
+- 2026-06-03 **708d134** —  Add configurable splash screen scale _(by Maurizio Ungaro)_
+- 2026-06-02 **0f64271** — several changes to address geometry reload and run _(by Maurizio Ungaro)_
+- 2026-06-02 **1ca2aac** — Generate examples database during install _(by Maurizio Ungaro)_
+- 2026-06-02 **27ff1e7** — Use build-tree databases for module tests _(by Maurizio Ungaro)_
+- 2026-06-02 **da5f632** — Run geometry test databases from build tree _(by Maurizio Ungaro)_
+- 2026-06-02 **c1c7797** — Normalize GUI board line endings explicitly _(by Maurizio Ungaro)_
+- 2026-06-02 **eb7683e** — Defer GUI initialization until selected geometry is loaded _(by Maurizio Ungaro)_
+- 2026-06-02 **6af924e** — Add runtime option update helper _(by Maurizio Ungaro)_
+- 2026-06-02 **200723f** — Add reload lifecycle signal and regression test _(by Maurizio Ungaro)_
+- 2026-06-02 **09d6e3f** — Clear GUI visualization state before geometry reload _(by Maurizio Ungaro)_
+- 2026-06-02 **6950a85** — Fix detector geometry reload state and sensitive detector reuse _(by Maurizio Ungaro)_
+- 2026-06-02 **b3aeb3b** — Reset reused sensitive detector state on geometry reload _(by Maurizio Ungaro)_
+- 2026-06-02 **47fcd09** — extended spash time _(by Maurizio Ungaro)_
+- 2026-06-02 **5bd7602** — reloading if system is empty _(by Maurizio Ungaro)_
+- 2026-06-02 **5bb6ed4** — Keep GUI independent from GEMC startup utilities _(by Maurizio Ungaro)_
+- 2026-06-02 **a1f578d** — Refresh GUI volume tree after setup reload - using gemcArchitecture.svg and added gsplash option to control gsplash timing _(by Maurizio Ungaro)_
+- 2026-06-02 **2452670** — Clean up CI labels and Node 24 workflow settings _(by Maurizio Ungaro)_
+- 2026-06-02 **ab33920** — added workflow binary_tarballs.yml _(by Maurizio Ungaro)_
+- 2026-06-02 **2ffc46a** — new workflow does tarballs release and tests _(by Maurizio Ungaro)_
+- 2026-06-02 **5683bbd** — Update 0.3 release notes for binary tarballs and Isolated ROOT linkage to the ROOT gstreamer plugin _(by Maurizio Ungaro)_
+- 2026-06-01 **34dc8ea** — Use explicit repo for dev release tarball upload _(by Maurizio Ungaro)_
+- 2026-06-01 **c10719f** — Initialize Geant4 data vars before packaging _(by Maurizio Ungaro)_
+- 2026-06-01 **b53ae13** — created binary tarballs that attach to the dev release. _(by Maurizio Ungaro)_
+- 2026-05-29 **d69d291** — skip CI workflows for LICENSE changes alongside other governance docs _(by Maurizio Ungaro)_
+- 2026-05-29 **602e61e** — fixed LICENSE.md and improved release notes _(by Maurizio Ungaro)_
+- 2026-05-29 **17ea75f** — Add analyzer y-vs-x CLI tests and v0.3.0 notes _(by Maurizio Ungaro)_
+- 2026-05-28 **5c992e7** — readme update _(by Maurizio Ungaro)_
+- 2026-05-28 **ab32acb** — added pygemc badge _(by Maurizio Ungaro)_
+- 2026-05-28 **1e5f164** — updated documents and workflow to skip md updates _(by Maurizio Ungaro)_
+- 2026-05-28 **165d2b3** — do not run workflow on README changers and better examples thumbnails _(by Maurizio Ungaro)_
+- 2026-05-28 **97942f5** — Update GEMC license coverage to 2026 _(by Maurizio Ungaro)_
+- 2026-05-28 **f8f4c1b** — updated README _(by Maurizio Ungaro)_
+- 2026-05-27 **b03e579** — set run-name for workflow_dispatch in dockers_deploy_and_test.yml _(by Maurizio Ungaro)_
+- 2026-05-27 **09b4472** — added workflow_dispatch _(by Maurizio Ungaro)_
+- 2026-05-25 **82ad331** — removed alma patch, should work now _(by Maurizio Ungaro)_
+- 2026-05-25 **c5e9a6a** — giving up on alma9 for gemc3 _(by Maurizio Ungaro)_
+- 2026-05-25 **cee8a01** — testing alma9 fix _(by Maurizio Ungaro)_
+- 2026-05-25 **f0fea15** — testing hatch-vcs for alma distros _(by Maurizio Ungaro)_
+- 2026-05-25 **e09e582** — conditional build-isolation _(by Maurizio Ungaro)_
+- 2026-05-25 **ef45ded** — restoring no-build-isolation _(by Maurizio Ungaro)_
+- 2026-05-24 **3e7c1ec** — test skipp pygemc in codeql and sanitize ci _(by Maurizio Ungaro)_
+- 2026-05-24 **5dfdc95** — testing lower memory fixes for alma _(by Maurizio Ungaro)_
+- 2026-05-24 **f91d8b0** — fixed sanitize test and testing cache for alma9 failure _(by Maurizio Ungaro)_
+- 2026-05-24 **f8582d7** — testing the new tags _(by Maurizio Ungaro)_
+- 2026-05-23 **e68e1c1** — testing no depth on pygen _(by Maurizio Ungaro)_
+- 2026-05-23 **fafd3f7** — codeql missing venv and build error check failure fix _(by Maurizio Ungaro)_
+- 2026-05-23 **50429da** — pygemc installed on meson install _(by Maurizio Ungaro)_
+- 2026-05-23 **24f0a5e** — Two-venv architecture: build-tree venv for tests, prefix venv at install time _(by Maurizio Ungaro)_
+- 2026-05-22 **8568dde** — dockerfile updated to use pygemc - pushing this to test the ci _(by Maurizio Ungaro)_
+- 2026-05-22 **83cbba0** — general goes to gemc _(by Maurizio Ungaro)_
+- 2026-05-22 **d06a561** — typo fix _(by Maurizio Ungaro)_
+- 2026-05-22 **24f3961** — checking lib instead of api _(by Maurizio Ungaro)_
+- 2026-05-22 **906a446** — fixed some goptions grammar _(by Maurizio Ungaro)_
+- 2026-05-22 **6b92e6a** — not producing gemc.sh anymore _(by Maurizio Ungaro)_
+- 2026-05-22 **23e2bcf** — fixed some goptions grammar _(by Maurizio Ungaro)_
+- 2026-05-22 **761ec50** — only need gemc in the path _(by Maurizio Ungaro)_
+- 2026-05-22 **b379228** — moved to pygemc _(by Maurizio Ungaro)_
+- 2026-05-22 **9f465bc** — updated 0.3 notes and adding pygemc subproject _(by Maurizio Ungaro)_
+- 2026-05-22 **6492308** — using pygemc _(by Maurizio Ungaro)_
+- 2026-05-22 **433f722** — using pygemc _(by Maurizio Ungaro)_
 
 

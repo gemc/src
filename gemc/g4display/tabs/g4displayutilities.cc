@@ -20,6 +20,27 @@ void addItemsWithCurrent(QComboBox* combo, const QStringList& items, const QStri
 	combo->setCurrentText(current);
 }
 
+// Parse a Geant4 colour string ("r g b" floats or a named CSS colour) into a QColor.
+QColor qcolorFromG4(const std::string& s) {
+	std::istringstream iss(s);
+	double r, g, b;
+	if (iss >> r >> g >> b) return QColor::fromRgbF(r, g, b);
+	QColor c(QString::fromStdString(s));
+	return c.isValid() ? c : Qt::white;
+}
+
+// Build an 18×18 rounded color swatch icon.
+QIcon colorSwatchIcon(const QColor& color) {
+	QPixmap pixmap(18, 18);
+	pixmap.fill(Qt::transparent);
+	QPainter painter(&pixmap);
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.setBrush(color);
+	painter.setPen(QColor(120, 120, 120));
+	painter.drawRoundedRect(pixmap.rect().adjusted(1, 1, -2, -2), 3, 3);
+	return QIcon(pixmap);
+}
+
 QCheckBox* decorationCheckBox(const QString& text, bool checked, QWidget* parent) {
 	auto* checkBox = new QCheckBox(text, parent);
 	checkBox->setChecked(checked);
@@ -67,36 +88,82 @@ G4DisplayUtilities::G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt,
 	addItemsWithCurrent(scaleDirectionCombo, {"x", "y", "z"},
 	                    QString::fromStdString(decorations.scaleDirection));
 
-	scaleColorCombo = new QComboBox(this);
-	addItemsWithCurrent(scaleColorCombo, {"0.9 0.9 0.9", "white", "red", "green", "blue", "black", "yellow"},
-	                    QString::fromStdString(decorations.scaleColor));
-
-	frameColorCombo = new QComboBox(this);
-	addItemsWithCurrent(frameColorCombo, {"red", "green", "blue", "white", "black", "yellow"},
-	                    QString::fromStdString(decorations.frameColor));
-
 	frameLineWidthSpin = doubleSpin(decorations.frameLineWidth, 0.1, 20.0, 0.5, this);
 
+	// Initialise colour members from stored options.
+	scaleColor = qcolorFromG4(decorations.scaleColor);
+	frameColor = qcolorFromG4(decorations.frameColor);
+	textColor  = Qt::black;
+
+	// EventID and date font sizes.
+	const QString spinBorderStyle = "QSpinBox { border: 1px solid #888; border-radius: 3px; padding: 1px 3px; }";
+
+	eventIDSizeSpin = new QSpinBox(this);
+	eventIDSizeSpin->setRange(8, 100);
+	eventIDSizeSpin->setValue(decorations.eventIDSize);
+	eventIDSizeSpin->setToolTip(tr("Event ID font size"));
+	eventIDSizeSpin->setStyleSheet(spinBorderStyle);
+
+	dateSizeSpin = new QSpinBox(this);
+	dateSizeSpin->setRange(8, 100);
+	dateSizeSpin->setValue(decorations.dateSize);
+	dateSizeSpin->setToolTip(tr("Date font size"));
+	dateSizeSpin->setStyleSheet(spinBorderStyle);
+
+	// Helper: build a small color-swatch button that opens a color dialog on click.
+	auto makeColorBtn = [this](QColor& colorRef, const QString& title) {
+		auto* btn = new QToolButton(this);
+		btn->setToolTip(title);
+		btn->setAutoRaise(true);
+		btn->setIconSize(QSize(18, 18));
+		btn->setIcon(colorSwatchIcon(colorRef));
+		connect(btn, &QToolButton::clicked, this, [this, btn, &colorRef, title]() {
+			QColor c = QColorDialog::getColor(colorRef, this, title);
+			if (c.isValid()) {
+				colorRef = c;
+				btn->setIcon(colorSwatchIcon(c));
+			}
+		});
+		return btn;
+	};
+
+	auto* scaleColorBtn = makeColorBtn(scaleColor, tr("Scale color"));
+	auto* frameColorBtn = makeColorBtn(frameColor, tr("Frame color"));
+	textColorBtn = makeColorBtn(textColor, tr("Text color"));
+
+	// Helper: pair a checkbox and a small widget with a small gap in a single container.
+	auto makeTightPair = [this](QWidget* left, QWidget* right) {
+		auto* container = new QWidget(this);
+		auto* hbox = new QHBoxLayout(container);
+		hbox->setContentsMargins(0, 0, 0, 0);
+		hbox->setSpacing(8);
+		hbox->addWidget(left);
+		hbox->addWidget(right);
+		hbox->addStretch();
+		return container;
+	};
+
+	// Decoration grid.
 	auto* decorationGrid = new QGridLayout;
-	decorationGrid->addWidget(scaleCheck, 0, 0);
-	decorationGrid->addWidget(axesCheck, 0, 1);
-	decorationGrid->addWidget(eventIDCheck, 1, 0);
-	decorationGrid->addWidget(dateCheck, 1, 1);
+	// Row 0: Scale (checkbox + color swatch tightly paired) | Axes
+	decorationGrid->addWidget(makeTightPair(scaleCheck, scaleColorBtn), 0, 0, 1, 2);
+	decorationGrid->addWidget(axesCheck,                                 0, 2);
+	// Row 1: Event ID (checkbox + size spinbox) | Date (checkbox + size spinbox)
+	decorationGrid->addWidget(makeTightPair(eventIDCheck, eventIDSizeSpin), 1, 0, 1, 2);
+	decorationGrid->addWidget(makeTightPair(dateCheck, dateSizeSpin),       1, 2, 1, 2);
+	// Row 2: Logo 2D | Logo 3D
 	decorationGrid->addWidget(logo2DCheck, 2, 0);
-	decorationGrid->addWidget(logo3DCheck, 2, 1);
-	decorationGrid->addWidget(frameCheck, 3, 0);
-	decorationGrid->addWidget(new QLabel(tr("Scale Color:")), 4, 0);
-	decorationGrid->addWidget(scaleColorCombo, 4, 1);
-	decorationGrid->addWidget(new QLabel(tr("Scale Length:")), 5, 0);
-	decorationGrid->addWidget(scaleLengthSpin, 5, 1);
-	decorationGrid->addWidget(new QLabel(tr("Scale Unit:")), 6, 0);
-	decorationGrid->addWidget(scaleUnitEdit, 6, 1);
-	decorationGrid->addWidget(new QLabel(tr("Scale Direction:")), 7, 0);
-	decorationGrid->addWidget(scaleDirectionCombo, 7, 1);
-	decorationGrid->addWidget(new QLabel(tr("Frame Color:")), 8, 0);
-	decorationGrid->addWidget(frameColorCombo, 8, 1);
-	decorationGrid->addWidget(new QLabel(tr("Frame Line Width:")), 9, 0);
-	decorationGrid->addWidget(frameLineWidthSpin, 9, 1);
+	decorationGrid->addWidget(logo3DCheck, 2, 2);
+	// Row 3: Frame (checkbox + color swatch tightly paired)
+	decorationGrid->addWidget(makeTightPair(frameCheck, frameColorBtn), 3, 0, 1, 2);
+	decorationGrid->addWidget(new QLabel(tr("Scale Length:")),    4, 0);
+	decorationGrid->addWidget(scaleLengthSpin,                    4, 1, 1, 2);
+	decorationGrid->addWidget(new QLabel(tr("Scale Unit:")),      5, 0);
+	decorationGrid->addWidget(scaleUnitEdit,                      5, 1, 1, 2);
+	decorationGrid->addWidget(new QLabel(tr("Scale Direction:")), 6, 0);
+	decorationGrid->addWidget(scaleDirectionCombo,                6, 1, 1, 2);
+	decorationGrid->addWidget(new QLabel(tr("Frame Line Width:")),7, 0);
+	decorationGrid->addWidget(frameLineWidthSpin,                 7, 1, 1, 2);
 
 	auto* applyDecorationsButton = new QPushButton(tr("Apply Decorations"), this);
 	connect(applyDecorationsButton, &QPushButton::clicked, this, &G4DisplayUtilities::applyDecorations);
@@ -110,9 +177,6 @@ G4DisplayUtilities::G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt,
 
 	textKindCombo = new QComboBox(this);
 	textKindCombo->addItems({"2D", "3D"});
-
-	textColorCombo = new QComboBox(this);
-	textColorCombo->addItems({"black", "blue", "green", "red", "white", "yellow"});
 
 	textLayoutCombo = new QComboBox(this);
 	textLayoutCombo->addItems({"", "left", "centre", "center", "right"});
@@ -148,16 +212,15 @@ G4DisplayUtilities::G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt,
 	textSettingsGrid->addWidget(textKindCombo, 0, 1);
 	textSettingsGrid->addWidget(new QLabel(tr("Text:")), 1, 0);
 	textSettingsGrid->addWidget(textEdit, 1, 1);
-	textSettingsGrid->addWidget(new QLabel(tr("Color:")), 2, 0);
-	textSettingsGrid->addWidget(textColorCombo, 2, 1);
-	textSettingsGrid->addWidget(new QLabel(tr("Layout:")), 3, 0);
-	textSettingsGrid->addWidget(textLayoutCombo, 3, 1);
-	textSettingsGrid->addWidget(new QLabel(tr("Unit:")), 4, 0);
-	textSettingsGrid->addWidget(textUnitEdit, 4, 1);
-	textSettingsGrid->addWidget(new QLabel(tr("dX (px):")), 5, 0);
-	textSettingsGrid->addWidget(textDxSpin, 5, 1);
-	textSettingsGrid->addWidget(new QLabel(tr("dY (px):")), 6, 0);
-	textSettingsGrid->addWidget(textDySpin, 6, 1);
+	textSettingsGrid->addWidget(textColorBtn, 1, 2);
+	textSettingsGrid->addWidget(new QLabel(tr("Layout:")), 2, 0);
+	textSettingsGrid->addWidget(textLayoutCombo, 2, 1);
+	textSettingsGrid->addWidget(new QLabel(tr("Unit:")), 3, 0);
+	textSettingsGrid->addWidget(textUnitEdit, 3, 1);
+	textSettingsGrid->addWidget(new QLabel(tr("dX (px):")), 4, 0);
+	textSettingsGrid->addWidget(textDxSpin, 4, 1);
+	textSettingsGrid->addWidget(new QLabel(tr("dY (px):")), 5, 0);
+	textSettingsGrid->addWidget(textDySpin, 5, 1);
 
 	auto* textGrid = new QHBoxLayout;
 	textGrid->addLayout(textPositionGrid);
@@ -193,20 +256,30 @@ void G4DisplayUtilities::applyDecorations() {
 }
 
 void G4DisplayUtilities::syncOptionsFromControls() {
+	auto colorToRGB = [](const QColor& c) {
+		return QString("%1 %2 %3")
+		    .arg(c.redF(), 0, 'f', 4)
+		    .arg(c.greenF(), 0, 'f', 4)
+		    .arg(c.blueF(), 0, 'f', 4)
+		    .toStdString();
+	};
+
 	ostringstream decorations;
 	decorations << "{"
 		<< "scale: " << (scaleCheck->isChecked() ? "true" : "false") << ", "
 		<< "scaleLength: " << scaleLengthSpin->value() << ", "
 		<< "scaleUnit: " << yamlString(scaleUnitEdit->text().toStdString()) << ", "
 		<< "scaleDirection: " << yamlString(scaleDirectionCombo->currentText().toStdString()) << ", "
-		<< "scaleColor: " << yamlString(scaleColorCombo->currentText().toStdString()) << ", "
+		<< "scaleColor: " << yamlString(colorToRGB(scaleColor)) << ", "
 		<< "axes: " << (axesCheck->isChecked() ? "true" : "false") << ", "
 		<< "eventID: " << (eventIDCheck->isChecked() ? "true" : "false") << ", "
+		<< "eventIDSize: " << eventIDSizeSpin->value() << ", "
 		<< "date: " << (dateCheck->isChecked() ? "true" : "false") << ", "
+		<< "dateSize: " << dateSizeSpin->value() << ", "
 		<< "logo2D: " << (logo2DCheck->isChecked() ? "true" : "false") << ", "
 		<< "logo: " << (logo3DCheck->isChecked() ? "true" : "false") << ", "
 		<< "frame: " << (frameCheck->isChecked() ? "true" : "false") << ", "
-		<< "frameColor: " << yamlString(frameColorCombo->currentText().toStdString()) << ", "
+		<< "frameColor: " << yamlString(colorToRGB(frameColor)) << ", "
 		<< "frameLineWidth: " << frameLineWidthSpin->value()
 		<< "}";
 	gopts->setOptionValueFromString("g4decoration", decorations.str());
@@ -238,8 +311,12 @@ void G4DisplayUtilities::addText() {
 	if (textEdit->text().trimmed().isEmpty()) { return; }
 
 	g4display::G4SceneText text;
-	text.kind   = textKindCombo->currentText().toStdString();
-	text.color  = textColorCombo->currentText().toStdString();
+	text.kind  = textKindCombo->currentText().toStdString();
+	text.color = QString("%1 %2 %3")
+	    .arg(textColor.redF(), 0, 'f', 4)
+	    .arg(textColor.greenF(), 0, 'f', 4)
+	    .arg(textColor.blueF(), 0, 'f', 4)
+	    .toStdString();
 	text.layout = textLayoutCombo->currentText().toStdString();
 	text.text   = textEdit->text().toStdString();
 	text.x      = textXSpin->value();

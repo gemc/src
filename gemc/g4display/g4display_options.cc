@@ -94,7 +94,9 @@ G4Decorations getG4Decorations(const std::shared_ptr<GOptions>& gopts) {
 	decorations.scaleColor     = getOptionValueOrDefault<std::string>(gopts, "g4decoration", "scaleColor", "0.9 0.9 0.9");
 	decorations.axes           = getOptionValueOrDefault<bool>(gopts, "g4decoration", "axes", false);
 	decorations.eventID        = getOptionValueOrDefault<bool>(gopts, "g4decoration", "eventID", false);
+	decorations.eventIDSize    = getOptionValueOrDefault<int>(gopts, "g4decoration", "eventIDSize", 24);
 	decorations.date           = getOptionValueOrDefault<bool>(gopts, "g4decoration", "date", false);
+	decorations.dateSize       = getOptionValueOrDefault<int>(gopts, "g4decoration", "dateSize", 24);
 	decorations.logo2D         = getOptionValueOrDefault<bool>(gopts, "g4decoration", "logo2D", false);
 	decorations.logo           = getOptionValueOrDefault<bool>(gopts, "g4decoration", "logo", false);
 	decorations.frame          = getOptionValueOrDefault<bool>(gopts, "g4decoration", "frame", false);
@@ -178,8 +180,10 @@ GOptions defineOptions() {
 		{"scaleDirection", "z", "scale direction: x, y, or z"},
 		{"scaleColor", "0.9 0.9 0.9", "scale color as 'r g b' or a named color"},
 		{"axes", false, "add simple XYZ axes"},
-		{"eventID", false, "add event ID text at end of event"},
-		{"date", false, "add a date stamp"},
+		{"eventID",     false, "add event ID text at end of event"},
+		{"eventIDSize", 24,    "event ID font size in points"},
+		{"date",        false, "add a date stamp"},
+		{"dateSize",    24,    "date font size in points"},
 		{"logo2D", false, "add the 2D Geant4 logo"},
 		{"logo", false, "add the 3D Geant4 logo"},
 		{"frame", false, "add a frame around the view"},

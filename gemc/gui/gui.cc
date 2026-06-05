@@ -60,7 +60,9 @@ void restoreSceneModels(G4UImanager* g4uim, const std::shared_ptr<GOptions>& gop
 		g4uim->ApplyCommand("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
 		g4uim->ApplyCommand("/vis/scene/add/hits");
 		g4uim->ApplyCommand("/vis/scene/endOfEventAction accumulate 10000");
-		if (decorations.eventID) { g4uim->ApplyCommand("/vis/scene/add/eventID"); }
+		if (decorations.eventID) {
+			g4uim->ApplyCommand("/vis/scene/add/eventID " + std::to_string(decorations.eventIDSize));
+		}
 	}
 	g4uim->ApplyCommand("/vis/viewer/set/autoRefresh true");
 	g4uim->ApplyCommand("/vis/viewer/flush");

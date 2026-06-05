@@ -72,12 +72,15 @@ private:
 	QDoubleSpinBox* scaleLengthSpin = nullptr;
 	QLineEdit* scaleUnitEdit = nullptr;
 	QComboBox* scaleDirectionCombo = nullptr;
-	QComboBox* scaleColorCombo = nullptr;
-	QComboBox* frameColorCombo = nullptr;
+	QColor scaleColor;
+	QColor frameColor;
 	QDoubleSpinBox* frameLineWidthSpin = nullptr;
+	QSpinBox* eventIDSizeSpin = nullptr;
+	QSpinBox* dateSizeSpin    = nullptr;
 
-	QComboBox* textKindCombo = nullptr;
-	QComboBox* textColorCombo = nullptr;
+	QComboBox* textKindCombo   = nullptr;
+	QColor     textColor;
+	QToolButton* textColorBtn  = nullptr;
 	QComboBox* textLayoutCombo = nullptr;
 	QLineEdit* textEdit = nullptr;
 	QDoubleSpinBox* textXSpin = nullptr;

@@ -90,6 +90,11 @@ private:
 	QToolButton* backgroundColorButton = nullptr;
 	QSpinBox* cloudPointsSpinBox       = nullptr;
 
+	/// Explode factor controls (boom slider + computed factor label + intensity dropdown).
+	QSlider*    explodeSlider            = nullptr;
+	QLabel*     explodeValueLabel        = nullptr;
+	QComboBox*  explodeIntensityDropdown = nullptr;
+
 	/// Light direction sliders (theta, phi), expressed in degrees.
 	QSlider* lightTheta = nullptr;
 	QSlider* lightPhi   = nullptr;
@@ -124,6 +129,9 @@ private:
 	/// Number of points used by cloud volume rendering.
 	int cloudPoints = 1000;
 
+	/// Shared options — kept in sync so restoreSceneModels reads current viewer state.
+	std::shared_ptr<GOptions> gopts;
+
 	/**
 	 * \brief Shared logger instance.
 	 *
@@ -133,6 +141,10 @@ private:
 
 	void setBackgroundButtonColor(const QColor& color);
 	void setBackgroundDropdownColor(const QColor& color);
+
+	/// Write the current background and cloudPoints back to gopts so that
+	/// restoreSceneModels() does not overwrite user-chosen values.
+	void syncViewToOptions();
 
 private slots:
 	/**
@@ -230,6 +242,18 @@ private slots:
 	 * \brief Apply the cloud volume rendering point count.
 	 */
 	void set_cloud_points();
+
+	/**
+	 * \brief Apply the scene explode factor.
+	 *
+	 * Computes \c xf = 1 + boom / divisor where \c boom is the slider value
+	 * and \c divisor is chosen by the intensity dropdown, then issues:
+	 * \code
+	 * /vis/viewer/set/explodeFactor <xf>
+	 * /vis/viewer/flush
+	 * \endcode
+	 */
+	void set_explode();
 
 	/**
 	 * \brief Apply slice (cutaway plane) settings.

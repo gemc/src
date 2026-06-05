@@ -349,7 +349,7 @@ private:
     /**
      * \brief Label showing the numeric opacity value formatted as a decimal.
      */
-    QLabel*  opacityLabel  = nullptr;   // show numeric value
+    QLabel*  opacityLabel  = nullptr;
 
     /**
      * \brief Build the internal system/volume model from the supplied volume map.

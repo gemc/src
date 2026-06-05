@@ -54,7 +54,7 @@ QIcon colorIcon(const QColor& color, const QColor& border) {
 G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
                              std::shared_ptr<GLogger>         logger,
                              QWidget*                         parent)
-	: QWidget(parent), log(logger) {
+	: QWidget(parent), gopts(gopts), log(logger) {
 	log->debug(CONSTRUCTOR, "G4DisplayView");
 
 	// LCD font used to display theta/phi degrees next to sliders.
@@ -338,10 +338,25 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	cloudPointsSpinBox->setGroupSeparatorShown(true);
 	cloudPointsSpinBox->setValue(std::max(1, cloudPoints));
 
+	auto* explodeLabel = new QLabel(tr("Explode Factor:"));
+	explodeSlider = new QSlider(Qt::Horizontal);
+	explodeSlider->setRange(0, 100);
+	explodeSlider->setValue(0);
+	explodeSlider->setSingleStep(1);
+	explodeSlider->setPageStep(5);
+	explodeValueLabel = new QLabel(tr("1.00"));
+	explodeIntensityDropdown = new QComboBox;
+	explodeIntensityDropdown->addItem(tr("Low"),    QVariant(45.0));
+	explodeIntensityDropdown->addItem(tr("Medium"), QVariant(15.0));
+	explodeIntensityDropdown->addItem(tr("High"),   QVariant(5.0));
+	explodeIntensityDropdown->setCurrentIndex(1);
+
 	connect(cullingDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::set_culling);
 	connect(backgroundColorDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::set_background);
 	connect(backgroundColorButton, &QToolButton::clicked, this, &G4DisplayView::choose_background_color);
 	connect(cloudPointsSpinBox, qOverload<int>(&QSpinBox::valueChanged), this, &G4DisplayView::set_cloud_points);
+	connect(explodeSlider, &QSlider::valueChanged, this, &G4DisplayView::set_explode);
+	connect(explodeIntensityDropdown, &QComboBox::currentIndexChanged, this, &G4DisplayView::set_explode);
 
 	QVBoxLayout* sceneLayout = new QVBoxLayout;
 	sceneLayout->setContentsMargins(6, 6, 6, 6);
@@ -357,6 +372,14 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	sceneLayout->addLayout(backgroundLayout);
 	sceneLayout->addWidget(cloudPointsLabel);
 	sceneLayout->addWidget(cloudPointsSpinBox);
+	sceneLayout->addWidget(explodeLabel);
+	auto* explodeRow = new QHBoxLayout;
+	explodeRow->setContentsMargins(0, 0, 0, 0);
+	explodeRow->setSpacing(4);
+	explodeRow->addWidget(explodeSlider);
+	explodeRow->addWidget(explodeValueLabel);
+	explodeRow->addWidget(explodeIntensityDropdown);
+	sceneLayout->addLayout(explodeRow);
 
 	QGroupBox* spropertyGroup = new QGroupBox(tr("Scene Properties"));
 	spropertyGroup->setLayout(sceneLayout);
@@ -593,6 +616,20 @@ void G4DisplayView::set_culling() {
 	}
 }
 
+void G4DisplayView::syncViewToOptions() {
+	if (!gopts) return;
+	const auto g4view = getG4View(gopts);
+	const QString s = QString("{driver: \"%1\", dimension: \"%2\", position: \"%3\", "
+	                          "segsPerCircle: %4, background: \"%5\", cloudPoints: %6}")
+	    .arg(QString::fromStdString(g4view.driver))
+	    .arg(QString::fromStdString(g4view.dimension))
+	    .arg(QString::fromStdString(g4view.position))
+	    .arg(g4view.segsPerCircle)
+	    .arg(g4RgbFromColor(backgroundColor))
+	    .arg(cloudPoints);
+	gopts->setOptionValueFromString("g4view", s.toStdString());
+}
+
 void G4DisplayView::setBackgroundButtonColor(const QColor& color) {
 	if (!backgroundColorButton) { return; }
 
@@ -627,6 +664,7 @@ void G4DisplayView::set_background() {
 
 	string command = "/vis/viewer/set/background " + g4value.toStdString();
 	G4UImanager::GetUIpointer()->ApplyCommand(command);
+	syncViewToOptions();
 }
 
 void G4DisplayView::choose_background_color() {
@@ -640,6 +678,7 @@ void G4DisplayView::choose_background_color() {
 	const QString g4value = g4RgbFromColor(backgroundColor);
 	const string command = "/vis/viewer/set/background " + g4value.toStdString();
 	G4UImanager::GetUIpointer()->ApplyCommand(command);
+	syncViewToOptions();
 }
 
 void G4DisplayView::set_cloud_points() {
@@ -648,6 +687,7 @@ void G4DisplayView::set_cloud_points() {
 	cloudPoints = cloudPointsSpinBox->value();
 	const string command = "/vis/viewer/set/numberOfCloudPoints " + to_string(cloudPoints);
 	G4UImanager::GetUIpointer()->ApplyCommand(command);
+	syncViewToOptions();
 }
 
 void G4DisplayView::showEvent(QShowEvent* event) {
@@ -773,6 +813,24 @@ void G4DisplayView::apply_buttons_set1(int index) {
 			g4uim->ApplyCommand(command);
 		}
 	}
+}
+
+void G4DisplayView::set_explode() {
+	if (!explodeSlider) return;
+
+	const double divisor = (explodeIntensityDropdown && explodeIntensityDropdown->currentData().toDouble() > 0)
+	    ? explodeIntensityDropdown->currentData().toDouble()
+	    : 15.0;
+	const int    boom = explodeSlider->value();
+	const double xf   = 1.0 + static_cast<double>(boom) / divisor;
+
+	if (explodeValueLabel)
+		explodeValueLabel->setText(QString::number(xf, 'f', 2));
+
+	G4UImanager* g4uim = G4UImanager::GetUIpointer();
+	if (!g4uim) return;
+	g4uim->ApplyCommand("/vis/viewer/set/explodeFactor " + QString::number(xf, 'f', 2).toStdString());
+	g4uim->ApplyCommand("/vis/viewer/flush");
 }
 
 void G4DisplayView::field_precision_changed() {

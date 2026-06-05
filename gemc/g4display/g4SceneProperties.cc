@@ -91,7 +91,9 @@ std::vector<std::string> G4SceneProperties::addSceneDecorations(const std::share
 		                      colourToRGB(decorations.scaleColor));
 	}
 	if (decorations.axes) { commands.emplace_back("/vis/scene/add/axes"); }
-	if (decorations.date) { commands.emplace_back("/vis/scene/add/date"); }
+	if (decorations.date) {
+		commands.emplace_back("/vis/scene/add/date " + std::to_string(decorations.dateSize));
+	}
 	if (decorations.logo2D) { commands.emplace_back("/vis/scene/add/logo2D"); }
 	if (decorations.logo) { commands.emplace_back("/vis/scene/add/logo"); }
 	if (decorations.frame) {

@@ -104,7 +104,7 @@ QString formatParameters(const std::string& solid, const std::string& paramsStr)
     const auto vals = splitParams(paramsStr);
     if (vals.empty()) return {};
 
-    QString html = "<b>Parameters:</b><br>";
+    QString html = "Parameters:<br>";
 
     // Polycone: fixed header (phiStart, phiTotal, nplanes) then arrays
     if (solid == "G4Polycone" && vals.size() >= 3) {
@@ -268,6 +268,7 @@ GTree::GTree(const std::shared_ptr<GOptions>& gopt,
     // connect slider to slot
     connect(opacitySlider, &QSlider::valueChanged,
             this, &GTree::onOpacitySliderChanged);
+
 
     log->debug(NORMAL, SFUNCTION_NAME, "GTree added");
 }
