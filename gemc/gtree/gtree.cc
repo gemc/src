@@ -2,6 +2,9 @@
 // Doxygen documentation is authoritative in the header; this file uses short
 // non-Doxygen comments to summarize behavior.
 
+// c++
+#include <sstream>
+
 // Qt
 #include <QHeaderView>
 #include <QTextEdit>
@@ -23,8 +26,133 @@
 #include "gtouchable.h"
 #include "gutilities.h"
 
-// Cache a volume's hierarchy, material and visualization attributes for the UI model.
-G4Ttree_item::G4Ttree_item(G4Volume* g4volume) {
+namespace {
+
+std::vector<std::string> splitParams(const std::string& s) {
+    std::vector<std::string> result;
+    std::istringstream ss(s);
+    std::string tok;
+    while (std::getline(ss, tok, ',')) {
+        const auto a = tok.find_first_not_of(" \t");
+        const auto b = tok.find_last_not_of(" \t");
+        if (a != std::string::npos)
+            result.push_back(tok.substr(a, b - a + 1));
+    }
+    return result;
+}
+
+using PDesc = std::vector<const char*>;
+
+const PDesc& solidParamDescs(const std::string& solid, std::size_t n) {
+    static const std::unordered_map<std::string, PDesc> kFixed = {
+        {"G4Box",    {"dx: half length in x",
+                      "dy: half length in y",
+                      "dz: half length in z"}},
+        {"G4Tubs",   {"rin: inner radius",
+                      "rout: outer radius",
+                      "length: half length in z",
+                      "phi start: starting phi angle",
+                      "phi total: total phi angle"}},
+        {"G4Cons",   {"rin1: inner radius at -dz",
+                      "rout1: outer radius at -dz",
+                      "rin2: inner radius at +dz",
+                      "rout2: outer radius at +dz",
+                      "length: half length in z",
+                      "phi start: starting phi angle",
+                      "phi total: total phi angle"}},
+        {"G4Trd",    {"dx1: half length in x at -dz",
+                      "dx2: half length in x at +dz",
+                      "dy1: half length in y at -dz",
+                      "dy2: half length in y at +dz",
+                      "z: half length in z"}},
+        {"G4Sphere", {"rmin: inner radius",
+                      "rmax: outer radius",
+                      "sphi: starting phi angle",
+                      "dphi: delta phi angle",
+                      "stheta: starting theta angle",
+                      "dtheta: delta theta angle"}},
+    };
+    static const std::unordered_map<std::size_t, PDesc> kTrap = {
+        {4,  {"pz: length along Z",
+              "py: length along Y",
+              "px: length along X (wider side)",
+              "pltx: length along X (narrower side)"}},
+        {11, {"pDz: half Z length",
+              "pTheta: polar angle of line joining base centres",
+              "pPhi: azimuthal angle of line joining base centres",
+              "pDy1: half Y length at -dz",
+              "pDx1: half X length at smaller Y, base at -dz",
+              "pDx2: half X length at bigger Y, base at -dz",
+              "pAlp1: angle between Y-axis and centre line at -dz",
+              "pDy2: half Y length at +dz",
+              "pDx3: half X length at smaller Y, base at +dz",
+              "pDx4: half X length at bigger Y, base at +dz",
+              "pAlp2: angle between Y-axis and centre line at +dz"}},
+    };
+    static const PDesc kEmpty;
+
+    if (solid == "G4Trap") {
+        const auto it = kTrap.find(n);
+        return it != kTrap.end() ? it->second : kEmpty;
+    }
+    const auto it = kFixed.find(solid);
+    return it != kFixed.end() ? it->second : kEmpty;
+}
+
+QString formatParameters(const std::string& solid, const std::string& paramsStr) {
+    if (paramsStr.empty()) return {};
+    const auto vals = splitParams(paramsStr);
+    if (vals.empty()) return {};
+
+    QString html = "<b>Parameters:</b><br>";
+
+    // Polycone: fixed header (phiStart, phiTotal, nplanes) then arrays
+    if (solid == "G4Polycone" && vals.size() >= 3) {
+        const char* kPcFixed[3] = {
+            "phi start: starting phi angle",
+            "phi total: total phi angle",
+            "nplanes: number of planes"
+        };
+        for (int i = 0; i < 3 && i < (int)vals.size(); ++i)
+            html += QString("<br>&nbsp;&nbsp;<i>%1</i>: %2").arg(kPcFixed[i], QString::fromStdString(vals[i]));
+        int nplanes = 0;
+        try { nplanes = std::stoi(vals[2]); } catch (...) {}
+        int idx = 3;
+        for (int p = 0; p < nplanes && idx < (int)vals.size(); ++p, ++idx)
+            html += QString("<br>&nbsp;&nbsp;<i>z[%1]</i>: %2").arg(p).arg(QString::fromStdString(vals[idx]));
+        for (int p = 0; p < nplanes && idx < (int)vals.size(); ++p, ++idx)
+            html += QString("<br>&nbsp;&nbsp;<i>rin[%1]</i>: %2").arg(p).arg(QString::fromStdString(vals[idx]));
+        for (int p = 0; p < nplanes && idx < (int)vals.size(); ++p, ++idx)
+            html += QString("<br>&nbsp;&nbsp;<i>rout[%1]</i>: %2").arg(p).arg(QString::fromStdString(vals[idx]));
+        return html;
+    }
+
+    // G4Trap from 8 vertices (24 params)
+    if (solid == "G4Trap" && vals.size() == 24) {
+        const char* kAxes[3] = {"x", "y", "z"};
+        for (int v = 0; v < 8; ++v)
+            for (int c = 0; c < 3; ++c)
+                html += QString("<br>&nbsp;&nbsp;<i>v%1%2</i>: %3")
+                            .arg(v + 1).arg(kAxes[c]).arg(QString::fromStdString(vals[v * 3 + c]));
+        return html;
+    }
+
+    // All other solids (including G4Trap with 4 or 11 params)
+    const auto& descs = solidParamDescs(solid, vals.size());
+    for (std::size_t i = 0; i < vals.size(); ++i) {
+        const QString desc = i < descs.size()
+            ? QString::fromStdString(descs[i])
+            : QString("missing parameters description");
+        html += QString("<br>&nbsp;&nbsp;<i>%1</i>: %2").arg(desc, QString::fromStdString(vals[i]));
+    }
+    return html;
+}
+
+} // anonymous namespace
+
+
+// Cache a volume's hierarchy, material, visualization attributes, and pygemc descriptor.
+G4Ttree_item::G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume) {
     auto pvolume = g4volume->getPhysical();
     auto lvolume = g4volume->getLogical();
     auto svolume = g4volume->getSolid();
@@ -59,6 +187,15 @@ G4Ttree_item::G4Ttree_item(G4Volume* g4volume) {
     mass = lvolume->GetMass(false, true) / (CLHEP::g);
     volume = svolume->GetCubicVolume() / CLHEP::cm3;
     density = (mass / volume);
+
+    if (gvolume) {
+        solidType      = gvolume->getType();
+        parameters     = gvolume->getParameters();
+        position       = gvolume->getPos();
+        rotation       = gvolume->getRot();
+        motherVolume   = gvolume->getMotherName();
+        volDescription = gvolume->getDescription();
+    }
 }
 
 
@@ -78,9 +215,11 @@ std::string G4Ttree_item::system_from_v4name(std::string v4name) {
 // Construct the widget, build the internal model, create the UI, and connect signals.
 GTree::GTree(const std::shared_ptr<GOptions>& gopt,
              std::unordered_map<std::string, G4Volume*> g4volumes_map,
+             std::unordered_map<std::string, const GVolume*> gvolumes_map_in,
              QWidget* parent) :
     QWidget(parent),
-    GBase(gopt, GTREE_LOGGER) {
+    GBase(gopt, GTREE_LOGGER),
+    gvolumes_map(std::move(gvolumes_map_in)) {
     // Build the internal representation used to populate the UI tree.
     build_tree(g4volumes_map);
 
@@ -230,7 +369,10 @@ void GTree::build_tree(std::unordered_map<std::string, G4Volume*> g4volumes_map)
 
         // ensure the system exists
         auto& system_tree = g4_systems_tree[system_name];
-        system_tree[name] = std::make_unique<G4Ttree_item>(g4volume);
+        const GVolume* gvol = nullptr;
+        auto it = gvolumes_map.find(name);
+        if (it != gvolumes_map.end()) gvol = it->second;
+        system_tree[name] = std::make_unique<G4Ttree_item>(g4volume, gvol);
 
         log->info(2, "Adding ", name, " to tree, system_name is ", system_name,
                   ", density: ", system_tree[name]->get_density(),
@@ -440,6 +582,20 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
                 tr("Average Density: %1 g / cm3").arg(titem->get_density())
             );
 
+            // pygemc descriptor fields
+            const auto solidT = titem->get_solidType();
+            solidTypeLabel->setText(solidT.empty() ? QString() : tr("Solid: %1").arg(QString::fromStdString(solidT)));
+            const auto params = titem->get_parameters();
+            parametersLabel->setText(params.empty() ? QString() : formatParameters(solidT, params));
+            const auto pos = titem->get_position();
+            positionLabel->setText(pos.empty() ? QString() : tr("Position: %1").arg(QString::fromStdString(pos)));
+            const auto rot = titem->get_rotation();
+            rotationLabel->setText(rot.empty() ? QString() : tr("Rotation: %1").arg(QString::fromStdString(rot)));
+            const auto mom = titem->get_motherVolume();
+            motherLabel->setText(mom.empty() ? QString() : tr("Mother: %1").arg(QString::fromStdString(mom)));
+            const auto desc = titem->get_volDescription();
+            descriptionLabel->setText(desc.empty() ? QString() : tr("Description: %1").arg(QString::fromStdString(desc)));
+
             // Sync the slider position to the cached alpha channel.
             double op = titem->get_opacity();
             int sliderVal = static_cast<int>(op * 100.0 + 0.5);
@@ -459,6 +615,12 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
         massLabel->setText(tr(""));
         volumeLabel->setText(tr(""));
         densityLabel->setText(tr(""));
+        solidTypeLabel->setText(tr(""));
+        parametersLabel->setText(tr(""));
+        positionLabel->setText(tr(""));
+        rotationLabel->setText(tr(""));
+        motherLabel->setText(tr(""));
+        descriptionLabel->setText(tr(""));
     }
 }
 

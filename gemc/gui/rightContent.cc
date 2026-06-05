@@ -34,9 +34,13 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 	connect(setupView, &DBSelectView::geometryReloaded, this, &GemcGUI::refreshGeometryTree);
 
 	// volume controls
-	geometryTree = new GTree(gopts, dc && dc->has_built_geometry()
-	                                ? dc->get_g4volumes_map()
-	                                : std::unordered_map<std::string, G4Volume*>{});
+	geometryTree = new GTree(gopts,
+	                         dc && dc->has_built_geometry()
+	                             ? dc->get_g4volumes_map()
+	                             : std::unordered_map<std::string, G4Volume*>{},
+	                         dc && dc->has_built_geometry()
+	                             ? dc->get_gvolumes_flat_map()
+	                             : std::unordered_map<std::string, const GVolume*>{});
 	rightContent->addWidget(geometryTree);
 
 	// g4dialog

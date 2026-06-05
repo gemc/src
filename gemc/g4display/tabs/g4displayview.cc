@@ -80,8 +80,6 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	toggle_button_titles.emplace_back("Anti\nAliasing");
 	toggle_button_titles.emplace_back("Auxiliary\nEdges");
 	toggle_button_titles.emplace_back("Field\nLines");
-	toggle_button_titles.emplace_back("Axes");
-	toggle_button_titles.emplace_back("Scale");
 
 	buttons_set1 = new GQTToggleButtonWidget(80, 80, 20, toggle_button_titles, false, this);
 	connect(buttons_set1, &GQTToggleButtonWidget::buttonPressedIndexChanged, this, &G4DisplayView::apply_buttons_set1);
@@ -772,20 +770,6 @@ void G4DisplayView::apply_buttons_set1(int index) {
 		else {
 			string npoints = to_string(field_NPOINTS);
 			string command = string("/vis/scene/add/magneticField ") + npoints;
-			g4uim->ApplyCommand(command);
-		}
-	}
-	else if (index == 4) {
-		// Axes visualization (added when enabled).
-		if (button_state == 1) {
-			string command = string("/vis/scene/add/axes");
-			g4uim->ApplyCommand(command);
-		}
-	}
-	else if (index == 5) {
-		// Scale visualization (added when enabled).
-		if (button_state == 1) {
-			string command = string("/vis/scene/add/scale");
 			g4uim->ApplyCommand(command);
 		}
 	}

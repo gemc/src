@@ -182,6 +182,28 @@ public:
 		return g4world->get_g4volumes_map();
 	}
 
+	/**
+	 * \brief Returns a flat map of GEMC volume descriptors indexed by their G4 names.
+	 *
+	 * Iterates all systems in the GEMC world and assembles a single map keyed by the
+	 * fully-qualified G4 name ("system/volume"), providing access to pygemc-defined
+	 * fields (solid type, parameters, position, rotation, mother, description).
+	 *
+	 * \return Map from g4name to const GVolume pointer (owned by gworld).
+	 */
+	[[nodiscard]] std::unordered_map<std::string, const GVolume*> get_gvolumes_flat_map() const {
+		std::unordered_map<std::string, const GVolume*> result;
+		if (!gworld) return result;
+		for (const auto& [sysName, sysPtr] : *gworld->getSystemsMap()) {
+			for (const auto& [volName, volPtr] : sysPtr->getGVolumesMap()) {
+				const std::string g4name = volPtr->getG4Name();
+				if (!g4name.empty())
+					result[g4name] = volPtr.get();
+			}
+		}
+		return result;
+	}
+
 private:
 	/**
 	 * \brief Cached options used during construction and SD/field setup.

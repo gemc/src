@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 
     if (gopts->getSwitch("gui")) {
 
-        auto gtree = new GTree(gopts, g4vmap,  window);
+        auto gtree = new GTree(gopts, g4vmap, {}, window);
 
         window->setCentralWidget(gtree);
         window->show();

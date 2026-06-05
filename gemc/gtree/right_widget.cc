@@ -60,6 +60,16 @@ QWidget* GTree::right_widget() {
     massLabel = new QLabel(bottomPanel);
     volumeLabel = new QLabel(bottomPanel);
     densityLabel = new QLabel(bottomPanel);
+    solidTypeLabel = new QLabel(bottomPanel);
+    parametersLabel = new QLabel(bottomPanel);
+    positionLabel = new QLabel(bottomPanel);
+    rotationLabel = new QLabel(bottomPanel);
+    motherLabel = new QLabel(bottomPanel);
+    descriptionLabel = new QLabel(bottomPanel);
+
+    for (auto* lbl : {parametersLabel, descriptionLabel}) {
+        lbl->setWordWrap(true);
+    }
 
     blayout->addWidget(opacityContainer);
     blayout->addSpacing(10);
@@ -70,6 +80,13 @@ QWidget* GTree::right_widget() {
     blayout->addWidget(massLabel);
     blayout->addWidget(volumeLabel);
     blayout->addWidget(densityLabel);
+    blayout->addSpacing(6);
+    blayout->addWidget(solidTypeLabel);
+    blayout->addWidget(parametersLabel);
+    blayout->addWidget(positionLabel);
+    blayout->addWidget(rotationLabel);
+    blayout->addWidget(motherLabel);
+    blayout->addWidget(descriptionLabel);
     blayout->addStretch();
 
     // Hidden until a volume or system is selected in the tree.

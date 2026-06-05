@@ -3,6 +3,7 @@
 // gemc
 #include <gemc/gqtbuttonswidget/gQtButtonsWidget.h> // Custom toggle button widget
 #include <gemc/g4system/g4volume.h>
+#include <gemc/gsystem/gvolume.h>
 #include <gemc/gbase/gbase.h> // Provides application options/configuration
 #include <gemc/goptions/goptions.h>
 
@@ -26,11 +27,12 @@ class QTimer;
  *
  * @details
  * This class extracts and caches a subset of geometry and visualization
- * information from a `G4Volume` wrapper:
+ * information from a `G4Volume` wrapper and the corresponding `GVolume` descriptor:
  * - hierarchy (mother logical volume name)
  * - material name
  * - computed mass/volume/density (scaled to common units)
  * - visualization attributes (visibility, color, opacity)
+ * - pygemc descriptor fields (solid type, parameters, position, rotation, description)
  *
  * It is intentionally small and UI-oriented: it acts as the "model" part of
  * the widget, decoupled from Qt item instances.
@@ -41,8 +43,9 @@ public:
     /**
      * \brief Construct a cached record for a single geometry volume.
      *
-     * \param g4volume Pointer to the volume wrapper providing access to the
-     *        physical/logical/solid volume objects and their attributes.
+     * \param g4volume  Pointer to the volume wrapper (Geant4 solid/logical/physical).
+     * \param gvolume   Optional pointer to the GEMC volume descriptor (pygemc fields).
+     *                  May be \c nullptr for volumes without a descriptor (e.g., world volume).
      *
      * @details
      * The constructor reads:
@@ -50,11 +53,12 @@ public:
      * - The material name.
      * - Mass, volume, and density derived from the underlying geometry.
      * - Visualization color and alpha (opacity), and the visibility flag.
+     * - Solid type, parameters, position, rotation, and description from the descriptor.
      *
      * The stored "mother" name is used by GTree to reconstruct parent-child
      * relationships when building the Qt tree.
      */
-    explicit G4Ttree_item(G4Volume* g4volume);
+    explicit G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume = nullptr);
 
 private:
     /**
@@ -127,6 +131,14 @@ private:
      */
     bool recursive = false;
 
+    // pygemc descriptor fields (empty when no GVolume descriptor is available)
+    std::string solidType;       ///< Geant4 solid type string, e.g. "G4Box".
+    std::string parameters;      ///< Solid constructor parameters with units, e.g. "30*mm, 40*mm, 60*mm".
+    std::string position;        ///< Placement position with units, e.g. "0*mm, 0*mm, 50*mm".
+    std::string rotation;        ///< Placement rotation with units, e.g. "0*deg, 0*deg, 0*deg".
+    std::string motherVolume;    ///< Mother volume name as defined in pygemc.
+    std::string volDescription;  ///< Human-readable volume description.
+
 public:
     /** \brief Return the cached mother name. */
     [[nodiscard]] std::string get_mother() const { return mother; }
@@ -157,6 +169,19 @@ public:
 
     /** \brief Return the cached recursive flag. */
     [[nodiscard]] bool get_recursive() const { return recursive; }
+
+    /** \brief Return the solid type string (e.g. "G4Box"). */
+    [[nodiscard]] std::string get_solidType() const { return solidType; }
+    /** \brief Return the solid parameters string with units. */
+    [[nodiscard]] std::string get_parameters() const { return parameters; }
+    /** \brief Return the placement position string with units. */
+    [[nodiscard]] std::string get_position() const { return position; }
+    /** \brief Return the placement rotation string with units. */
+    [[nodiscard]] std::string get_rotation() const { return rotation; }
+    /** \brief Return the mother volume name. */
+    [[nodiscard]] std::string get_motherVolume() const { return motherVolume; }
+    /** \brief Return the volume description. */
+    [[nodiscard]] std::string get_volDescription() const { return volDescription; }
 
     /**
      * \brief Set the recursive flag.
@@ -248,6 +273,7 @@ public:
      */
     explicit GTree(const std::shared_ptr<GOptions>& gopt,
                    std::unordered_map<std::string, G4Volume*> g4volumes_map,
+                   std::unordered_map<std::string, const GVolume*> gvolumes_map = {},
                    QWidget* parent = nullptr);
 
     /**
@@ -272,6 +298,14 @@ private:
     std::map<std::string, g4tree_map> g4_systems_tree; // map of systems
 
     /**
+     * \brief Flat map of GEMC volume descriptors keyed by G4 name.
+     *
+     * Used during tree construction to attach pygemc fields (solid type,
+     * parameters, position, rotation, mother, description) to each tree item.
+     */
+    std::unordered_map<std::string, const GVolume*> gvolumes_map;
+
+    /**
      * \brief Main Qt tree view widget (three columns).
      */
     QTreeWidget* treeWidget = nullptr;
@@ -293,13 +327,19 @@ private:
     GQTButtonsWidget* styleButtons;  // left bar buttons
 
     // info labels inside bottomPanel
-    QLabel* typeLabel = nullptr;       ///< Selected item type ("System" or "G4 Volume").
-    QLabel* daughtersLabel = nullptr;  ///< Number of direct children in the Qt tree.
-    QLabel* nameLabel = nullptr;       ///< Display name of the selected item.
-    QLabel* materialLabel = nullptr;   ///< Material name (volume items only).
-    QLabel* massLabel = nullptr;       ///< Mass display string (volume items only).
-    QLabel* volumeLabel = nullptr;     ///< Volume display string (volume items only).
-    QLabel* densityLabel = nullptr;    ///< Density display string (volume items only).
+    QLabel* typeLabel = nullptr;         ///< Selected item type ("System" or "G4 Volume").
+    QLabel* daughtersLabel = nullptr;    ///< Number of direct children in the Qt tree.
+    QLabel* nameLabel = nullptr;         ///< Display name of the selected item.
+    QLabel* materialLabel = nullptr;     ///< Material name (volume items only).
+    QLabel* massLabel = nullptr;         ///< Mass display string (volume items only).
+    QLabel* volumeLabel = nullptr;       ///< Volume display string (volume items only).
+    QLabel* densityLabel = nullptr;      ///< Density display string (volume items only).
+    QLabel* solidTypeLabel = nullptr;    ///< Solid type, e.g. "G4Box – Simple Box".
+    QLabel* parametersLabel = nullptr;   ///< Solid parameters with units.
+    QLabel* positionLabel = nullptr;     ///< Placement position with units.
+    QLabel* rotationLabel = nullptr;     ///< Placement rotation with units.
+    QLabel* motherLabel = nullptr;       ///< Mother volume name.
+    QLabel* descriptionLabel = nullptr;  ///< Volume description.
 
     /**
      * \brief Slider controlling opacity (alpha) in [0,1] mapped from [0,100].

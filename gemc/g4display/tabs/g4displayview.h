@@ -27,7 +27,7 @@
  * - View properties such as projection mode and circle segmentation precision.
  * - Scene properties such as culling mode and background color.
  * - Cutaway plane (“slice”) controls for X/Y/Z planes, including union/intersection mode.
- * - Toggleable visualization features (hidden edges, anti-aliasing, auxiliary edges, field lines, axes, scale).
+ * - Toggleable visualization features (hidden edges, anti-aliasing, auxiliary edges, field lines).
  *
  * Implementation notes:
  * - User actions are translated into Geant4 visualization commands and sent to \c G4UImanager.
@@ -67,7 +67,7 @@ private:
 	/// Input field for the number of points used in magnetic field line visualization.
 	QLineEdit* field_npoints = nullptr;
 
-	/// Toggle button group for view/scene flags (hidden lines, AA, auxiliary edges, field lines, axes, scale).
+	/// Toggle button group for view/scene flags (hidden lines, AA, auxiliary edges, field lines).
 	GQTToggleButtonWidget* buttons_set1 = nullptr;
 
 	/// Camera direction sliders (theta, phi), expressed in degrees.
