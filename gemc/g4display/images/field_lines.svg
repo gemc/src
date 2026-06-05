@@ -1,0 +1,37 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background: fill="#aaddff" replaced at render time (none = unselected, highlight = selected) -->
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="#aaddff" stroke="currentColor" stroke-width="1"/>
+
+    <!-- Four flowing field lines with arrowheads -->
+    <!-- Line 1 -->
+    <path d="M11,13 C15,11.7 19,14.3 25,13 C31,11.7 35,14.3 38,13"
+          fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    <polyline points="35,12 38,13 35,14"
+              fill="none" stroke="currentColor" stroke-width="1.1"
+              stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- Line 2 -->
+    <path d="M11,15.5 C15,14.2 19,16.8 25,15.5 C31,14.2 35,16.8 38,15.5"
+          fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    <polyline points="35,14.5 38,15.5 35,16.5"
+              fill="none" stroke="currentColor" stroke-width="1.1"
+              stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- Line 3 -->
+    <path d="M11,18 C15,16.7 19,19.3 25,18 C31,16.7 35,19.3 38,18"
+          fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    <polyline points="35,17 38,18 35,19"
+              fill="none" stroke="currentColor" stroke-width="1.1"
+              stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- Line 4 -->
+    <path d="M11,20.5 C15,19.2 19,21.8 25,20.5 C31,19.2 35,21.8 38,20.5"
+          fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    <polyline points="35,19.5 38,20.5 35,21.5"
+              fill="none" stroke="currentColor" stroke-width="1.1"
+              stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Label row 1 -->
+    <text x="24" y="31" font-size="7.5" text-anchor="middle"
+          font-family="Arial" fill="currentColor" font-weight="500">Field</text>
+    <!-- Label row 2 -->
+    <text x="24" y="38" font-size="7.5" text-anchor="middle"
+          font-family="Arial" fill="currentColor" font-weight="500">Lines</text>
+</svg>

@@ -188,18 +188,11 @@ GQTToggleButtonWidget::GQTToggleButtonWidget(int buttonWidth, int buttonHeight, 
 		button->setCheckable(true);
 		button->setFixedSize(buttonWidth, buttonHeight);
 
-		// Style: rounded corners, bold text, and different background when checked.
-		button->setStyleSheet(QString(
-			"QPushButton {"
-			"    border-radius: %1px;"
-			"    border: 2px solid black;"
-			"    background-color: rgba(255, 0, 0, 150);"
-			"    font-weight: bold;"
-			"}"
-			"QPushButton:checked {"
-			"    background-color: rgba(0, 255, 0, 150);"
-			"}"
-		).arg(borderRadius));
+		// SVG handles all visual states (frame, highlight, text color); no CSS decoration needed.
+		button->setStyleSheet(
+			"QPushButton { border: none; background-color: transparent; padding: 0; margin: 0; }"
+			"QPushButton:checked { background-color: transparent; }"
+		);
 
 		layout->addWidget(button);
 		buttons.push_back(button);
@@ -207,6 +200,9 @@ GQTToggleButtonWidget::GQTToggleButtonWidget(int buttonWidth, int buttonHeight, 
 		// Use a lambda to bind each button click to its index.
 		connect(button, &QPushButton::clicked, this, [this, i]() {
 			this->setButtonPressed(i);
+		});
+		connect(button, &QPushButton::toggled, this, [this]() {
+			refresh_svg_icons();
 		});
 	}
 	setLayout(layout);
@@ -243,4 +239,60 @@ void GQTToggleButtonWidget::reset_buttons() {
 	for (auto& b : buttons) {
 		b->setChecked(false);
 	}
+}
+
+void GQTToggleButtonWidget::setSvgButtonIcon(int index, const QString& svgResourcePath, const QSize& iconSize) {
+	if (index < 0 || index >= static_cast<int>(buttons.size())) { return; }
+
+	// Grow the svgIcons table to cover this index.
+	while (svgIcons.size() <= index) { svgIcons.append(SvgIcon{}); }
+
+	const QSize sz = iconSize.isValid() ? iconSize
+	               : QSize(buttons[index]->width() - 6, buttons[index]->height() - 6);
+	svgIcons[index] = SvgIcon{ svgResourcePath, sz };
+	refresh_svg_icons();
+}
+
+void GQTToggleButtonWidget::refresh_svg_icons() {
+	const QColor windowText = palette().color(QPalette::WindowText);
+	const QColor hlText     = palette().color(QPalette::HighlightedText);
+	const QColor hlBg       = palette().color(QPalette::Highlight);
+
+	for (int i = 0; i < svgIcons.size(); ++i) {
+		const SvgIcon& entry = svgIcons[i];
+		if (entry.path.isEmpty() || i >= static_cast<int>(buttons.size())) { continue; }
+
+		QFile f(entry.path);
+		if (!f.open(QIODevice::ReadOnly)) { continue; }
+
+		const bool    checked = buttons[i]->isChecked();
+		const QColor  fg      = checked ? hlText : windowText;
+		const QString bg      = checked ? hlBg.name(QColor::HexRgb) : "none";
+
+		QString svg = QString::fromUtf8(f.readAll());
+		svg.replace("width=\"48\" height=\"48\"",
+		            QString("width=\"%1\" height=\"%2\"").arg(entry.size.width()).arg(entry.size.height()));
+		svg.replace("currentColor", fg.name(QColor::HexRgb));
+		svg.replace("#aaddff", bg, Qt::CaseInsensitive);
+
+		QPixmap pix;
+		if (pix.loadFromData(svg.toUtf8(), "SVG")) {
+			buttons[i]->setIcon(QIcon(pix));
+			buttons[i]->setIconSize(entry.size);
+		}
+	}
+}
+
+void GQTToggleButtonWidget::changeEvent(QEvent* event) {
+	QWidget::changeEvent(event);
+	if (event->type() == QEvent::PaletteChange      ||
+	    event->type() == QEvent::ApplicationPaletteChange ||
+	    event->type() == QEvent::StyleChange) {
+		refresh_svg_icons();
+	}
+}
+
+void GQTToggleButtonWidget::showEvent(QShowEvent* event) {
+	QWidget::showEvent(event);
+	refresh_svg_icons();
 }

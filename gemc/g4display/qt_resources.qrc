@@ -1,6 +1,9 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource>
-        <file>images/hidden_lines.png</file>
+        <file>images/hidden_lines.svg</file>
+        <file>images/anti_aliasing.svg</file>
+        <file>images/auxiliary_edges.svg</file>
+        <file>images/field_lines.svg</file>
     </qresource>
 </RCC>

@@ -1,0 +1,27 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background: fill="#aaddff" replaced at render time (none = unselected, highlight = selected) -->
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="#aaddff" stroke="currentColor" stroke-width="1"/>
+
+    <!-- Cylinder outline (main visible edges) -->
+    <ellipse cx="24" cy="14" rx="11" ry="2"
+             fill="none" stroke="currentColor" stroke-width="1.5"/>
+    <line x1="13" y1="14" x2="13" y2="21"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="35" y1="14" x2="35" y2="21"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <ellipse cx="24" cy="21" rx="11" ry="2"
+             fill="none" stroke="currentColor" stroke-width="1.5"/>
+
+    <!-- Auxiliary edge rings — normally hidden on curved surfaces -->
+    <ellipse cx="24" cy="16.3" rx="11" ry="2"
+             fill="none" stroke="currentColor" stroke-width="1" opacity="0.65"/>
+    <ellipse cx="24" cy="18.7" rx="11" ry="2"
+             fill="none" stroke="currentColor" stroke-width="1" opacity="0.65"/>
+
+    <!-- Label row 1 -->
+    <text x="24" y="31" font-size="7.5" text-anchor="middle"
+          font-family="Arial" fill="currentColor" font-weight="500">Auxiliary</text>
+    <!-- Label row 2 -->
+    <text x="24" y="38" font-size="7.5" text-anchor="middle"
+          font-family="Arial" fill="currentColor" font-weight="500">Edges</text>
+</svg>

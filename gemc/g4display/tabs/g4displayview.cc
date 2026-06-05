@@ -75,14 +75,20 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	cloudPoints = g4view.cloudPoints;
 
 	// Toggle buttons for common viewer/scene flags.
+	// Button 0 uses an SVG icon (set below); its title is left empty so only the SVG is shown.
 	vector<string> toggle_button_titles;
-	toggle_button_titles.emplace_back("Hidden\nLines");
-	toggle_button_titles.emplace_back("Anti\nAliasing");
-	toggle_button_titles.emplace_back("Auxiliary\nEdges");
-	toggle_button_titles.emplace_back("Field\nLines");
+	toggle_button_titles.emplace_back("");
+	toggle_button_titles.emplace_back("");
+	toggle_button_titles.emplace_back("");
+	toggle_button_titles.emplace_back("");
 
-	buttons_set1 = new GQTToggleButtonWidget(80, 80, 20, toggle_button_titles, false, this);
+	buttons_set1 = new GQTToggleButtonWidget(120, 120, 0, toggle_button_titles, false, this);
 	connect(buttons_set1, &GQTToggleButtonWidget::buttonPressedIndexChanged, this, &G4DisplayView::apply_buttons_set1);
+
+	buttons_set1->setSvgButtonIcon(0, ":/images/hidden_lines.svg",    QSize(120, 120));
+	buttons_set1->setSvgButtonIcon(1, ":/images/anti_aliasing.svg",   QSize(120, 120));
+	buttons_set1->setSvgButtonIcon(2, ":/images/auxiliary_edges.svg", QSize(120, 120));
+	buttons_set1->setSvgButtonIcon(3, ":/images/field_lines.svg",     QSize(120, 120));
 
 	// Preset angle sets used by camera and light dropdowns.
 	QStringList theta_angle_Set;

@@ -279,6 +279,19 @@ public:
 	 */
 	void reset_buttons();
 
+	/**
+	 * \brief Assign an SVG resource to a button so it re-renders on every palette/theme change.
+	 *
+	 * The SVG must use \c currentColor for all strokes and fills; the widget substitutes the
+	 * active palette's \c WindowText color each time the palette or style changes, keeping icons
+	 * readable in both light and dark mode.
+	 *
+	 * \param index           Index of the button to update. Out-of-range values are ignored.
+	 * \param svgResourcePath Qt resource path, e.g. \c ":/images/hidden_lines.svg".
+	 * \param iconSize        Rendered size. Defaults to the button's fixed size minus 6 px padding.
+	 */
+	void setSvgButtonIcon(int index, const QString& svgResourcePath, const QSize& iconSize = QSize());
+
 signals:
 	/**
 	 * \brief Emitted whenever the last pressed button index changes.
@@ -287,9 +300,18 @@ signals:
 	 */
 	void buttonPressedIndexChanged(int index);
 
+protected:
+	void changeEvent(QEvent* event) override;
+	void showEvent(QShowEvent* event) override;
+
 private:
+	struct SvgIcon { QString path; QSize size; };
+
 	int                   buttonPressedIndex; ///< Index of the last clicked button (\c -1 if none clicked yet).
 	QVector<QPushButton*> buttons;            ///< Storage of button pointers in construction order.
+	QVector<SvgIcon>      svgIcons;           ///< Per-button SVG resource path and render size (empty path = none).
+
+	void refresh_svg_icons(); ///< Re-render all SVG icons using the current palette.
 
 private slots:
 	/**
