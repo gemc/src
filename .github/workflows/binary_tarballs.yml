@@ -9,18 +9,17 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
-  group: gemc-binary-tarballs-${{ github.event.workflow_run.id || github.ref }}
+  group: gemc-binary-tarballs-${{ github.event.workflow_run.id }}
   cancel-in-progress: true
 
 on:
   workflow_run:
-    workflows: [ "Deploy and Test" ]
+    workflows: [ "Deploy" ]
     types: [ completed ]
-  workflow_dispatch:
 
 jobs:
   release-tarballs:
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'pull_request' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Attach GEMC tarballs to dev release
     runs-on: ubuntu-latest
     env:
@@ -50,11 +49,15 @@ jobs:
             exit 1
           fi
           gh release view "${TAG_NAME}" --repo "$REPO" >/dev/null 2>&1 || \
-            gh release create "${TAG_NAME}" --repo "$REPO" --title "Dev Nightly" --prerelease --notes "Dev nightly release."
+            gh release create "${TAG_NAME}" \
+              --repo "$REPO" \
+              --title "Dev Nightly" \
+              --prerelease \
+              --notes "Dev nightly release."
           gh release upload "${TAG_NAME}" --repo "$REPO" "${tarballs[@]}" --clobber
 
   discover:
-    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event != 'pull_request') }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Create Job Matrix
     runs-on: ubuntu-latest
     outputs:
@@ -62,12 +65,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       - id: scan
         name: Build matrix
         run: ./ci/distros_tags.sh
 
   test-tarball:
-    if: ${{ always() && needs.discover.result == 'success' && (github.event_name != 'workflow_run' || needs.release-tarballs.result == 'success') }}
+    if: ${{ always() && needs.discover.result == 'success' && needs.release-tarballs.result == 'success' }}
     name: ${{ matrix.image }}:${{ matrix.image_tag }} ${{ matrix.arch }}
     needs: [ discover, release-tarballs ]
     runs-on: ${{ matrix.runner }}
@@ -122,7 +127,8 @@ jobs:
       - name: Test GEMC binary tarball installation
         shell: bash
         run: |
-          archive="gemc-${{ matrix.gemc_tag }}-geant4-${{ matrix.geant4_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-${{ matrix.arch }}.tar.gz"
+          archive="gemc-${{ matrix.gemc_tag }}-geant4-${{ matrix.geant4_tag }}"
+          archive="${archive}-${{ matrix.image }}-${{ matrix.image_tag }}-${{ matrix.arch }}.tar.gz"
           url="https://github.com/gemc/src/releases/download/${{ matrix.gemc_tag }}/${archive}"
 
           docker run --rm \

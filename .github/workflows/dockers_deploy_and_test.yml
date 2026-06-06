@@ -1,5 +1,5 @@
-# Build & Publish GitHub Container Registry (GHCR) Images
-name: Deploy and Test
+# Build and publish GitHub Container Registry (GHCR) images after tests pass.
+name: Deploy
 permissions:
   contents: write
   packages: write
@@ -11,41 +11,28 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
-  group: gemc-images-${{ github.ref }}
+  group: gemc-deploy-${{ github.event.workflow_run.id }}
   cancel-in-progress: true
 
 on:
-  # Allows this workflow to be triggered from other repositories (e.g. pygemc)
-  workflow_dispatch:
-
-  pull_request:
-    paths-ignore:
-      - "**/README*"
-      - "**/LICENSE*"
-      - "**/CODE_OF_CONDUCT.md"
-      - "**/CONTRIBUTING.md"
-      - "**/SECURITY.md"
-  merge_group:
-  push:
-    branches: [ main ]
-    tags: [ '*' ]
-    paths-ignore:
-      - "**/*.md"
-      - "**/README*"
-      - "**/CODE_OF_CONDUCT.md"
-      - "**/CONTRIBUTING.md"
-      - "**/SECURITY.md"
-      - "releases/**"
-      - "doc/**"
+  workflow_run:
+    workflows: [ "Test" ]
+    types: [ completed ]
 
 jobs:
   overview:
-    if: ${{ github.event_name != 'pull_request' }}
+    if: >-
+      ${{
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push'
+      }}
     name: Workflow Overview
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Write overview
         shell: bash
@@ -54,7 +41,11 @@ jobs:
           bash ci/summary.sh "$GITHUB_STEP_SUMMARY"
 
   discover:
-    if: ${{ github.event_name != 'pull_request' }}
+    if: >-
+      ${{
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push'
+      }}
     name: Create Job Matrices
     runs-on: ubuntu-latest
     outputs:
@@ -64,6 +55,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
       - id: scan
         name: Build matrix
         run: ci/distros_tags.sh
@@ -71,7 +64,6 @@ jobs:
   # arch build jobs
   # uses matrix_build
   build_arch:
-    if: ${{ github.event_name != 'pull_request' }}
     name: ${{ matrix.image }}/${{ matrix.image_tag }} ${{ matrix.arch }}
     needs: [ overview, discover ]
     runs-on: ${{ matrix.runner }}
@@ -88,6 +80,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
 
       - name: Free up disk space
         uses: ./.github/actions/free-disk-space
@@ -114,7 +109,7 @@ jobs:
             type=raw,value=${{ env.TAG4 }}
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
-            org.opencontainers.image.description=GEMC ${{ matrix.gemc_tag }} on ${{ matrix.image }}:${{ matrix.image_tag }} (${{ matrix.arch }})
+            org.opencontainers.image.description=GEMC ${{ matrix.gemc_tag }} ${{ matrix.arch }}
 
       - name: Generate Dockerfile
         run: |
@@ -124,13 +119,10 @@ jobs:
           --gemc-version "${{ matrix.gemc_tag || env.GEMC_TAG }}" \
           --geant4-version "${{ matrix.geant4_tag || env.GEANT4_TAG }}" \
           --with-package \
+          --source context \
           --package-arch "${{ matrix.arch }}" \
           > Dockerfile.generated
           cat Dockerfile.generated
-
-      # later pass it in the step below so that it's executed for every commit
-      - name: Get upstream commit
-        run: echo "UPSTREAM_REV=$(git ls-remote https://github.com/gemc/src HEAD | cut -f1)" >> $GITHUB_ENV
 
       - name: Build & Push
         uses: docker/build-push-action@v7
@@ -139,8 +131,6 @@ jobs:
           pull: true
           # force a full rebuild regardless of any local cache from previous workflow runs
           no-cache: true
-          build-args: |
-            UPSTREAM_REV=${{ env.UPSTREAM_REV }}
           context: .
           file: ./Dockerfile.generated
           target: final
@@ -205,7 +195,6 @@ jobs:
   # docker buildx imagetools create: assembles an OCI manifest list
   # from already-pushed per-arch image tags.
   manifest:
-    if: ${{ github.event_name != 'pull_request' }}
     name: ${{ matrix.image }}/${{ matrix.image_tag }}
     needs: [ build_arch, discover ]
     runs-on: ubuntu-latest
@@ -218,6 +207,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Log in to GHCR
         uses: docker/login-action@v4
@@ -281,3 +272,24 @@ jobs:
           name: summary-${{ env.TAG4 }}-manifest
           path: ${{ env.MANIFEST_SUMMARY_FILE }}
           if-no-files-found: warn
+
+  final:
+    name: Deploy - summary
+    if: >-
+      ${{
+        always() &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push'
+      }}
+    needs: [ build_arch, manifest ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any required job failed
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+        run: |
+          echo "### Some GEMC deploy jobs failed or were cancelled." >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+
+      - name: Pass
+        run: |
+          echo "### GEMC deploy workflow passed." >> "$GITHUB_STEP_SUMMARY"

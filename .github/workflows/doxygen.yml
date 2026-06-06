@@ -11,11 +11,7 @@ on:
     branches:
       - '*'
     paths-ignore:
-      - "**/README*"
-      - "**/LICENSE*"
-      - "**/CODE_OF_CONDUCT.md"
-      - "**/CONTRIBUTING.md"
-      - "**/SECURITY.md"
+      - "**/*.md"
   workflow_dispatch:
 
 jobs:

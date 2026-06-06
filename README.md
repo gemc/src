@@ -284,6 +284,9 @@ The CI system also builds Docker images, runs the Meson test suite, runs sanitiz
 - [User documentation](https://gemc.github.io/home/documentation/)
 - [Examples](https://gemc.github.io/home/examples/)
 - [Doxygen workflow](https://github.com/gemc/src/actions/workflows/doxygen.yml)
+- [Python geometry API repository](https://github.com/gemc/pygemc)
+- [CLAS12 GEMC systems repository](https://github.com/gemc/clas12-systems)
+- [Documentation website repository](https://github.com/gemc/home)
 - [GEMC2 / CLAS12 repository](https://github.com/gemc/clas12Tags)
 
 This repository is GEMC version 3 and newer. CLAS12 GEMC2 simulations are maintained separately in `gemc/clas12Tags`.
