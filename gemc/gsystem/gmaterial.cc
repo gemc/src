@@ -136,8 +136,6 @@ void GMaterial::getMaterialPropertyFromString(const std::string &parameter, cons
 			slowtimeconstant = gutilities::getG4Number(trimmedComponent);
 		} else if (propertyName == "yieldratio") {
 			yieldratio = gutilities::getG4Number(trimmedComponent);
-		} else if (propertyName == "birkConstant") {
-			birksConstant = gutilities::getG4Number(trimmedComponent);
 		} else if (propertyName == "rayleigh") {
 			rayleigh.push_back(gutilities::getG4Number(trimmedComponent));
 		}
