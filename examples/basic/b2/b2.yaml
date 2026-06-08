@@ -20,8 +20,8 @@ phys_list: FTFP_BERT
 
 gparticle:
   - name: proton
-    p: 3000
-    vz: -250
+    p: 3000*MeV
+    vz: -250*cm
 
 gmultipoles:
   - name: dipole

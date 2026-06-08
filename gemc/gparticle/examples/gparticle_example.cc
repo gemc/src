@@ -12,7 +12,7 @@
  *
  * Usage example (shell):
  * @code
- * ./gparticle_example -gparticle="[{name: e-, p: 5000, punit: MeV}]"
+ * ./gparticle_example -gparticle="[{name: e-, p: 5000*MeV, theta: 23*deg}]"
  * @endcode
  *
  * Notes:

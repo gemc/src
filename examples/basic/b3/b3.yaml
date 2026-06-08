@@ -5,10 +5,10 @@ nthreads: 4
 
 gparticle:
   - name: e-
-    p: 1500
-    theta: 23.0
-    delta_theta: 4.0
-    delta_phi: 18.0
+    p: 1500*MeV
+    theta: 23*deg
+    delta_theta: 4*deg
+    delta_phi: 18*deg
     multiplicity: 1
 
 

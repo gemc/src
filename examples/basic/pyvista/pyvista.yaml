@@ -14,8 +14,8 @@ phys_list: QBBC
 
 gparticle:
   - name: proton
-    p: 1000
-    vz: -5
-    delta_vx: 0.5
-    delta_vy: 0.5
+    p: 1000*MeV
+    vz: -5*cm
+    delta_vx: 0.5*cm
+    delta_vy: 0.5*cm
     multiplicity: 5

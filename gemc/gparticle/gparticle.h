@@ -89,34 +89,32 @@ class Gparticle
 {
 public:
 	/**
-	 * \brief Constructs a particle configuration from user-facing parameters.
+	 * \brief Constructs a particle configuration from pre-converted G4-unit values.
 	 *
-	 * This constructor converts user-facing numeric values paired with unit strings
-	 * into internal numeric values (in the unit system returned by gutilities helpers),
-	 * and converts randomization model strings into gutilities::randomModel values.
+	 * All numeric parameters must already be in Geant4 internal units (MeV for
+	 * momentum, radians for angles, mm for lengths) as returned by
+	 * \c gutilities::getG4Number().  Callers — typically option parsers or file
+	 * readers — are responsible for the conversion.
 	 *
 	 * The particle PDG id is resolved at construction time by consulting the
 	 * \c G4ParticleTable using the provided particle name.
 	 *
 	 * \param name Particle name as understood by \c G4ParticleTable (e.g. \c "e-").
 	 * \param multiplicity Number of particles to shoot per event.
-	 * \param p Nominal momentum magnitude (interpreted together with @p punit).
-	 * \param delta_p Spread parameter for momentum randomization (interpreted with @p punit).
-	 * \param punit Unit string used to interpret @p p and @p delta_p (e.g. \c "MeV", \c "GeV").
+	 * \param p Nominal momentum magnitude in G4 internal units (MeV).
+	 * \param delta_p Spread parameter for momentum randomization (same units as @p p).
 	 * \param randomMomentumModel Random model name for momentum (e.g. \c "uniform", \c "gaussian").
-	 * \param theta Nominal polar angle (interpreted together with @p aunit).
-	 * \param delta_theta Spread parameter for theta (interpreted with @p aunit).
+	 * \param theta Nominal polar angle in G4 internal units (radians).
+	 * \param delta_theta Spread parameter for theta (same units as @p theta).
 	 * \param thetaModel Random model name for theta (e.g. \c "uniform", \c "cosine", \c "gaussian").
-	 * \param phi Nominal azimuthal angle (interpreted together with @p aunit).
-	 * \param delta_phi Spread parameter for phi (interpreted with @p aunit).
-	 * \param aunit Unit string used to interpret angles (typically \c "deg" or \c "rad").
-	 * \param avx Nominal vertex x component (interpreted together with @p vunit).
-	 * \param avy Nominal vertex y component (interpreted together with @p vunit).
-	 * \param avz Nominal vertex z component (interpreted together with @p vunit).
-	 * \param adelta_vx Spread parameter for vertex x (interpreted with @p vunit).
-	 * \param adelta_vy Spread parameter for vertex y (interpreted with @p vunit).
-	 * \param adelta_vz Spread parameter for vertex z (interpreted with @p vunit).
-	 * \param vunit Unit string used to interpret vertex components (e.g. \c "cm", \c "mm").
+	 * \param phi Nominal azimuthal angle in G4 internal units (radians).
+	 * \param delta_phi Spread parameter for phi (same units as @p phi).
+	 * \param avx Nominal vertex x component in G4 internal units (mm).
+	 * \param avy Nominal vertex y component in G4 internal units (mm).
+	 * \param avz Nominal vertex z component in G4 internal units (mm).
+	 * \param adelta_vx Spread parameter for vertex x (same units as @p avx).
+	 * \param adelta_vy Spread parameter for vertex y (same units as @p avy).
+	 * \param adelta_vz Spread parameter for vertex z (same units as @p avz).
 	 * \param randomVertexModel Random model name for vertex (e.g. \c "uniform", \c "gaussian", \c "sphere").
 	 * \param logger Logger used for diagnostics and error reporting.
 	 * \param generator_type Generator source type associated with this particle. Inline
@@ -128,21 +126,18 @@ public:
 			  int                             multiplicity,
 			  double                          p,
 			  double                          delta_p,
-			  const std::string&              punit,
 			  const std::string&              randomMomentumModel,
 			  double                          theta,
 			  double                          delta_theta,
 			  const std::string&              thetaModel,
 			  double                          phi,
 			  double                          delta_phi,
-			  const std::string&              aunit,
 			  double                          avx,
 			  double                          avy,
 			  double                          avz,
 			  double                          adelta_vx,
 			  double                          adelta_vy,
 			  double                          adelta_vz,
-			  const std::string&              vunit,
 			  const std::string&              randomVertexModel,
 			  const std::shared_ptr<GLogger>& logger,
 			  int                             generator_type = 1);
@@ -200,23 +195,20 @@ public:
 		return std::make_shared<Gparticle>(
 										   "e-",
 										   1,
-										   1,
-										   0,
-										   "GeV",
-										   "uniform",
-										   0,
+										   gutilities::getG4Number("1*GeV"),
 										   0,
 										   "uniform",
 										   0,
 										   0,
-										   "deg",
+										   "uniform",
 										   0,
 										   0,
 										   0,
 										   0,
 										   0,
 										   0,
-										   "cm",
+										   0,
+										   0,
 										   "uniform",
 										   log
 										  );

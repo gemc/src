@@ -27,8 +27,8 @@ g4camera:
 
 gparticle:
   - name: gamma
-    p: 6
-    vz: -15
-    delta_vx: 4
-    delta_vy: 4
+    p: 6*MeV
+    vz: -15*cm
+    delta_vx: 4*cm
+    delta_vy: 4*cm
     multiplicity: 1

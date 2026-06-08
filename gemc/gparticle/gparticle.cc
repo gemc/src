@@ -3,18 +3,13 @@
 
 // gparticle
 #include "gparticle.h"
-#include "gparticle_options.h"
-
-// gemc
 #include "gparticleConventions.h"
 
 // geant4
 #include "G4ParticleTable.hh"
 #include "Randomize.hh"
 
-using std::to_string;
 using std::ostream;
-using std::endl;
 using std::string;
 
 // Constructor based on parameters.
@@ -23,46 +18,34 @@ Gparticle::Gparticle(const std::string&              aname,
 					 int                             amultiplicity,
 					 double                          ap,
 					 double                          adelta_p,
-					 const std::string&              punit,
 					 const std::string&              arandomMomentumModel,
 					 double                          atheta,
 					 double                          adelta_theta,
 					 const std::string&              arandomThetaModel,
 					 double                          aphi,
 					 double                          adelta_phi,
-					 const std::string&              aunit,
 					 double                          avx,
 					 double                          avy,
 					 double                          avz,
 					 double                          adelta_vx,
 					 double                          adelta_vy,
 					 double                          adelta_vz,
-					 const std::string&              vunit,
 					 const std::string&              arandomVertexModel,
 					 const std::shared_ptr<GLogger>& logger,
 					 int                             agenerator_type) :
 	name(aname),
 	generator_type(agenerator_type),
 	multiplicity(amultiplicity),
-	// Convert user values + unit strings into Geant4 numeric values through gutilities.
-	p(gutilities::getG4Number(to_string(ap) + "*" + punit)),
-	delta_p(gutilities::getG4Number(to_string(adelta_p) + "*" + punit)),
+	p(ap),
+	delta_p(adelta_p),
 	randomMomentumModel(gutilities::stringToRandomModel(arandomMomentumModel)),
-	theta(gutilities::getG4Number(to_string(atheta) + "*" + aunit)),
-	delta_theta(gutilities::getG4Number(to_string(adelta_theta) + "*" + aunit)),
+	theta(atheta),
+	delta_theta(adelta_theta),
 	randomThetaModel(gutilities::stringToRandomModel(arandomThetaModel)),
-	phi(gutilities::getG4Number(to_string(aphi) + "*" + aunit)),
-	delta_phi(gutilities::getG4Number(to_string(adelta_phi) + "*" + aunit)),
-	v(G4ThreeVector(
-					gutilities::getG4Number(to_string(avx) + "*" + vunit),
-					gutilities::getG4Number(to_string(avy) + "*" + vunit),
-					gutilities::getG4Number(to_string(avz) + "*" + vunit)
-				   )),
-	delta_v(G4ThreeVector(
-						  gutilities::getG4Number(to_string(adelta_vx) + "*" + vunit),
-						  gutilities::getG4Number(to_string(adelta_vy) + "*" + vunit),
-						  gutilities::getG4Number(to_string(adelta_vz) + "*" + vunit)
-						 )),
+	phi(aphi),
+	delta_phi(adelta_phi),
+	v(G4ThreeVector(avx, avy, avz)),
+	delta_v(G4ThreeVector(adelta_vx, adelta_vy, adelta_vz)),
 	randomVertexModel(gutilities::stringToRandomModel(arandomVertexModel)),
 	log(logger) {
 	// Resolve PDG id immediately so errors are detected early and configuration printing is complete.
