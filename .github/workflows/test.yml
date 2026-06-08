@@ -16,26 +16,17 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  workflow_dispatch:
   pull_request:
     paths-ignore:
       - "**/*.md"
-      - "**/README*"
-      - "**/LICENSE*"
-      - "**/CODE_OF_CONDUCT.md"
-      - "**/CONTRIBUTING.md"
-      - "**/SECURITY.md"
+
   merge_group:
   push:
     branches: [ main ]
     tags: [ '*' ]
     paths-ignore:
       - "**/*.md"
-      - "**/README*"
-      - "**/CODE_OF_CONDUCT.md"
-      - "**/CONTRIBUTING.md"
-      - "**/SECURITY.md"
-      - "releases/**"
-      - "doc/**"
 
 jobs:
   discover:

@@ -9,6 +9,9 @@
 #include <dlfcn.h>
 
 // c++
+#include <cstdlib>
+#include <filesystem>
+#include <sstream>
 #include <sys/stat.h> // to check if file exists
 #include <string>
 
@@ -83,6 +86,24 @@ public:
 		log->debug(CONSTRUCTOR, "Instantiating ", path);
 		log->debug(NORMAL, "Trying ", dlFileName);
 
+		// Try GEMC_PLUGIN_PATH directories before falling back to gemc installation paths.
+		if (!doesFileExists(dlFileName)) {
+			log->debug(NORMAL, dlFileName, " not found...");
+
+			if (const char* envPath = std::getenv("GEMC_PLUGIN_PATH")) {
+				std::istringstream ss(envPath);
+				std::string        dir;
+				while (std::getline(ss, dir, ':')) {
+					const std::string candidate = dir + "/" + path;
+					if (doesFileExists(candidate)) {
+						dlFileName = candidate;
+						break;
+					}
+				}
+			}
+			log->debug(NORMAL, "Trying ", dlFileName);
+		}
+
 		// Try installation path + "/lib" if not found at the provided location.
 		if (!doesFileExists(dlFileName)) {
 			log->debug(NORMAL, dlFileName, " not found...");
@@ -113,7 +134,14 @@ public:
 			}
 			else { log->info(1, "Loaded ", dlFileName); }
 		}
-		else { log->error(ERR_DLNOTFOUND, "could not find ", dlFileName); }
+		else {
+				const char* envPath = std::getenv("GEMC_PLUGIN_PATH");
+				log->error(ERR_DLNOTFOUND,
+				           "could not find ", dlFileName, "\n",
+				           "  GEMC_PLUGIN_PATH = ", (envPath ? envPath : "(not set)"), "\n",
+				           "  Hint: set GEMC_PLUGIN_PATH or use -plugin_path=<dir> to the directory ",
+				           "containing *.gplugin files.");
+			}
 	}
 
 	/**

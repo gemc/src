@@ -174,6 +174,13 @@ assimp_dep = assimp_proj.dependency('assimp')
 yaml_cpp_proj = cmake.subproject('yaml-cpp', options : cmake_opts)
 yaml_cpp_dep = yaml_cpp_proj.dependency('yaml-cpp')
 
+# yaml-cpp headers are part of gemc's public API (goption.h includes yaml-cpp/yaml.h)
+# so they must be installed alongside the gemc headers.
+install_subdir(
+    meson.project_source_root() / 'subprojects' / 'yaml-cpp' / 'include' / 'yaml-cpp',
+    install_dir : get_option('includedir'),
+)
+
 # sanitizer settings
 project_test_env = environment()
 project_test_env.set(

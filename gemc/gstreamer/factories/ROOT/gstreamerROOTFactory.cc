@@ -74,6 +74,7 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTr
 const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateTrueInfoDataTree(
 	const std::string&   detectorName,
 	const GTrueInfoData* gdata) {
+	rootfile->cd();
 	std::string treeName = TRUEINFONAMEPREFIX + detectorName;
 
 	auto& treePtr = gRootTrees[treeName];
@@ -90,6 +91,7 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateTrueInfo
 const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateDigitizedDataTree(
 	const std::string&    detectorName,
 	const GDigitizedData* gdata) {
+	rootfile->cd();
 	std::string treeName = DIGITIZEDNAMEPREFIX + detectorName;
 
 	auto& treePtr = gRootTrees[treeName];
@@ -104,6 +106,7 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateDigitize
 const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateGeneratedParticleTree(
 	const std::string& treeName,
 	const GGeneratedParticleBank& particles) {
+	rootfile->cd();
 	auto& treePtr = gRootTrees[treeName];
 	if (!treePtr) {
 		log->info(2, "GstreamerRootFactory", "Creating generated-particle ROOT tree for ", treeName);

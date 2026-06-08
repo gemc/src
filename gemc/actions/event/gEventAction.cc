@@ -2,7 +2,7 @@
 #include "../gactionConventions.h"
 
 // geant4
-#include "G4EventManager.hh"
+#include "G4Event.hh"
 #include "G4Threading.hh"
 
 // gemc
@@ -140,7 +140,9 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 			auto digi_data = digitization_routine->digitizeHit(this_hit, hitIndex);
 
 			if (collection_mode == CollectionMode::event) {
-				eventDataCollection->addDetectorDigitizedData(hcSDName, std::move(digi_data));
+				if (digi_data != nullptr) {
+					eventDataCollection->addDetectorDigitizedData(hcSDName, std::move(digi_data));
+				}
 				eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
 				has_event_mode_payload = true;
 			}

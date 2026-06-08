@@ -247,7 +247,6 @@ pkg.generate(
     version : meson.project_version(),
     libraries : all_libs,
     libraries_private : [yaml_cpp_dep, clhep_deps, geant4_core_deps, zlib_dep],
-    subdirs : 'gemc',
 )
 
 # test gemc options. Adjust root to fit the geometry

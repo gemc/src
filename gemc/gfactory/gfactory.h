@@ -13,7 +13,9 @@
  */
 
 // C++
+#include <filesystem>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -128,7 +130,7 @@ public:
 	 *
 	 * \note The manager uses the `PLUGIN_LOGGER` channel for plugin-related output.
 	 */
-	explicit GManager(const std::shared_ptr<GOptions>& gopt) : GBase(gopt, PLUGIN_LOGGER) {
+	explicit GManager(const std::shared_ptr<GOptions>& gopt) : GBase(gopt, PLUGIN_LOGGER), gopts_(gopt) {
 	}
 
 	/// No copy – the manager owns unique resources (factory objects and loaded libraries).
@@ -218,6 +220,9 @@ private:
 	/// Map from plugin key to the loaded library handle.
 	std::unordered_map<std::string, std::shared_ptr<DynamicLib>> dlMap_;
 
+	/// Options retained so registerDL can read plugin_path at load time.
+	std::shared_ptr<GOptions> gopts_;
+
 	/// Optional human-readable manager name (currently unused here).
 	std::string gname;
 };
@@ -230,14 +235,32 @@ inline void GManager::clearDLMap() noexcept {
 }
 
 inline void GManager::registerDL(std::string_view name) {
-	// Convention: plugins are packaged as "<name>.gplugin".
-	const std::string filename = std::string{name} + ".gplugin";
+	const std::string basename = std::string{name} + ".gplugin";
 
-	// Store the DynamicLib in a shared_ptr so it can be safely captured by
-	// a shared_ptr deleter in LoadAndRegisterObjectFromLibrary().
+	// Build the colon-separated search path: -plugin_path option takes
+	// precedence, then GEMC_PLUGIN_PATH env var, then CWD / system library path.
+	std::string filename = basename;
+	if (gopts_) {
+		std::string searchPath = gopts_->getScalarString("plugin_path");
+		if (searchPath.empty()) {
+			if (const char* env = std::getenv("GEMC_PLUGIN_PATH")) { searchPath = env; }
+		}
+		if (!searchPath.empty()) {
+			std::istringstream ss(searchPath);
+			std::string dir;
+			while (std::getline(ss, dir, ':')) {
+				const std::string candidate = dir + "/" + basename;
+				if (std::filesystem::exists(candidate)) {
+					filename = candidate;
+					break;
+				}
+			}
+		}
+	}
+
 	dlMap_.emplace(std::string{name},
 	               std::make_shared<DynamicLib>(log, filename));
-	log->debug(NORMAL, "Loading DL ", name);
+	log->debug(NORMAL, "Loading DL ", name, " (resolved: ", filename, ")");
 }
 
 template <class Derived>
@@ -291,5 +314,10 @@ std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view  
 		});
 	}
 
-	log->error(ERR_DLHANDLENOTFOUND, "Plugin ", name, " could not be loaded.");
+	const char* envPath = std::getenv("GEMC_PLUGIN_PATH");
+	log->error(ERR_DLHANDLENOTFOUND,
+	           "Plugin ", name, ".gplugin could not be loaded.\n",
+	           "  GEMC_PLUGIN_PATH = ", (envPath ? envPath : "(not set)"), "\n",
+	           "  Hint: set GEMC_PLUGIN_PATH or use -plugin_path=<dir> to point to the directory ",
+	           "containing *.gplugin files.");
 }
