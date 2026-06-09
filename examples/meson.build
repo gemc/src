@@ -5,16 +5,22 @@ sql_db = get_option('prefix') + '/examples/gemc.db'
 
 install_subdir(meson.current_source_dir(), install_dir : '.')
 
-# Test all solid creators
+gemc_analyzer = find_program('gemc-analyzer', dirs : [venv_bin])
+
+# Test all solid creators.
+# Optional keys:
+#   plot_var  – variable name to histogram from the digitized stream (ascii, default variation only)
+#   plot_yvsx – if true, plot avgx vs avgy from the true-info stream (ascii, default variation only)
 examples_map = {
     'basic' : {
-        'simple_flux' : { 'runs' : ['1'], 'variations' : ['default'] },
-        'b1' : { 'runs' : ['1'], 'variations' : ['default', 'test'] },
-        'b2' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] },
+        'simple_flux' : { 'runs' : ['1'], 'variations' : ['default'], 'plot_var' : 'totEdep' },
+        'b1' : { 'runs' : ['1'], 'variations' : ['default', 'test'], 'plot_var' : 'dose', 'n_events' : '50' },
+        'b2' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'], 'plot_var' : 'totEdep' },
         'b3' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] }
     },
     'optical' : {
-        'cherenkov' : { 'runs' : ['1'], 'variations' : ['default', 'mediumIndexRadiator', 'highIndexRadiator'] },
+        'cherenkov' : { 'runs' : ['1'], 'variations' : ['default', 'mediumIndexRadiator', 'highIndexRadiator'],
+                        'plot_yvsx' : true },
     }
 }
 
@@ -91,5 +97,43 @@ foreach branch : examples_map.keys()
             endforeach
 
         endforeach
+
+        # CSV output run + plot tests — one dedicated gemc run per example with a csv streamer,
+        # placed after all ascii/root runs (priority -15) so geometry is already built.
+        plot_var = config.get('plot_var', '')
+        do_yvsx  = config.get('plot_yvsx', false)
+        if plot_var != '' or do_yvsx
+            csv_base   = test_outdir + '/' + branch + '_' + example + '_csv'
+            n_events   = config.get('n_events', '')
+            n_events_arg = n_events != '' ? ['-n=' + n_events] : []
+            test('examples_run_csv_' + branch + '_' + example,
+                 gemc,
+                 args : [yaml_file,
+                         '-gsystem="[{name: ' + example + ', factory: ascii}]"',
+                         '-gstreamer="[{format: csv, filename: ' + csv_base + '}]"'] + n_events_arg,
+                 workdir : example_dir,
+                 is_parallel : false,
+                 priority : -15)
+            if plot_var != ''
+                test('examples_plot_' + branch + '_' + example,
+                     gemc_analyzer,
+                     args : [csv_base + '_t0_digitized.csv', plot_var,
+                             '--save', test_outdir + '/' + branch + '_' + example + '_plot.png'],
+                     workdir : example_dir,
+                     is_parallel : false,
+                     priority : -20)
+            endif
+            if do_yvsx
+                test('examples_plot_yvsx_' + branch + '_' + example,
+                     gemc_analyzer,
+                     args : [csv_base + '_t0_true_info.csv',
+                             '--kind', 'csv', '--data', 'true_info', '--plot', 'yvsx',
+                             '--xlim', '-55', '55', '--ylim', '-55', '55',
+                             '--save', test_outdir + '/' + branch + '_' + example + '_yvsx.png'],
+                     workdir : example_dir,
+                     is_parallel : false,
+                     priority : -20)
+            endif
+        endif
     endforeach
 endforeach

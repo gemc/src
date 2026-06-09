@@ -194,11 +194,12 @@ foreach L : LD
             example_sources = sources_and_arguments[0] + qrc_examples_compiled_sources
             arguments = sources_and_arguments[1]
 
+            example_deps = this_deps + [zlib_dep]
             exe = executable(
                 name,
                 example_sources,
                 install : true,
-                dependencies : this_deps,
+                dependencies : example_deps,
                 include_directories : all_includes + ('gemc' / this_lib_name) + additional_includes,
                 link_with : this_library_link_with,
                 # Builds the executable as a PIE (position-independent executable).

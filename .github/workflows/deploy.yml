@@ -6,8 +6,6 @@ permissions:
 
 # default versions. This is overwritten by distros_tags.sh
 env:
-  GEMC_TAG: dev           # default gemc tag
-  GEANT4_TAG: 11.4.1      # default geant4 tag
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
@@ -116,8 +114,8 @@ jobs:
           python3 ci/dockerfile_creator.py \
           -i "${{ matrix.image }}" \
           -t "${{ matrix.image_tag }}" \
-          --gemc-version "${{ matrix.gemc_tag || env.GEMC_TAG }}" \
-          --geant4-version "${{ matrix.geant4_tag || env.GEANT4_TAG }}" \
+          --gemc-version "${{ matrix.gemc_tag }}" \
+          --geant4-version "${{ matrix.geant4_tag }}" \
           --with-package \
           --source context \
           --package-arch "${{ matrix.arch }}" \
