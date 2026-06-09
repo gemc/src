@@ -111,6 +111,9 @@ public:
 	 */
 	[[nodiscard]] inline int getValue() const { return idValue; }
 
+	/// Sets the identifier value. Used by digitization plugins that recompute the wire/layer address.
+	inline void setValue(int v) { idValue = v; }
+
 private:
 	std::string idName;  ///< Identifier name (human-readable label).
 	int         idValue; ///< Identifier value (numeric discriminator).
@@ -272,6 +275,9 @@ public:
 	 * \return The identity vector as a \c std::vector of \c GIdentifier.
 	 */
 	[[nodiscard]] inline std::vector<GIdentifier> getIdentity() const { return gidentity; }
+
+	/// Overwrites the value of the identity element at \p index. Throws \c std::out_of_range if out of bounds.
+	inline void setIdentityValue(size_t index, int value) { gidentity.at(index).setValue(value); }
 
 	/**
 	 * \brief Builds a human-readable identity string from the stored identifiers.
