@@ -24,7 +24,9 @@
 
 int main(int argc, char* argv[]) {
 
-	auto gopts = std::make_shared<GOptions>(argc, argv, gemc::defineOptions());
+	auto base_schema = gemc::defineOptions();
+	base_schema += gemc::collectPluginOptions(argc, argv);
+	auto gopts = std::make_shared<GOptions>(argc, argv, base_schema);
 	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GENERAL_LOGGER);
 
 	auto gui      = gopts->getSwitch("gui");

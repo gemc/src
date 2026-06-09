@@ -1,6 +1,20 @@
 
 ## Commits on main since 2026-05-21
 
+- 2026-06-09 **c5e743b** — fixed field options loading plugin path _(by Maurizio Ungaro)_
+- 2026-06-09 **fde83ef** — utility functions _(by Maurizio Ungaro)_
+- 2026-06-09 **9c8ddec** — documenting processGTouchableModifiersImpl _(by Maurizio Ungaro)_
+- 2026-06-08 **f6ec9c2** — added GEMC_PLUGIN_PATH and fixed case where nullptr for GDigitizedData was not picked up in gEventAction.cc _(by Maurizio Ungaro)_
+- 2026-06-08 **81da0ee** — less aggressive images cleanup and added explicit units in gparticle _(by Maurizio Ungaro)_
+- 2026-06-06 **e0aa4e4** — testing new test deploy and binary workflow _(by Maurizio Ungaro)_
+- 2026-06-06 **5cc9897** — Merge pull request #140 from Jah-yee/main _(by Mauri)_
+- 2026-06-06 **32a25c2** — fix: remove dead birkConstant branch in getMaterialPropertyFromString _(by Jah-yee)_
+- 2026-06-05 **b44333f** — added passive and active g4placements, default to active _(by Maurizio Ungaro)_
+- 2026-06-05 **1f5d536** — gui tweaks and added inspection button _(by Maurizio Ungaro)_
+- 2026-06-05 **096ce27** — replaced view buttons with svg _(by Maurizio Ungaro)_
+- 2026-06-05 **2fb4662** — added color buttons for scale and frame, and cleaned up ui _(by Maurizio Ungaro)_
+- 2026-06-05 **dd4e36f** — added description to gvolume _(by Maurizio Ungaro)_
+- 2026-06-05 **32227f9** — added center and twinkle button _(by Maurizio Ungaro)_
 - 2026-06-05 **ccd929f** — moved g4dialog at the bottom in the src _(by Maurizio Ungaro)_
 - 2026-06-05 **af0bfc3** — moved g4dialog at the bottom _(by Maurizio Ungaro)_
 - 2026-06-05 **686151c** — doxygen style was missing _(by Maurizio Ungaro)_
