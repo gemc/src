@@ -26,11 +26,11 @@
  *
  * Conceptually, this module is the bridge between:
  * - the Geant4 sensitive-detector callback interface (\c G4VSensitiveDetector), and
- * - GEMC digitization plugins (GDynamicDigitization) that decide whether to process a step, how to interpret
- *   a touchable, and what hit information (HitBitSet) is stored.
+ * - GEMC digitization plugins (GDynamicDigitization) that decide whether to process a step and how to
+ *   interpret a touchable.
  *
  * The high-level event flow is:
- * - **Event initialization**: allocate and register the hits collection, reset per-event caches, and load hit specs.
+ * - **Event initialization**: allocate and register the hits collection and reset per-event caches.
  * - **Step processing**: optionally skip steps, build one or more touchables, and create or update hits accordingly.
  * - **End of event**: finalize any per-event bookkeeping (the actual storage is handled by the Geant4 event).
  *
@@ -52,7 +52,6 @@
  * \subsection gsd_design Architecture and design notes
  *
  * **Key responsibilities**
- * - Determine the HitBitSet once per event using the digitization plugin readout specifications.
  * - Maintain a per-event list of already-seen touchables (touchableVector) to decide whether a step creates a new hit
  *   or updates an existing one.
  * - Store hits in a \c G4THitsCollection<GHit> (typedef GHitsCollection).

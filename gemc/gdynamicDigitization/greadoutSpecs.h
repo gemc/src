@@ -6,15 +6,13 @@
  *
  * GReadoutSpecs represents the (simple) electronics timing model needed by digitization:
  * a time window defines the width of one electronics time bin, and a grid start time
- * defines the phase (offset) of that binning. A HitBitSet encodes which hit information
- * is computed/stored.
+ * defines the phase (offset) of that binning.
  *
  * \note
  * This header intentionally does not declare a \c \\mainpage. Module-level documentation
  * for gdynamic digitization lives in gdynamicdigitizationDoxy.h.
  */
 
-#include <gemc/ghit/ghitConventions.h> // HitBitSet
 #include <gemc/glogging/glogger.h>
 
 #include <cmath>
@@ -22,7 +20,7 @@
 
 /**
  * \class GReadoutSpecs
- * \brief Immutable readout timing and storage specification.
+ * \brief Immutable readout timing specification.
  *
  * Instances of this class are typically constructed by digitization plugins inside
  * \ref GDynamicDigitization::defineReadoutSpecs "defineReadoutSpecs()" and then shared
@@ -40,11 +38,7 @@ private:
 	/// Time offset (origin) of the electronics time grid.
 	double gridStartTime;
 
-	/// Bitset controlling which hit information is computed/stored.
-	HitBitSet hitBitSet;
-
-	// the corresponding logical volume will its user limits to
-	// G4UserLimits(maxStep, maxStep));
+	/// Maximum step length for the associated logical volume.
 	double maxStep;
 
 public:
@@ -55,29 +49,18 @@ public:
 	 *
 	 * \param tw Electronics time window (width of one time cell).
 	 * \param gst Grid start time (time offset for binning).
-	 * \param hbs Hit bitset controlling which hit fields are stored/computed.
-	 * \param ms Max step for the logical volume
+	 * \param ms Max step for the logical volume.
 	 * \param log Logger used for informational output.
 	 */
 	GReadoutSpecs(const double                    tw,
 				  const double                    gst,
-				  const HitBitSet                 hbs,
 				  const double                    ms,
 				  const std::shared_ptr<GLogger>& log) :
 		timeWindow(tw),
 		gridStartTime(gst),
-		hitBitSet(hbs),
 		maxStep(ms) {
-		log->info(1, "GReadoutSpecs: timeWindow=", timeWindow, ", gridStartTime=", gridStartTime, ", hitBitSet=",
-				  hitBitSet);
+		log->info(1, "GReadoutSpecs: timeWindow=", timeWindow, ", gridStartTime=", gridStartTime);
 	}
-
-	/**
-	 * \brief Returns the configured hit bitset.
-	 *
-	 * \return The HitBitSet that defines what hit information is stored.
-	 */
-	[[nodiscard]] inline HitBitSet getHitBitSet() const { return hitBitSet; }
 
 	[[nodiscard]] inline double getMaxStep() const { return maxStep; }
 

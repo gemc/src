@@ -28,9 +28,6 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc) {
 	std::string sdName = GetName();
 	log->info(1, FUNCTION_NAME, sdName);
 
-	// Hit content definition is read once per event from the digitization routine.
-	gHitBitSet = digitization_routine->readoutSpecs->getHitBitSet();
-
 	// Clearing touchableVector at the start of the event (per-event hit identity cache).
 	touchableVector.clear();
 	GHit::clearTrackVertexCache();
@@ -70,22 +67,18 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 	          " with ", std::to_string(thisStepProcessedTouchables.size()), " touchable(s), edep: ",
 	          std::to_string(depe), ", Hit collection size: ", hcsize);
 
-	// If a new touchable is created, create a new GHit.
-	// Otherwise, retrieve the existing hit and append step information according to gHitBitSet.
 	for (auto thisGTouchable : thisStepProcessedTouchables) {
 		// Track id is attached to the touchable to keep hit identity consistent across updates.
 		thisGTouchable->assignTrackId(thisStep->GetTrack()->GetTrackID());
 		thisGTouchable->assignPId(thisStep->GetTrack()->GetDefinition()->GetPDGEncoding());
 
 		if (isThisANewTouchable(thisGTouchable)) {
-			// New hit: constructor fills initial step information based on gHitBitSet.
-			gHitsCollection->insert(new GHit(thisGTouchable, gHitBitSet, thisStep));
+			gHitsCollection->insert(new GHit(thisGTouchable, thisStep));
 		}
 		else {
-			// Existing hit: locate it and add additional information from this step according to gHitBitSet.
 			GHit* existingHit = getHitInHitCollectionUsingTouchable(thisGTouchable);
 			if (existingHit != nullptr) {
-				existingHit->addHitInfosForBitset(gHitBitSet, thisStep);
+				existingHit->addHitInfos(thisStep);
 			}
 		}
 	}

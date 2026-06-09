@@ -2,12 +2,11 @@
 
 // See header for API docs.
 bool GFluxDigitization::defineReadoutSpecsImpl() {
-	double timeWindow    = 10;                     // electronic readout time-window of the detector
-	double gridStartTime = 0;                      // defines the window grid
-	auto   hitBitSet     = HitBitSet("000001"); // defines what information to be stored in the hit
+	double timeWindow    = 10;   // electronic readout time-window of the detector
+	double gridStartTime = 0;   // defines the window grid
 	double maxStep       = 1 * CLHEP::mm;
 
-	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, maxStep, log);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, maxStep, log);
 
 	return true;
 }

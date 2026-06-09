@@ -1,8 +1,5 @@
 #pragma once
 
-// HitBitSet definition
-#include "ghitConventions.h"
-
 // geant4
 #include "G4VHit.hh"
 #include "G4THitsCollection.hh"
@@ -28,13 +25,10 @@
  * traverses a sensitive detector element and deposits energy.
  *
  * Conceptually, this class has two layers of information:
- * - **Per-step vectors**: always-collected quantities (energy deposition, time, local/global positions)
- *   plus optional quantities controlled by \c HitBitSet.
+ * - **Per-step vectors**: always-collected quantities (energy deposition, time, local/global positions,
+ *   track identity, momentum, and creator process).
  * - **Aggregated quantities**: totals/averages (e.g., total energy deposited, average time,
  *   average positions, representative process name) computed lazily from the per-step vectors.
- *
- * The optional information is controlled by \c HitBitSet (see ghitConventions.h : bit meanings
- * and expected future extensions).
  *
  * \note This class does not own the sensitive-element description. The associated \c GTouchable
  * is stored as a \c std::shared_ptr so that the hit can be compared against other hits and can
@@ -47,17 +41,15 @@ public:
 	 * \brief Construct a hit container and optionally seed it from a step.
 	 *
 	 * This constructor initializes the hit bookkeeping and, if \p thisStep is not null,
-	 * immediately records per-step information for that step (both always-present data and any
-	 * enabled optional data in \p hbs).
+	 * immediately records per-step information for that step.
 	 *
 	 * \param gt Pointer to the \c GTouchable describing the sensitive element producing the hit.
-	 * \param hbs Bitset selecting which optional hit information is recorded in addition to the always-present fields.
 	 * \param thisStep Optional \c G4Step used to seed the hit with an initial step record (default: null).
 	 * \param cScheme Visualization color scheme name (default: "default"). The current implementation uses
 	 *                a simple hard-coded scheme but keeps this field for future expansion.
 	 */
-	GHit(std::shared_ptr<GTouchable> gt, HitBitSet hbs, const G4Step* thisStep = nullptr,
-		 const std::string&          cScheme                                   = "default");
+	GHit(std::shared_ptr<GTouchable> gt, const G4Step* thisStep = nullptr,
+		 const std::string&          cScheme                    = "default");
 
 	/**
 	 * \brief Destructor.
@@ -139,7 +131,7 @@ private:
 	/**
 	 * \brief Energy deposited per step.
 	 *
-	 * Values are pushed in \ref addHitInfosForBitset() using:
+	 * Values are filled in \ref addHitInfos() using:
 	 * \c (step->GetTotalEnergyDeposit()) * (gtouchable->getEnergyMultiplier()).
 	 */
 	std::vector<double> edeps;
@@ -181,50 +173,30 @@ private:
 	 */
 	std::vector<G4ThreeVector> motherTrackVertexPositions;
 
-	// Optional per-step data, controlled by HitBitSet (see ghitConventions.h : meaning of each bit)
-
 	/**
-	 * \brief Particle PDG encodings per step (optional).
-	 *
-	 * Recorded when the corresponding \c HitBitSet bit is enabled.
+	 * \brief Particle PDG encodings per step (always present).
 	 */
 	std::vector<int> pids;
 
 	/**
-	 * \brief Particle Track ID.
-	 *
-	 * Recorded when the corresponding \c HitBitSet bit is enabled.
+	 * \brief Track IDs per step (always present).
 	 */
 	std::vector<int> tids;
 
 	/**
-	 * \brief Parent track IDs per step.
+	 * \brief Parent track IDs per step (always present).
 	 *
 	 * Geant4 uses parent id 0 for primary tracks.
 	 */
 	std::vector<int> motherTids;
 
 	/**
-	 * \brief Total energy per step (optional).
+	 * \brief Creator process names per step (always present).
 	 *
-	 * Recorded when the corresponding \c HitBitSet bit is enabled.
-	 */
-	std::vector<double> Es;
-
-	/**
-	 * \brief Process name per step (optional).
-	 *
-	 * Recorded when the corresponding \c HitBitSet bit is enabled and a creator process exists.
-	 * The aggregated representative process name is available via \ref getProcessName().
+	 * Populated when a creator process is available for the track at the pre-step point.
+	 * The representative process name for the hit is derived from this vector in \ref calculateInfos().
 	 */
 	std::vector<std::string> processNames;
-
-	/**
-	 * \brief Step length per step (optional, future extension).
-	 *
-	 * \note The bit is defined in the conventions, but the current implementation does not yet fill this vector.
-	 */
-	std::vector<double> stepSize;
 
 	/**
 	 * \brief Track 3-momentum per recorded step (unconditional).
@@ -300,18 +272,6 @@ private:
 	 */
 	std::string processName;
 
-	/**
-	 * \brief Add optional hit information for a specific bit.
-	 *
-	 * When \p test is true, this method extracts additional per-step information from \p thisStep
-	 * corresponding to \p bitIndex and appends it to the relevant vectors.
-	 *
-	 * \param bitIndex Bit index within the \c HitBitSet.
-	 * \param test True if the bit is enabled.
-	 * \param thisStep Step providing the data.
-	 * \return True if enabled and the method executed the bit handler; false otherwise.
-	 */
-	bool addHitInfosForBitIndex(size_t bitIndex, bool test, const G4Step* thisStep);
 
 	/**
 	 * \brief Thread-safe global counter used by \ref create() for test randomization only.
@@ -431,31 +391,24 @@ public:
 	[[nodiscard]] inline int getMotherTid() const { return motherTids.front(); }
 
 	/**
-	 * \brief Get per-step total energies (when enabled by bit 0).
-	 * \return A copy of the vector of per-step energies.
-	 */
-	[[nodiscard]] inline std::vector<double> getEs() const { return Es; }
-
-	/**
-	 * \brief Convenience accessor for the first energy value (requires bit 0).
-	 * \return The first energy value.
+	 * \brief Convenience accessor for the first step track total energy.
 	 *
-	 * \warning This assumes the internal \c Es vector is non-empty.
-	 */
-	[[nodiscard]] inline double getE() const { return Es.front(); }
-
-	/**
-	 * \brief Number of recorded steps for the optional-energy vector (requires bit 0).
-	 * \return The size of the \c Es vector.
+	 * Alias for \ref getTrackE() kept for API compatibility with existing digitization plugins.
+	 * \return The first recorded track total energy (MeV).
 	 *
-	 * \note Depending on the \c HitBitSet configuration, \c Es may remain empty even if
-	 *       always-present vectors have entries.
+	 * \warning This assumes the internal \c trackEs vector is non-empty.
 	 */
-	[[nodiscard]] inline size_t nsteps() const { return Es.size(); }
+	[[nodiscard]] inline double getE() const { return trackEs.front(); }
 
 	/**
-	 * \brief True number of recorded steps (always-present edep vector).
-	 * \return The size of the \c edeps vector, which is always populated regardless of HitBitSet.
+	 * \brief Number of recorded steps.
+	 * \return The size of the \c edeps vector, which is always populated.
+	 */
+	[[nodiscard]] inline size_t nsteps() const { return edeps.size(); }
+
+	/**
+	 * \brief Number of recorded steps (same as \ref nsteps()).
+	 * \return The size of the \c edeps vector.
 	 */
 	[[nodiscard]] inline size_t getStepCount() const { return edeps.size(); }
 
@@ -510,11 +463,8 @@ public:
 	[[nodiscard]] inline std::string getProcID() const { return processName; }
 
 	/**
-	 * \brief Get the representative process name for the hit.
-	 * \return The cached representative process name string.
-	 *
-	 * \note This value is typically populated when \ref calculateInfosForBit() runs for bit 0,
-	 *       or when average/total getters trigger calculations.
+	 * \brief Get the representative creator process name for the hit.
+	 * \return The cached representative process name string, set by \ref calculateInfos().
 	 */
 	[[nodiscard]] inline std::string getProcessName() const { return processName; }
 
@@ -553,16 +503,12 @@ public:
 	// -------------------------------------------------------------------------
 
 	/**
-	 * \brief Compute and cache derived information for the requested bit.
+	 * \brief Compute and cache derived hit quantities.
 	 *
-	 * This is primarily used to compute bit-0 derived quantities (total energy, average time,
-	 * average local/global positions, representative process name).
-	 *
-	 * \param bit Bit index for which derived information should be computed.
-	 *
-	 * \note Bits beyond 0 are currently placeholders for future extensions (see ghitConventions.h : planned bits).
+	 * Calculates total deposited energy, average time, average local/global positions,
+	 * and the representative creator process name from the per-step vectors.
 	 */
-	void calculateInfosForBit(int bit);
+	void calculateInfos();
 
 	/**
 	 * \brief Get the total deposited energy across all recorded steps.
@@ -600,20 +546,14 @@ public:
 	// -------------------------------------------------------------------------
 
 	/**
-	 * \brief Append per-step information from a \c G4Step according to a bitset.
+	 * \brief Append per-step information from a \c G4Step.
 	 *
-	 * Always records:
-	 * - global and local positions,
-	 * - energy deposited,
-	 * - global time.
+	 * Records global and local positions, energy deposited, time, track identity,
+	 * momentum, total energy, mother-particle PDG, and creator process name.
 	 *
-	 * Then iterates over each bit of \p hbs and conditionally records optional information
-	 * via the internal bit handler.
-	 *
-	 * \param hbs Bitset selecting optional information to record.
 	 * \param thisStep Step to extract per-step values from (must not be null).
 	 */
-	void addHitInfosForBitset(HitBitSet hbs, const G4Step* thisStep);
+	void addHitInfos(const G4Step* thisStep);
 
 	/**
 	 * \brief Clear the per-thread track vertex cache.
@@ -645,8 +585,8 @@ public:
 	/**
 	 * \brief Create a fake hit for testing, using the current options.
 	 *
-	 * This uses \c GTouchable::create(gopts) to build a test touchable, constructs a hit with
-	 * an empty \c HitBitSet, and then randomizes its contents using \ref randomizeHitForTesting().
+	 * Builds a test touchable via \c GTouchable::create(gopts), constructs a hit with no
+	 * initial step, and randomizes its contents using \ref randomizeHitForTesting().
 	 *
 	 * \param gopts Options object used to create the test \c GTouchable.
 	 * \return Newly allocated \c GHit pointer. Ownership is transferred to the caller.
@@ -654,9 +594,8 @@ public:
 	 * \warning The returned pointer must be deleted by the caller.
 	 */
 	static GHit* create(const std::shared_ptr<GOptions>& gopts) {
-		HitBitSet hitBitSet;
-		auto      gt  = GTouchable::create(gopts);
-		auto      hit = new GHit(gt, hitBitSet);
+		auto gt  = GTouchable::create(gopts);
+		auto hit = new GHit(gt);
 		// Randomize between 1 and 10 steps in a deterministic, thread-safe manner.
 		hit->randomizeHitForTesting(1 + globalHitCounter.fetch_add(1, std::memory_order_relaxed) % 10);
 		return hit;

@@ -5,12 +5,11 @@
 // - This .cc file contains implementation-only comments to avoid duplicated \param sections.
 
 bool GPlugin_test_example::defineReadoutSpecsImpl() {
-	double timeWindow    = 10;                  // electronics time-window (width of one time cell)
-	double gridStartTime = 0;                   // time grid origin
-	auto   hitBitSet     = HitBitSet("100000"); // bitset defining which hit information is computed/stored
+	double timeWindow    = 10;   // electronics time-window (width of one time cell)
+	double gridStartTime = 0;   // time grid origin
 	double maxStep       = 1 * CLHEP::mm;
 
-	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, maxStep, log);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, maxStep, log);
 
 	return true;
 }

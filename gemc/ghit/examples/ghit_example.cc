@@ -28,14 +28,11 @@ int main(int argc, char* argv[]) {
 	// Local logger for this example program.
 	auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, TOUCHABLE_LOGGER); // duplicate logger
 
-	// Select which optional hit information to record.
-	HitBitSet hitBitSet;
-
 	// Create a concrete touchable corresponding to a detector element identity.
 	auto a_ctof_gtouchable = GTouchable(gopts, "readout", "sector: 6, paddle: 10", {10.0, 20.0, 30.0}, 100.0*CLHEP::g);
 
 	// Create a hit tied to that touchable. (No step is provided here, so vectors start empty.)
-	auto a_hit = new GHit(std::make_shared<GTouchable>(a_ctof_gtouchable), hitBitSet);
+	auto a_hit = new GHit(std::make_shared<GTouchable>(a_ctof_gtouchable));
 
 	// Emulating a hits collection (in Geant4 this is commonly a G4THitsCollection<GHit>).
 	vector<GHit*> hits;

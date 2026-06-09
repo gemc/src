@@ -9,36 +9,30 @@
 
 // See header for API docs.
 
-void GHit::addHitInfosForBitset(const HitBitSet hbs, const G4Step* step) {
-	// Preconditions:
-	// - 'step' must be non-null (callers provide a valid G4Step from the stepping action).
-	// - 'gtouchable' must be valid; it provides energy scaling and identity/dimensions.
-
+void GHit::addHitInfos(const G4Step* step) {
 	auto preStepPoint = step->GetPreStepPoint();
-	// auto poststepPoint = step->GetPostStepPoint();
 
 	auto touchable = preStepPoint->GetTouchable();
 
-	// Get the global position and transform it to local coordinates of the touchable.
+	// Global position and its local-coordinate transform.
 	G4ThreeVector xyz  = preStepPoint->GetPosition();
 	G4ThreeVector xyzL = touchable->GetHistory()->GetTopTransform().TransformPoint(xyz);
 
 	globalPositions.push_back(xyz);
 	localPositions.push_back(xyzL);
 
-	// Retrieve energy deposition and time information.
-	// Energy is scaled by the detector-specific multiplier from GTouchable.
+	// Energy deposition (scaled by detector multiplier) and global time.
 	double edep = (step->GetTotalEnergyDeposit()) * (gtouchable->getEnergyMultiplier());
 	double time = preStepPoint->GetGlobalTime();
 
 	edeps.push_back(edep);
 	times.push_back(time);
 
-	auto track = step->GetTrack();
-	auto trackVertex = track->GetVertexPosition();
-	int  trackId = track->GetTrackID();
+	auto track         = step->GetTrack();
+	auto trackVertex   = track->GetVertexPosition();
+	int  trackId       = track->GetTrackID();
 	int  motherTrackId = track->GetParentID();
-	int  currentPdg = track->GetDefinition()->GetPDGEncoding();
+	int  currentPdg    = track->GetDefinition()->GetPDGEncoding();
 
 	trackVertexById.emplace(trackId, trackVertex);
 	pdgById.emplace(trackId, currentPdg);
@@ -66,39 +60,7 @@ void GHit::addHitInfosForBitset(const HitBitSet hbs, const G4Step* step) {
 	trackEs.push_back(preStepPoint->GetTotalEnergy());
 	motherPids.push_back(motherPdg);
 
-
-	// Iterate over each bit and call the helper method to add optional info.
-	for (size_t hbIndex = 0; hbIndex < hbs.size(); hbIndex++) {
-		addHitInfosForBitIndex(hbIndex, hbs.test(hbIndex), step);
+	if (track->GetCreatorProcess()) {
+		processNames.push_back(track->GetCreatorProcess()->GetProcessName());
 	}
-}
-
-bool GHit::addHitInfosForBitIndex(size_t bitIndex, const bool test, const G4Step* thisStep) {
-	// If the bit is not enabled, do nothing.
-	if (!test) return false;
-
-	G4Track*     trk     = thisStep->GetTrack();
-	G4StepPoint* prestep = thisStep->GetPreStepPoint();
-
-	// Bit 0: record particle ID, per-step total energy, and creator process name (if available).
-	if (bitIndex == 0) {
-		pids.push_back(trk->GetDefinition()->GetPDGEncoding());
-		Es.push_back(prestep->GetTotalEnergy());
-		if (trk->GetCreatorProcess()) {
-			processNames.push_back(trk->GetCreatorProcess()->GetProcessName());
-		}
-	}
-	else if (bitIndex == 1) {
-		// Placeholder: record step length and track info.
-	}
-	else if (bitIndex == 2) {
-		// Placeholder: record mother particle track information.
-	}
-	else if (bitIndex == 3) {
-		// Placeholder: record meta information.
-	}
-	else if (bitIndex == 4) {
-		// Placeholder: record optical photon-specific information.
-	}
-	return true;
 }

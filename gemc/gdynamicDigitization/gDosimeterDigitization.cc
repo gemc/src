@@ -15,13 +15,12 @@
 bool GDosimeterDigitization::defineReadoutSpecsImpl() {
 	// Time window is the width of one electronics time cell (unit follows the convention
 	// used by the rest of the digitization chain; typically ns).
-	double timeWindow    = 10;                  // electronic readout time-window of the detector
-	double gridStartTime = 0;                   // defines the windows grid
-	auto   hitBitSet     = HitBitSet("000001"); // defines what information to be stored in the hit
+	double timeWindow    = 10;   // electronic readout time-window of the detector
+	double gridStartTime = 0;   // defines the windows grid
 	double maxStep       = 1 * CLHEP::mm;
 
 	// Readout specs are immutable after initialization and shared by all processed hits.
-	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, hitBitSet, maxStep, log);
+	readoutSpecs = std::make_shared<GReadoutSpecs>(timeWindow, gridStartTime, maxStep, log);
 
 	return true;
 }
@@ -42,8 +41,7 @@ std::unique_ptr<GDigitizedData> GDosimeterDigitization::digitizeHitImpl(GHit* gh
 	//log->info(0, FUNCTION_NAME, "Edep: ", etot, ", hitn:", ghit->getEdeps().size());
 
 	// // Per-step information used to build the NIEL-weight.
-	// auto pids      = ghit->getPids();
-	// auto pEnergies = ghit->getEs();
+	// auto pids = ghit->getPids();
 	//
 	// double nielWeight = 0;
 	//

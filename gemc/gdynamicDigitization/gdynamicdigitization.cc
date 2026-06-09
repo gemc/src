@@ -26,8 +26,7 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 
 
 
-	// Bit 0 is expected to contain the always-present true-hit quantities.
-	ghit->calculateInfosForBit(0);
+	ghit->calculateInfos();
 
 	// Average positions are computed at the hit level by GHit and returned here.
 	G4ThreeVector avgGlobalPos = ghit->getAvgGlobaPosition();

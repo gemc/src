@@ -87,8 +87,7 @@ using GHitsCollection = G4THitsCollection<GHit>;
  * - Own a per-event Geant4 hits collection (GHitsCollection) and register it into \c G4HCofThisEvent.
  * - Use the assigned GDynamicDigitization routine to:
  *   - decide whether a step should be ignored,
- *   - map the Geant4 step to one or more logical touchables,
- *   - read the HitBitSet describing which information is stored in hits.
+ *   - map the Geant4 step to one or more logical touchables.
  * - Track whether a touchable has already produced a hit in the current event and either create a new GHit
  *   or update an existing one.
  *
@@ -115,11 +114,8 @@ public:
 	/**
 	 * \brief Per-event initialization hook called by Geant4.
 	 *
-	 * This method:
-	 * - retrieves the HitBitSet from the digitization routine readout specifications,
-	 * - clears the per-event touchable cache,
-	 * - allocates a new Geant4 hits collection (GHitsCollection),
-	 * - registers it into the event hit container (\c G4HCofThisEvent).
+	 * Clears the per-event touchable cache, allocates a new GHitsCollection, and registers
+	 * it into the event hit container (\c G4HCofThisEvent).
 	 *
 	 * \param g4hc Geant4 event hit container that will own/track the hits collection for this event.
 	 */
@@ -131,7 +127,7 @@ public:
 	 * The digitization routine can choose to skip hits based on deposited energy and can transform the input touchable
 	 * into one or more logical touchables. For each resulting touchable, this method either:
 	 * - creates a new GHit and inserts it in the hits collection, or
-	 * - locates an existing GHit and appends step information according to the HitBitSet.
+	 * - locates an existing GHit and appends step information.
 	 *
 	 * \param thisStep Geant4 step being processed.
 	 * \param g4th     Geant4 touchable history (not used by this implementation).
@@ -172,19 +168,11 @@ private:
 	 * \brief Thread-local digitization routine used by this sensitive detector.
 	 *
 	 * The routine provides:
-	 * - readout specifications (including HitBitSet),
+	 * - readout specifications (time window, max step),
 	 * - the decision policy to skip steps,
 	 * - the touchable processing logic that can split/transform touchables.
 	 */
 	std::shared_ptr<GDynamicDigitization> digitization_routine;
-
-	/**
-	 * \brief Bitset describing which hit information is stored by GHit for this event.
-	 *
-	 * This is loaded at event initialization from the digitization routine readout specifications so that
-	 * ProcessHits() does not repeatedly retrieve it.
-	 */
-	HitBitSet gHitBitSet;
 
 	/**
 	 * \brief Map of volume name to registered GTouchable.

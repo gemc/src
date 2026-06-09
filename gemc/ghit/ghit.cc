@@ -1,8 +1,6 @@
 // ghit
 #include "ghit.h"
 
-#include <utility>
-
 // glibrary
 #include "gutsConventions.h"
 
@@ -26,17 +24,15 @@ G4ThreadLocal G4Allocator<GHit>* GHitAllocator = nullptr;
 // See header for API docs.
 
 GHit::GHit(std::shared_ptr<GTouchable> gt,
-           const HitBitSet             hbs,
            const G4Step*               thisStep,
            const string&               cScheme) :
 	G4VHit(),
 	colorSchema(cScheme),
 	gtouchable(gt) {
 	// Initialize per-step vectors if a step is provided.
-	if (thisStep) { addHitInfosForBitset(hbs, thisStep); }
+	if (thisStep) { addHitInfos(thisStep); }
 
-	// Uninitialized quantities, to be calculated at the end of the steps by collectTrueInformation
-	// bit 0: always there
+	// Cached derived quantities — computed lazily by calculateInfos() before publishing.
 	averageTime       = UNINITIALIZEDNUMBERQUANTITY;
 	avgGlobalPosition = G4ThreeVector(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY,
 	                                  UNINITIALIZEDNUMBERQUANTITY);
@@ -121,11 +117,9 @@ void GHit::randomizeHitForTesting(int nsteps) {
 		pids.emplace_back(11);
 		tids.emplace_back(i);
 		motherTids.emplace_back(0);
-		Es.emplace_back(G4UniformRand() * 10);
 		momenta.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
 		trackEs.emplace_back(G4UniformRand() * 1000);
 		motherPids.emplace_back(2212); // proton as placeholder mother
-
-		pids.emplace_back(static_cast<int>(G4UniformRand() * 1000)); // Random particle ID
+		processNames.emplace_back("placeholder");
 	}
 }
