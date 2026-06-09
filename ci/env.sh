@@ -44,23 +44,24 @@ function meson_setup_options {
     local install_dir="${SIM_HOME:?SIM_HOME not set}/gemc/dev"
 
     meson_options=""
+    sanitizer_library_options="-Ddefault_library=shared -Ddefault_both_libraries=shared"
     buildtype=" -Dbuildtype=debug "
 
     case $1 in
         "address")
-            meson_options="-Db_sanitize=address"
+            meson_options="-Db_sanitize=address $sanitizer_library_options"
             ;;
         "thread")
-            meson_options="-Db_sanitize=thread"
+            meson_options="-Db_sanitize=thread $sanitizer_library_options"
             ;;
         "undefined")
-            meson_options="-Db_sanitize=undefined"
+            meson_options="-Db_sanitize=undefined $sanitizer_library_options"
             ;;
         "memory")
-            meson_options="-Db_sanitize=memory"
+            meson_options="-Db_sanitize=memory $sanitizer_library_options"
             ;;
         "leak")
-            meson_options="-Db_sanitize=leak"
+            meson_options="-Db_sanitize=leak $sanitizer_library_options"
             ;;
         "profile")
             meson_options=""

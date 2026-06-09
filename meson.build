@@ -107,7 +107,7 @@ foreach L : LD
         if not qrc_sources.contains('')
             qrc_compiled_sources += qt6.compile_resources(name : this_lib_name + '_qtresources', sources : qrc_sources)
         endif
-        this_library = static_library(
+        this_library = library(
             this_lib_name,
             sources + moc_sources + qrc_compiled_sources,
             install : true,
