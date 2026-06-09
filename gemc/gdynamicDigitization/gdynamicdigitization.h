@@ -262,6 +262,7 @@ public:
      * \brief Applies touchable modifiers.
      *
      * Wrapper that logs/checks and delegates to processGTouchableModifiersImpl().
+     * Example use: energy-sharing
      *
      * \param gTouchID Input touchable to modify.
      * \param gmods Modifier container describing how to modify touchables.
