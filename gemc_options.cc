@@ -115,8 +115,50 @@ namespace gemc {
 
         // Scan every YAML file present in argv. For each file:
         //   - collect any plugin_path value declared there
-        //   - collect gsystem names to probe for a definePluginOptions symbol
+        //   - collect gsystem and gstreamer plugin names to probe for a definePluginOptions symbol
         std::set<std::string> seen_names;  // deduplicate across multiple YAML files
+
+        // Helper: resolve a plugin basename through the search path, open it, call
+        // definePluginOptions() if the symbol exists, and merge the result into `merged`.
+        auto probe_plugin = [&](const std::string& basename) {
+            std::string full_search = search_path;
+            if (const char* env = std::getenv("GEMC_PLUGIN_PATH")) {
+                if (!full_search.empty()) full_search += ':';
+                full_search += env;
+            }
+
+            std::string lib_path;
+            if (!full_search.empty()) {
+                std::istringstream ss(full_search);
+                std::string        dir;
+                while (std::getline(ss, dir, ':')) {
+                    if (dir.empty()) continue;
+                    const auto candidate = dir + "/" + basename;
+                    if (std::filesystem::exists(candidate)) { lib_path = candidate; break; }
+                }
+            }
+            if (lib_path.empty() && std::filesystem::exists(basename)) lib_path = basename;
+            if (lib_path.empty()) return;  // no plugin — normal
+
+            // On Linux, RTLD_NODELETE keeps it resident so that the later GManager dlopen
+            // gets the exact same handle without re-executing static initialisers.
+#if defined(__linux__) && defined(RTLD_NODELETE)
+            const auto h = dlopen(lib_path.c_str(), RTLD_NOW | RTLD_NODELETE);
+#else
+            const auto h = dlopen(lib_path.c_str(), RTLD_NOW);
+#endif
+            if (!h) return;  // library not loadable — skip silently
+
+            // The definePluginOptions symbol is optional. Plugins that need no custom
+            // options simply omit it and are silently skipped here.
+            using opt_fptr = GOptions* (*)();
+            const auto sym = reinterpret_cast<opt_fptr>(dlsym(h, "definePluginOptions"));
+            if (!sym) return;
+
+            std::unique_ptr<GOptions> plugin_opts(sym());
+            merged += *plugin_opts;
+        };
+
         for (int i = 1; i < argc; ++i) {
             const std::string arg = argv[i];
             if (!std::filesystem::exists(arg)) continue;
@@ -137,56 +179,29 @@ namespace gemc {
                 } catch (...) {}
             }
 
-            if (!root["gsystem"]) continue;
-            for (const auto& entry : root["gsystem"]) {
-                if (!entry["name"]) continue;
-                std::string name;
-                try { name = entry["name"].as<std::string>(); } catch (...) { continue; }
-                if (name.empty() || !seen_names.insert(name).second) continue;
-
-                // Resolve <name>.gplugin using the accumulated search path plus
-                // GEMC_PLUGIN_PATH and, as a last resort, the current directory.
-                std::string full_search = search_path;
-                if (const char* env = std::getenv("GEMC_PLUGIN_PATH")) {
-                    if (!full_search.empty()) full_search += ':';
-                    full_search += env;
+            // Probe gsystem plugins for definePluginOptions.
+            if (root["gsystem"]) {
+                for (const auto& entry : root["gsystem"]) {
+                    if (!entry["name"]) continue;
+                    std::string name;
+                    try { name = entry["name"].as<std::string>(); } catch (...) { continue; }
+                    if (name.empty() || !seen_names.insert(name).second) continue;
+                    probe_plugin(name + ".gplugin");
                 }
+            }
 
-                const std::string basename = name + ".gplugin";
-                std::string       lib_path;
-
-                if (!full_search.empty()) {
-                    std::istringstream ss(full_search);
-                    std::string        dir;
-                    while (std::getline(ss, dir, ':')) {
-                        if (dir.empty()) continue;
-                        const auto candidate = dir + "/" + basename;
-                        if (std::filesystem::exists(candidate)) { lib_path = candidate; break; }
-                    }
+            // Probe gstreamer plugins for definePluginOptions so that verbosity domains
+            // registered by those plugins (e.g. "hipo") are available before the factories
+            // are instantiated.
+            if (root["gstreamer"]) {
+                for (const auto& entry : root["gstreamer"]) {
+                    if (!entry["format"]) continue;
+                    std::string format;
+                    try { format = entry["format"].as<std::string>(); } catch (...) { continue; }
+                    const std::string plugin_name = "gstreamer_" + format + "_plugin";
+                    if (plugin_name.empty() || !seen_names.insert(plugin_name).second) continue;
+                    probe_plugin(plugin_name + ".gplugin");
                 }
-                if (lib_path.empty() && std::filesystem::exists(basename)) lib_path = basename;
-                if (lib_path.empty()) continue;  // no plugin for this system — normal
-
-                // Open the library. On Linux, RTLD_NODELETE keeps it resident so that the
-                // later GManager dlopen gets the exact same handle without re-executing
-                // static initialisers. On macOS the reference count achieves the same effect.
-#if defined(__linux__) && defined(RTLD_NODELETE)
-                const auto h = dlopen(lib_path.c_str(), RTLD_NOW | RTLD_NODELETE);
-#else
-                const auto h = dlopen(lib_path.c_str(), RTLD_NOW);
-#endif
-                if (!h) continue;  // library not loadable — skip silently
-
-                // The definePluginOptions symbol is optional. Plugins that need no custom
-                // options simply omit it and are silently skipped here.
-                // The symbol returns GOptions* (heap-allocated) so that extern "C" linkage
-                // is not applied to a by-value C++ return type.
-                using opt_fptr = GOptions* (*)();
-                const auto sym = reinterpret_cast<opt_fptr>(dlsym(h, "definePluginOptions"));
-                if (!sym) continue;
-
-                std::unique_ptr<GOptions> plugin_opts(sym());
-                merged += *plugin_opts;
             }
         }
 

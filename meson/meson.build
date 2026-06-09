@@ -1,3 +1,9 @@
+sanitize = get_option('b_sanitize')  # string option: 'none', 'address', 'undefined', etc.
+
+# only use shared libraries if a sanitizer option is passed
+# this will avoid duplicate symbols errors when sanitizer is used, coming from static library usage
+use_sharedl = (sanitize != 'none')
+
 # qt
 qt6 = import('qt6')
 qt6_deps = dependency('qt6',
@@ -6,7 +12,7 @@ qt6_deps = dependency('qt6',
                                  'Widgets',
                                  'OpenGLWidgets',
                                  'Svg'],
-                      static : true,
+                      static : not use_sharedl,
                       include_type : 'system') # treat as system include paths - no warnings
 
 sys = host_machine.system()
@@ -100,10 +106,11 @@ geant4_deps = [geant4_dep]
 geant4_core_deps = [geant4_core_dep]
 if sys == 'linux'
     # Only on Linux: pull in GLX/X11 stack for G4OpenGL(.a)
+    # Force shared so static non-PIC archives (libX11.a on aarch64) are not linked into shared libs
     geant4_deps += [
-        dependency('x11', required : true),
-        dependency('xmu', required : true),
-        dependency('gl', required : true),
+        dependency('x11', static : false, required : true),
+        dependency('xmu', static : false, required : true),
+        dependency('gl', static : false, required : true),
     ]
 endif
 
@@ -132,11 +139,6 @@ cmake_opts.add_cmake_defines({
                                  'CMAKE_POLICY_VERSION_MINIMUM' : '4.0',
                              })
 
-sanitize = get_option('b_sanitize')  # string option: 'none', 'address', 'undefined', etc.
-
-# only use shared libraries if a sanitizer option is passed
-# this will avoid duplicate symbols errors when sanitizer is used, coming from static library usage
-use_sharedl = (sanitize != 'none')
 cmake_opts.add_cmake_defines({
                                  'BUILD_SHARED_LIBS' : use_sharedl,
                                  # Avoid pulling GUI/sample/tooling deps like X11
