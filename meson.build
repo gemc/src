@@ -103,6 +103,15 @@ foreach L : LD
                                       dependencies : this_deps)
     endif
 
+    # Resolve internal library deps before building the library so shared objects
+    # record their NEEDED entries and RTTI/vtable symbols are resolvable at load time.
+    internal_link_with = []
+    foreach this_link_with : this_internal_libs
+        if lib_target_maps.has_key(this_link_with)
+            internal_link_with += [lib_target_maps[this_link_with]]
+        endif
+    endforeach
+
     if not sources.contains('')
         if not qrc_sources.contains('')
             qrc_compiled_sources += qt6.compile_resources(name : this_lib_name + '_qtresources', sources : qrc_sources)
@@ -112,7 +121,8 @@ foreach L : LD
             sources + moc_sources + qrc_compiled_sources,
             install : true,
             dependencies : this_deps,
-            include_directories : all_includes + additional_includes
+            include_directories : all_includes + additional_includes,
+            link_with : internal_link_with
         )
         if not all_libs.contains(this_library)
             all_libs += this_library

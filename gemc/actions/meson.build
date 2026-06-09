@@ -1,5 +1,6 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = ['goptions', 'guts', 'glogging', 'gbase', 'gfactory', 'gparticle']
+internal_deps = ['goptions', 'guts', 'glogging', 'gbase', 'gfactory', 'gparticle',
+                 'gdynamicDigitization', 'gstreamer', 'gdata']
 
 dis_file = meson.project_source_root() + '/gemc/gparticle/examples/test_dis.dat'
 generator_file_events = [
