@@ -5,9 +5,7 @@
 #include "gutsConventions.h"
 
 // geant4
-#include "G4TouchableHistory.hh"
 #include "G4VProcess.hh"
-#include "subprojects/assimp/code/AssetLib/3MF/3MFXmlTags.h"
 
 // See header for API docs.
 
@@ -40,23 +38,33 @@ void GHit::addHitInfosForBitset(const HitBitSet hbs, const G4Step* step) {
 	auto trackVertex = track->GetVertexPosition();
 	int  trackId = track->GetTrackID();
 	int  motherTrackId = track->GetParentID();
+	int  currentPdg = track->GetDefinition()->GetPDGEncoding();
 
 	trackVertexById.emplace(trackId, trackVertex);
+	pdgById.emplace(trackId, currentPdg);
 
 	G4ThreeVector motherTrackVertex(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY,
 	                                UNINITIALIZEDNUMBERQUANTITY);
+	int motherPdg = UNINITIALIZEDNUMBERQUANTITY;
 	if (motherTrackId > 0) {
 		auto motherVertex = trackVertexById.find(motherTrackId);
 		if (motherVertex != trackVertexById.end()) {
 			motherTrackVertex = motherVertex->second;
 		}
+		auto motherPdgIt = pdgById.find(motherTrackId);
+		if (motherPdgIt != pdgById.end()) {
+			motherPdg = motherPdgIt->second;
+		}
 	}
 
 	trackVertexPositions.push_back(trackVertex);
 	motherTrackVertexPositions.push_back(motherTrackVertex);
-	pids.push_back(track->GetDefinition()->GetPDGEncoding());
+	pids.push_back(currentPdg);
 	tids.push_back(trackId);
 	motherTids.push_back(motherTrackId);
+	momenta.push_back(preStepPoint->GetMomentum());
+	trackEs.push_back(preStepPoint->GetTotalEnergy());
+	motherPids.push_back(motherPdg);
 
 
 	// Iterate over each bit and call the helper method to add optional info.

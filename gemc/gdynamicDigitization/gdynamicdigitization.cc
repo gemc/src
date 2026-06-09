@@ -36,9 +36,12 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 	G4ThreeVector motherTrackVertex = ghit->getMotherTrackVertexPosition();
 
 	trueInfoData->includeVariable("pid", ghit->getPid());
+	trueInfoData->includeVariable("mpid", ghit->getMpid());
 	trueInfoData->includeVariable("tid", ghit->getTid());
+	trueInfoData->includeVariable("otid", 0);
 	trueInfoData->includeVariable("mtid", ghit->getMotherTid());
 	trueInfoData->includeVariable("totalEDeposited", ghit->getTotalEnergyDeposited());
+	trueInfoData->includeVariable("trackE", ghit->getTrackE());
 	trueInfoData->includeVariable("avgTime", ghit->getAverageTime());
 	trueInfoData->includeVariable("avgx", avgGlobalPos.getX());
 	trueInfoData->includeVariable("avgy", avgGlobalPos.getY());
@@ -52,10 +55,17 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 	trueInfoData->includeVariable("mvx", motherTrackVertex.getX());
 	trueInfoData->includeVariable("mvy", motherTrackVertex.getY());
 	trueInfoData->includeVariable("mvz", motherTrackVertex.getZ());
+
+	G4ThreeVector momentum = ghit->getMomentum();
+	trueInfoData->includeVariable("px", momentum.getX());
+	trueInfoData->includeVariable("py", momentum.getY());
+	trueInfoData->includeVariable("pz", momentum.getZ());
+
+	trueInfoData->includeVariable("nsteps", static_cast<int>(ghit->getStepCount()));
 	trueInfoData->includeVariable("hitn", static_cast<int>(hitn)); // assume hitn < INT_MAX
 
-	// Bit 1 typically includes metadata like the process name.
 	trueInfoData->includeVariable("processName", ghit->getProcessName());
+	trueInfoData->includeVariable("procID", ghit->getProcID());
 
 	return trueInfoData;
 }

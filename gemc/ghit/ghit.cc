@@ -17,6 +17,7 @@ using std::vector;
 
 std::atomic<int> GHit::globalHitCounter{0};
 thread_local std::map<int, G4ThreeVector> GHit::trackVertexById;
+thread_local std::map<int, int> GHit::pdgById;
 
 // MT definitions, as from:
 // https://twiki.cern.ch/twiki/bin/view/Geant4/QuickMigrationGuideForGeant4V10
@@ -100,6 +101,7 @@ bool GHit::setColorSchema() {
 
 void GHit::clearTrackVertexCache() {
 	trackVertexById.clear();
+	pdgById.clear();
 }
 
 void GHit::randomizeHitForTesting(int nsteps) {
@@ -120,6 +122,9 @@ void GHit::randomizeHitForTesting(int nsteps) {
 		tids.emplace_back(i);
 		motherTids.emplace_back(0);
 		Es.emplace_back(G4UniformRand() * 10);
+		momenta.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
+		trackEs.emplace_back(G4UniformRand() * 1000);
+		motherPids.emplace_back(2212); // proton as placeholder mother
 
 		pids.emplace_back(static_cast<int>(G4UniformRand() * 1000)); // Random particle ID
 	}

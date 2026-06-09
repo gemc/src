@@ -226,6 +226,37 @@ private:
 	 */
 	std::vector<double> stepSize;
 
+	/**
+	 * \brief Track 3-momentum per recorded step (unconditional).
+	 *
+	 * Values are derived from the pre-step point momentum via \c G4StepPoint::GetMomentum().
+	 * Stored in Geant4 internal units (MeV).
+	 */
+	std::vector<G4ThreeVector> momenta;
+
+	/**
+	 * \brief Track total energy per recorded step (unconditional).
+	 *
+	 * Values are derived from \c preStepPoint->GetTotalEnergy() (kinetic + rest mass, in MeV).
+	 */
+	std::vector<double> trackEs;
+
+	/**
+	 * \brief Mother particle PDG encodings per recorded step (unconditional).
+	 *
+	 * Looked up from the per-thread \c pdgById cache using the parent track ID.
+	 * Stores the uninitialized sentinel when the parent track has not yet been seen.
+	 */
+	std::vector<int> motherPids;
+
+	/**
+	 * \brief Per-thread cache of track-id to particle PDG encoding.
+	 *
+	 * Populated alongside \c trackVertexById so that mother PDG can be resolved
+	 * when the parent track was already processed by GEMC hit logic.
+	 */
+	static thread_local std::map<int, int> pdgById;
+
 	// -------------------------------------------------------------------------
 	// Aggregated / calculated quantities (lazy)
 	// -------------------------------------------------------------------------
@@ -400,13 +431,13 @@ public:
 	[[nodiscard]] inline int getMotherTid() const { return motherTids.front(); }
 
 	/**
-	 * \brief Get per-step total energies (when enabled).
+	 * \brief Get per-step total energies (when enabled by bit 0).
 	 * \return A copy of the vector of per-step energies.
 	 */
 	[[nodiscard]] inline std::vector<double> getEs() const { return Es; }
 
 	/**
-	 * \brief Convenience accessor for the first energy value.
+	 * \brief Convenience accessor for the first energy value (requires bit 0).
 	 * \return The first energy value.
 	 *
 	 * \warning This assumes the internal \c Es vector is non-empty.
@@ -414,13 +445,69 @@ public:
 	[[nodiscard]] inline double getE() const { return Es.front(); }
 
 	/**
-	 * \brief Number of recorded steps for the optional-energy vector.
+	 * \brief Number of recorded steps for the optional-energy vector (requires bit 0).
 	 * \return The size of the \c Es vector.
 	 *
 	 * \note Depending on the \c HitBitSet configuration, \c Es may remain empty even if
 	 *       always-present vectors have entries.
 	 */
 	[[nodiscard]] inline size_t nsteps() const { return Es.size(); }
+
+	/**
+	 * \brief True number of recorded steps (always-present edep vector).
+	 * \return The size of the \c edeps vector, which is always populated regardless of HitBitSet.
+	 */
+	[[nodiscard]] inline size_t getStepCount() const { return edeps.size(); }
+
+	/**
+	 * \brief Get per-step track 3-momenta (always present).
+	 * \return A copy of the vector of per-step momenta.
+	 */
+	[[nodiscard]] inline std::vector<G4ThreeVector> getMomenta() const { return momenta; }
+
+	/**
+	 * \brief Convenience accessor for the first step 3-momentum.
+	 * \return The first recorded track momentum.
+	 *
+	 * \warning This assumes the internal \c momenta vector is non-empty.
+	 */
+	[[nodiscard]] inline G4ThreeVector getMomentum() const { return momenta.front(); }
+
+	/**
+	 * \brief Get per-step track total energies (always present).
+	 * \return A copy of the vector of per-step track total energies (MeV).
+	 */
+	[[nodiscard]] inline std::vector<double> getTrackEs() const { return trackEs; }
+
+	/**
+	 * \brief Convenience accessor for the first step track total energy.
+	 * \return The first recorded track total energy (MeV).
+	 *
+	 * \warning This assumes the internal \c trackEs vector is non-empty.
+	 */
+	[[nodiscard]] inline double getTrackE() const { return trackEs.front(); }
+
+	/**
+	 * \brief Get per-step mother particle PDG encodings (always present).
+	 * \return A copy of the vector of per-step mother PDG codes.
+	 */
+	[[nodiscard]] inline std::vector<int> getMotherPids() const { return motherPids; }
+
+	/**
+	 * \brief Convenience accessor for the first step mother particle PDG encoding.
+	 * \return The first recorded mother PDG code (sentinel when parent not yet seen).
+	 *
+	 * \warning This assumes the internal \c motherPids vector is non-empty.
+	 */
+	[[nodiscard]] inline int getMpid() const { return motherPids.front(); }
+
+	/**
+	 * \brief Get the representative creator process name for this hit.
+	 *
+	 * Alias for \ref getProcessName() following G4 naming conventions.
+	 * \return The cached representative process name.
+	 */
+	[[nodiscard]] inline std::string getProcID() const { return processName; }
 
 	/**
 	 * \brief Get the representative process name for the hit.
