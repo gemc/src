@@ -49,6 +49,7 @@ GOptions defineOptions() {
 	GOptions goptions(GFIELD_LOGGER);
 	goptions += GOptions(GMAGNETO_LOGGER);
 	goptions += GOptions(PLUGIN_LOGGER);
+	goptions += gfactory::defineOptions();
 
 	std::string help;
 	help                               = "Adds gmultipoles field(s) to the simulation \n ";
