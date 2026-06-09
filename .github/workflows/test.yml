@@ -1,15 +1,10 @@
-# Build and test GEMC images without publishing containers.
 name: Test
 
 permissions:
   contents: read
-  packages: read
 
 env:
-  GEMC_TAG: dev
-  GEANT4_TAG: 11.4.1
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  DOCKER_BUILD_SUMMARY: false
 
 concurrency:
   group: gemc-test-${{ github.ref }}
@@ -24,13 +19,12 @@ on:
   merge_group:
   push:
     branches: [ main ]
-    tags: [ '*' ]
     paths-ignore:
       - "**/*.md"
 
 jobs:
   discover:
-    name: Create Job Matrix
+    name: Create job matrix
     runs-on: ubuntu-latest
     outputs:
       matrix_build: ${{ steps.scan.outputs.matrix_build }}
@@ -42,7 +36,24 @@ jobs:
 
       - id: scan
         name: Build matrix
-        run: ci/distros_tags.sh
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./ci/distros_tags.sh
+
+      - name: Fail if matrix is empty
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${{ steps.scan.outputs.matrix_build }}" ]]; then
+            echo "matrix_build output is empty. Check ci/distros_tags.sh writing to GITHUB_OUTPUT."
+            exit 1
+          fi
+
+      - name: Show matrix (debug)
+        shell: bash
+        run: |
+          echo '${{ steps.scan.outputs.matrix_build }}'
 
   build:
     name: ${{ matrix.image }}/${{ matrix.image_tag }} ${{ matrix.arch }}
@@ -51,83 +62,45 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.discover.outputs.matrix_build) }}
-    env:
-      CACHE_REF: type=registry,ref=ghcr.io/${{ github.repository }}:cache-test-${{ matrix.arch }}
+    container: ${{ matrix.container }}
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Free up disk space
-        uses: ./.github/actions/free-disk-space
-        with:
-          prune_docker: "true"
-          show_tree: "true"
-
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate Dockerfile
-        shell: bash
-        run: |
-          python3 ci/dockerfile_creator.py \
-            -i "${{ matrix.image }}" \
-            -t "${{ matrix.image_tag }}" \
-            --gemc-version "${{ matrix.gemc_tag || env.GEMC_TAG }}" \
-            --geant4-version "${{ matrix.geant4_tag || env.GEANT4_TAG }}" \
-            --source context \
-            > Dockerfile.generated
-          cat Dockerfile.generated
-
       - name: Build and test
-        uses: docker/build-push-action@v7
-        with:
-          pull: true
-          context: .
-          file: ./Dockerfile.generated
-          target: final
-          platforms: ${{ matrix.platform }}
-          push: false
-          cache-from: ${{ env.CACHE_REF }}
+        shell: bash
 
-      - name: Export logs
-        uses: docker/build-push-action@v7
-        with:
-          pull: true
-          context: .
-          file: ./Dockerfile.generated
-          target: logs-export
-          platforms: ${{ matrix.platform }}
-          push: false
-          cache-from: ${{ env.CACHE_REF }}
-          outputs: type=local,dest=${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}
+
+        run: |
+          set -euo pipefail
+          export DOCKER_ENTRYPOINT_SOURCE_ONLY=1
+          . /usr/local/bin/docker-entrypoint.sh
+          module load geant4/"${{ matrix.geant4_tag || env.GEANT4_TAG }}"
+          ./ci/build.sh
 
       - name: Pack logs
+        if: ${{ always() }}
         shell: bash
         run: |
           set -euo pipefail
           echo "LOG_TAR=" >> "$GITHUB_ENV"
-          LOGROOT="${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}"
+          LOGROOT="/root/src"
+          OUTDIR="$GITHUB_WORKSPACE/_artifacts"
           TAR="logs-${{ matrix.gemc_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}"
           TAR="${TAR}-${{ matrix.arch }}.tgz"
           if [[ -d "$LOGROOT/logs" ]]; then
-            cd "$LOGROOT"
-            tar -czf "$TAR" logs
-            echo "LOG_TAR=$LOGROOT/$TAR" >> "$GITHUB_ENV"
+            mkdir -p "$OUTDIR"
+            tar -C "$LOGROOT" -czf "$OUTDIR/$TAR" logs
+            echo "LOG_TAR=$OUTDIR/$TAR" >> "$GITHUB_ENV"
           else
             echo "No exported logs found at $LOGROOT/logs"
           fi
 
       - name: Upload logs
-        if: ${{ env.LOG_TAR != '' }}
+        if: ${{ always() && env.LOG_TAR != '' }}
         uses: actions/upload-artifact@v7
         with:
           name: logs-${{ matrix.gemc_tag }}-${{ matrix.image }}-${{ matrix.image_tag }}-${{ matrix.arch }}
