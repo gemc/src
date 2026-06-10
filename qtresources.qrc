@@ -11,6 +11,8 @@
         <file alias="gui/images/buttons/setup_2.svg">gemc/gui/images/buttons/setup_2.svg</file>
         <file alias="gui/images/buttons/tree_1.svg">gemc/gui/images/buttons/tree_1.svg</file>
         <file alias="gui/images/buttons/tree_2.svg">gemc/gui/images/buttons/tree_2.svg</file>
+        <file alias="gui/images/buttons/generator_1.svg">gemc/gui/images/buttons/generator_1.svg</file>
+        <file alias="gui/images/buttons/generator_2.svg">gemc/gui/images/buttons/generator_2.svg</file>
         <file alias="images/hidden_lines.svg">gemc/g4display/images/hidden_lines.svg</file>
         <file alias="images/anti_aliasing.svg">gemc/g4display/images/anti_aliasing.svg</file>
         <file alias="images/auxiliary_edges.svg">gemc/g4display/images/auxiliary_edges.svg</file>

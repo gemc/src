@@ -9,6 +9,7 @@ void GemcGUI::createLeftButtons() {
 	bicons.push_back(":/gui/images/buttons/setup");
 	bicons.push_back(":/gui/images/buttons/tree");
 	bicons.push_back(":/gui/images/buttons/dialog");
+	bicons.push_back(":/gui/images/buttons/generator");
 
 	// The button widget provides both the list UI and the selected index used for page switching.
 	leftButtons = new GQTButtonsWidget(96, 96, bicons);
