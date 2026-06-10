@@ -199,7 +199,7 @@ public:
      * This is used after a color or opacity change so that subsequent opacity
      * changes can preserve RGB and update only alpha.
      */
-    void set_color(QColor& c)  { color = c; }
+    void set_color(const QColor& c)  { color = c; }
 
     /**
      * \brief Update the cached opacity.

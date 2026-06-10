@@ -71,12 +71,18 @@ private:
 	GQTToggleButtonWidget* buttons_set1 = nullptr;
 
 	/// Camera direction sliders (theta, phi), expressed in degrees.
-	QSlider* cameraTheta = nullptr;
-	QSlider* cameraPhi   = nullptr;
+	QSlider*    cameraTheta = nullptr;
+	QSlider*    cameraPhi   = nullptr;
+	QLCDNumber* thetaLCD    = nullptr;
+	QLCDNumber* phiLCD      = nullptr;
 
 	/// Preset dropdowns for camera angles (degrees).
 	QComboBox* thetaDropdown = nullptr;
 	QComboBox* phiDropdown   = nullptr;
+
+	/// Light direction sliders LCDs (degrees).
+	QLCDNumber* lthetaLCD = nullptr;
+	QLCDNumber* lphiLCD   = nullptr;
 
 	/// Preset dropdowns for light angles (degrees).
 	QComboBox* lthetaDropdown = nullptr;
@@ -280,6 +286,16 @@ private slots:
 	 * \param index Index of the toggled button within \c buttons_set1.
 	 */
 	void apply_buttons_set1(int index);
+
+	/**
+	 * \brief Read the current Geant4 viewer orientation and sync the camera sliders.
+	 *
+	 * Queries \c G4VisManager for the active viewer, extracts \c GetViewpointDirection(),
+	 * converts the unit vector to spherical theta/phi in degrees, and updates
+	 * \c cameraTheta and \c cameraPhi with signals blocked so no Geant4 command is re-issued.
+	 * Has no effect if there is no current viewer.
+	 */
+	void readCameraFromViewer();
 
 	/**
 	 * \brief Update magnetic field line sampling precision.

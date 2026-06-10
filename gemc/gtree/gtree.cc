@@ -515,13 +515,15 @@ void GTree::set_visibility(const std::string& volumeName, bool visible) {
 
 // Send a Geant4 UI command to set RGB color for a specific volume.
 void GTree::set_color(const std::string& volumeName, const QColor& c) {
-    int r, g, b;
-    c.getRgb(&r, &g, &b);
+    G4Ttree_item* item = findTreeItem(volumeName);
+    double currentOpacity = item ? item->get_opacity() : 1.0;
+    if (item) item->set_color(c);
 
     std::string command = "/vis/geometry/set/colour " + volumeName + " 0 "
-        + std::to_string(r / 255.0) + " "
-        + std::to_string(g / 255.0) + " "
-        + std::to_string(b / 255.0);
+        + std::to_string(c.redF()) + " "
+        + std::to_string(c.greenF()) + " "
+        + std::to_string(c.blueF()) + " "
+        + std::to_string(currentOpacity);
 
     gutilities::apply_uimanager_commands(command);
 }
@@ -753,6 +755,11 @@ void GTree::onTwinkleStep() {
         ++twinkleTick;
     } else {
         twinkleTimer->stop();
+        G4Ttree_item* item = findTreeItem(twinkleVolumeName);
+        if (item) {
+            item->set_color(twinkleSavedColor);
+            item->set_opacity(twinkleSavedOpacity);
+        }
         const double r = twinkleSavedColor.redF();
         const double g = twinkleSavedColor.greenF();
         const double b = twinkleSavedColor.blueF();

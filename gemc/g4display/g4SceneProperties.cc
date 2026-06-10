@@ -59,10 +59,14 @@ std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr
 
 		// Convert configured camera angles to degrees for the Geant4 viewer command.
 		const double toDegrees = 180.0 / M_PI;
-		double thetaValue = gutilities::getG4Number(g4camera.theta) * toDegrees;
-		double phiValue = gutilities::getG4Number(g4camera.phi) * toDegrees;
-		double lightThetaValue = gutilities::getG4Number(g4light.theta) * toDegrees;
-		double lightPhiValue = gutilities::getG4Number(g4light.phi) * toDegrees;
+		double thetaValue      = gutilities::getG4Number(g4camera.theta) * toDegrees;
+		double phiValue        = gutilities::getG4Number(g4camera.phi)   * toDegrees;
+		double lightThetaValue = gutilities::getG4Number(g4light.theta)  * toDegrees;
+		double lightPhiValue   = gutilities::getG4Number(g4light.phi)    * toDegrees;
+		if (lightThetaValue == 0.0 && lightPhiValue == 0.0) {
+			lightThetaValue = thetaValue;
+			lightPhiValue   = phiValue;
+		}
 
 		// Disable auto refresh and quieten vis messages whilst scene and trajectories are established.
 		cmds.emplace_back("/vis/viewer/set/autoRefresh false");

@@ -118,11 +118,15 @@ namespace gemc {
 		if (g4view.driver != "TOOLSSG_OFFSCREEN") {
 			auto g4camera = g4display::getG4Camera(gopts);
 			auto g4light  = g4display::getG4Light(gopts);
-			const double toDegrees    = 180.0 / M_PI;
-			double thetaValue         = gutilities::getG4Number(g4camera.theta) * toDegrees;
-			double phiValue           = gutilities::getG4Number(g4camera.phi)   * toDegrees;
-			double lightThetaValue    = gutilities::getG4Number(g4light.theta)  * toDegrees;
-			double lightPhiValue      = gutilities::getG4Number(g4light.phi)    * toDegrees;
+			const double toDegrees = 180.0 / M_PI;
+			double thetaValue      = gutilities::getG4Number(g4camera.theta) * toDegrees;
+			double phiValue        = gutilities::getG4Number(g4camera.phi)   * toDegrees;
+			double lightThetaValue = gutilities::getG4Number(g4light.theta)  * toDegrees;
+			double lightPhiValue   = gutilities::getG4Number(g4light.phi)    * toDegrees;
+			if (lightThetaValue == 0.0 && lightPhiValue == 0.0) {
+				lightThetaValue = thetaValue;
+				lightPhiValue   = phiValue;
+			}
 
 			cmds.emplace_back("/vis/drawVolume");
 			// Disable auto refresh and quieten vis messages whilst scene and trajectories are established.
