@@ -2,24 +2,17 @@ experiment: examples
 runno: 1
 nthreads: 1
 
-verbosity:
-  - g4system: 1
-  - gemc: 1
-
 gsystem:
   - name: b1
     factory: sqlite
 
 gstreamer:
   - format: csv
-    filename: CO2
+    filename: b1
   - format: root
-    filename: CO2
+    filename: b1
 
 phys_list: QBBC
-
-g4view:
-  segsPerCircle: 100
 
 g4camera:
   theta: 20*deg

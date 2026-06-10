@@ -116,11 +116,19 @@ namespace gemc {
 
 		// do not draw volumes in batch screenshot
 		if (g4view.driver != "TOOLSSG_OFFSCREEN") {
+			auto g4camera = g4display::getG4Camera(gopts);
+			auto g4light  = g4display::getG4Light(gopts);
+			const double toDegrees    = 180.0 / M_PI;
+			double thetaValue         = gutilities::getG4Number(g4camera.theta) * toDegrees;
+			double phiValue           = gutilities::getG4Number(g4camera.phi)   * toDegrees;
+			double lightThetaValue    = gutilities::getG4Number(g4light.theta)  * toDegrees;
+			double lightPhiValue      = gutilities::getG4Number(g4light.phi)    * toDegrees;
+
 			cmds.emplace_back("/vis/drawVolume");
 			// Disable auto refresh and quieten vis messages whilst scene and trajectories are established.
 			cmds.emplace_back("/vis/viewer/set/autoRefresh false");
-			cmds.emplace_back("/vis/viewer/set/viewpointVector -1 0 0");
-			cmds.emplace_back("/vis/viewer/set/lightsVector -1 0 0");
+			cmds.emplace_back("/vis/viewer/set/viewpointThetaPhi " + std::to_string(thetaValue) + " " + std::to_string(phiValue));
+			cmds.emplace_back("/vis/viewer/set/lightsThetaPhi "    + std::to_string(lightThetaValue) + " " + std::to_string(lightPhiValue));
 		}
 
 		// GUI / batch screenshot mode: set up a minimal visualization scene with trajectories and hits.

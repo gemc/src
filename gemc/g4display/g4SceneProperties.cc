@@ -58,7 +58,7 @@ std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr
 		cmds.emplace_back("/vis/open " + g4view.driver + " " + g4view.dimension + g4view.position);
 
 		// Convert configured camera angles to degrees for the Geant4 viewer command.
-		double toDegrees = 180 / 3.1415;
+		const double toDegrees = 180.0 / M_PI;
 		double thetaValue = gutilities::getG4Number(g4camera.theta) * toDegrees;
 		double phiValue = gutilities::getG4Number(g4camera.phi) * toDegrees;
 		double lightThetaValue = gutilities::getG4Number(g4light.theta) * toDegrees;
