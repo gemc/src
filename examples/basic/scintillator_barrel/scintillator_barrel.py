@@ -39,6 +39,7 @@ paddle.description = "Scintillator barrel paddle"
 paddle.make_general_trapezoid(pZ, 0, 0, pY, pLTX, pX, 0, pY, pLTX, pX, 0)
 paddle.material = "G4_PLASTIC_SC_VINYLTOLUENE"
 paddle.color = "D7CCFF"
+paddle.opacity = 0.8
 paddle.set_rotation(0, 0, -90)   # local +Y (wide face) → radially outward
 paddle.digitization = "flux"
 

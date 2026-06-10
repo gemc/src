@@ -2,10 +2,6 @@ experiment: examples
 runno: 1
 nthreads: 1
 
-verbosity:
-  - g4system: 1
-  - gemc: 1
-
 gsystem:
   - name: pyvista
     factory: sqlite

@@ -20,5 +20,5 @@ g4view:
   segsPerCircle: 100
 
 g4camera:
-  theta: 90*deg
-  phi: 30*deg
+  theta: 27*deg
+  phi: 157*deg

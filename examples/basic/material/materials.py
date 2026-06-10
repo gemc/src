@@ -89,8 +89,8 @@ tube4.mother = "root"
 tube4.description = "Tube made of a NaI-like scintillating material"
 tube4.make_tube(0, radius, half_thickness, 0, 360)
 tube4.material = "my_scintillator"
-tube4.color = "F57F17"
-tube4.style = 0
+tube4.color = "957F97"
+tube4.opacity = 0.35
 tube4.set_position(0, 0, 0.5 + 3 * z_step)
 tube4.publish(cfg)
 

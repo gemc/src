@@ -2,21 +2,19 @@ experiment: examples
 runno: 1
 nthreads: 1
 
-verbosity:
-  - gfield: 1
-  - gemc: 1
-
 gsystem:
   - name: b2
     factory: sqlite
 
 gstreamer:
   - format: csv
-    filename: CO2
-  - format: root
-    filename: CO2
+    filename: b2
 
 phys_list: FTFP_BERT
+
+g4camera:
+  theta: 90*deg
+  phi: 180*deg
 
 gparticle:
   - name: proton

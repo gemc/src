@@ -9,14 +9,12 @@ gsystem:
 gstreamer:
   - format: csv
     filename: b1
-  - format: root
-    filename: b1
 
 phys_list: QBBC
 
 g4camera:
-  theta: 20*deg
-  phi: 150*deg
+  theta: 90*deg
+  phi: 180*deg
 
 gparticle:
   - name: gamma

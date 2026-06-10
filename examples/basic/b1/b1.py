@@ -53,5 +53,5 @@ gvolume.color = 'lightpink'
 gvolume.set_position(0, -10, 70)
 gvolume.digitization = 'dosimeter'     # collects edep, dose
 gvolume.set_identifier('mydosimeter', 1)
-gvolume.opacity = 0.7
+gvolume.opacity = 0.6
 gvolume.publish(cfg)

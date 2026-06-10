@@ -6,18 +6,17 @@ g4view:
   background: "0.92 0.92 0.98"
   cloudPoints: 60000
 
-verbosity:
-  - g4system: 1
-  - gemc: 1
 
 gsystem:
   - name: cherenkov
     variation: mediumIndexRadiator
 
+g4camera:
+  theta: 117*deg
+  phi: 166*deg
+
 gstreamer:
   - format: csv
-    filename: cherenkov
-  - format: root
     filename: cherenkov
 
 phys_list: FTFP_BERT + G4OpticalPhysics
