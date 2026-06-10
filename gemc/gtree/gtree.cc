@@ -11,6 +11,7 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QColorDialog>
+#include <QMessageBox>
 #include <QSignalBlocker>
 #include <QTimer>
 
@@ -638,17 +639,23 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
             opacitySlider->setVisible(true);
         }
 
-        // Update the inspect button with the selected volume's leaf name.
+        // Update the inspect and draw-overlaps buttons with the selected volume's leaf name.
         if (inspectButton) {
             const QString leaf = QString::fromStdString(G4Ttree_item::vname_from_v4name(current_volume_name));
             inspectButton->setText(tr("Inspect %1").arg(leaf));
             inspectButton->setVisible(true);
+        }
+        if (drawOverlapsButton) {
+            const QString leaf = QString::fromStdString(G4Ttree_item::vname_from_v4name(current_volume_name));
+            drawOverlapsButton->setText(tr("Draw Logical Overlaps %1").arg(leaf));
+            drawOverlapsButton->setVisible(true);
         }
     }
     else {
         styleButtons->setVisible(false);
         opacitySlider->setVisible(false);
         if (inspectButton) inspectButton->setVisible(false);
+        if (drawOverlapsButton) drawOverlapsButton->setVisible(false);
         // Systems don't have a single material etc.
         materialLabel->setText(tr(""));
         massLabel->setText(tr(""));
@@ -821,6 +828,16 @@ void GTree::inspectVolume() {
     // (camera, scene properties, tree widget) continue to act on the main view.
     if (!originalViewerName.empty())
         uim->ApplyCommand("/vis/viewer/select " + originalViewerName);
+}
+
+
+// Warn that /vis/drawLogicalVolume is not yet usable due to a Geant4 11.4.1 TOOLSSG bug.
+void GTree::drawOverlapsWarning() {
+    QMessageBox::warning(this,
+        tr("Not yet implemented"),
+        tr("Draw Logical Overlaps will be implemented when Geant4 fixes the\n"
+           "G4ToolsSGSceneHandler::GetOrCreateNode \"World mis-match\" crash\n"
+           "triggered by /vis/drawLogicalVolume in Geant4 11.4.1."));
 }
 
 

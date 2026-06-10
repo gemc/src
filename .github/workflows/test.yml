@@ -1,5 +1,7 @@
 name: Test
 
+run-name: triggered by ${{ inputs.triggered_by || 'manual' }}
+
 permissions:
   contents: read
 
@@ -12,6 +14,11 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      triggered_by:
+        description: 'What triggered this run'
+        required: false
+        default: 'manual'
   pull_request:
     paths-ignore:
       - "**/*.md"

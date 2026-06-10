@@ -362,6 +362,17 @@ private:
     QPushButton* inspectButton = nullptr;
 
     /**
+     * \brief Full-width button that will invoke /vis/drawLogicalVolume for overlap visualization.
+     *
+     * Not yet functional: blocked by a Geant4 11.4.1 TOOLSSG bug
+     * (G4ToolsSGSceneHandler::GetOrCreateNode throws "World mis-match" FatalException
+     * for the standalone PVPlacement created by G4LogicalVolumeModel).
+     * Displays a warning until the upstream fix is available.
+     * The label is updated to "Draw Logical Overlaps <volumename>" whenever a volume is selected.
+     */
+    QPushButton* drawOverlapsButton = nullptr;
+
+    /**
      * \brief Build the internal system/volume model from the supplied volume map.
      * \param g4volumes_map Map from full volume names to `G4Volume*` wrappers.
      */
@@ -503,6 +514,15 @@ private slots:
      * untouched.
      */
     void inspectVolume();
+
+    /**
+     * \brief Show a warning that Draw Logical Overlaps is not yet implemented.
+     *
+     * /vis/drawLogicalVolume crashes in Geant4 11.4.1 with the TOOLSSG driver
+     * (G4ToolsSGSceneHandler::GetOrCreateNode "World mis-match" FatalException).
+     * This slot will be wired to the real implementation once Geant4 is fixed.
+     */
+    void drawOverlapsWarning();
 
     /**
      * \brief Advance one step of the twinkle color animation; restore original on completion.
