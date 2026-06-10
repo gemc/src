@@ -7,6 +7,11 @@
 #include "g4dialog.h"
 #include "dbselectView.h"
 #include "gtree.h"
+#include "pmakerView.h"
+#include "gemc/actions/gaction.h"
+
+// geant4
+#include "G4RunManager.hh"
 
 void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 								 GDetectorConstruction* dc,
@@ -33,7 +38,7 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 	connect(setupView, &DBSelectView::geometryAboutToReload, this, &GemcGUI::resetVisualizationBeforeGeometryReload);
 	connect(setupView, &DBSelectView::geometryReloaded, this, &GemcGUI::refreshGeometryTree);
 
-	// volume controls
+	// gvolume controls
 	geometryTree = new GTree(gopts,
 	                         dc && dc->has_built_geometry()
 	                             ? dc->get_g4volumes_map()
@@ -46,6 +51,14 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 	// g4dialog
 	rightContent->addWidget(new G4Dialog(gopts, gb));
 
+	// generator / particle maker — share the exact same GparticlePtr objects as the generator
+	std::shared_ptr<std::vector<GparticlePtr>> sharedParticles;
+	if (auto* rm = G4RunManager::GetRunManager()) {
+		if (auto* ga = dynamic_cast<GAction*>(
+		        const_cast<G4VUserActionInitialization*>(rm->GetUserActionInitialization())))
+			sharedParticles = ga->getSharedParticles();
+	}
+	rightContent->addWidget(new PmakerView(sharedParticles, gopts));
 
 	// Default to the first page and update the left bar visual highlight accordingly.
 	rightContent->setCurrentIndex(0);

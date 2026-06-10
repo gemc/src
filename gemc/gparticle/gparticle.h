@@ -263,6 +263,33 @@ public:
 	 */
 	[[nodiscard]] const G4ThreeVector& getVertex() const { return v; }
 
+	/** \brief Returns the momentum spread parameter (GEMC internal units, MeV). */
+	[[nodiscard]] double getDeltaMomentum() const { return delta_p; }
+
+	/** \brief Returns the momentum randomization model as a string token. */
+	[[nodiscard]] std::string getMomentumModel() const {
+		return gutilities::to_string(randomMomentumModel);
+	}
+
+	/** \brief Returns the polar-angle spread parameter (GEMC internal units, radians). */
+	[[nodiscard]] double getDeltaTheta() const { return delta_theta; }
+
+	/** \brief Returns the theta randomization model as a string token. */
+	[[nodiscard]] std::string getThetaModel() const {
+		return gutilities::to_string(randomThetaModel);
+	}
+
+	/** \brief Returns the azimuthal-angle spread parameter (GEMC internal units, radians). */
+	[[nodiscard]] double getDeltaPhi() const { return delta_phi; }
+
+	/** \brief Returns the vertex spread vector (GEMC internal units, mm). */
+	[[nodiscard]] const G4ThreeVector& getDeltaVertex() const { return delta_v; }
+
+	/** \brief Returns the vertex randomization model as a string token. */
+	[[nodiscard]] std::string getVertexModel() const {
+		return gutilities::to_string(randomVertexModel);
+	}
+
 	/**
 	 * \brief Returns the generator source type.
 	 *
@@ -284,6 +311,25 @@ public:
 	[[nodiscard]] const std::vector<GparticleRuntimeRecord>& getRuntimeRecords() const {
 		return runtimeRecords;
 	}
+
+	// ---- Setters (used by the GUI to reflect user edits in real time) ----
+	void setName(const std::string& n)          { name = n; pid = get_pdg_id(); }
+	void setMultiplicity(int m)                 { multiplicity = m; }
+	void setMomentum(double p_mev)              { p = p_mev; }
+	void setDeltaMomentum(double dp)            { delta_p = dp; }
+	void setMomentumModel(const std::string& s) { randomMomentumModel = gutilities::stringToRandomModel(s); }
+	void setTheta(double t_rad)                 { theta = t_rad; }
+	void setDeltaTheta(double dt)               { delta_theta = dt; }
+	void setThetaModel(const std::string& s)    { randomThetaModel = gutilities::stringToRandomModel(s); }
+	void setPhi(double ph_rad)                  { phi = ph_rad; }
+	void setDeltaPhi(double dp)                 { delta_phi = dp; }
+	void setVertexX(double x)                   { v.setX(x); }
+	void setVertexY(double y)                   { v.setY(y); }
+	void setVertexZ(double z)                   { v.setZ(z); }
+	void setDeltaVertexX(double x)              { delta_v.setX(x); }
+	void setDeltaVertexY(double y)              { delta_v.setY(y); }
+	void setDeltaVertexZ(double z)              { delta_v.setZ(z); }
+	void setVertexModel(const std::string& s)   { randomVertexModel = gutilities::stringToRandomModel(s); }
 
 private:
 	/** \brief Particle name used to look up the definition in \c G4ParticleTable. */

@@ -84,6 +84,11 @@ public:
 	 */
 	explicit GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts);
 
+	/** \brief Construct with a pre-populated shared particle list (used by GAction so all
+	 *         worker-thread instances share the same GparticlePtr objects as the GUI). */
+	GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts,
+	                        std::shared_ptr<std::vector<GparticlePtr>> particles);
+
 	~GPrimaryGeneratorAction() override = default;
 
 	GPrimaryGeneratorAction(const GPrimaryGeneratorAction&)            = delete;
@@ -158,7 +163,7 @@ private:
 	 * generation the list is traversed in order, and each non-null entry is given
 	 * the opportunity to contribute primary content to the event.
 	 */
-	std::vector<GparticlePtr> gparticles;
+	std::shared_ptr<std::vector<GparticlePtr>> gparticles;
 
 	/**
 	 * \brief File-backed particle events, indexed by Geant4 event id.

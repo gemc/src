@@ -3,6 +3,7 @@
 #include "event/gEventAction.h"
 #include "generator/gPrimaryGeneratorAction.h"
 #include "run/gRunAction.h"
+#include "gparticle_options.h"
 
 // Construct the action initializer and keep shared services available for later
 // action registration on worker and master execution contexts.
@@ -10,7 +11,9 @@ GAction::GAction(std::shared_ptr<GOptions>                           gopts,
 				 std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
 	GBase(gopts, GACTION_LOGGER),
 	goptions(std::move(gopts)),
-	digitization_routines_map(std::move(digi_map)) {
+	digitization_routines_map(std::move(digi_map)),
+	sharedParticles_(std::make_shared<std::vector<GparticlePtr>>(
+	    gparticle::getGParticlesFromOption(goptions, log))) {
 
 	log->debug(CONSTRUCTOR, FUNCTION_NAME);
 
@@ -35,7 +38,7 @@ void GAction::Build() const {
 	log->debug(NORMAL, FUNCTION_NAME, "thread id: " + std::to_string(thread_id));
 
 	// Primary generation is event-scoped and therefore worker-owned.
-	SetUserAction(new GPrimaryGeneratorAction(goptions));
+	SetUserAction(new GPrimaryGeneratorAction(goptions, sharedParticles_));
 
 	// The run action is shared conceptually across the worker-thread lifecycle and
 	// is passed to the event action so event processing can access run services.

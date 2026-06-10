@@ -28,6 +28,7 @@
 #include "gsd.h"
 #include "gfield_options.h"
 #include "gtree_options.h"
+#include "pmaker_options.h"
 
 namespace gemc {
 
@@ -88,6 +89,7 @@ namespace gemc {
     	goptions += gfields::defineOptions();
     	goptions += gboard::defineOptions();
     	goptions += gtree::defineOptions();
+    	goptions += pmaker::defineOptions();
 
 
         return goptions;

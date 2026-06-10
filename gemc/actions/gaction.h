@@ -151,4 +151,17 @@ private:
 	 * raw hit information into GEMC digitized and truth-level payload.
 	 */
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;
+
+	/**
+	 * \brief Shared particle list used by all GPrimaryGeneratorAction instances and the pmaker GUI.
+	 *
+	 * Loaded once from GOptions in the constructor and then passed to every worker-thread
+	 * GPrimaryGeneratorAction so that GUI edits (via GparticlePtr setters) are immediately
+	 * visible to the generator without any extra synchronization step.
+	 */
+	std::shared_ptr<std::vector<GparticlePtr>> sharedParticles_;
+
+public:
+	/** \brief Returns the shared particle list so the pmaker GUI can wire its tabs to the same objects. */
+	std::shared_ptr<std::vector<GparticlePtr>> getSharedParticles() const { return sharedParticles_; }
 };

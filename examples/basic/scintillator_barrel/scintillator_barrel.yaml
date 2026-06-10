@@ -1,0 +1,24 @@
+experiment: examples
+runno: 1
+n: 1
+nthreads: 1
+
+gsystem:
+  - name: scintillator_barrel
+    factory: sqlite
+
+gparticle:
+  - name: proton
+    p: 500*MeV
+    theta: 90*deg
+    delta_phi: 360*deg
+    multiplicity: 3
+
+phys_list: QBBC
+
+g4view:
+  segsPerCircle: 100
+
+g4camera:
+  theta: 90*deg
+  phi: 30*deg

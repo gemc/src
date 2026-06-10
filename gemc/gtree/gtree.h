@@ -12,6 +12,7 @@
 #include <QTreeWidgetItem>
 #include <QColor>
 #include <QLabel>
+#include <QTextEdit>
 #include <QPushButton>
 #include <QSlider>
 
@@ -336,7 +337,7 @@ private:
     QLabel* volumeLabel = nullptr;       ///< Volume display string (volume items only).
     QLabel* densityLabel = nullptr;      ///< Density display string (volume items only).
     QLabel* solidTypeLabel = nullptr;    ///< Solid type, e.g. "G4Box – Simple Box".
-    QLabel* parametersLabel = nullptr;   ///< Solid parameters with units.
+    QTextEdit* parametersLabel = nullptr; ///< Solid parameters with units (scrollable).
     QLabel* positionLabel = nullptr;     ///< Placement position with units.
     QLabel* rotationLabel = nullptr;     ///< Placement rotation with units.
     QLabel* motherLabel = nullptr;       ///< Mother volume name.

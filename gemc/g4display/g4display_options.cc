@@ -121,7 +121,7 @@ GOptions defineOptions() {
 		{"dimension", std::string(GDEFAULTVIEWERSIZE), "Geant4 viewer dimension"},
 		{"position", std::string(GDEFAULTVIEWERPOS), "Geant4 viewer position"},
 		{"segsPerCircle", GDEFAULTVSEGPERCIRCLE, "Number of segments per circle"},
-		{"background", "1 1 1", "Geant4 viewer background color as '<red> <green> <blue>'"},
+		{"background", "0 0.07059 0.16863", "Geant4 viewer background color as '<red> <green> <blue>'"},
 		{"cloudPoints", 1000, "Number of points used for cloud volume rendering"}
 	};
 
@@ -133,7 +133,7 @@ GOptions defineOptions() {
 	help += " - number of cloud points for cloud volume rendering  \n \n ";
 	help += " Examples: \n \n ";
 	help += " -g4view=\"[{dimension: 1200x1000}]\"\n";
-	help += " -g4view=\"[{driver: OGL, dimension: 1100x800, position: +200+100, segsPerCircle: 100, background: 1 1 1}]\" \n";
+	help += " -g4view=\"[{driver: OGL, dimension: 1100x800, position: +200+100, segsPerCircle: 100, background: 0 0.07059 0.16863}]\" \n";
 	help += " -g4view=\"[{driver: TOOLSSG_OFFSCREEN, segsPerCircle: 200, cloudPoints: 3000}]\" takes a screenshot at the end of each run \n";
 
 	goptions.defineOption("g4view", "Defines the geant4 viewer properties", g4view, help);

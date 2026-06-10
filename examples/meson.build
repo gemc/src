@@ -16,7 +16,8 @@ examples_map = {
         'simple_flux' : { 'runs' : ['1'], 'variations' : ['default'], 'plot_var' : 'totEdep' },
         'b1' : { 'runs' : ['1'], 'variations' : ['default', 'test'], 'plot_var' : 'dose', 'n_events' : '50' },
         'b2' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'], 'plot_var' : 'totEdep' },
-        'b3' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] }
+        'b3' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] },
+        'scintillator_barrel' : { 'runs' : ['1'], 'variations' : ['default'], 'plot_var' : 'totEdep' }
     },
     'optical' : {
         'cherenkov' : { 'runs' : ['1'], 'variations' : ['default', 'mediumIndexRadiator', 'highIndexRadiator'],

@@ -56,19 +56,31 @@ void append_runtime_records(GParticleRecordEvent& records, const GparticlePtr& p
 // and guarantee a valid fallback particle when no explicit configuration is present.
 GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts) :
 	GBase(gopts, GPRIMARYGENERATORACTION_LOGGER),
-	gparticleGun(std::make_unique<G4ParticleGun>()) {
-	// Inline gparticle definitions are generated for every event. File-backed
-	// definitions are event records and are selected by Geant4 event id.
-	gparticles           = gparticle::getGParticlesFromOption(gopts, log);
-	gparticleFileEvents  = gparticle::getGParticleEventsFromSources(gopts, log);
+	gparticleGun(std::make_unique<G4ParticleGun>()),
+	gparticles(std::make_shared<std::vector<GparticlePtr>>(
+	    gparticle::getGParticlesFromOption(gopts, log))) {
+	gparticleFileEvents          = gparticle::getGParticleEventsFromSources(gopts, log);
 	allGparticleFileRecordEvents = gparticle::getGParticleRecordEventsFromSources(gopts, log);
 
-	if (gparticles.empty() && allGparticleFileRecordEvents.empty()) {
-		// Fall back to a default particle definition so the generator remains usable
-		// even when no explicit particle configuration was provided.
+	if (gparticles->empty() && allGparticleFileRecordEvents.empty()) {
 		auto default_particle = Gparticle::create_default_gparticle(log);
 		log->info(1, "No gparticle was defined. Creating default:", *default_particle);
-		gparticles.emplace_back(default_particle);
+		gparticles->emplace_back(default_particle);
+	}
+}
+
+GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts,
+                                                 std::shared_ptr<std::vector<GparticlePtr>> particles) :
+	GBase(gopts, GPRIMARYGENERATORACTION_LOGGER),
+	gparticleGun(std::make_unique<G4ParticleGun>()),
+	gparticles(std::move(particles)) {
+	gparticleFileEvents          = gparticle::getGParticleEventsFromSources(gopts, log);
+	allGparticleFileRecordEvents = gparticle::getGParticleRecordEventsFromSources(gopts, log);
+
+	if (gparticles->empty() && allGparticleFileRecordEvents.empty()) {
+		auto default_particle = Gparticle::create_default_gparticle(log);
+		log->info(1, "No gparticle was defined. Creating default:", *default_particle);
+		gparticles->emplace_back(default_particle);
 	}
 }
 
@@ -81,10 +93,10 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 	current_generated_particle_records.clear();
 	current_generated_tracked_particle_records.clear();
 
-	current_generated_particles.insert(current_generated_particles.end(), gparticles.begin(), gparticles.end());
-	current_generated_tracked_particles.insert(current_generated_tracked_particles.end(), gparticles.begin(), gparticles.end());
-	current_generated_particle_records.reserve(gparticles.size());
-	for (const auto& gparticle : gparticles) {
+	current_generated_particles.insert(current_generated_particles.end(), gparticles->begin(), gparticles->end());
+	current_generated_tracked_particles.insert(current_generated_tracked_particles.end(), gparticles->begin(), gparticles->end());
+	current_generated_particle_records.reserve(gparticles->size());
+	for (const auto& gparticle : *gparticles) {
 		current_generated_particle_records.emplace_back(make_particle_record(gparticle));
 	}
 
@@ -102,8 +114,7 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 		                                           event_particles.end());
 	}
 
-	for (const auto& gparticle : gparticles) {
-
+	for (const auto& gparticle : *gparticles) {
 		if (gparticle != nullptr) {
 			gparticle->shootParticle(gparticleGun.get(), anEvent);
 			append_runtime_records(current_generated_tracked_particle_records, gparticle);

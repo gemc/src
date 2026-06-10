@@ -3,6 +3,7 @@
 // non-Doxygen comments to summarize behavior.
 
 // c++
+#include <cmath>
 #include <sstream>
 
 // Qt
@@ -104,12 +105,32 @@ const PDesc& solidParamDescs(const std::string& solid, std::size_t n) {
     return it != kFixed.end() ? it->second : kEmpty;
 }
 
+// Format a "number*unit" or bare "number" token: max 3 decimal places,
+// values with |x| < 1e-7 are shown as 0.
+static QString formatVal(const std::string& token) {
+    const auto star = token.find('*');
+    const std::string numPart = (star == std::string::npos) ? token : token.substr(0, star);
+    const std::string unit    = (star == std::string::npos) ? "" : token.substr(star);
+    try {
+        std::size_t pos = 0;
+        double v = std::stod(numPart, &pos);
+        if (pos != numPart.size()) return QString::fromStdString(token);
+        if (std::abs(v) < 1e-7) v = 0.0;
+        QString s = QString::number(v, 'f', 3);
+        while (s.endsWith('0') && s.contains('.')) s.chop(1);
+        if (s.endsWith('.')) s.chop(1);
+        return s + QString::fromStdString(unit);
+    } catch (...) {
+        return QString::fromStdString(token);
+    }
+}
+
 QString formatParameters(const std::string& solid, const std::string& paramsStr) {
     if (paramsStr.empty()) return {};
     const auto vals = splitParams(paramsStr);
     if (vals.empty()) return {};
 
-    QString html = "Parameters:<br>";
+    QString html = "Parameters:";
 
     // Polycone: fixed header (phiStart, phiTotal, nplanes) then arrays
     if (solid == "G4Polycone" && vals.size() >= 3) {
@@ -119,16 +140,16 @@ QString formatParameters(const std::string& solid, const std::string& paramsStr)
             "nplanes: number of planes"
         };
         for (int i = 0; i < 3 && i < (int)vals.size(); ++i)
-            html += QString("<br>&nbsp;&nbsp;<i>%1</i>: %2").arg(kPcFixed[i], QString::fromStdString(vals[i]));
+            html += QString("<br>&nbsp;&nbsp;<i>%1</i>: %2").arg(kPcFixed[i], formatVal(vals[i]));
         int nplanes = 0;
         try { nplanes = std::stoi(vals[2]); } catch (...) {}
         int idx = 3;
         for (int p = 0; p < nplanes && idx < (int)vals.size(); ++p, ++idx)
-            html += QString("<br>&nbsp;&nbsp;<i>z[%1]</i>: %2").arg(p).arg(QString::fromStdString(vals[idx]));
+            html += QString("<br>&nbsp;&nbsp;<i>z[%1]</i>: %2").arg(p).arg(formatVal(vals[idx]));
         for (int p = 0; p < nplanes && idx < (int)vals.size(); ++p, ++idx)
-            html += QString("<br>&nbsp;&nbsp;<i>rin[%1]</i>: %2").arg(p).arg(QString::fromStdString(vals[idx]));
+            html += QString("<br>&nbsp;&nbsp;<i>rin[%1]</i>: %2").arg(p).arg(formatVal(vals[idx]));
         for (int p = 0; p < nplanes && idx < (int)vals.size(); ++p, ++idx)
-            html += QString("<br>&nbsp;&nbsp;<i>rout[%1]</i>: %2").arg(p).arg(QString::fromStdString(vals[idx]));
+            html += QString("<br>&nbsp;&nbsp;<i>rout[%1]</i>: %2").arg(p).arg(formatVal(vals[idx]));
         return html;
     }
 
@@ -138,7 +159,7 @@ QString formatParameters(const std::string& solid, const std::string& paramsStr)
         for (int v = 0; v < 8; ++v)
             for (int c = 0; c < 3; ++c)
                 html += QString("<br>&nbsp;&nbsp;<i>v%1%2</i>: %3")
-                            .arg(v + 1).arg(kAxes[c]).arg(QString::fromStdString(vals[v * 3 + c]));
+                            .arg(v + 1).arg(kAxes[c]).arg(formatVal(vals[v * 3 + c]));
         return html;
     }
 
@@ -148,7 +169,7 @@ QString formatParameters(const std::string& solid, const std::string& paramsStr)
         const QString desc = i < descs.size()
             ? QString::fromStdString(descs[i])
             : QString("missing parameters description");
-        html += QString("<br>&nbsp;&nbsp;<i>%1</i>: %2").arg(desc, QString::fromStdString(vals[i]));
+        html += QString("<br>&nbsp;&nbsp;<i>%1</i>: %2").arg(desc, formatVal(vals[i]));
     }
     return html;
 }
@@ -592,7 +613,9 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
             const auto solidT = titem->get_solidType();
             solidTypeLabel->setText(solidT.empty() ? QString() : tr("Solid: %1").arg(QString::fromStdString(solidT)));
             const auto params = titem->get_parameters();
-            parametersLabel->setText(params.empty() ? QString() : formatParameters(solidT, params));
+            const bool hasParams = !params.empty();
+            parametersLabel->setVisible(hasParams);
+            if (hasParams) parametersLabel->setHtml(formatParameters(solidT, params));
             const auto pos = titem->get_position();
             positionLabel->setText(pos.empty() ? QString() : tr("Position: %1").arg(QString::fromStdString(pos)));
             const auto rot = titem->get_rotation();
@@ -630,7 +653,8 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
         volumeLabel->setText(tr(""));
         densityLabel->setText(tr(""));
         solidTypeLabel->setText(tr(""));
-        parametersLabel->setText(tr(""));
+        parametersLabel->clear();
+        parametersLabel->setVisible(false);
         positionLabel->setText(tr(""));
         rotationLabel->setText(tr(""));
         motherLabel->setText(tr(""));
