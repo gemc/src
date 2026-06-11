@@ -23,7 +23,7 @@ photon_energy = "2.0*eV 3.0*eV 4.0*eV 5.0*eV 6.0*eV"
 rindex = {
     "lowIndexRadiator":    "1.0010 1.0011 1.0012 1.0013 1.0013",
     "mediumIndexRadiator": "1.0110 1.0120 1.0130 1.0140 1.0150",
-    "highIndexRadiator":   "1.0500 1.0510 1.0520 1.0530 1.0530",
+    "highIndexRadiator":   "1.0400 1.0410 1.0420 1.0430 1.0430",
 }
 absorption = {
     "lowIndexRadiator": "100*m       100*m       100*m       100*m       100*m",

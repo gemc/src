@@ -20,6 +20,7 @@ world.publish(cfg)
 radius         = 5    # cm, giving 10 cm diameter
 half_thickness = 0.5  # cm, giving 1 cm total thickness
 z_step         = 4    # cm center-to-center spacing
+startz         = - 10 * half_thickness
 
 # --- Tube 1: Geant4 built-in material ---
 tube1 = GVolume("tube_carbon")
@@ -28,7 +29,7 @@ tube1.description = "Carbon tube using the Geant4 built-in G4_C (graphite) mater
 tube1.make_tube(0, radius, half_thickness, 0, 360)
 tube1.material = "G4_C"
 tube1.color = "808080"
-tube1.set_position(0, 0, 0.5)
+tube1.set_position(0, 0, startz)
 tube1.publish(cfg)
 
 # --- Tube 2: Custom material by molecular composition ---
@@ -45,7 +46,7 @@ tube2.description = "Tube made of custom water defined by molecular composition"
 tube2.make_tube(0, radius, half_thickness, 0, 360)
 tube2.material = "custom_water"
 tube2.color = "1565C0"
-tube2.set_position(0, 0, 0.5 + z_step)
+tube2.set_position(0, 0, startz + z_step)
 tube2.publish(cfg)
 
 # --- Tube 3: Custom material by fractional masses ---
@@ -62,7 +63,7 @@ tube3.description = "Tube made of an air/water mixture defined by fractional mas
 tube3.make_tube(0, radius, half_thickness, 0, 360)
 tube3.material = "air_water_mixture"
 tube3.color = "2E7D32"
-tube3.set_position(0, 0, 0.5 + 2 * z_step)
+tube3.set_position(0, 0, startz + 2 * z_step)
 tube3.publish(cfg)
 
 # --- Tube 4: Scintillator with fast/slow emission components ---
@@ -91,7 +92,7 @@ tube4.make_tube(0, radius, half_thickness, 0, 360)
 tube4.material = "my_scintillator"
 tube4.color = "957F97"
 tube4.opacity = 0.35
-tube4.set_position(0, 0, 0.5 + 3 * z_step)
+tube4.set_position(0, 0, startz + 3 * z_step)
 tube4.publish(cfg)
 
 # --- Tube 5: Optical glass with index of refraction (Cherenkov radiator) ---
@@ -114,5 +115,5 @@ tube5.make_tube(0, radius, half_thickness, 0, 360)
 tube5.material = "optical_glass"
 tube5.color = "00BCD4"
 tube5.style = 2
-tube5.set_position(0, 0, 0.5 + 4 * z_step)
+tube5.set_position(0, 0, startz + 4 * z_step)
 tube5.publish(cfg)

@@ -13,8 +13,8 @@ gstreamer:
 phys_list: FTFP_BERT
 
 g4camera:
-  theta: 90*deg
-  phi: 180*deg
+  theta: 116*deg
+  phi: 160*deg
 
 gparticle:
   - name: proton
