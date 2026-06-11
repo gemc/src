@@ -54,8 +54,10 @@ std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr
 		cmds.emplace_back("/vis/viewer/set/style surface");
 	}
 	if (gui || g4view.driver == "TOOLSSG_OFFSCREEN") {
-		// Open the configured viewer driver with window geometry settings.
-		cmds.emplace_back("/vis/open " + g4view.driver + " " + g4view.dimension + g4view.position);
+		// Open the configured viewer driver. Offscreen drivers ignore window position, so omit it.
+		std::string openArg = g4view.driver + " " + g4view.dimension;
+		if (g4view.driver != "TOOLSSG_OFFSCREEN") openArg += g4view.position;
+		cmds.emplace_back("/vis/open " + openArg);
 
 		// Convert configured camera angles to degrees for the Geant4 viewer command.
 		const double toDegrees = 180.0 / M_PI;

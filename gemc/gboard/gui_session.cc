@@ -2,55 +2,68 @@
 
 // geant4
 #include "G4UImanager.hh"
+#include "G4coutDestination.hh"
 
 GUI_Session::GUI_Session(const std::shared_ptr<GOptions>& gopt, GBoard* b) :
 	GBase(gopt, GBOARD_LOGGER),
 	board(b) {
-	// Route Geant4 UI output to this session instance, so we can forward it to the GUI board.
+	// Route Geant4 UI output to this session instance so we can forward it to the GUI board.
+	// SetCoutDestination updates the per-thread stream buffer but does NOT update
+	// masterG4coutDestination, which G4UIQt set to itself in its constructor.
+	// Worker threads use G4MasterForwardcoutDestination -> masterG4coutDestination, so
+	// we must update it here to prevent G4UIQt::ReceiveG4cerr from being called on a
+	// background thread (which would trigger an NSAlert from a non-main thread on macOS).
 	G4UImanager::GetUIpointer()->SetCoutDestination(this);
+	G4coutDestination::masterG4coutDestination = this;
 
 	log->info(1, SFUNCTION_NAME, " g4 dialog : GUI_Session created");
 }
 
 G4int GUI_Session::ReceiveG4cout(const G4String& coutString) {
 	// See header for API docs.
-	if (board) {
-		QString fullQString = QString::fromStdString(coutString);
+	if (!board) return 0;
 
-		// Split into lines so that the board gets "log-like" incremental entries.
-		// KeepEmptyParts preserves blank lines, while avoiding QRegularExpression
-		// compatibility issues with Unicode line separator escapes.
-		fullQString.replace("\r\n", "\n");
-		fullQString.replace('\r', '\n');
-		fullQString.replace(QChar(0x2028), '\n');
-		QStringList lines = fullQString.split('\n', Qt::KeepEmptyParts);
+	QString fullQString = QString::fromStdString(coutString);
+	// Split into lines so that the board gets "log-like" incremental entries.
+	fullQString.replace("\r\n", "\n");
+	fullQString.replace('\r', '\n');
+	fullQString.replace(QChar(0x2028), '\n');
+	QStringList lines = fullQString.split('\n', Qt::KeepEmptyParts);
 
-		for (const QString& line : lines) {
-			// Convert ANSI attributes (if present) into HTML for rich-text display.
-			QString htmlLine = ansiToHtml(line);
-			board->appendLog(htmlLine);
-		}
-	}
+	// Convert ANSI to HTML on the calling thread (no Qt object access needed).
+	QStringList htmlLines;
+	htmlLines.reserve(lines.size());
+	for (const QString& line : lines) { htmlLines << ansiToHtml(line); }
+
+	// Post widget update to the main thread. Qt::AutoConnection calls directly
+	// when already on the main thread, and queues the call otherwise, preventing
+	// NSWindow/NSAlert operations from a Geant4 worker thread on macOS.
+	auto* b = board;
+	QMetaObject::invokeMethod(b, [b, htmlLines]() {
+		for (const QString& htmlLine : htmlLines) { b->appendLog(htmlLine); }
+	});
 	return 0;
 }
 
 
 G4int GUI_Session::ReceiveG4cerr(const G4String& cerrString) {
 	// See header for API docs.
-	if (board) {
-		QString fullQString = QString::fromStdString(cerrString);
+	if (!board) return 0;
 
-		// Use the same line normalization as stdout.
-		fullQString.replace("\r\n", "\n");
-		fullQString.replace('\r', '\n');
-		fullQString.replace(QChar(0x2028), '\n');
-		QStringList lines = fullQString.split('\n', Qt::KeepEmptyParts);
+	QString fullQString = QString::fromStdString(cerrString);
+	fullQString.replace("\r\n", "\n");
+	fullQString.replace('\r', '\n');
+	fullQString.replace(QChar(0x2028), '\n');
+	QStringList lines = fullQString.split('\n', Qt::KeepEmptyParts);
 
-		for (const QString& line : lines) {
-			QString htmlLine = ansiToHtml(line);
-			board->appendLog(htmlLine);
-		}
-	}
+	QStringList htmlLines;
+	htmlLines.reserve(lines.size());
+	for (const QString& line : lines) { htmlLines << ansiToHtml(line); }
+
+	auto* b = board;
+	QMetaObject::invokeMethod(b, [b, htmlLines]() {
+		for (const QString& htmlLine : htmlLines) { b->appendLog(htmlLine); }
+	});
 	return 0;
 }
 
@@ -211,8 +224,12 @@ GUI_Session::~GUI_Session() {
 	// See header for API docs.
 	// Detach Geant4 cout/cerr from our GUI session (avoid dangling callback).
 	if (auto* UIM = G4UImanager::GetUIpointer()) {
-		// If available in your G4 version, prefer checking the current destination:
-		// if (UIM->GetCoutDestination() == gui_session.get()) { ... }
 		UIM->SetCoutDestination(nullptr);
+	}
+	// Also clear masterG4coutDestination, which we claimed in the constructor.
+	// Worker threads read this pointer at call time, so nulling it here prevents
+	// any in-flight forwarding from reaching the already-destroyed session.
+	if (G4coutDestination::masterG4coutDestination == this) {
+		G4coutDestination::masterG4coutDestination = nullptr;
 	}
 }

@@ -30,6 +30,12 @@ EventDispenser::EventDispenser(const std::shared_ptr<GOptions>&                 
 	userRunno        = gopt->getScalarInt("run");
 	neventsToProcess = gopt->getScalarInt("n");
 
+	// Detect offscreen mode once at construction so processEvents() needs no vis headers.
+	auto driverNode = gopt->getOptionMapInNode("g4view", "driver");
+	if (!driverNode.IsNull() && driverNode.IsDefined()) {
+		offscreen_screenshots = (driverNode.as<std::string>() == "TOOLSSG_OFFSCREEN");
+	}
+
 	// If there are no events to process, keep the object in an initialized-but-idle state.
 	if (neventsToProcess == 0) return;
 
@@ -162,6 +168,16 @@ int EventDispenser::processEvents() {
 		// The command string is a standard Geant4 UI command: \c /run/beamOn <N>.
 		log->info(1, "Processing ", nevents, " events in one go");
 		g4uim->ApplyCommand("/run/beamOn " + to_string(nevents));
+		// Take the screenshot after BeamOn returns. At this point G4VisManager::EndOfRun()
+		// has already joined the vis subthread (ARM64 offset 0xa35f8: bl thread::join), so
+		// DrawEvent calls are finished — no concurrent scene-graph writes. The transient store
+		// is still intact: the vis subthread's exit cleanup only runs after running=0 is set
+		// inside G4VisManager::EndOfRun(), which completes inside BeamOn before it returns.
+		if (offscreen_screenshots) {
+			g4uim->ApplyCommand("/vis/tsg/offscreen/set/size 3000 2000");
+			g4uim->ApplyCommand("/vis/tsg/offscreen/set/file gemc_run_" + to_string(runNumber) + ".png");
+			g4uim->ApplyCommand("/vis/viewer/rebuild");
+		}
 
 		log->info(1, "Run ", runNumber, " done with ", nevents, " events");
 	}

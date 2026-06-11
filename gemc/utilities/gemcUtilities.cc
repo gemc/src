@@ -140,6 +140,10 @@ namespace gemc {
 		cmds.emplace_back("/vis/modeling/trajectories/create/drawByCharge");
 		cmds.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true");
 		cmds.emplace_back("/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2");
+		// Draw optical photons in cyan so they are distinct from other neutral particles.
+		cmds.emplace_back("/vis/modeling/trajectories/create/drawByParticleID");
+		cmds.emplace_back("/vis/modeling/trajectories/drawByParticleID-0/set opticalphoton cyan");
+
 		cmds.emplace_back("/vis/scene/add/hits");
 		cmds.emplace_back("/vis/scene/endOfEventAction accumulate 10000");
 		cmds.push_back("/vis/viewer/set/background " + g4view.background);

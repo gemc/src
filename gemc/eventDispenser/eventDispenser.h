@@ -4,6 +4,7 @@
 #include <gemc/gdynamicDigitization/gdynamicdigitization.h>
 
 #include <map>
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -59,6 +60,9 @@ private:
 
 	/// Run number requested by the user (option \c -run) when not using a run-weight file.
 	int userRunno;
+
+	/// True when the configured viewer is TOOLSSG_OFFSCREEN; triggers screenshot commands after BeamOn.
+	bool offscreen_screenshots = false;
 
 	/// Most recently processed run number. Used to detect run changes and reload run-dependent data.
 	int currentRunno = -1;

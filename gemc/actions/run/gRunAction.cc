@@ -3,12 +3,9 @@
 #include "gRun.h"
 #include "../gactionConventions.h"
 #include "gutsConventions.h"
-#include "g4display_options.h"
 
 // geant4
 #include "G4Threading.hh"
-#include "G4MTRunManager.hh"
-#include "G4UImanager.hh"
 
 std::mutex GRunAction::completed_run_data_mutex;
 GRunAction::CompletedRunData GRunAction::completed_worker_run_data;
@@ -22,11 +19,6 @@ GRunAction::GRunAction(std::shared_ptr<GOptions> gopt,
 	digitization_routines_map(std::move(digi_map)) {
 	const auto desc = std::to_string(G4Threading::G4GetThreadId());
 	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
-
-	auto g4view = g4display::getG4View(goptions);
-	if (g4view.driver == "TOOLSSG_OFFSCREEN") {
-		take_screenshots = true;
-	}
 }
 
 
@@ -228,22 +220,6 @@ void GRunAction::EndOfRunAction(const G4Run *aRun) {
 		}
 	}
 
-	if (IsMaster() && take_screenshots) {
-		take_screenshot(runNumber);
-	}
-}
-
-void GRunAction::take_screenshot(int runno) {
-	auto ui = G4UImanager::GetUIpointer();
-	ui->ApplyCommand("/vis/tsg/offscreen/set/size 3000 2000");
-
-	ui->ApplyCommand(
-		"/vis/tsg/offscreen/set/file gemc_run_" +
-		std::to_string(runno) + ".png"
-	);
-
-	// This is what actually writes the PNG for TOOLSSG_OFFSCREEN.
-	ui->ApplyCommand("/vis/viewer/rebuild");
 }
 
 // Move this worker's completed run-data object into the protected static pool
