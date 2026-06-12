@@ -31,9 +31,12 @@ EventDispenser::EventDispenser(const std::shared_ptr<GOptions>&                 
 	neventsToProcess = gopt->getScalarInt("n");
 
 	// Detect offscreen mode once at construction so processEvents() needs no vis headers.
-	auto driverNode = gopt->getOptionMapInNode("g4view", "driver");
-	if (!driverNode.IsNull() && driverNode.IsDefined()) {
-		offscreen_screenshots = (driverNode.as<std::string>() == "TOOLSSG_OFFSCREEN");
+	// g4view is only defined when g4display options are included (e.g. in the full gemc app).
+	if (gopt->doesOptionExist("g4view")) {
+		auto driverNode = gopt->getOptionMapInNode("g4view", "driver");
+		if (!driverNode.IsNull() && driverNode.IsDefined()) {
+			offscreen_screenshots = (driverNode.as<std::string>() == "TOOLSSG_OFFSCREEN");
+		}
 	}
 
 	// If there are no events to process, keep the object in an initialized-but-idle state.
