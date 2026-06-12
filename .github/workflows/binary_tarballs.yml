@@ -1,6 +1,8 @@
 # Upload and test GEMC binary tarballs.
 name: Binary Tarballs
 
+run-name: Triggered by successful deploy workflow (${{ github.event.workflow_run.head_sha }})
+
 permissions:
   actions: read
   contents: write

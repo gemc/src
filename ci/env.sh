@@ -89,6 +89,28 @@ function meson_setup_options {
     echo "${args[@]}"
 }
 
+# Run any command, retrying once on failure. Appends output to $test_log.
+function run_command_with_retry {
+  local label="$1"
+  shift
+
+  for attempt in 1 2; do
+    echo " > Running ${label} (attempt ${attempt}/2):" "$@" | tee -a "$test_log"
+    "$@" >> "$test_log"
+    local exit_code=$?
+
+    if [ $exit_code -eq 0 ]; then
+      return 0
+    fi
+
+    if [ $attempt -eq 2 ]; then
+      return $exit_code
+    fi
+
+    echo " > ${label} failed; retrying once" | tee -a "$test_log"
+  done
+}
+
 export GEMC="${SIM_HOME:?SIM_HOME not set}/gemc"
 
 log_dir=$SIM_HOME/logs

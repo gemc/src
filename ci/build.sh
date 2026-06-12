@@ -7,9 +7,13 @@
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # ./ci/build.sh
 
+# Load environment variables: log file paths, job count, helper functions.
 source ci/env.sh
+
+# Resolve meson setup flags from the optional sanitizer argument ($1).
 meson_option=$(meson_setup_options $1)
 
+# Print build environment summary (compiler paths, options, core count).
 {
   echo " > Geant-config: $(command -v geant4-config) : $(geant4-config --version)"
   echo " > Root-config: $(command -v root-config) : $(root-config --version)"
@@ -21,6 +25,7 @@ meson_option=$(meson_setup_options $1)
 } | tee -a "$setup_log"
 
 
+# Remove any previous install directory, then configure the build tree.
 {
   echo
   rm -rf $GEMC
@@ -40,6 +45,7 @@ else
 fi
 
 
+# Compile all targets using all available cores.
 echo " > Running meson compile -C build -v -j $jobs " | tee -a $compile_log
 meson compile -C build -v -j $jobs  >> $compile_log
 if [ $? -ne 0 ]; then
@@ -51,6 +57,7 @@ else
   echo
 fi
 
+# Install built artifacts to the configured prefix.
 echo " > Running meson install -C build " | tee -a $install_log
 meson install -C build  >> $install_log
 if [ $? -ne 0 ]; then
@@ -62,8 +69,10 @@ else
   echo
 fi
 
+# Print a summary of the installed gemc files and version.
 show_gemc_installation
 
+# Base options shared by all meson test invocations.
 test_options=(
   -C build
   --print-errorlogs
@@ -72,7 +81,7 @@ test_options=(
   --num-processes 1
 )
 
-# Specific tests to run when sanitizer is enabled
+# Subset of tests run when a sanitizer is active (keeps the suite fast and focused).
 sanitizer_tests=(
   -v
   test_generator_lund_file_events
@@ -81,35 +90,15 @@ sanitizer_tests=(
   examples_geo_basic_simple_flux_ascii_variation_default
 )
 
+# Tests that need the CSV plugin preloaded to work under UBSan.
 undefined_preload_tests=(
   test_gstreamer_csv_verbose
 )
 
-function run_meson_test_with_retry {
-  local label="$1"
-  shift
-
-  for attempt in 1 2; do
-    echo " > Running ${label} (attempt ${attempt}/2):" "$@" | tee -a "$test_log"
-    "$@" >> "$test_log"
-    local exit_code=$?
-
-    if [ $exit_code -eq 0 ]; then
-      return 0
-    fi
-
-    if [ $attempt -eq 2 ]; then
-      return $exit_code
-    fi
-
-    echo " > ${label} failed; retrying once" | tee -a "$test_log"
-  done
-}
-
-
+# Start with the base test options; append sanitizer-specific or verbose flag below.
 meson_args=( "${test_options[@]}" )
 
-# if $1 is NOT one of sanitize option, run meson test
+# When a sanitizer is active run only the targeted subset; otherwise run all tests verbosely.
 case "$1" in
   address|thread|undefined|leak)
     meson_args+=( "${sanitizer_tests[@]}" )
@@ -119,8 +108,9 @@ case "$1" in
     ;;
 esac
 
-: > "$test_log"
-if ! run_meson_test_with_retry "meson test" meson test "${meson_args[@]}"; then
+# Clear (or create) the test log before the first test run.
+> "$test_log"
+if ! run_command_with_retry "meson test" meson test "${meson_args[@]}"; then
   echo " > Meson Tests failed. Log: "
   cat $test_log
   exit 1
@@ -129,12 +119,13 @@ else
   echo
 fi
 
+# Under UBSan, preload the CSV plugin to avoid static-TLS exhaustion at dlopen time.
 if [ "$1" = "undefined" ]; then
   gstreamer_csv_plugin="$PWD/build/gstreamer_csv_plugin.gplugin"
   # UBSan on Linux can exhaust static TLS before GEMC's runtime dlopen() loads
   # this plugin. Preloading it makes the dynamic loader reserve TLS at process
   # startup while keeping the workaround scoped to the affected sanitizer test.
-  if ! run_meson_test_with_retry "undefined sanitizer preload tests" \
+  if ! run_command_with_retry "undefined sanitizer preload tests" \
     env LD_PRELOAD="$gstreamer_csv_plugin" meson test "${test_options[@]}" -v "${undefined_preload_tests[@]}"; then
     echo " > Meson Tests failed. Log: "
     cat $test_log
@@ -145,6 +136,7 @@ if [ "$1" = "undefined" ]; then
   fi
 fi
 
+# Print a pass/fail summary parsed from the accumulated test log.
 echo "   - Successful: $(grep 'Ok:' "$test_log" | awk '{sum += $2} END {print sum + 0}')" | tee -a "$test_log"
 echo "   - Failures: $(grep 'Fail:' "$test_log" | awk '{sum += $2} END {print sum + 0}')" | tee -a "$test_log"
 echo " > Complete test log: $test_log"
