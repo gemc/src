@@ -31,19 +31,6 @@ The project goal is to make Geant4-based simulation accessible to users who want
 - Python analyzer for plotting GEMC CSV and ROOT output
 - Meson-based C++ build with CI-tested Docker images for Linux `amd64` and `arm64`
 
-## Repository Layout
-
-| Path | Purpose |
-| --- | --- |
-| `actions/`, `g4system/`, `gdetector/`, `gphysics/` | Geant4 application integration and detector construction |
-| `gsystem/` | Geometry-system loading from SQLite, ASCII, CAD, and GDML sources |
-| `gdynamicDigitization/` | Built-in and dynamically loaded digitization routines |
-| `gstreamer/` | Output plugins for event, run, and frame data |
-| `gparticle/` | Particle generation and particle-file readers |
-| `gfields/` | Magnetic-field abstractions and field plugins |
-| `examples/` | Complete Python/YAML examples used by tests and documentation |
-| `subprojects/pygemc/` | Meson subproject copy of the Python API |
-| `ci/` | Build, Docker, release, and documentation automation |
 
 ## Quickstart
 
@@ -124,13 +111,13 @@ docker run -it --rm -v "$PWD":/work ghcr.io/gemc/src:dev-ubuntu-24.04 bash
 
 Published image families include:
 
-| OS | Version | Architectures |
-| --- | --- | --- |
-| AlmaLinux | 10 | `amd64`, `arm64` |
-| Arch Linux | latest | `amd64` |
-| Debian | 13 | `amd64`, `arm64` |
-| Fedora | 44 | `amd64`, `arm64` |
-| Ubuntu | 24.04, 26.04 | `amd64`, `arm64` |
+| OS         | Version                | Architectures     |
+|------------|------------------------|-------------------|
+| AlmaLinux  | 10    `amd64`, `arm64` |
+| Arch Linux | latest                 | `amd64`           |
+| Debian     | 13                     | `amd64`, `arm64`  |
+| Fedora     | 44                     | `amd64`, `arm64`  |
+| Ubuntu     | 24.04, 26.04           | `amd64`, `arm64`  |
 
 See the [installation page](https://gemc.github.io/home/installation/) for Docker, browser GUI, and Apptainer examples.
 
@@ -165,13 +152,48 @@ Geometry scripts can write SQLite or ASCII databases, display geometry with PyVi
 ### PyVista Visualization
 
 PyVista is part of the normal GEMC geometry workflow. It lets users inspect detector geometry before running Geant4, export portable VTK.js scenes for documentation, and catch placement or rotation mistakes while editing Python geometry scripts.
-
-<!-- PyVista gallery setting: edit width="300" height="300" below to resize all thumbnails. -->
-| B1 | B2 |
-| --- | --- |
-| <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=https://gemc.github.io/home/assets/images/examples/b1/b1.vtksz"><img src="https://gemc.github.io/home/assets/images/examples/b1/geometry.png" alt="B1 PyVista geometry" width="300" height="300"></a> | <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=https://gemc.github.io/home/assets/images/examples/b2/b2.vtksz"><img src="https://gemc.github.io/home/assets/images/examples/b2/geometry.png" alt="B2 PyVista geometry" width="300" height="300"></a> |
-| Materials | Simple Flux |
-| <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=https://gemc.github.io/home/assets/images/examples/materials/material.vtksz"><img src="https://gemc.github.io/home/assets/images/examples/materials/geometry.png" alt="Materials PyVista geometry" width="300" height="300"></a> | <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=https://gemc.github.io/home/assets/images/examples/simple_flux/simple_flux.vtksz"><img src="https://gemc.github.io/home/assets/images/examples/simple_flux/geometry.png" alt="Simple Flux PyVista geometry" width="300" height="300"></a> |
+<table>
+  <tr>
+    <th>Example</th>
+    <th>Preview</th>
+  </tr>
+  <tr>
+    <td>B1</td>
+    <td>
+      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/b1/b1.vtksz">
+        <img src="https://gemc.github.io/home/assets/images/examples/b1/gemc_view.png"
+             alt="B1 PyVista" width="180">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td>B2</td>
+    <td>
+      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/b2/b2.vtksz">
+        <img src="https://gemc.github.io/home/assets/images/examples/b2/gemc_view.png"
+             alt="B2 PyVista" width="180">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td>Materials</td>
+    <td>
+      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/materials/material.vtksz">
+        <img src="https://gemc.github.io/home/assets/images/examples/materials/gemc_view.png"
+             alt="Materials PyVista" width="180">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td>Simple Flux</td>
+    <td>
+      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/simple_flux/simple_flux.vtksz">
+        <img src="https://gemc.github.io/home/assets/images/examples/simple_flux/gemc_view.png"
+             alt="Simple Flux PyVista" width="180">
+      </a>
+    </td>
+  </tr>
+</table>
 
 Open the linked interactive PyVista scenes generated from the GEMC examples.
 
