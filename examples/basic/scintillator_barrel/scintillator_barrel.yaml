@@ -22,3 +22,7 @@ g4view:
 g4camera:
   theta: 27*deg
   phi: 157*deg
+
+gstreamer:
+  - format: csv
+    filename: barrel
