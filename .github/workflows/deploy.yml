@@ -1,7 +1,7 @@
 # Build and publish GitHub Container Registry (GHCR) images after tests pass.
 name: Deploy
 
-run-name: Triggered by successful test workflow (${{ github.event.workflow_run.head_sha }})
+run-name: Triggered by successful test workflow
 permissions:
   contents: write
   packages: write

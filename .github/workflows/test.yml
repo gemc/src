@@ -1,6 +1,6 @@
 name: Test
 
-run-name: triggered by ${{ inputs.triggered_by || 'manual' }}
+run-name: ${{ github.event.head_commit.message || github.event.pull_request.title || inputs.triggered_by }}
 
 permissions:
   contents: read
