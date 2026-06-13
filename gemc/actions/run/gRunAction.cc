@@ -256,14 +256,16 @@ void GRunAction::publish_run_data(const std::shared_ptr<GRunDataCollection> &run
 		           " no run streamer map available - run data will not be published.");
 	}
 
+	// Normalize once, before publishing: normalize_run_data() mutates run_data_collaction
+	// in place and is NOT idempotent, so running it per streamer would divide the run
+	// observables by events_processed once for every configured run streamer.
+	normalize_run_data(run_data_collaction);
+
 	for (const auto &[name, gstreamer]: *gstreamer_run_map) {
 		if (gstreamer == nullptr) {
 			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
 			           " null gstreamer instance for run streamer ", name);
 		}
-
-
-		normalize_run_data(run_data_collaction);
 
 		gstreamer->publishRunData(run_data_collaction);
 	}
