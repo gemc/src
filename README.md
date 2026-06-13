@@ -152,45 +152,43 @@ Geometry scripts can write SQLite or ASCII databases, display geometry with PyVi
 
 ### PyVista Visualization
 
-PyVista is part of the normal GEMC geometry workflow. It lets users inspect detector geometry before running Geant4, export portable VTK.js scenes for documentation, and catch placement or rotation mistakes while editing Python geometry scripts.
+PyVista is part of the normal GEMC geometry workflow. It lets users inspect detector geometry before running
+Geant4, export portable VTK.js scenes for documentation, and catch placement or rotation mistakes while editing
+Python geometry scripts.
 <table>
   <tr>
-    <th>Example</th>
-    <th>Preview</th>
-  </tr>
-  <tr>
-    <td>B1</td>
     <td>
-      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/b1/b1.vtksz">
+      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/b1/b1.vtksz"
+         target="_blank" rel="noopener noreferrer">
         <img src="https://gemc.github.io/home/assets/images/examples/b1/gemc_view.png"
-             alt="B1 PyVista" width="180">
+             alt="B1 PyVista" width="180"><br>
+        B1
       </a>
     </td>
-  </tr>
-  <tr>
-    <td>B2</td>
     <td>
-      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/b2/b2.vtksz">
+      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/b2/b2.vtksz"
+         target="_blank" rel="noopener noreferrer">
         <img src="https://gemc.github.io/home/assets/images/examples/b2/gemc_view.png"
-             alt="B2 PyVista" width="180">
+             alt="B2 PyVista" width="180"><br>
+        B2
       </a>
     </td>
   </tr>
   <tr>
-    <td>Materials</td>
     <td>
-      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/materials/material.vtksz">
+      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/materials/material.vtksz"
+         target="_blank" rel="noopener noreferrer">
         <img src="https://gemc.github.io/home/assets/images/examples/materials/gemc_view.png"
-             alt="Materials PyVista" width="180">
+             alt="Materials PyVista" width="180"><br>
+        Materials
       </a>
     </td>
-  </tr>
-  <tr>
-    <td>Simple Flux</td>
     <td>
-      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/simple_flux/simple_flux.vtksz">
-        <img src="https://gemc.github.io/home/assets/images/examples/simple_flux/gemc_view.png"
-             alt="Simple Flux PyVista" width="180">
+      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/scintillator_barrel/scintillator_barrel.vtksz"
+         target="_blank" rel="noopener noreferrer">
+        <img src="https://gemc.github.io/home/assets/images/examples/scintillator_barrel/gemc_view.png"
+             alt="Scintillator Barrel PyVista" width="180"><br>
+        Scintillator Barrel
       </a>
     </td>
   </tr>
