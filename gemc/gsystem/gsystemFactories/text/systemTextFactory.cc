@@ -14,12 +14,13 @@
 
 // cpp
 #include <fstream>
+#include <memory>
 
 // returns the file stream, checking all possible directories.
 // SYSTEMTYPE can be:
 // - GTEXTGEOMTYPE (mandatory, exit if not found)
 // - GTEXTMATSTYPE
-std::ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const std::string& SYSTEMTYPE) {
+std::unique_ptr<std::ifstream> GSystemTextFactory::gSystemTextFileStream(GSystem* system, const std::string& SYSTEMTYPE) {
 	std::string fileName  = system->getFilePath();
 	std::string variation = system->getVariation();
 	std::string fname     = fileName + SYSTEMTYPE + variation + ".txt";
@@ -27,7 +28,7 @@ std::ifstream* GSystemTextFactory::gSystemTextFileStream(GSystem* system, const 
 	log->info(0, "gSystemTextFileStream filename is: ", fname);
 
 	// default dir is "."
-	auto IN = new std::ifstream(fname.c_str());
+	auto IN = std::make_unique<std::ifstream>(fname.c_str());
 
 	if (IN->good()) {
 		log->info(1, "Trying file ", fname);

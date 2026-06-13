@@ -34,7 +34,6 @@ void GSystemTextFactory::loadGeometry(GSystem* system) {
 				gutilities::getStringVectorFromStringWithDelimiter(dbline, "|");
 			system->addGVolume(gvolumePars);
 		}
-
-		IN->close();
+		// IN (unique_ptr<ifstream>) closes the file and frees the stream on scope exit.
 	}
 }
