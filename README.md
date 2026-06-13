@@ -1,9 +1,10 @@
 # GEMC
 
-[![Deploy and Test][ci-badge]][ci]
-[![Doxygen][docs-badge]][docs]
+[![Test][test-badge]][test]
+[![Deploy][deploy-badge]][deploy]
 [![Sanitize][sanitize-badge]][sanitize]
 [![CodeQL][codeql-badge]][codeql]
+[![Doxygen][docs-badge]][docs]
 [![Nightly Dev Release][nightly-badge]][nightly]
 [![Homepage][site-badge]][site]
 [![pygemc PyPI][pypi-badge]][pypi]
@@ -251,13 +252,13 @@ gemc counter.yaml -n=10 \
 
 The output layer is plugin-based. Built-in streamer formats include:
 
-| Format | Notes |
-| --- | --- |
-| `ascii` | Human-readable text output |
-| `csv` | Per-thread CSV tables for digitized hits, true information, generated particles, and tracked generated particles |
-| `json` | Structured event output |
-| `jlabsro` | Binary JLAB SRO frame records |
-| `root` | ROOT TTrees, available when GEMC is built with ROOT |
+| Format    | Notes                                                                                                            |
+|-----------|------------------------------------------------------------------------------------------------------------------|
+| `ascii`   | Human-readable text output                                                                                       |
+| `csv`     | Per-thread CSV tables for digitized hits, true information, generated particles, and tracked generated particles |
+| `json`    | Structured event output                                                                                          |
+| `jlabsro` | Binary JLAB SRO frame records                                                                                    |
+| `root`    | ROOT TTrees, available when GEMC is built with ROOT                                                              |
 
 Analyze CSV or ROOT output with:
 
@@ -333,8 +334,11 @@ BibTeX and additional citation formats are in [`CITATION.md`](CITATION.md).
 
 GEMC is distributed under the project license in [`LICENSE.md`](LICENSE.md). The software also depends on separately licensed third-party components, including Geant4, CLHEP, Qt, ROOT, SQLite, and Assimp.
 
-[ci]: https://github.com/gemc/src/actions/workflows/dockers_deploy_and_test.yml
-[ci-badge]: https://github.com/gemc/src/actions/workflows/dockers_deploy_and_test.yml/badge.svg
+
+[test]: https://github.com/gemc/src/actions/workflows/test.yml
+[test-badge]: https://github.com/gemc/src/actions/workflows/test.yml/badge.svg
+[deploy]: https://github.com/gemc/src/actions/workflows/deploy.yml
+[deploy-badge]: https://github.com/gemc/src/actions/workflows/deploy.yml/badge.svg
 [docs]: https://github.com/gemc/src/actions/workflows/doxygen.yml
 [docs-badge]: https://github.com/gemc/src/actions/workflows/doxygen.yml/badge.svg
 [sanitize]: https://github.com/gemc/src/actions/workflows/sanitize.yml
