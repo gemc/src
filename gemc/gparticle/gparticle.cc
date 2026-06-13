@@ -166,7 +166,7 @@ G4ThreeVector Gparticle::calculateVertex() {
 				z      = randomizeNumberFromSigmaWithModel(0, max_radius, gutilities::uniform);
 				radius = x * x + y * y + z * z;
 			}
-			while (radius > max_radius);
+			while (radius > max_radius * max_radius);
 
 			// Offset the sampled point by the nominal vertex.
 			x = x + v.x();
