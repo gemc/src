@@ -26,7 +26,7 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 
 		// Import each STL as a volume. Each volume name is derived from the filename.
 		for (const auto& cf : cadFiles) {
-			s->addVolumeFromFile(GSYSTEMCADTFACTORYLABEL, dirLocation.append("/").append(cf));
+			s->addVolumeFromFile(GSYSTEMCADTFACTORYLABEL, dirLocation + "/" + cf);
 		}
 
 		// If the file cad__<variation>.yaml is found in dirLocation, modify the gvolumes accordingly.
