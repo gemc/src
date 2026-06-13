@@ -131,6 +131,18 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 				string keyPart   = argStr.substr(0, eqPos);
 				string valuePart = argStr.substr(eqPos + 1);
 
+				// Switch with an explicit boolean value: -gui=false / -gui=true. This gives the
+				// CLI a way to turn a switch off, honoring the documented CLI-over-YAML precedence.
+				if (switches.find(keyPart) != switches.end()) {
+					if (valuePart == "true" || valuePart == "1") { switches[keyPart].turnOn(); }
+					else if (valuePart == "false" || valuePart == "0") { switches[keyPart].turnOff(); }
+					else {
+						cerr << "The switch " << keyPart << " accepts only true/false." << endl;
+						exit(EC__NOOPTIONFOUND);
+					}
+					continue;
+				}
+
 				// Strip outer quotes if present (e.g., -gstreamer="[...]")
 				if (!valuePart.empty() && valuePart.front() == '"' && valuePart.back() == '"') {
 					valuePart = valuePart.substr(1, valuePart.length() - 2);
