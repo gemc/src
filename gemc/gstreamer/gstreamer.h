@@ -616,13 +616,23 @@ namespace gstreamer {
 		for (const auto& gstreamer_def : gstreamer::getGStreamerDefinition(gopts)) {
 			auto        gstreamer_def_thread = GStreamerDefinition(gstreamer_def, thread_id);
 			std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
+			// Key the map by the unique per-output rootname so that multiple same-format
+			// outputs (e.g. two csv files) do not collide; the plugin library is still
+			// loaded by the format-derived plugin name.
+			const std::string& output_key   = gstreamer_def_thread.rootname;
 
-			// Load the plugin object for this configured output.
+			// Load the plugin object for this configured output. Each call returns a
+			// fresh GStreamer instance, so same-format outputs stay independent.
 			auto streamer = manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts);
-			gstreamers->emplace(gstreamer_plugin, streamer);
+			auto [it, inserted] = gstreamers->emplace(output_key, streamer);
+			if (!inserted) {
+				log->warning("duplicate gstreamer output name '", output_key,
+				             "' - ignoring later definition");
+				continue;
+			}
 
-			// Bind the thread-specialized definition to the plugin instance.
-			gstreamers->at(gstreamer_plugin)->define_gstreamer(gstreamer_def_thread);
+			// Bind the thread-specialized definition to this (freshly created) plugin instance.
+			it->second->define_gstreamer(gstreamer_def_thread);
 		}
 
 		return gstreamers;
