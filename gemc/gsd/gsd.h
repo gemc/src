@@ -195,7 +195,9 @@ private:
 		std::string vname = thisStep->GetPreStepPoint()->GetTouchable()->GetVolume()->GetName();
 
 		auto it = gTouchableMap.find(vname);
-		if (it != gTouchableMap.end()) { return it->second; }
+		// Return a per-step copy: ProcessHits and processTouchable mutate trackId, pid and the
+		// time-cell index, so the registry entry must stay pristine across steps and events.
+		if (it != gTouchableMap.end()) { return std::make_shared<GTouchable>(*it->second); }
 		// If not found, log an error. The calling code assumes a valid pointer.
 		log->error(ERR_DYNAMICPLUGINNOTFOUND, "GTouchable for volume " + vname + " not found in gTouchableMap");
 	}
