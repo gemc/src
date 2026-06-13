@@ -7,6 +7,7 @@
 // gemc
 #include <gemc/gfactory/gfactory.h>
 #include <gemc/gbase/gbase.h>
+#include <gemc/guts/gutilities.h>
 
 
 constexpr const char* GFIELD_LOGGER   = "gfield";
@@ -148,7 +149,7 @@ public:
 	 * \param key Map key to retrieve.
 	 * \return Parsed floating-point value.
 	 */
-	double get_field_parameter_double(const std::string& key) { return stod(gfield_definitions.field_parameters[key]); }
+	double get_field_parameter_double(const std::string& key) { return gutilities::getG4Number(gfield_definitions.field_parameters[key]); }
 
 	/**
 	 * \brief Hook for configuring module loggers from options.
