@@ -166,7 +166,9 @@ void GRunAction::EndOfRunAction(const G4Run *aRun) {
 	// Worker threads do not publish merged run data. Instead, they hand their
 	// completed run-level accumulation to the shared pool and return.
 	if (!IsMaster()) {
-		stash_worker_run_data();
+		// Only contribute to the master merge pool when a run-mode streamer will drain it;
+		// otherwise the pool is never taken and would accumulate stale prior-run data.
+		if (need_a_run_streamer) { stash_worker_run_data(); }
 		return;
 	}
 
