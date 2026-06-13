@@ -104,10 +104,19 @@ void EventDispenser::distributeEvents(int nevents_to_process) {
 	mt19937                     generator(randomDevice());
 	uniform_real_distribution<> randomDistribution(0, 1);
 
+	// Weights in the run-weights file are relative, not required to sum to 1. Compute the total
+	// once and scale each draw by it, so non-normalized weights distribute events correctly.
+	double totalWeight = 0;
+	for (const auto& weight : runWeights) { totalWeight += weight.second; }
+	if (totalWeight <= 0) {
+		log->error(ERR_EVENTDISTRIBUTIONFILENOTFOUND,
+		           "Run weights sum to ", totalWeight, " (must be > 0). Check your run weights file.");
+		return;
+	}
+
 	// For each event, select a run by comparing a random draw to the cumulative weight intervals.
-	// This assumes runWeights values represent fractions or relative weights normalized to sum to 1.
 	for (int i = 0; i < nevents_to_process; i++) {
-		double randomNumber = randomDistribution(generator);
+		double randomNumber = randomDistribution(generator) * totalWeight;
 
 		double cumulativeWeight = 0;
 		for (const auto& weight : runWeights) {
