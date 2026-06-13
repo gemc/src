@@ -63,6 +63,19 @@ public:
 	 */
 	G4World(const GWorld* gworld, const std::shared_ptr<GOptions>& gopts);
 
+	/// Frees the owned G4Volume wrappers. Geant4 owns the contained solid/logical/physical
+	/// objects, so only the lightweight wrappers allocated by the object factories are deleted.
+	~G4World() {
+		for (auto& [name, vol] : g4volumesMap) { delete vol; }
+	}
+
+	// G4World now owns the raw G4Volume* wrappers (freed in the destructor). It is only ever held
+	// by shared_ptr, so forbid copy/move to avoid a shallow copy double-freeing the wrappers.
+	G4World(const G4World&)            = delete;
+	G4World& operator=(const G4World&) = delete;
+	G4World(G4World&&)                 = delete;
+	G4World& operator=(G4World&&)      = delete;
+
 	// ────── lookup / mutators ────────────────────────────────────────
 
 	/**
