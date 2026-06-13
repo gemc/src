@@ -15,6 +15,7 @@
 
 // geant4
 #include "G4UImanager.hh"
+#include "G4RunManager.hh"
 
 using namespace std;
 
@@ -170,6 +171,11 @@ int EventDispenser::processEvents() {
 		// Dispatch all events for this run in a single call.
 		// The command string is a standard Geant4 UI command: \c /run/beamOn <N>.
 		log->info(1, "Processing ", nevents, " events in one go");
+		// Seed Geant4's internal run-ID counter with the GEMC conditions run number so
+		// GRunHeader (built from aRun->GetRunID()) is labeled with the run the user
+		// requested rather than Geant4's 0-based per-beamOn counter. Under MT this
+		// propagates from the master manager to the worker runs of this beamOn.
+		G4RunManager::GetRunManager()->SetRunIDCounter(runNumber);
 		g4uim->ApplyCommand("/run/beamOn " + to_string(nevents));
 		// Take the screenshot after BeamOn returns. At this point G4VisManager::EndOfRun()
 		// has already joined the vis subthread (ARM64 offset 0xa35f8: bl thread::join), so
