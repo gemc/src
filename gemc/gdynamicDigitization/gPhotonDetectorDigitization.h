@@ -16,6 +16,10 @@ public:
 	/// Inherit the base constructor (const std::shared_ptr<GOptions>&).
 	using GFluxDigitization::GFluxDigitization;
 
+	/// Keep the base's energy-only overload visible alongside the override below,
+	/// so it is not hidden by name lookup (-Woverloaded-virtual).
+	using GFluxDigitization::decisionToSkipHit;
+
 	/**
 	 * \brief Keeps only optical-photon steps.
 	 *

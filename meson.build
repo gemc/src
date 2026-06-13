@@ -149,11 +149,14 @@ foreach L : LD
     endforeach
 
     if plugins != empty_dict
-        # Same rationale as the example executables: the module library (link_with)
-        # propagates this_deps' link args, so pass only their compile/include part to
-        # the plugins to avoid duplicate -l flags; zlib is linked once explicitly.
+        # Same rationale as the example executables: a STATIC module library
+        # (link_with) propagates this_deps' link args, so pass only their
+        # compile/include part to the plugins to avoid duplicate -l flags; zlib is
+        # linked once explicitly. With shared module libraries (use_sharedl, e.g. the
+        # sanitizer build) the .so is self-contained and does not forward those link
+        # args, so the full this_deps must be passed instead.
         # (computed here, before 'sources' is rebound by the plugin loop below.)
-        if sources.contains('')
+        if sources.contains('') or use_sharedl
             plugin_base_deps = [this_deps, zlib_dep]
         else
             plugin_base_deps = [declare_dependency(dependencies : this_deps).partial_dependency(compile_args : true, includes : true), zlib_dep]
@@ -214,12 +217,16 @@ foreach L : LD
             example_sources = sources_and_arguments[0] + qrc_examples_compiled_sources
             arguments = sources_and_arguments[1]
 
-            # The module library (link_with) already propagates the link args of
+            # A STATIC module library (link_with) already propagates the link args of
             # this_deps, so only the compile/include part is needed here. Re-passing
             # the full deps duplicates -l flags and makes ld warn "ignoring duplicate
             # libraries: -lsqlite3". expat/zlib are geant4's static-link needs and are
             # not module deps, so they are linked here exactly once.
-            if sources.contains('')
+            # With shared module libraries (use_sharedl, e.g. the sanitizer build) the
+            # .so is self-contained and does NOT forward those link args, so symbols an
+            # example uses but the module library does not (e.g. gboard_example.cc's
+            # G4VisExecutive) would be unresolved; pass the full this_deps in that case.
+            if sources.contains('') or use_sharedl
                 example_deps = this_deps + [expat_dep, zlib_dep]
             else
                 example_compile_deps = declare_dependency(dependencies : this_deps).partial_dependency(compile_args : true, includes : true)
