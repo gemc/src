@@ -21,7 +21,11 @@ on:
 
 jobs:
   release-tarballs:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: >-
+      ${{
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push'
+      }}
     name: Attach GEMC tarballs to dev release
     runs-on: ubuntu-latest
     env:
@@ -59,7 +63,11 @@ jobs:
           gh release upload "${TAG_NAME}" --repo "$REPO" "${tarballs[@]}" --clobber
 
   discover:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: >-
+      ${{
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push'
+      }}
     name: Create Job Matrix
     runs-on: ubuntu-latest
     outputs:
