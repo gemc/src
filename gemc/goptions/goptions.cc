@@ -100,7 +100,9 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 			exit(EXIT_SUCCESS);
 		}
 		else if (strcmp(argv[i], "help") == 0) {
-			printOptionOrSwitchHelp(argv[i + 1]);
+			// "gemc help <topic>" shows topic help; bare "gemc help" shows the general help index.
+			if (i + 1 < argc) { printOptionOrSwitchHelp(argv[i + 1]); }
+			else { printHelp(); }
 			exit(EXIT_SUCCESS);
 		}
 	}
