@@ -29,6 +29,7 @@ EventDispenser::EventDispenser(const std::shared_ptr<GOptions>&                 
 	string filename  = gopt->getScalarString("run_weights");
 	userRunno        = gopt->getScalarInt("run");
 	neventsToProcess = gopt->getScalarInt("n");
+	variation        = gopt->getScalarString("variation");
 
 	// Detect offscreen mode once at construction so processEvents() needs no vis headers.
 	// g4view is only defined when g4display options are included (e.g. in the full gemc app).

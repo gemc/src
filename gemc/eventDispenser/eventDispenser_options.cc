@@ -29,6 +29,12 @@ GOptions defineOptions() {
 	help += "Example: -run=12\n";
 	goptions.defineOption(GVariable("run", 1, "sets run number"), help);
 
+	// Option: digitization variation (constants / translation-table version selector).
+	// Defaults to "default", matching the geometry-side variation default.
+	help = "Variation passed to digitization routines when loading constants and translation tables.\n";
+	help += "Example: -variation=default\n";
+	goptions.defineOption(GVariable("variation", "default", "digitization constants/TT variation"), help);
+
 	// Option: run weights file
 	help = "Text file with run number and their weights.\n \n";
 	help += GTAB;
