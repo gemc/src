@@ -54,8 +54,8 @@ bool GstreamerCsvFactory::publishEventDigitizedDataImpl(const std::string&      
 			for (const auto& [variableName, value] : dmap) {
 				ofile_digitized << value;
 				if (++i < total) ofile_digitized << ", ";
-				else ofile_digitized << "\n";
 			}
+			ofile_digitized << "\n";
 		}
 	}
 

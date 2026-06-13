@@ -55,8 +55,8 @@ bool GstreamerCsvFactory::publishEventTrueInfoDataImpl(const std::string&       
 			for (const auto& [variableName, value] : dmap) {
 				ofile_true_info << value;
 				if (++i < total) ofile_true_info << ", ";
-				else ofile_true_info << "\n";
 			}
+			ofile_true_info << "\n";
 		}
 	}
 
