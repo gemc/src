@@ -197,18 +197,18 @@ G4Ttree_item::G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume) {
 
     // Read visualization attributes from the logical volume.
     auto visAttributes = lvolume->GetVisAttributes();
-    auto gcolor = visAttributes->GetColour();
-
-    double red = gcolor.GetRed();
-    double green = gcolor.GetGreen();
-    double blue = gcolor.GetBlue();
-    auto alpha = gcolor.GetAlpha();
-
-    color = QColor::fromRgbF(red, green, blue);
-
-    opacity = alpha;
-
-    is_visible = visAttributes->IsVisible();
+    if (visAttributes != nullptr) {
+        auto gcolor = visAttributes->GetColour();
+        color      = QColor::fromRgbF(gcolor.GetRed(), gcolor.GetGreen(), gcolor.GetBlue());
+        opacity    = gcolor.GetAlpha();
+        is_visible = visAttributes->IsVisible();
+    }
+    else {
+        // No vis attributes assigned (e.g. imported CAD/GDML volumes): fall back to opaque white, visible.
+        color      = QColor::fromRgbF(1.0, 1.0, 1.0);
+        opacity    = 1.0;
+        is_visible = true;
+    }
 
     // Store scaled physics quantities for display (g, cm3, g/cm3).
     mass = lvolume->GetMass(false, true) / (CLHEP::g);
