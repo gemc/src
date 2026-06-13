@@ -139,51 +139,54 @@ void GMaterial::getMaterialPropertyFromString(const std::string &parameter, cons
 		} else if (propertyName == "rayleigh") {
 			rayleigh.push_back(gutilities::getG4Number(trimmedComponent));
 		}
+	}
 
-		// validation triggered by rayleigh
-		if (propertyName == "rayleigh") {
-			// Rayleigh is loaded last: at this point we can validate that all other optical vectors
-			// either are empty (not specified) or match the photonEnergy vector length.
-			//
-			// If they do not match, behavior is undefined because properties would be evaluated
-			// at inconsistent energy grids.
-			unsigned long photonEnergyVectorSize = photonEnergy.size();
+	// Validation runs once, after all tokens for this property have been parsed.
+	// Rayleigh is loaded last, so every other optical vector is fully populated and can be
+	// cross-checked against photonEnergy here. (Running this inside the token loop fired on
+	// the very first rayleigh value, before the vector was complete.)
+	if (propertyName == "rayleigh") {
+		// Rayleigh is loaded last: at this point we can validate that all other optical vectors
+		// either are empty (not specified) or match the photonEnergy vector length.
+		//
+		// If they do not match, behavior is undefined because properties would be evaluated
+		// at inconsistent energy grids.
+		unsigned long photonEnergyVectorSize = photonEnergy.size();
 
-			if (!indexOfRefraction.empty() && indexOfRefraction.size() != photonEnergyVectorSize) {
-				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-				           "indexOfRefraction size ", indexOfRefraction.size(), " mismatch: photonEnergy has size ",
-				           photonEnergyVectorSize);
-			}
-			if (!absorptionLength.empty() && absorptionLength.size() != photonEnergyVectorSize) {
-				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-				           "absorptionLength size ", absorptionLength.size(), " mismatch: photonEnergy has size ",
-				           photonEnergyVectorSize);
-			}
-			if (!reflectivity.empty() && reflectivity.size() != photonEnergyVectorSize) {
-				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-				           "reflectivity size ", reflectivity.size(), " mismatch: photonEnergy has size ",
-				           photonEnergyVectorSize);
-			}
-			if (!efficiency.empty() && efficiency.size() != photonEnergyVectorSize) {
-				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-				           "efficiency size ", efficiency.size(), " mismatch: photonEnergy has size ",
-				           photonEnergyVectorSize);
-			}
-			if (!fastcomponent.empty() && fastcomponent.size() != photonEnergyVectorSize) {
-				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-				           "fastcomponent size ", fastcomponent.size(), " mismatch: photonEnergy has size ",
-				           photonEnergyVectorSize);
-			}
-			if (!slowcomponent.empty() && slowcomponent.size() != photonEnergyVectorSize) {
-				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-				           "slowcomponent size ", slowcomponent.size(), " mismatch: photonEnergy has size ",
-				           photonEnergyVectorSize);
-			}
-			if (!rayleigh.empty() && rayleigh.size() != photonEnergyVectorSize) {
-				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-				           "rayleigh size ", rayleigh.size(), " mismatch: photonEnergy has size ",
-				           photonEnergyVectorSize);
-			}
+		if (!indexOfRefraction.empty() && indexOfRefraction.size() != photonEnergyVectorSize) {
+			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			           "indexOfRefraction size ", indexOfRefraction.size(), " mismatch: photonEnergy has size ",
+			           photonEnergyVectorSize);
+		}
+		if (!absorptionLength.empty() && absorptionLength.size() != photonEnergyVectorSize) {
+			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			           "absorptionLength size ", absorptionLength.size(), " mismatch: photonEnergy has size ",
+			           photonEnergyVectorSize);
+		}
+		if (!reflectivity.empty() && reflectivity.size() != photonEnergyVectorSize) {
+			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			           "reflectivity size ", reflectivity.size(), " mismatch: photonEnergy has size ",
+			           photonEnergyVectorSize);
+		}
+		if (!efficiency.empty() && efficiency.size() != photonEnergyVectorSize) {
+			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			           "efficiency size ", efficiency.size(), " mismatch: photonEnergy has size ",
+			           photonEnergyVectorSize);
+		}
+		if (!fastcomponent.empty() && fastcomponent.size() != photonEnergyVectorSize) {
+			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			           "fastcomponent size ", fastcomponent.size(), " mismatch: photonEnergy has size ",
+			           photonEnergyVectorSize);
+		}
+		if (!slowcomponent.empty() && slowcomponent.size() != photonEnergyVectorSize) {
+			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			           "slowcomponent size ", slowcomponent.size(), " mismatch: photonEnergy has size ",
+			           photonEnergyVectorSize);
+		}
+		if (!rayleigh.empty() && rayleigh.size() != photonEnergyVectorSize) {
+			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			           "rayleigh size ", rayleigh.size(), " mismatch: photonEnergy has size ",
+			           photonEnergyVectorSize);
 		}
 	}
 }
