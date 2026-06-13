@@ -251,9 +251,9 @@ This archive contains the GEMC install tree without \`python_env\`. Install pyge
 python3 -m pip install pygemc
 \`\`\`
 
-## Geant4 data
+## Geant4 runtime and data
 
-GEMC is statically linked against Geant4, so the Geant4 shared libraries are not included. Geant4 still loads physics data at runtime. Run:
+GEMC is dynamically linked against Geant4 and CLHEP, so a matching Geant4/CLHEP runtime (the same version this build was compiled against) must be available at runtime. Put its libraries on \`LD_LIBRARY_PATH\` — for example by sourcing the Geant4 \`geant4.sh\` — before running gemc. The Geant4 *data* files are not bundled either; install them with the script below. Then run:
 
 \`\`\`bash
 ./install_geant4_data.sh
