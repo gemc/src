@@ -45,7 +45,7 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 	// Phase 4: build volumes. Some volumes depend on mothers that may not exist yet,
 	// so we iterate until the remaining list becomes empty or the dependency resolution stalls.
 	std::vector<GVolume *> thisIterationRemainingVolumes;
-	unsigned long allRemainingVolumes = 0;
+	unsigned long previousRemainingVolumes = 0;
 
 	do {
 		thisIterationRemainingVolumes.clear();
@@ -80,19 +80,19 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 			}
 		}
 
-		// Dependency-stall detection:
-		// If the number of remaining volumes does not decrease across iterations, dependencies are not solvable.
-		if (allRemainingVolumes != 0 && !thisIterationRemainingVolumes.empty()) {
-			if (allRemainingVolumes >= thisIterationRemainingVolumes.size()) {
-				for (auto *gvolumeLeft: thisIterationRemainingVolumes) {
-					log->warning(" >> ", gvolumeLeft->getName(),
-					             " with mother <", gvolumeLeft->getG4MotherName(), "> not built");
-				}
-				log->error(ERR_G4DEPENDENCIESNOTSOLVED,
-				           "dependencies are not being resolved: their number should diminish. "
-				           "Above are the outstanding gvolumes");
+		// Dependency-stall detection: error only when the remaining count fails to strictly
+		// decrease across iterations (a strictly smaller count means progress was made).
+		if (previousRemainingVolumes != 0 && !thisIterationRemainingVolumes.empty() &&
+		    thisIterationRemainingVolumes.size() >= previousRemainingVolumes) {
+			for (auto *gvolumeLeft: thisIterationRemainingVolumes) {
+				log->warning(" >> ", gvolumeLeft->getName(),
+				             " with mother <", gvolumeLeft->getG4MotherName(), "> not built");
 			}
-		} else { allRemainingVolumes = thisIterationRemainingVolumes.size(); }
+			log->error(ERR_G4DEPENDENCIESNOTSOLVED,
+			           "dependencies are not being resolved: their number should diminish. "
+			           "Above are the outstanding gvolumes");
+		}
+		previousRemainingVolumes = thisIterationRemainingVolumes.size();
 	} while (!thisIterationRemainingVolumes.empty());
 
 	// Optional diagnostic output: list known materials from the Geant4 NIST manager.
@@ -184,7 +184,7 @@ void G4World::buildMaterials(SystemMap *system_map) {
 	// Build materials across all systems. Some materials may depend on other materials/elements,
 	// so we iterate until all dependencies are resolved or the resolution stalls.
 	std::vector<GMaterial *> thisIterationRemainingMaterials;
-	unsigned long allRemainingMaterials = 0;
+	unsigned long previousRemainingMaterials = 0;
 	do {
 		thisIterationRemainingMaterials.clear();
 
@@ -197,14 +197,15 @@ void G4World::buildMaterials(SystemMap *system_map) {
 			}
 		}
 
-		// Dependency-stall detection for material building.
-		if (allRemainingMaterials != 0 && !thisIterationRemainingMaterials.empty()) {
-			if (allRemainingMaterials >= thisIterationRemainingMaterials.size()) {
-				for (auto &gmaterialLeft: thisIterationRemainingMaterials) { log->warning(gmaterialLeft->getName()); }
-				log->error(ERR_G4DEPENDENCIESNOTSOLVED,
-				           "Dependencies are not being resolved: their number should diminish. Above are the Outstanding gmaterials");
-			}
-		} else { allRemainingMaterials = thisIterationRemainingMaterials.size(); }
+		// Dependency-stall detection for material building: error only when the remaining
+		// count fails to strictly decrease across iterations.
+		if (previousRemainingMaterials != 0 && !thisIterationRemainingMaterials.empty() &&
+		    thisIterationRemainingMaterials.size() >= previousRemainingMaterials) {
+			for (auto &gmaterialLeft: thisIterationRemainingMaterials) { log->warning(gmaterialLeft->getName()); }
+			log->error(ERR_G4DEPENDENCIESNOTSOLVED,
+			           "Dependencies are not being resolved: their number should diminish. Above are the Outstanding gmaterials");
+		}
+		previousRemainingMaterials = thisIterationRemainingMaterials.size();
 	} while (!thisIterationRemainingMaterials.empty());
 }
 
