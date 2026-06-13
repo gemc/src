@@ -262,11 +262,11 @@ private:
 	std::string timestamp;
 
 	/// \brief Cached event number copied at the start of the most recent event publish cycle.
-	int event_number;
+	int event_number = -1;
 
 	/// \brief Cached run number copied at the start of the most recent run publish cycle.
-	int runId;
+	int runId = -1;
 
 	/// \brief Cached thread id copied from the most recent event header.
-	int thread_id;
+	int thread_id = -1;
 };
