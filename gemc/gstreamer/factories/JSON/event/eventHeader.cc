@@ -26,6 +26,7 @@ bool GstreamerJsonFactory::publishEventHeaderImpl(const std::unique_ptr<GEventHe
 	current_event << "\"timestamp\": \"" << jsonEscape(timestamp) << "\""
 				  << ", \"thread_id\": " << thread_id
 				  << ", \"g4local_event\": " << gevent_header->getG4LocalEvn();
+	current_event << "}"; // close the "header" object opened in startEventImpl
 
 	current_event_has_header = true;
 	return true;

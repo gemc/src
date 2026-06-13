@@ -185,6 +185,11 @@ private:
 	/// \brief Tracks whether the current event already contains generated-particle banks.
 	bool current_event_has_generated = false;
 
+	/// \brief Buffered digitized detector arrays for the current event. endEventImpl emits
+	/// them together as the "digitized_by_detector" object, which keeps the JSON valid
+	/// regardless of how true-info and digitized publish calls interleave across detectors.
+	std::vector<std::string> current_event_digitized_entries;
+
 	/// \brief Tracks whether the plugin is currently assembling a frame object.
 	bool is_building_frame = false;
 

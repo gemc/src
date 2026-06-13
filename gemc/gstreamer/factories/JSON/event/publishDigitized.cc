@@ -17,80 +17,54 @@ bool GstreamerJsonFactory::publishEventDigitizedDataImpl(const std::string&     
 		return false;
 	}
 
-	// The current design appends digitized content into a reserved object nested under
-	// "detectors". This avoids rewriting previously emitted detector JSON.
+	// Build this detector's digitized array into a standalone entry and buffer it.
+	// endEventImpl emits all buffered entries together as the "digitized_by_detector"
+	// object, which keeps the JSON valid regardless of how true-info and digitized
+	// publish calls interleave across detectors.
 	if (digitizedData.empty()) return true;
 
-	static const char* marker    = "\"digitized_by_detector\": {";
-	const std::string  assembled = current_event.str();
-
-	const bool has_digitized_container = (assembled.find(marker) != std::string::npos);
-
-	if (!has_digitized_container) {
-		// Ensure the event already has a detectors object before reserving a nested map
-		// for digitized collections keyed by detector name.
-		if (!current_event_has_any_detector) {
-			current_event << ", \"detectors\": {";
-			current_event_has_any_detector = true;
-		}
-		else {
-			current_event << ", ";
-		}
-
-		current_event << "\"digitized_by_detector\": {";
-	}
-
-	// If the reserved object already contains one detector entry, append a comma
-	// before adding the next one.
-	const std::string updated = current_event.str();
-	if (!updated.empty()) {
-		char last = updated.back();
-		if (last != '{') current_event << ", ";
-	}
-
-	current_event << "\"" << jsonEscape(detectorName) << "\": [";
+	std::ostringstream entry;
+	entry << "\"" << jsonEscape(detectorName) << "\": [";
 
 	bool wrote_first_hit = false;
 	for (const auto* hit : digitizedData) {
 		if (!hit) continue;
 
-		if (wrote_first_hit) current_event << ", ";
+		if (wrote_first_hit) entry << ", ";
 		wrote_first_hit = true;
 
-		current_event << "{";
+		entry << "{";
 
 		auto addr = getIdentityString(hit->getIdentity());
 
-		current_event << "\"address\": \"" << jsonEscape(addr) << "\"";
+		entry << "\"address\": \"" << jsonEscape(addr) << "\"";
 
-		current_event << ", \"vars\": {";
+		entry << ", \"vars\": {";
 
 		bool wrote_first_var = false;
 
 		// Integer observables:
 		// the argument 0 means "do not include SRO variables".
 		for (const auto& [name, value] : hit->getIntObservablesMap(0)) {
-			if (wrote_first_var) current_event << ", ";
+			if (wrote_first_var) entry << ", ";
 			wrote_first_var = true;
-			current_event << "\"" << jsonEscape(name) << "\": " << value;
+			entry << "\"" << jsonEscape(name) << "\": " << value;
 		}
 
 		// Floating-point observables.
 		for (const auto& [name, value] : hit->getDblObservablesMap(0)) {
-			if (wrote_first_var) current_event << ", ";
+			if (wrote_first_var) entry << ", ";
 			wrote_first_var = true;
-			current_event << "\"" << jsonEscape(name) << "\": " << value;
+			entry << "\"" << jsonEscape(name) << "\": " << value;
 		}
 
-		current_event << "}";
-		current_event << "}";
+		entry << "}";
+		entry << "}";
 	}
 
-	current_event << "]";
+	entry << "]";
 
-	// Close the temporary digitized_by_detector object immediately so the enclosing
-	// event remains structurally valid after this call.
-	current_event << "}";
+	current_event_digitized_entries.push_back(entry.str());
 
 	return true;
 }
