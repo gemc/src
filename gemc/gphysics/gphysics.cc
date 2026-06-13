@@ -56,11 +56,11 @@ GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 
 	physList = factory.GetReferencePhysList(g4physList);
 
+	if (!physList) { log->error(ERR_PHYSLISTERROR, "physics list <" + gphysList + "> could not be loaded."); }
+
 	// Register step limiters (module default add-on).
 	// This is intentionally registered even when users select a standard reference list.
 	physList->RegisterPhysics(new G4StepLimiterPhysics());
-
-	if (!physList) { log->error(ERR_PHYSLISTERROR, "physics list <" + gphysList + "> could not be loaded."); }
 
 	log->info(2, "G4PhysListFactory: <" + g4physList + "> loaded.");
 }
