@@ -37,9 +37,8 @@ GOptions defineOptions() {
 	// Human-readable switches used for diagnostics and validation.
 	goptions.defineSwitch("showPredefinedMaterials", "log GEMC Predefined Materials");
 	goptions.defineSwitch("printSystemsMaterials", "print the materials used in this simulation");
-	goptions.defineSwitch("checkOverlaps", "check geant4 volume overlaps at construction time");
 
-	// Overlap checking mode:
+	// Overlap checking mode (the integer "check_overlaps" option below is the single control):
 	// - 0 disables overlap checks
 	// - 1 enables overlap checking at placement time
 	// - 2 uses Geant4 overlap validator with default surface sampling
@@ -47,9 +46,10 @@ GOptions defineOptions() {
 	help = "Check for overlaps at physical volume construction.\n\n";
 	help += "Possible values are:\n";
 	help += " - 0 (default): no check.\n";
-	help += " - 1: check for overlaps at physical volume construction.\n";
+	help += " - 1: enable the G4PVPlacement surface overlap check (pSurfChk) at volume placement.\n";
 	help += " - 2: use the geant4 overlap validator with the default number of points on the surface\n";
-	help += " - Any N greater than 100: use the geant4 overlap validator with N points on the surface\n";
+	help += " - Any N greater than 100: use the geant4 overlap validator with N points on the surface\n \n";
+	help += "Example: -check_overlaps=1\n";
 	goptions.defineOption(GVariable("check_overlaps", 0, "check overlaps"), help);
 
 	return goptions;

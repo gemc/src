@@ -116,21 +116,25 @@ GOptions defineOptions() {
 
 	// add sql option to define host or sqlite file
 	help = "sqlite file or sql host. Default is: " + std::string(GSYSTEMSQLITETDEFAULTFILE) + ". \n\n";
+	help += "Example (sqlite file): -sql=myGeometry.sqlite\n";
 	goptions.defineOption(GVariable("sql", GSYSTEMSQLITETDEFAULTFILE, "sql host or sqlite file"),
 	                      help);
 
 	// add ascii_db option to define an alternative search path for the ascii factory
 	help = "ascii search path. Default is: " + std::string(GSYSTEMSASCIISEARCHDIR) + ". \n\n";
-	goptions.defineOption(GVariable("ascii_db", GSYSTEMSASCIISEARCHDIR, "sql host or sqlite file"),
+	help += "Example: -ascii_db=/path/to/geometry/text/files\n";
+	goptions.defineOption(GVariable("ascii_db", GSYSTEMSASCIISEARCHDIR, "ascii factory search path"),
 	                      help);
 
 	// add the experiment option to define the experiment, common for all systems
 	goptions.defineOption(GVariable("experiment", "examples", "experiment selection"),
-	                      "Each experiment has a subset of unique systems");
+	                      "Each experiment has a subset of unique systems.\n \nExample: -experiment=clas12\n");
 
 	// add run number options, common for all systems
-	goptions.defineOption(GVariable("runno", 1, "run number"),
-	                      "All systems share this run number");
+	goptions.defineOption(GVariable("runno", 1, "geometry/conditions run number"),
+	                      "Run number used to select the geometry/conditions variation loaded from the\n"
+	                      "database; all systems share it. This is distinct from -run, the run number\n"
+	                      "assigned to generated events.\n \nExample: -runno=11\n");
 
 	return goptions;
 }

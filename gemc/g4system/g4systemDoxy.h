@@ -82,10 +82,7 @@
  *   - Type: boolean (switch)
  *   - Meaning: print the materials used by the loaded systems in this simulation
  *
- * - `checkOverlaps`
- *   - Type: boolean (switch)
- *   - Meaning: enable Geant4 overlap checks at construction time (human-readable switch)
- *   - Note: some code paths use `check_overlaps` (integer) for mode selection; keep these consistent in applications.
+ * Overlap checking is controlled solely by the integer `check_overlaps` option above.
  *
  * This module’s option schema is composed by \c g4system::defineOptions(), which aggregates:
  * - \c gsystem::defineOptions()

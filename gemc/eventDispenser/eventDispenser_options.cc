@@ -24,10 +24,13 @@ GOptions defineOptions() {
 	goptions.defineOption(GVariable("n", 1, "number of events to process"), help);
 
 	// Option: run number
-	// Clarify that this is the *conditions run number* (constants/TT selection), not the Geant4 internal run id.
-	help = "Not to be confused with the geant4 run number - g4runno is set automatically \n \n";
+	// Clarify that this is the *event* run number, distinct from -runno (geometry selection)
+	// and from the Geant4 internal run id (g4runno, set automatically).
+	help = "Run number assigned to the generated events; it is also the key looked up in the\n";
+	help += "-run_weights file. This is distinct from -runno, which selects the geometry/conditions\n";
+	help += "variation from the database, and from the Geant4 run id g4runno, set automatically.\n \n";
 	help += "Example: -run=12\n";
-	goptions.defineOption(GVariable("run", 1, "sets run number"), help);
+	goptions.defineOption(GVariable("run", 1, "event run number"), help);
 
 	// Option: run weights file
 	help = "Text file with run number and their weights.\n \n";

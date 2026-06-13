@@ -60,8 +60,8 @@ GOptions defineOptions() {
 	physicsListHelp += string(HELPFILLSPACE) + " - _PEN to use G4EmPenelopePhysics\n";
 	physicsListHelp += string(HELPFILLSPACE) + " - _SS to use G4EmStandardPhysicsSS\n";
 	physicsListHelp += string(HELPFILLSPACE) + " - _WVI to use G4EmStandardPhysicsWVI\n";
-	physicsListHelp += "\n" + string(HELPFILLSPACE) + "For example, FTFP_BERT_LIV would replace the default e.m. physics with the Livermode model \n\n";
-	physicsListHelp += "\n" + string(HELPFILLSPACE) + "Additional physics can be loaded by adding its constructor name to the list using the " + " sign\n";
+	physicsListHelp += "\n" + string(HELPFILLSPACE) + "For example, FTFP_BERT_LIV would replace the default e.m. physics with the Livermore model \n\n";
+	physicsListHelp += "\n" + string(HELPFILLSPACE) + "Additional physics can be loaded by adding its constructor name to the list using the + sign\n";
 	physicsListHelp += "\n" + string(HELPFILLSPACE) + "For example: FTFP_BERT + G4OpticalPhysics. The available constructors are: \n\n";
 	physicsListHelp += string(HELPFILLSPACE) + " - G4ChargeExchangePhysics\n";
 	physicsListHelp += string(HELPFILLSPACE) + " - G4DecayPhysics\n";
@@ -142,6 +142,9 @@ GOptions defineOptions() {
 	physicsListHelp += string(HELPFILLSPACE) + " - G4StoppingPhysicsFritiofWithBinaryCascade\n";
 	physicsListHelp += string(HELPFILLSPACE) + " - G4UnknownDecayPhysics\n";
 	physicsListHelp += string(HELPFILLSPACE) + " - G4WeightWindowBiasing\n";
+	physicsListHelp += "\n" + string(HELPFILLSPACE) + "Command-line examples:\n";
+	physicsListHelp += string(HELPFILLSPACE) + " -phys_list=FTFP_BERT\n";
+	physicsListHelp += string(HELPFILLSPACE) + " -phys_list=\"FTFP_BERT_EMZ + G4OpticalPhysics\"\n";
 	goptions.defineOption(GVariable("phys_list", DEFAULTPHYSICSLIST, "Select Physics List"), physicsListHelp);
 
 	goptions.defineSwitch("showPhysics", "Log Geant4 Physics Available Modules that can be used with the \"phys_list\" option and exit");

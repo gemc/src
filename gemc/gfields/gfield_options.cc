@@ -52,7 +52,10 @@ GOptions defineOptions() {
 	goptions += gfactory::defineOptions();
 
 	std::string help;
-	help                               = "Adds gmultipoles field(s) to the simulation \n ";
+	help = "Adds electromagnetic multipole field(s) to the simulation. \n \n";
+	help += "Mandatory keys: name, pole_number, rotaxis, strength. \n \n";
+	help += "Example (a quadrupole centered 30 cm downstream): \n";
+	help += "-gmultipoles=\"[{name: q1, pole_number: 4, rotaxis: Z, strength: 1.2, vz: 30*cm}]\"\n";
 	std::vector<GVariable> gmultipoles = {
 		{"name", goptions::NODFLT, "Field name (unique key used by GMagneto maps)"},
 		{"integration_stepper", GFIELD_DEFAULT_INTEGRATION_STEPPER, "Geant4 integration stepper name (string)"},

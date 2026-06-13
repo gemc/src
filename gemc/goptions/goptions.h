@@ -397,6 +397,7 @@ private:
 	std::vector<GOption>::iterator getOptionIterator(const std::string& name);
 	[[nodiscard]] std::vector<GOption>::const_iterator getOptionIterator(const std::string& name) const;
 	void printOptionOrSwitchHelp(const std::string& tag) const;
+	void printSearch(const std::string& tag) const;
 	void printHelp() const;
 	void printWebHelp() const;
 	void saveOptions() const;

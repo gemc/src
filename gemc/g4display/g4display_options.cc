@@ -161,12 +161,12 @@ GOptions defineOptions() {
 	goptions.defineOption("g4light", "Defines the geant4 light source direction", g4light, help);
 
 	// dawn
-	help = "Defines the dawn camera view point and take a dawn screenshot \n \n ";
+	help = "Defines the dawn camera view point and takes a dawn screenshot \n \n ";
 	help += "Example: -dawn=\"[{phi: 20*deg, theta: 15*deg}]\"  \n ";
 
 	std::vector<GVariable> dawn = {
-		{"phi", 30, "dawn phi"},
-		{"theta", 30, "dawn theta"}
+		{"phi", "30*deg", "dawn camera phi"},
+		{"theta", "30*deg", "dawn camera theta"}
 	};
 
 	goptions.defineOption("dawn", "Defines the dawn view point", dawn, help);

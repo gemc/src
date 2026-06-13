@@ -67,8 +67,11 @@ GOptions defineOptions() {
 	// Buffer flush limit:
 	// controls how many events each streamer instance may retain in memory
 	// before the base class forces a flush to the backend.
+	string ebuffer_help = "Number of events each streamer keeps in memory before flushing them to the\n";
+	ebuffer_help        += "output file. Larger values reduce I/O frequency at the cost of more memory.\n \n";
+	ebuffer_help        += "Example: -ebuffer=100\n";
 	goptions.defineOption(GVariable("ebuffer", DEFAULT_GSTREAMER_BUFFER_FLUSH_LIMIT,
-	                                "number of events kept in memory before flushing them to the filestream"), help);
+	                                "number of events kept in memory before flushing them to the filestream"), ebuffer_help);
 
 	// Schema of each object in the -gstreamer array.
 	vector<GVariable> gstreamer = {
@@ -77,7 +80,7 @@ GOptions defineOptions() {
 		{"type", "event", "type of output file"},
 	};
 
-	goptions.defineOption(GSTREAMER_LOGGER, "define a gstreamer output", gstreamer, help);
+	goptions.defineOption("gstreamer", "define a gstreamer output", gstreamer, help);
 
 	// Merge dependent-module options so callers can build a single composite
 	// GOptions definition for applications and examples.

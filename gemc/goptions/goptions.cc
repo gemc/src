@@ -22,6 +22,7 @@
 // c++
 #include <iostream>
 #include <cstring>
+#include <cctype>
 
 using namespace std;
 
@@ -45,15 +46,19 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	addGOptions(user_defined_options);
 
 	// switches for all everyone
-	defineSwitch("gui", "use Graphical User Interface");
-	defineSwitch("i", "use interactive batch mode");
+	defineSwitch("gui", "run with the graphical user interface (Qt window)");
+	defineSwitch("i", "drop into the interactive Geant4 terminal session (non-GUI mode)");
 	defineOption(
-		GVariable("conf_yaml", "saved_configuration", "the prefix for filename that store the used options"),
-		"The default value appends \"_saved_configuration\" to the executable name.");
+		GVariable("conf_yaml", "saved_configuration", "infix for the YAML file that records the resolved options"),
+		"On exit the resolved configuration is written to <executable>.<conf_yaml>.yaml,\n"
+		"so the default value produces, for example, gemc.saved_configuration.yaml.\n \n"
+		"Example: -conf_yaml=run12   ->   saves to gemc.run12.yaml\n \n");
 
 	// add test timeout for the tests
-	defineOption(GVariable("tt", 500, "tests timeout (ms)"),
-	             "Timeout in milliseconds for the code tests that have GUI. ");
+	defineOption(GVariable("tt", 500, "GUI test timeout (ms)"),
+	             "Milliseconds a GUI-based test waits before it auto-closes, so the module\n"
+	             "example/test programs can run unattended in CI.\n \n"
+	             "Example: -tt=1000\n \n");
 
 	// version is a special option, not settable by the user
 	// it is set by the gversion.h file
@@ -72,16 +77,25 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	help        += " - 0: (default) = shush\n";
 	help        += " - 1: log detailed information\n";
 	help        += " - 2: log extra detailed information\n \n";
-	help        += "Example: -verbosity.gemc=1 \n \n";
-	help        += "The YAML value can include multiple logger keys.\n \n";
+	help        += "Each key names a class or module; run 'help verbosity' to list the available keys.\n \n";
+	help        += "Example (one key):      -verbosity.gemc=1\n";
+	help        += "Example (several keys): -verbosity=\"[{gemc: 1}, {<another_key>: 2}]\"\n \n";
+	help        += "Equivalent YAML:\n";
+	help        += "   verbosity:\n";
+	help        += "     - gemc: 1\n";
+	help        += "     - <another_key>: 2\n \n";
 	defineOption("verbosity", "Sets the log verbosity for various classes", option_verbosity_names, help);
 
 	// debug option: boolean or integer, depending on consumer expectations
 	help = "Debug information Types: \n \n";
 	help += " - false: (default): do not print debug information\n";
 	help += " - true: print debug information\n\n";
-	help += "Example: -debug=\"[{gemc: true}]\" \n \n";
-	help += "The YAML value can include multiple logger keys.\n \n";
+	help += "Each key names a class or module; run 'help debug' to list the available keys.\n \n";
+	help += "Example (on/off):       -debug.gemc=true\n";
+	help += "Example (several keys): -debug=\"[{gemc: true}, {<another_key>: 1}]\"\n \n";
+	help += "Equivalent YAML:\n";
+	help += "   debug:\n";
+	help += "     - gemc: true\n \n";
 	defineOption("debug", "Sets the debug level for various classes", option_verbosity_names, help);
 
 	// Process help/version command-line arguments.
@@ -102,6 +116,12 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 		else if (strcmp(argv[i], "help") == 0) {
 			// "gemc help <topic>" shows topic help; bare "gemc help" shows the general help index.
 			if (i + 1 < argc) { printOptionOrSwitchHelp(argv[i + 1]); }
+			else { printHelp(); }
+			exit(EXIT_SUCCESS);
+		}
+		else if (strcmp(argv[i], "search") == 0) {
+			// "gemc search <value>" lists options/switches whose name or description contains <value>.
+			if (i + 1 < argc) { printSearch(argv[i + 1]); }
 			else { printHelp(); }
 			exit(EXIT_SUCCESS);
 		}
@@ -293,6 +313,42 @@ void GOptions::printOptionOrSwitchHelp(const std::string& tag) const {
 	cerr << FATALERRORL << "The " << YELLOWHHL << tag << RSTHHR
 		<< " option is not known to this system." << endl;
 	exit(EC__NOOPTIONFOUND);
+}
+
+// Private method: see header. Kept undocumented here to avoid duplicate param docs.
+void GOptions::printSearch(const std::string& tag) const {
+	// Case-insensitive substring match against switch/option names and descriptions.
+	auto to_lower = [](string s) {
+		transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
+		return s;
+	};
+	const string needle = to_lower(tag);
+	auto         matches = [&](const string& a, const string& b) {
+		return to_lower(a).find(needle) != string::npos || to_lower(b).find(needle) != string::npos;
+	};
+
+	long int fill_width = string(HELPFILLSPACE).size() + 1;
+	cout.fill('.');
+	cout << KGRN << KBOLD << " Options and switches matching \"" << tag << "\":" << RST << endl << endl;
+
+	bool found = false;
+	for (auto& s : switches) {
+		if (matches(s.first, s.second.getDescription())) {
+			found = true;
+			cout << KGRN << " " << left;
+			cout.width(fill_width);
+			cout << "-" + s.first + RST + " " << ": " << s.second.getDescription() << endl;
+		}
+	}
+	for (auto& option : goptions) {
+		if (option.name != GVERSION_STRING && matches(option.name, option.description)) {
+			found = true;
+			option.printHelp(false);
+		}
+	}
+	if (!found) { cout << TPOINTITEM << "no match found." << endl; }
+	cout << endl << " Use " << KGRN << "help <value>" << RST << " for the detailed help of a single option." << endl
+		<< endl;
 }
 
 // Private method: see header. Kept undocumented here to avoid duplicate param docs.
@@ -523,7 +579,7 @@ void GOptions::printHelp() const {
 		string("help <value>") + RST,
 		string("print detailed help for option <value> and exit"),
 		string("search <value>") + RST,
-		string("list all options containing <value> in the description and exit\n")
+		string("list all options/switches whose name or description contains <value> and exit\n")
 	};
 	unsigned half_help = helps.size() / 2;
 	for (unsigned i = 0; i < half_help; i++) {
