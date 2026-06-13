@@ -149,8 +149,17 @@ foreach L : LD
     endforeach
 
     if plugins != empty_dict
+        # Same rationale as the example executables: the module library (link_with)
+        # propagates this_deps' link args, so pass only their compile/include part to
+        # the plugins to avoid duplicate -l flags; zlib is linked once explicitly.
+        # (computed here, before 'sources' is rebound by the plugin loop below.)
+        if sources.contains('')
+            plugin_base_deps = [this_deps, zlib_dep]
+        else
+            plugin_base_deps = [declare_dependency(dependencies : this_deps).partial_dependency(compile_args : true, includes : true), zlib_dep]
+        endif
         foreach name, sources : plugins
-            this_plugin_dependencies = [this_deps, zlib_dep]
+            this_plugin_dependencies = plugin_base_deps
             if plugin_dependencies.has_key(name)
                 this_plugin_dependencies += plugin_dependencies[name]
             endif
@@ -205,7 +214,17 @@ foreach L : LD
             example_sources = sources_and_arguments[0] + qrc_examples_compiled_sources
             arguments = sources_and_arguments[1]
 
-            example_deps = this_deps + [zlib_dep]
+            # The module library (link_with) already propagates the link args of
+            # this_deps, so only the compile/include part is needed here. Re-passing
+            # the full deps duplicates -l flags and makes ld warn "ignoring duplicate
+            # libraries: -lsqlite3". expat/zlib are geant4's static-link needs and are
+            # not module deps, so they are linked here exactly once.
+            if sources.contains('')
+                example_deps = this_deps + [expat_dep, zlib_dep]
+            else
+                example_compile_deps = declare_dependency(dependencies : this_deps).partial_dependency(compile_args : true, includes : true)
+                example_deps = [example_compile_deps, expat_dep, zlib_dep]
+            endif
             exe = executable(
                 name,
                 example_sources,
@@ -245,7 +264,7 @@ gemc = executable(
     gemc_sources + qrc_gemc_sources,
     install : true,
     install_dir : get_option('bindir'),
-    dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, assimp_dep, zlib_dep],
+    dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, assimp_dep, expat_dep, zlib_dep],
     include_directories : all_includes,
     link_with : all_libs,
     override_options : ['b_pie=true']
@@ -258,7 +277,7 @@ pkg.generate(
     description : project_description,
     version : meson.project_version(),
     libraries : all_libs,
-    libraries_private : [yaml_cpp_dep, clhep_deps, geant4_core_deps, zlib_dep],
+    libraries_private : [yaml_cpp_dep, clhep_deps, geant4_core_deps, expat_dep, zlib_dep],
 )
 
 # test gemc options. Adjust root to fit the geometry

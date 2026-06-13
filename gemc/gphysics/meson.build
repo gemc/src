@@ -18,7 +18,9 @@ LD += {
                           'gphysicsConventions.h'
                       ),
 
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps, expat_dep, zlib_dep],
+    # expat/zlib are geant4's static-link needs (no source here compiles against them);
+    # they are linked once at the final executables to avoid duplicate -lexpat/-lz.
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'internal_dependencies' : internal_deps,
 
     'examples' : {

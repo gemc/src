@@ -33,7 +33,9 @@ LD += {
         'gdetector_options.h'
     ),
 
-    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps, expat_dep],
+    # expat is a geant4 static-link need (no source here compiles against it);
+    # it is linked once at the final executables to avoid duplicate -lexpat.
+    'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'internal_dependencies' : internal_deps,
 
     'geo_build' : {
