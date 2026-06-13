@@ -389,7 +389,11 @@ string parseFileAndRemoveComments(const string& filename, const string& commentC
 	while ((nFPos = parsedString.find(commentChars)) != string::npos) {
 		size_t firstNL  = parsedString.rfind('\n', nFPos);
 		size_t secondNL = parsedString.find('\n', nFPos);
-		parsedString.erase(firstNL, secondNL - firstNL);
+		size_t eraseStart = (firstNL == string::npos) ? 0 : firstNL;
+		size_t eraseLen   = (secondNL == string::npos)
+		                      ? string::npos
+		                      : secondNL - eraseStart;
+		parsedString.erase(eraseStart, eraseLen);
 	}
 
 	return parsedString;
