@@ -284,12 +284,15 @@ void GOptions::printOptionOrSwitchHelp(const std::string& tag) const {
 // Private method: see header. Kept undocumented here to avoid duplicate param docs.
 vector<string> GOptions::findYamls(int argc, char* argv[]) {
 	vector<string> yaml_files;
+	auto ends_with = [](const string& s, const string& suffix) {
+		return s.size() >= suffix.size() &&
+		       s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
+	};
 	for (int i = 1; i < argc; i++) {
 		string arg = argv[i];
-		size_t pos = arg.find(".yaml");
-		if (pos != string::npos) yaml_files.push_back(arg);
-		pos = arg.find(".yml");
-		if (pos != string::npos) yaml_files.push_back(arg);
+		// Match a trailing .yaml/.yml extension, not any substring, so option values such as
+		// -prefix=run.yaml.bak are not mistaken for input files (and silently dropped).
+		if (ends_with(arg, ".yaml") || ends_with(arg, ".yml")) yaml_files.push_back(arg);
 	}
 	return yaml_files;
 }
@@ -309,6 +312,11 @@ void GOptions::setOptionsValuesFromYamlFile(const std::string& yaml) {
 	YAML::Node config;
 	try {
 		config = YAML::LoadFile(yaml);
+	}
+	catch (YAML::BadFile& e) {
+		cerr << FATALERRORL << "Cannot open yaml file " << YELLOWHHL << yaml << RSTHHR
+			<< ". Check the path and spelling." << endl;
+		exit(EC__YAML_PARSING_ERROR);
 	}
 	catch (YAML::ParserException& e) {
 		cerr << FATALERRORL << "Error parsing " << YELLOWHHL << yaml << RSTHHR
