@@ -29,6 +29,7 @@ bool GstreamerJsonFactory::startEventImpl(const std::shared_ptr<GEventDataCollec
 	current_event_has_header       = false;
 	current_event_has_any_detector = false;
 	current_event_has_generated    = false;
+	current_event_digitized_entries.clear();
 
 	// Cache the event number early so it is available to the root event object.
 	event_number = event_data->getHeader()->getG4LocalEvn();
@@ -47,24 +48,37 @@ bool GstreamerJsonFactory::endEventImpl(const std::shared_ptr<GEventDataCollecti
 		return false;
 	}
 
-	// If the caller skipped the header step, emit a minimal fallback so the JSON remains valid.
+	// If the caller skipped the header step, emit a minimal fallback and close the header
+	// object (startEventImpl opened it; publishEventHeaderImpl normally writes its fields
+	// and closes it).
 	if (!current_event_has_header) {
-		current_event << "\"timestamp\": \"\", \"thread_id\": -1";
+		current_event << "\"timestamp\": \"\", \"thread_id\": -1}";
 	}
 
-	// Detector publishers leave the "detectors" object open so digitized data
-	// can be appended after true-information banks without rewriting strings.
-	if (current_event_has_any_detector) {
+	// Ensure a "detectors" object exists so the schema stays predictable and any buffered
+	// digitized data has a place to live, even when no true-information banks were published.
+	bool detectors_has_content = current_event_has_any_detector;
+	if (!current_event_has_any_detector) {
+		current_event << ", \"detectors\": {";
+		current_event_has_any_detector = true;
+	}
+
+	// Emit all buffered digitized detector arrays as a single, well-formed
+	// "digitized_by_detector" object nested inside "detectors".
+	if (!current_event_digitized_entries.empty()) {
+		if (detectors_has_content) { current_event << ", "; }
+		current_event << "\"digitized_by_detector\": {";
+		bool first = true;
+		for (const auto& entry : current_event_digitized_entries) {
+			if (!first) { current_event << ", "; }
+			first = false;
+			current_event << entry;
+		}
 		current_event << "}";
 	}
-	current_event << "}";
 
-	// Keep the event schema predictable even when no detector banks were published.
-	if (!current_event_has_any_detector) {
-		current_event << ", \"detectors\": {}";
-	}
-
-	current_event << "}";
+	current_event << "}"; // close "detectors"
+	current_event << "}"; // close the event object
 
 	writeTopLevelEntry(current_event.str());
 
