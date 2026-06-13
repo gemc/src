@@ -67,6 +67,13 @@ public:
 		integralPayloads = new std::vector<GIntegralPayload*>();
 	}
 
+	// Owns raw pointers freed in the destructor: forbid copy (a shallow copy would double-free)
+	// and move (no current need; re-enable with explicit pointer-nulling move ops if required).
+	GFrameDataCollection(const GFrameDataCollection&)            = delete;
+	GFrameDataCollection& operator=(const GFrameDataCollection&) = delete;
+	GFrameDataCollection(GFrameDataCollection&&)                 = delete;
+	GFrameDataCollection& operator=(GFrameDataCollection&&)      = delete;
+
 	/**
 	 * \brief Destructor.
 	 *
