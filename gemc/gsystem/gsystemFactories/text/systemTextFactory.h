@@ -3,6 +3,10 @@
 // gsystem
 #include <gemc/gsystem/gsystemFactories/systemFactory.h>
 
+// c++
+#include <fstream>
+#include <memory>
+
 // file types
 #define GTEXTGEOMTYPE "__geometry_"
 #define GTEXTMATSTYPE "__materials_"
@@ -76,5 +80,5 @@ private:
 	 * - For geometry, failure to locate a file triggers an error unless \c system->getAnnotations() is \c "mats_only".
 	 * - For materials, failure to locate a file is treated as "no materials provided".
 	 */
-	std::ifstream* gSystemTextFileStream(GSystem* system, const std::string& SYSTEMTYPE);
+	std::unique_ptr<std::ifstream> gSystemTextFileStream(GSystem* system, const std::string& SYSTEMTYPE);
 };

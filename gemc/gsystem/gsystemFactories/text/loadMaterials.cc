@@ -28,7 +28,6 @@ void GSystemTextFactory::loadMaterials(GSystem* system) {
 				gutilities::getStringVectorFromStringWithDelimiter(dbline, "|");
 			system->addGMaterial(gmaterialsPars);
 		}
-
-		IN->close();
+		// IN (unique_ptr<ifstream>) closes the file and frees the stream on scope exit.
 	}
 }
