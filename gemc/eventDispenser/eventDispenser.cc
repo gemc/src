@@ -15,6 +15,7 @@
 
 // geant4
 #include "G4UImanager.hh"
+#include "G4RunManager.hh"
 
 using namespace std;
 
@@ -180,6 +181,9 @@ int EventDispenser::processEvents() {
 		}
 
 		log->info(1, "Starting run ", runNumber, " with ", nevents, " events.");
+		// Tag the next G4Run with this run number. Guarded because standalone/unit-test
+		// contexts (e.g. the event_dispenser example) may run without a G4RunManager.
+		if (G4RunManager* g4rm = G4RunManager::GetRunManager()) { g4rm->SetRunIDCounter(runNumber); }
 
 		// Dispatch all events for this run in a single call.
 		// The command string is a standard Geant4 UI command: \c /run/beamOn <N>.
