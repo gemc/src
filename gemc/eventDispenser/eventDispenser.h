@@ -6,7 +6,6 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include <string>
 
 /**
  * \file eventDispenser.h
@@ -66,9 +65,6 @@ private:
 
 	/// Most recently processed run number. Used to detect run changes and reload run-dependent data.
 	int currentRunno = -1;
-
-	/// Variation string passed to digitization routines when loading constants/translation tables.
-	std::string variation;
 
 	/** @} */
 

@@ -24,13 +24,16 @@ on:
 jobs:
   dispatch:
     name: Dispatch clas12-systems Test
-    # Security: only dispatch for a successful push to the base repo. workflow_run
-    # runs privileged (here it consumes CLAS12_SYSTEMS_PAT), so guard against
-    # fork-PR events the same way deploy.yml and binary_tarballs.yml do.
+    # Security: only dispatch when the upstream chain originated in the base repo
+    # (not a fork). This is a 2nd-hop workflow_run (Deploy is itself workflow_run-
+    # triggered), so workflow_run.event is always 'workflow_run' here, not 'push' --
+    # head_repository is what carries the original source through the chain. This
+    # workflow_run runs privileged (it consumes CLAS12_SYSTEMS_PAT), so the guard
+    # keeps fork PRs from reaching the dispatch step.
     if: >-
       ${{
         github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.event == 'push'
+        github.event.workflow_run.head_repository.full_name == github.repository
       }}
     runs-on: ubuntu-latest
     steps:

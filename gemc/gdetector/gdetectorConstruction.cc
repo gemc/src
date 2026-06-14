@@ -257,6 +257,23 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 	// when the geometry is reloaded with the same SD names.
 	digitization_routines_map->clear();
 
+	// Resolve the variation each routine uses to load constants / translation tables.
+	// By default a routine follows the variation of the gsystem it belongs to; the
+	// digitization_variation option, when set, overrides that for every routine.
+	const std::string digiVariationOverride = gopt->getScalarString("digitization_variation");
+	const bool        overrideVariation     = (digiVariationOverride != UNINITIALIZEDSTRINGQUANTITY);
+
+	// Map each digitization (sensitive-detector) name to its system's variation.
+	std::map<std::string, std::string> systemVariationFor;
+	for (const auto& [systemName, gsystemPtr] : *gworld->getSystemsMap()) {
+		for (const auto& [volumeName, gvolumePtr] : gsystemPtr->getGVolumesMap()) {
+			const auto& digiName = gvolumePtr->getDigitization();
+			if (digiName != "" && digiName != UNINITIALIZEDSTRINGQUANTITY) {
+				systemVariationFor.emplace(digiName, gsystemPtr->getVariation());
+			}
+		}
+	}
+
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
 
 	for (auto &sdname: sdetectors) {
@@ -280,6 +297,15 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 
 		// Ensure each routine uses the correct logger and is configured for readout.
 		digitization_routines_map->at(sdname)->set_loggers(gopt);
+
+		// Resolve and store the variation used when loading this routine's constants/TT:
+		// the digitization_variation option when set, otherwise the routine's gsystem variation.
+		std::string variation = "default";
+		if (const auto it = systemVariationFor.find(sdname); it != systemVariationFor.end()) {
+			variation = it->second;
+		}
+		if (overrideVariation) { variation = digiVariationOverride; }
+		digitization_routines_map->at(sdname)->setDigitizationVariation(variation);
 
 		if (digitization_routines_map->at(sdname)->defineReadoutSpecs()) {
 			log->info(1, "Digitization routine <" + sdname + "> has been successfully defined.");

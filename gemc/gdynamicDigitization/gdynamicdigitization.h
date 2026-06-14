@@ -498,9 +498,30 @@ public:
     // TODO: REMOVE THIS EVERYWHERE also remove check_if_log_defined
     void set_loggers(const std::shared_ptr<GOptions> &g) { gopts = g; }
 
+    /**
+     * \brief Sets the variation used when this routine loads constants / translation tables.
+     *
+     * Resolved once per geometry load: defaults to the variation of the gsystem the routine
+     * belongs to, and is overridden by the \c digitization_variation option when that is set.
+     *
+     * \param v Variation string to use.
+     */
+    void setDigitizationVariation(const std::string &v) { digitization_variation = v; }
+
+    /**
+     * \brief Returns the variation passed to loadConstants() / loadTT().
+     *
+     * \return The effective digitization variation for this routine.
+     */
+    [[nodiscard]] std::string getDigitizationVariation() const { return digitization_variation; }
+
 private:
     /// When false, hits with exactly zero deposited energy may be skipped.
     bool recordZeroEdep = false;
+
+    /// Variation used to load constants / translation tables. Defaults to the routine's
+    /// gsystem variation; overridden by the digitization_variation option when set.
+    std::string digitization_variation = "default";
 
 protected:
     /// Options used by the digitization plugin instance.

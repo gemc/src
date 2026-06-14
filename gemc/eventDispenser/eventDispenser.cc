@@ -157,7 +157,12 @@ int EventDispenser::processEvents() {
 			// Iterate the (plugin name -> digitization routine) map.
 			// digiRoutine is a std::shared_ptr<GDynamicDigitization>.
 			for (const auto& [plugin, digiRoutine] : *gDigitizationMap) {
-				log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadConstants for run ", runNumber);
+				// The variation is resolved per routine at geometry load (gsystem variation,
+				// or the digitization_variation option override when set).
+				const std::string& variation = digiRoutine->getDigitizationVariation();
+
+				log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadConstants for run ", runNumber,
+				           " with variation ", variation);
 				if (digiRoutine->loadConstants(runNumber, variation) == false) {
 					log->error(ERR_LOADCONSTANTFAIL,
 					           "Failed to load constants for ", plugin, " for run ", runNumber, " with variation ",

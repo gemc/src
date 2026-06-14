@@ -24,7 +24,7 @@ jobs:
     if: >-
       ${{
         github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.event == 'push'
+        github.event.workflow_run.head_repository.full_name == github.repository
       }}
     name: Attach GEMC tarballs to dev release
     runs-on: ubuntu-latest
@@ -66,7 +66,7 @@ jobs:
     if: >-
       ${{
         github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.event == 'push'
+        github.event.workflow_run.head_repository.full_name == github.repository
       }}
     name: Create Job Matrix
     runs-on: ubuntu-latest

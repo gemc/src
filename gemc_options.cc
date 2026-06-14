@@ -40,7 +40,6 @@ namespace gemc {
         goptions.defineOption(GVariable("nthreads", 0, "sets number of threads."), "Default: 0 (use one thread for each available cores)");
         // goptions.defineOption(GVariable("event_module_log", 0, "Event Modulo log"), "Logs every <value> events. Default: 0 (log all events)");
         //
-        // goptions.defineOption(GVariable("digitization_variation", "default", "digitization variation"), "Default: default");
         // goptions.defineOption(GVariable("eventTimeSize", "0*ns", "event duration with unit"), "Default: 0*ns");
 
         // random engine name

@@ -21,6 +21,15 @@ GOptions defineOptions() {
 	// When enabled, hits with exactly zero deposited energy are still recorded.
 	goptions.defineSwitch("recordZeroEdep", "Record particle even if they do not deposit energy in the sensitive volumes");
 
+	// When set, overrides the per-system geometry variation used to load digitization
+	// constants and translation tables. The sentinel default means "not set": each routine
+	// then follows the variation of the gsystem it belongs to.
+	goptions.defineOption(
+		GVariable("digitization_variation", UNINITIALIZEDSTRINGQUANTITY, "digitization variation"),
+		"If set, overrides the gsystem variation when the digitization routines load their\n"
+		"constants and translation tables. Default: not set (each routine uses its system's\n"
+		"variation).\n \nExample: -digitization_variation=rga_fall2018");
+
 	// Aggregate options required by downstream types used in the digitization workflow.
 	goptions += gevent_data::defineOptions();
 	goptions += grun_data::defineOptions();
