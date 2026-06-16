@@ -67,40 +67,20 @@ Choose the installation path based on what you need:
 GEMC uses [Meson](https://mesonbuild.com). A normal source build is:
 
 ```shell
-git clone --recurse-submodules https://github.com/gemc/src.git gemc-src
+git clone https://github.com/gemc/src.git gemc-src
 cd gemc-src
 meson setup build --native-file=core.ini --prefix=/path/to/gemc
-meson compile -C build
 meson install -C build
 ```
 
-After installation, add the GEMC binary directory and the bundled Python environment to your shell:
+Then add the GEMC binary directory and the bundled Python environment to your shell:
 
 ```shell
 export GEMC_HOME=/path/to/gemc
 export PATH=$GEMC_HOME/bin:$GEMC_HOME/python_env/bin:$PATH
 ```
 
-For versioned installs such as `/path/to/gemc/0.2`, keep the version in the path:
-
-```shell
-export GEMC_VERSION=0.2
-export PATH=/path/to/gemc/$GEMC_VERSION/bin:/path/to/gemc/$GEMC_VERSION/python_env/bin:$PATH
-```
-
-Verify both the simulator and Python tools:
-
-```shell
-gemc -v
-gemc-system-template --help
-gemc-analyzer --help
-```
-
-Build options:
-
-- `-Droot=enabled` enables ROOT output when ROOT is installed.
-- `-Di_test=true` enables GUI-oriented tests.
-- `meson install -C build` builds and installs the current tree.
+See the [installation page](https://gemc.github.io/home/installation/) for the Geant4 prerequisites, supported platforms, versioned-install paths, and build options (such as `-Droot=enabled` for ROOT output).
 
 ### Docker
 
@@ -112,13 +92,13 @@ docker run -it --rm -v "$PWD":/work ghcr.io/gemc/src:dev-ubuntu-24.04 bash
 
 Published image families include:
 
-| OS         | Version                | Architectures     |
-|------------|------------------------|-------------------|
-| AlmaLinux  | 10    `amd64`, `arm64` |
-| Arch Linux | latest                 | `amd64`           |
-| Debian     | 13                     | `amd64`, `arm64`  |
-| Fedora     | 44                     | `amd64`, `arm64`  |
-| Ubuntu     | 24.04, 26.04           | `amd64`, `arm64`  |
+| OS         | Version      | Architectures     |
+|------------|--------------|-------------------|
+| AlmaLinux  | 10           | `amd64`, `arm64`  |
+| Arch Linux | latest       | `amd64`           |
+| Debian     | 13           | `amd64`, `arm64`  |
+| Fedora     | 44           | `amd64`, `arm64`  |
+| Ubuntu     | 24.04, 26.04 | `amd64`, `arm64`  |
 
 See the [installation page](https://gemc.github.io/home/installation/) for Docker, browser GUI, and Apptainer examples.
 
@@ -296,7 +276,7 @@ Run one test with logs:
 meson test -C build -v --print-errorlogs <testname>
 ```
 
-The CI system also builds Docker images, runs the Meson test suite, runs sanitizer builds, generates Doxygen documentation, performs CodeQL analysis, and publishes nightly development release notes.
+The CI system also builds Docker images, runs the Meson test suite, runs sanitizer builds, generates Doxygen documentation, performs CodeQL analysis, and publishes nightly development release notes. Each pull request additionally publishes a ready-to-run, multi-arch container image built from the branch, so authors and reviewers can test it without a local build — see [Preview container image](CONTRIBUTING.md#preview-container-image) in the contributing guide.
 
 ## Documentation
 

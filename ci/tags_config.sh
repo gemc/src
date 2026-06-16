@@ -30,6 +30,19 @@ OS_VERSIONS=(
   "archlinux=latest"
 )
 
+get_latest_almalinux() {
+  # Highest almalinux version listed in OS_VERSIONS (e.g. 9.4 vs 10 -> 10).
+  local pair ver max=""
+  for pair in "${OS_VERSIONS[@]}"; do
+    [[ "${pair%%=*}" == "almalinux" ]] || continue
+    ver="${pair#*=}"
+    if [[ -z "$max" ]] || [[ "$(printf '%s\n%s\n' "$max" "$ver" | sort -V | tail -1)" == "$ver" ]]; then
+      max="$ver"
+    fi
+  done
+  printf '%s' "$max"
+}
+
 build_image_ref() {
   # Owner from env (Actions sets this). Fallback for local runs.
   local owner="${GITHUB_REPOSITORY_OWNER:-gemc}"

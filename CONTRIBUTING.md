@@ -75,6 +75,36 @@ Before requesting review, check that:
 
 Reviews may ask for changes to improve correctness, maintainability, performance, documentation, or test coverage.
 
+### Preview Container Image
+
+When a pull request is opened, the [`pr-docker-image`](.github/workflows/pr-docker-image.yml) workflow builds
+a ready-to-run container image **from the code in that pull request** and rebuilds it on every push. Like the
+released images it is a multi-arch manifest covering `amd64` and `arm64`, built on the latest AlmaLinux base
+(currently AlmaLinux 10) and tagged with the pull request number:
+
+```text
+ghcr.io/gemc/src:dev-almalinux-10-pr-<number>
+```
+
+For example, pull request #123 publishes `ghcr.io/gemc/src:dev-almalinux-10-pr-123`, which anyone can pull and
+run exactly like the released images:
+
+```shell
+docker run -it --rm ghcr.io/gemc/src:dev-almalinux-10-pr-123 bash
+```
+
+Why this helps review:
+
+- **Test the exact branch** — the pull request code is compiled and installed in a clean container, so authors
+  and reviewers can validate behavior without building anything locally.
+- **Reproducible review** — reviewers and CI exercise the *same* artifact, removing "works on my machine"
+  ambiguity.
+- **No local toolchain required** — testing only needs Docker, not a full Geant4/gemc build environment.
+- **Runs natively everywhere** — the multi-arch manifest serves `amd64` and `arm64`, so it runs natively on
+  both Intel/AMD hosts and Apple-silicon/ARM machines.
+- **Self-cleaning** — when the pull request is closed or merged, the workflow automatically deletes the
+  `…-pr-<number>` image, so stale preview tags do not accumulate.
+
 ## Communication
 
 - General questions: open an issue.

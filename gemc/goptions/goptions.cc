@@ -23,6 +23,7 @@
 #include <iostream>
 #include <cstring>
 #include <cctype>
+#include <cstdlib>
 
 using namespace std;
 
@@ -617,6 +618,22 @@ void GOptions::print_version() {
 	cout << " Called from: " << KGRN << executableCallingDir << RST << endl;
 	cout << " Install: " << KGRN << installDir << "/bin" << RST << endl; //
 	cout << " Released on: " << KGRN << grelease_date << RST << endl;
+
+	// Report the plugin search path when one was provided, either through the
+	// -plugin_path option (or a plugin_path: YAML key) or the GEMC_PLUGIN_PATH
+	// environment variable.
+	string plugin_path = doesOptionExist("plugin_path") ? getScalarString("plugin_path") : "";
+	if (plugin_path == "NULL") plugin_path = "";
+	const char* plugin_env = std::getenv("GEMC_PLUGIN_PATH");
+	if (!plugin_path.empty() || (plugin_env != nullptr && plugin_env[0] != '\0')) {
+		string combined = plugin_path;
+		if (plugin_env != nullptr && plugin_env[0] != '\0') {
+			if (!combined.empty()) combined += ':';
+			combined += plugin_env;
+		}
+		cout << " Plugin path: " << KGRN << combined << RST << endl;
+	}
+
 	cout << " GEMC Reference: " << KGRN << greference << RST << endl;
 	cout << " GEMC Homepage: " << KGRN << gweb << RST << endl;
 	cout << " Author: " << KGRN << gauthor << RST << endl << endl;
