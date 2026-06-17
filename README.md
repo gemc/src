@@ -16,6 +16,8 @@ The project goal is to make Geant4-based simulation accessible to users who want
 
 ![GEMC architecture](https://gemc.github.io/home/assets/images/gemcArchitecture.svg)
 
+<br/>
+
 ## Highlights
 
 - Python-first detector definition through [`pygemc`](https://github.com/gemc/pygemc)
@@ -32,6 +34,7 @@ The project goal is to make Geant4-based simulation accessible to users who want
 - Python analyzer for plotting GEMC CSV and ROOT output
 - Meson-based C++ build with CI-tested Docker images for Linux `amd64` and `arm64`
 
+<br/>
 
 ## Quickstart
 
@@ -54,6 +57,8 @@ gemc-analyzer counter_t0_digitized.csv totEdep --kind csv --bins 50
 
 The template command creates a small detector system, the Python script writes `gemc.db`, `gemc` runs the simulation, and `gemc-analyzer` plots a variable from the CSV output.
 
+<br/>
+
 ## Installation
 
 Choose the installation path based on what you need:
@@ -61,6 +66,8 @@ Choose the installation path based on what you need:
 - Use the [PyPI `pygemc` package](https://pypi.org/project/pygemc/) for Python geometry building, PyVista previews, and output analysis without the compiled `gemc` simulator.
 - Build GEMC from source for the full Geant4 simulation executable and the bundled `pygemc` Python environment.
 - Use Docker when you want a ready-to-run development environment without managing local Geant4 dependencies.
+
+<br/>
 
 ### From Source
 
@@ -102,6 +109,8 @@ Published image families include:
 
 See the [installation page](https://gemc.github.io/home/installation/) for Docker, browser GUI, and Apptainer examples.
 
+<br/>
+
 ## Python Geometry Workflow
 
 Detector systems are usually written with [`pygemc`](https://pypi.org/project/pygemc/), the GEMC Python package:
@@ -129,6 +138,8 @@ Geometry scripts can write SQLite or ASCII databases, display geometry with PyVi
 ./counter.py -pv
 ./counter.py -pvvtk counter -pvz 0.25
 ```
+
+<br/>
 
 ### PyVista Visualization
 
@@ -178,6 +189,8 @@ Open the linked interactive PyVista scenes generated from the GEMC examples.
 
 GitHub README pages cannot embed `.vtksz` scenes directly, so the image above links to the hosted VTK.js viewer.
 
+<br/>
+
 ## Running Simulations
 
 GEMC is configured with YAML files and equivalent command-line options. A compact steering file can define the run number, event count, generator, geometry systems, output streamers, and world volume:
@@ -226,6 +239,9 @@ gemc counter.yaml -n=10 \
   -g4light="[{phi: 160*deg, theta: 120*deg}]"
 ```
 
+<br/>
+
+
 ## Output and Analysis
 
 The output layer is plugin-based. Built-in streamer formats include:
@@ -235,7 +251,6 @@ The output layer is plugin-based. Built-in streamer formats include:
 | `ascii`   | Human-readable text output                                                                                       |
 | `csv`     | Per-thread CSV tables for digitized hits, true information, generated particles, and tracked generated particles |
 | `json`    | Structured event output                                                                                          |
-| `jlabsro` | Binary JLAB SRO frame records                                                                                    |
 | `root`    | ROOT TTrees, available when GEMC is built with ROOT                                                              |
 
 Analyze CSV or ROOT output with:
@@ -244,6 +259,8 @@ Analyze CSV or ROOT output with:
 gemc-analyzer counter_t0_digitized.csv totEdep --kind csv --bins 50
 gemc-analyzer out.root E --kind root --detector flux --save energy.png
 ```
+
+<br/>
 
 ## Examples
 
@@ -255,6 +272,8 @@ The repository includes examples under `examples/`, with matching documentation 
 - `examples/basic/material`: material and optical-property definitions
 - `examples/basic/pyvista`: PyVista visualization examples
 - `examples/optical/cherenkov`: optical photon and Cherenkov workflow
+
+<br/>
 
 ## Development
 
@@ -278,16 +297,13 @@ meson test -C build -v --print-errorlogs <testname>
 
 The CI system also builds Docker images, runs the Meson test suite, runs sanitizer builds, generates Doxygen documentation, performs CodeQL analysis, and publishes nightly development release notes. Each pull request additionally publishes a ready-to-run, multi-arch container image built from the branch, so authors and reviewers can test it without a local build — see [Preview container image](CONTRIBUTING.md#preview-container-image) in the contributing guide.
 
+<br/>
+
 ## Documentation
 
-- [Project homepage](https://gemc.github.io/home/)
-- [Installation](https://gemc.github.io/home/installation/)
-- [User documentation](https://gemc.github.io/home/documentation/)
-- [Examples](https://gemc.github.io/home/examples/)
-- [Doxygen workflow](https://github.com/gemc/src/actions/workflows/doxygen.yml)
-- [Python geometry API repository](https://github.com/gemc/pygemc)
+- [GEMC homepage](https://gemc.github.io/home/)
+- [Python API repository](https://github.com/gemc/pygemc)
 - [CLAS12 GEMC systems repository](https://github.com/gemc/clas12-systems)
-- [Documentation website repository](https://github.com/gemc/home)
 - [GEMC2 / CLAS12 repository](https://github.com/gemc/clas12Tags)
 
 This repository is GEMC version 3 and newer. CLAS12 GEMC2 simulations are maintained separately in `gemc/clas12Tags`.
