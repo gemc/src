@@ -38,6 +38,10 @@ namespace gemc {
 
         // switches
         goptions.defineOption(GVariable("nthreads", 0, "sets number of threads."), "Default: 0 (use one thread for each available cores)");
+        goptions.defineOption(
+            GVariable("also_reject_true_info", true, "also reject true information for rejected hits"),
+            "Drops true information for hits rejected by detector digitization. Default: true.\n"
+            "Set to false to keep true information for all Geant4 hits even when no digitized hit is written.");
         // goptions.defineOption(GVariable("event_module_log", 0, "Event Modulo log"), "Logs every <value> events. Default: 0 (log all events)");
         //
         // goptions.defineOption(GVariable("eventTimeSize", "0*ns", "event duration with unit"), "Default: 0*ns");

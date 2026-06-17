@@ -1,4 +1,4 @@
-name: Trigger clas12-systems tests
+name: Triggers clas12-systems test
 
 # Fires a workflow_dispatch on gemc/clas12-systems' Test workflow whenever the
 # gemc/src Deploy workflow succeeds on a push to main, i.e. after fresh

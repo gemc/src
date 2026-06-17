@@ -616,10 +616,11 @@ namespace gstreamer {
 		for (const auto& gstreamer_def : gstreamer::getGStreamerDefinition(gopts)) {
 			auto        gstreamer_def_thread = GStreamerDefinition(gstreamer_def, thread_id);
 			std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
-			// Key the map by the unique per-output rootname so that multiple same-format
-			// outputs (e.g. two csv files) do not collide; the plugin library is still
-			// loaded by the format-derived plugin name.
-			const std::string& output_key   = gstreamer_def_thread.rootname;
+			// Key the map by the format-derived plugin name combined with the per-output
+			// rootname so that neither multiple same-format outputs (e.g. two csv files)
+			// nor multiple same-rootname outputs of different formats (e.g. dc.csv and
+			// dc.hipo) collide; the plugin library is still loaded by the plugin name.
+			const std::string output_key    = gstreamer_plugin + ":" + gstreamer_def_thread.rootname;
 
 			// Load the plugin object for this configured output. Each call returns a
 			// fresh GStreamer instance, so same-format outputs stay independent.

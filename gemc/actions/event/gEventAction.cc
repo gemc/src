@@ -9,6 +9,10 @@
 #include "event/gEventDataCollection.h"
 #include "../generator/gPrimaryGeneratorAction.h"
 
+// c++
+#include <algorithm>
+#include <cctype>
+
 namespace {
 GGeneratedParticleBank make_generated_particle_bank(const GParticleRecordEvent& particles) {
 	GGeneratedParticleBank bank;
@@ -30,6 +34,13 @@ GGeneratedParticleBank make_generated_particle_bank(const GParticleRecordEvent& 
 	}
 
 	return bank;
+}
+
+bool scalar_bool_option_enabled(const std::shared_ptr<GOptions>& goptions, const std::string& name) {
+	std::string value = goptions->getScalarString(name);
+	std::transform(value.begin(), value.end(), value.begin(),
+	               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+	return value == "true" || value == "1" || value == "yes" || value == "on";
 }
 }
 
@@ -92,6 +103,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 
 	bool has_event_mode_payload = false;
 	bool has_run_mode_payload   = false;
+	const bool also_reject_true_info = scalar_bool_option_enabled(goptions, "also_reject_true_info");
 
 	// Loop over every hit collection produced during this event and dispatch each
 	// collection to the digitization routine registered under its collection name.
@@ -126,6 +138,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 		}
 
 		const auto collection_mode = digitization_routine->collection_mode();
+		size_t accepted_hit_index = 0;
 
 		// Process all hits in the collection. Event-mode digitizers append to the
 		// event container, while run-mode digitizers append to the run container.
@@ -136,18 +149,24 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 				continue;
 			}
 
-			auto true_data = digitization_routine->collectTrueInformation(this_hit, hitIndex);
 			auto digi_data = digitization_routine->digitizeHit(this_hit, hitIndex);
+			const bool hit_accepted = digi_data != nullptr;
 
 			if (collection_mode == CollectionMode::event) {
-				if (digi_data != nullptr) {
+				if (hit_accepted) {
+					++accepted_hit_index;
+					digi_data->includeVariable("hitn", static_cast<int>(accepted_hit_index));
 					eventDataCollection->addDetectorDigitizedData(hcSDName, std::move(digi_data));
 				}
-				eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
-				has_event_mode_payload = true;
+				if (hit_accepted || !also_reject_true_info) {
+					const size_t output_hit_index = hit_accepted ? accepted_hit_index : hitIndex + 1;
+					auto true_data = digitization_routine->collectTrueInformation(this_hit, output_hit_index);
+					eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
+					has_event_mode_payload = true;
+				}
 			}
 			else if (collection_mode == CollectionMode::run) {
-				if (digi_data != nullptr) {
+				if (hit_accepted) {
 					run_action->collect_event_data_collections(
 						hcSDName,
 						std::move(digi_data));

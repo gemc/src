@@ -12,23 +12,6 @@ thread_local GParticleRecordEvent GPrimaryGeneratorAction::current_generated_par
 thread_local GParticleRecordEvent GPrimaryGeneratorAction::current_generated_tracked_particle_records;
 
 namespace {
-GParticleRecord make_particle_record(const GparticlePtr& particle) {
-	if (particle == nullptr) { return {}; }
-	const auto& vertex = particle->getVertex();
-	return {
-		particle->getName(),
-		particle->getPid(),
-		particle->getGeneratorType(),
-		particle->getMultiplicity(),
-		particle->getMomentum(),
-		particle->getTheta(),
-		particle->getPhi(),
-		vertex.x(),
-		vertex.y(),
-		vertex.z()
-	};
-}
-
 GParticleRecord make_particle_record(const GparticleRuntimeRecord& particle) {
 	return {
 		particle.name,
@@ -48,6 +31,14 @@ void append_runtime_records(GParticleRecordEvent& records, const GparticlePtr& p
 	if (particle == nullptr) { return; }
 	for (const auto& runtime_record : particle->getRuntimeRecords()) {
 		records.emplace_back(make_particle_record(runtime_record));
+	}
+}
+
+void append_untracked_file_records(GParticleRecordEvent& records, const GParticleRecordEvent& source_records) {
+	for (const auto& record : source_records) {
+		if (record.type != 1) {
+			records.emplace_back(record);
+		}
 	}
 }
 }
@@ -94,18 +85,14 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 	current_generated_tracked_particle_records.clear();
 
 	current_generated_particles.insert(current_generated_particles.end(), gparticles->begin(), gparticles->end());
-	current_generated_tracked_particles.insert(current_generated_tracked_particles.end(), gparticles->begin(), gparticles->end());
-	current_generated_particle_records.reserve(gparticles->size());
-	for (const auto& gparticle : *gparticles) {
-		current_generated_particle_records.emplace_back(make_particle_record(gparticle));
-	}
+	current_generated_tracked_particles.insert(current_generated_tracked_particles.end(),
+	                                           gparticles->begin(),
+	                                           gparticles->end());
 
 	const auto event_id = anEvent->GetEventID();
 	if (event_id >= 0 && static_cast<size_t>(event_id) < allGparticleFileRecordEvents.size()) {
 		const auto& event_particles = allGparticleFileRecordEvents[static_cast<size_t>(event_id)];
-		current_generated_particle_records.insert(current_generated_particle_records.end(),
-		                                          event_particles.begin(),
-		                                          event_particles.end());
+		append_untracked_file_records(current_generated_particle_records, event_particles);
 	}
 	if (event_id >= 0 && static_cast<size_t>(event_id) < gparticleFileEvents.size()) {
 		const auto& event_particles = gparticleFileEvents[static_cast<size_t>(event_id)];
@@ -117,6 +104,7 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 	for (const auto& gparticle : *gparticles) {
 		if (gparticle != nullptr) {
 			gparticle->shootParticle(gparticleGun.get(), anEvent);
+			append_runtime_records(current_generated_particle_records, gparticle);
 			append_runtime_records(current_generated_tracked_particle_records, gparticle);
 		}
 	}
@@ -129,6 +117,7 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 		for (const auto& gparticle : gparticleFileEvents[static_cast<size_t>(event_id)]) {
 			if (gparticle != nullptr) {
 				gparticle->shootParticle(gparticleGun.get(), anEvent);
+				append_runtime_records(current_generated_particle_records, gparticle);
 				append_runtime_records(current_generated_tracked_particle_records, gparticle);
 			}
 		}

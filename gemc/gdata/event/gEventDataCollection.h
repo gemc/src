@@ -47,10 +47,10 @@ constexpr const char* GEVENTDATA_LOGGER = "gevent_data";
  * the gparticle module from gdata. It is used by event streamers to publish
  * generated-particle metadata alongside detector hit banks.
  *
- * The \c generated bank contains inline \c -gparticle definitions and every
- * parsed \c -gparticlefile row. The \c generated_tracked bank contains inline
- * \c -gparticle definitions and only the file rows propagated in Geant4,
- * normally rows with \c type == 1.
+ * The \c generated bank contains runtime records for particles propagated in
+ * Geant4 plus source-only file rows that are not propagated. The
+ * \c generated_tracked bank contains only runtime records for particles
+ * propagated in Geant4, normally rows with \c type == 1 for Lund input.
  */
 struct GGeneratedParticleData
 {
@@ -197,16 +197,16 @@ public:
 	 *
 	 * \return Const reference to the detector map.
 	 */
-	[[nodiscard]] auto getDataCollectionMap() const -> const std::map<std::string, std::unique_ptr<GDataCollection>>& {
+	[[nodiscard]] auto getDataCollectionMap() const
+	    -> const std::map<std::string, std::unique_ptr<GDataCollection>>& {
 		return gdataCollectionMap;
 	}
 
 	/**
 	 * \brief Stores the full generated-particle bank for this event.
 	 *
-	 * The bank named \c generated contains inline \c -gparticle definitions
-	 * plus all parsed \c -gparticlefile rows, including file particles that
-	 * are not propagated in Geant4.
+	 * The bank named \c generated contains runtime records for particles
+	 * propagated in Geant4 plus source-only file rows that are not propagated.
 	 *
 	 * \param particles Generated-particle rows to store.
 	 */
@@ -217,9 +217,8 @@ public:
 	/**
 	 * \brief Stores the Geant4-tracked generated-particle bank for this event.
 	 *
-	 * The bank named \c generated_tracked contains inline \c -gparticle
-	 * definitions plus only the file particles propagated in Geant4, normally
-	 * those with source \c type == 1.
+	 * The bank named \c generated_tracked contains only runtime records for
+	 * particles propagated in Geant4, normally those with source \c type == 1.
 	 *
 	 * \param particles Generated-particle rows to store.
 	 */
@@ -239,7 +238,9 @@ public:
 	 *
 	 * \return Rows published as the \c generated_tracked output bank.
 	 */
-	[[nodiscard]] const GGeneratedParticleBank& getGeneratedTrackedParticles() const { return generated_tracked_particles; }
+	[[nodiscard]] const GGeneratedParticleBank& getGeneratedTrackedParticles() const {
+		return generated_tracked_particles;
+	}
 
 	/**
 	 * \brief Returns the event number stored in the owned header.

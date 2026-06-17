@@ -64,9 +64,10 @@ inline GOptions defineOptions() {
  * a default particle so the simulation still has a valid primary source.
  *
  * The class also exposes thread-local generated-particle snapshots for event
- * output. The \c generated snapshot includes inline particles and all parsed
- * file rows. The \c generated_tracked snapshot includes inline particles and
- * only the file rows propagated in Geant4.
+ * output. The \c generated snapshot contains runtime records for particles
+ * propagated in Geant4 plus source-only file rows that are not propagated. The
+ * \c generated_tracked snapshot contains only the runtime records propagated
+ * in Geant4.
  *
  * @ingroup gactions_module
  */
@@ -130,8 +131,9 @@ public:
 	/**
 	 * \brief Returns the current event's full generated-particle records.
 	 *
-	 * This is the source for the \c generated output bank. It includes inline
-	 * particles and every parsed file-backed particle row.
+	 * This is the source for the \c generated output bank. It includes runtime
+	 * records for propagated particles and source-only records for file-backed
+	 * rows not propagated in Geant4.
 	 *
 	 * \return Thread-local generated-particle records for the active event.
 	 */
@@ -141,7 +143,7 @@ public:
 	 * \brief Returns the current event's Geant4-tracked generated-particle records.
 	 *
 	 * This is the source for the \c generated_tracked output bank. It includes
-	 * inline particles and only file-backed particles propagated in Geant4.
+	 * only runtime records for particles propagated in Geant4.
 	 *
 	 * \return Thread-local tracked generated-particle records for the active event.
 	 */

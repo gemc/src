@@ -135,11 +135,10 @@
  * \subsection gstreamer_arch_generated Generated-particle banks
  * Event output includes two generated-particle banks when generator metadata is
  * available:
- * - \c generated : inline \c -gparticle definitions plus every parsed
- *   \c -gparticlefile particle, including rows that are not propagated in Geant4.
- * - \c generated_tracked : inline \c -gparticle definitions plus only the
- *   \c -gparticlefile particles that are propagated in Geant4. For Lund input,
- *   this corresponds to rows with \c type == 1.
+ * - \c generated : runtime records for particles propagated in Geant4 plus
+ *   source-only file rows that are not propagated.
+ * - \c generated_tracked : runtime records for particles propagated in Geant4.
+ *   For Lund input, this corresponds to rows with \c type == 1.
  *
  * Both banks publish the same columns: particle name, pid, source type,
  * multiplicity, momentum, theta, phi, and vertex components. The concrete
