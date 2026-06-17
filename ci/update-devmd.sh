@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+SINCE="2026-06-17" # Manually set the start date for commits
 
 echo "[devmd] start"
 
@@ -16,9 +17,6 @@ if [ -z "$BRANCH" ] || [ "$BRANCH" = "HEAD" ]; then
   BRANCH="${DEFAULT_BRANCH:-main}"
 fi
 echo "[devmd] branch = $BRANCH"
-
-# --- Time window (optional) ---
-SINCE="2026-05-21" # Manually set the start date for commits
 
 UNTIL="${DEVMD_UNTIL:-}"   # e.g. 2025-09-01
 FLAGS=""
