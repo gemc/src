@@ -153,6 +153,37 @@ std::vector<GFieldDefinition> get_GFieldDefinition(const std::shared_ptr<GOption
 		gfield_defs.push_back(gfield_def);
 	}
 
+	// Generic plugin-backed fields:
+	// Each "gfields" entry names a field, selects a plugin through "type", and carries an arbitrary
+	// set of scalar parameters that are forwarded verbatim to the plugin via field_parameters. This
+	// lets external plugins (e.g. clas12 mapped fields) be configured without changing this parser.
+	auto gfields_node = gopts->getOptionNode("gfields");
+	for (auto gfields_item : gfields_node) {
+		GFieldDefinition gfield_def = GFieldDefinition();
+
+		// Core identity and integration configuration (the schema-defined keys).
+		gfield_def.name = gopts->get_variable_in_option<std::string>(
+			gfields_item, "name", goptions::NODFLT);
+		gfield_def.type = gopts->get_variable_in_option<std::string>(
+			gfields_item, "type", goptions::NODFLT);
+		gfield_def.integration_stepper = gopts->get_variable_in_option<std::string>(
+			gfields_item, "integration_stepper", GFIELD_DEFAULT_INTEGRATION_STEPPER);
+		gfield_def.minimum_step = gutilities::getG4Number(gopts->get_variable_in_option<std::string>(
+			gfields_item, "minimum_step", GFIELD_DEFAULT_MINIMUM_STEP));
+
+		// Every remaining (scalar) key is forwarded to the plugin as a string parameter.
+		// Nested maps/sequences are not supported here: plugin parameters must be scalar values.
+		for (auto it = gfields_item.begin(); it != gfields_item.end(); ++it) {
+			auto key = it->first.as<std::string>();
+			if (key == "name" || key == "type" || key == "integration_stepper" || key == "minimum_step") {
+				continue;
+			}
+			gfield_def.add_map_parameter(key, it->second.as<std::string>());
+		}
+
+		gfield_defs.push_back(gfield_def);
+	}
+
 	return gfield_defs;
 }
 
@@ -183,6 +214,22 @@ GOptions defineOptions() {
 		{"longitudinal", "false", "If true, return a uniform field aligned with rotaxis (solenoid-like)"}
 	};
 	goptions.defineOption("gmultipoles", "define the e.m. gmultipoles", gmultipoles, help);
+
+	std::string gfields_help;
+	gfields_help = "Adds a generic, plugin-backed electromagnetic field to the simulation. \n \n";
+	gfields_help += "The 'type' selects the plugin shared library named gfield<type>Factory. \n";
+	gfields_help += "Any additional scalar keys are forwarded verbatim to that plugin as string \n";
+	gfields_help += "parameters (so the plugin alone decides which parameters it understands). \n \n";
+	gfields_help += "Mandatory keys: name, type. \n \n";
+	gfields_help += "Example (clas12 binary mapped field from the clas12-systems plugin): \n";
+	gfields_help += "-gfields=\"[{name: clas12, type: clas12bin, solenoid: solenoid_map, torus: torus_map}]\"\n";
+	std::vector<GVariable> gfields = {
+		{"name", goptions::NODFLT, "Field name (unique key used by GMagneto maps)"},
+		{"type", goptions::NODFLT, "Field type; selects the plugin shared library gfield<type>Factory"},
+		{"integration_stepper", GFIELD_DEFAULT_INTEGRATION_STEPPER, "Geant4 integration stepper name (string)"},
+		{"minimum_step", GFIELD_DEFAULT_MINIMUM_STEP, "Minimum step for the G4ChordFinder (Geant4 length units)"}
+	};
+	goptions.defineOption("gfields", "define a generic plugin-backed e.m. field", gfields, gfields_help);
 
 	goptions.defineOption(
 		GVariable("fieldAt", UNINITIALIZEDSTRINGQUANTITY, "query all configured fields at x y z"),

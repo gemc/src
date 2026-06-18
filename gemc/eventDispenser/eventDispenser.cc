@@ -14,10 +14,21 @@
 #include <utility>
 
 // geant4
+#include "G4GeometryManager.hh"
 #include "G4UImanager.hh"
 #include "G4RunManager.hh"
 
 using namespace std;
+
+namespace {
+void closeOpenGeometryBeforeBeamOn(const std::shared_ptr<GLogger>& log) {
+	auto* geometryManager = G4GeometryManager::GetInstanceIfExist();
+	if (!geometryManager || geometryManager->IsGeometryClosed()) { return; }
+
+	log->info(1, "Geometry is open before BeamOn; closing it before event processing.");
+	geometryManager->CloseGeometry();
+}
+}
 
 // Constructor summary:
 // - Reads configuration (number of events, run number, optional run-weight file).
@@ -188,6 +199,7 @@ int EventDispenser::processEvents() {
 		// Dispatch all events for this run in a single call.
 		// The command string is a standard Geant4 UI command: \c /run/beamOn <N>.
 		log->info(1, "Processing ", nevents, " events in one go");
+		closeOpenGeometryBeforeBeamOn(log);
 		g4uim->ApplyCommand("/run/beamOn " + to_string(nevents));
 		// Take the screenshot after BeamOn returns. At this point G4VisManager::EndOfRun()
 		// has already joined the vis subthread (ARM64 offset 0xa35f8: bl thread::join), so

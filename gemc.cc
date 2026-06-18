@@ -47,9 +47,13 @@ int main(int argc, char* argv[]) {
 	// random engine set by options
 	gemc::start_random_engine(gopts, log);
 
+	// GUI runs are interactive and short-lived; use the serial run manager to avoid repeatedly
+	// starting task workers from the Qt event loop on each Run button click.
+	const auto runManagerType = gui ? G4RunManagerType::SerialOnly : G4RunManagerType::Default;
+
 	// init geant4 run manager with then number of threads coming from options. always fails if unavailable
 	auto runManager = std::unique_ptr<G4RunManager>(
-		G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default, true, nthreads));
+		G4RunManagerFactory::CreateRunManager(runManagerType, true, nthreads));
 
 	// Pre-load streamer plugins before Geant4 creates worker threads. Sanitized Linux
 	// builds can fail late dlopen() calls from workers with static TLS exhaustion.

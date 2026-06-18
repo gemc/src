@@ -205,6 +205,11 @@ jobs:
       matrix: ${{ fromJSON(needs.discover.outputs.matrix_manifest) }}
     env:
       TAG4: ${{ format('{0}-{1}-{2}', matrix.gemc_tag, matrix.image, matrix.image_tag) }}
+      # Docker Hub mirror target. Steps are skipped automatically when the
+      # DOCKERHUB_USERNAME secret is not configured (e.g. on forks).
+      # Override the namespace with the DOCKERHUB_REPO repo variable.
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'docker.io/maureeungaro/gemc' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -217,6 +222,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Docker Hub
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
+        uses: docker/login-action@v4
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v4
@@ -242,6 +255,17 @@ jobs:
           else
             docker buildx imagetools create -t "$BASE_TAG" "$AMD_TAG"
           fi
+
+      - name: Mirror manifest to Docker Hub
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
+        shell: bash
+        run: |
+          # Copy the already-built multi-arch manifest from GHCR to Docker Hub
+          # registry-to-registry (no pull, no rebuild).
+          SRC="${{ needs.discover.outputs.image }}:${{ env.TAG4 }}"
+          DST="${DOCKERHUB_REPO}:${{ env.TAG4 }}"
+          echo "Mirroring $SRC -> $DST"
+          docker buildx imagetools create -t "$DST" "$SRC"
 
       - name: Download logs artifacts (all arches)
         if: ${{ always() }}
@@ -273,6 +297,37 @@ jobs:
           name: summary-${{ env.TAG4 }}-manifest
           path: ${{ env.MANIFEST_SUMMARY_FILE }}
           if-no-files-found: warn
+
+  # Push the Docker Hub overview README once per deploy. Skipped automatically
+  # when the DOCKERHUB_USERNAME secret is absent (e.g. on forks).
+  dockerhub_readme:
+    name: Update Docker Hub description
+    needs: manifest
+    if: ${{ always() && needs.manifest.result == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'docker.io/maureeungaro/gemc' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Resolve Docker Hub repository path
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
+        shell: bash
+        run: echo "DH_REPO_PATH=${DOCKERHUB_REPO#docker.io/}" >> "$GITHUB_ENV"
+
+      - name: Push README to Docker Hub
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ env.DH_REPO_PATH }}
+          short-description: "Database-driven Geant4 Monte-Carlo simulation framework (GEMC)"
+          readme-filepath: ./ci/dockerhub/README.md
 
   final:
     name: Deploy - summary
