@@ -17,6 +17,7 @@
 #include "gaction.h"
 #include "gstreamer.h"
 #include "gsystem_options.h"
+#include "gfield_options.h"
 
 // c++
 #include <cstdio>
@@ -29,10 +30,11 @@ int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, base_schema);
 	auto log   = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GENERAL_LOGGER);
 
+	if (gfields::runFieldQueries(gopts)) { return EXIT_SUCCESS; }
+
 	auto gui      = gopts->getSwitch("gui");
 	auto nthreads = gemc::get_nthreads(gopts, log);
 	auto has_startup_geometry = !gsystem::getSystems(gopts).empty();
-
 
 	// createQtApplication returns a QApplication if gui is true
 	// otherwise, it returns a QCoreApplication and sets the Geant4 CoutDestination to a GBatch_Session
@@ -46,7 +48,8 @@ int main(int argc, char* argv[]) {
 	gemc::start_random_engine(gopts, log);
 
 	// init geant4 run manager with then number of threads coming from options. always fails if unavailable
-	auto runManager = std::unique_ptr<G4RunManager>(G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default, true, nthreads));
+	auto runManager = std::unique_ptr<G4RunManager>(
+		G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default, true, nthreads));
 
 	// Pre-load streamer plugins before Geant4 creates worker threads. Sanitized Linux
 	// builds can fail late dlopen() calls from workers with static TLS exhaustion.

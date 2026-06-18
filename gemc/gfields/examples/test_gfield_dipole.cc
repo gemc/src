@@ -53,6 +53,8 @@ int main(int argc, char* argv[]) {
 	// Initialize GOptions (parsed from YAML or another source)
 	auto gopts = std::make_shared<GOptions>(argc, argv, gfields::defineOptions());
 
+	if (gfields::runFieldQueries(gopts)) { return EXIT_SUCCESS; }
+
 	// Create a GMagneto instance to manage fields
 	auto magneto = std::make_shared<GMagneto>(gopts);
 

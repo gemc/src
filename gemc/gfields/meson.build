@@ -6,6 +6,7 @@ verbosities = ['-verbosity.gfield=2',
                '-debug.gfield=true'
 ]
 input_file = [meson.current_source_dir() + '/examples/dipole.yaml']
+field_points_file = meson.current_source_dir() + '/examples/field_points.txt'
 
 
 multipoles_files = [files(
@@ -38,5 +39,10 @@ LD += {
     'examples' : {
         'test_gfield_dipole' : [example_source, input_file],
         'test_gfield_dipole_verbose' : [example_source, input_file + verbosities],
+        'test_gfield_dipole_field_at' : [example_source, input_file + ['-fieldAt=10*cm 0*cm 0*cm']],
+        'test_gfield_dipole_field_map_points' : [
+            example_source,
+            input_file + ['-fieldMapPoints=' + field_points_file],
+        ],
     }
 }

@@ -32,6 +32,17 @@ std::vector<GFieldDefinition> get_GFieldDefinition(const std::shared_ptr<GOption
  */
 GOptions defineOptions();
 
+/**
+ * \brief Evaluate configured fields from \c fieldAt and \c fieldMapPoints options, if requested.
+ * \param gopts Shared options container with field definitions and query options.
+ * \return True when at least one query option was present and processed.
+ *
+ * The query options are intended for command-line inspection workflows:
+ * - \c fieldAt accepts one coordinate triplet with units, for example \c "10*cm 0*mm 2*m".
+ * - \c fieldMapPoints accepts an ASCII file with one \c x y z coordinate triplet per line.
+ */
+bool runFieldQueries(const std::shared_ptr<GOptions>& gopts);
+
 } // namespace gfields
 
 /** @} */

@@ -5,6 +5,9 @@
 #include "gmagneto.h"
 #include "gfield_options.h"
 
+// c++
+#include <algorithm>
+
 // #include "G4TransportationManager.hh"
 // #include "G4PropagatorInField.hh"
 
@@ -28,7 +31,8 @@ GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts) : GBase(gopts, GMAGNE
 		// Only create each named field once; repeated names are ignored by this map check.
 		if (fields_map->find(name) == fields_map->end()) {
 			// Load the plugin, instantiate the field object, and cache it by name.
-			fields_map->emplace(name, gFieldManager.LoadAndRegisterObjectFromLibrary<GField>(field_definition.gfieldPluginName(), gopts));
+			fields_map->emplace(name, gFieldManager.LoadAndRegisterObjectFromLibrary<GField>(
+				field_definition.gfieldPluginName(), gopts));
 
 			// Pass the configuration down to the concrete implementation so it can parse/cache parameters.
 			fields_map->at(name)->load_field_definitions(field_definition);
@@ -40,4 +44,12 @@ GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts) : GBase(gopts, GMAGNE
 
 	// TODO: add min and max steps
 	//	G4TransportationManager::GetTransportationManager()->GetPropagatorInField()->SetLargestAcceptableStep(10);
+}
+
+std::vector<std::string> GMagneto::getFieldNames() const {
+	std::vector<std::string> names;
+	names.reserve(fields_map->size());
+	for (const auto& [name, field] : *fields_map) { names.push_back(name); }
+	std::sort(names.begin(), names.end());
+	return names;
 }

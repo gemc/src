@@ -26,11 +26,12 @@
  *
  * Ownership model:
  * - \ref GMagneto "GMagneto" owns a map of field objects (\ref GField) created via dynamic plugin loading.
- * - For each field it also owns a corresponding \c G4FieldManager created by \ref GField::create_FieldManager "create_FieldManager()".
+ * - For each field it also owns a corresponding \c G4FieldManager created by
+ *   \ref GField::create_FieldManager "create_FieldManager()".
  *
  * Lifecycle:
- * - Fields and managers are constructed during \ref GMagneto::GMagneto "GMagneto()" based on the field definitions
- *   produced by gfields::get_GFieldDefinition().
+ * - Fields and managers are constructed during \ref GMagneto::GMagneto "GMagneto()" based on the field
+ *   definitions produced by gfields::get_GFieldDefinition().
  * - Maps live for the lifetime of the \ref GMagneto "GMagneto" instance.
  */
 class GMagneto : public GBase<GMagneto> {
@@ -66,6 +67,12 @@ public:
 	bool isField(const std::string& name) const { return fields_map->find(name) != fields_map->end(); }
 
 	/**
+	 * \brief Return the configured field names.
+	 * \return Sorted list of field names loaded by this manager.
+	 */
+	std::vector<std::string> getFieldNames() const;
+
+	/**
 	 * \brief Retrieve a field object by name.
 	 * \param name Field name key.
 	 * \return Shared pointer to the requested \ref GField "GField" instance.
@@ -93,7 +100,9 @@ public:
 			log->info(2, "GFieldManager >", key, "< >", value);
 		}
 
-		if (fields_manager->find(name) == fields_manager->end()) { log->error(ERR_WRONG_FIELD_NOT_FOUND, "GField >", name, "< not found. Exiting."); }
+		if (fields_manager->find(name) == fields_manager->end()) {
+			log->error(ERR_WRONG_FIELD_NOT_FOUND, "GField >", name, "< not found. Exiting.");
+		}
 
 		return fields_manager->at(name);
 	}
