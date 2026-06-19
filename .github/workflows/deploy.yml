@@ -274,11 +274,12 @@ jobs:
           path: ${{ env.MANIFEST_SUMMARY_FILE }}
           if-no-files-found: warn
 
-  # Mirror the GHCR multi-arch manifests to Docker Hub. This runs as a single
-  # serial job (NOT inside the manifest matrix): all OS families target the same
-  # Docker Hub repo, and concurrent blob uploads to one repo trip Docker Hub's
-  # rate limits, so tags are copied one at a time with retries. The copy is
-  # registry-to-registry (no pull, no rebuild). Skipped when the
+  # Mirror the GHCR multi-arch manifests to Docker Hub. Copied with skopeo, not
+  # `docker buildx imagetools`: the latter's blob-upload finalize is rejected by
+  # Docker Hub's registry with "400 Bad Request", whereas skopeo's streaming
+  # upload is accepted. The copy is registry-to-registry (no pull, no rebuild)
+  # and `--all` carries every architecture in the manifest list. Tags are copied
+  # one at a time (sequential) with skopeo's own retry. Skipped when the
   # DOCKERHUB_USERNAME secret is absent (e.g. on forks).
   dockerhub_mirror:
     name: Mirror images to Docker Hub
@@ -287,7 +288,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'docker.io/maureeungaro/gemc' }}
+      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'maureeungaro/gemc' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -310,11 +311,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set up Buildx
+      - name: Install skopeo
         if: ${{ env.DOCKERHUB_USERNAME != '' }}
-        uses: docker/setup-buildx-action@v4
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo
 
-      - name: Mirror all tags (sequential, with retry)
+      - name: Mirror all tags (sequential)
         if: ${{ env.DOCKERHUB_USERNAME != '' }}
         shell: bash
         env:
@@ -323,26 +326,23 @@ jobs:
           set -uo pipefail
           source ci/tags_config.sh
 
-          copy_with_retry() {
-            local src=$1 dst=$2 n=0 max=5
-            until docker buildx imagetools create -t "$dst" "$src"; do
-              n=$((n + 1))
-              if [ "$n" -ge "$max" ]; then
-                echo "::error::failed to mirror $src -> $dst after $max attempts"
-                return 1
-              fi
-              echo "retry $n/$max for $dst; backing off $((n * 15))s"
-              sleep $((n * 15))
-            done
-            echo "mirrored $src -> $dst"
-          }
+          # skopeo reads the credentials written by the docker login steps above.
+          AUTHFILE="$HOME/.docker/config.json"
 
           rc=0
           for gemcv in $(get_gemc_tags); do
             for pair in "${OS_VERSIONS[@]}"; do
               os="${pair%%=*}"; ver="${pair#*=}"
               tag="${gemcv}-${os}-${ver}"
-              copy_with_retry "${SRC_IMAGE}:${tag}" "${DOCKERHUB_REPO}:${tag}" || rc=1
+              echo "Mirroring ${SRC_IMAGE}:${tag} -> ${DOCKERHUB_REPO}:${tag}"
+              if skopeo copy --all --retry-times 5 --authfile "$AUTHFILE" \
+                   "docker://${SRC_IMAGE}:${tag}" \
+                   "docker://${DOCKERHUB_REPO}:${tag}"; then
+                echo "mirrored ${DOCKERHUB_REPO}:${tag}"
+              else
+                echo "::error::failed to mirror ${SRC_IMAGE}:${tag} -> ${DOCKERHUB_REPO}:${tag}"
+                rc=1
+              fi
             done
           done
           exit "$rc"
@@ -356,7 +356,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'docker.io/maureeungaro/gemc' }}
+      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'maureeungaro/gemc' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
