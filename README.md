@@ -326,7 +326,9 @@ BibTeX and additional citation formats are in [`CITATION.md`](CITATION.md).
 
 ## License
 
-GEMC is distributed under the project license in [`LICENSE.md`](LICENSE.md). The software also depends on separately licensed third-party components, including Geant4, CLHEP, Qt, ROOT, SQLite, and Assimp.
+GEMC is licensed under the [Apache License, Version 2.0](LICENSE); see [`NOTICE`](NOTICE) for attribution and
+third-party acknowledgments. The software also depends on separately licensed third-party components, including
+Geant4, CLHEP, Qt, ROOT, SQLite, and Assimp.
 
 
 [test]: https://github.com/gemc/src/actions/workflows/test.yml
@@ -345,5 +347,5 @@ GEMC is distributed under the project license in [`LICENSE.md`](LICENSE.md). The
 [site-badge]: https://github.com/gemc/home/actions/workflows/jekyll.yml/badge.svg
 [pypi]: https://pypi.org/project/pygemc/
 [pypi-badge]: https://img.shields.io/pypi/v/pygemc.svg?cacheSeconds=300
-[license]: LICENSE.md
-[license-badge]: https://img.shields.io/badge/license-GEMC-blue.svg
+[license]: LICENSE
+[license-badge]: https://img.shields.io/badge/license-Apache--2.0-blue.svg

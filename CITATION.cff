@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: "GEMC — Geant4 Monte-Carlo"
+message: "If you use GEMC in scientific work, please cite the preferred-citation below."
+type: software
+authors:
+  - family-names: Ungaro
+    given-names: Maurizio
+    affiliation: "Thomas Jefferson National Accelerator Facility (Jefferson Lab)"
+    email: ungaro@jlab.org
+repository-code: "https://github.com/gemc/src"
+url: "https://gemc.github.io/home/"
+license: Apache-2.0
+preferred-citation:
+  type: conference-paper
+  title: "Geant4 Monte-Carlo (GEMC) A database-driven simulation program"
+  authors:
+    - family-names: Ungaro
+      given-names: Maurizio
+  collection-title: "European Physical Journal Web of Conferences"
+  volume: 295
+  year: 2024
+  month: 5
+  doi: "10.1051/epjconf/202429505005"
+  notes: "Article number 05005"
