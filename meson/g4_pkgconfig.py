@@ -7,10 +7,11 @@ Writes:
   - geant4_core.pc   : libs with graphical/GUI/vis/X11/OpenGL/Qt removed
 
 Usage:
-    ./g4_pkgconfig.py <install-prefix>
+    ./g4_pkgconfig.py <install-prefix> [geant4-config]
 
 Example:
     ./g4_pkgconfig.py $GEMC
+    ./g4_pkgconfig.py $GEMC $G4INSTALL/bin/geant4-config
 """
 import subprocess
 import sys
@@ -21,7 +22,7 @@ print(f"[debug] Python version: {sys.version}")
 print(f"[debug] Python executable: {sys.executable}")
 
 
-# ────────────────────────── helpers ──────────────────────────
+# Helpers
 def run_config(command: str, option: str) -> str:
 	try:
 		result = subprocess.run([command, option], capture_output=True, text=True, check=True)
@@ -172,22 +173,22 @@ Libs:  {libs}
 	print(f"Generated {pc_path}")
 
 
-# ────────────────────────── main ──────────────────────────
+# Main
 if __name__ == "__main__":
-	if len(sys.argv) != 2:
-		sys.exit(f"Usage: {sys.argv[0]} <install-prefix>")
+	if len(sys.argv) not in (2, 3):
+		sys.exit(f"Usage: {sys.argv[0]} <install-prefix> [geant4-config]")
 
 	install_dir = Path(sys.argv[1]).expanduser().resolve()
+	config_cmd = sys.argv[2] if len(sys.argv) == 3 else "geant4-config"
 	if not install_dir.exists():
 		print(f"Creating installation directory {install_dir}")
 		install_dir.mkdir(parents=True, exist_ok=True)
 
-	generate_pkgconfig(install_dir, "geant4-config",
+	generate_pkgconfig(install_dir, config_cmd,
 					   "geant4.pc", "Geant4", "Geant4 Simulation Toolkit")
 
-	generate_pkgconfig(install_dir, "geant4-config",
+	generate_pkgconfig(install_dir, config_cmd,
 					   "geant4_core.pc", "Geant4 Core",
 					   "Geant4 Simulation Toolkit (core, no graphical/GUI libs)",
 					   cflags_filter=filter_graphical_cflags,
 					   libs_filter=filter_graphical_libs)
-

@@ -205,11 +205,6 @@ jobs:
       matrix: ${{ fromJSON(needs.discover.outputs.matrix_manifest) }}
     env:
       TAG4: ${{ format('{0}-{1}-{2}', matrix.gemc_tag, matrix.image, matrix.image_tag) }}
-      # Docker Hub mirror target. Steps are skipped automatically when the
-      # DOCKERHUB_USERNAME secret is not configured (e.g. on forks).
-      # Override the namespace with the DOCKERHUB_REPO repo variable.
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'docker.io/maureeungaro/gemc' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -222,14 +217,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Log in to Docker Hub
-        if: ${{ env.DOCKERHUB_USERNAME != '' }}
-        uses: docker/login-action@v4
-        with:
-          registry: docker.io
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v4
@@ -255,17 +242,6 @@ jobs:
           else
             docker buildx imagetools create -t "$BASE_TAG" "$AMD_TAG"
           fi
-
-      - name: Mirror manifest to Docker Hub
-        if: ${{ env.DOCKERHUB_USERNAME != '' }}
-        shell: bash
-        run: |
-          # Copy the already-built multi-arch manifest from GHCR to Docker Hub
-          # registry-to-registry (no pull, no rebuild).
-          SRC="${{ needs.discover.outputs.image }}:${{ env.TAG4 }}"
-          DST="${DOCKERHUB_REPO}:${{ env.TAG4 }}"
-          echo "Mirroring $SRC -> $DST"
-          docker buildx imagetools create -t "$DST" "$SRC"
 
       - name: Download logs artifacts (all arches)
         if: ${{ always() }}
@@ -298,12 +274,85 @@ jobs:
           path: ${{ env.MANIFEST_SUMMARY_FILE }}
           if-no-files-found: warn
 
-  # Push the Docker Hub overview README once per deploy. Skipped automatically
-  # when the DOCKERHUB_USERNAME secret is absent (e.g. on forks).
+  # Mirror the GHCR multi-arch manifests to Docker Hub. This runs as a single
+  # serial job (NOT inside the manifest matrix): all OS families target the same
+  # Docker Hub repo, and concurrent blob uploads to one repo trip Docker Hub's
+  # rate limits, so tags are copied one at a time with retries. The copy is
+  # registry-to-registry (no pull, no rebuild). Skipped when the
+  # DOCKERHUB_USERNAME secret is absent (e.g. on forks).
+  dockerhub_mirror:
+    name: Mirror images to Docker Hub
+    needs: [ discover, manifest ]
+    if: ${{ always() && needs.manifest.result == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'docker.io/maureeungaro/gemc' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Log in to GHCR
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Docker Hub
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
+        uses: docker/login-action@v4
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Buildx
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
+        uses: docker/setup-buildx-action@v4
+
+      - name: Mirror all tags (sequential, with retry)
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
+        shell: bash
+        env:
+          SRC_IMAGE: ${{ needs.discover.outputs.image }}
+        run: |
+          set -uo pipefail
+          source ci/tags_config.sh
+
+          copy_with_retry() {
+            local src=$1 dst=$2 n=0 max=5
+            until docker buildx imagetools create -t "$dst" "$src"; do
+              n=$((n + 1))
+              if [ "$n" -ge "$max" ]; then
+                echo "::error::failed to mirror $src -> $dst after $max attempts"
+                return 1
+              fi
+              echo "retry $n/$max for $dst; backing off $((n * 15))s"
+              sleep $((n * 15))
+            done
+            echo "mirrored $src -> $dst"
+          }
+
+          rc=0
+          for gemcv in $(get_gemc_tags); do
+            for pair in "${OS_VERSIONS[@]}"; do
+              os="${pair%%=*}"; ver="${pair#*=}"
+              tag="${gemcv}-${os}-${ver}"
+              copy_with_retry "${SRC_IMAGE}:${tag}" "${DOCKERHUB_REPO}:${tag}" || rc=1
+            done
+          done
+          exit "$rc"
+
+  # Push the Docker Hub overview README once per deploy, after the images exist.
+  # Skipped automatically when the DOCKERHUB_USERNAME secret is absent.
   dockerhub_readme:
     name: Update Docker Hub description
-    needs: manifest
-    if: ${{ always() && needs.manifest.result == 'success' }}
+    needs: dockerhub_mirror
+    if: ${{ always() && needs.dockerhub_mirror.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -337,7 +386,7 @@ jobs:
         github.event.workflow_run.conclusion == 'success' &&
         github.event.workflow_run.event == 'push'
       }}
-    needs: [ build_arch, manifest ]
+    needs: [ build_arch, manifest, dockerhub_mirror, dockerhub_readme ]
     runs-on: ubuntu-latest
     steps:
       - name: Fail if any required job failed

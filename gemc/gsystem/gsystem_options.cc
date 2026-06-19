@@ -92,7 +92,8 @@ GOptions defineOptions() {
 		{"name", goptions::NODFLT, "system name (mandatory). For ascii factories, it may include the path to the file"},
 		{"factory", GSYSTEMSQLITETFACTORYLABEL, "factory name."},
 		{"variation", "default", "geometry variation"},
-		{"annotations", UNINITIALIZEDSTRINGQUANTITY, "optional system annotations. Examples: \"mats_only\" "}
+		{"annotations", UNINITIALIZEDSTRINGQUANTITY, "optional system annotations. Examples: \"mats_only\" "},
+		{"digitization", UNINITIALIZEDSTRINGQUANTITY, "optional digitization plugin name when it differs from the system name (shared plugin, e.g. \"ecal\" for the EC and PCAL systems)"}
 	};
 	goptions.defineOption(GSYSTEM_LOGGER, "defines the group of volumes in a system", gsystem, help);
 

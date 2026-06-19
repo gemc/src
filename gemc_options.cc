@@ -190,8 +190,18 @@ namespace gemc {
                     if (!entry["name"]) continue;
                     std::string name;
                     try { name = entry["name"].as<std::string>(); } catch (...) { continue; }
-                    if (name.empty() || !seen_names.insert(name).second) continue;
-                    probe_plugin(name + ".gplugin");
+                    if (name.empty()) continue;
+                    if (seen_names.insert(name).second) probe_plugin(name + ".gplugin");
+
+                    // A gsystem may be digitized by a plugin whose name differs from the system
+                    // name (e.g. the EC and PCAL systems share the "ecal" plugin). Probe that
+                    // plugin too so its options and verbosity domain are registered before the
+                    // factory is instantiated.
+                    if (entry["digitization"]) {
+                        std::string dig;
+                        try { dig = entry["digitization"].as<std::string>(); } catch (...) { dig.clear(); }
+                        if (!dig.empty() && seen_names.insert(dig).second) probe_plugin(dig + ".gplugin");
+                    }
                 }
             }
 

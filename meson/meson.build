@@ -36,7 +36,11 @@ expat_dep = dependency('expat', required: true)
 zlib_dep = dependency('zlib', static : false, required : true)  # Use shared libz.so instead of libz.az
 
 # pkg-config --cflags --libs clhep
-clhep_deps = dependency('clhep',  version : '>=2.4.7.1',  include_type : 'system') # treat as system include paths - no warnings
+clhep_deps = dependency(
+    'clhep',
+    version      : '>=2.4.7.1',
+    include_type : 'system',
+)
 
 # feature: feature toggle (uncomment options() above)
 root_opt = get_option('root')
@@ -89,19 +93,44 @@ if (not root_dep.found()) and (not root_opt.disabled())
     endif
 endif
 
-# geant4.pc if not found
+# Generate Geant4 pkg-config files from the active module so downstream builds
+# do not pick stale global pc files from unrelated pkg-config directories.
 fs = import('fs')
 gemc_prefix = get_option('prefix')
 geant4_pc_path = gemc_prefix / 'lib/pkgconfig'
-geant4_core_pc = geant4_pc_path / 'geant4_core.pc'
-geant4_pc = geant4_pc_path / 'geant4.pc'
 g4_pkgconfig_script = meson.project_source_root() / 'meson/g4_pkgconfig.py'
-if not fs.exists(geant4_pc) or not fs.exists(geant4_core_pc)
-    message('geant4.pc or geant4_core.pc  not found in ' + geant4_pc_path + ', running install script to install it in ' + gemc_prefix)
-    run_command(g4_pkgconfig_script, gemc_prefix, check : true)
+
+g4install = run_command('sh', '-c', 'printf %s "$G4INSTALL"', check : false).stdout().strip()
+geant4_config = find_program('geant4-config', required : false)
+if g4install != ''
+    geant4_module_config = find_program(g4install / 'bin' / 'geant4-config', required : false)
+    if geant4_module_config.found()
+        geant4_config = geant4_module_config
+    endif
 endif
-geant4_dep = dependency('geant4', version : '>=11.3.2', method : 'pkg-config', include_type : 'system') # treat as system include paths - no warnings
+
+if not geant4_config.found()
+    error('geant4-config was not found. Load a Geant4 module before configuring GEMC.')
+endif
+
+geant4_config_version = run_command(geant4_config, '--version', check : true).stdout().strip()
+message('Generating Geant4 pkg-config files in ' + geant4_pc_path + ' from ' + geant4_config.full_path())
+run_command(g4_pkgconfig_script, gemc_prefix, geant4_config.full_path(), check : true)
+
+geant4_dep = dependency(
+    'geant4',
+    version      : '>=11.3.2',
+    method       : 'pkg-config',
+    include_type : 'system',
+)
 geant4_core_dep = dependency('geant4_core', version : '>=11.3.2', method : 'pkg-config')
+if geant4_core_dep.version() != geant4_config_version
+    error(
+        'pkg-config resolved geant4_core ' + geant4_core_dep.version() +
+        ', but active geant4-config reports ' + geant4_config_version +
+        '. Put ' + geant4_pc_path + ' before stale pkg-config directories and reconfigure.',
+    )
+endif
 geant4_deps = [geant4_dep]
 geant4_core_deps = [geant4_core_dep]
 if sys == 'linux'
@@ -135,7 +164,8 @@ cmake_opts.add_cmake_defines({
                                  'BUILD_STATIC_LIBS' : true,
                                  'ZLIB_USE_STATIC_LIBS' : false, # prefer shared zlib
                                  'CMAKE_POSITION_INDEPENDENT_CODE' : true,
-                                 'CMAKE_C_STANDARD' : 17, # avoid C23 warnings in bundled zlib if you ever enable it
+                                 # Avoid C23 warnings in bundled zlib if you ever enable it.
+                                 'CMAKE_C_STANDARD' : 17,
                                  'CMAKE_POLICY_VERSION_MINIMUM' : '4.0',
                              })
 
