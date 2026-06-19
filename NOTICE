@@ -1,0 +1,34 @@
+GEMC — Geant4 Monte-Carlo
+Copyright 2006-2026 Maurizio Ungaro and Thomas Jefferson National Accelerator
+Facility (Jefferson Lab).
+
+This product includes the GEMC software developed by Maurizio Ungaro at
+Thomas Jefferson National Accelerator Facility (Jefferson Lab).
+
+This software includes voluntary contributions made to the GEMC project.
+
+------------------------------------------------------------------------------
+Third-party components
+------------------------------------------------------------------------------
+GEMC is distributed with, or requires at run time, third-party components that
+are separately licensed. Each is provided under its own license, and you must
+comply with those licenses in addition to the Apache License, Version 2.0 that
+covers GEMC itself. Where required (for example, by the Geant4 license), the
+applicable notices and acknowledgments must be reproduced in redistributions.
+
+  - Geant4   — https://geant4.web.cern.ch        (Geant4 Software License)
+  - CLHEP    — https://proj-clhep.web.cern.ch    (CLHEP / GNU GPL)
+  - Qt       — https://www.qt.io                 (LGPLv3 / commercial)
+  - ROOT     — https://root.cern                 (LGPLv2.1)
+  - SQLite   — https://www.sqlite.org            (public domain)
+  - Assimp   — https://www.assimp.org            (BSD-3-Clause)
+  - yaml-cpp — https://github.com/jbeder/yaml-cpp (MIT)
+
+------------------------------------------------------------------------------
+Citation
+------------------------------------------------------------------------------
+If you use GEMC in scientific work, please cite (see CITATION.cff):
+
+  M. Ungaro, "Geant4 Monte-Carlo (GEMC) A database-driven simulation program,"
+  EPJ Web of Conferences 295, 05005 (2024).
+  https://doi.org/10.1051/epjconf/202429505005

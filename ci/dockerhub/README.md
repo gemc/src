@@ -103,6 +103,6 @@ If you use GEMC in scientific work, please cite:
 
 ## License
 
-GEMC is distributed under the project license (see the [source repository](https://github.com/gemc/src/blob/main/LICENSE.md)).
+GEMC is licensed under the [Apache License, Version 2.0](https://github.com/gemc/src/blob/main/LICENSE).
 The images also contain separately licensed third-party components, including Geant4, CLHEP, Qt, ROOT, SQLite, and
 Assimp.

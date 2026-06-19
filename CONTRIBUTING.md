@@ -113,7 +113,8 @@ Why this helps review:
 
 ## Licensing and Citation
 
-By contributing, you agree that your contributions are licensed under the GEMC Software License v1.0. See [`LICENSE.md`](LICENSE.md).
+By contributing, you agree that your contributions are licensed under the Apache License, Version 2.0. See
+[`LICENSE`](LICENSE).
 
 If you use GEMC in scientific work, cite:
 
