@@ -6,7 +6,7 @@
 [![CodeQL][codeql-badge]][codeql]
 [![Doxygen][docs-badge]][docs]
 [![Nightly Dev Release][nightly-badge]][nightly]
-[![Homepage][site-badge]][site]
+[![GEMC documentation][site-badge]][site]
 [![pygemc PyPI][pypi-badge]][pypi]
 [![License][license-badge]][license]
 
@@ -343,8 +343,8 @@ Geant4, CLHEP, Qt, ROOT, SQLite, and Assimp.
 [codeql-badge]: https://github.com/gemc/src/actions/workflows/codeql.yml/badge.svg
 [nightly]: https://github.com/gemc/src/actions/workflows/dev_release.yml
 [nightly-badge]: https://github.com/gemc/src/actions/workflows/dev_release.yml/badge.svg
-[site]: https://github.com/gemc/home/actions/workflows/jekyll.yml
-[site-badge]: https://github.com/gemc/home/actions/workflows/jekyll.yml/badge.svg
+[site]: https://gemc.github.io/home/
+[site-badge]: https://img.shields.io/badge/docs-gemc.github.io-blue.svg
 [pypi]: https://pypi.org/project/pygemc/
 [pypi-badge]: https://img.shields.io/pypi/v/pygemc.svg?cacheSeconds=300
 [license]: LICENSE
