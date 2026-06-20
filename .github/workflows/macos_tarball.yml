@@ -1,0 +1,181 @@
+# Build a GEMC binary tarball natively on macOS (Apple Silicon).
+#
+# macOS has no Docker base image, so unlike the Linux Deploy/Binary Tarballs
+# pipeline this does NOT build/push an image. Instead it consumes the prebuilt
+# Geant4 macOS tarball produced by gemc/g4install's "macos_tarball" workflow,
+# unpacks it, downloads the Geant4 physics data, then compiles and tests GEMC
+# exactly as the Linux container does (via ci/build.sh). The resulting install
+# tree is repackaged with ci/package_install.sh into a relocatable GEMC tarball
+# that is attached to the rolling "dev" prerelease.
+name: macOS GEMC Binary Tarball
+
+run-name: macOS GEMC binary tarball
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gemc-macos-tarball-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  # Run after the nightly dev release (44 1 * * *) has anchored the "dev"
+  # prerelease and after g4install's macOS Geant4 tarball (0 2 * * *) has been
+  # attached to its own dev release.
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      geant4_tarball_repo:
+        description: 'Repository hosting the Geant4 macOS tarball release'
+        required: false
+        default: 'gemc/g4install'
+      geant4_tarball_tag:
+        description: 'Release tag holding the Geant4 macOS tarball'
+        required: false
+        default: 'dev'
+
+jobs:
+  build-tarball:
+    name: gemc macos arm64
+    # macos-26 (Tahoe) matches the macosx26 OSRELEASE the Geant4 tarball is
+    # built with; GitHub's macOS runners are Apple Silicon (arm64).
+    runs-on: macos-26
+    env:
+      TAG_NAME: dev
+      GEANT4_TARBALL_REPO: ${{ github.event.inputs.geant4_tarball_repo || 'gemc/g4install' }}
+      GEANT4_TARBALL_TAG: ${{ github.event.inputs.geant4_tarball_tag || 'dev' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          # Full history so ci/gemc_version.sh / git describe behave like the
+          # other build jobs.
+          fetch-depth: 0
+
+      - name: Install build dependencies (Homebrew)
+        env:
+          # GitHub macOS runners pre-tap aws/azure/hashicorp; newer Homebrew
+          # refuses untrusted taps and aborts. We use none of those taps, so
+          # skip the trust check and the auto-update tap scan.
+          HOMEBREW_NO_REQUIRE_TAP_TRUST: "1"
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: |
+          # meson/ninja/cmake + pkg-config drive the build; qt6 and root supply
+          # the GUI and analysis dependencies; sqlite/expat/zlib/tbb are the
+          # remaining libraries GEMC links against. XQuartz provides the X11/GL
+          # runtime the Geant4 tarball was built against.
+          brew install meson ninja cmake pkg-config qt root sqlite expat zlib tbb
+          brew install --cask xquartz
+
+      - name: Download the Geant4 macOS tarball
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="${RUNNER_TEMP}/geant4-download"
+          mkdir -p "${dest}"
+          gh release download "${GEANT4_TARBALL_TAG}" \
+            --repo "${GEANT4_TARBALL_REPO}" \
+            --pattern 'geant4-*-macosx*-arm64.tar.gz' \
+            --dir "${dest}"
+          tarball="$(ls "${dest}"/geant4-*-macosx*-arm64.tar.gz | head -1)"
+          echo "GEANT4_TARBALL=${tarball}" >> "$GITHUB_ENV"
+          ls -l "${dest}"
+
+      - name: Build, test and package GEMC
+        id: build
+        shell: zsh {0}
+        env:
+          # Headless runner: skip the interactive (GUI) meson tests (see ci/env.sh).
+          GEMC_INTERACTIVE_TESTS: "false"
+        run: |
+          set -e
+
+          # --- Unpack the Geant4 tarball and derive its versions -------------
+          # The asset name encodes both versions: geant4-<g4ver>-<osrelease>.tar.gz
+          base="${GEANT4_TARBALL:t:r:r}"            # strip dir + .tar + .gz
+          rest="${base#geant4-}"                    # <g4ver>-<osrelease>
+          g4ver="${rest%%-*}"                       # e.g. 11.4.2
+          osrelease="${rest#*-}"                    # e.g. macosx26-clang17-arm64
+          echo "Geant4 version: ${g4ver}"
+          echo "OSRELEASE:      ${osrelease}"
+
+          g4home="${RUNNER_TEMP}/geant4"
+          mkdir -p "${g4home}"
+          tar -xzf "${GEANT4_TARBALL}" -C "${g4home}" --strip-components=1
+
+          # Download the Geant4 physics data, then activate the relocated stack.
+          export GEANT4_HOME="${g4home}"
+          "${g4home}/install_geant4_data.sh"
+          source "${g4home}/geant4.env"
+
+          # --- Compose the build environment --------------------------------
+          # geant4.env sets G4INSTALL / CLHEP_BASE_DIR / XERCESCROOT and the
+          # G4*DATA variables but not PKG_CONFIG_PATH; GEMC's meson build resolves
+          # CLHEP (and Xerces-C) through pkg-config, so expose those .pc dirs.
+          # Homebrew's sqlite/expat/zlib are keg-only, so add their .pc dirs and
+          # qt6's too.
+          export PKG_CONFIG_PATH="${CLHEP_BASE_DIR}/lib/pkgconfig:${XERCESCROOT}/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+          for f in qt sqlite expat zlib; do
+            export PKG_CONFIG_PATH="$(brew --prefix ${f})/lib/pkgconfig:${PKG_CONFIG_PATH}"
+          done
+          export PATH="$(brew --prefix qt)/bin:${PATH}"
+
+          # ROOT: thisroot.sh exports ROOTSYS, PATH and the dyld search path so
+          # root-config is found at build time and the libs load when tests run.
+          source "$(brew --prefix root)/bin/thisroot.sh"
+
+          echo " > geant4-config: $(command -v geant4-config) ($(geant4-config --version))"
+          echo " > root-config:   $(command -v root-config) ($(root-config --version))"
+
+          # --- Compile + install + test (same script as the Linux jobs) ------
+          export SIM_HOME="${RUNNER_TEMP}/gemc-sim"
+          mkdir -p "${SIM_HOME}"
+          ./ci/build.sh
+
+          # --- Repackage the install tree into a relocatable GEMC tarball -----
+          package_name="gemc-$(ci/gemc_version.sh)-geant4-${g4ver}-${osrelease}"
+          GEANT4_VERSION="${g4ver}" \
+            ci/package_install.sh "${SIM_HOME}/gemc/dev" dist "${package_name}"
+
+          echo "package_name=${package_name}" >> "$GITHUB_OUTPUT"
+          echo "tarball=dist/${package_name}.tar.gz" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test the GEMC tarball
+        shell: bash
+        run: |
+          set -euo pipefail
+          tarball="${{ steps.build.outputs.tarball }}"
+          work="$(mktemp -d)"
+          tar -xzf "${tarball}" -C "${work}" --strip-components=1
+          # Structural check only; the functional suite already ran under
+          # 'meson test'. Running gemc here would re-download the Geant4 data.
+          test -x "${work}/install_geant4_data.sh"
+          test -f "${work}/gemc.env"
+          test -x "${work}/bin/gemc"
+          otool -L "${work}/bin/gemc"
+
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: gemc-tarball-${{ steps.build.outputs.package_name }}
+          path: ${{ steps.build.outputs.tarball }}
+          if-no-files-found: error
+
+      - name: Attach tarball to dev release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tarball="${{ steps.build.outputs.tarball }}"
+          gh release view "${TAG_NAME}" --repo "$REPO" >/dev/null 2>&1 || \
+            gh release create "${TAG_NAME}" \
+              --repo "$REPO" \
+              --title "Dev Nightly" \
+              --prerelease \
+              --notes "Dev nightly release."
+          gh release upload "${TAG_NAME}" --repo "$REPO" "${tarball}" --clobber

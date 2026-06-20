@@ -119,7 +119,11 @@ test_interactive_option=""
 # if we are in the docker container, we need to load the modules
 if [[ -z "${AUTOBUILD}" ]]; then
 	echo "\nNot in container"
-  test_interactive_option="-Di_test=true"
+  # Local developer machines run the interactive (GUI) tests by default.
+  # Headless CI (e.g. the macOS tarball workflow) opts out with GEMC_INTERACTIVE_TESTS=false.
+  if [[ "${GEMC_INTERACTIVE_TESTS:-true}" == "true" ]]; then
+    test_interactive_option="-Di_test=true"
+  fi
 else
 	echo "\nIn docker container."
   # recent versions of Git refuse to touch a repository whose on-disk owner
