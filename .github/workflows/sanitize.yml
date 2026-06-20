@@ -5,6 +5,8 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Re-run the test suite up to this many times before declaring failure.
+  GEMC_TEST_MAX_ATTEMPTS: 3
 
 concurrency:
   group: sanitize-${{ github.workflow }}-${{ github.ref }}

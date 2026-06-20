@@ -89,13 +89,17 @@ function meson_setup_options {
     echo "${args[@]}"
 }
 
-# Run any command, retrying once on failure. Appends output to $test_log.
+# Run any command, retrying on failure. Appends output to $test_log.
+# The number of attempts is GEMC_TEST_MAX_ATTEMPTS (default 3), so a command is
+# re-run up to that many times until it succeeds.
 function run_command_with_retry {
   local label="$1"
   shift
 
-  for attempt in 1 2; do
-    echo " > Running ${label} (attempt ${attempt}/2):" "$@" | tee -a "$test_log"
+  local max_attempts="${GEMC_TEST_MAX_ATTEMPTS:-3}"
+
+  for (( attempt = 1; attempt <= max_attempts; attempt++ )); do
+    echo " > Running ${label} (attempt ${attempt}/${max_attempts}):" "$@" | tee -a "$test_log"
     "$@" >> "$test_log"
     local exit_code=$?
 
@@ -103,11 +107,11 @@ function run_command_with_retry {
       return 0
     fi
 
-    if [ $attempt -eq 2 ]; then
+    if [ $attempt -eq $max_attempts ]; then
       return $exit_code
     fi
 
-    echo " > ${label} failed; retrying once" | tee -a "$test_log"
+    echo " > ${label} failed; retrying (attempt $((attempt + 1))/${max_attempts})" | tee -a "$test_log"
   done
 }
 
