@@ -93,8 +93,14 @@ archive_name_from_data_dir() {
 
 geant4_dataset_records=()
 
-if command -v geant4-config >/dev/null 2>&1; then
-  eval "$(geant4-config --sh)"
+# Populate the G4*DATA descriptors from geant4-config only when they are not
+# already exported. A relocated geant4.env (the macOS tarball flow) exports them
+# pointing at the data it actually installed; geant4-config instead reports the
+# absolute paths baked in at build time, which do not exist after relocation.
+if ! env | grep -qE '^G4[A-Z0-9_]*DATA='; then
+  if command -v geant4-config >/dev/null 2>&1; then
+    eval "$(geant4-config --sh)"
+  fi
 fi
 
 while IFS='=' read -r env_name env_path; do
