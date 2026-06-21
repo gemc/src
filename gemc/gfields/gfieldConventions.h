@@ -36,6 +36,15 @@
  */
 #define GFIELD_DEFAULT_VERBOSITY "0"
 
+/**
+ * \brief Command-line option name used to associate a field with the ROOT world volume.
+ *
+ * The value is the name of a configured field (see \c gmultipoles / \c gfields). The corresponding
+ * \c G4FieldManager is installed on the ROOT world volume and propagated to all daughters, acting as a
+ * global field wherever a more specific per-volume field is not set.
+ */
+#define GLOBAL_FIELD_OPTION "global_field"
+
 
 // Error codes in the 1200 range (module-local).
 #define ERR_WRONG_FIELD_ROTATION 1201

@@ -232,6 +232,14 @@ GOptions defineOptions() {
 	goptions.defineOption("gfields", "define a generic plugin-backed e.m. field", gfields, gfields_help);
 
 	goptions.defineOption(
+		GVariable(GLOBAL_FIELD_OPTION, UNINITIALIZEDSTRINGQUANTITY, "associate a field with the ROOT world volume"),
+		"Associates a configured electromagnetic field with the ROOT (top-level) world volume.\n \n"
+		"The value must be the name of a field defined with -gmultipoles or -gfields. The field's\n"
+		"G4FieldManager is installed on the ROOT world volume and propagated to all daughters, so it\n"
+		"applies everywhere a more specific per-volume field has not been set.\n \n"
+		"Example: -global_field=dipole1\n \n");
+
+	goptions.defineOption(
 		GVariable("fieldAt", UNINITIALIZEDSTRINGQUANTITY, "query all configured fields at x y z"),
 		"Evaluate all configured electromagnetic fields at one absolute coordinate.\n \n"
 		"The value must contain three coordinate expressions with units, separated by spaces.\n \n"

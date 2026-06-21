@@ -211,6 +211,18 @@ void GDetectorConstruction::ConstructSDandField() {
 		}
 	}
 
+	// Process the global field, if requested.
+	// A global field is associated with the ROOT world volume and propagated to all daughters, so it
+	// applies everywhere a more specific per-volume field has not been installed.
+	const auto global_field_name = gopt->getScalarString(GLOBAL_FIELD_OPTION);
+	if (global_field_name != "" && global_field_name != UNINITIALIZEDSTRINGQUANTITY) {
+		if (gmagneto == nullptr) { gmagneto = new GMagneto(gopt); }
+		log->info(2, "Setting global field manager for the ROOT world volume <", ROOTWORLDGVOLUMENAME,
+		          "> with field <", global_field_name, ">");
+		g4world->setFieldManagerForVolume(ROOTWORLDGVOLUMENAME,
+		                                  gmagneto->getFieldMgr(global_field_name).get(), true);
+	}
+
 	// Load digitization plugins only when geometry has changed and only on the master thread.
 	// digiplugins_need_reload is set true by reload_geometry() and prepare_geometry_for_run()
 	// so that routine BeamOn re-initializations (which also call ConstructSDandField() on the

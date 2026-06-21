@@ -3,6 +3,7 @@
 #include "g4system_options.h"
 #include "gdynamicdigitization_options.h"
 #include "gsd.h"
+#include "gfield_options.h"
 
 /**
  * \file gdetector_options.cc
@@ -34,6 +35,10 @@ GOptions defineOptions() {
 	goptions += g4system::defineOptions();
 	goptions += gdynamicdigitization::defineOptions();
 	goptions += gsensitivedetector::defineOptions();
+
+	// Field options are consumed by GDetectorConstruction (per-volume emfield and the
+	// global_field association on the ROOT world volume), so they must be defined here too.
+	goptions += gfields::defineOptions();
 
 	return goptions;
 }
