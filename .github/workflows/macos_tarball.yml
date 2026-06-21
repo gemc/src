@@ -38,8 +38,9 @@ on:
 jobs:
   build-tarball:
     name: gemc macos arm64
-    # macos-26 (Tahoe) matches the macosx26 OSRELEASE the Geant4 tarball is
-    # built with; GitHub's macOS runners are Apple Silicon (arm64).
+    # macos-26 (Tahoe) is the latest macOS image; GitHub's macOS runners are
+    # Apple Silicon (arm64). The package is tagged with this build host's
+    # OSRELEASE, independent of the macOS the Geant4 tarball was built on.
     runs-on: macos-26
     env:
       TAG_NAME: dev
@@ -93,15 +94,7 @@ jobs:
         run: |
           set -e
 
-          # --- Unpack the Geant4 tarball and derive its versions -------------
-          # The asset name encodes both versions: geant4-<g4ver>-<osrelease>.tar.gz
-          base="${GEANT4_TARBALL:t:r:r}"            # strip dir + .tar + .gz
-          rest="${base#geant4-}"                    # <g4ver>-<osrelease>
-          g4ver="${rest%%-*}"                       # e.g. 11.4.2
-          osrelease="${rest#*-}"                    # e.g. macosx26-clang17-arm64
-          echo "Geant4 version: ${g4ver}"
-          echo "OSRELEASE:      ${osrelease}"
-
+          # --- Unpack the Geant4 tarball -------------------------------------
           g4home="${RUNNER_TEMP}/geant4"
           mkdir -p "${g4home}"
           tar -xzf "${GEANT4_TARBALL}" -C "${g4home}" --strip-components=1
@@ -129,6 +122,18 @@ jobs:
 
           echo " > geant4-config: $(command -v geant4-config) ($(geant4-config --version))"
           echo " > root-config:   $(command -v root-config) ($(root-config --version))"
+
+          # --- Resolve the package versions ---------------------------------
+          # Geant4 version from the active install; OSRELEASE from THIS build host
+          # rather than the Geant4 tarball's name, so the package is tagged with the
+          # macOS it was actually built on. Format mirrors g4install's
+          # modules/util/osrelease.py: macosx<major>-clang<major>-<arch>.
+          g4ver="$(geant4-config --version)"
+          mac_major="$(sw_vers -productVersion | cut -d. -f1)"
+          clang_major="$(clang --version | sed -nE 's/.*clang version ([0-9]+).*/\1/p' | head -1)"
+          osrelease="macosx${mac_major}-clang${clang_major}-arm64"
+          echo "Geant4 version: ${g4ver}"
+          echo "OSRELEASE:      ${osrelease}"
 
           # --- Compile + install + test (same script as the Linux jobs) ------
           export SIM_HOME="${RUNNER_TEMP}/gemc-sim"
