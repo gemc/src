@@ -20,12 +20,27 @@
 #include "gutilities.h"
 
 // c++
+#include <algorithm>
 #include <iostream>
 #include <cstring>
 #include <cctype>
 #include <cstdlib>
 
 using namespace std;
+
+namespace {
+// Parse a human-friendly boolean token used for switches (-switch=value and YAML switch values).
+// Accepts, case-insensitively: true/1/yes/y/on and false/0/no/n/off. Returns false if @p raw is
+// not a recognized token, leaving @p out untouched.
+bool parse_bool_token(const std::string& raw, bool& out) {
+	std::string v = raw;
+	std::transform(v.begin(), v.end(), v.begin(),
+	               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+	if (v == "true" || v == "1" || v == "yes" || v == "y" || v == "on") { out = true; return true; }
+	if (v == "false" || v == "0" || v == "no" || v == "n" || v == "off") { out = false; return true; }
+	return false;
+}
+}
 
 // See goptions.h for full constructor API documentation.
 /*
@@ -155,10 +170,10 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 				// Switch with an explicit boolean value: -gui=false / -gui=true. This gives the
 				// CLI a way to turn a switch off, honoring the documented CLI-over-YAML precedence.
 				if (switches.find(keyPart) != switches.end()) {
-					if (valuePart == "true" || valuePart == "1") { switches[keyPart].turnOn(); }
-					else if (valuePart == "false" || valuePart == "0") { switches[keyPart].turnOff(); }
+					bool on = false;
+					if (parse_bool_token(valuePart, on)) { on ? switches[keyPart].turnOn() : switches[keyPart].turnOff(); }
 					else {
-						cerr << "The switch " << keyPart << " accepts only true/false." << endl;
+						cerr << "The switch " << keyPart << " accepts only true/false/yes/no/on/off/1/0." << endl;
 						exit(EC__NOOPTIONFOUND);
 					}
 					continue;
@@ -224,9 +239,9 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 }
 
 // Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
-void GOptions::defineSwitch(const std::string& name, const std::string& description) {
+void GOptions::defineSwitch(const std::string& name, const std::string& description, bool default_status) {
 	if (switches.find(name) == switches.end()) {
-		switches[name] = GSwitch(description);
+		switches[name] = GSwitch(description, default_status);
 	}
 	else {
 		std::cerr << FATALERRORL << "The " << YELLOWHHL << name << RSTHHR
@@ -409,7 +424,15 @@ void GOptions::setOptionsValuesFromYamlFile(const std::string& yaml) {
 				exit(EC__NOOPTIONFOUND);
 			}
 			else {
-				switches[option_name].turnOn();
+				// A bare key (null value) means "present" -> on; an explicit boolean value is honored,
+				// so a default-on switch can be turned off from YAML (e.g. print_summary: false).
+				bool on = true;
+				if (it->second.IsScalar() && !parse_bool_token(it->second.as<std::string>(), on)) {
+					cerr << FATALERRORL << "The switch " << YELLOWHHL << option_name << RSTHHR
+						<< " accepts only true/false/yes/no/on/off/1/0." << endl;
+					exit(EC__NOOPTIONFOUND);
+				}
+				on ? switches[option_name].turnOn() : switches[option_name].turnOff();
 			}
 		}
 		else {

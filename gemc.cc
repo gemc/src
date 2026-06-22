@@ -20,10 +20,16 @@
 #include "gfield_options.h"
 
 // c++
-#include <cstdio>
+#include <chrono>
 #include <cstdlib>
+#if defined(__linux__)
+#include <cstdio> // IWYU pragma: keep -- std::fflush on the Linux fast-exit path in main()
+#endif
 
 int main(int argc, char* argv[]) {
+
+	// Anchor for the optional -print_summary timing report (total wall-clock time).
+	const auto program_start = std::chrono::steady_clock::now();
 
 	auto base_schema = gemc::defineOptions();
 	base_schema += gemc::collectPluginOptions(argc, argv);
@@ -148,6 +154,23 @@ int main(int argc, char* argv[]) {
 
 		delete g4SceneProperties;
 		delete session;
+	}
+
+	// print_summary is a switch, on by default; disable with -print_summary=false.
+	if (gopts->getSwitch("print_summary")) {
+		const auto   now     = std::chrono::steady_clock::now();
+		const double total_s = std::chrono::duration<double>(now - program_start).count();
+		log->info(0, "Timing summary: total simulation time ", total_s, " seconds.");
+		if (geventDispenser->beamOnIssued()) {
+			const double beam_s     = std::chrono::duration<double>(now - geventDispenser->beamOnStartTime()).count();
+			const int    total_n    = geventDispenser->getTotalNumberOfEvents();
+			log->info(0, "Timing summary: total time since beamOn was issued ", beam_s, " seconds.");
+			if (beam_s > 0.0) {
+				const double avg_rate = static_cast<double>(total_n) / beam_s;
+				log->info(0, "Timing summary: average event rate ", avg_rate, " events / second (",
+				          total_n, " events / ", beam_s, " seconds).");
+			}
+		}
 	}
 
 	geventDispenser.reset();

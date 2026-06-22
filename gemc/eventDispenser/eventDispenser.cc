@@ -200,6 +200,8 @@ int EventDispenser::processEvents() {
 		// The command string is a standard Geant4 UI command: \c /run/beamOn <N>.
 		log->info(1, "Processing ", nevents, " events in one go");
 		closeOpenGeometryBeforeBeamOn(log);
+		// Record the moment the first BeamOn is issued so a timing summary can be produced later.
+		if (!beamOnTime.has_value()) { beamOnTime = std::chrono::steady_clock::now(); }
 		g4uim->ApplyCommand("/run/beamOn " + to_string(nevents));
 		// Take the screenshot after BeamOn returns. At this point G4VisManager::EndOfRun()
 		// has already joined the vis subthread (ARM64 offset 0xa35f8: bl thread::join), so

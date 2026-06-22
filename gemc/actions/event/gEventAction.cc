@@ -5,6 +5,9 @@
 #include "G4Event.hh"
 #include "G4Threading.hh"
 
+// c++
+#include <string>
+
 // gemc
 #include "event/gEventDataCollection.h"
 #include "../generator/gPrimaryGeneratorAction.h"
@@ -12,6 +15,7 @@
 // c++
 #include <algorithm>
 #include <cctype>
+#include <chrono>
 
 namespace {
 GGeneratedParticleBank make_generated_particle_bank(const GParticleRecordEvent& particles) {
@@ -42,6 +46,18 @@ bool scalar_bool_option_enabled(const std::shared_ptr<GOptions>& goptions, const
 	               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 	return value == "true" || value == "1" || value == "yes" || value == "on";
 }
+
+// Convert a substring to a non-negative integer, returning false on any malformed input.
+bool to_non_negative_int(const std::string& text, int& out) {
+	if (text.empty()) return false;
+	size_t pos = 0;
+	int    value;
+	try { value = std::stoi(text, &pos); }
+	catch (...) { return false; }
+	if (pos != text.size() || value < 0) return false;
+	out = value;
+	return true;
+}
 }
 
 
@@ -51,8 +67,65 @@ GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* ru
 	GBase(gopt, EVENTACTION_LOGGER),
 	goptions(gopt),
 	run_action(run_a) {
-	const auto desc = "GEventAction " + std::to_string(G4Threading::G4GetThreadId());
+	const auto thread_id = G4Threading::G4GetThreadId();
+	const auto desc      = "GEventAction " + std::to_string(thread_id);
 	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
+
+	// Parse the log_every option of the form N or N-NTH. Anything malformed disables the
+	// feature and is reported once (from thread 0) to avoid duplicated warnings across workers.
+	std::string spec = goptions->getScalarString(LOG_EVERY_OPTION);
+	if (!spec.empty() && spec != UNINITIALIZEDSTRINGQUANTITY) {
+		const auto dash = spec.find('-');
+		std::string n_part   = dash == std::string::npos ? spec : spec.substr(0, dash);
+		std::string nth_part = dash == std::string::npos ? std::string() : spec.substr(dash + 1);
+
+		// Effective worker-thread count, mirroring gemc::get_nthreads clamping (0 means all cores).
+		int nthreads = goptions->getScalarInt("nthreads");
+		const int ncores = G4Threading::G4GetNumberOfCores();
+		if (nthreads == 0 || nthreads > ncores) nthreads = ncores;
+
+		int n = 0;
+		if (!to_non_negative_int(n_part, n) || n == 0) {
+			if (thread_id <= 0)
+				log->warning("Ignoring invalid -", LOG_EVERY_OPTION, "=", spec,
+				             " : N must be a positive integer.");
+		}
+		else if (dash != std::string::npos) {
+			int nth = 0;
+			if (!to_non_negative_int(nth_part, nth) || nth >= nthreads) {
+				if (thread_id <= 0)
+					log->warning("Ignoring invalid -", LOG_EVERY_OPTION, "=", spec,
+					             " : thread id must be in [0, ", nthreads - 1, "].");
+			}
+			else {
+				log_every_n      = n;
+				log_every_thread = nth;
+			}
+		}
+		else { log_every_n = n; }
+	}
+}
+
+// Print the periodic "Starting event" line, honoring the log module and optional thread filter.
+// The reported event number, count and rate are all per worker thread: each enabled thread logs
+// every N events it processes, showing its own 1-based event count and average rate (events / second).
+void GEventAction::log_event_start(int thread_id) {
+	if (log_every_n <= 0) return;
+	if (log_every_thread >= 0 && log_every_thread != thread_id) return;
+
+	// Anchor this thread's clock on its first counted event, then count this event.
+	const auto now = std::chrono::steady_clock::now();
+	if (log_events_seen == 0) { log_start_time = now; }
+	++log_events_seen;
+
+	if (log_events_seen % log_every_n != 0) return;
+
+	const double elapsed_s = std::chrono::duration<double>(now - log_start_time).count();
+	const double rate      = elapsed_s > 0.0 ? static_cast<double>(log_events_seen) / elapsed_s : 0.0;
+
+	// log_events_seen is this thread's own 1-based count, not the global Geant4 event id.
+	log->info(0, "Starting event n. ", log_events_seen, " in thread ", thread_id,
+	          ". Average rate: ", rate, " events / second");
 }
 
 // Begin-of-event hook used mainly for tracing event and thread identifiers.
@@ -61,6 +134,8 @@ void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) {
 	const auto event_id  = event->GetEventID();
 
 	log->debug(NORMAL, FUNCTION_NAME, " event id ", event_id, " in thread ", thread_id);
+
+	log_event_start(thread_id);
 }
 
 // Finalize the event by reading hit collections, digitizing them, routing the

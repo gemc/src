@@ -7,6 +7,9 @@
 #include <gemc/gbase/gbase.h>
 #include <gemc/actions/run/gRunAction.h>
 
+// c++
+#include <chrono>
+
 /**
  * \file gEventAction.h
  * \brief Declares GEventAction, the per-event processing action for the GEMC actions module.
@@ -15,6 +18,16 @@
  */
 
 constexpr const char* EVENTACTION_LOGGER = "geventaction";
+
+/**
+ * \brief Name of the option controlling periodic per-event log messages.
+ *
+ * Accepts a string of the form \c N or \c N-NTH (N is the log module):
+ * - \c N    : every worker thread prints a message each time it has processed a multiple of N
+ *             events (the count is per thread, not the global event id).
+ * - \c N-NTH: as above, but only the worker thread with id NTH prints (0 <= NTH < nthreads).
+ */
+constexpr const char* LOG_EVERY_OPTION = "log_every";
 
 /**
  * \brief Namespace containing helpers related to event-action configuration.
@@ -27,7 +40,35 @@ namespace geventaction {
 	 *
 	 * \return A GOptions object scoped to the event-action logger name.
 	 */
-	inline GOptions defineOptions() { return GOptions(EVENTACTION_LOGGER); }
+	inline GOptions defineOptions() {
+		GOptions goptions(EVENTACTION_LOGGER);
+
+		std::string help = "Print a progress log line every N events, with the average event rate.\n \n";
+		help += GTAB;
+		help += "The value is a string of the form N or N-NTH, where N is the log module:\n";
+		help += GTABTAB;
+		help += "N     : every worker thread prints 'Starting event n. <k> in thread <tid>.\n";
+		help += GTABTABTAB;
+		help += "Average rate: <r> events / second' every time it has processed a multiple\n";
+		help += GTABTABTAB;
+		help += "of N events. <k> is that thread's own 1-based event count (not the global\n";
+		help += GTABTABTAB;
+		help += "Geant4 event id), and <r> is that thread's average rate.\n";
+		help += GTABTAB;
+		help += "N-NTH : as above, but only the worker thread with id NTH prints. NTH must be\n";
+		help += GTABTABTAB;
+		help += "in the range [0, nthreads-1].\n \n";
+		help += GTAB;
+		help += "Examples: -log_every=100 (all threads, every 100 events)\n";
+		help += GTABTAB;
+		help += "-log_every=100-2 (only thread 2, every 100 events)\n";
+		goptions.defineOption(
+			GVariable(LOG_EVERY_OPTION, UNINITIALIZEDSTRINGQUANTITY,
+			          "log module: print event progress and average rate every N events per thread"),
+			help);
+
+		return goptions;
+	}
 } // namespace geventaction
 
 
@@ -109,9 +150,43 @@ private:
 	void publish_event_data(const std::shared_ptr<GEventDataCollection>& event_data) const;
 
 	/**
+	 * \brief Emits the periodic "Starting event" log line when enabled and due.
+	 *
+	 * Honors the \c log_every option: prints only when the log module is configured (> 0)
+	 * and (when a thread filter is set) the running thread matches the requested one. The
+	 * count is kept per worker thread, so the line is printed every time this thread has
+	 * processed a multiple of N events. The reported event number is this thread's own
+	 * 1-based count (not the global Geant4 event id), along with this thread's average rate
+	 * (events / second) since its first counted event.
+	 *
+	 * \param thread_id Id of the worker thread processing the event.
+	 */
+	void log_event_start(int thread_id);
+
+	/**
+	 * \brief Number of events processed by this worker thread while logging is enabled.
+	 */
+	long long log_events_seen = 0;
+
+	/**
+	 * \brief Steady-clock anchor set on this thread's first counted event.
+	 */
+	std::chrono::steady_clock::time_point log_start_time;
+
+	/**
 	 * \brief Shared configuration used to build event products and control logging.
 	 */
 	std::shared_ptr<GOptions> goptions;
+
+	/**
+	 * \brief Event-id modulo for periodic logging; 0 disables the feature.
+	 */
+	int log_every_n = 0;
+
+	/**
+	 * \brief Worker-thread id allowed to log, or -1 to allow all threads.
+	 */
+	int log_every_thread = -1;
 
 	/**
 	 * \brief Non-owning pointer to the thread-local run action associated with this event action.

@@ -3,8 +3,10 @@
 #include <gemc/gbase/gbase.h>
 #include <gemc/gdynamicDigitization/gdynamicdigitization.h>
 
+#include <chrono>
 #include <map>
 #include <memory>
+#include <optional>
 #include <vector>
 
 /**
@@ -84,6 +86,9 @@ private:
 
 	/// Index into \ref listOfRuns used by \ref getCurrentRun "getCurrentRun()".
 	int currentRunIndex{};
+
+	/// Wall-clock time when the first \c /run/beamOn was issued; unset until then.
+	std::optional<std::chrono::steady_clock::time_point> beamOnTime;
 
 	/** @} */
 
@@ -173,6 +178,22 @@ public:
 	 * \return Status code (non-zero indicates success in the current implementation).
 	 */
 	int processEvents();
+
+	/**
+	 * \brief Returns whether at least one \c /run/beamOn has been issued.
+	 *
+	 * \return True once \ref processEvents() has dispatched its first run.
+	 */
+	[[nodiscard]] bool beamOnIssued() const { return beamOnTime.has_value(); }
+
+	/**
+	 * \brief Returns the wall-clock time of the first \c /run/beamOn.
+	 *
+	 * \warning Only meaningful when \ref beamOnIssued() returns true.
+	 *
+	 * \return Steady-clock time point captured just before the first BeamOn command.
+	 */
+	[[nodiscard]] std::chrono::steady_clock::time_point beamOnStartTime() const { return beamOnTime.value(); }
 
 	/**
 	 * \brief Sets the total number of events to process in single-run mode.

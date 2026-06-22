@@ -1,5 +1,4 @@
 // gemc
-#include "glogger.h"
 #include "gemc_options.h"
 #include "gemcConventions.h"
 
@@ -37,6 +36,11 @@ namespace gemc {
         GOptions goptions(GENERAL_LOGGER);
 
         // switches
+        goptions.defineSwitch("print_summary",
+            "print a timing summary at the end of the simulation (total wall-clock time, total time "
+            "since beamOn, and the average event rate). On by default; disable with -print_summary=false.",
+            true);
+
         goptions.defineOption(GVariable("nthreads", 0, "sets number of threads."), "Default: 0 (use one thread for each available cores)");
         goptions.defineOption(
             GVariable("also_reject_true_info", true, "also reject true information for rejected hits"),

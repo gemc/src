@@ -27,6 +27,7 @@ test_env.set('PYTHONDONTWRITEBYTECODE', '1')
 ############
 LD = []
 all_libs = []
+all_pkgconfig_libs = []
 all_includes = [include_directories('.')]  # source root resolves <gemc/module/header.h> → src/gemc/module/header.h
 empty_dict = { 'na' : [''] }
 lib_target_maps = {}
@@ -127,6 +128,7 @@ foreach L : LD
         )
         if not all_libs.contains(this_library)
             all_libs += this_library
+            all_pkgconfig_libs += ['${libdir}/lib' + this_lib_name + '.a']
             lib_target_maps += { this_lib_name : this_library }
         endif
     endif
@@ -278,13 +280,45 @@ gemc = executable(
 )
 
 pkg = import('pkgconfig')
+pkgconfig_prog = find_program('pkg-config', 'pkgconf', required : true)
+gemc_pkgconfig_env = environment()
+gemc_pkgconfig_env.prepend('PKG_CONFIG_PATH', geant4_pc_path)
+gemc_pkgconfig_env.prepend('PKG_CONFIG_PATH', clhep_deps.get_variable(pkgconfig : 'libdir') / 'pkgconfig')
+clhep_pkgconfig_includedir = run_command(
+    pkgconfig_prog, '--variable=includedir', 'clhep',
+    env : gemc_pkgconfig_env,
+    check : true,
+).stdout().strip()
+geant4_pkgconfig_includedir = run_command(
+    pkgconfig_prog, '--variable=includedir', 'geant4_core',
+    env : gemc_pkgconfig_env,
+    check : true,
+).stdout().strip()
+gemc_pkgconfig_cflags = [
+    '-I' + clhep_pkgconfig_includedir,
+    '-I' + geant4_pkgconfig_includedir / 'Geant4',
+]
+gemc_pkgconfig_private_libs = []
+foreach private_pkg : ['clhep', 'geant4_core', 'expat', 'zlib', 'sqlite3']
+    gemc_pkgconfig_private_libs += run_command(
+        pkgconfig_prog, '--libs', '--static', private_pkg,
+        env : gemc_pkgconfig_env,
+        check : true,
+    ).stdout().strip().split()
+endforeach
+gemc_pkgconfig_variables = ['plugin_link_args=']
+if host_machine.system() == 'darwin'
+    gemc_pkgconfig_variables = ['plugin_link_args=-Wl,-undefined,dynamic_lookup']
+endif
 pkg.generate(
     name : 'gemc',
     filebase : 'gemc',
     description : project_description,
     version : meson.project_version(),
-    libraries : all_libs,
-    libraries_private : [yaml_cpp_dep, clhep_deps, geant4_core_deps, expat_dep, zlib_dep],
+    libraries : all_pkgconfig_libs,
+    libraries_private : [yaml_cpp_dep, assimp_dep] + gemc_pkgconfig_private_libs,
+    extra_cflags : gemc_pkgconfig_cflags,
+    variables : gemc_pkgconfig_variables,
 )
 
 # test gemc options. Adjust root to fit the geometry

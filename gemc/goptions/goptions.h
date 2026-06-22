@@ -105,8 +105,9 @@ public:
 	 * \brief Defines and adds a command-line switch.
 	 *
 	 * @details
-	 * Switches are presence-based boolean flags (default off) and are activated by
-	 * specifying `-<name>` on the command line.
+	 * Switches are presence-based boolean flags and are activated by specifying `-<name>` on the
+	 * command line. They default to off, but a switch may be defined as on by default via
+	 * @p default_status; such a switch can be turned off explicitly (e.g. `-<name>=false`).
 	 *
 	 * Registration rules:
 	 * - A switch name must be unique.
@@ -114,8 +115,9 @@ public:
 	 *
 	 * \param name Switch name (without leading '-').
 	 * \param description Text shown in help output.
+	 * \param default_status Initial on/off status of the switch (default: off).
 	 */
-	void defineSwitch(const std::string& name, const std::string& description);
+	void defineSwitch(const std::string& name, const std::string& description, bool default_status = false);
 
 	/**
 	 * \brief Defines and adds a scalar option.

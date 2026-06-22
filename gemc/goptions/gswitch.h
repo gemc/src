@@ -41,13 +41,14 @@ public:
 	 * \brief Parameterized constructor.
 	 *
 	 * @details
-	 * Initializes the switch description and forces the status to `false` (off).
-	 * This guarantees that defining a switch never enables it implicitly; only parsing or explicit
-	 * programmatic calls enable it.
+	 * Initializes the switch description and its default status. The status defaults to `false`
+	 * (off) so that defining a switch never enables it implicitly; pass `true` to define a switch
+	 * that is on by default and can be turned off explicitly (e.g. `-name=false`).
 	 *
 	 * \param d Human-readable description of what enabling this switch does.
+	 * \param default_status Initial on/off status of the switch (default: off).
 	 */
-	GSwitch(const std::string& d) : description(d), status(false) {
+	GSwitch(const std::string& d, bool default_status = false) : description(d), status(default_status) {
 	}
 
 	/**
