@@ -54,6 +54,35 @@ QIcon colorIcon(const QColor& color, const QColor& border) {
 	painter.drawRoundedRect(pixmap.rect().adjusted(1, 1, -2, -2), 3, 3);
 	return QIcon(pixmap);
 }
+
+std::string rootExtentForFieldCommand(const std::shared_ptr<GOptions>& gopts) {
+	if (gopts == nullptr) { return ""; }
+
+	std::string rootDefinition = gopts->getScalarString("root");
+	for (auto& c : rootDefinition) {
+		if (c == ',') { c = ' '; }
+	}
+
+	const auto tokens = getStringVectorFromString(rootDefinition);
+	if (tokens.size() < 5 || tokens[0] != "G4Box") { return ""; }
+
+	const double dx = getG4Number(tokens[1]);
+	const double dy = getG4Number(tokens[2]);
+	const double dz = getG4Number(tokens[3]);
+	if (dx <= 0 || dy <= 0 || dz <= 0) { return ""; }
+
+	std::ostringstream command;
+	command << "/vis/set/extentForField "
+	        << -dx << " " << dx << " "
+	        << -dy << " " << dy << " "
+	        << -dz << " " << dz << " mm";
+	return command.str();
+}
+
+void applyRootExtentForField(const std::shared_ptr<GOptions>& gopts) {
+	const auto command = rootExtentForFieldCommand(gopts);
+	if (!command.empty()) { G4UImanager::GetUIpointer()->ApplyCommand(command); }
+}
 }
 
 G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
@@ -851,6 +880,7 @@ void G4DisplayView::apply_buttons_set1(int index) {
 		}
 		else {
 			string npoints = to_string(field_NPOINTS);
+			applyRootExtentForField(gopts);
 			string command = string("/vis/scene/add/magneticField ") + npoints;
 			g4uim->ApplyCommand(command);
 		}
@@ -913,6 +943,7 @@ void G4DisplayView::field_precision_changed() {
 		g4uim->ApplyCommand("/vis/scene/removeModel Field");
 
 		string npoints = to_string(field_NPOINTS);
+		applyRootExtentForField(gopts);
 		command        = string("/vis/scene/add/magneticField ") + npoints;
 		G4UImanager::GetUIpointer()->ApplyCommand(command);
 	}
