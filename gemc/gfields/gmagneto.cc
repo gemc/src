@@ -5,11 +5,27 @@
 #include "gmagneto.h"
 #include "gfield_options.h"
 
+// guts
+#include <gemc/guts/gutsConventions.h>
+
+// CLHEP
+#include <CLHEP/Units/SystemOfUnits.h>
+
 // c++
 #include <algorithm>
+#include <cmath>
+#include <exception>
 
 // #include "G4TransportationManager.hh"
 // #include "G4PropagatorInField.hh"
+
+namespace {
+
+bool is_unset_field_name(const std::string& name) {
+	return name.empty() || name == UNINITIALIZEDSTRINGQUANTITY || name == "not provided";
+}
+
+} // namespace
 
 
 GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts,
@@ -53,6 +69,74 @@ GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts,
 
 	// TODO: add min and max steps
 	//	G4TransportationManager::GetTransportationManager()->GetPropagatorInField()->SetLargestAcceptableStep(10);
+}
+
+std::shared_ptr<GField> GMagneto::initialize_magnetic_field(
+    const std::shared_ptr<GOptions>& gopts, double& field_polarity,
+    std::shared_ptr<GLogger> caller_log) {
+	if (gopts == nullptr) { return nullptr; }
+
+	if (gopts->doesOptionExist(NO_FIELD_OPTION)) {
+		const std::string no_field_value = gopts->getScalarString(NO_FIELD_OPTION);
+		if (no_field_value == NO_FIELD_ALL) {
+			if (caller_log != nullptr) {
+				caller_log->info(1, "Global field reset by -", NO_FIELD_OPTION, "=", NO_FIELD_ALL,
+				                 ": direct field probes disabled.");
+			}
+			return nullptr;
+		}
+	}
+
+	if (!gopts->doesOptionExist(GLOBAL_FIELD_OPTION)) { return nullptr; }
+
+	const std::string field_name = gopts->getScalarString(GLOBAL_FIELD_OPTION);
+	if (is_unset_field_name(field_name)) { return nullptr; }
+
+	for (const auto& field_definition : gfields::get_GFieldDefinition(gopts)) {
+		if (field_definition.name != field_name) { continue; }
+
+		const auto torus_scale_it = field_definition.field_parameters.find("torus_scale");
+		if (torus_scale_it != field_definition.field_parameters.end()) {
+			try {
+				field_polarity = std::stod(torus_scale_it->second) < 0.0 ? -1.0 : 1.0;
+			} catch (const std::exception&) {
+				if (caller_log != nullptr) {
+					caller_log->warning("Could not parse torus_scale <", torus_scale_it->second,
+					                    "> for field polarity; using +1.");
+				}
+				field_polarity = 1.0;
+			}
+		}
+		break;
+	}
+
+	auto magneto = std::make_unique<GMagneto>(gopts, std::set<std::string>{field_name});
+	if (magneto->isField(field_name)) {
+		if (caller_log != nullptr) {
+			caller_log->info(1, "Using magnetic field <", field_name,
+			                 "> for direct probes with torus polarity ", field_polarity);
+		}
+		return magneto->getField(field_name);
+	}
+
+	if (caller_log != nullptr) {
+		caller_log->warning("Global field <", field_name,
+		                    "> is configured but was not available for direct probes.");
+	}
+	return nullptr;
+}
+
+double GMagneto::magnetic_field_magnitude_tesla(
+    const std::shared_ptr<GField>& magnetic_field, const G4ThreeVector& position) {
+	using namespace CLHEP;
+
+	if (magnetic_field == nullptr) { return 0.0; }
+
+	const double point[3] = {position.x(), position.y(), position.z()};
+	double bfield[3] = {0.0, 0.0, 0.0};
+	magnetic_field->GetFieldValue(point, bfield);
+
+	return std::sqrt(bfield[0] * bfield[0] + bfield[1] * bfield[1] + bfield[2] * bfield[2]) / tesla;
 }
 
 std::vector<std::string> GMagneto::getFieldNames() const {

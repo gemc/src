@@ -5,9 +5,15 @@
 #include "gfield_options.h"
 #include "gfieldConventions.h"
 
+// geant4
+#include "G4ThreeVector.hh"
+
 // c++
+#include <memory>
 #include <set>
 #include <string>
+
+class GLogger;
 
 /**
  * @defgroup gfield_module GField module
@@ -55,6 +61,29 @@ public:
 	 */
 	explicit GMagneto(const std::shared_ptr<GOptions>& gopts,
 	                  const std::set<std::string>&     required_fields = {});
+
+	/**
+	 * \brief Load the configured global magnetic field for code that needs direct field probes.
+	 * \param gopts Shared options used for configuration and logging.
+	 * \param field_polarity Output torus polarity derived from the global field definition.
+	 * \param caller_log Optional caller logger used for diagnostics.
+	 * \return Shared pointer to the configured global field, or nullptr when no field should be used.
+	 *
+	 * This helper honors \ref NO_FIELD_OPTION "=" \ref NO_FIELD_ALL before looking at
+	 * \ref GLOBAL_FIELD_OPTION, so digitization code sees the same no-field configuration as tracking.
+	 */
+	static std::shared_ptr<GField> initialize_magnetic_field(
+	    const std::shared_ptr<GOptions>& gopts, double& field_polarity,
+	    std::shared_ptr<GLogger> caller_log = nullptr);
+
+	/**
+	 * \brief Return the magnetic-field magnitude at a position in Tesla.
+	 * \param magnetic_field Field returned by \ref initialize_magnetic_field.
+	 * \param position Global position.
+	 * \return Field magnitude in Tesla, or 0 when no field was configured.
+	 */
+	static double magnetic_field_magnitude_tesla(
+	    const std::shared_ptr<GField>& magnetic_field, const G4ThreeVector& position);
 
 private:
 	using gFieldMap    = std::unordered_map<std::string, std::shared_ptr<GField>>;
