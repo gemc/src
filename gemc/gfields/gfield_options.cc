@@ -240,6 +240,18 @@ GOptions defineOptions() {
 		"Example: -global_field=dipole1\n \n");
 
 	goptions.defineOption(
+		GVariable(NO_FIELD_OPTION, UNINITIALIZEDSTRINGQUANTITY, "reset the field of one or more volumes"),
+		"Removes the electromagnetic field association from one or more volumes.\n \n"
+		"The value is either the name of a gvolume, a whitespace- or comma-separated list of gvolume\n"
+		"names, or the special value 'all'. A listed volume that was associated with a field (per-volume\n"
+		"or inherited) has that association removed, so it is left with no field. The special value 'all'\n"
+		"resets every per-volume field and also clears the '" GLOBAL_FIELD_OPTION "' option.\n \n"
+		"Fields that no volume uses as a result are not loaded: their plugins and field maps are skipped.\n \n"
+		"Examples: -" NO_FIELD_OPTION "=target            (reset only the 'target' volume)\n"
+		"          -" NO_FIELD_OPTION "=\"target, magnet\"  (reset both volumes)\n"
+		"          -" NO_FIELD_OPTION "=all               (reset every field, including the global field)\n \n");
+
+	goptions.defineOption(
 		GVariable("fieldAt", UNINITIALIZEDSTRINGQUANTITY, "query all configured fields at x y z"),
 		"Evaluate all configured electromagnetic fields at one absolute coordinate.\n \n"
 		"The value must contain three coordinate expressions with units, separated by spaces.\n \n"

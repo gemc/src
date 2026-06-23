@@ -120,6 +120,58 @@ void GDetectorConstruction::ConstructSDandField() {
 	// Multiple volumes can share the same digitization name and therefore reuse one SD instance.
 	std::unordered_map<std::string, GSensitiveDetector *> sensitiveDetectorsMap;
 
+	// --- Electromagnetic field reset (-no_field) --------------------------------------------------
+	// Parse -no_field: a gvolume name, a whitespace/comma-separated list of gvolume names, or 'all'.
+	// 'all' resets every per-volume field and the global field; a name resets only that volume's field.
+	bool                  disable_all_fields = false;
+	std::set<std::string> no_field_volumes;
+	{
+		auto no_field_value = gopt->getScalarString(NO_FIELD_OPTION);
+		if (no_field_value != "" && no_field_value != UNINITIALIZEDSTRINGQUANTITY && no_field_value != "NULL") {
+			if (no_field_value == NO_FIELD_ALL) { disable_all_fields = true; }
+			else {
+				for (auto &c : no_field_value) { if (c == ',') { c = ' '; } }
+				for (const auto &v : gutilities::getStringVectorFromString(no_field_value)) {
+					no_field_volumes.insert(v);
+				}
+			}
+		}
+	}
+
+	// Global field name, honoring -no_field=all.
+	auto       global_field_name = gopt->getScalarString(GLOBAL_FIELD_OPTION);
+	const bool global_field_set  = !disable_all_fields && global_field_name != "" &&
+		global_field_name != UNINITIALIZEDSTRINGQUANTITY && global_field_name != "NULL";
+
+	// First pass: collect the fields that are actually used so only their plugins and maps are loaded.
+	// Volumes (or the global field) reset via -no_field are excluded here and never trigger a load.
+	std::set<std::string> required_fields;
+	std::set<std::string> matched_no_field;
+	if (!disable_all_fields) {
+		for (const auto &[systemName, gsystemPtr]: *gworld->getSystemsMap()) {
+			for (const auto &[volumeName, gvolumePtr]: gsystemPtr->getGVolumesMap()) {
+				const auto &g4name = gvolumePtr->getG4Name();
+				const bool  reset  = no_field_volumes.count(volumeName) || no_field_volumes.count(g4name);
+				if (no_field_volumes.count(volumeName)) { matched_no_field.insert(volumeName); }
+				if (no_field_volumes.count(g4name)) { matched_no_field.insert(g4name); }
+
+				const auto &field_name = gvolumePtr->getEMField();
+				if (field_name == "" || field_name == UNINITIALIZEDSTRINGQUANTITY || reset) { continue; }
+				required_fields.insert(field_name);
+			}
+		}
+		for (const auto &name: no_field_volumes) {
+			if (!matched_no_field.count(name)) {
+				log->warning("-", NO_FIELD_OPTION, ": volume <", name, "> not found in the geometry.");
+			}
+		}
+	}
+	if (global_field_set) { required_fields.insert(global_field_name); }
+
+	// Build the magnetic-field registry only when at least one field is needed: if every field was reset
+	// (e.g. -no_field=all) no plugin or field map is loaded at all.
+	if (!required_fields.empty() && gmagneto == nullptr) { gmagneto = new GMagneto(gopt, required_fields); }
+
 	// Loop over all systems and their volumes.
 	for (const auto &[systemName, gsystemPtr]: *gworld->getSystemsMap()) {
 		for (const auto &[volumeName, gvolumePtr]: gsystemPtr->getGVolumesMap()) {
@@ -198,11 +250,16 @@ void GDetectorConstruction::ConstructSDandField() {
 			}
 
 			// Process electromagnetic fields.
-			// If a volume declares an EM field, ensure the field container exists and install
-			// a per-volume field manager configured by the named field map.
-			const auto &field_name = gvolumePtr->getEMField();
-			if (field_name != "" && field_name != UNINITIALIZEDSTRINGQUANTITY) {
-				if (gmagneto == nullptr) { gmagneto = new GMagneto(gopt); }
+			// If a volume declares an EM field, install a per-volume field manager configured by the
+			// named field map, unless that field was reset via -no_field (a matching name, or =all).
+			const auto &field_name           = gvolumePtr->getEMField();
+			const bool  volume_field_present = field_name != "" && field_name != UNINITIALIZEDSTRINGQUANTITY;
+			const bool  volume_field_reset   = disable_all_fields ||
+				no_field_volumes.count(volumeName) || no_field_volumes.count(g4name);
+			if (volume_field_present && volume_field_reset) {
+				log->info(2, "Volume <", volumeName, "> field <", field_name, "> reset by -",
+				          NO_FIELD_OPTION, ": no field installed.");
+			} else if (volume_field_present) {
 				log->info(2, "Volume <", volumeName, "> has field: <", field_name,
 				          ">. Looking into field map definitions.");
 				log->info(2, "Setting field manager for volume <", g4name, "> with field <", field_name, ">");
@@ -211,16 +268,18 @@ void GDetectorConstruction::ConstructSDandField() {
 		}
 	}
 
-	// Process the global field, if requested.
+	// Process the global field, if requested and not reset via -no_field=all.
 	// A global field is associated with the ROOT world volume and propagated to all daughters, so it
 	// applies everywhere a more specific per-volume field has not been installed.
-	const auto global_field_name = gopt->getScalarString(GLOBAL_FIELD_OPTION);
-	if (global_field_name != "" && global_field_name != UNINITIALIZEDSTRINGQUANTITY) {
-		if (gmagneto == nullptr) { gmagneto = new GMagneto(gopt); }
+	if (global_field_set) {
 		log->info(2, "Setting global field manager for the ROOT world volume <", ROOTWORLDGVOLUMENAME,
 		          "> with field <", global_field_name, ">");
 		g4world->setFieldManagerForVolume(ROOTWORLDGVOLUMENAME,
 		                                  gmagneto->getFieldMgr(global_field_name).get(), true);
+	} else if (disable_all_fields && global_field_name != "" &&
+		global_field_name != UNINITIALIZEDSTRINGQUANTITY && global_field_name != "NULL") {
+		log->info(2, "Global field <", global_field_name, "> reset by -", NO_FIELD_OPTION, "=",
+		          NO_FIELD_ALL, ": none installed.");
 	}
 
 	// Load digitization plugins only when geometry has changed and only on the master thread.

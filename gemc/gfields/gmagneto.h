@@ -5,6 +5,10 @@
 #include "gfield_options.h"
 #include "gfieldConventions.h"
 
+// c++
+#include <set>
+#include <string>
+
 /**
  * @defgroup gfield_module GField module
  *
@@ -39,6 +43,9 @@ public:
 	/**
 	 * \brief Construct and initialize the magnetic field registry.
 	 * \param gopts Shared options used for configuration and logging.
+	 * \param required_fields Optional set of field names to load. When empty, every configured field is
+	 *        loaded; when non-empty, only the named fields have their plugin and map loaded (so fields no
+	 *        volume uses are skipped).
 	 *
 	 * This constructor:
 	 * 1. Builds the list of \ref GFieldDefinition "GFieldDefinition" objects from options,
@@ -46,7 +53,8 @@ public:
 	 * 3. Instantiates the field and calls \ref GField::load_field_definitions "load_field_definitions()",
 	 * 4. Creates and stores a \c G4FieldManager via \ref GField::create_FieldManager "create_FieldManager()".
 	 */
-	explicit GMagneto(const std::shared_ptr<GOptions>& gopts);
+	explicit GMagneto(const std::shared_ptr<GOptions>& gopts,
+	                  const std::set<std::string>&     required_fields = {});
 
 private:
 	using gFieldMap    = std::unordered_map<std::string, std::shared_ptr<GField>>;

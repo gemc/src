@@ -45,6 +45,21 @@
  */
 #define GLOBAL_FIELD_OPTION "global_field"
 
+/**
+ * \brief Command-line option name used to reset (remove) field associations.
+ *
+ * The value is either a single gvolume name, a whitespace/comma-separated list of gvolume names, or the
+ * special value \ref NO_FIELD_ALL. A listed volume that was associated with a field has that association
+ * removed; \ref NO_FIELD_ALL removes every per-volume field as well as the \ref GLOBAL_FIELD_OPTION. Fields
+ * that end up unused as a result are never loaded (their plugins and maps are skipped).
+ */
+#define NO_FIELD_OPTION "no_field"
+
+/**
+ * \brief Special \ref NO_FIELD_OPTION value that resets all fields, including \ref GLOBAL_FIELD_OPTION.
+ */
+#define NO_FIELD_ALL "all"
+
 
 // Error codes in the 1200 range (module-local).
 #define ERR_WRONG_FIELD_ROTATION 1201

@@ -12,7 +12,8 @@
 // #include "G4PropagatorInField.hh"
 
 
-GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts) : GBase(gopts, GMAGNETO_LOGGER) {
+GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts,
+                   const std::set<std::string>&     required_fields) : GBase(gopts, GMAGNETO_LOGGER) {
 	// Allocate the registries that will hold field objects and their corresponding managers.
 	fields_map     = std::make_shared<gFieldMap>();
 	fields_manager = std::make_shared<gFieldMgrMap>();
@@ -26,6 +27,14 @@ GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts) : GBase(gopts, GMAGNE
 
 	for (auto& field_definition : field_definition_array) {
 		std::string name = field_definition.name;
+
+		// When a filter is given, load only the fields that are actually used. Fields no volume
+		// references (e.g. reset via -no_field) have their plugin and map skipped entirely.
+		if (!required_fields.empty() && required_fields.find(name) == required_fields.end()) {
+			log->info(1, "Field <", name, "> is not used by any volume: skipping plugin and map load.");
+			continue;
+		}
+
 		log->info(1, field_definition);
 
 		// Only create each named field once; repeated names are ignored by this map check.
