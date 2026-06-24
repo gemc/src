@@ -14,6 +14,18 @@ multipoles_files = [files(
                     ),
                     true]
 
+asciimap_files = [files(
+                      'gfieldFactories/asciimap/gfield_asciimap.cc',
+                  ),
+                  true]
+
+# Example ASCII maps. The YAML definitions are plain, directly-runnable files; the asciimap plugin
+# resolves each data-only map next to its YAML, so passing the YAML by absolute path (as the tests do)
+# finds the map without any configure/install step.
+asciimap_dipole_yaml   = meson.current_source_dir() + '/examples/asciimap_dipole.yaml'
+asciimap_solenoid_yaml = meson.current_source_dir() + '/examples/solenoid.yaml'
+asciimap_torus_yaml    = meson.current_source_dir() + '/examples/torus.yaml'
+
 LD += {
     'name' : sub_dir_name,
     'sources' : files(
@@ -30,8 +42,11 @@ LD += {
     ),
     'plugins' : {
         'gfieldmultipolesFactory' : multipoles_files,
+        'gfieldasciimapFactory' : asciimap_files,
     },
-    'additional_includes' : ['gemc/gfields', 'gemc/gfields/gfieldFactories/multipoles'],
+    'additional_includes' : ['gemc/gfields',
+                             'gemc/gfields/gfieldFactories/multipoles',
+                             'gemc/gfields/gfieldFactories/asciimap'],
 
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'internal_dependencies' : internal_deps,
@@ -43,6 +58,21 @@ LD += {
         'test_gfield_dipole_field_map_points' : [
             example_source,
             input_file + ['-fieldMapPoints=' + field_points_file],
+        ],
+        'test_gfield_asciimap_dipole' : [example_source, [asciimap_dipole_yaml]],
+        'test_gfield_asciimap_dipole_field_at' : [
+            example_source,
+            [asciimap_dipole_yaml, '-fieldAt=0*cm 1*cm 0*cm'],
+        ],
+        'test_gfield_asciimap_solenoid' : [example_source, [asciimap_solenoid_yaml]],
+        'test_gfield_asciimap_solenoid_field_at' : [
+            example_source,
+            [asciimap_solenoid_yaml, '-fieldAt=1*m 0*m 0*m'],
+        ],
+        'test_gfield_asciimap_torus' : [example_source, [asciimap_torus_yaml]],
+        'test_gfield_asciimap_torus_field_at' : [
+            example_source,
+            [asciimap_torus_yaml, '-fieldAt=250*cm 0*cm 350*cm'],
         ],
     }
 }

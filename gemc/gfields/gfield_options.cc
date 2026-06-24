@@ -114,6 +114,17 @@ void print_field_query_result(const std::string& field_name,
 std::vector<GFieldDefinition> get_GFieldDefinition(const std::shared_ptr<GOptions>& gopts) {
 	std::vector<GFieldDefinition> gfield_defs;
 
+	// Directory of the (first) YAML file passed on the command line. Plugins that read companion data
+	// files next to their definition (e.g. the ASCII field map) default to it, so a plain .yaml works
+	// whether it is run from its own directory or referenced by an absolute path. Empty when no YAML was
+	// given (pure command-line configuration), or "." when the YAML was given without a directory.
+	std::string config_dir;
+	if (const auto yaml_files = gopts->getYamlFiles(); !yaml_files.empty()) {
+		const std::string& first = yaml_files.front();
+		const auto         slash = first.find_last_of('/');
+		config_dir = (slash == std::string::npos) ? "." : first.substr(0, slash);
+	}
+
 	// Multipoles:
 	// Each "gmultipoles" entry becomes one independently named field definition.
 	auto gmultipoles_node = gopts->getOptionNode("gmultipoles");
@@ -149,6 +160,7 @@ std::vector<GFieldDefinition> get_GFieldDefinition(const std::shared_ptr<GOption
 
 		// The type field controls the shared-library plugin name through GFieldDefinition::gfieldPluginName().
 		gfield_def.type = "multipoles";
+		gfield_def.config_dir = config_dir;
 
 		gfield_defs.push_back(gfield_def);
 	}
@@ -180,6 +192,7 @@ std::vector<GFieldDefinition> get_GFieldDefinition(const std::shared_ptr<GOption
 			}
 			gfield_def.add_map_parameter(key, it->second.as<std::string>());
 		}
+		gfield_def.config_dir = config_dir;
 
 		gfield_defs.push_back(gfield_def);
 	}
@@ -222,7 +235,12 @@ GOptions defineOptions() {
 	gfields_help += "parameters (so the plugin alone decides which parameters it understands). \n \n";
 	gfields_help += "Mandatory keys: name, type. \n \n";
 	gfields_help += "Example (clas12 binary mapped field from the clas12-systems plugin): \n";
-	gfields_help += "-gfields=\"[{name: clas12, type: clas12bin, solenoid: solenoid_map, torus: torus_map}]\"\n";
+	gfields_help += "-gfields=\"[{name: clas12, type: clas12bin, solenoid: solenoid_map, torus: torus_map}]\"\n \n";
+	gfields_help += "Example (generic ASCII field map, type asciimap): the data-only map file holds the \n";
+	gfields_help += "coordinate columns followed by the field components, while the grid is defined here. \n";
+	gfields_help += "-gfields=\"[{name: solenoid, type: asciimap, symmetry: cylindrical-z, map: solenoid.txt, \n";
+	gfields_help += "            field_unit: T, coordinate1: 'transverse, 601, 0*m, 3*m', \n";
+	gfields_help += "            coordinate2: 'longitudinal, 1201, -3*m, 3*m'}]\"\n";
 	std::vector<GVariable> gfields = {
 		{"name", goptions::NODFLT, "Field name (unique key used by GMagneto maps)"},
 		{"type", goptions::NODFLT, "Field type; selects the plugin shared library gfield<type>Factory"},

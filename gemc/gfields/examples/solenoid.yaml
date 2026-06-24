@@ -1,0 +1,39 @@
+# Translation of the legacy clas12 ASCII solenoid field into the GEMC3 `asciimap` plugin.
+#
+# Legacy (clas12Tags asciiField) header, embedded at the top of the map file:
+#
+#   <mfield>
+#     <description name="solenoid" factory="ASCII" comment="superconducting solenoid"/>
+#     <symmetry type="cylindrical-z" format="map"/>
+#     <map>
+#       <coordinate>
+#         <first  name="transverse"    npoints="601"   min="0"  max="3" units="m"/>
+#         <second name="longitudinal"  npoints="1201"  min="-3" max="3" units="m"/>
+#       </coordinate>
+#       <field unit="T"/>
+#     </map>
+#   </mfield>
+#
+# In GEMC3 the definition lives here and the map file (solenoid_map.txt) holds only the data rows:
+#   transverse[m]  longitudinal[m]  Bt[T]  Bl[T]
+# (Bt = transverse/radial, Bl = longitudinal component, both in field_unit.)
+#
+# This runnable example uses a small but complete 4 x 7 grid; the real solenoid map is 601 x 1201.
+# The map is resolved next to this YAML file, so it runs directly from this directory:
+#   build/bin/gemc solenoid.yaml -fieldAt="1*m 0*m 0*m"
+gfields:
+  - name: solenoid
+    type: asciimap
+    symmetry: cylindrical-z
+    map: solenoid_map.txt
+    field_unit: T
+    interpolation: linear
+    coordinate1: "transverse,   4, 0*m, 3*m"
+    coordinate2: "longitudinal, 7, -3*m, 3*m"
+    # Optional placement: vx/vy/vz shift the query point into the map frame, rx/ry/rz rotate the field.
+    vx: 0*cm
+    vy: 0*cm
+    vz: 0*cm
+    rx: 0*deg
+    ry: 0*deg
+    rz: 0*deg

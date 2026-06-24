@@ -42,6 +42,11 @@ struct GFieldDefinition {
 	/// Field type discriminator used to derive the plugin factory name (e.g. "multipoles").
 	std::string type;
 
+	/// Directory of the YAML file that defined this field (empty when configured purely from the command
+	/// line). Plugins that read companion data files (e.g. ASCII field maps) use it to resolve relative
+	/// file names next to the YAML, so the definition stays portable.
+	std::string config_dir;
+
 	/// Field parameters stored as string expressions (often including unit expressions).
 	std::map<std::string, std::string> field_parameters;
 

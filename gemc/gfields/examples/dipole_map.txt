@@ -1,0 +1,10 @@
+# Data-only dipole-z map for the asciimap plugin example.
+# Columns: longitudinal[cm]  transverse[cm]  Bz[T]
+# (units come from the YAML coordinate1/coordinate2 expressions and field_unit).
+# Rows may be listed in any order; each row's grid index is computed from its coordinates.
+0  0  1.0
+0  1  1.0
+1  0  1.1
+1  1  1.1
+2  0  1.2
+2  1  1.2

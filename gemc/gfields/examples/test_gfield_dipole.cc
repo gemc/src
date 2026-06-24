@@ -58,12 +58,17 @@ int main(int argc, char* argv[]) {
 	// Create a GMagneto instance to manage fields
 	auto magneto = std::make_shared<GMagneto>(gopts);
 
-	string field_name = "dipole";
+	// Probe whichever fields the YAML configured (e.g. "dipole", "solenoid", "torus"), instead of a
+	// hardcoded name, so the example works for every field definition.
+	const auto field_names = magneto->getFieldNames();
+	if (field_names.empty()) {
+		cout << "No fields were configured." << endl;
+		return EXIT_SUCCESS;
+	}
 
-	// Check if a specific field exists
-	if (magneto->isField(field_name)) {
-		auto dipole_field         = magneto->getField(field_name);
-		auto dipole_field_manager = magneto->getFieldMgr(field_name);
+	for (const auto& field_name : field_names) {
+		auto field         = magneto->getField(field_name);
+		auto field_manager = magneto->getFieldMgr(field_name);
 
 		// Non-Doxygen summary:
 		// Demonstrate repeated evaluation of the field; this intentionally does not attach the field manager
@@ -78,10 +83,8 @@ int main(int argc, char* argv[]) {
 
 			double pos[3] = {x, y, z};
 			double bfield[3];
-			dipole_field->GetFieldValue(pos, bfield);
+			field->GetFieldValue(pos, bfield);
 		}
-	} else {
-		cout << "Field " << field_name << " was not found." << endl;
 	}
 
 	return EXIT_SUCCESS;

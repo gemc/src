@@ -1,0 +1,28 @@
+# Example ASCII field-map definition for the gfieldasciimapFactory plugin (type: asciimap).
+#
+# The definition (symmetry, grid, units, placement) lives here; the map file referenced by `map`
+# holds only data rows: the coordinate columns (coordinate1, coordinate2, ... order) followed by the
+# field components. For a dipole symmetry there is a single field component along the dipole axis.
+#
+# The map is resolved next to this YAML file, so the example runs directly from this directory:
+#   build/bin/gemc asciimap_dipole.yaml -fieldAt="0*cm 1*cm 0*cm"
+# Set `dir` to override the location, or omit it to read from the `fields` directory installed next to
+# the plugin.
+gfields:
+  - name: dipole
+    type: asciimap
+    symmetry: dipole-z
+    map: dipole_map.txt
+    field_unit: T
+    interpolation: linear
+    coordinate1: "longitudinal, 3, 0*cm, 2*cm"
+    coordinate2: "transverse,   2, 0*cm, 1*cm"
+    # Map placement (optional). vx/vy/vz shift the query point into the map frame before lookup;
+    # rx/ry/rz rotate the returned field vector. Shown here at their defaults so the example field is
+    # neither displaced nor rotated.
+    vx: 0*cm
+    vy: 0*cm
+    vz: 0*cm
+    rx: 0*deg
+    ry: 0*deg
+    rz: 0*deg

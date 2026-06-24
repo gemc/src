@@ -1,0 +1,38 @@
+# Translation of the legacy clas12 ASCII phi-segmented torus field into the GEMC3 `asciimap` plugin.
+#
+# Legacy (clas12Tags asciiField) header, embedded at the top of the map file:
+#
+#   <mfield>
+#     <description name="TorusSymmetric" factory="ASCII" comment="clas12 superconducting torus"/>
+#     <symmetry type="phi-segmented" format="map" integration="ClassicalRK4" minStep="1*mm"/>
+#     <map>
+#       <coordinate>
+#         <first  name="azimuthal"    npoints="16"   min="0"   max="30"  units="deg"/>
+#         <second name="transverse"   npoints="2501" min="0"   max="500" units="cm"/>
+#         <third  name="longitudinal" npoints="251"  min="100" max="600" units="cm"/>
+#       </coordinate>
+#       <field unit="kilogauss"/>
+#       <interpolation type="none"/>
+#     </map>
+#   </mfield>
+#
+# In GEMC3 the definition lives here and the map file (torus_map.txt) holds only the data rows:
+#   azimuthal[deg]  transverse[cm]  longitudinal[cm]  Bx[kG]  By[kG]  Bz[kG]
+# The XML `integration`/`minStep` become integration_stepper/minimum_step, and `<interpolation
+# type="none"/>` becomes interpolation: none.
+#
+# This runnable example uses a small but complete 4 x 6 x 6 grid; the real torus map is 16 x 2501 x 251.
+# The map is resolved next to this YAML file, so it runs directly from this directory:
+#   build/bin/gemc torus.yaml -fieldAt="250*cm 0*cm 350*cm"
+gfields:
+  - name: torus
+    type: asciimap
+    symmetry: phi-segmented
+    map: torus_map.txt
+    field_unit: kilogauss
+    interpolation: none
+    integration_stepper: G4ClassicalRK4
+    minimum_step: 1*mm
+    coordinate1: "azimuthal,    4, 0*deg,  30*deg"
+    coordinate2: "transverse,   6, 0*cm,   500*cm"
+    coordinate3: "longitudinal, 6, 100*cm, 600*cm"
