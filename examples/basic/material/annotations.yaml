@@ -1,3 +1,6 @@
+show_field_lines: 0
+show_auxiliary_edges: false
+
 g4decoration:
   scale: true
   scaleLength: 10

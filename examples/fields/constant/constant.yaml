@@ -1,0 +1,21 @@
+experiment: examples
+runno: 1
+n: 0
+nthreads: 1
+show_field_lines: 30
+show_auxiliary_edges: true
+
+gsystem:
+  - name: constant
+    factory: sqlite
+
+gmultipoles:
+  - name: constant
+    pole_number: 2
+    strength: 1
+    rotaxis: z
+    longitudinal: true
+
+g4camera:
+  theta: 70*deg
+  phi: 45*deg

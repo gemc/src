@@ -2,6 +2,8 @@ experiment: examples
 runno: 1
 n: 1
 nthreads: 1
+show_field_lines: 0
+show_auxiliary_edges: false
 
 gsystem:
   - name: scintillator_barrel

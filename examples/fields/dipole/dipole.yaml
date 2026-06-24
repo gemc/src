@@ -1,0 +1,21 @@
+experiment: examples
+runno: 1
+n: 0
+nthreads: 1
+show_field_lines: 80
+show_auxiliary_edges: true
+
+gsystem:
+  - name: dipole
+    factory: sqlite
+
+gmultipoles:
+  - name: dipole
+    pole_number: 2
+    strength: 2
+    rotaxis: z
+    rotation_angle: "30*deg"
+
+g4camera:
+  theta: 75*deg
+  phi: 35*deg

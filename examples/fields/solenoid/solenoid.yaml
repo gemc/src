@@ -1,0 +1,30 @@
+experiment: examples
+runno: 1
+n: 0
+nthreads: 1
+show_field_lines: 20
+show_auxiliary_edges: true
+
+gsystem:
+  - name: solenoid
+    factory: sqlite
+
+gfields:
+  - name: solenoid
+    type: asciimap
+    symmetry: cylindrical-z
+    map: solenoid_map.txt
+    field_unit: T
+    interpolation: linear
+    coordinate1: "transverse,   4, 0*m, 3*m"
+    coordinate2: "longitudinal, 7, -3*m, 3*m"
+    vx: 0*cm
+    vy: 0*cm
+    vz: 0*cm
+    rx: 0*deg
+    ry: 0*deg
+    rz: 0*deg
+
+g4camera:
+  theta: 80*deg
+  phi: 25*deg

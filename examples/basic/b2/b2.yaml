@@ -1,6 +1,8 @@
 experiment: examples
 runno: 1
 nthreads: 1
+show_field_lines: 0
+show_auxiliary_edges: false
 
 gsystem:
   - name: b2
@@ -27,4 +29,3 @@ gmultipoles:
     strength: 2
     rotaxis: z
     rotation_angle: "30*deg"
-

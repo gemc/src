@@ -1,0 +1,27 @@
+experiment: examples
+runno: 1
+n: 0
+nthreads: 1
+show_field_lines: 20
+show_auxiliary_edges: true
+
+gsystem:
+  - name: torus
+    factory: sqlite
+
+gfields:
+  - name: torus
+    type: asciimap
+    symmetry: phi-segmented
+    map: torus_map.txt
+    field_unit: kilogauss
+    interpolation: none
+    integration_stepper: G4ClassicalRK4
+    minimum_step: 1*mm
+    coordinate1: "azimuthal,    4, 0*deg,  30*deg"
+    coordinate2: "transverse,   6, 0*cm,   500*cm"
+    coordinate3: "longitudinal, 6, 100*cm, 600*cm"
+
+g4camera:
+  theta: 65*deg
+  phi: 35*deg
