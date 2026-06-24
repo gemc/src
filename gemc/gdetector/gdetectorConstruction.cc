@@ -6,10 +6,12 @@
 #include "gdynamicdigitizationConventions.h"
 #include "gtouchableConventions.h"
 #include "gsystemConventions.h"
+#include "gsystem_options.h"
 #include "gDosimeterDigitization.h"
 #include "gFluxDigitization.h"
 #include "gPhotonDetectorDigitization.h"
 #include "gParticleCounterDigitization.h"
+#include "gfield_options.h"
 
 // geant4
 #include "G4SDManager.hh"
@@ -19,6 +21,10 @@
 #include "G4VVisManager.hh"
 
 namespace {
+bool is_unset_field_name(const std::string& name) {
+	return name.empty() || name == UNINITIALIZEDSTRINGQUANTITY || name == "NULL" || name == "not provided";
+}
+
 class GVisManagerGuard : public G4VVisManager {
 public:
 	static void set(G4VVisManager* visManager) { SetConcreteInstance(visManager); }
@@ -139,9 +145,22 @@ void GDetectorConstruction::ConstructSDandField() {
 	}
 
 	// Global field name, honoring -no_field=all.
-	auto       global_field_name = gopt->getScalarString(GLOBAL_FIELD_OPTION);
-	const bool global_field_set  = !disable_all_fields && global_field_name != "" &&
-		global_field_name != UNINITIALIZEDSTRINGQUANTITY && global_field_name != "NULL";
+	const bool no_system_selected = gsystems.empty() && gsystem::getSystems(gopt).empty();
+	auto global_field_name = gopt->getScalarString(GLOBAL_FIELD_OPTION);
+	if (no_system_selected && !disable_all_fields && is_unset_field_name(global_field_name)) {
+		std::vector<std::string> configured_fields;
+		for (const auto& field_definition : gfields::get_GFieldDefinition(gopt)) {
+			if (!is_unset_field_name(field_definition.name) && field_definition.name != goptions::NODFLT) {
+				configured_fields.push_back(field_definition.name);
+			}
+		}
+		if (configured_fields.size() == 1) {
+			global_field_name = configured_fields.front();
+			log->info(1, "No explicit global field selected: using the only configured field <",
+			          global_field_name, "> on the ROOT world volume.");
+		}
+	}
+	const bool global_field_set = !disable_all_fields && !is_unset_field_name(global_field_name);
 
 	// First pass: collect the fields that are actually used so only their plugins and maps are loaded.
 	// Volumes (or the global field) reset via -no_field are excluded here and never trigger a load.
@@ -156,7 +175,7 @@ void GDetectorConstruction::ConstructSDandField() {
 				if (no_field_volumes.count(g4name)) { matched_no_field.insert(g4name); }
 
 				const auto &field_name = gvolumePtr->getEMField();
-				if (field_name == "" || field_name == UNINITIALIZEDSTRINGQUANTITY || reset) { continue; }
+				if (is_unset_field_name(field_name) || reset) { continue; }
 				required_fields.insert(field_name);
 			}
 		}
@@ -253,7 +272,7 @@ void GDetectorConstruction::ConstructSDandField() {
 			// If a volume declares an EM field, install a per-volume field manager configured by the
 			// named field map, unless that field was reset via -no_field (a matching name, or =all).
 			const auto &field_name           = gvolumePtr->getEMField();
-			const bool  volume_field_present = field_name != "" && field_name != UNINITIALIZEDSTRINGQUANTITY;
+			const bool  volume_field_present = !is_unset_field_name(field_name);
 			const bool  volume_field_reset   = disable_all_fields ||
 				no_field_volumes.count(volumeName) || no_field_volumes.count(g4name);
 			if (volume_field_present && volume_field_reset) {
@@ -277,7 +296,7 @@ void GDetectorConstruction::ConstructSDandField() {
 		g4world->setFieldManagerForVolume(ROOTWORLDGVOLUMENAME,
 		                                  gmagneto->getFieldMgr(global_field_name).get(), true);
 	} else if (disable_all_fields && global_field_name != "" &&
-		global_field_name != UNINITIALIZEDSTRINGQUANTITY && global_field_name != "NULL") {
+		!is_unset_field_name(global_field_name)) {
 		log->info(2, "Global field <", global_field_name, "> reset by -", NO_FIELD_OPTION, "=",
 		          NO_FIELD_ALL, ": none installed.");
 	}

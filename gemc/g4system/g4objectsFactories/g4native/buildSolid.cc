@@ -11,6 +11,7 @@
 // geant4
 #include "G4Box.hh"
 #include "G4Sphere.hh"
+#include "G4Torus.hh"
 #include "G4Tubs.hh"
 #include "G4CutTubs.hh"
 #include "G4Cons.hh"
@@ -76,6 +77,16 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 		                                    pars[3], // Delta Phi angle
 		                                    pars[4], // Starting delta angle
 		                                    pars[5]  // Delta delta angle
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4Torus") {
+		thisG4Volume->setSolid(new G4Torus(g4name,  // name
+		                                    pars[0], // Inside radius of the torus tube
+		                                    pars[1], // Outside radius of the torus tube
+		                                    pars[2], // Swept radius of the torus
+		                                    pars[3], // Starting phi angle
+		                                    pars[4]  // Delta phi angle
 		                       ), log);
 		return thisG4Volume->getSolid();
 	}

@@ -164,6 +164,7 @@ void GWorld::load_systems() {
 	const std::string dbhost = gopts->getScalarString("sql");
 
 	auto systemFactories = createSystemFactory();
+	const bool no_systems_defined = gsystemsMap->empty();
 
 	// For every system, find / create its factory and load volumes
 	const auto yamlFiles = gopts->getYamlFiles();
@@ -228,6 +229,32 @@ void GWorld::load_systems() {
 			"default" // variation
 		);
 		rootSystem->addROOTVolume(worldVolumeDefinition);
+
+		if (no_systems_defined) {
+			std::vector<std::string> viewerBoxPars = {
+				"viewer_box",                  // 01 name
+				"G4Box",                       // 02 type
+				"1*m, 1*m, 1*m",               // 03 parameters
+				"G4_AIR",                      // 04 material
+				ROOTWORLDGVOLUMENAME,          // 05 mother
+				DEFAULTPOSITION,               // 06 position
+				DEFAULTROTATION,               // 07 rotation
+				DEFAULTG4PLACEMENTTYPE,        // 08 Geant4 placement
+				UNINITIALIZEDSTRINGQUANTITY,   // 09 electromagnetic field
+				"1",                           // 10 visible
+				"0",                           // 11 style: wireframe
+				"ffcc33",                      // 12 color
+				"1",                           // 13 opacity
+				UNINITIALIZEDSTRINGQUANTITY,   // 14 digitization
+				UNINITIALIZEDSTRINGQUANTITY,   // 15 gidentity
+				UNINITIALIZEDSTRINGQUANTITY,   // 16 copyOf
+				UNINITIALIZEDSTRINGQUANTITY,   // 17 solidsOpr
+				UNINITIALIZEDSTRINGQUANTITY,   // 18 mirror
+				"1",                           // 19 exist flag
+				"default visible volume for field-only visualization"
+			};
+			rootSystem->addGVolume(viewerBoxPars);
+		}
 
 		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = rootSystem;
 	}

@@ -19,6 +19,12 @@ examples_map = {
         'b3' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] },
         'scintillator_barrel' : { 'runs' : ['1'], 'variations' : ['default'], 'plot_var' : 'totEdep' }
     },
+    'fields' : {
+        'torus' : { 'runs' : ['1'], 'variations' : ['default'] },
+        'dipole' : { 'runs' : ['1'], 'variations' : ['default'] },
+        'solenoid' : { 'runs' : ['1'], 'variations' : ['default'] },
+        'constant' : { 'runs' : ['1'], 'variations' : ['default'] },
+    },
     'optical' : {
         'cherenkov' : { 'runs' : ['1'], 'variations' : ['default', 'mediumIndexRadiator', 'highIndexRadiator'],
                         'plot_yvsx' : true },

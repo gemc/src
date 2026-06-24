@@ -40,7 +40,8 @@ int main(int argc, char* argv[]) {
 
 	auto gui      = gopts->getSwitch("gui");
 	auto nthreads = gemc::get_nthreads(gopts, log);
-	auto has_startup_geometry = !gsystem::getSystems(gopts).empty();
+	auto has_startup_geometry = !gsystem::getSystems(gopts).empty() ||
+		!gfields::get_GFieldDefinition(gopts).empty();
 
 	// createQtApplication returns a QApplication if gui is true
 	// otherwise, it returns a QCoreApplication and sets the Geant4 CoutDestination to a GBatch_Session
