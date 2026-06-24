@@ -17,6 +17,57 @@
 #include "g4SceneProperties.h"
 #include "g4display_options.h"
 
+#include <algorithm>
+#include <cctype>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+
+namespace {
+bool scalarOptionIsTrue(const std::shared_ptr<GOptions>& gopts, const std::string& name) {
+	if (gopts == nullptr) { return false; }
+
+	std::string value = gopts->getScalarString(name);
+	std::transform(value.begin(), value.end(), value.begin(),
+	               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+	if (value == "true" || value == "yes" || value == "on" || value == "1") {
+		return true;
+	}
+	if (value == "false" || value == "no" || value == "off" || value == "0" || value == "null") {
+		return false;
+	}
+
+	std::cerr << FATALERRORL << "The option " << name
+	          << " accepts only true/false/yes/no/on/off/1/0." << std::endl;
+	std::exit(EC__NOOPTIONFOUND);
+}
+
+std::string rootExtentForFieldCommand(const std::shared_ptr<GOptions>& gopts) {
+	if (gopts == nullptr) { return ""; }
+
+	std::string rootDefinition = gopts->getScalarString("root");
+	for (auto& c : rootDefinition) {
+		if (c == ',') { c = ' '; }
+	}
+
+	const auto tokens = gutilities::getStringVectorFromString(rootDefinition);
+	if (tokens.size() < 5 || tokens[0] != "G4Box") { return ""; }
+
+	const double dx = gutilities::getG4Number(tokens[1]);
+	const double dy = gutilities::getG4Number(tokens[2]);
+	const double dz = gutilities::getG4Number(tokens[3]);
+	if (dx <= 0 || dy <= 0 || dz <= 0) { return ""; }
+
+	std::ostringstream command;
+	command << "/vis/set/extentForField "
+	        << -dx << " " << dx << " "
+	        << -dy << " " << dy << " "
+	        << -dz << " " << dz << " mm";
+	return command.str();
+}
+}
+
 namespace gemc {
 	// return the number of cores from options.
 	// if 0 is given, returns max number of available cores
@@ -153,6 +204,19 @@ namespace gemc {
 		for (const auto& command : g4SceneProperties.addSceneDecorations(gopts)) { cmds.emplace_back(command); }
 		for (const auto& command : g4SceneProperties.addSceneTexts(gopts)) { cmds.emplace_back(command); }
 		if (decorations.eventID) { cmds.emplace_back("/vis/scene/add/eventID"); }
+
+		if (scalarOptionIsTrue(gopts, "show_auxiliary_edges")) {
+			cmds.emplace_back("/vis/viewer/set/auxiliaryEdge 1");
+			cmds.emplace_back("/vis/viewer/set/hiddenEdge 1");
+		}
+
+		const int fieldLinePoints = gopts->getScalarInt("show_field_lines");
+		if (fieldLinePoints > 0) {
+			if (const auto extent = rootExtentForFieldCommand(gopts); !extent.empty()) {
+				cmds.emplace_back(extent);
+			}
+			cmds.emplace_back("/vis/scene/add/magneticField " + std::to_string(fieldLinePoints));
+		}
 
 		// do not draw volumes in batch screenshot
 		if (g4view.driver != "TOOLSSG_OFFSCREEN") {

@@ -447,6 +447,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	// X slice controls.
 	sliceXEdit = new QLineEdit(tr("0"));
 	sliceXEdit->setMaximumWidth(100);
+	sliceXEdit->setValidator(new QDoubleValidator(sliceXEdit));
 	sliceXActi = new QCheckBox(tr("&On"));
 	sliceXActi->setChecked(false);
 	sliceXInve = new QCheckBox(tr("&Flip"));
@@ -465,6 +466,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	// Y slice controls.
 	sliceYEdit = new QLineEdit(tr("0"));
 	sliceYEdit->setMaximumWidth(100);
+	sliceYEdit->setValidator(new QDoubleValidator(sliceYEdit));
 	sliceYActi = new QCheckBox(tr("&On"));
 	sliceYActi->setChecked(false);
 	sliceYInve = new QCheckBox(tr("&Flip"));
@@ -483,6 +485,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	// Z slice controls.
 	sliceZEdit = new QLineEdit(tr("0"));
 	sliceZEdit->setMaximumWidth(100);
+	sliceZEdit->setValidator(new QDoubleValidator(sliceZEdit));
 	sliceZActi = new QCheckBox(tr("&On"));
 	sliceZActi->setChecked(false);
 	sliceZInve = new QCheckBox(tr("&Flip"));
@@ -801,39 +804,45 @@ void G4DisplayView::slice() {
 	if (sliceSectn->isChecked()) { g4uim->ApplyCommand("/vis/viewer/set/cutawayMode intersection"); }
 	else if (sliceUnion->isChecked()) { g4uim->ApplyCommand("/vis/viewer/set/cutawayMode union"); }
 
-	// Clear again to ensure mode change does not retain previously-defined planes.
-	g4uim->ApplyCommand("/vis/viewer/clearCutawayPlanes");
-
 	// For each enabled axis, add a plane at the requested position. Values are interpreted as mm.
 	if (sliceXActi->isChecked()) {
 		string command = "/vis/viewer/addCutawayPlane " + sliceXEdit->text().toStdString() + " 0  0 mm " +
 			to_string(sliceXInve->isChecked() ? -1 : 1) + " 0 0 ";
-		cout << "X " << command << endl;
 		g4uim->ApplyCommand(command);
 	}
 
 	if (sliceYActi->isChecked()) {
 		string command = "/vis/viewer/addCutawayPlane 0 " + sliceYEdit->text().toStdString() + " 0 mm 0 " +
 			to_string(sliceYInve->isChecked() ? -1 : 1) + " 0 ";
-		cout << "Y " << command << endl;
 		g4uim->ApplyCommand(command);
 	}
 
 	if (sliceZActi->isChecked()) {
 		string command = "/vis/viewer/addCutawayPlane 0 0 " + sliceZEdit->text().toStdString() + " mm 0 0 " +
 			to_string(sliceZInve->isChecked() ? -1 : 1);
-		cout << "Z " << command << endl;
 		g4uim->ApplyCommand(command);
 	}
+
+	g4uim->ApplyCommand("/vis/viewer/rebuild");
+	g4uim->ApplyCommand("/vis/viewer/flush");
 }
 
 void G4DisplayView::clearSlices() {
 	// Clear cutaway planes in the viewer and reset activation UI state.
-	G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/clearCutawayPlanes");
+	G4UImanager* g4uim = G4UImanager::GetUIpointer();
+	if (g4uim == nullptr) { return; }
 
-	// NOTE: Only X is reset here in the current implementation; Y/Z are left unchanged.
-	// This behavior is preserved intentionally (no logic changes).
+	QSignalBlocker blockX(sliceXActi);
+	QSignalBlocker blockY(sliceYActi);
+	QSignalBlocker blockZ(sliceZActi);
+
 	sliceXActi->setChecked(false);
+	sliceYActi->setChecked(false);
+	sliceZActi->setChecked(false);
+
+	g4uim->ApplyCommand("/vis/viewer/clearCutawayPlanes");
+	g4uim->ApplyCommand("/vis/viewer/rebuild");
+	g4uim->ApplyCommand("/vis/viewer/flush");
 }
 
 void G4DisplayView::apply_buttons_set1(int index) {

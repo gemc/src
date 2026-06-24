@@ -196,6 +196,15 @@ GOptions defineOptions() {
 
 	goptions.defineOption("g4decoration", "Adds optional Geant4 scene decorations", g4decoration, help);
 
+	help = "Display magnetic field lines in the initial visualization scene. \n \n";
+	help += "The value is the number of field-line integration points. Set to 0 to disable. \n \n";
+	help += "Example: -show_field_lines=100 \n";
+	goptions.defineOption(GVariable("show_field_lines", 0, "number of field-line points to display"), help);
+
+	help = "Display auxiliary edges in the initial visualization scene. \n \n";
+	help += "Example: -show_auxiliary_edges=true \n";
+	goptions.defineOption(GVariable("show_auxiliary_edges", false, "show auxiliary volume edges"), help);
+
 	// scenetext
 	goptions.addGOptions(addSceneTextsOptions());
 
