@@ -1,0 +1,117 @@
+name: Retry Failed Matrix Jobs
+
+permissions:
+  actions: write
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  workflow_run:
+    workflows: [ "Test", "Sanitize", "Deploy", "Binary Tarballs" ]
+    types: [ completed ]
+
+jobs:
+  rerun-failed:
+    name: Retry failed matrix jobs
+    if: >-
+      ${{
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        github.event.workflow_run.run_attempt == 1 &&
+        (
+          github.event.workflow_run.conclusion == 'failure' ||
+          github.event.workflow_run.conclusion == 'timed_out'
+        )
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Re-run failed jobs when most matrix jobs passed
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const workflowName = run.name;
+
+            const excludedByWorkflow = {
+              "Test": [
+                "Create job matrix",
+                "Test - summary",
+              ],
+              "Sanitize": [
+                "Create job matrix",
+                "Sanitize - summary",
+              ],
+              "Deploy": [
+                "Workflow Overview",
+                "Create Job Matrices",
+                "Mirror images to Docker Hub",
+                "Update Docker Hub description",
+                "Deploy - summary",
+              ],
+              "Binary Tarballs": [
+                "Attach GEMC tarballs to dev release",
+                "Create Job Matrix",
+              ],
+            };
+
+            const excluded = new Set(
+              (excludedByWorkflow[workflowName] || []).map((name) => name.toLowerCase()),
+            );
+
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+              owner,
+              repo,
+              run_id: run.id,
+              per_page: 100,
+            });
+
+            const countedConclusions = new Set([
+              "success",
+              "failure",
+              "cancelled",
+              "timed_out",
+              "action_required",
+            ]);
+
+            const matrixJobs = jobs.filter((job) => {
+              const name = job.name.trim();
+              return job.status === "completed"
+                && countedConclusions.has(job.conclusion)
+                && !excluded.has(name.toLowerCase());
+            });
+
+            const successCount = matrixJobs.filter((job) => job.conclusion === "success").length;
+            const failedCount = matrixJobs.length - successCount;
+            const successRatio = matrixJobs.length === 0 ? 0 : successCount / matrixJobs.length;
+
+            core.info(`Workflow: ${workflowName}`);
+            core.info(`Run: ${run.html_url}`);
+            core.info(`Matrix jobs: ${matrixJobs.length}`);
+            core.info(`Matrix successes: ${successCount}`);
+            core.info(`Matrix failed/cancelled/timed out: ${failedCount}`);
+
+            if (matrixJobs.length === 0) {
+              core.notice("No matrix jobs were found for this workflow; not retrying.");
+              return;
+            }
+
+            if (failedCount === 0) {
+              core.notice("No failed matrix jobs were found; not retrying.");
+              return;
+            }
+
+            if (successRatio < 0.5) {
+              core.notice("Fewer than 50% of matrix jobs succeeded; not retrying failed jobs.");
+              return;
+            }
+
+            await github.rest.actions.reRunWorkflowFailedJobs({
+              owner,
+              repo,
+              run_id: run.id,
+            });
+
+            core.notice("Requested a re-run of failed jobs for this workflow run.");

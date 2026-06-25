@@ -68,6 +68,7 @@ jobs:
     name: ${{ matrix.image }}/${{ matrix.image_tag }} ${{ matrix.arch }}
     needs: [ discover ]
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 180
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.discover.outputs.matrix_build) }}

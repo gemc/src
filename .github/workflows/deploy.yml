@@ -68,6 +68,7 @@ jobs:
     name: ${{ matrix.image }}/${{ matrix.image_tag }} ${{ matrix.arch }}
     needs: [ overview, discover ]
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.discover.outputs.matrix_build) }}
@@ -199,6 +200,7 @@ jobs:
     name: ${{ matrix.image }}/${{ matrix.image_tag }}
     needs: [ build_arch, discover ]
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     # If arm64 was skipped (e.g., archlinux), still publish amd64-only manifest.
     strategy:
       fail-fast: false

@@ -64,6 +64,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.discover.outputs.matrix_sanitize) }}
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 180
     container: ${{ matrix.container }}
 
     steps:
