@@ -1,0 +1,44 @@
+{
+  "title": "GEMC — Geant4 Monte-Carlo",
+  "description": "GEMC (the GEant Monte-Carlo) is a database-driven Geant4 application for detector and radiation-transport simulations. Detector descriptions (geometry, materials, optics, sensitive detectors, and run configuration) live outside the compiled C++ application: users define them in Python or data files, and GEMC loads them at run time to execute the full Geant4 simulation pipeline.",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "Apache-2.0",
+  "creators": [
+    {
+      "name": "Ungaro, Maurizio",
+      "affiliation": "Thomas Jefferson National Accelerator Facility (Jefferson Lab)",
+      "orcid": "0000-0001-6982-3310"
+    }
+  ],
+  "keywords": [
+    "Geant4",
+    "Monte Carlo",
+    "detector simulation",
+    "radiation transport",
+    "medical physics",
+    "nuclear physics",
+    "mesh physics",
+    "high-energy physics",
+    "C++",
+    "Python"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.1051/epjconf/202429505005",
+      "relation": "isDocumentedBy",
+      "scheme": "doi",
+      "resource_type": "publication-conferencepaper"
+    },
+    {
+      "identifier": "https://github.com/gemc/src",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://gemc.github.io/home/",
+      "relation": "isDocumentedBy",
+      "scheme": "url"
+    }
+  ]
+}

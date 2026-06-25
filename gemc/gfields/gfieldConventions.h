@@ -19,6 +19,13 @@
  */
 #define GFIELD_DEFAULT_MINIMUM_STEP "1.0*mm"
 
+/**
+ * \brief Default maximum acceptable field step for Geant4 propagation.
+ *
+ * A value less than or equal to zero leaves the Geant4 propagator default unchanged.
+ */
+#define GFIELD_DEFAULT_MAXIMUM_STEP "0*mm"
+
 // Other default parameters are in the form of strings (to preserve unit expressions).
 
 /**
@@ -54,6 +61,14 @@
  * that end up unused as a result are never loaded (their plugins and maps are skipped).
  */
 #define NO_FIELD_OPTION "no_field"
+
+/**
+ * \brief Command-line option name used to set the global maximum acceptable field step.
+ *
+ * The value is parsed as a Geant4 length and passed to \c G4PropagatorInField::SetLargestAcceptableStep()
+ * when positive. This controls the largest field propagation step accepted by Geant4 transportation.
+ */
+#define MAX_FIELD_STEP_OPTION "max_field_step"
 
 /**
  * \brief Special \ref NO_FIELD_OPTION value that resets all fields, including \ref GLOBAL_FIELD_OPTION.

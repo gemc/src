@@ -7,6 +7,7 @@ authors:
     given-names: Maurizio
     affiliation: "Thomas Jefferson National Accelerator Facility (Jefferson Lab)"
     email: ungaro@jlab.org
+    orcid: "https://orcid.org/0000-0001-6982-3310"
 repository-code: "https://github.com/gemc/src"
 url: "https://gemc.github.io/home/"
 license: Apache-2.0

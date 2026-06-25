@@ -270,6 +270,14 @@ GOptions defineOptions() {
 		"          -" NO_FIELD_OPTION "=all               (reset every field, including the global field)\n \n");
 
 	goptions.defineOption(
+		GVariable(MAX_FIELD_STEP_OPTION, GFIELD_DEFAULT_MAXIMUM_STEP, "maximum accepted field step"),
+		"Sets the maximum acceptable propagation step used by Geant4 magnetic-field transportation.\n \n"
+		"The value is parsed as a Geant4 length expression and is passed to\n"
+		"G4PropagatorInField::SetLargestAcceptableStep() when positive. The default value\n"
+		"(" GFIELD_DEFAULT_MAXIMUM_STEP ") leaves the Geant4 default unchanged.\n \n"
+		"Example: -" MAX_FIELD_STEP_OPTION "=5*mm\n \n");
+
+	goptions.defineOption(
 		GVariable("fieldAt", UNINITIALIZEDSTRINGQUANTITY, "query all configured fields at x y z"),
 		"Evaluate all configured electromagnetic fields at one absolute coordinate.\n \n"
 		"The value must contain three coordinate expressions with units, separated by spaces.\n \n"

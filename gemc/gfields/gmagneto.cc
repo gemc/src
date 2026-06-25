@@ -7,6 +7,7 @@
 
 // guts
 #include <gemc/guts/gutsConventions.h>
+#include <gemc/guts/gutilities.h>
 
 // CLHEP
 #include <CLHEP/Units/SystemOfUnits.h>
@@ -16,13 +17,18 @@
 #include <cmath>
 #include <exception>
 
-// #include "G4TransportationManager.hh"
-// #include "G4PropagatorInField.hh"
+#include "G4TransportationManager.hh"
+#include "G4PropagatorInField.hh"
 
 namespace {
 
 bool is_unset_field_name(const std::string& name) {
 	return name.empty() || name == UNINITIALIZEDSTRINGQUANTITY || name == "not provided";
+}
+
+double configured_max_field_step(const std::shared_ptr<GOptions>& gopts) {
+	if (gopts == nullptr || !gopts->doesOptionExist(MAX_FIELD_STEP_OPTION)) { return 0.0; }
+	return gutilities::getG4Number(gopts->getScalarString(MAX_FIELD_STEP_OPTION));
 }
 
 } // namespace
@@ -67,8 +73,13 @@ GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts,
 		}
 	}
 
-	// TODO: add min and max steps
-	//	G4TransportationManager::GetTransportationManager()->GetPropagatorInField()->SetLargestAcceptableStep(10);
+	const double max_field_step = configured_max_field_step(gopts);
+	if (max_field_step > 0.0) {
+		G4TransportationManager::GetTransportationManager()
+			->GetPropagatorInField()
+			->SetLargestAcceptableStep(max_field_step);
+		log->info(1, "Maximum acceptable field step set to ", max_field_step / CLHEP::mm, " mm.");
+	}
 }
 
 std::shared_ptr<GField> GMagneto::initialize_magnetic_field(

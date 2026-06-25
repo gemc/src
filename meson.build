@@ -374,6 +374,7 @@ test_options = [
                              '-verbosity.true_data=2', '-debug.true_data=true'] + gstreamer_test },
     { 'gfield_verbose' : ['-verbosity.gfield=1', '-debug.gfield=true',
                           '-gmultipoles="[{name: dipole, pole_number: 2, strength: 2, rotaxis: Z, longitudinal: true}]"',
+                          '-global_field=dipole', '-max_field_step=5*mm',
                           '-gparticle="[{name: e-, p: 2300, theta: 23.0}]"'] }
 ]
 

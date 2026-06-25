@@ -2,6 +2,7 @@
 
 [![Test][test-badge]][test]
 [![Deploy][deploy-badge]][deploy]
+[![Docker Pulls][dockerhub-badge]][dockerhub]
 [![Sanitize][sanitize-badge]][sanitize]
 [![CodeQL][codeql-badge]][codeql]
 [![Doxygen][docs-badge]][docs]
@@ -91,10 +92,19 @@ See the [installation page](https://gemc.github.io/home/installation/) for the G
 
 ### Docker
 
-Pre-built development images are published to GitHub Container Registry. For example:
+Pre-built development images are published to the
+[GitHub Container Registry](https://github.com/gemc/src/pkgs/container/src). For example:
 
 ```shell
 docker run -it --rm -v "$PWD":/work ghcr.io/gemc/src:dev-ubuntu-24.04 bash
+```
+
+The same images are mirrored to [Docker Hub](https://hub.docker.com/r/gemc/gemc) under the
+[Docker-Sponsored Open Source](https://www.docker.com/community/open-source/application/) program, with unlimited
+anonymous pulls and identical tags:
+
+```shell
+docker run -it --rm -v "$PWD":/work docker.io/gemc/gemc:dev-ubuntu-24.04 bash
 ```
 
 Published image families include:
@@ -335,6 +345,8 @@ Geant4, CLHEP, Qt, ROOT, SQLite, and Assimp.
 [test-badge]: https://github.com/gemc/src/actions/workflows/test.yml/badge.svg
 [deploy]: https://github.com/gemc/src/actions/workflows/deploy.yml
 [deploy-badge]: https://github.com/gemc/src/actions/workflows/deploy.yml/badge.svg
+[dockerhub]: https://hub.docker.com/r/gemc/gemc
+[dockerhub-badge]: https://img.shields.io/docker/pulls/gemc/gemc.svg
 [docs]: https://github.com/gemc/src/actions/workflows/doxygen.yml
 [docs-badge]: https://github.com/gemc/src/actions/workflows/doxygen.yml/badge.svg
 [sanitize]: https://github.com/gemc/src/actions/workflows/sanitize.yml

@@ -8,12 +8,17 @@ GEMC loads them at run time to execute the full Geant4 pipeline.
 These images ship a ready-to-run GEMC development environment — the compiled `gemc` simulator, the bundled
 `pygemc` Python tools, and all Geant4 dependencies — so you can simulate without managing a local Geant4 build.
 
+![GEMC architecture](https://gemc.github.io/home/assets/images/gemcArchitecture.svg)
+
 - 🏠 Homepage & docs: https://gemc.github.io/home/
 - 📦 Source: https://github.com/gemc/src
 - 🐍 Python API (`pygemc`): https://pypi.org/project/pygemc/
 
-> These images are mirrored from the canonical GitHub Container Registry build at `ghcr.io/gemc/src`.
-> The two registries carry identical content and tags; use whichever is closer to your infrastructure.
+> 💙 GEMC is part of the **Docker-Sponsored Open Source** program — pull these images without rate limits.
+
+> These images are mirrored from the canonical [GitHub Container Registry](https://github.com/gemc/src/pkgs/container/src)
+> build at `ghcr.io/gemc/src`. The two registries carry identical content and tags — use whichever is closer to
+> your infrastructure.
 
 <br/>
 
