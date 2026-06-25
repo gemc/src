@@ -288,7 +288,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'maureeungaro/gemc' }}
+      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'gemc/gemc' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -356,7 +356,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'maureeungaro/gemc' }}
+      DOCKERHUB_REPO: ${{ vars.DOCKERHUB_REPO || 'gemc/gemc' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -375,7 +375,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: ${{ env.DH_REPO_PATH }}
-          short-description: "Database-driven Geant4 Monte-Carlo simulation framework (GEMC)"
+          short-description: "GEMC — database-driven Geant4 simulation framework, ready-to-run dev images"
           readme-filepath: ./ci/dockerhub/README.md
 
   final:

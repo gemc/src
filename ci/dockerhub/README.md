@@ -20,7 +20,7 @@ These images ship a ready-to-run GEMC development environment — the compiled `
 ## Quick start
 
 ```shell
-docker run -it --rm -v "$PWD":/work docker.io/maureeungaro/gemc:dev-ubuntu-24.04 bash
+docker run -it --rm -v "$PWD":/work docker.io/gemc/gemc:dev-ubuntu-24.04 bash
 ```
 
 Inside the container the `gemc` binary and the `pygemc` Python environment are already on the `PATH`:
@@ -77,7 +77,7 @@ The examples above mount the current directory at `/work`. Use a bind mount to k
 cards, and output on the host:
 
 ```shell
-docker run -it --rm -v "$PWD":/work -w /work docker.io/maureeungaro/gemc:dev-ubuntu-24.04 bash
+docker run -it --rm -v "$PWD":/work -w /work docker.io/gemc/gemc:dev-ubuntu-24.04 bash
 ```
 
 For the interactive Geant4/Qt GUI and Apptainer recipes, see the
