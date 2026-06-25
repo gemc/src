@@ -276,6 +276,13 @@ gemc = executable(
     dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, assimp_dep, expat_dep, zlib_dep],
     include_directories : all_includes,
     link_with : all_libs,
+    # Export the executable's dynamic symbol table (GNU --export-dynamic / -rdynamic, and the
+    # macOS equivalent). CLHEP and Geant4 are linked statically into gemc, so without this their
+    # symbols stay private and dlopen'd .gplugin output/digitization modules fail to resolve them
+    # at load (e.g. "undefined symbol: _Z9_G4cerr_pv", i.e. G4cerr's _G4cerr_p()). Exporting keeps
+    # a single shared copy of G4/CLHEP global state (notably the CLHEP RNG) between gemc and its
+    # plugins, rather than each plugin embedding its own.
+    export_dynamic : true,
     override_options : ['b_pie=true']
 )
 
