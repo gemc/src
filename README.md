@@ -70,13 +70,7 @@ the Python script builds the geometry and stores it in a SQLite file `gemc.db`,
 
 ## Installation
 
-- Use the [PyPI `pygemc` package](https://pypi.org/project/pygemc/) for Python geometry building, PyVista previews, and
-  output analysis
-- Use the binary installation tarballs
-- Build GEMC from source for the full Geant4 simulation executable and the bundled `pygemc` Python environment.
-- Use Docker/Apptainer when you want a ready-to-run development environment without managing local Geant4 dependencies.
-
-For instructions details: [Installation guide](https://gemc.github.io/home/installation/)
+For installation instructions see the [installation guide](https://gemc.github.io/home/installation/)
 
 
 <br/>
@@ -242,8 +236,6 @@ gemc-analyzer out.root E --kind root --detector flux --save energy.png
 - [Python API repository](https://github.com/gemc/pygemc)
 - [CLAS12 GEMC systems repository](https://github.com/gemc/clas12-systems)
 
-This repository is GEMC version 3 and newer. CLAS12 GEMC2 simulations are maintained separately in 
-[GEMC2 / CLAS12 repository](https://github.com/gemc/clas12Tags)
 
 <br/>
 
@@ -274,6 +266,11 @@ BibTeX and additional citation formats are in [`CITATION.md`](CITATION.md).
 GEMC is licensed under the [Apache License, Version 2.0](LICENSE); see [`NOTICE`](NOTICE) for attribution and
 third-party acknowledgments. The software also depends on separately licensed third-party components, including
 Geant4, CLHEP, Qt, ROOT, SQLite, and Assimp.
+
+
+## Roadmap
+
+See the [project roadmap](https://github.com/orgs/gemc/projects/1/views/4) for the current development plans.
 
 
 [test]: https://github.com/gemc/src/actions/workflows/test.yml
