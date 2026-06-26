@@ -1,0 +1,275 @@
+# Build and attach GEMC binary tarballs when a GitHub release is published.
+name: Release Tarballs
+
+run-name: Release tarballs for ${{ github.event.release.tag_name || inputs.release_tag }}
+
+permissions:
+  contents: write
+  packages: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
+
+concurrency:
+  group: gemc-release-tarballs-${{ github.event.release.tag_name || inputs.release_tag }}
+  cancel-in-progress: true
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing or new release tag to build and attach tarballs to"
+        required: true
+        type: string
+
+jobs:
+  discover:
+    if: ${{ (github.event.release.tag_name || inputs.release_tag) != 'dev' }}
+    name: Create Linux Job Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix_build: ${{ steps.scan.outputs.matrix_build }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+
+      - id: scan
+        name: Build matrix
+        run: ci/distros_tags.sh
+
+  linux-tarballs:
+    if: ${{ (github.event.release.tag_name || inputs.release_tag) != 'dev' }}
+    name: ${{ matrix.image }}:${{ matrix.image_tag }} ${{ matrix.arch }}
+    needs: [ discover ]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix_build) }}
+    env:
+      LOGNAME: >-
+        ${{ format('{0}-{1}-{2}-{3}', github.event.release.tag_name || inputs.release_tag,
+        matrix.image, matrix.image_tag, matrix.arch) }}
+      DOCKER_BUILD_SUMMARY: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+
+      - name: Free up disk space
+        uses: ./.github/actions/free-disk-space
+        with:
+          prune_docker: "true"
+          show_tree: "true"
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Generate Dockerfile
+        run: |
+          python3 ci/dockerfile_creator.py \
+            -i "${{ matrix.image }}" \
+            -t "${{ matrix.image_tag }}" \
+            --gemc-version "${RELEASE_TAG}" \
+            --geant4-version "${{ matrix.geant4_tag }}" \
+            --with-package \
+            --source context \
+            --package-arch "${{ matrix.arch }}" \
+            > Dockerfile.generated
+          cat Dockerfile.generated
+
+      - name: Build GEMC tarball
+        uses: docker/build-push-action@v7
+        with:
+          pull: true
+          no-cache: true
+          context: .
+          file: ./Dockerfile.generated
+          target: package-export
+          platforms: ${{ matrix.platform }}
+          push: false
+          outputs: type=local,dest=${{ runner.temp }}/artifacts/package-${{ env.LOGNAME }}
+
+      - id: package
+        name: Locate tarball
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          tarballs=("${RUNNER_TEMP}/artifacts/package-${LOGNAME}/"*.tar.gz)
+          shopt -u nullglob
+          if (( ${#tarballs[@]} != 1 )); then
+            echo "Expected one GEMC tarball, found ${#tarballs[@]}" >&2
+            printf '  %s\n' "${tarballs[@]:-}" >&2
+            exit 1
+          fi
+          echo "tarball=${tarballs[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test the GEMC tarball
+        shell: bash
+        run: |
+          set -euo pipefail
+          tarball="${{ steps.package.outputs.tarball }}"
+          work="$(mktemp -d)"
+          tar -xzf "${tarball}" -C "${work}" --strip-components=1
+          test -x "${work}/install_geant4_data.sh"
+          test -f "${work}/gemc.env"
+          test -x "${work}/bin/gemc"
+          tar -tzf "${tarball}" >/dev/null
+
+      - name: Ensure release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! gh release view "${RELEASE_TAG}" --repo "${REPO}" >/dev/null 2>&1; then
+            gh release create "${RELEASE_TAG}" --repo "${REPO}" \
+              --title "${RELEASE_TAG}" --notes "Automated release ${RELEASE_TAG}" \
+              || gh release view "${RELEASE_TAG}" --repo "${REPO}" >/dev/null
+          fi
+
+      - name: Attach tarball to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release upload "${RELEASE_TAG}" \
+            --repo "${REPO}" \
+            "${{ steps.package.outputs.tarball }}" \
+            --clobber
+
+  macos-tarball:
+    if: ${{ (github.event.release.tag_name || inputs.release_tag) != 'dev' }}
+    name: macos arm64
+    runs-on: macos-26
+    timeout-minutes: 360
+    env:
+      GEANT4_TARBALL_REPO: gemc/g4install
+      GEANT4_TARBALL_TAG: dev
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+
+      - name: Install build dependencies (Homebrew)
+        env:
+          HOMEBREW_NO_REQUIRE_TAP_TRUST: "1"
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: |
+          brew install meson ninja cmake pkg-config qt root sqlite expat zlib tbb
+          brew install --cask xquartz
+
+      - name: Download the Geant4 macOS tarball
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="${RUNNER_TEMP}/geant4-download"
+          mkdir -p "${dest}"
+          gh release download "${GEANT4_TARBALL_TAG}" \
+            --repo "${GEANT4_TARBALL_REPO}" \
+            --pattern 'geant4-*-macosx*-arm64.tar.gz' \
+            --dir "${dest}"
+          tarball="$(ls "${dest}"/geant4-*-macosx*-arm64.tar.gz | head -1)"
+          echo "GEANT4_TARBALL=${tarball}" >> "$GITHUB_ENV"
+          ls -l "${dest}"
+
+      - id: build
+        name: Build, test and package GEMC
+        shell: zsh {0}
+        env:
+          GEMC_INTERACTIVE_TESTS: "false"
+        run: |
+          set -e
+
+          g4home="${RUNNER_TEMP}/geant4"
+          mkdir -p "${g4home}"
+          tar -xzf "${GEANT4_TARBALL}" -C "${g4home}" --strip-components=1
+
+          export GEANT4_HOME="${g4home}"
+          "${g4home}/install_geant4_data.sh"
+          source "${g4home}/geant4.env"
+
+          pkg_config_path="${CLHEP_BASE_DIR}/lib/pkgconfig:${XERCESCROOT}/lib/pkgconfig"
+          if [[ -n "${PKG_CONFIG_PATH:-}" ]]; then
+            pkg_config_path="${pkg_config_path}:${PKG_CONFIG_PATH}"
+          fi
+          export PKG_CONFIG_PATH="${pkg_config_path}"
+          for f in qt sqlite expat zlib; do
+            export PKG_CONFIG_PATH="$(brew --prefix ${f})/lib/pkgconfig:${PKG_CONFIG_PATH}"
+          done
+          export PATH="$(brew --prefix qt)/bin:${PATH}"
+          source "$(brew --prefix root)/bin/thisroot.sh"
+
+          echo " > geant4-config: $(command -v geant4-config) ($(geant4-config --version))"
+          echo " > root-config:   $(command -v root-config) ($(root-config --version))"
+
+          g4ver="$(geant4-config --version)"
+          mac_major="$(sw_vers -productVersion | cut -d. -f1)"
+          clang_major="$(clang --version | sed -nE 's/.*clang version ([0-9]+).*/\1/p' | head -1)"
+          osrelease="macosx${mac_major}-clang${clang_major}-arm64"
+          echo "Geant4 version: ${g4ver}"
+          echo "OSRELEASE:      ${osrelease}"
+
+          export SIM_HOME="${RUNNER_TEMP}/gemc-sim"
+          mkdir -p "${SIM_HOME}"
+          ./ci/build.sh
+
+          package_name="gemc-${RELEASE_TAG}-geant4-${g4ver}-${osrelease}"
+          GEANT4_VERSION="${g4ver}" GEMC_PACKAGE_VERSION="${RELEASE_TAG}" \
+            ci/package_install.sh "${SIM_HOME}/gemc/dev" dist "${package_name}"
+
+          echo "package_name=${package_name}" >> "$GITHUB_OUTPUT"
+          echo "tarball=dist/${package_name}.tar.gz" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test the GEMC tarball
+        shell: bash
+        run: |
+          set -euo pipefail
+          tarball="${{ steps.build.outputs.tarball }}"
+          work="$(mktemp -d)"
+          tar -xzf "${tarball}" -C "${work}" --strip-components=1
+          test -x "${work}/install_geant4_data.sh"
+          test -f "${work}/gemc.env"
+          test -x "${work}/bin/gemc"
+          otool -L "${work}/bin/gemc"
+
+      - name: Ensure release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! gh release view "${RELEASE_TAG}" --repo "${REPO}" >/dev/null 2>&1; then
+            gh release create "${RELEASE_TAG}" --repo "${REPO}" \
+              --title "${RELEASE_TAG}" --notes "Automated release ${RELEASE_TAG}" \
+              || gh release view "${RELEASE_TAG}" --repo "${REPO}" >/dev/null
+          fi
+
+      - name: Attach tarball to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release upload "${RELEASE_TAG}" \
+            --repo "${REPO}" \
+            "${{ steps.build.outputs.tarball }}" \
+            --clobber
