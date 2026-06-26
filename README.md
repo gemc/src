@@ -217,17 +217,34 @@ The output layer is plugin-based. Built-in streamer formats include:
 | `json`  | Structured event output                                                                                          |
 | `root`  | ROOT TTrees, available when GEMC is built with ROOT                                                              |
 
-<br/>
 
-pygemc` provides utitlities to analyze CSV or ROOT output. For example:
+`pygemc` provides some utitlities to analyze CSV or ROOT output. For example:
 
 ```shell
 gemc-analyzer counter_t0_digitized.csv totEdep --kind csv --bins 50
 gemc-analyzer out.root E --kind root --detector flux --save energy.png
 ```
 
-<br/>
 
+For example, after running the [`b2` example](https://gemc.github.io/home/examples/basic/b2/) with
+`gemc b2.yaml -n=1000`, the analyzer produces:
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://gemc.github.io/home/assets/images/examples/b2/analyzer_totEdep.png" width="100%"/>
+      <br/>
+      <sub><code>gemc-analyzer b2_t0_digitized.csv totEdep --kind csv</code></sub>
+    </td>
+    <td align="center">
+      <img src="https://gemc.github.io/home/assets/images/examples/b2/analyzer_true_energy.png" width="100%"/>
+      <br/>
+      <sub><code>gemc-analyzer b2_t0_true_info.csv E --kind csv --data true_info</code></sub>
+    </td>
+  </tr>
+</table>
+
+<br/>
 
 
 ## Documentation
@@ -267,6 +284,7 @@ GEMC is licensed under the [Apache License, Version 2.0](LICENSE); see [`NOTICE`
 third-party acknowledgments. The software also depends on separately licensed third-party components, including
 Geant4, CLHEP, Qt, ROOT, SQLite, and Assimp.
 
+<br/>
 
 ## Roadmap
 
