@@ -1,14 +1,17 @@
 # GEMC
 
 [![Test][test-badge]][test]
-[![Deploy][deploy-badge]][deploy]
-[![Docker Pulls][dockerhub-badge]][dockerhub]
 [![Sanitize][sanitize-badge]][sanitize]
 [![CodeQL][codeql-badge]][codeql]
-[![Doxygen][docs-badge]][docs]
+[![Deploy][deploy-badge]][deploy]
+[![Binary Tarballs][binary-tarballs-badge]][binary-tarballs]
+[![macOS Tarball][macos-tarball-badge]][macos-tarball]
 [![Nightly Dev Release][nightly-badge]][nightly]
 [![GEMC documentation][site-badge]][site]
 [![pygemc PyPI][pypi-badge]][pypi]
+[![Doxygen][docs-badge]][docs]
+[![Docker Pulls][dockerhub-badge]][dockerhub]
+[![Release Tarballs][release-tarballs-badge]][release-tarballs]
 [![License][license-badge]][license]
 
 GEMC, the GEant Monte-Carlo, is a database-driven [Geant4](https://geant4.web.cern.ch) application for detector and
@@ -28,17 +31,17 @@ while still preserving C++ extension points for advanced detector response and o
 
 ## Highlights
 
-- Python-first detector definition through [`pygemc`](https://github.com/gemc/pygemc)
+- Python-first detector definitions through [`pygemc`](https://github.com/gemc/pygemc)
 - Geometry and material storage in SQLite or ASCII databases
 - Geometry imports from databases, GDML, and CAD meshes
-- Run-number and geometry variation support for detector configurations
-- Built-in sensitive detector digitizations: `flux`, `gPhotonDetector`, `dosimeter`, and `particle_counter`
+- Run-number and geometry variation support
+- Built-in sensitive detector digitizations: `flux`, `gPhotonDetector`, `dosimeter`, `particle_counter`
 - Dynamic C++ plugin infrastructure for custom digitization, fields, generators, and output streamers
 - Event generation from command-line/YAML particle definitions and Lund files
 - Output streamers for ASCII, CSV, JSON, JLAB SRO, and optional ROOT output
-- Magnetic-field support, including a built-in multipole field plugin and ascii maps
+- Magnetic-field support, including multipoles field and ascii maps
 - Interactive Geant4/Qt visualization and off-screen image generation
-- PyVista geometry preview, interactive Qt display, and VTK.js export
+- PyVista geometry preview, VTK.js export
 - Python analyzer for plotting CSV and ROOT output
 - Meson-based C++ build with CI-tested Docker images for Linux `amd64` and `arm64`
 
@@ -46,7 +49,7 @@ while still preserving C++ extension points for advanced detector response and o
 
 ## Quickstart
 
-The fastest way to try GEMC is through the hosted examples:
+The fastest way to try GEMC is through the examples:
 
 - [Jupyter Quickstart](https://mybinder.org/v2/gh/gemc/binder-tutorials/main?urlpath=lab/tree/notebooks/basic/quickstart.ipynb)
 - [Documentation and examples](https://gemc.github.io/home/)
@@ -271,8 +274,8 @@ keep changes focused. See:
 
 If you use GEMC in scientific work, cite:
 
-> M. Ungaro, "Geant4 Monte-Carlo (GEMC) A database-driven simulation program," EPJ Web of Conferences 295, 05005 (
-> 2024). https://doi.org/10.1051/epjconf/202429505005
+> M. Ungaro and the CLAS Collaboration, "The CLAS12 Geant4 simulation," *Nuclear Instruments and Methods
+> in Physics Research Section A* **959**, 163422 (2020). https://doi.org/10.1016/j.nima.2020.163422
 
 BibTeX and additional citation formats are in [`CITATION.md`](CITATION.md).
 
@@ -318,6 +321,18 @@ See the [project roadmap](https://github.com/orgs/gemc/projects/1/views/4) for t
 [nightly]: https://github.com/gemc/src/actions/workflows/dev_release.yml
 
 [nightly-badge]: https://github.com/gemc/src/actions/workflows/dev_release.yml/badge.svg
+
+[release-tarballs]: https://github.com/gemc/src/actions/workflows/release_tarballs.yml
+
+[release-tarballs-badge]: https://github.com/gemc/src/actions/workflows/release_tarballs.yml/badge.svg
+
+[binary-tarballs]: https://github.com/gemc/src/actions/workflows/binary_tarballs.yml
+
+[binary-tarballs-badge]: https://github.com/gemc/src/actions/workflows/binary_tarballs.yml/badge.svg
+
+[macos-tarball]: https://github.com/gemc/src/actions/workflows/macos_tarball.yml
+
+[macos-tarball-badge]: https://github.com/gemc/src/actions/workflows/macos_tarball.yml/badge.svg
 
 [site]: https://gemc.github.io/home/
 

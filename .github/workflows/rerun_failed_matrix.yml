@@ -9,7 +9,7 @@ env:
 
 on:
   workflow_run:
-    workflows: [ "Test", "Sanitize", "Deploy", "Binary Tarballs" ]
+    workflows: [ "Test", "Sanitize", "Deploy", "Binary Tarballs", "Release Tarballs" ]
     types: [ completed ]
 
 jobs:

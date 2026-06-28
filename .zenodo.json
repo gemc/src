@@ -25,10 +25,10 @@
   ],
   "related_identifiers": [
     {
-      "identifier": "10.1051/epjconf/202429505005",
+      "identifier": "10.1016/j.nima.2020.163422",
       "relation": "isDocumentedBy",
       "scheme": "doi",
-      "resource_type": "publication-conferencepaper"
+      "resource_type": "publication-article"
     },
     {
       "identifier": "https://github.com/gemc/src",

@@ -12,15 +12,18 @@ repository-code: "https://github.com/gemc/src"
 url: "https://gemc.github.io/home/"
 license: Apache-2.0
 preferred-citation:
-  type: conference-paper
-  title: "Geant4 Monte-Carlo (GEMC) A database-driven simulation program"
+  type: article
+  title: "The CLAS12 Geant4 simulation"
   authors:
     - family-names: Ungaro
-      given-names: Maurizio
+      given-names: M.
       orcid: "https://orcid.org/0000-0001-6982-3310"
-  collection-title: "European Physical Journal Web of Conferences"
-  volume: 295
-  year: 2024
-  month: 5
-  doi: "10.1051/epjconf/202429505005"
-  notes: "Article number 05005"
+    - name: "CLAS Collaboration"
+  journal: >-
+    Nuclear Instruments and Methods in Physics Research Section A: Accelerators, Spectrometers, Detectors and
+    Associated Equipment
+  volume: 959
+  year: 2020
+  doi: "10.1016/j.nima.2020.163422"
+  url: "https://www.sciencedirect.com/science/article/pii/S0168900220300279"
+  notes: "Article number 163422; ISSN 0168-9002"

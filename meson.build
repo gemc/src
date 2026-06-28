@@ -28,7 +28,10 @@ test_env.set('PYTHONDONTWRITEBYTECODE', '1')
 LD = []
 all_libs = []
 all_pkgconfig_libs = []
-all_includes = [include_directories('.')]  # source root resolves <gemc/module/header.h> → src/gemc/module/header.h
+# Kept as plain (root-relative) path strings rather than include_directories() objects so the list
+# can be resolved into a single location-independent object below (gemc_includes) for the bin/
+# executable. '.' = source root, which resolves <gemc/module/header.h> → src/gemc/module/header.h.
+all_includes = ['.']
 empty_dict = { 'na' : [''] }
 lib_target_maps = {}
 subdir('meson')
@@ -267,24 +270,27 @@ endforeach
 # compile gemc
 qrc_gemc_sources = qt6.compile_resources(sources : 'qtresources.qrc')
 
-gemc_sources = ['gemc.cc', 'gemc_options.cc']
-gemc = executable(
-    'bin/gemc',
-    gemc_sources + qrc_gemc_sources,
-    install : true,
-    install_dir : get_option('bindir'),
-    dependencies : [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps, assimp_dep, expat_dep, zlib_dep],
-    include_directories : all_includes,
-    link_with : all_libs,
-    # Export the executable's dynamic symbol table (GNU --export-dynamic / -rdynamic, and the
-    # macOS equivalent). CLHEP and Geant4 are linked statically into gemc, so without this their
-    # symbols stay private and dlopen'd .gplugin output/digitization modules fail to resolve them
-    # at load (e.g. "undefined symbol: _Z9_G4cerr_pv", i.e. G4cerr's _G4cerr_p()). Exporting keeps
-    # a single shared copy of G4/CLHEP global state (notably the CLHEP RNG) between gemc and its
-    # plugins, rather than each plugin embedding its own.
-    export_dynamic : true,
-    override_options : ['b_pie=true']
-)
+# Use files() so the source paths resolve from the project root rather than from bin/, where the
+# executable() target is declared (see bin/meson.build).
+gemc_sources = files('gemc.cc', 'gemc_options.cc')
+
+# Resolve the root-relative include path strings in all_includes into a single, location-independent
+# include_directories() object here (in the project-root scope) so it can be used from bin/meson.build,
+# where bare path strings would otherwise be resolved relative to bin/ and fail (e.g. "Include dir
+# gemc/guts does not exist"). Drop the empty-string default entry that '.' already covers.
+gemc_include_dirs = []
+foreach inc : all_includes
+    if inc != ''
+        gemc_include_dirs += inc
+    endif
+endforeach
+gemc_includes = include_directories(gemc_include_dirs)
+
+# The gemc executable is declared in bin/meson.build so that its build output lands at
+# build/bin/gemc. Declaring it here with a 'bin/gemc' target name instead triggers a Meson warning
+# ("Target has a path separator in its name ... will become a hard error"), and naming it just
+# 'gemc' would collide with the build/gemc/ directory created by the subdir('gemc/...') calls above.
+subdir('bin')
 
 pkg = import('pkgconfig')
 pkgconfig_prog = find_program('pkg-config', 'pkgconf', required : true)

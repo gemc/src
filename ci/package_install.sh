@@ -105,11 +105,22 @@ fi
 
 while IFS='=' read -r env_name env_path; do
   [[ -n "${env_name}" && -n "${env_path}" ]] || continue
-  if [[ ! -d "${env_path}" ]]; then
-    echo "Geant4 data environment variable ${env_name} points to a missing directory: ${env_path}" >&2
-    exit 1
-  fi
+  # The dataset records only need the dataset directory NAME (basename): it is what drives the gemc
+  # tarball's own gemc.env / install_geant4_data.sh, which download the data fresh on the end-user
+  # machine. So a G4*DATA pointing at a directory that does not exist here is not fatal. A relocated
+  # Geant4 tarball (the macOS flow) exports G4*DATA pointing at the original build tree, which is
+  # gone after relocation; prefer the actual relocated data dir under GEANT4_DATA_DIR when present,
+  # otherwise just warn and keep the (still-correct) dataset name.
   data_dir_name="$(basename "${env_path}")"
+  if [[ ! -d "${env_path}" ]]; then
+    relocated="${GEANT4_DATA_DIR:+${GEANT4_DATA_DIR}/${data_dir_name}}"
+    if [[ -n "${relocated}" && -d "${relocated}" ]]; then
+      env_path="${relocated}"
+    else
+      echo "Warning: Geant4 data ${env_name} directory not found (${env_path}); using dataset name" \
+           "'${data_dir_name}' for the package descriptors." >&2
+    fi
+  fi
   archive_name="$(archive_name_from_data_dir "${data_dir_name}")"
   geant4_dataset_records+=( "${env_name}|${archive_name}|${data_dir_name}" )
 done < <(env | LC_ALL=C sort | grep -E '^G4[A-Z0-9_]*DATA=' || true)
@@ -259,7 +270,8 @@ python3 -m pip install pygemc
 
 ## Geant4 data
 
-GEMC is statically linked against Geant4, so the Geant4 shared libraries are not included. Geant4 still loads physics data at runtime. Run:
+GEMC is statically linked against Geant4, so the Geant4 shared libraries are not included.
+Geant4 still loads physics data at runtime. Run:
 
 \`\`\`bash
 ./install_geant4_data.sh
