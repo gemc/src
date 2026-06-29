@@ -831,13 +831,13 @@ void GTree::inspectVolume() {
 }
 
 
-// Warn that /vis/drawLogicalVolume is not yet usable due to a Geant4 11.4.1 TOOLSSG bug.
+// Warn that /vis/drawLogicalVolume is not yet usable due to a Geant4 11.4.2 TOOLSSG bug.
 void GTree::drawOverlapsWarning() {
     QMessageBox::warning(this,
         tr("Not yet implemented"),
         tr("Draw Logical Overlaps will be implemented when Geant4 fixes the\n"
            "G4ToolsSGSceneHandler::GetOrCreateNode \"World mis-match\" crash\n"
-           "triggered by /vis/drawLogicalVolume in Geant4 11.4.1."));
+           "triggered by /vis/drawLogicalVolume in Geant4 11.4.2."));
 }
 
 

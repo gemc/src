@@ -19,7 +19,7 @@ fi
 
 install_prefix="${1:-${SIM_HOME:?SIM_HOME not set}/gemc/dev}"
 output_dir="${2:-${repo_root}/dist}"
-geant4_version="${GEANT4_VERSION:-11.4.1}"
+geant4_version="${GEANT4_VERSION:-11.4.2}"
 arch="$(uname -m)"
 case "${arch}" in
   x86_64) arch=amd64 ;;

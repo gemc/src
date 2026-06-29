@@ -364,7 +364,7 @@ private:
     /**
      * \brief Full-width button that will invoke /vis/drawLogicalVolume for overlap visualization.
      *
-     * Not yet functional: blocked by a Geant4 11.4.1 TOOLSSG bug
+     * Not yet functional: blocked by a Geant4 11.4.2 TOOLSSG bug
      * (G4ToolsSGSceneHandler::GetOrCreateNode throws "World mis-match" FatalException
      * for the standalone PVPlacement created by G4LogicalVolumeModel).
      * Displays a warning until the upstream fix is available.
@@ -518,7 +518,7 @@ private slots:
     /**
      * \brief Show a warning that Draw Logical Overlaps is not yet implemented.
      *
-     * /vis/drawLogicalVolume crashes in Geant4 11.4.1 with the TOOLSSG driver
+     * /vis/drawLogicalVolume crashes in Geant4 11.4.2 with the TOOLSSG driver
      * (G4ToolsSGSceneHandler::GetOrCreateNode "World mis-match" FatalException).
      * This slot will be wired to the real implementation once Geant4 is fixed.
      */

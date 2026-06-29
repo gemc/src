@@ -28,7 +28,7 @@ env:
   # child still referenced by a live tag; an unreferenced (orphaned) child is deleted once it is older than
   # this grace window. The grace avoids racing an in-progress multi-arch push whose index manifest, and thus
   # the link to its children, is not yet readable.
-  UNTAGGED_ORPHAN_GRACE_DAYS: 1
+  UNTAGGED_ORPHAN_GRACE_DAYS: 3
 
 jobs:
   cleanup:

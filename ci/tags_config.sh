@@ -3,7 +3,7 @@
 # Shared CI image matrix configuration. Keep container and library versions here
 # so deploy/test and sanitizer workflows exercise the same base images.
 
-get_geant4_tags() { echo "11.4.1"; } # space separated list.
+get_geant4_tags() { echo "11.4.2"; } # space separated list.
 get_gemc_tags() { echo "dev"; }
 get_cpu_architectures() { echo "arm64 amd64"; } # space separated list.
 

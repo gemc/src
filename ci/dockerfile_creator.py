@@ -26,12 +26,39 @@ def remote_entrypoint_addon():
     return f'{remote_startup_dir()}/additional-entrycommands.sh'
 
 
+def gemc_path_export() -> str:
+    return (
+        "export PATH=\\${SIM_HOME}/gemc/dev/bin:"
+        "\\${SIM_HOME}/gemc/dev/python_env/bin:\\${PATH}"
+    )
+
+
 def docker_header(image: str, image_tag: str, geant4_tag: str) -> str:
     commands = f"FROM {g4_registry}:{geant4_tag}-{image}-{image_tag} AS final\n"
     commands += f"LABEL maintainer=\"Maurizio Ungaro <ungaro@jlab.org>\"\n\n"
     commands += f"# run bash instead of sh\n"
     commands += f"SHELL [\"/bin/bash\", \"-c\"]\n\n"
     commands += f"ENV AUTOBUILD=1\n"
+    return commands
+
+
+def update_os_packages(image: str) -> str:
+    commands = "\n# update OS packages from the base image \n"
+    if image in ["debian", "ubuntu"]:
+        commands += "RUN  apt-get update \\\n"
+        commands += "     && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \\\n"
+        commands += "     && rm -rf /var/lib/apt/lists/* \n"
+    elif image in ["fedora", "almalinux"]:
+        commands += "RUN  dnf upgrade -y \\\n"
+        commands += "     && dnf clean all \\\n"
+        commands += "     && rm -rf /var/cache/dnf \n"
+    elif image == "archlinux":
+        commands += "RUN  pacman -Syu --noconfirm \\\n"
+        commands += "     && pacman -Scc --noconfirm \n"
+    else:
+        print(f"Error: unsupported package update for image '{image}'")
+        print(f"Valid images: {available_images()}")
+        exit(1)
     return commands
 
 
@@ -42,7 +69,7 @@ def install_gemc(geant4_version: str, gemc_version: str, source: str) -> str:
         commands += f"     && DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . {remote_entrypoint()} \\\n"
         commands += f'     && module load geant4/{geant4_version} \\\n'
         commands += f'     &&  ./ci/build.sh  \\\n'
-        commands += f'     && echo "export PATH=\\${{SIM_HOME}}/gemc/dev/bin:\\${{SIM_HOME}}/gemc/dev/python_env/bin:\\${{PATH}}" >> {remote_entrypoint_addon()} \n'
+        commands += f'     && echo "{gemc_path_export()}" >> {remote_entrypoint_addon()} \n'
         return commands
 
     clone_arguments = f'-c advice.detachedHead=false --recurse-submodules --single-branch'
@@ -55,11 +82,17 @@ def install_gemc(geant4_version: str, gemc_version: str, source: str) -> str:
     commands += f"     && DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . {remote_entrypoint()} \\\n"
     commands += f'     && module load geant4/{geant4_version} \\\n'
     commands += f'     &&  ./ci/build.sh  \\\n'
-    commands += f'     && echo "export PATH=\\${{SIM_HOME}}/gemc/dev/bin:\\${{SIM_HOME}}/gemc/dev/python_env/bin:\\${{PATH}}" >> {remote_entrypoint_addon()} \n'
+    commands += f'     && echo "{gemc_path_export()}" >> {remote_entrypoint_addon()} \n'
     return commands
 
 
-def package_install(geant4_version: str, gemc_version: str, image: str, image_tag: str, package_arch: str) -> str:
+def package_install(
+    geant4_version: str,
+    gemc_version: str,
+    image: str,
+    image_tag: str,
+    package_arch: str,
+) -> str:
     package_name = f'gemc-{gemc_version}-geant4-{geant4_version}-{image}-{image_tag}-{package_arch}'
     commands = '\n# release tarball build \n'
     commands += 'FROM final AS package-build \n'
@@ -97,6 +130,7 @@ def create_dockerfile(
 ) -> str:
     commands = ""
     commands += docker_header(image, image_tag, geant4_version)
+    commands += update_os_packages(image)
     commands += install_gemc(geant4_version, gemc_version, source)
     commands += log_exporters()
     if with_package:
@@ -112,8 +146,14 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Print a dockerfile with install commands for a given base image and tag, gemc and geant4 versions",
-        epilog="Example: python3 ./ci/dockerfile_creator.py -i fedora -t 42 --geant4-version 11.4.1 --gemc-version dev"
+        description=(
+            "Print a dockerfile with install commands for a given base image and tag, gemc and "
+            "geant4 versions"
+        ),
+        epilog=(
+            "Example: python3 ./ci/dockerfile_creator.py -i fedora -t 42 --geant4-version 11.4.2 "
+            "--gemc-version dev"
+        )
     )
     # Required *conceptually*, but we want: if missing, show usage (not a long error)
     parser.add_argument(
@@ -125,7 +165,7 @@ def main():
         help="Base image tag (e.g., 42 for fedora, 24.04 for ubuntu, etc.)"
     )
     parser.add_argument(
-        "--geant4-version", default="11.4.1",
+        "--geant4-version", default="11.4.2",
         help="Version of Geant4 to install (default: %(default)s)"
     )
     parser.add_argument(

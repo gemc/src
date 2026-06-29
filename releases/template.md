@@ -53,7 +53,7 @@ Both x86_64 and ARM64 platforms are supported.
 
 ## Dependencies
 
-- Geant4: 11.4.1 or higher
+- Geant4: 11.4.2 or higher
 - CLHEP: 2.4.6.0 or higher
 - Xerces-C: 3.2 or higher
 

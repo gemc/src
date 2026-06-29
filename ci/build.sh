@@ -3,7 +3,7 @@
 # Purpose: compiles gemc with optional sanitizers or debugging options.
 
 # Container run:
-# docker run --rm -it  ghcr.io/gemc/g4install:11.4.1-ubuntu-24.04  bash -li
+# docker run --rm -it  ghcr.io/gemc/g4install:11.4.2-ubuntu-24.04  bash -li
 # git clone http://github.com/gemc/src /root/src && cd /root/src
 # ./ci/build.sh
 
