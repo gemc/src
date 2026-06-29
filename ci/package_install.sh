@@ -97,7 +97,17 @@ geant4_dataset_records=()
 # already exported. A relocated geant4.env (the macOS tarball flow) exports them
 # pointing at the data it actually installed; geant4-config instead reports the
 # absolute paths baked in at build time, which do not exist after relocation.
-if ! env | grep -qE '^G4[A-Z0-9_]*DATA='; then
+# Do not use `env | grep -q` here: with pipefail, grep's early exit can give env
+# SIGPIPE and make a successful match look like a failed pipeline.
+geant4_data_env_found=false
+for env_name in "${!G4@}"; do
+  if [[ "${env_name}" =~ ^G4[A-Z0-9_]*DATA$ && -n "${!env_name:-}" ]]; then
+    geant4_data_env_found=true
+    break
+  fi
+done
+
+if [[ "${geant4_data_env_found}" == false ]]; then
   if command -v geant4-config >/dev/null 2>&1; then
     eval "$(geant4-config --sh)"
   fi
@@ -208,7 +218,8 @@ for record in "${geant4_dataset_records[@]}"; do
   rest="${record#*|}"
   archive_name="${rest%%|*}"
   data_dir_name="${rest#*|}"
-  printf '  "%s|%s|%s"\n' "${env_name}" "${archive_name}" "${data_dir_name}" >> "${package_root}/install_geant4_data.sh"
+  printf '  "%s|%s|%s"\n' "${env_name}" "${archive_name}" "${data_dir_name}" \
+    >> "${package_root}/install_geant4_data.sh"
 done
 
 cat >> "${package_root}/install_geant4_data.sh" <<'EOF'
@@ -262,7 +273,8 @@ chmod +x "${package_root}/install_geant4_data.sh"
 cat > "${package_root}/INSTALL_TARBALL.md" <<EOF
 # GEMC tarball installation
 
-This archive contains the GEMC install tree without \`python_env\`. Install pygemc with pip when you need the Python API:
+This archive contains the GEMC install tree without \`python_env\`. Install pygemc with pip when you need the
+Python API:
 
 \`\`\`bash
 python3 -m pip install pygemc
