@@ -6,10 +6,10 @@
 # unpacks it, downloads the Geant4 physics data, then compiles and tests GEMC
 # exactly as the Linux container does (via ci/build.sh). The resulting install
 # tree is repackaged with ci/package_install.sh into a relocatable GEMC tarball
-# that is attached to the rolling "dev" prerelease.
+# that is attached to the selected GEMC release.
 name: macOS GEMC Binary Tarball
 
-run-name: macOS GEMC binary tarball
+run-name: macOS GEMC binary tarball for ${{ inputs.gemc_release_tag || 'dev' }}
 
 permissions:
   contents: write
@@ -26,14 +26,15 @@ on:
     - cron: '0 5 * * *'
   workflow_dispatch:
     inputs:
+      gemc_release_tag:
+        description: 'GEMC release tag to build or create, such as 0.3'
+        required: false
+        default: 'dev'
+        type: string
       geant4_tarball_repo:
         description: 'Repository hosting the Geant4 macOS tarball release'
         required: false
         default: 'gemc/g4install'
-      geant4_tarball_tag:
-        description: 'Release tag holding the Geant4 macOS tarball'
-        required: false
-        default: 'dev'
 
 jobs:
   build-tarball:
@@ -43,13 +44,29 @@ jobs:
     # OSRELEASE, independent of the macOS the Geant4 tarball was built on.
     runs-on: macos-26
     env:
-      TAG_NAME: dev
+      TAG_NAME: ${{ inputs.gemc_release_tag || 'dev' }}
       GEANT4_TARBALL_REPO: ${{ github.event.inputs.geant4_tarball_repo || 'gemc/g4install' }}
-      GEANT4_TARBALL_TAG: ${{ github.event.inputs.geant4_tarball_tag || 'dev' }}
+      GEANT4_TARBALL_TAG: dev
     steps:
+      - id: source
+        name: Resolve GEMC source ref
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG_NAME}" >/dev/null 2>&1; then
+            echo "ref=refs/tags/${TAG_NAME}" >> "$GITHUB_OUTPUT"
+            echo "tag_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+            echo "tag_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
+          ref: ${{ steps.source.outputs.ref }}
           # Full history so ci/gemc_version.sh / git describe behave like the
           # other build jobs.
           fetch-depth: 0
@@ -110,7 +127,11 @@ jobs:
           # CLHEP (and Xerces-C) through pkg-config, so expose those .pc dirs.
           # Homebrew's sqlite/expat/zlib are keg-only, so add their .pc dirs and
           # qt6's too.
-          export PKG_CONFIG_PATH="${CLHEP_BASE_DIR}/lib/pkgconfig:${XERCESCROOT}/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+          pkg_config_path="${CLHEP_BASE_DIR}/lib/pkgconfig:${XERCESCROOT}/lib/pkgconfig"
+          if [[ -n "${PKG_CONFIG_PATH:-}" ]]; then
+            pkg_config_path="${pkg_config_path}:${PKG_CONFIG_PATH}"
+          fi
+          export PKG_CONFIG_PATH="${pkg_config_path}"
           for f in qt sqlite expat zlib; do
             export PKG_CONFIG_PATH="$(brew --prefix ${f})/lib/pkgconfig:${PKG_CONFIG_PATH}"
           done
@@ -141,8 +162,8 @@ jobs:
           ./ci/build.sh
 
           # --- Repackage the install tree into a relocatable GEMC tarball -----
-          package_name="gemc-$(ci/gemc_version.sh)-geant4-${g4ver}-${osrelease}"
-          GEANT4_VERSION="${g4ver}" \
+          package_name="gemc-${TAG_NAME}-geant4-${g4ver}-${osrelease}"
+          GEANT4_VERSION="${g4ver}" GEMC_PACKAGE_VERSION="${TAG_NAME}" \
             ci/package_install.sh "${SIM_HOME}/gemc/dev" dist "${package_name}"
 
           echo "package_name=${package_name}" >> "$GITHUB_OUTPUT"
@@ -169,7 +190,7 @@ jobs:
           path: ${{ steps.build.outputs.tarball }}
           if-no-files-found: error
 
-      - name: Attach tarball to dev release
+      - name: Attach tarball to GEMC release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -177,10 +198,24 @@ jobs:
         run: |
           set -euo pipefail
           tarball="${{ steps.build.outputs.tarball }}"
-          gh release view "${TAG_NAME}" --repo "$REPO" >/dev/null 2>&1 || \
-            gh release create "${TAG_NAME}" \
-              --repo "$REPO" \
-              --title "Dev Nightly" \
-              --prerelease \
-              --notes "Dev nightly release."
+          if ! gh release view "${TAG_NAME}" --repo "$REPO" >/dev/null 2>&1; then
+            target=()
+            if [[ "${{ steps.source.outputs.tag_exists }}" == "false" ]]; then
+              target=(--target "${{ steps.source.outputs.ref }}")
+            fi
+            if [[ "${TAG_NAME}" == "dev" ]]; then
+              gh release create "${TAG_NAME}" \
+                --repo "$REPO" \
+                --title "Dev Nightly" \
+                --prerelease \
+                --notes "Dev nightly release." \
+                "${target[@]}"
+            else
+              gh release create "${TAG_NAME}" \
+                --repo "$REPO" \
+                --title "${TAG_NAME}" \
+                --notes "Automated release ${TAG_NAME}." \
+                "${target[@]}"
+            fi
+          fi
           gh release upload "${TAG_NAME}" --repo "$REPO" "${tarball}" --clobber
