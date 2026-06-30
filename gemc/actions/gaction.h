@@ -74,6 +74,7 @@ inline GOptions defineOptions() {
  *   It registers:
  *   - GPrimaryGeneratorAction
  *   - GRunAction
+ *   - GTrackingAction when track provenance output is enabled
  *   - GEventAction
  * - \ref GAction::BuildForMaster "BuildForMaster()" is invoked for the master thread.
  *   It registers:
@@ -81,8 +82,8 @@ inline GOptions defineOptions() {
  *
  * This split mirrors the Geant4 execution model:
  * - The master thread coordinates the run and can execute run-level hooks.
- * - Worker threads execute event processing and therefore require generator
- *   and event actions in addition to the run action.
+ * - Worker threads execute event processing and therefore require generator and event actions,
+ *   plus the optional tracking action, in addition to the run action.
  *
  * Internally, this class stores the shared configuration object and the shared
  * digitization-routine map so that every action created by this initializer
@@ -117,6 +118,7 @@ public:
 	 * The registration order used here is:
 	 * - GPrimaryGeneratorAction, to generate event primaries.
 	 * - GRunAction, to manage run begin/end hooks and create GRun.
+	 * - GTrackingAction, when enabled, to capture worker-local track provenance.
 	 * - GEventAction, to process hit collections, digitize them, and publish event data.
 	 *
 	 * The event action receives the run-action instance created in this method so it

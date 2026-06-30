@@ -25,3 +25,8 @@ bool GstreamerRootFactory::publishEventGeneratedParticlesImpl(const std::string&
 	const auto& generatedTree = getOrInstantiateGeneratedParticleTree(bankName, particles);
 	return generatedTree->fillTree(particles);
 }
+
+bool GstreamerRootFactory::publishEventAncestorsImpl(const GAncestorBank& ancestors) {
+	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
+	return getOrInstantiateAncestorTree(ancestors)->fillTree(ancestors);
+}

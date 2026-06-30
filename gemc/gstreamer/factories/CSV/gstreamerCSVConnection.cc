@@ -59,11 +59,13 @@ bool GstreamerCsvFactory::openConnection() {
 
 bool GstreamerCsvFactory::closeConnectionImpl() {
 	// The public closeConnection() wrapper already flushes buffered events before this method runs.
+	const bool had_ancestor_stream = ofile_ancestors.is_open();
 
 	if (ofile_true_info.is_open()) ofile_true_info.close();
 	if (ofile_digitized.is_open()) ofile_digitized.close();
 	if (ofile_generated.is_open()) ofile_generated.close();
 	if (ofile_generated_tracked.is_open()) ofile_generated_tracked.close();
+	if (ofile_ancestors.is_open()) ofile_ancestors.close();
 
 	if (ofile_true_info.is_open()) {
 		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_true_info());
@@ -77,11 +79,17 @@ bool GstreamerCsvFactory::closeConnectionImpl() {
 	if (ofile_generated_tracked.is_open()) {
 		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_generated_tracked());
 	}
+	if (ofile_ancestors.is_open()) {
+		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename_ancestors());
+	}
 
 	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_true_info());
 	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_digitized());
 	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_generated());
 	log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_generated_tracked());
+	if (had_ancestor_stream) {
+		log->info(1, SFUNCTION_NAME, "GstreamerCsvFactory: closed file " + filename_ancestors());
+	}
 
 	return true;
 }
@@ -111,5 +119,24 @@ bool GstreamerCsvFactory::publishEventGeneratedParticlesImpl(const std::string& 
 		       << particle.vz << "\n";
 	}
 
+	return true;
+}
+
+bool GstreamerCsvFactory::publishEventAncestorsImpl(const GAncestorBank& ancestors) {
+	if (!ofile_ancestors.is_open()) {
+		ofile_ancestors.open(filename_ancestors(), std::ios::out | std::ios::trunc);
+		if (!ofile_ancestors.is_open() || !ofile_ancestors) {
+			log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename_ancestors());
+		}
+		ofile_ancestors << "evn, timestamp, thread_id, pid, tid, mtid, trackE, px, py, pz, vx, vy, vz\n";
+	}
+
+	for (const auto& ancestor : ancestors) {
+		ofile_ancestors << event_number << ", " << timestamp << ", " << thread_id << ", "
+		                << ancestor.pid << ", " << ancestor.tid << ", " << ancestor.mtid << ", "
+		                << ancestor.trackE << ", " << ancestor.px << ", " << ancestor.py << ", "
+		                << ancestor.pz << ", " << ancestor.vx << ", " << ancestor.vy << ", "
+		                << ancestor.vz << "\n";
+	}
 	return true;
 }

@@ -101,6 +101,10 @@ void run_simulation_in_threads(int                                              
 				// Build one event collection with a thread-specific header.
 				auto gevent_header = GEventHeader::create(gopts, tid);
 				auto eventData     = std::make_shared<GEventDataCollection>(gopts, std::move(gevent_header));
+				eventData->setAncestors({
+					{11, 1, 0, 1000.0, 0.0, 0.0, 1000.0, 0.0, 0.0, 0.0},
+					{22, 2, 1, 500.0, 10.0, 0.0, 490.0, 1.0, 2.0, 3.0}
+				});
 
 				// Populate a small synthetic detector dataset.
 				for (unsigned i = 1; i < 11; i++) {

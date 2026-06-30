@@ -88,6 +88,10 @@ void GStreamer::flushEventBuffer() {
 		log->info(2, SFUNCTION_NAME, "->publishEventGeneratedParticles -> generated_tracked: ",
 		          gutilities::success_or_fail(publishEventGeneratedParticles("generated_tracked",
 		                                                                     eventData->getGeneratedTrackedParticles())));
+		if (eventData->hasAncestorBank()) {
+			log->info(2, SFUNCTION_NAME, "->publishEventAncestors: ",
+			          gutilities::success_or_fail(publishEventAncestors(eventData->getAncestors())));
+		}
 
 		// Publish one detector collection at a time.
 		for (const auto& [sdname, gDataCollection] : eventData->getDataCollectionMap()) {

@@ -220,6 +220,18 @@ The output layer is plugin-based. Built-in streamer formats include:
 | `json`  | Structured event output                                                                                          |
 | `root`  | ROOT TTrees, available when GEMC is built with ROOT                                                              |
 
+Upcoming in the next release, track provenance can be enabled for event output:
+
+```shell
+gemc counter.yaml -save_original_track
+gemc counter.yaml -save_all_ancestors
+```
+
+`-save_original_track` populates `otid` in each true-information hit. `-save_all_ancestors` also enables
+original-track IDs and writes a deduplicated `ancestors` bank containing each hit-producing track and its
+complete parent chain. CSV output uses a separate `_ancestors.csv` file; ASCII, JSON, and ROOT include the bank
+in their event output.
+
 
 `pygemc` provides some utitlities to analyze CSV or ROOT output. For example:
 

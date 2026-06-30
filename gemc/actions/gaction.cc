@@ -3,6 +3,8 @@
 #include "event/gEventAction.h"
 #include "generator/gPrimaryGeneratorAction.h"
 #include "run/gRunAction.h"
+#include "tracking/gTrackProvenance.h"
+#include "tracking/gTrackingAction.h"
 #include "gparticle_options.h"
 
 // Construct the action initializer and keep shared services available for later
@@ -45,6 +47,13 @@ void GAction::Build() const {
 	auto* run_action = new GRunAction(goptions, digitization_routines_map);
 	SetUserAction(run_action);
 
+	std::shared_ptr<GTrackProvenance> track_provenance;
+	const bool save_ancestors = goptions->getSwitch(SAVE_ALL_ANCESTORS_SWITCH);
+	if (goptions->getSwitch(SAVE_ORIGINAL_TRACK_SWITCH) || save_ancestors) {
+		track_provenance = std::make_shared<GTrackProvenance>(save_ancestors);
+		SetUserAction(new GTrackingAction(track_provenance));
+	}
+
 	// The event action consumes the run action as a non-owning dependency.
-	SetUserAction(new GEventAction(goptions, run_action));
+	SetUserAction(new GEventAction(goptions, run_action, track_provenance));
 }

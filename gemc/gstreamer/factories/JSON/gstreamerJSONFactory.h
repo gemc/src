@@ -30,6 +30,7 @@
  * This allows the plugin to receive event header, detector true-information, and detector digitized
  * content in a well-defined order and serialize them into one structured JSON entry.
  * Generated-particle banks are written under the event-level \c "generated" object.
+ * Requested track provenance is written under the event-level \c "ancestors" array.
  *
  * The plugin performs lightweight JSON escaping internally and intentionally avoids introducing an
  * external JSON dependency.
@@ -124,6 +125,9 @@ private:
 	 */
 	bool publishEventGeneratedParticlesImpl(const std::string& bankName,
 	                                        const GGeneratedParticleBank& particles) override;
+
+	/** \brief Append the event ancestor bank to the current JSON object. */
+	bool publishEventAncestorsImpl(const GAncestorBank& ancestors) override;
 
 	/**
 	 * \brief Begin assembly of one JSON frame record.

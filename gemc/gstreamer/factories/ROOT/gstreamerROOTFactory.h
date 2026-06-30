@@ -26,6 +26,7 @@
  * - one digitized tree is created lazily per detector
  * - generated-particle trees are created lazily for \c generated and
  *   \c generated_tracked banks
+ * - an \c ancestors tree is created lazily when track provenance output is requested
  *
  * Tree creation is demand-driven. The first hit seen for a detector determines the variable schema
  * used to build the corresponding \c TTree via GRootTree.
@@ -112,6 +113,9 @@ private:
 	bool publishEventGeneratedParticlesImpl(const std::string& bankName,
 	                                        const GGeneratedParticleBank& particles) override;
 
+	/** \brief Publish the event ancestor bank into the ancestors tree. */
+	bool publishEventAncestorsImpl(const GAncestorBank& ancestors) override;
+
 	/**
 	 * \brief Begin one run publication cycle.
 	 *
@@ -196,6 +200,7 @@ private:
 	 */
 	const std::unique_ptr<GRootTree>& getOrInstantiateGeneratedParticleTree(const std::string& treeName,
 	                                                                        const GGeneratedParticleBank& particles);
+	const std::unique_ptr<GRootTree>& getOrInstantiateAncestorTree(const GAncestorBank& ancestors);
 
 	/// \brief Map of lazily created ROOT trees keyed by logical tree name.
 	std::unordered_map<std::string, std::unique_ptr<GRootTree>> gRootTrees;

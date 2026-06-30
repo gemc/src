@@ -11,11 +11,13 @@
 // gemc
 #include "event/gEventDataCollection.h"
 #include "../generator/gPrimaryGeneratorAction.h"
+#include "../tracking/gTrackProvenance.h"
 
 // c++
 #include <algorithm>
 #include <cctype>
 #include <chrono>
+#include <unordered_set>
 
 namespace {
 GGeneratedParticleBank make_generated_particle_bank(const GParticleRecordEvent& particles) {
@@ -37,6 +39,26 @@ GGeneratedParticleBank make_generated_particle_bank(const GParticleRecordEvent& 
 		});
 	}
 
+	return bank;
+}
+
+GAncestorBank make_ancestor_bank(const std::vector<GTrackRecord>& records) {
+	GAncestorBank bank;
+	bank.reserve(records.size());
+	for (const auto& record : records) {
+		bank.push_back({
+			record.pid,
+			record.tid,
+			record.mtid,
+			record.kinetic_energy,
+			record.momentum.x(),
+			record.momentum.y(),
+			record.momentum.z(),
+			record.vertex.x(),
+			record.vertex.y(),
+			record.vertex.z()
+		});
+	}
 	return bank;
 }
 
@@ -63,13 +85,17 @@ bool to_non_negative_int(const std::string& text, int& out) {
 
 // Construct the event action and keep access to shared configuration plus the
 // non-owning thread-local run action used during event finalization.
-GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a) :
+GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a,
+	                       std::shared_ptr<GTrackProvenance> provenance) :
 	GBase(gopt, EVENTACTION_LOGGER),
 	goptions(gopt),
-	run_action(run_a) {
+	run_action(run_a),
+	track_provenance(std::move(provenance)) {
 	const auto thread_id = G4Threading::G4GetThreadId();
 	const auto desc      = "GEventAction " + std::to_string(thread_id);
 	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
+	save_all_ancestors  = goptions->getSwitch(SAVE_ALL_ANCESTORS_SWITCH);
+	save_original_track = goptions->getSwitch(SAVE_ORIGINAL_TRACK_SWITCH) || save_all_ancestors;
 
 	// Parse the log_every option of the form N or N-NTH. Anything malformed disables the
 	// feature and is reported once (from thread 0) to avoid duplicated warnings across workers.
@@ -134,6 +160,7 @@ void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) {
 	const auto event_id  = event->GetEventID();
 
 	log->debug(NORMAL, FUNCTION_NAME, " event id ", event_id, " in thread ", thread_id);
+	if (track_provenance != nullptr) { track_provenance->clear(); }
 
 	log_event_start(thread_id);
 }
@@ -179,6 +206,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	bool has_event_mode_payload = false;
 	bool has_run_mode_payload   = false;
 	const bool also_reject_true_info = scalar_bool_option_enabled(goptions, "also_reject_true_info");
+	std::unordered_set<int> ancestor_track_ids;
 
 	// Loop over every hit collection produced during this event and dispatch each
 	// collection to the digitization routine registered under its collection name.
@@ -223,6 +251,10 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 			if (this_hit == nullptr) {
 				continue;
 			}
+			if (save_all_ancestors) {
+				const auto track_ids = this_hit->getTids();
+				ancestor_track_ids.insert(track_ids.begin(), track_ids.end());
+			}
 
 			auto digi_data = digitization_routine->digitizeHit(this_hit, hitIndex);
 			const bool hit_accepted = digi_data != nullptr;
@@ -236,6 +268,9 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 				if (hit_accepted || !also_reject_true_info) {
 					const size_t output_hit_index = hit_accepted ? accepted_hit_index : hitIndex + 1;
 					auto true_data = digitization_routine->collectTrueInformation(this_hit, output_hit_index);
+					if (save_original_track && track_provenance != nullptr && true_data != nullptr) {
+						true_data->includeVariable("otid", track_provenance->originalTrackId(this_hit->getTid()));
+					}
 					eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
 					has_event_mode_payload = true;
 				}
@@ -251,6 +286,11 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 		}
 	}
 
+	if (save_all_ancestors && track_provenance != nullptr) {
+		eventDataCollection->setAncestors(
+			make_ancestor_bank(track_provenance->ancestorsForTracks(ancestor_track_ids)));
+	}
+
 	// Record whether this event contributed at least one run-mode payload entry.
 	if (has_run_mode_payload) {
 		run_action->increment_run_events_with_payload();
@@ -258,6 +298,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 
 	// Publish event-mode output once, after all collections have been processed.
 	if (has_event_mode_payload ||
+	    !eventDataCollection->getAncestors().empty() ||
 	    !eventDataCollection->getGeneratedParticles().empty() ||
 	    !eventDataCollection->getGeneratedTrackedParticles().empty()) {
 		publish_event_data(eventDataCollection);

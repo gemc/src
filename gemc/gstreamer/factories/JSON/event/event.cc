@@ -132,3 +132,31 @@ bool GstreamerJsonFactory::publishEventGeneratedParticlesImpl(const std::string&
 
 	return true;
 }
+
+bool GstreamerJsonFactory::publishEventAncestorsImpl(const GAncestorBank& ancestors) {
+	if (!is_building_event) {
+		log->error(ERR_PUBLISH_ERROR,
+		           "publishEventAncestorsImpl called without an active event in GstreamerJsonFactory");
+		return false;
+	}
+
+	current_event << ", \"ancestors\": [";
+	bool first = true;
+	for (const auto& ancestor : ancestors) {
+		if (!first) { current_event << ", "; }
+		first = false;
+		current_event << "{\"pid\": " << ancestor.pid
+		              << ", \"tid\": " << ancestor.tid
+		              << ", \"mtid\": " << ancestor.mtid
+		              << ", \"trackE\": " << ancestor.trackE
+		              << ", \"px\": " << ancestor.px
+		              << ", \"py\": " << ancestor.py
+		              << ", \"pz\": " << ancestor.pz
+		              << ", \"vx\": " << ancestor.vx
+		              << ", \"vy\": " << ancestor.vy
+		              << ", \"vz\": " << ancestor.vz
+		              << "}";
+	}
+	current_event << "]";
+	return true;
+}

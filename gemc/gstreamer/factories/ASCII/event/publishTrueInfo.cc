@@ -55,3 +55,25 @@ bool GstreamerTextFactory::publishEventGeneratedParticlesImpl(const std::string&
 	ofile << GTAB << "}\n";
 	return true;
 }
+
+bool GstreamerTextFactory::publishEventAncestorsImpl(const GAncestorBank& ancestors) {
+	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
+
+	ofile << GTAB << "Ancestor Bank {\n";
+	for (const auto& ancestor : ancestors) {
+		ofile << GTABTAB << "Track {\n";
+		ofile << GTABTABTAB << "pid: " << ancestor.pid << "\n";
+		ofile << GTABTABTAB << "tid: " << ancestor.tid << "\n";
+		ofile << GTABTABTAB << "mtid: " << ancestor.mtid << "\n";
+		ofile << GTABTABTAB << "trackE: " << ancestor.trackE << "\n";
+		ofile << GTABTABTAB << "px: " << ancestor.px << "\n";
+		ofile << GTABTABTAB << "py: " << ancestor.py << "\n";
+		ofile << GTABTABTAB << "pz: " << ancestor.pz << "\n";
+		ofile << GTABTABTAB << "vx: " << ancestor.vx << "\n";
+		ofile << GTABTABTAB << "vy: " << ancestor.vy << "\n";
+		ofile << GTABTABTAB << "vz: " << ancestor.vz << "\n";
+		ofile << GTABTAB << "}\n";
+	}
+	ofile << GTAB << "}\n";
+	return true;
+}

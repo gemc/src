@@ -16,6 +16,8 @@
 #define TRUEINFONAMEPREFIX  "true_info_"
 #define DIGITIZEDNAMEPREFIX "digitized_"
 #define GENERATEDTREENAMEDESC "Generated Particles"
+#define ANCESTORTREENAME "ancestors"
+#define ANCESTORTREENAMEDESC "Geant4 Ancestors"
 
 #define ERR_GSTREAMERROOTTREENOTFOUND 850
 
@@ -117,6 +119,9 @@ public:
 	 */
 	GRootTree(const std::string& treeName, const GGeneratedParticleBank& particles, std::shared_ptr<GLogger>& log);
 
+	/** \brief Construct the fixed-schema ancestor tree. */
+	GRootTree(const GAncestorBank& ancestors, std::shared_ptr<GLogger>& log);
+
 	/**
 	 * \brief Fill the event-header tree with one event header entry.
 	 *
@@ -165,6 +170,9 @@ public:
 	 * \return \c true on success.
 	 */
 	bool fillTree(const GGeneratedParticleBank& particles);
+
+	/** \brief Fill the ancestor tree with one event bank. */
+	bool fillTree(const GAncestorBank& ancestors);
 
 private:
 	/// \brief Owned ROOT tree instance receiving all branch data.

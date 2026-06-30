@@ -116,6 +116,17 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateGenerate
 	return treePtr;
 }
 
+const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateAncestorTree(
+	const GAncestorBank& ancestors) {
+	rootfile->cd();
+	auto& tree_ptr = gRootTrees[ANCESTORTREENAME];
+	if (!tree_ptr) {
+		log->info(2, "GstreamerRootFactory", "Creating ancestor ROOT tree");
+		tree_ptr = std::make_unique<GRootTree>(ancestors, log);
+	}
+	return tree_ptr;
+}
+
 
 // Implementation summary:
 // Export the factory symbol required by the plugin loader.

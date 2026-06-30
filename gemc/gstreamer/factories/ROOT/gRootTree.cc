@@ -109,6 +109,25 @@ GRootTree::GRootTree(const std::string& treeName,
 	registerVariable("name", std::string());
 }
 
+GRootTree::GRootTree([[maybe_unused]] const GAncestorBank& ancestors,
+	                 std::shared_ptr<GLogger>& logger) : log(logger) {
+	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree Ancestors");
+	root_tree = std::make_unique<TTree>(ANCESTORTREENAME, ANCESTORTREENAMEDESC);
+	root_tree->SetAutoFlush(20 * 1024 * 1024);
+	root_tree->SetAutoSave(50 * 1024 * 1024);
+
+	registerVariable("pid", 0);
+	registerVariable("tid", 0);
+	registerVariable("mtid", 0);
+	registerVariable("trackE", 0.0);
+	registerVariable("px", 0.0);
+	registerVariable("py", 0.0);
+	registerVariable("pz", 0.0);
+	registerVariable("vx", 0.0);
+	registerVariable("vy", 0.0);
+	registerVariable("vz", 0.0);
+}
+
 
 // Implementation summary:
 // Create a digitized detector tree whose branch schema is inferred
@@ -197,6 +216,27 @@ bool GRootTree::fillTree(const GGeneratedParticleBank& particles) {
 		doubleVarsMap["vy"].push_back(particle.vy);
 		doubleVarsMap["vz"].push_back(particle.vz);
 		stringVarsMap["name"].push_back(particle.name);
+	}
+
+	root_tree->Fill();
+	return true;
+}
+
+bool GRootTree::fillTree(const GAncestorBank& ancestors) {
+	for (auto& [varname, values] : intVarsMap) { values.clear(); }
+	for (auto& [varname, values] : doubleVarsMap) { values.clear(); }
+
+	for (const auto& ancestor : ancestors) {
+		intVarsMap["pid"].push_back(ancestor.pid);
+		intVarsMap["tid"].push_back(ancestor.tid);
+		intVarsMap["mtid"].push_back(ancestor.mtid);
+		doubleVarsMap["trackE"].push_back(ancestor.trackE);
+		doubleVarsMap["px"].push_back(ancestor.px);
+		doubleVarsMap["py"].push_back(ancestor.py);
+		doubleVarsMap["pz"].push_back(ancestor.pz);
+		doubleVarsMap["vx"].push_back(ancestor.vx);
+		doubleVarsMap["vy"].push_back(ancestor.vy);
+		doubleVarsMap["vz"].push_back(ancestor.vz);
 	}
 
 	root_tree->Fill();

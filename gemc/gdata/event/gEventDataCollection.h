@@ -5,8 +5,8 @@
  * \brief Defines GEventDataCollection, the event-level aggregation of detector hit data.
  *
  * \details
- * GEventDataCollection groups detector-local hit data and generated-particle
- * metadata produced during one event.
+ * GEventDataCollection groups detector-local hit data, generated-particle metadata, and optional
+ * track provenance produced during one event.
  *
  * Primary organization:
  * \code
@@ -17,6 +17,8 @@
  * generated particle banks:
  *                                - generated
  *                                - generated_tracked
+ * optional track provenance bank:
+ *                                - ancestors
  * \endcode
  *
  * Event semantics:
@@ -90,6 +92,25 @@ struct GGeneratedParticleData
  */
 using GGeneratedParticleBank = std::vector<GGeneratedParticleData>;
 
+/**
+ * \brief Initial state of one hit-producing track or one of its ancestors.
+ */
+struct GAncestorData
+{
+	int    pid = 0;
+	int    tid = 0;
+	int    mtid = 0;
+	double trackE = 0;
+	double px = 0;
+	double py = 0;
+	double pz = 0;
+	double vx = 0;
+	double vy = 0;
+	double vz = 0;
+};
+
+using GAncestorBank = std::vector<GAncestorData>;
+
 namespace gevent_data {
 
 /**
@@ -121,7 +142,7 @@ inline auto defineOptions() -> GOptions {
  *
  * \details
  * This topic documents the event container that owns one event header together with the map of
- * detector-local GDataCollection objects plus optional generated-particle banks.
+ * detector-local GDataCollection objects plus optional generated-particle and ancestor banks.
  * It is the main aggregation layer used before run-level integration.
  */
 
@@ -134,6 +155,7 @@ inline auto defineOptions() -> GOptions {
  * - one owned GEventHeader describing the event
  * - one map of detector names to GDataCollection instances
  * - optional generated-particle banks used by event streamers
+ * - an optional ancestor bank used when track provenance output is requested
  *
  * Each detector entry can contain:
  * - zero or more truth objects
@@ -242,6 +264,18 @@ public:
 		return generated_tracked_particles;
 	}
 
+	/** \brief Stores the initial states of hit-producing tracks and their ancestors. */
+	void setAncestors(GAncestorBank ancestors) {
+		ancestor_particles = std::move(ancestors);
+		ancestor_bank_enabled = true;
+	}
+
+	/** \brief Returns the event-local ancestor bank. */
+	[[nodiscard]] const GAncestorBank& getAncestors() const { return ancestor_particles; }
+
+	/** \brief Reports whether ancestor output was requested for this event. */
+	[[nodiscard]] bool hasAncestorBank() const { return ancestor_bank_enabled; }
+
 	/**
 	 * \brief Returns the event number stored in the owned header.
 	 *
@@ -291,6 +325,10 @@ private:
 
 	/// Geant4-propagated generated-particle bank published as \c generated_tracked.
 	GGeneratedParticleBank generated_tracked_particles;
+
+	/// Initial states of hit-producing tracks and their ancestors.
+	GAncestorBank ancestor_particles;
+	bool          ancestor_bank_enabled = false;
 
 	/// Static thread-safe counter reserved for tests or future example helpers.
 	static std::atomic<int> globalEventDataCollectionCounter;

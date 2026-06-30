@@ -16,7 +16,9 @@ LD += {
         'event/gEventAction.cc',
         'generator/gPrimaryGeneratorAction.cc',
         'run/gRunAction.cc',
-        'run/gRun.cc'
+        'run/gRun.cc',
+        'tracking/gTrackProvenance.cc',
+        'tracking/gTrackingAction.cc'
     ),
     'headers' : files(
         'gaction.h',
@@ -24,11 +26,14 @@ LD += {
         'gactionConventions.h',
         'generator/gPrimaryGeneratorAction.h',
         'run/gRunAction.h',
-        'run/gRun.h'
+        'run/gRun.h',
+        'tracking/gTrackProvenance.h',
+        'tracking/gTrackingAction.h'
     ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, qt6_deps, geant4_core_deps],
     'internal_dependencies' : internal_deps,
     'examples' : {
+        'test_track_provenance' : [files('examples/track_provenance_example.cc'), ''],
         'test_generator_lund_file_events' : [
             files('examples/generator_file_events_example.cc'),
             generator_file_events

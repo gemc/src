@@ -332,6 +332,17 @@ protected:
 	}
 
 	/**
+	 * \brief Publishes the event-local ancestor bank.
+	 *
+	 * \param ancestors Initial states of hit-producing tracks and their ancestors.
+	 * \return \c true on success, \c false on failure.
+	 */
+	[[nodiscard]] bool publishEventAncestors(const GAncestorBank& ancestors) {
+		log->debug(NORMAL, "GStreamer::publishEventAncestors");
+		return publishEventAncestorsImpl(ancestors);
+	}
+
+	/**
 	 * \brief Plugin-specific implementation hook for a generated-particle event bank.
 	 *
 	 * The base class calls this hook for the \c generated and
@@ -349,6 +360,9 @@ protected:
 	                                                [[maybe_unused]] const GGeneratedParticleBank& particles) {
 		return true;
 	}
+
+	/** \brief Plugin-specific event ancestor-bank serialization hook. */
+	virtual bool publishEventAncestorsImpl([[maybe_unused]] const GAncestorBank& ancestors) { return true; }
 
 	/**
 	 * \brief Plugin-specific implementation hook for one detector digitized collection.

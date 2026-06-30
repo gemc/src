@@ -22,6 +22,7 @@
  * - event boundaries
  * - event header content
  * - generated-particle banks
+ * - optional track ancestor banks
  * - detector true-information banks
  * - detector digitized banks
  * - run boundaries and run-level digitized content
@@ -118,6 +119,9 @@ private:
 	 */
 	bool publishEventGeneratedParticlesImpl(const std::string& bankName,
 	                                        const GGeneratedParticleBank& particles) override;
+
+	/** \brief Write the event ancestor bank in text form. */
+	bool publishEventAncestorsImpl(const GAncestorBank& ancestors) override;
 
 	/**
 	 * \brief Begin one run block in the text output.

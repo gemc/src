@@ -10,6 +10,8 @@
 // c++
 #include <chrono>
 
+class GTrackProvenance;
+
 /**
  * \file gEventAction.h
  * \brief Declares GEventAction, the per-event processing action for the GEMC actions module.
@@ -28,6 +30,8 @@ constexpr const char* EVENTACTION_LOGGER = "geventaction";
  * - \c N-NTH: as above, but only the worker thread with id NTH prints (0 <= NTH < nthreads).
  */
 constexpr const char* LOG_EVERY_OPTION = "log_every";
+constexpr const char* SAVE_ORIGINAL_TRACK_SWITCH = "save_original_track";
+constexpr const char* SAVE_ALL_ANCESTORS_SWITCH = "save_all_ancestors";
 
 /**
  * \brief Namespace containing helpers related to event-action configuration.
@@ -67,6 +71,11 @@ namespace geventaction {
 			          "log module: print event progress and average rate every N events per thread"),
 			help);
 
+		goptions.defineSwitch(SAVE_ORIGINAL_TRACK_SWITCH,
+		                      "save the original Geant4 track ID in each true-information hit");
+		goptions.defineSwitch(SAVE_ALL_ANCESTORS_SWITCH,
+		                      "save initial information for hit-producing tracks and all their ancestors");
+
 		return goptions;
 	}
 } // namespace geventaction
@@ -105,8 +114,10 @@ public:
 	 * \param gopt Shared configuration object used for event-product construction and logging.
 	 * \param run_a Non-owning pointer to the thread-local GRunAction instance that provides
 	 *              access to digitization routines, run-level accumulation, and streamers.
+	 * \param provenance Worker-local track registry shared with the tracking action, or null when disabled.
 	 */
-	explicit GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a);
+	explicit GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* run_a,
+	                      std::shared_ptr<GTrackProvenance> provenance = nullptr);
 
 	~GEventAction() override = default;
 
@@ -197,6 +208,12 @@ private:
 	 * - access to run-level accumulation counters and containers.
 	 */
 	GRunAction* run_action = nullptr;
+
+	/// Worker-local provenance registry shared with the corresponding tracking action.
+	std::shared_ptr<GTrackProvenance> track_provenance;
+
+	bool save_original_track = false;
+	bool save_all_ancestors  = false;
 };
 
 // looping over output factories

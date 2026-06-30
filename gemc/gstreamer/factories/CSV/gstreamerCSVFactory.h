@@ -15,13 +15,14 @@
 /**
  * \class GstreamerCsvFactory
  * \ingroup gstreamer_plugin_csv_api
- * \brief CSV plugin writing flattened per-hit event and run data into two CSV files.
+ * \brief CSV plugin writing flattened event and run data into separate CSV files.
  *
  * This plugin separates true-information and digitized data into distinct output files:
  * - \c "<rootname>_true_info.csv"
  * - \c "<rootname>_digitized.csv"
  * - \c "<rootname>_generated.csv"
  * - \c "<rootname>_generated_tracked.csv"
+ * - \c "<rootname>_ancestors.csv" when ancestor output is requested
  *
  * For each file, the first non-empty collection determines the column set. A header row is then
  * emitted once, and every subsequent hit is written as one flattened row.
@@ -52,14 +53,14 @@ public:
 
 private:
 	/**
-	 * \brief Open both CSV output files used by this plugin instance.
+	 * \brief Open the standard CSV output files used by this plugin instance.
 	 *
 	 * \return \c true when the files are available for writing, \c false otherwise.
 	 */
 	bool openConnection() override;
 
 	/**
-	 * \brief Close both CSV output files after buffered events have been flushed.
+	 * \brief Close all CSV output files after buffered events have been flushed.
 	 *
 	 * \return \c true on success, \c false otherwise.
 	 */
@@ -125,6 +126,9 @@ private:
 	 */
 	bool publishEventGeneratedParticlesImpl(const std::string& bankName,
 	                                        const GGeneratedParticleBank& particles) override;
+
+	/** \brief Write the event ancestor bank into its CSV file. */
+	bool publishEventAncestorsImpl(const GAncestorBank& ancestors) override;
 
 	/**
 	 * \brief Begin one run publication cycle.
@@ -204,11 +208,14 @@ private:
 	/// \brief Output stream for the Geant4-tracked generated-particle CSV file.
 	std::ofstream ofile_generated_tracked;
 
+	/// \brief Lazily opened output stream for the ancestor CSV file.
+	std::ofstream ofile_ancestors;
+
 	/**
 	 * \brief Return the generic filename base for this plugin.
 	 *
 	 * This method is required by the base class but is not used directly because the plugin writes
-	 * two separate CSV files.
+	 * multiple CSV files.
 	 *
 	 * \return Base output name plus \c ".csv".
 	 */
@@ -242,6 +249,11 @@ private:
 	 */
 	[[nodiscard]] std::string filename_generated_tracked() const {
 		return gstreamer_definitions.rootname + "_generated_tracked.csv";
+	}
+
+	/** \brief Return the ancestor CSV filename. */
+	[[nodiscard]] std::string filename_ancestors() const {
+		return gstreamer_definitions.rootname + "_ancestors.csv";
 	}
 
 	/**

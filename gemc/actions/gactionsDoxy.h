@@ -32,6 +32,7 @@
  * - GPrimaryGeneratorAction, which creates event primaries.
  * - GRunAction, which manages run begin/end hooks and creates the per-thread run object.
  * - GEventAction, which processes hit collections at the end of each event.
+ * - GTrackingAction, which optionally records original-track and ancestor information.
  * - GRun, the thread-local run object created for each active run.
  *
  * @section gactions_ownership Ownership and lifecycle
@@ -48,6 +49,7 @@
  * - GAction stores shared configuration and the shared digitization-routine map.
  * - GPrimaryGeneratorAction is created on worker threads and in sequential mode.
  * - GEventAction is created on worker threads and in sequential mode.
+ * - GTrackingAction is created when track provenance output is enabled.
  * - GRunAction is created both on worker threads and on the master thread.
  * - GRun is created per thread through
  *   GRunAction::GenerateRun "GenerateRun()".
@@ -71,6 +73,7 @@
  * - GPrimaryGeneratorAction on worker threads and in sequential mode.
  * - GEventAction on worker threads and in sequential mode.
  * - GRunAction on worker threads, in sequential mode, and on the master thread.
+ * - GTrackingAction on worker threads when either provenance switch is enabled.
  *
  * The run and event flow is applied here as follows:
  *
@@ -130,8 +133,10 @@
  * - gprimaryaction::defineOptions()
  * - grun::defineOptions()
  *
- * In the provided implementation, these module-local helpers currently return logger-scoped
- * option containers without introducing dedicated action-specific switches of their own.
+ * Event-action options include:
+ * - \c -save_original_track, which populates the original track ID in true-information hits.
+ * - \c -save_all_ancestors, which implies original-track collection and publishes a deduplicated
+ *   event ancestor bank.
  *
  * Usage:
  * - Call gaction::defineOptions() during application or module setup.
@@ -139,10 +144,9 @@
  * - Construct GAction with the shared GOptions instance and the shared
  *   digitization-routine map.
  *
- * Even though the action module itself does not currently define additional user-facing
- * switches in these helpers, the primary-generation path depends on particle definitions
- * loaded through the generator support code in gparticle_options.h. Those particle-related
- * options must therefore also be configured for the full action pipeline to operate as expected.
+ * The primary-generation path also depends on particle definitions loaded through the generator
+ * support code in gparticle_options.h. Those particle-related options must be configured for the
+ * full action pipeline to operate as expected.
  *
  * @section gactions_verbosity Module verbosity
  *
