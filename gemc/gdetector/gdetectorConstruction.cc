@@ -397,6 +397,10 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 		if (overrideVariation) { variation = digiVariationOverride; }
 		digitization_routines_map->at(sdname)->setDigitizationVariation(variation);
 
+		// Resolve whether this system applies threshold / efficiency rejection, from the
+		// global applyThresholds / applyInefficiencies options (default: neither).
+		digitization_routines_map->at(sdname)->setHitRejectionPolicies(sdname);
+
 		if (digitization_routines_map->at(sdname)->defineReadoutSpecs()) {
 			log->info(1, "Digitization routine <" + sdname + "> has been successfully defined.");
 		} else { log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">"); }

@@ -269,7 +269,13 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 					const size_t output_hit_index = hit_accepted ? accepted_hit_index : hitIndex + 1;
 					auto true_data = digitization_routine->collectTrueInformation(this_hit, output_hit_index);
 					if (save_original_track && track_provenance != nullptr && true_data != nullptr) {
-						true_data->includeVariable("otid", track_provenance->originalTrackId(this_hit->getTid()));
+						const int           tid = this_hit->getTid();
+						const G4ThreeVector op  = track_provenance->originalTrackMomentum(tid);
+						true_data->includeVariable("otid", track_provenance->originalTrackId(tid));
+						true_data->includeVariable("opid", track_provenance->originalTrackPid(tid));
+						true_data->includeVariable("opx", op.getX());
+						true_data->includeVariable("opy", op.getY());
+						true_data->includeVariable("opz", op.getZ());
 					}
 					eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
 					has_event_mode_payload = true;

@@ -515,9 +515,51 @@ public:
      */
     [[nodiscard]] std::string getDigitizationVariation() const { return digitization_variation; }
 
+    /**
+     * \brief Resolves this routine's hit-rejection policies from the global options.
+     *
+     * Reads the \c applyThresholds and \c applyInefficiencies options (each a list of system
+     * names, or "all") and records whether \p systemName should apply threshold and/or
+     * efficiency rejection during digitization. Called once per geometry load, alongside
+     * setDigitizationVariation().
+     *
+     * \param systemName Name of the gsystem / digitization routine.
+     */
+    void setHitRejectionPolicies(const std::string &systemName);
+
+    /// \brief Whether this system rejects hits below threshold (per \c -applyThresholds).
+    [[nodiscard]] bool appliesThresholds() const { return applyThresholds_; }
+
+    /// \brief Whether this system applies efficiency rejection (per \c -applyInefficiencies).
+    [[nodiscard]] bool appliesInefficiencies() const { return applyInefficiencies_; }
+
+    /**
+     * \brief Decides whether a digitized hit must be dropped by threshold/efficiency.
+     *
+     * Honors the per-system policies resolved by setHitRejectionPolicies(): the threshold term
+     * rejects only when this system is listed in \c applyThresholds and \p belowThreshold is
+     * true; the efficiency term rejects only when this system is listed in
+     * \c applyInefficiencies and a uniform random draw exceeds \p efficiency. When both
+     * policies are off (the default) this always returns false, so every hit is kept.
+     *
+     * A plugin that returns nullptr from digitizeHit on a true result also suppresses the
+     * hit's true-info bank entry when the \c also_reject_true_info option is set, because the
+     * event action gates the true-info row on digitization acceptance.
+     *
+     * \param belowThreshold Detector's own threshold comparison (e.g. eDep < threshold).
+     * \param efficiency Per-channel efficiency in [0,1].
+     * \return true if the hit should be skipped.
+     */
+    [[nodiscard]] bool decisionToSkipDigitizedHit(bool belowThreshold, double efficiency) const;
+
 private:
     /// When false, hits with exactly zero deposited energy may be skipped.
     bool recordZeroEdep = false;
+
+    /// Per-system hit-rejection policies, resolved from the applyThresholds /
+    /// applyInefficiencies options. Both default off so the default run keeps every hit.
+    bool applyThresholds_     = false;
+    bool applyInefficiencies_ = false;
 
     /// Variation used to load constants / translation tables. Defaults to the routine's
     /// gsystem variation; overridden by the digitization_variation option when set.

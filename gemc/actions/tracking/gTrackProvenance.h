@@ -40,13 +40,17 @@ public:
 	            const G4ThreeVector& momentum, const G4ThreeVector& vertex);
 
 	[[nodiscard]] int originalTrackId(int track_id) const;
+	[[nodiscard]] int originalTrackPid(int track_id) const;
+	[[nodiscard]] G4ThreeVector originalTrackMomentum(int track_id) const;
 	[[nodiscard]] std::vector<GTrackRecord> ancestorsForTracks(
 		const std::unordered_set<int>& track_ids) const;
 
 private:
 	void ensureCapacity(int track_id);
 
-	bool                      save_ancestor_records = false;
-	std::vector<int>          original_track_ids;
-	std::vector<GTrackRecord> track_records;
+	bool                       save_ancestor_records = false;
+	std::vector<int>           original_track_ids;
+	std::vector<int>           original_track_pids;
+	std::vector<G4ThreeVector> original_track_momenta;
+	std::vector<GTrackRecord>  track_records;
 };

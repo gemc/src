@@ -30,6 +30,21 @@ GOptions defineOptions() {
 		"constants and translation tables. Default: not set (each routine uses its system's\n"
 		"variation).\n \nExample: -digitization_variation=rga_fall2018");
 
+	// Per-system hit-rejection policies. Each option takes a list of digitization system names
+	// (whitespace- or comma-separated, or "all") that apply the corresponding rejection during
+	// digitization. Default: not set (no system rejects hits), matching the clas12Tags default
+	// where APPLY_THRESHOLDS and DETECTOR_INEFFICIENCY are off.
+	goptions.defineOption(
+		GVariable("applyThresholds", UNINITIALIZEDSTRINGQUANTITY, "systems that reject hits below threshold"),
+		"List of digitization system names whose hits below the per-channel threshold are\n"
+		"rejected. Use \"all\" for every system. Default: not set (no thresholds applied).\n \n"
+		"Example: -applyThresholds=\"ftof, ctof\"");
+	goptions.defineOption(
+		GVariable("applyInefficiencies", UNINITIALIZEDSTRINGQUANTITY, "systems that apply efficiency rejection"),
+		"List of digitization system names whose hits are randomly rejected according to the\n"
+		"per-channel efficiency. Use \"all\" for every system. Default: not set.\n \n"
+		"Example: -applyInefficiencies=\"ftof\"");
+
 	// Aggregate options required by downstream types used in the digitization workflow.
 	goptions += gevent_data::defineOptions();
 	goptions += grun_data::defineOptions();

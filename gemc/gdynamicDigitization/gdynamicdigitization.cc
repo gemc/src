@@ -16,6 +16,31 @@
 #include "gtranslationTableConventions.h"
 #include "gdataConventions.h"
 #include "gtouchableConventions.h"
+#include "gutilities.h"
+
+// geant4 / CLHEP random engine for efficiency rejection
+#include "Randomize.hh"
+
+// c++
+#include <algorithm>
+
+namespace {
+
+// Returns true when systemName (or "all") appears in the option's list of system names.
+// The list is whitespace- or comma-separated; an unset option (the "NULL" sentinel) matches
+// nothing.
+bool system_in_rejection_list(const std::shared_ptr<GOptions>& gopts, const std::string& option,
+                              const std::string& systemName) {
+	std::string list = gopts->getScalarString(option);
+	if (list.empty() || list == UNINITIALIZEDSTRINGQUANTITY) { return false; }
+	std::replace(list.begin(), list.end(), ',', ' ');
+	for (const auto& name : gutilities::getStringVectorFromString(list)) {
+		if (name == "all" || name == systemName) { return true; }
+	}
+	return false;
+}
+
+} // namespace
 
 
 // See header for API docs.
@@ -38,6 +63,10 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 	trueInfoData->includeVariable("mpid", ghit->getMpid());
 	trueInfoData->includeVariable("tid", ghit->getTid());
 	trueInfoData->includeVariable("otid", 0);
+	trueInfoData->includeVariable("opid", 0);
+	trueInfoData->includeVariable("opx", 0.0);
+	trueInfoData->includeVariable("opy", 0.0);
+	trueInfoData->includeVariable("opz", 0.0);
 	trueInfoData->includeVariable("mtid", ghit->getMotherTid());
 	trueInfoData->includeVariable("totalEDeposited", ghit->getTotalEnergyDeposited());
 	trueInfoData->includeVariable("trackE", ghit->getTrackE());
@@ -172,4 +201,17 @@ std::vector<std::shared_ptr<GTouchable>> GDynamicDigitization::processGTouchable
 	// Default behavior: no modifier processing.
 	std::vector<std::shared_ptr<GTouchable>> touchables;
 	return touchables;
+}
+
+// See header for API docs.
+void GDynamicDigitization::setHitRejectionPolicies(const std::string& systemName) {
+	applyThresholds_     = system_in_rejection_list(gopts, "applyThresholds", systemName);
+	applyInefficiencies_ = system_in_rejection_list(gopts, "applyInefficiencies", systemName);
+}
+
+// See header for API docs.
+bool GDynamicDigitization::decisionToSkipDigitizedHit(bool belowThreshold, double efficiency) const {
+	if (applyThresholds_ && belowThreshold) { return true; }
+	if (applyInefficiencies_ && G4UniformRand() > efficiency) { return true; }
+	return false;
 }

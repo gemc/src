@@ -134,7 +134,8 @@
  * - grun::defineOptions()
  *
  * Event-action options include:
- * - \c -save_original_track, which populates the original track ID in true-information hits.
+ * - \c -save_original_track, which populates the original track ID (\c otid), its particle ID
+ *   (\c opid), and its momentum (\c opx, \c opy, \c opz) in true-information hits.
  * - \c -save_all_ancestors, which implies original-track collection and publishes a deduplicated
  *   event ancestor bank.
  *

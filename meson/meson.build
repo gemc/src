@@ -115,7 +115,19 @@ endif
 
 geant4_config_version = run_command(geant4_config, '--version', check : true).stdout().strip()
 message('Generating Geant4 pkg-config files in ' + geant4_pc_path + ' from ' + geant4_config.full_path())
+# Configure-time generation: GEMC's own dependency('geant4_core') below needs the .pc files on
+# PKG_CONFIG_PATH to build itself.
 run_command(g4_pkgconfig_script, gemc_prefix, geant4_config.full_path(), check : true)
+# Install-time generation: re-create geant4.pc / geant4_core.pc in the prefix on every install.
+# Without this the files exist only as a one-shot configure side effect, so a reinstall into a
+# freshly wiped prefix (e.g. rm -rf install_dir + meson install) silently drops them and downstream
+# builds such as clas12-systems can no longer resolve geant4_core.
+meson.add_install_script(
+    find_program('python3'),
+    files('g4_pkgconfig.py'),
+    gemc_prefix,
+    geant4_config.full_path(),
+)
 
 geant4_dep = dependency(
     'geant4',
