@@ -27,6 +27,7 @@ bool GstreamerCsvFactory::publishEventTrueInfoDataImpl(const std::string&       
 			log->debug(NORMAL, SFUNCTION_NAME, "Writing header for event ", event_number, " with ", total,
 			           " variables");
 
+			for (const auto& [name, value] : getIdentityMap(first_hit->getIdentity())) { ofile_true_info << name << ", "; }
 			for (const auto& [name, value] : smap) { ofile_true_info << name << ", "; }
 
 			for (const auto& [name, value] : dmap) {
@@ -51,6 +52,7 @@ bool GstreamerCsvFactory::publishEventTrueInfoDataImpl(const std::string&       
 
 			ofile_true_info << event_number << ", " << timestamp << ", " << thread_id << ", " << detectorName << ", ";
 
+			for (const auto& [name, value] : getIdentityMap(trueInfoHit->getIdentity())) { ofile_true_info << value << ", "; }
 			for (const auto& [variableName, value] : smap) { ofile_true_info << value << ", "; }
 			for (const auto& [variableName, value] : dmap) {
 				ofile_true_info << value;

@@ -114,5 +114,5 @@ for variation, material in variation_material.items():
 
         backplate.color = "lightgray"
         backplate.digitization = "gPhotonDetector"
-        backplate.set_identifier("detector", panel_id)
+        backplate.set_identifier("panel", panel_id)
         backplate.publish(cfg)

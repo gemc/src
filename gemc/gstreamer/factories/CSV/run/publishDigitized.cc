@@ -27,6 +27,7 @@ bool GstreamerCsvFactory::publishRunDigitizedDataImpl(const std::string&        
 			log->debug(NORMAL, SFUNCTION_NAME, "Writing header for event ", event_number, " with ", total,
 			           " variables");
 
+			for (const auto& [name, value] : getIdentityMap(first_hit->getIdentity())) { ofile_digitized << name << ", "; }
 			for (const auto& [name, value] : imap) { ofile_digitized << name << ", "; }
 
 			for (const auto& [name, value] : dmap) {
@@ -51,6 +52,7 @@ bool GstreamerCsvFactory::publishRunDigitizedDataImpl(const std::string&        
 
 			ofile_digitized << event_number << ", " << timestamp << ", " << thread_id << ", " << detectorName << ", ";
 
+			for (const auto& [name, value] : getIdentityMap(digi_hit->getIdentity())) { ofile_digitized << value << ", "; }
 			for (const auto& [variableName, value] : imap) { ofile_digitized << value << ", "; }
 			for (const auto& [variableName, value] : dmap) {
 				ofile_digitized << value;
