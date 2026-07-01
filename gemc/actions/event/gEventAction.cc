@@ -257,7 +257,20 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 			}
 
 			auto digi_data = digitization_routine->digitizeHit(this_hit, hitIndex);
-			const bool hit_accepted = digi_data != nullptr;
+			bool hit_accepted = digi_data != nullptr;
+
+			// Apply the post-digitization threshold and efficiency policies (-applyThresholds /
+			// -applyInefficiencies). Both are evaluated (not short-circuited) so an enrolled
+			// efficiency draw always happens. A skipped hit is dropped like a non-digitized one,
+			// so the also_reject_true_info handling below suppresses its true-info row as well.
+			if (hit_accepted) {
+				const bool skip_threshold  = digitization_routine->apply_thresholds(this_hit, digi_data.get());
+				const bool skip_efficiency = digitization_routine->apply_efficiency(this_hit, digi_data.get());
+				if (skip_threshold || skip_efficiency) {
+					digi_data.reset();
+					hit_accepted = false;
+				}
+			}
 
 			if (collection_mode == CollectionMode::event) {
 				if (hit_accepted) {

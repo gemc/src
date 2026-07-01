@@ -18,9 +18,6 @@
 #include "gtouchableConventions.h"
 #include "gutilities.h"
 
-// geant4 / CLHEP random engine for efficiency rejection
-#include "Randomize.hh"
-
 // c++
 #include <algorithm>
 
@@ -207,11 +204,4 @@ std::vector<std::shared_ptr<GTouchable>> GDynamicDigitization::processGTouchable
 void GDynamicDigitization::setHitRejectionPolicies(const std::string& systemName) {
 	applyThresholds_     = system_in_rejection_list(gopts, "applyThresholds", systemName);
 	applyInefficiencies_ = system_in_rejection_list(gopts, "applyInefficiencies", systemName);
-}
-
-// See header for API docs.
-bool GDynamicDigitization::decisionToSkipDigitizedHit(bool belowThreshold, double efficiency) const {
-	if (applyThresholds_ && belowThreshold) { return true; }
-	if (applyInefficiencies_ && G4UniformRand() > efficiency) { return true; }
-	return false;
 }

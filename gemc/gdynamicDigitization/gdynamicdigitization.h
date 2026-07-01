@@ -527,30 +527,62 @@ public:
      */
     void setHitRejectionPolicies(const std::string &systemName);
 
-    /// \brief Whether this system rejects hits below threshold (per \c -applyThresholds).
-    [[nodiscard]] bool appliesThresholds() const { return applyThresholds_; }
-
-    /// \brief Whether this system applies efficiency rejection (per \c -applyInefficiencies).
-    [[nodiscard]] bool appliesInefficiencies() const { return applyInefficiencies_; }
+    /**
+     * \brief Applies this system's ADC-threshold rejection to a digitized hit.
+     *
+     * Wrapper called automatically by the event action after digitizeHit(). Returns false
+     * (keep the hit) unless this system is listed in \c -applyThresholds, in which case it
+     * delegates to the plugin's apply_thresholds_impl(). Returning true drops the digitized
+     * hit, and also suppresses its true-info row when \c also_reject_true_info is set, because
+     * the event action gates the true-info entry on digitization acceptance.
+     *
+     * \param ghit The hit being digitized.
+     * \param digitizedData The digitized record produced by digitizeHit().
+     * \return true if the hit is below threshold and must be dropped.
+     */
+    [[nodiscard]] bool apply_thresholds(GHit* ghit, const GDigitizedData* digitizedData) {
+        if (!applyThresholds_) { return false; }
+        return apply_thresholds_impl(ghit, digitizedData);
+    }
 
     /**
-     * \brief Decides whether a digitized hit must be dropped by threshold/efficiency.
+     * \brief Plugin hook: is this digitized hit below the per-channel ADC threshold?
      *
-     * Honors the per-system policies resolved by setHitRejectionPolicies(): the threshold term
-     * rejects only when this system is listed in \c applyThresholds and \p belowThreshold is
-     * true; the efficiency term rejects only when this system is listed in
-     * \c applyInefficiencies and a uniform random draw exceeds \p efficiency. When both
-     * policies are off (the default) this always returns false, so every hit is kept.
-     *
-     * A plugin that returns nullptr from digitizeHit on a true result also suppresses the
-     * hit's true-info bank entry when the \c also_reject_true_info option is set, because the
-     * event action gates the true-info row on digitization acceptance.
-     *
-     * \param belowThreshold Detector's own threshold comparison (e.g. eDep < threshold).
-     * \param efficiency Per-channel efficiency in [0,1].
-     * \return true if the hit should be skipped.
+     * Implemented by plugins that support threshold rejection; only invoked when the system is
+     * enrolled in \c -applyThresholds. Default: keep the hit.
      */
-    [[nodiscard]] bool decisionToSkipDigitizedHit(bool belowThreshold, double efficiency) const;
+    [[nodiscard]] virtual bool apply_thresholds_impl([[maybe_unused]] GHit* ghit,
+                                                     [[maybe_unused]] const GDigitizedData* digitizedData) {
+        return false;
+    }
+
+    /**
+     * \brief Applies this system's efficiency rejection to a digitized hit.
+     *
+     * Wrapper called automatically by the event action after digitizeHit(). Returns false
+     * (keep the hit) unless this system is listed in \c -applyInefficiencies, in which case it
+     * delegates to the plugin's apply_efficiency_impl(). Returning true drops the digitized
+     * hit (and its true-info row when \c also_reject_true_info is set).
+     *
+     * \param ghit The hit being digitized.
+     * \param digitizedData The digitized record produced by digitizeHit().
+     * \return true if the hit fails the efficiency draw and must be dropped.
+     */
+    [[nodiscard]] bool apply_efficiency(GHit* ghit, const GDigitizedData* digitizedData) {
+        if (!applyInefficiencies_) { return false; }
+        return apply_efficiency_impl(ghit, digitizedData);
+    }
+
+    /**
+     * \brief Plugin hook: does this digitized hit fail the per-channel efficiency draw?
+     *
+     * Implemented by plugins that support efficiency rejection; only invoked when the system is
+     * enrolled in \c -applyInefficiencies. Default: keep the hit.
+     */
+    [[nodiscard]] virtual bool apply_efficiency_impl([[maybe_unused]] GHit* ghit,
+                                                     [[maybe_unused]] const GDigitizedData* digitizedData) {
+        return false;
+    }
 
 private:
     /// When false, hits with exactly zero deposited energy may be skipped.
