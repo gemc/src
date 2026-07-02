@@ -32,6 +32,8 @@ constexpr const char* EVENTACTION_LOGGER = "geventaction";
 constexpr const char* LOG_EVERY_OPTION = "log_every";
 constexpr const char* SAVE_ORIGINAL_TRACK_SWITCH = "save_original_track";
 constexpr const char* SAVE_ALL_ANCESTORS_SWITCH = "save_all_ancestors";
+constexpr const char* NO_DIGITIZED_OPTION = "no_digitized";
+constexpr const char* NO_TRUE_INFO_OPTION = "no_true_info";
 
 /**
  * \brief Namespace containing helpers related to event-action configuration.
@@ -75,6 +77,16 @@ namespace geventaction {
 		                      "save the original Geant4 track ID in each true-information hit");
 		goptions.defineSwitch(SAVE_ALL_ANCESTORS_SWITCH,
 		                      "save initial information for hit-producing tracks and all their ancestors");
+		goptions.defineOption(
+			GVariable(NO_DIGITIZED_OPTION, "none", "detectors for which digitization is disabled"),
+			"Disable digitization for a comma- or whitespace-separated list of detector names.\n"
+			"Use \"all\" to disable digitization for every detector. Default: none.\n \n"
+			"Example: -no_digitized=\"ftof, ecal\"");
+		goptions.defineOption(
+			GVariable(NO_TRUE_INFO_OPTION, "none", "detectors for which true-information output is disabled"),
+			"Disable true-information output for a comma- or whitespace-separated list of detector names.\n"
+			"Use \"all\" to disable true-information output for every detector. Default: none.\n \n"
+			"Example: -no_true_info=\"ftof, ecal\"");
 
 		return goptions;
 	}

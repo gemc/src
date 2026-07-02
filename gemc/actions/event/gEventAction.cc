@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cctype>
 #include <chrono>
+#include <sstream>
 #include <unordered_set>
 
 namespace {
@@ -67,6 +68,20 @@ bool scalar_bool_option_enabled(const std::shared_ptr<GOptions>& goptions, const
 	std::transform(value.begin(), value.end(), value.begin(),
 	               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 	return value == "true" || value == "1" || value == "yes" || value == "on";
+}
+
+// Match a detector against an option containing comma- or whitespace-separated names.
+bool detector_is_listed(const std::shared_ptr<GOptions>& goptions, const std::string& option,
+                        const std::string& detector) {
+	std::string detectors = goptions->getScalarString(option);
+	std::replace(detectors.begin(), detectors.end(), ',', ' ');
+
+	std::istringstream names(detectors);
+	std::string        name;
+	while (names >> name) {
+		if (name == "all" || name == detector) return true;
+	}
+	return false;
 }
 
 // Convert a substring to a non-negative integer, returning false on any malformed input.
@@ -217,6 +232,8 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 		}
 
 		const std::string hcSDName = this_ghc->GetSDname();
+		const bool no_digitized = detector_is_listed(goptions, NO_DIGITIZED_OPTION, hcSDName);
+		const bool no_true_info = detector_is_listed(goptions, NO_TRUE_INFO_OPTION, hcSDName);
 
 		log->info(2, FUNCTION_NAME, " worker ", thread_id,
 				  " for event number ", event_id,
@@ -256,7 +273,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 				ancestor_track_ids.insert(track_ids.begin(), track_ids.end());
 			}
 
-			auto digi_data = digitization_routine->digitizeHit(this_hit, hitIndex);
+			auto digi_data = no_digitized ? nullptr : digitization_routine->digitizeHit(this_hit, hitIndex);
 			bool hit_accepted = digi_data != nullptr;
 
 			// Apply the post-digitization threshold and efficiency policies (-applyThresholds /
@@ -277,8 +294,9 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 					++accepted_hit_index;
 					digi_data->includeVariable("hitn", static_cast<int>(accepted_hit_index));
 					eventDataCollection->addDetectorDigitizedData(hcSDName, std::move(digi_data));
+					has_event_mode_payload = true;
 				}
-				if (hit_accepted || !also_reject_true_info) {
+				if (!no_true_info && (no_digitized || hit_accepted || !also_reject_true_info)) {
 					const size_t output_hit_index = hit_accepted ? accepted_hit_index : hitIndex + 1;
 					auto true_data = digitization_routine->collectTrueInformation(this_hit, output_hit_index);
 					if (save_original_track && track_provenance != nullptr && true_data != nullptr) {
