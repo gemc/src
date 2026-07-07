@@ -78,6 +78,19 @@ void GDigitizedData::includeVariable(const std::string& vname, double value) {
 	doubleObservablesMap[vname] = value;
 }
 
+void GDigitizedData::includeTransientVariable(const std::string& vname, double value) {
+	log->info(2, "Including transient variable ", vname, " with value ", value);
+	transientVariablesMap[vname] = value;
+}
+
+bool GDigitizedData::hasTransientVariable(const std::string& vname) const {
+	return transientVariablesMap.find(vname) != transientVariablesMap.end();
+}
+
+double GDigitizedData::getTransientVariable(const std::string& vname) const {
+	return transientVariablesMap.at(vname);
+}
+
 void GDigitizedData::accumulateVariable(const std::string& vname, int value) {
 	// Run/integrated accumulation by summation.
 	if (intObservablesMap.find(vname) == intObservablesMap.end()) {

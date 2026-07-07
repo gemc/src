@@ -155,6 +155,35 @@ public:
 	void includeVariable(const std::string& vname, double value);
 
 	/**
+	 * \brief Stores a non-published floating-point value for post-digitization decisions.
+	 *
+	 * Transient values let threshold and efficiency callbacks reuse intermediate detector-response
+	 * quantities without recalculating digitization or exposing implementation details to streamers.
+	 *
+	 * \param vname Transient value key.
+	 * \param value Floating-point value to store.
+	 */
+	void includeTransientVariable(const std::string& vname, double value);
+
+	/**
+	 * \brief Returns whether a transient floating-point value is present.
+	 *
+	 * \param vname Transient value key.
+	 * \return true when the key is present.
+	 */
+	[[nodiscard]] bool hasTransientVariable(const std::string& vname) const;
+
+	/**
+	 * \brief Returns a transient floating-point value by key.
+	 *
+	 * Call hasTransientVariable() first when the producer is not known to provide the key.
+	 *
+	 * \param vname Transient value key.
+	 * \return Stored value.
+	 */
+	[[nodiscard]] double getTransientVariable(const std::string& vname) const;
+
+	/**
 	 * \brief Accumulates one integer observable into the current object.
 	 *
 	 * \details
@@ -317,6 +346,9 @@ private:
 
 	/// Scalar floating-point observables associated with this digitized hit.
 	std::map<std::string, double> doubleObservablesMap;
+
+	/// Internal values used by post-digitization policies; never published by streamers.
+	std::map<std::string, double> transientVariablesMap;
 
 	/// Optional array-valued integer observables.
 	std::map<std::string, std::vector<int>> arrayIntObservablesMap;
