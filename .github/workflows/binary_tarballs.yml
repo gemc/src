@@ -1,7 +1,7 @@
 # Upload and test GEMC binary tarballs.
 name: Binary Tarballs
 
-run-name: Triggered by successful deploy workflow
+run-name: Triggered by completed deploy workflow
 
 permissions:
   actions: read
