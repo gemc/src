@@ -530,66 +530,81 @@ public:
     /**
      * \brief Applies this system's ADC-threshold rejection to a digitized hit.
      *
-     * Wrapper called automatically by the event action after digitizeHit(). Returns false
-     * (keep the hit) unless this system is listed in \c -applyThresholds, in which case it
-     * delegates to the plugin's apply_thresholds_impl(). Returning true drops the digitized
-     * hit, and also suppresses its true-info row when \c also_reject_true_info is set, because
-     * the event action gates the true-info entry on digitization acceptance.
+     * Wrapper called automatically by the event action after digitizeHit(). It delegates to the
+     * plugin when the system is listed in \c -applyThresholds or the plugin declares its
+     * threshold intrinsic. Returning true drops the digitized hit and, when
+     * \c also_reject_true_info is set, its true-info row.
      *
      * \param ghit The hit being digitized.
      * \param digitizedData The digitized record produced by digitizeHit().
      * \return true if the hit is below threshold and must be dropped.
      */
-    [[nodiscard]] bool apply_thresholds(GHit* ghit, const GDigitizedData* digitizedData) {
-        if (!applyThresholds_) { return false; }
+    [[nodiscard]] bool apply_thresholds(GHit* ghit, GDigitizedData* digitizedData) {
+        if (!applyThresholds_ && !thresholds_are_intrinsic_impl()) { return false; }
         return apply_thresholds_impl(ghit, digitizedData);
     }
 
     /**
      * \brief Plugin hook: is this digitized hit below the per-channel ADC threshold?
      *
-     * Implemented by plugins that support threshold rejection; only invoked when the system is
-     * enrolled in \c -applyThresholds. Default: keep the hit.
+     * Implemented by plugins that support threshold rejection. The mutable digitized record may
+     * contain transient decision inputs cached by digitizeHitImpl(). Default: keep the hit.
      */
     [[nodiscard]] virtual bool apply_thresholds_impl([[maybe_unused]] GHit* ghit,
-                                                     [[maybe_unused]] const GDigitizedData* digitizedData) {
+                                                     [[maybe_unused]] GDigitizedData* digitizedData) {
         return false;
     }
 
     /**
+     * \brief Declares that this plugin's threshold is intrinsic to its GEMC2 digitization.
+     *
+     * Intrinsic thresholds run even when the system is absent from \c applyThresholds. The
+     * default remains configuration-controlled for backward compatibility.
+     */
+    [[nodiscard]] virtual bool thresholds_are_intrinsic_impl() const { return false; }
+
+    /**
      * \brief Applies this system's efficiency rejection to a digitized hit.
      *
-     * Wrapper called automatically by the event action after digitizeHit(). Returns false
-     * (keep the hit) unless this system is listed in \c -applyInefficiencies, in which case it
-     * delegates to the plugin's apply_efficiency_impl(). Returning true drops the digitized
-     * hit (and its true-info row when \c also_reject_true_info is set).
+     * Wrapper called automatically by the event action after digitizeHit(). It delegates to the
+     * plugin when the system is listed in \c -applyInefficiencies or the plugin declares its
+     * efficiency policy intrinsic. The callback may mutate the digitized record; returning true
+     * drops it and, when \c also_reject_true_info is set, its true-info row.
      *
      * \param ghit The hit being digitized.
      * \param digitizedData The digitized record produced by digitizeHit().
      * \return true if the hit fails the efficiency draw and must be dropped.
      */
-    [[nodiscard]] bool apply_efficiency(GHit* ghit, const GDigitizedData* digitizedData) {
-        if (!applyInefficiencies_) { return false; }
+    [[nodiscard]] bool apply_efficiency(GHit* ghit, GDigitizedData* digitizedData) {
+        if (!applyInefficiencies_ && !efficiencies_are_intrinsic_impl()) { return false; }
         return apply_efficiency_impl(ghit, digitizedData);
     }
 
     /**
      * \brief Plugin hook: does this digitized hit fail the per-channel efficiency draw?
      *
-     * Implemented by plugins that support efficiency rejection; only invoked when the system is
-     * enrolled in \c -applyInefficiencies. Default: keep the hit.
+     * Implemented by plugins that support efficiency policies. The callback can reject the whole
+     * hit or mutate part of its output, such as suppressing only a TDC value. Default: keep.
      */
     [[nodiscard]] virtual bool apply_efficiency_impl([[maybe_unused]] GHit* ghit,
-                                                     [[maybe_unused]] const GDigitizedData* digitizedData) {
+                                                     [[maybe_unused]] GDigitizedData* digitizedData) {
         return false;
     }
+
+    /**
+     * \brief Declares that this plugin's efficiency policy is intrinsic to GEMC2 digitization.
+     *
+     * Intrinsic efficiency policies run even when the system is absent from
+     * \c applyInefficiencies. The default remains configuration-controlled.
+     */
+    [[nodiscard]] virtual bool efficiencies_are_intrinsic_impl() const { return false; }
 
 private:
     /// When false, hits with exactly zero deposited energy may be skipped.
     bool recordZeroEdep = false;
 
-    /// Per-system hit-rejection policies, resolved from the applyThresholds /
-    /// applyInefficiencies options. Both default off so the default run keeps every hit.
+    /// Configuration-controlled policies resolved from applyThresholds / applyInefficiencies.
+    /// Intrinsic plugin policies are evaluated independently of these flags.
     bool applyThresholds_     = false;
     bool applyInefficiencies_ = false;
 
