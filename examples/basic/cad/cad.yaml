@@ -1,0 +1,40 @@
+# CAD organs radiation-source example.
+#
+# A gamma "radiation source" is placed 1 m in front of the torso (vz = -1000 mm) and fired as a
+# forward cone wide enough to cover the heart, lungs and liver. Each organ is a "dosimeter"
+# sensitive detector (see stls/cad__default.yaml), so the CSV output carries the deposited energy
+# and the dose (edep / mass) per organ.
+#
+# Build the geometry first (writes gemc.db and the normalized STLs):
+#     python cad.py
+# Then run, e.g. 10 events:
+#     gemc cad.yaml -n=10
+
+experiment: examples
+runno: 1
+nthreads: 1
+
+gsystem:
+  - name: stls          # directory with the meshes and the `system` in cad__default.yaml
+    factory: CAD
+
+gstreamer:
+  - format: csv
+    filename: organs
+
+phys_list: FTFP_BERT
+
+# 1.25 MeV gammas (Co-60-like), 200 per event, in a forward cone about +z covering the torso.
+gparticle:
+  - name: gamma
+    p: 1250*keV
+    multiplicity: 200
+    theta: 0*deg
+    delta_theta: 12*deg
+    phi: 0*deg
+    delta_phi: 180*deg
+    vz: -1000*mm
+
+g4camera:
+  theta: 90*deg
+  phi: 0*deg

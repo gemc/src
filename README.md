@@ -33,16 +33,16 @@ while still preserving C++ extension points for advanced detector response and o
 
 - Python-first detector definitions through [`pygemc`](https://github.com/gemc/pygemc)
 - Geometry and material storage in SQLite or ASCII databases
-- Geometry imports from databases, GDML, and CAD meshes
-- Run-number and geometry variation support
-- Built-in sensitive detector digitizations: `flux`, `gPhotonDetector`, `dosimeter`, `particle_counter`
-- Dynamic C++ plugin infrastructure for custom digitization, fields, generators, and output streamers
-- Event generation from command-line/YAML particle definitions and Lund files
-- Output streamers for ASCII, CSV, JSON, JLAB SRO, and optional ROOT output
+- Geometry imports from GDML, CAD meshes
+- Run-number and geometry variations
+- Built-in sensitive  types: `flux`, `gPhotonDetector`, `dosimeter`, `particle_counter`
+- C++ plugin infrastructure for custom digitization, fields, generators, and output streamers
+- Event generation from command-line/YAML particle definitions and LUND files
+- Supported output formats: ASCII, CSV, JSON, ROOT
 - Magnetic-field support, including multipoles field and ascii maps
 - Interactive Geant4/Qt visualization and off-screen image generation
-- PyVista geometry preview, VTK.js export
-- Python analyzer for plotting CSV and ROOT output
+- PyVista geometry preview, VTK export
+- Python analyzer CSV and ROOT formats
 - Meson-based C++ build with CI-tested Docker images for Linux `amd64` and `arm64`
 
 <br/>

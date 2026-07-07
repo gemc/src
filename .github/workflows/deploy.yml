@@ -372,7 +372,7 @@ jobs:
 
       - name: Push README to Docker Hub
         if: ${{ env.DOCKERHUB_USERNAME != '' }}
-        uses: peter-evans/dockerhub-description@v4
+        uses: peter-evans/dockerhub-description@v5
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
