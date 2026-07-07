@@ -62,8 +62,22 @@ G4VSolid* G4CadSystemFactory::buildSolid(const GVolume* s,
 		auto mesh = CADMesh::TessellatedMesh::From(g4filename,
 		                                           CADMesh::File::ASSIMP());
 
-		// The CAD file is interpreted in millimeters to match typical detector CAD conventions.
-		mesh->SetScale(CLHEP::mm);
+		// Optional uniform scale factor, authored per volume in the "scale" YAML attribute and
+		// carried through the geometry "parameters" column (CAD solids have no other use for it).
+		// It multiplies the millimetre interpretation, e.g. scale=10 reads a mesh drawn in cm.
+		double            scale = 1.0;
+		const std::string pars  = s->getParameters();
+		if (!pars.empty() && pars != "NULL") {
+			try { scale = std::stod(pars); }
+			catch (const std::exception&) {
+				log->warning("G4CadSystemFactory: volume <", g4name,
+				             "> has a non-numeric scale <", pars, ">; using 1.0");
+			}
+		}
+
+		// The CAD file is interpreted in millimetres (times the per-volume scale) to match
+		// typical detector CAD conventions.
+		mesh->SetScale(CLHEP::mm * scale);
 
 		// Do not flip vertex winding unless the CAD source requires it.
 		mesh->SetReverse(false);

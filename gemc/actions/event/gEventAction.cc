@@ -276,10 +276,9 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 			auto digi_data = no_digitized ? nullptr : digitization_routine->digitizeHit(this_hit, hitIndex);
 			bool hit_accepted = digi_data != nullptr;
 
-			// Apply the post-digitization threshold and efficiency policies (-applyThresholds /
-			// -applyInefficiencies). Both are evaluated (not short-circuited) so an enrolled
-			// efficiency draw always happens. A skipped hit is dropped like a non-digitized one,
-			// so the also_reject_true_info handling below suppresses its true-info row as well.
+			// Apply post-digitization threshold and efficiency policies. Plugins may declare a
+			// policy intrinsic or leave it controlled by -applyThresholds / -applyInefficiencies.
+			// Both are evaluated so the detector's random-number sequence remains stable.
 			if (hit_accepted) {
 				const bool skip_threshold  = digitization_routine->apply_thresholds(this_hit, digi_data.get());
 				const bool skip_efficiency = digitization_routine->apply_efficiency(this_hit, digi_data.get());

@@ -7,17 +7,19 @@
  * \ingroup gemc_gsystem_factories_cad
  *
  * \class GSystemCADFactory
- * \brief Load a system from CAD assets (e.g. STL) found in a directory.
+ * \brief Load a system from CAD assets (e.g. STL) whose definitions live in the sqlite database.
  *
  * Geometry loading behavior:
- * - The system file path is resolved against \c possibleLocationOfFiles.
- * - The directory is scanned for \c .stl files.
- * - Each STL is imported as a volume via \ref GSystem::addVolumeFromFile "addVolumeFromFile()".
+ * - The system file path is resolved against \c possibleLocationOfFiles to locate the mesh directory.
+ * - The directory is scanned for \c .stl and \c .ply files, indexed by filename stem.
+ * - The list of volumes to load - and their metadata (material, position, rotation, sensitivity, ...) -
+ *   comes from the \c geometry table (rows matching experiment/system/variation/run). Only meshes whose
+ *   stem matches a database row are imported; STL/PLY files present on disk but absent from the database
+ *   are ignored. The mesh path is resolved against the directory and written into the volume description
+ *   for the g4 CAD builder.
  *
- * Optional YAML modifier hook:
- * - If a file named \c cad__<variation>.yaml is found in the directory, it is parsed.
- * - The current implementation logs lookups; a block of commented code shows intended
- *   application of per-volume overrides (shift/tilt/exists/mother/color/material/digitization/identifier).
+ * Definitions are authored in a single YAML/JSON file and uploaded with \c "gemc-sqlite -cad" (pygemc),
+ * which replaces the legacy clas12Tags \c cad_<variation>.gxml mechanism.
  *
  * \note Materials loading is currently empty for CAD-based systems.
  */
