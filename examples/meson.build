@@ -17,6 +17,7 @@ examples_map = {
         'b1' : { 'runs' : ['1'], 'variations' : ['default', 'test'], 'plot_var' : 'dose', 'n_events' : '50' },
         'b2' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'], 'plot_var' : 'totEdep' },
         'b3' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] },
+        'boolean_solids' : { 'runs' : ['1'], 'variations' : ['default'] },
         'scintillator_barrel' : { 'runs' : ['1'], 'variations' : ['default'], 'plot_var' : 'totEdep' }
     },
     'fields' : {
@@ -28,6 +29,8 @@ examples_map = {
     'optical' : {
         'cherenkov' : { 'runs' : ['1'], 'variations' : ['default', 'mediumIndexRadiator', 'highIndexRadiator'],
                         'plot_yvsx' : true },
+        'mirrors' : { 'runs' : ['1'], 'variations' : ['default'], 'plot_yvsx' : true },
+        'parabolic_mirror' : { 'runs' : ['1'], 'variations' : ['default'], 'plot_yvsx' : true },
     }
 }
 

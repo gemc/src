@@ -1,0 +1,35 @@
+experiment: examples
+runno: 1
+nthreads: 1
+
+g4view:
+  background: "0.92 0.92 0.98"
+  cloudPoints: 60000
+
+gsystem:
+  - name: mirrors
+
+g4camera:
+  theta: 117*deg
+  phi: 166*deg
+
+gstreamer:
+  - format: csv
+    filename: mirrors
+
+phys_list: FTFP_BERT + G4OpticalPhysics
+
+# three identical electrons, each aimed at the center of one reflector plate
+gparticle:
+  - name: e-
+    p: 1000*MeV
+    vx: -32*cm
+    vz: -49*cm
+  - name: e-
+    p: 1000*MeV
+    vx: 0*cm
+    vz: -49*cm
+  - name: e-
+    p: 1000*MeV
+    vx: 32*cm
+    vz: -49*cm

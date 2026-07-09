@@ -1,0 +1,21 @@
+experiment: examples
+runno: 1
+nthreads: 1
+
+gsystem:
+  - name: boolean_solids
+
+g4view:
+  background: "0.92 0.92 0.98"
+
+g4camera:
+  theta: 65*deg
+  phi: 30*deg
+
+gparticle:
+  - name: e-
+    p: 500*MeV
+    theta: 90*deg
+    vx: -40*cm
+    delta_vx: 12*cm
+    randomVertexModel: uniform

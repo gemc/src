@@ -1,0 +1,29 @@
+experiment: examples
+runno: 1
+nthreads: 1
+
+g4view:
+  background: "0.92 0.92 0.98"
+  cloudPoints: 60000
+
+gsystem:
+  - name: parabolic_mirror
+
+g4camera:
+  theta: 105*deg
+  phi: 153*deg
+
+
+gstreamer:
+  - format: csv
+    filename: parabolic_mirror
+
+phys_list: FTFP_BERT + G4OpticalPhysics
+
+gparticle:
+  - name: opticalphoton
+    multiplicity: 200
+    p: 3*eV
+    vz: -42*cm
+    delta_vx: 15*cm
+    delta_vy: 15*cm
