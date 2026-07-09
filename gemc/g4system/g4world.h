@@ -10,6 +10,7 @@
  *  2. Build materials (including dependency-resolving material composition).
  *  3. Build default materials/elements/isotopes required by common detector configurations.
  *  4. Convert every GVolume into a G4Volume (solid/logical/physical), resolving mother/child dependencies.
+ *  5. Build optical surfaces (mirrors) and attach them to the volumes that reference them.
  *
  * The built volumes are cached in a map keyed by the Geant4 volume name, so later stages
  * (for example field assignments) can locate volumes by name.
@@ -34,6 +35,8 @@
 
 // geant4
 #include "G4NistManager.hh"
+
+class G4OpticalSurface;
 
 /**
  * @class G4World
@@ -209,6 +212,34 @@ private:
 	 */
 	bool build_g4volume(const GVolume* s, G4ObjectsFactory* objectFactory);
 
+	/**
+	 * \brief Build optical surfaces (mirrors) and attach them to the volumes that reference them.
+	 *
+	 * \param system_map Pointer to the system map holding volume and mirror definitions.
+	 *
+	 * @details
+	 * Runs after all volumes are built, so logical/physical volumes are available:
+	 * - a volume whose \c mirror field names a GMirror gets that surface attached;
+	 * - one shared \c G4OpticalSurface is created per (system, mirror) and cached;
+	 * - \c "SkinSurface" borders produce a \c G4LogicalSkinSurface on the volume logical;
+	 * - other borders produce a \c G4LogicalBorderSurface between the volume physical and
+	 *   the (same system) border volume physical.
+	 */
+	void buildOpticalSurfaces(SystemMap* system_map);
+
+	/**
+	 * \brief Return the shared \c G4OpticalSurface for a mirror, creating it on first use.
+	 *
+	 * \param systemName System owning the mirror (used to namespace the surface name).
+	 * \param gmirror    Mirror definition.
+	 * \return Pointer to the cached or newly created optical surface.
+	 *
+	 * @details
+	 * The surface properties table either reuses the table of the \c matOptProps material
+	 * or is built once from the mirror's own property vectors.
+	 */
+	G4OpticalSurface* getOrCreateOpticalSurface(const std::string& systemName, const GMirror* gmirror);
+
 	// ────── dependency helpers ──────────────────────────────────────
 	// These pointers are cached so that multiple predefined materials can reuse the same element instances.
 	G4Element* Deuterium = nullptr;
@@ -231,4 +262,14 @@ private:
 	 * Geant4 stores also maintain ownership/registry of materials.
 	 */
 	std::unordered_map<std::string, G4Material*> g4materialsMap;
+
+	/**
+	 * \brief Map "gsystem/mirrorName" → shared \c G4OpticalSurface pointer.
+	 *
+	 * @details
+	 * One optical surface is created per mirror definition and shared by every volume that
+	 * references it. The surfaces (and the logical skin/border surfaces created from them)
+	 * live for the duration of the process, registered in the Geant4 surface tables.
+	 */
+	std::unordered_map<std::string, G4OpticalSurface*> g4opticalSurfacesMap;
 };

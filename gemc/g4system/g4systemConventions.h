@@ -26,6 +26,8 @@
 #define ERR_G4MATERIALNOTFOUND        505   ///< Material lookup failed and no fallback was available.
 #define ERR_G4SOLIDTYPENOTFOUND       506   ///< Requested solid type is not supported by the native factory.
 #define ERR_G4VOLUMEBUILDFAILED       506   ///< A volume could not be fully built (solid/logical/physical).
+#define ERR_G4MIRRORNOTFOUND          507   ///< A volume references a mirror that is not defined in its system.
+#define ERR_G4SURFACECONFIGINVALID    508   ///< Optical surface type/finish/model/properties are invalid.
 
 // Special value used by options to indicate "no fallback material".
 #define NO_USE_DEFAULT_MATERIAL "noDefaultMaterial"

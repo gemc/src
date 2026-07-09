@@ -25,11 +25,13 @@ LD += {
     'sources' : files(
         'gvolume.cc',
         'gmaterial.cc',
+        'gmirror.cc',
         'gsystem.cc',
         'gworld.cc',
         'gsystem_options.cc',
         'gsystemFactories/text/systemTextFactory.cc',
         'gsystemFactories/text/loadMaterials.cc',
+        'gsystemFactories/text/loadMirrors.cc',
         'gsystemFactories/text/loadGeometry.cc',
         'gsystemFactories/cad/systemCadFactory.cc',
         'gsystemFactories/cad/loadMaterials.cc',
@@ -39,11 +41,13 @@ LD += {
         'gsystemFactories/gdml/loadGeometry.cc',
         'gsystemFactories/sqlite/systemSqliteFactory.cc',
         'gsystemFactories/sqlite/loadMaterials.cc',
+        'gsystemFactories/sqlite/loadMirrors.cc',
         'gsystemFactories/sqlite/loadGeometry.cc'
     ),
     'headers' : files(
         'gvolume.h',
         'gmaterial.h',
+        'gmirror.h',
         'gmodifier.h',
         'gsystem.h',
         'gworld.h',

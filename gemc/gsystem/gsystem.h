@@ -3,6 +3,7 @@
 // gsystem
 #include "gvolume.h"
 #include "gmaterial.h"
+#include "gmirror.h"
 
 // c++
 #include <map>
@@ -112,6 +113,7 @@ private:
 	///@{
 	std::map<std::string, std::shared_ptr<GVolume>>   gvolumesMap;   ///< Map of volume name → volume object.
 	std::map<std::string, std::shared_ptr<GMaterial>> gmaterialsMap; ///< Map of material name → material object.
+	std::map<std::string, std::shared_ptr<GMirror>>   gmirrorsMap;   ///< Map of mirror name → mirror object.
 	///@}
 
 public:
@@ -225,6 +227,34 @@ public:
 	 * - If the key already exists, the method logs ERR_GMATERIALALREADYPRESENT.
 	 */
 	void addGMaterial(std::vector<std::string> pars);
+
+	/**
+	 * \brief Build and add a mirror (optical surface) from a serialized parameter list.
+	 *
+	 * \param pars Serialized mirror parameter list.
+	 *
+	 * \details
+	 * - If the mirror name key is new, a mirror object is constructed and inserted.
+	 * - If the key already exists, the method logs ERR_GMIRRORALREADYPRESENT.
+	 */
+	void addGMirror(std::vector<std::string> pars);
+
+	/**
+	 * \brief Retrieve a mirror by name.
+	 *
+	 * \param mirrorName Mirror name key.
+	 * \return Pointer to the mirror if found, otherwise \c nullptr.
+	 */
+	[[nodiscard]] const GMirror* getGMirror(const std::string& mirrorName) const;
+
+	/**
+	 * \brief Access all mirrors in this system.
+	 *
+	 * \return Const reference to the internal mirror map.
+	 */
+	[[nodiscard]] inline const std::map<std::string, std::shared_ptr<GMirror>>& getGMirrorsMap() const {
+		return gmirrorsMap;
+	}
 
 	/**
 	 * \brief Retrieve the material associated with a given volume.

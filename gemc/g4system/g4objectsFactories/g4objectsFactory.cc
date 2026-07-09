@@ -235,6 +235,10 @@ G4LogicalVolume *G4ObjectsFactory::buildLogical(const GVolume *s,
 		           "Material <", s->getMaterial(), "> not found.");
 	}
 
+	// The solid must exist: a logical volume built on a null solid would be placed
+	// and crash the navigation voxelization later.
+	if (thisG4Volume->getSolid() == nullptr) { return nullptr; }
+
 	// Create the logical volume with the already-created solid.
 	auto *logical = new G4LogicalVolume(thisG4Volume->getSolid(),
 	                                    mat, g4name);
@@ -310,8 +314,23 @@ bool G4ObjectsFactory::build_g4volume(const GVolume *s,
                                       std::unordered_map<std::string, G4Volume *> *g4s) {
 	const auto name = s->getG4Name();
 
+	// Component volumes are boolean-operation building blocks: they contribute their
+	// solid to `solidsOpr` operations but get no material, logical, or placement.
+	if (s->getMaterial() == GSYSTEMCOMPONENTMATERIAL) {
+		auto *solid = buildSolid(s, g4s);
+		log->info(2, className(), " result for component ", name, ": solid: ", solid != nullptr);
+		return solid != nullptr;
+	}
+
 	// Build steps can fail due to missing dependencies; each returns nullptr in that case.
+	// The logical volume must not be created before the solid is available (a boolean
+	// volume can precede its operands in the build order): a logical constructed with a
+	// null solid would be placed and crash the navigation voxelization later.
 	auto sbuild = buildSolid(s, g4s);
+	if (sbuild == nullptr) {
+		log->info(2, className(), " result for ", name, ": solid not ready, deferring");
+		return false;
+	}
 	auto lbuild = buildLogical(s, g4s);
 	auto pbuild = buildPhysical(s, g4s);
 

@@ -139,6 +139,7 @@ private:
     std::string position;        ///< Placement position with units, e.g. "0*mm, 0*mm, 50*mm".
     std::string rotation;        ///< Placement rotation with units, e.g. "0*deg, 0*deg, 0*deg".
     std::string motherVolume;    ///< Mother volume name as defined in pygemc.
+    std::string solidsOpr;       ///< Boolean solid operation descriptor, e.g. "box - hole".
     std::string volDescription;  ///< Human-readable volume description.
 
 public:
@@ -182,6 +183,8 @@ public:
     [[nodiscard]] std::string get_rotation() const { return rotation; }
     /** \brief Return the mother volume name. */
     [[nodiscard]] std::string get_motherVolume() const { return motherVolume; }
+    /** \brief Return the boolean solid operation descriptor. */
+    [[nodiscard]] std::string get_solidsOpr() const { return solidsOpr; }
     /** \brief Return the volume description. */
     [[nodiscard]] std::string get_volDescription() const { return volDescription; }
 

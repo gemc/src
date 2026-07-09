@@ -196,6 +196,11 @@ void GDetectorConstruction::ConstructSDandField() {
 		for (const auto &[volumeName, gvolumePtr]: gsystemPtr->getGVolumesMap()) {
 			auto const &digitizationName = gvolumePtr->getDigitization();
 			auto const &g4name = gvolumePtr->getG4Name();
+
+			// Component volumes are boolean-operation building blocks: they have a
+			// solid but no logical volume, no field, and no sensitivity.
+			if (gvolumePtr->getMaterial() == GSYSTEMCOMPONENTMATERIAL) { continue; }
+
 			auto *g4volume = g4world->getG4Volume(g4name)->getLogical();
 
 			// Ensure the Geant4 logical volume exists.

@@ -32,7 +32,21 @@
 #define GVOLUMELEGACYNUMBEROFPARS    21
 /// Number of database parameters defining a gmaterial entry.
 #define GMATERIALNUMBEROFPARS        18
+/// Number of database parameters defining a gmirror entry.
+#define GMIRRORNUMBEROFPARS          16
 ///@}
+
+// -----------------------------------------------------------------------------
+// Mirror conventions
+// -----------------------------------------------------------------------------
+
+/// Border value marking an optical surface applied to the whole volume skin.
+#define GMIRRORSKINSURFACE "SkinSurface"
+
+/// Material value marking a boolean-operation building block: the volume
+/// contributes its solid to `solidsOpr` operations but is never assigned a
+/// material or placed.
+#define GSYSTEMCOMPONENTMATERIAL "Component"
 
 // -----------------------------------------------------------------------------
 // Default placement strings
@@ -76,6 +90,9 @@
 #define ERR_GMATERIALALREADYPRESENT          210
 #define ERR_EXPERIMENTNOTFOUND               211
 #define ERR_G4PLACEMENTTYPE                  212
+#define ERR_GMIRRORALREADYPRESENT            213
+#define ERR_GMIRRORNOTFOUND                  214
+#define ERR_GMIRRORINVALID                   215
 ///@}
 
 // -----------------------------------------------------------------------------

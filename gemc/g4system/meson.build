@@ -20,6 +20,7 @@ LD += {
         'g4volume.cc',
         'g4world.cc',
         'g4materials.cc',
+        'g4mirrors.cc',
         'g4system_options.cc',
         'g4objectsFactories/geant4Dependencies.cc',
         'g4objectsFactories/g4objectsFactory.cc',

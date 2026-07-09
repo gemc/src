@@ -22,6 +22,7 @@
  * - Base name is \c system->getFilePath()
  * - For geometry:  \c base + GTEXTGEOMTYPE + variation + ".txt"
  * - For materials: \c base + GTEXTMATSTYPE + variation + ".txt"
+ * - For mirrors:   \c base + GTEXTMIRSTYPE + variation + ".txt"
  *
  * Search logic:
  * - The factory tries the default filename in the current working directory.
@@ -29,7 +30,7 @@
  *
  * Behavior differences:
  * - Geometry file is mandatory unless the system annotation is \c "mats_only".
- * - Materials file is optional.
+ * - Materials and mirrors files are optional.
  *
  * Parsing:
  * - Each non-empty line is split using \c '|' as delimiter.
@@ -52,6 +53,15 @@ private:
 	void loadMaterials(GSystem* system) override;
 
 	/**
+	 * \brief Load mirrors (optical surface definitions) from the system mirrors file (optional).
+	 *
+	 * \param system Target system to populate.
+	 *
+	 * \details If the mirrors file is not found, the method returns without error.
+	 */
+	void loadMirrors(GSystem* system) override;
+
+	/**
 	 * \brief Load geometry from the system geometry file (mandatory unless \c "mats_only").
 	 *
 	 * \param system Target system to populate.
@@ -68,7 +78,7 @@ private:
 	 * \param SYSTEMTYPE One of the file-type macros:
 	 * - GTEXTGEOMTYPE
 	 * - GTEXTMATSTYPE
-	 * - GTEXTMIRSTYPE (reserved for future use)
+	 * - GTEXTMIRSTYPE
 	 *
 	 * \return Pointer to an open input stream, or \c nullptr if the optional file is not found.
 	 *

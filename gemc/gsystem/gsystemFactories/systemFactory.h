@@ -73,8 +73,9 @@ public:
 		// Some factories interpret dbhost as a directory hint; others interpret it as a filename.
 		possibleLocationOfFiles.push_back(system->get_dbhost());
 
-		// Materials first, then geometry.
+		// Materials first, then mirrors (which may reference materials), then geometry.
 		loadMaterials(system);
+		loadMirrors(system);
 		loadGeometry(system);
 	}
 
@@ -100,6 +101,19 @@ private:
 	 * to the factory design (e.g. ASCII materials may be optional; sqlite materials may be empty).
 	 */
 	virtual void loadMaterials(GSystem* system) = 0;
+
+	/**
+	 * \brief Load mirrors (optical surface definitions) into \c system.
+	 *
+	 * \param system Target system instance to populate.
+	 *
+	 * \details
+	 * Mirrors are optional: the default implementation is a no-op so factories without
+	 * a mirror source (CAD, GDML) need not override it. Database/ASCII factories
+	 * override this to create and insert GMirror objects into the system.
+	 */
+	virtual void loadMirrors([[maybe_unused]] GSystem* system) {
+	}
 
 	/**
 	 * \brief Load geometry volumes into \c system.

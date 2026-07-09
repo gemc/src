@@ -55,9 +55,13 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
 		if (solidOperations.size() == 3) {
 			// Supported operators: + (union), - (subtraction), * (intersection).
 			if (solidOperations[1] == "+" || solidOperations[1] == "-" || solidOperations[1] == "*") {
+				auto left = getSolidFromMap(solidOperations[0], g4s);
+				if (left == nullptr) left = getSolidFromMap(gsystem + "/" + solidOperations[0], g4s);
+				auto right = getSolidFromMap(solidOperations[2], g4s);
+				if (right == nullptr) right = getSolidFromMap(gsystem + "/" + solidOperations[2], g4s);
+
 				// Operand solids must exist before the boolean solid can be created.
-				if (getSolidFromMap(solidOperations[0], g4s) != nullptr &&
-					getSolidFromMap(solidOperations[2], g4s) != nullptr)
+				if (left != nullptr && right != nullptr)
 					return true;
 			}
 			return false;

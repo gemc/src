@@ -14,6 +14,7 @@
  *
  * This factory populates:
  * - materials from the \c materials table;
+ * - mirrors (optical surfaces) from the \c mirrors table;
  * - geometry volumes from the \c geometry table.
  *
  * Database lifetime:
@@ -41,6 +42,19 @@ private:
 	 * - Rows are read as positional fields and forwarded to the system material builder.
 	 */
 	void loadMaterials(GSystem* system) override;
+
+	/**
+	 * \brief Load mirrors (optical surface definitions) for the requested system from sqlite.
+	 *
+	 * \param system Target system to populate.
+	 *
+	 * \details
+	 * - Databases created before mirror support may lack the \c mirrors table: that is
+	 *   valid and simply skipped.
+	 * - Columns are selected explicitly by name so the loader does not depend on the
+	 *   table column order.
+	 */
+	void loadMirrors(GSystem* system) override;
 
 	/**
 	 * \brief Load geometry volumes for the requested system from sqlite.

@@ -8,6 +8,9 @@
 #include "g4NativeObjectsFactory.h"
 #include "g4systemConventions.h"
 
+// guts
+#include "gutilities.h"
+
 // geant4
 #include "G4Box.hh"
 #include "G4Sphere.hh"
@@ -19,6 +22,12 @@
 #include "G4Trap.hh"
 #include "G4Trd.hh"
 #include "G4Polycone.hh"
+#include "G4Polyhedra.hh"
+#include "G4Paraboloid.hh"
+#include "G4EllipticalTube.hh"
+#include "G4UnionSolid.hh"
+#include "G4SubtractionSolid.hh"
+#include "G4IntersectionSolid.hh"
 
 // Build a native Geant4 solid for the given volume definition.
 // Header documentation is authoritative; this implementation comment is intentionally brief.
@@ -34,6 +43,14 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 	// Locate or allocate the wrapper used to cache solid/logical/physical pointers.
 	auto thisG4Volume = getOrCreateG4Volume(g4name, g4s);
 
+	// Record the volume's own frame rotation and position: when this solid is the
+	// second operand of a boolean operation, they define the relative transform.
+	{
+		auto* rot = getRotation(s);
+		thisG4Volume->setSolidPlacement(*rot, getPosition(s));
+		delete rot;
+	}
+
 	// Solid exists, return it.
 	if (thisG4Volume->getSolid() != nullptr) return thisG4Volume->getSolid();
 
@@ -44,6 +61,54 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 		auto volume_copy  = gsystem + "/" + copyOf;
 		auto thisG4Volume = getOrCreateG4Volume(volume_copy, g4s);
 		if (thisG4Volume->getSolid() != nullptr) return thisG4Volume->getSolid();
+	}
+
+	// Boolean solids use already-built operand solids.
+	std::string solidsOpr = s->getSolidsOpr();
+	if (solidsOpr != "" && solidsOpr != UNINITIALIZEDSTRINGQUANTITY) {
+		std::vector<std::string> solidOperations = gutilities::getStringVectorFromString(solidsOpr);
+		if (solidOperations.size() == 3) {
+			auto resolveOperandName = [s, g4s](const std::string& operand) -> std::string {
+				if (getSolidFromMap(operand, g4s) != nullptr) return operand;
+				return s->getSystem() + "/" + operand;
+			};
+
+			auto leftName  = resolveOperandName(solidOperations[0]);
+			auto rightName = resolveOperandName(solidOperations[2]);
+			auto left      = getSolidFromMap(leftName, g4s);
+			auto right     = getSolidFromMap(rightName, g4s);
+			if (left == nullptr || right == nullptr) return nullptr;
+
+			// GEMC2 `Operation:` convention (clas12Tags detector.cc): the first solid
+			// is taken at identity; the second is rotated by the inverse of its own
+			// frame rotation, then translated by its own position.
+			auto             rightWrapper = getOrCreateG4Volume(rightName, g4s);
+			G4RotationMatrix rotate       = rightWrapper->getSolidRotation();
+			G4ThreeVector    translate    = rightWrapper->getSolidTranslation();
+			G4RotationMatrix invRot       = rotate.invert();
+			G4Transform3D    transf1(invRot, G4ThreeVector(0, 0, 0));
+			G4Transform3D    transf2(G4RotationMatrix(), translate);
+			G4Transform3D    transform = transf2 * transf1;
+
+			if (solidOperations[1] == "+") {
+				thisG4Volume->setSolid(new G4UnionSolid(g4name, left, right, transform), log);
+			}
+			else if (solidOperations[1] == "-") {
+				thisG4Volume->setSolid(new G4SubtractionSolid(g4name, left, right, transform), log);
+			}
+			else if (solidOperations[1] == "*") {
+				thisG4Volume->setSolid(new G4IntersectionSolid(g4name, left, right, transform), log);
+			}
+			else {
+				log->error(ERR_G4PARAMETERSMISMATCH,
+				           "The boolean constructor of <", g4name, "> uses unsupported operator <",
+				           solidOperations[1], ">. Use +, -, or *.");
+			}
+			return thisG4Volume->getSolid();
+		}
+		log->error(ERR_G4PARAMETERSMISMATCH,
+		           "The boolean constructor of <", g4name, "> must be: left operator right.");
+		return nullptr;
 	}
 
 	// Parse and validate parameters for the requested primitive.
@@ -207,6 +272,58 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 		                                      zPlane.get(),
 		                                      rInner.get(),
 		                                      rOuter.get()
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4Polyhedra") {
+		// GEMC2 "Pgon" parameter order: phiStart, phiTotal, numSides, numZPlanes,
+		// then rInner[], rOuter[], zPlane[].
+		double phistart = pars[0];
+		double phitotal = pars[1];
+		int    numSides = static_cast<int>(pars[2]);
+		int    zplanes  = static_cast<int>(pars[3]);
+
+		if (numSides < 1 || static_cast<int>(pars.size()) != 4 + 3 * zplanes) {
+			log->error(ERR_G4PARAMETERSMISMATCH,
+			           "The constructor of <", g4name, "> must have numSides >= 1 and ",
+			           4 + 3 * zplanes, " parameters (4 + 3 x numZPlanes), we got ", pars.size());
+		}
+
+		// Allocate arrays (data is copied by G4Polyhedra during construction).
+		auto zPlane = std::make_unique<double[]>(zplanes);
+		auto rInner = std::make_unique<double[]>(zplanes);
+		auto rOuter = std::make_unique<double[]>(zplanes);
+
+		for (int zpl = 0; zpl < zplanes; ++zpl) {
+			rInner[zpl] = pars[4 + 0 * zplanes + zpl];
+			rOuter[zpl] = pars[4 + 1 * zplanes + zpl];
+			zPlane[zpl] = pars[4 + 2 * zplanes + zpl];
+		}
+
+		thisG4Volume->setSolid(new G4Polyhedra(g4name,   // name
+		                                       phistart, // Initial Phi starting angle
+		                                       phitotal, // Total Phi angle
+		                                       numSides, // Number of sides
+		                                       zplanes,  // Number of z planes
+		                                       zPlane.get(),
+		                                       rInner.get(),
+		                                       rOuter.get()
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4Paraboloid") {
+		thisG4Volume->setSolid(new G4Paraboloid(g4name, // name
+		                                        pars[0], // half-length in z
+		                                        pars[1], // radius at -dz
+		                                        pars[2]  // radius at +dz
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4EllipticalTube") {
+		thisG4Volume->setSolid(new G4EllipticalTube(g4name, // name
+		                                            pars[0], // half length in x
+		                                            pars[1], // half length in y
+		                                            pars[2]  // half length in z
 		                       ), log);
 		return thisG4Volume->getSolid();
 	}

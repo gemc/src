@@ -95,6 +95,9 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 		previousRemainingVolumes = thisIterationRemainingVolumes.size();
 	} while (!thisIterationRemainingVolumes.empty());
 
+	// Phase 5: build optical surfaces (mirrors), now that all logical/physical volumes exist.
+	buildOpticalSurfaces(gsystemMap);
+
 	// Optional diagnostic output: list known materials from the Geant4 NIST manager.
 	if (gopts->getSwitch("showPredefinedMaterials")) { G4NistManager::Instance()->ListMaterials("all"); }
 

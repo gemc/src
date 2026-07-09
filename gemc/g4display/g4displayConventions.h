@@ -25,7 +25,7 @@
 #define GDEFAULTVIEWERPOS     "-400+100"
 
 // Default circle segmentation resolution for curved primitives.
-#define GDEFAULTVSEGPERCIRCLE 50
+#define GDEFAULTVSEGPERCIRCLE 100
 
 // Sentinel value used to indicate that a scene text Z coordinate was not specified.
 #define GNOT_SPECIFIED_SCENE_TEXT_Z (-1234.5)

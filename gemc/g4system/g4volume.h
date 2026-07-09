@@ -27,6 +27,8 @@
 // ─── Geant4 includes ───────────────────────────────────────────────
 #include "G4FieldManager.hh"
 #include "G4LogicalVolume.hh"
+#include "G4RotationMatrix.hh"
+#include "G4ThreeVector.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4VSolid.hh"
 
@@ -80,6 +82,29 @@ public:
 	 */
 	[[nodiscard]] G4VPhysicalVolume* getPhysical() const noexcept { return physicalVolume; }
 
+	/**
+	 * \brief Return the volume's local frame rotation, recorded at solid-creation time.
+	 *
+	 * @details Used when this solid is the second operand of a boolean operation:
+	 * the operation applies the operand's own rotation/position as the relative
+	 * transform, following the GEMC2 `Operation:` convention.
+	 */
+	[[nodiscard]] const G4RotationMatrix& getSolidRotation() const noexcept { return solidRotation; }
+
+	/// \brief Return the volume's local position, recorded at solid-creation time.
+	[[nodiscard]] const G4ThreeVector& getSolidTranslation() const noexcept { return solidTranslation; }
+
+	/**
+	 * \brief Record the volume's local frame rotation and position.
+	 *
+	 * \param rot Frame rotation parsed from the volume definition.
+	 * \param pos Position parsed from the volume definition.
+	 */
+	void setSolidPlacement(const G4RotationMatrix& rot, const G4ThreeVector& pos) {
+		solidRotation    = rot;
+		solidTranslation = pos;
+	}
+
 	// ────── setters ────────────────────────────────────────────────
 
 	/**
@@ -132,6 +157,12 @@ private:
 
 	/** Stored \c G4VSolid pointer (may be \c nullptr). */
 	G4VSolid* solidVolume{nullptr};
+
+	/** Local frame rotation recorded at solid-creation time (boolean operand transform). */
+	G4RotationMatrix solidRotation;
+
+	/** Local position recorded at solid-creation time (boolean operand transform). */
+	G4ThreeVector solidTranslation;
 
 	/** Stored \c G4LogicalVolume pointer (may be \c nullptr). */
 	G4LogicalVolume* logicalVolume{nullptr};

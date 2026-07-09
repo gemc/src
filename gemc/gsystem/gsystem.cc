@@ -37,6 +37,13 @@ GSystem::GSystem(const GSystem& other)
 			gmaterialsMap[key] = std::make_shared<GMaterial>(*materialPtr);
 		}
 	}
+
+	// Deep copy the gmirrorsMap
+	for (const auto& [key, mirrorPtr] : other.gmirrorsMap) {
+		if (mirrorPtr) {
+			gmirrorsMap[key] = std::make_shared<GMirror>(*mirrorPtr);
+		}
+	}
 }
 
 
@@ -178,6 +185,33 @@ void GSystem::addGMaterial(std::vector<std::string> pars) {
 		log->error(ERR_GMATERIALALREADYPRESENT,
 		           "gMaterial <" + materialName + "> already exists in gmaterialsMap.");
 	}
+}
+
+
+// MARK: GMIRRORS
+
+// See gsystem.h for API docs.
+void GSystem::addGMirror(std::vector<std::string> pars) {
+	std::string mirrorName = pars[0];
+
+	if (gmirrorsMap.find(mirrorName) == gmirrorsMap.end()) {
+		gmirrorsMap[mirrorName] = std::make_shared<GMirror>(name, pars, log);
+		log->info(1, "Adding gMirror <" + mirrorName + "> to gmirrorsMap.");
+		log->info(2, *gmirrorsMap[mirrorName]);
+	}
+	else {
+		log->error(ERR_GMIRRORALREADYPRESENT,
+		           "gMirror <" + mirrorName + "> already exists in gmirrorsMap.");
+	}
+}
+
+
+// See gsystem.h for API docs.
+const GMirror* GSystem::getGMirror(const std::string& mirrorName) const {
+	auto it = gmirrorsMap.find(mirrorName);
+	if (it != gmirrorsMap.end())
+		return it->second.get();
+	return nullptr;
 }
 
 

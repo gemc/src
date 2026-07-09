@@ -204,6 +204,7 @@ public:
 	///@{
 	[[nodiscard]] std::string getCopyOf() const { return copyOf; }
 	[[nodiscard]] std::string getSolidsOpr() const { return solidsOpr; }
+	[[nodiscard]] std::string getMirror() const { return mirror; }
 	[[nodiscard]] std::string getDescription() const { return description; }
 	///@}
 

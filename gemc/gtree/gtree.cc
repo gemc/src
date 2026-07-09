@@ -4,6 +4,7 @@
 
 // c++
 #include <cmath>
+#include <set>
 #include <sstream>
 
 // Qt
@@ -13,6 +14,7 @@
 #include <QColorDialog>
 #include <QMessageBox>
 #include <QSignalBlocker>
+#include <QStringList>
 #include <QTimer>
 
 // gtree
@@ -78,6 +80,12 @@ const PDesc& solidParamDescs(const std::string& solid, std::size_t n) {
                       "dphi: delta phi angle",
                       "stheta: starting theta angle",
                       "dtheta: delta theta angle"}},
+        {"G4Paraboloid", {"dz: half length in z",
+                          "r1: radius at -dz",
+                          "r2: radius at +dz"}},
+        {"G4EllipticalTube", {"dx: half length in x",
+                              "dy: half length in y",
+                              "dz: half length in z"}},
     };
     static const std::unordered_map<std::size_t, PDesc> kTrap = {
         {4,  {"pz: length along Z",
@@ -175,19 +183,109 @@ QString formatParameters(const std::string& solid, const std::string& paramsStr)
     return html;
 }
 
+std::string resolveBooleanOperandName(const std::string& systemName,
+                                      const std::string& operand,
+                                      const std::unordered_map<std::string, const GVolume*>& gvolumes) {
+    if (gvolumes.find(operand) != gvolumes.end()) return operand;
+
+    const std::string qualified = systemName.empty() ? operand : systemName + "/" + operand;
+    if (gvolumes.find(qualified) != gvolumes.end()) return qualified;
+
+    return operand;
+}
+
+std::string leafName(const std::string& volumeName) {
+    const auto slash = volumeName.find_last_of('/');
+    return slash == std::string::npos ? volumeName : volumeName.substr(slash + 1);
+}
+
+QString joinBooleanTokens(const std::vector<std::string>& tokens) {
+    QStringList parts;
+    for (const auto& token : tokens) {
+        parts << QString::fromStdString(token).toHtmlEscaped();
+    }
+    return parts.join(QStringLiteral(" "));
+}
+
+QString formatOperationLine(const std::vector<std::string>& tokens,
+                            const std::string& systemName,
+                            const std::unordered_map<std::string, const GVolume*>& gvolumes) {
+    if (tokens.size() != 3) return joinBooleanTokens(tokens);
+
+    const auto left  = leafName(resolveBooleanOperandName(systemName, tokens[0], gvolumes));
+    const auto right = leafName(resolveBooleanOperandName(systemName, tokens[2], gvolumes));
+    return QString("%1 %2 %3").arg(QString::fromStdString(left).toHtmlEscaped(),
+                                   QString::fromStdString(tokens[1]).toHtmlEscaped(),
+                                   QString::fromStdString(right).toHtmlEscaped());
+}
+
+void appendNestedBooleanOperationLines(QString& html,
+                                       const std::string& volumeName,
+                                       const std::string& systemName,
+                                       const std::unordered_map<std::string, const GVolume*>& gvolumes,
+                                       std::set<std::string>& visited) {
+    const auto fullName = resolveBooleanOperandName(systemName, volumeName, gvolumes);
+    if (!visited.insert(fullName).second) return;
+
+    const auto gvolIt = gvolumes.find(fullName);
+    if (gvolIt == gvolumes.end()) return;
+
+    const auto solidsOpr = gvolIt->second->getSolidsOpr();
+    if (solidsOpr.empty() || solidsOpr == UNINITIALIZEDSTRINGQUANTITY) return;
+
+    const auto tokens = gutilities::getStringVectorFromString(solidsOpr);
+    if (tokens.size() != 3) return;
+
+    html += QString("<br>&nbsp;&nbsp;%1 = %2")
+                .arg(QString::fromStdString(leafName(fullName)).toHtmlEscaped(),
+                     formatOperationLine(tokens, systemName, gvolumes));
+
+    appendNestedBooleanOperationLines(html, tokens[0], systemName, gvolumes, visited);
+    appendNestedBooleanOperationLines(html, tokens[2], systemName, gvolumes, visited);
+}
+
+QString formatBooleanOperationDescription(const std::string& fullName,
+                                          const std::string& solidsOpr,
+                                          const std::unordered_map<std::string, const GVolume*>& gvolumes) {
+    if (solidsOpr.empty() || solidsOpr == UNINITIALIZEDSTRINGQUANTITY) return {};
+
+    const auto tokens = gutilities::getStringVectorFromString(solidsOpr);
+    if (tokens.size() != 3) {
+        return QObject::tr("Boolean Operation: %1").arg(QString::fromStdString(solidsOpr).toHtmlEscaped());
+    }
+
+    const auto slash = fullName.find_last_of('/');
+    const std::string systemName = slash == std::string::npos ? "" : fullName.substr(0, slash);
+    QString html = QObject::tr("Boolean Operation: %1").arg(formatOperationLine(tokens, systemName, gvolumes));
+
+    std::set<std::string> visited{fullName};
+    appendNestedBooleanOperationLines(html, tokens[0], systemName, gvolumes, visited);
+    appendNestedBooleanOperationLines(html, tokens[2], systemName, gvolumes, visited);
+    return html;
+}
+
 } // anonymous namespace
 
 
 // Cache a volume's hierarchy, material, visualization attributes, and pygemc descriptor.
 G4Ttree_item::G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume) {
+    if (g4volume == nullptr || g4volume->getLogical() == nullptr || g4volume->getSolid() == nullptr) {
+        mother = MOTHEROFUSALL;
+        material = "unavailable";
+        color = QColor::fromRgbF(1.0, 1.0, 1.0);
+        opacity = 1.0;
+        is_visible = false;
+        return;
+    }
+
     auto pvolume = g4volume->getPhysical();
     auto lvolume = g4volume->getLogical();
     auto svolume = g4volume->getSolid();
 
     std::string lname = lvolume->GetName();
     if (lname != ROOTWORLDGVOLUMENAME) {
-        auto mlvolume = pvolume->GetMotherLogical();
-        mother = mlvolume->GetName();
+        auto mlvolume = pvolume != nullptr ? pvolume->GetMotherLogical() : nullptr;
+        mother = mlvolume != nullptr ? mlvolume->GetName() : MOTHEROFUSALL;
         material = lvolume->GetMaterial()->GetName();
     }
     else {
@@ -221,6 +319,7 @@ G4Ttree_item::G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume) {
         position       = gvolume->getPos();
         rotation       = gvolume->getRot();
         motherVolume   = gvolume->getMotherName();
+        solidsOpr      = gvolume->getSolidsOpr();
         volDescription = gvolume->getDescription();
     }
 }
@@ -385,6 +484,12 @@ void GTree::populateTree() {
 void GTree::build_tree(std::unordered_map<std::string, G4Volume*> g4volumes_map) {
     // loop over map
     for (auto [name, g4volume] : g4volumes_map) {
+        if (g4volume == nullptr || g4volume->getLogical() == nullptr ||
+            g4volume->getSolid() == nullptr || g4volume->getPhysical() == nullptr) {
+            log->info(2, "Skipping non-placed helper volume <", name, "> from tree");
+            continue;
+        }
+
         // skip the Geant4 world / ROOTWORLDGVOLUMENAME
         // auto lvolume = g4volume->getLogical();
         //
@@ -614,19 +719,31 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
 
             // pygemc descriptor fields
             const auto solidT = titem->get_solidType();
-            solidTypeLabel->setText(solidT.empty() ? QString() : tr("Solid: %1").arg(QString::fromStdString(solidT)));
+            solidTypeLabel->setText(solidT.empty() ? QString()
+                                                   : tr("Solid: %1").arg(QString::fromStdString(solidT)));
             const auto params = titem->get_parameters();
             const bool hasParams = !params.empty();
             parametersLabel->setVisible(hasParams);
             if (hasParams) parametersLabel->setHtml(formatParameters(solidT, params));
             const auto pos = titem->get_position();
-            positionLabel->setText(pos.empty() ? QString() : tr("Position: %1").arg(QString::fromStdString(pos)));
+            positionLabel->setText(pos.empty() ? QString()
+                                               : tr("Position: %1").arg(QString::fromStdString(pos)));
             const auto rot = titem->get_rotation();
-            rotationLabel->setText(rot.empty() ? QString() : tr("Rotation: %1").arg(QString::fromStdString(rot)));
+            rotationLabel->setText(rot.empty() ? QString()
+                                               : tr("Rotation: %1").arg(QString::fromStdString(rot)));
             const auto mom = titem->get_motherVolume();
             motherLabel->setText(mom.empty() ? QString() : tr("Mother: %1").arg(QString::fromStdString(mom)));
-            const auto desc = titem->get_volDescription();
-            descriptionLabel->setText(desc.empty() ? QString() : tr("Description: %1").arg(QString::fromStdString(desc)));
+            const auto boolDesc =
+                formatBooleanOperationDescription(fullName, titem->get_solidsOpr(), gvolumes_map);
+            if (!boolDesc.isEmpty()) {
+                descriptionLabel->setText(boolDesc);
+            }
+            else {
+                const auto desc = titem->get_volDescription();
+                descriptionLabel->setText(desc.empty() ? QString()
+                                                       : tr("Description: %1")
+                                                             .arg(QString::fromStdString(desc)));
+            }
 
             // Sync the slider position to the cached alpha channel.
             double op = titem->get_opacity();
