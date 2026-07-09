@@ -26,7 +26,6 @@ moc_headers = files(
 )
 
 examples = {
-    'test_gboard' : [example_source, with_gui],
     'test_gboard_verbose' : [example_source, with_gui + verbosities]
 }
 

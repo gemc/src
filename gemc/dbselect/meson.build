@@ -42,7 +42,6 @@ geo_build = {
 reload_source = files('examples/test_reload_sequence.cc')
 
 examples = {
-    'test_db_select' : [example_source, with_gui + dbhost + gsystem],
     'test_db_select_verbose' : [example_source, with_gui + dbhost + gsystem + verbosity],
     'test_reload_sequence' : [reload_source, dbhost],
 }

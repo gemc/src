@@ -36,8 +36,6 @@ LD += {
     'internal_dependencies' : internal_deps,
 
     'examples' : {
-        'test_gparticle_single' : [example_source, single],
-        'test_gparticle_double' : [example_source, double],
         'test_gparticle_lund_file' : [example_source, lund],
         'test_gparticle_dis_lund_file' : [example_source, dis],
         'test_gparticle_single_plus_lund_file' : [example_source, single_plus_lund],

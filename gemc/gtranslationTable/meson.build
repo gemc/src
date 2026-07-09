@@ -23,7 +23,6 @@ LD += {
     'internal_dependencies' : internal_deps,
 
     'examples' : {
-        'test_translation_table' : [example_source, ''],
         'test_translation_table_verbose' : [example_source, verbosities]
     }
 }

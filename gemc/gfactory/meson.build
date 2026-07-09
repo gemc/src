@@ -24,7 +24,6 @@ LD += {
         'test_dyn_factory2' : [files('examples/TeslaFactory.cc'), true],
     },
     'examples' : {
-        'test_gfactory_static_and_dynamic_load' : [example_sourcess, ''],
         'test_gfactory_static_and_dynamic_load_verbose' : [example_sourcess, verbosities]
     }
 }

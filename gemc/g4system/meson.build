@@ -47,7 +47,6 @@ LD += {
         'test_g4system_geo' : [files('examples/example.py')]
     },
     'examples' : {
-        'test_g4system' : [example_source, gsystem + dbhost],
         'test_g4system_verbose' : [example_source, gsystem + dbhost + verbosities],
         'test_g4system_overlaps_switch' : [example_source, gsystem + dbhost + verbosities + overlaps]
     }

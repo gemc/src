@@ -75,8 +75,6 @@ LD += {
         'test_gsystem_geo_ascii' : [example_pysource, ['-f', 'ascii']]
     },
     'examples' : {
-        'test_gsystem_sqlite' : [example_source, gsystem_sqlite],
-        'test_gsystem_ascii' : [example_source, gsystem_ascii],
         'test_gsystem_sqlite_verbose' : [example_source, gsystem_sqlite + verbosity],
         'test_gsystem_ascii_verbose' : [example_source, gsystem_ascii + verbosity],
     }

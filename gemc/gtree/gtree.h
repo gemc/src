@@ -111,18 +111,41 @@ private:
 
     /**
      * \brief Cached mass (typically displayed in g or kg depending on magnitude).
+     *
+     * @details Mass, volume, and density are computed lazily on first request
+     * (see compute_physics_quantities()): Geant4 estimates a boolean solid's cubic
+     * volume by Monte Carlo, which takes seconds per solid — computing it eagerly
+     * for every tree item froze the GUI on boolean-heavy systems.
      */
-    double mass = 0.0;
+    mutable double mass = 0.0;
 
     /**
      * \brief Cached volume (typically displayed in cm3 or m3 depending on magnitude).
      */
-    double volume = 0.0;
+    mutable double volume = 0.0;
 
     /**
-     * \brief Cached density computed from mass/volume (average density).
+     * \brief Cached density of the volume material.
      */
-    double density = 0.0;
+    mutable double density = 0.0;
+
+    /** \brief True once mass/volume/density have been computed. */
+    mutable bool physics_computed = false;
+
+    /** \brief Logical volume used for the lazy physics computation (not owned). */
+    G4LogicalVolume* logical_ptr = nullptr;
+
+    /** \brief Solid used for the lazy physics computation (not owned). */
+    G4VSolid* solid_ptr = nullptr;
+
+    /**
+     * \brief Compute mass, volume, and density on first request.
+     *
+     * @details Boolean solids use a bounded Monte-Carlo estimate (100k points, ~1%
+     * accuracy) instead of Geant4's 1M-point default, and the mass is not propagated
+     * to daughters, so selecting any volume stays interactive.
+     */
+    void compute_physics_quantities() const;
 
     /**
      * \brief Flag intended for recursive operations (e.g. propagate styling).
@@ -158,14 +181,23 @@ public:
     /** \brief Return the cached opacity (alpha) in [0,1]. */
     [[nodiscard]] double get_opacity() const { return opacity; }
 
-    /** \brief Return the cached mass. */
-    [[nodiscard]] double get_mass() const { return mass; }
+    /** \brief Return the mass, computing it on first request. */
+    [[nodiscard]] double get_mass() const {
+        compute_physics_quantities();
+        return mass;
+    }
 
-    /** \brief Return the cached volume. */
-    [[nodiscard]] double get_volume() const { return volume; }
+    /** \brief Return the volume, computing it on first request. */
+    [[nodiscard]] double get_volume() const {
+        compute_physics_quantities();
+        return volume;
+    }
 
-    /** \brief Return the cached density. */
-    [[nodiscard]] double get_density() const { return density; }
+    /** \brief Return the density, computing it on first request. */
+    [[nodiscard]] double get_density() const {
+        compute_physics_quantities();
+        return density;
+    }
 
     /** \brief Return the cached material name. */
     [[nodiscard]] std::string get_material() const { return material; }

@@ -42,7 +42,6 @@ LD += {
         'test_detector_geo' : [files('examples/example.py')]
     },
     'examples' : {
-        'test_gdetector' : [example_source, gsystem + dbhost],
         'test_gdetector_verbose' : [example_source, gsystem + dbhost + verbosities]
     }
 }

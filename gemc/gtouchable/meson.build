@@ -26,7 +26,6 @@ LD += {
     'internal_dependencies' : internal_deps,
 
     'examples' : {
-        'test_gtouchable_example' : [example_source, ''],
         'test_gtouchable_example_verbose' : [example_source, verbosities]
     }
 }

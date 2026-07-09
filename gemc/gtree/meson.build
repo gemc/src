@@ -37,7 +37,6 @@ qrc_examples_sources = files(
 )
 
 examples = {
-    'test_gtree' : [example_source, with_gui + dbhost + gsystem],
     'test_gtree_verbose' : [example_source, with_gui + dbhost + gsystem + verbosities]
 }
 

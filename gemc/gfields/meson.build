@@ -52,7 +52,6 @@ LD += {
     'internal_dependencies' : internal_deps,
 
     'examples' : {
-        'test_gfield_dipole' : [example_source, input_file],
         'test_gfield_dipole_verbose' : [example_source, input_file + verbosities],
         'test_gfield_dipole_field_at' : [example_source, input_file + ['-fieldAt=10*cm 0*cm 0*cm']],
         'test_gfield_dipole_field_map_points' : [

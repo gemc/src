@@ -24,7 +24,6 @@ qrc_examples_sources = files(
 )
 
 examples = {
-    'test_gsplash' : [example_source, with_gui],
     'test_gsplash_verbose' : [example_source, with_gui + verbosities]
 }
 

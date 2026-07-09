@@ -24,7 +24,6 @@ LD += {
     'internal_dependencies' : internal_deps,
 
     'examples' : {
-        'test_gphysics' : [example_source, '' ],
         'test_gphysics_verbose' : [example_source, verbosities]
     }
 }

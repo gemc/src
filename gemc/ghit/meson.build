@@ -23,7 +23,6 @@ LD += {
     'internal_dependencies' : internal_deps,
 
     'examples' : {
-        'test_ghit' : [example_source, ''],
         'test_ghit_verbose' : [example_source, verbosities]
     }
 }

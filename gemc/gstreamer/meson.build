@@ -111,7 +111,6 @@ endif
 
 # ── examples: generate the matrix programmatically ────────────────────────────
 examples = {
-    'test_gstreamer' : [example_source, buffer],
     'test_gstreamer_verbose' : [example_source, buffer + verbosities],
 }
 
@@ -119,7 +118,6 @@ examples = {
 foreach name : ['ascii', 'csv', 'json']
     fmt = fmt_args.get(name)
     examples += {
-        'test_gstreamer_' + name : [example_source, buffer + fmt],
         'test_gstreamer_' + name + '_verbose' : [example_source, buffer + fmt + verbosities],
     }
 endforeach
@@ -129,7 +127,6 @@ if root_dep.found()
     foreach name : ['root', 'ascii_root']
         fmt = fmt_args.get(name)
         examples += {
-            'test_gstreamer_' + name : [example_source, buffer + fmt],
             'test_gstreamer_' + name + '_verbose' : [example_source, buffer + fmt + verbosities],
         }
     endforeach

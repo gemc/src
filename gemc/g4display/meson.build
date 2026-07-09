@@ -42,7 +42,6 @@ qrc_examples_sources = files(
 )
 
 examples = {
-    'test_g4display' : [example_source, yaml + with_gui],
     'test_g4display_verbose' : [example_source, yaml + with_gui + verbosities]
 }
 
@@ -57,4 +56,3 @@ LD += {
     'additional_includes' : ['gemc/g4display', 'gemc/g4display/tabs'],
     'examples' : examples
 }
-

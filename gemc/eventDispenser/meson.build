@@ -24,7 +24,6 @@ LD += {
     'internal_dependencies' : internal_deps,
 
     'examples' : {
-        'test_event_dispenser' : [example_source, [weight_file_option, '-n=1000', ]],
         'test_event_dispenser_verbose' : [example_source, [weight_file_option, '-n=1000'] + verbosities]
     }
 }

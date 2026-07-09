@@ -49,10 +49,7 @@ LD += {
     'internal_dependencies' : internal_deps,
 
     'examples' : {
-        'test_gdata_event' : [example_event_source, ''],
         'test_gdata_event_verbose' : [example_event_source, verbosities],
-        'test_gdata_gframe' : [example_frame_source, ''],
         'test_gdata_gframe_verbose' : [example_frame_source, verbosities],
-        'test_gdata_run_event' : [example_run_source, ''],
         'test_gdata_run_verbose' : [example_run_source, verbosities + verbosities_run] }
 }

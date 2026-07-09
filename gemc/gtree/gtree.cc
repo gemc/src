@@ -7,6 +7,9 @@
 #include <set>
 #include <sstream>
 
+// geant4
+#include "G4BooleanSolid.hh"
+
 // Qt
 #include <QHeaderView>
 #include <QTextEdit>
@@ -308,10 +311,10 @@ G4Ttree_item::G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume) {
         is_visible = true;
     }
 
-    // Store scaled physics quantities for display (g, cm3, g/cm3).
-    mass = lvolume->GetMass(false, true) / (CLHEP::g);
-    volume = svolume->GetCubicVolume() / CLHEP::cm3;
-    density = (mass / volume);
+    // Physics quantities (mass, volume, density) are computed lazily on first
+    // request: see compute_physics_quantities().
+    logical_ptr = lvolume;
+    solid_ptr = svolume;
 
     if (gvolume) {
         solidType      = gvolume->getType();
@@ -321,6 +324,29 @@ G4Ttree_item::G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume) {
         motherVolume   = gvolume->getMotherName();
         solidsOpr      = gvolume->getSolidsOpr();
         volDescription = gvolume->getDescription();
+    }
+}
+
+
+// Compute mass, volume, and density on first request. Geant4 estimates a boolean
+// solid's cubic volume by Monte Carlo with 1M points by default — seconds per solid —
+// so boolean solids use a bounded 100k-point estimate (~1% accuracy, plenty for
+// display), and the mass is not propagated to daughters (whose solids may themselves
+// be booleans). This keeps volume selection interactive on boolean-heavy systems.
+void G4Ttree_item::compute_physics_quantities() const {
+    if (physics_computed) return;
+    physics_computed = true;
+    if (logical_ptr == nullptr || solid_ptr == nullptr) return;
+
+    if (dynamic_cast<G4BooleanSolid*>(solid_ptr) != nullptr) {
+        volume = solid_ptr->EstimateCubicVolume(100000, 0.001) / CLHEP::cm3;
+        density = logical_ptr->GetMaterial()->GetDensity() / (CLHEP::g / CLHEP::cm3);
+        mass = volume * density;
+    }
+    else {
+        volume = solid_ptr->GetCubicVolume() / CLHEP::cm3;
+        mass = logical_ptr->GetMass(false, false) / CLHEP::g;
+        density = volume > 0 ? mass / volume : 0.0;
     }
 }
 
@@ -507,10 +533,9 @@ void GTree::build_tree(std::unordered_map<std::string, G4Volume*> g4volumes_map)
         if (it != gvolumes_map.end()) gvol = it->second;
         system_tree[name] = std::make_unique<G4Ttree_item>(g4volume, gvol);
 
-        log->info(2, "Adding ", name, " to tree, system_name is ", system_name,
-                  ", density: ", system_tree[name]->get_density(),
-                  "g/cm3, mass: ", system_tree[name]->get_mass(),
-                  "g, volume: ", system_tree[name]->get_volume(), "cm3");
+        // do not log mass/volume/density here: reading them triggers the (potentially
+        // Monte-Carlo) physics computation for every volume in the tree
+        log->info(2, "Adding ", name, " to tree, system_name is ", system_name);
     }
 }
 
@@ -700,10 +725,10 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
             );
             auto mass = titem->get_mass();
             if (mass < 1000) {
-                massLabel->setText(tr("Total Mass: %1 g").arg(mass));
+                massLabel->setText(tr("Mass: %1 g").arg(mass));
             }
             else {
-                massLabel->setText(tr("Total Mass: %1 kg").arg(mass / 1000));
+                massLabel->setText(tr("Mass: %1 kg").arg(mass / 1000));
             }
             auto volume = titem->get_volume();
             if (volume < 1000000) {
@@ -714,7 +739,7 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
             }
 
             densityLabel->setText(
-                tr("Average Density: %1 g / cm3").arg(titem->get_density())
+                tr("Density: %1 g / cm3").arg(titem->get_density())
             );
 
             // pygemc descriptor fields

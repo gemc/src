@@ -28,7 +28,6 @@ moc_headers = files(
 )
 
 examples = {
-    'test_g4dialog' : [example_source, with_gui],
     'test_g4dialog_verbose' : [example_source, with_gui + verbosities]
 }
 

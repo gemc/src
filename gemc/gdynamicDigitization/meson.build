@@ -37,7 +37,6 @@ LD += {
         'test_gdynamic_plugin' : [files('examples/gplugin_test_example.cc'), true],
     },
     'examples' : {
-        'test_gdynamic_plugin_load' : [example_source, ''],
         'test_gdynamic_plugin_load_verbose' : [example_source, verbosities],
     }
 }
