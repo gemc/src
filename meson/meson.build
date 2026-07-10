@@ -35,6 +35,19 @@ expat_dep = dependency('expat', required: true)
 # pkg-config --cflags --libs zlib
 zlib_dep = dependency('zlib', static : false, required : true)  # Use shared libz.so instead of libz.az
 
+g4install = run_command('sh', '-c', 'printf %s "$G4INSTALL"', check : false).stdout().strip()
+geant4_config = find_program('geant4-config', required : false)
+if g4install != ''
+    geant4_module_config = find_program(g4install / 'bin' / 'geant4-config', required : false)
+    if geant4_module_config.found()
+        geant4_config = geant4_module_config
+    endif
+endif
+
+if not geant4_config.found()
+    error('geant4-config was not found. Load a Geant4 module before configuring GEMC.')
+endif
+
 # pkg-config --cflags --libs clhep
 clhep_deps = dependency(
     'clhep',
@@ -99,19 +112,6 @@ fs = import('fs')
 gemc_prefix = get_option('prefix')
 geant4_pc_path = gemc_prefix / 'lib/pkgconfig'
 g4_pkgconfig_script = meson.project_source_root() / 'meson/g4_pkgconfig.py'
-
-g4install = run_command('sh', '-c', 'printf %s "$G4INSTALL"', check : false).stdout().strip()
-geant4_config = find_program('geant4-config', required : false)
-if g4install != ''
-    geant4_module_config = find_program(g4install / 'bin' / 'geant4-config', required : false)
-    if geant4_module_config.found()
-        geant4_config = geant4_module_config
-    endif
-endif
-
-if not geant4_config.found()
-    error('geant4-config was not found. Load a Geant4 module before configuring GEMC.')
-endif
 
 geant4_config_version = run_command(geant4_config, '--version', check : true).stdout().strip()
 message('Generating Geant4 pkg-config files in ' + geant4_pc_path + ' from ' + geant4_config.full_path())

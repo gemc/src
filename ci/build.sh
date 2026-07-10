@@ -10,12 +10,20 @@
 # Load environment variables: log file paths, job count, helper functions.
 source ci/env.sh
 
-# Resolve meson setup flags from the optional sanitizer argument ($1).
-meson_option=$(meson_setup_options $1)
+# Resolve meson setup flags from the optional sanitizer argument.
+meson_option=$(meson_setup_options "${1:-}")
+
+if command -v geant4-config >/dev/null 2>&1; then
+  geant4_found=true
+  geant4_summary="$(command -v geant4-config) : $(geant4-config --version)"
+else
+  geant4_found=false
+  geant4_summary="not found"
+fi
 
 # Print build environment summary (compiler paths, options, core count).
 {
-  echo " > Geant-config: $(command -v geant4-config) : $(geant4-config --version)"
+  echo " > Geant-config: $geant4_summary"
   echo " > Root-config: $(command -v root-config) : $(root-config --version)"
   echo
   echo " > Meson Interactive Options: $test_interactive_option"
@@ -23,6 +31,11 @@ meson_option=$(meson_setup_options $1)
   echo " > Using $jobs cores"
   echo
 } | tee -a "$setup_log"
+
+if [[ "$geant4_found" == false ]]; then
+  echo "Geant4 was not found. Load a Geant4 module before configuring GEMC." | tee -a "$setup_log"
+  exit 1
+fi
 
 
 # Remove any previous install directory, then configure the build tree.
@@ -120,13 +133,13 @@ else
 fi
 
 # Under UBSan, preload the CSV plugin to avoid static-TLS exhaustion at dlopen time.
-if [ "$1" = "undefined" ]; then
+if [ "${1:-}" = "undefined" ]; then
   gstreamer_csv_plugin="$PWD/build/gstreamer_csv_plugin.gplugin"
   # UBSan on Linux can exhaust static TLS before GEMC's runtime dlopen() loads
   # this plugin. Preloading it makes the dynamic loader reserve TLS at process
   # startup while keeping the workaround scoped to the affected sanitizer test.
-  if ! run_command_with_retry "undefined sanitizer preload tests" \
-    env LD_PRELOAD="$gstreamer_csv_plugin" meson test "${test_options[@]}" -v "${undefined_preload_tests[@]}"; then
+  if ! run_command_with_retry "undefined sanitizer preload tests" env LD_PRELOAD="$gstreamer_csv_plugin" \
+    meson test "${test_options[@]}" -v "${undefined_preload_tests[@]}"; then
     echo " > Meson Tests failed. Log: "
     cat $test_log
     exit 1

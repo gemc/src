@@ -50,7 +50,7 @@ keep_bins=(
   test_gdata_event_verbose
   test_ghit
   test_gstreamer_csv
-  test_gdynamic_plugin_load
+  test_gdynamic_plugin_load_verbose
   test_event_dispenser
 )
 

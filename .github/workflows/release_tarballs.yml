@@ -145,6 +145,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          asset_suffix="-${{ matrix.image }}-${{ matrix.image_tag }}-${{ matrix.arch }}.tar.gz"
+          while read -r asset; do
+            case "$asset" in
+              gemc-"${RELEASE_TAG}"-geant4-*"$asset_suffix")
+                gh release delete-asset "${RELEASE_TAG}" "$asset" --repo "${REPO}" --yes
+                ;;
+            esac
+          done < <(gh release view "${RELEASE_TAG}" --repo "${REPO}" --json assets --jq '.assets[].name')
           gh release upload "${RELEASE_TAG}" \
             --repo "${REPO}" \
             "${{ steps.package.outputs.tarball }}" \
@@ -269,6 +277,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          while read -r asset; do
+            case "$asset" in
+              gemc-"${RELEASE_TAG}"-geant4-*-macosx*-arm64.tar.gz)
+                gh release delete-asset "${RELEASE_TAG}" "$asset" --repo "${REPO}" --yes
+                ;;
+            esac
+          done < <(gh release view "${RELEASE_TAG}" --repo "${REPO}" --json assets --jq '.assets[].name')
           gh release upload "${RELEASE_TAG}" \
             --repo "${REPO}" \
             "${{ steps.build.outputs.tarball }}" \

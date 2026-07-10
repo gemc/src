@@ -60,6 +60,13 @@ jobs:
               --title "Dev Nightly" \
               --prerelease \
               --notes "Dev nightly release."
+          while read -r asset; do
+            case "$asset" in
+              gemc-"${TAG_NAME}"-geant4-*.tar.gz)
+                gh release delete-asset "${TAG_NAME}" "$asset" --repo "$REPO" --yes
+                ;;
+            esac
+          done < <(gh release view "${TAG_NAME}" --repo "$REPO" --json assets --jq '.assets[].name')
           gh release upload "${TAG_NAME}" --repo "$REPO" "${tarballs[@]}" --clobber
 
   discover:
@@ -157,6 +164,6 @@ jobs:
               ./install_geant4_data.sh
               source /root/gemc/gemc.env
               gemc -v
-              test_gdynamic_plugin_load
+              test_gdynamic_plugin_load_verbose
               test_gdata_event_verbose
             '

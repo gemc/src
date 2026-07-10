@@ -47,7 +47,7 @@ function meson_setup_options {
     sanitizer_library_options="-Ddefault_library=shared -Ddefault_both_libraries=shared"
     buildtype=" -Dbuildtype=debug "
 
-    case $1 in
+    case ${1:-} in
         "address")
             meson_options="-Db_sanitize=address $sanitizer_library_options"
             ;;
@@ -82,7 +82,7 @@ function meson_setup_options {
             "--native-file=core.ini"
             "-Droot=enabled"
             "-Dprefix=${install_dir}"
-            "-Dpkg_config_path=$PKG_CONFIG_PATH:${install_dir}/lib/pkgconfig"
+            "-Dpkg_config_path=${install_dir}/lib/pkgconfig"
             $buildtype
         )
 
@@ -121,7 +121,7 @@ log_dir=$SIM_HOME/logs
 test_interactive_option=""
 
 # if we are in the docker container, we need to load the modules
-if [[ -z "${AUTOBUILD}" ]]; then
+if [[ -z "${AUTOBUILD:-}" ]]; then
 	echo "\nNot in container"
   # Local developer machines run the interactive (GUI) tests by default.
   # Headless CI (e.g. the macOS tarball workflow) opts out with GEMC_INTERACTIVE_TESTS=false.
