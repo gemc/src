@@ -46,6 +46,7 @@ function meson_setup_options {
     meson_options=""
     sanitizer_library_options="-Ddefault_library=shared -Ddefault_both_libraries=shared"
     buildtype=" -Dbuildtype=debug "
+    local pkg_config_path="${install_dir}/lib/pkgconfig"
 
     case ${1:-} in
         "address")
@@ -76,13 +77,17 @@ function meson_setup_options {
             ;;
     esac
 
+    if [[ -n "${PKG_CONFIG_PATH:-}" ]]; then
+        pkg_config_path="${pkg_config_path}:${PKG_CONFIG_PATH}"
+    fi
+
     args=(
             $meson_options
             $test_interactive_option
             "--native-file=core.ini"
             "-Droot=enabled"
             "-Dprefix=${install_dir}"
-            "-Dpkg_config_path=${install_dir}/lib/pkgconfig"
+            "-Dpkg_config_path=${pkg_config_path}"
             $buildtype
         )
 
