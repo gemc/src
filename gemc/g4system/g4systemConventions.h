@@ -47,3 +47,5 @@
 #define TRITON_ISOTOPE        "Triton"
 #define TRITIUM_ELEMENT       "Tritium"
 #define TRITIUMGAS_MATERIAL   "H3Gas"
+#define AIROPTICAL_MATERIAL   "G4_AIR_Optical"
+#define KRYPTONITE_MATERIAL   "Kryptonite"

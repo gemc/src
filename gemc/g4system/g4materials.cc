@@ -264,4 +264,34 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		g4materialsMap[TRITIUMGAS_MATERIAL]->AddElement(Tritium, 1);
 	}
 	log->info(2, "G4World: Tritium gas material <", TRITIUMGAS_MATERIAL, "> created with density <", d, ">");
+
+	// ---- Optical Air
+
+	// Air with a refractive index, used by optical volumes (GEMC2's built-in "Air_Opt").
+	// Without RINDEX Geant4 kills optical photons at the material boundary.
+	if (G4NistManager::Instance()->FindMaterial(AIROPTICAL_MATERIAL) == nullptr) {
+		auto NISTman = G4NistManager::Instance();
+		d = 1.29 * CLHEP::mg / CLHEP::cm3;
+		g4materialsMap[AIROPTICAL_MATERIAL] = new G4Material(AIROPTICAL_MATERIAL, d, 2);
+		g4materialsMap[AIROPTICAL_MATERIAL]->AddMaterial(NISTman->FindOrBuildMaterial("G4_N"), 70 * CLHEP::perCent);
+		g4materialsMap[AIROPTICAL_MATERIAL]->AddMaterial(NISTman->FindOrBuildMaterial("G4_O"), 30 * CLHEP::perCent);
+
+		std::vector<G4double> photonEnergy = {2.034 * CLHEP::eV, 4.136 * CLHEP::eV};
+		std::vector<G4double> refractiveIndex = {1.00, 1.00};
+		auto airOpticalMPT = new G4MaterialPropertiesTable();
+		airOpticalMPT->AddProperty("RINDEX", photonEnergy, refractiveIndex);
+		g4materialsMap[AIROPTICAL_MATERIAL]->SetMaterialPropertiesTable(airOpticalMPT);
+	}
+	log->info(2, "G4World: Optical air material <", AIROPTICAL_MATERIAL, "> created with density <", d, ">");
+
+	// ---- Kryptonite
+
+	// Material used to kill every track that touches it (GEMC2's built-in).
+	if (G4NistManager::Instance()->FindMaterial(KRYPTONITE_MATERIAL) == nullptr) {
+		d = 1.0e-8 * CLHEP::mg / CLHEP::cm3;
+		g4materialsMap[KRYPTONITE_MATERIAL] = new G4Material(KRYPTONITE_MATERIAL, d, 1);
+		g4materialsMap[KRYPTONITE_MATERIAL]->AddMaterial(G4NistManager::Instance()->FindOrBuildMaterial("G4_Ar"),
+		                                                 100 * CLHEP::perCent);
+	}
+	log->info(2, "G4World: Kryptonite material <", KRYPTONITE_MATERIAL, "> created with density <", d, ">");
 }
