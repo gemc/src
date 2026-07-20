@@ -228,6 +228,18 @@ public:
 	bool operator==(const GTouchable& gtouchable) const;
 
 	/**
+	 * \brief Builds a compact key identifying the hit cell of this touchable.
+	 *
+	 * Two touchables produce the same key if and only if \c operator== considers them equal:
+	 * the key concatenates the identity values and the type-specific discriminator
+	 * (time-cell index for \c readout, track id for \c flux and \c gPhotonDetector,
+	 * pid for \c particle_counter). Used for map-based hit lookups in the sensitive detector.
+	 *
+	 * \return The hit-cell key string.
+	 */
+	[[nodiscard]] std::string cellKey() const;
+
+	/**
 	 * \brief Assigns the track id used by \c flux and \c dosimeter discrimination.
 	 *
 	 * This value is typically set during hit processing when the simulation step is known.

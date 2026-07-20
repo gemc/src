@@ -52,7 +52,7 @@
  * \subsection gsd_design Architecture and design notes
  *
  * **Key responsibilities**
- * - Maintain a per-event list of already-seen touchables (touchableVector) to decide whether a step creates a new hit
+ * - Maintain a per-event map of hit-cell keys (hitsByCellKey) to decide whether a step creates a new hit
  *   or updates an existing one.
  * - Store hits in a \c G4THitsCollection<GHit> (typedef GHitsCollection).
  *

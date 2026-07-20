@@ -27,3 +27,15 @@
 #define ERR_GDIGIMAP_NOT_EXISTING 1202
 #define ERR_STREAMERMAP_NOT_EXISTING 1203
 ///@}
+
+/**
+ * @ingroup gactions_module
+ * @name Track guards
+ * \brief Per-step track limits applied by GSteppingAction (GEMC2 MSteppingAction parity).
+ */
+///@{
+#define MAX_OPTICAL_PHOTON_STEPS 100
+#define MAX_TRACK_STEPS 10000
+/// Must match KRYPTONITE_MATERIAL in g4system/g4systemConventions.h.
+#define KRYPTONITE_KILL_MATERIAL "Kryptonite"
+///@}

@@ -8,6 +8,9 @@
 #include <gemc/gdynamicDigitization/gdynamicdigitization.h>
 #include <gemc/gbase/gbase.h>
 
+// c++
+#include <unordered_map>
+
 /**
  * \file gsd.h
  * @ingroup gsd_module
@@ -203,23 +206,13 @@ private:
 	}
 
 	/**
-	 * \brief Per-event cache of touchables already associated with a hit.
+	 * \brief Per-event map from hit-cell key (GTouchable::cellKey()) to the hit for that cell.
 	 *
-	 * This vector is cleared at the start of each event and is used to decide whether a processed touchable
-	 * should create a new hit or update an existing one.
+	 * Cleared at the start of each event. Gives O(1) create-or-update hit lookups in ProcessHits();
+	 * with many hits per event (e.g. optical detectors) a linear scan of the hit collection would be
+	 * quadratic. The GHit pointers are non-owning: the hits collection owns the hits.
 	 */
-	std::vector<GTouchable> touchableVector;
-
-	/**
-	 * \brief Determines whether @p thisTouchable is new in the current event and updates the per-event cache.
-	 *
-	 * If @p thisTouchable is not present in touchableVector, it is appended and the function returns \c true.
-	 * Otherwise, the function returns \c false.
-	 *
-	 * \param thisTouchable Touchable to test and potentially record.
-	 * \return \c true if the touchable was not previously seen in this event, otherwise \c false.
-	 */
-	bool isThisANewTouchable(const std::shared_ptr<GTouchable>& thisTouchable);
+	std::unordered_map<std::string, GHit*> hitsByCellKey;
 
 	/**
 	 * \brief Pointer to the current event hits collection.
@@ -228,16 +221,6 @@ private:
 	 * by ProcessHits() to insert and retrieve hits.
 	 */
 	GHitsCollection* gHitsCollection;
-
-	/**
-	 * \brief Retrieves an existing hit in the current hit collection matching @p gtouchable.
-	 *
-	 * This method iterates over the hits collection and compares each hit's GTouchable to @p gtouchable.
-	 *
-	 * \param gtouchable Touchable identifying the hit to retrieve.
-	 * \return Pointer to the matching hit, if found.
-	 */
-	GHit* getHitInHitCollectionUsingTouchable(const std::shared_ptr<GTouchable>& gtouchable);
 
 public:
 	/**

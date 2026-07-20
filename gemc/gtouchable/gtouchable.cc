@@ -154,6 +154,27 @@ bool GTouchable::operator==(const GTouchable& that) const {
 	return typeComparison;
 }
 
+// Builds the hit-cell key with the same semantics as operator==: identity values plus the
+// type-specific discriminator. Kept allocation-light because it runs for every step in a
+// sensitive volume.
+std::string GTouchable::cellKey() const {
+	std::string key;
+	key.reserve(gidentity.size() * 8 + 12);
+	for (const auto& gid : gidentity) {
+		key += std::to_string(gid.getValue());
+		key += ',';
+	}
+	switch (gType) {
+		case readout: key += 'r'; key += std::to_string(stepTimeAtElectronicsIndex); break;
+		case flux:
+		case gPhotonDetector: key += 't'; key += std::to_string(trackId); break;
+		case particle_counter: key += 'p'; key += std::to_string(pid); break;
+		case dosimeter:
+		case integral_counter: break;
+	}
+	return key;
+}
+
 // ostream GTouchable
 std::ostream& operator<<(std::ostream& stream, const GTouchable& gtouchable) {
 	stream << " GTouchable: ";

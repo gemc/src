@@ -28,8 +28,8 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc) {
 	std::string sdName = GetName();
 	log->info(1, FUNCTION_NAME, sdName);
 
-	// Clearing touchableVector at the start of the event (per-event hit identity cache).
-	touchableVector.clear();
+	// Clearing the per-event hit-cell map (per-event hit identity cache).
+	hitsByCellKey.clear();
 	GHit::clearTrackVertexCache();
 
 	// Initializing gHitsCollection using the Geant4 G4THitsCollection constructor (expects detector and collection names).
@@ -72,57 +72,21 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 		thisGTouchable->assignTrackId(thisStep->GetTrack()->GetTrackID());
 		thisGTouchable->assignPId(thisStep->GetTrack()->GetDefinition()->GetPDGEncoding());
 
-		if (isThisANewTouchable(thisGTouchable)) {
-			gHitsCollection->insert(new GHit(thisGTouchable, thisStep));
+		// Create-or-update through the per-event hit-cell map: the key has the same
+		// semantics as GTouchable::operator== (identity + type discriminator).
+		auto [it, isNewCell] = hitsByCellKey.try_emplace(thisGTouchable->cellKey(), nullptr);
+		if (isNewCell) {
+			log->info(2, " ✅ new GTouchable for ", GetName(), ": ", thisGTouchable->getIdentityString());
+			it->second = new GHit(thisGTouchable, thisStep);
+			gHitsCollection->insert(it->second);
 		}
 		else {
-			GHit* existingHit = getHitInHitCollectionUsingTouchable(thisGTouchable);
-			if (existingHit != nullptr) {
-				existingHit->addHitInfos(thisStep);
-			}
+			log->info(2, " ❌ existing GTouchable for ", GetName(), ": ", thisGTouchable->getIdentityString());
+			it->second->addHitInfos(thisStep);
 		}
 	}
 
 	return true;
-}
-
-
-// Checks whether a touchable has already been seen in this event.
-// If not present, it is appended to the per-event cache.
-bool GSensitiveDetector::isThisANewTouchable(const std::shared_ptr<GTouchable>& thisTouchable) {
-	log->info(2, "GSensitiveDetector::isThisANewTouchable for " + GetName(),
-	          " with touchable: " + thisTouchable->getIdentityString());
-
-	if (thisTouchable->exists_in_vector(touchableVector)) {
-		log->info(2, " ❌ not a new GTouchable, it is found, retrieving hit...");
-		return false; // Not a new touchable.
-	}
-	else {
-		log->info(2, " ✅ yes, new GTouchable. Adding it to touchableVector.");
-		touchableVector.push_back(*thisTouchable);
-		return true; // It's a new touchable.
-	}
-}
-
-
-// Linear search for the hit matching the provided touchable.
-// The collection is expected to contain a matching entry when called from ProcessHits().
-GHit* GSensitiveDetector::getHitInHitCollectionUsingTouchable(const std::shared_ptr<GTouchable>& gtouchable) {
-	for (unsigned int i = 0; i < gHitsCollection->GetSize(); i++) {
-		GHit*                              thisHit           = (*gHitsCollection)[i];
-		const std::shared_ptr<GTouchable>& thisHitGTouchable = thisHit->getGTouchable();
-
-		if (*gtouchable == *thisHitGTouchable) {
-			log->info(2, "GSensitiveDetector::getHitInHitCollectionUsingTouchable for " + GetName() +
-			          " found existing hit in collection for touchable: " + gtouchable->getIdentityString() +
-			          " at index: " + std::to_string(i));
-			return thisHit;
-		}
-	}
-
-	log->error(ERR_HITNOTFOUNDINCOLLECTION,
-	           "GHit not found in hit collection for touchable: " + gtouchable->getIdentityString(),
-	           "in ", GetName());
 }
 
 

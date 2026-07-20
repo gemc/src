@@ -17,6 +17,7 @@ LD += {
         'generator/gPrimaryGeneratorAction.cc',
         'run/gRunAction.cc',
         'run/gRun.cc',
+        'stepping/gSteppingAction.cc',
         'tracking/gTrackProvenance.cc',
         'tracking/gTrackingAction.cc'
     ),
@@ -27,6 +28,7 @@ LD += {
         'generator/gPrimaryGeneratorAction.h',
         'run/gRunAction.h',
         'run/gRun.h',
+        'stepping/gSteppingAction.h',
         'tracking/gTrackProvenance.h',
         'tracking/gTrackingAction.h'
     ),

@@ -3,6 +3,7 @@
 #include "event/gEventAction.h"
 #include "generator/gPrimaryGeneratorAction.h"
 #include "run/gRunAction.h"
+#include "stepping/gSteppingAction.h"
 #include "tracking/gTrackProvenance.h"
 #include "tracking/gTrackingAction.h"
 #include "gparticle_options.h"
@@ -53,6 +54,9 @@ void GAction::Build() const {
 		track_provenance = std::make_shared<GTrackProvenance>(save_ancestors);
 		SetUserAction(new GTrackingAction(track_provenance));
 	}
+
+	// Per-step track guards (kill trapped optical photons, stuck tracks, Kryptonite).
+	SetUserAction(new GSteppingAction());
 
 	// The event action consumes the run action as a non-owning dependency.
 	SetUserAction(new GEventAction(goptions, run_action, track_provenance));
