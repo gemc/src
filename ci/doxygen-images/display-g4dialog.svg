@@ -1,0 +1,238 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 720" role="img" aria-label="GEMC GUI G4Dialog page">
+  <title>GEMC GUI — G4Dialog page</title>
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#c8200e"/>
+    </marker>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg:        #f2f2f7;
+        --chrome:    #e5e5ea;
+        --panel:     #ffffff;
+        --section:   #e8e8ed;
+        --border:    #c7c7cc;
+        --ink:       #1c1c1e;
+        --muted:     #6e6e73;
+        --active:    #007aff;
+        --input:     #ffffff;
+        --selected:  #dbeafe;
+        --divider:   #d1d1d6;
+        --ann-fill:  rgba(255,255,255,0.96);
+        --ann-stroke:#1a50c0;
+        --ann-ink:   #0a0a0a;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg:        #1c1c1e;
+          --chrome:    #2c2c2e;
+          --panel:     #2c2c2e;
+          --section:   #3a3a3c;
+          --border:    #545458;
+          --ink:       #f2f2f7;
+          --muted:     #aeaeb2;
+          --input:     #3a3a3c;
+          --selected:  #1e3a5f;
+          --divider:   #48484a;
+          --ann-fill:  rgba(28,28,30,0.96);
+          --ann-stroke:#5b8cff;
+          --ann-ink:   #f0f0f0;
+        }
+      }
+      text { font-family: Avenir, "Segoe UI", Arial, sans-serif; }
+      .ui-label   { fill: var(--ink);   font-size: 11px; }
+      .ui-small   { fill: var(--muted); font-size: 10px; }
+      .sec-title  { fill: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; }
+      .topbar-btn { fill: var(--chrome); stroke: var(--border); stroke-width: 1; }
+      .page-btn   { fill: var(--chrome); stroke: var(--border); stroke-width: 1; }
+      .page-active{ fill: var(--active); }
+      .input-box  { fill: var(--input);   stroke: var(--border); stroke-width: 1; }
+      /* annotations */
+      .ann-box  { fill: var(--ann-fill); stroke: var(--ann-stroke); stroke-width: 1.8; }
+      .ann-text { fill: var(--ann-ink);  font-size: 11.5px; font-weight: 700; text-anchor: middle; }
+      .ann-line { stroke: #c8200e; stroke-width: 2.2; fill: none; marker-end: url(#arr); }
+    </style>
+  </defs>
+
+  <!-- ── window background ──────────────────────────────────────────── -->
+  <rect width="980" height="720" fill="var(--bg)"/>
+
+  <!-- ── top bar ───────────────────────────────────────────────────── -->
+  <rect x="0" y="0" width="980" height="50" fill="var(--chrome)"/>
+  <text x="14"  y="30" class="ui-label">N. Events:</text>
+  <rect x="84"  y="14" width="36" height="22" rx="4" class="input-box"/>
+  <text x="102" y="30" class="ui-label" text-anchor="middle">1</text>
+  <rect x="130" y="11" width="54" height="26" rx="6" class="topbar-btn"/>
+  <text x="157" y="29" class="ui-label" text-anchor="middle">▶ Run</text>
+  <rect x="192" y="11" width="62" height="26" rx="6" class="topbar-btn"/>
+  <text x="223" y="29" class="ui-label" text-anchor="middle">↻ Cycle</text>
+  <rect x="262" y="11" width="56" height="26" rx="6" class="topbar-btn"/>
+  <text x="290" y="29" class="ui-label" text-anchor="middle">■ Stop</text>
+  <text x="332" y="30" class="ui-label">Event Number: 0</text>
+  <rect x="904" y="11" width="62" height="26" rx="6" class="topbar-btn"/>
+  <text x="935" y="29" class="ui-label" text-anchor="middle">✕ Exit</text>
+
+  <!-- ── left sidebar ──────────────────────────────────────────────── -->
+  <rect x="0" y="50" width="112" height="670" fill="var(--chrome)" stroke="var(--border)" stroke-width="0.5"/>
+
+  <!-- Display — icon: src/gui/images/buttons/display_1.svg -->
+  <rect x="11" y="60" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,60) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <rect x="14" y="12" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="24" y1="24" x2="24" y2="29" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">Display</text>
+  </g>
+
+  <!-- Setup — icon: src/gui/images/buttons/setup_1.svg -->
+  <rect x="11" y="160" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,160) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <rect x="10.5" y="8"  width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="8"  width="6" height="6" fill="currentColor"/>
+    <rect x="24.5" y="8"  width="6" height="6" fill="#CCCCCC"/>
+    <rect x="31.5" y="8"  width="6" height="6" fill="currentColor"/>
+    <rect x="10.5" y="15" width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="15" width="6" height="6" fill="#CCCCCC"/>
+    <rect x="24.5" y="15" width="6" height="6" fill="currentColor"/>
+    <rect x="31.5" y="15" width="6" height="6" fill="currentColor"/>
+    <rect x="10.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="24.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="31.5" y="22" width="6" height="6" fill="#CCCCCC"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">Setup</text>
+  </g>
+
+  <!-- Volumes — icon: src/gui/images/buttons/tree_1.svg -->
+  <rect x="11" y="260" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,260) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <ellipse cx="16" cy="16" rx="6" ry="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <rect x="10" y="16" width="12" height="8" fill="none" stroke="currentColor" stroke-width="1"/>
+    <ellipse cx="16" cy="24" rx="6" ry="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="28" y1="14" x2="28" y2="26" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <line x1="28" y1="18" x2="34" y2="18" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <circle cx="36" cy="18" r="1.5" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="28" y1="22" x2="34" y2="22" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <circle cx="36" cy="22" r="1.5" fill="none" stroke="currentColor" stroke-width="1"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">Volumes</text>
+  </g>
+
+  <!-- G4Dialog (active) — icon: src/gui/images/buttons/dialog_1.svg -->
+  <rect x="11" y="360" width="90" height="90" rx="10" class="page-active"/>
+  <g transform="translate(11,360) scale(1.875)" style="color:white">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="6" y1="12" x2="42" y2="12" stroke="currentColor" stroke-width="1"/>
+    <text x="24" y="25" text-anchor="middle" fill="currentColor" font-size="10" font-family="Monaco">&gt;_</text>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">G4Dialog</text>
+  </g>
+
+  <!-- Generator — icon: src/gui/images/buttons/generator_1.svg -->
+  <rect x="11" y="460" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,460) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <circle cx="17" cy="19" r="4"  stroke="currentColor" stroke-width="0.6" opacity="0.30"/>
+    <circle cx="17" cy="19" r="8"  stroke="currentColor" stroke-width="0.6" opacity="0.25"/>
+    <circle cx="17" cy="19" r="12" stroke="currentColor" stroke-width="0.6" opacity="0.20"/>
+    <path d="M17,19 Q27,13 37,11" stroke="currentColor" stroke-width="1.1" opacity="0.60" stroke-linecap="round"/>
+    <path d="M17,19 Q28,19 38,19" stroke="currentColor" stroke-width="1.1" opacity="0.60" stroke-linecap="round"/>
+    <path d="M17,19 Q27,24 37,27" stroke="currentColor" stroke-width="1.1" opacity="0.55" stroke-linecap="round"/>
+    <path d="M17,19 Q11,13 8,10"  stroke="currentColor" stroke-width="1.0" opacity="0.40" stroke-linecap="round"/>
+    <circle cx="37" cy="11" r="1.8" fill="currentColor" opacity="0.75"/>
+    <circle cx="38" cy="19" r="1.8" fill="currentColor" opacity="0.75"/>
+    <circle cx="37" cy="27" r="1.8" fill="currentColor" opacity="0.65"/>
+    <circle cx="8"  cy="10" r="1.6" fill="currentColor" opacity="0.50"/>
+    <circle cx="17" cy="19" r="3.0" fill="currentColor" opacity="0.85"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="7" font-family="Arial">Generator</text>
+  </g>
+
+  <!-- ── content area ───────────────────────────────────────────────── -->
+  <rect x="112" y="50" width="868" height="670" fill="var(--panel)"/>
+
+  <!-- search bar strip (y=50–82) -->
+  <rect x="112" y="50" width="868" height="32" fill="var(--section)"/>
+  <text x="122" y="70" class="ui-small">Search:</text>
+  <rect x="166" y="54" width="794" height="24" rx="4" class="input-box"/>
+  <text x="174" y="70" class="ui-label" fill="var(--muted)">Search commands…</text>
+  <line x1="112" y1="82" x2="980" y2="82" stroke="var(--divider)" stroke-width="1"/>
+
+  <!-- ── LEFT PANEL: command tree  (x=112–542) ─────────────────────── -->
+  <!-- section header -->
+  <rect x="112" y="82" width="430" height="22" fill="var(--section)"/>
+  <text x="122" y="97" class="sec-title">Commands</text>
+  <line x1="542" y1="82" x2="542" y2="540" stroke="var(--divider)" stroke-width="1"/>
+
+  <!-- tree rows — /run/ expanded, /run/beamOn selected -->
+  <text x="128" y="127" class="ui-label" fill="var(--muted)">▸ /control/</text>
+  <text x="128" y="149" class="ui-label" fill="var(--muted)">▸ /event/</text>
+  <text x="128" y="171" class="ui-label" fill="var(--muted)">▸ /gun/</text>
+  <text x="128" y="193" class="ui-label" fill="var(--muted)">▸ /particle/</text>
+  <text x="128" y="215" class="ui-label">▾ /run/</text>
+  <!-- selected row background -->
+  <rect x="112" y="221" width="430" height="22" fill="var(--selected)"/>
+  <text x="148" y="236" class="ui-label" fill="var(--active)">/run/beamOn</text>
+  <text x="148" y="258" class="ui-label" fill="var(--muted)">/run/initialize</text>
+  <text x="148" y="280" class="ui-label" fill="var(--muted)">/run/verbose</text>
+  <text x="128" y="302" class="ui-label" fill="var(--muted)">▸ /tracking/</text>
+  <text x="128" y="324" class="ui-label" fill="var(--muted)">▸ /vis/</text>
+
+  <!-- ── RIGHT PANEL: help  (x=542–972) ───────────────────────────── -->
+  <!-- section header -->
+  <rect x="542" y="82" width="430" height="22" fill="var(--section)"/>
+  <text x="552" y="97" class="sec-title">Help</text>
+
+  <!-- help content for /run/beamOn -->
+  <text x="556" y="130" class="ui-label" font-weight="700">/run/beamOn</text>
+  <text x="556" y="150" class="ui-small">Guidance: Start a Run</text>
+  <line x1="556" y1="158" x2="960" y2="158" stroke="var(--divider)" stroke-width="0.5"/>
+  <text x="556" y="174" class="ui-small" font-weight="600">Parameter: numberOfEvents</text>
+  <text x="564" y="192" class="ui-small">Type:    int</text>
+  <text x="564" y="209" class="ui-small">Range:   n &gt; 0</text>
+  <text x="564" y="226" class="ui-small">Default: 1</text>
+
+  <!-- ── horizontal divider above history ─────────────────────────── -->
+  <line x1="112" y1="540" x2="980" y2="540" stroke="var(--divider)" stroke-width="1"/>
+
+  <!-- ── HISTORY section  (y=540–634) ─────────────────────────────── -->
+  <rect x="112" y="540" width="868" height="22" fill="var(--section)"/>
+  <text x="122" y="555" class="sec-title">History</text>
+
+  <!-- history items (most-recent first) -->
+  <text x="122" y="578" class="ui-small" fill="var(--muted)">/run/beamOn 100</text>
+  <text x="122" y="596" class="ui-small" fill="var(--muted)">/run/initialize</text>
+
+  <!-- ── horizontal divider above command entry ────────────────────── -->
+  <line x1="112" y1="636" x2="980" y2="636" stroke="var(--divider)" stroke-width="1"/>
+
+  <!-- ── COMMAND ENTRY  (y=636–720) ───────────────────────────────── -->
+  <rect x="116" y="642" width="852" height="28" rx="4" class="input-box"/>
+  <text x="124" y="660" class="ui-label" fill="var(--muted)">Enter command…</text>
+
+  <!-- ── ANNOTATIONS ───────────────────────────────────────────────── -->
+
+  <!-- 1. Commands filtered by search — label in top-bar space, arrow down to search field -->
+  <rect x="306" y="8" width="210" height="22" rx="4" class="ann-box"/>
+  <text x="411" y="23" class="ann-text">Commands filtered by search</text>
+  <line x1="411" y1="30" x2="411" y2="53" class="ann-line"/>
+
+  <!-- 2. Click a command to select — label inside tree area (bottom), arrow UP to /run/beamOn -->
+  <rect x="120" y="456" width="190" height="22" rx="4" class="ann-box"/>
+  <text x="215" y="471" class="ann-text">Click a command to select</text>
+  <line x1="215" y1="456" x2="215" y2="232" class="ann-line"/>
+
+  <!-- 3. Parameters and help appear here — label inside help area (bottom), arrow UP -->
+  <rect x="549" y="456" width="228" height="22" rx="4" class="ann-box"/>
+  <text x="663" y="471" class="ann-text">Parameters and help appear here</text>
+  <line x1="663" y1="456" x2="663" y2="227" class="ann-line"/>
+
+  <!-- 4. History of executed commands — label inside history area (right side), arrow UP to header -->
+  <rect x="546" y="600" width="222" height="22" rx="4" class="ann-box"/>
+  <text x="657" y="615" class="ann-text">History of executed commands</text>
+  <line x1="657" y1="600" x2="657" y2="556" class="ann-line"/>
+
+  <!-- 5. Enter any Geant4 command — label inside history area (left side), arrow DOWN to command entry -->
+  <rect x="120" y="600" width="194" height="22" rx="4" class="ann-box"/>
+  <text x="217" y="615" class="ann-text">Enter any Geant4 command</text>
+  <line x1="217" y1="622" x2="217" y2="641" class="ann-line"/>
+
+</svg>

@@ -3,6 +3,10 @@
 /**
  * \mainpage
  *
+ * \tableofcontents
+ *
+ * \image html goptions-flow.svg "Configuration definition, merge, and validation" width=900px
+ *
  * \section goptions_main_overview Overview
  *
  * \ref GOptions : provides a unified framework to define, parse, validate, and persist configuration
@@ -15,8 +19,6 @@
  * - \ref GSwitch : a presence-based boolean flag (e.g. `-gui`).
  * - \ref GOption : an option value container that can be scalar or structured.
  * - \ref GVariable : a schema entry used when defining scalar options or structured option keys.
- *
- * \tableofcontents
  *
  * \section goptions_main_concepts Concepts
  *
@@ -112,8 +114,8 @@
  *
  * \section goptions_main_yaml YAML parsing and validation
  *
- * YAML parsing is implemented using the \c yaml-cpp library. When a YAML file fails to parse, the option manager
- * exits with a dedicated exit code so batch workflows can detect the failure mode.
+ * YAML parsing is implemented using the \c yaml-cpp library. When a YAML file fails to parse, the option
+ * manager exits with a dedicated exit code so batch workflows can detect the failure mode.
  *
  * \section goptions_main_ownership Ownership and maintenance
  *

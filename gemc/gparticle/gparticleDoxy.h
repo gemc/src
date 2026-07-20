@@ -43,6 +43,10 @@
 /**
  * @mainpage gparticle Module
  *
+ * \tableofcontents
+ *
+ * \image html gparticle-flow.svg "Primary-particle production and metadata flow" width=900px
+ *
  * @section gparticle_overview Overview
  *
  * The gparticle module implements a simple mechanism to define one or more

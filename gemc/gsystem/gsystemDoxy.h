@@ -37,10 +37,16 @@
  *
  * \mainpage GEMC Detector System Module (gsystem)
  *
+ * \tableofcontents
+ *
+ * \image html gsystem-flow.svg "Detector-system loading and world assembly" width=900px
+ *
  * @section intro_sec Introduction
  *
  * The gsystem module provides the infrastructure that turns detector configuration into
  * an in-memory representation of geometry and materials.
+ *
+ * \image html gemc-architecture.svg "GEMC detector definition and simulation workflow" width=900px
  *
  * Core concepts:
  * - A GSystem is a logical detector subsystem (e.g. calorimeter, tracker).

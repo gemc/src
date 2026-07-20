@@ -4,6 +4,8 @@
  *
  * \tableofcontents
  *
+ * \image html glogging-flow.svg "Structured log filtering and emission" width=900px
+ *
  * \section intro_sec Introduction
  * The GLogger module provides structured, consistently formatted logging for the simulation runtime.
  * It is intended to be the single place where verbosity/debug policies and log formatting rules are
@@ -57,10 +59,11 @@
  *   - Meaning: per-logger debug enablement / debug level configuration
  *   - Behavior:
  *     - loggers query their debug configuration using their configured logger name as a key
- *     - values are commonly `false`/`true` (mapped to 0/1) or an integer level, depending on consumer expectations
+ *     - values are commonly `false`/`true` (mapped to 0/1) or an integer level, depending on consumer
+ *       expectations
  *
- * Note: \ref GOptions::GOptions "GOptions(argc,argv,...)" defines these keys as global conventions so any module
- * can participate in consistent logging without re-defining these options.
+ * Note: \ref GOptions::GOptions "GOptions(argc,argv,...)" defines these keys as global conventions so any
+ * module can participate in consistent logging without re-defining these options.
  *
  * \section header_sec Message header format
  * Each emitted message is prepended with a compact header that includes:

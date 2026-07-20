@@ -36,7 +36,8 @@ namespace gsplash {
  * GOptions instance from argc/argv and module definitions.
  *
  * Expected options consumed by GSplash at runtime include:
- * - \c --gui : when enabled, GSplash will create and show a splash screen; otherwise GSplash::create returns nullptr.
+ * - \c --gui : when enabled, GSplash will create and show a splash screen; otherwise GSplash::create returns
+ *   nullptr.
  * - \c -splash_time : minimum time in seconds to keep the splash visible before closing it.
  * - \c -splash_scale : scale factor applied to the loaded splash image.
  *
@@ -87,8 +88,9 @@ public:
 	 * Ownership is returned as a std::unique_ptr to enforce a single owner and avoid ambiguous lifetime.
 	 *
 	 * \param gopts Shared application options.
-	 * \param imageName Splash image name or path. When set to \c NOSPLASHIMAGESELECTED, the image path is taken from
-	 *        the environment variable \c GSPLASH. Defaults to \c "gemcArchitecture".
+	 * \param imageName Splash image name or path. When set to \c NOSPLASHIMAGESELECTED, the image path is
+	 *        taken from the environment variable \c GSPLASH. Defaults to \c "gemcArchitecture".
+	 * \param splashTime Fallback minimum display time in seconds when the \c splash_time option is negative.
 	 * \return A std::unique_ptr to GSplash when GUI is enabled, otherwise nullptr.
 	 */
 	static std::unique_ptr<GSplash>
@@ -110,8 +112,8 @@ public:
 	/**
 	 * \brief Displays a message on the splash screen after a delay.
 	 *
-	 * This schedules an update via \c QTimer::singleShot. A guarded pointer is used so the callback is safe even if
-	 * the splash widget is destroyed before the timer fires.
+	 * This schedules an update via \c QTimer::singleShot. A guarded pointer is used so the callback is safe even
+	 * if the splash widget is destroyed before the timer fires.
 	 *
 	 * If the splash is inactive (no valid image was loaded or GUI is disabled), this method does nothing.
 	 *

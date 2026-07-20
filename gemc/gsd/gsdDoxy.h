@@ -19,6 +19,12 @@
 /**
  * \mainpage GSensitiveDetector module
  *
+ * \tableofcontents
+ *
+ * \image html gsd-flow.svg "Sensitive-detector step processing" width=900px
+ *
+ * \image html digitization-hooks.svg "Digitization plugin hooks by lifecycle phase" width=900px
+ *
  * \section gsd_intro Introduction
  *
  * The GSensitiveDetector module provides the thread-local sensitive detector implementation used by GEMC to
@@ -31,7 +37,8 @@
  *
  * The high-level event flow is:
  * - **Event initialization**: allocate and register the hits collection and reset per-event caches.
- * - **Step processing**: optionally skip steps, build one or more touchables, and create or update hits accordingly.
+ * - **Step processing**: optionally skip steps, build one or more touchables, and create or update hits
+ *   accordingly.
  * - **End of event**: finalize any per-event bookkeeping (the actual storage is handled by the Geant4 event).
  *
  *
@@ -41,10 +48,11 @@
  *   comments and usage patterns.
  * - **Digitization routine**: the module holds a shared pointer to a GDynamicDigitization instance that must be
  *   assigned via GSensitiveDetector::assign_digi_routine() before processing begins.
- * - **Touchable registry**: a registry of volume-name to GTouchable mappings is populated during detector construction
- *   (e.g., by GDetectorConstruction). After registration, this module treats the registry as authoritative for the run.
- * - **Event-owned hit collection**: the Geant4 hits collection is created at Initialize() and registered into the event.
- *   The event lifecycle determines when the hits collection is reclaimed.
+ * - **Touchable registry**: a registry of volume-name to GTouchable mappings is populated during detector
+ *   construction (e.g., by GDetectorConstruction). After registration, this module treats the registry as
+ *   authoritative for the run.
+ * - **Event-owned hit collection**: the Geant4 hits collection is created at Initialize() and registered into
+ *   the event. The event lifecycle determines when the hits collection is reclaimed.
  *
  *
  * \section gsd_arch Architecture
@@ -58,8 +66,8 @@
  *
  * **Processing model**
  * - For each step, the plugin can return **one or more** processed touchables.
- *   This supports cases such as segmentation or step splitting where a single Geant4 step contributes to multiple
- *   logical detector elements.
+ *   This supports cases such as segmentation or step splitting where a single Geant4 step contributes to
+ *   multiple logical detector elements.
  * - For each processed touchable:
  *   - assign the track id for later identification and grouping,
  *   - decide if it is new for this event,
@@ -68,14 +76,9 @@
  *
  * \section gsd_options Available options and usage
  *
- * This module defines its options via gsensitivedetector::defineOptions().
- *
- * - If the returned GOptions is empty, then no module-specific options are currently exposed.
- * - If GOptions::defineOptions() contributes applicable options to this module from elsewhere, those options should be
- *   listed here (as part of the broader project configuration).
- *
- * Current behavior:
- * - gsensitivedetector::defineOptions() returns a GOptions instance initialized with the logger name used by this module.
+ * \ref gsensitivedetector::defineOptions "gsensitivedetector::defineOptions()" returns a logger-scoped
+ * GOptions container but defines no module-specific keys. The shared \c verbosity and \c debug option groups
+ * control messages for the \c gsd logger.
  *
  *
  * \section gsd_verbosity Module verbosity
@@ -85,7 +88,8 @@
  * Typical verbosity meaning:
  * - **level 0**: critical errors only (e.g., missing hit collection or missing touchable mappings).
  * - **level 1**: event-level messages (e.g., start/end of event hooks).
- * - **level 2**: detailed step and touchable processing (e.g., how many processed touchables were produced, new vs existing).
+ * - **level 2**: detailed step and touchable processing (e.g., processed-touchable counts and new versus
+ *   existing hits).
  * - **debug**: constructor-level diagnostics and very verbose internal traces.
  *
  *

@@ -1,0 +1,294 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 640" role="img" aria-label="GEMC GUI Setup page">
+  <title>GEMC GUI — Setup page</title>
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#c8200e"/>
+    </marker>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg:        #f2f2f7;
+        --chrome:    #e5e5ea;
+        --panel:     #ffffff;
+        --section:   #e8e8ed;
+        --row-alt:   #f5f5f7;
+        --border:    #c7c7cc;
+        --ink:       #1c1c1e;
+        --muted:     #6e6e73;
+        --active:    #007aff;
+        --input:     #ffffff;
+        --ann-fill:  rgba(255,255,255,0.96);
+        --ann-stroke:#1a50c0;
+        --ann-ink:   #0a0a0a;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg:        #1c1c1e;
+          --chrome:    #2c2c2e;
+          --panel:     #2c2c2e;
+          --section:   #3a3a3c;
+          --row-alt:   #323234;
+          --border:    #545458;
+          --ink:       #f2f2f7;
+          --muted:     #aeaeb2;
+          --input:     #3a3a3c;
+          --ann-fill:  rgba(28,28,30,0.96);
+          --ann-stroke:#5b8cff;
+          --ann-ink:   #f0f0f0;
+        }
+      }
+      text { font-family: Avenir, "Segoe UI", Arial, sans-serif; }
+      .ui-label   { fill: var(--ink);   font-size: 11px; }
+      .ui-small   { fill: var(--muted); font-size: 10px; }
+      .sec-title  { fill: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; }
+      .h1         { fill: var(--ink);   font-size: 20px; font-weight: 700; }
+      .topbar-btn { fill: var(--chrome); stroke: var(--border); stroke-width: 1; }
+      .page-btn   { fill: var(--chrome); stroke: var(--border); stroke-width: 1; }
+      .page-active{ fill: var(--active); }
+      .section-box{ fill: var(--section); stroke: var(--border); stroke-width: 1; }
+      .input-box  { fill: var(--input);   stroke: var(--border); stroke-width: 1; }
+      .tbl-header { fill: var(--section); }
+      .tbl-row    { fill: var(--panel); }
+      .tbl-row-alt{ fill: var(--row-alt); }
+      .tbl-parent { fill: var(--section); }
+      .tbl-div    { stroke: var(--border); stroke-width: 0.8; }
+      .ann-box    { fill: var(--ann-fill);   stroke: var(--ann-stroke); stroke-width: 1.8; }
+      .ann-text   { fill: var(--ann-ink);    font-size: 11.5px; font-weight: 700; text-anchor: middle; }
+      .ann-line   { stroke: #c8200e; stroke-width: 2.2; fill: none; marker-end: url(#arr); }
+    </style>
+  </defs>
+
+  <!-- ── window background ──────────────────────────────────────── -->
+  <rect width="980" height="640" fill="var(--bg)"/>
+
+  <!-- ── top bar ───────────────────────────────────────────────── -->
+  <rect x="0" y="0" width="980" height="50" fill="var(--chrome)"/>
+  <text x="14" y="30" class="ui-label">N. Events:</text>
+  <rect x="84"  y="14" width="36" height="22" rx="4" class="input-box"/>
+  <text x="102" y="30" class="ui-label" text-anchor="middle">1</text>
+  <rect x="130" y="11" width="54" height="26" rx="6" class="topbar-btn"/>
+  <text x="157" y="29" class="ui-label" text-anchor="middle">▶ Run</text>
+  <rect x="192" y="11" width="62" height="26" rx="6" class="topbar-btn"/>
+  <text x="223" y="29" class="ui-label" text-anchor="middle">↻ Cycle</text>
+  <rect x="262" y="11" width="56" height="26" rx="6" class="topbar-btn"/>
+  <text x="290" y="29" class="ui-label" text-anchor="middle">■ Stop</text>
+  <text x="332" y="30" class="ui-label">Event Number: 0</text>
+  <rect x="904" y="11" width="62" height="26" rx="6" class="topbar-btn"/>
+  <text x="935" y="29" class="ui-label" text-anchor="middle">✕ Exit</text>
+
+  <!-- ── left sidebar ──────────────────────────────────────────── -->
+  <rect x="0" y="50" width="112" height="590" fill="var(--chrome)" stroke="var(--border)" stroke-width="0.5"/>
+
+  <!-- Display — icon: src/gui/images/buttons/display_1.svg -->
+  <rect x="11" y="60" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,60) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <rect x="14" y="12" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="24" y1="24" x2="24" y2="29" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">Display</text>
+  </g>
+
+  <!-- Setup (active) — icon: src/gui/images/buttons/setup_1.svg -->
+  <rect x="11" y="160" width="90" height="90" rx="10" class="page-active"/>
+  <g transform="translate(11,160) scale(1.875)" style="color:white">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <rect x="10.5" y="8"  width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="8"  width="6" height="6" fill="currentColor"/>
+    <rect x="24.5" y="8"  width="6" height="6" fill="#CCCCCC"/>
+    <rect x="31.5" y="8"  width="6" height="6" fill="currentColor"/>
+    <rect x="10.5" y="15" width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="15" width="6" height="6" fill="#CCCCCC"/>
+    <rect x="24.5" y="15" width="6" height="6" fill="currentColor"/>
+    <rect x="31.5" y="15" width="6" height="6" fill="currentColor"/>
+    <rect x="10.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="24.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="31.5" y="22" width="6" height="6" fill="#CCCCCC"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">Setup</text>
+  </g>
+
+  <!-- Volumes — icon: src/gui/images/buttons/tree_1.svg -->
+  <rect x="11" y="260" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,260) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <ellipse cx="16" cy="16" rx="6" ry="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <rect x="10" y="16" width="12" height="8" fill="none" stroke="currentColor" stroke-width="1"/>
+    <ellipse cx="16" cy="24" rx="6" ry="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="28" y1="14" x2="28" y2="26" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <line x1="28" y1="18" x2="34" y2="18" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <circle cx="36" cy="18" r="1.5" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="28" y1="22" x2="34" y2="22" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <circle cx="36" cy="22" r="1.5" fill="none" stroke="currentColor" stroke-width="1"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">Volumes</text>
+  </g>
+
+  <!-- G4Dialog — icon: src/gui/images/buttons/dialog_1.svg -->
+  <rect x="11" y="360" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,360) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="6" y1="12" x2="42" y2="12" stroke="currentColor" stroke-width="1"/>
+    <text x="24" y="25" text-anchor="middle" fill="currentColor" font-size="10" font-family="Monaco">&gt;_</text>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">G4Dialog</text>
+  </g>
+
+  <!-- Generator — icon: src/gui/images/buttons/generator_1.svg -->
+  <rect x="11" y="460" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,460) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <circle cx="17" cy="19" r="4"  stroke="currentColor" stroke-width="0.6" opacity="0.30"/>
+    <circle cx="17" cy="19" r="8"  stroke="currentColor" stroke-width="0.6" opacity="0.25"/>
+    <circle cx="17" cy="19" r="12" stroke="currentColor" stroke-width="0.6" opacity="0.20"/>
+    <path d="M17,19 Q27,13 37,11" stroke="currentColor" stroke-width="1.1" opacity="0.60" stroke-linecap="round"/>
+    <path d="M17,19 Q28,19 38,19" stroke="currentColor" stroke-width="1.1" opacity="0.60" stroke-linecap="round"/>
+    <path d="M17,19 Q27,24 37,27" stroke="currentColor" stroke-width="1.1" opacity="0.55" stroke-linecap="round"/>
+    <path d="M17,19 Q11,13 8,10"  stroke="currentColor" stroke-width="1.0" opacity="0.40" stroke-linecap="round"/>
+    <circle cx="37" cy="11" r="1.8" fill="currentColor" opacity="0.75"/>
+    <circle cx="38" cy="19" r="1.8" fill="currentColor" opacity="0.75"/>
+    <circle cx="37" cy="27" r="1.8" fill="currentColor" opacity="0.65"/>
+    <circle cx="8"  cy="10" r="1.6" fill="currentColor" opacity="0.50"/>
+    <circle cx="17" cy="19" r="3.0" fill="currentColor" opacity="0.85"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="7" font-family="Arial">Generator</text>
+  </g>
+
+  <!-- ── main content panel ─────────────────────────────────────── -->
+  <rect x="120" y="56" width="848" height="576" rx="8" fill="var(--panel)" stroke="var(--border)" stroke-width="0.5"/>
+
+  <!-- section title and subtitle -->
+  <text x="140" y="88" class="h1">Experiment Selection</text>
+  <text x="140" y="112" class="ui-small">Total systems for experiment "examples": 5</text>
+
+  <!-- Reload button (dimmed / inactive state) -->
+  <rect x="874" y="78" width="72" height="26" rx="6" fill="var(--section)" stroke="var(--border)" stroke-width="1"/>
+  <text x="910" y="96" class="ui-small" text-anchor="middle">Reload</text>
+
+  <!-- ── table ──────────────────────────────────────────────────── -->
+  <!-- Full-width table background -->
+  <rect x="136" y="130" width="808" height="156" fill="var(--panel)" stroke="var(--border)" stroke-width="1" rx="4"/>
+
+  <!-- Header row -->
+  <rect x="136" y="130" width="808" height="24" rx="0" class="tbl-header"/>
+  <line x1="136" y1="154" x2="944" y2="154" class="tbl-div"/>
+  <text x="150" y="147" class="sec-title">exp/system</text>
+  <text x="316" y="147" class="sec-title">volumes</text>
+  <text x="398" y="147" class="sec-title">variation</text>
+  <text x="538" y="147" class="sec-title">run</text>
+
+  <!-- column vertical dividers (full height through all rows) -->
+  <line x1="310" y1="130" x2="310" y2="286" class="tbl-div"/>
+  <line x1="394" y1="130" x2="394" y2="286" class="tbl-div"/>
+  <line x1="534" y1="130" x2="534" y2="286" class="tbl-div"/>
+  <line x1="720" y1="130" x2="720" y2="286" class="tbl-div"/>
+
+  <!-- examples parent row -->
+  <rect x="136" y="154" width="808" height="22" class="tbl-parent"/>
+  <line x1="136" y1="176" x2="944" y2="176" class="tbl-div"/>
+  <!-- blue checkbox -->
+  <rect x="148" y="158" width="14" height="14" rx="3" fill="var(--active)"/>
+  <polyline points="150,165 154,169 161,161" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- expand arrow -->
+  <text x="170" y="169" class="ui-small">▼</text>
+  <text x="184" y="169" class="ui-label" font-weight="600">examples</text>
+
+  <!-- system rows — helper macro via repeated groups -->
+  <!-- simple_flux -->
+  <rect x="136" y="176" width="808" height="22" class="tbl-row"/>
+  <line x1="136" y1="198" x2="944" y2="198" class="tbl-div"/>
+  <rect x="160" y="181" width="26" height="14" rx="7" fill="var(--border)"/>
+  <circle cx="167" cy="188" r="5.5" fill="var(--input)" stroke="var(--border)" stroke-width="1"/>
+  <rect x="194" y="181" width="12" height="12" rx="2" fill="#22c55e"/>
+  <text x="212" y="191" class="ui-label">simple_flux</text>
+  <text x="320" y="191" class="ui-label">3</text>
+  <text x="402" y="191" class="ui-label">default</text>
+  <text x="542" y="191" class="ui-label">1</text>
+
+  <!-- b1 -->
+  <rect x="136" y="198" width="808" height="22" class="tbl-row-alt"/>
+  <line x1="136" y1="220" x2="944" y2="220" class="tbl-div"/>
+  <rect x="160" y="203" width="26" height="14" rx="7" fill="var(--border)"/>
+  <circle cx="167" cy="210" r="5.5" fill="var(--input)" stroke="var(--border)" stroke-width="1"/>
+  <rect x="194" y="203" width="12" height="12" rx="2" fill="#22c55e"/>
+  <text x="212" y="213" class="ui-label">b1</text>
+  <text x="320" y="213" class="ui-label">4</text>
+  <text x="402" y="213" class="ui-label">test</text>
+  <text x="542" y="213" class="ui-label">1</text>
+
+  <!-- b2 -->
+  <rect x="136" y="220" width="808" height="22" class="tbl-row"/>
+  <line x1="136" y1="242" x2="944" y2="242" class="tbl-div"/>
+  <rect x="160" y="225" width="26" height="14" rx="7" fill="var(--border)"/>
+  <circle cx="167" cy="232" r="5.5" fill="var(--input)" stroke="var(--border)" stroke-width="1"/>
+  <rect x="194" y="225" width="12" height="12" rx="2" fill="#22c55e"/>
+  <text x="212" y="235" class="ui-label">b2</text>
+  <text x="320" y="235" class="ui-label">8</text>
+  <text x="402" y="235" class="ui-label">alt</text>
+  <text x="542" y="235" class="ui-label">1</text>
+
+  <!-- b3 -->
+  <rect x="136" y="242" width="808" height="22" class="tbl-row-alt"/>
+  <line x1="136" y1="264" x2="944" y2="264" class="tbl-div"/>
+  <rect x="160" y="247" width="26" height="14" rx="7" fill="var(--border)"/>
+  <circle cx="167" cy="254" r="5.5" fill="var(--input)" stroke="var(--border)" stroke-width="1"/>
+  <rect x="194" y="247" width="12" height="12" rx="2" fill="#22c55e"/>
+  <text x="212" y="257" class="ui-label">b3</text>
+  <text x="320" y="257" class="ui-label">3</text>
+  <text x="402" y="257" class="ui-label">alt</text>
+  <text x="542" y="257" class="ui-label">1</text>
+
+  <!-- cherenkov -->
+  <rect x="136" y="264" width="808" height="22" class="tbl-row"/>
+  <line x1="136" y1="286" x2="944" y2="286" class="tbl-div"/>
+  <rect x="160" y="269" width="26" height="14" rx="7" fill="var(--border)"/>
+  <circle cx="167" cy="276" r="5.5" fill="var(--input)" stroke="var(--border)" stroke-width="1"/>
+  <rect x="194" y="269" width="12" height="12" rx="2" fill="#22c55e"/>
+  <text x="212" y="279" class="ui-label">cherenkov</text>
+  <text x="320" y="279" class="ui-label">6</text>
+  <text x="402" y="279" class="ui-label">default</text>
+  <text x="542" y="279" class="ui-label">1</text>
+
+  <!-- ── empty striped rows (10) ───────────────────────────────── -->
+  <rect x="136" y="286" width="808" height="20" class="tbl-row-alt"/>
+  <rect x="136" y="306" width="808" height="20" class="tbl-row"/>
+  <rect x="136" y="326" width="808" height="20" class="tbl-row-alt"/>
+  <rect x="136" y="346" width="808" height="20" class="tbl-row"/>
+  <rect x="136" y="366" width="808" height="20" class="tbl-row-alt"/>
+  <rect x="136" y="386" width="808" height="20" class="tbl-row"/>
+  <rect x="136" y="406" width="808" height="20" class="tbl-row-alt"/>
+  <rect x="136" y="426" width="808" height="20" class="tbl-row"/>
+  <rect x="136" y="446" width="808" height="20" class="tbl-row-alt"/>
+  <rect x="136" y="466" width="808" height="20" class="tbl-row"/>
+  <!-- close the table border -->
+  <rect x="136" y="130" width="808" height="356" fill="none" stroke="var(--border)" stroke-width="1" rx="4"/>
+
+  <!-- ═════════════════════════════════════════════════════════════
+       ANNOTATIONS
+       ═════════════════════════════════════════════════════════════ -->
+
+  <!-- 1 · # matching volumes
+       Label in empty area, arrow straight up to volumes header   -->
+  <line x1="352" y1="404" x2="352" y2="154" class="ann-line"/>
+  <rect x="274" y="406" width="156" height="20" rx="5" class="ann-box"/>
+  <text x="352" y="420" class="ann-text"># matching volumes</text>
+
+  <!-- 2 · Select variation  (staggered lower) -->
+  <line x1="464" y1="460" x2="464" y2="154" class="ann-line"/>
+  <rect x="390" y="462" width="148" height="20" rx="5" class="ann-box"/>
+  <text x="464" y="476" class="ann-text">Select variation</text>
+
+  <!-- 3 · Select run number  (staggered lower still) -->
+  <line x1="627" y1="516" x2="627" y2="154" class="ann-line"/>
+  <rect x="547" y="518" width="160" height="20" rx="5" class="ann-box"/>
+  <text x="627" y="532" class="ann-text">Select run number</text>
+
+  <!-- 4 · Check to include in simulation
+       Label to the right of the data area, long horizontal arrow  -->
+  <line x1="726" y1="187" x2="188" y2="187" class="ann-line"/>
+  <rect x="728" y="177" width="204" height="20" rx="5" class="ann-box"/>
+  <text x="830" y="191" class="ann-text">Check to include in sim.</text>
+
+  <!-- 5 · Click to reload geometry
+       Label left of Reload button, short arrow right to it       -->
+  <line x1="870" y1="91" x2="908" y2="91" class="ann-line"/>
+  <rect x="646" y="81" width="222" height="20" rx="5" class="ann-box"/>
+  <text x="757" y="95" class="ann-text">Click to reload geometry</text>
+
+</svg>

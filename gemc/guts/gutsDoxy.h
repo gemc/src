@@ -3,6 +3,8 @@
  *
  *  \tableofcontents
  *
+ *  \image html guts-flow.svg "Dependency-light utility processing flow" width=900px
+ *
  *  \section overview Overview
  *  The **gutilities** module provides a suite of small, dependency-light helpers grouped under
  *  the \ref gutilities "gutilities" namespace. These utilities are reused across the codebase

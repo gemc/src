@@ -1,0 +1,223 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 720" role="img" aria-label="GEMC GUI Display Utilities tab">
+  <title>GEMC GUI - Display Utilities tab</title>
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#c8200e"/>
+    </marker>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg:       #f2f2f7;
+        --chrome:   #e5e5ea;
+        --panel:    #ffffff;
+        --section:  #e8e8ed;
+        --border:   #c7c7cc;
+        --ink:      #1c1c1e;
+        --muted:    #6e6e73;
+        --active:   #007aff;
+        --input:    #ffffff;
+        --ann-fill: rgba(255,255,255,0.96);
+        --ann-stroke:#1a50c0;
+        --ann-ink:  #0a0a0a;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg:       #1c1c1e;
+          --chrome:   #2c2c2e;
+          --panel:    #2c2c2e;
+          --section:  #3a3a3c;
+          --border:   #545458;
+          --ink:      #f2f2f7;
+          --muted:    #aeaeb2;
+          --input:    #3a3a3c;
+          --ann-fill: rgba(28,28,30,0.96);
+          --ann-stroke:#5b8cff;
+          --ann-ink:  #f0f0f0;
+        }
+      }
+      text { font-family: Avenir, "Segoe UI", Arial, sans-serif; }
+      .ui-label   { fill: var(--ink);   font-size: 11px; }
+      .ui-small   { fill: var(--muted); font-size: 10px; }
+      .sec-title  { fill: var(--muted); font-size: 10px; font-weight: 600; text-transform: uppercase; }
+      .topbar-btn { fill: var(--chrome); stroke: var(--border); stroke-width: 1; }
+      .page-btn   { fill: var(--chrome); stroke: var(--border); stroke-width: 1; }
+      .page-active{ fill: var(--active); }
+      .section-box{ fill: var(--section); stroke: var(--border); stroke-width: 1; }
+      .input-box  { fill: var(--input);   stroke: var(--border); stroke-width: 1; }
+      .check      { fill: var(--input);   stroke: var(--border); stroke-width: 1; }
+      .ann-box  { fill: var(--ann-fill); stroke: var(--ann-stroke); stroke-width: 1.8; }
+      .ann-text { fill: var(--ann-ink);  font-size: 11.5px; font-weight: 700; text-anchor: middle; }
+      .ann-line { stroke: #c8200e; stroke-width: 2.2; fill: none; marker-end: url(#arr); }
+    </style>
+  </defs>
+
+  <rect width="980" height="720" fill="var(--bg)"/>
+
+  <rect x="0" y="0" width="980" height="50" fill="var(--chrome)"/>
+  <text x="14" y="30" class="ui-label">N. Events:</text>
+  <rect x="84" y="14" width="36" height="22" rx="4" class="input-box"/>
+  <text x="102" y="30" class="ui-label" text-anchor="middle">1</text>
+  <rect x="130" y="11" width="54" height="26" rx="6" class="topbar-btn"/>
+  <text x="157" y="29" class="ui-label" text-anchor="middle">Run</text>
+  <rect x="192" y="11" width="62" height="26" rx="6" class="topbar-btn"/>
+  <text x="223" y="29" class="ui-label" text-anchor="middle">Cycle</text>
+  <rect x="262" y="11" width="56" height="26" rx="6" class="topbar-btn"/>
+  <text x="290" y="29" class="ui-label" text-anchor="middle">Stop</text>
+  <text x="332" y="30" class="ui-label">Event Number: 0</text>
+  <rect x="904" y="11" width="62" height="26" rx="6" class="topbar-btn"/>
+  <text x="935" y="29" class="ui-label" text-anchor="middle">Exit</text>
+
+  <rect x="0" y="50" width="112" height="670" fill="var(--chrome)" stroke="var(--border)" stroke-width="0.5"/>
+
+  <rect x="11" y="60" width="90" height="90" rx="10" class="page-active"/>
+  <g transform="translate(11,60) scale(1.875)" style="color:white">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <rect x="14" y="12" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="24" y1="24" x2="24" y2="29" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">Display</text>
+  </g>
+
+  <rect x="11" y="160" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,160) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <rect x="10.5" y="8"  width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="8"  width="6" height="6" fill="currentColor"/>
+    <rect x="24.5" y="8"  width="6" height="6" fill="#CCCCCC"/>
+    <rect x="31.5" y="8"  width="6" height="6" fill="currentColor"/>
+    <rect x="10.5" y="15" width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="15" width="6" height="6" fill="#CCCCCC"/>
+    <rect x="24.5" y="15" width="6" height="6" fill="currentColor"/>
+    <rect x="31.5" y="15" width="6" height="6" fill="currentColor"/>
+    <rect x="10.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="17.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="24.5" y="22" width="6" height="6" fill="currentColor"/>
+    <rect x="31.5" y="22" width="6" height="6" fill="#CCCCCC"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">Setup</text>
+  </g>
+  <rect x="11" y="260" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,260) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <ellipse cx="16" cy="16" rx="6" ry="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <rect x="10" y="16" width="12" height="8" fill="none" stroke="currentColor" stroke-width="1"/>
+    <ellipse cx="16" cy="24" rx="6" ry="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="28" y1="14" x2="28" y2="26" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <line x1="28" y1="18" x2="34" y2="18" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <circle cx="36" cy="18" r="1.5" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="28" y1="22" x2="34" y2="22" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <circle cx="36" cy="22" r="1.5" fill="none" stroke="currentColor" stroke-width="1"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">Volumes</text>
+  </g>
+  <rect x="11" y="360" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,360) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <line x1="6" y1="12" x2="42" y2="12" stroke="currentColor" stroke-width="1"/>
+    <text x="24" y="25" text-anchor="middle" fill="currentColor" font-size="10" font-family="Monaco">&gt;_</text>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="8" font-family="Arial">G4Dialog</text>
+  </g>
+  <rect x="11" y="460" width="90" height="90" rx="10" class="page-btn"/>
+  <g transform="translate(11,460) scale(1.875)" style="color:var(--muted)">
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+    <circle cx="17" cy="19" r="4"  stroke="currentColor" stroke-width="0.6" opacity="0.30"/>
+    <circle cx="17" cy="19" r="8"  stroke="currentColor" stroke-width="0.6" opacity="0.25"/>
+    <circle cx="17" cy="19" r="12" stroke="currentColor" stroke-width="0.6" opacity="0.20"/>
+    <path d="M17,19 Q27,13 37,11" stroke="currentColor" stroke-width="1.1" opacity="0.60" stroke-linecap="round"/>
+    <path d="M17,19 Q28,19 38,19" stroke="currentColor" stroke-width="1.1" opacity="0.60" stroke-linecap="round"/>
+    <path d="M17,19 Q27,24 37,27" stroke="currentColor" stroke-width="1.1" opacity="0.55" stroke-linecap="round"/>
+    <path d="M17,19 Q11,13 8,10"  stroke="currentColor" stroke-width="1.0" opacity="0.40" stroke-linecap="round"/>
+    <circle cx="37" cy="11" r="1.8" fill="currentColor" opacity="0.75"/>
+    <circle cx="38" cy="19" r="1.8" fill="currentColor" opacity="0.75"/>
+    <circle cx="37" cy="27" r="1.8" fill="currentColor" opacity="0.65"/>
+    <circle cx="8"  cy="10" r="1.6" fill="currentColor" opacity="0.50"/>
+    <circle cx="17" cy="19" r="3.0" fill="currentColor" opacity="0.85"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="7" font-family="Arial">Generator</text>
+  </g>
+
+  <rect x="120" y="56" width="848" height="656" rx="8" fill="var(--panel)" stroke="var(--border)" stroke-width="0.5"/>
+  <text x="462" y="81" text-anchor="middle" class="ui-small">View</text>
+  <rect x="510" y="64" width="88" height="24" rx="12" fill="var(--active)"/>
+  <text x="554" y="81" text-anchor="middle" fill="white" font-size="12" font-family="Avenir,Arial,sans-serif">
+    Utilities
+  </text>
+
+  <rect x="150" y="112" width="786" height="274" rx="7" class="section-box"/>
+  <text x="170" y="138" class="sec-title">Scene Decorations</text>
+
+  <rect x="174" y="164" width="14" height="14" rx="2" class="check"/>
+  <text x="197" y="176" class="ui-label">Scale</text>
+  <rect x="250" y="158" width="24" height="24" rx="4" fill="#e6e6e6" stroke="var(--border)" stroke-width="1"/>
+  <rect x="340" y="164" width="14" height="14" rx="2" class="check"/>
+  <text x="363" y="176" class="ui-label">Axes</text>
+  <rect x="174" y="206" width="14" height="14" rx="2" class="check"/>
+  <text x="197" y="218" class="ui-label">Event ID</text>
+  <rect x="278" y="199" width="58" height="24" rx="4" class="input-box"/>
+  <text x="307" y="216" class="ui-label" text-anchor="middle">24</text>
+  <rect x="390" y="206" width="14" height="14" rx="2" class="check"/>
+  <text x="413" y="218" class="ui-label">Date</text>
+  <rect x="472" y="199" width="58" height="24" rx="4" class="input-box"/>
+  <text x="501" y="216" class="ui-label" text-anchor="middle">24</text>
+  <rect x="174" y="248" width="14" height="14" rx="2" class="check"/>
+  <text x="197" y="260" class="ui-label">Logo 2D</text>
+  <rect x="340" y="248" width="14" height="14" rx="2" class="check"/>
+  <text x="363" y="260" class="ui-label">Logo 3D</text>
+  <rect x="174" y="290" width="14" height="14" rx="2" class="check"/>
+  <text x="197" y="302" class="ui-label">Frame</text>
+  <rect x="250" y="284" width="24" height="24" rx="4" fill="#d64235" stroke="var(--border)" stroke-width="1"/>
+
+  <text x="585" y="176" class="ui-label">Scale Length:</text>
+  <rect x="690" y="158" width="128" height="24" rx="4" class="input-box"/>
+  <text x="754" y="176" class="ui-label" text-anchor="middle">10</text>
+  <text x="585" y="218" class="ui-label">Scale Unit:</text>
+  <rect x="690" y="200" width="128" height="24" rx="4" class="input-box"/>
+  <text x="754" y="218" class="ui-label" text-anchor="middle">mm</text>
+  <text x="585" y="260" class="ui-label">Scale Direction:</text>
+  <rect x="690" y="242" width="128" height="24" rx="4" class="input-box"/>
+  <text x="754" y="260" class="ui-label" text-anchor="middle">z</text>
+  <text x="585" y="302" class="ui-label">Frame Line Width:</text>
+  <rect x="720" y="284" width="98" height="24" rx="4" class="input-box"/>
+  <text x="769" y="302" class="ui-label" text-anchor="middle">2.0</text>
+  <rect x="690" y="334" width="178" height="30" rx="6" class="topbar-btn"/>
+  <text x="779" y="354" text-anchor="middle" class="ui-label">Apply Decorations</text>
+
+  <rect x="150" y="416" width="786" height="210" rx="7" class="section-box"/>
+  <text x="170" y="442" class="sec-title">Scene Text</text>
+  <text x="176" y="476" class="ui-label">Kind:</text>
+  <rect x="228" y="458" width="86" height="24" rx="4" class="input-box"/>
+  <text x="271" y="476" text-anchor="middle" class="ui-label">2D</text>
+  <text x="176" y="518" class="ui-label">Text:</text>
+  <rect x="228" y="500" width="250" height="24" rx="4" class="input-box"/>
+  <text x="248" y="518" class="ui-small">Text</text>
+  <rect x="488" y="500" width="24" height="24" rx="4" fill="#111111" stroke="var(--border)" stroke-width="1"/>
+  <text x="176" y="560" class="ui-label">Layout:</text>
+  <rect x="228" y="542" width="118" height="24" rx="4" class="input-box"/>
+  <text x="287" y="560" text-anchor="middle" class="ui-label">right</text>
+
+  <text x="570" y="476" class="ui-label">X:</text>
+  <rect x="602" y="458" width="78" height="24" rx="4" class="input-box"/>
+  <text x="641" y="476" text-anchor="middle" class="ui-label">0.9</text>
+  <text x="710" y="476" class="ui-label">Y:</text>
+  <rect x="742" y="458" width="78" height="24" rx="4" class="input-box"/>
+  <text x="781" y="476" text-anchor="middle" class="ui-label">-0.9</text>
+  <text x="570" y="518" class="ui-label">Z:</text>
+  <rect x="602" y="500" width="78" height="24" rx="4" class="input-box"/>
+  <text x="641" y="518" text-anchor="middle" class="ui-label">0.0</text>
+  <text x="710" y="518" class="ui-label">Size:</text>
+  <rect x="762" y="500" width="58" height="24" rx="4" class="input-box"/>
+  <text x="791" y="518" text-anchor="middle" class="ui-label">24</text>
+  <text x="570" y="560" class="ui-label">Unit:</text>
+  <rect x="602" y="542" width="78" height="24" rx="4" class="input-box"/>
+  <text x="641" y="560" text-anchor="middle" class="ui-label">cm</text>
+  <rect x="228" y="584" width="120" height="30" rx="6" class="topbar-btn"/>
+  <text x="288" y="604" text-anchor="middle" class="ui-label">Add Text</text>
+  <rect x="364" y="584" width="120" height="30" rx="6" class="topbar-btn"/>
+  <text x="424" y="604" text-anchor="middle" class="ui-label">Clear Text</text>
+
+  <rect x="612" y="92" width="180" height="28" rx="5" class="ann-box"/>
+  <text x="702" y="111" class="ann-text">Utilities tab</text>
+  <line x1="650" y1="106" x2="585" y2="76" class="ann-line"/>
+  <rect x="318" y="330" width="202" height="28" rx="5" class="ann-box"/>
+  <text x="419" y="349" class="ann-text">Scene decorations</text>
+  <line x1="520" y1="344" x2="690" y2="344" class="ann-line"/>
+  <rect x="608" y="632" width="180" height="28" rx="5" class="ann-box"/>
+  <text x="698" y="651" class="ann-text">Add annotation text</text>
+  <line x1="608" y1="642" x2="480" y2="518" class="ann-line"/>
+</svg>

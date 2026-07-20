@@ -299,6 +299,7 @@ public:
      *
      * \param gopt Shared pointer to the option set used to configure logging and behavior.
      * \param g4volumes_map Map from full volume names to `G4Volume*` wrappers.
+     * \param gvolumes_map Optional source-volume metadata used for parameter and Boolean-solid inspection.
      * \param parent Optional Qt parent used for ownership and lifetime management.
      *
      * @details

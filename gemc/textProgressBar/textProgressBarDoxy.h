@@ -2,6 +2,10 @@
 /**
  * \mainpage textProgressBar module
  *
+ * \tableofcontents
+ *
+ * \image html textprogressbar-flow.svg "Terminal progress rendering lifecycle" width=900px
+ *
  * This module provides a lightweight, dependency-minimal text progress bar for terminal output.
  * It is designed for long-running loops where periodically printing a single-line progress indicator
  * improves usability without introducing GUI or logging dependencies.

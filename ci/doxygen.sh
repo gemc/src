@@ -7,7 +7,8 @@ set -euo pipefail
 
 # ---- config ----
 doc_modules=(
-guts goptions glogging gbase gfactory textProgressBar gtouchable ghit gtranslationTable gdata gboard gdynamicDigitization
+guts goptions glogging gbase gfactory textProgressBar gtouchable ghit gtranslationTable gdata gboard
+gdynamicDigitization
 gsystem gstreamer eventDispenser gqtbuttonswidget g4display g4dialog g4system gparticle gphysics gsplash gsd
 gfields gdetector dbselect gtree gui actions utilities)
 
@@ -15,6 +16,8 @@ pages_dir="pages"
 script_dir="${0:A:h}"
 repo_root="${script_dir:h}"
 cd "$repo_root"
+
+"$script_dir/generate_doxygen_diagrams.py" --check
 
 usage() {
   cat <<'EOF'
@@ -147,6 +150,12 @@ for m in $modules_to_build; do
     print -- 'GENERATE_HTML              = NO' >> Doxyfile
   fi
 
+  # The tag-only pass cannot resolve links to modules whose tags do not exist yet.
+  # Validate documentation during the cross-linked HTML pass instead.
+  set_doxy_key "WARNINGS" "NO" Doxyfile
+  set_doxy_key "WARN_IF_DOC_ERROR" "NO" Doxyfile
+  set_doxy_key "WARN_IF_INCOMPLETE_DOC" "NO" Doxyfile
+
   # Ensure TAGFILES isn't present in pass 1
   inplace_sed '/^TAGFILES\b/d' Doxyfile
 
@@ -179,6 +188,13 @@ for m in $modules_to_build; do
     print -- 'GENERATE_HTML              = YES' >> Doxyfile
   fi
 
+  set_doxy_key "WARNINGS" "YES" Doxyfile
+  set_doxy_key "WARN_IF_DOC_ERROR" "YES" Doxyfile
+  set_doxy_key "WARN_IF_INCOMPLETE_DOC" "YES" Doxyfile
+  if [[ -z "$selected" ]]; then
+    set_doxy_key "WARN_AS_ERROR" "FAIL_ON_WARNINGS" Doxyfile
+  fi
+
   # Remove any existing TAGFILES lines before injecting ours
   inplace_sed '/^TAGFILES\b/d' Doxyfile
 
@@ -204,5 +220,7 @@ if [[ -f "$script_dir/generate_html.py" ]]; then
 elif [[ -f "./ci/generate_html.py" ]]; then
   ./ci/generate_html.py
 fi
+
+"$script_dir/check_doxygen_links.py" "$pages_dir"
 
 echo "Done. Output in ./$pages_dir/"

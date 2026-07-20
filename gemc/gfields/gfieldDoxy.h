@@ -1,6 +1,10 @@
 /**
  * @mainpage GField framework
  *
+ * \tableofcontents
+ *
+ * \image html gfields-flow.svg "Magnetic-field configuration and installation" width=900px
+ *
  * @section gfield_intro Introduction
  * The GField framework is a plugin-driven module that provides magnetic-field support for GEMC simulations.
  * Users configure one or more magnetic fields through options (typically YAML-derived), and the framework:
@@ -15,8 +19,10 @@
  * - \ref GMagneto "GMagneto" is the owner/registry that loads fields and holds their managers.
  *
  * @section gfield_ownership Ownership and lifecycle
- * - **Configuration ownership:** options are owned externally (e.g. by the application); the module receives them as shared pointers.
- * - **Field ownership:** \ref GMagneto "GMagneto" owns all instantiated field objects and keeps them alive for its lifetime.
+ * - **Configuration ownership:** options are owned externally (e.g. by the application); the module receives
+ *   them as shared pointers.
+ * - **Field ownership:** \ref GMagneto "GMagneto" owns all instantiated field objects and keeps them alive for
+ *   its lifetime.
  * - **Manager ownership:** \ref GMagneto "GMagneto" also owns the \c G4FieldManager objects returned by
  *   \ref GField::create_FieldManager "create_FieldManager()".
  *
@@ -27,9 +33,11 @@
  *
  * @section gfield_arch Architecture
  * @subsection gfield_arch_design Design notes
- * - **Plugin boundary:** concrete fields are implemented in shared libraries and must export a C symbol named \c GFieldFactory.
- * - **Configuration model:** field configuration is stored as strings in \ref GFieldDefinition::field_parameters "field_parameters"
- *   to preserve unit expressions; the concrete implementation parses/caches values in
+ * - **Plugin boundary:** concrete fields are implemented in shared libraries and must export a C symbol named
+ *   \c GFieldFactory.
+ * - **Configuration model:** field configuration is stored as strings in
+ *   \ref GFieldDefinition::field_parameters "field_parameters" to preserve unit expressions; the concrete
+ *   implementation parses/caches values in
  *   \ref GField::load_field_definitions "load_field_definitions()".
  * - **Stepping:** \ref GField::create_FieldManager "create_FieldManager()" creates the stepping components:
  *   \c G4Mag_UsualEqRhs, an integration stepper, a \c G4ChordFinder, and finally the \c G4FieldManager.
@@ -53,21 +61,25 @@
  *     - `vx`, `vy`, `vz` (string): origin coordinates (Geant4 length units)
  *     - `rotation_angle` (string): roll rotation about \c rotaxis (Geant4 angle units)
  *     - `rotaxis` (string, mandatory): one of X, Y, Z
- *     - `strength` (string, mandatory): field strength in Tesla (defined at 1 m reference radius for multipoles)
- *     - `longitudinal` (string/boolean-like): if \c true, return a uniform field aligned with \c rotaxis (solenoid-like)
+ *     - `strength` (string, mandatory): field strength in Tesla (defined at 1 m reference radius for
+ *       multipoles)
+ *     - `longitudinal` (string/boolean-like): if \c true, return a uniform field aligned with \c rotaxis
+ *       (solenoid-like)
  *
  * @section gfield_verbosity Module verbosity
  * The module uses the loggers \c gfield and \c gmagneto.
  * Typical verbosity behavior:
  * - Level 0: high-level summary and critical configuration messages.
  * - Level 1: field-definition and plugin-loading details (which fields were created, parsed parameters).
- * - Level 2: per-call or fine-grained diagnostic output (e.g. detailed field evaluation logging in some implementations).
+ * - Level 2: per-call or fine-grained diagnostic output (e.g. detailed field evaluation logging in some
+ *   implementations).
  * - Debug: intended for intensive developer diagnostics (tight loops, repeated calls, full internal dumps).
  *
  * @section gfield_examples Examples
  * The module includes small example programs demonstrating usage.
  *
- * - \ref example_test_gfield_dipole : Minimal setup: define options, build \ref GMagneto "GMagneto", query a field, and evaluate B.
+ * - \ref example_test_gfield_dipole : Minimal setup: define options, build \ref GMagneto "GMagneto", query a
+ *   field, and evaluate B.
  *
  * \author
  * &copy; Maurizio Ungaro

@@ -1,6 +1,12 @@
 /**
  * \mainpage GEMC GUI Module
  *
+ * \tableofcontents
+ *
+ * \image html gui-flow.svg "Top-level GEMC GUI coordination" width=900px
+ *
+ * \image html display-gui.svg "GEMC graphical interface" width=900px
+ *
  * @section intro_sec Introduction
  *
  * This module provides the Qt-based graphical user interface for GEMC. The primary entry point is the
@@ -43,21 +49,16 @@
  *
  * @section options_sec Available Options and usage
  *
- * This module does not define GUI-specific options in the code shown here.
- * Instead it consumes:
- * - Options carried by GOptions, which are passed into GUI pages (e.g. display and dialog widgets).
+ * This module does not define a standalone GUI option schema. Instead it consumes:
+ * - Options carried by GOptions and passed into child pages such as the display and dialog widgets.
  * - Run control values managed by EventDispenser:
- *   - The “N. Events” field updates the number of events to process via EventDispenser::setNumberOfEvents().
+ *   - The "N. Events" field updates the number of events via EventDispenser::setNumberOfEvents().
  *   - The initial value is read from EventDispenser::getTotalNumberOfEvents().
- *
- * If you add GUI-specific options in the future, document them here and describe where they are defined
- * (e.g. a defineOptions() method) and how they map to the widgets.
- *
  *
  * @section verbosity_sec Module verbosity
  *
- * This GUI module does not define classes derived from glogger in the code shown here.
- * Therefore, there is no module-specific verbosity level to configure for this component.
+ * The top-level widget has no module-specific logger. Child pages use their own logger categories, including
+ * \c g4display, \c g4dialog, \c gtree, and \c dbselect.
  *
  *
  * \author &copy; Maurizio Ungaro

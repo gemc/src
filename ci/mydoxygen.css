@@ -28,14 +28,16 @@
 	--warn: #d97706;
 	--danger: #dc2626;
 
-	--radius: 10px;
-	--radius-sm: 8px;
+	--radius: 8px;
+	--radius-sm: 6px;
 
 	--shadow: 0 1px 2px rgba(0,0,0,0.06);
 	--shadow-soft: 0 6px 16px rgba(0,0,0,0.08);
 
-	--font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	--font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+		"Apple Color Emoji", "Segoe UI Emoji";
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+		"Courier New", monospace;
 }
 
 /* ---------- Page base ---------- */
@@ -74,7 +76,7 @@ div.contents .textblock h1,
 div.contents .textblock h2,
 div.contents .textblock h3 {
 	font-weight: 600;
-	letter-spacing: -0.01em;
+	letter-spacing: 0;
 	color: var(--fg);
 	margin: 1.2em 0 0.5em;
 }
@@ -350,6 +352,52 @@ blockquote {
 	color: var(--muted);
 }
 
+/* ---------- Images ---------- */
+div.image {
+	margin: 20px 0 28px;
+	text-align: center;
+}
+
+div.image img,
+div.image object {
+	display: block;
+	width: min(100%, 900px);
+	max-width: 100%;
+	height: auto;
+	margin: 0 auto;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	background: var(--panel-2);
+}
+
+div.image div.caption {
+	margin-top: 8px;
+	color: var(--muted);
+	font-size: 0.9rem;
+}
+
+/* ---------- In-page contents ---------- */
+div.toc, #toc, .toc {
+	display: block;
+	float: none;
+	width: auto;
+	margin: 12px 0 22px;
+	padding: 12px 16px;
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	background: var(--panel-2);
+}
+
+div.toc h3 {
+	margin: 0 0 6px;
+	font-size: 1rem;
+}
+
+div.toc ul {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
 /* Doxygen note/warn/todo sections */
 dl.section {
 	margin: 10px 0;
@@ -390,8 +438,3 @@ span.comment { color: #6a737d; }
 span.preprocessor { color: #9a6700; }
 span.stringliteral { color: #0a3069; }
 span.charliteral { color: #116329; }
-
-/* Remove right-side floating TOC box everywhere */
-div.toc, #toc, .toc {
-	display: none !important;
-}

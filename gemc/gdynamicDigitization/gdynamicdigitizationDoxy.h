@@ -1,12 +1,17 @@
 /**
  * \mainpage GDynamicDigitization Module
  *
+ * \tableofcontents
+ *
+ * \image html gdynamicdigitization-flow.svg "Digitization plugin lifecycle" width=900px
+ *
  * \section intro_sec Introduction
  * The GDynamicDigitization module defines the base interface and utilities used to
  * implement detector digitization routines as dynamically loadable plugins.
  *
  * At a high level, a digitization plugin is responsible for:
- * - defining readout timing/storage rules via \ref GDynamicDigitization::defineReadoutSpecs "defineReadoutSpecs()"
+ * - defining readout timing/storage rules via
+ *   \ref GDynamicDigitization::defineReadoutSpecs "defineReadoutSpecs()"
  * - optionally loading constants and a translation table via
  *   \ref GDynamicDigitization::loadConstants "loadConstants()" and
  *   \ref GDynamicDigitization::loadTT "loadTT()"
@@ -14,11 +19,24 @@
  * - optionally collecting a standardized “true information” payload via
  *   \ref GDynamicDigitization::collectTrueInformation "collectTrueInformation()"
  *
+ * \image html digitization-workflow.svg "Sensitive-detector and digitization data flow" width=900px
+ *
  * \section components_sec Key components
  * - GDynamicDigitization : Abstract base class defining the plugin surface.
  * - GTouchableModifiers : Helper container used when a digitizer needs to compute
  *   weighted/weighted-time modifiers for touchables.
  * - GReadoutSpecs : Small immutable specification used to compute electronics time bin indices.
+ *
+ * \section options_sec Configuration
+ * \ref gdynamicdigitization::defineOptions "gdynamicdigitization::defineOptions()" defines:
+ * - \c recordZeroEdep: retain hits with exactly zero deposited energy.
+ * - \c digitization_variation: override the geometry variation used to load constants and translation tables.
+ * - \c applyThresholds: comma- or space-separated digitization systems that apply channel thresholds, or
+ *   \c all.
+ * - \c applyInefficiencies: systems that apply per-channel efficiency rejection, or \c all.
+ *
+ * It also aggregates the event-data, run-data, translation-table, and plugin-factory option sets required by
+ * the digitization workflow.
  *
  * \section verbosity_sec Verbosity and logging
  * Most classes in this module log through the project logging infrastructure.

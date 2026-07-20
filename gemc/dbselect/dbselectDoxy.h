@@ -12,6 +12,12 @@
 /**
  * \mainpage dbselect
  *
+ * \tableofcontents
+ *
+ * \image html dbselect-flow.svg "Detector setup selection and reload flow" width=900px
+ *
+ * \image html display-setup.svg "GEMC detector setup page" width=900px
+ *
  * @section dbselect_intro Introduction
  *
  * The dbselect module provides a Qt widget (\c DBSelectView) that presents experiments and
@@ -88,7 +94,8 @@
  *   - Behavior:
  *     - when \c true, example programs typically start a Qt event loop and show the widget
  *     - when \c false, examples may run in CLI mode (no widget created)
- *   - Note: this switch is defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" and is globally available.
+ *   - Note: this switch is defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" and is globally
+ *     available.
  *
  * This module’s option schema is composed by \c dbselect::defineOptions(), which aggregates:
  * - \c gdetector::defineOptions()

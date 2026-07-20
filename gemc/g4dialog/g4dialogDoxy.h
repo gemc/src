@@ -3,6 +3,10 @@
  *
  * \tableofcontents
  *
+ * \image html g4dialog-flow.svg "Geant4 command discovery and execution flow" width=900px
+ *
+ * \image html display-g4dialog.svg "GEMC Geant4 command browser" width=900px
+ *
  * \section g4dialog_intro Introduction
  *
  * G4Dialog is a lightweight Qt-based user interface module that provides a convenient front-end
@@ -35,7 +39,7 @@
  *
  * \section g4dialog_verbosity Verbosity and logging
  *
- * This module follows the GEMC-style logging conventions via GBase/Glogger integration.
+ * This module follows the GEMC-style logging conventions via GBase/GLogger integration.
  * The logger name for this module is \c G4DIALOG_LOGGER ("g4dialog").
  *
  * Typical verbosity expectations:

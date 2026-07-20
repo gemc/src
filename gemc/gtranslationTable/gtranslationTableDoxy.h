@@ -4,6 +4,10 @@
 /**
  * \mainpage Translation Table Module (gtranslationTable)
  *
+ * \tableofcontents
+ *
+ * \image html gtranslationtable-flow.svg "Detector identity to electronics-channel lookup" width=900px
+ *
  * \section intro_sec Introduction
  *
  * The Translation Table module provides a compact mapping between a vector-based identity

@@ -14,6 +14,10 @@
 /**
  * @mainpage gphysics module
  *
+ * \tableofcontents
+ *
+ * \image html gphysics-flow.svg "Physics-list selection and construction" width=900px
+ *
  * @section gphysics_intro Introduction
  * The gphysics module is a lightweight wrapper that builds and exposes a Geant4 physics list
  * based on runtime options. Its primary responsibility is:
@@ -62,7 +66,8 @@
  *
  * - `phys_list`
  *   - Type: string
- *   - Meaning: Geant4 reference physics list selection, with optional EM replacement and optional extra constructors
+ *   - Meaning: Geant4 reference physics list selection, with optional EM replacement and optional extra
+ *     constructors
  *   - Behavior:
  *     - base list is selected by name (e.g. `FTFP_BERT`)
  *     - EM replacement may be appended via an underscore suffix (e.g. `_LIV`)
@@ -76,7 +81,8 @@
  *     - when enabled, the module prints the curated list and terminates early
  *
  * @section gphysics_examples Examples
- * - \ref gphysics_example_main "gphysics_example" : Minimal example that defines options and instantiates GPhysics.
+ * - \ref gphysics_example_main "gphysics_example" : Minimal example that defines options and instantiates
+ *   GPhysics.
  *
  * @subsection gphysics_example_snippet Example snippet
  * @code

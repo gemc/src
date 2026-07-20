@@ -1,0 +1,226 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 880" role="img" aria-label="GEMC digitization workflow">
+  <title>GEMC — Digitization workflow</title>
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#8a8a8e"/>
+    </marker>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg:            #f2f2f7;
+        --band-a:        #ffffff;
+        --band-b:        #ececf1;
+        --border:        #c7c7cc;
+        --ink:           #1c1c1e;
+        --muted:         #6e6e73;
+        --core:          #e8e8ed;
+        --core-stroke:   #b8b8be;
+        --routine:       #e3efff;
+        --routine-stroke:#1a50c0;
+        --data:          #e3f7ea;
+        --data-stroke:   #1f9d57;
+        --gate:          #fff3d6;
+        --gate-stroke:   #d99a00;
+        --flow:          #8a8a8e;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg:            #1c1c1e;
+          --band-a:        #2c2c2e;
+          --band-b:        #242426;
+          --border:        #545458;
+          --ink:           #f2f2f7;
+          --muted:         #aeaeb2;
+          --core:          #3a3a3c;
+          --core-stroke:   #5a5a5e;
+          --routine:       #25324a;
+          --routine-stroke:#6f9bff;
+          --data:          #1f3a2a;
+          --data-stroke:   #43c178;
+          --gate:          #3a3320;
+          --gate-stroke:   #d9a300;
+          --flow:          #8e8e93;
+        }
+      }
+      text { font-family: Avenir, "Segoe UI", Arial, sans-serif; }
+      .h1          { fill: var(--ink);   font-size: 21px; font-weight: 700; }
+      .sub         { fill: var(--muted); font-size: 12.5px; }
+      .band-a      { fill: var(--band-a); }
+      .band-b      { fill: var(--band-b); }
+      .lane-label  { fill: var(--ink);   font-size: 14.5px; font-weight: 700; }
+      .lane-when   { fill: var(--muted); font-size: 10px; }
+      .src-note    { fill: var(--muted); font-size: 10.5px; font-style: italic; }
+      .note        { fill: var(--muted); font-size: 10.5px; font-style: italic; }
+      .core-box    { fill: var(--core);    stroke: var(--core-stroke);    stroke-width: 1; }
+      .routine-box { fill: var(--routine); stroke: var(--routine-stroke); stroke-width: 1.4; }
+      .data-box    { fill: var(--data);    stroke: var(--data-stroke);    stroke-width: 1.4; }
+      .gate-box    { fill: var(--gate);    stroke: var(--gate-stroke);    stroke-width: 1.4; }
+      .drop-box    { fill: none;           stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; }
+      .box-title   { fill: var(--ink);   font-size: 13px; font-weight: 600; text-anchor: middle; }
+      .box-sub     { fill: var(--muted); font-size: 11px; text-anchor: middle; }
+      .box-mini    { fill: var(--muted); font-size: 10.5px; text-anchor: middle; }
+      .edge-label  { fill: var(--muted); font-size: 10px; font-weight: 600; }
+      .flow        { stroke: var(--flow); stroke-width: 1.8; fill: none; marker-end: url(#arr); }
+      .leg-text    { fill: var(--ink);   font-size: 11.5px; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="980" height="880" fill="var(--bg)"/>
+
+  <!-- Header -->
+  <text class="h1"  x="24" y="34">Digitization workflow</text>
+  <text class="sub" x="24" y="55">How GEMC turns Geant4 steps into digitized hits and Monte-Carlo truth</text>
+
+  <!-- ===================== Lane 1 — Construction ===================== -->
+  <rect class="band-a" x="14" y="70" width="952" height="116" rx="10"/>
+  <text class="lane-label" x="24" y="123">Construction</text>
+  <text class="lane-when"  x="24" y="140">once per worker thread</text>
+
+  <rect class="core-box" x="168" y="100" width="158" height="56" rx="8"/>
+  <text class="box-title" x="247" y="125">ConstructSD&amp;Field</text>
+  <text class="box-sub"   x="247" y="141">GDetectorConstruction</text>
+
+  <line class="flow" x1="326" y1="128" x2="360" y2="128"/>
+  <rect class="core-box" x="364" y="100" width="158" height="56" rx="8"/>
+  <text class="box-title" x="443" y="125">Instantiate routine</text>
+  <text class="box-sub"   x="443" y="141">built-in or .gplugin</text>
+
+  <line class="flow" x1="522" y1="128" x2="558" y2="128"/>
+  <rect class="routine-box" x="562" y="100" width="208" height="56" rx="8"/>
+  <text class="box-title" x="666" y="125">defineReadoutSpecs()</text>
+  <text class="box-sub"   x="666" y="141">window · HitBitSet · maxStep</text>
+
+  <!-- ===================== Lane 2 — Begin of run ===================== -->
+  <rect class="band-b" x="14" y="190" width="952" height="104" rx="10"/>
+  <text class="lane-label" x="24" y="238">Begin of run</text>
+  <text class="lane-when"  x="24" y="255">when run number changes</text>
+
+  <text class="src-note" x="168" y="206">EventDispenser — run loop</text>
+
+  <rect class="routine-box" x="168" y="212" width="210" height="56" rx="8"/>
+  <text class="box-title" x="273" y="237">loadConstants(run, var)</text>
+  <text class="box-sub"   x="273" y="253">calibration constants</text>
+
+  <line class="flow" x1="378" y1="240" x2="412" y2="240"/>
+  <rect class="routine-box" x="416" y="212" width="210" height="56" rx="8"/>
+  <text class="box-title" x="521" y="237">loadTT(run, var)</text>
+  <text class="box-sub"   x="521" y="253">identity → electronics map</text>
+
+  <text class="note" x="648" y="236">skipped while the run</text>
+  <text class="note" x="648" y="251">number is unchanged</text>
+
+  <!-- ===================== Lane 3 — Stepping ===================== -->
+  <rect class="band-a" x="14" y="298" width="952" height="158" rx="10"/>
+  <text class="lane-label" x="24" y="370">Stepping</text>
+  <text class="lane-when"  x="24" y="387">every step in a</text>
+  <text class="lane-when"  x="24" y="399">sensitive volume</text>
+
+  <text class="src-note" x="168" y="324">GSensitiveDetector::ProcessHits</text>
+
+  <rect class="core-box" x="168" y="346" width="150" height="56" rx="8"/>
+  <text class="box-title" x="243" y="371">G4 step</text>
+  <text class="box-sub"   x="243" y="387">in sensitive volume</text>
+
+  <line class="flow" x1="318" y1="374" x2="354" y2="374"/>
+  <rect class="routine-box" x="358" y="346" width="168" height="56" rx="8"/>
+  <text class="box-title" x="442" y="371">decisionToSkipHit()</text>
+  <text class="box-sub"   x="442" y="387">skip zero-edep step</text>
+
+  <line class="flow" x1="526" y1="374" x2="562" y2="374"/>
+  <rect class="routine-box" x="566" y="346" width="186" height="56" rx="8"/>
+  <text class="box-title" x="659" y="371">processTouchable()</text>
+  <text class="box-sub"   x="659" y="387">split · charge · time bins</text>
+
+  <line class="flow" x1="752" y1="374" x2="788" y2="374"/>
+  <rect class="data-box" x="792" y="346" width="170" height="56" rx="8"/>
+  <text class="box-title" x="877" y="371">GHit</text>
+  <text class="box-sub"   x="877" y="387">accumulates every step</text>
+
+  <text class="note" x="565" y="432" text-anchor="middle">A GHit gathers every step a track takes through one readout element.</text>
+
+  <!-- ===================== Lane 4 — End of event ===================== -->
+  <rect class="band-b" x="14" y="460" width="952" height="212" rx="10"/>
+  <text class="lane-label" x="24" y="560">End of event</text>
+  <text class="lane-when"  x="24" y="577">once per event,</text>
+  <text class="lane-when"  x="24" y="589">per hit</text>
+
+  <text class="src-note" x="168" y="482">GEventAction::EndOfEventAction</text>
+
+  <rect class="core-box" x="168" y="540" width="130" height="48" rx="8"/>
+  <text class="box-title" x="233" y="569">for each GHit</text>
+
+  <!-- branch into the digitized path (top) and the true-info path (bottom) -->
+  <path class="flow" d="M298 564 H330 V525 H510"/>
+  <path class="flow" d="M330 564 V605 H510"/>
+
+  <!-- digitized path -->
+  <rect class="routine-box" x="512" y="503" width="132" height="44" rx="8"/>
+  <text class="box-title" x="578" y="523">digitizeHit()</text>
+  <text class="box-sub"   x="578" y="537">electronics model</text>
+  <line class="flow" x1="644" y1="525" x2="662" y2="525"/>
+  <rect class="gate-box" x="664" y="503" width="118" height="44" rx="8"/>
+  <text class="box-title" x="723" y="518">accepted?</text>
+  <text class="box-sub"   x="723" y="531">apply_thresholds()</text>
+  <text class="box-sub"   x="723" y="544">apply_efficiency()</text>
+  <line class="flow" x1="782" y1="525" x2="794" y2="525"/>
+  <text class="edge-label" x="784" y="519">yes</text>
+  <rect class="data-box" x="796" y="503" width="150" height="44" rx="8"/>
+  <text class="box-title" x="871" y="523">GDigitizedData</text>
+  <text class="box-sub"   x="871" y="537">adc, time …</text>
+  <!-- rejected terminal -->
+  <path class="flow" d="M723 547 V553"/>
+  <rect class="drop-box" x="664" y="553" width="118" height="22" rx="6"/>
+  <text class="box-mini" x="723" y="568">no digitized hit</text>
+
+  <!-- true-info path -->
+  <rect class="routine-box" x="512" y="583" width="178" height="44" rx="8"/>
+  <text class="box-title" x="601" y="603">collectTrueInformation()</text>
+  <text class="box-sub"   x="601" y="617">averages via calculateInfos()</text>
+  <line class="flow" x1="690" y1="605" x2="706" y2="605"/>
+  <rect class="gate-box" x="708" y="583" width="110" height="44" rx="8"/>
+  <text class="box-title" x="763" y="603">keep truth?</text>
+  <text class="box-sub"   x="763" y="617">also_reject_true_info</text>
+  <line class="flow" x1="818" y1="605" x2="834" y2="605"/>
+  <rect class="data-box" x="836" y="583" width="110" height="44" rx="8"/>
+  <text class="box-title" x="891" y="603">GTrueInfoData</text>
+  <text class="box-sub"   x="891" y="617">pid · tid · otid …</text>
+
+  <text class="note" x="168" y="662">Rejected hits write no GDigitizedData; their GTrueInfoData is dropped too — unless -also_reject_true_info=false (default true).</text>
+
+  <!-- ===================== Lane 5 — Output ===================== -->
+  <rect class="band-a" x="14" y="676" width="952" height="160" rx="10"/>
+  <text class="lane-label" x="24" y="748">Output</text>
+  <text class="lane-when"  x="24" y="765">per event /</text>
+  <text class="lane-when"  x="24" y="777">end of run</text>
+
+  <rect class="data-box" x="168" y="696" width="190" height="52" rx="8"/>
+  <text class="box-title" x="263" y="719">Event-mode hits</text>
+  <text class="box-sub"   x="263" y="735">digitized + true info</text>
+  <line class="flow" x1="358" y1="722" x2="394" y2="722"/>
+  <rect class="core-box" x="398" y="696" width="250" height="52" rx="8"/>
+  <text class="box-title" x="523" y="719">Per-thread streamers</text>
+  <text class="box-sub"   x="523" y="735">ASCII · CSV · ROOT · JSON</text>
+  <text class="note" x="664" y="726">one file per worker thread</text>
+
+  <rect class="data-box" x="168" y="764" width="190" height="52" rx="8"/>
+  <text class="box-title" x="263" y="787">Run-mode hits</text>
+  <text class="box-sub"   x="263" y="803">dosimeter · counters</text>
+  <line class="flow" x1="358" y1="790" x2="394" y2="790"/>
+  <rect class="routine-box" x="398" y="764" width="160" height="52" rx="8"/>
+  <text class="box-title" x="478" y="787">normalize()</text>
+  <text class="box-sub"   x="478" y="803">at end of run</text>
+  <line class="flow" x1="558" y1="790" x2="594" y2="790"/>
+  <rect class="core-box" x="598" y="764" width="190" height="52" rx="8"/>
+  <text class="box-title" x="693" y="787">Integrated output</text>
+  <text class="box-sub"   x="693" y="803">one combined file</text>
+
+  <!-- ===================== Legend ===================== -->
+  <rect class="routine-box" x="120" y="848" width="14" height="14" rx="3"/>
+  <text class="leg-text" x="140" y="859">Routine method — override in a plugin</text>
+  <rect class="core-box" x="400" y="848" width="14" height="14" rx="3"/>
+  <text class="leg-text" x="420" y="859">GEMC core action</text>
+  <rect class="data-box" x="560" y="848" width="14" height="14" rx="3"/>
+  <text class="leg-text" x="580" y="859">Data product</text>
+  <rect class="gate-box" x="700" y="848" width="14" height="14" rx="3"/>
+  <text class="leg-text" x="720" y="859">Decision / gate</text>
+</svg>

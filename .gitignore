@@ -2,3 +2,7 @@ goptions/gversion.h
 *.o
 moc*.cc
 .DS_Store
+/pages/
+/gemc/*/Doxyfile
+/gemc/*/DoxyfilePure
+/gemc/*/mydoxygen.css

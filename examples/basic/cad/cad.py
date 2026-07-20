@@ -9,9 +9,10 @@ Run it with the pygemc python from this directory:
 
     /opt/projects/gemc/src/build/subprojects/pygemc/python_env/bin/python cad.py
 
-Then run the example (gamma source, per-organ dose) with:
+Then run the example (Ir-192 brachytherapy source inside the liver) and plot the per-organ dose with:
 
-    /opt/projects/gemc/src/build/bin/gemc cad.yaml -n=10
+    /opt/projects/gemc/src/build/bin/gemc cad.yaml -n=200
+    /opt/projects/gemc/src/build/subprojects/pygemc/python_env/bin/python plot_dose.py
 """
 
 import os

@@ -12,6 +12,10 @@
 /**
  * \mainpage gfactory module
  *
+ * \tableofcontents
+ *
+ * \image html gfactory-flow.svg "Static and dynamic factory resolution" width=900px
+ *
  * \section overview Overview
  * The **gfactory** module provides a lightweight registry and loader for plugin-style objects.
  * It supports two complementary workflows:
@@ -26,7 +30,8 @@
  *
  * Notes:
  * - Many components using this module log through \c PLUGIN_LOGGER and therefore can be influenced
- *   by global logging controls (e.g. `verbosity`, `debug`) defined by \ref GOptions::GOptions "GOptions(argc,argv,...)".
+ *   by global logging controls (e.g. `verbosity`, `debug`) defined by
+ *   \ref GOptions::GOptions "GOptions(argc,argv,...)".
  * - Plugin search paths and loading policies are typically implemented at the consumer level and documented
  *   by those consuming modules (e.g. gfields, g4system factories).
  *
@@ -38,7 +43,8 @@
  *   - Derived implementations live in separate libraries and provide that extern "C" symbol.
  * - **Ownership**:
  *   - Static creation returns a raw pointer; the caller owns it and must delete it.
- *   - Dynamic creation returns `std::shared_ptr<T>` and keeps the library loaded for the lifetime of the object.
+ *   - Dynamic creation returns `std::shared_ptr<T>` and keeps the library loaded for the lifetime of the
+ *     object.
  *
  * \section examples Examples (see `examples/`)
  * The module ships with small examples intended as reference implementations:

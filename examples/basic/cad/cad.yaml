@@ -1,14 +1,21 @@
-# CAD organs radiation-source example.
+# CAD organs brachytherapy example.
 #
-# A gamma "radiation source" is placed 1 m in front of the torso (vz = -1000 mm) and fired as a
-# forward cone wide enough to cover the heart, lungs and liver. Each organ is a "dosimeter"
-# sensitive detector (see stls/cad__default.yaml), so the CSV output carries the deposited energy
-# and the dose (edep / mass) per organ.
+# An Iridium-192 high-dose-rate (HDR) brachytherapy source is placed *inside the liver* and emits
+# photons isotropically, as in the interstitial treatment of a liver tumour. Ir-192 is the standard
+# HDR brachytherapy isotope; its photon spectrum (dominant lines 0.30-0.61 MeV) is approximated here
+# by ~0.38 MeV gammas (the Ir-192 mean photon energy) with a spread across the spectrum.
+#
+# Each organ (heart, lungs, liver) is a "flux" sensitive detector (see stls/cad__default.yaml), so
+# the CSV output carries one row per hit with the organ identity and the deposited energy. The liver,
+# which hosts the source, absorbs by far the largest dose; the neighbouring organs-at-risk receive a
+# small scattered/leakage dose. plot_dose.py sums the deposited energy per organ, divides by the organ
+# mass to get the absorbed dose, and derives the equivalent Ir-192 irradiation time:
+#     python plot_dose.py
 #
 # Build the geometry first (writes gemc.db and the normalized STLs):
 #     python cad.py
-# Then run, e.g. 10 events:
-#     gemc cad.yaml -n=10
+# Then run, e.g. 50 events:
+#     gemc cad.yaml -n=50
 
 experiment: examples
 runno: 1
@@ -24,16 +31,28 @@ gstreamer:
 
 phys_list: FTFP_BERT
 
-# 1.25 MeV gammas (Co-60-like), 200 per event, in a forward cone about +z covering the torso.
+# Ir-192 HDR brachytherapy source seeded through the liver volume.
+# Vertex: liver centroid in world coordinates (0, -140, 0 mm), spread uniformly inside a ~35 mm
+#   sphere (randomVertexModel: sphere uses |delta_v| as the radius) to mimic the loaded dwell region.
+# Emission: isotropic 4pi (cosine theta over 0-180 deg + uniform phi over 0-360 deg).
+# Energy: ~0.38 MeV photons (Ir-192 mean) smeared to span the 0.26-0.50 MeV part of the spectrum.
 gparticle:
   - name: gamma
-    p: 1250*keV
-    multiplicity: 200
-    theta: 0*deg
-    delta_theta: 12*deg
-    phi: 0*deg
+    p: 380*keV
+    delta_p: 120*keV
+    multiplicity: 300
+    theta: 90*deg
+    delta_theta: 90*deg
+    randomThetaModel: cosine
+    phi: 180*deg
     delta_phi: 180*deg
-    vz: -1000*mm
+    vx: 0*mm
+    vy: -140*mm
+    vz: 0*mm
+    delta_vx: 20*mm
+    delta_vy: 20*mm
+    delta_vz: 20*mm
+    randomVertexModel: sphere
 
 g4camera:
   theta: 90*deg

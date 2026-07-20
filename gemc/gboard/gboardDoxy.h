@@ -3,6 +3,8 @@
  *
  * \tableofcontents
  *
+ * \image html gboard-flow.svg "Geant4 output routing into the GUI log board" width=900px
+ *
  * ## Overview
  *
  * The **gboard** module provides a small Qt-based log viewer widget (GBoard) and a Geant4 UI session adapter
@@ -42,7 +44,7 @@
  *
  * ## Verbosity
  *
- * This module uses the standard GEMC logging conventions via classes derived from glogger.
+ * This module uses the standard GEMC GLogger conventions.
  * Typical meaning (implementation-specific but consistent in practice):
  * - **Level 0**: high-level lifecycle messages and essential user-facing information.
  * - **Level 1**: detailed but still routine operational messages (initialization details, user actions).

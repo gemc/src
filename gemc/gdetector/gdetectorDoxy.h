@@ -1,6 +1,12 @@
 /**
  * \mainpage GDetector
  *
+ * \tableofcontents
+ *
+ * \image html gdetector-flow.svg "Detector-construction orchestration" width=900px
+ *
+ * \image html gemc-architecture.svg "GEMC detector definition and simulation workflow" width=900px
+ *
  * @section intro_sec Introduction
  *
  * The gdetector module provides the Geant4 detector-construction bridge for GEMC:
@@ -57,15 +63,13 @@
  * - g4system option set
  * - gdynamicdigitization option set
  * - gsensitivedetector option set
+ * - gfields option set
  *
  * Usage pattern:
  * - Construct a GOptions instance passing the aggregated definition function:
  *   \code{.cpp}
  *   auto gopts = std::make_shared<GOptions>(argc, argv, gdetector::defineOptions());
  *   \endcode
- *
- * If additional options are added by the module itself in the future, they should be listed in
- * this section and documented at their point of definition.
  *
  * @section verbosity_sec Module verbosity
  *

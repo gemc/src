@@ -7,6 +7,10 @@
  *
  * \mainpage Event Dispenser Module
  *
+ * \tableofcontents
+ *
+ * \image html eventdispenser-flow.svg "Run-weighted event dispatch" width=900px
+ *
  * \section intro_sec Introduction
  * The Event Dispenser module distributes simulation events across one or more *run numbers*.
  * The distribution is driven either by a single user-selected run number, or by a file that
@@ -67,7 +71,7 @@
  * and per-run initialization behavior. Refer to that module’s documentation for the full list.
  *
  * \section verbosity_sec Module verbosity
- * EventDispenser uses the standard GEMC logging infrastructure (classes derived from glogger).
+ * EventDispenser uses the standard GEMC GLogger infrastructure.
  * The practical meaning of verbosity levels is:
  * - **info level 0**: high-level summary (initialization and final distribution table).
  * - **info level 1**: per-run progress messages (start/end of each run).

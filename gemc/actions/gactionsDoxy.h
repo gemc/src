@@ -19,6 +19,12 @@
 /**
  * @mainpage GEMC actions module
  *
+ * \tableofcontents
+ *
+ * \image html actions-flow.svg "Geant4 action lifecycle" width=900px
+ *
+ * \image html display-generator.svg "GEMC particle-generator controls" width=900px
+ *
  * @section gactions_intro Introduction
  *
  * The GEMC actions module is the bridge between the Geant4 action framework and

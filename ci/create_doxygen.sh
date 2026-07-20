@@ -72,7 +72,10 @@ sanitize_base() {
   # ---- normalize base settings (small/stable list) ----
   inplace_sed 's|^REPEAT_BRIEF[[:space:]]*=.*|REPEAT_BRIEF                      = NO|g' "$f"
   inplace_sed 's|^OPTIMIZE_OUTPUT_FOR_C[[:space:]]*=.*|OPTIMIZE_OUTPUT_FOR_C    = YES|g' "$f"
-  inplace_sed 's|^BUILTIN_STL_SUPPORT[[:space:]]*=.*|BUILTIN_STL_SUPPORT        = YES|g' "$f"
+  # Synthetic STL compounds leak into tag files and corrupt cross-module links for
+  # common names such as string and vector. Doxygen still documents their use when
+  # this feature is disabled; it simply stops generating fake API pages for them.
+  inplace_sed 's|^BUILTIN_STL_SUPPORT[[:space:]]*=.*|BUILTIN_STL_SUPPORT        = NO|g' "$f"
   inplace_sed 's|^EXTRACT_ALL[[:space:]]*=.*|EXTRACT_ALL                        = YES|g' "$f"
   inplace_sed 's|^SOURCE_BROWSER[[:space:]]*=.*|SOURCE_BROWSER                  = YES|g' "$f"
   inplace_sed 's|^RECURSIVE[[:space:]]*=.*|RECURSIVE                            = YES|g' "$f"
@@ -138,6 +141,7 @@ OUTPUT_DIRECTORY          = ../pages
 HTML_OUTPUT               = $mod
 GENERATE_TAGFILE          = ../pages/$mod/$mod.tag
 HTML_EXTRA_STYLESHEET     = mydoxygen.css
+IMAGE_PATH                = $script_dir/doxygen-images .
 EXCLUDE_PATTERNS          += CADMesh.hh
 
 # TAGFILES is injected by ci/doxygen.sh in pass 2

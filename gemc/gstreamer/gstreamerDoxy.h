@@ -65,6 +65,10 @@
 /**
  * \mainpage gstreamer module
  *
+ * \tableofcontents
+ *
+ * \image html gstreamer-flow.svg "Plugin-based data publication" width=900px
+ *
  * \section gstreamer_intro Introduction
  * The gstreamer module is the output layer responsible for taking in-memory GEMC data collections
  * and serializing them through a plugin architecture. The module supports multiple output backends,
@@ -144,8 +148,7 @@
  * multiplicity, momentum, theta, phi, and vertex components. The concrete
  * representation is backend-specific:
  * - ASCII writes named generated-particle bank blocks.
- * - CSV writes \c <rootname>_generated.csv and
- *   \c <rootname>_generated_tracked.csv.
+ * - CSV appends \c _generated.csv and \c _generated_tracked.csv to the configured root filename.
  * - JSON writes both banks under the event-level \c generated object.
  * - ROOT writes TTrees named \c generated and \c generated_tracked.
  *

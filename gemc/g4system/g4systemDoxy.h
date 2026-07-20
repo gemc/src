@@ -42,6 +42,8 @@
  *
  * \tableofcontents
  *
+ * \image html g4system-flow.svg "Geant4 geometry construction flow" width=900px
+ *
  * @section intro_sec Introduction
  * The g4system module is the **geometry factory layer** that translates detector
  * descriptions stored in databases (ASCII / SQLite / GDML / CAD) into runtime Geant4

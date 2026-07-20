@@ -1,6 +1,10 @@
 /**
  * \mainpage GEMC G4Display Module Documentation
  *
+ * \tableofcontents
+ *
+ * \image html g4display-flow.svg "Interactive visualization control flow" width=900px
+ *
  * \section intro_sec Introduction
  *
  * The G4Display module provides a Qt-based graphical user interface layer for controlling and interacting with
@@ -11,6 +15,9 @@
  * to \c G4UImanager. These commands are the same as would be used interactively in a Geant4 macro, but are
  * generated in response to GUI events.
  *
+ * \image html display-gui.svg "GEMC graphical interface with the Display page selected" width=900px
+ *
+ * \image html display-utilities.svg "GEMC scene decoration and annotation controls" width=900px
  *
  * \section structure_sec Module structure
  *
@@ -26,7 +33,8 @@
  *
  * \section verbosity_sec Verbosity and logging
  *
- * Several classes in this module are built on top of GEMC base utilities that provide structured logging via Glogger.
+ * Several classes in this module are built on top of GEMC base utilities that provide structured logging via
+ * GLogger.
  * The logger name for this module is typically \c "g4display" (see \c G4DISPLAY_LOGGER).
  *
  * The conventional meaning of the verbosity levels is:
@@ -38,12 +46,27 @@
  *
  * \section usage_sec Typical usage
  *
- * In a GEMC application, the GUI widget \ref G4Display is instantiated with a shared GOptions instance and embedded
- * into a parent window. Users interact with the GUI controls; the module translates those interactions into Geant4
- * visualization commands sent via \c G4UImanager.
+ * In a GEMC application, the GUI widget \ref G4Display is instantiated with a shared GOptions instance and
+ * embedded into a parent window. Users interact with the GUI controls; the module translates those interactions
+ * into Geant4 visualization commands sent via \c G4UImanager.
  *
- * The helper \ref G4SceneProperties can be used during initialization to build a consistent default scene and viewer
- * configuration from options.
+ * The helper \ref G4SceneProperties can be used during initialization to build a consistent default scene and
+ * viewer configuration from options.
+ *
+ * \section options_sec Configuration
+ *
+ * \ref g4display::defineOptions "g4display::defineOptions()" provides the following option groups:
+ * - \c g4view: driver, window dimensions and position, curve precision, background, and cloud density.
+ * - \c g4camera: initial camera theta and phi.
+ * - \c g4light: initial light-source theta and phi.
+ * - \c g4decoration: scale, axes, event ID, date, logos, and frame settings.
+ * - \c g4text: optional scene annotations.
+ * - \c dawn and \c useDawn: DAWN output view and enable switch.
+ *
+ * The typed accessors \ref g4display::getG4View "getG4View()",
+ * \ref g4display::getG4Camera "getG4Camera()", \ref g4display::getG4Light "getG4Light()", and
+ * \ref g4display::getG4Decorations "getG4Decorations()" project those option nodes into the structures used by
+ * the GUI and scene initializer.
  *
  *
  * \section build_sec Building and dependencies
@@ -51,7 +74,7 @@
  * This module depends on:
  * - \c Qt6 (Widgets module)
  * - \c Geant4 (UI and visualization)
- * - GEMC core utilities (GOptions, GBase, Glogger, etc.)
+ * - GEMC core utilities (GOptions, GBase, GLogger, etc.)
  *
  *
  * \section examples_sec Examples
@@ -60,7 +83,8 @@
  * attach the G4Display GUI.
  *
  * - g4display_example_cc : Minimal G4Display GUI usage
- *   \n Summary: create GOptions + logger, initialize \c G4VisExecutive, build \ref G4Display inside a Qt window.
+ *   \n Summary: create GOptions + logger, initialize \c G4VisExecutive, and build \ref G4Display inside a Qt
+ *   window.
  *
  *
  * \author \n &copy; Maurizio Ungaro

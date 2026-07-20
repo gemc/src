@@ -153,7 +153,7 @@ GRootTree::GRootTree(const std::string&        detectorName,
 
 
 // fill the True Info Tree
-bool GRootTree::fillTree(const vector<const GTrueInfoData*>& trueInfoData) {
+bool GRootTree::fillTree(const std::vector<const GTrueInfoData*>& trueInfoData) {
 	// Reset all branch vectors before repopulating them for this detector collection.
 	for (auto& [varname, values] : intVarsMap) { values.clear(); }
 	for (auto& [varname, values] : doubleVarsMap) { values.clear(); }
@@ -177,7 +177,7 @@ bool GRootTree::fillTree(const vector<const GTrueInfoData*>& trueInfoData) {
 }
 
 // fill the Digitized Data Tree
-bool GRootTree::fillTree(const vector<const GDigitizedData*>& digitizedData) {
+bool GRootTree::fillTree(const std::vector<const GDigitizedData*>& digitizedData) {
 	// Reset all branch vectors before repopulating them for this detector collection.
 	for (auto& [varname, values] : intVarsMap) { values.clear(); }
 	for (auto& [varname, values] : doubleVarsMap) { values.clear(); }
@@ -248,12 +248,15 @@ bool GRootTree::fillTree(const GAncestorBank& ancestors) {
 // Register one branch and bind it to the appropriate backing vector map.
 // The second parameter is used only to select the correct overload.
 
-void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] int value, bool can_ignore_duplicates) {
+void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] int value,
+                                 bool can_ignore_duplicates) {
 	if (can_ignore_duplicates) {
 		root_tree->Branch(varname.c_str(), &intVarsMap[varname]);
 	}
 	else {
-		if (intVarsMap.find(varname) == intVarsMap.end()) { root_tree->Branch(varname.c_str(), &intVarsMap[varname]); }
+		if (intVarsMap.find(varname) == intVarsMap.end()) {
+			root_tree->Branch(varname.c_str(), &intVarsMap[varname]);
+		}
 		else {
 			log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
 					   "> already registered in the int variable map of tree ", root_tree->GetName());

@@ -15,6 +15,10 @@
 /**
  * @mainpage Base Module
  *
+ * \tableofcontents
+ *
+ * \image html gbase-flow.svg "Shared GBase configuration and logging flow" width=900px
+ *
  * @section base_overview Overview
  * The Base module provides small, reusable building blocks that higher-level
  * components can inherit or depend on. Its primary purpose is to standardize

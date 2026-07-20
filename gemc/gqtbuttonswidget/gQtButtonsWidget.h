@@ -62,12 +62,15 @@ struct ButtonInfo
 	 * \code
 	 * <base_icon_name>_<state>.svg
 	 * \endcode
-	 * If the file exists, a \c QIcon is returned. Otherwise an empty \c QIcon is returned.
+	 * If the file exists, its SVG is resized and its palette placeholders are resolved before a
+	 * \c QIcon is returned. Otherwise an empty \c QIcon is returned.
 	 *
 	 * \param state State identifier used in the filename suffix.
 	 *              Convention in this module:
 	 *              - \c 1 : normal
 	 *              - \c 2 : pressed
+	 * \param iconSize Requested icon dimensions used to resize the SVG canvas.
+	 * \param palette Qt palette providing normal, highlighted-text, and highlight colors.
 	 *
 	 * \return \c QIcon for the requested state or an empty icon if the file does not exist.
 	 */
@@ -309,7 +312,7 @@ private:
 
 	int                   buttonPressedIndex; ///< Index of the last clicked button (\c -1 if none clicked yet).
 	QVector<QPushButton*> buttons;            ///< Storage of button pointers in construction order.
-	QVector<SvgIcon>      svgIcons;           ///< Per-button SVG resource path and render size (empty path = none).
+	QVector<SvgIcon>      svgIcons; ///< SVG resource path and render size per button (empty path = none).
 
 	void refresh_svg_icons(); ///< Re-render all SVG icons using the current palette.
 

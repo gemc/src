@@ -33,6 +33,10 @@
 /**
  * \mainpage
  *
+ * \tableofcontents
+ *
+ * \image html gsplash-flow.svg "Splash-screen creation and timed-message lifecycle" width=900px
+ *
  * \section gsplash_intro Introduction
  *
  * The GSplash module provides a lightweight splash-screen mechanism for GUI-capable runs.
@@ -40,7 +44,8 @@
  * overlaid as the application starts.
  *
  * The main entry points are:
- * - The factory method \ref GSplash::create "create()" that returns a GSplash instance (or nullptr when GUI is disabled).
+ * - The factory method \ref GSplash::create "create()" that returns a GSplash instance (or nullptr when GUI is
+ *   disabled).
  * - The message utilities \ref GSplash::message "message()" and \ref GSplash::messageAfter "messageAfter()".
  *
  *
@@ -76,18 +81,21 @@
  *   - Type: boolean (switch)
  *   - Meaning: enable GUI initialization path
  *   - Behavior:
- *     - when `false`, \ref GSplash::create "GSplash::create()" returns \c nullptr and all message calls are no-ops
+ *     - when `false`, \ref GSplash::create "GSplash::create()" returns \c nullptr and all message calls are
+ *       no-ops
  *     - when `true`, \ref GSplash::create "GSplash::create()" attempts to create and show the splash screen
- *   - Note: this switch is defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" and is globally available.
+ *   - Note: this switch is defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" and is globally
+ *     available.
  *
  *
  * \section gsplash_verbosity Module verbosity
  *
- * GSplash uses the standard logging infrastructure (classes derived from glogger through the base facilities).
+ * GSplash uses the standard GLogger infrastructure through its base facilities.
  * The effective verbosity is controlled by the logger configuration associated with \c GSPLASH_LOGGER.
  *
  * - Verbosity level 0 typically prints high-level lifecycle messages (startup, major milestones).
- * - Verbosity level 1 typically prints additional configuration details (selected image source, GUI mode decisions).
+ * - Verbosity level 1 typically prints additional configuration details (selected image source and GUI mode
+ *   decisions).
  * - Verbosity level 2 typically prints fine-grained progress information.
  * - Debug output prints diagnostic details useful when investigating issues, such as image lookup fallbacks
  *   and event-loop timing behavior.
@@ -97,7 +105,8 @@
  *
  * The module includes example code that demonstrates GUI and CLI execution paths.
  *
- * - \ref gsplash_example "gsplash_example" : Minimal example showing GSplash creation, message overlay, and timed shutdown.
+ * - \ref gsplash_example "gsplash_example" : Minimal example showing GSplash creation, message overlay, and
+ *   timed shutdown.
  *
  * Example snippet:
  * \code

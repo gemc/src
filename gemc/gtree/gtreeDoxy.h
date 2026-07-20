@@ -14,6 +14,12 @@
 /**
  * \mainpage GTree
  *
+ * \tableofcontents
+ *
+ * \image html gtree-flow.svg "Interactive geometry inspection flow" width=900px
+ *
+ * \image html display-volumes.svg "GEMC geometry tree and volume inspection controls" width=900px
+ *
  * @section intro_sec Introduction
  *
  * GTree is a Qt widget that exposes a hierarchical view of the Geant4 geometry.
@@ -86,7 +92,8 @@
  *   - Meaning: enable GUI execution path for examples
  *   - Behavior:
  *     - when \c true, example programs typically start a Qt event loop and show the widget
- *   - Note: this switch is defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" and is globally available.
+ *   - Note: this switch is defined by \ref GOptions::GOptions "GOptions(argc,argv,...)" and is globally
+ *     available.
  *
  * Refer to the dbselect documentation for the full, authoritative list of aggregated keys.
  *

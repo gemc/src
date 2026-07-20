@@ -2,15 +2,33 @@
 #
 # Uploaded into gemc.db by ../cad.py (pygemc upload_cad_definitions). Each entry becomes a
 # solid=CAD geometry row whose mesh (the *_NIH3D.stl file with the same stem) is loaded by the
-# GEMC CAD factory. The three organs are sensitive detectors of type "dosimeter", which records
-# the deposited energy and the dose (edep / mass) per organ.
+# GEMC CAD factory. The three organs are "flux" sensitive detectors: flux is an event-mode
+# digitization that writes one row per hit carrying the organ identity and the deposited energy
+# (totEdep). ../plot_dose.py sums totEdep per organ and divides by the organ mass to obtain the
+# absorbed dose (edep / mass).
+#
+# Why flux and not "dosimeter": the built-in dosimeter is a run-mode digitization that accumulates
+# every hit sharing its sensitive-detector name into a single summed record, so three organs that
+# all use it collapse into one number. flux keeps the per-organ identity on every hit, so a single
+# run resolves the dose in each organ separately.
 #
 # `system` must match both the gsystem name in ../cad.yaml and the directory holding the meshes
 # (here: stls). The three source meshes come from NIH 3D at three unrelated scales, so each has
-# its own uniform `scale` (mesh-units -> mm). Meshes are placed as authored (no recentering), so
-# `position` targets a plausible torso layout (z up, x patient-left, y anterior) accounting for
-# each mesh's native origin. Open the geometry in the pyvista viewer to fine-tune scale,
-# position and rotation for the specific meshes.
+# its own uniform `scale` (mesh-units -> mm).
+#
+# For dose scoring the three organ solids must NOT overlap (Geant4 cannot assign a step to two
+# volumes at once). The meshes are therefore placed as a non-overlapping vertical (y) stack that is
+# CENTRED ON THE y-AXIS: every organ centroid has x = 0 and z = 0, and the organs are spaced along y
+# with ~20 mm gaps. The heart sits at the origin, with the liver just below it and the (much taller)
+# lungs above; bottom to top the target centroids are liver (0, -140, 0) mm (the brachytherapy
+# target, hosting the source), heart (0, 0, 0) mm, and lungs (0, +233, 0) mm.
+#
+# Each `position` is that target centroid minus the (rotated) native-origin offset of the mesh
+# (scale * native bbox centre, rotated by the volume's `rotation`), so anatomical realism is traded
+# for cleanly separated, axis-centred dosimeters. The lung mesh is authored trachea-down, so it is
+# turned right-side up with a 180-degree rotation about z (which also keeps the anterior/posterior
+# depth unchanged). Open the geometry in the pyvista viewer to fine-tune scale, position and
+# rotation for the specific meshes.
 
 system:     stls
 experiment: examples
@@ -21,7 +39,7 @@ extension:  stl
 
 defaults:
   material:     G4_TISSUE_SOFT_ICRP   # ICRP soft tissue
-  digitization: dosimeter             # sensitive detector: records edep and dose = edep / mass
+  digitization: flux                  # event-mode SD: one row per hit with organ id + totEdep
   style:        0                     # draw as wireframe (0 = wireframe, 1 = solid)
 
 volumes:
@@ -29,20 +47,21 @@ volumes:
     material:   G4_BLOOD_ICRP
     color:      c81e1e                     # crimson
     scale:      130                        # native longest side ~1 unit -> ~130 mm
-    position:   30*mm, 40*mm, 0*mm         # nestled between the lungs, patient-left/anterior
+    position:   0*mm, 0*mm, 0*mm           # centroid (0, 0, 0) mm, heart at the origin
     identifier: "organ: 1"
 
   - name:       respiratory_NIH3D
     material:   G4_LUNG_ICRP
     color:      f2a0a0                      # pale pink
-    opacity:    0.55                        # translucent so the heart is visible inside
+    opacity:    0.55                        # translucent
     scale:      9.817                       # native longest side ~28.5 units -> ~280 mm
-    position:   -128.4*mm, -140.0*mm, -95.7*mm   # recenters the lungs on the torso origin
+    position:   125.05*mm, 379.06*mm, -96.07*mm   # centroid (0, +233, 0) mm, top of the stack
+    rotation:   0*deg, 0*deg, 180*deg             # mesh is trachea-down; flip it right-side up
     identifier: "organ: 2"
 
   - name:       liver_NIH3D
     material:   G4_TISSUE_SOFT_ICRP
     color:      8b5a2b                           # brown
     scale:      640.9                            # empirically set
-    position:   100.0*mm, -382.3*mm, -50*mm   # empirically setbelow the lungs, toward the patient-right
+    position:   23.83*mm, -375.99*mm, -7.34*mm   # centroid (0, -140, 0) mm; below heart, hosts source
     identifier: "organ: 3"

@@ -20,6 +20,10 @@
 /**
  * \mainpage GData Library
  *
+ * \tableofcontents
+ *
+ * \image html gdata-flow.svg "Simulation data collection hierarchy" width=900px
+ *
  * \section gdata_intro Introduction
  *
  * The GData library provides flexible in-memory containers for simulation truth, digitized
@@ -119,7 +123,8 @@
  *
  * Aggregated bundles:
  * - \c gevent_data::defineOptions() includes event-header, true-data, digitized-data, and touchable options
- * - \c grun_data::defineOptions() includes event, run, digitized, and touchable-related options needed by the run example
+ * - \c grun_data::defineOptions() includes event, run, digitized, and touchable-related options needed by the
+ *   run example
  *
  * Usage pattern:
  * - use the smallest bundle that matches the module you are instantiating

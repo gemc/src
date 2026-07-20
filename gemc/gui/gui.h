@@ -53,6 +53,7 @@ public:
 	 * \param gopts Shared options/configuration container used by GUI pages.
 	 * \param ed Event execution backend used to run and configure event processing.
 	 * \param dc Detector construction object used by setup/tree pages.
+	 * \param viewerAlreadyInitialized Whether the caller has already created the Geant4 viewer.
 	 * \param parent Optional parent widget for Qt ownership.
 	 */
 	GemcGUI(std::shared_ptr<GOptions>       gopts,

@@ -1,6 +1,10 @@
 /**
  * \mainpage GEMC Utilities Module
  *
+ * \tableofcontents
+ *
+ * \image html utilities-flow.svg "Runtime utility service flow" width=900px
+ *
  * @section intro_sec Introduction
  *
  * The GEMC Utilities Module provides small, focused runtime helpers used during

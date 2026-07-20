@@ -1,5 +1,9 @@
 /**
-* \mainpage ghit : Hit information utilities
+ * \mainpage ghit : Hit information utilities
+ *
+ * \tableofcontents
+ *
+ * \image html ghit-flow.svg "Geant4 step accumulation into a GEMC hit" width=900px
  *
  * \section intro_sec Introduction
  * The \c ghit module provides a compact hit container (\c GHit) for storing step-by-step

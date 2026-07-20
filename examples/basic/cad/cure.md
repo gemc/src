@@ -37,3 +37,13 @@ After curing, the whole system loads in about a second (versus ~24 s for the raw
 tessellated-solid warnings drop to at most one "holes" plus one "orientation" line. The heart and liver are
 watertight; the lungs keep a single tiny boundary hole from the source scan (a harmless "holes" warning)
 that the automated tools could not close without destabilizing the mesh.
+
+## Lung orientation fix
+
+Geant4's `G4TessellatedSolid` decides *inside vs. outside* from the facet winding. The cured lung mesh came
+out of `gemc-cure-mesh` with its facets wound the wrong way (a **negative** signed volume), so Geant4 treated
+the lung interior as *outside* the solid and no energy was ever scored there — the organ was invisible to the
+dosimetry. The shipped `respiratory_NIH3D.stl` has therefore been re-exported with every facet reversed
+(vertex order swapped and normal negated), giving a positive signed volume so the lungs score dose correctly.
+The heart and liver already had the correct orientation and were left untouched. The single boundary hole
+remains (harmless), but the inside/outside test is now well defined.

@@ -4,6 +4,10 @@
  *
  * \mainpage Qt Buttons Widgets Module
  *
+ * \tableofcontents
+ *
+ * \image html gqtbuttonswidget-flow.svg "Reusable Qt button rendering and interaction" width=900px
+ *
  * \section intro_sec Introduction
  * This module provides lightweight Qt widgets to present **button-like UI controls** in a compact form:
  * - \c GQTButtonsWidget : an icon-based button strip implemented with a \c QListWidget in icon mode.
