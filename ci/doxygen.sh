@@ -19,6 +19,7 @@ cd "$repo_root"
 
 "$script_dir/check_doxygen_anchors.py" gemc
 "$script_dir/generate_doxygen_diagrams.py" --check
+"$script_dir/generate_doxygen_concept_diagrams.py" --check
 
 usage() {
   cat <<'EOF'

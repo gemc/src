@@ -26,6 +26,8 @@
  *   so each run can load its run-dependent constants and translation tables.
  * - Dispatches the actual event generation to Geant4 via UI commands (e.g. \c /run/beamOn).
  *
+ * \image html eventdispenser-event-lifecycle.svg "Processing stages inside each allocated event" width=900px
+ *
  * \section eventdispenser_usage Typical usage
  * A typical application flow is:
  * - Construct GOptions with the module options from eventDispenser::defineOptions().
@@ -59,10 +61,19 @@
  *     - weights are interpreted as relative ratios and normalized internally
  *   - File format:
  *     - two columns: `<run_number> <weight>`
- *     - example:
- *       - `11 0.1`
- *       - `12 0.7`
- *       - `13 0.2`
+ *
+ * Example weights and their long-run expectation for \c -n=100:
+ *
+ * | Run | Relative weight | Normalized probability | Expected events |
+ * | ---: | --------------: | ---------------------: | --------------: |
+ * | 11  | 1               | 0.10                   | 10              |
+ * | 12  | 7               | 0.70                   | 70              |
+ * | 13  | 2               | 0.20                   | 20              |
+ *
+ * Each event is assigned using an independent random draw. Actual integer counts can differ from the expected
+ * values, but every requested event increments exactly one run counter.
+ *
+ * \image html eventdispenser-weight-example.svg "Run-weight sampling intervals" width=900px
  *
  * This module’s option schema is composed by \c eventDispenser::defineOptions(), which aggregates:
  * - \c gdynamicdigitization::defineOptions()

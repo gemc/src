@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 465" role="img" aria-labelledby="title desc">
+  <title id="title">Buffered event publication</title>
+  <desc id="desc">
+The base streamer owns batching and hook order; format plugins implement
+serialization details.
+  </desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#66717d" />
+    </marker>
+    <style>.background { fill: #ffffff; }
+.panel { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; }
+.panel-dashed { fill: #f6f8fa; stroke: #8c959f; stroke-dasharray: 7 5; stroke-width: 1.5; }
+.title { fill: #1f2328; font: 700 23px Avenir, "Segoe UI", Arial, sans-serif; }
+.subtitle { fill: #59636e; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.heading { fill: #1f2328; font: 700 15px Avenir, "Segoe UI", Arial, sans-serif; }
+.label { fill: #1f2328; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.small { fill: #59636e; font: 11.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.tiny { fill: #59636e; font: 10.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.center { text-anchor: middle; }
+.end { text-anchor: end; }
+.axis { fill: none; stroke: #66717d; stroke-width: 1.5; }
+.grid { fill: none; stroke: #d0d7de; stroke-width: 1; }
+.arrow { fill: none; stroke: #66717d; stroke-width: 2; marker-end: url(#arrow); }
+.blue { fill: #dbeafe; stroke: #1d6ff2; stroke-width: 1.5; }
+.green { fill: #dcfce7; stroke: #238636; stroke-width: 1.5; }
+.gold { fill: #fff3cd; stroke: #b77900; stroke-width: 1.5; }
+.red { fill: #ffe4e0; stroke: #c2412d; stroke-width: 1.5; }
+.violet { fill: #eee5ff; stroke: #8250df; stroke-width: 1.5; }
+.blue-line { fill: none; stroke: #1d6ff2; stroke-width: 3; }
+.green-line { fill: none; stroke: #238636; stroke-width: 3; }
+.gold-line { fill: none; stroke: #b77900; stroke-width: 3; }
+.red-line { fill: none; stroke: #c2412d; stroke-width: 3; }
+.muted-line { fill: none; stroke: #8c959f; stroke-width: 1.5; stroke-dasharray: 5 4; }
+.table-head { fill: #eaeef2; stroke: #afb8c1; stroke-width: 1; }
+.table-cell { fill: #ffffff; stroke: #d0d7de; stroke-width: 1; }
+@media (prefers-color-scheme: dark) {
+  .background { fill: #0d1117; }
+  .panel, .panel-dashed { fill: #161b22; stroke: #30363d; }
+  .title, .heading, .label { fill: #e6edf3; }
+  .subtitle, .small, .tiny { fill: #9da7b3; }
+  .axis, .arrow { stroke: #8b949e; }
+  .grid { stroke: #30363d; }
+  .blue { fill: #15243a; stroke: #58a6ff; }
+  .green { fill: #173326; stroke: #3fb950; }
+  .gold { fill: #352b18; stroke: #d29922; }
+  .red { fill: #3a211d; stroke: #f47067; }
+  .violet { fill: #2d2340; stroke: #a371f7; }
+  .table-head { fill: #21262d; stroke: #484f58; }
+  .table-cell { fill: #161b22; stroke: #30363d; }
+}</style>
+  </defs>
+  <rect class="background" width="1000" height="465" />
+  <text class="title" x="30" y="38">Buffered event publication</text>
+  <text class="subtitle" x="30" y="64">
+    <tspan x="30">The base streamer owns batching and hook order; format plugins implement</tspan>
+    <tspan x="30" dy="15">serialization details.</tspan>
+  </text>
+  <text class="heading" x="38" y="112">Event buffer</text>
+  <rect class="blue" x="38" y="132" width="88" height="58" rx="6" />
+  <text class="heading center" x="82" y="157">event 1</text>
+  <text class="tiny center" x="82" y="178">shared data</text>
+  <rect class="blue" x="143" y="132" width="88" height="58" rx="6" />
+  <text class="heading center" x="187" y="157">event 2</text>
+  <text class="tiny center" x="187" y="178">shared data</text>
+  <rect class="blue" x="248" y="132" width="88" height="58" rx="6" />
+  <text class="heading center" x="292" y="157">event 3</text>
+  <text class="tiny center" x="292" y="178">shared data</text>
+  <rect class="blue" x="353" y="132" width="88" height="58" rx="6" />
+  <text class="heading center" x="397" y="157">event 4</text>
+  <text class="tiny center" x="397" y="178">shared data</text>
+  <line class="arrow" x1="470" y1="161" x2="535" y2="161" />
+  <rect class="gold" x="550" y="124" width="165" height="74" rx="6" />
+  <text class="heading center" x="632.5" y="153">flush</text>
+  <text class="tiny center" x="632.5" y="177">limit or explicit call</text>
+  <line class="arrow" x1="720" y1="161" x2="790" y2="161" />
+  <rect class="green" x="805" y="124" width="155" height="74" rx="6" />
+  <text class="heading center" x="882.5" y="153">plugin output</text>
+  <text class="tiny center" x="882.5" y="177">file / records</text>
+  <rect class="panel-dashed" x="30" y="226" width="940" height="190" rx="6" />
+  <text class="heading" x="50" y="257">Fixed event hook sequence</text>
+  <rect class="red" x="50" y="286" width="125" height="60" rx="6" />
+  <text class="small" x="65" y="310">1</text>
+  <text class="heading center" x="112.5" y="328">startEvent</text>
+  <line class="arrow" x1="179" y1="316" x2="200" y2="316" />
+  <rect class="blue" x="205" y="286" width="125" height="60" rx="6" />
+  <text class="small" x="220" y="310">2</text>
+  <text class="heading center" x="267.5" y="328">event header</text>
+  <line class="arrow" x1="334" y1="316" x2="355" y2="316" />
+  <rect class="violet" x="360" y="286" width="125" height="60" rx="6" />
+  <text class="small" x="375" y="310">3</text>
+  <text class="heading center" x="422.5" y="328">generated</text>
+  <line class="arrow" x1="489" y1="316" x2="510" y2="316" />
+  <rect class="gold" x="515" y="286" width="125" height="60" rx="6" />
+  <text class="small" x="530" y="310">4</text>
+  <text class="heading center" x="577.5" y="328">true info</text>
+  <line class="arrow" x1="644" y1="316" x2="665" y2="316" />
+  <rect class="green" x="670" y="286" width="125" height="60" rx="6" />
+  <text class="small" x="685" y="310">5</text>
+  <text class="heading center" x="732.5" y="328">digitized</text>
+  <line class="arrow" x1="799" y1="316" x2="820" y2="316" />
+  <rect class="red" x="825" y="286" width="125" height="60" rx="6" />
+  <text class="small" x="840" y="310">6</text>
+  <text class="heading center" x="887.5" y="328">endEvent</text>
+  <text class="small center" x="260" y="390">ROOT</text>
+  <text class="small center" x="420" y="390">CSV</text>
+  <text class="small center" x="580" y="390">JSON</text>
+  <text class="small center" x="740" y="390">ASCII</text>
+  <text class="small center" x="880" y="390">JLAB SRO</text>
+  <text class="small center" x="570" y="446">same semantic sequence, backend-specific representation</text>
+</svg>

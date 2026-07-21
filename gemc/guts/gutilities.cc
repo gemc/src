@@ -8,6 +8,10 @@
 // geant4
 #include "G4UImanager.hh"
 
+// C and POSIX
+#include <dirent.h>
+#include <locale.h>
+#include <sys/stat.h>
 
 // c++
 // algorithm for 'transform'
@@ -171,9 +175,6 @@ string fillDigits(const string& word, const string& c, int ndigits) {
 
 	return filled;
 }
-
-// add near your includes:
-#include <locale.h>   // strtod_l / _strtod_l
 
 /**
  * \brief Parse an entire numeric string as a double using the "C" numeric locale.
@@ -378,7 +379,9 @@ string parseFileAndRemoveComments(const string& filename, const string& commentC
 	}
 
 	std::stringstream strStream;
-	if (verbosity > 0) { std::cout << std::endl << CIRCLEITEM << " Loading string from " << filename << std::endl; }
+	if (verbosity > 0) {
+		std::cout << std::endl << CIRCLEITEM << " Loading string from " << filename << std::endl;
+	}
 	strStream << in.rdbuf(); // Read the file
 	in.close();
 
@@ -399,7 +402,8 @@ string parseFileAndRemoveComments(const string& filename, const string& commentC
 	return parsedString;
 }
 
-string retrieveStringBetweenChars(const string& input, const string& firstDelimiter, const string& secondDelimiter) {
+string retrieveStringBetweenChars(const string& input, const string& firstDelimiter,
+                                  const string& secondDelimiter) {
 	size_t firstpos  = input.find(firstDelimiter);
 	size_t secondpos = input.find(secondDelimiter);
 
@@ -459,9 +463,6 @@ vector<string> getStringVectorFromStringWithDelimiter(const string& input, const
 //        return fileList;
 //    }
 // end of TODO
-
-#include <dirent.h>
-#include <sys/stat.h>
 
 bool directoryExists(const std::string& path) {
 	struct stat info{};

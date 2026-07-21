@@ -136,6 +136,8 @@
  *
  * Similar hook sequences exist for run data and frame streams.
  *
+ * \image html gstreamer-publication.svg "Buffered event publication and plugin hook order" width=900px
+ *
  * \subsection gstreamer_arch_generated Generated-particle banks
  * Event output includes two generated-particle banks when generator metadata is
  * available:

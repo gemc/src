@@ -17,6 +17,18 @@
  * - track 3-momentum and total energy
  * - creator process name
  *
+ * \section ghit_visual_model Visual model
+ * Steps with the same detector-cell identity and discriminator accumulate into one \c GHit. Step positions,
+ * times, energy deposits, and track metadata remain aligned by vector index, while steps in neighboring cells
+ * or with a different discriminator form separate hits.
+ *
+ * \image html ghit-detector-steps.svg "Tracks and steps crossing a segmented sensitive detector" width=900px
+ *
+ * Derived values, such as total deposited energy and time extent, are calculated from the retained step
+ * vectors. Digitizers can therefore inspect either the raw step sequence or the summarized hit view.
+ *
+ * \image html ghit-accumulation.svg "Per-step vectors and derived GHit quantities" width=900px
+ *
  * \section ghit_components Components
  * - \c GHit : hit container that accumulates per-step vectors and provides lazy derived quantities.
  *

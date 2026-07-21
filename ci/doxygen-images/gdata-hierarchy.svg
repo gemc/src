@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 455" role="img" aria-labelledby="title desc">
+  <title id="title">GData aggregation scopes</title>
+  <desc id="desc">
+Hit-side objects follow event and run aggregation paths; frames model time-
+window payloads separately.
+  </desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#66717d" />
+    </marker>
+    <style>.background { fill: #ffffff; }
+.panel { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; }
+.panel-dashed { fill: #f6f8fa; stroke: #8c959f; stroke-dasharray: 7 5; stroke-width: 1.5; }
+.title { fill: #1f2328; font: 700 23px Avenir, "Segoe UI", Arial, sans-serif; }
+.subtitle { fill: #59636e; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.heading { fill: #1f2328; font: 700 15px Avenir, "Segoe UI", Arial, sans-serif; }
+.label { fill: #1f2328; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.small { fill: #59636e; font: 11.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.tiny { fill: #59636e; font: 10.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.center { text-anchor: middle; }
+.end { text-anchor: end; }
+.axis { fill: none; stroke: #66717d; stroke-width: 1.5; }
+.grid { fill: none; stroke: #d0d7de; stroke-width: 1; }
+.arrow { fill: none; stroke: #66717d; stroke-width: 2; marker-end: url(#arrow); }
+.blue { fill: #dbeafe; stroke: #1d6ff2; stroke-width: 1.5; }
+.green { fill: #dcfce7; stroke: #238636; stroke-width: 1.5; }
+.gold { fill: #fff3cd; stroke: #b77900; stroke-width: 1.5; }
+.red { fill: #ffe4e0; stroke: #c2412d; stroke-width: 1.5; }
+.violet { fill: #eee5ff; stroke: #8250df; stroke-width: 1.5; }
+.blue-line { fill: none; stroke: #1d6ff2; stroke-width: 3; }
+.green-line { fill: none; stroke: #238636; stroke-width: 3; }
+.gold-line { fill: none; stroke: #b77900; stroke-width: 3; }
+.red-line { fill: none; stroke: #c2412d; stroke-width: 3; }
+.muted-line { fill: none; stroke: #8c959f; stroke-width: 1.5; stroke-dasharray: 5 4; }
+.table-head { fill: #eaeef2; stroke: #afb8c1; stroke-width: 1; }
+.table-cell { fill: #ffffff; stroke: #d0d7de; stroke-width: 1; }
+@media (prefers-color-scheme: dark) {
+  .background { fill: #0d1117; }
+  .panel, .panel-dashed { fill: #161b22; stroke: #30363d; }
+  .title, .heading, .label { fill: #e6edf3; }
+  .subtitle, .small, .tiny { fill: #9da7b3; }
+  .axis, .arrow { stroke: #8b949e; }
+  .grid { stroke: #30363d; }
+  .blue { fill: #15243a; stroke: #58a6ff; }
+  .green { fill: #173326; stroke: #3fb950; }
+  .gold { fill: #352b18; stroke: #d29922; }
+  .red { fill: #3a211d; stroke: #f47067; }
+  .violet { fill: #2d2340; stroke: #a371f7; }
+  .table-head { fill: #21262d; stroke: #484f58; }
+  .table-cell { fill: #161b22; stroke: #30363d; }
+}</style>
+  </defs>
+  <rect class="background" width="1000" height="455" />
+  <text class="title" x="30" y="38">GData aggregation scopes</text>
+  <text class="subtitle" x="30" y="64">
+    <tspan x="30">Hit-side objects follow event and run aggregation paths; frames model time-</tspan>
+    <tspan x="30" dy="15">window payloads separately.</tspan>
+  </text>
+  <text class="heading" x="40" y="108">Event and run path</text>
+  <rect class="blue" x="40" y="135" width="150" height="58" rx="6" />
+  <text class="heading center" x="115" y="160">GTrueInfoData</text>
+  <text class="tiny center" x="115" y="180">truth per hit</text>
+  <rect class="gold" x="40" y="205" width="150" height="58" rx="6" />
+  <text class="heading center" x="115" y="230">GDigitizedData</text>
+  <text class="tiny center" x="115" y="250">response per hit</text>
+  <rect class="violet" x="245" y="170" width="165" height="58" rx="6" />
+  <text class="heading center" x="327.5" y="195">GDataCollection</text>
+  <text class="tiny center" x="327.5" y="215">one detector</text>
+  <rect class="red" x="465" y="170" width="180" height="58" rx="6" />
+  <text class="heading center" x="555" y="195">GEventDataCollection</text>
+  <text class="tiny center" x="555" y="215">many detectors</text>
+  <rect class="green" x="710" y="170" width="180" height="58" rx="6" />
+  <text class="heading center" x="800" y="195">GRunDataCollection</text>
+  <text class="tiny center" x="800" y="215">integrated events</text>
+  <line class="arrow" x1="190" y1="164" x2="240" y2="190" />
+  <line class="arrow" x1="190" y1="234" x2="240" y2="204" />
+  <line class="arrow" x1="414" y1="199" x2="460" y2="199" />
+  <line class="arrow" x1="650" y1="199" x2="705" y2="199" />
+  <text class="small center" x="327" y="258">append hit entries</text>
+  <text class="small center" x="555" y="258">group by detector</text>
+  <text class="small center" x="800" y="258">additive integration</text>
+  <rect class="panel-dashed" x="40" y="310" width="850" height="100" rx="6" />
+  <text class="heading" x="62" y="341">Frame / streaming path</text>
+  <rect class="blue" x="245" y="332" width="170" height="55" rx="6" />
+  <text class="heading center" x="330" y="365">GFrameHeader</text>
+  <rect class="gold" x="470" y="332" width="170" height="55" rx="6" />
+  <text class="heading center" x="555" y="365">GIntegralPayload</text>
+  <line class="arrow" x1="420" y1="359" x2="465" y2="359" />
+  <rect class="green" x="700" y="332" width="170" height="55" rx="6" />
+  <text class="heading center" x="785" y="365">GFrameDataCollection</text>
+  <line class="arrow" x1="645" y1="359" x2="695" y2="359" />
+  <text class="small center" x="455" y="437">time-window grouping, not an event hierarchy</text>
+</svg>

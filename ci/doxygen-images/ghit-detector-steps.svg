@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 460" role="img" aria-labelledby="title desc">
+  <title id="title">From detector steps to hits</title>
+  <desc id="desc">
+Steps sharing the same detector-cell key accumulate into one GHit; neighboring
+cells stay separate.
+  </desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#66717d" />
+    </marker>
+    <style>.background { fill: #ffffff; }
+.panel { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; }
+.panel-dashed { fill: #f6f8fa; stroke: #8c959f; stroke-dasharray: 7 5; stroke-width: 1.5; }
+.title { fill: #1f2328; font: 700 23px Avenir, "Segoe UI", Arial, sans-serif; }
+.subtitle { fill: #59636e; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.heading { fill: #1f2328; font: 700 15px Avenir, "Segoe UI", Arial, sans-serif; }
+.label { fill: #1f2328; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.small { fill: #59636e; font: 11.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.tiny { fill: #59636e; font: 10.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.center { text-anchor: middle; }
+.end { text-anchor: end; }
+.axis { fill: none; stroke: #66717d; stroke-width: 1.5; }
+.grid { fill: none; stroke: #d0d7de; stroke-width: 1; }
+.arrow { fill: none; stroke: #66717d; stroke-width: 2; marker-end: url(#arrow); }
+.blue { fill: #dbeafe; stroke: #1d6ff2; stroke-width: 1.5; }
+.green { fill: #dcfce7; stroke: #238636; stroke-width: 1.5; }
+.gold { fill: #fff3cd; stroke: #b77900; stroke-width: 1.5; }
+.red { fill: #ffe4e0; stroke: #c2412d; stroke-width: 1.5; }
+.violet { fill: #eee5ff; stroke: #8250df; stroke-width: 1.5; }
+.blue-line { fill: none; stroke: #1d6ff2; stroke-width: 3; }
+.green-line { fill: none; stroke: #238636; stroke-width: 3; }
+.gold-line { fill: none; stroke: #b77900; stroke-width: 3; }
+.red-line { fill: none; stroke: #c2412d; stroke-width: 3; }
+.muted-line { fill: none; stroke: #8c959f; stroke-width: 1.5; stroke-dasharray: 5 4; }
+.table-head { fill: #eaeef2; stroke: #afb8c1; stroke-width: 1; }
+.table-cell { fill: #ffffff; stroke: #d0d7de; stroke-width: 1; }
+@media (prefers-color-scheme: dark) {
+  .background { fill: #0d1117; }
+  .panel, .panel-dashed { fill: #161b22; stroke: #30363d; }
+  .title, .heading, .label { fill: #e6edf3; }
+  .subtitle, .small, .tiny { fill: #9da7b3; }
+  .axis, .arrow { stroke: #8b949e; }
+  .grid { stroke: #30363d; }
+  .blue { fill: #15243a; stroke: #58a6ff; }
+  .green { fill: #173326; stroke: #3fb950; }
+  .gold { fill: #352b18; stroke: #d29922; }
+  .red { fill: #3a211d; stroke: #f47067; }
+  .violet { fill: #2d2340; stroke: #a371f7; }
+  .table-head { fill: #21262d; stroke: #484f58; }
+  .table-cell { fill: #161b22; stroke: #30363d; }
+}</style>
+  </defs>
+  <rect class="background" width="1000" height="460" />
+  <text class="title" x="30" y="38">From detector steps to hits</text>
+  <text class="subtitle" x="30" y="64">
+    <tspan x="30">Steps sharing the same detector-cell key accumulate into one GHit; neighboring</tspan>
+    <tspan x="30" dy="15">cells stay separate.</tspan>
+  </text>
+  <rect class="panel" x="30" y="88" width="610" height="330" rx="6" />
+  <text class="heading" x="52" y="119">Segmented sensitive detector</text>
+  <rect class="panel" x="70" y="145" width="150" height="120" rx="0" />
+  <text class="tiny" x="80" y="167">cell 0,0</text>
+  <rect class="blue" x="220" y="145" width="150" height="120" rx="0" />
+  <text class="tiny" x="230" y="167">cell 0,1</text>
+  <rect class="panel" x="370" y="145" width="150" height="120" rx="0" />
+  <text class="tiny" x="380" y="167">cell 0,2</text>
+  <rect class="panel" x="70" y="265" width="150" height="120" rx="0" />
+  <text class="tiny" x="80" y="287">cell 1,0</text>
+  <rect class="panel" x="220" y="265" width="150" height="120" rx="0" />
+  <text class="tiny" x="230" y="287">cell 1,1</text>
+  <rect class="panel" x="370" y="265" width="150" height="120" rx="0" />
+  <text class="tiny" x="380" y="287">cell 1,2</text>
+  <path class="red-line" d="M 48 365 C 140 330 160 250 245 220 C 330 190 405 170 585 135" />
+  <path class="green-line" d="M 55 205 C 170 205 250 210 360 245 C 455 275 520 330 610 365" />
+  <circle class="red" cx="250" cy="218" r="5" />
+  <circle class="red" cx="290" cy="202" r="7" />
+  <circle class="red" cx="335" cy="188" r="9" />
+  <circle class="red" cx="380" cy="177" r="6" />
+  <circle class="green" cx="245" cy="214" r="5" />
+  <circle class="green" cx="285" cy="220" r="6" />
+  <circle class="green" cx="330" cy="232" r="8" />
+  <circle class="green" cx="370" cy="249" r="5" />
+  <text class="heading center" x="295" y="300">same cell identity</text>
+  <text class="small center" x="295" y="322">two track discriminators -&gt; two GHit objects</text>
+  <rect class="panel" x="665" y="88" width="305" height="330" rx="6" />
+  <text class="heading" x="690" y="120">What each dot contributes</text>
+  <circle class="red" cx="704" cy="156" r="9" />
+  <text class="label" x="725" y="160">energy deposit</text>
+  <text class="tiny" x="725" y="180">dot size can represent edep</text>
+  <circle class="green" cx="704" cy="228" r="9" />
+  <text class="label" x="725" y="232">track metadata</text>
+  <text class="tiny" x="725" y="252">track, parent, PDG, process</text>
+  <circle class="blue" cx="704" cy="300" r="9" />
+  <text class="label" x="725" y="304">position and time</text>
+  <text class="tiny" x="725" y="324">global/local xyz and global time</text>
+  <rect class="violet" x="690" y="358" width="250" height="38" rx="6" />
+  <text class="small center" x="815" y="383">GHit stores aligned per-step vectors</text>
+</svg>

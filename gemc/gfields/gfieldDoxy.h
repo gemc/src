@@ -42,6 +42,8 @@
  * - **Stepping:** \ref GField::create_FieldManager "create_FieldManager()" creates the stepping components:
  *   \c G4Mag_UsualEqRhs, an integration stepper, a \c G4ChordFinder, and finally the \c G4FieldManager.
  *
+ * \image html gfields-field-map.svg "Field evaluation and Geant4 volume attachment" width=900px
+ *
  * @section gfield_options Available Options and their usage
  *
  * This module reads the following option keys from the runtime option provider:

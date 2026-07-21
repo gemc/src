@@ -64,6 +64,25 @@
  * and \c -gparticlefile=..., into inline particles, file-backed event
  * particles, and output-bank records.
  *
+ * @section gparticle_angular_sampling Angular sampling
+ *
+ * For uniform theta sampling, \c delta_theta is the half-width around the nominal \c theta value:
+ * \f[
+ *   \theta_{sampled} \in [\theta - \Delta\theta,\; \theta + \Delta\theta]
+ * \f]
+ * The full angular sector therefore spans \f$2\Delta\theta\f$. The diagram uses
+ * \c theta=40*deg and \c delta_theta=12*deg, giving an interval from 28 to 52 degrees.
+ *
+ * \image html gparticle-angular-acceptance.svg "Theta and delta-theta acceptance sector" width=900px
+ *
+ * The interpretation of a delta depends on the selected randomization model:
+ * - \c uniform: flat sampling inside the center-plus-or-minus-delta interval.
+ * - \c gaussian: delta is one standard deviation and does not impose a hard boundary.
+ * - \c cosine: theta is sampled uniformly in \f$\cos(\theta)\f$ inside the requested interval.
+ * - \c sphere: vertex offsets are sampled inside a sphere whose radius is derived from \c delta_v.
+ *
+ * \image html gparticle-randomization-models.svg "Momentum, angle, and vertex sampling models" width=900px
+ *
  * @section gparticle_file_input File-backed particles
  *
  * The \c -gparticlefile option configures one or more generated-particle files:

@@ -74,6 +74,8 @@
  *
  * The module is organized around progressively larger aggregation scopes.
  *
+ * \image html gdata-hierarchy.svg "Event, run, and frame aggregation scopes" width=900px
+ *
  * Hit scope:
  * - GTrueInfoData
  * - GDigitizedData

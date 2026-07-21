@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 450" role="img" aria-labelledby="title desc">
+  <title id="title">GHit accumulation example</title>
+  <desc id="desc">
+One cell-keyed hit retains aligned step vectors and derives summary quantities
+lazily.
+  </desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#66717d" />
+    </marker>
+    <style>.background { fill: #ffffff; }
+.panel { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; }
+.panel-dashed { fill: #f6f8fa; stroke: #8c959f; stroke-dasharray: 7 5; stroke-width: 1.5; }
+.title { fill: #1f2328; font: 700 23px Avenir, "Segoe UI", Arial, sans-serif; }
+.subtitle { fill: #59636e; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.heading { fill: #1f2328; font: 700 15px Avenir, "Segoe UI", Arial, sans-serif; }
+.label { fill: #1f2328; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.small { fill: #59636e; font: 11.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.tiny { fill: #59636e; font: 10.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.center { text-anchor: middle; }
+.end { text-anchor: end; }
+.axis { fill: none; stroke: #66717d; stroke-width: 1.5; }
+.grid { fill: none; stroke: #d0d7de; stroke-width: 1; }
+.arrow { fill: none; stroke: #66717d; stroke-width: 2; marker-end: url(#arrow); }
+.blue { fill: #dbeafe; stroke: #1d6ff2; stroke-width: 1.5; }
+.green { fill: #dcfce7; stroke: #238636; stroke-width: 1.5; }
+.gold { fill: #fff3cd; stroke: #b77900; stroke-width: 1.5; }
+.red { fill: #ffe4e0; stroke: #c2412d; stroke-width: 1.5; }
+.violet { fill: #eee5ff; stroke: #8250df; stroke-width: 1.5; }
+.blue-line { fill: none; stroke: #1d6ff2; stroke-width: 3; }
+.green-line { fill: none; stroke: #238636; stroke-width: 3; }
+.gold-line { fill: none; stroke: #b77900; stroke-width: 3; }
+.red-line { fill: none; stroke: #c2412d; stroke-width: 3; }
+.muted-line { fill: none; stroke: #8c959f; stroke-width: 1.5; stroke-dasharray: 5 4; }
+.table-head { fill: #eaeef2; stroke: #afb8c1; stroke-width: 1; }
+.table-cell { fill: #ffffff; stroke: #d0d7de; stroke-width: 1; }
+@media (prefers-color-scheme: dark) {
+  .background { fill: #0d1117; }
+  .panel, .panel-dashed { fill: #161b22; stroke: #30363d; }
+  .title, .heading, .label { fill: #e6edf3; }
+  .subtitle, .small, .tiny { fill: #9da7b3; }
+  .axis, .arrow { stroke: #8b949e; }
+  .grid { stroke: #30363d; }
+  .blue { fill: #15243a; stroke: #58a6ff; }
+  .green { fill: #173326; stroke: #3fb950; }
+  .gold { fill: #352b18; stroke: #d29922; }
+  .red { fill: #3a211d; stroke: #f47067; }
+  .violet { fill: #2d2340; stroke: #a371f7; }
+  .table-head { fill: #21262d; stroke: #484f58; }
+  .table-cell { fill: #161b22; stroke: #30363d; }
+}</style>
+  </defs>
+  <rect class="background" width="1000" height="450" />
+  <text class="title" x="30" y="38">GHit accumulation example</text>
+  <text class="subtitle" x="30" y="64">
+    <tspan x="30">One cell-keyed hit retains aligned step vectors and derives summary quantities</tspan>
+    <tspan x="30" dy="15">lazily.</tspan>
+  </text>
+  <rect class="panel" x="30" y="90" width="525" height="315" rx="6" />
+  <text class="heading" x="52" y="122">Stored step vectors</text>
+  <text class="small" x="52" y="156">Step</text>
+  <text class="small" x="130" y="156">edep</text>
+  <text class="small" x="225" y="156">time</text>
+  <text class="small" x="320" y="156">local x</text>
+  <text class="small" x="430" y="156">track</text>
+  <rect class="table-cell" x="48" y="167" width="480" height="34" rx="0" />
+  <text class="label" x="52" y="190">1</text>
+  <text class="label" x="130" y="190">0.12 MeV</text>
+  <text class="label" x="225" y="190">5.1 ns</text>
+  <text class="label" x="320" y="190">-1.4 mm</text>
+  <text class="label" x="430" y="190">42</text>
+  <rect class="table-cell" x="48" y="210" width="480" height="34" rx="0" />
+  <text class="label" x="52" y="233">2</text>
+  <text class="label" x="130" y="233">0.35 MeV</text>
+  <text class="label" x="225" y="233">5.4 ns</text>
+  <text class="label" x="320" y="233">-0.8 mm</text>
+  <text class="label" x="430" y="233">42</text>
+  <rect class="table-cell" x="48" y="253" width="480" height="34" rx="0" />
+  <text class="label" x="52" y="276">3</text>
+  <text class="label" x="130" y="276">0.08 MeV</text>
+  <text class="label" x="225" y="276">5.9 ns</text>
+  <text class="label" x="320" y="276">+0.1 mm</text>
+  <text class="label" x="430" y="276">42</text>
+  <rect class="table-cell" x="48" y="296" width="480" height="34" rx="0" />
+  <text class="label" x="52" y="319">4</text>
+  <text class="label" x="130" y="319">0.21 MeV</text>
+  <text class="label" x="225" y="319">6.2 ns</text>
+  <text class="label" x="320" y="319">+0.9 mm</text>
+  <text class="label" x="430" y="319">42</text>
+  <text class="small" x="52" y="382">vectors remain index-aligned across all stored quantities</text>
+  <line class="arrow" x1="565" y1="247" x2="615" y2="247" />
+  <rect class="panel" x="630" y="90" width="340" height="315" rx="6" />
+  <text class="heading" x="654" y="122">Derived hit view</text>
+  <rect class="red" x="654" y="146" width="292" height="44" rx="6" />
+  <text class="label" x="672" y="173">Total edep</text>
+  <text class="heading end" x="928" y="173">0.76 MeV</text>
+  <rect class="gold" x="654" y="204" width="292" height="44" rx="6" />
+  <text class="label" x="672" y="231">Time extent</text>
+  <text class="heading end" x="928" y="231">5.1-6.2 ns</text>
+  <rect class="green" x="654" y="262" width="292" height="44" rx="6" />
+  <text class="label" x="672" y="289">Representative track</text>
+  <text class="heading end" x="928" y="289">track 42</text>
+  <rect class="blue" x="654" y="320" width="292" height="44" rx="6" />
+  <text class="label" x="672" y="347">Step count</text>
+  <text class="heading end" x="928" y="347">4</text>
+  <text class="small" x="654" y="384">
+    <tspan x="654">Digitizers can consume both raw vectors</tspan>
+    <tspan x="654" dy="15">and derived values.</tspan>
+  </text>
+</svg>

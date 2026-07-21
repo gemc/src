@@ -20,6 +20,12 @@
  * - \ref GOption : an option value container that can be scalar or structured.
  * - \ref GVariable : a schema entry used when defining scalar options or structured option keys.
  *
+ * Configuration sources are resolved in increasing precedence: schema defaults, YAML input, and finally
+ * command-line values. Dot-notation command-line updates replace one structured subkey without requiring the
+ * complete option value to be repeated.
+ *
+ * \image html goptions-precedence.svg "Configuration source precedence and structured updates" width=900px
+ *
  * \section goptions_main_concepts Concepts
  *
  * \subsection goptions_main_switches Switches

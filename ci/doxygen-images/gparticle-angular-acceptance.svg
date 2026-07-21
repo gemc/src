@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 440" role="img" aria-labelledby="title desc">
+  <title id="title">Polar-angle acceptance</title>
+  <desc id="desc">
+Uniform theta sampling uses delta_theta as a half-width around the nominal
+direction.
+  </desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#66717d" />
+    </marker>
+    <style>.background { fill: #ffffff; }
+.panel { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; }
+.panel-dashed { fill: #f6f8fa; stroke: #8c959f; stroke-dasharray: 7 5; stroke-width: 1.5; }
+.title { fill: #1f2328; font: 700 23px Avenir, "Segoe UI", Arial, sans-serif; }
+.subtitle { fill: #59636e; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.heading { fill: #1f2328; font: 700 15px Avenir, "Segoe UI", Arial, sans-serif; }
+.label { fill: #1f2328; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.small { fill: #59636e; font: 11.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.tiny { fill: #59636e; font: 10.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.center { text-anchor: middle; }
+.end { text-anchor: end; }
+.axis { fill: none; stroke: #66717d; stroke-width: 1.5; }
+.grid { fill: none; stroke: #d0d7de; stroke-width: 1; }
+.arrow { fill: none; stroke: #66717d; stroke-width: 2; marker-end: url(#arrow); }
+.blue { fill: #dbeafe; stroke: #1d6ff2; stroke-width: 1.5; }
+.green { fill: #dcfce7; stroke: #238636; stroke-width: 1.5; }
+.gold { fill: #fff3cd; stroke: #b77900; stroke-width: 1.5; }
+.red { fill: #ffe4e0; stroke: #c2412d; stroke-width: 1.5; }
+.violet { fill: #eee5ff; stroke: #8250df; stroke-width: 1.5; }
+.blue-line { fill: none; stroke: #1d6ff2; stroke-width: 3; }
+.green-line { fill: none; stroke: #238636; stroke-width: 3; }
+.gold-line { fill: none; stroke: #b77900; stroke-width: 3; }
+.red-line { fill: none; stroke: #c2412d; stroke-width: 3; }
+.muted-line { fill: none; stroke: #8c959f; stroke-width: 1.5; stroke-dasharray: 5 4; }
+.table-head { fill: #eaeef2; stroke: #afb8c1; stroke-width: 1; }
+.table-cell { fill: #ffffff; stroke: #d0d7de; stroke-width: 1; }
+@media (prefers-color-scheme: dark) {
+  .background { fill: #0d1117; }
+  .panel, .panel-dashed { fill: #161b22; stroke: #30363d; }
+  .title, .heading, .label { fill: #e6edf3; }
+  .subtitle, .small, .tiny { fill: #9da7b3; }
+  .axis, .arrow { stroke: #8b949e; }
+  .grid { stroke: #30363d; }
+  .blue { fill: #15243a; stroke: #58a6ff; }
+  .green { fill: #173326; stroke: #3fb950; }
+  .gold { fill: #352b18; stroke: #d29922; }
+  .red { fill: #3a211d; stroke: #f47067; }
+  .violet { fill: #2d2340; stroke: #a371f7; }
+  .table-head { fill: #21262d; stroke: #484f58; }
+  .table-cell { fill: #161b22; stroke: #30363d; }
+}</style>
+  </defs>
+  <rect class="background" width="1000" height="440" />
+  <text class="title" x="30" y="38">Polar-angle acceptance</text>
+  <text class="subtitle" x="30" y="64">
+    <tspan x="30">Uniform theta sampling uses delta_theta as a half-width around the nominal</tspan>
+    <tspan x="30" dy="15">direction.</tspan>
+  </text>
+  <rect class="panel" x="30" y="86" width="560" height="324" rx="6" />
+  <rect class="panel" x="610" y="86" width="360" height="324" rx="6" />
+  <path class="blue" d="M 285 360 L 393.0 156.9 A 230 230 0 0 1 466.2 218.4 Z" />
+  <line class="axis" x1="285" y1="360" x2="285" y2="105" />
+  <line class="axis" x1="285" y1="360" x2="555" y2="360" />
+  <line class="muted-line" x1="285" y1="360" x2="393.0" y2="156.9" />
+  <line class="red-line" x1="285" y1="360" x2="432.8" y2="183.8" />
+  <line class="muted-line" x1="285" y1="360" x2="466.2" y2="218.4" />
+  <text class="small end" x="268" y="102">beam axis</text>
+  <text class="heading" x="444.841" y="175.81">theta = 40 deg</text>
+  <text class="small end" x="384.978" y="146.922">28 deg</text>
+  <text class="small" x="474.242" y="223.398">52 deg</text>
+  <text class="small" x="355" y="190">delta_theta</text>
+  <text class="small" x="410" y="225">delta_theta</text>
+  <text class="small center" x="310" y="397">accepted sector: 24 deg = 2 * delta_theta</text>
+  <text class="heading" x="635" y="120">Example configuration</text>
+  <text class="label" x="635" y="154">theta</text>
+  <text class="label end" x="935" y="154">40 deg</text>
+  <text class="label" x="635" y="184">delta_theta</text>
+  <text class="label end" x="935" y="184">12 deg</text>
+  <text class="label" x="635" y="214">randomThetaModel</text>
+  <text class="label end" x="935" y="214">uniform</text>
+  <line class="grid" x1="635" y1="230" x2="945" y2="230" />
+  <text class="small" x="635" y="258">
+    <tspan x="635">Samples are uniform from theta -</tspan>
+    <tspan x="635" dy="15">delta_theta through theta + delta_theta.</tspan>
+  </text>
+  <text class="small" x="635" y="322">
+    <tspan x="635">For gaussian sampling, delta_theta is sigma</tspan>
+    <tspan x="635" dy="15">and is not a hard angular boundary.</tspan>
+  </text>
+</svg>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 440" role="img" aria-labelledby="title desc">
+  <title id="title">Particle phase-space models</title>
+  <desc id="desc">
+The same center and delta parameters have model-dependent sampling
+interpretations.
+  </desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#66717d" />
+    </marker>
+    <style>.background { fill: #ffffff; }
+.panel { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; }
+.panel-dashed { fill: #f6f8fa; stroke: #8c959f; stroke-dasharray: 7 5; stroke-width: 1.5; }
+.title { fill: #1f2328; font: 700 23px Avenir, "Segoe UI", Arial, sans-serif; }
+.subtitle { fill: #59636e; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.heading { fill: #1f2328; font: 700 15px Avenir, "Segoe UI", Arial, sans-serif; }
+.label { fill: #1f2328; font: 13px Avenir, "Segoe UI", Arial, sans-serif; }
+.small { fill: #59636e; font: 11.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.tiny { fill: #59636e; font: 10.5px Avenir, "Segoe UI", Arial, sans-serif; }
+.center { text-anchor: middle; }
+.end { text-anchor: end; }
+.axis { fill: none; stroke: #66717d; stroke-width: 1.5; }
+.grid { fill: none; stroke: #d0d7de; stroke-width: 1; }
+.arrow { fill: none; stroke: #66717d; stroke-width: 2; marker-end: url(#arrow); }
+.blue { fill: #dbeafe; stroke: #1d6ff2; stroke-width: 1.5; }
+.green { fill: #dcfce7; stroke: #238636; stroke-width: 1.5; }
+.gold { fill: #fff3cd; stroke: #b77900; stroke-width: 1.5; }
+.red { fill: #ffe4e0; stroke: #c2412d; stroke-width: 1.5; }
+.violet { fill: #eee5ff; stroke: #8250df; stroke-width: 1.5; }
+.blue-line { fill: none; stroke: #1d6ff2; stroke-width: 3; }
+.green-line { fill: none; stroke: #238636; stroke-width: 3; }
+.gold-line { fill: none; stroke: #b77900; stroke-width: 3; }
+.red-line { fill: none; stroke: #c2412d; stroke-width: 3; }
+.muted-line { fill: none; stroke: #8c959f; stroke-width: 1.5; stroke-dasharray: 5 4; }
+.table-head { fill: #eaeef2; stroke: #afb8c1; stroke-width: 1; }
+.table-cell { fill: #ffffff; stroke: #d0d7de; stroke-width: 1; }
+@media (prefers-color-scheme: dark) {
+  .background { fill: #0d1117; }
+  .panel, .panel-dashed { fill: #161b22; stroke: #30363d; }
+  .title, .heading, .label { fill: #e6edf3; }
+  .subtitle, .small, .tiny { fill: #9da7b3; }
+  .axis, .arrow { stroke: #8b949e; }
+  .grid { stroke: #30363d; }
+  .blue { fill: #15243a; stroke: #58a6ff; }
+  .green { fill: #173326; stroke: #3fb950; }
+  .gold { fill: #352b18; stroke: #d29922; }
+  .red { fill: #3a211d; stroke: #f47067; }
+  .violet { fill: #2d2340; stroke: #a371f7; }
+  .table-head { fill: #21262d; stroke: #484f58; }
+  .table-cell { fill: #161b22; stroke: #30363d; }
+}</style>
+  </defs>
+  <rect class="background" width="1000" height="440" />
+  <text class="title" x="30" y="38">Particle phase-space models</text>
+  <text class="subtitle" x="30" y="64">
+    <tspan x="30">The same center and delta parameters have model-dependent sampling</tspan>
+    <tspan x="30" dy="15">interpretations.</tspan>
+  </text>
+  <rect class="panel" x="30" y="92" width="220" height="305" rx="6" />
+  <text class="heading center" x="140" y="126">Uniform</text>
+  <text class="tiny center" x="140" y="148">flat in center +/- delta</text>
+  <line class="axis" x1="58" y1="330" x2="228" y2="330" />
+  <line class="axis" x1="70" y1="175" x2="70" y2="340" />
+  <rect class="panel" x="270" y="92" width="220" height="305" rx="6" />
+  <text class="heading center" x="380" y="126">Gaussian</text>
+  <text class="tiny center" x="380" y="148">delta is one sigma</text>
+  <line class="axis" x1="298" y1="330" x2="468" y2="330" />
+  <line class="axis" x1="310" y1="175" x2="310" y2="340" />
+  <rect class="panel" x="510" y="92" width="220" height="305" rx="6" />
+  <text class="heading center" x="620" y="126">Cosine theta</text>
+  <text class="tiny center" x="620" y="148">uniform in cos(theta)</text>
+  <line class="axis" x1="538" y1="330" x2="708" y2="330" />
+  <line class="axis" x1="550" y1="175" x2="550" y2="340" />
+  <rect class="panel" x="750" y="92" width="220" height="305" rx="6" />
+  <text class="heading center" x="860" y="126">Vertex</text>
+  <text class="tiny center" x="860" y="148">box, Gaussian, or sphere</text>
+  <line class="axis" x1="778" y1="330" x2="948" y2="330" />
+  <line class="axis" x1="790" y1="175" x2="790" y2="340" />
+  <path class="blue" d="M 72 330 L 72 230 L 208 230 L 208 330 Z" />
+  <text class="tiny" x="70" y="354">center-delta</text>
+  <text class="tiny end" x="220" y="354">center+delta</text>
+  <path class="red-line" d="M 310 330 C 350 328 355 190 380 185 C 405 190 410 328 452 330" />
+  <text class="tiny center" x="338" y="354">-sigma</text>
+  <text class="tiny center" x="380" y="354">mean</text>
+  <text class="tiny center" x="422" y="354">+sigma</text>
+  <path class="gold-line" d="M 550 330 C 575 325 595 275 620 215 C 640 177 665 220 692 330" />
+  <text class="tiny" x="555" y="354">theta min</text>
+  <text class="tiny end" x="700" y="354">theta max</text>
+  <rect class="blue" x="790" y="205" width="72" height="72" rx="2" />
+  <circle class="green" cx="900" cy="241" r="40" />
+  <circle class="red" cx="826" cy="241" r="5" />
+  <circle class="red" cx="900" cy="241" r="5" />
+  <text class="tiny center" x="826" y="292">component deltas</text>
+  <text class="tiny center" x="900" y="318">sphere radius</text>
+  <text class="small center" x="140" y="382">p, theta, phi</text>
+  <text class="small center" x="380" y="382">p, theta, vertex</text>
+  <text class="small center" x="620" y="382">theta only</text>
+  <text class="small center" x="860" y="382">vx, vy, vz</text>
+</svg>
