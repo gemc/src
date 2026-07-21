@@ -31,7 +31,10 @@ jobs:
             ghostscript \
             graphviz \
             python3 \
+            texlive-fonts-recommended \
             texlive-latex-base \
+            texlive-latex-extra \
+            texlive-pictures \
             zsh
           rm -rf /var/lib/apt/lists/*
 
