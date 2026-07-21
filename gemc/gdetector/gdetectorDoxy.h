@@ -7,7 +7,7 @@
  *
  * \image html gemc-architecture.svg "GEMC detector definition and simulation workflow" width=900px
  *
- * @section intro_sec Introduction
+ * @section gdetector_intro Introduction
  *
  * The gdetector module provides the Geant4 detector-construction bridge for GEMC:
  * it builds a Geant4 geometry from GEMC world definitions and then installs sensitive
@@ -16,7 +16,7 @@
  * The primary entry point is \ref GDetectorConstruction, which implements the Geant4
  * detector-construction hooks and connects them to the GEMC geometry/digitization model.
  *
- * @section topics_sec Topics
+ * @section gdetector_topics Topics
  *
  * @defgroup gdetector_module gdetector module (geometry + SD/field + digitization bridge)
  * \brief Core APIs and implementation for building geometry and installing SD/field and digitization.
@@ -26,7 +26,7 @@
  *
  * @ingroup gdetector_module
  *
- * @section ownership_sec Ownership and lifecycle
+ * @section gdetector_ownership Ownership and lifecycle
  *
  * Ownership is split between GEMC-managed objects and Geant4-managed runtime state:
  * - GEMC world objects (e.g. GWorld and related system/volume structures) are owned by
@@ -44,7 +44,7 @@
  * - Install SD/fields (Geant4 calls \c ConstructSDandField()).
  * - Optionally reload geometry with \ref GDetectorConstruction::reload_geometry "reload_geometry()".
  *
- * @section architecture_sec Architecture
+ * @section gdetector_architecture Architecture
  *
  * Design notes:
  * - The detector builder constructs a GEMC world first, then translates it into Geant4 constructs
@@ -55,7 +55,7 @@
  * - EM fields are configured per volume using a named field definition and installed via per-volume
  *   field managers.
  *
- * @section options_sec Available Options and usage
+ * @section gdetector_options Available Options and usage
  *
  * The gdetector module aggregates options from multiple dependent modules by calling
  * gdetector::defineOptions(). The current aggregation includes:
@@ -71,7 +71,7 @@
  *   auto gopts = std::make_shared<GOptions>(argc, argv, gdetector::defineOptions());
  *   \endcode
  *
- * @section verbosity_sec Module verbosity
+ * @section gdetector_verbosity Module verbosity
  *
  * The module uses the logger name \c "gdetector" (see GDETECTOR_LOGGER).
  * Typical verbosity behavior:
@@ -80,7 +80,7 @@
  * - Level 2: verbose per-volume/per-detector setup details (e.g. SD assignments, field attachment).
  * - Debug output: detailed diagnostic traces for construction paths and plugin setup decisions.
  *
- * @section examples_sec Examples
+ * @section gdetector_examples Examples
  *
  * The following example demonstrates a minimal usage path including geometry reload and a
  * multi-threaded digitization loop.

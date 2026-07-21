@@ -16,7 +16,7 @@
  *
  * \image html gfactory-flow.svg "Static and dynamic factory resolution" width=900px
  *
- * \section overview Overview
+ * \section gfactory_overview Overview
  * The **gfactory** module provides a lightweight registry and loader for plugin-style objects.
  * It supports two complementary workflows:
  * - **Static factory registration**: register a concrete C++ type under a string key and instantiate it later.
@@ -24,7 +24,7 @@
  *
  * The primary entry point is the GManager class.
  *
- * @section options_sec Available Options and their usage
+ * @section gfactory_options Available Options and their usage
  *
  * This module currently does not define or consume any module-specific option keys.
  *
@@ -35,7 +35,7 @@
  * - Plugin search paths and loading policies are typically implemented at the consumer level and documented
  *   by those consuming modules (e.g. gfields, g4system factories).
  *
- * \section conventions Conventions and expectations
+ * \section gfactory_conventions Conventions and expectations
  * - **Naming**: dynamic plugin files are expected to follow the convention `<name>.gplugin`.
  * - **Dynamic instantiation**:
  *   - A product base type (e.g., `Car`) typically provides a static method `instantiate(...)`
@@ -46,7 +46,7 @@
  *   - Dynamic creation returns `std::shared_ptr<T>` and keeps the library loaded for the lifetime of the
  *     object.
  *
- * \section examples Examples (see `examples/`)
+ * \section gfactory_examples Examples (see `examples/`)
  * The module ships with small examples intended as reference implementations:
  * - **static_and_dynamic_example.cc**:
  *   Demonstrates both static registration (for `Shape`) and dynamic loading (for `Car`) in a single program.
@@ -55,7 +55,7 @@
  * - **TeslaFactory.* and FordFactory.* (dynamic)**:
  *   Implements two dynamically-loaded `Car` products and the exported `CarFactory` symbol.
  *
- * \section verbosity Verbosity and logging
+ * \section gfactory_verbosity Verbosity and logging
  * Many classes in this ecosystem derive (directly or indirectly) from `glogger` infrastructure via `GBase`.
  * In practice, the module emits:
  * - **info level 0**: high-level lifecycle messages (e.g., library loaded successfully).
@@ -65,9 +65,9 @@
  *
  * Exact formatting and filtering depend on the logger configuration carried by `GOptions`.
  *
- * \section ownership Ownership and maintenance
+ * \section gfactory_ownership Ownership and maintenance
  * Maintainer: Maurizio Ungaro (Jefferson Lab).
  *
- * \section contact Contact
+ * \section gfactory_contact Contact
  * e-mail: ungaro@jlab.org
  */

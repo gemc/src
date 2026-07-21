@@ -17,6 +17,7 @@ script_dir="${0:A:h}"
 repo_root="${script_dir:h}"
 cd "$repo_root"
 
+"$script_dir/check_doxygen_anchors.py" gemc
 "$script_dir/generate_doxygen_diagrams.py" --check
 
 usage() {

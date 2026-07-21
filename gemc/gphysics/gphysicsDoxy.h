@@ -60,7 +60,7 @@
  * When debug is enabled, the module prints constructor-level diagnostics (for example when the GPhysics
  * object is instantiated).
  *
- * @section options_sec Available Options and their usage
+ * @section gphysics_options Available Options and their usage
  *
  * This module reads the following option keys from the runtime option provider:
  *

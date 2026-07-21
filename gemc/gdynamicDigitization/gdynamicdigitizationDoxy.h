@@ -5,7 +5,7 @@
  *
  * \image html gdynamicdigitization-flow.svg "Digitization plugin lifecycle" width=900px
  *
- * \section intro_sec Introduction
+ * \section gdynamicdigitization_intro Introduction
  * The GDynamicDigitization module defines the base interface and utilities used to
  * implement detector digitization routines as dynamically loadable plugins.
  *
@@ -21,13 +21,13 @@
  *
  * \image html digitization-workflow.svg "Sensitive-detector and digitization data flow" width=900px
  *
- * \section components_sec Key components
+ * \section gdynamicdigitization_components Key components
  * - GDynamicDigitization : Abstract base class defining the plugin surface.
  * - GTouchableModifiers : Helper container used when a digitizer needs to compute
  *   weighted/weighted-time modifiers for touchables.
  * - GReadoutSpecs : Small immutable specification used to compute electronics time bin indices.
  *
- * \section options_sec Configuration
+ * \section gdynamicdigitization_options Configuration
  * \ref gdynamicdigitization::defineOptions "gdynamicdigitization::defineOptions()" defines:
  * - \c recordZeroEdep: retain hits with exactly zero deposited energy.
  * - \c digitization_variation: override the geometry variation used to load constants and translation tables.
@@ -38,7 +38,7 @@
  * It also aggregates the event-data, run-data, translation-table, and plugin-factory option sets required by
  * the digitization workflow.
  *
- * \section verbosity_sec Verbosity and logging
+ * \section gdynamicdigitization_verbosity Verbosity and logging
  * Most classes in this module log through the project logging infrastructure.
  * Typical meanings (by convention) are:
  * - level 0 : essential information and high-level workflow milestones (e.g. which plugin was loaded).
@@ -47,15 +47,15 @@
  * - debug : fine-grained, developer-oriented messages intended for diagnosing behavior
  *   (often includes intermediate indices, computed values, or branch decisions).
  *
- * \section examples_sec Examples
+ * \section gdynamicdigitization_examples Examples
  * The module ships example programs illustrating how to implement and load plugins:
  *
- * \subsection ex_plugin_test Example plugin implementation
+ * \subsection gdynamicdigitization_example_plugin Example plugin implementation
  * - File : examples/gplugin_test_example.h, examples/gplugin_test_example.cc
  * - Summary : Implements a minimal digitization plugin (readout specs, constants, TT, hit digitization)
  *   and exposes the required factory symbol \c GDynamicDigitizationFactory.
  *
- * \subsection ex_loader Example plugin loading and multi-threaded usage
+ * \subsection gdynamicdigitization_example_loader Example plugin loading and multi-threaded usage
  * - File : examples/plugin_load_example.cc
  * - Summary : Loads a plugin with gdynamicdigitization::dynamicRoutinesMap(), calls
  *   \ref GDynamicDigitization::loadConstants "loadConstants()", then runs a small multi-threaded

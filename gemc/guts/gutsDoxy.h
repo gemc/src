@@ -5,7 +5,7 @@
  *
  *  \image html guts-flow.svg "Dependency-light utility processing flow" width=900px
  *
- *  \section overview Overview
+ *  \section guts_overview Overview
  *  The **gutilities** module provides a suite of small, dependency-light helpers grouped under
  *  the \ref gutilities "gutilities" namespace. These utilities are reused across the codebase
  *  to keep common operations (string normalization, filesystem probing, numeric parsing) consistent
@@ -16,7 +16,7 @@
  *  - **Predictable parsing**: numeric parsing is designed to be locale-independent.
  *  - **Reuse**: common patterns live in one place rather than being re-implemented in multiple modules.
  *
- *  \section namespace_contents Main namespace contents
+ *  \section guts_namespace_contents Main namespace contents
  *  The \ref gutilities "gutilities" namespace includes (non-exhaustive):
  *
  *  - \ref gutilities::removeLeadingAndTrailingSpacesFromString "removeLeadingAndTrailingSpacesFromString()"
@@ -30,7 +30,7 @@
  *  - \ref gutilities::getG4Number "getG4Number()"
  *    - Parses \c "<number>*<unit>" and converts to internal units when recognized.
  *
- *  \section conventions Conventions and shared macros
+ *  \section guts_conventions Conventions and shared macros
  *  The module follows conventions defined in gutsConventions.h :
  *
  *  - **Message prefixes**:
@@ -40,9 +40,9 @@
  *  - **List glyphs**:
  *    - \c POINTITEM, \c CIRCLEITEM, \c SQUAREITEM, etc., to keep console logs consistent.
  *
- *  \section examples Examples
+ *  \section guts_examples Examples
  *
- *  \subsection ex_string_vector Tokenizing a string into words
+ *  \subsection guts_example_string_vector Tokenizing a string into words
  *  The example program \c examples/string_vector_from_string.cc demonstrates how to use
  *  \ref gutilities::getStringVectorFromString "getStringVectorFromString()" to split a single
  *  command-line argument into tokens and print them.
@@ -71,7 +71,7 @@
  *  spaces
  *  \endcode
  *
- *  \section additional_features Additional features
+ *  \section guts_additional_features Additional features
  *  Additional utility functions include:
  *
  *  - \ref gutilities::replaceCharInStringWithChars "replaceCharInStringWithChars()"
@@ -81,7 +81,7 @@
  *  - \ref gutilities::getListOfFilesInDirectory "getListOfFilesInDirectory()"
  *    - Scans a directory for regular files with matching extensions.
  *
- *  \section ownership Ownership and maintenance
+ *  \section guts_ownership Ownership and maintenance
  *  This module is maintained as part of the broader codebase by the primary project maintainer.
  *  When updating these utilities, prefer:
  *  - adding documentation for behavior changes,

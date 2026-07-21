@@ -20,7 +20,7 @@
  *
  * \image html display-volumes.svg "GEMC geometry tree and volume inspection controls" width=900px
  *
- * @section intro_sec Introduction
+ * @section gtree_intro Introduction
  *
  * GTree is a Qt widget that exposes a hierarchical view of the Geant4 geometry.
  * It is designed for interactive inspection and quick style adjustments:
@@ -33,7 +33,7 @@
  * system prefix), organized by system and then by mother-daughter relations.
  *
  *
- * @section ownership_sec Ownership and lifecycle
+ * @section gtree_ownership Ownership and lifecycle
  *
  * - **Ownership model**:
  *   - The widget owns its Qt UI elements via Qt parent-child ownership.
@@ -48,7 +48,7 @@
  *   - UI interactions send visualization commands immediately.
  *
  *
- * @section architecture_sec Architecture
+ * @section gtree_architecture Architecture
  *
  * **Design notes**
  * - **Model**: `G4Ttree_item` stores per-volume attributes needed by the UI
@@ -66,7 +66,7 @@
  * to Geant4 visualization internals.
  *
  *
- * @section options_sec Available Options and their usage
+ * @section gtree_options Available Options and their usage
  *
  * This module currently does not define additional module-specific option keys.
  *
@@ -98,7 +98,7 @@
  * Refer to the dbselect documentation for the full, authoritative list of aggregated keys.
  *
  *
- * @section verbosity_sec Module verbosity
+ * @section gtree_verbosity Module verbosity
  *
  * Logging is performed through the module logger named `gtree`.
  *
@@ -109,7 +109,7 @@
  * - **Debug**: fine-grained internal traces (slot-level state, UI command strings).
  *
  *
- * @section examples_sec Examples
+ * @section gtree_examples Examples
  *
  * - @ref gtree_example "gtree_example" :
  *   A minimal application that builds a detector and launches the GTree widget.

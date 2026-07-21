@@ -69,7 +69,7 @@
  *   computed count of matching geometry entries.
  * - Changing run recomputes counts and availability.
  *
- * @section options_sec Available Options and their usage
+ * @section dbselect_options Available Options and their usage
  *
  * This module reads the following option keys from the runtime option provider:
  *

@@ -73,7 +73,7 @@
  *   to keep the splash responsive while the application is still initializing.
  *
  *
- * \section options_sec Available Options and their usage
+ * \section gsplash_options Available Options and their usage
  *
  * This module reads the following option keys from the runtime option provider:
  *

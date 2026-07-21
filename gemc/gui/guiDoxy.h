@@ -7,7 +7,7 @@
  *
  * \image html display-gui.svg "GEMC graphical interface" width=900px
  *
- * @section intro_sec Introduction
+ * @section gui_intro Introduction
  *
  * This module provides the Qt-based graphical user interface for GEMC. The primary entry point is the
  * GemcGUI widget, which builds the application layout and connects UI actions to the EventDispenser
@@ -17,7 +17,7 @@
  * (pages such as display, dialog, setup, and geometry tree), and a bottom board widget for status/controls.
  *
  *
- * @section ownership_sec Ownership and lifecycle
+ * @section gui_ownership Ownership and lifecycle
  *
  * - GemcGUI is a \c QWidget and participates in Qt parent/child ownership.
  * - Most Qt widgets created with \c this as parent are owned and destroyed by Qt automatically.
@@ -26,9 +26,9 @@
  *   and keep it consistent for new members.
  *
  *
- * @section architecture_sec Architecture
+ * @section gui_architecture Architecture
  *
- * @subsection design_notes Design notes
+ * @subsection gui_design_notes Design notes
  *
  * - **Layout composition**
  *   - Left pane: a GQTButtonsWidget provides a button list and emits selection changes.
@@ -47,7 +47,7 @@
  *     \c QStackedWidget, updating the visible page.
  *
  *
- * @section options_sec Available Options and usage
+ * @section gui_options Available Options and usage
  *
  * This module does not define a standalone GUI option schema. Instead it consumes:
  * - Options carried by GOptions and passed into child pages such as the display and dialog widgets.
@@ -55,7 +55,7 @@
  *   - The "N. Events" field updates the number of events via EventDispenser::setNumberOfEvents().
  *   - The initial value is read from EventDispenser::getTotalNumberOfEvents().
  *
- * @section verbosity_sec Module verbosity
+ * @section gui_verbosity Module verbosity
  *
  * The top-level widget has no module-specific logger. Child pages use their own logger categories, including
  * \c g4display, \c g4dialog, \c gtree, and \c dbselect.

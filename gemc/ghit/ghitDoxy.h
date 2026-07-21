@@ -5,7 +5,7 @@
  *
  * \image html ghit-flow.svg "Geant4 step accumulation into a GEMC hit" width=900px
  *
- * \section intro_sec Introduction
+ * \section ghit_intro Introduction
  * The \c ghit module provides a compact hit container (\c GHit) for storing step-by-step
  * and aggregated information from detector simulations.
  *
@@ -17,15 +17,15 @@
  * - track 3-momentum and total energy
  * - creator process name
  *
- * \section components_sec Components
+ * \section ghit_components Components
  * - \c GHit : hit container that accumulates per-step vectors and provides lazy derived quantities.
  *
- * \section examples_sec Examples
+ * \section ghit_examples Examples
  * The module ships with an example program:
  * - \b ghit_example.cc : constructs a \c GTouchable, creates a \c GHit, generates randomized test hits,
  *   and compares them using \c GHit::is_same_hit().
  *
- * \section ownership_sec Ownership and contacts
+ * \section ghit_ownership Ownership and contacts
  * Author: &copy; Maurizio Ungaro \n
  * e-mail: ungaro@jlab.org
  *

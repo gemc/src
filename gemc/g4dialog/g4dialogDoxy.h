@@ -26,7 +26,7 @@
  * - **Command execution**: paste a selected command into the prompt and execute it.
  * - **History**: avoid retyping by recalling previously executed commands.
  *
- * @section options_sec Available Options and their usage
+ * @section g4dialog_options Available Options and their usage
  *
  * This module currently does not define additional module-specific option keys.
  *

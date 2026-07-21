@@ -24,7 +24,7 @@
 /// - \c integral_counter : the identity vector is enough (no additional discriminating factor).
 /// - \c dosimeter : the identity vector is enough (no additional discriminating factor).
 ///
-/// \section options_sec Available Options and their usage
+/// \section gtouchable_options Available Options and their usage
 ///
 /// This module currently does not define or consume any module-specific option keys.
 ///

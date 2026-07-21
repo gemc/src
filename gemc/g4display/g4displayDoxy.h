@@ -5,7 +5,7 @@
  *
  * \image html g4display-flow.svg "Interactive visualization control flow" width=900px
  *
- * \section intro_sec Introduction
+ * \section g4display_intro Introduction
  *
  * The G4Display module provides a Qt-based graphical user interface layer for controlling and interacting with
  * Geant4 visualization from within GEMC. It is designed to expose common viewer controls (camera direction,
@@ -19,7 +19,7 @@
  *
  * \image html display-utilities.svg "GEMC scene decoration and annotation controls" width=900px
  *
- * \section structure_sec Module structure
+ * \section g4display_structure Module structure
  *
  * The module is primarily composed of:
  * - \ref G4Display : main widget that hosts visualization control tabs.
@@ -31,7 +31,7 @@
  *
  *
  *
- * \section verbosity_sec Verbosity and logging
+ * \section g4display_verbosity Verbosity and logging
  *
  * Several classes in this module are built on top of GEMC base utilities that provide structured logging via
  * GLogger.
@@ -44,7 +44,7 @@
  * - Debug   : developer diagnostics (construction/destruction traces, command strings, internal decisions).
  *
  *
- * \section usage_sec Typical usage
+ * \section g4display_usage Typical usage
  *
  * In a GEMC application, the GUI widget \ref G4Display is instantiated with a shared GOptions instance and
  * embedded into a parent window. Users interact with the GUI controls; the module translates those interactions
@@ -53,7 +53,7 @@
  * The helper \ref G4SceneProperties can be used during initialization to build a consistent default scene and
  * viewer configuration from options.
  *
- * \section options_sec Configuration
+ * \section g4display_options Configuration
  *
  * \ref g4display::defineOptions "g4display::defineOptions()" provides the following option groups:
  * - \c g4view: driver, window dimensions and position, curve precision, background, and cloud density.
@@ -69,7 +69,7 @@
  * the GUI and scene initializer.
  *
  *
- * \section build_sec Building and dependencies
+ * \section g4display_build Building and dependencies
  *
  * This module depends on:
  * - \c Qt6 (Widgets module)
@@ -77,7 +77,7 @@
  * - GEMC core utilities (GOptions, GBase, GLogger, etc.)
  *
  *
- * \section examples_sec Examples
+ * \section g4display_examples Examples
  *
  * The following example demonstrates how to create a minimal Geant4 visualization environment and optionally
  * attach the G4Display GUI.

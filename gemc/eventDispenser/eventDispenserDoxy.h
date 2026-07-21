@@ -11,12 +11,12 @@
  *
  * \image html eventdispenser-flow.svg "Run-weighted event dispatch" width=900px
  *
- * \section intro_sec Introduction
+ * \section eventdispenser_intro Introduction
  * The Event Dispenser module distributes simulation events across one or more *run numbers*.
  * The distribution is driven either by a single user-selected run number, or by a file that
  * specifies multiple runs and their relative weights.
  *
- * \section details_sec Details
+ * \section eventdispenser_details Details
  * At runtime, EventDispenser:
  * - Reads user configuration from a GOptions instance.
  * - Builds an internal run list and a run-to-weight map when a run-weight file is provided.
@@ -26,14 +26,14 @@
  *   so each run can load its run-dependent constants and translation tables.
  * - Dispatches the actual event generation to Geant4 via UI commands (e.g. \c /run/beamOn).
  *
- * \section usage_sec Typical usage
+ * \section eventdispenser_usage Typical usage
  * A typical application flow is:
  * - Construct GOptions with the module options from eventDispenser::defineOptions().
  * - Construct EventDispenser with the parsed options and the map of digitization routines.
  * - Query the computed distribution with \ref EventDispenser::getRunEvents "getRunEvents()".
  * - Run the workflow using \ref EventDispenser::processEvents "processEvents()".
  *
- * @section options_sec Available Options and their usage
+ * @section eventdispenser_options Available Options and their usage
  *
  * This module reads the following option keys from the runtime option provider:
  *
@@ -70,7 +70,7 @@
  * Additional keys contributed by \c gdynamicdigitization::defineOptions() affect digitization selection
  * and per-run initialization behavior. Refer to that module’s documentation for the full list.
  *
- * \section verbosity_sec Module verbosity
+ * \section eventdispenser_verbosity Module verbosity
  * EventDispenser uses the standard GEMC GLogger infrastructure.
  * The practical meaning of verbosity levels is:
  * - **info level 0**: high-level summary (initialization and final distribution table).
@@ -82,7 +82,7 @@
  * - which run number and variation are being used for constants / translation-table loading,
  * - and other function-level traces useful during development.
  *
- * \section examples_sec Examples
+ * \section eventdispenser_examples Examples
  * - \ref event_dispenser_example_group "Event Dispenser Example" :
  *   Minimal end-to-end usage showing how to create options, instantiate EventDispenser, query the
  *   run distribution, and trigger processing.

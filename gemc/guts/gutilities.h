@@ -168,7 +168,8 @@ std::string getFileFromPath(const std::string& path);
 /**
  * \brief Extracts the directory path from a given file path.
  *
- * This function extracts and returns the directory path from a given POSIX-style file path using @c '/' as separator.
+ * This function extracts and returns the directory path from a given POSIX-style file path using @c '/' as
+ * separator.
  * If the path contains no separators, @c "." is returned.
  *
  * \param path The input file path.
@@ -267,7 +268,8 @@ vector<string> getListOfFilesInDirectory(const string& dirName, const vector<str
  * - A single decimal comma is normalized to a dot if no dot is present.
  * - The numeric part is parsed in the @c "C" locale to avoid locale-dependent decimal separators.
  * - Units are converted using a fixed table and limited SI-prefix handling.
- * - On invalid formatting or numeric parsing errors, the function prints a fatal error and exits with @c EC__G4NUMBERERROR.
+ * - On invalid formatting or numeric parsing errors, the function prints a fatal error and exits with
+ *   @c EC__G4NUMBERERROR.
  * - If the unit is unknown, a warning is printed and the numeric part is returned (legacy behavior).
  *
  * \param v The input string containing the number and optional units, formatted as @c "<number>*<unit>".
@@ -342,7 +344,8 @@ string parseFileAndRemoveComments(const string& filename, const string& commentC
 /**
  * \brief Retrieves a substring between two specified delimiters in a string.
  *
- * This function extracts and returns the substring found between the first and second delimiters within the input string.
+ * This function extracts and returns the substring found between the first and second delimiters within the
+ * input string.
  * If either delimiter is not found, an empty string is returned.
  *
  * \param input The input string containing the delimiters.
@@ -352,7 +355,8 @@ string parseFileAndRemoveComments(const string& filename, const string& commentC
  *
  * \note Only the first occurrence of each delimiter is considered.
  */
-string retrieveStringBetweenChars(const string& input, const string& firstDelimiter, const string& secondDelimiter);
+string retrieveStringBetweenChars(const string& input, const string& firstDelimiter,
+                                  const string& secondDelimiter);
 
 
 /**
@@ -381,7 +385,7 @@ vector<string> getStringVectorFromStringWithDelimiter(const string& input, const
  * \param str The string to convert.
  * \return The lowercase version of the input string.
  *
- * \note This uses the C locale's @c ::tolower behavior (byte-wise). It is intended for ASCII-ish tokens
+ * \note This uses the C locale's @c tolower behavior (byte-wise). It is intended for ASCII-ish tokens
  *       such as configuration keywords and unit identifiers.
  */
 string convertToLowercase(const string& str);
@@ -583,7 +587,8 @@ inline std::filesystem::path gemc_root() {
  * \param s Input view.
  * \return @c true if @p s represents an "unset" value, @c false otherwise.
  *
- * \note This is used for robust configuration parsing where users may specify "NULL", "null", "~", or empty values.
+ * \note This is used for robust configuration parsing where users may specify "NULL", "null", "~", or empty
+ *       values.
  */
 bool is_unset(std::string_view s);
 

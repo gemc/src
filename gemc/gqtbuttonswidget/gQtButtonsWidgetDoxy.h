@@ -8,15 +8,15 @@
  *
  * \image html gqtbuttonswidget-flow.svg "Reusable Qt button rendering and interaction" width=900px
  *
- * \section intro_sec Introduction
+ * \section gqtbuttonswidget_intro Introduction
  * This module provides lightweight Qt widgets to present **button-like UI controls** in a compact form:
  * - \c GQTButtonsWidget : an icon-based button strip implemented with a \c QListWidget in icon mode.
  * - \c GQTToggleButtonWidget : a group of checkable \c QPushButton objects (toggle buttons).
  *
  * These widgets are intended for **GUI-thread usage** inside Qt applications.
  *
- * \section design_sec Design overview
- * \subsection icon_buttons_subsec Icon buttons (\c GQTButtonsWidget)
+ * \section gqtbuttonswidget_design Design overview
+ * \subsection gqtbuttonswidget_icon_buttons Icon buttons (\c GQTButtonsWidget)
  * The icon-buttons widget uses a \c QListWidget configured in \c QListView::IconMode. Each logical button
  * is represented by a \c QListWidgetItem whose icon is updated based on interaction:
  * - State \c 1 : "normal" icon
@@ -32,12 +32,12 @@
  * :/images/firstButton_2.svg
  * \endcode
  *
- * \subsection toggle_buttons_subsec Toggle buttons (\c GQTToggleButtonWidget)
+ * \subsection gqtbuttonswidget_toggle_buttons Toggle buttons (\c GQTToggleButtonWidget)
  * The toggle-buttons widget creates one \c QPushButton per title string, marks it checkable, and arranges
  * buttons either vertically (\c QVBoxLayout) or horizontally (\c QHBoxLayout). The widget tracks the last
  * pressed button index and emits a signal whenever that index changes.
  *
- * @section options_sec Available Options and their usage
+ * @section gqtbuttonswidget_options Available Options and their usage
  *
  * This module currently does not define or consume any module-specific option keys.
  *
@@ -46,13 +46,13 @@
  *   \ref GOptions::GOptions "GOptions(argc,argv,...)" (for example `gui`, `verbosity`, and `debug`),
  *   but these widgets themselves do not read options directly.
  *
- * \section usage_sec Usage
+ * \section gqtbuttonswidget_usage Usage
  * The typical usage pattern is:
  * - Construct the widget with the desired dimensions and labels/icons.
  * - Connect to signals (e.g. \c buttonPressedIndexChanged()) to react to user interaction.
  * - Optionally invoke helper functions (e.g. \c press_button(), \c reset_buttons()) to drive state from code.
  *
- * \section examples_sec Examples
+ * \section gqtbuttonswidget_examples Examples
  * The project contains example code demonstrating how to instantiate and display these widgets.
  * Each entry includes a short summary and a small code excerpt.
  *

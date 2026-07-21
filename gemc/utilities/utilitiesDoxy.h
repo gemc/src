@@ -5,7 +5,7 @@
  *
  * \image html utilities-flow.svg "Runtime utility service flow" width=900px
  *
- * @section intro_sec Introduction
+ * @section utilities_intro Introduction
  *
  * The GEMC Utilities Module provides small, focused runtime helpers used during
  * application startup and configuration. These helpers are designed to keep the
@@ -20,7 +20,7 @@
  * - preparation and execution of Geant4 UI command sequences,
  * - selection and seeding of the random engine.
  *
- * @section ownership_sec Ownership and lifecycle
+ * @section utilities_ownership Ownership and lifecycle
  *
  * The utilities are predominantly **stateless**: functions either compute values
  * (such as thread counts), build command lists, or apply command lists.
@@ -32,9 +32,9 @@
  *   ownership to Geant4 via `G4UImanager::SetCoutDestination`. The caller must not
  *   attempt to delete that session object.
  *
- * @section arch_sec Architecture
+ * @section utilities_architecture Architecture
  *
- * @subsection design_notes Design notes
+ * @subsection utilities_design_notes Design notes
  *
  * Initialization is intentionally split into two phases:
  * 1. **Command construction**: helpers such as `gemc::verbosity_commands()` and
@@ -49,7 +49,7 @@
  * Random-engine configuration is handled by `gemc::start_random_engine()`, which selects the
  * engine implementation by name and seeds it from either user input or a derived seed.
  *
- * @section options_sec Available Options and their usage
+ * @section utilities_options Available Options and their usage
  *
  * This module reads the following option keys from the runtime option provider:
  *
@@ -86,7 +86,7 @@
  *   - Behavior:
  *     - if unset (equal to `SEEDNOTSET`), a seed is derived from time/clock/pid sources
  *
- * @section verbosity_sec Module verbosity
+ * @section utilities_verbosity Module verbosity
  *
  * The utilities report their activity through the logger passed into each function.
  * A typical interpretation of verbosity levels used by these helpers is:

@@ -41,7 +41,7 @@
  *
  * \image html gsystem-flow.svg "Detector-system loading and world assembly" width=900px
  *
- * @section intro_sec Introduction
+ * @section gsystem_intro Introduction
  *
  * The gsystem module provides the infrastructure that turns detector configuration into
  * an in-memory representation of geometry and materials.
@@ -55,14 +55,14 @@
  * - A GWorld assembles multiple systems, applies modifiers, and assigns final names.
  * - A GSystemFactory loads a system from a concrete source (sqlite, ASCII, CAD, ...).
  *
- * @section ownership_sec Ownership and lifecycle
+ * @section gsystem_ownership Ownership and lifecycle
  *
  * - The world owns the system map container, and stores systems as shared pointers.
  * - Each system owns its collections of volumes and materials.
  * - Factories are temporary objects used during load; they may keep transient state such as
  *   open DB handles or search paths and should release them in closeSystem().
  *
- * @section factories_sec Factories
+ * @section gsystem_factories Factories
  *
  * Factory selection is driven by system configuration:
  * - \c sqlite : loads geometry/materials from a sqlite database.
@@ -70,7 +70,7 @@
  * - \c CAD    : imports volumes from CAD assets (e.g. STL).
  * - \c GDML   : placeholder for future GDML support.
  *
- * @section options_sec Available Options and their usage
+ * @section gsystem_options Available Options and their usage
  *
  * This module reads the following option keys from the runtime option provider:
  *
@@ -125,7 +125,7 @@
  * Note: this module’s option schema is composed by \c gsystem::defineOptions(), and it also aggregates
  * options from \c gfactory::defineOptions(). Any additional plugin-loader options are documented there.
  *
- * @section verbosity_sec Verbosity and logging
+ * @section gsystem_verbosity Verbosity and logging
  *
  * Most classes in this module derive from GBase and therefore use a GLogger.
  *
@@ -138,9 +138,9 @@
  * The exact interpretation is logger-dependent, but the module is structured so that higher
  * levels add detail without changing semantics.
  *
- * @section examples_sec Examples
+ * @section gsystem_examples Examples
  *
- * @subsection example_gsystem Example : gsystem_example.cc
+ * @subsection gsystem_example Example : gsystem_example.cc
  * Minimal program that:
  * - builds a GOptions instance with \c gsystem::defineOptions();
  * - constructs a GWorld, triggering full system load (factories, volumes/materials, modifiers).
@@ -152,7 +152,7 @@
  * ./gsystem_example -gsystem="[{name: b1, factory: sqlite, variation: default}]" -sql=gemc.db
  * \endcode
  *
- * @section notes_sec Design notes
+ * @section gsystem_notes Design notes
  *
  * - The module uses serialized parameter vectors to represent DB/ASCII rows. Parsing is positional.
  * - Post-load modifiers (shift/tilt/existence) are applied by the world after all volumes exist.

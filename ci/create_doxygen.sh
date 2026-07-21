@@ -79,6 +79,9 @@ sanitize_base() {
   inplace_sed 's|^EXTRACT_ALL[[:space:]]*=.*|EXTRACT_ALL                        = YES|g' "$f"
   inplace_sed 's|^SOURCE_BROWSER[[:space:]]*=.*|SOURCE_BROWSER                  = YES|g' "$f"
   inplace_sed 's|^RECURSIVE[[:space:]]*=.*|RECURSIVE                            = YES|g' "$f"
+  # Every module source is already covered by recursive INPUT scanning. Avoid
+  # resolving platform headers through host-specific system include paths.
+  inplace_sed 's|^SEARCH_INCLUDES[[:space:]]*=.*|SEARCH_INCLUDES                = NO|g' "$f"
   inplace_sed 's|^GENERATE_TREEVIEW[[:space:]]*=.*|GENERATE_TREEVIEW            = YES|g' "$f"
   inplace_sed 's|^FORMULA_FONTSIZE[[:space:]]*=.*|FORMULA_FONTSIZE              = 14|g' "$f"
   inplace_sed 's|^DOT_FONTNAME[[:space:]]*=.*|DOT_FONTNAME                      = Avenir|g' "$f"

@@ -25,7 +25,7 @@
  *   - converts common ANSI SGR sequences to HTML
  *   - appends the result to GBoard
  *
- * @section options_sec Available Options and their usage
+ * @section gboard_options Available Options and their usage
  *
  * This module currently does not define or consume any module-specific option keys.
  *

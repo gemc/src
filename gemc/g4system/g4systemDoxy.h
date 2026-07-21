@@ -44,7 +44,7 @@
  *
  * \image html g4system-flow.svg "Geant4 geometry construction flow" width=900px
  *
- * @section intro_sec Introduction
+ * @section g4system_intro Introduction
  * The g4system module is the **geometry factory layer** that translates detector
  * descriptions stored in databases (ASCII / SQLite / GDML / CAD) into runtime Geant4
  * volumes (solid/logical/physical).
@@ -52,11 +52,11 @@
  * The module is designed so that you can add new detector systems by implementing
  * a factory and registering it, without changing the core world-building logic.
  *
- * @section modules_sec Module overview
+ * @section g4system_modules Module overview
  * - @ref g4system_factory  : Runtime creation of system builders and object factories
  * - @ref g4system_geometry : Conversion from GEMC DB records into Geant4 geometry/material objects
  *
- * @section options_sec Available Options and their usage
+ * @section g4system_options Available Options and their usage
  *
  * This module reads the following option keys from the runtime option provider:
  *
@@ -92,7 +92,7 @@
  * Additional keys contributed by \c gsystem::defineOptions() (e.g. `sql`, `gsystem`, `experiment`, `runno`)
  * control what geometry is loaded and therefore indirectly affect this module.
  *
- * @section verbosity_sec Verbosity and debug output
+ * @section g4system_verbosity Verbosity and debug output
  * Most classes in this module use the common logging infrastructure (classes derived from
  * the logger-enabled base). The following behavior is typical:
  * - Verbosity level 0 prints essential progress and high-level configuration (major steps,
@@ -105,7 +105,7 @@
  * Debug messages provide fine-grained diagnostics intended for development and troubleshooting,
  * such as pointer assignments, dependency checks, and factory dispatch details.
  *
- * @section usage_sec Quick-start
+ * @section g4system_usage Quick-start
  * Example of building a world from options:
  * @code{.cpp}
  * auto gopts  = std::make_shared<GOptions>(argc, argv, g4system::defineOptions());
@@ -113,7 +113,7 @@
  * auto g4w    = std::make_shared<G4World>(gworld.get(), gopts);
  * @endcode
  *
- * @section examples_sec Examples
+ * @section g4system_examples Examples
  * - \ref g4system_example_anchor "g4system_example.cc" : Minimal instantiation of the module, world creation,
  *   and basic diagnostic queries (volume count, sensitive detector list).
  *
