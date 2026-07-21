@@ -28,8 +28,10 @@ jobs:
             ca-certificates \
             doxygen \
             git \
+            ghostscript \
             graphviz \
             python3 \
+            texlive-latex-base \
             zsh
           rm -rf /var/lib/apt/lists/*
 
