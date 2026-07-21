@@ -18,8 +18,7 @@ mod="$1"
 
 script_dir="${0:A:h}"
 
-doxver="$(doxygen --version 2>/dev/null || true)"
-[[ -n "$doxver" ]] || die "doxygen not found in PATH"
+command -v doxygen >/dev/null 2>&1 || die "doxygen not found in PATH"
 
 # Portable in-place sed (BSD/macOS vs GNU)
 inplace_sed() {
@@ -79,9 +78,6 @@ sanitize_base() {
   inplace_sed 's|^EXTRACT_ALL[[:space:]]*=.*|EXTRACT_ALL                        = YES|g' "$f"
   inplace_sed 's|^SOURCE_BROWSER[[:space:]]*=.*|SOURCE_BROWSER                  = YES|g' "$f"
   inplace_sed 's|^RECURSIVE[[:space:]]*=.*|RECURSIVE                            = YES|g' "$f"
-  # Every module source is already covered by recursive INPUT scanning. Avoid
-  # resolving platform headers through host-specific system include paths.
-  inplace_sed 's|^SEARCH_INCLUDES[[:space:]]*=.*|SEARCH_INCLUDES                = NO|g' "$f"
   inplace_sed 's|^GENERATE_TREEVIEW[[:space:]]*=.*|GENERATE_TREEVIEW            = YES|g' "$f"
   inplace_sed 's|^FORMULA_FONTSIZE[[:space:]]*=.*|FORMULA_FONTSIZE              = 14|g' "$f"
   inplace_sed 's|^DOT_FONTNAME[[:space:]]*=.*|DOT_FONTNAME                      = Avenir|g' "$f"
@@ -126,7 +122,6 @@ tmp_base="$(mktemp "${TMPDIR:-/tmp}/Doxyfile.base.XXXXXX")"
 cleanup() { rm -f -- "$tmp_pure" "$tmp_base"; }
 trap cleanup EXIT
 
-print -- " [create_doxygen] Generating base for doxygen $doxver"
 doxygen -g "$tmp_pure" >/dev/null 2>&1
 cp -f "$tmp_pure" "$tmp_base"
 

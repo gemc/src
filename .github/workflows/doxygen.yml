@@ -17,8 +17,22 @@ on:
 jobs:
   build-doxygen:
     runs-on: ubuntu-latest
-    container: jeffersonlab/base:fedora40
+    container: ubuntu:26.04
     steps:
+      - name: Install documentation dependencies
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update
+          apt-get install --yes --no-install-recommends \
+            ca-certificates \
+            doxygen \
+            git \
+            graphviz \
+            python3 \
+            zsh
+          rm -rf /var/lib/apt/lists/*
+
       - name: Checkout
         uses: actions/checkout@v6
       - name: Run Doxygen
@@ -49,4 +63,5 @@ jobs:
         run: |
           echo "## Doxygen deployed" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "- URL: [${{ steps.deployment.outputs.page_url }}](${{ steps.deployment.outputs.page_url }})" >> "$GITHUB_STEP_SUMMARY"
+          page_url="${{ steps.deployment.outputs.page_url }}"
+          echo "- URL: [$page_url]($page_url)" >> "$GITHUB_STEP_SUMMARY"
