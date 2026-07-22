@@ -19,6 +19,7 @@
 #include "gsplash.h"
 #include "gphysics_options.h"
 #include "gaction.h"
+#include "gAnalysisOptions.h"
 #include "gparticle_options.h"
 #include "eventDispenser_options.h"
 #include "g4display_options.h"
@@ -88,6 +89,7 @@ namespace gemc {
     	goptions += gsplash::defineOptions();
     	goptions += gphysics::defineOptions();
     	goptions += gaction::defineOptions();
+		goptions += ganalysis::defineOptions();
     	goptions += gparticle::defineOptions();
     	goptions += eventDispenser::defineOptions();
     	goptions += g4display::defineOptions();

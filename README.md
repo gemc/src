@@ -151,6 +151,24 @@ Python geometry scripts. Some examples:
       </a>
     </td>
   </tr>
+  <tr>
+    <td>
+      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/boolean_solids/boolean_solids.vtksz"
+         target="_blank" rel="noopener noreferrer">
+        <img src="https://gemc.github.io/home/assets/images/examples/boolean_solids/gemc_view.png"
+             alt="Boolean Solids PyVista" width="180"><br>
+        Boolean Solids
+      </a>
+    </td>
+    <td>
+      <a href="https://gemc.github.io/home/assets/vtkjs-viewer.html?fileURL=/home/assets/images/examples/cad/cad.vtksz"
+         target="_blank" rel="noopener noreferrer">
+        <img src="https://gemc.github.io/home/assets/images/examples/cad/gemc_view.png"
+             alt="CAD Import PyVista" width="180"><br>
+        CAD Import
+      </a>
+    </td>
+  </tr>
 </table>
 
 Open the linked interactive PyVista scenes generated from the GEMC examples.

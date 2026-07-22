@@ -1,5 +1,6 @@
 // gui
 #include "gui.h"
+#include "gAnalysisView.h"
 
 
 // qt
@@ -78,7 +79,11 @@ void GemcGUI::neventsChanged() {
 void GemcGUI::beamOn() {
 	// Run a batch once, then update the GUI counter label.
 	prepareGeometryForBeamOn();
+	if (analysisAccumulator != nullptr) {
+		analysisAccumulator->beginBeamOn(analysisView != nullptr && analysisView->accumulateEnabled());
+	}
 	eventDispenser->processEvents();
+	if (analysisView != nullptr) { analysisView->refresh(); }
 	updateGui();
 }
 
@@ -89,7 +94,11 @@ void GemcGUI::cycleBeamOn() {
 		gtimer->start(2000);
 	}
 	prepareGeometryForBeamOn();
+	if (analysisAccumulator != nullptr) {
+		analysisAccumulator->beginBeamOn(analysisView != nullptr && analysisView->accumulateEnabled());
+	}
 	eventDispenser->processEvents();
+	if (analysisView != nullptr) { analysisView->refresh(); }
 }
 
 

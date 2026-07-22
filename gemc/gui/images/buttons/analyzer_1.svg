@@ -1,0 +1,14 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Unselected state container -->
+    <rect x="6" y="6" width="36" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+
+    <!-- Histogram axes and bins -->
+    <path d="M13 25.5H35M13.5 11V26" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+    <path d="M15 25V21H19V16H23V23H27V13H31V19H35V25Z" fill="none" stroke="currentColor"
+          stroke-width="1.2" stroke-linejoin="round"/>
+
+    <!-- Text Label "Analyzer" -->
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="7" font-family="Arial">
+        Analyzer
+    </text>
+</svg>

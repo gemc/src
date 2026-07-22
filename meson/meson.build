@@ -14,6 +14,10 @@ qt6_deps = dependency('qt6',
                                  'Svg'],
                       static : not use_sharedl,
                       include_type : 'system') # treat as system include paths - no warnings
+qt6_charts_dep = dependency('qt6',
+                            modules : ['Charts'],
+                            static : not use_sharedl,
+                            include_type : 'system')
 
 sys = host_machine.system()
 

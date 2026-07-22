@@ -11,10 +11,12 @@
 // Construct the action initializer and keep shared services available for later
 // action registration on worker and master execution contexts.
 GAction::GAction(std::shared_ptr<GOptions>                           gopts,
-				 std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) :
+				 std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map,
+				 std::shared_ptr<GAnalysisAccumulator>                analyzer) :
 	GBase(gopts, GACTION_LOGGER),
 	goptions(std::move(gopts)),
 	digitization_routines_map(std::move(digi_map)),
+	analysis_accumulator(std::move(analyzer)),
 	sharedParticles_(std::make_shared<std::vector<GparticlePtr>>(
 	    gparticle::getGParticlesFromOption(goptions, log))) {
 
@@ -29,7 +31,7 @@ GAction::GAction(std::shared_ptr<GOptions>                           gopts,
 void GAction::BuildForMaster() const {
 	log->debug(NORMAL, FUNCTION_NAME);
 
-	SetUserAction(new GRunAction(goptions, digitization_routines_map));
+	SetUserAction(new GRunAction(goptions, digitization_routines_map, analysis_accumulator));
 }
 
 // Register the worker-thread actions.
@@ -45,7 +47,7 @@ void GAction::Build() const {
 
 	// The run action is shared conceptually across the worker-thread lifecycle and
 	// is passed to the event action so event processing can access run services.
-	auto* run_action = new GRunAction(goptions, digitization_routines_map);
+	auto* run_action = new GRunAction(goptions, digitization_routines_map, analysis_accumulator);
 	SetUserAction(run_action);
 
 	std::shared_ptr<GTrackProvenance> track_provenance;

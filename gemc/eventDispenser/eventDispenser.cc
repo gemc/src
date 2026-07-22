@@ -34,9 +34,12 @@ void closeOpenGeometryBeforeBeamOn(const std::shared_ptr<GLogger>& log) {
 // - Reads configuration (number of events, run number, optional run-weight file).
 // - Builds runWeights/runEvents/listOfRuns when weights are provided.
 // - Otherwise, falls back to single-run mode.
-EventDispenser::EventDispenser(const std::shared_ptr<GOptions>&                                 gopt,
-                               const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& gdynamicDigitizationMap)
-	: GBase(gopt, EVENTDISPENSER_LOGGER), gDigitizationMap(gdynamicDigitizationMap) {
+EventDispenser::EventDispenser(
+	const std::shared_ptr<GOptions>& gopt,
+	const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& gdynamicDigitizationMap,
+	std::shared_ptr<GAnalysisAccumulator> analyzer)
+	: GBase(gopt, EVENTDISPENSER_LOGGER), gDigitizationMap(gdynamicDigitizationMap),
+	  analysisAccumulator(std::move(analyzer)) {
 	// Retrieve configuration parameters from GOptions.
 	string filename  = gopt->getScalarString("run_weights");
 	userRunno        = gopt->getScalarInt("run");
@@ -192,6 +195,7 @@ int EventDispenser::processEvents() {
 		}
 
 		log->info(1, "Starting run ", runNumber, " with ", nevents, " events.");
+		if (analysisAccumulator != nullptr) { analysisAccumulator->setCurrentRunNumber(runNumber); }
 		// Tag the next G4Run with this run number. Guarded because standalone/unit-test
 		// contexts (e.g. the event_dispenser example) may run without a G4RunManager.
 		if (G4RunManager* g4rm = G4RunManager::GetRunManager()) { g4rm->SetRunIDCounter(runNumber); }

@@ -5,6 +5,7 @@
 
 // gemc
 #include <gemc/gbase/gbase.h>
+#include <gemc/ganalysis/gAnalysisAccumulator.h>
 #include <gemc/gdynamicDigitization/gdynamicdigitization.h>
 #include <gemc/gstreamer/gstreamer.h>
 
@@ -98,9 +99,11 @@ public:
 	 *
 	 * \param gopts Shared configuration object used by all actions constructed by this initializer.
 	 * \param digi_map Shared map associating collection names with digitization routines.
+	 * \param analysis_accumulator GUI-only Analyzer service; null in batch mode.
 	 */
 	explicit GAction(std::shared_ptr<GOptions> gopts,
-	                 std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
+	                 std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map,
+	                 std::shared_ptr<GAnalysisAccumulator> analysis_accumulator = nullptr);
 
 	~GAction() override = default;
 
@@ -153,6 +156,13 @@ private:
 	 * raw hit information into GEMC digitized and truth-level payload.
 	 */
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;
+
+	/**
+	 * \brief GUI-only Analyzer service shared with future worker action hooks.
+	 *
+	 * This pointer is null in batch mode, so no Analyzer state is allocated or populated there.
+	 */
+	std::shared_ptr<GAnalysisAccumulator> analysis_accumulator;
 
 	/**
 	 * \brief Shared particle list used by all GPrimaryGeneratorAction instances and the pmaker GUI.

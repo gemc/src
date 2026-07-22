@@ -14,9 +14,11 @@ GRunAction::CompletedRunData GRunAction::completed_worker_run_data;
 // Construct the run action and retain access to shared configuration and
 // digitization services for the current execution context.
 GRunAction::GRunAction(std::shared_ptr<GOptions> gopt,
-                       std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map) : GBase(gopt, GRUNACTION_LOGGER),
+                       std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map,
+                       std::shared_ptr<GAnalysisAccumulator> analyzer) : GBase(gopt, GRUNACTION_LOGGER),
 	goptions(std::move(gopt)),
-	digitization_routines_map(std::move(digi_map)) {
+	digitization_routines_map(std::move(digi_map)),
+	analysis_accumulator(std::move(analyzer)) {
 	const auto desc = std::to_string(G4Threading::G4GetThreadId());
 	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
 }
@@ -37,6 +39,10 @@ void GRunAction::BeginOfRunAction(const G4Run *aRun) {
 
 	auto run_header = std::make_unique<GRunHeader>(goptions, run, thread_id);
 	run_data = std::make_unique<GRunDataCollection>(goptions, std::move(run_header));
+	if (analysis_accumulator != nullptr) {
+		analysis_run_number = analysis_accumulator->currentRunNumber();
+		analysis_shard = std::make_unique<GAnalysisShard>();
+	}
 
 	const auto neventsThisRun = aRun->GetNumberOfEventToBeProcessed();
 
@@ -161,6 +167,12 @@ void GRunAction::EndOfRunAction(const G4Run *aRun) {
 				}
 			}
 		}
+	}
+
+	// Each execution context writes only to its private shard. The shared accumulator locks once here.
+	if (analysis_accumulator != nullptr && analysis_shard != nullptr) {
+		if (!analysis_shard->empty()) { analysis_accumulator->merge(std::move(*analysis_shard)); }
+		analysis_shard.reset();
 	}
 
 	// Worker threads do not publish merged run data. Instead, they hand their

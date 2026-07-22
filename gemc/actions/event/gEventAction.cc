@@ -292,31 +292,43 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 				if (hit_accepted) {
 					++accepted_hit_index;
 					digi_data->includeVariable("hitn", static_cast<int>(accepted_hit_index));
+					run_action->record_analysis_digitized(hcSDName, *digi_data);
 					eventDataCollection->addDetectorDigitizedData(hcSDName, std::move(digi_data));
-					has_event_mode_payload = true;
-				}
-				if (!no_true_info && (no_digitized || hit_accepted || !also_reject_true_info)) {
-					const size_t output_hit_index = hit_accepted ? accepted_hit_index : hitIndex + 1;
-					auto true_data = digitization_routine->collectTrueInformation(this_hit, output_hit_index);
-					if (save_original_track && track_provenance != nullptr && true_data != nullptr) {
-						const int           tid = this_hit->getTid();
-						const G4ThreeVector op  = track_provenance->originalTrackMomentum(tid);
-						true_data->includeVariable("otid", track_provenance->originalTrackId(tid));
-						true_data->includeVariable("opid", track_provenance->originalTrackPid(tid));
-						true_data->includeVariable("opx", op.getX());
-						true_data->includeVariable("opy", op.getY());
-						true_data->includeVariable("opz", op.getZ());
-					}
-					eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
 					has_event_mode_payload = true;
 				}
 			}
 			else if (collection_mode == CollectionMode::run) {
 				if (hit_accepted) {
+					run_action->record_analysis_digitized(hcSDName, *digi_data);
 					run_action->collect_event_data_collections(
 						hcSDName,
 						std::move(digi_data));
 					has_run_mode_payload = true;
+				}
+			}
+
+			// Event output already requires true information. In GUI analysis mode, request it for
+			// run-mode plugins too so their runtime-defined variables can be discovered without an API schema.
+			const bool collect_true = !no_true_info &&
+				(no_digitized || hit_accepted || !also_reject_true_info) &&
+				(collection_mode == CollectionMode::event || run_action->analysis_enabled());
+			if (collect_true) {
+				const size_t output_hit_index = collection_mode == CollectionMode::event && hit_accepted
+					? accepted_hit_index : hitIndex + 1;
+				auto true_data = digitization_routine->collectTrueInformation(this_hit, output_hit_index);
+				if (save_original_track && track_provenance != nullptr && true_data != nullptr) {
+					const int           tid = this_hit->getTid();
+					const G4ThreeVector op  = track_provenance->originalTrackMomentum(tid);
+					true_data->includeVariable("otid", track_provenance->originalTrackId(tid));
+					true_data->includeVariable("opid", track_provenance->originalTrackPid(tid));
+					true_data->includeVariable("opx", op.getX());
+					true_data->includeVariable("opy", op.getY());
+					true_data->includeVariable("opz", op.getZ());
+				}
+				if (true_data != nullptr) { run_action->record_analysis_true(hcSDName, *true_data); }
+				if (collection_mode == CollectionMode::event) {
+					eventDataCollection->addDetectorTrueInfoData(hcSDName, std::move(true_data));
+					has_event_mode_payload = true;
 				}
 			}
 		}

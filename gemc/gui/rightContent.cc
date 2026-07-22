@@ -8,6 +8,7 @@
 #include "dbselectView.h"
 #include "gtree.h"
 #include "pmakerView.h"
+#include "gAnalysisView.h"
 #include "gemc/actions/gaction.h"
 
 // geant4
@@ -35,7 +36,8 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 
 	// setup/systems controls
 	rightContent->addWidget(setupView);
-	connect(setupView, &DBSelectView::geometryAboutToReload, this, &GemcGUI::resetVisualizationBeforeGeometryReload);
+	connect(setupView, &DBSelectView::geometryAboutToReload,
+	        this, &GemcGUI::resetVisualizationBeforeGeometryReload);
 	connect(setupView, &DBSelectView::geometryReloaded, this, &GemcGUI::refreshGeometryTree);
 
 	// gvolume controls
@@ -59,6 +61,10 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 			sharedParticles = ga->getSharedParticles();
 	}
 	rightContent->addWidget(new PmakerView(sharedParticles, gopts));
+
+	// Analyzer variables are populated from runtime records after the first GUI beamOn.
+	analysisView = new GAnalysisView(analysisAccumulator, ganalysis::getOptions(gopts));
+	rightContent->addWidget(analysisView);
 
 	// Default to the first page and update the left bar visual highlight accordingly.
 	rightContent->setCurrentIndex(0);

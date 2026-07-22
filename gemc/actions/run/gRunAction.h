@@ -9,6 +9,7 @@
 
 // gemc
 #include <gemc/gbase/gbase.h>
+#include <gemc/ganalysis/gAnalysisAccumulator.h>
 #include <gemc/gdynamicDigitization/gdynamicdigitization.h>
 #include <gemc/gstreamer/gstreamer.h>
 #include <gemc/gdata/run/gRunDataCollection.h>
@@ -71,9 +72,11 @@ public:
 	 *
 	 * \param gopts Shared configuration object used by the run action and the GRun object it creates.
 	 * \param digi_map Shared map associating collection names with digitization routines.
+	 * \param analysis_accumulator GUI-only Analyzer service; null in batch mode.
 	 */
 	explicit GRunAction(std::shared_ptr<GOptions>                           gopts,
-						std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map);
+						std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map,
+						std::shared_ptr<GAnalysisAccumulator> analysis_accumulator = nullptr);
 
 	~GRunAction() override = default;
 
@@ -116,6 +119,23 @@ public:
 
 	[[nodiscard]] bool has_streamer_threads_map() const {
 		return gstreamer_threads_map != nullptr;
+	}
+
+	/** \brief Return whether this run action has a GUI Analyzer shard. */
+	[[nodiscard]] bool analysis_enabled() const { return analysis_shard != nullptr; }
+
+	/** \brief Discover digitized variables in one accepted record and add them to this thread's shard. */
+	void record_analysis_digitized(const std::string& detector, const GDigitizedData& data) {
+		if (analysis_shard != nullptr) {
+			analysis_shard->recordDigitized(analysis_run_number, detector, data);
+		}
+	}
+
+	/** \brief Discover true-information variables in one record and add them to this thread's shard. */
+	void record_analysis_true(const std::string& detector, const GTrueInfoData& data) {
+		if (analysis_shard != nullptr) {
+			analysis_shard->recordTrueInformation(analysis_run_number, detector, data);
+		}
 	}
 
 	/**
@@ -266,6 +286,15 @@ private:
 	 * \brief Shared digitization-routine map used to classify and process hit collections.
 	 */
 	std::shared_ptr<gdynamicdigitization::dRoutinesMap> digitization_routines_map;
+
+	/** \brief GUI-only shared destination for completed per-thread Analyzer shards. */
+	std::shared_ptr<GAnalysisAccumulator> analysis_accumulator;
+
+	/** \brief Thread-confined Analyzer data for the current Geant4 run. */
+	std::unique_ptr<GAnalysisShard> analysis_shard;
+
+	/** \brief Simulation conditions run number attached to samples in analysis_shard. */
+	int analysis_run_number = -1;
 
 	/**
 	 * \brief Worker-thread streamer map, created lazily when event-mode publication is needed.

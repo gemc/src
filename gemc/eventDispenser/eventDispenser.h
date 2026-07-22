@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gemc/gbase/gbase.h>
+#include <gemc/ganalysis/gAnalysisAccumulator.h>
 #include <gemc/gdynamicDigitization/gdynamicdigitization.h>
 
 #include <chrono>
@@ -46,9 +47,11 @@ public:
 	 * \param gopt Parsed module configuration (e.g. run number, number of events, optional weight file).
 	 * \param gdynamicDigitizationMap Map of dynamic digitization routines used to load run-dependent
 	 *        constants and translation tables.
+	 * \param analysisAccumulator GUI-only Analyzer service; null in batch mode.
 	 */
 	EventDispenser(const std::shared_ptr<GOptions>&                                 gopt,
-	               const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& gdynamicDigitizationMap);
+	               const std::shared_ptr<const gdynamicdigitization::dRoutinesMap>& gdynamicDigitizationMap,
+	               std::shared_ptr<GAnalysisAccumulator> analysisAccumulator = nullptr);
 
 private:
 	/**
@@ -126,6 +129,9 @@ private:
 	 * - call their initialization hooks for each run number.
 	 */
 	std::shared_ptr<const gdynamicdigitization::dRoutinesMap> gDigitizationMap;
+
+	/** \brief GUI-only service that communicates the simulation run number to worker shards. */
+	std::shared_ptr<GAnalysisAccumulator> analysisAccumulator;
 
 public:
 	/**

@@ -13,6 +13,7 @@
 #include "g4SceneProperties.h"
 #include "gphysics.h"
 #include "gui.h"
+#include "gAnalysisAccumulator.h"
 #include "gdetectorConstruction.h"
 #include "gaction.h"
 #include "gstreamer.h"
@@ -42,6 +43,9 @@ int main(int argc, char* argv[]) {
 	auto nthreads = gemc::get_nthreads(gopts, log);
 	auto has_startup_geometry = !gsystem::getSystems(gopts).empty() ||
 		!gfields::get_GFieldDefinition(gopts).empty();
+
+	// The Analyzer is a GUI-only service. Batch mode keeps a null pointer and allocates no analysis state.
+	auto analysisAccumulator = makeAnalysisAccumulator(gui);
 
 	// createQtApplication returns a QApplication if gui is true
 	// otherwise, it returns a QCoreApplication and sets the Geant4 CoutDestination to a GBatch_Session
@@ -80,7 +84,8 @@ int main(int argc, char* argv[]) {
 	runManager->SetUserInitialization(gphysics->getPhysList());
 
 	// instantiate GActionInitialization and initialize the geant4 kernel
-	runManager->SetUserInitialization(new GAction(gopts, gdetector->get_digitization_routines_map()));
+	runManager->SetUserInitialization(
+		new GAction(gopts, gdetector->get_digitization_routines_map(), analysisAccumulator));
 
 	// sets verbosity commands
 	auto verbosities = gemc::verbosity_commands(gopts, log);
@@ -104,7 +109,8 @@ int main(int argc, char* argv[]) {
 	auto visManager = new G4VisExecutive("Quiet");
 	visManager->Initialize();
 
-	auto geventDispenser = std::make_shared<EventDispenser>(gopts, gdetector->get_digitization_routines_map());
+	auto geventDispenser = std::make_shared<EventDispenser>(
+		gopts, gdetector->get_digitization_routines_map(), analysisAccumulator);
 
 	auto app_result    = EXIT_SUCCESS;
 	auto init_commands = gemc::initial_commands(gopts, log, has_startup_geometry);
@@ -127,7 +133,7 @@ int main(int argc, char* argv[]) {
 		// run scene_commands
 		gemc::run_manager_commands(gopts, log, scene_commands);
 
-		GemcGUI gemcGui(gopts, geventDispenser, gdetector, has_startup_geometry);
+		GemcGUI gemcGui(gopts, geventDispenser, gdetector, analysisAccumulator, has_startup_geometry);
 		gemcGui.show();
 
 		spash_screen->finish(&gemcGui);

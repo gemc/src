@@ -48,6 +48,7 @@ subdir('gemc/gtouchable')
 subdir('gemc/ghit')
 subdir('gemc/gtranslationTable')
 subdir('gemc/gdata')
+subdir('gemc/ganalysis')
 subdir('gemc/gboard')
 subdir('gemc/gdynamicDigitization')
 subdir('gemc/gsystem') # uses api for testing

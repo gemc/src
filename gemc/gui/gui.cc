@@ -2,12 +2,14 @@
 #include "gui.h"
 #include "gtree.h"
 #include "g4SceneProperties.h"
+#include "gAnalysisView.h"
 
 // geant4
 #include "G4UImanager.hh"
 
 // c++
 #include <algorithm>
+#include <utility>
 
 
 namespace {
@@ -70,13 +72,15 @@ void restoreSceneModels(G4UImanager* g4uim, const std::shared_ptr<GOptions>& gop
 }
 
 
-GemcGUI::GemcGUI(std::shared_ptr<GOptions>       gopts,
-                 std::shared_ptr<EventDispenser> ed,
-                 GDetectorConstruction*          dc,
-                 bool                            viewerAlreadyInitialized,
-                 QWidget*                        parent) :
+GemcGUI::GemcGUI(std::shared_ptr<GOptions>             gopts,
+                 std::shared_ptr<EventDispenser>       ed,
+                 GDetectorConstruction*                dc,
+                 std::shared_ptr<GAnalysisAccumulator> analyzer,
+                 bool                                  viewerAlreadyInitialized,
+                 QWidget*                              parent) :
 	QWidget(parent),
 	eventDispenser(ed),
+	analysisAccumulator(std::move(analyzer)),
 	guiOptions(gopts),
 	detectorConstruction(dc),
 	viewerInitialized(viewerAlreadyInitialized) {
@@ -138,7 +142,8 @@ GemcGUI::GemcGUI(std::shared_ptr<GOptions>       gopts,
 
 void GemcGUI::updateGui() {
 	// Parse the current label text and increment by the amount run in the most recent batch.
-	std::vector<std::string> sBefore = gutilities::getStringVectorFromString(eventNumberLabel->text().toStdString());
+	std::vector<std::string> sBefore =
+		gutilities::getStringVectorFromString(eventNumberLabel->text().toStdString());
 
 	int nThatWasRun = nEvents->text().toInt();
 	int nBefore     = stoi(sBefore[2]);
@@ -151,6 +156,7 @@ void GemcGUI::updateGui() {
 
 
 void GemcGUI::resetVisualizationBeforeGeometryReload() {
+	if (analysisView != nullptr) { analysisView->clearForGeometryReload(); }
 	resetSceneBeforeGeometryReload(G4UImanager::GetUIpointer());
 }
 

@@ -210,7 +210,9 @@ public:
 			std::cerr << "Option " << tag << " does not exist. Exiting." << std::endl;
 			exit(EC__NOOPTIONFOUND);
 		}
-		return getOptionIterator(tag)->value.begin()->second;
+		const auto& option_value = getOptionIterator(tag)->value;
+		if (!option_value || option_value.size() == 0) { return YAML::Node{}; }
+		return option_value.begin()->second;
 	}
 
 	/**

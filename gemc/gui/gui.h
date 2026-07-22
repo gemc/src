@@ -9,6 +9,7 @@
 
 // gemc
 #include "gQtButtonsWidget.h"
+#include "gAnalysisAccumulator.h"
 #include "eventDispenser.h"
 #include "gdetectorConstruction.h"
 
@@ -16,6 +17,7 @@
 #include "gui_session.h"
 
 class GTree;
+class GAnalysisView;
 
 /**
  * @class GemcGUI
@@ -53,14 +55,16 @@ public:
 	 * \param gopts Shared options/configuration container used by GUI pages.
 	 * \param ed Event execution backend used to run and configure event processing.
 	 * \param dc Detector construction object used by setup/tree pages.
+	 * \param analysisAccumulator GUI-only Analyzer data service.
 	 * \param viewerAlreadyInitialized Whether the caller has already created the Geant4 viewer.
 	 * \param parent Optional parent widget for Qt ownership.
 	 */
-	GemcGUI(std::shared_ptr<GOptions>       gopts,
-	        std::shared_ptr<EventDispenser> ed,
-	        GDetectorConstruction*          dc,
-	        bool                            viewerAlreadyInitialized = false,
-	        QWidget*                        parent = nullptr);
+	GemcGUI(std::shared_ptr<GOptions>             gopts,
+	        std::shared_ptr<EventDispenser>       ed,
+	        GDetectorConstruction*                dc,
+	        std::shared_ptr<GAnalysisAccumulator> analysisAccumulator,
+	        bool                                  viewerAlreadyInitialized = false,
+	        QWidget*                              parent = nullptr);
 
 	/**
 	 * \brief Destroy the GUI widget and release explicitly owned resources.
@@ -126,6 +130,9 @@ private:
 	 */
 	std::shared_ptr<EventDispenser> eventDispenser;
 
+	/** \brief GUI-only persistent Analyzer data service. */
+	std::shared_ptr<GAnalysisAccumulator> analysisAccumulator;
+
 	/**
 	 * \brief GUI session tying together options and the board for the lifetime of this widget.
 	 *
@@ -137,6 +144,7 @@ private:
 	std::shared_ptr<GOptions> guiOptions;
 	GDetectorConstruction* detectorConstruction = nullptr;
 	GTree* geometryTree = nullptr;
+	GAnalysisView* analysisView = nullptr;
 	bool geometryReloadedSinceRun = false;
 	bool viewerInitialized = false;
 	bool visualizationNeedsRunRestore = false;

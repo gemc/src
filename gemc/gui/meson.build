@@ -1,5 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = ['gaction']
+internal_deps = ['gaction', 'ganalysis']
 
 LD += {
     'name' : sub_dir_name,
