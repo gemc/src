@@ -80,6 +80,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install GEMC build dependencies
+        shell: bash
+        run: python3 ci/build_packages.py --image "${{ matrix.image }}"
+
       - name: Build and test
         shell: bash
 

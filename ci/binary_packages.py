@@ -39,9 +39,12 @@ pkg_sections = {
 		"archlinux": ["libx11", "libxext", "libxmu", "libxt", "mesa"],
 	},
 	"qt6": {
-		"fedora": ["qt6-qtbase", "qt6-qtsvg"],
-		"debian": ["libqt6core6t64", "libqt6gui6", "libqt6widgets6", "libqt6opengl6", "libqt6openglwidgets6", "libqt6svg6"],
-		"archlinux": ["qt6-base", "qt6-svg"],
+		"fedora": ["qt6-qtbase", "qt6-qtsvg", "qt6-qtcharts"],
+		"debian": [
+			"libqt6core6t64", "libqt6gui6", "libqt6widgets6", "libqt6opengl6",
+			"libqt6openglwidgets6", "libqt6svg6", "libqt6charts6",
+		],
+		"archlinux": ["qt6-base", "qt6-svg", "qt6-charts"],
 	},
 	"other_linked_runtime": {
 		"fedora": ["tbb"],

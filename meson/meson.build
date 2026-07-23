@@ -6,17 +6,19 @@ use_sharedl = (sanitize != 'none')
 
 # qt
 qt6 = import('qt6')
+# Supported package managers provide Qt as shared runtime libraries, including for binary tarballs.
+# Requesting static Qt archives only produces fallback warnings on Linux and does not make Qt static.
 qt6_deps = dependency('qt6',
                       modules : ['Core',
                                  'Gui',
                                  'Widgets',
                                  'OpenGLWidgets',
                                  'Svg'],
-                      static : not use_sharedl,
+                      static : false,
                       include_type : 'system') # treat as system include paths - no warnings
 qt6_charts_dep = dependency('qt6',
                             modules : ['Charts'],
-                            static : not use_sharedl,
+                            static : false,
                             include_type : 'system')
 
 sys = host_machine.system()

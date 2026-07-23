@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+from build_packages import dockerfile_install_command
+
+
 valid_images = ["fedora", "ubuntu", "archlinux", "almalinux", "debian"]
 g4_registry='ghcr.io/gemc/g4install'
 
@@ -131,6 +134,7 @@ def create_dockerfile(
     commands = ""
     commands += docker_header(image, image_tag, geant4_version)
     commands += update_os_packages(image)
+    commands += dockerfile_install_command(image)
     commands += install_gemc(geant4_version, gemc_version, source)
     commands += log_exporters()
     if with_package:
