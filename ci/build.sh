@@ -100,6 +100,9 @@ sanitizer_tests=(
   test_generator_lund_file_events
   test_gparticle_double_verbose
   test_event_dispenser_verbose
+  test_ganalysis_accumulator
+  test_ganalysis_histogram
+  test_ganalysis_runtime_integration
   examples_geo_basic_simple_flux_ascii_variation_default
 )
 
