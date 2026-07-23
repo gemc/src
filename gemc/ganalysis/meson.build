@@ -19,7 +19,7 @@ LD += {
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps, qt6_deps, qt6_charts_dep],
     'internal_dependencies' : internal_deps,
     'example_internal_dependencies' : {
-        'test_ganalysis_accumulator' : ['ghit']
+        'test_ganalysis_accumulator' : ['ghit', 'gtouchable']
     },
     'examples' : {
         'test_ganalysis_accumulator' : [files('examples/analysis_accumulator_example.cc'), ''],
