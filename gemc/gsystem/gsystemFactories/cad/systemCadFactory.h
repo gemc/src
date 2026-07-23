@@ -33,6 +33,9 @@ private:
 	/// \brief CAD factory does not currently load materials (placeholder).
 	void loadMaterials(GSystem* system) override;
 
+	/// \brief Load optical-surface (mirror) definitions from the sqlite database.
+	void loadMirrors(GSystem* system) override;
+
 	/// \brief Scan directory for STL files and import them into the system.
 	void loadGeometry(GSystem* system) override;
 };

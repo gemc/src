@@ -90,6 +90,7 @@ foreach L : LD
     sources = L.get('sources', [''])
     headers = L.get('headers', [''])
     examples = L.get('examples', empty_dict)
+    example_internal_dependencies = L.get('example_internal_dependencies', empty_dict)
     geo_build = L.get('geo_build', empty_dict)
     this_deps = L.get('dependencies', [])
     this_internal_libs = L.get('internal_dependencies', [])
@@ -222,6 +223,14 @@ foreach L : LD
             # concatenate the items in sources_and_arguments[1] to a string
             example_sources = sources_and_arguments[0] + qrc_examples_compiled_sources
             arguments = sources_and_arguments[1]
+            example_link_with = this_library_link_with
+            if example_internal_dependencies.has_key(name)
+                foreach example_internal_lib : example_internal_dependencies[name]
+                    if lib_target_maps.has_key(example_internal_lib)
+                        example_link_with += [lib_target_maps[example_internal_lib]]
+                    endif
+                endforeach
+            endif
 
             # A STATIC module library (link_with) already propagates the link args of
             # this_deps, so only the compile/include part is needed here. Re-passing
@@ -244,7 +253,7 @@ foreach L : LD
                 install : true,
                 dependencies : example_deps,
                 include_directories : all_includes + ('gemc' / this_lib_name) + additional_includes,
-                link_with : this_library_link_with,
+                link_with : example_link_with,
                 # Builds the executable as a PIE (position-independent executable).
                 override_options : ['b_pie=true']
             )

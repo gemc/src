@@ -18,6 +18,9 @@ LD += {
     'additional_includes' : ['gemc/ganalysis'],
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps, qt6_deps, qt6_charts_dep],
     'internal_dependencies' : internal_deps,
+    'example_internal_dependencies' : {
+        'test_ganalysis_accumulator' : ['ghit']
+    },
     'examples' : {
         'test_ganalysis_accumulator' : [files('examples/analysis_accumulator_example.cc'), ''],
         'test_ganalysis_histogram' : [files('examples/analysis_histogram_example.cc'), ''],

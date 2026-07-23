@@ -35,6 +35,7 @@ LD += {
         'gsystemFactories/text/loadGeometry.cc',
         'gsystemFactories/cad/systemCadFactory.cc',
         'gsystemFactories/cad/loadMaterials.cc',
+        'gsystemFactories/cad/loadMirrors.cc',
         'gsystemFactories/cad/loadGeometry.cc',
         'gsystemFactories/gdml/systemGdmlFactory.cc',
         'gsystemFactories/gdml/loadMaterials.cc',
