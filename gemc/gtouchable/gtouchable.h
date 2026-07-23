@@ -397,6 +397,6 @@ private:
 	/// Stream output helper used in logs and diagnostics.
 	friend std::ostream& operator<<(std::ostream& stream, const GTouchable& gtouchable);
 
-	/// Static thread-safe counter used by \ref GTouchable::create "create()" to generate deterministic test identities.
-	static std::atomic<int> globalGTouchableCounter;
+	/// Static thread-safe counter used by create() to generate deterministic test identities.
+	inline static std::atomic<int> globalGTouchableCounter{0};
 };

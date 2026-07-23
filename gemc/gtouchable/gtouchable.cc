@@ -6,9 +6,6 @@
 #include "gutilities.h"
 #include "gutsConventions.h"
 
-// Define the static counter here
-std::atomic<int> GTouchable::globalGTouchableCounter{0};
-
 // See header for API docs.
 
 // constructor from gopt, digitization and gidentity strings
