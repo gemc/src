@@ -117,7 +117,8 @@ GOptions defineOptions() {
 
 	// g4view
 	std::vector<GVariable> g4view = {
-		{"driver", std::string(GDEFAULTVIEWERDRIVER), "Geant4 visualization driver. Use TOOLSSG_OFFSCREEN in batch mode. "},
+		{"driver", std::string(GDEFAULTVIEWERDRIVER),
+		 "Geant4 visualization driver. See the detailed help for driver tradeoffs. "},
 		{"dimension", std::string(GDEFAULTVIEWERSIZE), "Geant4 viewer dimension"},
 		{"position", std::string(GDEFAULTVIEWERPOS), "Geant4 viewer position"},
 		{"segsPerCircle", GDEFAULTVSEGPERCIRCLE, "Number of segments per circle"},
@@ -131,6 +132,20 @@ GOptions defineOptions() {
 	help += " - resolution in terms of segments per circle  \n \n ";
 	help += " - viewer background color as '<red> <green> <blue>'  \n ";
 	help += " - number of cloud points for cloud volume rendering  \n \n ";
+	help += "Viewer drivers (interactive-driver availability depends on the Geant4 build and platform):\n";
+	help += " - ASCIITree (ATree): writes the geometry hierarchy as text; headless, but not graphical.\n";
+	help += " - DAWNFILE (DAWNFILE): exports for high-quality DAWN rendering; external DAWN is required.\n";
+	help += " - RayTracer (RT): software ray tracing to JPEG; realistic, but slower and not interactive.\n";
+	help += " - VRML2FILE (VRML2FILE): exports a portable 3D scene for an external VRML viewer.\n";
+	help += " - gMocrenFile (gMocrenFile): exports medical volume data for the specialized gMocren viewer.\n";
+	help += " - TOOLSSG_OFFSCREEN (TSG_OFFSCREEN, TSG_FILE): headless image/vector output for batch jobs.\n";
+	help += " - OpenGLImmediateQt (OGLIQt, OGLI): Qt/OpenGL with low scene memory, but slower redraws.\n";
+	help += " - OpenGLStoredQt (OGLSQt, OGLS): Qt/OpenGL with fast redraw and picking; uses more memory.\n";
+	help += " - OpenGLImmediateX (OGLIX, OGLIQt_FALLBACK): X11/OpenGL immediate mode; requires X.\n";
+	help += " - OpenGLStoredX (OGLSX, OGLSQt_FALLBACK): fast X11/OpenGL redraw; uses more memory.\n";
+	help += " - RayTracerX (RTX): ray-traced JPEG plus an X window; high quality, but slow and X-only.\n";
+	help += " - TOOLSSG_X11_GLES (TSG_X11_GLES, TSGX11, TSG_QT_GLES_FALLBACK): interactive "
+	        "X11/GLES; avoids Qt, but requires an X server and GLES support.\n\n";
 	help += " Examples: \n \n ";
 	help += " -g4view=\"[{dimension: 1200x1000}]\"\n";
 	help += " -g4view=\"[{driver: OGL, dimension: 1100x800, position: +200+100, segsPerCircle: 100, background: 0 0.07059 0.16863}]\" \n";

@@ -15,8 +15,23 @@
 // Notice: with Qt6 we do not have access anymore to OGL, but the examples still do.
 // This can be a potential problem in the future.
 
+// Viewer driver guide (availability of interactive drivers depends on the Geant4 build and platform):
+// - ASCIITree (ATree): geometry hierarchy as text; useful headless, but provides no graphical view.
+// - DAWNFILE (DAWNFILE): high-quality technical-renderer export; requires DAWN and is not interactive.
+// - RayTracer (RT): software-rendered JPEG output; realistic but slower and not interactive.
+// - VRML2FILE (VRML2FILE): portable 3D scene export; requires an external VRML viewer.
+// - gMocrenFile (gMocrenFile): medical volume-rendering export; specialized and requires gMocren.
+// - TOOLSSG_OFFSCREEN (TSG_OFFSCREEN, TSG_FILE): headless image/vector output; no interactive window.
+// - OpenGLImmediateQt (OGLIQt, OGLI): Qt/OpenGL with low scene memory; complex scenes redraw slowly.
+// - OpenGLStoredQt (OGLSQt, OGLS): Qt/OpenGL with fast redraw and picking; uses more graphics memory.
+// - OpenGLImmediateX (OGLIX, OGLIQt_FALLBACK): X11/OpenGL with low scene memory; requires an X server.
+// - OpenGLStoredX (OGLSX, OGLSQt_FALLBACK): fast X11/OpenGL redraw; requires X and more graphics memory.
+// - RayTracerX (RTX): ray-traced JPEG plus an X window; requires X and remains computationally expensive.
+// - TOOLSSG_X11_GLES (TSG_X11_GLES, TSGX11, TSG_QT_GLES_FALLBACK): interactive X11/GLES without Qt;
+//   requires an X server and GLES support.
+
 // Default viewer driver used by the module.
-#define GDEFAULTVIEWERDRIVER  "TOOLSSG_QT_GLES"
+#define GDEFAULTVIEWERDRIVER  "OGLSQt"
 
 // Default viewer window size (WIDTHxHEIGHT).
 #define GDEFAULTVIEWERSIZE    "800x800"

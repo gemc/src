@@ -225,7 +225,6 @@ namespace gemc {
 			cmds.emplace_back("/vis/viewer/flush");
 		}
 
-
 	//	cmds.emplace_back("/tracking/verbose 2");
 		return cmds;
 	}
