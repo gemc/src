@@ -79,10 +79,13 @@ public:
 	 * \brief Build the full command sequence for scene initialization.
 	 *
 	 * The returned command list typically includes:
-	 * - scene creation (\c /vis/scene/create),
 	 * - optional DAWN viewer setup (when \c useDawn is enabled),
 	 * - viewer open and initial configuration (when \c gui is enabled),
+	 * - scene creation and attachment after the viewer exists,
+	 * - adding the initialized GEMC \c root volume so the scene has an extent,
 	 * - camera direction and precision settings.
+	 *
+	 * The Geant4 world must be initialized before the returned commands are applied.
 	 *
 	 * \param gopts Shared options object used to derive viewer/camera configuration.
 	 * \return Vector of Geant4 command strings for scene initialization.

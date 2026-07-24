@@ -545,7 +545,7 @@ private slots:
      * \brief Open the currently selected volume in a new viewer window.
      *
      * Detects the active viewer's driver at runtime so the new window uses
-     * the same graphics back-end (e.g. TOOLSSG_QT_GLES).  A fresh scene
+     * the same graphics back-end (e.g. OGLSQt).  A fresh scene
      * containing only the target volume is created, keeping the main scene
      * untouched.
      */

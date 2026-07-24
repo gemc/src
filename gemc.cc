@@ -10,7 +10,6 @@
 #include "gemc_options.h"
 #include "gemcUtilities.h"
 #include "eventDispenser.h"
-#include "g4SceneProperties.h"
 #include "gphysics.h"
 #include "gui.h"
 #include "gAnalysisAccumulator.h"
@@ -112,26 +111,17 @@ int main(int argc, char* argv[]) {
 	auto geventDispenser = std::make_shared<EventDispenser>(
 		gopts, gdetector->get_digitization_routines_map(), analysisAccumulator);
 
-	auto app_result    = EXIT_SUCCESS;
-	auto init_commands = gemc::initial_commands(gopts, log, has_startup_geometry);
+	auto app_result = EXIT_SUCCESS;
 
 	if (gui) {
 		// initializing qt session
 		spash_screen->message("Starting GUI");
 		QCoreApplication::processEvents();
 
-		// initializing G4UIQt session.
-		// notice g4SceneProperties has to be declared after this, so we have to duplicate it for batch mode
-		auto* uiQtSession       = new G4UIQt(1, argv);
-		auto* g4SceneProperties = new G4SceneProperties(gopts);
-		std::vector<std::string> scene_commands;
-		if (has_startup_geometry) { scene_commands = g4SceneProperties->scene_commands(gopts); }
-
-		// add init_commands to scene_commands
-		scene_commands.insert(scene_commands.end(), init_commands.begin(), init_commands.end());
-
-		// run scene_commands
-		gemc::run_manager_commands(gopts, log, scene_commands);
+		// Initialize the G4UIQt session before opening its visualization viewer.
+		auto* uiQtSession = new G4UIQt(1, argv);
+		auto startup_commands = gemc::initial_commands(gopts, log, has_startup_geometry);
+		gemc::run_manager_commands(gopts, log, startup_commands);
 
 		GemcGUI gemcGui(gopts, geventDispenser, gdetector, analysisAccumulator, has_startup_geometry);
 		gemcGui.show();
@@ -141,25 +131,18 @@ int main(int argc, char* argv[]) {
 
 		preloaded_gstreamer_map.reset();
 		runManager.reset();
-		delete g4SceneProperties;
 		delete uiQtSession;
 	}
 	else {
-		auto* session           = new G4UIterminal(new G4UItcsh);
-		auto* g4SceneProperties = new G4SceneProperties(gopts);
-		std::vector<std::string> scene_commands;
-		if (has_startup_geometry) { scene_commands = g4SceneProperties->scene_commands(gopts); }
-
-		// set display properties in batch mode
-		scene_commands.insert(scene_commands.end(), init_commands.begin(), init_commands.end());
-		gemc::run_manager_commands(gopts, log, scene_commands);
+		auto* session = new G4UIterminal(new G4UItcsh);
+		auto startup_commands = gemc::initial_commands(gopts, log, has_startup_geometry);
+		gemc::run_manager_commands(gopts, log, startup_commands);
 
 		// start the session if interactive
 		if (gopts->getSwitch("i")) { session->SessionStart(); }
 
 		geventDispenser->processEvents();
 
-		delete g4SceneProperties;
 		delete session;
 	}
 

@@ -129,10 +129,10 @@ std::vector<std::string> verbosity_commands(const std::shared_ptr<GOptions>& gop
  * - Include `"/run/initialize"` after overlap configuration, except in GUI mode
  *   when no startup geometry is configured.
  * - If visualization setup is disabled, return the list after initialization.
- * - If `gui` is `false`, return the list after initialization.
- * - If `gui` is `true` and visualization setup is enabled, append visualization scene/viewer configuration commands:
- *   drawing the volume, configuring trajectories/hits, background color,
- *   disabling/enabling auto-refresh around setup, and finally flushing the viewer.
+ * - Otherwise open the viewer, then create an attached scene containing the initialized GEMC root volume.
+ * - If `gui` is `false` and offscreen rendering is not requested, return after scene setup.
+ * - Otherwise append visualization scene/viewer configuration commands: configure trajectories/hits and
+ *   background color, disable/enable auto-refresh around setup, and finally flush the viewer.
  *
  * \param gopts Runtime options provider. Keys used include `check_overlaps` and `gui`.
  * \param log Logger used to report which overlap test (if any) will be executed.

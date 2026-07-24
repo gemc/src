@@ -931,7 +931,7 @@ void GTree::inspectVolume() {
 
     // Resolve the active driver and save the viewer name so we can return focus
     // to the original window after opening the inspect window.
-    std::string driverName        = "TOOLSSG_QT_GLES";
+    std::string driverName        = "OGLSQt";
     std::string originalViewerName;
     auto* vm = G4VisManager::GetInstance();
     if (vm) {

@@ -46,4 +46,4 @@ points at the old (full) scene. Without the attach step, the first flush renders
 **Volume naming**: GEMC logical volumes follow the `system/volume` convention (e.g. `cherenkov/tank`).
 Use the full name in all `/vis/scene/add/volume` commands.
 
-**Default interactive driver**: `GDEFAULTVIEWERDRIVER = "TOOLSSG_QT_GLES"` (in `g4display/g4displayConventions.h`).
+**Default interactive driver**: `GDEFAULTVIEWERDRIVER` (in `g4display/g4displayConventions.h`).

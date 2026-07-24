@@ -161,6 +161,11 @@ namespace gemc {
 
 		if (!configure_visualization) return cmds;
 
+		// Create the viewer and its attached scene only after /run/initialize has built the world.
+		G4SceneProperties g4SceneProperties(gopts);
+		for (const auto& command : g4SceneProperties.scene_commands(gopts)) {
+			cmds.emplace_back(command);
+		}
 
 		// If there is no GUI, or no need for batch screenshot, initialization commands are enough.
 		if (!gui && g4view.driver != "TOOLSSG_OFFSCREEN") return cmds;
@@ -179,7 +184,6 @@ namespace gemc {
 				lightPhiValue   = phiValue;
 			}
 
-			cmds.emplace_back("/vis/drawVolume");
 			// Disable auto refresh and quieten vis messages whilst scene and trajectories are established.
 			cmds.emplace_back("/vis/viewer/set/autoRefresh false");
 			cmds.emplace_back("/vis/viewer/set/viewpointThetaPhi " + std::to_string(thetaValue) + " " + std::to_string(phiValue));
@@ -199,7 +203,6 @@ namespace gemc {
 		cmds.emplace_back("/vis/scene/endOfEventAction accumulate 10000");
 		cmds.push_back("/vis/viewer/set/background " + g4view.background);
 		cmds.push_back("/vis/viewer/set/numberOfCloudPoints " + std::to_string(g4view.cloudPoints));
-		G4SceneProperties g4SceneProperties(gopts);
 		const auto decorations = g4display::getG4Decorations(gopts);
 		for (const auto& command : g4SceneProperties.addSceneDecorations(gopts)) { cmds.emplace_back(command); }
 		for (const auto& command : g4SceneProperties.addSceneTexts(gopts)) { cmds.emplace_back(command); }

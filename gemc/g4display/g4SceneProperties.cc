@@ -36,29 +36,39 @@ std::string colourToRGB(const std::string& colour) {
 std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr<GOptions> &gopts) {
 	std::vector<std::string> cmds;
 
-	bool gui = gopts->getSwitch("gui");
-	bool use_dawn = gopts->getSwitch("useDawn");
+	const bool gui = gopts->getSwitch("gui");
+	const bool use_dawn = gopts->getSwitch("useDawn");
 
 	// Project options onto simple structs for downstream use.
 	auto g4view = g4display::getG4View(gopts);
 	auto g4camera = g4display::getG4Camera(gopts);
 	auto g4light = g4display::getG4Light(gopts);
 
-	// Create a named scene. Caller is expected to apply these commands to the Geant4 UI manager.
-	cmds.emplace_back("/vis/scene/create gemc");
+	const bool open_configured_viewer = gui || g4view.driver == "TOOLSSG_OFFSCREEN";
+	if (!use_dawn && !open_configured_viewer) { return cmds; }
 
 	if (use_dawn) {
-		// DAWNFILE workflow: open the DAWN viewer and adjust a minimal set of scene properties.
 		cmds.emplace_back("/vis/open DAWNFILE");
-		cmds.emplace_back("/vis/geometry/set/visibility World 0 false");
-		cmds.emplace_back("/vis/viewer/set/style surface");
 	}
-	if (gui || g4view.driver == "TOOLSSG_OFFSCREEN") {
+	if (open_configured_viewer) {
 		// Open the configured viewer driver. Offscreen drivers ignore window position, so omit it.
 		std::string openArg = g4view.driver + " " + g4view.dimension;
 		if (g4view.driver != "TOOLSSG_OFFSCREEN") openArg += g4view.position;
 		cmds.emplace_back("/vis/open " + openArg);
+	}
 
+	// Open the viewer without a scene, then create and attach the initialized ROOT model. Opening a
+	// viewer on either an empty or a pre-populated unattached scene causes warnings or crashes in OGLSQt.
+	cmds.emplace_back("/vis/viewer/set/autoRefresh false");
+	cmds.emplace_back("/vis/scene/create gemc");
+	cmds.emplace_back("/vis/sceneHandler/attach");
+	cmds.emplace_back("/vis/scene/add/volume root -1");
+
+	if (use_dawn && !open_configured_viewer) {
+		cmds.emplace_back("/vis/geometry/set/visibility World 0 false");
+		cmds.emplace_back("/vis/viewer/set/style surface");
+	}
+	if (open_configured_viewer) {
 		// Convert configured camera angles to degrees for the Geant4 viewer command.
 		const double toDegrees = 180.0 / M_PI;
 		double thetaValue      = gutilities::getG4Number(g4camera.theta) * toDegrees;
@@ -70,17 +80,13 @@ std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr
 			lightPhiValue   = phiValue;
 		}
 
-		// Disable auto refresh and quieten vis messages whilst scene and trajectories are established.
-		cmds.emplace_back("/vis/viewer/set/autoRefresh false");
-
 		cmds.emplace_back("/vis/viewer/set/viewpointThetaPhi " + std::to_string(thetaValue) + " " + std::to_string(phiValue));
 		cmds.emplace_back("/vis/viewer/set/lightsThetaPhi " + std::to_string(lightThetaValue) + " " + std::to_string(lightPhiValue));
 		cmds.emplace_back("/vis/viewer/set/lineSegmentsPerCircle " + std::to_string(g4view.segsPerCircle));
 		cmds.emplace_back("/vis/viewer/set/background " + g4view.background);
 		cmds.emplace_back("/vis/viewer/set/numberOfCloudPoints " + std::to_string(g4view.cloudPoints));
-
-		cmds.emplace_back("/vis/viewer/set/autoRefresh true");
 	}
+	cmds.emplace_back("/vis/viewer/set/autoRefresh true");
 
 	return cmds;
 }
