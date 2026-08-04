@@ -12,7 +12,6 @@
 [![Doxygen][docs-badge]][docs]
 [![Docker Pulls][dockerhub-badge]][dockerhub]
 [![Release Tarballs][release-tarballs-badge]][release-tarballs]
-[![License][license-badge]][license]
 
 GEMC, the GEant Monte-Carlo, is a database-driven [Geant4](https://geant4.web.cern.ch) application for detector and
 radiation-transport
@@ -371,7 +370,3 @@ See the [project roadmap](https://github.com/orgs/gemc/projects/1/views/4) for t
 [pypi]: https://pypi.org/project/pygemc/
 
 [pypi-badge]: https://img.shields.io/pypi/v/pygemc.svg?cacheSeconds=300
-
-[license]: LICENSE
-
-[license-badge]: https://img.shields.io/badge/license-Apache--2.0-blue.svg
