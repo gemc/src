@@ -354,7 +354,7 @@ See the [project roadmap](https://github.com/orgs/gemc/projects/1/views/4) for t
 
 [release-tarballs]: https://github.com/gemc/src/actions/workflows/release_tarballs.yml
 
-[release-tarballs-badge]: https://github.com/gemc/src/actions/workflows/release_tarballs.yml/badge.svg
+[release-tarballs-badge]: https://github.com/gemc/src/actions/workflows/release_tarballs.yml/badge.svg?event=release
 
 [binary-tarballs]: https://github.com/gemc/src/actions/workflows/binary_tarballs.yml
 
