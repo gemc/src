@@ -93,12 +93,14 @@ int main(int argc, char* argv[]) {
 
     // Retrieve volume map used by GTree to build the system/volume hierarchy.
     auto g4vmap = gdetector->get_g4volumes_map();
+    auto gvmap = gdetector->get_gvolumes_flat_map();
+    auto gmmap = gdetector->get_gmirrors_flat_map();
 
     log->info(0, "gtree", "Detector construction successful with ", g4vmap.size(), " volumes.");
 
     if (gopts->getSwitch("gui")) {
 
-        auto gtree = new GTree(gopts, g4vmap, {}, window);
+        auto gtree = new GTree(gopts, g4vmap, gvmap, window, gmmap);
 
         window->setCentralWidget(gtree);
         window->show();

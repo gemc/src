@@ -47,7 +47,11 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 	                             : std::unordered_map<std::string, G4Volume*>{},
 	                         dc && dc->has_built_geometry()
 	                             ? dc->get_gvolumes_flat_map()
-	                             : std::unordered_map<std::string, const GVolume*>{});
+	                             : std::unordered_map<std::string, const GVolume*>{},
+	                         nullptr,
+	                         dc && dc->has_built_geometry()
+	                             ? dc->get_gmirrors_flat_map()
+	                             : std::unordered_map<std::string, const GMirror*>{});
 	rightContent->addWidget(geometryTree);
 
 	// g4dialog

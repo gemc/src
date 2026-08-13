@@ -93,6 +93,19 @@ QWidget* GTree::right_widget() {
     blayout->addWidget(rotationLabel);
     blayout->addWidget(motherLabel);
     blayout->addWidget(descriptionLabel);
+
+    // Mirror button: shown only when the selected volume references a loaded optical surface.
+    blayout->addSpacing(4);
+    mirrorButton = new QPushButton(bottomPanel);
+    mirrorButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    mirrorButton->setStyleSheet(
+        "QPushButton { border: 2px solid black; border-radius: 4px; padding: 4px 8px; }"
+        "QPushButton:hover { background-color: palette(highlight); color: palette(highlighted-text); }"
+    );
+    connect(mirrorButton, &QPushButton::clicked, this, &GTree::showMirrorProperties);
+    mirrorButton->setVisible(false);
+    blayout->addWidget(mirrorButton);
+
     blayout->addStretch();
 
     // Inspect button: opens the selected volume in a dedicated viewer window.

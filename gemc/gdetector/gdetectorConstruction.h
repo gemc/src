@@ -204,6 +204,25 @@ public:
 		return result;
 	}
 
+	/**
+	 * \brief Returns a flat map of GEMC mirror descriptors indexed by their qualified names.
+	 *
+	 * Iterates all systems in the GEMC world and assembles a single map keyed by
+	 * "system/mirror", matching the namespace used by volumes and optical surfaces.
+	 *
+	 * \return Map from qualified mirror name to const GMirror pointer (owned by gworld).
+	 */
+	[[nodiscard]] std::unordered_map<std::string, const GMirror*> get_gmirrors_flat_map() const {
+		std::unordered_map<std::string, const GMirror*> result;
+		if (!gworld) return result;
+		for (const auto& [sysName, sysPtr] : *gworld->getSystemsMap()) {
+			for (const auto& [mirrorName, mirrorPtr] : sysPtr->getGMirrorsMap()) {
+				result[sysName + "/" + mirrorName] = mirrorPtr.get();
+			}
+		}
+		return result;
+	}
+
 private:
 	/**
 	 * \brief Cached options used during construction and SD/field setup.

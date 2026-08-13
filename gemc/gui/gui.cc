@@ -188,7 +188,10 @@ void GemcGUI::refreshGeometryTree() {
 	const auto gvolumes = detectorConstruction->has_built_geometry()
 	                    ? detectorConstruction->get_gvolumes_flat_map()
 	                    : std::unordered_map<std::string, const GVolume*>{};
-	auto* refreshedTree = new GTree(guiOptions, g4volumes, gvolumes);
+	const auto gmirrors = detectorConstruction->has_built_geometry()
+	                    ? detectorConstruction->get_gmirrors_flat_map()
+	                    : std::unordered_map<std::string, const GMirror*>{};
+	auto* refreshedTree = new GTree(guiOptions, g4volumes, gvolumes, nullptr, gmirrors);
 
 	rightContent->removeWidget(geometryTree);
 	geometryTree->deleteLater();

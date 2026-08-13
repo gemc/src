@@ -121,7 +121,9 @@
  * runManager->SetUserInitialization(gdetector);
  * runManager->Initialize();
  * auto g4vmap = gdetector->get_g4volumes_map();
- * auto widget = new GTree(gopts, g4vmap, window);
+ * auto gvmap = gdetector->get_gvolumes_flat_map();
+ * auto gmmap = gdetector->get_gmirrors_flat_map();
+ * auto widget = new GTree(gopts, g4vmap, gvmap, window, gmmap);
  * @endcode
  *
  * \n\n

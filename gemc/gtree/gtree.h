@@ -3,6 +3,7 @@
 // gemc
 #include <gemc/gqtbuttonswidget/gQtButtonsWidget.h> // Custom toggle button widget
 #include <gemc/g4system/g4volume.h>
+#include <gemc/gsystem/gmirror.h>
 #include <gemc/gsystem/gvolume.h>
 #include <gemc/gbase/gbase.h> // Provides application options/configuration
 #include <gemc/goptions/goptions.h>
@@ -164,6 +165,7 @@ private:
     std::string motherVolume;    ///< Mother volume name as defined in pygemc.
     std::string solidsOpr;       ///< Boolean solid operation descriptor, e.g. "box - hole".
     std::string volDescription;  ///< Human-readable volume description.
+    std::string mirrorName;      ///< Name of the optical-surface definition associated with the volume.
 
 public:
     /** \brief Return the cached mother name. */
@@ -219,6 +221,8 @@ public:
     [[nodiscard]] std::string get_solidsOpr() const { return solidsOpr; }
     /** \brief Return the volume description. */
     [[nodiscard]] std::string get_volDescription() const { return volDescription; }
+    /** \brief Return the associated mirror name. */
+    [[nodiscard]] std::string get_mirrorName() const { return mirrorName; }
 
     /**
      * \brief Set the recursive flag.
@@ -301,6 +305,7 @@ public:
      * \param g4volumes_map Map from full volume names to `G4Volume*` wrappers.
      * \param gvolumes_map Optional source-volume metadata used for parameter and Boolean-solid inspection.
      * \param parent Optional Qt parent used for ownership and lifetime management.
+     * \param gmirrors_map Optional source-mirror metadata keyed by "system/mirror".
      *
      * @details
      * Construction steps:
@@ -312,7 +317,8 @@ public:
     explicit GTree(const std::shared_ptr<GOptions>& gopt,
                    std::unordered_map<std::string, G4Volume*> g4volumes_map,
                    std::unordered_map<std::string, const GVolume*> gvolumes_map = {},
-                   QWidget* parent = nullptr);
+                   QWidget* parent = nullptr,
+                   std::unordered_map<std::string, const GMirror*> gmirrors_map = {});
 
     /**
      * \brief Non-copyable: the widget owns unique model resources.
@@ -342,6 +348,11 @@ private:
      * parameters, position, rotation, mother, description) to each tree item.
      */
     std::unordered_map<std::string, const GVolume*> gvolumes_map;
+
+    /**
+     * \brief Flat map of mirror descriptors keyed by qualified name ("system/mirror").
+     */
+    std::unordered_map<std::string, const GMirror*> gmirrors_map;
 
     /**
      * \brief Main Qt tree view widget (three columns).
@@ -378,6 +389,14 @@ private:
     QLabel* rotationLabel = nullptr;     ///< Placement rotation with units.
     QLabel* motherLabel = nullptr;       ///< Mother volume name.
     QLabel* descriptionLabel = nullptr;  ///< Volume description.
+
+    /**
+     * \brief Full-width button that opens the selected volume's mirror properties.
+     *
+     * The label is updated to "Mirror: <name>" and the button is visible only when
+     * the selected volume references a loaded mirror definition.
+     */
+    QPushButton* mirrorButton = nullptr;
 
     /**
      * \brief Slider controlling opacity (alpha) in [0,1] mapped from [0,100].
@@ -550,6 +569,11 @@ private slots:
      * untouched.
      */
     void inspectVolume();
+
+    /**
+     * \brief Display every property of the selected volume's mirror in a closable dialog.
+     */
+    void showMirrorProperties();
 
     /**
      * \brief Show a warning that Draw Logical Overlaps is not yet implemented.

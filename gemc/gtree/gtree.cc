@@ -15,6 +15,8 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QColorDialog>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QMessageBox>
 #include <QSignalBlocker>
 #include <QStringList>
@@ -267,6 +269,49 @@ QString formatBooleanOperationDescription(const std::string& fullName,
     return html;
 }
 
+QString formatMirrorVector(const std::vector<double>& values, double scale = 1.0, const QString& unit = {}) {
+    if (values.empty()) return QObject::tr("Not set");
+
+    QStringList formatted;
+    for (const double value : values) {
+        QString entry = QString::number(value / scale, 'g', 10);
+        if (!unit.isEmpty()) entry += QStringLiteral(" ") + unit;
+        formatted << entry;
+    }
+    return formatted.join(QStringLiteral(", "));
+}
+
+QString formatMirrorProperties(const GMirror& mirror) {
+    QString html = QStringLiteral("<table cellspacing=\"5\">");
+    const auto addRow = [&html](const QString& label, QString value) {
+        if (value.isEmpty()) value = QObject::tr("Not set");
+        value = value.toHtmlEscaped().replace(QStringLiteral("\n"), QStringLiteral("<br>"));
+        html += QStringLiteral("<tr><td valign=\"top\"><b>%1:</b></td><td>%2</td></tr>")
+                    .arg(label.toHtmlEscaped(), value);
+    };
+
+    addRow(QObject::tr("System"), QString::fromStdString(mirror.getSystem()));
+    addRow(QObject::tr("Name"), QString::fromStdString(mirror.getName()));
+    addRow(QObject::tr("Description"), QString::fromStdString(mirror.getDescription()));
+    addRow(QObject::tr("Type"), QString::fromStdString(mirror.getType()));
+    addRow(QObject::tr("Finish"), QString::fromStdString(mirror.getFinish()));
+    addRow(QObject::tr("Model"), QString::fromStdString(mirror.getModel()));
+    addRow(QObject::tr("Border"), QString::fromStdString(mirror.getBorder()));
+    addRow(QObject::tr("Material optical properties"), QString::fromStdString(mirror.getMatOptProps()));
+    addRow(QObject::tr("Photon energy"), formatMirrorVector(mirror.getPhotonEnergy(), CLHEP::eV, "eV"));
+    addRow(QObject::tr("Index of refraction"), formatMirrorVector(mirror.getIndexOfRefraction()));
+    addRow(QObject::tr("Reflectivity"), formatMirrorVector(mirror.getReflectivity()));
+    addRow(QObject::tr("Efficiency"), formatMirrorVector(mirror.getEfficiency()));
+    addRow(QObject::tr("Specular lobe"), formatMirrorVector(mirror.getSpecularLobe()));
+    addRow(QObject::tr("Specular spike"), formatMirrorVector(mirror.getSpecularSpike()));
+    addRow(QObject::tr("Backscatter"), formatMirrorVector(mirror.getBackscatter()));
+    addRow(QObject::tr("Transmittance"), formatMirrorVector(mirror.getTransmittance()));
+    addRow(QObject::tr("Sigma alpha"),
+           mirror.hasSigmaAlpha() ? QString::number(mirror.getSigmaAlpha(), 'g', 10) : QObject::tr("Not set"));
+
+    return html + QStringLiteral("</table>");
+}
+
 } // anonymous namespace
 
 
@@ -324,6 +369,7 @@ G4Ttree_item::G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume) {
         motherVolume   = gvolume->getMotherName();
         solidsOpr      = gvolume->getSolidsOpr();
         volDescription = gvolume->getDescription();
+        mirrorName     = gvolume->getMirror();
     }
 }
 
@@ -368,10 +414,12 @@ std::string G4Ttree_item::system_from_v4name(std::string v4name) {
 GTree::GTree(const std::shared_ptr<GOptions>& gopt,
              std::unordered_map<std::string, G4Volume*> g4volumes_map,
              std::unordered_map<std::string, const GVolume*> gvolumes_map_in,
-             QWidget* parent) :
+             QWidget* parent,
+             std::unordered_map<std::string, const GMirror*> gmirrors_map_in) :
     QWidget(parent),
     GBase(gopt, GTREE_LOGGER),
-    gvolumes_map(std::move(gvolumes_map_in)) {
+    gvolumes_map(std::move(gvolumes_map_in)),
+    gmirrors_map(std::move(gmirrors_map_in)) {
     // Build the internal representation used to populate the UI tree.
     build_tree(g4volumes_map);
 
@@ -715,6 +763,7 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
     // Material / density / mass
     if (isVolume) {
         styleButtons->setVisible(true);
+        if (mirrorButton) mirrorButton->setVisible(false);
 
         const std::string fullName = v.toString().toStdString();
         const G4Ttree_item* titem = findTreeItem(fullName);
@@ -770,6 +819,20 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
                                                              .arg(QString::fromStdString(desc)));
             }
 
+            const auto mirrorName = titem->get_mirrorName();
+            const bool hasMirror = !gutilities::is_unset(mirrorName) && mirrorName != "no" &&
+                                   mirrorName != "none";
+            if (mirrorButton && hasMirror) {
+                const auto slash = fullName.find_last_of('/');
+                const std::string systemName = slash == std::string::npos ? "" : fullName.substr(0, slash);
+                const std::string mirrorKey = systemName + "/" + mirrorName;
+                if (gmirrors_map.find(mirrorKey) != gmirrors_map.end()) {
+                    mirrorButton->setText(tr("Mirror: %1").arg(QString::fromStdString(mirrorName)));
+                    mirrorButton->setProperty("mirrorKey", QString::fromStdString(mirrorKey));
+                    mirrorButton->setVisible(true);
+                }
+            }
+
             // Sync the slider position to the cached alpha channel.
             double op = titem->get_opacity();
             int sliderVal = static_cast<int>(op * 100.0 + 0.5);
@@ -796,6 +859,7 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
     else {
         styleButtons->setVisible(false);
         opacitySlider->setVisible(false);
+        if (mirrorButton) mirrorButton->setVisible(false);
         if (inspectButton) inspectButton->setVisible(false);
         if (drawOverlapsButton) drawOverlapsButton->setVisible(false);
         // Systems don't have a single material etc.
@@ -970,6 +1034,33 @@ void GTree::inspectVolume() {
     // (camera, scene properties, tree widget) continue to act on the main view.
     if (!originalViewerName.empty())
         uim->ApplyCommand("/vis/viewer/select " + originalViewerName);
+}
+
+// Display all properties of the mirror associated with the selected volume.
+void GTree::showMirrorProperties() {
+    if (!mirrorButton) return;
+
+    const std::string mirrorKey = mirrorButton->property("mirrorKey").toString().toStdString();
+    const auto mirrorIt = gmirrors_map.find(mirrorKey);
+    if (mirrorIt == gmirrors_map.end() || mirrorIt->second == nullptr) return;
+
+    const GMirror& mirror = *mirrorIt->second;
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Mirror: %1").arg(QString::fromStdString(mirror.getName())));
+    dialog.setModal(true);
+
+    auto* layout = new QVBoxLayout(&dialog);
+    auto* properties = new QTextEdit(&dialog);
+    properties->setReadOnly(true);
+    properties->setHtml(formatMirrorProperties(mirror));
+    layout->addWidget(properties);
+
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, &dialog);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addWidget(buttons);
+
+    dialog.resize(650, 520);
+    dialog.exec();
 }
 
 

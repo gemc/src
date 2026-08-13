@@ -127,6 +127,7 @@ private:
 public:
 	/// \name Identity and description
 	///@{
+	[[nodiscard]] std::string getSystem() const { return system; }
 	[[nodiscard]] std::string getName() const { return name; }
 	[[nodiscard]] std::string getDescription() const { return description; }
 	///@}
