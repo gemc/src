@@ -90,10 +90,8 @@ private:
 	 *
 	 * \param system Target system whose (name, variation, runno) are cached.
 	 *
-	 * \details The method searches for the DB file in:
-	 * - current directory
-	 * - GEMC installation root
-	 * - GEMC examples directory
+	 * \details The method searches for the DB file in the steering-card directories and the standard
+	 * locations collected by GSystemFactory, followed by the GEMC examples directory.
 	 *
 	 * The first match is opened read-only and stored in \c db.
 	 */

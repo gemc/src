@@ -16,6 +16,7 @@
 // This can be a potential problem in the future.
 
 // Viewer driver guide (availability of interactive drivers depends on the Geant4 build and platform):
+// - TOOLSSG_QT_GLES: default in Geant4 now
 // - ASCIITree (ATree): geometry hierarchy as text; useful headless, but provides no graphical view.
 // - DAWNFILE (DAWNFILE): high-quality technical-renderer export; requires DAWN and is not interactive.
 // - RayTracer (RT): software-rendered JPEG output; realistic but slower and not interactive.
@@ -31,7 +32,7 @@
 //   requires an X server and GLES support.
 
 // Default viewer driver used by the module.
-#define GDEFAULTVIEWERDRIVER  "OGLSQt"
+#define GDEFAULTVIEWERDRIVER  "TOOLSSG_QT_GLES"
 
 // Default viewer window size (WIDTHxHEIGHT).
 #define GDEFAULTVIEWERSIZE    "800x800"

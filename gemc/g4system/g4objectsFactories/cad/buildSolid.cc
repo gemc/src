@@ -35,6 +35,17 @@
 // Geant4 units
 #include "CLHEP/Units/SystemOfUnits.h"
 
+namespace {
+	bool numeric_value(const std::string& value, double& result) {
+		try {
+			size_t parsed = 0;
+			result = std::stod(value, &parsed);
+			return parsed == value.size();
+		}
+		catch (const std::exception&) { return false; }
+	}
+}
+
 G4VSolid* G4CadSystemFactory::buildSolid(const GVolume* s,
                                          std::unordered_map<std::string,
                                                             G4Volume*>* g4s) {
@@ -56,10 +67,26 @@ G4VSolid* G4CadSystemFactory::buildSolid(const GVolume* s,
 		if (sourceG4Volume->getSolid() != nullptr) return sourceG4Volume->getSolid();
 	}
 
-	// CAD file handling:
-	// - file path is stored in the volume "description" field
-	// - extension determines which CADMesh reader path is used
-	std::string fileName   = s->getDescription(); // full file path from DB
+	// Current rows store "<mesh path>, <scale>" in parameters. For compatibility, an old row may
+	// store only its numeric scale there and its mesh path in description.
+	std::string fileName = s->getDescription();
+	double      scale    = 1.0;
+	const auto  cadParameters =
+		gutilities::getStringVectorFromStringWithDelimiter(s->getParameters(), ",");
+	if (cadParameters.size() > 1) {
+		fileName = cadParameters[0];
+		if (!numeric_value(cadParameters[1], scale)) {
+			log->warning("G4CadSystemFactory: volume <", g4name,
+			             "> has a non-numeric scale <", cadParameters[1], ">; using 1.0");
+			scale = 1.0;
+		}
+	}
+	else if (cadParameters.size() == 1 && cadParameters[0] != "NULL") {
+		double legacyScale = 1.0;
+		if (numeric_value(cadParameters[0], legacyScale)) { scale = legacyScale; }
+		else { fileName = cadParameters[0]; }
+	}
+
 	G4String    g4filename = fileName;
 
 	// File extension (last token after '.').
@@ -70,19 +97,6 @@ G4VSolid* G4CadSystemFactory::buildSolid(const GVolume* s,
 	if (extension == "ply" || extension == "stl") {
 		auto mesh = CADMesh::TessellatedMesh::From(g4filename,
 		                                           CADMesh::File::ASSIMP());
-
-		// Optional uniform scale factor, authored per volume in the "scale" YAML attribute and
-		// carried through the geometry "parameters" column (CAD solids have no other use for it).
-		// It multiplies the millimetre interpretation, e.g. scale=10 reads a mesh drawn in cm.
-		double            scale = 1.0;
-		const std::string pars  = s->getParameters();
-		if (!pars.empty() && pars != "NULL") {
-			try { scale = std::stod(pars); }
-			catch (const std::exception&) {
-				log->warning("G4CadSystemFactory: volume <", g4name,
-				             "> has a non-numeric scale <", pars, ">; using 1.0");
-			}
-		}
 
 		// The CAD file is interpreted in millimetres (times the per-volume scale) to match
 		// typical detector CAD conventions.

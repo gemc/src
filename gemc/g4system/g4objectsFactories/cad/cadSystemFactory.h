@@ -5,8 +5,7 @@
  * \brief  Factory that converts CAD files (PLY / STL) into Geant4 tessellated solids via CADMesh.
  *
  * @details
- * This factory expects that the input volume description provides a CAD file path
- * (typically via the \c GVolume "description" field). Supported formats are:
+ * This factory expects the first volume parameter to provide a CAD file path. Supported formats are:
  * - \c .ply
  * - \c .stl
  *
@@ -51,7 +50,7 @@ protected:
 	/**
 	 * \brief Create (or fetch) a tessellated solid from a CAD file.
 	 *
-	 * \param s   GEMC volume definition. The file path is read from \c s->getDescription().
+	 * \param s   GEMC volume definition. Parameters contain \c "<mesh path>, <scale>".
 	 * \param g4s Map holding cached \c G4Volume wrappers.
 	 * \return Pointer to the created solid, or \c nullptr if dependencies are missing or format unsupported.
 	 *

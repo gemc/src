@@ -52,11 +52,14 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 
 		// Loop over all systems and attempt to build all volumes in each system.
 		for (auto &[systemName, gsystem]: *gsystemMap) {
-			std::string g4Factory = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
-			auto objectsFactory = get_factory(g4Factory);
+			const std::string defaultG4Factory = g4FactoryNameFromSystemFactory(gsystem->getFactoryName());
 
 			for (auto &[volumeName, gvolumePtr]: gsystem->getGVolumesMap()) {
 				auto *gvolume = gvolumePtr.get();
+				const std::string g4Factory = gvolume->getType() == GSYSTEMCADTFACTORYLABEL
+				                              ? G4SYSTEMCADFACTORY
+				                              : defaultG4Factory;
+				auto objectsFactory = get_factory(g4Factory);
 
 				// Try to build; if dependencies are missing, remember it for the next iteration.
 				if (!build_g4volume(gvolume, objectsFactory)) {
@@ -170,7 +173,7 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions> &gopts,
 				manager.RegisterObjectFactory<G4NativeSystemFactory>(g4Factory, gopts);
 			}
 		} else if (factory == GSYSTEMCADTFACTORYLABEL) {
-			if (g4systemFactory.find(GSYSTEMCADTFACTORYLABEL) == g4systemFactory.end()) {
+			if (g4systemFactory.find(G4SYSTEMCADFACTORY) == g4systemFactory.end()) {
 				manager.RegisterObjectFactory<G4CadSystemFactory>(g4Factory, gopts);
 			}
 		}
@@ -179,6 +182,20 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions> &gopts,
 		if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) {
 			g4systemFactory[g4Factory] = manager.CreateObject<G4ObjectsFactory>(g4Factory);
 			g4systemFactory[g4Factory]->initialize_context(check_overlaps, backup_material);
+		}
+
+		// SQLite and text systems may mix native and CAD rows. Register the CAD object factory when
+		// any volume in this system declares solid=CAD, independently of the system loading factory.
+		for (const auto &[volumeName, gvolume]: gsystem->getGVolumesMap()) {
+			if (gvolume->getType() != GSYSTEMCADTFACTORYLABEL ||
+			    g4systemFactory.find(G4SYSTEMCADFACTORY) != g4systemFactory.end()) {
+				continue;
+			}
+
+			manager.RegisterObjectFactory<G4CadSystemFactory>(G4SYSTEMCADFACTORY, gopts);
+			g4systemFactory[G4SYSTEMCADFACTORY] =
+				manager.CreateObject<G4ObjectsFactory>(G4SYSTEMCADFACTORY);
+			g4systemFactory[G4SYSTEMCADFACTORY]->initialize_context(check_overlaps, backup_material);
 		}
 	}
 }

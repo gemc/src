@@ -9,7 +9,47 @@
 #include "systemSqliteFactory.h"
 #include "gsystemConventions.h"
 
+// gemc
+#include "gutilities.h"
+
+// c++
+#include <filesystem>
+
 namespace {
+	bool numeric_value(const std::string& value) {
+		try {
+			size_t parsed = 0;
+			std::stod(value, &parsed);
+			return parsed == value.size();
+		}
+		catch (const std::exception&) { return false; }
+	}
+
+	std::string cad_mesh_reference(const std::string& parameters, const std::string& description) {
+		const auto values = gutilities::getStringVectorFromStringWithDelimiter(parameters, ",");
+		if (values.empty() ||
+			(values.size() == 1 && (values[0] == "NULL" || numeric_value(values[0])))) {
+			return description;
+		}
+		return values[0];
+	}
+
+	void set_resolved_cad_mesh(std::vector<std::string>& row, const std::string& resolved) {
+		constexpr int PARAMETERS_INDEX  = 2;
+		constexpr int DESCRIPTION_INDEX = 19;
+		const auto values =
+			gutilities::getStringVectorFromStringWithDelimiter(row[PARAMETERS_INDEX], ",");
+		if (values.empty() ||
+			(values.size() == 1 && (values[0] == "NULL" || numeric_value(values[0])))) {
+			row[DESCRIPTION_INDEX] = resolved;
+			return;
+		}
+
+		const auto delimiter = row[PARAMETERS_INDEX].find(',');
+		const auto suffix = delimiter == std::string::npos ? "" : row[PARAMETERS_INDEX].substr(delimiter);
+		row[PARAMETERS_INDEX] = resolved + suffix;
+	}
+
 	bool geometry_column_exists(sqlite3* db, const std::string& column_name) {
 		sqlite3_stmt* stmt = nullptr;
 		int rc = sqlite3_prepare_v2(db, "SELECT name FROM PRAGMA_TABLE_INFO('geometry')", -1, &stmt, nullptr);
@@ -86,6 +126,17 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 	}
 
 	std::vector<std::string> gvolumePars;
+	std::vector<std::string> cadSearchDirectories;
+	for (const auto& location : possibleLocationOfFiles) {
+		std::error_code ec;
+		if (!std::filesystem::is_directory(location, ec)) { continue; }
+
+		cadSearchDirectories.push_back(location);
+		const auto systemLocation = std::filesystem::path(location) / system->getName();
+		if (std::filesystem::is_directory(systemLocation, ec)) {
+			cadSearchDirectories.push_back(systemLocation.string());
+		}
+	}
 	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
 		int colCount = sqlite3_column_count(stmt);
 		for (int i = 0; i < colCount; i++) {
@@ -97,6 +148,22 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 
 			gvolumePars.emplace_back(colText ? reinterpret_cast<const char*>(colText) : "");
 		}
+
+		// CAD rows can coexist with native rows in a sqlite system. Resolve their database-authored
+		// mesh path against the YAML and database locations before the Geant4 CAD builder sees it.
+		if (gvolumePars[1] == GSYSTEMCADTFACTORYLABEL) {
+			const auto meshReference = cad_mesh_reference(gvolumePars[2], gvolumePars[19]);
+			auto meshPath = gutilities::searchForFileInLocations(cadSearchDirectories,
+			                                                     meshReference);
+			if (!meshPath) {
+				log->warning("SQLite factory: CAD volume <", gvolumePars[0],
+				             "> references missing mesh <", meshReference, ">; skipping.");
+				gvolumePars.clear();
+				continue;
+			}
+			set_resolved_cad_mesh(gvolumePars, meshPath.value());
+		}
+
 		system->addGVolume(gvolumePars);
 		gvolumePars.clear();
 	}

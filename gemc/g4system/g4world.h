@@ -6,7 +6,7 @@
  *
  * @details
  * G4World orchestrates the following phases:
- *  1. Create and initialize the Geant4 object factories used by each system.
+ *  1. Create and initialize the Geant4 object factories required by the loaded volumes.
  *  2. Build materials (including dependency-resolving material composition).
  *  3. Build default materials/elements/isotopes required by common detector configurations.
  *  4. Convert every GVolume into a G4Volume (solid/logical/physical), resolving mother/child dependencies.
@@ -60,7 +60,7 @@ public:
 	 *
 	 * @details
 	 * The constructor performs the full build:
-	 * - initializes factories based on each system factory label
+	 * - initializes factories based on each system factory label and volume solid type
 	 * - builds materials and default elements/isotopes
 	 * - iteratively builds volumes until all resolvable dependencies are satisfied
 	 */
@@ -154,8 +154,8 @@ private:
 	 * \return The Geant4 factory label used to lookup/create a \c G4ObjectsFactory instance.
 	 *
 	 * @details
-	 * The mapping is used when iterating through systems so that each system uses the proper
-	 * Geant4 builder implementation (native/CAD/etc).
+	 * This supplies the default builder for volumes in a system. A volume whose solid type is
+	 * \c CAD is routed to the CAD builder even when its system was loaded by SQLite or ASCII.
 	 */
 	std::string g4FactoryNameFromSystemFactory(const std::string& factory) const;
 
@@ -196,7 +196,8 @@ private:
 	 *
 	 * @details
 	 * This method registers required factory types in a manager, instantiates them on demand,
-	 * and then initializes each with overlap checking and the backup material.
+	 * and then initializes each with overlap checking and the backup material. CAD rows can coexist
+	 * with native rows in a SQLite or ASCII system.
 	 */
 	void createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
 	                           SystemMap*                       gsystemsMap,

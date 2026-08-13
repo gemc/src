@@ -15,7 +15,7 @@
  * - The list of volumes to load - and their metadata (material, position, rotation, sensitivity, ...) -
  *   comes from the \c geometry table (rows matching experiment/system/variation/run). Only meshes whose
  *   stem matches a database row are imported; STL/PLY files present on disk but absent from the database
- *   are ignored. The mesh path is resolved against the directory and written into the volume description
+ *   are ignored. The mesh path is resolved against the directory and written into the volume parameters
  *   for the g4 CAD builder.
  *
  * Definitions are authored in a single YAML/JSON file and uploaded with \c "gemc-sqlite -cad" (pygemc),

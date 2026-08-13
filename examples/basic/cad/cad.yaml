@@ -22,8 +22,8 @@ runno: 1
 nthreads: 1
 
 gsystem:
-  - name: stls          # directory with the meshes and the `system` in cad__default.yaml
-    factory: CAD
+  - name: stls          # `system` in cad__default.yaml; mesh paths come from the SQLite rows
+    factory: sqlite
 
 gstreamer:
   - format: csv

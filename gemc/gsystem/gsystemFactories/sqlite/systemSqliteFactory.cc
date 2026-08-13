@@ -36,15 +36,17 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system) {
 	if (dbhost == "na") { dbhost = system->get_dbhost(); }
 	log->info(1, "GSystemSQLiteFactory: dbhost set to <", dbhost, ">");
 
-	// Try local dir, GEMC installation, then examples dir.
-	std::vector<std::string> dirs = {
-		".",
-		gutilities::gemc_root().string(),
-		(gutilities::gemc_root() / "examples").string()
-	};
+	// Use the YAML directories and standard locations collected by GSystemFactory. Keep the examples
+	// directory as an additional fallback for the source-tree examples.
+	std::vector<std::string> dirs = possibleLocationOfFiles;
+	dirs.push_back((gutilities::gemc_root() / "examples").string());
 
 	auto dbPath = gutilities::searchForFileInLocations(dirs, dbhost);
 	if (!dbPath) { log->error(ERR_GSQLITEERROR, "Failed to find database file. Exiting."); }
+
+	// Geometry rows may reference assets relative to the database (for example CAD meshes).
+	const auto dbDirectory = std::filesystem::path(dbPath.value()).parent_path();
+	if (!dbDirectory.empty()) { possibleLocationOfFiles.push_back(dbDirectory.string()); }
 
 	if (sqlite3_open_v2(dbPath.value().c_str(), &db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK) {
 		sqlite3_close(db);

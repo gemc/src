@@ -12,9 +12,9 @@
 # all use it collapse into one number. flux keeps the per-organ identity on every hit, so a single
 # run resolves the dose in each organ separately.
 #
-# `system` must match both the gsystem name in ../cad.yaml and the directory holding the meshes
-# (here: stls). The three source meshes come from NIH 3D at three unrelated scales, so each has
-# its own uniform `scale` (mesh-units -> mm).
+# `system` must match the SQLite gsystem name in ../cad.yaml. `cad_dir` independently names the directory
+# holding the meshes (here both happen to be `stls`). The three source meshes come from NIH 3D at three
+# unrelated scales, so each has its own uniform `scale` (mesh-units -> mm).
 #
 # For dose scoring the three organ solids must NOT overlap (Geant4 cannot assign a step to two
 # volumes at once). The meshes are therefore placed as a non-overlapping vertical (y) stack that is

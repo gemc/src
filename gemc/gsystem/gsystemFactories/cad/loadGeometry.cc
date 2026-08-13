@@ -22,6 +22,31 @@
 using namespace std;
 
 namespace {
+	bool numeric_value(const std::string& value) {
+		try {
+			size_t parsed = 0;
+			std::stod(value, &parsed);
+			return parsed == value.size();
+		}
+		catch (const std::exception&) { return false; }
+	}
+
+	void set_resolved_cad_mesh(std::vector<std::string>& row, const std::string& resolved) {
+		constexpr int PARAMETERS_INDEX  = 2;
+		constexpr int DESCRIPTION_INDEX = 19;
+		const auto values =
+			gutilities::getStringVectorFromStringWithDelimiter(row[PARAMETERS_INDEX], ",");
+		if (values.empty() ||
+			(values.size() == 1 && (values[0] == "NULL" || numeric_value(values[0])))) {
+			row[DESCRIPTION_INDEX] = resolved;
+			return;
+		}
+
+		const auto delimiter = row[PARAMETERS_INDEX].find(',');
+		const auto suffix = delimiter == std::string::npos ? "" : row[PARAMETERS_INDEX].substr(delimiter);
+		row[PARAMETERS_INDEX] = resolved + suffix;
+	}
+
 	/// \brief Check whether a column exists in the \c geometry table.
 	bool geometry_column_exists(sqlite3* db, const std::string& column_name) {
 		sqlite3_stmt* stmt = nullptr;
@@ -108,10 +133,6 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 	sqlite3_bind_text(stmt, 3, variation.c_str(), -1, SQLITE_TRANSIENT);
 	sqlite3_bind_int(stmt, 4, runno);
 
-	// The "description" column (last selected field) carries the mesh path for the g4 CAD builder.
-	// The CAD factory resolves it against dirLocation so the database only needs the volume name.
-	constexpr int DESCRIPTION_INDEX = 19;
-
 	int loaded = 0;
 	int rc;
 	while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
@@ -135,7 +156,7 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 				             dirLocation, ">; skipping.");
 				continue;
 			}
-			gvolumePars[DESCRIPTION_INDEX] = dirLocation + "/" + it->second;
+			set_resolved_cad_mesh(gvolumePars, dirLocation + "/" + it->second);
 		}
 
 		s->addGVolume(gvolumePars);
