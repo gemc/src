@@ -16,7 +16,7 @@ concurrency:
 
 on:
   workflow_run:
-    workflows: [ "Test" ]
+    workflows: [ "Test", "Test after pygemc" ]
     types: [ completed ]
     branches: [ main ]
 
@@ -25,7 +25,17 @@ jobs:
     if: >-
       ${{
         github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.event == 'push'
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        (
+          (
+            github.event.workflow_run.name == 'Test' &&
+            github.event.workflow_run.event == 'push'
+          ) ||
+          (
+            github.event.workflow_run.name == 'Test after pygemc' &&
+            github.event.workflow_run.event == 'workflow_dispatch'
+          )
+        )
       }}
     name: Workflow Overview
     runs-on: ubuntu-latest
@@ -45,7 +55,17 @@ jobs:
     if: >-
       ${{
         github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.event == 'push'
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        (
+          (
+            github.event.workflow_run.name == 'Test' &&
+            github.event.workflow_run.event == 'push'
+          ) ||
+          (
+            github.event.workflow_run.name == 'Test after pygemc' &&
+            github.event.workflow_run.event == 'workflow_dispatch'
+          )
+        )
       }}
     name: Create Job Matrices
     runs-on: ubuntu-latest
@@ -386,7 +406,17 @@ jobs:
       ${{
         always() &&
         github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.event == 'push'
+        github.event.workflow_run.head_repository.full_name == github.repository &&
+        (
+          (
+            github.event.workflow_run.name == 'Test' &&
+            github.event.workflow_run.event == 'push'
+          ) ||
+          (
+            github.event.workflow_run.name == 'Test after pygemc' &&
+            github.event.workflow_run.event == 'workflow_dispatch'
+          )
+        )
       }}
     needs: [ build_arch, manifest, dockerhub_mirror, dockerhub_readme ]
     runs-on: ubuntu-latest

@@ -296,6 +296,7 @@ keep changes focused. See:
 - [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
 - [`SECURITY.md`](SECURITY.md)
+- [CI workflow guide](.github/workflows/README.md)
 
 <br/>
 

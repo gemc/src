@@ -1,8 +1,8 @@
 name: Triggers clas12-systems test
 
-# Fires a workflow_dispatch on gemc/clas12-systems' Test workflow whenever the
-# gemc/src Deploy workflow succeeds on a push to main, i.e. after fresh
-# ghcr.io/gemc/src images (which clas12-systems' tests run inside) are published.
+# Fires the gemc/clas12-systems compatibility-test workflow whenever the gemc/src
+# Deploy workflow succeeds on a push to main, after fresh ghcr.io/gemc/src images
+# (which clas12-systems' tests run inside) are published.
 # Requires a repository secret named CLAS12_SYSTEMS_PAT holding a GitHub Personal
 # Access Token with the `workflow` scope granted on the gemc/clas12-systems repo
 # (mirrors pygemc's GEMC_SRC_PAT, pointing the other way).
@@ -41,5 +41,5 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.CLAS12_SYSTEMS_PAT }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/gemc/clas12-systems/actions/workflows/test.yml/dispatches \
+            https://api.github.com/repos/gemc/clas12-systems/actions/workflows/test_after_src.yml/dispatches \
             -d '{"ref":"main","inputs":{"triggered_by":"Triggered by gemc/src deploy"}}'

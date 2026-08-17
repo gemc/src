@@ -1,6 +1,6 @@
 name: Test
 
-run-name: ${{ github.event.head_commit.message || github.event.pull_request.title || inputs.triggered_by }}
+run-name: ${{ github.event.head_commit.message || github.event.pull_request.title || github.workflow }}
 
 permissions:
   contents: read
@@ -15,12 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  workflow_dispatch:
-    inputs:
-      triggered_by:
-        description: 'What triggered this run'
-        required: false
-        default: 'manual'
+  workflow_call:
+
   pull_request:
     paths-ignore:
       - "**/*.md"

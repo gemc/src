@@ -1,0 +1,19 @@
+name: Test after pygemc
+
+run-name: ${{ inputs.triggered_by }}
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      triggered_by:
+        description: What triggered this run
+        required: false
+        default: Triggered by pygemc
+
+jobs:
+  test:
+    name: GEMC compatibility test
+    uses: ./.github/workflows/test.yml
