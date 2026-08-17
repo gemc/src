@@ -488,6 +488,32 @@ public:
     }
 
     /**
+     * \brief Ask whether Geant4 should terminate the track after recording this step's hit.
+     *
+     * The sensitive detector evaluates this hook only after all processed touchables have created
+     * or updated their \c GHit. Returning true therefore preserves the current hit and prevents the
+     * track from taking another step.
+     *
+     * \param thisStep Geant4 step that was recorded.
+     * \return true when the framework should apply \c fStopAndKill to the track.
+     */
+    [[nodiscard]] bool shouldStopTrackAfterHit(const G4Step* thisStep) const {
+        check_if_log_defined();
+        return shouldStopTrackAfterHitImpl(thisStep);
+    }
+
+    /**
+     * \brief Plugin hook controlling post-hit track termination.
+     *
+     * The default keeps the track alive. Detector plugins can override this for terminal sensitive
+     * elements such as optical-photon collectors.
+     */
+    [[nodiscard]] virtual bool shouldStopTrackAfterHitImpl(
+        [[maybe_unused]] const G4Step* thisStep) const {
+        return false;
+    }
+
+    /**
      * \brief Sets the options pointer required by the digitization base.
      *
      * \param g Options object to store for later use.

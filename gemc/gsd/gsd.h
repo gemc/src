@@ -131,6 +131,8 @@ public:
 	 * into one or more logical touchables. For each resulting touchable, this method either:
 	 * - creates a new GHit and inserts it in the hits collection, or
 	 * - locates an existing GHit and appends step information.
+	 * After all touchables are stored, the digitization routine may request that the track be
+	 * terminated with \c fStopAndKill.
 	 *
 	 * \param thisStep Geant4 step being processed.
 	 * \param g4th     Geant4 touchable history (not used by this implementation).

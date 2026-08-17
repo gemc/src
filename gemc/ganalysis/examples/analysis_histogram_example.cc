@@ -16,6 +16,7 @@
 #include <QTabWidget>
 #include <QTemporaryDir>
 #include <QtCharts/QLogValueAxis>
+#include <QtCharts/QValueAxis>
 
 // c++
 #include <cmath>
@@ -85,6 +86,34 @@ int main(int argc, char* argv[]) {
 	const auto histogram_2d = makeHistogram2D({{0.0, 1.0}, {0.5, 1.5}, {1.0, 2.0}}, 2);
 	success &= check(histogram_2d.in_range_entries == 3 && histogram_2d.maximumCount() == 2,
 	                 "2D histogram did not bin paired samples correctly");
+
+	GHistogramData one_entry_histogram;
+	one_entry_histogram.counts = {1};
+	GHistogramChart one_entry_chart;
+	one_entry_chart.setHistogram(one_entry_histogram, "One entry", std::nullopt, std::nullopt, false);
+	const auto one_entry_axes = one_entry_chart.chart()->axes(Qt::Vertical);
+	const auto* one_entry_axis = one_entry_axes.empty()
+	                             ? nullptr : dynamic_cast<QValueAxis*>(one_entry_axes.front());
+	success &= check(one_entry_axis != nullptr && one_entry_axis->max() == 2.0,
+	                 "automatic Y maximum did not round one entry up to 2");
+
+	GHistogramData many_entries_histogram;
+	many_entries_histogram.counts = {105};
+	GHistogramChart many_entries_chart;
+	many_entries_chart.setHistogram(many_entries_histogram, "Many entries", std::nullopt, std::nullopt, false);
+	const auto many_entries_axes = many_entries_chart.chart()->axes(Qt::Vertical);
+	const auto* many_entries_axis = many_entries_axes.empty()
+	                              ? nullptr : dynamic_cast<QValueAxis*>(many_entries_axes.front());
+	success &= check(many_entries_axis != nullptr && many_entries_axis->max() == 110.0,
+	                 "automatic Y maximum did not round 105 entries up to 110");
+
+	GHistogramChart fixed_maximum_chart;
+	fixed_maximum_chart.setHistogram(many_entries_histogram, "Fixed maximum", std::nullopt, 107.0, false);
+	const auto fixed_maximum_axes = fixed_maximum_chart.chart()->axes(Qt::Vertical);
+	const auto* fixed_maximum_axis = fixed_maximum_axes.empty()
+	                              ? nullptr : dynamic_cast<QValueAxis*>(fixed_maximum_axes.front());
+	success &= check(fixed_maximum_axis != nullptr && fixed_maximum_axis->max() == 107.0,
+	                 "automatic rounding changed an explicit Y maximum");
 
 	auto accumulator = std::make_shared<GAnalysisAccumulator>();
 	accumulator->beginBeamOn(false);

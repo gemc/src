@@ -10,8 +10,18 @@
 #include "G4VisAttributes.hh"
 #include "Randomize.hh"
 
+// c++
+#include <algorithm>
+#include <set>
+
 using std::string;
 using std::vector;
+
+namespace {
+
+constexpr int opticalPhotonPid = -22; // Geant4 optical-photon PDG encoding.
+
+} // namespace
 
 std::atomic<int> GHit::globalHitCounter{0};
 thread_local std::map<int, G4ThreeVector> GHit::trackVertexById;
@@ -74,8 +84,13 @@ void GHit::Draw() {
 	circle.SetFillStyle(G4Circle::filled);
 
 	double etot = getTotalEnergyDeposited();
+	const bool opticalPhotonHit = !pids.empty() && pids.front() == opticalPhotonPid;
 
-	if (etot > 0) {
+	if (opticalPhotonHit) {
+		circle.SetScreenSize(15);
+		circle.SetVisAttributes(G4VisAttributes(colour_passby));
+	}
+	else if (etot > 0) {
 		circle.SetScreenSize(50);
 		circle.SetVisAttributes(G4VisAttributes(colour_hit));
 	}
@@ -86,6 +101,17 @@ void GHit::Draw() {
 	}
 
 	visManager->Draw(circle);
+}
+
+size_t GHit::getNumberOfOpticalPhotons() const {
+	std::set<int> photonTrackIds;
+	const size_t entries = std::min(pids.size(), tids.size());
+
+	for (size_t index = 0; index < entries; ++index) {
+		if (pids[index] == opticalPhotonPid) { photonTrackIds.insert(tids[index]); }
+	}
+
+	return photonTrackIds.size();
 }
 
 bool GHit::setColorSchema() {

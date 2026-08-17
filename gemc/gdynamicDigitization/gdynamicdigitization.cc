@@ -87,6 +87,7 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 	trueInfoData->includeVariable("pz", momentum.getZ());
 
 	trueInfoData->includeVariable("nsteps", static_cast<int>(ghit->getStepCount()));
+	trueInfoData->includeVariable("nphotons", static_cast<int>(ghit->getNumberOfOpticalPhotons()));
 	trueInfoData->includeVariable("hitn", static_cast<int>(hitn)); // assume hitn < INT_MAX
 
 	trueInfoData->includeVariable("processName", ghit->getProcessName());

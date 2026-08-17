@@ -49,6 +49,20 @@ QString sourceName(GAnalysisSource source) {
 	return source == GAnalysisSource::true_information ? "True information" : "Digitized";
 }
 
+double roundedEntriesMaximum(double maximum_count) {
+	if (maximum_count <= 0.0) { return 1.0; }
+
+	double interval = 1.0;
+	if (maximum_count >= 100.0) {
+		interval = std::pow(10.0, std::floor(std::log10(maximum_count)) - 1.0);
+	}
+	else if (maximum_count >= 10.0) {
+		interval = 10.0;
+	}
+
+	return (std::floor(maximum_count / interval) + 1.0) * interval;
+}
+
 void configureNumberSpin(QDoubleSpinBox* spin) {
 	spin->setRange(-1.0e100, 1.0e100);
 	spin->setDecimals(6);
@@ -189,8 +203,7 @@ void GHistogramChart::setHistogram(const GHistogramData& histogram, const QStrin
 
 	const double maximum_count = static_cast<double>(histogram.maximumCount());
 	double y_min = requested_y_min.value_or(logarithmic ? 0.5 : 0.0);
-	double y_max = requested_y_max.value_or(std::max(logarithmic ? 1.5 : 1.0,
-	                                                 maximum_count * 1.15));
+	double y_max = requested_y_max.value_or(roundedEntriesMaximum(maximum_count));
 	if (logarithmic && y_min <= 0.0) {
 		throw std::invalid_argument("Logarithmic y minimum must be positive");
 	}

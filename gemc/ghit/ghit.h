@@ -73,7 +73,8 @@ public:
 	 * \brief Visualize the hit using \c Geant4 visualization primitives.
 	 *
 	 * This draws a circle at the first recorded global position and selects visual attributes
-	 * based on the total energy deposited.
+	 * based on the particle type and total energy deposited. Optical-photon hits are always
+	 * shown as small green markers.
 	 *
 	 * \note If no visualization manager is available, or if the hit has no recorded positions,
 	 *       the method returns without performing any drawing.
@@ -96,7 +97,7 @@ private:
 	 * \brief Visualization colors used by \ref Draw().
 	 *
 	 * - \c colour_hit is used for hits with non-zero total energy deposition.
-	 * - \c colour_passby is used for trajectories crossing without depositing energy.
+	 * - \c colour_passby is used for optical photons and trajectories crossing without depositing energy.
 	 * - \c colour_touch is currently reserved for future use (e.g. touchable outline).
 	 *
 	 * \note These are configured by \ref setColorSchema().
@@ -411,6 +412,16 @@ public:
 	 * \return The size of the \c edeps vector.
 	 */
 	[[nodiscard]] inline size_t getStepCount() const { return edeps.size(); }
+
+	/**
+	 * \brief Count distinct optical-photon tracks recorded in this hit.
+	 *
+	 * A photon can contribute more than one Geant4 step, so the count is based on unique track IDs rather
+	 * than the number of stored steps.
+	 *
+	 * \return Number of unique optical-photon track IDs in the hit.
+	 */
+	[[nodiscard]] size_t getNumberOfOpticalPhotons() const;
 
 	/**
 	 * \brief Get per-step track 3-momenta (always present).

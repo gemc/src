@@ -3,6 +3,7 @@
 
 // geant4
 #include "G4SDManager.hh"
+#include "G4Track.hh"
 
 // Thread-local sensitive detector instance.
 // Constructor: initializes base logging, Geant4 SD name, and the hits collection name used for this detector.
@@ -84,6 +85,12 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 			log->info(2, " ❌ existing GTouchable for ", GetName(), ": ", thisGTouchable->getIdentityString());
 			it->second->addHitInfos(thisStep);
 		}
+	}
+
+	// Plugins may mark a sensitive element as terminal. Apply the status only after every
+	// processed touchable has stored this step, so terminating a track never drops its hit.
+	if (digitization_routine->shouldStopTrackAfterHit(thisStep)) {
+		thisStep->GetTrack()->SetTrackStatus(fStopAndKill);
 	}
 
 	return true;
