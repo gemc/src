@@ -27,10 +27,11 @@ SystemList getSystems(const std::shared_ptr<GOptions>& gopts) {
 	auto ascii_db = gopts->getOptionalScalarString("ascii_db").value();
 
 	for (auto gsystem_item : gsystem_node) {
-		auto factory = gopts->get_variable_in_option<std::string>(gsystem_item, "factory", GSYSTEMSQLITETFACTORYLABEL);
+		auto factory = gopts->get_variable_in_option<std::string>(gsystem_item, "factory",
+		                                                          gsystem::GSYSTEMSQLITETFACTORYLABEL);
 
 		// ASCII factory can use an alternate search root (ascii_db).
-		if (factory == GSYSTEMASCIIFACTORYLABEL) { dbhost = ascii_db; }
+		if (factory == gsystem::GSYSTEMASCIIFACTORYLABEL) { dbhost = ascii_db; }
 
 		systems.emplace_back(
 			std::make_shared<GSystem>(
@@ -42,7 +43,7 @@ SystemList getSystems(const std::shared_ptr<GOptions>& gopts) {
 				run,
 				gopts->get_variable_in_option<std::string>(gsystem_item, "variation", "default"),
 				gopts->get_variable_in_option<std::string>(gsystem_item, "annotations",
-				                                           UNINITIALIZEDSTRINGQUANTITY)
+				                                           guts::UNINITIALIZEDSTRINGQUANTITY)
 			));
 	}
 
@@ -59,8 +60,8 @@ std::vector<GModifier> getModifiers(const std::shared_ptr<GOptions>& gopts) {
 	for (auto gmodifier_item : gmodifier_node) {
 		gmods.emplace_back(
 			gopts->get_variable_in_option<std::string>(gmodifier_item, "name", goptions::NODFLT),
-			gopts->get_variable_in_option<std::string>(gmodifier_item, "shift", GSYSTEMNOMODIFIER),
-			gopts->get_variable_in_option<std::string>(gmodifier_item, "tilt", GSYSTEMNOMODIFIER),
+			gopts->get_variable_in_option<std::string>(gmodifier_item, "shift", gsystem::GSYSTEMNOMODIFIER),
+			gopts->get_variable_in_option<std::string>(gmodifier_item, "tilt", gsystem::GSYSTEMNOMODIFIER),
 			gopts->get_variable_in_option<bool>(gmodifier_item, "isPresent", true));
 	}
 
@@ -81,20 +82,23 @@ GOptions defineOptions() {
 	std::string help;
 	help = "A system definition includes the geometry location, factory and variation \n \n";
 	help += "Possible factories are: \n";
-	help += " - " + std::string(GSYSTEMASCIIFACTORYLABEL) + "\n";
-	help += " - " + std::string(GSYSTEMSQLITETFACTORYLABEL) + "\n";
-	help += " - " + std::string(GSYSTEMMYSQLTFACTORYLABEL) + "\n";
-	help += " - " + std::string(GSYSTEMCADTFACTORYLABEL) + "\n";
+	help += " - " + std::string(gsystem::GSYSTEMASCIIFACTORYLABEL) + "\n";
+	help += " - " + std::string(gsystem::GSYSTEMSQLITETFACTORYLABEL) + "\n";
+	help += " - " + std::string(gsystem::GSYSTEMMYSQLTFACTORYLABEL) + "\n";
+	help += " - " + std::string(gsystem::GSYSTEMCADTFACTORYLABEL) + "\n";
 	help +=
 		R"RAWS(Example: -gsystem="[{name: b1}]")RAWS";
 
 	std::vector<GVariable> gsystem = {
-		{"name", goptions::NODFLT, "system name (mandatory). For ascii factories, it may include the path to the file"},
-		{"factory", GSYSTEMSQLITETFACTORYLABEL, "factory name."},
-		{"variation", "default", "geometry variation"},
-		{"annotations", UNINITIALIZEDSTRINGQUANTITY, "optional system annotations. Examples: \"mats_only\" "},
-		{"digitization", UNINITIALIZEDSTRINGQUANTITY, "optional digitization plugin name when it differs from the system name (shared plugin, e.g. \"ecal\" for the EC and PCAL systems)"}
-	};
+	    {"name", goptions::NODFLT,
+	     "system name (mandatory). For ascii factories, it may include the path to the file"},
+	    {"factory", gsystem::GSYSTEMSQLITETFACTORYLABEL, "factory name."},
+	    {"variation", "default", "geometry variation"},
+	    {"annotations", guts::UNINITIALIZEDSTRINGQUANTITY,
+	     "optional system annotations. Examples: \"mats_only\" "},
+	    {"digitization", guts::UNINITIALIZEDSTRINGQUANTITY,
+	     "optional digitization plugin name when it differs from the system name (shared plugin, e.g. \"ecal\" "
+	     "for the EC and PCAL systems)"}};
 	goptions.defineOption(GSYSTEM_LOGGER, "defines the group of volumes in a system", gsystem, help);
 
 	// Modifier
@@ -103,28 +107,28 @@ GOptions defineOptions() {
 
 	std::vector<GVariable> gmodifier = {
 		{"name", goptions::NODFLT, "volume name (mandatory)"},
-		{"shift", GSYSTEMNOMODIFIER, "volume shift added to existing position"},
-		{"tilt", GSYSTEMNOMODIFIER, "volume tilt added to existing rotation"},
+		{"shift", gsystem::GSYSTEMNOMODIFIER, "volume shift added to existing position"},
+		{"tilt", gsystem::GSYSTEMNOMODIFIER, "volume tilt added to existing rotation"},
 		{"isPresent", true, "If set to false, remove the volume from the world"}
 	};
 	goptions.defineOption("gmodifier", "modify volume existence or placement", gmodifier, help);
 
-	help = "root volume definition. Default is: " + std::string(ROOTDEFINITION) + ". \n\n";
+	help = "root volume definition. Default is: " + std::string(gsystem::ROOTDEFINITION) + ". \n\n";
 	help += "Command line Example: -root=\"G4Box 25*cm 24*cm 40*cm G4_WATER\"\n";
 	help += "YAML file example: root: G4Box, 24*cm, 24*cm, 40*cm, G4_WATER\n";
-	goptions.defineOption(GVariable(ROOTWORLDGVOLUMENAME, ROOTDEFINITION, "root volume definition"),
-	                      help);
+	goptions.defineOption(
+	    GVariable(gsystem::ROOTWORLDGVOLUMENAME, gsystem::ROOTDEFINITION, "root volume definition"), help);
 
 	// add sql option to define host or sqlite file
-	help = "sqlite file or sql host. Default is: " + std::string(GSYSTEMSQLITETDEFAULTFILE) + ". \n\n";
+	help = "sqlite file or sql host. Default is: " + std::string(gsystem::GSYSTEMSQLITETDEFAULTFILE) + ". \n\n";
 	help += "Example (sqlite file): -sql=myGeometry.sqlite\n";
-	goptions.defineOption(GVariable("sql", GSYSTEMSQLITETDEFAULTFILE, "sql host or sqlite file"),
+	goptions.defineOption(GVariable("sql", gsystem::GSYSTEMSQLITETDEFAULTFILE, "sql host or sqlite file"),
 	                      help);
 
 	// add ascii_db option to define an alternative search path for the ascii factory
-	help = "ascii search path. Default is: " + std::string(GSYSTEMSASCIISEARCHDIR) + ". \n\n";
+	help = "ascii search path. Default is: " + std::string(gsystem::GSYSTEMSASCIISEARCHDIR) + ". \n\n";
 	help += "Example: -ascii_db=/path/to/geometry/text/files\n";
-	goptions.defineOption(GVariable("ascii_db", GSYSTEMSASCIISEARCHDIR, "ascii factory search path"),
+	goptions.defineOption(GVariable("ascii_db", gsystem::GSYSTEMSASCIISEARCHDIR, "ascii factory search path"),
 	                      help);
 
 	// add the experiment option to define the experiment, common for all systems

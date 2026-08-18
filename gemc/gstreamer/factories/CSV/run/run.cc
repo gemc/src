@@ -8,7 +8,7 @@
 bool GstreamerCsvFactory::startRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
 
 	if (!ofile_digitized.is_open()) {
-		log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_digitized());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_digitized());
 	}
 
 	// Cache the run identifier for diagnostics and later row generation.

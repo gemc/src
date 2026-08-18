@@ -31,11 +31,11 @@ public:
 	 * \brief Construct a mirror from a serialized parameter list.
 	 *
 	 * \param system System name that owns this mirror (used for provenance/logging).
-	 * \param pars   Serialized mirror parameters (must match GMIRRORNUMBEROFPARS).
+	 * \param pars   Serialized mirror parameters (must match gsystem::GMIRRORNUMBEROFPARS).
 	 * \param logger Logger used for diagnostics and error reporting.
 	 *
 	 * \details
-	 * The constructor validates \c pars length against GMIRRORNUMBEROFPARS and then parses
+	 * The constructor validates \c pars length against gsystem::GMIRRORNUMBEROFPARS and then parses
 	 * the fields positionally, in the canonical order used by the loaders:
 	 * name, description, type, finish, model, border, matOptProps, photonEnergy,
 	 * indexOfRefraction, reflectivity, efficiency, specularlobe, specularspike,
@@ -76,7 +76,7 @@ private:
 	/**
 	 * \brief Boundary scope.
 	 *
-	 * \c GMIRRORSKINSURFACE when the optical boundary represents the entire outside
+	 * \c gsystem::GMIRRORSKINSURFACE when the optical boundary represents the entire outside
 	 * surface of the volume; otherwise the name of the bordering volume (same system)
 	 * used to build a border surface.
 	 */

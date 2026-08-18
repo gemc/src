@@ -8,7 +8,7 @@
 bool GstreamerCsvFactory::publishRunDigitizedDataImpl(const std::string&                        detectorName,
                                                       const std::vector<const GDigitizedData*>& digitizedData) {
 	if (!ofile_digitized.is_open()) {
-		log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_digitized());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_digitized());
 	}
 
 	// Emit the header row from the first non-empty collection so column names match

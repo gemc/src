@@ -6,7 +6,7 @@
 // Write only the payload word section of the current frame record.
 
 bool GstreamerJSROFactory::publishPayloadImpl([[maybe_unused]] const std::vector<GIntegralPayload*>* payload) {
-	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
+	if (ofile == nullptr) { log->error(gstreamer::ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
 	static constexpr int      header_offset = sizeof(DataFrameHeader) / 4;
 	std::vector<unsigned int> payload_data(frame_data.size() - header_offset);

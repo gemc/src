@@ -85,9 +85,9 @@ public:
 		timeStamp = assignTimeStamp();
 		log->debug(CONSTRUCTOR, "GEventHeader");
 		log->info(1, "\n",
-		          TPOINTITEM, " Event Number:  ", g4localEventNumber, "\n",
-		          TPOINTITEM, " Thread ID:  ", threadID, "\n",
-		          TPOINTITEM, " Time Stamp:  ", timeStamp);
+		          guts::TPOINTITEM, " Event Number:  ", g4localEventNumber, "\n",
+		          guts::TPOINTITEM, " Thread ID:  ", threadID, "\n",
+		          guts::TPOINTITEM, " Time Stamp:  ", timeStamp);
 	}
 
 	/**

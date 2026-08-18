@@ -7,7 +7,9 @@
 
 bool GstreamerRootFactory::publishEventTrueInfoDataImpl(const std::string&                       detectorName,
 														const std::vector<const GTrueInfoData*>& trueInfoData) {
-	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
+	if (rootfile == nullptr) {
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized");
+	}
 
 	if (!trueInfoData.empty()) {
 		const auto& trueInforDataTree = getOrInstantiateTrueInfoDataTree(detectorName, trueInfoData.front());
@@ -20,13 +22,17 @@ bool GstreamerRootFactory::publishEventTrueInfoDataImpl(const std::string&      
 
 bool GstreamerRootFactory::publishEventGeneratedParticlesImpl(const std::string& bankName,
                                                               const GGeneratedParticleBank& particles) {
-	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
+	if (rootfile == nullptr) {
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized");
+	}
 
 	const auto& generatedTree = getOrInstantiateGeneratedParticleTree(bankName, particles);
 	return generatedTree->fillTree(particles);
 }
 
 bool GstreamerRootFactory::publishEventAncestorsImpl(const GAncestorBank& ancestors) {
-	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
+	if (rootfile == nullptr) {
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized");
+	}
 	return getOrInstantiateAncestorTree(ancestors)->fillTree(ancestors);
 }

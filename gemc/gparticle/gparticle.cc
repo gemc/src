@@ -100,12 +100,12 @@ void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent) {
 			}
 		}
 		else {
-			log->error(ERR_GPARTICLENOTFOUND,
+			log->error(gparticle::ERR_GPARTICLENOTFOUND,
 					   "Particle <", name, "> not found in G4ParticleTable* ", particleTable);
 		}
 	}
 	else {
-		log->error(ERR_GPARTICLETABLENOTFOUND,
+		log->error(gparticle::ERR_GPARTICLETABLENOTFOUND,
 				   "G4ParticleTable not found - G4ParticleGun*: ", particleGun);
 	}
 }
@@ -328,12 +328,12 @@ int Gparticle::get_pdg_id() {
 
 		if (particleDef != nullptr) { return particleDef->GetPDGEncoding(); }
 		else {
-			log->error(ERR_GPARTICLENOTFOUND,
+			log->error(gparticle::ERR_GPARTICLENOTFOUND,
 					   "Particle <", name, "> not found in G4ParticleTable* ", particleTable);
 		}
 	}
 	else {
-		log->error(ERR_GPARTICLETABLENOTFOUND,
+		log->error(gparticle::ERR_GPARTICLETABLENOTFOUND,
 				   "G4ParticleTable not found - G4ParticleGun*: ", particleTable);
 	}
 }

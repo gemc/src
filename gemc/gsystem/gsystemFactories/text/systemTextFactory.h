@@ -8,9 +8,11 @@
 #include <memory>
 
 // file types
-#define GTEXTGEOMTYPE "__geometry_"
-#define GTEXTMATSTYPE "__materials_"
-#define GTEXTMIRSTYPE "__mirrors_"
+namespace gsystem {
+inline constexpr char GTEXTGEOMTYPE[] = "__geometry_";
+inline constexpr char GTEXTMATSTYPE[] = "__materials_";
+inline constexpr char GTEXTMIRSTYPE[] = "__mirrors_";
+} // namespace gsystem
 
 /**
  * \ingroup gemc_gsystem_factories_text
@@ -20,9 +22,9 @@
  *
  * File naming convention:
  * - Base name is \c system->getFilePath()
- * - For geometry:  \c base + GTEXTGEOMTYPE + variation + ".txt"
- * - For materials: \c base + GTEXTMATSTYPE + variation + ".txt"
- * - For mirrors:   \c base + GTEXTMIRSTYPE + variation + ".txt"
+ * - For geometry:  \c base + gsystem::GTEXTGEOMTYPE + variation + ".txt"
+ * - For materials: \c base + gsystem::GTEXTMATSTYPE + variation + ".txt"
+ * - For mirrors:   \c base + gsystem::GTEXTMIRSTYPE + variation + ".txt"
  *
  * Search logic:
  * - The factory tries the default filename in the current working directory.
@@ -76,9 +78,9 @@ private:
 	 *
 	 * \param system Target system descriptor.
 	 * \param SYSTEMTYPE One of the file-type macros:
-	 * - GTEXTGEOMTYPE
-	 * - GTEXTMATSTYPE
-	 * - GTEXTMIRSTYPE
+	 * - gsystem::GTEXTGEOMTYPE
+	 * - gsystem::GTEXTMATSTYPE
+	 * - gsystem::GTEXTMIRSTYPE
 	 *
 	 * \return Pointer to an open input stream, or \c nullptr if the optional file is not found.
 	 *

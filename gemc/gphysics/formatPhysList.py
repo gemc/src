@@ -94,22 +94,34 @@ def addModule(module, type):
 def printGemcHelp():
 
 	print("\n\n")
-	print('\tphysicsListHelp += string(HELPFILLSPACE) + "The available geant4 modules are:\\n\\n";')
+	print('\tphysicsListHelp += string(goptions::HELPFILLSPACE) + "The available geant4 modules are:\\n\\n";')
 	
 	for m in modules:
-		print(f'\tphysicsListHelp += string(HELPFILLSPACE) + " - {m}\\n";')
+		print(f'\tphysicsListHelp += string(goptions::HELPFILLSPACE) + " - {m}\\n";')
 		
-	print('\tphysicsListHelp += "\\n" + string(HELPFILLSPACE) + "The default e.m. physics can be replaced by appending one of these strings to the module above:\\n\\n";')
+	print(
+		'\tphysicsListHelp += "\\n" + string(goptions::HELPFILLSPACE) + "The default e.m. physics can be '
+		'replaced by appending one of these strings to the module above:\\n\\n";'
+	)
 	
 	for repTicket, repItem in rmap.items():
-		print(f'\tphysicsListHelp += string(HELPFILLSPACE) + " - _{repTicket} to use {repItem}\\n" ;')
+		print(f'\tphysicsListHelp += string(goptions::HELPFILLSPACE) + " - _{repTicket} to use {repItem}\\n" ;')
 	
-	print('\tphysicsListHelp += "\\n" + string(HELPFILLSPACE) + "For example, FTFP_BERT_LIV would replace the default e.m. physics with the Livermode model \\n\\n";')
-	print('\tphysicsListHelp += "\\n" + string(HELPFILLSPACE) + "Additional physics can be loaded by adding its constructor name to the list using the \"+\" sign\\n";')
-	print('\tphysicsListHelp += "\\n" + string(HELPFILLSPACE) + "For example: FTFP_BERT + G4OpticalPhysics. The available constructors are: \\n\\n";')
+	print(
+		'\tphysicsListHelp += "\\n" + string(goptions::HELPFILLSPACE) + "For example, FTFP_BERT_LIV would '
+		'replace the default e.m. physics with the Livermode model \\n\\n";'
+	)
+	print(
+		'\tphysicsListHelp += "\\n" + string(goptions::HELPFILLSPACE) + "Additional physics can be loaded '
+		'by adding its constructor name to the list using the \"+\" sign\\n";'
+	)
+	print(
+		'\tphysicsListHelp += "\\n" + string(goptions::HELPFILLSPACE) + "For example: FTFP_BERT + '
+		'G4OpticalPhysics. The available constructors are: \\n\\n";'
+	)
 	
 	for m in ctors:
-		print(f'\tphysicsListHelp += string(HELPFILLSPACE) + " - {m}\\n";')
+		print(f'\tphysicsListHelp += string(goptions::HELPFILLSPACE) + " - {m}\\n";')
 
 	print("\n\n")
 
@@ -166,8 +178,6 @@ def printGemcMD(version):
 
 if __name__ == "__main__":
 	main()
-
-
 
 
 

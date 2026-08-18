@@ -16,7 +16,7 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 	//
 	//  for(unsigned i=0; i<parameters.size(); ++i) {
 	//      if(getG4Number(parameters[i]) == 0) {
-	//          cout << GWARNING << " Warning: G4Box has one side null!" << endl;
+	//          cout << guts::GWARNING << " Warning: G4Box has one side null!" << endl;
 	//      }
 	//  }
 
@@ -46,7 +46,7 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 		// second constructor -> ((nPars-3) mod 2) == 0
 		if (actualNumberOfParameters % 3 != 0 &&
 			(actualNumberOfParameters - 3) % 2 != 0) {
-			log->error(ERR_G4PARAMETERSMISMATCH,
+			log->error(g4system::ERR_G4PARAMETERSMISMATCH,
 			           "Wrong number of parameters in the constructor of <",
 			           name, "> of solid type <", type, ">: ", s->getParameters());
 		}
@@ -59,7 +59,7 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 		// second constructor -> ((nPars-4) mod 2) == 0
 		if ((actualNumberOfParameters - 4) % 3 != 0 &&
 			(actualNumberOfParameters - 4) % 2 != 0) {
-			log->error(ERR_G4PARAMETERSMISMATCH,
+			log->error(g4system::ERR_G4PARAMETERSMISMATCH,
 			           "Wrong number of parameters in the constructor of <",
 			           name, "> of solid type <", type, ">: ", s->getParameters());
 		}
@@ -77,7 +77,7 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 	else if (type == "G4TwistedTrd") possibleNumberOfParameters = {6};
 	else if (type == "G4TwistedTubs") possibleNumberOfParameters = {5};
 	else {
-		log->error(ERR_G4SOLIDTYPENOTFOUND,
+		log->error(g4system::ERR_G4SOLIDTYPENOTFOUND,
 		           "The constructor of <", name,
 		           "> uses an unknown solid type <", type, ">");
 	}
@@ -85,7 +85,7 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 	// Generic count check for fixed-count solids.
 	if (possibleNumberOfParameters.find(actualNumberOfParameters)
 		== possibleNumberOfParameters.end()) {
-		log->error(ERR_G4PARAMETERSMISMATCH,
+		log->error(g4system::ERR_G4PARAMETERSMISMATCH,
 		           "Wrong number of parameters in the constructor of <", name,
 		           "> of solid type <", type, ">: ", s->getParameters());
 	}

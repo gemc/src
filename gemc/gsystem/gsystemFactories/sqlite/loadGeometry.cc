@@ -71,18 +71,20 @@ namespace {
 
 void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 	// skip ROOT system
-	if (system->getName() == ROOTWORLDGVOLUMENAME) { return; }
+	if (system->getName() == gsystem::ROOTWORLDGVOLUMENAME) { return; }
 
 	// Initialize the DB if needed.
 	if (db == nullptr) { initialize_sqlite_db(system); }
 
 	// Check that db is valid.
-	if (db == nullptr) { log->error(ERR_GSQLITEERROR, "Database pointer is still null after initialization."); }
-
+	if (db == nullptr) {
+		log->error(gsystem::ERR_GSQLITEERROR, "Database pointer is still null after initialization.");
+	}
 
 	const std::string placement_column = geometry_column_exists(db, "g4placement_type")
 	                                   ? "g4placement_type"
-	                                   : "'" DEFAULTG4PLACEMENTTYPE "' AS g4placement_type";
+	                                   : "'" + std::string(gsystem::DEFAULTG4PLACEMENTTYPE) +
+	                                     "' AS g4placement_type";
 	const std::string sql_query =
 		"SELECT DISTINCT name, solid, parameters, material, mother, position, rotations, " +
 		placement_column +
@@ -91,7 +93,7 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 	sqlite3_stmt* stmt = nullptr;
 	int           rc   = sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "Sqlite error preparing count query in loadGeometry: ",
+		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite error preparing count query in loadGeometry: ",
 		           sqlite3_errmsg(db), " (", rc, ") using query: ", sql_query);
 	}
 
@@ -103,19 +105,19 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 
 	rc = sqlite3_bind_text(stmt, 1, experiment.c_str(), -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "Error binding experiment: >", experiment, "<, ", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "Error binding experiment: >", experiment, "<, ", sqlite3_errmsg(db));
 	}
 	rc = sqlite3_bind_text(stmt, 2, system_name.c_str(), -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "Error binding system name: >", system_name, "<, ", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "Error binding system name: >", system_name, "<, ", sqlite3_errmsg(db));
 	}
 	rc = sqlite3_bind_text(stmt, 3, variation.c_str(), -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "Error binding variation: >", variation, "<, ", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "Error binding variation: >", variation, "<, ", sqlite3_errmsg(db));
 	}
 	rc = sqlite3_bind_int(stmt, 4, runno);
 	if (rc != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "Error binding run number: >", runno, "<, ", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "Error binding run number: >", runno, "<, ", sqlite3_errmsg(db));
 	}
 
 	// Log the expanded SQL for debugging (caller must free it).
@@ -151,7 +153,7 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 
 		// CAD rows can coexist with native rows in a sqlite system. Resolve their database-authored
 		// mesh path against the YAML and database locations before the Geant4 CAD builder sees it.
-		if (gvolumePars[1] == GSYSTEMCADTFACTORYLABEL) {
+		if (gvolumePars[1] == gsystem::GSYSTEMCADTFACTORYLABEL) {
 			const auto meshReference = cad_mesh_reference(gvolumePars[2], gvolumePars[19]);
 			auto meshPath = gutilities::searchForFileInLocations(cadSearchDirectories,
 			                                                     meshReference);
@@ -169,7 +171,7 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 	}
 
 	if (rc != SQLITE_DONE) {
-		log->error(ERR_GSQLITEERROR, "Sqlite database error in loadGeometry: ",
+		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadGeometry: ",
 		           sqlite3_errmsg(db), " (", rc, ")");
 	}
 

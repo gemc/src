@@ -7,7 +7,9 @@
 
 bool GstreamerRootFactory::publishRunDigitizedDataImpl(const std::string&                        detectorName,
 													   const std::vector<const GDigitizedData*>& digitizedData) {
-	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
+	if (rootfile == nullptr) {
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized");
+	}
 
 	// Lazily create the detector tree from the first hit, then fill it with the full collection.
 	if (!digitizedData.empty()) {

@@ -129,7 +129,7 @@ public:
 		auto it = g4systemFactory.find(factoryName);
 		if (it != g4systemFactory.end()) return it->second;
 		else {
-			log->error(ERR_G4SYSTEMFACTORYNOTFOUND,
+			log->error(g4system::ERR_G4SYSTEMFACTORYNOTFOUND,
 			           "G4World: factory <", factoryName, "> not found.");
 		}
 	}

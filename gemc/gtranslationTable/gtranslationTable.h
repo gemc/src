@@ -27,8 +27,8 @@
  *
  * Error handling:
  * - If a key already exists when inserting, the module logs a warning and preserves the original value.
- * - If a key is not found when retrieving, the module logs an error (EC__TTNOTFOUNDINTT) and returns
- *   a default-constructed GElectronic.
+ * - If a key is not found when retrieving, the module logs an error (gtranslationTable::EC__TTNOTFOUNDINTT) and
+ * terminates.
  *
  * \note This class derives from GBase to obtain consistent module logging behavior and to bind the
  *       logger name (TRANSLATIONTABLE_LOGGER).
@@ -71,13 +71,13 @@ public:
 	 *
 	 * This method derives the internal key from \p identity and looks it up in the table.
 	 *
-	 * - If found, the associated GElectronic is returned.
-	 * - If not found, an error is logged (EC__TTNOTFOUNDINTT) and a default-constructed GElectronic is returned.
+	 * - If found, a reference to the stored GElectronic is returned.
+	 * - If not found, an error is logged (gtranslationTable::EC__TTNOTFOUNDINTT) and the process terminates.
 	 *
 	 * \param identity A vector of integers representing the unique identity.
-	 * \return The GElectronic associated with \p identity, or a default-constructed GElectronic if not found.
+	 * \return The GElectronic associated with \p identity. The reference remains valid for the table lifetime.
 	 */
-	[[nodiscard]] GElectronic getElectronics(const std::vector<int>& identity) const;
+	[[nodiscard]] const GElectronic& getElectronics(const std::vector<int>& identity) const;
 
 private:
 	// The map uses a string formed from the identity vector as its key.

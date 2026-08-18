@@ -1,5 +1,7 @@
 #pragma once
 
+namespace gtouchable {
+
 /**
  * \file gtouchableConventions.h
  * \brief Conventions and constants used by the gtouchable module.
@@ -16,7 +18,7 @@
  * Flux touchables use the **track id** as the discriminating factor (in addition to the identity vector).
  * They also typically rely on standard "true infos" variables provided by the simulation.
  */
-#define FLUXNAME "flux"
+inline constexpr char FLUXNAME[] = "flux";
 
 /**
  * \brief Digitization type name for optical-photon flux detectors.
@@ -24,7 +26,7 @@
  * gPhotonDetector touchables use the **track id** as the discriminating factor, like flux,
  * but the digitization routine records only optical photons.
  */
-#define GPHOTON_DETECTORNAME "gPhotonDetector"
+inline constexpr char GPHOTON_DETECTORNAME[] = "gPhotonDetector";
 
 /**
  * \brief Digitization type name for simple particle counters.
@@ -32,14 +34,14 @@
  * Particle-counter  use the **particle id** as the discriminating factor (in addition to the identity vector).
  * They also typically rely on standard "true infos" variables provided by the simulation.
  */
-#define COUNTERNAME "particle_counter"
+inline constexpr char COUNTERNAME[] = "particle_counter";
 
 /**
  * \brief Digitization type name for dosimeters.
  *
  * Dosimeter requires no additional discriminator beyond the identity vector. Meant to accumulate dose.
  */
-#define DOSIMETERNAME "dosimeter"
+inline constexpr char DOSIMETERNAME[] = "dosimeter";
 
 /**
  * \brief Digitization type name for integral_counter.
@@ -47,7 +49,7 @@
  * integral_counter requires no additional discriminator beyond the identity vector. It is meant to accumulate
  * all quantities within a sensitive cell
  */
-#define INTEGRAL_COUNTERNAME "integral_counter"
+inline constexpr char INTEGRAL_COUNTERNAME[] = "integral_counter";
 
 
 
@@ -58,4 +60,6 @@
  * belong to the same time window. Until the digitization plugin assigns a valid time-cell index,
  * this value is used to mark the index as "not set".
  */
-#define GTOUCHABLEUNSETTIMEINDEX -1
+inline constexpr int GTOUCHABLEUNSETTIMEINDEX = -1;
+
+} // namespace gtouchable

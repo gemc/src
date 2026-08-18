@@ -27,7 +27,7 @@ vector<G4SceneText> getSceneTexts(const std::shared_ptr<GOptions>& gopts) {
 		st_item.layout = gopts->get_variable_in_option<string>(g4t_item, "layout", "");
 		st_item.x     = gopts->get_variable_in_option<double>(g4t_item, "x", 0);
 		st_item.y     = gopts->get_variable_in_option<double>(g4t_item, "y", 0);
-		st_item.z     = gopts->get_variable_in_option<double>(g4t_item, "z", GNOT_SPECIFIED_SCENE_TEXT_Z);
+		st_item.z     = gopts->get_variable_in_option<double>(g4t_item, "z", g4display::GNOT_SPECIFIED_SCENE_TEXT_Z);
 		st_item.unit  = gopts->get_variable_in_option<string>(g4t_item, "unit", "cm");
 		st_item.size  = gopts->get_variable_in_option<double>(g4t_item, "size", 24.0);
 		st_item.dx    = gopts->get_variable_in_option<double>(g4t_item, "dx", 4.0);
@@ -56,7 +56,7 @@ GOptions addSceneTextsOptions() {
 		{"layout", "", "optional text layout, for example right"},
 		{"x", 0, "x position of the text"},
 		{"y", 0, "y position of the text"},
-		{"z", GNOT_SPECIFIED_SCENE_TEXT_Z, "z position of the text"},
+		{"z", g4display::GNOT_SPECIFIED_SCENE_TEXT_Z, "z position of the text"},
 		{"unit", "cm", "unit for 3D text positions"},
 		{"size", 24.0, "size of the text"},
 		{"dx", 4.0, "3D text x offset"},

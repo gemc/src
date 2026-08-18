@@ -23,12 +23,12 @@
 namespace {
 
 bool is_unset_field_name(const std::string& name) {
-	return name.empty() || name == UNINITIALIZEDSTRINGQUANTITY || name == "not provided";
+	return name.empty() || name == guts::UNINITIALIZEDSTRINGQUANTITY || name == "not provided";
 }
 
 double configured_max_field_step(const std::shared_ptr<GOptions>& gopts) {
-	if (gopts == nullptr || !gopts->doesOptionExist(MAX_FIELD_STEP_OPTION)) { return 0.0; }
-	const auto value = gopts->getOptionalScalarString(MAX_FIELD_STEP_OPTION);
+	if (gopts == nullptr || !gopts->doesOptionExist(gfields::MAX_FIELD_STEP_OPTION)) { return 0.0; }
+	const auto value = gopts->getOptionalScalarString(gfields::MAX_FIELD_STEP_OPTION);
 	return value ? gutilities::getG4Number(*value) : 0.0;
 }
 
@@ -88,20 +88,20 @@ std::shared_ptr<GField> GMagneto::initialize_magnetic_field(
     std::shared_ptr<GLogger> caller_log) {
 	if (gopts == nullptr) { return nullptr; }
 
-	if (gopts->doesOptionExist(NO_FIELD_OPTION)) {
-		const auto no_field_value = gopts->getOptionalScalarString(NO_FIELD_OPTION);
-		if (no_field_value && *no_field_value == NO_FIELD_ALL) {
+	if (gopts->doesOptionExist(gfields::NO_FIELD_OPTION)) {
+		const auto no_field_value = gopts->getOptionalScalarString(gfields::NO_FIELD_OPTION);
+		if (no_field_value && *no_field_value == gfields::NO_FIELD_ALL) {
 			if (caller_log != nullptr) {
-				caller_log->info(1, "Global field reset by -", NO_FIELD_OPTION, "=", NO_FIELD_ALL,
+				caller_log->info(1, "Global field reset by -", gfields::NO_FIELD_OPTION, "=", gfields::NO_FIELD_ALL,
 				                 ": direct field probes disabled.");
 			}
 			return nullptr;
 		}
 	}
 
-	if (!gopts->doesOptionExist(GLOBAL_FIELD_OPTION)) { return nullptr; }
+	if (!gopts->doesOptionExist(gfields::GLOBAL_FIELD_OPTION)) { return nullptr; }
 
-	const auto field_name = gopts->getOptionalScalarString(GLOBAL_FIELD_OPTION);
+	const auto field_name = gopts->getOptionalScalarString(gfields::GLOBAL_FIELD_OPTION);
 	if (!field_name || is_unset_field_name(*field_name)) { return nullptr; }
 
 	for (const auto& field_definition : gfields::get_GFieldDefinition(gopts)) {

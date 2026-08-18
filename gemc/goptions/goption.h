@@ -180,7 +180,8 @@ public:
 	 * Update rules:
 	 * - If the stored value is a YAML sequence of maps: every map entry that contains @p subkey is updated.
 	 * - If the stored value is a YAML map: the map entry @p subkey is updated.
-	 * - If @p subkey does not exist in the stored structured value, the program exits with \c EC__NOOPTIONFOUND .
+	 * - If @p subkey does not exist in the stored structured value, the program exits with \c
+	 * goptions::EC__NOOPTIONFOUND .
 	 *
 	 * \param subkey The sub-option key to update.
 	 * \param subvalue The new value expressed as a string; it is parsed as YAML.

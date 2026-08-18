@@ -1,18 +1,11 @@
 // gtouchable
 #include "gelectronic.h"
 
-// for UNINITIALIZEDNUMBERQUANTITY
-#include "gutsConventions.h"
-
 // See header for API docs.
 
 // Constructor initializing GElectronic with specified address and mode.
-GElectronic::GElectronic(int c, int s, int ch, int m) : crate(c), slot(s), channel(ch), mode(m) {
-}
-
-// Default constructor initializing GElectronic with uninitialized values.
-GElectronic::GElectronic() : crate(UNINITIALIZEDNUMBERQUANTITY), slot(UNINITIALIZEDNUMBERQUANTITY),
-                             channel(UNINITIALIZEDNUMBERQUANTITY), mode(UNINITIALIZEDNUMBERQUANTITY) {
+GElectronic::GElectronic(int c, int s, int ch, ComparisonMode comparison_mode) :
+	crate(c), slot(s), channel(ch), mode(comparison_mode) {
 }
 
 
@@ -24,22 +17,19 @@ void GElectronic::setHAddress(int c, int s, int ch) {
 }
 
 // Returns the hardware address as a vector.
-std::vector<int> GElectronic::getHAddress() {
+std::vector<int> GElectronic::getHAddress() const {
 	return {crate, slot, channel};
 }
 
 // Equality operator comparing based on the mode.
 bool GElectronic::operator==(const GElectronic& ge) const {
-	if (this->mode == 0) {
+	if (mode == ComparisonMode::crate) {
 		return this->crate == ge.crate;
 	}
-	else if (this->mode == 1) {
+	if (mode == ComparisonMode::crate_slot) {
 		return this->crate == ge.crate && this->slot == ge.slot;
 	}
-	else if (this->mode == 2) {
-		return this->crate == ge.crate && this->slot == ge.slot && this->channel == ge.channel;
-	}
-	return false;
+	return this->crate == ge.crate && this->slot == ge.slot && this->channel == ge.channel;
 }
 
 // Overloaded output stream operator for GElectronic.

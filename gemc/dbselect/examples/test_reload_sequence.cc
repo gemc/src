@@ -103,7 +103,7 @@ public:
 static auto makeSystem(const std::shared_ptr<GOptions>& gopts, const std::string& dbhost,
                         const std::string& name) {
     return std::make_shared<GSystem>(gopts, dbhost, name,
-                                     GSYSTEMSQLITETFACTORYLABEL, "examples", 1, "default");
+                                     gsystem::GSYSTEMSQLITETFACTORYLABEL, "examples", 1, "default");
 }
 
 // ---------------------------------------------------------------------------

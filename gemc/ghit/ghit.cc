@@ -41,14 +41,6 @@ GHit::GHit(std::shared_ptr<GTouchable> gt,
 	gtouchable(gt) {
 	// Initialize per-step vectors if a step is provided.
 	if (thisStep) { addHitInfos(thisStep); }
-
-	// Cached derived quantities — computed lazily by calculateInfos() before publishing.
-	averageTime       = UNINITIALIZEDNUMBERQUANTITY;
-	avgGlobalPosition = G4ThreeVector(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY,
-	                                  UNINITIALIZEDNUMBERQUANTITY);
-	avgLocalPosition = G4ThreeVector(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY,
-	                                 UNINITIALIZEDNUMBERQUANTITY);
-	processName = UNINITIALIZEDSTRINGQUANTITY;
 }
 
 bool GHit::is_same_hit(const GHit* hit) const {
@@ -131,13 +123,15 @@ void GHit::randomizeHitForTesting(int nsteps) {
 	// It randomizes the hit's global position and energy deposition.
 	// It should not be used in production code.
 
+	invalidateCalculatedState();
+
 	// Generate nsteps+1 entries to preserve the existing behavior exactly.
 	for (int i = 0; i < nsteps + 1; ++i) {
 		globalPositions.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
 		localPositions.emplace_back(G4UniformRand() * 10, G4UniformRand() * 10, G4UniformRand() * 10);
 		trackVertexPositions.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
-		motherTrackVertexPositions.emplace_back(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY,
-		                                        UNINITIALIZEDNUMBERQUANTITY);
+		motherTrackVertexPositions.emplace_back(guts::UNINITIALIZEDNUMBERQUANTITY, guts::UNINITIALIZEDNUMBERQUANTITY,
+		                                        guts::UNINITIALIZEDNUMBERQUANTITY);
 		times.emplace_back(G4UniformRand() * 100);
 		edeps.emplace_back(G4UniformRand() * 10);
 		pids.emplace_back(11);

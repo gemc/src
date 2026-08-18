@@ -34,11 +34,11 @@
  *  The module follows conventions defined in gutsConventions.h :
  *
  *  - **Message prefixes**:
- *    - \c FATALERRORL and \c GWARNING provide standardized fatal/warning prefixes.
+ *    - \c guts::FATALERRORL and \c guts::GWARNING provide standardized fatal/warning prefixes.
  *  - **Text formatting**:
  *    - ANSI helpers such as \c FRED("...") or \c BOLD("...") for colored/bold console output.
  *  - **List glyphs**:
- *    - \c POINTITEM, \c CIRCLEITEM, \c SQUAREITEM, etc., to keep console logs consistent.
+ *    - \c guts::POINTITEM, \c guts::CIRCLEITEM, \c guts::SQUAREITEM, etc., to keep console logs consistent.
  *
  *  \section guts_examples Examples
  *

@@ -8,72 +8,78 @@
 
 bool GstreamerTextFactory::publishEventTrueInfoDataImpl(const std::string&                       detectorName,
 														const std::vector<const GTrueInfoData*>& trueInfoData) {
-	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
+	if (!ofile.is_open()) {
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+	}
 
-	ofile << GTAB << "Detector <" << detectorName << "> True Info Bank {\n";
+	ofile << guts::GTAB << "Detector <" << detectorName << "> True Info Bank {\n";
 
 	for (auto trueInfoHit : trueInfoData) {
 		auto identifierString = getIdentityString(trueInfoHit->getIdentity());
 
-		ofile << GTABTAB << "Hit address: " << identifierString << " {\n";
+		ofile << guts::GTABTAB << "Hit address: " << identifierString << " {\n";
 
 		for (const auto& [variableName, value] : trueInfoHit->getDoubleVariablesMap()) {
-			ofile << GTABTABTAB << variableName << ": " << value << "\n";
+			ofile << guts::GTABTABTAB << variableName << ": " << value << "\n";
 		}
 		for (const auto& [variableName, value] : trueInfoHit->getStringVariablesMap()) {
-			ofile << GTABTABTAB << variableName << ": " << value << "\n";
+			ofile << guts::GTABTABTAB << variableName << ": " << value << "\n";
 		}
 
-		ofile << GTABTAB << "}\n";
+		ofile << guts::GTABTAB << "}\n";
 	}
-	ofile << GTAB << "}\n";
+	ofile << guts::GTAB << "}\n";
 
 	return true;
 }
 
 bool GstreamerTextFactory::publishEventGeneratedParticlesImpl(const std::string& bankName,
                                                               const GGeneratedParticleBank& particles) {
-	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
-
-	ofile << GTAB << "Generated Particle Bank <" << bankName << "> {\n";
-
-	for (const auto& particle : particles) {
-		ofile << GTABTAB << "Particle {\n";
-		ofile << GTABTABTAB << "name: " << particle.name << "\n";
-		ofile << GTABTABTAB << "pid: " << particle.pid << "\n";
-		ofile << GTABTABTAB << "type: " << particle.type << "\n";
-		ofile << GTABTABTAB << "multiplicity: " << particle.multiplicity << "\n";
-		ofile << GTABTABTAB << "p: " << particle.p << "\n";
-		ofile << GTABTABTAB << "theta: " << particle.theta << "\n";
-		ofile << GTABTABTAB << "phi: " << particle.phi << "\n";
-		ofile << GTABTABTAB << "vx: " << particle.vx << "\n";
-		ofile << GTABTABTAB << "vy: " << particle.vy << "\n";
-		ofile << GTABTABTAB << "vz: " << particle.vz << "\n";
-		ofile << GTABTAB << "}\n";
+	if (!ofile.is_open()) {
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
 	}
 
-	ofile << GTAB << "}\n";
+	ofile << guts::GTAB << "Generated Particle Bank <" << bankName << "> {\n";
+
+	for (const auto& particle : particles) {
+		ofile << guts::GTABTAB << "Particle {\n";
+		ofile << guts::GTABTABTAB << "name: " << particle.name << "\n";
+		ofile << guts::GTABTABTAB << "pid: " << particle.pid << "\n";
+		ofile << guts::GTABTABTAB << "type: " << particle.type << "\n";
+		ofile << guts::GTABTABTAB << "multiplicity: " << particle.multiplicity << "\n";
+		ofile << guts::GTABTABTAB << "p: " << particle.p << "\n";
+		ofile << guts::GTABTABTAB << "theta: " << particle.theta << "\n";
+		ofile << guts::GTABTABTAB << "phi: " << particle.phi << "\n";
+		ofile << guts::GTABTABTAB << "vx: " << particle.vx << "\n";
+		ofile << guts::GTABTABTAB << "vy: " << particle.vy << "\n";
+		ofile << guts::GTABTABTAB << "vz: " << particle.vz << "\n";
+		ofile << guts::GTABTAB << "}\n";
+	}
+
+	ofile << guts::GTAB << "}\n";
 	return true;
 }
 
 bool GstreamerTextFactory::publishEventAncestorsImpl(const GAncestorBank& ancestors) {
-	if (!ofile.is_open()) { log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename()); }
-
-	ofile << GTAB << "Ancestor Bank {\n";
-	for (const auto& ancestor : ancestors) {
-		ofile << GTABTAB << "Track {\n";
-		ofile << GTABTABTAB << "pid: " << ancestor.pid << "\n";
-		ofile << GTABTABTAB << "tid: " << ancestor.tid << "\n";
-		ofile << GTABTABTAB << "mtid: " << ancestor.mtid << "\n";
-		ofile << GTABTABTAB << "trackE: " << ancestor.trackE << "\n";
-		ofile << GTABTABTAB << "px: " << ancestor.px << "\n";
-		ofile << GTABTABTAB << "py: " << ancestor.py << "\n";
-		ofile << GTABTABTAB << "pz: " << ancestor.pz << "\n";
-		ofile << GTABTABTAB << "vx: " << ancestor.vx << "\n";
-		ofile << GTABTABTAB << "vy: " << ancestor.vy << "\n";
-		ofile << GTABTABTAB << "vz: " << ancestor.vz << "\n";
-		ofile << GTABTAB << "}\n";
+	if (!ofile.is_open()) {
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
 	}
-	ofile << GTAB << "}\n";
+
+	ofile << guts::GTAB << "Ancestor Bank {\n";
+	for (const auto& ancestor : ancestors) {
+		ofile << guts::GTABTAB << "Track {\n";
+		ofile << guts::GTABTABTAB << "pid: " << ancestor.pid << "\n";
+		ofile << guts::GTABTABTAB << "tid: " << ancestor.tid << "\n";
+		ofile << guts::GTABTABTAB << "mtid: " << ancestor.mtid << "\n";
+		ofile << guts::GTABTABTAB << "trackE: " << ancestor.trackE << "\n";
+		ofile << guts::GTABTABTAB << "px: " << ancestor.px << "\n";
+		ofile << guts::GTABTABTAB << "py: " << ancestor.py << "\n";
+		ofile << guts::GTABTABTAB << "pz: " << ancestor.pz << "\n";
+		ofile << guts::GTABTABTAB << "vx: " << ancestor.vx << "\n";
+		ofile << guts::GTABTABTAB << "vy: " << ancestor.vy << "\n";
+		ofile << guts::GTABTABTAB << "vz: " << ancestor.vz << "\n";
+		ofile << guts::GTABTAB << "}\n";
+	}
+	ofile << guts::GTAB << "}\n";
 	return true;
 }

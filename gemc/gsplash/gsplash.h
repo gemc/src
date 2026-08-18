@@ -7,27 +7,27 @@
 #include <QtWidgets>
 #include <QTimer>
 
-#define GSPLASHENVIRONMENT    "GSPLASH"
-#define NOSPLASHIMAGESELECTED "NOSPLASHIMAGESELECTED"
+namespace gsplash {
+
+inline constexpr char GSPLASHENVIRONMENT[] = "GSPLASH";
+inline constexpr char NOSPLASHIMAGESELECTED[] = "NOSPLASHIMAGESELECTED";
 
 // exit codes: 190s
-#define ERR_NOSPLASHENVFOUND  191
+inline constexpr int ERR_NOSPLASHENVFOUND = 191;
 
 /**
  * \brief Default logger name used by this module.
  *
  * This string is passed to the base logging facilities to tag messages produced by GSplash.
  */
-constexpr const char* GSPLASH_LOGGER = "gsplash";
-constexpr const char* GSPLASH_TIME_OPTION = "splash_time";
-constexpr const char* GSPLASH_SCALE_OPTION = "splash_scale";
+inline constexpr char GSPLASH_LOGGER[] = "gsplash";
+inline constexpr char GSPLASH_TIME_OPTION[] = "splash_time";
+inline constexpr char GSPLASH_SCALE_OPTION[] = "splash_scale";
 
 /**
  * @ingroup gsplash_core
  * \brief Namespace utilities for the GSplash module.
  */
-namespace gsplash {
-
 /**
  * \brief Defines the module options for GSplash.
  *
@@ -44,18 +44,17 @@ namespace gsplash {
  * \return A GOptions definition for the GSplash module.
  */
 inline GOptions defineOptions() {
-	GOptions goptions(GSPLASH_LOGGER);
-	goptions.defineOption(GVariable(GSPLASH_TIME_OPTION, -1.0, "splash display time in seconds"),
+	GOptions goptions(gsplash::GSPLASH_LOGGER);
+	goptions.defineOption(GVariable(gsplash::GSPLASH_TIME_OPTION, -1.0, "splash display time in seconds"),
 	                      "Minimum time in seconds to keep the splash image visible before closing it. "
 	                      "A negative value uses the application default.");
-	goptions.defineOption(GVariable(GSPLASH_SCALE_OPTION, 0.5, "splash image scale factor"),
+	goptions.defineOption(GVariable(gsplash::GSPLASH_SCALE_OPTION, 0.5, "splash image scale factor"),
 	                      "Scale factor applied to the splash image before display. "
 	                      "Use 1.0 for the image's original size.");
 	return goptions;
 }
 
 } // namespace gsplash
-
 
 /**
  * @ingroup gsplash_core
@@ -66,9 +65,9 @@ inline GOptions defineOptions() {
  * returns nullptr so callers can safely use it in both GUI and headless workflows.
  *
  * Image selection rules:
- * - If @p imageName is not \c NOSPLASHIMAGESELECTED, GSplash tries to load it first as a filesystem path,
- *   then as a \c Qt resource by prefixing \c ":/".
- * - If @p imageName is \c NOSPLASHIMAGESELECTED, GSplash reads the image filename from the environment
+ * - If @p imageName is not \c gsplash::NOSPLASHIMAGESELECTED, GSplash tries to load it first as a filesystem
+ * path, then as a \c Qt resource by prefixing \c ":/".
+ * - If @p imageName is \c gsplash::NOSPLASHIMAGESELECTED, GSplash reads the image filename from the environment
  *   variable \c GSPLASH.
  *
  * Message behavior:
@@ -88,7 +87,7 @@ public:
 	 * Ownership is returned as a std::unique_ptr to enforce a single owner and avoid ambiguous lifetime.
 	 *
 	 * \param gopts Shared application options.
-	 * \param imageName Splash image name or path. When set to \c NOSPLASHIMAGESELECTED, the image path is
+	 * \param imageName Splash image name or path. When set to \c gsplash::NOSPLASHIMAGESELECTED, the image path is
 	 *        taken from the environment variable \c GSPLASH. Defaults to \c "gemcArchitecture".
 	 * \param splashTime Fallback minimum display time in seconds when the \c splash_time option is negative.
 	 * \return A std::unique_ptr to GSplash when GUI is enabled, otherwise nullptr.

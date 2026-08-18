@@ -66,7 +66,7 @@
  *
  * - Identity vectors are converted to a hyphen-separated key (e.g. \c 1-2-3-4-5).
  * - Keys must be stable: the same identity vector must be provided to retrieve the same entry.
- * - When an entry is missing, the module logs an error with EC__TTNOTFOUNDINTT.
+ * - When an entry is missing, the module logs an error with gtranslationTable::EC__TTNOTFOUNDINTT.
  *
  * \n\n
  * \author \n &copy; Maurizio Ungaro

@@ -56,8 +56,8 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 
 			for (auto &[volumeName, gvolumePtr]: gsystem->getGVolumesMap()) {
 				auto *gvolume = gvolumePtr.get();
-				const std::string g4Factory = gvolume->getType() == GSYSTEMCADTFACTORYLABEL
-				                              ? G4SYSTEMCADFACTORY
+				const std::string g4Factory = gvolume->getType() == gsystem::GSYSTEMCADTFACTORYLABEL
+				                              ? g4system::G4SYSTEMCADFACTORY
 				                              : defaultG4Factory;
 				auto objectsFactory = get_factory(g4Factory);
 
@@ -91,7 +91,7 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 				log->warning(" >> ", gvolumeLeft->getName(),
 				             " with mother <", gvolumeLeft->getG4MotherName(), "> not built");
 			}
-			log->error(ERR_G4DEPENDENCIESNOTSOLVED,
+			log->error(g4system::ERR_G4DEPENDENCIESNOTSOLVED,
 			           "dependencies are not being resolved: their number should diminish. "
 			           "Above are the outstanding gvolumes");
 		}
@@ -138,11 +138,11 @@ void G4World::setFieldManagerForVolume(const std::string &volumeName,
 // ---- g4FactoryNameFromSystemFactory -----------------------------------------------------------
 std::string G4World::g4FactoryNameFromSystemFactory(const std::string &factory) const {
 	// Map GEMC system factory labels to g4system object factory labels.
-	if (factory == GSYSTEMASCIIFACTORYLABEL ||
-	    factory == GSYSTEMSQLITETFACTORYLABEL ||
-	    factory == GSYSTEMMYSQLTFACTORYLABEL) { return G4SYSTEMNATFACTORY; } else if (
-		factory == GSYSTEMCADTFACTORYLABEL) { return G4SYSTEMCADFACTORY; } else {
-		log->error(ERR_G4SYSTEMFACTORYNOTFOUND,
+	if (factory == gsystem::GSYSTEMASCIIFACTORYLABEL ||
+	    factory == gsystem::GSYSTEMSQLITETFACTORYLABEL ||
+	    factory == gsystem::GSYSTEMMYSQLTFACTORYLABEL) { return g4system::G4SYSTEMNATFACTORY; } else if (
+		factory == gsystem::GSYSTEMCADTFACTORYLABEL) { return g4system::G4SYSTEMCADFACTORY; } else {
+		log->error(g4system::ERR_G4SYSTEMFACTORYNOTFOUND,
 		           "gsystemFactory factory <", factory, "> is not mapped to any G4SystemFactory");
 	}
 }
@@ -155,8 +155,8 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions> &gopts,
 	GManager manager(gopts);
 
 	// Creating the native factory no matter what (it is the default for ASCII/SQLite/MySQL systems).
-	log->info(2, "G4World: registering default factory <", G4SYSTEMNATFACTORY, ">");
-	manager.RegisterObjectFactory<G4NativeSystemFactory>(G4SYSTEMNATFACTORY, gopts);
+	log->info(2, "G4World: registering default factory <", g4system::G4SYSTEMNATFACTORY, ">");
+	manager.RegisterObjectFactory<G4NativeSystemFactory>(g4system::G4SYSTEMNATFACTORY, gopts);
 
 	// Register factories based on the system factory label, then create/initialize them lazily.
 	for (auto &[gsystemName, gsystem]: *gsystemsMap) {
@@ -167,13 +167,13 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions> &gopts,
 
 		// Register needed factory types:
 		// this will always be false for the default native label because it was registered above.
-		if (factory == GSYSTEMASCIIFACTORYLABEL || factory == GSYSTEMSQLITETFACTORYLABEL ||
-		    factory == GSYSTEMMYSQLTFACTORYLABEL) {
+		if (factory == gsystem::GSYSTEMASCIIFACTORYLABEL || factory == gsystem::GSYSTEMSQLITETFACTORYLABEL ||
+		    factory == gsystem::GSYSTEMMYSQLTFACTORYLABEL) {
 			if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) {
 				manager.RegisterObjectFactory<G4NativeSystemFactory>(g4Factory, gopts);
 			}
-		} else if (factory == GSYSTEMCADTFACTORYLABEL) {
-			if (g4systemFactory.find(G4SYSTEMCADFACTORY) == g4systemFactory.end()) {
+		} else if (factory == gsystem::GSYSTEMCADTFACTORYLABEL) {
+			if (g4systemFactory.find(g4system::G4SYSTEMCADFACTORY) == g4systemFactory.end()) {
 				manager.RegisterObjectFactory<G4CadSystemFactory>(g4Factory, gopts);
 			}
 		}
@@ -187,15 +187,15 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions> &gopts,
 		// SQLite and text systems may mix native and CAD rows. Register the CAD object factory when
 		// any volume in this system declares solid=CAD, independently of the system loading factory.
 		for (const auto &[volumeName, gvolume]: gsystem->getGVolumesMap()) {
-			if (gvolume->getType() != GSYSTEMCADTFACTORYLABEL ||
-			    g4systemFactory.find(G4SYSTEMCADFACTORY) != g4systemFactory.end()) {
+			if (gvolume->getType() != gsystem::GSYSTEMCADTFACTORYLABEL ||
+			    g4systemFactory.find(g4system::G4SYSTEMCADFACTORY) != g4systemFactory.end()) {
 				continue;
 			}
 
-			manager.RegisterObjectFactory<G4CadSystemFactory>(G4SYSTEMCADFACTORY, gopts);
-			g4systemFactory[G4SYSTEMCADFACTORY] =
-				manager.CreateObject<G4ObjectsFactory>(G4SYSTEMCADFACTORY);
-			g4systemFactory[G4SYSTEMCADFACTORY]->initialize_context(check_overlaps, backup_material);
+			manager.RegisterObjectFactory<G4CadSystemFactory>(g4system::G4SYSTEMCADFACTORY, gopts);
+			g4systemFactory[g4system::G4SYSTEMCADFACTORY] =
+				manager.CreateObject<G4ObjectsFactory>(g4system::G4SYSTEMCADFACTORY);
+			g4systemFactory[g4system::G4SYSTEMCADFACTORY]->initialize_context(check_overlaps, backup_material);
 		}
 	}
 }
@@ -222,7 +222,7 @@ void G4World::buildMaterials(SystemMap *system_map) {
 		if (previousRemainingMaterials != 0 && !thisIterationRemainingMaterials.empty() &&
 		    thisIterationRemainingMaterials.size() >= previousRemainingMaterials) {
 			for (auto &gmaterialLeft: thisIterationRemainingMaterials) { log->warning(gmaterialLeft->getName()); }
-			log->error(ERR_G4DEPENDENCIESNOTSOLVED,
+			log->error(g4system::ERR_G4DEPENDENCIESNOTSOLVED,
 			           "Dependencies are not being resolved: their number should diminish. Above are the Outstanding gmaterials");
 		}
 		previousRemainingMaterials = thisIterationRemainingMaterials.size();

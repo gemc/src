@@ -13,7 +13,7 @@ namespace {
 GOptions defineOptions() {
 	GOptions options;
 	options.defineOption(
-		GVariable("optional_string", UNINITIALIZEDSTRINGQUANTITY, "optional string used by this test"),
+		GVariable("optional_string", guts::UNINITIALIZEDSTRINGQUANTITY, "optional string used by this test"),
 		"An unset value must be returned as std::nullopt.");
 	return options;
 }

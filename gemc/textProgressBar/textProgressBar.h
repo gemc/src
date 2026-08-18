@@ -27,7 +27,7 @@ using std::string;
  * \par Update throttling
  * The progress bar is intentionally throttled: it only prints when the input value advances by at
  * least one internal step. The internal step size is derived from the configured [min, max] range
- * and the module constant TEXTPROGRESSBARNSTEPS.
+ * and the module constant textProgressBar::TEXTPROGRESSBARNSTEPS.
  */
 class TextProgressBar
 {
@@ -36,7 +36,7 @@ public:
 	 * \brief Constructs a progress bar with a value range and visual configuration.
 	 *
 	 * The progress bar represents values in the inclusive range [minimum, maximum]. The output is
-	 * throttled to at most TEXTPROGRESSBARNSTEPS printed updates across the full range.
+	 * throttled to at most textProgressBar::TEXTPROGRESSBARNSTEPS printed updates across the full range.
 	 *
 	 * \param w        The visual width of the bar (number of character cells between the delimiters).
 	 * \param t        The title/prefix printed before the bar (e.g. `"  processing: "`).
@@ -54,10 +54,10 @@ public:
 	                char a                        = '>') :
 		barWidth(w), title(t), min(minimum), max(maximum), startBarChar(s), endBarChar(e), middleBarChar(m),
 		advanceBarChar(a) {
-		// Determine the internal update granularity so we print at most TEXTPROGRESSBARNSTEPS updates.
-		// If the range is too small, "singleStep" becomes 0 and updates will be suppressed.
-		if (maximum - minimum > TEXTPROGRESSBARNSTEPS) {
-			singleStep = (maximum - minimum) / TEXTPROGRESSBARNSTEPS;
+		// Determine the internal update granularity so we print at most textProgressBar::TEXTPROGRESSBARNSTEPS
+		// updates. If the range is too small, "singleStep" becomes 0 and updates will be suppressed.
+		if (maximum - minimum > textProgressBar::TEXTPROGRESSBARNSTEPS) {
+			singleStep = (maximum - minimum) / textProgressBar::TEXTPROGRESSBARNSTEPS;
 		}
 		else {
 			singleStep = 0;

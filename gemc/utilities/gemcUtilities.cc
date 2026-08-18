@@ -38,9 +38,9 @@ bool scalarOptionIsTrue(const std::shared_ptr<GOptions>& gopts, const std::strin
 		return false;
 	}
 
-	std::cerr << FATALERRORL << "The option " << name
+	std::cerr << guts::FATALERRORL << "The option " << name
 	          << " accepts only true/false/yes/no/on/off/1/0." << std::endl;
-	std::exit(EC__NOOPTIONFOUND);
+	std::exit(goptions::EC__NOOPTIONFOUND);
 }
 
 std::string rootExtentForFieldCommand(const std::shared_ptr<GOptions>& gopts) {
@@ -260,7 +260,7 @@ namespace gemc {
 
 		// If the user did not set a seed, derive one using several fast-changing sources.
 		// This helps reduce accidental seed reuse across runs.
-		if (seed == SEEDNOTSET) {
+		if (seed == gemc::SEEDNOTSET) {
 			auto timed   = time(NULL);
 			auto clockd  = clock();
 			auto getpidi = getpid();
@@ -301,9 +301,12 @@ namespace gemc {
 			G4Random::setTheEngine(new CLHEP::Hurd288Engine(seed));
 		else if (randomEngineName == "TripleRand")
 			G4Random::setTheEngine(new CLHEP::TripleRand(seed));
-		else { log->error(EC__RANDOMENGINENOTFOUND, "Random engine >", randomEngineName, "< not found. Exiting."); }
+	    else {
+		    log->error(gemc::EC__RANDOMENGINENOTFOUND, "Random engine >", randomEngineName,
+		               "< not found. Exiting.");
+	    }
 
-		// Apply the seed after selecting the engine so the engine instance is active.
+	    // Apply the seed after selecting the engine so the engine instance is active.
 		log->info(0, "Starting random engine ", randomEngineName, " with seed ", seed);
 		G4Random::setTheSeed(seed);
 	}

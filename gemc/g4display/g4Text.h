@@ -48,7 +48,7 @@ struct G4SceneText
 	double y;
 
 	/// Z position used by 3D text.
-	double z = GNOT_SPECIFIED_SCENE_TEXT_Z;
+	double z = g4display::GNOT_SPECIFIED_SCENE_TEXT_Z;
 
 	/// Unit used by 3D text positions.
 	std::string unit;
@@ -84,7 +84,7 @@ std::vector<G4SceneText> getSceneTexts(const std::shared_ptr<GOptions>& gopts);
  * - \c kind (default \c "2D"; use \c "3D" for \c /vis/scene/add/text)
  * - \c layout (default empty; e.g. \c "right")
  * - \c x, \c y (default \c 0)
- * - \c z (default sentinel \c GNOT_SPECIFIED_SCENE_TEXT_Z)
+ * - \c z (default sentinel \c g4display::GNOT_SPECIFIED_SCENE_TEXT_Z)
  * - \c unit (default \c "cm" for 3D text)
  * - \c size (default \c 24.0)
  * - \c dx, \c dy (default \c 4.0 for 3D text offsets)

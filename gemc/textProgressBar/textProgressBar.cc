@@ -23,7 +23,7 @@ void TextProgressBar::setProgress(int p) {
 	double progress = indexStep / singleStep;
 
 	// progress outside boundaries
-	if (progress > TEXTPROGRESSBARNSTEPS) return;
+	if (progress > textProgressBar::TEXTPROGRESSBARNSTEPS) return;
 
 	// adding the single step
 	indexStep += singleStep;
@@ -32,7 +32,7 @@ void TextProgressBar::setProgress(int p) {
 	cout << title << startBarChar;
 
 	// pos is relative position within the bar
-	int pos = barWidth * (progress / TEXTPROGRESSBARNSTEPS);
+	int pos = barWidth * (progress / textProgressBar::TEXTPROGRESSBARNSTEPS);
 
 	// print bar, and advance char, empty space at the right places
 	for (int i = 0; i < barWidth; ++i) {
@@ -44,7 +44,7 @@ void TextProgressBar::setProgress(int p) {
 	cout << endBarChar << " " << progress << " %\r";
 
 	// carriage return if needed
-	if (progress == TEXTPROGRESSBARNSTEPS) cout << endl;
+	if (progress == textProgressBar::TEXTPROGRESSBARNSTEPS) cout << endl;
 
 	cout.flush();
 }

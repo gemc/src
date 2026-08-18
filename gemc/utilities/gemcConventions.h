@@ -1,5 +1,7 @@
 #pragma once
 
+namespace gemc {
+
 /**
  * \file gemcConventions.h
  * \brief Conventional constants used by GEMC utility helpers.
@@ -23,7 +25,7 @@
  * This error code is used by the random engine selection logic when the `randomEngine`
  * option does not match any supported engine name.
  */
-#define EC__RANDOMENGINENOTFOUND    2003
+inline constexpr int EC__RANDOMENGINENOTFOUND = 2003;
 
 /**
  * \brief Default random engine name used when no explicit selection is provided.
@@ -31,7 +33,7 @@
  * The value is expected to match one of the CLHEP engine names handled by the
  * random engine selection logic.
  */
-#define DEFAULT_RANDOM_ENGINE   "RanluxEngine"
+inline constexpr char DEFAULT_RANDOM_ENGINE[] = "RanluxEngine";
 
 /**
  * \brief Sentinel value used to mark that the random seed has not been explicitly set.
@@ -39,6 +41,8 @@
  * When the `seed` option matches this value, the utilities derive a seed using
  * time/clock/pid sources.
  */
-#define SEEDNOTSET -1234
+inline constexpr int SEEDNOTSET = -1234;
 
 /** @} */ // end of group gemc_utilities_conventions
+
+} // namespace gemc

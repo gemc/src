@@ -1,5 +1,7 @@
 #pragma once
 
+namespace gparticle {
+
 /**
  * @defgroup gparticle_module gparticle
  * \brief Single-particle (and multi-particle) generator configuration and shooting utilities.
@@ -24,7 +26,7 @@
  *
  * @ingroup gparticle_module
  */
-#define GPARTICLENOTDEFINED (-999)
+inline constexpr int GPARTICLENOTDEFINED = -999;
 
 /**
  * @name Error codes
@@ -36,21 +38,23 @@
  */
 
 /** \brief Requested particle name was not found in the \c G4ParticleTable. */
-#define ERR_GPARTICLENOTFOUND        901
+inline constexpr int ERR_GPARTICLENOTFOUND = 901;
 
 /** \brief Theta randomization model was not recognized or not supported. */
-#define ERR_GPARTICLEWRONGTHETAMODEL 902
+inline constexpr int ERR_GPARTICLEWRONGTHETAMODEL = 902;
 
 /** \brief \c G4ParticleTable could not be obtained (unexpected runtime state). */
-#define ERR_GPARTICLETABLENOTFOUND   903
+inline constexpr int ERR_GPARTICLETABLENOTFOUND = 903;
 
 /** \brief Particle reader factory could not be found or instantiated. */
-#define ERR_GPARTICLEREADERNOTFOUND  904
+inline constexpr int ERR_GPARTICLEREADERNOTFOUND = 904;
 
 /** \brief Particle input file could not be opened. */
-#define ERR_GPARTICLEFILEOPEN        905
+inline constexpr int ERR_GPARTICLEFILEOPEN = 905;
 
 /** \brief Particle input file contained malformed or unsupported data. */
-#define ERR_GPARTICLEFILEFORMAT      906
+inline constexpr int ERR_GPARTICLEFILEFORMAT = 906;
 
 /** @} */
+
+} // namespace gparticle

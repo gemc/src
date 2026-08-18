@@ -54,33 +54,35 @@ namespace gemc {
         // random engine name
         // the names, that come from the CLHEP library, can be found with
         // grep ": public HepRandomEngine" *.h $CLHEP_BASE_DIR/include/CLHEP/Random/* | awk -Fclass '{print $2}' | awk -F: '{print $1}'
-        std::string help = "Random Engine Name: set the CLHEP:HepRandomEngine. Default: " + std::string(DEFAULT_RANDOM_ENGINE) + "\n";
-        help += std::string(HELPFILLSPACE) + "The available CLHEP:HepRandomEngine are:\n\n";
-        help += std::string(HELPFILLSPACE) + " - DRand48Engine\n";
-        help += std::string(HELPFILLSPACE) + " - DualRand\n";
-        help += std::string(HELPFILLSPACE) + " - Hurd160Engine\n";
-        help += std::string(HELPFILLSPACE) + " - Hurd288Engine\n";
-        help += std::string(HELPFILLSPACE) + " - HepJamesRandom\n";
-        help += std::string(HELPFILLSPACE) + " - MTwistEngine\n";
-        help += std::string(HELPFILLSPACE) + " - NonRandomEngine\n";
-        help += std::string(HELPFILLSPACE) + " - RandEngine\n";
-        help += std::string(HELPFILLSPACE) + " - RanecuEngine\n";
+	    std::string help = "Random Engine Name: set the CLHEP:HepRandomEngine. Default: " +
+	                       std::string(gemc::DEFAULT_RANDOM_ENGINE) + "\n";
+	    help += std::string(goptions::HELPFILLSPACE) + "The available CLHEP:HepRandomEngine are:\n\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - DRand48Engine\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - DualRand\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - Hurd160Engine\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - Hurd288Engine\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - HepJamesRandom\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - MTwistEngine\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - NonRandomEngine\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - RandEngine\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - RanecuEngine\n";
 
 
-        help += std::string(HELPFILLSPACE) + " - Ranlux64Engine\n";
-        help += std::string(HELPFILLSPACE) + " - RanluxEngine\n";
-        help += std::string(HELPFILLSPACE) + " - RanluxppEngine final\n";
-        help += std::string(HELPFILLSPACE) + " - RanshiEngine\n";
-        help += std::string(HELPFILLSPACE) + " - TripleRand\n";
-        goptions.defineOption(GVariable("randomEngine", DEFAULT_RANDOM_ENGINE, "randomEngine"), help);
+        help += std::string(goptions::HELPFILLSPACE) + " - Ranlux64Engine\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - RanluxEngine\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - RanluxppEngine final\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - RanshiEngine\n";
+        help += std::string(goptions::HELPFILLSPACE) + " - TripleRand\n";
+        goptions.defineOption(GVariable("randomEngine", gemc::DEFAULT_RANDOM_ENGINE, "randomEngine"), help);
 
         // random seed
         help = "Random Seed: set the random seed to an integer value. Default: \n";
-        help += std::string(HELPFILLSPACE) + "If the random seed is set to -12345, the seed will be set using a combination of: \n";
-        help += std::string(HELPFILLSPACE) + " - local time \n";
-        help += std::string(HELPFILLSPACE) + " - process id \n";
-        help += std::string(HELPFILLSPACE) + " - clock function \n";
-        goptions.defineOption(GVariable("seed", SEEDNOTSET, "seed"), help);
+	    help += std::string(goptions::HELPFILLSPACE) +
+	            "If the random seed is set to -12345, the seed will be set using a combination of: \n";
+	    help += std::string(goptions::HELPFILLSPACE) + " - local time \n";
+        help += std::string(goptions::HELPFILLSPACE) + " - process id \n";
+        help += std::string(goptions::HELPFILLSPACE) + " - clock function \n";
+        goptions.defineOption(GVariable("seed", gemc::SEEDNOTSET, "seed"), help);
 
 
 		// load other

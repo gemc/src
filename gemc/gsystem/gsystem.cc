@@ -67,7 +67,7 @@ GSystem::GSystem(const std::shared_ptr<GOptions>& gopts,
 	  annotations(notes) // Use 'notes' directly
 {
 	// If the provided name does not include a directory, set the path to empty.
-	if (name == path || factoryName == GSYSTEMSQLITETFACTORYLABEL) {
+	if (name == path || factoryName == gsystem::GSYSTEMSQLITETFACTORYLABEL) {
 		path = "";
 		log->info(1, "Instantiating GSystem <", name, "> using factory <", factoryName, ">");
 	}
@@ -102,7 +102,7 @@ void GSystem::addGVolume(std::vector<std::string> pars) {
 		log->info(2, *gvolumesMap[volume_name]);
 	}
 	else {
-		log->error(ERR_GVOLUMEALREADYPRESENT,
+		log->error(gsystem::ERR_GVOLUMEALREADYPRESENT,
 		           "gVolume <" + volume_name + "> already exists in gvolumesMap.");
 	}
 }
@@ -111,8 +111,8 @@ void GSystem::addGVolume(std::vector<std::string> pars) {
 // See gsystem.h for API docs.
 void GSystem::addROOTVolume(const std::string& rootVolumeDefinition) {
 	log->warning("Adding ROOT volume using <" + rootVolumeDefinition + "> to gvolumesMap.");
-	// ROOTWORLDGVOLUMENAME is assumed to be defined in gsystemConventions.h.
-	gvolumesMap[ROOTWORLDGVOLUMENAME] = std::make_shared<GVolume>(rootVolumeDefinition, log);
+	// gsystem::ROOTWORLDGVOLUMENAME is assumed to be defined in gsystemConventions.h.
+	gvolumesMap[gsystem::ROOTWORLDGVOLUMENAME] = std::make_shared<GVolume>(rootVolumeDefinition, log);
 }
 
 // add volume from a file (CAD or GDML factories)
@@ -138,22 +138,22 @@ void GSystem::addVolumeFromFile(const std::string& importType, const std::string
 	// 01: name, 03: type, 04: parameters, 05: material, 02: mother, etc.
 	pars.emplace_back(gvolumeName);                 // 01 name
 	pars.emplace_back(importType);                  // 03 type
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 04 parameters
+	pars.emplace_back(guts::UNINITIALIZEDSTRINGQUANTITY); // 04 parameters
 	pars.emplace_back("G4_AIR");                    // 05 material: default is air
-	pars.emplace_back(ROOTWORLDGVOLUMENAME);        // 02 mother: default is ROOTWORLDGVOLUMENAME
+	pars.emplace_back(gsystem::ROOTWORLDGVOLUMENAME);        // 02 mother: default is gsystem::ROOTWORLDGVOLUMENAME
 	pars.emplace_back("0*cm, 0*cm, 0*cm");          // 06 position
 	pars.emplace_back("0*deg, 0*deg, 0*deg");       // 07 rotation
-	pars.emplace_back(DEFAULTG4PLACEMENTTYPE);      // 08 Geant4 placement constructor convention
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 09 electromagnetic field
+	pars.emplace_back(gsystem::DEFAULTG4PLACEMENTTYPE);      // 08 Geant4 placement constructor convention
+	pars.emplace_back(guts::UNINITIALIZEDSTRINGQUANTITY); // 09 electromagnetic field
 	pars.emplace_back("1");                         // 10 visible
 	pars.emplace_back("1");                         // 11 style
 	pars.emplace_back("999999");                    // 12 color
 	pars.emplace_back("1");                         // 13 opacity
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 14 digitization
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 15 gidentity
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 16 copyOf
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 17 solidsOpr
-	pars.emplace_back(UNINITIALIZEDSTRINGQUANTITY); // 18 mirror
+	pars.emplace_back(guts::UNINITIALIZEDSTRINGQUANTITY); // 14 digitization
+	pars.emplace_back(guts::UNINITIALIZEDSTRINGQUANTITY); // 15 gidentity
+	pars.emplace_back(guts::UNINITIALIZEDSTRINGQUANTITY); // 16 copyOf
+	pars.emplace_back(guts::UNINITIALIZEDSTRINGQUANTITY); // 17 solidsOpr
+	pars.emplace_back(guts::UNINITIALIZEDSTRINGQUANTITY); // 18 mirror
 	pars.emplace_back("1");                         // 19 exist flag
 	pars.emplace_back(filename);                    // 20 description: contains full path
 
@@ -182,7 +182,7 @@ void GSystem::addGMaterial(std::vector<std::string> pars) {
 		log->info(2, *gmaterialsMap[materialName]);
 	}
 	else {
-		log->error(ERR_GMATERIALALREADYPRESENT,
+		log->error(gsystem::ERR_GMATERIALALREADYPRESENT,
 		           "gMaterial <" + materialName + "> already exists in gmaterialsMap.");
 	}
 }
@@ -200,7 +200,7 @@ void GSystem::addGMirror(std::vector<std::string> pars) {
 		log->info(2, *gmirrorsMap[mirrorName]);
 	}
 	else {
-		log->error(ERR_GMIRRORALREADYPRESENT,
+		log->error(gsystem::ERR_GMIRRORALREADYPRESENT,
 		           "gMirror <" + mirrorName + "> already exists in gmirrorsMap.");
 	}
 }
@@ -224,7 +224,7 @@ const GMaterial* GSystem::getMaterialForGVolume(const std::string& volumeName) c
 		if (matIt != gmaterialsMap.end())
 			return matIt->second.get();
 		else {
-			log->error(ERR_GMATERIALNOTFOUND,
+			log->error(gsystem::ERR_GMATERIALNOTFOUND,
 			           "gMaterial <" + materialName + "> not found for volume <" + volumeName + ">");
 		}
 	}

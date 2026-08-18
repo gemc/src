@@ -38,12 +38,13 @@ bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] std::st
 	return true;
 }
 
-bool GPlugin_test_example::loadTTImpl([[maybe_unused]] int runno, [[maybe_unused]] std::string const& variation) {
+bool GPlugin_test_example::loadTTImpl([[maybe_unused]] int runno,
+                                     [[maybe_unused]] std::string const& variation) {
 	std::vector<int> element1 = {1, 2, 3, 4, 5};
 	std::vector<int> element2 = {2, 2, 3, 4, 5};
 
-	GElectronic crate1(2, 1, 3, 2);
-	GElectronic crate2(2, 1, 4, 2);
+	GElectronic crate1(2, 1, 3, GElectronic::ComparisonMode::crate_slot_channel);
+	GElectronic crate2(2, 1, 4, GElectronic::ComparisonMode::crate_slot_channel);
 
 	translationTable = std::make_shared<GTranslationTable>(gopts);
 

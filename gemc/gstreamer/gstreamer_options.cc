@@ -70,7 +70,7 @@ GOptions defineOptions() {
 	string ebuffer_help = "Number of events each streamer keeps in memory before flushing them to the\n";
 	ebuffer_help        += "output file. Larger values reduce I/O frequency at the cost of more memory.\n \n";
 	ebuffer_help        += "Example: -ebuffer=100\n";
-	goptions.defineOption(GVariable("ebuffer", DEFAULT_GSTREAMER_BUFFER_FLUSH_LIMIT,
+	goptions.defineOption(GVariable("ebuffer", gstreamer::DEFAULT_GSTREAMER_BUFFER_FLUSH_LIMIT,
 	                                "number of events kept in memory before flushing them to the filestream"), ebuffer_help);
 
 	// Schema of each object in the -gstreamer array.

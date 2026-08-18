@@ -11,7 +11,8 @@ GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& geven
 					 std::shared_ptr<GLogger>&                             logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree header");
 
-	root_tree = std::make_unique<TTree>(EVENTHEADERTREENAME, EVENTHEADERTREENAMEDESC);
+	root_tree =
+	    std::make_unique<TTree>(gstreamer::root::EVENTHEADERTREENAME, gstreamer::root::EVENTHEADERTREENAMEDESC);
 
 	// AutoFlush controls when buffered basket data are pushed to disk.
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
@@ -60,7 +61,8 @@ GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GRunHeader>& grun_he
 					 std::shared_ptr<GLogger>&                           logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree header");
 
-	root_tree = std::make_unique<TTree>(RUNHEADERTREENAME, RUNHEADERTREENAMEDESC);
+	root_tree =
+	    std::make_unique<TTree>(gstreamer::root::RUNHEADERTREENAME, gstreamer::root::RUNHEADERTREENAMEDESC);
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
 	root_tree->SetAutoSave(50 * 1024 * 1024);
 
@@ -76,7 +78,7 @@ GRootTree::GRootTree(const std::string&        detectorName,
 					 std::shared_ptr<GLogger>& logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree True Info");
 
-	root_tree = std::make_unique<TTree>(detectorName.c_str(), TRUEINFOTREENAMEDESC);
+	root_tree = std::make_unique<TTree>(detectorName.c_str(), gstreamer::root::TRUEINFOTREENAMEDESC);
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
 	root_tree->SetAutoSave(50 * 1024 * 1024);
 
@@ -93,7 +95,7 @@ GRootTree::GRootTree(const std::string& treeName,
 					 std::shared_ptr<GLogger>& logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree Generated Particles");
 
-	root_tree = std::make_unique<TTree>(treeName.c_str(), GENERATEDTREENAMEDESC);
+	root_tree = std::make_unique<TTree>(treeName.c_str(), gstreamer::root::GENERATEDTREENAMEDESC);
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
 	root_tree->SetAutoSave(50 * 1024 * 1024);
 
@@ -112,7 +114,7 @@ GRootTree::GRootTree(const std::string& treeName,
 GRootTree::GRootTree([[maybe_unused]] const GAncestorBank& ancestors,
 	                 std::shared_ptr<GLogger>& logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree Ancestors");
-	root_tree = std::make_unique<TTree>(ANCESTORTREENAME, ANCESTORTREENAMEDESC);
+	root_tree = std::make_unique<TTree>(gstreamer::root::ANCESTORTREENAME, gstreamer::root::ANCESTORTREENAMEDESC);
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
 	root_tree->SetAutoSave(50 * 1024 * 1024);
 
@@ -137,7 +139,7 @@ GRootTree::GRootTree(const std::string&        detectorName,
 					 std::shared_ptr<GLogger>& logger) : log(logger) {
 	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree Digitized Data");
 
-	root_tree = std::make_unique<TTree>(detectorName.c_str(), DIGITIZEDTREENAMEDESC);
+	root_tree = std::make_unique<TTree>(detectorName.c_str(), gstreamer::root::DIGITIZEDTREENAMEDESC);
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
 	root_tree->SetAutoSave(50 * 1024 * 1024);
 
@@ -258,7 +260,7 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] in
 			root_tree->Branch(varname.c_str(), &intVarsMap[varname]);
 		}
 		else {
-			log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
+			log->error(gstreamer::ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
 					   "> already registered in the int variable map of tree ", root_tree->GetName());
 		}
 	}
@@ -269,7 +271,7 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] do
 		root_tree->Branch(varname.c_str(), &doubleVarsMap[varname]);
 	}
 	else {
-		log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
+		log->error(gstreamer::ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
 				   "> already registered in the double variable map of tree ", root_tree->GetName());
 	}
 }
@@ -279,7 +281,7 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] co
 		root_tree->Branch(varname.c_str(), &stringVarsMap[varname]);
 	}
 	else {
-		log->error(ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
+		log->error(gstreamer::ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
 				   "> already registered in the string variable map of tree ", root_tree->GetName());
 	}
 }

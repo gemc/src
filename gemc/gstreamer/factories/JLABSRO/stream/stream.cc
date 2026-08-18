@@ -6,7 +6,7 @@
 // Build the packed frame record in memory before the header and payload are written out.
 
 bool GstreamerJSROFactory::startStreamImpl(const GFrameDataCollection* frameRunData) {
-	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
+	if (ofile == nullptr) { log->error(gstreamer::ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
 	static constexpr int                  header_offset = sizeof(DataFrameHeader) / 4;
 	const GFrameHeader*                   header        = frameRunData->getHeader();
@@ -86,7 +86,7 @@ bool GstreamerJSROFactory::startStreamImpl(const GFrameDataCollection* frameRunD
 
 
 bool GstreamerJSROFactory::endStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) {
-	if (ofile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
+	if (ofile == nullptr) { log->error(gstreamer::ERR_CANTOPENOUTPUT, "Error: can't open ", ofile); }
 
 	return true;
 }

@@ -18,8 +18,8 @@
 
 // returns the file stream, checking all possible directories.
 // SYSTEMTYPE can be:
-// - GTEXTGEOMTYPE (mandatory, exit if not found)
-// - GTEXTMATSTYPE
+// - gsystem::GTEXTGEOMTYPE (mandatory, exit if not found)
+// - gsystem::GTEXTMATSTYPE
 std::unique_ptr<std::ifstream> GSystemTextFactory::gSystemTextFileStream(GSystem* system, const std::string& SYSTEMTYPE) {
 	std::string fileName  = system->getFilePath();
 	std::string variation = system->getVariation();
@@ -52,12 +52,12 @@ std::unique_ptr<std::ifstream> GSystemTextFactory::gSystemTextFileStream(GSystem
 
 	// at this point the file was not found
 	// this could be ok if we are looking for the material file - if the system annotation is 'mats_only'
-	if (SYSTEMTYPE == GTEXTGEOMTYPE) {
+	if (SYSTEMTYPE == gsystem::GTEXTGEOMTYPE) {
 		if (system->getAnnotations() == "mats_only") {
 			log->info(1, "File ", fname, " not found, but this is ok because the system annotation is 'mats_only'");
 			return nullptr;
 		}
-		log->error(ERR_GSETUPFILENOTOFOUND, "File ", fname, " not found.");
+		log->error(gsystem::ERR_GSETUPFILENOTOFOUND, "File ", fname, " not found.");
 	}
 
 	// the file was not found

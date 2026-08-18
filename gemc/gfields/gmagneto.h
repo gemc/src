@@ -69,8 +69,8 @@ public:
 	 * \param caller_log Optional caller logger used for diagnostics.
 	 * \return Shared pointer to the configured global field, or nullptr when no field should be used.
 	 *
-	 * This helper honors \ref NO_FIELD_OPTION "=" \ref NO_FIELD_ALL before looking at
-	 * \ref GLOBAL_FIELD_OPTION, so digitization code sees the same no-field configuration as tracking.
+	 * This helper honors \ref gfields::NO_FIELD_OPTION "=" \ref gfields::NO_FIELD_ALL before looking at
+	 * \ref gfields::GLOBAL_FIELD_OPTION, so digitization code sees the same no-field configuration as tracking.
 	 */
 	static std::shared_ptr<GField> initialize_magnetic_field(
 	    const std::shared_ptr<GOptions>& gopts, double& field_polarity,
@@ -119,7 +119,7 @@ public:
 	std::shared_ptr<GField> getField(std::string name) {
 		bool not_found = (fields_map->find(name) == fields_map->end());
 
-		if (not_found) { log->error(ERR_WRONG_FIELD_NOT_FOUND, "GField >", name, "< not found. Exiting."); }
+		if (not_found) { log->error(gfields::ERR_WRONG_FIELD_NOT_FOUND, "GField >", name, "< not found. Exiting."); }
 		return fields_map->at(name);
 	}
 
@@ -138,7 +138,7 @@ public:
 		}
 
 		if (fields_manager->find(name) == fields_manager->end()) {
-			log->error(ERR_WRONG_FIELD_NOT_FOUND, "GField >", name, "< not found. Exiting.");
+			log->error(gfields::ERR_WRONG_FIELD_NOT_FOUND, "GField >", name, "< not found. Exiting.");
 		}
 
 		return fields_manager->at(name);

@@ -73,7 +73,7 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial> &gmaterial) {
 		auto addProperty = [&](const char *propertyName, const std::vector<double> &values) {
 			if (values.empty()) { return; }
 			if (values.size() != photonEnergy.size()) {
-				log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+				log->error(gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
 				           "material <", materialName, "> optical property <", propertyName, "> has ",
 				           values.size(), " entries but photonEnergy has ", photonEnergy.size());
 			}
@@ -137,161 +137,169 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 	// ----  Hydrogen
 
 	// Hydrogen gas material definition (Hydrogen element + state/gas parameters).
-	if (G4NistManager::Instance()->FindMaterial(HGAS_MATERIAL) == nullptr) {
+	if (G4NistManager::Instance()->FindMaterial(g4system::HGAS_MATERIAL) == nullptr) {
 		Z = 1;
 		a = 1.01 * CLHEP::g / CLHEP::mole;
 		d = 0.00275 * CLHEP::g / CLHEP::cm3;
 		T = 50.0 * CLHEP::kelvin;
-		auto Hydrogen = new G4Element(HYDROGEN_ELEMENT, HYDROGEN_ELEMENT, Z, a);
-		g4materialsMap[HGAS_MATERIAL] = new G4Material(HGAS_MATERIAL,
+		auto Hydrogen = new G4Element(g4system::HYDROGEN_ELEMENT, g4system::HYDROGEN_ELEMENT, Z, a);
+		g4materialsMap[g4system::HGAS_MATERIAL] = new G4Material(g4system::HGAS_MATERIAL,
 		                                               d,
 		                                               1,
 		                                               kStateGas,
 		                                               T);
-		g4materialsMap[HGAS_MATERIAL]->AddElement(Hydrogen, 1);
+		g4materialsMap[g4system::HGAS_MATERIAL]->AddElement(Hydrogen, 1);
 	}
-	log->info(2, "G4World: Hydrogen gas material <", HGAS_MATERIAL, "> created with density <", d, ">");
+	log->info(2, "G4World: Hydrogen gas material <", g4system::HGAS_MATERIAL, "> created with density <", d, ">");
 
 	// ----  Deuterium
 
 	// Deuteron isotope and Deuterium element definition.
-	if (G4NistManager::Instance()->FindOrBuildElement(DEUTERIUM_ELEMENT) == nullptr) {
+	if (G4NistManager::Instance()->FindOrBuildElement(g4system::DEUTERIUM_ELEMENT) == nullptr) {
 		Z = 1;
 		N = 2;
 		a = 2.0141018 * CLHEP::g / CLHEP::mole;
-		auto Deuteron = new G4Isotope(DEUTERON_ISOTOPE, Z, N, a);
+		auto Deuteron = new G4Isotope(g4system::DEUTERON_ISOTOPE, Z, N, a);
 
 		// Deuterium element: isotope composition is explicitly set to the Deuteron isotope.
-		Deuterium = new G4Element(DEUTERIUM_ELEMENT, DEUTERIUM_ELEMENT, 1);
+		Deuterium = new G4Element(g4system::DEUTERIUM_ELEMENT, g4system::DEUTERIUM_ELEMENT, 1);
 		Deuterium->AddIsotope(Deuteron, 1);
 	}
-	log->info(2, "G4World: Deuterium element <", DEUTERIUM_ELEMENT, "> created with density <", d, ">");
+	log->info(2, "G4World: Deuterium element <", g4system::DEUTERIUM_ELEMENT, "> created with density <", d, ">");
 
 	// Deuterium gas material.
-	if (G4NistManager::Instance()->FindMaterial(DEUTERIUMGAS_MATERIAL) == nullptr) {
+	if (G4NistManager::Instance()->FindMaterial(g4system::DEUTERIUMGAS_MATERIAL) == nullptr) {
 		d = 0.000452 * CLHEP::g / CLHEP::cm3;
 		T = 294.25 * CLHEP::kelvin;
-		g4materialsMap[DEUTERIUMGAS_MATERIAL] = new G4Material(DEUTERIUMGAS_MATERIAL,
+		g4materialsMap[g4system::DEUTERIUMGAS_MATERIAL] = new G4Material(g4system::DEUTERIUMGAS_MATERIAL,
 		                                                       d,
 		                                                       1,
 		                                                       kStateGas,
 		                                                       T);
-		g4materialsMap[DEUTERIUMGAS_MATERIAL]->AddElement(Deuterium, 1);
+		g4materialsMap[g4system::DEUTERIUMGAS_MATERIAL]->AddElement(Deuterium, 1);
 	}
-	log->info(2, "G4World: Deuterium gas material <", DEUTERIUMGAS_MATERIAL, "> created with density <", d, ">");
+	log->info(2, "G4World: Deuterium gas material <", g4system::DEUTERIUMGAS_MATERIAL,
+	          "> created with density <", d, ">");
 
 	// Liquid Deuterium material.
-	if (G4NistManager::Instance()->FindMaterial(LD2_MATERIAL) == nullptr) {
+	if (G4NistManager::Instance()->FindMaterial(g4system::LD2_MATERIAL) == nullptr) {
 		d = 0.169 * CLHEP::g / CLHEP::cm3;
 		T = 22.0 * CLHEP::kelvin;
-		g4materialsMap[LD2_MATERIAL] = new G4Material(LD2_MATERIAL,
+		g4materialsMap[g4system::LD2_MATERIAL] = new G4Material(g4system::LD2_MATERIAL,
 		                                              d,
 		                                              1,
 		                                              kStateLiquid,
 		                                              T);
-		g4materialsMap[LD2_MATERIAL]->AddElement(Deuterium, 2);
+		g4materialsMap[g4system::LD2_MATERIAL]->AddElement(Deuterium, 2);
 	}
-	log->info(2, "G4World: Liquid Deuterium material <", LD2_MATERIAL, "> created with density <", d, ">");
+	log->info(2, "G4World: Liquid Deuterium material <", g4system::LD2_MATERIAL, "> created with density <", d,
+	          ">");
 
 	// Ammonia (ND3) material definition.
-	if (G4NistManager::Instance()->FindMaterial(ND3_MATERIAL) == nullptr) {
+	if (G4NistManager::Instance()->FindMaterial(g4system::ND3_MATERIAL) == nullptr) {
 		Z = 7;
 		a = 14.01 * CLHEP::g / CLHEP::mole;
 		d = 1.007 * CLHEP::g / CLHEP::cm3;
 		T = 1.0 * CLHEP::kelvin;
-		auto Nitrogen = new G4Element(NITRO_ELEMENT, NITRO_ELEMENT, Z, a);
-		g4materialsMap[ND3_MATERIAL] = new G4Material(ND3_MATERIAL,
+		auto Nitrogen = new G4Element(g4system::NITRO_ELEMENT, g4system::NITRO_ELEMENT, Z, a);
+		g4materialsMap[g4system::ND3_MATERIAL] = new G4Material(g4system::ND3_MATERIAL,
 		                                              d,
 		                                              2,
 		                                              kStateLiquid,
 		                                              T);
-		g4materialsMap[ND3_MATERIAL]->AddElement(Nitrogen, 1);
-		g4materialsMap[ND3_MATERIAL]->AddElement(Deuterium, 3);
+		g4materialsMap[g4system::ND3_MATERIAL]->AddElement(Nitrogen, 1);
+		g4materialsMap[g4system::ND3_MATERIAL]->AddElement(Deuterium, 3);
 	}
-	log->info(2, "G4World: Ammonia material <", ND3_MATERIAL, "> created with density <", d, ">");
+	log->info(2, "G4World: Ammonia material <", g4system::ND3_MATERIAL, "> created with density <", d, ">");
 
 	// ---- Helium 3
 
 	// Helion isotope and Helium3 element definition.
-	if (G4NistManager::Instance()->FindOrBuildElement(HELIUM3_ELEMENT) == nullptr) {
+	if (G4NistManager::Instance()->FindOrBuildElement(g4system::HELIUM3_ELEMENT) == nullptr) {
 		Z = 2;
 		N = 3;
 		a = 3.0160293 * CLHEP::g / CLHEP::mole;
-		auto Helion = new G4Isotope(HELION_ISOTOPE, Z, N, a);
+		auto Helion = new G4Isotope(g4system::HELION_ISOTOPE, Z, N, a);
 
 		// Helium-3 element: isotope composition is explicitly set to the Helion isotope.
-		Helium3 = new G4Element(HELIUM3_ELEMENT, HELIUM3_ELEMENT, 1);
+		Helium3 = new G4Element(g4system::HELIUM3_ELEMENT, g4system::HELIUM3_ELEMENT, 1);
 		Helium3->AddIsotope(Helion, 1);
 	}
-	log->info(2, "G4World: Helium 3 element <", HELIUM3_ELEMENT, "> created with density <", d, ">");
+	log->info(2, "G4World: Helium 3 element <", g4system::HELIUM3_ELEMENT, "> created with density <", d, ">");
 
 	// Helium-3 gas material definition.
-	if (G4NistManager::Instance()->FindMaterial(HELIUM3GAS_MATERIAL) == nullptr) {
+	if (G4NistManager::Instance()->FindMaterial(g4system::HELIUM3GAS_MATERIAL) == nullptr) {
 		// Density at 21.1°C (70°F): 0.1650 kg/m3.
 		d = 0.1650 * CLHEP::mg / CLHEP::cm3;
 		T = 294.25 * CLHEP::kelvin;
-		g4materialsMap[HELIUM3GAS_MATERIAL] = new G4Material(HELIUM3GAS_MATERIAL,
+		g4materialsMap[g4system::HELIUM3GAS_MATERIAL] = new G4Material(g4system::HELIUM3GAS_MATERIAL,
 		                                                     d,
 		                                                     1,
 		                                                     kStateGas,
 		                                                     T);
-		g4materialsMap[HELIUM3GAS_MATERIAL]->AddElement(Helium3, 1);
+		g4materialsMap[g4system::HELIUM3GAS_MATERIAL]->AddElement(Helium3, 1);
 	}
-	log->info(2, "G4World: Helium 3 gas material <", HELIUM3GAS_MATERIAL, "> created with density <", d, ">");
+	log->info(2, "G4World: Helium 3 gas material <", g4system::HELIUM3GAS_MATERIAL, "> created with density <",
+	          d, ">");
 
 	// ---- Tritium
 
 	// Triton isotope and Tritium element definition.
-	if (G4NistManager::Instance()->FindOrBuildElement(TRITIUM_ELEMENT) == nullptr) {
+	if (G4NistManager::Instance()->FindOrBuildElement(g4system::TRITIUM_ELEMENT) == nullptr) {
 		Z = 1;
 		N = 3;
 		a = 3.0160492 * CLHEP::g / CLHEP::mole;
-		auto Triton = new G4Isotope(TRITON_ISOTOPE, Z, N, a);
+		auto Triton = new G4Isotope(g4system::TRITON_ISOTOPE, Z, N, a);
 
-		Tritium = new G4Element(TRITIUM_ELEMENT, TRITIUM_ELEMENT, 1);
+		Tritium = new G4Element(g4system::TRITIUM_ELEMENT, g4system::TRITIUM_ELEMENT, 1);
 		Tritium->AddIsotope(Triton, 1);
 	}
-	log->info(2, "G4World: Tritium element <", TRITIUM_ELEMENT, "> created with density <", d, ">");
+	log->info(2, "G4World: Tritium element <", g4system::TRITIUM_ELEMENT, "> created with density <", d, ">");
 
 	// Tritium gas material definition.
-	if (G4NistManager::Instance()->FindMaterial(TRITIUMGAS_MATERIAL) == nullptr) {
+	if (G4NistManager::Instance()->FindMaterial(g4system::TRITIUMGAS_MATERIAL) == nullptr) {
 		d = 0.0034 * CLHEP::g / CLHEP::cm3;
 		T = 40.0 * CLHEP::kelvin;
-		g4materialsMap[TRITIUMGAS_MATERIAL] = new G4Material(TRITIUMGAS_MATERIAL,
+		g4materialsMap[g4system::TRITIUMGAS_MATERIAL] = new G4Material(g4system::TRITIUMGAS_MATERIAL,
 		                                                     d,
 		                                                     1,
 		                                                     kStateGas, T);
-		g4materialsMap[TRITIUMGAS_MATERIAL]->AddElement(Tritium, 1);
+		g4materialsMap[g4system::TRITIUMGAS_MATERIAL]->AddElement(Tritium, 1);
 	}
-	log->info(2, "G4World: Tritium gas material <", TRITIUMGAS_MATERIAL, "> created with density <", d, ">");
+	log->info(2, "G4World: Tritium gas material <", g4system::TRITIUMGAS_MATERIAL, "> created with density <",
+	          d, ">");
 
 	// ---- Optical Air
 
 	// Air with a refractive index, used by optical volumes (GEMC2's built-in "Air_Opt").
 	// Without RINDEX Geant4 kills optical photons at the material boundary.
-	if (G4NistManager::Instance()->FindMaterial(AIROPTICAL_MATERIAL) == nullptr) {
+	if (G4NistManager::Instance()->FindMaterial(g4system::AIROPTICAL_MATERIAL) == nullptr) {
 		auto NISTman = G4NistManager::Instance();
 		d = 1.29 * CLHEP::mg / CLHEP::cm3;
-		g4materialsMap[AIROPTICAL_MATERIAL] = new G4Material(AIROPTICAL_MATERIAL, d, 2);
-		g4materialsMap[AIROPTICAL_MATERIAL]->AddMaterial(NISTman->FindOrBuildMaterial("G4_N"), 70 * CLHEP::perCent);
-		g4materialsMap[AIROPTICAL_MATERIAL]->AddMaterial(NISTman->FindOrBuildMaterial("G4_O"), 30 * CLHEP::perCent);
+		g4materialsMap[g4system::AIROPTICAL_MATERIAL] = new G4Material(g4system::AIROPTICAL_MATERIAL, d, 2);
+		g4materialsMap[g4system::AIROPTICAL_MATERIAL]->AddMaterial(NISTman->FindOrBuildMaterial("G4_N"),
+		                                                           70 * CLHEP::perCent);
+		g4materialsMap[g4system::AIROPTICAL_MATERIAL]->AddMaterial(NISTman->FindOrBuildMaterial("G4_O"),
+		                                                           30 * CLHEP::perCent);
 
 		std::vector<G4double> photonEnergy = {2.034 * CLHEP::eV, 4.136 * CLHEP::eV};
 		std::vector<G4double> refractiveIndex = {1.00, 1.00};
 		auto airOpticalMPT = new G4MaterialPropertiesTable();
 		airOpticalMPT->AddProperty("RINDEX", photonEnergy, refractiveIndex);
-		g4materialsMap[AIROPTICAL_MATERIAL]->SetMaterialPropertiesTable(airOpticalMPT);
+		g4materialsMap[g4system::AIROPTICAL_MATERIAL]->SetMaterialPropertiesTable(airOpticalMPT);
 	}
-	log->info(2, "G4World: Optical air material <", AIROPTICAL_MATERIAL, "> created with density <", d, ">");
+	log->info(2, "G4World: Optical air material <", g4system::AIROPTICAL_MATERIAL, "> created with density <",
+	          d, ">");
 
 	// ---- Kryptonite
 
 	// Material used to kill every track that touches it (GEMC2's built-in).
-	if (G4NistManager::Instance()->FindMaterial(KRYPTONITE_MATERIAL) == nullptr) {
+	if (G4NistManager::Instance()->FindMaterial(g4system::KRYPTONITE_MATERIAL) == nullptr) {
 		d = 1.0e-8 * CLHEP::mg / CLHEP::cm3;
-		g4materialsMap[KRYPTONITE_MATERIAL] = new G4Material(KRYPTONITE_MATERIAL, d, 1);
-		g4materialsMap[KRYPTONITE_MATERIAL]->AddMaterial(G4NistManager::Instance()->FindOrBuildMaterial("G4_Ar"),
-		                                                 100 * CLHEP::perCent);
+		g4materialsMap[g4system::KRYPTONITE_MATERIAL] = new G4Material(g4system::KRYPTONITE_MATERIAL, d, 1);
+		g4materialsMap[g4system::KRYPTONITE_MATERIAL]->AddMaterial(
+		    G4NistManager::Instance()->FindOrBuildMaterial("G4_Ar"), 100 * CLHEP::perCent);
 	}
-	log->info(2, "G4World: Kryptonite material <", KRYPTONITE_MATERIAL, "> created with density <", d, ">");
+	log->info(2, "G4World: Kryptonite material <", g4system::KRYPTONITE_MATERIAL, "> created with density <", d,
+	          ">");
 }

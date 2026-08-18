@@ -195,7 +195,7 @@ private:
 	 * \brief Creator process names per step (always present).
 	 *
 	 * Populated when a creator process is available for the track at the pre-step point.
-	 * The representative process name for the hit is derived from this vector in \ref calculateInfos().
+	 * The representative process name for the hit is derived from this vector with the other calculated values.
 	 */
 	std::vector<std::string> processNames;
 
@@ -235,43 +235,27 @@ private:
 	// -------------------------------------------------------------------------
 
 	/**
-	 * \brief Cached total energy deposited across all steps.
+	 * \brief Complete derived view calculated from the per-step vectors.
 	 *
-	 * This is computed the first time \ref getTotalEnergyDeposited() is called and then cached.
+	 * The state is created in one pass so its values cannot be partially calculated. A missing process name is
+	 * represented independently from whether the numeric state has been calculated.
 	 */
-	std::optional<double> totalEnergyDeposited;
+	struct CalculatedState {
+		double                     totalEnergyDeposited{};
+		double                     averageTime{};
+		G4ThreeVector              averageGlobalPosition;
+		G4ThreeVector              averageLocalPosition;
+		std::optional<std::string> processName;
+	};
 
+	/// Complete calculated state, absent until a derived value is requested.
+	mutable std::optional<CalculatedState> calculatedState;
 
-	/**
-	 * \brief Cached average time across steps.
-	 *
-	 * The averaging is energy-weighted when the total deposited energy is non-zero; otherwise,
-	 * it falls back to a simple average.
-	 *
-	 * \note This is initialized to an "uninitialized" sentinel value and computed on demand.
-	 */
-	double averageTime;
+	/// Compute the complete derived state once and return it.
+	[[nodiscard]] const CalculatedState& getCalculatedState() const;
 
-	/**
-	 * \brief Cached energy-weighted (or arithmetic) average global position.
-	 *
-	 * \note This is initialized to an "uninitialized" sentinel vector and computed on demand.
-	 */
-	G4ThreeVector avgGlobalPosition;
-
-	/**
-	 * \brief Cached energy-weighted (or arithmetic) average local position.
-	 *
-	 * \note This is initialized to an "uninitialized" sentinel vector and computed on demand.
-	 */
-	G4ThreeVector avgLocalPosition;
-
-	/**
-	 * \brief Cached representative process name for the hit.
-	 *
-	 * The current implementation selects the first recorded process name (if any).
-	 */
-	std::string processName;
+	/// Discard derived values after per-step data changes.
+	void invalidateCalculatedState();
 
 
 	/**
@@ -321,7 +305,9 @@ public:
 	 * \brief Get per-step current-track vertex positions.
 	 * \return A copy of the vector of track vertex positions.
 	 */
-	[[nodiscard]] inline std::vector<G4ThreeVector> getTrackVertexPositions() const { return trackVertexPositions; }
+	[[nodiscard]] inline std::vector<G4ThreeVector> getTrackVertexPositions() const {
+		return trackVertexPositions;
+	}
 
 	/**
 	 * \brief Convenience accessor for the first current-track vertex position.
@@ -466,18 +452,10 @@ public:
 	[[nodiscard]] inline int getMpid() const { return motherPids.front(); }
 
 	/**
-	 * \brief Get the representative creator process name for this hit.
-	 *
-	 * Alias for \ref getProcessName() following G4 naming conventions.
-	 * \return The cached representative process name.
-	 */
-	[[nodiscard]] inline std::string getProcID() const { return processName; }
-
-	/**
 	 * \brief Get the representative creator process name for the hit.
-	 * \return The cached representative process name string, set by \ref calculateInfos().
+	 * \return The first recorded process name, or \c std::nullopt when no creator process was recorded.
 	 */
-	[[nodiscard]] inline std::string getProcessName() const { return processName; }
+	[[nodiscard]] const std::optional<std::string>& getProcessName() const;
 
 	/**
 	 * \brief Get the associated sensitive-element descriptor.
@@ -514,43 +492,34 @@ public:
 	// -------------------------------------------------------------------------
 
 	/**
-	 * \brief Compute and cache derived hit quantities.
-	 *
-	 * Calculates total deposited energy, average time, average local/global positions,
-	 * and the representative creator process name from the per-step vectors.
-	 */
-	void calculateInfos();
-
-	/**
 	 * \brief Get the total deposited energy across all recorded steps.
 	 * \return The summed energy deposition.
 	 *
 	 * This method caches the result the first time it is called.
 	 */
-	double getTotalEnergyDeposited();
+	[[nodiscard]] double getTotalEnergyDeposited() const;
 
 	/**
 	 * \brief Get the average time associated with the hit.
 	 * \return The energy-weighted average of the time if total deposited energy is non-zero,
 	 *         otherwise a simple arithmetic average.
 	 *
-	 * \note The internal cache uses an "uninitialized" sentinel; computation happens on first access.
+	 * \note Requesting any derived value calculates and caches the complete derived state.
 	 */
-	double getAverageTime();
+	[[nodiscard]] double getAverageTime() const;
 
 	/**
 	 * \brief Get the average local position of the hit.
 	 * \return The averaged local position, energy-weighted if possible.
 	 */
-	G4ThreeVector getAvgLocalPosition();
+	[[nodiscard]] G4ThreeVector getAvgLocalPosition() const;
 
 	/**
 	 * \brief Get the average global position of the hit.
 	 * \return The averaged global position energy-weighted if possible.
 	 *
-	 * \note The function name is \c getAvgGlobaPosition() (missing 'l' in "Global") for historical reasons.
 	 */
-	G4ThreeVector getAvgGlobaPosition();
+	[[nodiscard]] G4ThreeVector getAvgGlobalPosition() const;
 
 	// -------------------------------------------------------------------------
 	// Hit filling / testing helpers

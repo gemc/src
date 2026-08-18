@@ -53,7 +53,7 @@ vector<GparticlePtr> getGParticlesFromOption(const std::shared_ptr<GOptions>& go
 			gopts->get_variable_in_option<string>(gparticle_item, "name", goptions::NODFLT),
 			gopts->get_variable_in_option<int>(gparticle_item, "multiplicity", 1),
 
-			parseG4Value(gparticle_item, "p",       "MeV", GPARTICLENOTDEFINED, logger),
+			parseG4Value(gparticle_item, "p",       "MeV", gparticle::GPARTICLENOTDEFINED, logger),
 			parseG4Value(gparticle_item, "delta_p", "MeV", 0,                   logger),
 			gopts->get_variable_in_option<string>(gparticle_item, "randomMomentumModel", "uniform"),
 

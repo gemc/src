@@ -86,7 +86,8 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 		{"Homepage", gweb, "homepage"},
 		{"Author", gauthor, "author"}
 	};
-	defineOption(GVERSION_STRING, "version information", version, "Version information. Not settable by user.");
+	defineOption(goptions::GVERSION_STRING, "version information", version,
+	             "Version information. Not settable by user.");
 
 	// verbosity option: convention used across modules consuming verbosity levels
 	string help = "Levels: \n \n";
@@ -174,7 +175,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 					if (parse_bool_token(valuePart, on)) { on ? switches[keyPart].turnOn() : switches[keyPart].turnOff(); }
 					else {
 						cerr << "The switch " << keyPart << " accepts only true/false/yes/no/on/off/1/0." << endl;
-						exit(EC__NOOPTIONFOUND);
+						exit(goptions::EC__NOOPTIONFOUND);
 					}
 					continue;
 				}
@@ -196,7 +197,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 					}
 					else {
 						cerr << "The option " << mainOption << " is not known to this system." << endl;
-						exit(EC__NOOPTIONFOUND);
+						exit(goptions::EC__NOOPTIONFOUND);
 					}
 				}
 				else {
@@ -206,7 +207,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 					}
 					else {
 						cerr << "The option " << keyPart << " is not known to this system." << endl;
-						exit(EC__NOOPTIONFOUND);
+						exit(goptions::EC__NOOPTIONFOUND);
 					}
 				}
 			}
@@ -218,13 +219,13 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 				}
 				else {
 					cerr << "The switch " << possibleSwitch << " is not known to this system." << endl;
-					exit(EC__NOOPTIONFOUND);
+					exit(goptions::EC__NOOPTIONFOUND);
 				}
 			}
 		}
 		else {
 			cerr << "The command-line argument \"" << candidate << "\" is not valid." << endl;
-			exit(EC__NOOPTIONFOUND);
+			exit(goptions::EC__NOOPTIONFOUND);
 		}
 	}
 
@@ -244,18 +245,18 @@ void GOptions::defineSwitch(const std::string& name, const std::string& descript
 		switches[name] = GSwitch(description, default_status);
 	}
 	else {
-		std::cerr << FATALERRORL << "The " << YELLOWHHL << name << RSTHHR
+		std::cerr << guts::FATALERRORL << "The " << guts::YELLOWHHL << name << guts::RSTHHR
 			<< " switch is already present." << std::endl;
-		exit(EC__DEFINED_SWITCHALREADYPRESENT);
+		exit(goptions::EC__DEFINED_SWITCHALREADYPRESENT);
 	}
 }
 
 // Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 void GOptions::defineOption(const GVariable& gvar, const std::string& help) {
 	if (doesOptionExist(gvar.name)) {
-		std::cerr << FATALERRORL << "The " << YELLOWHHL << gvar.name << RSTHHR
+		std::cerr << guts::FATALERRORL << "The " << guts::YELLOWHHL << gvar.name << guts::RSTHHR
 			<< " option is already present." << std::endl;
-		exit(EC__DEFINED_OPTION_ALREADY_PRESENT);
+		exit(goptions::EC__DEFINED_OPTION_ALREADY_PRESENT);
 	}
 	else {
 		goptions.emplace_back(gvar, help);
@@ -267,9 +268,9 @@ void GOptions::defineOption(const std::string&            name, const std::strin
                             const std::vector<GVariable>& gvars,
                             const std::string&            help) {
 	if (doesOptionExist(name)) {
-		std::cerr << FATALERRORL << "The " << YELLOWHHL << name << RSTHHR
+		std::cerr << guts::FATALERRORL << "The " << guts::YELLOWHHL << name << guts::RSTHHR
 			<< " option is already present." << std::endl;
-		exit(EC__DEFINED_OPTION_ALREADY_PRESENT);
+		exit(goptions::EC__DEFINED_OPTION_ALREADY_PRESENT);
 	}
 	else {
 		goptions.emplace_back(name, description, gvars, help);
@@ -280,9 +281,9 @@ void GOptions::defineOption(const std::string&            name, const std::strin
 int GOptions::getScalarInt(const std::string& tag) const {
 	auto it = getOptionIterator(tag);
 	if (it == goptions.end()) {
-		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR
+		cerr << guts::FATALERRORL << "The option " << guts::YELLOWHHL << tag << guts::RSTHHR
 			<< " was not found." << endl;
-		exit(EC__NOOPTIONFOUND);
+		exit(goptions::EC__NOOPTIONFOUND);
 	}
 	return it->value.begin()->second.as<int>();
 }
@@ -291,9 +292,9 @@ int GOptions::getScalarInt(const std::string& tag) const {
 double GOptions::getScalarDouble(const std::string& tag) const {
 	auto it = getOptionIterator(tag);
 	if (it == goptions.end()) {
-		cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR
+		cerr << guts::FATALERRORL << "The option " << guts::YELLOWHHL << tag << guts::RSTHHR
 			<< " was not found." << endl;
-		exit(EC__NOOPTIONFOUND);
+		exit(goptions::EC__NOOPTIONFOUND);
 	}
 	return it->value.begin()->second.as<double>();
 }
@@ -302,9 +303,9 @@ double GOptions::getScalarDouble(const std::string& tag) const {
 std::optional<std::string> GOptions::getOptionalScalarString(const std::string& tag) const {
 	auto it = getOptionIterator(tag);
 	if (it == goptions.end()) {
-		std::cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR
+		std::cerr << guts::FATALERRORL << "The option " << guts::YELLOWHHL << tag << guts::RSTHHR
 			<< " was not found." << std::endl;
-		std::exit(EC__NOOPTIONFOUND);
+		std::exit(goptions::EC__NOOPTIONFOUND);
 	}
 	const YAML::Node node = it->value.begin()->second;
 	if (!node.IsDefined() || node.IsNull()) return std::nullopt;
@@ -316,8 +317,9 @@ std::optional<std::string> GOptions::getOptionalScalarString(const std::string& 
 void GOptions::printOptionOrSwitchHelp(const std::string& tag) const {
 	auto switchIt = switches.find(tag);
 	if (switchIt != switches.end()) {
-		cout << KGRN << "-" << tag << RST << ": " << switchIt->second.getDescription() << endl << endl;
-		cout << TPOINTITEM << "Default value is " << (switchIt->second.getStatus() ? "on" : "off") << endl << endl;
+		cout << guts::KGRN << "-" << tag << guts::RST << ": " << switchIt->second.getDescription() << endl << endl;
+		cout << guts::TPOINTITEM << "Default value is " << (switchIt->second.getStatus() ? "on" : "off") << endl
+		     << endl;
 		exit(EXIT_SUCCESS);
 	}
 	for (const auto& goption : goptions) {
@@ -326,9 +328,9 @@ void GOptions::printOptionOrSwitchHelp(const std::string& tag) const {
 			exit(EXIT_SUCCESS);
 		}
 	}
-	cerr << FATALERRORL << "The " << YELLOWHHL << tag << RSTHHR
+	cerr << guts::FATALERRORL << "The " << guts::YELLOWHHL << tag << guts::RSTHHR
 		<< " option is not known to this system." << endl;
-	exit(EC__NOOPTIONFOUND);
+	exit(goptions::EC__NOOPTIONFOUND);
 }
 
 // Private method: see header. Kept undocumented here to avoid duplicate param docs.
@@ -343,28 +345,32 @@ void GOptions::printSearch(const std::string& tag) const {
 		return to_lower(a).find(needle) != string::npos || to_lower(b).find(needle) != string::npos;
 	};
 
-	long int fill_width = string(HELPFILLSPACE).size() + 1;
+	long int fill_width = string(goptions::HELPFILLSPACE).size() + 1;
 	cout.fill('.');
-	cout << KGRN << KBOLD << " Options and switches matching \"" << tag << "\":" << RST << endl << endl;
+	cout << guts::KGRN << guts::KBOLD << " Options and switches matching \"" << tag << "\":" << guts::RST
+	     << endl
+	     << endl;
 
 	bool found = false;
 	for (auto& s : switches) {
 		if (matches(s.first, s.second.getDescription())) {
 			found = true;
-			cout << KGRN << " " << left;
+			cout << guts::KGRN << " " << left;
 			cout.width(fill_width);
-			cout << "-" + s.first + RST + " " << ": " << s.second.getDescription() << endl;
+			cout << "-" + s.first + guts::RST + " " << ": " << s.second.getDescription() << endl;
 		}
 	}
 	for (auto& option : goptions) {
-		if (option.name != GVERSION_STRING && matches(option.name, option.description)) {
+		if (option.name != goptions::GVERSION_STRING && matches(option.name, option.description)) {
 			found = true;
 			option.printHelp(false);
 		}
 	}
-	if (!found) { cout << TPOINTITEM << "no match found." << endl; }
-	cout << endl << " Use " << KGRN << "help <value>" << RST << " for the detailed help of a single option." << endl
-		<< endl;
+	if (!found) { cout << guts::TPOINTITEM << "no match found." << endl; }
+	cout << endl
+	     << " Use " << guts::KGRN << "help <value>" << guts::RST << " for the detailed help of a single option."
+	     << endl
+	     << endl;
 }
 
 // Private method: see header. Kept undocumented here to avoid duplicate param docs.
@@ -400,16 +406,16 @@ void GOptions::setOptionsValuesFromYamlFile(const std::string& yaml) {
 		config = YAML::LoadFile(yaml);
 	}
 	catch (YAML::BadFile& e) {
-		cerr << FATALERRORL << "Cannot open yaml file " << YELLOWHHL << yaml << RSTHHR
+		cerr << guts::FATALERRORL << "Cannot open yaml file " << guts::YELLOWHHL << yaml << guts::RSTHHR
 			<< ". Check the path and spelling." << endl;
-		exit(EC__YAML_PARSING_ERROR);
+		exit(goptions::EC__YAML_PARSING_ERROR);
 	}
 	catch (YAML::ParserException& e) {
-		cerr << FATALERRORL << "Error parsing " << YELLOWHHL << yaml << RSTHHR
+		cerr << guts::FATALERRORL << "Error parsing " << guts::YELLOWHHL << yaml << guts::RSTHHR
 			<< " yaml file." << endl;
 		cerr << e.what() << endl;
 		cerr << "Try validating the yaml file with an online yaml validator, e.g., https://www.yamllint.com" << endl;
-		exit(EC__YAML_PARSING_ERROR);
+		exit(goptions::EC__YAML_PARSING_ERROR);
 	}
 
 	for (auto it = config.begin(); it != config.end(); ++it) {
@@ -419,18 +425,18 @@ void GOptions::setOptionsValuesFromYamlFile(const std::string& yaml) {
 		// If it is not an option, it may still be a switch.
 		if (option_it == goptions.end()) {
 			if (switches.find(option_name) == switches.end()) {
-				cerr << FATALERRORL << "The option or switch " << YELLOWHHL << option_name << RSTHHR
+				cerr << guts::FATALERRORL << "The option or switch " << guts::YELLOWHHL << option_name << guts::RSTHHR
 					<< " is not known to this system." << endl;
-				exit(EC__NOOPTIONFOUND);
+				exit(goptions::EC__NOOPTIONFOUND);
 			}
 			else {
 				// A bare key (null value) means "present" -> on; an explicit boolean value is honored,
 				// so a default-on switch can be turned off from YAML (e.g. print_summary: false).
 				bool on = true;
 				if (it->second.IsScalar() && !parse_bool_token(it->second.as<std::string>(), on)) {
-					cerr << FATALERRORL << "The switch " << YELLOWHHL << option_name << RSTHHR
+					cerr << guts::FATALERRORL << "The switch " << guts::YELLOWHHL << option_name << guts::RSTHHR
 						<< " accepts only true/false/yes/no/on/off/1/0." << endl;
-					exit(EC__NOOPTIONFOUND);
+					exit(goptions::EC__NOOPTIONFOUND);
 				}
 				on ? switches[option_name].turnOn() : switches[option_name].turnOff();
 			}
@@ -497,9 +503,9 @@ bool GOptions::getSwitch(const std::string& tag) const {
 		return it->second.getStatus();
 	}
 	else {
-		std::cerr << FATALERRORL << "The switch " << YELLOWHHL << tag << RSTHHR
+		std::cerr << guts::FATALERRORL << "The switch " << guts::YELLOWHHL << tag << guts::RSTHHR
 			<< " was not found." << std::endl;
-		exit(EC__NOOPTIONFOUND);
+		exit(goptions::EC__NOOPTIONFOUND);
 	}
 }
 
@@ -515,9 +521,9 @@ YAML::Node GOptions::getOptionMapInNode(const string& option_name, const string&
 		}
 	}
 
-	cerr << FATALERRORL << "The key " << YELLOWHHL << map_key << RSTHHR
-		<< " was not found in " << YELLOWHHL << option_name << RSTHHR << endl;
-	exit(EC__NOOPTIONFOUND);
+	cerr << guts::FATALERRORL << "The key " << guts::YELLOWHHL << map_key << guts::RSTHHR
+		<< " was not found in " << guts::YELLOWHHL << option_name << guts::RSTHHR << endl;
+	exit(goptions::EC__NOOPTIONFOUND);
 }
 
 // Template documentation lives in the header to avoid duplicate \param blocks.
@@ -549,8 +555,8 @@ int GOptions::getVerbosityFor(const std::string& tag) const {
 	}
 
 	// not found. error
-	std::cerr << KRED << " Invalid verbosity or debug requested: " << tag << RST << std::endl;
-	exit(EC__NOOPTIONFOUND);
+	std::cerr << guts::KRED << " Invalid verbosity or debug requested: " << tag << guts::RST << std::endl;
+	exit(goptions::EC__NOOPTIONFOUND);
 }
 
 // Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
@@ -569,24 +575,25 @@ int GOptions::getDebugFor(const std::string& tag) const {
 			}
 			catch (const YAML::BadConversion&) {
 				std::cerr << "Invalid debug value for " << tag << std::endl;
-				exit(EC__BAD_CONVERSION);
+				exit(goptions::EC__BAD_CONVERSION);
 			}
 		}
 	}
 	// not found. error
-	std::cerr << KRED << " Invalid verbosity or debug requested: " << tag << RST << std::endl;
-	exit(EC__NOOPTIONFOUND);
+	std::cerr << guts::KRED << " Invalid verbosity or debug requested: " << tag << guts::RST << std::endl;
+	exit(goptions::EC__NOOPTIONFOUND);
 }
 
 // Private method: no Doxygen block here to avoid duplicate \param docs.
 void GOptions::printHelp() const {
-	long int fill_width = string(HELPFILLSPACE).size() + 1;
+	long int fill_width = string(goptions::HELPFILLSPACE).size() + 1;
 	cout.fill('.');
-	cout << KGRN << KBOLD << " " << executableName << RST << " [options] [yaml files]" << endl << endl;
+	cout << guts::KGRN << guts::KBOLD << " " << executableName << guts::RST << " [options] [yaml files]" << endl
+	     << endl;
 	cout << " Switches: " << endl << endl;
 	for (auto& s : switches) {
-		string help = "-" + s.first + RST + " ";
-		cout << KGRN << " " << left;
+		string help = "-" + s.first + guts::RST + " ";
+		cout << guts::KGRN << " " << left;
 		cout.width(fill_width);
 		cout << help;
 		cout << ": " << s.second.getDescription() << endl;
@@ -599,20 +606,20 @@ void GOptions::printHelp() const {
 	cout << endl;
 	cout << endl << " Help / Search / Introspection: " << endl << endl;
 	vector<string> helps = {
-		string("-h, --h, -help, --help") + RST,
+		string("-h, --h, -help, --help") + guts::RST,
 		string("print this help and exit"),
-		string("-hweb") + RST,
+		string("-hweb") + guts::RST,
 		string("print this help in web format and exit"),
-		string("-v, --v, -version, --version") + RST,
+		string("-v, --v, -version, --version") + guts::RST,
 		string("print the version and exit\n"),
-		string("help <value>") + RST,
+		string("help <value>") + guts::RST,
 		string("print detailed help for option <value> and exit"),
-		string("search <value>") + RST,
+		string("search <value>") + guts::RST,
 		string("list all options/switches whose name or description contains <value> and exit\n")
 	};
 	unsigned half_help = helps.size() / 2;
 	for (unsigned i = 0; i < half_help; i++) {
-		cout << KGRN << " " << left;
+		cout << guts::KGRN << " " << left;
 		cout.width(fill_width);
 		cout << helps[i * 2] << ": " << helps[i * 2 + 1] << endl;
 	}
@@ -642,10 +649,11 @@ void GOptions::saveOptions() const {
 void GOptions::print_version() {
 	string asterisks = "*******************************************************************";
 	cout << endl << asterisks << endl;
-	cout << " " << KGRN << KBOLD << executableName << RST << "  version: " << KGRN << gversion << RST << endl;
-	cout << " Called from: " << KGRN << executableCallingDir << RST << endl;
-	cout << " Install: " << KGRN << installDir << "/bin" << RST << endl; //
-	cout << " Released on: " << KGRN << grelease_date << RST << endl;
+	cout << " " << guts::KGRN << guts::KBOLD << executableName << guts::RST << "  version: " << guts::KGRN
+	     << gversion << guts::RST << endl;
+	cout << " Called from: " << guts::KGRN << executableCallingDir << guts::RST << endl;
+	cout << " Install: " << guts::KGRN << installDir << "/bin" << guts::RST << endl; //
+	cout << " Released on: " << guts::KGRN << grelease_date << guts::RST << endl;
 
 	// Report the plugin search path when one was provided, either through the
 	// -plugin_path option (or a plugin_path: YAML key) or the GEMC_PLUGIN_PATH
@@ -660,12 +668,12 @@ void GOptions::print_version() {
 			if (!combined.empty()) combined += ':';
 			combined += plugin_env;
 		}
-		cout << " Plugin path: " << KGRN << combined << RST << endl;
+		cout << " Plugin path: " << guts::KGRN << combined << guts::RST << endl;
 	}
 
-	cout << " GEMC Reference: " << KGRN << greference << RST << endl;
-	cout << " GEMC Homepage: " << KGRN << gweb << RST << endl;
-	cout << " Author: " << KGRN << gauthor << RST << endl << endl;
+	cout << " GEMC Reference: " << guts::KGRN << greference << guts::RST << endl;
+	cout << " GEMC Homepage: " << guts::KGRN << gweb << guts::RST << endl;
+	cout << " Author: " << guts::KGRN << gauthor << guts::RST << endl << endl;
 	cout << asterisks << endl << endl;
 }
 

@@ -169,7 +169,7 @@ void define_new_gemc_units();
  * - `randomEngine` : the name of the random engine implementation
  * - `seed` : the numeric seed value
  *
- * If the seed is `SEEDNOTSET`, a seed is generated from a combination of wall time,
+ * If the seed is `gemc::SEEDNOTSET`, a seed is generated from a combination of wall time,
  * process CPU clock, and the process id.
  *
  * @par Supported engine names
@@ -179,7 +179,7 @@ void define_new_gemc_units();
  *
  * @par Error handling
  * If an unknown engine name is provided, an error is logged using the module error code
- * `EC__RANDOMENGINENOTFOUND`.
+ * `gemc::EC__RANDOMENGINENOTFOUND`.
  *
  * \param gopts Runtime options provider. Keys used: `randomEngine`, `seed`.
  * \param log Logger used to report the chosen engine and seed, or errors.

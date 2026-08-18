@@ -57,11 +57,11 @@ void GOption::set_value(const YAML::Node& v) {
 		// Validate that each user-provided entry includes all mandatory keys.
 		for (const auto& element : v) {
 			if (!does_the_option_set_all_necessary_values(element)) {
-				cerr << FATALERRORL << "Trying to set " << YELLOWHHL << name << RSTHHR
+				cerr << guts::FATALERRORL << "Trying to set " << guts::YELLOWHHL << name << guts::RSTHHR
 					<< " but missing mandatory values." << endl;
-				cerr << "        Use the option: " << YELLOWHHL << " help " << name
-					<< " " << RSTHHR << " for details." << endl << endl;
-				exit(EC__MANDATORY_NOT_FILLED);
+				cerr << "        Use the option: " << guts::YELLOWHHL << " help " << name
+					<< " " << guts::RSTHHR << " for details." << endl << endl;
+				exit(goptions::EC__MANDATORY_NOT_FILLED);
 			}
 		}
 
@@ -216,17 +216,17 @@ void GOption::saveOption(std::ofstream* yamlConf) const {
  * - Detailed help includes schema defaults + extended multi-line help payload.
  */
 void GOption::printHelp(bool detailed) const {
-	if (name == GVERSION_STRING) return;
+	if (name == goptions::GVERSION_STRING) return;
 
-	long int fill_width = string(HELPFILLSPACE).size() + 1;
+	long int fill_width = string(goptions::HELPFILLSPACE).size() + 1;
 	cout.fill('.');
 
-	string helpString  = "-" + name + RST;
+	string helpString  = "-" + name + guts::RST;
 	bool   is_sequence = defaultValue.begin()->second.IsSequence();
 	helpString         += is_sequence ? "=<sequence>" : "=<value>";
 	helpString         += " ";
 
-	cout << KGRN << " " << left;
+	cout << guts::KGRN << " " << left;
 	cout.width(fill_width);
 
 	if (detailed) {
@@ -255,7 +255,7 @@ string GOption::detailedHelp() const {
 			YAML::Node this_node = yvalues[i];
 
 			for (auto it = this_node.begin(); it != this_node.end(); ++it) {
-				cout << TGREENPOINTITEM << " " << KGRN << it->first.as<string>() << RST
+				cout << guts::TGREENPOINTITEM << " " << guts::KGRN << it->first.as<string>() << guts::RST
 					<< ": " << gvar_descs[i] << "Default value: " << it->second.as<string>() << endl;
 			}
 		}
@@ -264,7 +264,7 @@ string GOption::detailedHelp() const {
 	newHelp                   += "\n";
 	vector<string> help_lines = gutilities::getStringVectorFromStringWithDelimiter(help, "\n");
 	for (const auto& line : help_lines) {
-		newHelp += GTAB + line + "\n";
+		newHelp += guts::GTAB + line + "\n";
 	}
 
 	return newHelp;
@@ -293,7 +293,7 @@ void GOption::set_sub_option_value(const string& subkey, const string& subvalue)
 
 		if (!updated) {
 			cerr << "Sub-option key '" << subkey << "' not found in option '" << name << "'." << endl;
-			exit(EC__NOOPTIONFOUND);
+			exit(goptions::EC__NOOPTIONFOUND);
 		}
 	}
 	else if (option_node.IsMap()) {
@@ -302,11 +302,11 @@ void GOption::set_sub_option_value(const string& subkey, const string& subvalue)
 		}
 		else {
 			cerr << "Sub-option key '" << subkey << "' not found in option '" << name << "'." << endl;
-			exit(EC__NOOPTIONFOUND);
+			exit(goptions::EC__NOOPTIONFOUND);
 		}
 	}
 	else {
 		cerr << "Option '" << name << "' is not structured to accept sub–options." << endl;
-		exit(EC__NOOPTIONFOUND);
+		exit(goptions::EC__NOOPTIONFOUND);
 	}
 }

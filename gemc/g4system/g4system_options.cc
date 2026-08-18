@@ -26,12 +26,12 @@ GOptions defineOptions() {
 
 	// Backup material option:
 	// - used when a volume requests a material that is not defined in the Geant4 material tables
-	// - default behavior is controlled by NO_USE_DEFAULT_MATERIAL
+	// - default behavior is controlled by g4system::NO_USE_DEFAULT_MATERIAL
 	std::string help =
 		"Material to be used if some volume requested a non-defined material.\n\n";
 	help += "By default GEMC will exit with error.\n";
 	help += "Example: -useBackupMaterial=G4_Air\n";
-	goptions.defineOption(GVariable("useBackupMaterial", NO_USE_DEFAULT_MATERIAL,
+	goptions.defineOption(GVariable("useBackupMaterial", g4system::NO_USE_DEFAULT_MATERIAL,
 	                                "Backup material"), help);
 
 	// Human-readable switches used for diagnostics and validation.

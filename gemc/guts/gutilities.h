@@ -269,7 +269,7 @@ vector<string> getListOfFilesInDirectory(const string& dirName, const vector<str
  * - The numeric part is parsed in the @c "C" locale to avoid locale-dependent decimal separators.
  * - Units are converted using a fixed table and limited SI-prefix handling.
  * - On invalid formatting or numeric parsing errors, the function prints a fatal error and exits with
- *   @c EC__G4NUMBERERROR.
+ *   @c guts::EC__G4NUMBERERROR.
  * - If the unit is unknown, a warning is printed and the numeric part is returned (legacy behavior).
  *
  * \param v The input string containing the number and optional units, formatted as @c "<number>*<unit>".

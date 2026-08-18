@@ -90,7 +90,7 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 		}
 	}
 	if (!expFound) {
-		log->error(ERR_EXPERIMENTNOTFOUND, experiment, " not found in database.", dbhost);
+		log->error(gsystem::ERR_EXPERIMENTNOTFOUND, experiment, " not found in database.", dbhost);
 	}
 
 	// Apply selections from configured GSystem objects (if any).
@@ -123,7 +123,8 @@ bool DBSelectView::isGeometryTableValid() const {
 
 	// First check: table existence.
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "SQL Error: Failed to check geometry table existence:", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR,
+		           "SQL Error: Failed to check geometry table existence:", sqlite3_errmsg(db));
 	}
 
 	bool tableExists = false;
@@ -138,7 +139,8 @@ bool DBSelectView::isGeometryTableValid() const {
 	// Second check: table contains data.
 	sql_query = "SELECT COUNT(*) FROM geometry";
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "SQL Error: Failed to count rows in geometry table:", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR,
+		           "SQL Error: Failed to count rows in geometry table:", sqlite3_errmsg(db));
 	}
 
 	bool hasData = false;
@@ -266,7 +268,7 @@ void DBSelectView::loadExperiments() {
 
 	int rc = sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "Failed to prepare experiment query:", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "Failed to prepare experiment query:", sqlite3_errmsg(db));
 	}
 
 	// Populate one top-level item per experiment.
@@ -363,7 +365,7 @@ int DBSelectView::getGeometryCount(const std::string& system, const std::string&
 		}
 	}
 	else {
-		log->error(ERR_GSQLITEERROR, "SQL Error: Failed togetGeometryCounte:", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "SQL Error: Failed togetGeometryCounte:", sqlite3_errmsg(db));
 	}
 
 	sqlite3_finalize(stmt);
@@ -399,7 +401,7 @@ bool DBSelectView::systemAvailable(const std::string& system, const std::string&
 	sqlite3_stmt* stmt  = nullptr;
 
 	if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "SQL Error:systemAvailable: prepare failed:e:", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "SQL Error:systemAvailable: prepare failed:e:", sqlite3_errmsg(db));
 	}
 
 	sqlite3_bind_text(stmt, 1, system.c_str(), -1, SQLITE_TRANSIENT);
@@ -573,7 +575,7 @@ SystemList DBSelectView::get_gsystems() {
 						gopt,
 						dbhost,
 						systemName,
-						GSYSTEMSQLITETFACTORYLABEL,
+						gsystem::GSYSTEMSQLITETFACTORYLABEL,
 						expName,
 						run,
 						variation
@@ -625,7 +627,7 @@ void DBSelectView::reload_geometry() {
 			gsystemYaml << "{name: " << gsys->getName()
 			            << ", factory: " << gsys->getFactoryName()
 			            << ", variation: " << gsys->getVariation();
-			if (gsys->getAnnotations() != UNINITIALIZEDSTRINGQUANTITY) {
+			if (gsys->getAnnotations() != guts::UNINITIALIZEDSTRINGQUANTITY) {
 				gsystemYaml << ", annotations: " << gsys->getAnnotations();
 			}
 			gsystemYaml << "}";

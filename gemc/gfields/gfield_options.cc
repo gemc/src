@@ -28,7 +28,7 @@ struct FieldQueryPoint {
 };
 
 bool is_query_set(const std::string& value) {
-	return !value.empty() && value != UNINITIALIZEDSTRINGQUANTITY && value != "not provided";
+	return !value.empty() && value != guts::UNINITIALIZEDSTRINGQUANTITY && value != "not provided";
 }
 
 FieldQueryPoint parse_field_query_point(const std::string& expression, const std::string& source, int line) {
@@ -54,11 +54,11 @@ FieldQueryPoint parse_field_query_point(const std::string& expression, const std
 	std::string        extra;
 	tokens >> x >> y >> z >> extra;
 	if (x.empty() || y.empty() || z.empty() || !extra.empty()) {
-		std::cerr << FATALERRORL << "field query point must contain exactly three coordinates with units";
+		std::cerr << guts::FATALERRORL << "field query point must contain exactly three coordinates with units";
 		if (line > 0) { std::cerr << " at " << source << ":" << line; }
 		else { std::cerr << " in " << source; }
 		std::cerr << ". Got <" << expression << ">." << std::endl;
-		std::exit(EC__G4NUMBERERROR);
+		std::exit(guts::EC__G4NUMBERERROR);
 	}
 
 	point.position[0] = gutilities::getG4Number(x, true);
@@ -75,8 +75,8 @@ bool is_blank_or_comment_line(const std::string& line) {
 void append_field_query_file_points(const std::string& filename, std::vector<FieldQueryPoint>& points) {
 	std::ifstream input(filename);
 	if (!input) {
-		std::cerr << FATALERRORL << "can't open field query point file " << filename << "." << std::endl;
-		std::exit(EC__FILENOTFOUND);
+		std::cerr << guts::FATALERRORL << "can't open field query point file " << filename << "." << std::endl;
+		std::exit(guts::EC__FILENOTFOUND);
 	}
 
 	std::string line;
@@ -135,22 +135,22 @@ std::vector<GFieldDefinition> get_GFieldDefinition(const std::shared_ptr<GOption
 		gfield_def.name = gopts->get_variable_in_option<std::string>(
 			gmultipoles_item, "name", goptions::NODFLT);
 		gfield_def.integration_stepper = gopts->get_variable_in_option<std::string>(
-			gmultipoles_item, "integration_stepper", GFIELD_DEFAULT_INTEGRATION_STEPPER);
+			gmultipoles_item, "integration_stepper", gfields::GFIELD_DEFAULT_INTEGRATION_STEPPER);
 		gfield_def.minimum_step = gutilities::getG4Number(gopts->get_variable_in_option<std::string>(
-			gmultipoles_item, "minimum_step", GFIELD_DEFAULT_MINIMUM_STEP));
+			gmultipoles_item, "minimum_step", gfields::GFIELD_DEFAULT_MINIMUM_STEP));
 
 		// Multipole parameters:
 		// Values are stored as strings to preserve unit expressions and are parsed later by the concrete field.
 		gfield_def.add_map_parameter("pole_number", gopts->get_variable_in_option<std::string>(
 			gmultipoles_item, "pole_number", goptions::NODFLT));
 		gfield_def.add_map_parameter("vx", gopts->get_variable_in_option<std::string>(
-			gmultipoles_item, "vx", GFIELD_DEFAULT_VERTEX));
+			gmultipoles_item, "vx", gfields::GFIELD_DEFAULT_VERTEX));
 		gfield_def.add_map_parameter("vy", gopts->get_variable_in_option<std::string>(
-			gmultipoles_item, "vy", GFIELD_DEFAULT_VERTEX));
+			gmultipoles_item, "vy", gfields::GFIELD_DEFAULT_VERTEX));
 		gfield_def.add_map_parameter("vz", gopts->get_variable_in_option<std::string>(
-			gmultipoles_item, "vz", GFIELD_DEFAULT_VERTEX));
+			gmultipoles_item, "vz", gfields::GFIELD_DEFAULT_VERTEX));
 		gfield_def.add_map_parameter("rotation_angle", gopts->get_variable_in_option<std::string>(
-			gmultipoles_item, "rotation_angle", GFIELD_DEFAULT_ROTANGLE));
+			gmultipoles_item, "rotation_angle", gfields::GFIELD_DEFAULT_ROTANGLE));
 		gfield_def.add_map_parameter("rotaxis", gopts->get_variable_in_option<std::string>(
 			gmultipoles_item, "rotaxis", goptions::NODFLT));
 		gfield_def.add_map_parameter("strength", gopts->get_variable_in_option<std::string>(
@@ -179,9 +179,9 @@ std::vector<GFieldDefinition> get_GFieldDefinition(const std::shared_ptr<GOption
 		gfield_def.type = gopts->get_variable_in_option<std::string>(
 			gfields_item, "type", goptions::NODFLT);
 		gfield_def.integration_stepper = gopts->get_variable_in_option<std::string>(
-			gfields_item, "integration_stepper", GFIELD_DEFAULT_INTEGRATION_STEPPER);
+			gfields_item, "integration_stepper", gfields::GFIELD_DEFAULT_INTEGRATION_STEPPER);
 		gfield_def.minimum_step = gutilities::getG4Number(gopts->get_variable_in_option<std::string>(
-			gfields_item, "minimum_step", GFIELD_DEFAULT_MINIMUM_STEP));
+			gfields_item, "minimum_step", gfields::GFIELD_DEFAULT_MINIMUM_STEP));
 
 		// Every remaining (scalar) key is forwarded to the plugin as a string parameter.
 		// Nested maps/sequences are not supported here: plugin parameters must be scalar values.
@@ -214,18 +214,21 @@ GOptions defineOptions() {
 	help += "Example (a quadrupole centered 30 cm downstream): \n";
 	help += "-gmultipoles=\"[{name: q1, pole_number: 4, rotaxis: Z, strength: 1.2, vz: 30*cm}]\"\n";
 	std::vector<GVariable> gmultipoles = {
-		{"name", goptions::NODFLT, "Field name (unique key used by GMagneto maps)"},
-		{"integration_stepper", GFIELD_DEFAULT_INTEGRATION_STEPPER, "Geant4 integration stepper name (string)"},
-		{"minimum_step", GFIELD_DEFAULT_MINIMUM_STEP, "Minimum step for the G4ChordFinder (Geant4 length units)"},
-		{"pole_number", goptions::NODFLT, "Pole number (even integer >= 2): 2=dipole, 4=quadrupole, ..."},
-		{"vx", GFIELD_DEFAULT_VERTEX, "Origin X component (Geant4 length units)"},
-		{"vy", GFIELD_DEFAULT_VERTEX, "Origin Y component (Geant4 length units)"},
-		{"vz", GFIELD_DEFAULT_VERTEX, "Origin Z component (Geant4 length units)"},
-		{"rotation_angle", GFIELD_DEFAULT_ROTANGLE, "Roll rotation angle about rotaxis (Geant4 angle units)"},
-		{"rotaxis", goptions::NODFLT, "Rotation/longitudinal axis: one of X, Y, Z"},
-		{"strength", goptions::NODFLT, "Field strength in Tesla (defined at 1 m reference radius for multipoles)"},
-		{"longitudinal", "false", "If true, return a uniform field aligned with rotaxis (solenoid-like)"}
-	};
+	    {"name", goptions::NODFLT, "Field name (unique key used by GMagneto maps)"},
+	    {"integration_stepper", gfields::GFIELD_DEFAULT_INTEGRATION_STEPPER,
+	     "Geant4 integration stepper name (string)"},
+	    {"minimum_step", gfields::GFIELD_DEFAULT_MINIMUM_STEP,
+	     "Minimum step for the G4ChordFinder (Geant4 length units)"},
+	    {"pole_number", goptions::NODFLT, "Pole number (even integer >= 2): 2=dipole, 4=quadrupole, ..."},
+	    {"vx", gfields::GFIELD_DEFAULT_VERTEX, "Origin X component (Geant4 length units)"},
+	    {"vy", gfields::GFIELD_DEFAULT_VERTEX, "Origin Y component (Geant4 length units)"},
+	    {"vz", gfields::GFIELD_DEFAULT_VERTEX, "Origin Z component (Geant4 length units)"},
+	    {"rotation_angle", gfields::GFIELD_DEFAULT_ROTANGLE,
+	     "Roll rotation angle about rotaxis (Geant4 angle units)"},
+	    {"rotaxis", goptions::NODFLT, "Rotation/longitudinal axis: one of X, Y, Z"},
+	    {"strength", goptions::NODFLT,
+	     "Field strength in Tesla (defined at 1 m reference radius for multipoles)"},
+	    {"longitudinal", "false", "If true, return a uniform field aligned with rotaxis (solenoid-like)"}};
 	goptions.defineOption("gmultipoles", "define the e.m. gmultipoles", gmultipoles, help);
 
 	std::string gfields_help;
@@ -242,53 +245,64 @@ GOptions defineOptions() {
 	gfields_help += "            field_unit: T, coordinate1: 'transverse, 601, 0*m, 3*m', \n";
 	gfields_help += "            coordinate2: 'longitudinal, 1201, -3*m, 3*m'}]\"\n";
 	std::vector<GVariable> gfields = {
-		{"name", goptions::NODFLT, "Field name (unique key used by GMagneto maps)"},
-		{"type", goptions::NODFLT, "Field type; selects the plugin shared library gfield<type>Factory"},
-		{"integration_stepper", GFIELD_DEFAULT_INTEGRATION_STEPPER, "Geant4 integration stepper name (string)"},
-		{"minimum_step", GFIELD_DEFAULT_MINIMUM_STEP, "Minimum step for the G4ChordFinder (Geant4 length units)"}
-	};
+	    {"name", goptions::NODFLT, "Field name (unique key used by GMagneto maps)"},
+	    {"type", goptions::NODFLT, "Field type; selects the plugin shared library gfield<type>Factory"},
+	    {"integration_stepper", gfields::GFIELD_DEFAULT_INTEGRATION_STEPPER,
+	     "Geant4 integration stepper name (string)"},
+	    {"minimum_step", gfields::GFIELD_DEFAULT_MINIMUM_STEP,
+	     "Minimum step for the G4ChordFinder (Geant4 length units)"}};
 	goptions.defineOption("gfields", "define a generic plugin-backed e.m. field", gfields, gfields_help);
 
 	goptions.defineOption(
-		GVariable(GLOBAL_FIELD_OPTION, UNINITIALIZEDSTRINGQUANTITY, "associate a field with the ROOT world volume"),
-		"Associates a configured electromagnetic field with the ROOT (top-level) world volume.\n \n"
-		"The value must be the name of a field defined with -gmultipoles or -gfields. The field's\n"
-		"G4FieldManager is installed on the ROOT world volume and propagated to all daughters, so it\n"
-		"applies everywhere a more specific per-volume field has not been set.\n \n"
-		"Example: -global_field=dipole1\n \n");
+	    GVariable(gfields::GLOBAL_FIELD_OPTION, guts::UNINITIALIZEDSTRINGQUANTITY,
+	              "associate a field with the ROOT world volume"),
+	    "Associates a configured electromagnetic field with the ROOT (top-level) world volume.\n \n"
+	    "The value must be the name of a field defined with -gmultipoles or -gfields. The field's\n"
+	    "G4FieldManager is installed on the ROOT world volume and propagated to all daughters, so it\n"
+	    "applies everywhere a more specific per-volume field has not been set.\n \n"
+	    "Example: -global_field=dipole1\n \n");
 
 	goptions.defineOption(
-		GVariable(NO_FIELD_OPTION, UNINITIALIZEDSTRINGQUANTITY, "reset the field of one or more volumes"),
-		"Removes the electromagnetic field association from one or more volumes.\n \n"
-		"The value is either the name of a gvolume, a whitespace- or comma-separated list of gvolume\n"
-		"names, or the special value 'all'. A listed volume that was associated with a field (per-volume\n"
-		"or inherited) has that association removed, so it is left with no field. The special value 'all'\n"
-		"resets every per-volume field and also clears the '" GLOBAL_FIELD_OPTION "' option.\n \n"
-		"Fields that no volume uses as a result are not loaded: their plugins and field maps are skipped.\n \n"
-		"Examples: -" NO_FIELD_OPTION "=target            (reset only the 'target' volume)\n"
-		"          -" NO_FIELD_OPTION "=\"target, magnet\"  (reset both volumes)\n"
-		"          -" NO_FIELD_OPTION "=all               (reset every field, including the global field)\n \n");
+	    GVariable(gfields::NO_FIELD_OPTION, guts::UNINITIALIZEDSTRINGQUANTITY,
+	              "reset the field of one or more volumes"),
+	    std::string(
+	        "Removes the electromagnetic field association from one or more volumes.\n \n"
+	        "The value is either the name of a gvolume, a whitespace- or comma-separated list of gvolume\n"
+	        "names, or the special value 'all'. A listed volume that was associated with a field (per-volume\n"
+	        "or inherited) has that association removed, so it is left with no field. The special value 'all'\n"
+	        "resets every per-volume field and also clears the '") +
+	        gfields::GLOBAL_FIELD_OPTION +
+	        "' option.\n \nFields that no volume uses as a result are not loaded: their plugins and field "
+	        "maps are skipped.\n \nExamples: -" +
+	        gfields::NO_FIELD_OPTION + "=target            (reset only the 'target' volume)\n          -" +
+	        gfields::NO_FIELD_OPTION + "=\"target, magnet\"  (reset both volumes)\n          -" +
+	        gfields::NO_FIELD_OPTION +
+	        "=all               (reset every field, including the global field)\n \n");
 
 	goptions.defineOption(
-		GVariable(MAX_FIELD_STEP_OPTION, GFIELD_DEFAULT_MAXIMUM_STEP, "maximum accepted field step"),
-		"Sets the maximum acceptable propagation step used by Geant4 magnetic-field transportation.\n \n"
-		"The value is parsed as a Geant4 length expression and is passed to\n"
-		"G4PropagatorInField::SetLargestAcceptableStep() when positive. The default value\n"
-		"(" GFIELD_DEFAULT_MAXIMUM_STEP ") leaves the Geant4 default unchanged.\n \n"
-		"Example: -" MAX_FIELD_STEP_OPTION "=5*mm\n \n");
+	    GVariable(gfields::MAX_FIELD_STEP_OPTION, gfields::GFIELD_DEFAULT_MAXIMUM_STEP,
+	              "maximum accepted field step"),
+	    std::string(
+	        "Sets the maximum acceptable propagation step used by Geant4 magnetic-field transportation.\n \n"
+	        "The value is parsed as a Geant4 length expression and is passed to\n"
+	        "G4PropagatorInField::SetLargestAcceptableStep() when positive. The default value\n"
+	        "(") +
+	        gfields::GFIELD_DEFAULT_MAXIMUM_STEP + ") leaves the Geant4 default unchanged.\n \nExample: -" +
+	        gfields::MAX_FIELD_STEP_OPTION + "=5*mm\n \n");
 
 	goptions.defineOption(
-		GVariable("fieldAt", UNINITIALIZEDSTRINGQUANTITY, "query all configured fields at x y z"),
+		GVariable("fieldAt", guts::UNINITIALIZEDSTRINGQUANTITY, "query all configured fields at x y z"),
 		"Evaluate all configured electromagnetic fields at one absolute coordinate.\n \n"
 		"The value must contain three coordinate expressions with units, separated by spaces.\n \n"
 		"Example: -fieldAt=\"10*cm 0*mm 2*m\"\n \n");
 
 	goptions.defineOption(
-		GVariable("fieldMapPoints", UNINITIALIZEDSTRINGQUANTITY, "ASCII file of x y z points for field queries"),
-		"Evaluate all configured electromagnetic fields at coordinates listed in an ASCII file.\n \n"
-		"Each non-empty, non-comment line must contain three coordinate expressions with units.\n"
-		"Coordinates may be separated by spaces or commas. Lines beginning with # are ignored.\n \n"
-		"Example: -fieldMapPoints=points.txt\n \n");
+	    GVariable("fieldMapPoints", guts::UNINITIALIZEDSTRINGQUANTITY,
+	              "ASCII file of x y z points for field queries"),
+	    "Evaluate all configured electromagnetic fields at coordinates listed in an ASCII file.\n \n"
+	    "Each non-empty, non-comment line must contain three coordinate expressions with units.\n"
+	    "Coordinates may be separated by spaces or commas. Lines beginning with # are ignored.\n \n"
+	    "Example: -fieldMapPoints=points.txt\n \n");
 
 	return goptions;
 }
@@ -308,9 +322,9 @@ bool runFieldQueries(const std::shared_ptr<GOptions>& gopts) {
 	auto magneto     = std::make_shared<GMagneto>(gopts);
 	auto field_names = magneto->getFieldNames();
 	if (field_names.empty()) {
-		std::cerr << FATALERRORL << "field query requested, but no electromagnetic fields are configured."
+		std::cerr << guts::FATALERRORL << "field query requested, but no electromagnetic fields are configured."
 		          << std::endl;
-		std::exit(EC__NOOPTIONFOUND);
+		std::exit(goptions::EC__NOOPTIONFOUND);
 	}
 
 	std::cout << "# field query results" << std::endl;

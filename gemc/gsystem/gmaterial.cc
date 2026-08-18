@@ -21,10 +21,10 @@
 GMaterial::GMaterial(const std::string &s, std::vector<std::string> pars,
                      const std::shared_ptr<GLogger> &logger) : GBase(logger),
                                                                system(s) {
-	if (pars.size() != GMATERIALNUMBEROFPARS) {
-		log->error(ERR_GWRONGNUMBEROFPARS,
+	if (pars.size() != gsystem::GMATERIALNUMBEROFPARS) {
+		log->error(gsystem::ERR_GWRONGNUMBEROFPARS,
 		           "Incorrect number of material parameters for ", pars[0], ". Expected ",
-		           GMATERIALNUMBEROFPARS, " but we got ", pars.size());
+		           gsystem::GMATERIALNUMBEROFPARS, " but we got ", pars.size());
 	} else {
 		// The parameter vector is a serialized DB/ASCII row. Parsing is positional.
 		size_t i = 0;
@@ -38,7 +38,7 @@ GMaterial::GMaterial(const std::string &s, std::vector<std::string> pars,
 		// Human-readable description (kept verbatim).
 		description = pars[i++];
 
-		// Optical properties: each field may be UNINITIALIZEDSTRINGQUANTITY, in which case it is skipped.
+		// Optical properties: each field may be guts::UNINITIALIZEDSTRINGQUANTITY, in which case it is skipped.
 		getMaterialPropertyFromString(pars[i++], "photonEnergy");
 		getMaterialPropertyFromString(pars[i++], "indexOfRefraction");
 		getMaterialPropertyFromString(pars[i++], "absorptionLength");
@@ -96,7 +96,9 @@ void GMaterial::setComponentsFromString(const std::string &composition) {
 // load property from DB entry based on its name
 void GMaterial::getMaterialPropertyFromString(const std::string &parameter, const std::string &propertyName) {
 	// Nothing to do if the parameter is not assigned.
-	if (gutilities::removeLeadingAndTrailingSpacesFromString(parameter) == UNINITIALIZEDSTRINGQUANTITY) { return; }
+	if (gutilities::removeLeadingAndTrailingSpacesFromString(parameter) == guts::UNINITIALIZEDSTRINGQUANTITY) {
+		return;
+	}
 
 	// Tokenize the string and parse each component to a numeric value with units.
 	std::stringstream parameterComponents(parameter);
@@ -154,37 +156,37 @@ void GMaterial::getMaterialPropertyFromString(const std::string &parameter, cons
 		unsigned long photonEnergyVectorSize = photonEnergy.size();
 
 		if (!indexOfRefraction.empty() && indexOfRefraction.size() != photonEnergyVectorSize) {
-			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			log->error(gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
 			           "indexOfRefraction size ", indexOfRefraction.size(), " mismatch: photonEnergy has size ",
 			           photonEnergyVectorSize);
 		}
 		if (!absorptionLength.empty() && absorptionLength.size() != photonEnergyVectorSize) {
-			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			log->error(gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
 			           "absorptionLength size ", absorptionLength.size(), " mismatch: photonEnergy has size ",
 			           photonEnergyVectorSize);
 		}
 		if (!reflectivity.empty() && reflectivity.size() != photonEnergyVectorSize) {
-			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			log->error(gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
 			           "reflectivity size ", reflectivity.size(), " mismatch: photonEnergy has size ",
 			           photonEnergyVectorSize);
 		}
 		if (!efficiency.empty() && efficiency.size() != photonEnergyVectorSize) {
-			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			log->error(gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
 			           "efficiency size ", efficiency.size(), " mismatch: photonEnergy has size ",
 			           photonEnergyVectorSize);
 		}
 		if (!fastcomponent.empty() && fastcomponent.size() != photonEnergyVectorSize) {
-			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			log->error(gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
 			           "fastcomponent size ", fastcomponent.size(), " mismatch: photonEnergy has size ",
 			           photonEnergyVectorSize);
 		}
 		if (!slowcomponent.empty() && slowcomponent.size() != photonEnergyVectorSize) {
-			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			log->error(gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
 			           "slowcomponent size ", slowcomponent.size(), " mismatch: photonEnergy has size ",
 			           photonEnergyVectorSize);
 		}
 		if (!rayleigh.empty() && rayleigh.size() != photonEnergyVectorSize) {
-			log->error(ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			log->error(gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
 			           "rayleigh size ", rayleigh.size(), " mismatch: photonEnergy has size ",
 			           photonEnergyVectorSize);
 		}

@@ -41,7 +41,7 @@
 int main(int argc, char* argv[]) {
 	// Initialize options and logging for the module.
 	auto gopts   = std::make_shared<GOptions>(argc, argv, gsplash::defineOptions());
-	auto log     = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GSPLASH_LOGGER);
+	auto log     = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, gsplash::GSPLASH_LOGGER);
 
 	// Read runtime configuration:
 	// - gui controls whether we instantiate QApplication and show the splash.

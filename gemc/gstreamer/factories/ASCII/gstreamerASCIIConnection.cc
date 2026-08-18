@@ -17,7 +17,7 @@ bool GstreamerTextFactory::openConnection() {
 	ofile.open(filename(), std::ios::out | std::ios::trunc);
 
 	if (!ofile.is_open() || !ofile) {
-		log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename());
 	}
 
 	log->info(1, SFUNCTION_NAME, "GstreamerTextFactory: opened file " + filename());
@@ -29,7 +29,9 @@ bool GstreamerTextFactory::closeConnectionImpl() {
 	// The public closeConnection() wrapper already flushes pending events before calling this method.
 
 	if (ofile.is_open()) ofile.close();
-	if (ofile.is_open()) { log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename()); }
+	if (ofile.is_open()) {
+		log->error(gstreamer::ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename());
+	}
 
 	log->info(1, SFUNCTION_NAME, "GstreamerTextFactory: closed file " + filename());
 

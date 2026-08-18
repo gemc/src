@@ -11,20 +11,20 @@
 #include "event/gEventDataCollection.h"
 #include "run/gRunDataCollection.h"
 
-#define EVENTHEADERTREENAME "event_header"
-#define RUNHEADERTREENAME   "run_header"
-#define TRUEINFONAMEPREFIX  "true_info_"
-#define DIGITIZEDNAMEPREFIX "digitized_"
-#define GENERATEDTREENAMEDESC "Generated Particles"
-#define ANCESTORTREENAME "ancestors"
-#define ANCESTORTREENAMEDESC "Geant4 Ancestors"
-
-#define ERR_GSTREAMERROOTTREENOTFOUND 850
-
-#define EVENTHEADERTREENAMEDESC "Event Header"
-#define RUNHEADERTREENAMEDESC   "Run Header"
-#define TRUEINFOTREENAMEDESC    "True Info Data"
-#define DIGITIZEDTREENAMEDESC   "Digitized Data"
+namespace gstreamer::root {
+inline constexpr char EVENTHEADERTREENAME[] = "event_header";
+inline constexpr char RUNHEADERTREENAME[] = "run_header";
+inline constexpr char TRUEINFONAMEPREFIX[] = "true_info_";
+inline constexpr char DIGITIZEDNAMEPREFIX[] = "digitized_";
+inline constexpr char GENERATEDTREENAMEDESC[] = "Generated Particles";
+inline constexpr char ANCESTORTREENAME[] = "ancestors";
+inline constexpr char ANCESTORTREENAMEDESC[] = "Geant4 Ancestors";
+inline constexpr int ERR_GSTREAMERROOTTREENOTFOUND = 850;
+inline constexpr char EVENTHEADERTREENAMEDESC[] = "Event Header";
+inline constexpr char RUNHEADERTREENAMEDESC[] = "Run Header";
+inline constexpr char TRUEINFOTREENAMEDESC[] = "True Info Data";
+inline constexpr char DIGITIZEDTREENAMEDESC[] = "Digitized Data";
+} // namespace gstreamer::root
 
 /**
  * \file gRootTree.h

@@ -67,7 +67,7 @@ EventDispenser::EventDispenser(
 		ifstream in(filename->c_str());
 		if (!in) {
 			// Keep behavior unchanged: log error and continue with an empty distribution.
-			log->error(ERR_EVENTDISTRIBUTIONFILENOTFOUND,
+			log->error(eventDispenser::ERR_EVENTDISTRIBUTIONFILENOTFOUND,
 			           "Error: can't open run weights input file >", *filename, "<. Check your spelling. Exiting.");
 		}
 		else {
@@ -124,7 +124,7 @@ void EventDispenser::distributeEvents(int nevents_to_process) {
 	double totalWeight = 0;
 	for (const auto& weight : runWeights) { totalWeight += weight.second; }
 	if (totalWeight <= 0) {
-		log->error(ERR_EVENTDISTRIBUTIONFILENOTFOUND,
+		log->error(eventDispenser::ERR_EVENTDISTRIBUTIONFILENOTFOUND,
 		           "Run weights sum to ", totalWeight, " (must be > 0). Check your run weights file.");
 		return;
 	}

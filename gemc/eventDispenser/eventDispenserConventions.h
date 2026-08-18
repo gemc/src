@@ -1,5 +1,7 @@
 #pragma once
 
+namespace eventDispenser {
+
 /**
  * \file eventDispenserConventions.h
  * \brief Event Dispenser module error-code conventions.
@@ -12,4 +14,6 @@
  *
  * Emitted when the user provided a run-weight filename but the file cannot be opened.
  */
-#define ERR_EVENTDISTRIBUTIONFILENOTFOUND 701
+inline constexpr int ERR_EVENTDISTRIBUTIONFILENOTFOUND = 701;
+
+} // namespace eventDispenser

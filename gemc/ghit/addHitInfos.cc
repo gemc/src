@@ -10,6 +10,8 @@
 // See header for API docs.
 
 void GHit::addHitInfos(const G4Step* step) {
+	invalidateCalculatedState();
+
 	auto preStepPoint = step->GetPreStepPoint();
 
 	auto touchable = preStepPoint->GetTouchable();
@@ -37,9 +39,9 @@ void GHit::addHitInfos(const G4Step* step) {
 	trackVertexById.emplace(trackId, trackVertex);
 	pdgById.emplace(trackId, currentPdg);
 
-	G4ThreeVector motherTrackVertex(UNINITIALIZEDNUMBERQUANTITY, UNINITIALIZEDNUMBERQUANTITY,
-	                                UNINITIALIZEDNUMBERQUANTITY);
-	int motherPdg = UNINITIALIZEDNUMBERQUANTITY;
+	G4ThreeVector motherTrackVertex(guts::UNINITIALIZEDNUMBERQUANTITY, guts::UNINITIALIZEDNUMBERQUANTITY,
+	                                guts::UNINITIALIZEDNUMBERQUANTITY);
+	int motherPdg = guts::UNINITIALIZEDNUMBERQUANTITY;
 	if (motherTrackId > 0) {
 		auto motherVertex = trackVertexById.find(motherTrackId);
 		if (motherVertex != trackVertexById.end()) {

@@ -17,42 +17,39 @@
  * - channel number
  * - comparison mode (granularity)
  *
- * The comparison mode defines which parts of the address are considered significant when comparing two addresses:
- * - mode == 0: compare crate only
- * - mode == 1: compare crate and slot
- * - mode == 2: compare crate, slot, and channel
+ * The comparison mode defines which parts of the address are considered significant when comparing two
+ * addresses:
+ * - \c crate: compare crate only
+ * - \c crate_slot: compare crate and slot
+ * - \c crate_slot_channel: compare crate, slot, and channel
  *
- * Example (mode == 1):
+ * Example (mode == \c crate_slot):
  * - (3, 3, 1) is considered the same as (3, 3, 4) because the channel is ignored.
- * In mode == 2, those two would be different.
+ * In mode == \c crate_slot_channel, those two would be different.
  *
  * Typical usage:
- * - Translation tables and lookup maps can choose the comparison granularity they need (crate-only vs full address).
+ * - Translation tables and lookup maps can choose the comparison granularity they need (crate-only vs full
+ *   address).
  */
 struct GElectronic
 {
 public:
+	/** \brief Selects which hardware-address fields participate in comparison. */
+	enum class ComparisonMode {
+		crate,
+		crate_slot,
+		crate_slot_channel
+	};
+
 	/**
 	 * \brief Constructs a GElectronic with a specific hardware address and comparison mode.
 	 *
 	 * \param c Crate number.
 	 * \param s Slot number.
 	 * \param ch Channel number.
-	 * \param m Comparison mode:
-	 *   - 0: crate only
-	 *   - 1: crate and slot
-	 *   - 2: crate, slot, and channel
+	 * \param comparison_mode Hardware-address comparison granularity.
 	 */
-	GElectronic(int c, int s, int ch, int m);
-
-	/**
-	 * \brief Default constructor.
-	 *
-	 * Initializes the address and mode to the "uninitialized" sentinel used by the framework.
-	 * This constructor exists because some containers (e.g. maps used by translation tables) require
-	 * default-constructible value types.
-	 */
-	GElectronic();
+	GElectronic(int c, int s, int ch, ComparisonMode comparison_mode);
 
 	/**
 	 * \brief Sets the hardware address fields (crate/slot/channel).
@@ -70,13 +67,13 @@ public:
 	 *
 	 * \return A vector containing {crate, slot, channel} in that order.
 	 */
-	std::vector<int> getHAddress();
+	[[nodiscard]] std::vector<int> getHAddress() const;
 
 private:
 	int crate;   ///< Crate number.
 	int slot;    ///< Slot number.
 	int channel; ///< Channel number.
-	int mode;    ///< Comparison mode (granularity), see class documentation.
+	ComparisonMode mode; ///< Comparison granularity, see class documentation.
 
 	/**
 	 * \brief Equality operator using the configured comparison mode.

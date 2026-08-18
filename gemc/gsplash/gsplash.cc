@@ -76,20 +76,20 @@ std::unique_ptr<GSplash> GSplash::create(
 // - Tries filesystem path first, then Qt resource lookup.
 // - Creates and shows QSplashScreen only when a valid pixmap is available.
 GSplash::GSplash(const std::shared_ptr<GOptions>& gopts, const string& imageName, double splashTime)
-	: GBase(gopts, GSPLASH_LOGGER) {
+	: GBase(gopts, gsplash::GSPLASH_LOGGER) {
 	QPixmap pixmap;
-	const auto option_splash_time = gopts->getScalarDouble(GSPLASH_TIME_OPTION);
+	const auto option_splash_time = gopts->getScalarDouble(gsplash::GSPLASH_TIME_OPTION);
 	splash_time = option_splash_time >= 0.0 ? option_splash_time : splashTime;
-	const auto splash_scale = gopts->getScalarDouble(GSPLASH_SCALE_OPTION);
+	const auto splash_scale = gopts->getScalarDouble(gsplash::GSPLASH_SCALE_OPTION);
 
 	// If no explicit image is selected, load it from the GSPLASH environment variable.
-	if (imageName == NOSPLASHIMAGESELECTED) {
-		if (const char* filename = std::getenv(GSPLASHENVIRONMENT); filename) {
+	if (imageName == gsplash::NOSPLASHIMAGESELECTED) {
+		if (const char* filename = std::getenv(gsplash::GSPLASHENVIRONMENT); filename) {
 			pixmap.load(filename); // loads or leaves null
 		}
 		else {
-			log->error(ERR_NOSPLASHENVFOUND,
-			           "Environment variable ", GSPLASHENVIRONMENT,
+			log->error(gsplash::ERR_NOSPLASHENVFOUND,
+			           "Environment variable ", gsplash::GSPLASHENVIRONMENT,
 			           " must point to an image file.");
 		}
 	}
@@ -104,7 +104,7 @@ GSplash::GSplash(const std::shared_ptr<GOptions>& gopts, const string& imageName
 		}
 
 		if (pixmap.isNull())
-			log->error(ERR_NOSPLASHENVFOUND, "Image ", imageName, " not found.");
+			log->error(gsplash::ERR_NOSPLASHENVFOUND, "Image ", imageName, " not found.");
 	}
 
 	// Create the splash only when we have a valid pixmap; otherwise leave it inactive.

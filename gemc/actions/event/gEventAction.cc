@@ -185,7 +185,7 @@ void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) {
 // resulting payload according to collection mode, and publishing event-mode output.
 void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	if (run_action == nullptr) {
-		log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+		log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 				   " run_action is null - cannot access digitization routines or streamers.");
 		return;
 	}
@@ -214,7 +214,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 
 	const auto digi_map = run_action->get_digitization_routines_map();
 	if (digi_map == nullptr) {
-		log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
+		log->error(gaction::ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
 				   " no digitization routines map available in thread ", thread_id);
 		return;
 	}
@@ -244,7 +244,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 		// Resolve the digitization routine responsible for this collection.
 		const auto it = digi_map->find(hcSDName);
 		if (it == digi_map->end()) {
-			log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
+			log->error(gaction::ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
 					   " no digitization routine registered for collection ", hcSDName,
 					   " in thread ", thread_id);
 			continue;
@@ -252,7 +252,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 
 		const auto& digitization_routine = it->second;
 		if (digitization_routine == nullptr) {
-			log->error(ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
+			log->error(gaction::ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
 					   " digitization routine is null for collection ", hcSDName,
 					   " in thread ", thread_id);
 			continue;
@@ -366,14 +366,14 @@ void GEventAction::publish_event_data(const std::shared_ptr<GEventDataCollection
 
 	const auto gstreamers_threads_map = run_action->get_streamer_threads_map();
 	if (gstreamers_threads_map == nullptr) {
-		log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
+		log->error(gaction::ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
 				   " no thread streamer map available - event will not be published.");
 		return;
 	}
 
 	for (const auto& [name, gstreamer] : *gstreamers_threads_map) {
 		if (gstreamer == nullptr) {
-			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
+			log->error(gaction::ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
 					   " null gstreamer instance for streamer ", name);
 			continue;
 		}

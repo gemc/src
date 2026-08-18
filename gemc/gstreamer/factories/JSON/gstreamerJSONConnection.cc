@@ -18,7 +18,7 @@ bool GstreamerJsonFactory::openConnection() {
 	ofile.open(filename(), std::ios::out | std::ios::trunc);
 
 	if (!ofile.is_open() || !ofile) {
-		log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename());
 		return false;
 	}
 
@@ -41,7 +41,7 @@ bool GstreamerJsonFactory::closeConnectionImpl() {
 
 	if (ofile.is_open()) ofile.close();
 	if (ofile.is_open()) {
-		log->error(ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file ", filename());
+		log->error(gstreamer::ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file ", filename());
 	}
 
 	log->info(1, SFUNCTION_NAME, "GstreamerJsonFactory: closed file " + filename());
@@ -75,7 +75,8 @@ void GstreamerJsonFactory::ensureFileInitializedForType(const std::string& type)
 void GstreamerJsonFactory::writeTopLevelEntry(const std::string& entry_json) {
 	// This helper assumes the correct top-level array has already been opened.
 	if (!is_file_initialized) {
-		log->error(ERR_PUBLISH_ERROR, "JSON file is not initialized in GstreamerJsonFactory::writeTopLevelEntry");
+		log->error(gstreamer::ERR_PUBLISH_ERROR,
+		           "JSON file is not initialized in GstreamerJsonFactory::writeTopLevelEntry");
 		return;
 	}
 

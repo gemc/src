@@ -22,7 +22,7 @@
  * - The DB handle is closed in \ref GSystemSQLiteFactory::closeSystem "closeSystem()".
  *
  * Special-case behavior:
- * - The ROOT/world system (ROOTWORLDGVOLUMENAME) is skipped by design (it is injected separately).
+ * - The ROOT/world system (gsystem::ROOTWORLDGVOLUMENAME) is skipped by design (it is injected separately).
  *
  */
 class GSystemSQLiteFactory : public GSystemFactory

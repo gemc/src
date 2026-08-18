@@ -50,26 +50,26 @@ namespace geventaction {
 		GOptions goptions(EVENTACTION_LOGGER);
 
 		std::string help = "Print a progress log line every N events, with the average event rate.\n \n";
-		help += GTAB;
+		help += guts::GTAB;
 		help += "The value is a string of the form N or N-NTH, where N is the log module:\n";
-		help += GTABTAB;
+		help += guts::GTABTAB;
 		help += "N     : every worker thread prints 'Starting event n. <k> in thread <tid>.\n";
-		help += GTABTABTAB;
+		help += guts::GTABTABTAB;
 		help += "Average rate: <r> events / second' every time it has processed a multiple\n";
-		help += GTABTABTAB;
+		help += guts::GTABTABTAB;
 		help += "of N events. <k> is that thread's own 1-based event count (not the global\n";
-		help += GTABTABTAB;
+		help += guts::GTABTABTAB;
 		help += "Geant4 event id), and <r> is that thread's average rate.\n";
-		help += GTABTAB;
+		help += guts::GTABTAB;
 		help += "N-NTH : as above, but only the worker thread with id NTH prints. NTH must be\n";
-		help += GTABTABTAB;
+		help += guts::GTABTABTAB;
 		help += "in the range [0, nthreads-1].\n \n";
-		help += GTAB;
+		help += guts::GTAB;
 		help += "Examples: -log_every=100 (all threads, every 100 events)\n";
-		help += GTABTAB;
+		help += guts::GTABTAB;
 		help += "-log_every=100-2 (only thread 2, every 100 events)\n";
 		goptions.defineOption(
-			GVariable(LOG_EVERY_OPTION, UNINITIALIZEDSTRINGQUANTITY,
+			GVariable(LOG_EVERY_OPTION, guts::UNINITIALIZEDSTRINGQUANTITY,
 			          "log module: print event progress and average rate every N events per thread"),
 			help);
 

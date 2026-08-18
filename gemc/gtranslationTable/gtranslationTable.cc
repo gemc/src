@@ -26,38 +26,32 @@ std::string GTranslationTable::formTTKey(const std::vector<int> &identity) const
 // See header for API docs.
 void GTranslationTable::addGElectronicWithIdentity(const std::vector<int> &identity, const GElectronic &gtron) {
 	std::string ttKey = formTTKey(identity);
+	const bool inserted = tt.try_emplace(ttKey, gtron).second;
 
-	// Explicitly check presence so we can preserve the original entry and log a warning
-	// instead of overwriting silently.
-	auto search = tt.find(ttKey);
-
-	if (search == tt.end()) {
-		// Insert the new key-value pair.
-		tt[ttKey] = gtron;
-	} else {
+	if (!inserted) {
 		log->warning("Key <" + ttKey + "> already present in TT map");
 	}
 
-	// Level 1: typical "milestone" message indicating a configuration registration occurred.
-	log->info(1, "Added GElectronic with identity <", ttKey, "> to TT map");
+	// Level 1: typical "milestone" message indicating a configuration registration was attempted.
+	log->info(1, inserted ? "Added" : "Preserved", " GElectronic with identity <", ttKey, "> in TT map");
 
 	// Debug: print the entire table content for troubleshooting configuration/key issues.
 	log->debug(NORMAL, "Translation Table:");
 	for (auto &thisItem: tt) {
-		log->debug(NORMAL, GTAB, "<", thisItem.first, ">  ⇢ ", thisItem.second);
+		log->debug(NORMAL, guts::GTAB, "<", thisItem.first, ">  ⇢ ", thisItem.second);
 	}
 }
 
 
 // See header for API docs.
-GElectronic GTranslationTable::getElectronics(const std::vector<int> &identity) const {
+const GElectronic& GTranslationTable::getElectronics(const std::vector<int> &identity) const {
 	std::string ttKey = formTTKey(identity);
 	auto search = tt.find(ttKey);
 
-	if (search != tt.end()) {
-		log->debug(NORMAL, "Retrieved Electronic using key <", ttKey, "> in TT map: ", search->second);
-		return search->second;
-	} else {
-		log->error(EC__TTNOTFOUNDINTT, "Key <", ttKey, "> not found in TT map");
+	if (search == tt.end()) {
+		log->error(gtranslationTable::EC__TTNOTFOUNDINTT, "Key <", ttKey, "> not found in TT map");
 	}
+
+	log->debug(NORMAL, "Retrieved Electronic using key <", ttKey, "> in TT map: ", search->second);
+	return search->second;
 }

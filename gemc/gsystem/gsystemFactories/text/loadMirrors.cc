@@ -10,7 +10,7 @@
 
 void GSystemTextFactory::loadMirrors(GSystem* system) {
 	// Mirrors file is optional; if missing, IN is nullptr and we simply skip.
-	auto IN = gSystemTextFileStream(system, GTEXTMIRSTYPE);
+	auto IN = gSystemTextFileStream(system, gsystem::GTEXTMIRSTYPE);
 
 	if (IN != nullptr) {
 		log->info(1, "Loading mirrors for system ", system->getName(),

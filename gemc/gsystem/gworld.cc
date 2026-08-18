@@ -54,15 +54,15 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 	std::map<std::string, std::unique_ptr<GSystemFactory>> factoryMap;
 
 	// Always register & create the SQLite factory (needed for ROOT volumes)
-	manager.RegisterObjectFactory<GSystemSQLiteFactory>(GSYSTEMSQLITETFACTORYLABEL, gopts);
+	manager.RegisterObjectFactory<GSystemSQLiteFactory>(gsystem::GSYSTEMSQLITETFACTORYLABEL, gopts);
 	auto sqliteFactory = std::unique_ptr<GSystemFactory>(
-		manager.CreateObject<GSystemFactory>(GSYSTEMSQLITETFACTORYLABEL));
+		manager.CreateObject<GSystemFactory>(gsystem::GSYSTEMSQLITETFACTORYLABEL));
 
 	if (!sqliteFactory) {
-		log->error(ERR_FACTORYNOTFOUND,
-		           "Failed to create factory <", GSYSTEMSQLITETFACTORYLABEL, ">");
+		log->error(gfactory::ERR_FACTORYNOTFOUND,
+		           "Failed to create factory <", gsystem::GSYSTEMSQLITETFACTORYLABEL, ">");
 	}
-	factoryMap.emplace(GSYSTEMSQLITETFACTORYLABEL, std::move(sqliteFactory));
+	factoryMap.emplace(gsystem::GSYSTEMSQLITETFACTORYLABEL, std::move(sqliteFactory));
 
 
 	// Scan all systems and create any missing factories
@@ -70,7 +70,7 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 		const std::string& facName = sysPtr->getFactoryName();
 
 		if (facName.empty()) {
-			log->error(ERR_FACTORYNOTFOUND,
+			log->error(gfactory::ERR_FACTORYNOTFOUND,
 			           "Factory name for system <", sysName,
 			           "> is empty!  This system will not be loaded.");
 		}
@@ -79,16 +79,16 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 		if (factoryMap.count(facName)) continue;
 
 		//------------------ register the correct concrete class ----------------
-		if (facName == GSYSTEMCADTFACTORYLABEL)
+		if (facName == gsystem::GSYSTEMCADTFACTORYLABEL)
 			manager.RegisterObjectFactory<GSystemCADFactory>(facName, gopts);
-		else if (facName == GSYSTEMGDMLTFACTORYLABEL)
+		else if (facName == gsystem::GSYSTEMGDMLTFACTORYLABEL)
 			manager.RegisterObjectFactory<GSystemGDMLFactory>(facName, gopts);
-		else if (facName == GSYSTEMSQLITETFACTORYLABEL)
+		else if (facName == gsystem::GSYSTEMSQLITETFACTORYLABEL)
 			manager.RegisterObjectFactory<GSystemSQLiteFactory>(facName, gopts);
-		else if (facName == GSYSTEMASCIIFACTORYLABEL)
+		else if (facName == gsystem::GSYSTEMASCIIFACTORYLABEL)
 			manager.RegisterObjectFactory<GSystemTextFactory>(facName, gopts);
 		else {
-			log->error(ERR_FACTORYNOTFOUND,
+			log->error(gfactory::ERR_FACTORYNOTFOUND,
 			           "Unrecognized factory name <", facName,
 			           "> for system <", sysName, ">");
 		}
@@ -97,7 +97,7 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 		auto facPtr = std::unique_ptr<GSystemFactory>(manager.CreateObject<GSystemFactory>(facName));
 
 		if (!facPtr) {
-			log->error(ERR_FACTORYNOTFOUND,
+			log->error(gfactory::ERR_FACTORYNOTFOUND,
 			           "Failed to create factory <", facName,
 			           "> for system <", sysName, ">");
 		}
@@ -123,7 +123,7 @@ GVolume* GWorld::searchForVolume(const std::string& volumeName, const std::strin
 		}
 	}
 	// If volume not found, print error and exit.
-	log->error(ERR_GVOLUMENOTFOUND,
+	log->error(gsystem::ERR_GVOLUMENOTFOUND,
 	           "gvolume named <", volumeName, "> (", purpose, ") not found in gsystemsMap ", purpose);
 }
 
@@ -172,19 +172,19 @@ void GWorld::load_systems() {
 		const std::string& factoryName = sysPtr->getFactoryName();
 
 		if (factoryName.empty()) {
-			log->error(ERR_FACTORYNOTFOUND,
+			log->error(gfactory::ERR_FACTORYNOTFOUND,
 			           "Factory name for system <", sysName, "> is empty!");
 		}
 
 		auto facIt = systemFactories.find(factoryName);
 		if (facIt == systemFactories.end()) {
-			log->error(ERR_FACTORYNOTFOUND,
+			log->error(gfactory::ERR_FACTORYNOTFOUND,
 			           "Factory <", factoryName, "> not found for system <", sysName, ">");
 		}
 
 		auto& factory = facIt->second; // std::unique_ptr<GSystemFactory>&
 		if (!factory) {
-			log->error(ERR_FACTORYNOTFOUND,
+			log->error(gfactory::ERR_FACTORYNOTFOUND,
 			           "Factory pointer <", factoryName, "> is nullptr");
 		}
 
@@ -203,11 +203,11 @@ void GWorld::load_systems() {
 	}
 
 
-	// loop over gsystemsMap looking for ROOTWORLDGVOLUMENAME
+	// loop over gsystemsMap looking for gsystem::ROOTWORLDGVOLUMENAME
 	auto world_is_defined = false;
 	for (auto& [sysName, sysPtr] : *gsystemsMap) {
-		// for each system run getGVolume(ROOTWORLDGVOLUMENAME)
-		if (sysPtr->getGVolume(ROOTWORLDGVOLUMENAME) != nullptr) {
+		// for each system run getGVolume(gsystem::ROOTWORLDGVOLUMENAME)
+		if (sysPtr->getGVolume(gsystem::ROOTWORLDGVOLUMENAME) != nullptr) {
 			log->info(1, "ROOT world volume found in system <", sysName, ">");
 			world_is_defined = true;
 		}
@@ -217,13 +217,13 @@ void GWorld::load_systems() {
 		// Inject the ROOT “world” volume, if not already present.
 		// This ensures downstream volume placement always has a valid top-level mother.
 		const std::string worldVolumeDefinition =
-			gopts->getOptionalScalarString(ROOTWORLDGVOLUMENAME).value();
+			gopts->getOptionalScalarString(gsystem::ROOTWORLDGVOLUMENAME).value();
 
 		auto rootSystem = std::make_shared<GSystem>(
 			gopts, // logger
 			dbhost,
-			ROOTWORLDGVOLUMENAME, // name + path
-			GSYSTEMSQLITETFACTORYLABEL,
+			gsystem::ROOTWORLDGVOLUMENAME, // name + path
+			gsystem::GSYSTEMSQLITETFACTORYLABEL,
 			"all",    // experiment
 			1,        // runNo
 			"default" // variation
@@ -236,27 +236,27 @@ void GWorld::load_systems() {
 				"G4Box",                       // 02 type
 				"1*m, 1*m, 1*m",               // 03 parameters
 				"G4_AIR",                      // 04 material
-				ROOTWORLDGVOLUMENAME,          // 05 mother
-				DEFAULTPOSITION,               // 06 position
-				DEFAULTROTATION,               // 07 rotation
-				DEFAULTG4PLACEMENTTYPE,        // 08 Geant4 placement
-				UNINITIALIZEDSTRINGQUANTITY,   // 09 electromagnetic field
+				gsystem::ROOTWORLDGVOLUMENAME,          // 05 mother
+				gsystem::DEFAULTPOSITION,               // 06 position
+				gsystem::DEFAULTROTATION,               // 07 rotation
+				gsystem::DEFAULTG4PLACEMENTTYPE,        // 08 Geant4 placement
+				guts::UNINITIALIZEDSTRINGQUANTITY,   // 09 electromagnetic field
 				"1",                           // 10 visible
 				"0",                           // 11 style: wireframe
 				"ffcc33",                      // 12 color
 				"1",                           // 13 opacity
-				UNINITIALIZEDSTRINGQUANTITY,   // 14 digitization
-				UNINITIALIZEDSTRINGQUANTITY,   // 15 gidentity
-				UNINITIALIZEDSTRINGQUANTITY,   // 16 copyOf
-				UNINITIALIZEDSTRINGQUANTITY,   // 17 solidsOpr
-				UNINITIALIZEDSTRINGQUANTITY,   // 18 mirror
+				guts::UNINITIALIZEDSTRINGQUANTITY,   // 14 digitization
+				guts::UNINITIALIZEDSTRINGQUANTITY,   // 15 gidentity
+				guts::UNINITIALIZEDSTRINGQUANTITY,   // 16 copyOf
+				guts::UNINITIALIZEDSTRINGQUANTITY,   // 17 solidsOpr
+				guts::UNINITIALIZEDSTRINGQUANTITY,   // 18 mirror
 				"1",                           // 19 exist flag
 				"default visible volume for field-only visualization"
 			};
 			rootSystem->addGVolume(viewerBoxPars);
 		}
 
-		(*gsystemsMap)[ROOTWORLDGVOLUMENAME] = rootSystem;
+		(*gsystemsMap)[gsystem::ROOTWORLDGVOLUMENAME] = rootSystem;
 	}
 
 	// systemFactories goes out of scope -> all factories destroyed cleanly
@@ -296,20 +296,20 @@ void GWorld::assignG4Names() {
 		for (auto& [volumeName, gvolume] : systemPair.second->getGVolumesMap()) {
 			// Skip if the volume's mother is "akasha" (top-level marker) or if this is the ROOT world volume itself.
 			std::string motherVolumeName = gvolume->getMotherName();
-			if (motherVolumeName != MOTHEROFUSALL && volumeName != ROOTWORLDGVOLUMENAME) {
+			if (motherVolumeName != gsystem::MOTHEROFUSALL && volumeName != gsystem::ROOTWORLDGVOLUMENAME) {
 				// Mother lookup is required to build fully-qualified mother name.
 				auto        motherVolume = searchForVolume(motherVolumeName, "mother of <" + gvolume->getName() + ">");
-				std::string g4name       = gvolume->getSystem() + GSYSTEM_DELIMITER + volumeName;
-				std::string g4motherName = motherVolume->getSystem() + GSYSTEM_DELIMITER + motherVolumeName;
+				std::string g4name       = gvolume->getSystem() + gsystem::GSYSTEM_DELIMITER + volumeName;
+				std::string g4motherName = motherVolume->getSystem() + gsystem::GSYSTEM_DELIMITER + motherVolumeName;
 
-				// ROOT mother is a special case: its Geant4 name is exactly ROOTWORLDGVOLUMENAME.
-				if (motherVolumeName == ROOTWORLDGVOLUMENAME) { g4motherName = ROOTWORLDGVOLUMENAME; }
+				// ROOT mother is a special case: its Geant4 name is exactly gsystem::ROOTWORLDGVOLUMENAME.
+				if (motherVolumeName == gsystem::ROOTWORLDGVOLUMENAME) { g4motherName = gsystem::ROOTWORLDGVOLUMENAME; }
 
 				gvolume->assignG4Names(g4name, g4motherName);
 			}
 			else {
 				// Top-level volumes are assigned ROOT/world and akasha markers.
-				gvolume->assignG4Names(ROOTWORLDGVOLUMENAME, MOTHEROFUSALL);
+				gvolume->assignG4Names(gsystem::ROOTWORLDGVOLUMENAME, gsystem::MOTHEROFUSALL);
 			}
 		}
 	}

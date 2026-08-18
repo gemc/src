@@ -18,15 +18,15 @@ GTouchable::GTouchable(const std::shared_ptr<GOptions>& gopt,
 	GBase(gopt, TOUCHABLE_LOGGER),
 	trackId(0),
 	eMultiplier(1),
-	stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),
+	stepTimeAtElectronicsIndex(gtouchable::GTOUCHABLEUNSETTIMEINDEX),
 	detectorDimensions(dimensions),
 	mass(dm) {
 	// Determine the type based on the digitization string.
 	// The string constants are defined in gtouchableConventions.h.
-	if (digitization == FLUXNAME) { gType = flux; }
-	else if (digitization == GPHOTON_DETECTORNAME) { gType = gPhotonDetector; }
-	else if (digitization == COUNTERNAME) { gType = particle_counter; }
-	else if (digitization == DOSIMETERNAME) { gType = dosimeter; }
+	if (digitization == gtouchable::FLUXNAME) { gType = flux; }
+	else if (digitization == gtouchable::GPHOTON_DETECTORNAME) { gType = gPhotonDetector; }
+	else if (digitization == gtouchable::COUNTERNAME) { gType = particle_counter; }
+	else if (digitization == gtouchable::DOSIMETERNAME) { gType = dosimeter; }
 	else { gType = readout; }
 
 	// Parse the gidentity string into (name,value) pairs.
@@ -57,15 +57,15 @@ GTouchable::GTouchable(const std::shared_ptr<GLogger>& logger,
 	GBase(logger),
 	trackId(0),
 	eMultiplier(1),
-	stepTimeAtElectronicsIndex(GTOUCHABLEUNSETTIMEINDEX),
+	stepTimeAtElectronicsIndex(gtouchable::GTOUCHABLEUNSETTIMEINDEX),
 	detectorDimensions(dimensions),
 	mass(dm) {
 	// Determine the type based on the digitization string.
 	// The string constants are defined in gtouchableConventions.h.
-	if (digitization == FLUXNAME) { gType = flux; }
-	else if (digitization == GPHOTON_DETECTORNAME) { gType = gPhotonDetector; }
-	else if (digitization == COUNTERNAME) { gType = particle_counter; }
-	else if (digitization == DOSIMETERNAME) { gType = dosimeter; }
+	if (digitization == gtouchable::FLUXNAME) { gType = flux; }
+	else if (digitization == gtouchable::GPHOTON_DETECTORNAME) { gType = gPhotonDetector; }
+	else if (digitization == gtouchable::COUNTERNAME) { gType = particle_counter; }
+	else if (digitization == gtouchable::DOSIMETERNAME) { gType = dosimeter; }
 	else { gType = readout; }
 
 	// Parse the gidentity string into (name,value) pairs.
@@ -176,31 +176,31 @@ std::string GTouchable::cellKey() const {
 std::ostream& operator<<(std::ostream& stream, const GTouchable& gtouchable) {
 	stream << " GTouchable: ";
 	for (auto& gid : gtouchable.gidentity) {
-		stream << KRED << gid;
+		stream << guts::KRED << gid;
 		if (gid.getName() != gtouchable.gidentity.back().getName()) { stream << ", "; }
-		else { stream << RST; }
+		else { stream << guts::RST; }
 	}
 	switch (gtouchable.gType) {
 		case readout:
 			// compare the time cell
-			stream << KGRN << " (readout), " << RST << " multiplier: " << gtouchable.eMultiplier <<
+			stream << guts::KGRN << " (readout), " << guts::RST << " multiplier: " << gtouchable.eMultiplier <<
 				", time cell index: " <<
 				gtouchable.stepTimeAtElectronicsIndex;
 			break;
 		case flux:
-			stream << KGRN << " (flux), " << RST << " g4 track id: " << gtouchable.trackId;
+			stream << guts::KGRN << " (flux), " << guts::RST << " g4 track id: " << gtouchable.trackId;
 			break;
 		case gPhotonDetector:
-			stream << KGRN << " (gPhotonDetector), " << RST << " g4 track id: " << gtouchable.trackId;
+			stream << guts::KGRN << " (gPhotonDetector), " << guts::RST << " g4 track id: " << gtouchable.trackId;
 			break;
 		case dosimeter:
-			stream << KGRN << " (dosimeter), " << RST;
+			stream << guts::KGRN << " (dosimeter), " << guts::RST;
 			break;
 		case particle_counter:
-			stream << KGRN << " (particle_counter), " << RST << " particle id: " << gtouchable.pid;
+			stream << guts::KGRN << " (particle_counter), " << guts::RST << " particle id: " << gtouchable.pid;
 			break;
 		case integral_counter:
-			stream << KGRN << " (integral_counter), " << RST;
+			stream << guts::KGRN << " (integral_counter), " << guts::RST;
 			break;
 	}
 

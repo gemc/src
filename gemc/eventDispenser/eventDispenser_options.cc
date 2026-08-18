@@ -34,22 +34,22 @@ GOptions defineOptions() {
 
 	// Option: run weights file
 	help = "Text file with run number and their weights.\n \n";
-	help += GTAB;
+	help += guts::GTAB;
 	help +=
 		"The text file must have two columns: run# and weight. The weight represents the ratio of events desired for a run number.\n";
-	help += GTAB;
+	help += guts::GTAB;
 	help += "For example a \"weights.txt\" file that contains:\n \n";
-	help += GTABTAB;
+	help += guts::GTABTAB;
 	help += "11 0.1\n";
-	help += GTABTAB;
+	help += guts::GTABTAB;
 	help += "12 0.7\n";
-	help += GTABTAB;
+	help += guts::GTABTAB;
 	help += "13 0.2\n \n";
-	help += GTAB;
+	help += guts::GTAB;
 	help += "will simulate 10% of events with run number 11 conditions, 70% for run 12 and 20% for run 13.\n";
 
 	goptions.defineOption(
-		GVariable("run_weights", UNINITIALIZEDSTRINGQUANTITY, "File with run number and weights"),
+		GVariable("run_weights", guts::UNINITIALIZEDSTRINGQUANTITY, "File with run number and weights"),
 		help
 	);
 

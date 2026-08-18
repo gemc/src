@@ -12,7 +12,7 @@
  * Expected behavior:
  * - Two identities are inserted into the translation table.
  * - One identity is retrieved and printed at verbosity level 0.
- * - If retrieval fails, the module will log an error and return a default-constructed GElectronic.
+ * - If retrieval fails, the module logs an error and terminates.
  *
  * \note This example is intentionally minimal and focuses on the public API:
  *       \ref GTranslationTable::addGElectronicWithIdentity "addGElectronicWithIdentity()"
@@ -26,7 +26,13 @@
 // gemc
 #include "glogger.h"
 
+#include <type_traits>
+
 using std::vector;
+
+static_assert(!std::is_default_constructible_v<GElectronic>);
+static_assert(std::is_enum_v<GElectronic::ComparisonMode>);
+static_assert(!std::is_convertible_v<int, GElectronic::ComparisonMode>);
 
 /**
  * \brief Entry point for the Translation Table example.
@@ -51,8 +57,8 @@ int main(int argc, char* argv[]) {
 	vector<int> element2 = {2, 2, 3, 4, 5};
 
 	// Two example electronics configurations to associate with the identities.
-	GElectronic crate1(2, 1, 3, 2);
-	GElectronic crate2(2, 1, 4, 2);
+	GElectronic crate1(2, 1, 3, GElectronic::ComparisonMode::crate_slot_channel);
+	GElectronic crate2(2, 1, 4, GElectronic::ComparisonMode::crate_slot_channel);
 
 	// Construct the translation table. It will use the same options object for its internal logger setup.
 	GTranslationTable translationTable(gopts);
@@ -62,7 +68,17 @@ int main(int argc, char* argv[]) {
 	translationTable.addGElectronicWithIdentity(element2, crate2);
 
 	// Retrieve one configuration and print it.
-	GElectronic retrievedElectronic = translationTable.getElectronics(element1);
+	const GElectronic& retrievedElectronic = translationTable.getElectronics(element1);
+	if (retrievedElectronic.getHAddress() != vector<int>{2, 1, 3}) {
+		return EXIT_FAILURE;
+	}
+
+	// A duplicate registration preserves the original object and lookup returns that stored object directly.
+	translationTable.addGElectronicWithIdentity(element1, crate2);
+	if (&retrievedElectronic != &translationTable.getElectronics(element1) ||
+	    translationTable.getElectronics(element1).getHAddress() != vector<int>{2, 1, 3}) {
+		return EXIT_FAILURE;
+	}
 
 	// Level 0: essential output for a user running the example.
 	log->info(0, "Retrieved electronic: ", retrievedElectronic);

@@ -91,13 +91,14 @@ bool parse_lund_particle_line(const std::string& line, LundParticleLine& particl
 std::string particle_name_from_pid(int pid, const std::shared_ptr<GLogger>& logger) {
 	auto particle_table = G4ParticleTable::GetParticleTable();
 	if (particle_table == nullptr) {
-		logger->error(ERR_GPARTICLETABLENOTFOUND, "G4ParticleTable not found while reading Lund particles");
+		logger->error(gparticle::ERR_GPARTICLETABLENOTFOUND,
+		              "G4ParticleTable not found while reading Lund particles");
 		return {};
 	}
 
 	auto particle_definition = particle_table->FindParticle(pid);
 	if (particle_definition == nullptr) {
-		logger->error(ERR_GPARTICLENOTFOUND, "Lund pid <", pid, "> was not found in G4ParticleTable");
+		logger->error(gparticle::ERR_GPARTICLENOTFOUND, "Lund pid <", pid, "> was not found in G4ParticleTable");
 		return {};
 	}
 
@@ -186,7 +187,7 @@ GParticleEvents GParticleLundReader::loadParticleEvents(const GParticleSourceDef
 	std::ifstream             input(source.filename);
 
 	if (!input.is_open()) {
-		logger->error(ERR_GPARTICLEFILEOPEN, "Could not open Lund particle file <", source.filename, ">");
+		logger->error(gparticle::ERR_GPARTICLEFILEOPEN, "Could not open Lund particle file <", source.filename, ">");
 		return events;
 	}
 
@@ -197,13 +198,14 @@ GParticleEvents GParticleLundReader::loadParticleEvents(const GParticleSourceDef
 		const auto header_values = parse_lund_header(line);
 
 		if (header_values.size() < LUND_MIN_HEADER_COLUMNS || header_values.size() > LUND_MAX_HEADER_COLUMNS) {
-			logger->error(ERR_GPARTICLEFILEFORMAT, "Malformed Lund event header in <", source.filename, ">: ", line);
+			logger->error(gparticle::ERR_GPARTICLEFILEFORMAT, "Malformed Lund event header in <",
+			              source.filename, ">: ", line);
 			continue;
 		}
 
 		const auto particle_count = static_cast<int>(header_values.front());
 		if (particle_count < 0 || particle_count != header_values.front()) {
-			logger->error(ERR_GPARTICLEFILEFORMAT,
+			logger->error(gparticle::ERR_GPARTICLEFILEFORMAT,
 			              "Lund event header first column must be a non-negative integer in <",
 			              source.filename, ">: ", line);
 			continue;
@@ -211,7 +213,7 @@ GParticleEvents GParticleLundReader::loadParticleEvents(const GParticleSourceDef
 
 		bool have_first_particle_line = false;
 		if (!std::getline(input, line)) {
-			logger->error(ERR_GPARTICLEFILEFORMAT,
+			logger->error(gparticle::ERR_GPARTICLEFILEFORMAT,
 			              "Lund event header must be followed by a blank line in <", source.filename, ">");
 			continue;
 		}
@@ -223,26 +225,27 @@ GParticleEvents GParticleLundReader::loadParticleEvents(const GParticleSourceDef
 				have_first_particle_line = false;
 			}
 			else if (!std::getline(input, line)) {
-				logger->error(ERR_GPARTICLEFILEFORMAT,
+				logger->error(gparticle::ERR_GPARTICLEFILEFORMAT,
 				              "Lund event declared ", particle_count, " particles but ended after ",
 				              i, " particle lines in <", source.filename, ">");
 				break;
 			}
 
 			if (is_blank_line(line)) {
-				logger->error(ERR_GPARTICLEFILEFORMAT,
+				logger->error(gparticle::ERR_GPARTICLEFILEFORMAT,
 				              "Unexpected blank line inside Lund particle block in <", source.filename, ">");
 				continue;
 			}
 
 			LundParticleLine lund_particle;
 			if (!parse_lund_particle_line(line, lund_particle)) {
-				logger->error(ERR_GPARTICLEFILEFORMAT, "Malformed Lund particle line in <", source.filename, ">: ", line);
+				logger->error(gparticle::ERR_GPARTICLEFILEFORMAT, "Malformed Lund particle line in <",
+				              source.filename, ">: ", line);
 				continue;
 			}
 
 			if (lund_particle.index != i + 1) {
-				logger->error(ERR_GPARTICLEFILEFORMAT,
+				logger->error(gparticle::ERR_GPARTICLEFILEFORMAT,
 				              "Lund particle index must start from 1 and follow particle order in <",
 				              source.filename, ">: ", line);
 				continue;
@@ -278,7 +281,7 @@ GParticleRecordEvents GParticleLundReader::loadParticleRecordEvents(const GParti
 	std::ifstream         input(source.filename);
 
 	if (!input.is_open()) {
-		logger->error(ERR_GPARTICLEFILEOPEN, "Could not open Lund particle file <", source.filename, ">");
+		logger->error(gparticle::ERR_GPARTICLEFILEOPEN, "Could not open Lund particle file <", source.filename, ">");
 		return events;
 	}
 
@@ -288,13 +291,14 @@ GParticleRecordEvents GParticleLundReader::loadParticleRecordEvents(const GParti
 
 		const auto header_values = parse_lund_header(line);
 		if (header_values.size() < LUND_MIN_HEADER_COLUMNS || header_values.size() > LUND_MAX_HEADER_COLUMNS) {
-			logger->error(ERR_GPARTICLEFILEFORMAT, "Malformed Lund event header in <", source.filename, ">: ", line);
+			logger->error(gparticle::ERR_GPARTICLEFILEFORMAT, "Malformed Lund event header in <",
+			              source.filename, ">: ", line);
 			continue;
 		}
 
 		const auto particle_count = static_cast<int>(header_values.front());
 		if (particle_count < 0 || particle_count != header_values.front()) {
-			logger->error(ERR_GPARTICLEFILEFORMAT,
+			logger->error(gparticle::ERR_GPARTICLEFILEFORMAT,
 			              "Lund event header first column must be a non-negative integer in <",
 			              source.filename, ">: ", line);
 			continue;
@@ -302,7 +306,7 @@ GParticleRecordEvents GParticleLundReader::loadParticleRecordEvents(const GParti
 
 		bool have_first_particle_line = false;
 		if (!std::getline(input, line)) {
-			logger->error(ERR_GPARTICLEFILEFORMAT,
+			logger->error(gparticle::ERR_GPARTICLEFILEFORMAT,
 			              "Lund event header must be followed by a blank line in <", source.filename, ">");
 			continue;
 		}
@@ -314,26 +318,27 @@ GParticleRecordEvents GParticleLundReader::loadParticleRecordEvents(const GParti
 				have_first_particle_line = false;
 			}
 			else if (!std::getline(input, line)) {
-				logger->error(ERR_GPARTICLEFILEFORMAT,
+				logger->error(gparticle::ERR_GPARTICLEFILEFORMAT,
 				              "Lund event declared ", particle_count, " particles but ended after ",
 				              i, " particle lines in <", source.filename, ">");
 				break;
 			}
 
 			if (is_blank_line(line)) {
-				logger->error(ERR_GPARTICLEFILEFORMAT,
+				logger->error(gparticle::ERR_GPARTICLEFILEFORMAT,
 				              "Unexpected blank line inside Lund particle block in <", source.filename, ">");
 				continue;
 			}
 
 			LundParticleLine lund_particle;
 			if (!parse_lund_particle_line(line, lund_particle)) {
-				logger->error(ERR_GPARTICLEFILEFORMAT, "Malformed Lund particle line in <", source.filename, ">: ", line);
+				logger->error(gparticle::ERR_GPARTICLEFILEFORMAT, "Malformed Lund particle line in <",
+				              source.filename, ">: ", line);
 				continue;
 			}
 
 			if (lund_particle.index != i + 1) {
-				logger->error(ERR_GPARTICLEFILEFORMAT,
+				logger->error(gparticle::ERR_GPARTICLEFILEFORMAT,
 				              "Lund particle index must start from 1 and follow particle order in <",
 				              source.filename, ">: ", line);
 				continue;

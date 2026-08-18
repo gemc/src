@@ -31,13 +31,15 @@ bool mirrors_column_exists(sqlite3* db, const std::string& column_name) {
 
 void GSystemSQLiteFactory::loadMirrors(GSystem* system) {
 	// skip ROOT system
-	if (system->getName() == ROOTWORLDGVOLUMENAME) { return; }
+	if (system->getName() == gsystem::ROOTWORLDGVOLUMENAME) { return; }
 
 	// Initialize the DB if needed.
 	if (db == nullptr) { initialize_sqlite_db(system); }
 
 	// Check that db is valid.
-	if (db == nullptr) { log->error(ERR_GSQLITEERROR, "Database pointer is still null after initialization."); }
+	if (db == nullptr) {
+		log->error(gsystem::ERR_GSQLITEERROR, "Database pointer is still null after initialization.");
+	}
 
 	// Databases created before mirror support may lack the table, and databases whose
 	// systems define no mirrors carry a bare table with only the id column: mirrors
@@ -60,7 +62,7 @@ void GSystemSQLiteFactory::loadMirrors(GSystem* system) {
 	sqlite3_stmt* stmt = nullptr;
 	int           rc   = sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "Sqlite error preparing query in loadMirrors: ",
+		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite error preparing query in loadMirrors: ",
 		           sqlite3_errmsg(db), " (", rc, ") using query: ", sql_query);
 	}
 
@@ -102,7 +104,7 @@ void GSystemSQLiteFactory::loadMirrors(GSystem* system) {
 	}
 
 	if (rc != SQLITE_DONE) {
-		log->error(ERR_GSQLITEERROR, "Sqlite database error in loadMirrors: ",
+		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadMirrors: ",
 		           sqlite3_errmsg(db), " (", rc, ")");
 	}
 

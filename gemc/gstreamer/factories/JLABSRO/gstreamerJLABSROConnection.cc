@@ -8,7 +8,7 @@
 bool GstreamerJSROFactory::openConnection() {
 	ofile = new std::ofstream(filename());
 	if (!ofile->is_open()) {
-		log->error(ERR_CANTOPENOUTPUT, "GstreamerJSROFactory: could not open file " + filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "GstreamerJSROFactory: could not open file " + filename());
 	}
 
 	log->info(0, "GstreamerJSROFactory: opened file " + filename());
@@ -19,7 +19,7 @@ bool GstreamerJSROFactory::closeConnectionImpl() {
 	if (ofile->is_open()) { ofile->close(); }
 
 	if (ofile->is_open()) {
-		log->error(ERR_CANTOPENOUTPUT, "GstreamerJSROFactory: could not close file " + filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "GstreamerJSROFactory: could not close file " + filename());
 	}
 
 	delete ofile;

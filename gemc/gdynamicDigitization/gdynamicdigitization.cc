@@ -16,6 +16,7 @@
 #include "gtranslationTableConventions.h"
 #include "gdataConventions.h"
 #include "gtouchableConventions.h"
+#include "gutsConventions.h"
 #include "gutilities.h"
 
 // c++
@@ -47,12 +48,8 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 
 	std::vector<GIdentifier> identities = ghit->getGID();
 
-
-
-	ghit->calculateInfos();
-
 	// Average positions are computed at the hit level by GHit and returned here.
-	G4ThreeVector avgGlobalPos = ghit->getAvgGlobaPosition();
+	G4ThreeVector avgGlobalPos = ghit->getAvgGlobalPosition();
 	G4ThreeVector avgLocalPos  = ghit->getAvgLocalPosition();
 	G4ThreeVector trackVertex = ghit->getTrackVertexPosition();
 	G4ThreeVector motherTrackVertex = ghit->getMotherTrackVertexPosition();
@@ -91,8 +88,9 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 	trueInfoData->includeVariable("nphotons", static_cast<int>(ghit->getNumberOfOpticalPhotons()));
 	trueInfoData->includeVariable("hitn", static_cast<int>(hitn)); // assume hitn < INT_MAX
 
-	trueInfoData->includeVariable("processName", ghit->getProcessName());
-	trueInfoData->includeVariable("procID", ghit->getProcID());
+	const std::string processName = ghit->getProcessName().value_or(guts::UNINITIALIZEDSTRINGQUANTITY);
+	trueInfoData->includeVariable("processName", processName);
+	trueInfoData->includeVariable("procID", processName);
 
 	return trueInfoData;
 }
@@ -102,15 +100,17 @@ void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, const GHit* 
 	check_if_log_defined();
 
 	if (translationTable == nullptr) {
-		log->error(EC__TTNOTFOUNDINTT, "Translation Table not found");
+		log->error(gtranslationTable::EC__TTNOTFOUNDINTT, "Translation Table not found");
 	}
 
 	// Translate a TT id into a crate/slot/channel triple.
-	std::vector<int> haddress = translationTable->getElectronics(ghit->getTTID()).getHAddress();
+	const GElectronic& electronics = translationTable->getElectronics(ghit->getTTID());
+	std::vector<int> haddress = electronics.getHAddress();
 
 	// The translation table uses a sentinel to indicate an uninitialized hardware address.
-	if (haddress.front() == UNINITIALIZEDNUMBERQUANTITY) {
-		log->error(EC__GIDENTITYNOTFOUNDINTT, "Translation Table found, but haddress was not initialized");
+	if (haddress.front() == guts::UNINITIALIZEDNUMBERQUANTITY) {
+		log->error(gtranslationTable::EC__GIDENTITYNOTFOUNDINTT,
+		           "Translation Table found, but haddress was not initialized");
 	}
 
 	gdata.includeVariable(CRATESTRINGID, haddress[0]);
@@ -177,7 +177,7 @@ std::vector<std::shared_ptr<GTouchable>> GDynamicDigitization::processTouchableI
 	// If the touchable does not yet have a time index, or it matches the current step's
 	// index, we can reuse it.
 	if (stepTimeAtElectronicsIndex == gtouchable->getStepTimeAtElectronicsIndex() ||
-		gtouchable->getStepTimeAtElectronicsIndex() == GTOUCHABLEUNSETTIMEINDEX) {
+		gtouchable->getStepTimeAtElectronicsIndex() == gtouchable::GTOUCHABLEUNSETTIMEINDEX) {
 		gtouchable->assignStepTimeAtElectronicsIndex(stepTimeAtElectronicsIndex);
 		result.emplace_back(gtouchable);
 	}

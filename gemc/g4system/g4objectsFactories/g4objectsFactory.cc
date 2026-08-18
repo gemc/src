@@ -194,7 +194,7 @@ G4ThreeVector G4ObjectsFactory::getPosition(const GVolume *s) {
 	if (vec.size() == 3) pos.set(vec[0], vec[1], vec[2]);
 
 	// Optional shift modifier (applied after parsing the base position).
-	if (s->getShift() != GSYSTEMNOMODIFIER) {
+	if (s->getShift() != gsystem::GSYSTEMNOMODIFIER) {
 		const auto shift = gutilities::getG4NumbersFromString(s->getShift());
 		if (shift.size() == 3) pos += G4ThreeVector(shift[0], shift[1], shift[2]);
 	}
@@ -231,7 +231,7 @@ G4LogicalVolume *G4ObjectsFactory::buildLogical(const GVolume *s,
 	}
 
 	if (!mat) {
-		log->error(ERR_G4MATERIALNOTFOUND,
+		log->error(g4system::ERR_G4MATERIALNOTFOUND,
 		           "Material <", s->getMaterial(), "> not found.");
 	}
 
@@ -302,7 +302,7 @@ G4VPhysicalVolume *G4ObjectsFactory::buildPhysical(const GVolume *s,
 			                          log);
 		}
 		else {
-			log->error(ERR_G4PLACEMENTTYPE,
+			log->error(gsystem::ERR_G4PLACEMENTTYPE,
 			           "GVolume <", s->getName(), "> has unsupported g4placement_type <",
 			           placementType, ">. Use 'active' or 'passive'.");
 		}
@@ -316,7 +316,7 @@ bool G4ObjectsFactory::build_g4volume(const GVolume *s,
 
 	// Component volumes are boolean-operation building blocks: they contribute their
 	// solid to `solidsOpr` operations but get no material, logical, or placement.
-	if (s->getMaterial() == GSYSTEMCOMPONENTMATERIAL) {
+	if (s->getMaterial() == gsystem::GSYSTEMCOMPONENTMATERIAL) {
 		auto *solid = buildSolid(s, g4s);
 		log->info(2, className(), " result for component ", name, ": solid: ", solid != nullptr);
 		return solid != nullptr;

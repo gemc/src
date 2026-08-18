@@ -19,7 +19,7 @@
  * (sqlite DB, ASCII text files, CAD import, GDML import, etc.).
  *
  * The constructor takes a serialized parameter vector whose positional layout matches the
- * geometry database row layout (GVOLUMENUMBEROFPARS). The class stores:
+ * geometry database row layout (gsystem::GVOLUMENUMBEROFPARS). The class stores:
  * - solid definition (type + parameters);
  * - visualization attributes (visibility/style/color/opacity);
  * - placement attributes (mother/pos/rot);
@@ -39,7 +39,7 @@ public:
 	 *
 	 * \param log Logger used for diagnostics and error reporting.
 	 * \param system Name of the system that owns this volume.
-	 * \param pars Serialized parameter list (must match GVOLUMENUMBEROFPARS).
+	 * \param pars Serialized parameter list (must match gsystem::GVOLUMENUMBEROFPARS).
 	 * \param importPath Optional import path used by file-based factories (CAD/GDML).
 	 *
 	 * \details The parameter vector is positional; the implementation parses it in order.
@@ -68,8 +68,8 @@ public:
 	 * \param log Logger used for diagnostics.
 	 *
 	 * \details This constructor is used when the world volume is injected automatically.
-	 * It creates a top-level volume whose mother is MOTHEROFUSALL and whose position/rotation
-	 * default to DEFAULTPOSITION / DEFAULTROTATION.
+	 * It creates a top-level volume whose mother is gsystem::MOTHEROFUSALL and whose position/rotation
+	 * default to gsystem::DEFAULTPOSITION / gsystem::DEFAULTROTATION.
 	 */
 	explicit GVolume(const std::string& rootVolumeDefinition, const std::shared_ptr<GLogger>& log);
 
@@ -160,7 +160,7 @@ public:
 	 * The returned vector has one entry per dimension token found in \c parameters.
 	 */
 	[[nodiscard]] std::vector<double> getDetectorDimensions() const {
-		if (parameters == UNINITIALIZEDSTRINGQUANTITY) { return {0}; }
+		if (parameters == guts::UNINITIALIZEDSTRINGQUANTITY) { return {0}; }
 		return gutilities::getG4NumbersFromString(parameters);
 	}
 

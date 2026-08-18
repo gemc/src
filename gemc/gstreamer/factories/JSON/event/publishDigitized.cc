@@ -12,8 +12,8 @@
 bool GstreamerJsonFactory::publishEventDigitizedDataImpl(const std::string&                        detectorName,
                                                          const std::vector<const GDigitizedData*>& digitizedData) {
 	if (!is_building_event) {
-		log->error(
-			ERR_PUBLISH_ERROR, "publishEventDigitizedDataImpl called without an active event in GstreamerJsonFactory");
+		log->error(gstreamer::ERR_PUBLISH_ERROR,
+		           "publishEventDigitizedDataImpl called without an active event in GstreamerJsonFactory");
 		return false;
 	}
 

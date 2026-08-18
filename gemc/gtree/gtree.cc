@@ -252,7 +252,7 @@ void appendNestedBooleanOperationLines(QString& html,
 QString formatBooleanOperationDescription(const std::string& fullName,
                                           const std::string& solidsOpr,
                                           const std::unordered_map<std::string, const GVolume*>& gvolumes) {
-    if (solidsOpr.empty() || solidsOpr == UNINITIALIZEDSTRINGQUANTITY) return {};
+    if (solidsOpr.empty() || solidsOpr == guts::UNINITIALIZEDSTRINGQUANTITY) return {};
 
     const auto tokens = gutilities::getStringVectorFromString(solidsOpr);
     if (tokens.size() != 3) {
@@ -318,7 +318,7 @@ QString formatMirrorProperties(const GMirror& mirror) {
 // Cache a volume's hierarchy, material, visualization attributes, and pygemc descriptor.
 G4Ttree_item::G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume) {
     if (g4volume == nullptr || g4volume->getLogical() == nullptr || g4volume->getSolid() == nullptr) {
-        mother = MOTHEROFUSALL;
+        mother = gsystem::MOTHEROFUSALL;
         material = "unavailable";
         color = QColor::fromRgbF(1.0, 1.0, 1.0);
         opacity = 1.0;
@@ -331,13 +331,13 @@ G4Ttree_item::G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume) {
     auto svolume = g4volume->getSolid();
 
     std::string lname = lvolume->GetName();
-    if (lname != ROOTWORLDGVOLUMENAME) {
+    if (lname != gsystem::ROOTWORLDGVOLUMENAME) {
         auto mlvolume = pvolume != nullptr ? pvolume->GetMotherLogical() : nullptr;
-        mother = mlvolume != nullptr ? mlvolume->GetName() : MOTHEROFUSALL;
+        mother = mlvolume != nullptr ? mlvolume->GetName() : gsystem::MOTHEROFUSALL;
         material = lvolume->GetMaterial()->GetName();
     }
     else {
-        mother = MOTHEROFUSALL;
+        mother = gsystem::MOTHEROFUSALL;
         material = "G4_Galactic";
     }
 
@@ -564,10 +564,10 @@ void GTree::build_tree(std::unordered_map<std::string, G4Volume*> g4volumes_map)
             continue;
         }
 
-        // skip the Geant4 world / ROOTWORLDGVOLUMENAME
+        // skip the Geant4 world / gsystem::ROOTWORLDGVOLUMENAME
         // auto lvolume = g4volume->getLogical();
         //
-        // if (lvolume && lvolume->GetName() == ROOTWORLDGVOLUMENAME) {
+        // if (lvolume && lvolume->GetName() == gsystem::ROOTWORLDGVOLUMENAME) {
         //     log->info(2, "Skipping world volume >", name, "< from tree");
         //     continue;
         // }
@@ -685,7 +685,7 @@ void GTree::set_visibility(const std::string& volumeName, bool visible) {
     std::string command = "/vis/geometry/set/visibility " + volumeName + " -1 " + vis_int;
 
     // World visibility uses a different depth value.
-    if (volumeName == ROOTWORLDGVOLUMENAME) {
+    if (volumeName == gsystem::ROOTWORLDGVOLUMENAME) {
         command = "/vis/geometry/set/visibility " + volumeName + " 0 " + vis_int;
     }
 

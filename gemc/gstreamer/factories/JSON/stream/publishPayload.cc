@@ -7,11 +7,12 @@
 
 bool GstreamerJsonFactory::publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) {
 	if (!is_building_frame) {
-		log->error(ERR_PUBLISH_ERROR, "publishPayloadImpl called without an active frame in GstreamerJsonFactory");
+		log->error(gstreamer::ERR_PUBLISH_ERROR,
+		           "publishPayloadImpl called without an active frame in GstreamerJsonFactory");
 		return false;
 	}
 	if (!payload) {
-		log->error(ERR_PUBLISH_ERROR, "payload is null in GstreamerJsonFactory::publishPayloadImpl");
+		log->error(gstreamer::ERR_PUBLISH_ERROR, "payload is null in GstreamerJsonFactory::publishPayloadImpl");
 		return false;
 	}
 

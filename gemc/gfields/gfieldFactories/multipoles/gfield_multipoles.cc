@@ -33,7 +33,7 @@ void GField_MultipolesFactory::GetFieldValue(const double pos[3], G4double* bfie
 
 	// ======= Basic checks =======
 	if (pole_number < 2 || (pole_number % 2) != 0) {
-		log->error(ERR_WRONG_POLE_NUMBER,
+		log->error(gfields::ERR_WRONG_POLE_NUMBER,
 		           "Pole number must be an even integer >= 2 (2=dipole,4=quadrupole,...)");
 	}
 
@@ -177,8 +177,9 @@ void GField_MultipolesFactory::load_field_definitions(GFieldDefinition gfd) {
 	else if (rot_axis_option == "Y" || rot_axis_option == "y") { rotaxis = 1; }
 	else if (rot_axis_option == "Z" || rot_axis_option == "z") { rotaxis = 2; }
 	else {
-		log->error(ERR_WRONG_FIELD_ROTATION, "GField_MultipolesFactory::load_field_definitions: Rotation axis " + gfield_definitions.field_parameters["rotaxis"] +
-		                                     " not supported. Exiting.");
+		log->error(gfields::ERR_WRONG_FIELD_ROTATION,
+		           "GField_MultipolesFactory::load_field_definitions: Rotation axis " +
+		               gfield_definitions.field_parameters["rotaxis"] + " not supported. Exiting.");
 	}
 
 	log->info(1, "Rotation axis: ", rotaxis);

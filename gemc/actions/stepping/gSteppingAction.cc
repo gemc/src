@@ -13,19 +13,19 @@ void GSteppingAction::UserSteppingAction(const G4Step* step) {
 	// exceeding this is trapped (e.g. total internal reflection in a volume with no
 	// absorption length) and would step forever.
 	if (track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() &&
-		track->GetCurrentStepNumber() > MAX_OPTICAL_PHOTON_STEPS) {
+		track->GetCurrentStepNumber() > gaction::MAX_OPTICAL_PHOTON_STEPS) {
 		track->SetTrackStatus(fStopAndKill);
 		return;
 	}
 
 	// A track can get stuck in a magnetic field stepping loop.
-	if (track->GetCurrentStepNumber() > MAX_TRACK_STEPS) {
+	if (track->GetCurrentStepNumber() > gaction::MAX_TRACK_STEPS) {
 		track->SetTrackStatus(fStopAndKill);
 		return;
 	}
 
 	// Anything touching Kryptonite is killed.
-	static const G4String kryptonite = KRYPTONITE_KILL_MATERIAL;
+	static const G4String kryptonite = gaction::KRYPTONITE_KILL_MATERIAL;
 	if (track->GetMaterial()->GetName() == kryptonite) {
 		track->SetTrackStatus(fStopAndKill);
 	}

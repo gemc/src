@@ -7,11 +7,13 @@
 
 bool GstreamerJsonFactory::publishEventHeaderImpl(const std::unique_ptr<GEventHeader>& gevent_header) {
 	if (!is_building_event) {
-		log->error(ERR_PUBLISH_ERROR, "publishEventHeaderImpl called without an active event in GstreamerJsonFactory");
+		log->error(gstreamer::ERR_PUBLISH_ERROR,
+		           "publishEventHeaderImpl called without an active event in GstreamerJsonFactory");
 		return false;
 	}
 	if (!gevent_header) {
-		log->error(ERR_PUBLISH_ERROR, "gevent_header is null in GstreamerJsonFactory::publishEventHeaderImpl");
+		log->error(gstreamer::ERR_PUBLISH_ERROR,
+		           "gevent_header is null in GstreamerJsonFactory::publishEventHeaderImpl");
 		return false;
 	}
 

@@ -649,12 +649,12 @@ protected:
      */
     void check_if_log_defined() const {
         if (gopts == nullptr) {
-            std::cerr << KRED
+            std::cerr << guts::KRED
                     << "Fatal Error: GDynamicDigitization: goption is not set for this plugin or one of the loggers is null."
                     << std::endl;
             std::cerr << "The set_loggers function needs to be called." << std::endl;
             std::cerr << "For example: dynamicRoutines[\"ctof\"]->set_loggers(gopts);" << std::endl;
-            std::cerr << RST << std::endl;
+            std::cerr << guts::RST << std::endl;
             exit(1);
         }
     }

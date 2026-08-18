@@ -91,7 +91,7 @@ int GField_AsciiMapFactory::axis_of_coordinate(const std::string& name) const {
 void GField_AsciiMapFactory::load_coordinate(const std::string& key) {
 	const std::string value = param_string(key, "");
 	if (value.empty()) {
-		log->error(ERR_WRONG_COORDINATE_DEF,
+		log->error(gfields::ERR_WRONG_COORDINATE_DEF,
 		           "GField_AsciiMapFactory: missing coordinate <", key, "> for field <",
 		           gfield_definitions.name, ">.");
 	}
@@ -99,7 +99,7 @@ void GField_AsciiMapFactory::load_coordinate(const std::string& key) {
 	// Split "name, npoints, min, max" on commas.
 	const auto tokens = gutilities::getStringVectorFromStringWithDelimiter(value, ",");
 	if (tokens.size() != 4) {
-		log->error(ERR_WRONG_COORDINATE_DEF,
+		log->error(gfields::ERR_WRONG_COORDINATE_DEF,
 		           "GField_AsciiMapFactory: coordinate <", key, "> must be \"name, npoints, min, max\". Got <",
 		           value, ">.");
 	}
@@ -111,12 +111,12 @@ void GField_AsciiMapFactory::load_coordinate(const std::string& key) {
 
 	const int axis = axis_of_coordinate(name);
 	if (axis < 0) {
-		log->error(ERR_WRONG_COORDINATE_DEF,
+		log->error(gfields::ERR_WRONG_COORDINATE_DEF,
 		           "GField_AsciiMapFactory: coordinate name <", name, "> is not valid for symmetry <",
 		           gfield_definitions.field_parameters["symmetry"], ">.");
 	}
 	if (npoints < 2) {
-		log->error(ERR_WRONG_COORDINATE_DEF,
+		log->error(gfields::ERR_WRONG_COORDINATE_DEF,
 		           "GField_AsciiMapFactory: coordinate <", name, "> needs at least 2 points; got ", npoints, ".");
 	}
 
@@ -143,7 +143,7 @@ void GField_AsciiMapFactory::load_coordinate(const std::string& key) {
 void GField_AsciiMapFactory::load_map_file() {
 	const std::string map_name = param_string("map", "");
 	if (map_name.empty()) {
-		log->error(ERR_MAP_FILE_NOT_FOUND,
+		log->error(gfields::ERR_MAP_FILE_NOT_FOUND,
 		           "GField_AsciiMapFactory: no 'map' file given for field <", gfield_definitions.name, ">.");
 	}
 
@@ -164,7 +164,7 @@ void GField_AsciiMapFactory::load_map_file() {
 			if (std::ifstream(trial).good()) { path = trial; break; }
 		}
 		if (path.empty()) {
-			log->error(ERR_MAP_FILE_NOT_FOUND,
+			log->error(gfields::ERR_MAP_FILE_NOT_FOUND,
 			           "GField_AsciiMapFactory: cannot find map <", map_name, "> for field <",
 			           gfield_definitions.name, "> in dir/config/plugin locations.");
 		}
@@ -172,7 +172,7 @@ void GField_AsciiMapFactory::load_map_file() {
 
 	std::ifstream in(path);
 	if (!in.good()) {
-		log->error(ERR_MAP_FILE_NOT_FOUND, "GField_AsciiMapFactory: cannot open map file <", path, ">.");
+		log->error(gfields::ERR_MAP_FILE_NOT_FOUND, "GField_AsciiMapFactory: cannot open map file <", path, ">.");
 	}
 	log->info(1, "Loading ASCII field map <", path, "> with symmetry <",
 	          gfield_definitions.field_parameters["symmetry"], ">.");
@@ -225,7 +225,7 @@ void GField_AsciiMapFactory::load_map_file() {
 			if (!(tokens >> comp[k])) { line_ok = false; }
 		}
 		if (!line_ok) {
-			log->error(ERR_MAP_FILE_NOT_FOUND, "GField_AsciiMapFactory: ", path, ":", line_number,
+			log->error(gfields::ERR_MAP_FILE_NOT_FOUND, "GField_AsciiMapFactory: ", path, ":", line_number,
 			           " has fewer than ", ndim + ncomp, " numbers.");
 		}
 
@@ -264,7 +264,7 @@ void GField_AsciiMapFactory::load_field_definitions(GFieldDefinition gfd) {
 	else if (sym == "cartesian_3D") { symmetry = Symmetry::cartesian_3d; ndim = 3; ncomp = 3; }
 	else if (sym == "cartesian_3D_quadrant") { symmetry = Symmetry::cartesian_3d_quadrant; ndim = 3; ncomp = 3; }
 	else {
-		log->error(ERR_WRONG_FIELD_SYMMETRY,
+		log->error(gfields::ERR_WRONG_FIELD_SYMMETRY,
 		           "GField_AsciiMapFactory: unknown symmetry <", sym, "> for field <",
 		           gfield_definitions.name, ">.");
 	}

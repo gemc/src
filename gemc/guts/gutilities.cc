@@ -215,8 +215,8 @@ static bool parse_double_clocale(std::string_view sv, double& out) {
 double getG4Number(const string& v, bool warnIfNotUnit) {
 	string value = removeLeadingAndTrailingSpacesFromString(v);
 	if (value.empty()) {
-		std::cerr << FATALERRORL << "empty numeric string.\n";
-		exit(EC__G4NUMBERERROR);
+		std::cerr << guts::FATALERRORL << "empty numeric string.\n";
+		exit(guts::EC__G4NUMBERERROR);
 	}
 
 	// Normalize a single decimal comma to dot when no dot is present
@@ -239,8 +239,8 @@ double getG4Number(const string& v, bool warnIfNotUnit) {
 				value = replaceAllStringsWithString(value, ",", ".");
 		}
 		if (!parse_double_clocale(value, out)) {
-			std::cerr << FATALERRORL << "missing '*' before unit or invalid number in <" << v << ">.\n";
-			exit(EC__G4NUMBERERROR);
+			std::cerr << guts::FATALERRORL << "missing '*' before unit or invalid number in <" << v << ">.\n";
+			exit(guts::EC__G4NUMBERERROR);
 		}
 		if (warnIfNotUnit && out != 0.0) {
 			std::cerr << " ! Warning: value " << v << " does not contain units." << std::endl;
@@ -251,8 +251,8 @@ double getG4Number(const string& v, bool warnIfNotUnit) {
 
 	// --- Case 2: must be exactly one '*' ---
 	if (starCount > 1) {
-		std::cerr << FATALERRORL << "multiple '*' separators are not allowed in <" << v << ">.\n";
-		exit(EC__G4NUMBERERROR);
+		std::cerr << guts::FATALERRORL << "multiple '*' separators are not allowed in <" << v << ">.\n";
+		exit(guts::EC__G4NUMBERERROR);
 	}
 
 	// --- Exactly one '*' → split "<number>*<unit>" ---
@@ -260,8 +260,8 @@ double getG4Number(const string& v, bool warnIfNotUnit) {
 	string       left  = removeLeadingAndTrailingSpacesFromString(value.substr(0, pos));
 	string       right = removeLeadingAndTrailingSpacesFromString(value.substr(pos + 1));
 	if (left.empty() || right.empty()) {
-		std::cerr << FATALERRORL << "expected '<number>*<unit>', got <" << v << ">.\n";
-		exit(EC__G4NUMBERERROR);
+		std::cerr << guts::FATALERRORL << "expected '<number>*<unit>', got <" << v << ">.\n";
+		exit(guts::EC__G4NUMBERERROR);
 	}
 
 	// normalize a single decimal comma in the numeric part
@@ -273,8 +273,8 @@ double getG4Number(const string& v, bool warnIfNotUnit) {
 
 	double numeric = 0.0;
 	if (!parse_double_clocale(left, numeric)) {
-		std::cerr << FATALERRORL << "invalid numeric part before '*' in <" << v << ">.\n";
-		exit(EC__G4NUMBERERROR);
+		std::cerr << guts::FATALERRORL << "invalid numeric part before '*' in <" << v << ">.\n";
+		exit(guts::EC__G4NUMBERERROR);
 	}
 
 	// sanitize unit and proceed with your existing unit table logic...
@@ -346,7 +346,7 @@ double getG4Number(const string& v, bool warnIfNotUnit) {
 	}
 
 	// Unknown unit: warn & return numeric part (keep your legacy behavior)
-	std::cerr << GWARNING << ">" << right << "<: unit not recognized for string <" << v << ">" << std::endl;
+	std::cerr << guts::GWARNING << ">" << right << "<: unit not recognized for string <" << v << ">" << std::endl;
 	return numeric;
 }
 
@@ -374,13 +374,14 @@ string parseFileAndRemoveComments(const string& filename, const string& commentC
 	// Reading file
 	std::ifstream in(filename);
 	if (!in) {
-		std::cerr << FATALERRORL << "can't open input file " << filename << ". Check your spelling. " << std::endl;
-		exit(EC__FILENOTFOUND);
+		std::cerr << guts::FATALERRORL << "can't open input file " << filename << ". Check your spelling. "
+		          << std::endl;
+		exit(guts::EC__FILENOTFOUND);
 	}
 
 	std::stringstream strStream;
 	if (verbosity > 0) {
-		std::cout << std::endl << CIRCLEITEM << " Loading string from " << filename << std::endl;
+		std::cout << std::endl << guts::CIRCLEITEM << " Loading string from " << filename << std::endl;
 	}
 	strStream << in.rdbuf(); // Read the file
 	in.close();
@@ -432,7 +433,7 @@ vector<string> getStringVectorFromStringWithDelimiter(const string& input, const
 
 
 // string search for a path with <name> from a possible list of absolute paths
-// returns UNINITIALIZEDSTRINGQUANTITY if not found
+// returns guts::UNINITIALIZEDSTRINGQUANTITY if not found
 // the filesystem solution does not work on linux systems.
 // TODO: periodically try this?
 //#include <filesystem>
@@ -445,7 +446,7 @@ vector<string> getStringVectorFromStringWithDelimiter(const string& input, const
 //                return possibleDir;
 //            }
 //        }
-//        return UNINITIALIZEDSTRINGQUANTITY;
+//        return guts::UNINITIALIZEDSTRINGQUANTITY;
 //    }
 //
 //    vector <string> getListOfFilesInDirectory(string dirName, vector <string> extensions) {
@@ -597,7 +598,7 @@ bool is_unset(std::string_view s) {
 				return false;
 		return true;
 	};
-	return eq(s, UNINITIALIZEDSTRINGQUANTITY) || eq(s, "null") || eq(s, "~");
+	return eq(s, guts::UNINITIALIZEDSTRINGQUANTITY) || eq(s, "null") || eq(s, "~");
 }
 
 void apply_uimanager_commands(const std::string& command) {

@@ -67,7 +67,7 @@
  *
  * - Image selection supports both filesystem paths and \c Qt resource lookup:
  *   first a direct load is attempted, then the same name is tried as \c ":/<name>".
- * - If the special image token \c NOSPLASHIMAGESELECTED is used, the image path is read
+ * - If the special image token \c gsplash::NOSPLASHIMAGESELECTED is used, the image path is read
  *   from the environment variable \c GSPLASH.
  * - Message updates pump the GUI event loop briefly via \c QCoreApplication::processEvents
  *   to keep the splash responsive while the application is still initializing.
@@ -91,7 +91,7 @@
  * \section gsplash_verbosity Module verbosity
  *
  * GSplash uses the standard GLogger infrastructure through its base facilities.
- * The effective verbosity is controlled by the logger configuration associated with \c GSPLASH_LOGGER.
+ * The effective verbosity is controlled by the logger configuration associated with \c gsplash::GSPLASH_LOGGER.
  *
  * - Verbosity level 0 typically prints high-level lifecycle messages (startup, major milestones).
  * - Verbosity level 1 typically prints additional configuration details (selected image source and GUI mode

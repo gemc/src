@@ -16,6 +16,10 @@
 
 #pragma once
 
+#include <string>
+
+namespace goptions {
+
 /**
  * \brief Padding used when printing option/switch help.
  *
@@ -32,7 +36,7 @@
  * The formatting routines live in internal implementation methods; documentation avoids cross-referencing
  * private symbols to prevent unresolved references when private extraction is disabled.
  */
-#define HELPFILLSPACE "                               "
+inline constexpr char HELPFILLSPACE[] = "                               ";
 
 /**
  * \brief Reserved option tag used to store version information.
@@ -42,7 +46,7 @@
  * It is not intended to be set by users. The saved YAML contains release metadata to support reproducibility
  * in scripts and batch pipelines.
  */
-#define GVERSION_STRING "version"
+inline constexpr char GVERSION_STRING[] = "version";
 
 // exit codes: 100s
 /**
@@ -54,19 +58,19 @@
  * They are part of the user-facing contract because they often appear in CI logs and batch workflows.
  * @{
  */
-#define EC__NOOPTIONFOUND                  101  ///< Option/switch/key not found, or invalid command-line token.
-#define EC__DEFINED_OPTION_ALREADY_PRESENT 102  ///< Attempted to define an option name more than once.
-#define EC__DEFINED_SWITCHALREADYPRESENT   103  ///< Attempted to define a switch name more than once.
-#define EC__YAML_PARSING_ERROR             104  ///< YAML file failed to parse (syntax error or parser failure).
-#define EC__MANDATORY_NOT_FILLED           105  ///< Mandatory structured option key (NODFLT) missing.
-#define EC__BAD_CONVERSION                 106  ///< YAML value could not be converted to requested type.
-#define EC_WRONG_VERBOSITY_LEVEL           107  ///< Verbosity/debug values outside accepted range (if enforced).
+inline constexpr int EC__NOOPTIONFOUND = 101;  ///< Option/switch/key not found, or invalid command-line token.
+inline constexpr int EC__DEFINED_OPTION_ALREADY_PRESENT =
+    102; ///< Attempted to define an option name more than once.
+inline constexpr int EC__DEFINED_SWITCHALREADYPRESENT =
+    103; ///< Attempted to define a switch name more than once.
+inline constexpr int EC__YAML_PARSING_ERROR =
+    104; ///< YAML file failed to parse (syntax error or parser failure).
+inline constexpr int EC__MANDATORY_NOT_FILLED = 105;  ///< Mandatory structured option key (NODFLT) missing.
+inline constexpr int EC__BAD_CONVERSION = 106;  ///< YAML value could not be converted to requested type.
+inline constexpr int EC_WRONG_VERBOSITY_LEVEL =
+    107; ///< Verbosity/debug values outside accepted range (if enforced).
 /** @} */
 
-
-#include <string>
-
-namespace goptions {
 /**
  * \brief Marker literal indicating "no default value" for a structured option key.
  *
@@ -82,4 +86,4 @@ namespace goptions {
  * - Each entry must contain all mandatory keys; optional keys are back-filled from schema defaults.
  */
 const std::string NODFLT = "NODFLT";
-}
+} // namespace goptions

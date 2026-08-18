@@ -84,16 +84,16 @@ public:
 		log->debug(CONSTRUCTOR, "GRunHeader");
 		if (tid != -1) {
 			log->info(1, "\n",
-			          TPOINTITEM, " Run ID:  ", rid, "\n",
-			          TPOINTITEM, " Number of events processed:  ", events_processed, "\n",
-			          TPOINTITEM, " Number of events with payload:  ", events_with_payload, "\n",
-			          TPOINTITEM, " Thread ID:  ", tid);
+			          guts::TPOINTITEM, " Run ID:  ", rid, "\n",
+			          guts::TPOINTITEM, " Number of events processed:  ", events_processed, "\n",
+			          guts::TPOINTITEM, " Number of events with payload:  ", events_with_payload, "\n",
+			          guts::TPOINTITEM, " Thread ID:  ", tid);
 		}
 		else {
 			log->info(1, "\n",
-			          TPOINTITEM, " Run ID:  ", rid, "\n",
-			          TPOINTITEM, " Number of events processed:  ", events_processed, "\n",
-			          TPOINTITEM, " Number of events with payload:  ", events_with_payload);
+			          guts::TPOINTITEM, " Run ID:  ", rid, "\n",
+			          guts::TPOINTITEM, " Number of events processed:  ", events_processed, "\n",
+			          guts::TPOINTITEM, " Number of events with payload:  ", events_with_payload);
 		}
 	}
 

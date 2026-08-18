@@ -22,7 +22,7 @@
 
 namespace {
 bool is_unset_field_name(const std::string& name) {
-	return name.empty() || name == UNINITIALIZEDSTRINGQUANTITY || name == "NULL" || name == "not provided";
+	return name.empty() || name == guts::UNINITIALIZEDSTRINGQUANTITY || name == "NULL" || name == "not provided";
 }
 
 class GVisManagerGuard : public G4VVisManager {
@@ -101,7 +101,7 @@ G4VPhysicalVolume *GDetectorConstruction::Construct() {
 
 
 	// Return the physical volume for the ROOT world volume.
-	return g4world->getG4Volume(ROOTWORLDGVOLUMENAME)->getPhysical();
+	return g4world->getG4Volume(gsystem::ROOTWORLDGVOLUMENAME)->getPhysical();
 }
 
 // Installs sensitive detectors and EM fields for the constructed geometry.
@@ -132,9 +132,9 @@ void GDetectorConstruction::ConstructSDandField() {
 	bool                  disable_all_fields = false;
 	std::set<std::string> no_field_volumes;
 	{
-		auto no_field_value = gopt->getOptionalScalarString(NO_FIELD_OPTION);
+		auto no_field_value = gopt->getOptionalScalarString(gfields::NO_FIELD_OPTION);
 		if (no_field_value && !no_field_value->empty()) {
-			if (*no_field_value == NO_FIELD_ALL) { disable_all_fields = true; }
+			if (*no_field_value == gfields::NO_FIELD_ALL) { disable_all_fields = true; }
 			else {
 				for (auto& c : *no_field_value) { if (c == ',') { c = ' '; } }
 				for (const auto& v : gutilities::getStringVectorFromString(*no_field_value)) {
@@ -146,7 +146,7 @@ void GDetectorConstruction::ConstructSDandField() {
 
 	// Global field name, honoring -no_field=all.
 	const bool no_system_selected = gsystems.empty() && gsystem::getSystems(gopt).empty();
-	auto global_field_name = gopt->getOptionalScalarString(GLOBAL_FIELD_OPTION).value_or("");
+	auto global_field_name = gopt->getOptionalScalarString(gfields::GLOBAL_FIELD_OPTION).value_or("");
 	if (no_system_selected && !disable_all_fields && is_unset_field_name(global_field_name)) {
 		std::vector<std::string> configured_fields;
 		for (const auto& field_definition : gfields::get_GFieldDefinition(gopt)) {
@@ -181,7 +181,7 @@ void GDetectorConstruction::ConstructSDandField() {
 		}
 		for (const auto &name: no_field_volumes) {
 			if (!matched_no_field.count(name)) {
-				log->warning("-", NO_FIELD_OPTION, ": volume <", name, "> not found in the geometry.");
+				log->warning("-", gfields::NO_FIELD_OPTION, ": volume <", name, "> not found in the geometry.");
 			}
 		}
 	}
@@ -199,7 +199,7 @@ void GDetectorConstruction::ConstructSDandField() {
 
 			// Component volumes are boolean-operation building blocks: they have a
 			// solid but no logical volume, no field, and no sensitivity.
-			if (gvolumePtr->getMaterial() == GSYSTEMCOMPONENTMATERIAL) { continue; }
+			if (gvolumePtr->getMaterial() == gsystem::GSYSTEMCOMPONENTMATERIAL) { continue; }
 
 			auto *g4volume = g4world->getG4Volume(g4name)->getLogical();
 
@@ -213,13 +213,13 @@ void GDetectorConstruction::ConstructSDandField() {
 					auto volume_copy = gsystem + "/" + *copyOf;
 					auto copyG4Volume = g4world->getG4Volume(volume_copy)->getLogical();
 					if (copyG4Volume != nullptr) { g4volume = copyG4Volume; } else {
-						log->error(ERR_GVOLUMENOTFOUND, FUNCTION_NAME,
+						log->error(gsystem::ERR_GVOLUMENOTFOUND, FUNCTION_NAME,
 						           " Logical volume copy <" + volume_copy + "> not found.");
 					}
 				}
 			}
 			if (g4volume == nullptr) {
-				log->error(ERR_GVOLUMENOTFOUND, FUNCTION_NAME, " Logical volume <" + g4name + "> not found.");
+				log->error(gsystem::ERR_GVOLUMENOTFOUND, FUNCTION_NAME, " Logical volume <" + g4name + "> not found.");
 			}
 
 			// Skip volumes with no digitization.
@@ -260,7 +260,7 @@ void GDetectorConstruction::ConstructSDandField() {
 				const auto &vdimensions = gvolumePtr->getDetectorDimensions();
 				const auto &identity = gvolumePtr->getGIdentity();
 				if (!identity) {
-					log->error(ERR_GWRONGNUMBEROFPARS, "Sensitive volume <", g4name,
+					log->error(gsystem::ERR_GWRONGNUMBEROFPARS, "Sensitive volume <", g4name,
 					           "> has digitization <", digitization, "> but no identifier.");
 				}
 				const auto &mass = g4volume->GetMass();
@@ -288,7 +288,7 @@ void GDetectorConstruction::ConstructSDandField() {
 				no_field_volumes.count(volumeName) || no_field_volumes.count(g4name);
 			if (volume_field_present && volume_field_reset) {
 				log->info(2, "Volume <", volumeName, "> field <", *field_name, "> reset by -",
-				          NO_FIELD_OPTION, ": no field installed.");
+				          gfields::NO_FIELD_OPTION, ": no field installed.");
 			} else if (volume_field_present) {
 				log->info(2, "Volume <", volumeName, "> has field: <", *field_name,
 				          ">. Looking into field map definitions.");
@@ -302,14 +302,14 @@ void GDetectorConstruction::ConstructSDandField() {
 	// A global field is associated with the ROOT world volume and propagated to all daughters, so it
 	// applies everywhere a more specific per-volume field has not been installed.
 	if (global_field_set) {
-		log->info(2, "Setting global field manager for the ROOT world volume <", ROOTWORLDGVOLUMENAME,
+		log->info(2, "Setting global field manager for the ROOT world volume <", gsystem::ROOTWORLDGVOLUMENAME,
 		          "> with field <", global_field_name, ">");
-		g4world->setFieldManagerForVolume(ROOTWORLDGVOLUMENAME,
+		g4world->setFieldManagerForVolume(gsystem::ROOTWORLDGVOLUMENAME,
 		                                  gmagneto->getFieldMgr(global_field_name).get(), true);
 	} else if (disable_all_fields && global_field_name != "" &&
 		!is_unset_field_name(global_field_name)) {
-		log->info(2, "Global field <", global_field_name, "> reset by -", NO_FIELD_OPTION, "=",
-		          NO_FIELD_ALL, ": none installed.");
+		log->info(2, "Global field <", global_field_name, "> reset by -", gfields::NO_FIELD_OPTION, "=",
+		          gfields::NO_FIELD_ALL, ": none installed.");
 	}
 
 	// Load digitization plugins only when geometry has changed and only on the master thread.
@@ -377,16 +377,16 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
 
 	for (auto &sdname: sdetectors) {
-		if (sdname == FLUXNAME) {
+		if (sdname == gtouchable::FLUXNAME) {
 			log->info(1, "Loading flux digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, std::make_shared<GFluxDigitization>(gopt));
-		} else if (sdname == GPHOTON_DETECTORNAME) {
+		} else if (sdname == gtouchable::GPHOTON_DETECTORNAME) {
 			log->info(1, "Loading gPhotonDetector digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, std::make_shared<GPhotonDetectorDigitization>(gopt));
-		} else if (sdname == COUNTERNAME) {
+		} else if (sdname == gtouchable::COUNTERNAME) {
 			log->info(1, "Loading particle counter digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, std::make_shared<GParticleCounterDigitization>(gopt));
-		} else if (sdname == DOSIMETERNAME) {
+		} else if (sdname == gtouchable::DOSIMETERNAME) {
 			log->info(1, "Loading dosimeter digitization plugin for routine <" + sdname + ">");
 			digitization_routines_map->emplace(sdname, std::make_shared<GDosimeterDigitization>(gopt));
 		} else {

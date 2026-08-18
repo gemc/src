@@ -203,12 +203,12 @@ public:
 	 * \return YAML node representing the option value.
 	 *
 	 * @warning
-	 * If the option does not exist, this function exits with \c EC__NOOPTIONFOUND .
+	 * If the option does not exist, this function exits with \c goptions::EC__NOOPTIONFOUND .
 	 */
 	[[nodiscard]] inline YAML::Node getOptionNode(const std::string& tag) const {
 		if (!doesOptionExist(tag)) {
 			std::cerr << "Option " << tag << " does not exist. Exiting." << std::endl;
-			exit(EC__NOOPTIONFOUND);
+			exit(goptions::EC__NOOPTIONFOUND);
 		}
 		const auto& option_value = getOptionIterator(tag)->value;
 		if (!option_value || option_value.size() == 0) { return YAML::Node{}; }
@@ -330,10 +330,10 @@ public:
 	 * \brief Name used when constructing the verbosity/debug schema helper.
 	 *
 	 * @details
-	 * Defaults to \c UNINITIALIZEDSTRINGQUANTITY and is typically set by the
+	 * Defaults to \c guts::UNINITIALIZEDSTRINGQUANTITY and is typically set by the
 	 * \ref GOptions::GOptions(std::string) "GOptions(name)" helper constructor.
 	 */
-	std::string option_verbosity_name{UNINITIALIZEDSTRINGQUANTITY};
+	std::string option_verbosity_name{guts::UNINITIALIZEDSTRINGQUANTITY};
 
 	/**
 	 * \brief Schema entries used to define the `verbosity` and `debug` structured options.

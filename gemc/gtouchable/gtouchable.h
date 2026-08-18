@@ -27,7 +27,7 @@
  * - \c integral_counter: uses particle id to discriminate between hits.
  *
  * The mapping from a digitization string to a \c GTouchableType is implemented in the \c GTouchable constructors,
- * using the constants \c FLUXNAME, \c COUNTERNAME, and \c DOSIMETERNAME.
+ * using the constants \c gtouchable::FLUXNAME, \c gtouchable::COUNTERNAME, and \c gtouchable::DOSIMETERNAME.
  */
 enum GTouchableType
 {
@@ -47,9 +47,9 @@ namespace gtouchable {
 	 * \brief Converts a \c GTouchableType value to a stable string for logging.
 	 *
 	 * The returned strings match the digitization type constants where applicable:
-	 * - \c flux -> \c FLUXNAME
-	 * - \c particle_counter -> \c COUNTERNAME
-	 * - \c dosimeter -> \c DOSIMETERNAME
+	 * - \c flux -> \c gtouchable::FLUXNAME
+	 * - \c particle_counter -> \c gtouchable::COUNTERNAME
+	 * - \c dosimeter -> \c gtouchable::DOSIMETERNAME
 	 *
 	 * \param t The touchable type.
 	 * \return A C-string suitable for log messages.
@@ -57,11 +57,11 @@ namespace gtouchable {
 	inline const char* to_string(GTouchableType t) {
 		switch (t) {
 			case GTouchableType::readout: return "readout";
-			case GTouchableType::flux: return FLUXNAME;
-			case GTouchableType::gPhotonDetector: return GPHOTON_DETECTORNAME;
-			case GTouchableType::particle_counter: return COUNTERNAME;
-			case GTouchableType::dosimeter: return DOSIMETERNAME;
-			case GTouchableType::integral_counter: return INTEGRAL_COUNTERNAME;
+			case GTouchableType::flux: return gtouchable::FLUXNAME;
+			case GTouchableType::gPhotonDetector: return gtouchable::GPHOTON_DETECTORNAME;
+			case GTouchableType::particle_counter: return gtouchable::COUNTERNAME;
+			case GTouchableType::dosimeter: return gtouchable::DOSIMETERNAME;
+			case GTouchableType::integral_counter: return gtouchable::INTEGRAL_COUNTERNAME;
 			default: return "unknown-gtouchable";
 		}
 	}
@@ -159,7 +159,8 @@ public:
 	 * Called from detector construction code when building the sensitive detector registry.
 	 *
 	 * \param gopt Options container used to configure logging and module behavior.
-	 * \param digitization Digitization type string (e.g. \c "readout", \c FLUXNAME, \c COUNTERNAME).
+	 * \param digitization Digitization type string (e.g. \c "readout", \c gtouchable::FLUXNAME, \c
+	 * gtouchable::COUNTERNAME).
 	 * \param gidentityString Identity specification string, e.g. \c "sector: 2, layer: 4, wire: 33".
 	 * \param dimensions Physical dimensions of the detector element (module-defined convention).
 	 * \param mass The mass of the detector element.
@@ -177,7 +178,8 @@ public:
 	 * or in code that wants to share a logger across multiple objects).
 	 *
 	 * \param logger Logger instance used for diagnostics.
-	 * \param digitization Digitization type string (e.g. \c "readout", \c FLUXNAME, \c COUNTERNAME).
+	 * \param digitization Digitization type string (e.g. \c "readout", \c gtouchable::FLUXNAME, \c
+	 * gtouchable::COUNTERNAME).
 	 * \param gidentityString Identity specification string, e.g. \c "sector: 2, layer: 4, wire: 33".
 	 * \param dimensions Physical dimensions of the detector element (module-defined convention).
 	 * \param mass The mass of the detector element.
@@ -277,7 +279,7 @@ public:
 	/**
 	 * \brief Returns the electronics time-cell index.
 	 *
-	 * \return The stored time-cell index, or \c GTOUCHABLEUNSETTIMEINDEX if not assigned yet.
+	 * \return The stored time-cell index, or \c gtouchable::GTOUCHABLEUNSETTIMEINDEX if not assigned yet.
 	 */
 	[[nodiscard]] inline int getStepTimeAtElectronicsIndex() const { return stepTimeAtElectronicsIndex; }
 

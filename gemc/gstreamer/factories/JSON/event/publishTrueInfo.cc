@@ -11,7 +11,8 @@
 bool GstreamerJsonFactory::publishEventTrueInfoDataImpl(const std::string& detectorName,
                                                         const std::vector<const GTrueInfoData*>& trueInfoData) {
 	if (!is_building_event) {
-		log->error(ERR_PUBLISH_ERROR, "publishEventTrueInfoDataImpl called without an active event in GstreamerJsonFactory");
+		log->error(gstreamer::ERR_PUBLISH_ERROR,
+		           "publishEventTrueInfoDataImpl called without an active event in GstreamerJsonFactory");
 		return false;
 	}
 

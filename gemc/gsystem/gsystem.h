@@ -153,7 +153,7 @@ public:
 	 * \param rootVolumeDefinition The ROOT/world definition string (solid + parameters + material).
 	 *
 	 * \details This method is typically called only when the world volume is injected automatically.
-	 * It creates a top-level volume whose mother marker is MOTHEROFUSALL.
+	 * It creates a top-level volume whose mother marker is gsystem::MOTHEROFUSALL.
 	 */
 	void addROOTVolume(const std::string& rootVolumeDefinition);
 
@@ -166,8 +166,8 @@ public:
 	 * and then constructs a new volume, inserting it into the internal volume map.
 	 *
 	 * Error handling:
-	 * - If the volume name key already exists, the method logs ERR_GVOLUMEALREADYPRESENT.
-	 * - If the parameter vector size is wrong, the volume constructor logs ERR_GWRONGNUMBEROFPARS.
+	 * - If the volume name key already exists, the method logs gsystem::ERR_GVOLUMEALREADYPRESENT.
+	 * - If the parameter vector size is wrong, the volume constructor logs gsystem::ERR_GWRONGNUMBEROFPARS.
 	 */
 	void addGVolume(std::vector<std::string> pars);
 
@@ -181,7 +181,7 @@ public:
 	 * and forwards it to \ref GSystem::addGVolume "addGVolume()".
 	 *
 	 * The defaults are chosen so the imported asset is placeable:
-	 * - mother is ROOTWORLDGVOLUMENAME
+	 * - mother is gsystem::ROOTWORLDGVOLUMENAME
 	 * - position and rotation are zero
 	 * - material defaults to \c G4_AIR
 	 * - visibility/style/color are set to visible + simple defaults
@@ -224,7 +224,7 @@ public:
 	 *
 	 * \details
 	 * - If the material name key is new, a material object is constructed and inserted.
-	 * - If the key already exists, the method logs ERR_GMATERIALALREADYPRESENT.
+	 * - If the key already exists, the method logs gsystem::ERR_GMATERIALALREADYPRESENT.
 	 */
 	void addGMaterial(std::vector<std::string> pars);
 
@@ -235,7 +235,7 @@ public:
 	 *
 	 * \details
 	 * - If the mirror name key is new, a mirror object is constructed and inserted.
-	 * - If the key already exists, the method logs ERR_GMIRRORALREADYPRESENT.
+	 * - If the key already exists, the method logs gsystem::ERR_GMIRRORALREADYPRESENT.
 	 */
 	void addGMirror(std::vector<std::string> pars);
 
@@ -267,7 +267,7 @@ public:
 	 * - extracting its material name;
 	 * - locating the material in the material map.
 	 *
-	 * If the volume exists but the material does not, the method logs ERR_GMATERIALNOTFOUND.
+	 * If the volume exists but the material does not, the method logs gsystem::ERR_GMATERIALNOTFOUND.
 	 */
 	[[nodiscard]] const GMaterial* getMaterialForGVolume(const std::string& volumeName) const;
 };

@@ -216,9 +216,9 @@ protected:
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool startEvent([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
-		if (!event_data) { log->error(ERR_PUBLISH_ERROR, "eventData is null in GStreamer::startEvent"); }
+		if (!event_data) { log->error(gstreamer::ERR_PUBLISH_ERROR, "eventData is null in GStreamer::startEvent"); }
 		if (!event_data->getHeader()) {
-			log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::startEvent");
+			log->error(gstreamer::ERR_PUBLISH_ERROR, "event header is null in GStreamer::startEvent");
 		}
 
 		log->debug(NORMAL, "GStreamer::startEvent");
@@ -266,7 +266,9 @@ protected:
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool publishEventHeader([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header) {
-		if (!gevent_header) { log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::publishEventHeader"); }
+		if (!gevent_header) {
+			log->error(gstreamer::ERR_PUBLISH_ERROR, "event header is null in GStreamer::publishEventHeader");
+		}
 		log->debug(NORMAL, "GStreamer::publishEventHeader");
 		return publishEventHeaderImpl(gevent_header);
 	}
@@ -383,9 +385,9 @@ protected:
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool startRun([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
-		if (!run_data) { log->error(ERR_PUBLISH_ERROR, "run_data is null in GStreamer::startRun"); }
+		if (!run_data) { log->error(gstreamer::ERR_PUBLISH_ERROR, "run_data is null in GStreamer::startRun"); }
 		if (!run_data->getHeader()) {
-			log->error(ERR_PUBLISH_ERROR, "run header is null in GStreamer::startRun");
+			log->error(gstreamer::ERR_PUBLISH_ERROR, "run header is null in GStreamer::startRun");
 		}
 
 		log->debug(NORMAL, "GStreamer::startRun");

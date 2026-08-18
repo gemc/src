@@ -25,7 +25,7 @@ GOptions defineOptions() {
 	// constants and translation tables. The sentinel default means "not set": each routine
 	// then follows the variation of the gsystem it belongs to.
 	goptions.defineOption(
-		GVariable("digitization_variation", UNINITIALIZEDSTRINGQUANTITY, "digitization variation"),
+		GVariable("digitization_variation", guts::UNINITIALIZEDSTRINGQUANTITY, "digitization variation"),
 		"If set, overrides the gsystem variation when the digitization routines load their\n"
 		"constants and translation tables. Default: not set (each routine uses its system's\n"
 		"variation).\n \nExample: -digitization_variation=rga_fall2018");
@@ -35,15 +35,16 @@ GOptions defineOptions() {
 	// digitization. Default: not set (no system rejects hits), matching the clas12Tags default
 	// where APPLY_THRESHOLDS and DETECTOR_INEFFICIENCY are off.
 	goptions.defineOption(
-		GVariable("applyThresholds", UNINITIALIZEDSTRINGQUANTITY, "systems that reject hits below threshold"),
+		GVariable("applyThresholds", guts::UNINITIALIZEDSTRINGQUANTITY, "systems that reject hits below threshold"),
 		"List of digitization system names whose hits below the per-channel threshold are\n"
 		"rejected. Use \"all\" for every system. Default: not set (no thresholds applied).\n \n"
 		"Example: -applyThresholds=\"ftof, ctof\"");
 	goptions.defineOption(
-		GVariable("applyInefficiencies", UNINITIALIZEDSTRINGQUANTITY, "systems that apply efficiency rejection"),
-		"List of digitization system names whose hits are randomly rejected according to the\n"
-		"per-channel efficiency. Use \"all\" for every system. Default: not set.\n \n"
-		"Example: -applyInefficiencies=\"ftof\"");
+	    GVariable("applyInefficiencies", guts::UNINITIALIZEDSTRINGQUANTITY,
+	              "systems that apply efficiency rejection"),
+	    "List of digitization system names whose hits are randomly rejected according to the\n"
+	    "per-channel efficiency. Use \"all\" for every system. Default: not set.\n \n"
+	    "Example: -applyInefficiencies=\"ftof\"");
 
 	// Aggregate options required by downstream types used in the digitization workflow.
 	goptions += gevent_data::defineOptions();

@@ -17,7 +17,7 @@ using namespace std;
  * It demonstrates:
  * - \ref gutilities::getStringVectorFromString "getStringVectorFromString()"
  *   to split text on whitespace into individual string tokens.
- * - Use of formatting glyphs from gutsConventions.h : (e.g., \c SQUAREITEM) to keep
+ * - Use of formatting glyphs from gutsConventions.h : (e.g., \c guts::SQUAREITEM) to keep
  *   console output consistent with the rest of the codebase.
  *
  * Intended audience:
@@ -40,7 +40,8 @@ using namespace std;
  */
 int main(int argc, char* argv[]) {
 	if (argc != 2) {
-		cerr << FATALERRORL << "run example with exactly one argument: a quotes enclosed list of strings." << endl;
+		cerr << guts::FATALERRORL << "run example with exactly one argument: a quotes enclosed list of strings."
+		     << endl;
 		return EXIT_FAILURE;
 	}
 	else {
@@ -50,7 +51,7 @@ int main(int argc, char* argv[]) {
 		cout << " Original String: " << test << endl;
 		cout << " List of items in string: " << endl;
 		for (auto& s : testResult) {
-			cout << SQUAREITEM << s << endl;
+			cout << guts::SQUAREITEM << s << endl;
 		}
 	}
 

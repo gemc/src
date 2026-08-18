@@ -10,7 +10,7 @@
 
 void GSystemTextFactory::loadMaterials(GSystem* system) {
 	// Materials file is optional; if missing, IN is nullptr and we simply skip.
-	auto IN = gSystemTextFileStream(system, GTEXTMATSTYPE);
+	auto IN = gSystemTextFileStream(system, gsystem::GTEXTMATSTYPE);
 
 	if (IN != nullptr) {
 		log->info(1, "Loading materials for system ", system->getName(),

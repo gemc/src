@@ -1,3 +1,7 @@
+#pragma once
+
+namespace gaction {
+
 /**
 * \file gactionConventions.h
  * \brief Defines error codes used by the GEMC actions module.
@@ -23,9 +27,9 @@
  * diagnostics can reliably identify the same category of problem across builds.
  */
 ///@{
-#define ERR_GRUNACTION_NOT_EXISTING 1201
-#define ERR_GDIGIMAP_NOT_EXISTING 1202
-#define ERR_STREAMERMAP_NOT_EXISTING 1203
+inline constexpr int ERR_GRUNACTION_NOT_EXISTING = 1201;
+inline constexpr int ERR_GDIGIMAP_NOT_EXISTING = 1202;
+inline constexpr int ERR_STREAMERMAP_NOT_EXISTING = 1203;
 ///@}
 
 /**
@@ -34,8 +38,10 @@
  * \brief Per-step track limits applied by GSteppingAction (GEMC2 MSteppingAction parity).
  */
 ///@{
-#define MAX_OPTICAL_PHOTON_STEPS 100
-#define MAX_TRACK_STEPS 10000
-/// Must match KRYPTONITE_MATERIAL in g4system/g4systemConventions.h.
-#define KRYPTONITE_KILL_MATERIAL "Kryptonite"
+inline constexpr int MAX_OPTICAL_PHOTON_STEPS = 100;
+inline constexpr int MAX_TRACK_STEPS = 10000;
+/// Must match g4system::KRYPTONITE_MATERIAL in g4system/g4systemConventions.h.
+inline constexpr char KRYPTONITE_KILL_MATERIAL[] = "Kryptonite";
 ///@}
+
+} // namespace gaction

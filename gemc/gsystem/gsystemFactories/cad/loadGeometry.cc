@@ -68,12 +68,12 @@ namespace {
 
 void GSystemCADFactory::loadGeometry(GSystem* s) {
 	// skip ROOT system
-	if (s->getName() == ROOTWORLDGVOLUMENAME) { return; }
+	if (s->getName() == gsystem::ROOTWORLDGVOLUMENAME) { return; }
 
 	// Resolve the directory holding the CAD meshes.
 	string dirLocation = gutilities::searchForDirInLocations(s->getFilePath(), possibleLocationOfFiles);
 	if (!filesystem::exists(dirLocation)) {
-		log->error(ERR_GDIRNOTFOUND, "CAD Directory >" + s->getFilePath() + "< not found.");
+		log->error(gsystem::ERR_GDIRNOTFOUND, "CAD Directory >" + s->getFilePath() + "< not found.");
 		return;
 	}
 
@@ -86,7 +86,7 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 	// The list of volumes to load - and their metadata - comes from the sqlite database, not from the
 	// directory listing: only meshes that have a matching row in the geometry table are imported.
 	string dbhost = s->get_dbhost();
-	if (dbhost.empty() || dbhost == "na") { dbhost = GSYSTEMSQLITETDEFAULTFILE; }
+	if (dbhost.empty() || dbhost == "na") { dbhost = gsystem::GSYSTEMSQLITETDEFAULTFILE; }
 
 	vector<string> dirs = {
 		".",
@@ -95,21 +95,22 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 	};
 	auto dbPath = gutilities::searchForFileInLocations(dirs, dbhost);
 	if (!dbPath) {
-		log->error(ERR_GSQLITEERROR, "CAD factory: sqlite database <" + dbhost + "> not found.");
+		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: sqlite database <" + dbhost + "> not found.");
 		return;
 	}
 
 	sqlite3* db = nullptr;
 	if (sqlite3_open_v2(dbPath.value().c_str(), &db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK) {
 		sqlite3_close(db);
-		log->error(ERR_GSQLITEERROR, "CAD factory: failed to open sqlite database <" + dbhost + ">.");
+		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: failed to open sqlite database <" + dbhost + ">.");
 		return;
 	}
 	log->info(1, "CAD factory: reading definitions from sqlite database ", dbPath.value());
 
 	const string placement_column = geometry_column_exists(db, "g4placement_type")
 	                                ? "g4placement_type"
-	                                : "'" DEFAULTG4PLACEMENTTYPE "' AS g4placement_type";
+	                                : "'" + string(gsystem::DEFAULTG4PLACEMENTTYPE) +
+	                                  "' AS g4placement_type";
 	const string sql_query =
 		"SELECT DISTINCT name, solid, parameters, material, mother, position, rotations, " +
 		placement_column +
@@ -118,7 +119,7 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 
 	sqlite3_stmt* stmt = nullptr;
 	if (sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "CAD factory: error preparing query: ", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: error preparing query: ", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return;
 	}
@@ -148,7 +149,7 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 
 		// Only CAD volumes are resolved against the mesh directory. A CAD volume defined in the
 		// database but missing its mesh file is skipped with a warning.
-		if (solidType == GSYSTEMCADTFACTORYLABEL) {
+		if (solidType == gsystem::GSYSTEMCADTFACTORYLABEL) {
 			auto it = meshByName.find(volumeName);
 			if (it == meshByName.end()) {
 				log->warning("CAD factory: volume <", volumeName,
@@ -164,7 +165,8 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 	}
 
 	if (rc != SQLITE_DONE) {
-		log->error(ERR_GSQLITEERROR, "CAD factory: sqlite error while reading geometry: ", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR,
+		           "CAD factory: sqlite error while reading geometry: ", sqlite3_errmsg(db));
 	}
 
 	sqlite3_finalize(stmt);

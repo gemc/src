@@ -113,14 +113,14 @@ bool G4ObjectsFactory::checkPhysicalDependencies(const GVolume* s,
 	}
 
 	// Mother logical must exist unless this is the world volume.
-	if (motherName != MOTHEROFUSALL && getLogicalFromMap(motherName, g4s) == nullptr) {
+	if (motherName != gsystem::MOTHEROFUSALL && getLogicalFromMap(motherName, g4s) == nullptr) {
 		log->info(2, "dependencies: ", vname,
 		          " mother <", motherName, "> logical volume not found yet.");
 		return false;
 	}
 
 	// Everything satisfied – emit verbose trace.
-	if (motherName != MOTHEROFUSALL) {
+	if (motherName != gsystem::MOTHEROFUSALL) {
 		log->info(2, "dependencies: <", vname, "> and mother <", motherName,
 		          "> logical volumes are found. Ready to build or get physical volume.");
 	}

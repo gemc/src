@@ -112,7 +112,7 @@ public:
 	[[nodiscard]] auto get_streamer_threads_map() const
 		-> std::shared_ptr<const gstreamer::gstreamersMap> {
 		if (!gstreamer_threads_map) {
-			log->error(ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME, " no gstreamer thread map available");
+			log->error(gaction::ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME, " no gstreamer thread map available");
 		}
 		return gstreamer_threads_map;
 	}
@@ -151,7 +151,7 @@ public:
 	void collect_event_data_collections(const std::string&              hcSDName,
 										std::unique_ptr<GDigitizedData> digi_data) {
 		if (run_data == nullptr) {
-			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+			log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 					   " run_data is null - cannot collect run-level payload for collection ", hcSDName);
 		}
 
@@ -168,13 +168,13 @@ public:
 	 */
 	void increment_run_events_processed() {
 		if (run_data == nullptr) {
-			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+			log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 					   " run_data is null - cannot increment processed events.");
 		}
 
 		auto& header = run_data->getHeader();
 		if (header == nullptr) {
-			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+			log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 					   " run_data header is null - cannot increment processed events.");
 		}
 
@@ -189,13 +189,13 @@ public:
 	 */
 	void increment_run_events_with_payload() {
 		if (run_data == nullptr) {
-			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+			log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 					   " run_data is null - cannot increment payload events.");
 		}
 
 		auto& header = run_data->getHeader();
 		if (header == nullptr) {
-			log->error(ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
+			log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
 					   " run_data header is null - cannot increment payload events.");
 		}
 
@@ -366,8 +366,8 @@ private:
 //	std::vector<GFrameDataCollection*> frameRunData;
 
 //
-// double frameDuration    = UNINITIALIZEDNUMBERQUANTITY; // frame length in nanoseconds
-// double eventDuration    = UNINITIALIZEDNUMBERQUANTITY; // event duration in nanoseconds
+// double frameDuration    = guts::UNINITIALIZEDNUMBERQUANTITY; // frame length in nanoseconds
+// double eventDuration    = guts::UNINITIALIZEDNUMBERQUANTITY; // event duration in nanoseconds
 // int    eventIndex       = 0;                           // added to the absolute event number, increases with each run
 // int    lastFrameCreated = 0;                           // keeping track of the last frame created
 //

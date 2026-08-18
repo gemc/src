@@ -157,15 +157,15 @@ public:
 
 		switch (type) {
 		case NORMAL:
-			G4cout << KCYN << header_string() << "DEBUG: " << oss.str() << RST << G4endl;
+			G4cout << guts::KCYN << header_string() << "DEBUG: " << oss.str() << guts::RST << G4endl;
 			break;
 		case CONSTRUCTOR:
-			G4cout << KCYN << header_string() << "DEBUG: " <<
-				CONSTRUCTORLOG << " " << oss.str() << " " << CONSTRUCTORLOG << RST << G4endl;
+			G4cout << guts::KCYN << header_string() << "DEBUG: " <<
+				guts::CONSTRUCTORLOG << " " << oss.str() << " " << guts::CONSTRUCTORLOG << guts::RST << G4endl;
 			break;
 		case DESTRUCTOR:
-			G4cout << KCYN << header_string() << "DEBUG: " <<
-				DESTRUCTORLOG << " " << oss.str() << " " << DESTRUCTORLOG << RST << G4endl;
+			G4cout << guts::KCYN << header_string() << "DEBUG: " <<
+				guts::DESTRUCTORLOG << " " << oss.str() << " " << guts::DESTRUCTORLOG << guts::RST << G4endl;
 			break;
 		}
 	}
@@ -183,15 +183,15 @@ public:
 	 * \param args Message components to log. Each argument must be stream-insertable.
 	 *
 	 * \throws (process termination) If \p level is not 0, 1, or 2, this method prints a fatal error
-	 * and terminates the process with \c EC_WRONG_VERBOSITY_LEVEL.
+	 * and terminates the process with \c goptions::EC_WRONG_VERBOSITY_LEVEL.
 	 */
 	template <typename... Args>
 	void info(int level, Args&&... args) const {
 		// Validate the requested verbosity level early so callers fail fast with a clear message.
 		if (level != 0 && level != 1 && level != 2) {
-			G4cerr << FATALERRORL << header_string() << GWARNING << " Invalid verbosity level requested: " << level <<
-				RST << G4endl;
-			exit(EC_WRONG_VERBOSITY_LEVEL);
+			G4cerr << guts::FATALERRORL << header_string() << guts::GWARNING
+			       << " Invalid verbosity level requested: " << level << guts::RST << G4endl;
+			exit(goptions::EC_WRONG_VERBOSITY_LEVEL);
 		}
 
 		// Apply the gating rule associated with the requested level.
@@ -229,7 +229,7 @@ public:
 	void warning(Args&&... args) const {
 		std::ostringstream oss;
 		(oss << ... << std::forward<Args>(args));
-		G4cout << KYEL << header_string() << GWARNING << KYEL << oss.str() << RST << G4endl;
+		G4cout << guts::KYEL << header_string() << guts::GWARNING << guts::KYEL << oss.str() << guts::RST << G4endl;
 	}
 
 	/**
@@ -251,8 +251,9 @@ public:
 	[[noreturn]] void error(int exit_code, Args&&... args) const {
 		std::ostringstream oss;
 		(oss << ... << std::forward<Args>(args));
-		G4cerr << FATALERRORL << header_string() << KRED << oss.str() << RST << G4endl;
-		G4cerr << FATALERRORL << header_string() << KRED << "Exit Code: " << exit_code << RST << G4endl;
+		G4cerr << guts::FATALERRORL << header_string() << guts::KRED << oss.str() << guts::RST << G4endl;
+		G4cerr << guts::FATALERRORL << header_string() << guts::KRED << "Exit Code: " << exit_code << guts::RST
+		       << G4endl;
 		std::exit(exit_code);
 	}
 
@@ -269,7 +270,7 @@ public:
 	void critical(Args&&... args) const {
 		std::ostringstream oss;
 		(oss << ... << std::forward<Args>(args));
-		G4cout << KBOLD << header_string() << RST << oss.str() << G4endl;
+		G4cout << guts::KBOLD << header_string() << guts::RST << oss.str() << G4endl;
 	}
 
 	/**

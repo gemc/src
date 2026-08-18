@@ -1,5 +1,7 @@
 #pragma once
 
+namespace gsystem {
+
 /**
  * \file gsystemConventions.h
  * \brief Conventions and shared constants for the detector-system module.
@@ -27,13 +29,13 @@
  */
 ///@{
 /// Number of database parameters defining a gvolume entry.
-#define GVOLUMENUMBEROFPARS          22
+inline constexpr int GVOLUMENUMBEROFPARS = 22;
 /// Number of database parameters defining a legacy gvolume entry without g4placement_type.
-#define GVOLUMELEGACYNUMBEROFPARS    21
+inline constexpr int GVOLUMELEGACYNUMBEROFPARS = 21;
 /// Number of database parameters defining a gmaterial entry.
-#define GMATERIALNUMBEROFPARS        18
+inline constexpr int GMATERIALNUMBEROFPARS = 18;
 /// Number of database parameters defining a gmirror entry.
-#define GMIRRORNUMBEROFPARS          16
+inline constexpr int GMIRRORNUMBEROFPARS = 16;
 ///@}
 
 // -----------------------------------------------------------------------------
@@ -41,12 +43,12 @@
 // -----------------------------------------------------------------------------
 
 /// Border value marking an optical surface applied to the whole volume skin.
-#define GMIRRORSKINSURFACE "SkinSurface"
+inline constexpr char GMIRRORSKINSURFACE[] = "SkinSurface";
 
 /// Material value marking a boolean-operation building block: the volume
 /// contributes its solid to `solidsOpr` operations but is never assigned a
 /// material or placed.
-#define GSYSTEMCOMPONENTMATERIAL "Component"
+inline constexpr char GSYSTEMCOMPONENTMATERIAL[] = "Component";
 
 // -----------------------------------------------------------------------------
 // Default placement strings
@@ -61,9 +63,9 @@
  * the same utilities used by geometry parsing.
  */
 ///@{
-#define DEFAULTPOSITION "0*cm, 0*cm, 0*cm"
-#define DEFAULTROTATION "0*deg, 0*deg, 0*deg"
-#define DEFAULTG4PLACEMENTTYPE "active"
+inline constexpr char DEFAULTPOSITION[] = "0*cm, 0*cm, 0*cm";
+inline constexpr char DEFAULTROTATION[] = "0*deg, 0*deg, 0*deg";
+inline constexpr char DEFAULTG4PLACEMENTTYPE[] = "active";
 ///@}
 
 // -----------------------------------------------------------------------------
@@ -78,21 +80,21 @@
  * stable identifiers for common failure modes.
  */
 ///@{
-#define ERR_GVOLUMEALREADYPRESENT            201
-#define ERR_GWRONGNUMBEROFPARS               202
-#define ERR_GSETUPFILENOTOFOUND              203
-#define ERR_GVOLUMENOTFOUND                  204
-#define ERR_GDIRNOTFOUND                     205
-#define ERR_GMATERIALOPTICALPROPERTYMISMATCH 206
-#define ERR_GMATERIALNOTFOUND                207
-#define ERR_GVOLUMENAMECONTAINSINVALID       208
-#define ERR_GSQLITEERROR                     209
-#define ERR_GMATERIALALREADYPRESENT          210
-#define ERR_EXPERIMENTNOTFOUND               211
-#define ERR_G4PLACEMENTTYPE                  212
-#define ERR_GMIRRORALREADYPRESENT            213
-#define ERR_GMIRRORNOTFOUND                  214
-#define ERR_GMIRRORINVALID                   215
+inline constexpr int ERR_GVOLUMEALREADYPRESENT = 201;
+inline constexpr int ERR_GWRONGNUMBEROFPARS = 202;
+inline constexpr int ERR_GSETUPFILENOTOFOUND = 203;
+inline constexpr int ERR_GVOLUMENOTFOUND = 204;
+inline constexpr int ERR_GDIRNOTFOUND = 205;
+inline constexpr int ERR_GMATERIALOPTICALPROPERTYMISMATCH = 206;
+inline constexpr int ERR_GMATERIALNOTFOUND = 207;
+inline constexpr int ERR_GVOLUMENAMECONTAINSINVALID = 208;
+inline constexpr int ERR_GSQLITEERROR = 209;
+inline constexpr int ERR_GMATERIALALREADYPRESENT = 210;
+inline constexpr int ERR_EXPERIMENTNOTFOUND = 211;
+inline constexpr int ERR_G4PLACEMENTTYPE = 212;
+inline constexpr int ERR_GMIRRORALREADYPRESENT = 213;
+inline constexpr int ERR_GMIRRORNOTFOUND = 214;
+inline constexpr int ERR_GMIRRORINVALID = 215;
 ///@}
 
 // -----------------------------------------------------------------------------
@@ -105,7 +107,7 @@
  */
 ///@{
 /// Special string used to represent “no modifier is requested”.
-#define GSYSTEMNOMODIFIER          "noModifier"
+inline constexpr char GSYSTEMNOMODIFIER[] = "noModifier";
 ///@}
 
 // -----------------------------------------------------------------------------
@@ -118,20 +120,20 @@
  */
 ///@{
 /// Environment variable name used by GEMC database tooling.
-#define GEMCDB_ENV           "GEMCDB_ENV"
+inline constexpr char GEMCDB_ENV[] = "GEMCDB_ENV";
 
 /// Canonical name for the ROOT/world gvolume entry.
-#define ROOTWORLDGVOLUMENAME "root"
+inline constexpr char ROOTWORLDGVOLUMENAME[] = "root";
 
 /// Default ROOT/world volume definition string (type + dimensions + material).
 /// \note The type corresponds to a Geant4 solid type string (e.g. \c G4Box).
-#define ROOTDEFINITION       "G4Box 15*m 15*m 15*m G4_AIR"
+inline constexpr char ROOTDEFINITION[] = "G4Box 15*m 15*m 15*m G4_AIR";
 
 /// Special mother-name marker for the top-level world root.
-#define MOTHEROFUSALL        "akasha"
+inline constexpr char MOTHEROFUSALL[] = "akasha";
 
 /// Delimiter used to build fully-qualified names (system/name).
-#define GSYSTEM_DELIMITER    "/"
+inline constexpr char GSYSTEM_DELIMITER[] = "/";
 ///@}
 
 // -----------------------------------------------------------------------------
@@ -143,15 +145,17 @@
  * \brief Identifiers used in configuration to select concrete factories.
  */
 ///@{
-#define GSYSTEMASCIIFACTORYLABEL    "ascii"
-#define GSYSTEMCADTFACTORYLABEL     "CAD"
-#define GSYSTEMGDMLTFACTORYLABEL    "GDML"
-#define GSYSTEMMYSQLTFACTORYLABEL   "mysql"
-#define GSYSTEMSQLITETFACTORYLABEL  "sqlite"
+inline constexpr char GSYSTEMASCIIFACTORYLABEL[] = "ascii";
+inline constexpr char GSYSTEMCADTFACTORYLABEL[] = "CAD";
+inline constexpr char GSYSTEMGDMLTFACTORYLABEL[] = "GDML";
+inline constexpr char GSYSTEMMYSQLTFACTORYLABEL[] = "mysql";
+inline constexpr char GSYSTEMSQLITETFACTORYLABEL[] = "sqlite";
 
 /// Default sqlite DB filename used when the user does not specify one.
-#define GSYSTEMSQLITETDEFAULTFILE   "gemc.db"
+inline constexpr char GSYSTEMSQLITETDEFAULTFILE[] = "gemc.db";
 
 /// Default search directory for ASCII factory files.
-#define GSYSTEMSASCIISEARCHDIR      "."
+inline constexpr char GSYSTEMSASCIISEARCHDIR[] = ".";
 ///@}
+
+} // namespace gsystem

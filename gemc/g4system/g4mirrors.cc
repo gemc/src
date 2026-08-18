@@ -116,7 +116,7 @@ void G4World::buildOpticalSurfaces(SystemMap* system_map) {
 
 			const GMirror* gmirror = gsystem->getGMirror(mirrorName);
 			if (gmirror == nullptr) {
-				log->error(ERR_G4MIRRORNOTFOUND, "mirror <", mirrorName, "> referenced by volume <",
+				log->error(g4system::ERR_G4MIRRORNOTFOUND, "mirror <", mirrorName, "> referenced by volume <",
 				           volumeName, "> is not defined in system <", systemName, ">");
 			}
 
@@ -124,7 +124,7 @@ void G4World::buildOpticalSurfaces(SystemMap* system_map) {
 
 			const G4Volume* g4volume = getG4Volume(gvolume->getG4Name());
 			if (g4volume == nullptr) {
-				log->error(ERR_G4VOLUMEBUILDFAILED, "volume <", gvolume->getG4Name(),
+				log->error(g4system::ERR_G4VOLUMEBUILDFAILED, "volume <", gvolume->getG4Name(),
 				           "> referencing mirror <", mirrorName, "> was not built");
 			}
 
@@ -132,16 +132,16 @@ void G4World::buildOpticalSurfaces(SystemMap* system_map) {
 				// The skin surface covers the entire logical volume boundary.
 				new G4LogicalSkinSurface(gvolume->getG4Name(), g4volume->getLogical(), surface);
 				nSkinSurfaces++;
-				log->info(2, "G4World: skin surface <", systemName, GSYSTEM_DELIMITER, mirrorName,
+				log->info(2, "G4World: skin surface <", systemName, gsystem::GSYSTEM_DELIMITER, mirrorName,
 				          "> attached to volume <", gvolume->getG4Name(), ">");
 			}
 			else {
 				// The border surface applies to photons crossing from this volume into the
 				// border volume, which must belong to the same system.
-				std::string     borderG4Name   = systemName + GSYSTEM_DELIMITER + gmirror->getBorder();
+				std::string     borderG4Name   = systemName + gsystem::GSYSTEM_DELIMITER + gmirror->getBorder();
 				const G4Volume* borderG4Volume = getG4Volume(borderG4Name);
 				if (borderG4Volume == nullptr || borderG4Volume->getPhysical() == nullptr) {
-					log->error(ERR_G4MIRRORNOTFOUND, "border volume <", borderG4Name,
+					log->error(g4system::ERR_G4MIRRORNOTFOUND, "border volume <", borderG4Name,
 					           "> of mirror <", mirrorName, "> referenced by volume <",
 					           volumeName, "> is not built");
 				}
@@ -150,7 +150,7 @@ void G4World::buildOpticalSurfaces(SystemMap* system_map) {
 				                           borderG4Volume->getPhysical(), surface);
 				nBorderSurfaces++;
 				log->info(2, "G4World: border surface <", surfaceName, "> using mirror <",
-				          systemName, GSYSTEM_DELIMITER, mirrorName, ">");
+				          systemName, gsystem::GSYSTEM_DELIMITER, mirrorName, ">");
 			}
 		}
 	}
@@ -163,7 +163,7 @@ void G4World::buildOpticalSurfaces(SystemMap* system_map) {
 
 
 G4OpticalSurface* G4World::getOrCreateOpticalSurface(const std::string& systemName, const GMirror* gmirror) {
-	std::string surfaceKey = systemName + GSYSTEM_DELIMITER + gmirror->getName();
+	std::string surfaceKey = systemName + gsystem::GSYSTEM_DELIMITER + gmirror->getName();
 
 	auto cached = g4opticalSurfacesMap.find(surfaceKey);
 	if (cached != g4opticalSurfacesMap.end()) { return cached->second; }
@@ -173,21 +173,21 @@ G4OpticalSurface* G4World::getOrCreateOpticalSurface(const std::string& systemNa
 	// Surface type / finish / model: unknown strings are hard errors.
 	auto typeIt = surfaceTypesMap().find(gmirror->getType());
 	if (typeIt == surfaceTypesMap().end()) {
-		log->error(ERR_G4SURFACECONFIGINVALID, "mirror <", gmirror->getName(),
+		log->error(g4system::ERR_G4SURFACECONFIGINVALID, "mirror <", gmirror->getName(),
 		           ">: unknown surface type <", gmirror->getType(), ">");
 	}
 	surface->SetType(typeIt->second);
 
 	auto finishIt = surfaceFinishesMap().find(gmirror->getFinish());
 	if (finishIt == surfaceFinishesMap().end()) {
-		log->error(ERR_G4SURFACECONFIGINVALID, "mirror <", gmirror->getName(),
+		log->error(g4system::ERR_G4SURFACECONFIGINVALID, "mirror <", gmirror->getName(),
 		           ">: unknown surface finish <", gmirror->getFinish(), ">");
 	}
 	surface->SetFinish(finishIt->second);
 
 	auto modelIt = surfaceModelsMap().find(gmirror->getModel());
 	if (modelIt == surfaceModelsMap().end()) {
-		log->error(ERR_G4SURFACECONFIGINVALID, "mirror <", gmirror->getName(),
+		log->error(g4system::ERR_G4SURFACECONFIGINVALID, "mirror <", gmirror->getName(),
 		           ">: unknown surface model <", gmirror->getModel(), ">");
 	}
 	surface->SetModel(modelIt->second);
@@ -206,11 +206,11 @@ G4OpticalSurface* G4World::getOrCreateOpticalSurface(const std::string& systemNa
 		else { material = G4NistManager::Instance()->FindMaterial(materialName); }
 
 		if (material == nullptr) {
-			log->error(ERR_G4MATERIALNOTFOUND, "mirror <", gmirror->getName(),
+			log->error(g4system::ERR_G4MATERIALNOTFOUND, "mirror <", gmirror->getName(),
 			           ">: matOptProps material <", materialName, "> not found");
 		}
 		if (material->GetMaterialPropertiesTable() == nullptr) {
-			log->error(ERR_G4SURFACECONFIGINVALID, "mirror <", gmirror->getName(),
+			log->error(g4system::ERR_G4SURFACECONFIGINVALID, "mirror <", gmirror->getName(),
 			           ">: matOptProps material <", materialName, "> has no material properties table");
 		}
 		surface->SetMaterialPropertiesTable(material->GetMaterialPropertiesTable());

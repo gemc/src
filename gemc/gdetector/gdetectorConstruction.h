@@ -177,7 +177,7 @@ public:
 	 */
 	[[nodiscard]] std::unordered_map<std::string, G4Volume*> get_g4volumes_map() const {
 		if (g4world == nullptr) {
-			log->error(ERR_G4VOLUMEBUILDFAILED, "No g4world ");
+			log->error(g4system::ERR_G4VOLUMEBUILDFAILED, "No g4world ");
 		}
 		return g4world->get_g4volumes_map();
 	}

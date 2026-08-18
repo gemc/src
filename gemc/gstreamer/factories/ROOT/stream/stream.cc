@@ -7,7 +7,7 @@
 
 bool GstreamerRootFactory::startStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) {
 	if (rootfile == nullptr) {
-		log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory::startStream: file is not initialized");
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "GstreamerRootFactory::startStream: file is not initialized");
 	}
 
 	return true;
@@ -16,7 +16,7 @@ bool GstreamerRootFactory::startStreamImpl([[maybe_unused]] const GFrameDataColl
 
 bool GstreamerRootFactory::endStreamImpl([[maybe_unused]] const GFrameDataCollection* frameRunData) {
 	if (rootfile == nullptr) {
-		log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory::endStream: file is not initialized");
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "GstreamerRootFactory::endStream: file is not initialized");
 	}
 
 	return true;

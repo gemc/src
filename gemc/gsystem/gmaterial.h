@@ -31,13 +31,13 @@ public:
 	 * \brief Construct a material from a serialized parameter list.
 	 *
 	 * \param system System name that owns this material (used for provenance/logging).
-	 * \param pars   Serialized material parameters (must match GMATERIALNUMBEROFPARS).
+	 * \param pars   Serialized material parameters (must match gsystem::GMATERIALNUMBEROFPARS).
 	 * \param logger Logger used for diagnostics and error reporting.
 	 *
 	 * \details
-	 * The constructor validates \c pars length against GMATERIALNUMBEROFPARS and then
+	 * The constructor validates \c pars length against gsystem::GMATERIALNUMBEROFPARS and then
 	 * parses the fields. Optical/scintillation properties may be "unset" (typically
-	 * UNINITIALIZEDSTRINGQUANTITY) and are skipped.
+	 * guts::UNINITIALIZEDSTRINGQUANTITY) and are skipped.
 	 */
 	GMaterial(const std::string &system, std::vector<std::string> pars, const std::shared_ptr<GLogger> &logger);
 
@@ -165,7 +165,7 @@ private:
 	 * \return \c true if a value was assigned, \c false otherwise.
 	 *
 	 * \details This helper interprets "unset" values using the same convention as parsing
-	 * utilities (e.g. UNINITIALIZEDSTRINGQUANTITY). Malformed scalars are treated as unset.
+	 * utilities (e.g. guts::UNINITIALIZEDSTRINGQUANTITY). Malformed scalars are treated as unset.
 	 */
 	bool assign_if_set(const std::vector<std::string> &pars, size_t &i, double &out);
 

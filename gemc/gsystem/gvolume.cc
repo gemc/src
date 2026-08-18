@@ -43,17 +43,17 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 	GBase(logger),
 	system(s),
 	importFilename(normalize_optional_geometry_field(std::move(importPath), false)) {
-	if (pars.size() == GVOLUMELEGACYNUMBEROFPARS) {
-		pars.insert(pars.begin() + 7, DEFAULTG4PLACEMENTTYPE);
+	if (pars.size() == gsystem::GVOLUMELEGACYNUMBEROFPARS) {
+		pars.insert(pars.begin() + 7, gsystem::DEFAULTG4PLACEMENTTYPE);
 	}
 
-	if (pars.size() != GVOLUMENUMBEROFPARS) {
+	if (pars.size() != gsystem::GVOLUMENUMBEROFPARS) {
 		// Dump received parameters to help diagnose mismatched schema or input corruption.
 		for (auto& parameter : pars) { log->warning(" - parameter ", parameter); }
 
-		log->error(ERR_GWRONGNUMBEROFPARS,
+		log->error(gsystem::ERR_GWRONGNUMBEROFPARS,
 		           "Incorrect number of system parameters for GVolume: ", pars.size(), ", it should be ",
-		           GVOLUMENUMBEROFPARS);
+		           gsystem::GVOLUMENUMBEROFPARS);
 	}
 	else {
 		// The parameter vector is a serialized DB/ASCII row. Parsing is positional.
@@ -61,11 +61,11 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 
 		name = removeAllSpacesFromString(pars[i++]);
 
-		// checking that name does not contain GSYSTEM_DELIMITER
-		// because GSYSTEM_DELIMITER is used later to build fully-qualified Geant4 names.
-		if (name.find(GSYSTEM_DELIMITER) != string::npos) {
-			log->error(ERR_GVOLUMENAMECONTAINSINVALID,
-			           "the gVolume name <", name, "> contains the invalid character: <", GSYSTEM_DELIMITER,
+		// checking that name does not contain gsystem::GSYSTEM_DELIMITER
+		// because gsystem::GSYSTEM_DELIMITER is used later to build fully-qualified Geant4 names.
+		if (name.find(gsystem::GSYSTEM_DELIMITER) != string::npos) {
+			log->error(gsystem::ERR_GVOLUMENAMECONTAINSINVALID,
+			           "the gVolume name <", name, "> contains the invalid character: <", gsystem::GSYSTEM_DELIMITER,
 			           ">. Exiting.");
 		}
 
@@ -76,8 +76,8 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 		pos            = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		rot            = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		g4placementType = removeAllSpacesFromString(pars[i++]);
-		if (g4placementType == "" || g4placementType == UNINITIALIZEDSTRINGQUANTITY) {
-			g4placementType = DEFAULTG4PLACEMENTTYPE;
+		if (g4placementType == "" || g4placementType == guts::UNINITIALIZEDSTRINGQUANTITY) {
+			g4placementType = gsystem::DEFAULTG4PLACEMENTTYPE;
 		}
 		emfield        = normalize_optional_geometry_field(pars[i++], true);
 		string pvis    = removeAllSpacesFromString(pars[i++]);
@@ -94,16 +94,16 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 		exist          = (pexists == "1") ? true : false;
 
 		// these will be assigned later
-		g4name       = UNINITIALIZEDSTRINGQUANTITY;
-		g4motherName = UNINITIALIZEDSTRINGQUANTITY;
+		g4name       = guts::UNINITIALIZEDSTRINGQUANTITY;
+		g4motherName = guts::UNINITIALIZEDSTRINGQUANTITY;
 
 		description = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		variation   = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		runno       = stoi(removeAllSpacesFromString(pars[i++]));
 
 		// modifiers - accessed through options/jcard
-		shift = GSYSTEMNOMODIFIER;
-		tilt  = GSYSTEMNOMODIFIER;
+		shift = gsystem::GSYSTEMNOMODIFIER;
+		tilt  = gsystem::GSYSTEMNOMODIFIER;
 	}
 }
 
@@ -123,10 +123,10 @@ std::ostream& operator<<(std::ostream& stream, const GVolume& gVol) {
 	stream << "   - Run Number:      " << gVol.runno << std::endl;
 	if (gVol.copyOf) stream << "   - copyOf:          " << *gVol.copyOf << std::endl;
 	if (gVol.solidsOpr) stream << "   - solidsOpr:       " << *gVol.solidsOpr << std::endl;
-	if (gVol.type != "" && gVol.type != UNINITIALIZEDSTRINGQUANTITY)
+	if (gVol.type != "" && gVol.type != guts::UNINITIALIZEDSTRINGQUANTITY)
 		stream << "   - Type:            " << gVol.type <<
 			std::endl;
-	if (gVol.parameters != "" && gVol.parameters != UNINITIALIZEDSTRINGQUANTITY)
+	if (gVol.parameters != "" && gVol.parameters != guts::UNINITIALIZEDSTRINGQUANTITY)
 		stream << "   - Parameters:      " <<
 			gVol.parameters << std::endl;
 	stream << "   - Material:        " << gVol.material << std::endl;
@@ -155,16 +155,16 @@ GVolume::GVolume(const std::string& rootVolumeDefinition,
 	// Build the parameter string (skip the type and the final material token).
 	for (size_t i = 1; i < rootDefinitions.size() - 1; i++) { volumeParameters += ", " + rootDefinitions[i]; }
 
-	name         = ROOTWORLDGVOLUMENAME;
-	system       = ROOTWORLDGVOLUMENAME;
+	name         = gsystem::ROOTWORLDGVOLUMENAME;
+	system       = gsystem::ROOTWORLDGVOLUMENAME;
 	variation    = "default";
 	type         = rootDefinitions[0];
 	parameters   = volumeParameters;
 	material     = rootDefinitions.back();
-	motherName   = MOTHEROFUSALL;
-	pos          = DEFAULTPOSITION;
-	rot          = DEFAULTROTATION;
-	g4placementType = DEFAULTG4PLACEMENTTYPE;
+	motherName   = gsystem::MOTHEROFUSALL;
+	pos          = gsystem::DEFAULTPOSITION;
+	rot          = gsystem::DEFAULTROTATION;
+	g4placementType = gsystem::DEFAULTG4PLACEMENTTYPE;
 	visible      = false;
 	style        = 0; // wireframe
 	color        = "ccffff";
@@ -173,8 +173,8 @@ GVolume::GVolume(const std::string& rootVolumeDefinition,
 	description = "root volume";
 
 	// modifiers - accessed through options/jcard
-	shift = GSYSTEMNOMODIFIER;
-	tilt  = GSYSTEMNOMODIFIER;
+	shift = gsystem::GSYSTEMNOMODIFIER;
+	tilt  = gsystem::GSYSTEMNOMODIFIER;
 }
 
 void GVolume::setDigitization(std::optional<std::string> value) {

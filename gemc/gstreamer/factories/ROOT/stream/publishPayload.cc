@@ -6,7 +6,9 @@
 // Frame-payload publication is currently a placeholder for the ROOT backend.
 
 bool GstreamerRootFactory::publishPayloadImpl([[maybe_unused]] const std::vector<GIntegralPayload*>* payload) {
-	if (rootfile == nullptr) { log->error(ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized"); }
+	if (rootfile == nullptr) {
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "GstreamerRootFactory: file is not initialized");
+	}
 
 	return true;
 }

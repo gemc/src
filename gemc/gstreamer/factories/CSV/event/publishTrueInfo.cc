@@ -8,7 +8,7 @@
 bool GstreamerCsvFactory::publishEventTrueInfoDataImpl(const std::string&                       detectorName,
                                                        const std::vector<const GTrueInfoData*>& trueInfoData) {
 	if (!ofile_true_info.is_open()) {
-		log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_true_info());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_true_info());
 	}
 
 	// Emit the header row from the first non-empty detector collection so column names

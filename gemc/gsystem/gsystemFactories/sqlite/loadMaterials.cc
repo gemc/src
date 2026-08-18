@@ -15,13 +15,15 @@ using namespace std;
 
 void GSystemSQLiteFactory::loadMaterials(GSystem* system) {
 	// skip ROOT system
-	if (system->getName() == ROOTWORLDGVOLUMENAME) { return; }
+	if (system->getName() == gsystem::ROOTWORLDGVOLUMENAME) { return; }
 
 	// Initialize the DB if needed.
 	if (db == nullptr) { initialize_sqlite_db(system); }
 
 	// Check that db is valid.
-	if (db == nullptr) { log->error(ERR_GSQLITEERROR, "Database pointer is still null after initialization."); }
+	if (db == nullptr) {
+		log->error(gsystem::ERR_GSQLITEERROR, "Database pointer is still null after initialization.");
+	}
 
 	// Check if the materials table has any rows.
 	// An empty materials table can be valid if materials come from the Geant4 database.
@@ -30,7 +32,7 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system) {
 	sqlite3_stmt* count_stmt  = nullptr;
 	int           rc          = sqlite3_prepare_v2(db, count_query, -1, &count_stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "Sqlite error preparing count query in loadMaterials: ",
+		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite error preparing count query in loadMaterials: ",
 		           sqlite3_errmsg(db), " (", rc, ") using query: ", count_query);
 	}
 	if (sqlite3_step(count_stmt) == SQLITE_ROW) { count = sqlite3_column_int(count_stmt, 0); }
@@ -48,7 +50,7 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system) {
 	sqlite3_stmt* stmt      = nullptr;
 	rc                      = sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(ERR_GSQLITEERROR, "Sqlite database error in loadMaterials: ",
+		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadMaterials: ",
 		           sqlite3_errmsg(db), " (", rc, ") using query: ", sql_query);
 	}
 
@@ -88,7 +90,7 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system) {
 
 
 	if (rc != SQLITE_DONE) {
-		log->error(ERR_GSQLITEERROR, "Sqlite database error in loadMaterials: ",
+		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadMaterials: ",
 		           sqlite3_errmsg(db), " (", rc, ")");
 	}
 

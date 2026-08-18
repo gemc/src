@@ -1,5 +1,7 @@
 #pragma once
 
+namespace gstreamer {
+
 /**
  * \file gstreamerConventions.h
  * \brief Shared constants and error codes for the gstreamer module.
@@ -13,7 +15,7 @@
  * The actual runtime limit is stored per streamer instance and may be updated from configuration
  * through \ref GStreamer::set_loggers "set_loggers()".
  */
-#define DEFAULT_GSTREAMER_BUFFER_FLUSH_LIMIT 100
+inline constexpr int DEFAULT_GSTREAMER_BUFFER_FLUSH_LIMIT = 100;
 
 /**
  * \name gstreamer error codes
@@ -23,9 +25,16 @@
  * in logs and error reports.
  */
 ///@{
-#define ERR_GSTREAMERFACTORYNOTFOUND  801  ///< Plugin factory symbol could not be resolved.
-#define ERR_GSTREAMERVARIABLEEXISTS   802  ///< Duplicate variable registration was attempted in a streamer-specific schema.
-#define ERR_CANTOPENOUTPUT            803  ///< Output medium could not be opened successfully.
-#define ERR_CANTCLOSEOUTPUT           804  ///< Output medium could not be closed cleanly.
-#define ERR_PUBLISH_ERROR             805  ///< Publish sequence encountered invalid state or invalid input data.
+/// Plugin factory symbol could not be resolved.
+inline constexpr int ERR_GSTREAMERFACTORYNOTFOUND = 801;
+/// Duplicate variable registration was attempted in a streamer-specific schema.
+inline constexpr int ERR_GSTREAMERVARIABLEEXISTS = 802;
+/// Output medium could not be opened successfully.
+inline constexpr int ERR_CANTOPENOUTPUT = 803;
+/// Output medium could not be closed cleanly.
+inline constexpr int ERR_CANTCLOSEOUTPUT = 804;
+/// Publish sequence encountered invalid state or invalid input data.
+inline constexpr int ERR_PUBLISH_ERROR = 805;
 ///@}
+
+} // namespace gstreamer

@@ -7,10 +7,10 @@
 
 bool GstreamerCsvFactory::startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 	if (!ofile_true_info.is_open()) {
-		log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_true_info());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_true_info());
 	}
 	if (!ofile_digitized.is_open()) {
-		log->error(ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_digitized());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_digitized());
 	}
 
 	// Cache the event number for the detector rows written later in the publish sequence.

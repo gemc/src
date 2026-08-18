@@ -14,8 +14,8 @@ bool GstreamerRootFactory::openConnection() {
 	rootfile = std::make_unique<TFile>(filename().c_str(), "RECREATE");
 
 	if (rootfile->IsZombie()) {
-		log->error(
-			ERR_CANTOPENOUTPUT, "GstreamerRootFactory: could not create file " + filename() + " (file is a zombie)");
+		log->error(gstreamer::ERR_CANTOPENOUTPUT,
+		           "GstreamerRootFactory: could not create file " + filename() + " (file is a zombie)");
 	}
 
 	log->info(1, SFUNCTION_NAME, "GstreamerRootFactory: opened file " + filename());

@@ -1,4 +1,6 @@
 #pragma once
+
+namespace g4system {
 /**
  * \file   g4systemConventions.h
  * @ingroup g4system
@@ -14,38 +16,47 @@
  */
 
 // factory labels
-#define G4SYSTEMNATFACTORY "native"
-#define G4SYSTEMCADFACTORY "cad"
-#define G4SYSTEMGDMFACTORY "gdml"
+inline constexpr char G4SYSTEMNATFACTORY[] = "native";
+inline constexpr char G4SYSTEMCADFACTORY[] = "cad";
+inline constexpr char G4SYSTEMGDMFACTORY[] = "gdml";
 
 // error codes in the 500s
-#define ERR_G4DEPENDENCIESNOTSOLVED   501   ///< Geometry/material dependencies could not be resolved.
-#define ERR_G4WRONGORDEREDROTATION    502   ///< Rotation specification was malformed or unsupported.
-#define ERR_G4PARAMETERSMISMATCH      503   ///< Solid parameter count/format did not match expected constructors.
-#define ERR_G4SYSTEMFACTORYNOTFOUND   504   ///< A required Geant4 system factory was not found/mapped.
-#define ERR_G4MATERIALNOTFOUND        505   ///< Material lookup failed and no fallback was available.
-#define ERR_G4SOLIDTYPENOTFOUND       506   ///< Requested solid type is not supported by the native factory.
-#define ERR_G4VOLUMEBUILDFAILED       506   ///< A volume could not be fully built (solid/logical/physical).
-#define ERR_G4MIRRORNOTFOUND          507   ///< A volume references a mirror that is not defined in its system.
-#define ERR_G4SURFACECONFIGINVALID    508   ///< Optical surface type/finish/model/properties are invalid.
+inline constexpr int ERR_G4DEPENDENCIESNOTSOLVED =
+    501; ///< Geometry/material dependencies could not be resolved.
+inline constexpr int ERR_G4WRONGORDEREDROTATION = 502; ///< Rotation specification was malformed or unsupported.
+inline constexpr int ERR_G4PARAMETERSMISMATCH =
+    503; ///< Solid parameter count/format did not match expected constructors.
+inline constexpr int ERR_G4SYSTEMFACTORYNOTFOUND =
+    504;                                             ///< A required Geant4 system factory was not found/mapped.
+inline constexpr int ERR_G4MATERIALNOTFOUND = 505;   ///< Material lookup failed and no fallback was available.
+inline constexpr int ERR_G4SOLIDTYPENOTFOUND =
+    506; ///< Requested solid type is not supported by the native factory.
+inline constexpr int ERR_G4VOLUMEBUILDFAILED =
+    506; ///< A volume could not be fully built (solid/logical/physical).
+inline constexpr int ERR_G4MIRRORNOTFOUND =
+    507; ///< A volume references a mirror that is not defined in its system.
+inline constexpr int ERR_G4SURFACECONFIGINVALID =
+    508; ///< Optical surface type/finish/model/properties are invalid.
 
 // Special value used by options to indicate "no fallback material".
-#define NO_USE_DEFAULT_MATERIAL "noDefaultMaterial"
+inline constexpr char NO_USE_DEFAULT_MATERIAL[] = "noDefaultMaterial";
 
 // predefined isotopes / elements / materials
-#define HYDROGEN_ELEMENT      "Hydrogen"
-#define DEUTERON_ISOTOPE      "Deuteron"
-#define DEUTERIUM_ELEMENT     "Deuterium"
-#define HGAS_MATERIAL         "HydrogenGas"
-#define DEUTERIUMGAS_MATERIAL "DeuteriumGas"
-#define LD2_MATERIAL          "LD2"
-#define NITRO_ELEMENT         "Nitrogen"
-#define ND3_MATERIAL          "ND3"
-#define HELION_ISOTOPE        "Helion"
-#define HELIUM3_ELEMENT       "Helium3"
-#define HELIUM3GAS_MATERIAL   "Helium3Gas"
-#define TRITON_ISOTOPE        "Triton"
-#define TRITIUM_ELEMENT       "Tritium"
-#define TRITIUMGAS_MATERIAL   "H3Gas"
-#define AIROPTICAL_MATERIAL   "G4_AIR_Optical"
-#define KRYPTONITE_MATERIAL   "Kryptonite"
+inline constexpr char HYDROGEN_ELEMENT[] = "Hydrogen";
+inline constexpr char DEUTERON_ISOTOPE[] = "Deuteron";
+inline constexpr char DEUTERIUM_ELEMENT[] = "Deuterium";
+inline constexpr char HGAS_MATERIAL[] = "HydrogenGas";
+inline constexpr char DEUTERIUMGAS_MATERIAL[] = "DeuteriumGas";
+inline constexpr char LD2_MATERIAL[] = "LD2";
+inline constexpr char NITRO_ELEMENT[] = "Nitrogen";
+inline constexpr char ND3_MATERIAL[] = "ND3";
+inline constexpr char HELION_ISOTOPE[] = "Helion";
+inline constexpr char HELIUM3_ELEMENT[] = "Helium3";
+inline constexpr char HELIUM3GAS_MATERIAL[] = "Helium3Gas";
+inline constexpr char TRITON_ISOTOPE[] = "Triton";
+inline constexpr char TRITIUM_ELEMENT[] = "Tritium";
+inline constexpr char TRITIUMGAS_MATERIAL[] = "H3Gas";
+inline constexpr char AIROPTICAL_MATERIAL[] = "G4_AIR_Optical";
+inline constexpr char KRYPTONITE_MATERIAL[] = "Kryptonite";
+
+} // namespace g4system

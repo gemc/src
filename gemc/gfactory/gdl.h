@@ -25,9 +25,11 @@ static dlhandle load_lib(const std::string& path);
 static void     close_lib(dlhandle handle);
 
 // exit codes: 1000s
-#define ERR_DLNOTFOUND       1001
-#define ERR_FACTORYNOTFOUND  1002
-#define ERR_DLHANDLENOTFOUND 1003
+namespace gfactory {
+inline constexpr int ERR_DLNOTFOUND = 1001;
+inline constexpr int ERR_FACTORYNOTFOUND = 1002;
+inline constexpr int ERR_DLHANDLENOTFOUND = 1003;
+} // namespace gfactory
 
 
 /**
@@ -47,8 +49,8 @@ static void     close_lib(dlhandle handle);
  *
  * ### Error reporting
  * Errors are reported via the configured `GLogger` instance using:
- * - ERR_DLNOTFOUND when no file is found, and
- * - ERR_DLHANDLENOTFOUND when the file exists but \c dlopen returns null (with \c dlerror text).
+ * - gfactory::ERR_DLNOTFOUND when no file is found, and
+ * - gfactory::ERR_DLHANDLENOTFOUND when the file exists but \c dlopen returns null (with \c dlerror text).
  */
 struct DynamicLib
 {
@@ -129,14 +131,15 @@ public:
 			handle = load_lib(dlFileName);
 			if (handle == nullptr) {
 				char const* const dlopen_error = dlerror();
-				log->error(ERR_DLHANDLENOTFOUND, "File ", dlFileName, " found, but handle is null. dlopen_error >> ",
+				log->error(gfactory::ERR_DLHANDLENOTFOUND, "File ", dlFileName,
+				           " found, but handle is null. dlopen_error >> ",
 				           dlopen_error != nullptr ? dlopen_error : "unknown dlopen error");
 			}
 			else { log->info(1, "Loaded ", dlFileName); }
 		}
 		else {
 				const char* envPath = std::getenv("GEMC_PLUGIN_PATH");
-				log->error(ERR_DLNOTFOUND,
+				log->error(gfactory::ERR_DLNOTFOUND,
 				           "could not find ", dlFileName, "\n",
 				           "  GEMC_PLUGIN_PATH = ", (envPath ? envPath : "(not set)"), "\n",
 				           "  Hint: set GEMC_PLUGIN_PATH or use -plugin_path=<dir> to the directory ",

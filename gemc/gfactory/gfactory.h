@@ -280,7 +280,7 @@ template <class Base>
 Base* GManager::CreateObject(std::string_view name) const {
 	auto it = factoryMap_.find(std::string{name});
 	if (it == factoryMap_.end()) {
-		log->error(ERR_FACTORYNOTFOUND,
+		log->error(gfactory::ERR_FACTORYNOTFOUND,
 		           "Couldn't find factory <", name, "> in factory map.");
 	}
 	log->debug(NORMAL, "Creating instance of <", name, "> factory.");
@@ -300,7 +300,7 @@ std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view  
 		// The product type performs the symbol lookup and raw allocation.
 		T* raw = T::instantiate(pluginLib->handle, gopts);
 		if (raw == nullptr) {
-			log->error(ERR_FACTORYNOTFOUND, "Plugin ", name, " could not instantiate its factory object.");
+			log->error(gfactory::ERR_FACTORYNOTFOUND, "Plugin ", name, " could not instantiate its factory object.");
 		}
 
 		// Standardize logger wiring on the instance.
@@ -315,7 +315,7 @@ std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view  
 	}
 
 	const char* envPath = std::getenv("GEMC_PLUGIN_PATH");
-	log->error(ERR_DLHANDLENOTFOUND,
+	log->error(gfactory::ERR_DLHANDLENOTFOUND,
 	           "Plugin ", name, ".gplugin could not be loaded.\n",
 	           "  GEMC_PLUGIN_PATH = ", (envPath ? envPath : "(not set)"), "\n",
 	           "  Hint: set GEMC_PLUGIN_PATH or use -plugin_path=<dir> to point to the directory ",

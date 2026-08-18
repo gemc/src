@@ -25,9 +25,11 @@ bool GStreamer::is_valid_format(const std::string& format) {
 void GStreamer::publishEventData(const std::shared_ptr<GEventDataCollection>& event_data) {
 	// The event collection and its header are required for any plugin to publish
 	// a meaningful event record.
-	if (!event_data) { log->error(ERR_PUBLISH_ERROR, "event data is null in GStreamer::publishEventData"); }
+	if (!event_data) {
+		log->error(gstreamer::ERR_PUBLISH_ERROR, "event data is null in GStreamer::publishEventData");
+	}
 	if (!event_data->getHeader()) {
-		log->error(ERR_PUBLISH_ERROR, "event header is null in GStreamer::publishEventData");
+		log->error(gstreamer::ERR_PUBLISH_ERROR, "event header is null in GStreamer::publishEventData");
 	}
 
 	// Retain ownership of the event until the buffer is flushed. This guarantees

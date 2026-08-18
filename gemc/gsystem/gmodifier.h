@@ -29,9 +29,9 @@ public:
 	 * \param n The target volume name. This must match the key used to find the
 	 *          volume within the world (typically the volume name as stored in the geometry).
 	 * \param s The shift expression to apply (e.g. `"0*cm, 0*cm, 1*cm"`), or
-	 *          GSYSTEMNOMODIFIER when not used.
+	 *          gsystem::GSYSTEMNOMODIFIER when not used.
 	 * \param t The tilt expression to apply (e.g. `"0*deg, 0*deg, -10*deg"`), or
-	 *          GSYSTEMNOMODIFIER when not used.
+	 *          gsystem::GSYSTEMNOMODIFIER when not used.
 	 * \param existence Existence toggle: \c true means the volume is present,
 	 *                  \c false means it should be removed/disabled.
 	 */

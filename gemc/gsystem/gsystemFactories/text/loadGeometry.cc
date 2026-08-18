@@ -16,7 +16,7 @@
 
 void GSystemTextFactory::loadGeometry(GSystem* system) {
 	// Will exit if not found unless the system annotation allows skipping.
-	auto IN = gSystemTextFileStream(system, GTEXTGEOMTYPE);
+	auto IN = gSystemTextFileStream(system, gsystem::GTEXTGEOMTYPE);
 
 	if (IN != nullptr) {
 		log->info(1, "Loading geometry for system ", system->getName(),

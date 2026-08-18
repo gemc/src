@@ -84,7 +84,7 @@
  *   - Type: integer
  *   - Meaning: numeric seed used for the selected engine
  *   - Behavior:
- *     - if unset (equal to `SEEDNOTSET`), a seed is derived from time/clock/pid sources
+ *     - if unset (equal to `gemc::SEEDNOTSET`), a seed is derived from time/clock/pid sources
  *
  * @section utilities_verbosity Module verbosity
  *

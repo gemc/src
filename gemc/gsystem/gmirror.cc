@@ -26,10 +26,10 @@ bool mirror_field_is_unset(const std::string& value) {
 GMirror::GMirror(const std::string& s, std::vector<std::string> pars,
                  const std::shared_ptr<GLogger>& logger) : GBase(logger),
                                                            system(s) {
-	if (pars.size() != GMIRRORNUMBEROFPARS) {
-		log->error(ERR_GWRONGNUMBEROFPARS,
+	if (pars.size() != gsystem::GMIRRORNUMBEROFPARS) {
+		log->error(gsystem::ERR_GWRONGNUMBEROFPARS,
 		           "Incorrect number of mirror parameters for ", pars[0], ". Expected ",
-		           GMIRRORNUMBEROFPARS, " but we got ", pars.size());
+		           gsystem::GMIRRORNUMBEROFPARS, " but we got ", pars.size());
 	}
 
 	// The parameter vector is a serialized DB/ASCII row. Parsing is positional.
@@ -47,7 +47,7 @@ GMirror::GMirror(const std::string& s, std::vector<std::string> pars,
 	for (const auto& [field, value] : std::initializer_list<std::pair<const char*, const std::string&>>{
 		     {"type", type}, {"finish", finish}, {"model", model}, {"border", border}}) {
 		if (mirror_field_is_unset(value)) {
-			log->error(ERR_GMIRRORINVALID, "mirror <", name, ">: mandatory field <", field, "> is not set");
+			log->error(gsystem::ERR_GMIRRORINVALID, "mirror <", name, ">: mandatory field <", field, "> is not set");
 		}
 	}
 
@@ -72,13 +72,14 @@ GMirror::GMirror(const std::string& s, std::vector<std::string> pars,
 			sigmaAlphaSet = true;
 		}
 		catch (const std::exception&) {
-			log->error(ERR_GMIRRORINVALID, "mirror <", name, ">: could not parse sigmaAlpha <", sigmaAlphaPar, ">");
+			log->error(gsystem::ERR_GMIRRORINVALID, "mirror <", name, ">: could not parse sigmaAlpha <",
+			           sigmaAlphaPar, ">");
 		}
 	}
 
 	// The boundary needs optical properties from one of the two sources.
 	if (matOptProps.empty() && photonEnergy.empty()) {
-		log->error(ERR_GMIRRORINVALID, "mirror <", name,
+		log->error(gsystem::ERR_GMIRRORINVALID, "mirror <", name,
 		           ">: no optical properties. Set matOptProps or photonEnergy with the properties tables");
 	}
 
@@ -89,13 +90,13 @@ GMirror::GMirror(const std::string& s, std::vector<std::string> pars,
 		     {"specularspike", specularspike}, {"backscatter", backscatter},
 		     {"transmittance", transmittance}}) {
 		if (!values.empty() && values.size() != photonEnergy.size()) {
-			log->error(ERR_GMIRRORINVALID, "mirror <", name, ">: property <", property, "> has ",
+			log->error(gsystem::ERR_GMIRRORINVALID, "mirror <", name, ">: property <", property, "> has ",
 			           values.size(), " entries but photonEnergy has ", photonEnergy.size());
 		}
 	}
 }
 
-bool GMirror::isSkinSurface() const { return border == GMIRRORSKINSURFACE; }
+bool GMirror::isSkinSurface() const { return border == gsystem::GMIRRORSKINSURFACE; }
 
 void GMirror::getMirrorPropertyFromString(const std::string& parameter, const std::string& propertyName) {
 	// Nothing to do if the parameter is not assigned.

@@ -1,136 +1,54 @@
 // ghit
 #include "ghit.h"
 
-// glibrary
-#include "gutsConventions.h"
+// c++
+#include <utility>
 
 // See header for API docs.
 
-/**
- * Implementation notes (non-Doxygen):
- * - Derived quantities use a lazy-cache model (computed on first access).
- * - Energy-weighted averages are used when total deposited energy is non-zero.
- * - When total energy is zero, fall back to simple arithmetic averaging.
- */
+const GHit::CalculatedState& GHit::getCalculatedState() const {
+	if (calculatedState) return *calculatedState;
 
-void GHit::calculateInfos() {
-	double tote = getTotalEnergyDeposited();
+	CalculatedState state;
+	for (const double edep : edeps) { state.totalEnergyDeposited += edep; }
+	if (!processNames.empty()) { state.processName = processNames.front(); }
 
-	double avgx  = 0, avgy  = 0, avgz  = 0;
-	double avglx = 0, avgly = 0, avglz = 0;
-	averageTime  = 0;
-
-	auto nsteps_ = edeps.size();
-	for (size_t s = 0; s < nsteps_; s++) {
-		// Energy-weighted average when possible; otherwise arithmetic average.
-		if (tote > 0) {
-			averageTime += times[s] * edeps[s] / tote;
-			avgx        += globalPositions[s].getX() * edeps[s] / tote;
-			avgy        += globalPositions[s].getY() * edeps[s] / tote;
-			avgz        += globalPositions[s].getZ() * edeps[s] / tote;
-			avglx       += localPositions[s].getX() * edeps[s] / tote;
-			avgly       += localPositions[s].getY() * edeps[s] / tote;
-			avglz       += localPositions[s].getZ() * edeps[s] / tote;
-		}
-		else {
-			averageTime += times[s] / nsteps_;
-			avgx        += globalPositions[s].getX() / nsteps_;
-			avgy        += globalPositions[s].getY() / nsteps_;
-			avgz        += globalPositions[s].getZ() / nsteps_;
-			avglx       += localPositions[s].getX() / nsteps_;
-			avgly       += localPositions[s].getY() / nsteps_;
-			avglz       += localPositions[s].getZ() / nsteps_;
+	const size_t step_count = edeps.size();
+	if (step_count > 0) {
+		const bool energy_weighted = state.totalEnergyDeposited > 0;
+		for (size_t step = 0; step < step_count; ++step) {
+			double weight = 1.0 / static_cast<double>(step_count);
+			if (energy_weighted) { weight = edeps[step] / state.totalEnergyDeposited; }
+			state.averageTime += times[step] * weight;
+			state.averageGlobalPosition += globalPositions[step] * weight;
+			state.averageLocalPosition += localPositions[step] * weight;
 		}
 	}
-	avgGlobalPosition = G4ThreeVector(avgx, avgy, avgz);
-	avgLocalPosition  = G4ThreeVector(avglx, avgly, avglz);
 
-	// Use the first process name as the representative label for this hit.
-	if (!processNames.empty()) {
-		processName = processNames.front();
-	}
+	calculatedState = std::move(state);
+	return *calculatedState;
 }
 
-double GHit::getTotalEnergyDeposited() {
-	if (!totalEnergyDeposited.has_value()) {
-		double sum = 0;
-		for (const auto& ei : edeps) {
-			sum += ei;
-		}
-		totalEnergyDeposited = sum;
-	}
-	return totalEnergyDeposited.value();
+void GHit::invalidateCalculatedState() {
+	calculatedState.reset();
 }
 
-
-double GHit::getAverageTime() {
-	if (averageTime == UNINITIALIZEDNUMBERQUANTITY) {
-		double tote = getTotalEnergyDeposited();
-
-		averageTime = 0;
-		auto nsteps_ = edeps.size();
-		for (size_t s = 0; s < nsteps_; s++) {
-			if (totalEnergyDeposited > 0) {
-				averageTime += times[s] * edeps[s] / tote;
-			}
-			else {
-				averageTime += times[s] / nsteps_;
-			}
-		}
-	}
-
-	return averageTime;
+double GHit::getTotalEnergyDeposited() const {
+	return getCalculatedState().totalEnergyDeposited;
 }
 
-G4ThreeVector GHit::getAvgGlobaPosition() {
-	if (avgGlobalPosition.getX() == UNINITIALIZEDNUMBERQUANTITY && avgGlobalPosition.getY() ==
-		UNINITIALIZEDNUMBERQUANTITY) {
-		double tote = getTotalEnergyDeposited();
-
-		double avgx = 0, avgy = 0, avgz = 0;
-
-		auto nsteps_ = edeps.size();
-		for (size_t s = 0; s < nsteps_; s++) {
-			if (totalEnergyDeposited > 0) {
-				avgx += globalPositions[s].getX() * edeps[s] / tote;
-				avgy += globalPositions[s].getY() * edeps[s] / tote;
-				avgz += globalPositions[s].getZ() * edeps[s] / tote;
-			}
-			else {
-				averageTime += times[s] / nsteps_;
-				avgx        += globalPositions[s].getX() / nsteps_;
-				avgy        += globalPositions[s].getY() / nsteps_;
-				avgz        += globalPositions[s].getZ() / nsteps_;
-			}
-		}
-		avgGlobalPosition = G4ThreeVector(avgx, avgy, avgz);
-	}
-
-	return avgGlobalPosition;
+double GHit::getAverageTime() const {
+	return getCalculatedState().averageTime;
 }
 
-G4ThreeVector GHit::getAvgLocalPosition() {
-	if (avgLocalPosition.getX() == UNINITIALIZEDNUMBERQUANTITY && avgLocalPosition.getY() ==
-		UNINITIALIZEDNUMBERQUANTITY) {
-		double tote = getTotalEnergyDeposited();
+G4ThreeVector GHit::getAvgGlobalPosition() const {
+	return getCalculatedState().averageGlobalPosition;
+}
 
-		double avgx = 0, avgy = 0, avgz = 0;
+G4ThreeVector GHit::getAvgLocalPosition() const {
+	return getCalculatedState().averageLocalPosition;
+}
 
-		auto nsteps_ = edeps.size();
-		for (size_t s = 0; s < nsteps_; s++) {
-			if (totalEnergyDeposited > 0) {
-				avgx += localPositions[s].getX() * edeps[s] / tote;
-				avgy += localPositions[s].getY() * edeps[s] / tote;
-				avgz += localPositions[s].getZ() * edeps[s] / tote;
-			}
-			else {
-				averageTime += times[s] / nsteps_;
-				avgx        += localPositions[s].getX() / nsteps_;
-				avgy        += localPositions[s].getY() / nsteps_;
-				avgz        += localPositions[s].getZ() / nsteps_;
-			}
-		}
-		avgLocalPosition = G4ThreeVector(avgx, avgy, avgz);
-	}
-	return avgLocalPosition;
+const std::optional<std::string>& GHit::getProcessName() const {
+	return getCalculatedState().processName;
 }

@@ -100,13 +100,13 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 				thisG4Volume->setSolid(new G4IntersectionSolid(g4name, left, right, transform), log);
 			}
 			else {
-				log->error(ERR_G4PARAMETERSMISMATCH,
+				log->error(g4system::ERR_G4PARAMETERSMISMATCH,
 				           "The boolean constructor of <", g4name, "> uses unsupported operator <",
 				           solidOperations[1], ">. Use +, -, or *.");
 			}
 			return thisG4Volume->getSolid();
 		}
-		log->error(ERR_G4PARAMETERSMISMATCH,
+		log->error(g4system::ERR_G4PARAMETERSMISMATCH,
 		           "The boolean constructor of <", g4name, "> must be: left operator right.");
 		return nullptr;
 	}
@@ -243,7 +243,7 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 			thisG4Volume->setSolid(new G4Trap(g4name, pt), log);
 		}
 		else {
-			log->error(ERR_G4PARAMETERSMISMATCH,
+			log->error(g4system::ERR_G4PARAMETERSMISMATCH,
 			           "The constructor of <", g4name, "> must have 4, 11 or 24 parameters",
 			           " see https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Detector/Geometry/geomSolids.html");
 		}
@@ -284,7 +284,7 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 		int    zplanes  = static_cast<int>(pars[3]);
 
 		if (numSides < 1 || static_cast<int>(pars.size()) != 4 + 3 * zplanes) {
-			log->error(ERR_G4PARAMETERSMISMATCH,
+			log->error(g4system::ERR_G4PARAMETERSMISMATCH,
 			           "The constructor of <", g4name, "> must have numSides >= 1 and ",
 			           4 + 3 * zplanes, " parameters (4 + 3 x numZPlanes), we got ", pars.size());
 		}
@@ -328,7 +328,7 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 		return thisG4Volume->getSolid();
 	}
 	else {
-		log->error(ERR_G4SOLIDTYPENOTFOUND,
+		log->error(g4system::ERR_G4SOLIDTYPENOTFOUND,
 		           "The constructor of <", g4name, "> uses an unknown solid type <", type,
 		           ">. See Geant4 manual for supported primitives.");
 	}

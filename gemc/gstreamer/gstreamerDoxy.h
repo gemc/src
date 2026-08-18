@@ -170,7 +170,7 @@
  * - \c ebuffer
  *   - Meaning : number of events buffered in memory before automatic flush
  *   - Usage : tune batching behavior for throughput versus memory usage
- *   - Default : \c DEFAULT_GSTREAMER_BUFFER_FLUSH_LIMIT
+ *   - Default : \c gstreamer::DEFAULT_GSTREAMER_BUFFER_FLUSH_LIMIT
  *
  * - \c -gstreamer
  *   - Meaning : list of output definitions
