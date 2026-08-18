@@ -28,7 +28,8 @@ bool is_unset_field_name(const std::string& name) {
 
 double configured_max_field_step(const std::shared_ptr<GOptions>& gopts) {
 	if (gopts == nullptr || !gopts->doesOptionExist(MAX_FIELD_STEP_OPTION)) { return 0.0; }
-	return gutilities::getG4Number(gopts->getScalarString(MAX_FIELD_STEP_OPTION));
+	const auto value = gopts->getOptionalScalarString(MAX_FIELD_STEP_OPTION);
+	return value ? gutilities::getG4Number(*value) : 0.0;
 }
 
 } // namespace
@@ -88,8 +89,8 @@ std::shared_ptr<GField> GMagneto::initialize_magnetic_field(
 	if (gopts == nullptr) { return nullptr; }
 
 	if (gopts->doesOptionExist(NO_FIELD_OPTION)) {
-		const std::string no_field_value = gopts->getScalarString(NO_FIELD_OPTION);
-		if (no_field_value == NO_FIELD_ALL) {
+		const auto no_field_value = gopts->getOptionalScalarString(NO_FIELD_OPTION);
+		if (no_field_value && *no_field_value == NO_FIELD_ALL) {
 			if (caller_log != nullptr) {
 				caller_log->info(1, "Global field reset by -", NO_FIELD_OPTION, "=", NO_FIELD_ALL,
 				                 ": direct field probes disabled.");
@@ -100,11 +101,11 @@ std::shared_ptr<GField> GMagneto::initialize_magnetic_field(
 
 	if (!gopts->doesOptionExist(GLOBAL_FIELD_OPTION)) { return nullptr; }
 
-	const std::string field_name = gopts->getScalarString(GLOBAL_FIELD_OPTION);
-	if (is_unset_field_name(field_name)) { return nullptr; }
+	const auto field_name = gopts->getOptionalScalarString(GLOBAL_FIELD_OPTION);
+	if (!field_name || is_unset_field_name(*field_name)) { return nullptr; }
 
 	for (const auto& field_definition : gfields::get_GFieldDefinition(gopts)) {
-		if (field_definition.name != field_name) { continue; }
+		if (field_definition.name != *field_name) { continue; }
 
 		const auto torus_scale_it = field_definition.field_parameters.find("torus_scale");
 		if (torus_scale_it != field_definition.field_parameters.end()) {
@@ -121,17 +122,17 @@ std::shared_ptr<GField> GMagneto::initialize_magnetic_field(
 		break;
 	}
 
-	auto magneto = std::make_unique<GMagneto>(gopts, std::set<std::string>{field_name});
-	if (magneto->isField(field_name)) {
+	auto magneto = std::make_unique<GMagneto>(gopts, std::set<std::string>{*field_name});
+	if (magneto->isField(*field_name)) {
 		if (caller_log != nullptr) {
-			caller_log->info(1, "Using magnetic field <", field_name,
+			caller_log->info(1, "Using magnetic field <", *field_name,
 			                 "> for direct probes with torus polarity ", field_polarity);
 		}
-		return magneto->getField(field_name);
+		return magneto->getField(*field_name);
 	}
 
 	if (caller_log != nullptr) {
-		caller_log->warning("Global field <", field_name,
+		caller_log->warning("Global field <", *field_name,
 		                    "> is configured but was not available for direct probes.");
 	}
 	return nullptr;

@@ -7,6 +7,7 @@ gsystem_sqlite = ['-gsystem="[{name: b1}]"', '-sql=' + examples_dir + '/gemc.db'
 gsystem_ascii = ['-gsystem="[{name: b1, factory: ascii}]"', '-ascii_db=' + examples_dir]
 example_pysource = files('examples/example.py')
 example_source = files('examples/gsystem_example.cc')
+optional_volume_source = files('examples/optional_volume_fields.cc')
 verbosity = [
     '-verbosity.gvolume=2',
     '-debug.gvolume=true',
@@ -78,6 +79,7 @@ LD += {
     'examples' : {
         'test_gsystem_sqlite_verbose' : [example_source, gsystem_sqlite + verbosity],
         'test_gsystem_ascii_verbose' : [example_source, gsystem_ascii + verbosity],
+        'test_gsystem_optional_volume_fields' : [optional_volume_source, ''],
     }
 
 }

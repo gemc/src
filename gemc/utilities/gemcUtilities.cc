@@ -27,7 +27,7 @@ namespace {
 bool scalarOptionIsTrue(const std::shared_ptr<GOptions>& gopts, const std::string& name) {
 	if (gopts == nullptr) { return false; }
 
-	std::string value = gopts->getScalarString(name);
+	std::string value = gopts->getOptionalScalarString(name).value_or("");
 	std::transform(value.begin(), value.end(), value.begin(),
 	               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 
@@ -46,7 +46,7 @@ bool scalarOptionIsTrue(const std::shared_ptr<GOptions>& gopts, const std::strin
 std::string rootExtentForFieldCommand(const std::shared_ptr<GOptions>& gopts) {
 	if (gopts == nullptr) { return ""; }
 
-	std::string rootDefinition = gopts->getScalarString("root");
+	std::string rootDefinition = gopts->getOptionalScalarString("root").value();
 	for (auto& c : rootDefinition) {
 		if (c == ',') { c = ' '; }
 	}
@@ -255,7 +255,7 @@ namespace gemc {
 #include <unistd.h>  // needed for get_pid
 
 	void start_random_engine(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
-		auto randomEngineName = gopts->getScalarString("randomEngine");
+		auto randomEngineName = gopts->getOptionalScalarString("randomEngine").value();
 		auto seed             = gopts->getScalarInt("seed");
 
 		// If the user did not set a seed, derive one using several fast-changing sources.

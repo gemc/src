@@ -132,12 +132,12 @@ void GDetectorConstruction::ConstructSDandField() {
 	bool                  disable_all_fields = false;
 	std::set<std::string> no_field_volumes;
 	{
-		auto no_field_value = gopt->getScalarString(NO_FIELD_OPTION);
-		if (no_field_value != "" && no_field_value != UNINITIALIZEDSTRINGQUANTITY && no_field_value != "NULL") {
-			if (no_field_value == NO_FIELD_ALL) { disable_all_fields = true; }
+		auto no_field_value = gopt->getOptionalScalarString(NO_FIELD_OPTION);
+		if (no_field_value && !no_field_value->empty()) {
+			if (*no_field_value == NO_FIELD_ALL) { disable_all_fields = true; }
 			else {
-				for (auto &c : no_field_value) { if (c == ',') { c = ' '; } }
-				for (const auto &v : gutilities::getStringVectorFromString(no_field_value)) {
+				for (auto& c : *no_field_value) { if (c == ',') { c = ' '; } }
+				for (const auto& v : gutilities::getStringVectorFromString(*no_field_value)) {
 					no_field_volumes.insert(v);
 				}
 			}
@@ -146,7 +146,7 @@ void GDetectorConstruction::ConstructSDandField() {
 
 	// Global field name, honoring -no_field=all.
 	const bool no_system_selected = gsystems.empty() && gsystem::getSystems(gopt).empty();
-	auto global_field_name = gopt->getScalarString(GLOBAL_FIELD_OPTION);
+	auto global_field_name = gopt->getOptionalScalarString(GLOBAL_FIELD_OPTION).value_or("");
 	if (no_system_selected && !disable_all_fields && is_unset_field_name(global_field_name)) {
 		std::vector<std::string> configured_fields;
 		for (const auto& field_definition : gfields::get_GFieldDefinition(gopt)) {
@@ -175,8 +175,8 @@ void GDetectorConstruction::ConstructSDandField() {
 				if (no_field_volumes.count(g4name)) { matched_no_field.insert(g4name); }
 
 				const auto &field_name = gvolumePtr->getEMField();
-				if (is_unset_field_name(field_name) || reset) { continue; }
-				required_fields.insert(field_name);
+				if (!field_name || reset) { continue; }
+				required_fields.insert(*field_name);
 			}
 		}
 		for (const auto &name: no_field_volumes) {
@@ -207,10 +207,10 @@ void GDetectorConstruction::ConstructSDandField() {
 			// Some GEMC volumes can be "copy-of" another volume; in that case, reuse the
 			// referenced Geant4 logical volume rather than failing.
 			if (g4volume == nullptr) {
-				std::string copyOf = gvolumePtr->getCopyOf();
-				if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+				const auto& copyOf = gvolumePtr->getCopyOf();
+				if (copyOf) {
 					auto gsystem = gvolumePtr->getSystem();
-					auto volume_copy = gsystem + "/" + copyOf;
+					auto volume_copy = gsystem + "/" + *copyOf;
 					auto copyG4Volume = g4world->getG4Volume(volume_copy)->getLogical();
 					if (copyG4Volume != nullptr) { g4volume = copyG4Volume; } else {
 						log->error(ERR_GVOLUMENOTFOUND, FUNCTION_NAME,
@@ -223,33 +223,35 @@ void GDetectorConstruction::ConstructSDandField() {
 			}
 
 			// Skip volumes with no digitization.
-			if (digitizationName != "" && digitizationName != UNINITIALIZEDSTRINGQUANTITY) {
+			if (digitizationName) {
+				const std::string& digitization = *digitizationName;
+
 				// Obtain (or create) the sensitive detector for this digitization name.
 				// We reuse an existing SD object already in G4SDManager rather than creating a
 				// new one because AddNewDetector() keeps the OLD object on duplicate names (DET1010).
 				// If we created a new SD, G4SDManager would call Initialize() on the stale object
 				// while SetSensitiveDetector() pointed the logical volume to the new one — leaving
 				// the new SD's gHitsCollection uninitialized when ProcessHits() is called.
-				if (sensitiveDetectorsMap.find(digitizationName) == sensitiveDetectorsMap.end()) {
+				if (sensitiveDetectorsMap.find(digitization) == sensitiveDetectorsMap.end()) {
 					// Reuse a previously registered SD for this name if one exists on this thread.
 					// AddNewDetector() silently keeps the OLD object on duplicate names (DET1010);
 					// reusing the same pointer avoids that and ensures G4SDManager's Initialize()
 					// fires on the same object that SetSensitiveDetector() wires to the volumes.
-					auto tlIt = tlSDMap->find(digitizationName);
+					auto tlIt = tlSDMap->find(digitization);
 					if (tlIt != tlSDMap->end()) {
-						log->info(2, "Reusing existing sensitive detector <", digitizationName, "> for volume <", g4name, ">");
+						log->info(2, "Reusing existing sensitive detector <", digitization, "> for volume <", g4name, ">");
 						tlIt->second->resetTouchableMap();
 						tlIt->second->Activate(true);
-						sensitiveDetectorsMap[digitizationName] = tlIt->second;
+						sensitiveDetectorsMap[digitization] = tlIt->second;
 					} else {
-						log->info(2, "Creating new sensitive detector <", digitizationName, "> for volume <", g4name, ">");
-						auto* newSD = new GSensitiveDetector(digitizationName, gopt);
+						log->info(2, "Creating new sensitive detector <", digitization, "> for volume <", g4name, ">");
+						auto* newSD = new GSensitiveDetector(digitization, gopt);
 						sdManager->AddNewDetector(newSD);
-						sensitiveDetectorsMap[digitizationName] = newSD;
-						(*tlSDMap)[digitizationName] = newSD;
+						sensitiveDetectorsMap[digitization] = newSD;
+						(*tlSDMap)[digitization] = newSD;
 					}
 				} else {
-					log->info(2, "Sensitive detector <", digitizationName,
+					log->info(2, "Sensitive detector <", digitization,
 					          "> is already created and available for volume <", g4name, ">");
 				}
 
@@ -257,37 +259,41 @@ void GDetectorConstruction::ConstructSDandField() {
 				// The touchable encodes identity and dimension metadata needed by digitization.
 				const auto &vdimensions = gvolumePtr->getDetectorDimensions();
 				const auto &identity = gvolumePtr->getGIdentity();
+				if (!identity) {
+					log->error(ERR_GWRONGNUMBEROFPARS, "Sensitive volume <", g4name,
+					           "> has digitization <", digitization, "> but no identifier.");
+				}
 				const auto &mass = g4volume->GetMass();
 				auto this_gtouchable = std::make_shared<
-					GTouchable>(gopt, digitizationName, identity, vdimensions, mass);
-				sensitiveDetectorsMap[digitizationName]->registerGVolumeTouchable(g4name, this_gtouchable);
+					GTouchable>(gopt, digitization, *identity, vdimensions, mass);
+				sensitiveDetectorsMap[digitization]->registerGVolumeTouchable(g4name, this_gtouchable);
 
 				// Attach the SD to the logical volume (no AddNewDetector call needed for reused SDs).
-				g4volume->SetSensitiveDetector(sensitiveDetectorsMap[digitizationName]);
+				g4volume->SetSensitiveDetector(sensitiveDetectorsMap[digitization]);
 
 				//	auto maxStep =
 
 				//g4volume->SetUserLimits(new G4UserLimits(0.1*mm, 0.1*mm));
 
 				log->info(2, "Logical Volume  <" + g4name + "> has been successfully assigned to SD.",
-				          sensitiveDetectorsMap[digitizationName]);
+				          sensitiveDetectorsMap[digitization]);
 			}
 
 			// Process electromagnetic fields.
 			// If a volume declares an EM field, install a per-volume field manager configured by the
 			// named field map, unless that field was reset via -no_field (a matching name, or =all).
 			const auto &field_name           = gvolumePtr->getEMField();
-			const bool  volume_field_present = !is_unset_field_name(field_name);
+			const bool  volume_field_present = field_name.has_value();
 			const bool  volume_field_reset   = disable_all_fields ||
 				no_field_volumes.count(volumeName) || no_field_volumes.count(g4name);
 			if (volume_field_present && volume_field_reset) {
-				log->info(2, "Volume <", volumeName, "> field <", field_name, "> reset by -",
+				log->info(2, "Volume <", volumeName, "> field <", *field_name, "> reset by -",
 				          NO_FIELD_OPTION, ": no field installed.");
 			} else if (volume_field_present) {
-				log->info(2, "Volume <", volumeName, "> has field: <", field_name,
+				log->info(2, "Volume <", volumeName, "> has field: <", *field_name,
 				          ">. Looking into field map definitions.");
-				log->info(2, "Setting field manager for volume <", g4name, "> with field <", field_name, ">");
-				g4world->setFieldManagerForVolume(g4name, gmagneto->getFieldMgr(field_name).get(), true);
+				log->info(2, "Setting field manager for volume <", g4name, "> with field <", *field_name, ">");
+				g4world->setFieldManagerForVolume(g4name, gmagneto->getFieldMgr(*field_name).get(), true);
 			}
 		}
 	}
@@ -330,7 +336,7 @@ void GDetectorConstruction::ConstructSDandField() {
 		for (const auto &[systemName, gsystemPtr]: *gworld->getSystemsMap()) {
 			for (const auto &[volumeName, gvolumePtr]: gsystemPtr->getGVolumesMap()) {
 				auto const &digitizationName = gvolumePtr->getDigitization();
-				if (digitizationName == sdname) {
+				if (digitizationName && *digitizationName == sdname) {
 					auto const &g4name = gvolumePtr->getG4Name();
 					auto *g4volume = g4world->getG4Volume(g4name)->getLogical();
 
@@ -355,16 +361,15 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 	// Resolve the variation each routine uses to load constants / translation tables.
 	// By default a routine follows the variation of the gsystem it belongs to; the
 	// digitization_variation option, when set, overrides that for every routine.
-	const std::string digiVariationOverride = gopt->getScalarString("digitization_variation");
-	const bool        overrideVariation     = (digiVariationOverride != UNINITIALIZEDSTRINGQUANTITY);
+	const auto digiVariationOverride = gopt->getOptionalScalarString("digitization_variation");
 
 	// Map each digitization (sensitive-detector) name to its system's variation.
 	std::map<std::string, std::string> systemVariationFor;
 	for (const auto& [systemName, gsystemPtr] : *gworld->getSystemsMap()) {
 		for (const auto& [volumeName, gvolumePtr] : gsystemPtr->getGVolumesMap()) {
 			const auto& digiName = gvolumePtr->getDigitization();
-			if (digiName != "" && digiName != UNINITIALIZEDSTRINGQUANTITY) {
-				systemVariationFor.emplace(digiName, gsystemPtr->getVariation());
+			if (digiName) {
+				systemVariationFor.emplace(*digiName, gsystemPtr->getVariation());
 			}
 		}
 	}
@@ -399,7 +404,7 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 		if (const auto it = systemVariationFor.find(sdname); it != systemVariationFor.end()) {
 			variation = it->second;
 		}
-		if (overrideVariation) { variation = digiVariationOverride; }
+		if (digiVariationOverride) { variation = *digiVariationOverride; }
 		digitization_routines_map->at(sdname)->setDigitizationVariation(variation);
 
 		// Resolve whether this system applies threshold / efficiency rejection, from the

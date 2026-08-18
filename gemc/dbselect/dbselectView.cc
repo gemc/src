@@ -28,8 +28,8 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 	  gopt(gopts) {
 
 	// Read database path/key and default experiment from options.
-	dbhost     = gopts->getScalarString("sql");
-	experiment = gopts->getScalarString("experiment");
+	dbhost     = gopts->getOptionalScalarString("sql").value();
+	experiment = gopts->getOptionalScalarString("experiment").value();
 
 	// Search order for locating the database file:
 	// 1) current directory

@@ -64,7 +64,7 @@ GAncestorBank make_ancestor_bank(const std::vector<GTrackRecord>& records) {
 }
 
 bool scalar_bool_option_enabled(const std::shared_ptr<GOptions>& goptions, const std::string& name) {
-	std::string value = goptions->getScalarString(name);
+	std::string value = goptions->getOptionalScalarString(name).value_or("");
 	std::transform(value.begin(), value.end(), value.begin(),
 	               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 	return value == "true" || value == "1" || value == "yes" || value == "on";
@@ -73,7 +73,7 @@ bool scalar_bool_option_enabled(const std::shared_ptr<GOptions>& goptions, const
 // Match a detector against an option containing comma- or whitespace-separated names.
 bool detector_is_listed(const std::shared_ptr<GOptions>& goptions, const std::string& option,
                         const std::string& detector) {
-	std::string detectors = goptions->getScalarString(option);
+	std::string detectors = goptions->getOptionalScalarString(option).value_or("");
 	std::replace(detectors.begin(), detectors.end(), ',', ' ');
 
 	std::istringstream names(detectors);
@@ -114,8 +114,9 @@ GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* ru
 
 	// Parse the log_every option of the form N or N-NTH. Anything malformed disables the
 	// feature and is reported once (from thread 0) to avoid duplicated warnings across workers.
-	std::string spec = goptions->getScalarString(LOG_EVERY_OPTION);
-	if (!spec.empty() && spec != UNINITIALIZEDSTRINGQUANTITY) {
+	const auto spec_option = goptions->getOptionalScalarString(LOG_EVERY_OPTION);
+	if (spec_option && !spec_option->empty()) {
+		const std::string& spec = *spec_option;
 		const auto dash = spec.find('-');
 		std::string n_part   = dash == std::string::npos ? spec : spec.substr(0, dash);
 		std::string nth_part = dash == std::string::npos ? std::string() : spec.substr(dash + 1);

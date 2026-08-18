@@ -32,7 +32,7 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 	// The factory provides solid/logical/physical creation for volumes in that system.
 	createG4SystemFactory(gopts,
 	                      gsystemMap,
-	                      gopts->getScalarString("useBackupMaterial"),
+	                      gopts->getOptionalScalarString("useBackupMaterial").value(),
 	                      gopts->getScalarInt("check_overlaps")
 	);
 

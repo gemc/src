@@ -55,18 +55,18 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 	if (thisG4Volume->getSolid() != nullptr) return thisG4Volume->getSolid();
 
 	// If this is a copy, reuse the source solid if available.
-	std::string copyOf = s->getCopyOf();
-	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+	const auto& copyOf = s->getCopyOf();
+	if (copyOf) {
 		auto gsystem      = s->getSystem();
-		auto volume_copy  = gsystem + "/" + copyOf;
+		auto volume_copy  = gsystem + "/" + *copyOf;
 		auto thisG4Volume = getOrCreateG4Volume(volume_copy, g4s);
 		if (thisG4Volume->getSolid() != nullptr) return thisG4Volume->getSolid();
 	}
 
 	// Boolean solids use already-built operand solids.
-	std::string solidsOpr = s->getSolidsOpr();
-	if (solidsOpr != "" && solidsOpr != UNINITIALIZEDSTRINGQUANTITY) {
-		std::vector<std::string> solidOperations = gutilities::getStringVectorFromString(solidsOpr);
+	const auto& solidsOpr = s->getSolidsOpr();
+	if (solidsOpr) {
+		std::vector<std::string> solidOperations = gutilities::getStringVectorFromString(*solidsOpr);
 		if (solidOperations.size() == 3) {
 			auto resolveOperandName = [s, g4s](const std::string& operand) -> std::string {
 				if (getSolidFromMap(operand, g4s) != nullptr) return operand;

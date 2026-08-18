@@ -129,13 +129,13 @@ Never allow an untrusted pull-request workflow to reach image, release, or cross
 
 ## Concurrency, retries, and skipped runs
 
-Long-running workflows use concurrency groups with `cancel-in-progress: true`, so a newer run for the same ref or
-source run can cancel older work.
+Long-running workflows use concurrency groups with `cancel-in-progress: true`, so a newer run for the same ref
+or source run can cancel older work.
 
 GitHub creates a `workflow_run` workflow before evaluating its job-level `if`. Consequently,
-`Retry Failed Matrix Jobs` appears as skipped after successful watched workflows. This is expected. Failed Deploy
-runs can similarly create gated Binary Tarballs and CLAS12-dispatch runs. The normal and pygemc-triggered
-successful deployment paths do not create skipped Deploy or Binary Tarballs runs.
+`Retry Failed Matrix Jobs` appears as skipped after successful watched workflows. This is expected. Failed
+Deploy runs can similarly create gated Binary Tarballs and CLAS12-dispatch runs. The normal and
+pygemc-triggered successful deployment paths do not create skipped Deploy or Binary Tarballs runs.
 
 ## Safe workflow changes
 

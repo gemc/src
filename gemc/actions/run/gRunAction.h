@@ -388,6 +388,6 @@ private:
 // in the constructur we had:
 
 // frameDuration = 64000;
-// eventDuration = gutilities::getG4Number(goptions->getScalarString("eventTimeSize"));
+// eventDuration = gutilities::getG4Number(goptions->getOptionalScalarString("eventTimeSize").value());
 
 // stream = gopt->getSwitch("stream");

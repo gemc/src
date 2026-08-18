@@ -37,8 +37,6 @@ using std::vector;
  * - For structured options, the behavior differs between cumulative and non-cumulative schemas.
  */
 void GOption::set_scalar_value(const string& v) {
-	if (v.empty()) return;
-
 	// Legacy normalization: remove commas so payloads like "a,b,c" remain shell-friendly.
 	string value_to_set = gutilities::replaceCharInStringWithChars(v, ",", "");
 

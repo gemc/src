@@ -28,8 +28,9 @@ namespace {
 // nothing.
 bool system_in_rejection_list(const std::shared_ptr<GOptions>& gopts, const std::string& option,
                               const std::string& systemName) {
-	std::string list = gopts->getScalarString(option);
-	if (list.empty() || list == UNINITIALIZEDSTRINGQUANTITY) { return false; }
+	auto list_option = gopts->getOptionalScalarString(option);
+	if (!list_option || list_option->empty()) { return false; }
+	std::string list = std::move(*list_option);
 	std::replace(list.begin(), list.end(), ',', ' ');
 	for (const auto& name : gutilities::getStringVectorFromString(list)) {
 		if (name == "all" || name == systemName) { return true; }

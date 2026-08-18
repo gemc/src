@@ -3,6 +3,7 @@ internal_deps = ['guts']
 
 run_command('version.py', check : true)
 example_source = files('examples/define_options.cc')
+optional_scalar_source = files('examples/optional_scalar.cc')
 
 
 LD += {
@@ -25,5 +26,8 @@ LD += {
         'test_goptions_definitions' : [example_source, ''],
         'test_goptions_help' : [example_source, '-h'],
         'test_goptions_parse_file' : [example_source, meson.current_source_dir() + '/examples/simple.yaml'],
+        'test_goptions_optional_scalar_absent' : [optional_scalar_source, ''],
+        'test_goptions_optional_scalar_empty' : [optional_scalar_source, '-optional_string='],
+        'test_goptions_optional_scalar_present' : [optional_scalar_source, '-optional_string=configured'],
     }
 }

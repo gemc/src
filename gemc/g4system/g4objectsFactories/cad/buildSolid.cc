@@ -60,9 +60,9 @@ G4VSolid* G4CadSystemFactory::buildSolid(const GVolume* s,
 
 	// If this is a copy of another volume, reuse the source mesh solid instead of loading a mesh:
 	// the copy carries no mesh file of its own (e.g. the LTCC frame plates placed in every sector).
-	std::string copyOf = s->getCopyOf();
-	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
-		auto sourceName     = s->getSystem() + "/" + copyOf;
+	const auto& copyOf = s->getCopyOf();
+	if (copyOf) {
+		auto sourceName     = s->getSystem() + "/" + *copyOf;
 		auto sourceG4Volume = getOrCreateG4Volume(sourceName, g4s);
 		if (sourceG4Volume->getSolid() != nullptr) return sourceG4Volume->getSolid();
 	}

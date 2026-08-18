@@ -236,9 +236,9 @@ void appendNestedBooleanOperationLines(QString& html,
     if (gvolIt == gvolumes.end()) return;
 
     const auto solidsOpr = gvolIt->second->getSolidsOpr();
-    if (solidsOpr.empty() || solidsOpr == UNINITIALIZEDSTRINGQUANTITY) return;
+    if (!solidsOpr) return;
 
-    const auto tokens = gutilities::getStringVectorFromString(solidsOpr);
+    const auto tokens = gutilities::getStringVectorFromString(*solidsOpr);
     if (tokens.size() != 3) return;
 
     html += QString("<br>&nbsp;&nbsp;%1 = %2")
@@ -367,9 +367,9 @@ G4Ttree_item::G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume) {
         position       = gvolume->getPos();
         rotation       = gvolume->getRot();
         motherVolume   = gvolume->getMotherName();
-        solidsOpr      = gvolume->getSolidsOpr();
+        solidsOpr      = gvolume->getSolidsOpr().value_or("");
         volDescription = gvolume->getDescription();
-        mirrorName     = gvolume->getMirror();
+        mirrorName     = gvolume->getMirror().value_or("");
     }
 }
 

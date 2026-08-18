@@ -8,20 +8,41 @@
 // gsystem
 #include "gvolume.h"
 
+#include <algorithm>
+#include <cctype>
+#include <optional>
 #include <utility>
 #include "gsystemConventions.h"
 
 using namespace gutilities;
+
+namespace {
+std::optional<std::string> normalize_optional_geometry_field(std::optional<std::string> value,
+                                                             bool remove_all_spaces) {
+	if (!value) return std::nullopt;
+
+	std::string trimmed = removeLeadingAndTrailingSpacesFromString(*value);
+	if (is_unset(trimmed)) return std::nullopt;
+
+	std::string lowercase = trimmed;
+	std::transform(lowercase.begin(), lowercase.end(), lowercase.begin(),
+	               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+	if (lowercase == "no" || lowercase == "none" || lowercase == "not provided") return std::nullopt;
+
+	if (remove_all_spaces) return removeAllSpacesFromString(trimmed);
+	return trimmed;
+}
+} // namespace
 
 // need to set pCopyNo with unique identifier
 // see c++ thread safe ID generation function
 GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
                  const std::string&              s,
                  std::vector<std::string>        pars,
-                 const std::string&              importPath) :
+                 std::optional<std::string>      importPath) :
 	GBase(logger),
 	system(s),
-	importFilename(importPath) {
+	importFilename(normalize_optional_geometry_field(std::move(importPath), false)) {
 	if (pars.size() == GVOLUMELEGACYNUMBEROFPARS) {
 		pars.insert(pars.begin() + 7, DEFAULTG4PLACEMENTTYPE);
 	}
@@ -58,17 +79,17 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 		if (g4placementType == "" || g4placementType == UNINITIALIZEDSTRINGQUANTITY) {
 			g4placementType = DEFAULTG4PLACEMENTTYPE;
 		}
-		emfield        = removeAllSpacesFromString(pars[i++]);
+		emfield        = normalize_optional_geometry_field(pars[i++], true);
 		string pvis    = removeAllSpacesFromString(pars[i++]);
 		visible        = (pvis == "1") ? true : false;
 		style          = stoi(removeAllSpacesFromString(pars[i++]));
 		color          = removeAllSpacesFromString(pars[i++]);
 		opacity        = stod(removeAllSpacesFromString(pars[i++]));
-		digitization   = removeAllSpacesFromString(pars[i++]);
-		gidentity      = removeLeadingAndTrailingSpacesFromString(pars[i++]);
-		copyOf         = removeLeadingAndTrailingSpacesFromString(pars[i++]);
-		solidsOpr      = removeLeadingAndTrailingSpacesFromString(pars[i++]);
-		mirror         = removeLeadingAndTrailingSpacesFromString(pars[i++]);
+		digitization   = normalize_optional_geometry_field(pars[i++], true);
+		gidentity      = normalize_optional_geometry_field(pars[i++], false);
+		copyOf         = normalize_optional_geometry_field(pars[i++], false);
+		solidsOpr      = normalize_optional_geometry_field(pars[i++], false);
+		mirror         = normalize_optional_geometry_field(pars[i++], false);
 		string pexists = removeAllSpacesFromString(pars[i++]);
 		exist          = (pexists == "1") ? true : false;
 
@@ -100,12 +121,8 @@ std::ostream& operator<<(std::ostream& stream, const GVolume& gVol) {
 	stream << "   - System:         " << gVol.system << std::endl;
 	stream << "   - Variation:       " << gVol.variation << std::endl;
 	stream << "   - Run Number:      " << gVol.runno << std::endl;
-	if (gVol.copyOf != "" && gVol.copyOf != UNINITIALIZEDSTRINGQUANTITY)
-		stream << "   - copyOf:          " << gVol.
-			copyOf << std::endl;
-	if (gVol.solidsOpr != "" && gVol.solidsOpr != UNINITIALIZEDSTRINGQUANTITY)
-		stream << "   - solidsOpr:            "
-			<< gVol.solidsOpr << std::endl;
+	if (gVol.copyOf) stream << "   - copyOf:          " << *gVol.copyOf << std::endl;
+	if (gVol.solidsOpr) stream << "   - solidsOpr:       " << *gVol.solidsOpr << std::endl;
 	if (gVol.type != "" && gVol.type != UNINITIALIZEDSTRINGQUANTITY)
 		stream << "   - Type:            " << gVol.type <<
 			std::endl;
@@ -117,15 +134,9 @@ std::ostream& operator<<(std::ostream& stream, const GVolume& gVol) {
 	stream << "   - Positions:       " << gVol.pos << std::endl;
 	stream << "   - Rotation(s):     " << gVol.rot << std::endl;
 	stream << "   - G4 Placement:    " << gVol.g4placementType << std::endl;
-	if (gVol.emfield != "" && gVol.emfield != UNINITIALIZEDSTRINGQUANTITY)
-		stream << "   - E.M. emfield:      " << gVol.
-			emfield << std::endl;
-	if (gVol.digitization != "" && gVol.digitization != UNINITIALIZEDSTRINGQUANTITY)
-		stream << "   - Digitization:    "
-			<< gVol.digitization << std::endl;
-	if (gVol.gidentity != "" && gVol.gidentity != UNINITIALIZEDSTRINGQUANTITY)
-		stream << "   - GIdentity:       " <<
-			gVol.gidentity << std::endl;
+	if (gVol.emfield) stream << "   - E.M. field:      " << *gVol.emfield << std::endl;
+	if (gVol.digitization) stream << "   - Digitization:    " << *gVol.digitization << std::endl;
+	if (gVol.gidentity) stream << "   - GIdentity:       " << *gVol.gidentity << std::endl;
 	stream << "   - Col, Vis, Style: " << gVol.color << ", " << visibility << ", " << style << std::endl;
 	stream << std::endl;
 
@@ -154,15 +165,9 @@ GVolume::GVolume(const std::string& rootVolumeDefinition,
 	pos          = DEFAULTPOSITION;
 	rot          = DEFAULTROTATION;
 	g4placementType = DEFAULTG4PLACEMENTTYPE;
-	emfield      = "";
 	visible      = false;
 	style        = 0; // wireframe
 	color        = "ccffff";
-	digitization = "";
-	gidentity    = "";
-	copyOf       = "";
-	solidsOpr    = "";
-	mirror       = "";
 	exist        = true;
 
 	description = "root volume";
@@ -170,7 +175,12 @@ GVolume::GVolume(const std::string& rootVolumeDefinition,
 	// modifiers - accessed through options/jcard
 	shift = GSYSTEMNOMODIFIER;
 	tilt  = GSYSTEMNOMODIFIER;
+}
 
-	// set file with its path if it's a CAD/GDML import
-	importFilename = "none";
+void GVolume::setDigitization(std::optional<std::string> value) {
+	digitization = normalize_optional_geometry_field(std::move(value), true);
+}
+
+void GVolume::setGIdentity(std::optional<std::string> value) {
+	gidentity = normalize_optional_geometry_field(std::move(value), false);
 }

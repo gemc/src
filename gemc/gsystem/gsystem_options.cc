@@ -21,10 +21,10 @@ SystemList getSystems(const std::shared_ptr<GOptions>& gopts) {
 	SystemList systems;
 	systems.reserve(gsystem_node.size());
 
-	auto exp      = gopts->getScalarString("experiment");
+	auto exp      = gopts->getOptionalScalarString("experiment").value();
 	auto run      = gopts->getScalarInt("runno");
-	auto dbhost   = gopts->getScalarString("sql");
-	auto ascii_db = gopts->getScalarString("ascii_db");
+	auto dbhost   = gopts->getOptionalScalarString("sql").value();
+	auto ascii_db = gopts->getOptionalScalarString("ascii_db").value();
 
 	for (auto gsystem_item : gsystem_node) {
 		auto factory = gopts->get_variable_in_option<std::string>(gsystem_item, "factory", GSYSTEMSQLITETFACTORYLABEL);

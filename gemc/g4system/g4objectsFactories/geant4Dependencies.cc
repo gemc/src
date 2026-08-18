@@ -22,21 +22,21 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
                                                                  G4Volume*>* g4s) {
 	// Dependency check applies only to solids that rely on other solids (copy/boolean operations).
 	// Ordinary primitives have no extra prerequisites.
-	std::string copyOf    = s->getCopyOf();
-	std::string solidsOpr = s->getSolidsOpr();
+	const auto& copyOf    = s->getCopyOf();
+	const auto& solidsOpr = s->getSolidsOpr();
 	std::string gsystem   = s->getSystem();
 
 	std::string message;
 
-	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) { message = ", copyOf: " + copyOf; }
-	else if (solidsOpr != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) { message = ", solidsOpr: " + solidsOpr; }
+	if (copyOf) { message = ", copyOf: " + *copyOf; }
+	else if (solidsOpr) { message = ", solidsOpr: " + *solidsOpr; }
 
 	log->debug(NORMAL, className(), " checkSolidDependencies: checking dependencies for <",
 	           s->getName(), ">", message);
 
 	/*──────────────────────────────────── copyOf: volumeName ───────────────────────────────────*/
-	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
-		auto volume_copy = gsystem + "/" + copyOf;
+	if (copyOf) {
+		auto volume_copy = gsystem + "/" + *copyOf;
 		if (getSolidFromMap(volume_copy, g4s) != nullptr) {
 			log->info(2, "<", s->getName(), "> is a copy of <", volume_copy, ">, which already exists");
 			return true;
@@ -47,10 +47,10 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
 	}
 
 	/*──────────────────────────────────── Boolean solid operations ──────────────────────────────*/
-	else if (solidsOpr != "" && solidsOpr != UNINITIALIZEDSTRINGQUANTITY) {
+	else if (solidsOpr) {
 		// The solids operation is expected to be tokenized into: left operand, operator, right operand.
 		std::vector<std::string> solidOperations =
-			gutilities::getStringVectorFromString(solidsOpr);
+			gutilities::getStringVectorFromString(*solidsOpr);
 
 		if (solidOperations.size() == 3) {
 			// Supported operators: + (union), - (subtraction), * (intersection).
@@ -97,10 +97,10 @@ bool G4ObjectsFactory::checkPhysicalDependencies(const GVolume* s,
 	// Candidate logical must exist (or be available through a copy source).
 	if (getLogicalFromMap(vname, g4s) == nullptr) {
 		// If it is a copy, require that the source logical volume exists.
-		std::string copyOf = s->getCopyOf();
-		if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+		const auto& copyOf = s->getCopyOf();
+		if (copyOf) {
 			auto gsystem     = s->getSystem();
-			auto volume_copy = gsystem + "/" + copyOf;
+			auto volume_copy = gsystem + "/" + *copyOf;
 			if (getLogicalFromMap(volume_copy, g4s) == nullptr) {
 				log->info(2, "dependencies: copy ", volume_copy, " logical volume not found yet.");
 				return false;

@@ -210,10 +210,10 @@ G4LogicalVolume *G4ObjectsFactory::buildLogical(const GVolume *s,
 	if (thisG4Volume->getLogical()) return thisG4Volume->getLogical();
 
 	// If this volume is a "copy of" another, reuse the logical volume if it already exists.
-	std::string copyOf = s->getCopyOf();
-	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+	const auto& copyOf = s->getCopyOf();
+	if (copyOf) {
 		auto gsystem = s->getSystem();
-		auto volume_copy = gsystem + "/" + copyOf;
+		auto volume_copy = gsystem + "/" + *copyOf;
 		auto copyG4Volume = getOrCreateG4Volume(volume_copy, g4s);
 		if (copyG4Volume->getLogical() != nullptr) {
 			return copyG4Volume->getLogical();
@@ -262,10 +262,10 @@ G4VPhysicalVolume *G4ObjectsFactory::buildPhysical(const GVolume *s,
 	auto logicalVolume = thisG4Volume->getLogical();
 
 	// If this is a copy, reuse the source logical volume when available.
-	std::string copyOf = s->getCopyOf();
-	if (copyOf != "" && copyOf != UNINITIALIZEDSTRINGQUANTITY) {
+	const auto& copyOf = s->getCopyOf();
+	if (copyOf) {
 		auto gsystem = s->getSystem();
-		auto volume_copy = gsystem + "/" + copyOf;
+		auto volume_copy = gsystem + "/" + *copyOf;
 		auto copyG4Volume = getOrCreateG4Volume(volume_copy, g4s);
 		if (copyG4Volume->getLogical() != nullptr) {
 			logicalVolume = copyG4Volume->getLogical();

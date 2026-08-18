@@ -241,7 +241,7 @@ inline void GManager::registerDL(std::string_view name) {
 	// precedence, then GEMC_PLUGIN_PATH env var, then CWD / system library path.
 	std::string filename = basename;
 	if (gopts_) {
-		std::string searchPath = gopts_->getScalarString("plugin_path");
+		std::string searchPath = gopts_->getOptionalScalarString("plugin_path").value_or("");
 		if (searchPath.empty()) {
 			if (const char* env = std::getenv("GEMC_PLUGIN_PATH")) { searchPath = env; }
 		}

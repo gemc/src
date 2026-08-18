@@ -135,10 +135,9 @@ std::vector<std::string> GWorld::getSensitiveDetectorsList() {
 	// Walk all volumes and collect digitization identifiers, de-duplicating them.
 	for (auto& systemPair : *gsystemsMap) {
 		for (auto& gvolumePair : systemPair.second->getGVolumesMap()) {
-			std::string digitization = gvolumePair.second->getDigitization();
-			if (digitization != "" && digitization != UNINITIALIZEDSTRINGQUANTITY) {
-				if (find(snames.begin(), snames.end(), digitization) == snames.end())
-					snames.push_back(digitization);
+			const auto& digitization = gvolumePair.second->getDigitization();
+			if (digitization && find(snames.begin(), snames.end(), *digitization) == snames.end()) {
+				snames.push_back(*digitization);
 			}
 		}
 	}
@@ -161,7 +160,7 @@ void GWorld::create_gsystemsMap(SystemList systems) {
 
 // See gworld.h for API docs.
 void GWorld::load_systems() {
-	const std::string dbhost = gopts->getScalarString("sql");
+	const std::string dbhost = gopts->getOptionalScalarString("sql").value();
 
 	auto systemFactories = createSystemFactory();
 	const bool no_systems_defined = gsystemsMap->empty();
@@ -217,7 +216,8 @@ void GWorld::load_systems() {
 	if (!world_is_defined) {
 		// Inject the ROOT “world” volume, if not already present.
 		// This ensures downstream volume placement always has a valid top-level mother.
-		const std::string worldVolumeDefinition = gopts->getScalarString(ROOTWORLDGVOLUMENAME);
+		const std::string worldVolumeDefinition =
+			gopts->getOptionalScalarString(ROOTWORLDGVOLUMENAME).value();
 
 		auto rootSystem = std::make_shared<GSystem>(
 			gopts, // logger

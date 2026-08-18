@@ -294,14 +294,16 @@ GOptions defineOptions() {
 }
 
 bool runFieldQueries(const std::shared_ptr<GOptions>& gopts) {
-	const auto field_at         = gopts->getScalarString("fieldAt");
-	const auto field_map_points = gopts->getScalarString("fieldMapPoints");
+	const auto field_at         = gopts->getOptionalScalarString("fieldAt");
+	const auto field_map_points = gopts->getOptionalScalarString("fieldMapPoints");
 
-	if (!is_query_set(field_at) && !is_query_set(field_map_points)) { return false; }
+	const bool field_at_set = field_at && is_query_set(*field_at);
+	const bool field_map_points_set = field_map_points && is_query_set(*field_map_points);
+	if (!field_at_set && !field_map_points_set) { return false; }
 
 	std::vector<FieldQueryPoint> points;
-	if (is_query_set(field_at)) { points.push_back(parse_field_query_point(field_at, "fieldAt", 0)); }
-	if (is_query_set(field_map_points)) { append_field_query_file_points(field_map_points, points); }
+	if (field_at_set) { points.push_back(parse_field_query_point(*field_at, "fieldAt", 0)); }
+	if (field_map_points_set) { append_field_query_file_points(*field_map_points, points); }
 
 	auto magneto     = std::make_shared<GMagneto>(gopts);
 	auto field_names = magneto->getFieldNames();

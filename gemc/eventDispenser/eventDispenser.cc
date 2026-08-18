@@ -41,7 +41,7 @@ EventDispenser::EventDispenser(
 	: GBase(gopt, EVENTDISPENSER_LOGGER), gDigitizationMap(gdynamicDigitizationMap),
 	  analysisAccumulator(std::move(analyzer)) {
 	// Retrieve configuration parameters from GOptions.
-	string filename  = gopt->getScalarString("run_weights");
+	const auto filename = gopt->getOptionalScalarString("run_weights");
 	userRunno        = gopt->getScalarInt("run");
 	neventsToProcess = gopt->getScalarInt("n");
 
@@ -58,20 +58,20 @@ EventDispenser::EventDispenser(
 	if (neventsToProcess == 0) return;
 
 	// If no file is provided, use the user-specified run number (single-run mode).
-	if (filename == UNINITIALIZEDSTRINGQUANTITY && neventsToProcess > 0) {
+	if (!filename && neventsToProcess > 0) {
 		runEvents[userRunno] = neventsToProcess;
 		return;
 	}
 	else {
 		// Multi-run mode: a filename was specified; attempt to open the run weights input file.
-		ifstream in(filename.c_str());
+		ifstream in(filename->c_str());
 		if (!in) {
 			// Keep behavior unchanged: log error and continue with an empty distribution.
 			log->error(ERR_EVENTDISTRIBUTIONFILENOTFOUND,
-			           "Error: can't open run weights input file >", filename, "<. Check your spelling. Exiting.");
+			           "Error: can't open run weights input file >", *filename, "<. Check your spelling. Exiting.");
 		}
 		else {
-			log->info(1, "Loading run weights from ", filename);
+			log->info(1, "Loading run weights from ", *filename);
 
 			// Read "run weight" pairs, one per line.
 			// The order of insertion into listOfRuns reflects the file order and may be used by clients.

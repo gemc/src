@@ -232,7 +232,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	print_version();
 
 	// Save the final configuration to a YAML file.
-	string yamlConf_filename = executableName + "." + getScalarString("conf_yaml") + ".yaml";
+	string yamlConf_filename = executableName + "." + getOptionalScalarString("conf_yaml").value() + ".yaml";
 	cout << " Saving options to " << yamlConf_filename << endl << endl;
 	yamlConf = new std::ofstream(yamlConf_filename);
 	saveOptions();
@@ -299,7 +299,7 @@ double GOptions::getScalarDouble(const std::string& tag) const {
 }
 
 // Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
-std::string GOptions::getScalarString(const std::string& tag) const {
+std::optional<std::string> GOptions::getOptionalScalarString(const std::string& tag) const {
 	auto it = getOptionIterator(tag);
 	if (it == goptions.end()) {
 		std::cerr << FATALERRORL << "The option " << YELLOWHHL << tag << RSTHHR
@@ -307,7 +307,7 @@ std::string GOptions::getScalarString(const std::string& tag) const {
 		std::exit(EC__NOOPTIONFOUND);
 	}
 	const YAML::Node node = it->value.begin()->second;
-	if (node.IsNull()) return "NULL"; // force the exact sentinel you prefer
+	if (!node.IsDefined() || node.IsNull()) return std::nullopt;
 	return node.as<std::string>();
 }
 
@@ -457,8 +457,13 @@ void GOptions::setOptionsValuesFromYamlFile(const std::string& yaml) {
 // Private method: behavior described in header and top-of-file overview.
 void GOptions::setOptionValuesFromCommandLineArgument(const std::string& optionName,
                                                       const std::string& possibleYamlNode) {
-	YAML::Node node      = YAML::Load(possibleYamlNode);
-	auto       option_it = getOptionIterator(optionName);
+	auto option_it = getOptionIterator(optionName);
+	if (possibleYamlNode.empty()) {
+		option_it->set_scalar_value("");
+		return;
+	}
+
+	YAML::Node node = YAML::Load(possibleYamlNode);
 
 	if (node.Type() == YAML::NodeType::Scalar) {
 		option_it->set_scalar_value(possibleYamlNode);
@@ -645,8 +650,9 @@ void GOptions::print_version() {
 	// Report the plugin search path when one was provided, either through the
 	// -plugin_path option (or a plugin_path: YAML key) or the GEMC_PLUGIN_PATH
 	// environment variable.
-	string plugin_path = doesOptionExist("plugin_path") ? getScalarString("plugin_path") : "";
-	if (plugin_path == "NULL") plugin_path = "";
+	string plugin_path = doesOptionExist("plugin_path")
+	                     ? getOptionalScalarString("plugin_path").value_or("")
+	                     : "";
 	const char* plugin_env = std::getenv("GEMC_PLUGIN_PATH");
 	if (!plugin_path.empty() || (plugin_env != nullptr && plugin_env[0] != '\0')) {
 		string combined = plugin_path;

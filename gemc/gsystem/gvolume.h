@@ -5,6 +5,7 @@
 #include <gemc/gbase/gbase.h>
 
 // c++
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -58,7 +59,7 @@ public:
 	GVolume(const std::shared_ptr<GLogger>& log,
 	        const std::string&              system,
 	        std::vector<std::string>        pars,
-	        const std::string&              importPath = UNINITIALIZEDSTRINGQUANTITY);
+	        std::optional<std::string>      importPath = std::nullopt);
 
 	/**
 	 * \brief Construct the special ROOT/world volume.
@@ -92,7 +93,7 @@ private:
 	std::string name;           ///< Volume name (unique within the system; used as lookup key).
 	std::string motherName;     ///< Mother volume name (placement reference).
 	std::string description;    ///< Human-readable description, used primarily for diagnostics/documentation.
-	std::string importFilename; ///< For imported volumes: filename with the path, set with the import factory.
+	std::optional<std::string> importFilename; ///< Imported geometry filename, when one was provided.
 
 	// solid parameters
 	std::string type;       ///< Solid type string (follows Geant4 naming conventions).
@@ -105,8 +106,8 @@ private:
 	double      opacity{}; ///< Opacity parsed from configuration (convention depends on renderer).
 
 	// logical attributes
-	std::string material; ///< Material name (used to resolve to a GMaterial).
-	std::string emfield;  ///< Associated magnetic/electric field label.
+	std::string                material; ///< Material name (used to resolve to a GMaterial).
+	std::optional<std::string> emfield;  ///< Associated magnetic/electric field label.
 
 	// physical attributes
 	std::string pos;     ///< Placement position relative to mother.
@@ -116,17 +117,17 @@ private:
 	std::string tilt;    ///< Rotation modifier (applied post-load by GWorld).
 	bool        exist{}; ///< Existence modifier (applied post-load by GWorld).
 
-	std::string digitization; ///< Digitization label and collection identifier.
-	std::string gidentity;    ///< Identifier string (e.g. \c "sector: 2, layer: 4, wire: 33").
+	std::optional<std::string> digitization; ///< Digitization label and collection identifier.
+	std::optional<std::string> gidentity;    ///< Identifier string, when digitization is configured.
 
 	// special cases
-	std::string copyOf;    ///< Name of gvolume to copy from (if supported by downstream logic).
-	std::string solidsOpr; ///< Solid boolean operation descriptor (if used).
+	std::optional<std::string> copyOf;    ///< Name of the source gvolume for a copy.
+	std::optional<std::string> solidsOpr; ///< Solid boolean operation descriptor.
 
 	int pCopyNo{}; ///< Copy number bookkeeping (first volume of a given type should be 0).
 
 	// mirrors
-	std::string mirror; ///< Mirror configuration string (if used).
+	std::optional<std::string> mirror; ///< Optical-surface definition name.
 
 	// the map key names used in geant4 contain the system name
 	// these are assigned by gworld after all volumes are loaded
@@ -172,7 +173,7 @@ public:
 	/// \name Logical attributes
 	///@{
 	[[nodiscard]] std::string getMaterial() const { return material; }
-	[[nodiscard]] std::string getEMField() const { return emfield; }
+	[[nodiscard]] const std::optional<std::string>& getEMField() const { return emfield; }
 	///@}
 
 	/// \name Visualization attributes
@@ -196,15 +197,15 @@ public:
 
 	/// \name Digitization and identity metadata
 	///@{
-	[[nodiscard]] std::string getDigitization() const { return digitization; }
-	[[nodiscard]] std::string getGIdentity() const { return gidentity; }
+	[[nodiscard]] const std::optional<std::string>& getDigitization() const { return digitization; }
+	[[nodiscard]] const std::optional<std::string>& getGIdentity() const { return gidentity; }
 	///@}
 
 	/// \name Special cases / advanced features
 	///@{
-	[[nodiscard]] std::string getCopyOf() const { return copyOf; }
-	[[nodiscard]] std::string getSolidsOpr() const { return solidsOpr; }
-	[[nodiscard]] std::string getMirror() const { return mirror; }
+	[[nodiscard]] const std::optional<std::string>& getCopyOf() const { return copyOf; }
+	[[nodiscard]] const std::optional<std::string>& getSolidsOpr() const { return solidsOpr; }
+	[[nodiscard]] const std::optional<std::string>& getMirror() const { return mirror; }
 	[[nodiscard]] std::string getDescription() const { return description; }
 	///@}
 
@@ -250,21 +251,20 @@ public:
 	void setMaterial(std::string m) { material = std::move(m); }
 
 	/// \brief Override the digitization label after loading.
-	void setDigitization(std::string d) { digitization = std::move(d); }
+	void setDigitization(std::optional<std::string> d);
 
 	/// \brief Override the identity string after loading.
-	void setGIdentity(std::string g) { gidentity = std::move(g); }
+	void setGIdentity(std::optional<std::string> g);
 	///@}
 
 	/**
 	 * \brief Return the import filename (path) for imported volumes.
 	 *
-	 * \return The original import filename stored by the factory.
+	 * \return The original import filename stored by the factory, or \c std::nullopt.
 	 *
-	 * \details This is typically meaningful for CAD/GDML imports and may be \c "none"
-	 * for volumes loaded from DB/ASCII.
+	 * \details This is meaningful only for CAD/GDML imports.
 	 */
-	std::string getImportedFile() { return importFilename; }
+	[[nodiscard]] const std::optional<std::string>& getImportedFile() const { return importFilename; }
 
 	/**
 	 * \brief Assign Geant4 names after all volumes are loaded.

@@ -17,6 +17,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -151,7 +152,7 @@ public:
 	 * \brief Retrieves the value of a scalar integer option.
 	 *
 	 * @details
-	 * See \ref GOptions::getScalarString "getScalarString()" for YAML null sentinel behavior.
+	 * YAML null is not a valid integer value and results in a conversion error.
 	 *
 	 * \param tag Option name.
 	 * \return Value converted to int.
@@ -168,17 +169,16 @@ public:
 	[[nodiscard]] double getScalarDouble(const std::string& tag) const;
 
 	/**
-	 * \brief Retrieves the value of a scalar string option.
+	 * \brief Retrieves the optional value of a scalar string option.
 	 *
 	 * @details
-	 * If the underlying YAML node is null, returns the literal sentinel `"NULL"`.
-	 * This sentinel is intentionally explicit so downstream code can distinguish "unset"
-	 * from an empty string.
+	 * A missing or YAML-null value is represented by \c std::nullopt. Empty strings remain
+	 * present values so callers can distinguish them from an option that was not provided.
 	 *
 	 * \param tag Option name.
-	 * \return Value as string (or `"NULL"`).
+	 * \return The string value, or \c std::nullopt when the option value is null.
 	 */
-	[[nodiscard]] std::string getScalarString(const std::string& tag) const;
+	[[nodiscard]] std::optional<std::string> getOptionalScalarString(const std::string& tag) const;
 
 	/**
 	 * \brief Retrieves the status of a switch.

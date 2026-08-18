@@ -107,8 +107,9 @@ void G4World::buildOpticalSurfaces(SystemMap* system_map) {
 		for (auto& [volumeName, gvolumePtr] : gsystem->getGVolumesMap()) {
 			auto* gvolume = gvolumePtr.get();
 
-			std::string mirrorName = gvolume->getMirror();
-			if (gutilities::is_unset(mirrorName) || mirrorName == "no" || mirrorName == "none") { continue; }
+			const auto& mirror = gvolume->getMirror();
+			if (!mirror) { continue; }
+			const std::string& mirrorName = *mirror;
 
 			// Nonexistent volumes are skipped quietly, consistent with the volume build phase.
 			if (!gvolume->getExistence()) { continue; }

@@ -58,7 +58,7 @@ QIcon colorIcon(const QColor& color, const QColor& border) {
 std::string rootExtentForFieldCommand(const std::shared_ptr<GOptions>& gopts) {
 	if (gopts == nullptr) { return ""; }
 
-	std::string rootDefinition = gopts->getScalarString("root");
+	std::string rootDefinition = gopts->getOptionalScalarString("root").value();
 	for (auto& c : rootDefinition) {
 		if (c == ',') { c = ' '; }
 	}
