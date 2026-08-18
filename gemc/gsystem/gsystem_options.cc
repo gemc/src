@@ -21,10 +21,10 @@ SystemList getSystems(const std::shared_ptr<GOptions>& gopts) {
 	SystemList systems;
 	systems.reserve(gsystem_node.size());
 
-	auto exp      = gopts->getOptionalScalarString("experiment").value();
-	auto run      = gopts->getScalarInt("runno");
-	auto dbhost   = gopts->getOptionalScalarString("sql").value();
-	auto ascii_db = gopts->getOptionalScalarString("ascii_db").value();
+	auto exp      = gopts->getRequiredScalarString("experiment");
+	auto run      = gopts->getRequiredScalarInt("runno");
+	auto dbhost   = gopts->getRequiredScalarString("sql");
+	auto ascii_db = gopts->getRequiredScalarString("ascii_db");
 
 	for (auto gsystem_item : gsystem_node) {
 		auto factory = gopts->get_variable_in_option<std::string>(gsystem_item, "factory",
@@ -59,8 +59,8 @@ std::vector<GModifier> getModifiers(const std::shared_ptr<GOptions>& gopts) {
 	for (auto gmodifier_item : gmodifier_node) {
 		gmods.emplace_back(
 			gopts->get_required_variable_in_option<std::string>(gmodifier_item, "name"),
-			gopts->get_variable_in_option<std::string>(gmodifier_item, "shift", gsystem::GSYSTEMNOMODIFIER),
-			gopts->get_variable_in_option<std::string>(gmodifier_item, "tilt", gsystem::GSYSTEMNOMODIFIER),
+			gopts->get_optional_variable_in_option<std::string>(gmodifier_item, "shift"),
+			gopts->get_optional_variable_in_option<std::string>(gmodifier_item, "tilt"),
 			gopts->get_variable_in_option<bool>(gmodifier_item, "isPresent", true));
 	}
 
@@ -106,8 +106,8 @@ GOptions defineOptions() {
 
 	std::vector<GVariable> gmodifier = {
 		{"name", goptions::REQUIRED, "volume name (mandatory)"},
-		{"shift", gsystem::GSYSTEMNOMODIFIER, "volume shift added to existing position"},
-		{"tilt", gsystem::GSYSTEMNOMODIFIER, "volume tilt added to existing rotation"},
+		{"shift", std::nullopt, "volume shift added to existing position"},
+		{"tilt", std::nullopt, "volume tilt added to existing rotation"},
 		{"isPresent", true, "If set to false, remove the volume from the world"}
 	};
 	goptions.defineOption("gmodifier", "modify volume existence or placement", gmodifier, help);

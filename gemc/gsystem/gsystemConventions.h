@@ -98,19 +98,6 @@ inline constexpr int ERR_GMIRRORINVALID = 215;
 ///@}
 
 // -----------------------------------------------------------------------------
-// Modifier conventions
-// -----------------------------------------------------------------------------
-
-/**
- * \name Modifier conventions
- * \brief Sentinel values used when no modifier is requested.
- */
-///@{
-/// Special string used to represent “no modifier is requested”.
-inline constexpr char GSYSTEMNOMODIFIER[] = "noModifier";
-///@}
-
-// -----------------------------------------------------------------------------
 // Environment and naming conventions
 // -----------------------------------------------------------------------------
 

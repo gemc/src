@@ -16,6 +16,7 @@
 
 // c++
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -66,14 +67,14 @@ public:
 	 * \brief Configure overlap checking and backup material behavior for this factory.
 	 *
 	 * \param checkOverlaps  Forwarded to placement calls to enable overlap checking.
-	 * \param backupMaterial Material name used if a requested material is missing.
+	 * \param backupMaterial Optional material used if a requested material is missing.
 	 *
 	 * @details
-	 * - If \c backupMaterial is empty, a missing material is treated as an error.
+	 * - If \c backupMaterial is absent, a missing material is treated as an error.
 	 * - If overlap checking is enabled, placements may perform overlap checks at construction time.
 	 */
 	void initialize_context(int                checkOverlaps,
-	                        const std::string& backupMaterial);
+	                        const std::optional<std::string>& backupMaterial);
 
 	/**
 	 * \brief Build (or retrieve) solid, logical, and physical volumes for a given \c GVolume.
@@ -252,7 +253,7 @@ protected:
 	/**
 	 * \brief Backup material name used if the requested material is absent.
 	 *
-	 * Empty string means: no fallback; missing material lookup becomes fatal.
+	 * Absence means no fallback; missing material lookup becomes fatal.
 	 */
-	std::string backupMaterial;
+	std::optional<std::string> backupMaterial;
 };

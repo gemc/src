@@ -233,7 +233,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	print_version();
 
 	// Save the final configuration to a YAML file.
-	string yamlConf_filename = executableName + "." + getOptionalScalarString("conf_yaml").value() + ".yaml";
+	string yamlConf_filename = executableName + "." + getRequiredScalarString("conf_yaml") + ".yaml";
 	cout << " Saving options to " << yamlConf_filename << endl << endl;
 	yamlConf = new std::ofstream(yamlConf_filename);
 	saveOptions();
@@ -278,14 +278,20 @@ void GOptions::defineOption(const std::string&            name, const std::strin
 }
 
 // Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
-int GOptions::getScalarInt(const std::string& tag) const {
+int GOptions::getRequiredScalarInt(const std::string& tag) const {
 	auto it = getOptionIterator(tag);
 	if (it == goptions.end()) {
 		cerr << guts::FATALERRORL << "The option " << guts::YELLOWHHL << tag << guts::RSTHHR
 			<< " was not found." << endl;
 		exit(goptions::EC__NOOPTIONFOUND);
 	}
-	return it->value.begin()->second.as<int>();
+	const YAML::Node node = it->value.begin()->second;
+	if (!node.IsDefined() || node.IsNull()) {
+		cerr << guts::FATALERRORL << "The required option " << guts::YELLOWHHL << tag << guts::RSTHHR
+			<< " was not provided." << endl;
+		exit(goptions::EC__MANDATORY_NOT_FILLED);
+	}
+	return node.as<int>();
 }
 
 std::optional<int> GOptions::getOptionalScalarInt(const std::string& tag) const {
@@ -301,14 +307,20 @@ std::optional<int> GOptions::getOptionalScalarInt(const std::string& tag) const 
 }
 
 // Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
-double GOptions::getScalarDouble(const std::string& tag) const {
+double GOptions::getRequiredScalarDouble(const std::string& tag) const {
 	auto it = getOptionIterator(tag);
 	if (it == goptions.end()) {
 		cerr << guts::FATALERRORL << "The option " << guts::YELLOWHHL << tag << guts::RSTHHR
 			<< " was not found." << endl;
 		exit(goptions::EC__NOOPTIONFOUND);
 	}
-	return it->value.begin()->second.as<double>();
+	const YAML::Node node = it->value.begin()->second;
+	if (!node.IsDefined() || node.IsNull()) {
+		cerr << guts::FATALERRORL << "The required option " << guts::YELLOWHHL << tag << guts::RSTHHR
+			<< " was not provided." << endl;
+		exit(goptions::EC__MANDATORY_NOT_FILLED);
+	}
+	return node.as<double>();
 }
 
 std::optional<double> GOptions::getOptionalScalarDouble(const std::string& tag) const {
@@ -321,6 +333,22 @@ std::optional<double> GOptions::getOptionalScalarDouble(const std::string& tag) 
 	const YAML::Node node = it->value.begin()->second;
 	if (!node.IsDefined() || node.IsNull()) return std::nullopt;
 	return node.as<double>();
+}
+
+std::string GOptions::getRequiredScalarString(const std::string& tag) const {
+	auto it = getOptionIterator(tag);
+	if (it == goptions.end()) {
+		cerr << guts::FATALERRORL << "The option " << guts::YELLOWHHL << tag << guts::RSTHHR
+			<< " was not found." << endl;
+		exit(goptions::EC__NOOPTIONFOUND);
+	}
+	const YAML::Node node = it->value.begin()->second;
+	if (!node.IsDefined() || node.IsNull()) {
+		cerr << guts::FATALERRORL << "The required option " << guts::YELLOWHHL << tag << guts::RSTHHR
+			<< " was not provided." << endl;
+		exit(goptions::EC__MANDATORY_NOT_FILLED);
+	}
+	return node.as<std::string>();
 }
 
 // Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).

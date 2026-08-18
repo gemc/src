@@ -191,7 +191,7 @@ private:
 	 *
 	 * \param gopts           Global options used to configure factory instances.
 	 * \param gsystemsMap     Pointer to the system map to inspect.
-	 * \param backup_material Backup material name used by factories when a material is missing.
+	 * \param backup_material Optional backup material used by factories when a material is missing.
 	 * \param check_overlaps  Overlap checking mode forwarded to placement.
 	 *
 	 * @details
@@ -201,7 +201,7 @@ private:
 	 */
 	void createG4SystemFactory(const std::shared_ptr<GOptions>& gopts,
 	                           SystemMap*                       gsystemsMap,
-	                           const std::string&               backup_material,
+	                           const std::optional<std::string>& backup_material,
 	                           int                              check_overlaps);
 
 	/**

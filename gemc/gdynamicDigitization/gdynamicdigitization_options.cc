@@ -22,8 +22,7 @@ GOptions defineOptions() {
 	goptions.defineSwitch("recordZeroEdep", "Record particle even if they do not deposit energy in the sensitive volumes");
 
 	// When set, overrides the per-system geometry variation used to load digitization
-	// constants and translation tables. The sentinel default means "not set": each routine
-	// then follows the variation of the gsystem it belongs to.
+	// constants and translation tables. Otherwise each routine follows its gsystem variation.
 	goptions.defineOption(
 		GVariable("digitization_variation", std::nullopt, "digitization variation"),
 		"If set, overrides the gsystem variation when the digitization routines load their\n"

@@ -89,7 +89,7 @@ std::vector<std::pair<double, double>> matchAnalysisSeries(
 void GAnalysisAccumulator::beginBeamOn(bool accumulate) {
 	std::scoped_lock lock(mutex);
 	if (!accumulate) { series.clear(); }
-	current_run_number = -1;
+	current_run_number.reset();
 	++beam_on_count;
 }
 
@@ -98,7 +98,7 @@ void GAnalysisAccumulator::setCurrentRunNumber(int run_number) {
 	current_run_number = run_number;
 }
 
-int GAnalysisAccumulator::currentRunNumber() const {
+std::optional<int> GAnalysisAccumulator::currentRunNumber() const {
 	std::scoped_lock lock(mutex);
 	return current_run_number;
 }
@@ -121,7 +121,7 @@ void GAnalysisAccumulator::clear() {
 	std::scoped_lock lock(mutex);
 	series.clear();
 	beam_on_count = 0;
-	current_run_number = -1;
+	current_run_number.reset();
 }
 
 GAnalysisSeriesMap GAnalysisAccumulator::snapshot() const {

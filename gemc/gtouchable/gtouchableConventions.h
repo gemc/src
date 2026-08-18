@@ -8,7 +8,6 @@ namespace gtouchable {
  *
  * This header centralizes:
  * - The digitization type strings used to classify a touchable.
- * - A sentinel value used for the readout time-cell index when it is not yet assigned.
  *
  */
 

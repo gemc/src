@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
     // Initialize options and logging
     auto gopts = std::make_shared<GOptions>(argc, argv, gtree::defineOptions());
     auto log = std::make_shared<GLogger>(gopts, SFUNCTION_NAME, GTREE_LOGGER);
-    auto timeout = gopts->getScalarDouble("tt");
+    auto timeout = gopts->getRequiredScalarDouble("tt");
 
     log->info(0, "Starting gtree example...");
 

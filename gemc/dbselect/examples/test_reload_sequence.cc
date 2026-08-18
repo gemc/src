@@ -130,7 +130,7 @@ static void runPhase(const char* label,
 int main(int argc, char* argv[]) {
     auto gopts = std::make_shared<GOptions>(argc, argv, dbselect::defineOptions());
 
-    const std::string dbhost = gopts->getOptionalScalarString("sql").value();
+    const std::string dbhost = gopts->getRequiredScalarString("sql");
 
     auto* runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Default);
     runManager->SetNumberOfThreads(2);

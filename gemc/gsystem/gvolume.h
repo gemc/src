@@ -113,8 +113,8 @@ private:
 	std::string pos;     ///< Placement position relative to mother.
 	std::string rot;     ///< Placement rotation relative to mother (x,y,z Euler angles).
 	std::string g4placementType; ///< Placement constructor convention: \c active or \c passive.
-	std::string shift;   ///< Position modifier (applied post-load by GWorld).
-	std::string tilt;    ///< Rotation modifier (applied post-load by GWorld).
+	std::optional<std::string> shift; ///< Position modifier applied post-load by GWorld.
+	std::optional<std::string> tilt;  ///< Rotation modifier applied post-load by GWorld.
 	bool        exist{}; ///< Existence modifier (applied post-load by GWorld).
 
 	std::optional<std::string> digitization; ///< Digitization label and collection identifier.
@@ -147,8 +147,8 @@ public:
 	[[nodiscard]] std::string getSystem() const { return system; }
 	[[nodiscard]] std::string getName() const { return name; }
 	[[nodiscard]] std::string getMotherName() const { return motherName; }
-	[[nodiscard]] const std::string& getG4Name() const { return g4name.value(); }
-	[[nodiscard]] const std::string& getG4MotherName() const { return g4motherName.value(); }
+	[[nodiscard]] const std::string& getG4Name() const;
+	[[nodiscard]] const std::string& getG4MotherName() const;
 	///@}
 
 	/**
@@ -191,8 +191,8 @@ public:
 	[[nodiscard]] std::string getPos() const { return pos; }
 	[[nodiscard]] std::string getRot() const { return rot; }
 	[[nodiscard]] std::string getG4PlacementType() const { return g4placementType; }
-	[[nodiscard]] std::string getShift() const { return shift; }
-	[[nodiscard]] std::string getTilt() const { return tilt; }
+	[[nodiscard]] const std::optional<std::string>& getShift() const { return shift; }
+	[[nodiscard]] const std::optional<std::string>& getTilt() const { return tilt; }
 	///@}
 
 	/// \name Digitization and identity metadata
@@ -219,7 +219,7 @@ public:
 	 * \details This stores the modifier; it does not update \c pos directly. Downstream
 	 * placement code is expected to interpret \c pos + \c shift.
 	 */
-	void applyShift(std::string s) { shift = std::move(s); }
+	void applyShift(std::optional<std::string> s) { shift = std::move(s); }
 
 	/**
 	 * \brief Apply an additional rotation to this volume.
@@ -229,7 +229,7 @@ public:
 	 * \details This stores the modifier; it does not update \c rot directly. Downstream
 	 * placement code is expected to interpret \c rot + \c tilt.
 	 */
-	void applyTilt(std::string t) { tilt = std::move(t); }
+	void applyTilt(std::optional<std::string> t) { tilt = std::move(t); }
 
 	/**
 	 * \brief Enable or disable this volume in the final assembled world.

@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <stdexcept>
 #include <vector>
 
 /**
@@ -68,8 +69,8 @@ private:
 	/// True when the configured viewer is TOOLSSG_OFFSCREEN; triggers screenshot commands after BeamOn.
 	bool offscreen_screenshots = false;
 
-	/// Most recently processed run number. Used to detect run changes and reload run-dependent data.
-	int currentRunno = -1;
+	/// Most recently processed run number, absent before the first run or after a context reset.
+	std::optional<int> currentRunno;
 
 	/** @} */
 
@@ -199,7 +200,12 @@ public:
 	 *
 	 * \return Steady-clock time point captured just before the first BeamOn command.
 	 */
-	[[nodiscard]] std::chrono::steady_clock::time_point beamOnStartTime() const { return beamOnTime.value(); }
+	[[nodiscard]] std::chrono::steady_clock::time_point beamOnStartTime() const {
+		if (!beamOnTime) {
+			throw std::logic_error("beamOnStartTime() called before the first /run/beamOn");
+		}
+		return *beamOnTime;
+	}
 
 	/**
 	 * \brief Sets the total number of events to process in single-run mode.

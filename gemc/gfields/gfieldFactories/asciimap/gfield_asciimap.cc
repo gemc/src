@@ -54,33 +54,33 @@ std::string GField_AsciiMapFactory::field_maps_directory() const {
 	return "fields";
 }
 
-int GField_AsciiMapFactory::axis_of_coordinate(const std::string& name) const {
+std::optional<unsigned> GField_AsciiMapFactory::axis_of_coordinate(const std::string& name) const {
 	switch (symmetry) {
 	case Symmetry::dipole_x:
 	case Symmetry::dipole_y:
 	case Symmetry::dipole_z:
 		if (name == "longitudinal") return 0;
 		if (name == "transverse") return 1;
-		return -1;
+		return std::nullopt;
 	case Symmetry::cyl_x:
 	case Symmetry::cyl_y:
 	case Symmetry::cyl_z:
 		if (name == "transverse") return 0;
 		if (name == "longitudinal") return 1;
-		return -1;
+		return std::nullopt;
 	case Symmetry::phi_segmented:
 		if (name == "azimuthal") return 0;
 		if (name == "transverse") return 1;
 		if (name == "longitudinal") return 2;
-		return -1;
+		return std::nullopt;
 	case Symmetry::cartesian_3d:
 	case Symmetry::cartesian_3d_quadrant:
 		if (name == "X") return 0;
 		if (name == "Y") return 1;
 		if (name == "Z") return 2;
-		return -1;
+		return std::nullopt;
 	}
-	return -1;
+	return std::nullopt;
 }
 
 
@@ -109,21 +109,22 @@ void GField_AsciiMapFactory::load_coordinate(const std::string& key) {
 	const double      min     = gutilities::getG4Number(tokens[2]);
 	const double      max     = gutilities::getG4Number(tokens[3]);
 
-	const int axis = axis_of_coordinate(name);
-	if (axis < 0) {
+	const auto axis = axis_of_coordinate(name);
+	if (!axis) {
 		log->error(gfields::ERR_WRONG_COORDINATE_DEF,
 		           "GField_AsciiMapFactory: coordinate name <", name, "> is not valid for symmetry <",
 		           gfield_definitions.field_parameters["symmetry"], ">.");
+		return;
 	}
 	if (npoints < 2) {
 		log->error(gfields::ERR_WRONG_COORDINATE_DEF,
 		           "GField_AsciiMapFactory: coordinate <", name, "> needs at least 2 points; got ", npoints, ".");
 	}
 
-	np[axis]       = static_cast<unsigned>(npoints);
-	startMap[axis] = min;
-	endMap[axis]   = max;
-	cellSize[axis] = (max - min) / (npoints - 1);
+	np[*axis]       = static_cast<unsigned>(npoints);
+	startMap[*axis] = min;
+	endMap[*axis]   = max;
+	cellSize[*axis] = (max - min) / (npoints - 1);
 
 	// The map-file column for this coordinate is read in the same unit used in the min/max expression,
 	// so a bare column value is converted back to Geant4 units with that factor.
@@ -137,7 +138,7 @@ void GField_AsciiMapFactory::load_coordinate(const std::string& key) {
 		return std::string("mm");
 	}();
 
-	columns.push_back(Column{axis, gutilities::getG4Number(1.0, unit)});
+	columns.push_back(Column{static_cast<int>(*axis), gutilities::getG4Number(1.0, unit)});
 }
 
 void GField_AsciiMapFactory::load_map_file() {

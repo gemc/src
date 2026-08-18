@@ -2,7 +2,7 @@
 
 /**
  * \file gutsConventions.h
- * \brief Typed sentinel, error, and console-formatting constants shared by GEMC modules.
+ * \brief Serialization, error, and console-formatting constants shared by GEMC modules.
  */
 
 namespace guts {

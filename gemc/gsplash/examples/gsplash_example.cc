@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 	// - gui controls whether we instantiate QApplication and show the splash.
 	// - tt controls how long the example remains active in GUI mode.
 	auto gui     = gopts->getSwitch("gui");
-	auto timeout = gopts->getScalarDouble("tt");
+	auto timeout = gopts->getRequiredScalarDouble("tt");
 
 	int  ret     = EXIT_SUCCESS;
 

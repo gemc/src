@@ -18,6 +18,9 @@ GOptions defineOptions() {
 	options.defineOption(
 		GVariable("optional_int", std::nullopt, "optional integer used by this test"),
 		"An unset value must be returned as std::nullopt.");
+	options.defineOption(GVariable("required_string", "configured", "required string used by this test"), "");
+	options.defineOption(GVariable("required_int", 7, "required integer used by this test"), "");
+	options.defineOption(GVariable("required_double", 1.5, "required double used by this test"), "");
 	return options;
 }
 
@@ -41,6 +44,11 @@ int main(int argc, char* argv[]) {
 	GOptions options(argc, argv, defineOptions());
 	const auto value = options.getOptionalScalarString("optional_string");
 	const auto intValue = options.getOptionalScalarInt("optional_int");
+	if (options.getRequiredScalarString("required_string") != "configured" ||
+	    options.getRequiredScalarInt("required_int") != 7 ||
+	    options.getRequiredScalarDouble("required_double") != 1.5) {
+		return 1;
+	}
 
 	if (expected) {
 		if (!value || *value != *expected) return 1;

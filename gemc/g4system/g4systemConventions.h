@@ -38,9 +38,6 @@ inline constexpr int ERR_G4MIRRORNOTFOUND =
 inline constexpr int ERR_G4SURFACECONFIGINVALID =
     508; ///< Optical surface type/finish/model/properties are invalid.
 
-// Special value used by options to indicate "no fallback material".
-inline constexpr char NO_USE_DEFAULT_MATERIAL[] = "noDefaultMaterial";
-
 // predefined isotopes / elements / materials
 inline constexpr char HYDROGEN_ELEMENT[] = "Hydrogen";
 inline constexpr char DEUTERON_ISOTOPE[] = "Deuteron";

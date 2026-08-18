@@ -32,8 +32,8 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 	// The factory provides solid/logical/physical creation for volumes in that system.
 	createG4SystemFactory(gopts,
 	                      gsystemMap,
-	                      gopts->getOptionalScalarString("useBackupMaterial").value(),
-	                      gopts->getScalarInt("check_overlaps")
+	                      gopts->getOptionalScalarString("useBackupMaterial"),
+	                      gopts->getRequiredScalarInt("check_overlaps")
 	);
 
 	// Phase 2: build all materials across systems, resolving dependencies iteratively.
@@ -149,7 +149,7 @@ std::string G4World::g4FactoryNameFromSystemFactory(const std::string &factory) 
 
 void G4World::createG4SystemFactory(const std::shared_ptr<GOptions> &gopts,
                                     SystemMap *gsystemsMap,
-                                    const std::string &backup_material,
+	                                const std::optional<std::string> &backup_material,
                                     int check_overlaps) {
 	// Instantiate a manager used to register and create factories.
 	GManager manager(gopts);

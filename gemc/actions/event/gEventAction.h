@@ -78,12 +78,13 @@ namespace geventaction {
 		goptions.defineSwitch(SAVE_ALL_ANCESTORS_SWITCH,
 		                      "save initial information for hit-producing tracks and all their ancestors");
 		goptions.defineOption(
-			GVariable(NO_DIGITIZED_OPTION, "none", "detectors for which digitization is disabled"),
+			GVariable(NO_DIGITIZED_OPTION, std::nullopt, "detectors for which digitization is disabled"),
 			"Disable digitization for a comma- or whitespace-separated list of detector names.\n"
 			"Use \"all\" to disable digitization for every detector. Default: none.\n \n"
 			"Example: -no_digitized=\"ftof, ecal\"");
 		goptions.defineOption(
-			GVariable(NO_TRUE_INFO_OPTION, "none", "detectors for which true-information output is disabled"),
+			GVariable(NO_TRUE_INFO_OPTION, std::nullopt,
+			          "detectors for which true-information output is disabled"),
 			"Disable true-information output for a comma- or whitespace-separated list of detector names.\n"
 			"Use \"all\" to disable true-information output for every detector. Default: none.\n \n"
 			"Example: -no_true_info=\"ftof, ecal\"");

@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <memory>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -37,7 +38,18 @@ int main() {
 	              " none ");
 
 	if (unset.getEMField() || unset.getDigitization() || unset.getGIdentity() || unset.getCopyOf() ||
-	    unset.getSolidsOpr() || unset.getMirror() || unset.getImportedFile()) {
+	    unset.getSolidsOpr() || unset.getMirror() || unset.getImportedFile() || unset.getShift() ||
+	    unset.getTilt()) {
+		return EXIT_FAILURE;
+	}
+	try {
+		[[maybe_unused]] const auto& unresolvedName = unset.getG4Name();
+		return EXIT_FAILURE;
+	}
+	catch (const std::logic_error&) {
+	}
+	unset.assignG4Names("test/test_volume", "root/root");
+	if (unset.getG4Name() != "test/test_volume" || unset.getG4MotherName() != "root/root") {
 		return EXIT_FAILURE;
 	}
 	GVolume imported(logger, "test",
@@ -61,5 +73,11 @@ int main() {
 
 	configured.setDigitization(" NULL ");
 	configured.setGIdentity(std::nullopt);
+	configured.applyShift("1*cm, 2*cm, 3*cm");
+	configured.applyTilt("1*deg, 2*deg, 3*deg");
+	if (configured.getShift() != std::optional<std::string>{"1*cm, 2*cm, 3*cm"} ||
+	    configured.getTilt() != std::optional<std::string>{"1*deg, 2*deg, 3*deg"}) {
+		return EXIT_FAILURE;
+	}
 	return configured.getDigitization() || configured.getGIdentity() ? EXIT_FAILURE : EXIT_SUCCESS;
 }

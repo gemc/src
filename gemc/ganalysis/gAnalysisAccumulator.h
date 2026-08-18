@@ -10,6 +10,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -130,8 +131,8 @@ public:
 	/** \brief Publish the simulation run number that the next Geant4 run will process. */
 	void setCurrentRunNumber(int run_number);
 
-	/** \brief Return the simulation run number published for the current Geant4 run. */
-	[[nodiscard]] int currentRunNumber() const;
+	/** \brief Return the current simulation run number, or nullopt before one is published. */
+	[[nodiscard]] std::optional<int> currentRunNumber() const;
 
 	/** \brief Merge one completed thread-local shard into the persistent dataset. */
 	void merge(GAnalysisShard shard);
@@ -149,7 +150,7 @@ private:
 	mutable std::mutex mutex;
 	GAnalysisSeriesMap series;
 	std::uint64_t      beam_on_count = 0;
-	int                current_run_number = -1;
+	std::optional<int> current_run_number;
 };
 
 /** \brief Create the Analyzer service only for GUI execution; return null for batch execution. */

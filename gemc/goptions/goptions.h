@@ -149,26 +149,37 @@ public:
 	                  const std::string& help);
 
 	/**
-	 * \brief Retrieves the value of a scalar integer option.
+	 * \brief Retrieves the required value of a scalar integer option.
 	 *
 	 * @details
-	 * YAML null is not a valid integer value and results in a conversion error.
+	 * A YAML-null value exits with \c goptions::EC__MANDATORY_NOT_FILLED.
 	 *
 	 * \param tag Option name.
 	 * \return Value converted to int.
 	 */
-	[[nodiscard]] int getScalarInt(const std::string& tag) const;
+	[[nodiscard]] int getRequiredScalarInt(const std::string& tag) const;
 	[[nodiscard]] std::optional<int> getOptionalScalarInt(const std::string& tag) const;
 
 
 	/**
-	 * \brief Retrieves the value of a scalar double option.
+	 * \brief Retrieves the required value of a scalar double option.
 	 *
 	 * \param tag Option name.
 	 * \return Value converted to double.
 	 */
-	[[nodiscard]] double getScalarDouble(const std::string& tag) const;
+	[[nodiscard]] double getRequiredScalarDouble(const std::string& tag) const;
 	[[nodiscard]] std::optional<double> getOptionalScalarDouble(const std::string& tag) const;
+
+	/**
+	 * \brief Retrieves the required value of a scalar string option.
+	 *
+	 * A YAML-null value exits with \c goptions::EC__MANDATORY_NOT_FILLED. An empty string is a
+	 * present value and is returned unchanged.
+	 *
+	 * \param tag Option name.
+	 * \return String value.
+	 */
+	[[nodiscard]] std::string getRequiredScalarString(const std::string& tag) const;
 
 	/**
 	 * \brief Retrieves the optional value of a scalar string option.

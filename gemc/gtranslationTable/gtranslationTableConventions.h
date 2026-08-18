@@ -16,7 +16,6 @@ namespace gtranslationTable {
 // exit codes: 1100s
 
 /**
- * \def gtranslationTable::EC__GIDENTITYNOTFOUNDINTT
  * \brief Error code used when a requested identity cannot be resolved in the translation table context.
  *
  * Typical use: emitted when an identity vector (or derived key) is invalid or cannot be found.
@@ -24,7 +23,6 @@ namespace gtranslationTable {
 inline constexpr int EC__GIDENTITYNOTFOUNDINTT = 1101;
 
 /**
- * \def gtranslationTable::EC__TTNOTFOUNDINTT
  * \brief Error code used when a translation table entry is not found for a given key.
  *
  * Typical use: emitted by API calls that retrieve electronics for a given identity.

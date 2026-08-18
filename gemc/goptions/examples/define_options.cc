@@ -8,7 +8,7 @@
  * 2. Construct a **parsing** \ref GOptions : instance in `main()` using:
  *    \ref GOptions::GOptions "GOptions(argc, argv, user_defined_options)" .
  * 3. Retrieve resolved values with typed getters such as
- *    \ref GOptions::getScalarInt "getScalarInt()" .
+ *    \ref GOptions::getRequiredScalarInt "getRequiredScalarInt()" .
  *
  * It also shows:
  * - Defining a boolean switch with \ref GOptions::defineSwitch "defineSwitch()" .
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
 	auto gopts = std::make_shared<GOptions>(argc, argv, defineOptions());
 
 	// Typed access: retrieve a scalar integer option.
-	cout << " > Nthreads: " << gopts->getScalarInt("nthreads") << endl;
+	cout << " > Nthreads: " << gopts->getRequiredScalarInt("nthreads") << endl;
 
 	return EXIT_SUCCESS;
 }

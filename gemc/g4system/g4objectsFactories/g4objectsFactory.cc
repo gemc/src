@@ -88,7 +88,7 @@ namespace {
 
 // Configure factory behavior (overlap checking + backup material).
 void G4ObjectsFactory::initialize_context(int check_overlaps,
-                                          const std::string &backup_mat) {
+	                                      const std::optional<std::string> &backup_mat) {
 	checkOverlaps = check_overlaps;
 	backupMaterial = backup_mat;
 }
@@ -151,39 +151,39 @@ G4VisAttributes G4ObjectsFactory::createVisualAttributes(const GVolume *s) {
 G4RotationMatrix *G4ObjectsFactory::getRotation(const GVolume *s) {
 	auto rot = new G4RotationMatrix();
 
-	const auto tokens = tokenizeRotation(s->getRot());
-	if (tokens.empty()) { return rot; }
+	const auto applyRotation = [&](const std::string& expression) {
+		const auto tokens = tokenizeRotation(expression);
+		if (tokens.empty()) return;
 
-	const auto rotationType = tokens[0];
-	if (rotationType != "ordered:" && rotationType != "doubleRotation:") {
-		requireRotationTokenCount(tokens, 3, s);
-		const auto pars = gutilities::getG4NumbersFromStringVector(tokens);
-		rot->rotateX(pars[0]);
-		rot->rotateY(pars[1]);
-		rot->rotateZ(pars[2]);
-	}
-	else if (rotationType == "doubleRotation:") {
-		requireRotationTokenCount(tokens, 7, s);
-		const auto pars = gutilities::getG4NumbersFromStringVector(
-			{tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]});
-		rot->rotateX(pars[0]);
-		rot->rotateY(pars[1]);
-		rot->rotateZ(pars[2]);
-		rot->rotateX(pars[3]);
-		rot->rotateY(pars[4]);
-		rot->rotateZ(pars[5]);
-	}
-	else if (rotationType == "ordered:") {
-		requireRotationTokenCount(tokens, 5, s);
-		const auto order = lowercase(tokens[1]);
-		const auto pars = gutilities::getG4NumbersFromStringVector({tokens[2], tokens[3], tokens[4]});
-		applyOrderedRotation(rot, order, pars, s);
-	}
-	else {
-		std::cerr << "     >> ERROR: rotation type <" << rotationType << "> unknown. Exiting."
-		          << std::endl;
-		exit(1);
-	}
+		const auto rotationType = tokens[0];
+		if (rotationType != "ordered:" && rotationType != "doubleRotation:") {
+			requireRotationTokenCount(tokens, 3, s);
+			const auto pars = gutilities::getG4NumbersFromStringVector(tokens);
+			rot->rotateX(pars[0]);
+			rot->rotateY(pars[1]);
+			rot->rotateZ(pars[2]);
+		}
+		else if (rotationType == "doubleRotation:") {
+			requireRotationTokenCount(tokens, 7, s);
+			const auto pars = gutilities::getG4NumbersFromStringVector(
+				{tokens[1], tokens[2], tokens[3], tokens[4], tokens[5], tokens[6]});
+			rot->rotateX(pars[0]);
+			rot->rotateY(pars[1]);
+			rot->rotateZ(pars[2]);
+			rot->rotateX(pars[3]);
+			rot->rotateY(pars[4]);
+			rot->rotateZ(pars[5]);
+		}
+		else {
+			requireRotationTokenCount(tokens, 5, s);
+			const auto order = lowercase(tokens[1]);
+			const auto pars = gutilities::getG4NumbersFromStringVector({tokens[2], tokens[3], tokens[4]});
+			applyOrderedRotation(rot, order, pars, s);
+		}
+	};
+
+	applyRotation(s->getRot());
+	if (s->getTilt()) applyRotation(*s->getTilt());
 	return rot;
 }
 
@@ -194,8 +194,8 @@ G4ThreeVector G4ObjectsFactory::getPosition(const GVolume *s) {
 	if (vec.size() == 3) pos.set(vec[0], vec[1], vec[2]);
 
 	// Optional shift modifier (applied after parsing the base position).
-	if (s->getShift() != gsystem::GSYSTEMNOMODIFIER) {
-		const auto shift = gutilities::getG4NumbersFromString(s->getShift());
+	if (s->getShift()) {
+		const auto shift = gutilities::getG4NumbersFromString(*s->getShift());
 		if (shift.size() == 3) pos += G4ThreeVector(shift[0], shift[1], shift[2]);
 	}
 	return pos;
@@ -225,9 +225,10 @@ G4LogicalVolume *G4ObjectsFactory::buildLogical(const GVolume *s,
 	// - if missing and a backup material was configured, fall back to it
 	auto *nist = G4NistManager::Instance();
 	auto *mat = nist->FindOrBuildMaterial(s->getMaterial());
-	if (!mat && !backupMaterial.empty()) {
-		mat = nist->FindOrBuildMaterial(backupMaterial);
-		log->warning("Material <", s->getMaterial(), "> not found. Using backup material <", backupMaterial, ">.");
+	if (!mat && backupMaterial) {
+		mat = nist->FindOrBuildMaterial(*backupMaterial);
+		log->warning("Material <", s->getMaterial(), "> not found. Using backup material <",
+		             *backupMaterial, ">.");
 	}
 
 	if (!mat) {

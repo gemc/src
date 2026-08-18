@@ -199,7 +199,7 @@ public:
 	 * \param g Parsed options container supplying module configuration.
 	 */
 	void set_loggers(const std::shared_ptr<GOptions>& g) {
-		bufferFlushLimit = g->getScalarInt("ebuffer");
+		bufferFlushLimit = g->getRequiredScalarInt("ebuffer");
 	}
 
 protected:

@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
 	                 "same-name integer and double samples were not marked mixed");
 
 	accumulator.beginBeamOn(false);
-	success &= check(accumulator.currentRunNumber() == -1,
+	success &= check(!accumulator.currentRunNumber(),
 	                 "starting a beamOn interval did not reset the current run number");
 	GAnalysisShard replacement_shard;
 	replacement_shard.recordDigitized(22, "ec", *digitized);

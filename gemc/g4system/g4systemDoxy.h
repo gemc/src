@@ -64,7 +64,7 @@
  *   - Type: string
  *   - Meaning: fallback Geant4 material name used when a requested material is not found
  *   - Behavior:
- *     - when unset (equal to \c g4system::NO_USE_DEFAULT_MATERIAL), GEMC treats missing materials as fatal
+ *     - when unset, GEMC treats missing materials as fatal
  *     - when set to a valid Geant4 material (e.g. `G4_AIR`), missing materials are replaced by this fallback
  *
  * - `check_overlaps`

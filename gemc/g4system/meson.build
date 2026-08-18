@@ -2,6 +2,7 @@ sub_dir_name = meson.current_source_dir().split('/').get(-1)
 internal_deps = ['goptions', 'guts', 'glogging', 'gsystem', 'gfactory']
 
 example_source = files('examples/g4system_example.cc')
+modifier_transform_source = files('examples/modifier_transform.cc')
 examples_dir = meson.project_build_root() + '/test/' + sub_dir_name
 
 dbhost = ['-sql=' + examples_dir + '/gemc.db']
@@ -48,6 +49,7 @@ LD += {
     },
     'examples' : {
         'test_g4system_verbose' : [example_source, gsystem + dbhost + verbosities],
-        'test_g4system_overlaps_switch' : [example_source, gsystem + dbhost + verbosities + overlaps]
+        'test_g4system_overlaps_switch' : [example_source, gsystem + dbhost + verbosities + overlaps],
+        'test_g4system_modifier_transform' : [modifier_transform_source, []]
     }
 }

@@ -3,7 +3,6 @@
 namespace textProgressBar {
 
 /**
- * \def textProgressBar::TEXTPROGRESSBARNSTEPS
  * \brief Number of discrete progress bar steps used for throttled printing.
  *
  * This constant defines the maximum number of printed updates that may occur across the full

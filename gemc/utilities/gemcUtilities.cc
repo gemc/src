@@ -46,7 +46,7 @@ bool scalarOptionIsTrue(const std::shared_ptr<GOptions>& gopts, const std::strin
 std::string rootExtentForFieldCommand(const std::shared_ptr<GOptions>& gopts) {
 	if (gopts == nullptr) { return ""; }
 
-	std::string rootDefinition = gopts->getOptionalScalarString("root").value();
+	std::string rootDefinition = gopts->getRequiredScalarString("root");
 	for (auto& c : rootDefinition) {
 		if (c == ',') { c = ' '; }
 	}
@@ -72,7 +72,7 @@ namespace gemc {
 	// return the number of cores from options.
 	// if 0 is given, returns max number of available cores
 	int get_nthreads(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
-		int useThreads = gopts->getScalarInt("nthreads");
+		int useThreads = gopts->getRequiredScalarInt("nthreads");
 
 		// Geant4 provides a platform-specific core count helper.
 		int ncores = G4Threading::G4GetNumberOfCores();
@@ -130,7 +130,7 @@ namespace gemc {
 											  [[maybe_unused]] const std::shared_ptr<GLogger>& log,
 											  bool configure_visualization) {
 		// check_overlaps is typically provided by the Geant4 system options set.
-		auto check_overlaps = gopts->getScalarInt("check_overlaps"); // notice: from g4system options
+		auto check_overlaps = gopts->getRequiredScalarInt("check_overlaps"); // from g4system options
 		auto gui            = gopts->getSwitch("gui");
 		auto g4view = g4display::getG4View(gopts);
 
@@ -213,7 +213,7 @@ namespace gemc {
 			cmds.emplace_back("/vis/viewer/set/hiddenEdge 1");
 		}
 
-		const int fieldLinePoints = gopts->getScalarInt("show_field_lines");
+		const int fieldLinePoints = gopts->getRequiredScalarInt("show_field_lines");
 		if (fieldLinePoints > 0) {
 			if (const auto extent = rootExtentForFieldCommand(gopts); !extent.empty()) {
 				cmds.emplace_back(extent);
@@ -255,7 +255,7 @@ namespace gemc {
 #include <unistd.h>  // needed for get_pid
 
 	void start_random_engine(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
-		auto randomEngineName = gopts->getOptionalScalarString("randomEngine").value();
+		auto randomEngineName = gopts->getRequiredScalarString("randomEngine");
 		auto configuredSeed   = gopts->getOptionalScalarInt("seed");
 		G4int seed{};
 

@@ -5,6 +5,7 @@
 
 // c++
 #include <array>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -143,8 +144,8 @@ private:
 	std::string param_string(const std::string& key, const std::string& dflt) const;
 	double      param_g4number(const std::string& key, const std::string& dflt) const;
 
-	// Map the canonical axis of a coordinate name for the current symmetry, or -1 if it does not belong.
-	int axis_of_coordinate(const std::string& name) const;
+	// Map the canonical axis of a coordinate name for the current symmetry, or return nullopt if invalid.
+	std::optional<unsigned> axis_of_coordinate(const std::string& name) const;
 
 	// Parse one "name, npoints, min, max" coordinate string into the grid arrays and a Column.
 	void load_coordinate(const std::string& key);

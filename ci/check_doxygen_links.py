@@ -33,6 +33,10 @@ def missing_references(site_root: Path) -> list[tuple[Path, str]]:
         parser.feed(page.read_text(encoding="utf-8", errors="replace"))
 
         for reference in parser.references:
+            # Doxygen 1.18 may split "mailto" into JavaScript-style string fragments for spam protection.
+            # It is still an external email link, not a relative filesystem path.
+            if reference.startswith("mai'+'lto:"):
+                continue
             parsed = urlsplit(reference)
             if parsed.scheme or parsed.netloc or not parsed.path:
                 continue

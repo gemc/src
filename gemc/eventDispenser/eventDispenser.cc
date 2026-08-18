@@ -42,8 +42,8 @@ EventDispenser::EventDispenser(
 	  analysisAccumulator(std::move(analyzer)) {
 	// Retrieve configuration parameters from GOptions.
 	const auto filename = gopt->getOptionalScalarString("run_weights");
-	userRunno        = gopt->getScalarInt("run");
-	neventsToProcess = gopt->getScalarInt("n");
+	userRunno        = gopt->getRequiredScalarInt("run");
+	neventsToProcess = gopt->getRequiredScalarInt("n");
 
 	// Detect offscreen mode once at construction so processEvents() needs no vis headers.
 	// g4view is only defined when g4display options are included (e.g. in the full gemc app).
@@ -107,7 +107,7 @@ void EventDispenser::setNumberOfEvents(int nevents_to_process) {
 }
 
 void EventDispenser::resetRunContext() {
-	currentRunno = -1;
+	currentRunno.reset();
 }
 
 
@@ -168,7 +168,7 @@ int EventDispenser::processEvents() {
 		int nevents   = run.second;
 
 		// Load constants and translation tables if the run number has changed.
-		if (runNumber != currentRunno) {
+		if (!currentRunno || runNumber != *currentRunno) {
 			// Iterate the (plugin name -> digitization routine) map.
 			// digiRoutine is a std::shared_ptr<GDynamicDigitization>.
 			for (const auto& [plugin, digiRoutine] : *gDigitizationMap) {

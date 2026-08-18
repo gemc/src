@@ -10,7 +10,6 @@
  */
 
 #include "g4system_options.h"
-#include "g4systemConventions.h"
 #include "gsystem_options.h"
 
 // project goption to a system
@@ -24,15 +23,12 @@ GOptions defineOptions() {
 	// Pull in shared system options (database, geometry system handling, etc.).
 	goptions += gsystem::defineOptions();
 
-	// Backup material option:
-	// - used when a volume requests a material that is not defined in the Geant4 material tables
-	// - default behavior is controlled by g4system::NO_USE_DEFAULT_MATERIAL
+	// Optional material used when a volume requests one that is not in the Geant4 material tables.
 	std::string help =
 		"Material to be used if some volume requested a non-defined material.\n\n";
 	help += "By default GEMC will exit with error.\n";
 	help += "Example: -useBackupMaterial=G4_Air\n";
-	goptions.defineOption(GVariable("useBackupMaterial", g4system::NO_USE_DEFAULT_MATERIAL,
-	                                "Backup material"), help);
+	goptions.defineOption(GVariable("useBackupMaterial", std::nullopt, "Backup material"), help);
 
 	// Human-readable switches used for diagnostics and validation.
 	goptions.defineSwitch("showPredefinedMaterials", "log GEMC Predefined Materials");

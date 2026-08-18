@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 	// Example switches/scalars expected to exist in the calling environment.
 	// If not provided, GOptions will use its internal defaults.
 	auto gui     = gopts->getSwitch("gui");
-	auto timeout = gopts->getScalarDouble("tt");
+	auto timeout = gopts->getRequiredScalarDouble("tt");
 	int  ret     = EXIT_SUCCESS;
 
 	// Create a QApplication only when GUI mode is enabled.

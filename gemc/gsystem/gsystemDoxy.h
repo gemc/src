@@ -93,8 +93,8 @@
  *     - each entry becomes one \c GModifier created by \c gsystem::getModifiers()
  *   - Subkeys used by this module:
  *     - `name` (string): required volume name
- *     - `shift` (string): shift triple (default: \c gsystem::GSYSTEMNOMODIFIER)
- *     - `tilt` (string): tilt triple (default: \c gsystem::GSYSTEMNOMODIFIER)
+ *     - `shift` (optional string): shift triple
+ *     - `tilt` (optional string): tilt triple
  *     - `isPresent` (bool): if \c false, remove volume from world (default: \c true)
  *
  * - `sql`

@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cctype>
 #include <optional>
+#include <stdexcept>
 #include <utility>
 #include "gsystemConventions.h"
 
@@ -33,6 +34,21 @@ std::optional<std::string> normalize_optional_geometry_field(std::optional<std::
 	return trimmed;
 }
 } // namespace
+
+const std::string& GVolume::getG4Name() const {
+	if (!g4name) {
+		throw std::logic_error("Geant4 name requested before GVolume <" + system + "/" + name + "> was resolved");
+	}
+	return *g4name;
+}
+
+const std::string& GVolume::getG4MotherName() const {
+	if (!g4motherName) {
+		throw std::logic_error(
+			"Geant4 mother name requested before GVolume <" + system + "/" + name + "> was resolved");
+	}
+	return *g4motherName;
+}
 
 // need to set pCopyNo with unique identifier
 // see c++ thread safe ID generation function
@@ -97,9 +113,6 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 		variation   = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		runno       = stoi(removeAllSpacesFromString(pars[i++]));
 
-		// modifiers - accessed through options/jcard
-		shift = gsystem::GSYSTEMNOMODIFIER;
-		tilt  = gsystem::GSYSTEMNOMODIFIER;
 	}
 }
 
@@ -166,9 +179,6 @@ GVolume::GVolume(const std::string& rootVolumeDefinition,
 
 	description = "root volume";
 
-	// modifiers - accessed through options/jcard
-	shift = gsystem::GSYSTEMNOMODIFIER;
-	tilt  = gsystem::GSYSTEMNOMODIFIER;
 }
 
 void GVolume::setDigitization(std::optional<std::string> value) {

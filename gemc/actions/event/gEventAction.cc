@@ -122,7 +122,7 @@ GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* ru
 		std::string nth_part = dash == std::string::npos ? std::string() : spec.substr(dash + 1);
 
 		// Effective worker-thread count, mirroring gemc::get_nthreads clamping (0 means all cores).
-		int nthreads = goptions->getScalarInt("nthreads");
+		int nthreads = goptions->getRequiredScalarInt("nthreads");
 		const int ncores = G4Threading::G4GetNumberOfCores();
 		if (nthreads == 0 || nthreads > ncores) nthreads = ncores;
 

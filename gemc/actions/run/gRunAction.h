@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <mutex>
+#include <optional>
+#include <stdexcept>
 #include <vector>
 
 // geant4
@@ -127,14 +129,14 @@ public:
 	/** \brief Discover digitized variables in one accepted record and add them to this thread's shard. */
 	void record_analysis_digitized(const std::string& detector, const GDigitizedData& data) {
 		if (analysis_shard != nullptr) {
-			analysis_shard->recordDigitized(analysis_run_number, detector, data);
+			analysis_shard->recordDigitized(requiredAnalysisRunNumber(), detector, data);
 		}
 	}
 
 	/** \brief Discover true-information variables in one record and add them to this thread's shard. */
 	void record_analysis_true(const std::string& detector, const GTrueInfoData& data) {
 		if (analysis_shard != nullptr) {
-			analysis_shard->recordTrueInformation(analysis_run_number, detector, data);
+			analysis_shard->recordTrueInformation(requiredAnalysisRunNumber(), detector, data);
 		}
 	}
 
@@ -294,7 +296,14 @@ private:
 	std::unique_ptr<GAnalysisShard> analysis_shard;
 
 	/** \brief Simulation conditions run number attached to samples in analysis_shard. */
-	int analysis_run_number = -1;
+	std::optional<int> analysis_run_number;
+
+	[[nodiscard]] int requiredAnalysisRunNumber() const {
+		if (!analysis_run_number) {
+			throw std::logic_error("Analyzer data recorded before the simulation run number was published");
+		}
+		return *analysis_run_number;
+	}
 
 	/**
 	 * \brief Worker-thread streamer map, created lazily when event-mode publication is needed.
@@ -386,6 +395,6 @@ private:
 // in the constructur we had:
 
 // frameDuration = 64000;
-// eventDuration = gutilities::getG4Number(goptions->getOptionalScalarString("eventTimeSize").value());
+// eventDuration = gutilities::getG4Number(goptions->getRequiredScalarString("eventTimeSize"));
 
 // stream = gopt->getSwitch("stream");

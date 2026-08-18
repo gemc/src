@@ -85,7 +85,7 @@ GOptions defineOptions() {
 Options getOptions(const std::shared_ptr<GOptions>& gopts) {
 	Options result;
 	if (gopts == nullptr || !gopts->doesOptionExist("ganalysis_plots")) { return result; }
-	result.plot_count = gopts->getScalarInt("ganalysis_plots") == 4 ? 4 : 1;
+	result.plot_count = gopts->getRequiredScalarInt("ganalysis_plots") == 4 ? 4 : 1;
 	result.accumulate = gopts->getOptionNode("ganalysis_accumulate").as<bool>();
 	if (!gopts->doesOptionExist("ganalysis")) { return result; }
 

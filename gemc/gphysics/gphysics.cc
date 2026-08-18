@@ -36,7 +36,7 @@ GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 	log->debug(CONSTRUCTOR, "GPhysics");
 
 	bool        showPhys  = gopts->getSwitch("showPhysics");
-	std::string gphysList = gopts->getOptionalScalarString("phys_list").value();
+	std::string gphysList = gopts->getRequiredScalarString("phys_list");
 
 	if (showPhys) {
 		// Diagnostic mode: print what Geant4 advertises and return without building a list.

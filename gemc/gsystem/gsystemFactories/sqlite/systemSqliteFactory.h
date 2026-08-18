@@ -19,7 +19,7 @@
  *
  * Database lifetime:
  * - The sqlite connection is created on-demand during the first load call.
- * - The DB handle is closed in \ref GSystemSQLiteFactory::closeSystem "closeSystem()".
+ * - The DB handle is closed by \c closeSystem().
  *
  * Special-case behavior:
  * - The ROOT/world system (gsystem::ROOTWORLDGVOLUMENAME) is skipped by design (it is injected separately).

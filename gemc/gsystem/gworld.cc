@@ -160,7 +160,7 @@ void GWorld::create_gsystemsMap(SystemList systems) {
 
 // See gworld.h for API docs.
 void GWorld::load_systems() {
-	const std::string dbhost = gopts->getOptionalScalarString("sql").value();
+	const std::string dbhost = gopts->getRequiredScalarString("sql");
 
 	auto systemFactories = createSystemFactory();
 	const bool no_systems_defined = gsystemsMap->empty();
@@ -217,7 +217,7 @@ void GWorld::load_systems() {
 		// Inject the ROOT “world” volume, if not already present.
 		// This ensures downstream volume placement always has a valid top-level mother.
 		const std::string worldVolumeDefinition =
-			gopts->getOptionalScalarString(gsystem::ROOTWORLDGVOLUMENAME).value();
+			gopts->getRequiredScalarString(gsystem::ROOTWORLDGVOLUMENAME);
 
 		auto rootSystem = std::make_shared<GSystem>(
 			gopts, // logger

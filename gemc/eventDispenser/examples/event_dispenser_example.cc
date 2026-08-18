@@ -47,6 +47,7 @@
 #include "goptions.h"
 
 #include <map>
+#include <stdexcept>
 #include <string>
 
 const std::string plugin_name = "test_gdynamic_plugin";
@@ -76,6 +77,13 @@ int main(int argc, char *argv[]) {
 
 	// Instantiate the EventDispenser with parsed options and the digitization routine map.
 	EventDispenser eventDisp(gopts, dynamicRoutinesMap);
+	if (eventDisp.beamOnIssued()) return EXIT_FAILURE;
+	try {
+		[[maybe_unused]] const auto prematureStart = eventDisp.beamOnStartTime();
+		return EXIT_FAILURE;
+	}
+	catch (const std::logic_error&) {
+	}
 
 	// Retrieve the run-to-event allocation computed during construction.
 	// This can be used by applications to report expected run statistics or validate configuration.
@@ -84,6 +92,7 @@ int main(int argc, char *argv[]) {
 
 	// Execute the processing loop: per-run initialization + event dispatch.
 	eventDisp.processEvents();
+	if (!eventDisp.beamOnIssued()) return EXIT_FAILURE;
 
 	return EXIT_SUCCESS;
 }

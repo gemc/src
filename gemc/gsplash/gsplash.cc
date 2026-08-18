@@ -78,9 +78,9 @@ std::unique_ptr<GSplash> GSplash::create(
 GSplash::GSplash(const std::shared_ptr<GOptions>& gopts, const string& imageName, double splashTime)
 	: GBase(gopts, gsplash::GSPLASH_LOGGER) {
 	QPixmap pixmap;
-	const auto option_splash_time = gopts->getScalarDouble(gsplash::GSPLASH_TIME_OPTION);
+	const auto option_splash_time = gopts->getRequiredScalarDouble(gsplash::GSPLASH_TIME_OPTION);
 	splash_time = option_splash_time >= 0.0 ? option_splash_time : splashTime;
-	const auto splash_scale = gopts->getScalarDouble(gsplash::GSPLASH_SCALE_OPTION);
+	const auto splash_scale = gopts->getRequiredScalarDouble(gsplash::GSPLASH_SCALE_OPTION);
 
 	// If no explicit image is selected, load it from the GSPLASH environment variable.
 	if (imageName == gsplash::NOSPLASHIMAGESELECTED) {
