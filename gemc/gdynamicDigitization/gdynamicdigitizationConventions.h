@@ -16,3 +16,6 @@ constexpr int ERR_LOADCONSTANTFAIL = 1602;
 
 /// Exit code when a payload is of the wrong size / unexpected format.
 constexpr int ERR_DEFINESPECFAIL = 1603;
+
+/** Numeric placeholder required by the existing true-information output schema. */
+inline constexpr int MISSING_TRUE_INFORMATION_NUMBER = -123456;

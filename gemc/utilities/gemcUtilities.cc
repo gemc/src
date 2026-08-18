@@ -256,17 +256,19 @@ namespace gemc {
 
 	void start_random_engine(const std::shared_ptr<GOptions>& gopts, const std::shared_ptr<GLogger>& log) {
 		auto randomEngineName = gopts->getOptionalScalarString("randomEngine").value();
-		auto seed             = gopts->getScalarInt("seed");
+		auto configuredSeed   = gopts->getOptionalScalarInt("seed");
+		G4int seed{};
 
 		// If the user did not set a seed, derive one using several fast-changing sources.
 		// This helps reduce accidental seed reuse across runs.
-		if (seed == gemc::SEEDNOTSET) {
+		if (!configuredSeed) {
 			auto timed   = time(NULL);
 			auto clockd  = clock();
 			auto getpidi = getpid();
 			seed         = (G4int)( timed - clockd - getpidi );
 			log->info(1, "Using random seed ", seed);
 		} else {
+			seed = *configuredSeed;
 			log->info(1, "User defined seed ", seed);
 		}
 

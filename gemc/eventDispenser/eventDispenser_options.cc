@@ -49,7 +49,7 @@ GOptions defineOptions() {
 	help += "will simulate 10% of events with run number 11 conditions, 70% for run 12 and 20% for run 13.\n";
 
 	goptions.defineOption(
-		GVariable("run_weights", guts::UNINITIALIZEDSTRINGQUANTITY, "File with run number and weights"),
+		GVariable("run_weights", std::nullopt, "File with run number and weights"),
 		help
 	);
 

@@ -115,11 +115,11 @@ void GDigitizedData::accumulateVariable(const std::string& vname, double value) 
 	}
 }
 
-int GDigitizedData::getTimeAtElectronics() {
-	// Return the conventional electronics-time value or the sentinel if absent.
-	if (intObservablesMap.find(TIMEATELECTRONICS) == intObservablesMap.end()) { return TIMEATELECTRONICSNOTDEFINED; }
+std::optional<int> GDigitizedData::getTimeAtElectronics() const {
+	const auto time = intObservablesMap.find(TIMEATELECTRONICS);
+	if (time == intObservablesMap.end()) { return std::nullopt; }
 	log->info(2, "Getting TIMEATELECTRONICS from intObservablesMap.");
-	return intObservablesMap[TIMEATELECTRONICS];
+	return time->second;
 }
 
 int GDigitizedData::getIntObservable(const std::string& varName) {

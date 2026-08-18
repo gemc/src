@@ -627,8 +627,8 @@ void DBSelectView::reload_geometry() {
 			gsystemYaml << "{name: " << gsys->getName()
 			            << ", factory: " << gsys->getFactoryName()
 			            << ", variation: " << gsys->getVariation();
-			if (gsys->getAnnotations() != guts::UNINITIALIZEDSTRINGQUANTITY) {
-				gsystemYaml << ", annotations: " << gsys->getAnnotations();
+			if (gsys->getAnnotations()) {
+				gsystemYaml << ", annotations: " << *gsys->getAnnotations();
 			}
 			gsystemYaml << "}";
 		}

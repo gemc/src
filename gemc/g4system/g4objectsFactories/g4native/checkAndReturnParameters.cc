@@ -25,7 +25,11 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 	std::string   name = s->getName();
 
 	// Convert comma-/space-separated string into a vector<double>.
-	std::vector<double> parameters               = gutilities::getG4NumbersFromString(s->getParameters());
+	if (!s->getParameters()) {
+		log->error(g4system::ERR_G4VOLUMEBUILDFAILED,
+		           "Native solid <", s->getG4Name(), "> has no constructor parameters");
+	}
+	std::vector<double> parameters = gutilities::getG4NumbersFromString(*s->getParameters());
 	int                 actualNumberOfParameters = static_cast<int>(parameters.size());
 
 	// Table of valid counts for each primitive.
@@ -48,7 +52,7 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 			(actualNumberOfParameters - 3) % 2 != 0) {
 			log->error(g4system::ERR_G4PARAMETERSMISMATCH,
 			           "Wrong number of parameters in the constructor of <",
-			           name, "> of solid type <", type, ">: ", s->getParameters());
+			           name, "> of solid type <", type, ">: ", *s->getParameters());
 		}
 		return parameters; // valid - return early
 	}
@@ -61,7 +65,7 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 			(actualNumberOfParameters - 4) % 2 != 0) {
 			log->error(g4system::ERR_G4PARAMETERSMISMATCH,
 			           "Wrong number of parameters in the constructor of <",
-			           name, "> of solid type <", type, ">: ", s->getParameters());
+			           name, "> of solid type <", type, ">: ", *s->getParameters());
 		}
 		return parameters; // valid - return early
 	}
@@ -87,7 +91,7 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 		== possibleNumberOfParameters.end()) {
 		log->error(g4system::ERR_G4PARAMETERSMISMATCH,
 		           "Wrong number of parameters in the constructor of <", name,
-		           "> of solid type <", type, ">: ", s->getParameters());
+		           "> of solid type <", type, ">: ", *s->getParameters());
 	}
 
 	return parameters;

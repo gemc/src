@@ -71,15 +71,14 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 	if (s->getName() == gsystem::ROOTWORLDGVOLUMENAME) { return; }
 
 	// Resolve the directory holding the CAD meshes.
-	string dirLocation = gutilities::searchForDirInLocations(s->getFilePath(), possibleLocationOfFiles);
-	if (!filesystem::exists(dirLocation)) {
+	const auto dirLocation = gutilities::searchForDirInLocations(s->getFilePath(), possibleLocationOfFiles);
+	if (!dirLocation) {
 		log->error(gsystem::ERR_GDIRNOTFOUND, "CAD Directory >" + s->getFilePath() + "< not found.");
-		return;
 	}
 
 	// Map each available mesh file to its stem (filename without extension), which is the volume name.
 	unordered_map<string, string> meshByName;
-	for (const auto& cf : gutilities::getListOfFilesInDirectory(dirLocation, {".stl", ".ply"})) {
+	for (const auto& cf : gutilities::getListOfFilesInDirectory(dirLocation->string(), {".stl", ".ply"})) {
 		meshByName[filesystem::path(cf).stem().string()] = cf;
 	}
 
@@ -154,10 +153,10 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 			if (it == meshByName.end()) {
 				log->warning("CAD factory: volume <", volumeName,
 				             "> is defined in the database but no mesh file was found in <",
-				             dirLocation, ">; skipping.");
+				             dirLocation->string(), ">; skipping.");
 				continue;
 			}
-			set_resolved_cad_mesh(gvolumePars, dirLocation + "/" + it->second);
+			set_resolved_cad_mesh(gvolumePars, (*dirLocation / it->second).string());
 		}
 
 		s->addGVolume(gvolumePars);
@@ -174,5 +173,5 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 
 	log->info(0, "CAD factory: loaded ", loaded, " volume(s) for system <", system_name,
 	          ">, variation <", variation, ">, run ", runno,
-	          " (", meshByName.size(), " mesh file(s) present in <", dirLocation, ">).");
+	          " (", meshByName.size(), " mesh file(s) present in <", dirLocation->string(), ">).");
 }

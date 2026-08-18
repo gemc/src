@@ -71,8 +71,10 @@ G4VSolid* G4CadSystemFactory::buildSolid(const GVolume* s,
 	// store only its numeric scale there and its mesh path in description.
 	std::string fileName = s->getDescription();
 	double      scale    = 1.0;
-	const auto  cadParameters =
-		gutilities::getStringVectorFromStringWithDelimiter(s->getParameters(), ",");
+	std::vector<std::string> cadParameters;
+	if (s->getParameters()) {
+		cadParameters = gutilities::getStringVectorFromStringWithDelimiter(*s->getParameters(), ",");
+	}
 	if (cadParameters.size() > 1) {
 		fileName = cadParameters[0];
 		if (!numeric_value(cadParameters[1], scale)) {
@@ -81,7 +83,7 @@ G4VSolid* G4CadSystemFactory::buildSolid(const GVolume* s,
 			scale = 1.0;
 		}
 	}
-	else if (cadParameters.size() == 1 && cadParameters[0] != "NULL") {
+	else if (cadParameters.size() == 1) {
 		double legacyScale = 1.0;
 		if (numeric_value(cadParameters[0], legacyScale)) { scale = legacyScale; }
 		else { fileName = cadParameters[0]; }

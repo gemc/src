@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <stdexcept>
 #include <vector>
 
 /**
@@ -70,6 +71,8 @@ public:
 	[[nodiscard]] std::vector<int> getHAddress() const;
 
 private:
+	static void validateHAddress(int crate, int slot, int channel);
+
 	int crate;   ///< Crate number.
 	int slot;    ///< Slot number.
 	int channel; ///< Channel number.

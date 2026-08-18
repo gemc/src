@@ -8,7 +8,7 @@
  * - **Structured options** stored as YAML maps or sequences of maps.
  *
  * Structured options can be **cumulative** (sequence of maps). In that mode:
- * - Some keys may be mandatory (schema value is \ref goptions::NODFLT : ).
+ * - Some keys may be mandatory (schema value is \ref goptions::REQUIRED : ).
  * - Missing non-mandatory keys can be filled from schema defaults.
  */
 
@@ -140,17 +140,8 @@ void GOption::set_value(const YAML::Node& v) {
  * - We only check keys; type/shape constraints are not enforced here.
  */
 bool GOption::does_the_option_set_all_necessary_values(const YAML::Node& v) {
-	vector<string> this_keys;
-	if (v.Type() == YAML::NodeType::Map) {
-		for (const auto& it : v) {
-			this_keys.push_back(it.first.as<string>());
-		}
-	}
-
 	for (const auto& key : mandatory_keys) {
-		if (find(this_keys.begin(), this_keys.end(), key) == this_keys.end()) {
-			return false;
-		}
+		if (!v[key] || v[key].IsNull()) return false;
 	}
 	return true;
 }
@@ -255,8 +246,11 @@ string GOption::detailedHelp() const {
 			YAML::Node this_node = yvalues[i];
 
 			for (auto it = this_node.begin(); it != this_node.end(); ++it) {
+				const std::string defaultDescription = gvar_required[i]
+					? "required"
+					: (it->second.IsNull() ? "not set" : YAML::Dump(it->second));
 				cout << guts::TGREENPOINTITEM << " " << guts::KGRN << it->first.as<string>() << guts::RST
-					<< ": " << gvar_descs[i] << "Default value: " << it->second.as<string>() << endl;
+					<< ": " << gvar_descs[i] << "Default value: " << defaultDescription << endl;
 			}
 		}
 	}

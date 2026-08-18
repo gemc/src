@@ -69,7 +69,7 @@ namespace geventaction {
 		help += guts::GTABTAB;
 		help += "-log_every=100-2 (only thread 2, every 100 events)\n";
 		goptions.defineOption(
-			GVariable(LOG_EVERY_OPTION, guts::UNINITIALIZEDSTRINGQUANTITY,
+			GVariable(LOG_EVERY_OPTION, std::nullopt,
 			          "log module: print event progress and average rate every N events per thread"),
 			help);
 

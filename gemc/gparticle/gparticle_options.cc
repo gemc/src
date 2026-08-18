@@ -20,7 +20,7 @@ using std::vector;
 //               Default units: angles → deg, momentum → MeV, lengths → cm.
 //
 // Returns default_g4val when the key is absent from the node (e.g. optional
-// fields whose schema entry uses NODFLT or whose default was already merged).
+// fields whose schema default was already merged).
 static double parseG4Value(const YAML::Node&               node,
                            const string&                   key,
                            const string&                   fallback_unit,
@@ -39,6 +39,17 @@ static double parseG4Value(const YAML::Node&               node,
 	return gutilities::getG4Number(val + "*" + fallback_unit);
 }
 
+static double parseRequiredG4Value(const YAML::Node&               node,
+	                               const string&                   key,
+	                               const string&                   fallback_unit,
+	                               const std::shared_ptr<GLogger>& logger) {
+	if (!node[key] || node[key].IsNull()) {
+		logger->error(goptions::EC__MANDATORY_NOT_FILLED,
+		              "Mandatory gparticle field <", key, "> is missing");
+	}
+	return parseG4Value(node, key, fallback_unit, 0.0, logger);
+}
+
 // Build a vector of configured Gparticle instances from the structured "gparticle" option node.
 // The detailed API contract is documented in gparticle_options.h.
 vector<GparticlePtr> getGParticlesFromOption(const std::shared_ptr<GOptions>& gopts, std::shared_ptr<GLogger>& logger) {
@@ -50,10 +61,10 @@ vector<GparticlePtr> getGParticlesFromOption(const std::shared_ptr<GOptions>& go
 
 	for (auto gparticle_item : gparticle_node) {
 		gparticles.emplace_back(std::make_shared<Gparticle>(
-			gopts->get_variable_in_option<string>(gparticle_item, "name", goptions::NODFLT),
+			gopts->get_required_variable_in_option<string>(gparticle_item, "name"),
 			gopts->get_variable_in_option<int>(gparticle_item, "multiplicity", 1),
 
-			parseG4Value(gparticle_item, "p",       "MeV", gparticle::GPARTICLENOTDEFINED, logger),
+			parseRequiredG4Value(gparticle_item, "p", "MeV", logger),
 			parseG4Value(gparticle_item, "delta_p", "MeV", 0,                   logger),
 			gopts->get_variable_in_option<string>(gparticle_item, "randomMomentumModel", "uniform"),
 
@@ -103,9 +114,9 @@ GOptions defineOptions() {
 	help        += "                {name: proton, multiplicity: 2, p: 1200*MeV, theta: 14*deg, delta_theta: 10*deg}]\"\n";
 
 	vector<GVariable> gparticle_v = {
-		{"name", goptions::NODFLT, "Particle name (mandatory), e.g. \"proton\" or \"e-\""},
+		{"name", goptions::REQUIRED, "Particle name (mandatory), e.g. \"proton\" or \"e-\""},
 		{"multiplicity", 1, "How many copies of this particle will be generated in each event"},
-		{"p",       goptions::NODFLT, "Particle momentum with unit, e.g. \"4*GeV\" or \"4000*MeV\". "
+		{"p",       goptions::REQUIRED, "Particle momentum with unit, e.g. \"4*GeV\" or \"4000*MeV\". "
 		                             "Plain number falls back to MeV."},
 		{"delta_p", "0*MeV", "Particle momentum spread, centered on p (same unit convention as p)."},
 		{"randomMomentumModel", "uniform", "Momentum randomization. 'gaussian' uses deltas as sigmas."},
@@ -139,8 +150,8 @@ GOptions defineOptions() {
 	file_help += "-gparticlefile=\"[{format: lund, filename: a.lund}]\" \n";
 
 	vector<GVariable> gparticlefile_v = {
-		{"format", goptions::NODFLT, "Particle file format, for example \"lund\""},
-		{"filename", goptions::NODFLT, "Input filename containing particle definitions"}
+		{"format", goptions::REQUIRED, "Particle file format, for example \"lund\""},
+		{"filename", goptions::REQUIRED, "Input filename containing particle definitions"}
 	};
 
 	goptions.defineOption("gparticlefile", "define generator particles from file(s)", gparticlefile_v, file_help);

@@ -67,7 +67,7 @@ public:
 	 *
 	 * \param name The verbosity/debug key name to add to the schema.
 	 */
-	explicit GOptions(std::string name) : option_verbosity_name(name) { addOptionTitle(std::move(name)); }
+	explicit GOptions(std::string name) { addOptionTitle(std::move(name)); }
 
 	/**
 	 * \brief Main constructor: registers options and parses inputs (YAML + command line).
@@ -137,7 +137,7 @@ public:
 	 *
 	 * @details
 	 * A structured option is described by a vector of \ref GVariable : schema entries.
-	 * If any schema entry uses \ref goptions::NODFLT : as its default, that key becomes mandatory
+	 * If any schema entry uses \ref goptions::REQUIRED : as its default, that key becomes mandatory
 	 * and the option becomes cumulative.
 	 *
 	 * \param name Option name (without leading '-').
@@ -158,6 +158,7 @@ public:
 	 * \return Value converted to int.
 	 */
 	[[nodiscard]] int getScalarInt(const std::string& tag) const;
+	[[nodiscard]] std::optional<int> getOptionalScalarInt(const std::string& tag) const;
 
 
 	/**
@@ -167,6 +168,7 @@ public:
 	 * \return Value converted to double.
 	 */
 	[[nodiscard]] double getScalarDouble(const std::string& tag) const;
+	[[nodiscard]] std::optional<double> getOptionalScalarDouble(const std::string& tag) const;
 
 	/**
 	 * \brief Retrieves the optional value of a scalar string option.
@@ -327,15 +329,6 @@ public:
 	}
 
 	/**
-	 * \brief Name used when constructing the verbosity/debug schema helper.
-	 *
-	 * @details
-	 * Defaults to \c guts::UNINITIALIZEDSTRINGQUANTITY and is typically set by the
-	 * \ref GOptions::GOptions(std::string) "GOptions(name)" helper constructor.
-	 */
-	std::string option_verbosity_name{guts::UNINITIALIZEDSTRINGQUANTITY};
-
-	/**
 	 * \brief Schema entries used to define the `verbosity` and `debug` structured options.
 	 *
 	 * @details
@@ -364,6 +357,14 @@ public:
 	 */
 	template <typename T>
 	T get_variable_in_option(const YAML::Node& node, const std::string& variable_name, const T& default_value);
+
+	/** Retrieve a mandatory variable from a structured option entry. */
+	template <typename T>
+	T get_required_variable_in_option(const YAML::Node& node, const std::string& variable_name);
+
+	/** Retrieve an optional variable from a structured option entry. */
+	template <typename T>
+	std::optional<T> get_optional_variable_in_option(const YAML::Node& node, const std::string& variable_name);
 
 	/**
 	 * \brief Returns the list of YAML file paths detected on the command line.

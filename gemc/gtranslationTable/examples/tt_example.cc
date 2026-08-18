@@ -26,6 +26,7 @@
 // gemc
 #include "glogger.h"
 
+#include <stdexcept>
 #include <type_traits>
 
 using std::vector;
@@ -59,6 +60,13 @@ int main(int argc, char* argv[]) {
 	// Two example electronics configurations to associate with the identities.
 	GElectronic crate1(2, 1, 3, GElectronic::ComparisonMode::crate_slot_channel);
 	GElectronic crate2(2, 1, 4, GElectronic::ComparisonMode::crate_slot_channel);
+	try {
+		[[maybe_unused]] GElectronic invalid(-1, 1, 4, GElectronic::ComparisonMode::crate_slot_channel);
+		return EXIT_FAILURE;
+	}
+	catch (const std::invalid_argument&) {
+		// Invalid addresses are rejected before translation-table insertion.
+	}
 
 	// Construct the translation table. It will use the same options object for its internal logger setup.
 	GTranslationTable translationTable(gopts);

@@ -7,6 +7,7 @@
 
 // c++
 #include <map>
+#include <optional>
 #include <string>
 
 /**
@@ -52,7 +53,7 @@ public:
 	        const std::string&               experiment,
 	        int                              runno,
 	        const std::string&               variation,
-	        const std::string&               annotations = "none"
+	        std::optional<std::string>       annotations = std::nullopt
 	);
 
 	/**
@@ -101,7 +102,7 @@ private:
 	std::string experiment;  ///< Experiment name (DB filter).
 	int         runno{};     ///< Run number (DB filter).
 	std::string variation;   ///< Variation string (DB/file filter).
-	std::string annotations; ///< Optional annotations (e.g. \c "mats_only").
+	std::optional<std::string> annotations; ///< Optional annotations (e.g. \c "mats_only").
 
 	/**
 	 * \name System content
@@ -123,7 +124,7 @@ public:
 	[[nodiscard]] inline std::string getFactoryName() const { return factoryName; }
 	[[nodiscard]] inline std::string getVariation() const { return variation; }
 	[[nodiscard]] inline std::string getExperiment() const { return experiment; }
-	[[nodiscard]] inline std::string getAnnotations() const { return annotations; }
+	[[nodiscard]] inline const std::optional<std::string>& getAnnotations() const { return annotations; }
 	[[nodiscard]] inline int         getRunno() const { return runno; }
 	[[nodiscard]] inline std::string get_dbhost() const { return dbhost; }
 	///@}

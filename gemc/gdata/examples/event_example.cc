@@ -194,7 +194,9 @@ static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const s
 			log->info(0, "    dbl  SRO:     ", map_to_string(dbls_sro_only));
 
 			// Demonstrate the convenience accessor for one common SRO quantity.
-			log->info(0, "    timeAtElectronics() = ", dh->getTimeAtElectronics());
+			const auto electronicsTime = dh->getTimeAtElectronics();
+			log->info(0, "    timeAtElectronics() = ",
+			          electronicsTime ? std::to_string(*electronicsTime) : "not available");
 		}
 	}
 }

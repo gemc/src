@@ -37,13 +37,12 @@ SystemList getSystems(const std::shared_ptr<GOptions>& gopts) {
 			std::make_shared<GSystem>(
 				gopts,
 				dbhost,
-				gopts->get_variable_in_option<std::string>(gsystem_item, "name", goptions::NODFLT),
+				gopts->get_required_variable_in_option<std::string>(gsystem_item, "name"),
 				factory,
 				exp,
 				run,
 				gopts->get_variable_in_option<std::string>(gsystem_item, "variation", "default"),
-				gopts->get_variable_in_option<std::string>(gsystem_item, "annotations",
-				                                           guts::UNINITIALIZEDSTRINGQUANTITY)
+				gopts->get_optional_variable_in_option<std::string>(gsystem_item, "annotations")
 			));
 	}
 
@@ -59,7 +58,7 @@ std::vector<GModifier> getModifiers(const std::shared_ptr<GOptions>& gopts) {
 
 	for (auto gmodifier_item : gmodifier_node) {
 		gmods.emplace_back(
-			gopts->get_variable_in_option<std::string>(gmodifier_item, "name", goptions::NODFLT),
+			gopts->get_required_variable_in_option<std::string>(gmodifier_item, "name"),
 			gopts->get_variable_in_option<std::string>(gmodifier_item, "shift", gsystem::GSYSTEMNOMODIFIER),
 			gopts->get_variable_in_option<std::string>(gmodifier_item, "tilt", gsystem::GSYSTEMNOMODIFIER),
 			gopts->get_variable_in_option<bool>(gmodifier_item, "isPresent", true));
@@ -90,13 +89,13 @@ GOptions defineOptions() {
 		R"RAWS(Example: -gsystem="[{name: b1}]")RAWS";
 
 	std::vector<GVariable> gsystem = {
-	    {"name", goptions::NODFLT,
+	    {"name", goptions::REQUIRED,
 	     "system name (mandatory). For ascii factories, it may include the path to the file"},
 	    {"factory", gsystem::GSYSTEMSQLITETFACTORYLABEL, "factory name."},
 	    {"variation", "default", "geometry variation"},
-	    {"annotations", guts::UNINITIALIZEDSTRINGQUANTITY,
+	    {"annotations", std::nullopt,
 	     "optional system annotations. Examples: \"mats_only\" "},
-	    {"digitization", guts::UNINITIALIZEDSTRINGQUANTITY,
+	    {"digitization", std::nullopt,
 	     "optional digitization plugin name when it differs from the system name (shared plugin, e.g. \"ecal\" "
 	     "for the EC and PCAL systems)"}};
 	goptions.defineOption(GSYSTEM_LOGGER, "defines the group of volumes in a system", gsystem, help);
@@ -106,7 +105,7 @@ GOptions defineOptions() {
 	help += R"RAWS(Example: -gmodifier="[{name: targetCell, tilt: '0*deg, 0*deg, -10*deg'}]")RAWS";
 
 	std::vector<GVariable> gmodifier = {
-		{"name", goptions::NODFLT, "volume name (mandatory)"},
+		{"name", goptions::REQUIRED, "volume name (mandatory)"},
 		{"shift", gsystem::GSYSTEMNOMODIFIER, "volume shift added to existing position"},
 		{"tilt", gsystem::GSYSTEMNOMODIFIER, "volume tilt added to existing rotation"},
 		{"isPresent", true, "If set to false, remove the volume from the world"}

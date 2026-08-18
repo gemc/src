@@ -22,6 +22,9 @@ int main(int argc, char* argv[]) {
 
 	// Reference touchable used for comparisons.
 	auto a_ctof_gtouchable = GTouchable(gopts, "readout", "sector: 5, paddle: 5", {10.0, 20.0, 30.0}, 100.0*CLHEP::g);
+	if (a_ctof_gtouchable.getStepTimeAtElectronicsIndex()) return EXIT_FAILURE;
+	a_ctof_gtouchable.assignStepTimeAtElectronicsIndex(3);
+	if (a_ctof_gtouchable.getStepTimeAtElectronicsIndex() != std::optional<int>{3}) return EXIT_FAILURE;
 
 	for (unsigned i = 1; i < 10; i++) {
 		// Create a synthetic test touchable with a deterministic identity pattern.

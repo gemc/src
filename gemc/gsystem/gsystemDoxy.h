@@ -84,7 +84,7 @@
  *     - `name` (string, mandatory): system name (and/or source identifier)
  *     - `factory` (string): factory label (default: sqlite)
  *     - `variation` (string): geometry variation (default: \c "default")
- *     - `annotations` (string): optional system annotations (default: \c guts::UNINITIALIZEDSTRINGQUANTITY)
+ *     - `annotations` (string): optional system annotations (default: not set)
  *
  * - `gmodifier`
  *   - Type: sequence of maps
@@ -92,7 +92,7 @@
  *   - Behavior:
  *     - each entry becomes one \c GModifier created by \c gsystem::getModifiers()
  *   - Subkeys used by this module:
- *     - `name` (string): volume name (default: \c goptions::NODFLT sentinel)
+ *     - `name` (string): required volume name
  *     - `shift` (string): shift triple (default: \c gsystem::GSYSTEMNOMODIFIER)
  *     - `tilt` (string): tilt triple (default: \c gsystem::GSYSTEMNOMODIFIER)
  *     - `isPresent` (bool): if \c false, remove volume from world (default: \c true)

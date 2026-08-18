@@ -296,7 +296,7 @@ void G4DisplayUtilities::syncOptionsFromControls() {
 			<< "layout: " << yamlString(text.layout) << ", "
 			<< "x: " << text.x << ", "
 			<< "y: " << text.y << ", "
-			<< "z: " << text.z << ", "
+			<< "z: " << text.z.value_or(0.0) << ", "
 			<< "unit: " << yamlString(text.unit) << ", "
 			<< "size: " << text.size << ", "
 			<< "dx: " << text.dx << ", "

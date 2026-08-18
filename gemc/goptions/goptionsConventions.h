@@ -7,7 +7,7 @@
  * - formatting constants for help output,
  * - the reserved option name used to persist version metadata,
  * - exit codes used by option parsing and validation,
- * - and the \ref goptions::NODFLT : marker that flags mandatory keys in structured options.
+ * - and the \ref goptions::REQUIRED : tag that flags mandatory keys in structured options.
  *
  * @note
  * When writing documentation, if you need to mention the Doxygen command literally,
@@ -16,9 +16,13 @@
 
 #pragma once
 
-#include <string>
-
 namespace goptions {
+
+/** Tag used by structured option schemas to identify mandatory fields. */
+struct RequiredValue {
+};
+
+inline constexpr RequiredValue REQUIRED{};
 
 /**
  * \brief Padding used when printing option/switch help.
@@ -65,25 +69,10 @@ inline constexpr int EC__DEFINED_SWITCHALREADYPRESENT =
     103; ///< Attempted to define a switch name more than once.
 inline constexpr int EC__YAML_PARSING_ERROR =
     104; ///< YAML file failed to parse (syntax error or parser failure).
-inline constexpr int EC__MANDATORY_NOT_FILLED = 105;  ///< Mandatory structured option key (NODFLT) missing.
+inline constexpr int EC__MANDATORY_NOT_FILLED = 105;  ///< Mandatory structured option key missing.
 inline constexpr int EC__BAD_CONVERSION = 106;  ///< YAML value could not be converted to requested type.
 inline constexpr int EC_WRONG_VERBOSITY_LEVEL =
     107; ///< Verbosity/debug values outside accepted range (if enforced).
 /** @} */
 
-/**
- * \brief Marker literal indicating "no default value" for a structured option key.
- *
- * @details
- * When a \ref GVariable : in a structured option schema uses value \ref goptions::NODFLT : :
- * - that key becomes **mandatory** (must be provided by the user),
- * - and the option becomes **cumulative** (expects a sequence of maps rather than a single map).
- *
- * This allows a schema definition to encode both required fields and repeated entries.
- *
- * Practical consequence:
- * - The user can specify multiple entries for the same option (sequence of maps).
- * - Each entry must contain all mandatory keys; optional keys are back-filled from schema defaults.
- */
-const std::string NODFLT = "NODFLT";
 } // namespace goptions

@@ -18,9 +18,10 @@ std::vector<std::string> volume_parameters(const std::string& emfield,
                                            const std::string& identity,
                                            const std::string& copy_of,
                                            const std::string& solids_operation,
-                                           const std::string& mirror) {
+	                                       const std::string& mirror,
+	                                       const std::string& parameters = "1*cm, 2*cm, 3*cm") {
 	return {
-		"test_volume", "G4Box", "1*cm, 2*cm, 3*cm", "G4_AIR", "root",
+		"test_volume", "G4Box", parameters, "G4_AIR", "root",
 		"0*cm, 0*cm, 0*cm", "0*deg, 0*deg, 0*deg", "active", emfield,
 		"1", "1", "778899", "1", digitization, identity, copy_of,
 		solids_operation, mirror, "1", "optional field test", "default", "1"
@@ -39,6 +40,9 @@ int main() {
 	    unset.getSolidsOpr() || unset.getMirror() || unset.getImportedFile()) {
 		return EXIT_FAILURE;
 	}
+	GVolume imported(logger, "test",
+	                 volume_parameters("NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL"));
+	if (imported.getParameters() || !imported.getDetectorDimensions().empty()) return EXIT_FAILURE;
 
 	GVolume configured(logger, "test",
 	                   volume_parameters(" torus field ", " flux ", " sector: 1 ", " source ",

@@ -432,39 +432,6 @@ vector<string> getStringVectorFromStringWithDelimiter(const string& input, const
 }
 
 
-// string search for a path with <name> from a possible list of absolute paths
-// returns guts::UNINITIALIZEDSTRINGQUANTITY if not found
-// the filesystem solution does not work on linux systems.
-// TODO: periodically try this?
-//#include <filesystem>
-//
-//    string searchForDirInLocations(string dirName, vector <string> possibleLocations) {
-//
-//        for (auto trialLocation: possibleLocations) {
-//            string possibleDir = trialLocation + "/" + dirName;
-//            if (std::filesystem::exists(possibleDir)) {
-//                return possibleDir;
-//            }
-//        }
-//        return guts::UNINITIALIZEDSTRINGQUANTITY;
-//    }
-//
-//    vector <string> getListOfFilesInDirectory(string dirName, vector <string> extensions) {
-//
-//        vector <string> fileList;
-//
-//        for (const auto &entry: std::filesystem::directory_iterator(dirName)) {
-//            for (auto &extension: extensions) {
-//                if (entry.path().extension() == extension) {
-//                    fileList.push_back(entry.path().filename());
-//                }
-//            }
-//        }
-//
-//        return fileList;
-//    }
-// end of TODO
-
 bool directoryExists(const std::string& path) {
 	struct stat info{};
 	if (stat(path.c_str(), &info) != 0) {
@@ -473,12 +440,13 @@ bool directoryExists(const std::string& path) {
 	return (info.st_mode & S_IFDIR) != 0; // Check if it's a directory
 }
 
-string searchForDirInLocations(const string& dirName, const vector<string>& possibleLocations) {
+std::optional<std::filesystem::path> searchForDirInLocations(
+	const string& dirName, const vector<string>& possibleLocations) {
 	for (const auto& trialLocation : possibleLocations) {
-		string possibleDir = trialLocation + "/" + dirName;
-		if (directoryExists(possibleDir)) { return possibleDir; }
+		std::filesystem::path possibleDir = std::filesystem::path(trialLocation) / dirName;
+		if (directoryExists(possibleDir.string())) { return possibleDir; }
 	}
-	return "UNINITIALIZEDSTRINGQUANTITY";
+	return std::nullopt;
 }
 
 
@@ -598,7 +566,7 @@ bool is_unset(std::string_view s) {
 				return false;
 		return true;
 	};
-	return eq(s, guts::UNINITIALIZEDSTRINGQUANTITY) || eq(s, "null") || eq(s, "~");
+	return eq(s, guts::SERIALIZED_NULL_TOKEN) || eq(s, "null") || eq(s, "~");
 }
 
 void apply_uimanager_commands(const std::string& command) {

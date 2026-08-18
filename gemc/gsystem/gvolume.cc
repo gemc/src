@@ -70,13 +70,13 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 		}
 
 		type           = removeAllSpacesFromString(pars[i++]);
-		parameters     = removeLeadingAndTrailingSpacesFromString(pars[i++]);
+		parameters     = normalize_optional_geometry_field(pars[i++], false);
 		material       = removeAllSpacesFromString(pars[i++]);
 		motherName     = removeAllSpacesFromString(pars[i++]);
 		pos            = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		rot            = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		g4placementType = removeAllSpacesFromString(pars[i++]);
-		if (g4placementType == "" || g4placementType == guts::UNINITIALIZEDSTRINGQUANTITY) {
+		if (g4placementType.empty() || gutilities::is_unset(g4placementType)) {
 			g4placementType = gsystem::DEFAULTG4PLACEMENTTYPE;
 		}
 		emfield        = normalize_optional_geometry_field(pars[i++], true);
@@ -92,10 +92,6 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 		mirror         = normalize_optional_geometry_field(pars[i++], false);
 		string pexists = removeAllSpacesFromString(pars[i++]);
 		exist          = (pexists == "1") ? true : false;
-
-		// these will be assigned later
-		g4name       = guts::UNINITIALIZEDSTRINGQUANTITY;
-		g4motherName = guts::UNINITIALIZEDSTRINGQUANTITY;
 
 		description = removeLeadingAndTrailingSpacesFromString(pars[i++]);
 		variation   = removeLeadingAndTrailingSpacesFromString(pars[i++]);
@@ -123,12 +119,10 @@ std::ostream& operator<<(std::ostream& stream, const GVolume& gVol) {
 	stream << "   - Run Number:      " << gVol.runno << std::endl;
 	if (gVol.copyOf) stream << "   - copyOf:          " << *gVol.copyOf << std::endl;
 	if (gVol.solidsOpr) stream << "   - solidsOpr:       " << *gVol.solidsOpr << std::endl;
-	if (gVol.type != "" && gVol.type != guts::UNINITIALIZEDSTRINGQUANTITY)
+	if (!gVol.type.empty() && !gutilities::is_unset(gVol.type))
 		stream << "   - Type:            " << gVol.type <<
 			std::endl;
-	if (gVol.parameters != "" && gVol.parameters != guts::UNINITIALIZEDSTRINGQUANTITY)
-		stream << "   - Parameters:      " <<
-			gVol.parameters << std::endl;
+	if (gVol.parameters) stream << "   - Parameters:      " << *gVol.parameters << std::endl;
 	stream << "   - Material:        " << gVol.material << std::endl;
 	stream << "   - Mother:          " << gVol.motherName << std::endl;
 	stream << "   - Positions:       " << gVol.pos << std::endl;

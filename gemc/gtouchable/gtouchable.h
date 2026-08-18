@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <optional>
 
 // gtouchable
 #include <CLHEP/Units/SystemOfUnits.h>
@@ -279,9 +280,11 @@ public:
 	/**
 	 * \brief Returns the electronics time-cell index.
 	 *
-	 * \return The stored time-cell index, or \c gtouchable::GTOUCHABLEUNSETTIMEINDEX if not assigned yet.
+	 * \return The stored time-cell index, or \c std::nullopt if it has not been assigned.
 	 */
-	[[nodiscard]] inline int getStepTimeAtElectronicsIndex() const { return stepTimeAtElectronicsIndex; }
+	[[nodiscard]] inline const std::optional<int>& getStepTimeAtElectronicsIndex() const {
+		return stepTimeAtElectronicsIndex;
+	}
 
 	/**
 	 * \brief Returns a copy of the identity vector.
@@ -392,7 +395,7 @@ private:
 	int trackId;                            ///< Track id used for \c flux discrimination.
 	int pid;                                ///< Track id used for \c particle_counter  discrimination.
 	double eMultiplier;                     ///< Energy multiplier for energy sharing (default 1; assigned by digitization).
-	int stepTimeAtElectronicsIndex;         ///< Readout time-cell index used for \c readout discrimination.
+	std::optional<int> stepTimeAtElectronicsIndex; ///< Readout time-cell index used for readout discrimination.
 	std::vector<double> detectorDimensions; ///< Detector dimensions stored for digitization use.
 	double mass;
 

@@ -137,8 +137,6 @@ private:
 PmakerTab::PmakerTab(const GparticlePtr& gp, QWidget* parent)
 	: QWidget(parent), gp_(gp) {
 	double p_mev = gp->getMomentum();
-	if (p_mev < 0.0)  // gparticle::GPARTICLENOTDEFINED sentinel
-		p_mev = 0.0;
 
 	buildLayout(
 		gp->getName(),

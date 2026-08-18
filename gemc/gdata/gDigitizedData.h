@@ -43,6 +43,7 @@
 
 #include <atomic>
 #include <map>
+#include <optional>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -244,15 +245,14 @@ public:
 	 * \brief Returns the conventional \c timeAtElectronics integer observable when present.
 	 *
 	 * \details
-	 * If the key is absent, the method returns the sentinel value
-	 * \ref TIMEATELECTRONICSNOTDEFINED.
+	 * If the key is absent, the method returns \c std::nullopt.
 	 *
 	 * This method provides a compact accessor for a commonly used SRO quantity without forcing
 	 * callers to inspect the observables map directly.
 	 *
-	 * \return Stored \c timeAtElectronics value, or \c TIMEATELECTRONICSNOTDEFINED if missing.
+	 * \return Stored \c timeAtElectronics value, or \c std::nullopt if missing.
 	 */
-	int getTimeAtElectronics();
+	[[nodiscard]] std::optional<int> getTimeAtElectronics() const;
 
 	/**
 	 * \brief Returns one integer observable by key.

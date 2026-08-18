@@ -375,7 +375,6 @@ void GRunAction::normalize_run_data(const std::shared_ptr<GRunDataCollection> &r
 // 		for (auto [detectorName, gdataCollection] : *eventDataCollection->getDataCollectionMap()) {
 // 			for (auto hitDigitizedData : *gdataCollection->getDigitizedData()) {
 // 				int timeAtelectronic = hitDigitizedData->getTimeAtElectronics();
-// 				if (timeAtelectronic != TIMEATELECTRONICSNOTDEFINED) {
 // 					int frameIndex = eventFrameIndex(absoluteEventNumber, timeAtelectronic);
 // 					frameRunData[frameIndex]->addIntegralPayload(formPayload(hitDigitizedData), verbosity);
 // 				}

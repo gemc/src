@@ -35,14 +35,6 @@ inline constexpr int EC__RANDOMENGINENOTFOUND = 2003;
  */
 inline constexpr char DEFAULT_RANDOM_ENGINE[] = "RanluxEngine";
 
-/**
- * \brief Sentinel value used to mark that the random seed has not been explicitly set.
- *
- * When the `seed` option matches this value, the utilities derive a seed using
- * time/clock/pid sources.
- */
-inline constexpr int SEEDNOTSET = -1234;
-
 /** @} */ // end of group gemc_utilities_conventions
 
 } // namespace gemc

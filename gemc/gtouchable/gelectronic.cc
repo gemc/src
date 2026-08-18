@@ -6,11 +6,20 @@
 // Constructor initializing GElectronic with specified address and mode.
 GElectronic::GElectronic(int c, int s, int ch, ComparisonMode comparison_mode) :
 	crate(c), slot(s), channel(ch), mode(comparison_mode) {
+	validateHAddress(c, s, ch);
+}
+
+
+void GElectronic::validateHAddress(int c, int s, int ch) {
+	if (c < 0 || s < 0 || ch < 0) {
+		throw std::invalid_argument("GElectronic hardware address components must be non-negative");
+	}
 }
 
 
 // Sets the hardware address.
 void GElectronic::setHAddress(int c, int s, int ch) {
+	validateHAddress(c, s, ch);
 	crate   = c;
 	slot    = s;
 	channel = ch;

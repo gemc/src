@@ -29,5 +29,6 @@ LD += {
         'test_goptions_optional_scalar_absent' : [optional_scalar_source, ''],
         'test_goptions_optional_scalar_empty' : [optional_scalar_source, '-optional_string='],
         'test_goptions_optional_scalar_present' : [optional_scalar_source, '-optional_string=configured'],
+		'test_goptions_optional_scalar_int' : [optional_scalar_source, '-optional_int=42'],
     }
 }

@@ -169,7 +169,7 @@ void define_new_gemc_units();
  * - `randomEngine` : the name of the random engine implementation
  * - `seed` : the numeric seed value
  *
- * If the seed is `gemc::SEEDNOTSET`, a seed is generated from a combination of wall time,
+ * If the seed is not provided, a seed is generated from a combination of wall time,
  * process CPU clock, and the process id.
  *
  * @par Supported engine names

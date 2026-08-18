@@ -71,15 +71,10 @@ G4Light getG4Light(const std::shared_ptr<GOptions>& gopts) {
 G4Dawn getG4Dawn(const std::shared_ptr<GOptions>& gopts) {
 	G4Dawn gdawn;
 
-	auto phi   = gopts->getOptionMapInNode("dawn", "phi").as<std::string>();
-	auto theta = gopts->getOptionMapInNode("dawn", "theta").as<std::string>();
-
-	// Normalize explicit "null" (string) to the “not defined” sentinel used by options.
-	if (phi == "null") phi = goptions::NODFLT;
-	if (theta == "null") theta = goptions::NODFLT;
-
-	gdawn.phi   = phi;
-	gdawn.theta = theta;
+	const auto phi   = gopts->getOptionMapInNode("dawn", "phi");
+	const auto theta = gopts->getOptionMapInNode("dawn", "theta");
+	if (phi && !phi.IsNull()) gdawn.phi = phi.as<std::string>();
+	if (theta && !theta.IsNull()) gdawn.theta = theta.as<std::string>();
 
 	return gdawn;
 }

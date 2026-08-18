@@ -252,7 +252,7 @@ void appendNestedBooleanOperationLines(QString& html,
 QString formatBooleanOperationDescription(const std::string& fullName,
                                           const std::string& solidsOpr,
                                           const std::unordered_map<std::string, const GVolume*>& gvolumes) {
-    if (solidsOpr.empty() || solidsOpr == guts::UNINITIALIZEDSTRINGQUANTITY) return {};
+    if (gutilities::is_unset(solidsOpr)) return {};
 
     const auto tokens = gutilities::getStringVectorFromString(solidsOpr);
     if (tokens.size() != 3) {
@@ -363,7 +363,7 @@ G4Ttree_item::G4Ttree_item(G4Volume* g4volume, const GVolume* gvolume) {
 
     if (gvolume) {
         solidType      = gvolume->getType();
-        parameters     = gvolume->getParameters();
+        parameters     = gvolume->getParameters().value_or("");
         position       = gvolume->getPos();
         rotation       = gvolume->getRot();
         motherVolume   = gvolume->getMotherName();

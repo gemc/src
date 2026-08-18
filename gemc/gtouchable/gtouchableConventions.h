@@ -53,13 +53,4 @@ inline constexpr char INTEGRAL_COUNTERNAME[] = "integral_counter";
 
 
 
-/**
- * \brief Sentinel value for an unset electronics time-cell index.
- *
- * For \c readout touchables, the electronics time-cell index is used to decide whether two hits
- * belong to the same time window. Until the digitization plugin assigns a valid time-cell index,
- * this value is used to mark the index as "not set".
- */
-inline constexpr int GTOUCHABLEUNSETTIMEINDEX = -1;
-
 } // namespace gtouchable

@@ -130,16 +130,13 @@ void GHit::randomizeHitForTesting(int nsteps) {
 		globalPositions.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
 		localPositions.emplace_back(G4UniformRand() * 10, G4UniformRand() * 10, G4UniformRand() * 10);
 		trackVertexPositions.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
-		motherTrackVertexPositions.emplace_back(guts::UNINITIALIZEDNUMBERQUANTITY, guts::UNINITIALIZEDNUMBERQUANTITY,
-		                                        guts::UNINITIALIZEDNUMBERQUANTITY);
+		motherInfos.push_back({0, std::nullopt, std::nullopt});
 		times.emplace_back(G4UniformRand() * 100);
 		edeps.emplace_back(G4UniformRand() * 10);
 		pids.emplace_back(11);
 		tids.emplace_back(i);
-		motherTids.emplace_back(0);
 		momenta.emplace_back(G4UniformRand() * 100, G4UniformRand() * 100, G4UniformRand() * 100);
 		trackEs.emplace_back(G4UniformRand() * 1000);
-		motherPids.emplace_back(2212); // proton as placeholder mother
 		processNames.emplace_back("placeholder");
 	}
 }

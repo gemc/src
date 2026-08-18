@@ -38,7 +38,7 @@ GMaterial::GMaterial(const std::string &s, std::vector<std::string> pars,
 		// Human-readable description (kept verbatim).
 		description = pars[i++];
 
-		// Optical properties: each field may be guts::UNINITIALIZEDSTRINGQUANTITY, in which case it is skipped.
+		// Optical properties: serialized null fields are skipped at this input boundary.
 		getMaterialPropertyFromString(pars[i++], "photonEnergy");
 		getMaterialPropertyFromString(pars[i++], "indexOfRefraction");
 		getMaterialPropertyFromString(pars[i++], "absorptionLength");
@@ -96,7 +96,7 @@ void GMaterial::setComponentsFromString(const std::string &composition) {
 // load property from DB entry based on its name
 void GMaterial::getMaterialPropertyFromString(const std::string &parameter, const std::string &propertyName) {
 	// Nothing to do if the parameter is not assigned.
-	if (gutilities::removeLeadingAndTrailingSpacesFromString(parameter) == guts::UNINITIALIZEDSTRINGQUANTITY) {
+	if (gutilities::is_unset(gutilities::removeLeadingAndTrailingSpacesFromString(parameter))) {
 		return;
 	}
 

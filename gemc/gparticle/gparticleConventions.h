@@ -22,13 +22,6 @@ namespace gparticle {
  */
 
 /**
- * \brief Sentinel value used to mark an unset/undefined numeric parameter.
- *
- * @ingroup gparticle_module
- */
-inline constexpr int GPARTICLENOTDEFINED = -999;
-
-/**
  * @name Error codes
  * \brief Error codes emitted by gparticle through GLogger.
  *

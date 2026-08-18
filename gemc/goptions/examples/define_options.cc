@@ -48,7 +48,7 @@ using namespace std;
  * - Scalar `runno`: an integer option set via `-runno=<value>`.
  * - Scalar `nthreads`: an integer option controlling thread usage, with `0` meaning "use all cores".
  * - Structured `gparticle`: a schema representing generator particles as a sequence of maps, including
- *   mandatory keys flagged using \c goptions::NODFLT.
+ *   mandatory keys flagged using \c goptions::REQUIRED.
  *
  * \return A \ref GOptions : object populated with example switches and options.
  */
@@ -71,9 +71,9 @@ GOptions defineOptions() {
 	goptions.defineOption(GVariable("nthreads", 0, "maximum number of threads to use"), help);
 
 	vector<GVariable> gparticle = {
-		{"name", goptions::NODFLT, "particle name"},
+		{"name", goptions::REQUIRED, "particle name"},
 		{"multiplicity", 1, "number of particles per event"},
-		{"p", goptions::NODFLT, "momentum"},
+		{"p", goptions::REQUIRED, "momentum"},
 		{"theta", "0*degrees", "polar angle"},
 		{"delta_theta", 0, "Particle polar angle range, centered on theta. Default: 0"},
 	};

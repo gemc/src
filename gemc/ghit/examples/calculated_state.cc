@@ -43,6 +43,10 @@ int main(int argc, char* argv[]) {
 	}
 
 	hit.randomizeHitForTesting(2);
+	if (hit.getMotherInfos().size() != hit.getStepCount() ||
+		hit.getMotherInfo().vertex || hit.getMotherInfo().pid) {
+		return EXIT_FAILURE;
+	}
 	const auto energies = hit.getEdeps();
 	const auto times = hit.getTimes();
 	const auto global_positions = hit.getGlobalPositions();

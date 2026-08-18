@@ -65,15 +65,3 @@ constexpr const char* CHANNELSTRINGID     = "channel"; ///< Channel index within
 constexpr const char* CHARGEATELECTRONICS = "chargeAtElectronics"; ///< Electronics-stage charge or ADC proxy.
 constexpr const char* TIMEATELECTRONICS   = "timeAtElectronics";   ///< Electronics-stage time or TDC proxy.
 /** @} */
-
-/**
- * \brief Sentinel value returned when \c timeAtElectronics is requested but not present.
- * \ingroup gdata_module_conventions
- *
- * \details
- * This value is intentionally chosen to be unlikely in normal data so that missing-data situations
- * are easier to detect during debugging and validation.
- *
- * It is returned by GDigitizedData::getTimeAtElectronics().
- */
-constexpr int TIMEATELECTRONICSNOTDEFINED = -123456;

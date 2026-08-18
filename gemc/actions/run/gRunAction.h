@@ -366,8 +366,6 @@ private:
 //	std::vector<GFrameDataCollection*> frameRunData;
 
 //
-// double frameDuration    = guts::UNINITIALIZEDNUMBERQUANTITY; // frame length in nanoseconds
-// double eventDuration    = guts::UNINITIALIZEDNUMBERQUANTITY; // event duration in nanoseconds
 // int    eventIndex       = 0;                           // added to the absolute event number, increases with each run
 // int    lastFrameCreated = 0;                           // keeping track of the last frame created
 //

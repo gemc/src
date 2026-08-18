@@ -36,8 +36,7 @@ public:
 	 *
 	 * \details
 	 * The constructor validates \c pars length against gsystem::GMATERIALNUMBEROFPARS and then
-	 * parses the fields. Optical/scintillation properties may be "unset" (typically
-	 * guts::UNINITIALIZEDSTRINGQUANTITY) and are skipped.
+	 * parses the fields. Unset optical/scintillation properties are skipped.
 	 */
 	GMaterial(const std::string &system, std::vector<std::string> pars, const std::shared_ptr<GLogger> &logger);
 
@@ -165,7 +164,7 @@ private:
 	 * \return \c true if a value was assigned, \c false otherwise.
 	 *
 	 * \details This helper interprets "unset" values using the same convention as parsing
-	 * utilities (e.g. guts::UNINITIALIZEDSTRINGQUANTITY). Malformed scalars are treated as unset.
+	 * utilities. Malformed scalars are treated as unset.
 	 */
 	bool assign_if_set(const std::vector<std::string> &pars, size_t &i, double &out);
 

@@ -45,9 +45,6 @@ inline constexpr char GDEFAULTVIEWERPOS[] = "-400+100";
 // Default circle segmentation resolution for curved primitives.
 inline constexpr int GDEFAULTVSEGPERCIRCLE = 100;
 
-// Sentinel value used to indicate that a scene text Z coordinate was not specified.
-inline constexpr double GNOT_SPECIFIED_SCENE_TEXT_Z = -1234.5;
-
 // Error codes (module-specific).
 inline constexpr int EC__VISDRIVERNOTFOUND = 1301;
 inline constexpr int EC__NOUIMANAGER = 1302;

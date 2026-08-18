@@ -97,7 +97,7 @@ private:
 
 	// solid parameters
 	std::string type;       ///< Solid type string (follows Geant4 naming conventions).
-	std::string parameters; ///< Solid constructor parameters string (units may be embedded).
+	std::optional<std::string> parameters; ///< Solid constructor parameters, when the source provides them.
 
 	// solid visualization style
 	bool        visible{}; ///< Visibility flag: 0=invisible, 1=visible.
@@ -131,8 +131,8 @@ private:
 
 	// the map key names used in geant4 contain the system name
 	// these are assigned by gworld after all volumes are loaded
-	std::string g4name;       ///< Fully-qualified Geant4 volume name.
-	std::string g4motherName; ///< Fully-qualified Geant4 mother volume name.
+	std::optional<std::string> g4name;       ///< Fully-qualified Geant4 volume name after world assembly.
+	std::optional<std::string> g4motherName; ///< Fully-qualified Geant4 mother name after world assembly.
 
 	// variation and run number for this gvolume
 	std::string variation; ///< Variation tag used when loading this volume.
@@ -147,27 +147,27 @@ public:
 	[[nodiscard]] std::string getSystem() const { return system; }
 	[[nodiscard]] std::string getName() const { return name; }
 	[[nodiscard]] std::string getMotherName() const { return motherName; }
-	[[nodiscard]] std::string getG4Name() const { return g4name; }
-	[[nodiscard]] std::string getG4MotherName() const { return g4motherName; }
+	[[nodiscard]] const std::string& getG4Name() const { return g4name.value(); }
+	[[nodiscard]] const std::string& getG4MotherName() const { return g4motherName.value(); }
 	///@}
 
 	/**
 	 * \brief Returns numeric detector dimensions parsed from the \c parameters string.
 	 *
-	 * \return Vector of numeric values. If parameters are unset, returns \c {0}.
+	 * \return Vector of numeric values. If parameters are unset, returns an empty vector.
 	 *
 	 * \details Parsing is delegated to gutilities helpers that interpret unit strings.
 	 * The returned vector has one entry per dimension token found in \c parameters.
 	 */
 	[[nodiscard]] std::vector<double> getDetectorDimensions() const {
-		if (parameters == guts::UNINITIALIZEDSTRINGQUANTITY) { return {0}; }
-		return gutilities::getG4NumbersFromString(parameters);
+		if (!parameters) return {};
+		return gutilities::getG4NumbersFromString(*parameters);
 	}
 
 	/// \name Solid definition
 	///@{
 	[[nodiscard]] std::string getType() const { return type; }
-	[[nodiscard]] std::string getParameters() const { return parameters; }
+	[[nodiscard]] const std::optional<std::string>& getParameters() const { return parameters; }
 	///@}
 
 	/// \name Logical attributes

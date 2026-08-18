@@ -70,7 +70,7 @@
  *
  * \subsection goptions_main_cumulative Cumulative structured options and mandatory keys
  * Structured options can be declared **cumulative** when at least one schema key uses
- * \ref goptions::NODFLT : as its default value. That tells \ref GOption : that:
+ * \ref goptions::REQUIRED : as its default value. That tells \ref GOption : that:
  * - the option expects a **sequence of maps** (multiple entries),
  * - those keys are **mandatory** and must appear in every entry.
  *

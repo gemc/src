@@ -29,8 +29,8 @@ vector<GStreamerDefinition> getGStreamerDefinition(const std::shared_ptr<GOption
 
 	for (auto goutput_item : goutput_node) {
 		goutputs.emplace_back(
-			gopts->get_variable_in_option<string>(goutput_item, "format", goptions::NODFLT),
-			gopts->get_variable_in_option<string>(goutput_item, "filename", goptions::NODFLT),
+			gopts->get_required_variable_in_option<string>(goutput_item, "format"),
+			gopts->get_required_variable_in_option<string>(goutput_item, "filename"),
 			gopts->get_variable_in_option<string>(goutput_item, "type", "event")
 		);
 	}
@@ -75,8 +75,8 @@ GOptions defineOptions() {
 
 	// Schema of each object in the -gstreamer array.
 	vector<GVariable> gstreamer = {
-		{"filename", goptions::NODFLT, "name of output file. "},
-		{"format", goptions::NODFLT, "format of output file. "},
+		{"filename", goptions::REQUIRED, "name of output file. "},
+		{"format", goptions::REQUIRED, "format of output file. "},
 		{"type", "event", "type of output file"},
 	};
 

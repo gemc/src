@@ -42,14 +42,14 @@ GOptions defineOptions() {
 	                     "When true, subsequent GUI beamOn calls append to the Analyzer data.\n");
 
 	std::vector<GVariable> plot_schema = {
-		{"position", goptions::NODFLT,
+		{"position", goptions::REQUIRED,
 		 "plot position: top_left, top_right, bottom_left, or bottom_right"},
 		{"run", -1, "run number; -1 selects the first available run"},
-		{"plugin", "''", "runtime sensitive-detector/plugin name"},
+		{"plugin", "", "runtime sensitive-detector/plugin name"},
 		{"source", "true", "variable source: true or digitized"},
 		{"dimension", "1d", "histogram dimension: 1d or 2d"},
-		{"x", "''", "X variable name to validate after beamOn"},
-		{"y", "''", "Y variable name for a 2D histogram"},
+		{"x", "", "X variable name to validate after beamOn"},
+		{"y", "", "Y variable name for a 2D histogram"},
 		{"bins", 100, "number of bins per axis"},
 		{"x_min_auto", true, "derive the X minimum from samples"},
 		{"x_max_auto", true, "derive the X maximum from samples"},
@@ -59,7 +59,7 @@ GOptions defineOptions() {
 		{"x_max", 1.0, "fixed X maximum when x_max_auto is false"},
 		{"y_min", 0.0, "fixed Y minimum when y_min_auto is false"},
 		{"y_max", 1.0, "fixed Y maximum when y_max_auto is false"},
-		{"title", "''", "plot title; empty uses an automatic title"},
+		{"title", "", "plot title; empty uses an automatic title"},
 		{"style", "heatmap", "2D rendering style: heatmap or boxes"},
 		{"scale", "linear", "1D Y scale or 2D Z scale: linear or logarithmic"}
 	};

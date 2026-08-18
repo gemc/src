@@ -22,7 +22,7 @@
 
 namespace {
 bool is_unset_field_name(const std::string& name) {
-	return name.empty() || name == guts::UNINITIALIZEDSTRINGQUANTITY || name == "NULL" || name == "not provided";
+	return name.empty() || name == guts::SERIALIZED_NULL_TOKEN || name == "not provided";
 }
 
 class GVisManagerGuard : public G4VVisManager {
@@ -150,7 +150,7 @@ void GDetectorConstruction::ConstructSDandField() {
 	if (no_system_selected && !disable_all_fields && is_unset_field_name(global_field_name)) {
 		std::vector<std::string> configured_fields;
 		for (const auto& field_definition : gfields::get_GFieldDefinition(gopt)) {
-			if (!is_unset_field_name(field_definition.name) && field_definition.name != goptions::NODFLT) {
+			if (!is_unset_field_name(field_definition.name)) {
 				configured_fields.push_back(field_definition.name);
 			}
 		}

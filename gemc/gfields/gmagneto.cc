@@ -23,7 +23,7 @@
 namespace {
 
 bool is_unset_field_name(const std::string& name) {
-	return name.empty() || name == guts::UNINITIALIZEDSTRINGQUANTITY || name == "not provided";
+	return name.empty() || name == guts::SERIALIZED_NULL_TOKEN || name == "not provided";
 }
 
 double configured_max_field_step(const std::shared_ptr<GOptions>& gopts) {

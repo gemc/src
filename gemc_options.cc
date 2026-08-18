@@ -78,11 +78,11 @@ namespace gemc {
         // random seed
         help = "Random Seed: set the random seed to an integer value. Default: \n";
 	    help += std::string(goptions::HELPFILLSPACE) +
-	            "If the random seed is set to -12345, the seed will be set using a combination of: \n";
+	            "If the random seed is not provided, it will be set using a combination of: \n";
 	    help += std::string(goptions::HELPFILLSPACE) + " - local time \n";
         help += std::string(goptions::HELPFILLSPACE) + " - process id \n";
         help += std::string(goptions::HELPFILLSPACE) + " - clock function \n";
-        goptions.defineOption(GVariable("seed", gemc::SEEDNOTSET, "seed"), help);
+		goptions.defineOption(GVariable("seed", std::nullopt, "seed"), help);
 
 
 		// load other

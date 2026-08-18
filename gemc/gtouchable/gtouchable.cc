@@ -18,7 +18,6 @@ GTouchable::GTouchable(const std::shared_ptr<GOptions>& gopt,
 	GBase(gopt, TOUCHABLE_LOGGER),
 	trackId(0),
 	eMultiplier(1),
-	stepTimeAtElectronicsIndex(gtouchable::GTOUCHABLEUNSETTIMEINDEX),
 	detectorDimensions(dimensions),
 	mass(dm) {
 	// Determine the type based on the digitization string.
@@ -57,7 +56,6 @@ GTouchable::GTouchable(const std::shared_ptr<GLogger>& logger,
 	GBase(logger),
 	trackId(0),
 	eMultiplier(1),
-	stepTimeAtElectronicsIndex(gtouchable::GTOUCHABLEUNSETTIMEINDEX),
 	detectorDimensions(dimensions),
 	mass(dm) {
 	// Determine the type based on the digitization string.
@@ -114,8 +112,8 @@ bool GTouchable::operator==(const GTouchable& that) const {
 			typeComparison = this->stepTimeAtElectronicsIndex == that.stepTimeAtElectronicsIndex;
 			result = typeComparison ? " ✅" : " ❌";
 			log->debug(NORMAL, "    Touchable type is readout. Time cell comparison: ",
-					   this->stepTimeAtElectronicsIndex,
-					   " ", that.stepTimeAtElectronicsIndex,
+					   this->stepTimeAtElectronicsIndex.value_or(-1),
+					   " ", that.stepTimeAtElectronicsIndex.value_or(-1),
 					   " result:", result);
 			break;
 		case flux:
@@ -162,7 +160,10 @@ std::string GTouchable::cellKey() const {
 		key += ',';
 	}
 	switch (gType) {
-		case readout: key += 'r'; key += std::to_string(stepTimeAtElectronicsIndex); break;
+		case readout:
+			key += 'r';
+			key += stepTimeAtElectronicsIndex ? std::to_string(*stepTimeAtElectronicsIndex) : "unset";
+			break;
 		case flux:
 		case gPhotonDetector: key += 't'; key += std::to_string(trackId); break;
 		case particle_counter: key += 'p'; key += std::to_string(pid); break;
@@ -185,7 +186,9 @@ std::ostream& operator<<(std::ostream& stream, const GTouchable& gtouchable) {
 			// compare the time cell
 			stream << guts::KGRN << " (readout), " << guts::RST << " multiplier: " << gtouchable.eMultiplier <<
 				", time cell index: " <<
-				gtouchable.stepTimeAtElectronicsIndex;
+				(gtouchable.stepTimeAtElectronicsIndex
+					 ? std::to_string(*gtouchable.stepTimeAtElectronicsIndex)
+					 : "unset");
 			break;
 		case flux:
 			stream << guts::KGRN << " (flux), " << guts::RST << " g4 track id: " << gtouchable.trackId;

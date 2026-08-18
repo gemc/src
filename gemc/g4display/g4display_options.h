@@ -105,14 +105,14 @@ G4Light getG4Light(const std::shared_ptr<GOptions>& gopts);
  */
 struct G4Dawn
 {
-	std::string phi;
-	std::string theta;
+	std::optional<std::string> phi;
+	std::optional<std::string> theta;
 };
 
 /**
  * \brief Read the \c dawn option node and return a projected \ref G4Dawn struct.
  *
- * The implementation normalizes \c "null" values to \c goptions::NODFLT.
+ * YAML null values are represented with \c std::nullopt.
  *
  * \param gopts Shared options object to query.
  * \return \ref G4Dawn populated from the \c dawn node.

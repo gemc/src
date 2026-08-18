@@ -7,11 +7,8 @@
 
 namespace guts {
 
-/** Internal numeric marker retained for serialized and external interfaces that require a sentinel. */
-inline constexpr int UNINITIALIZEDNUMBERQUANTITY = -123456;
-
-/** Serialized marker retained for formats and option schemas that cannot express typed absence. */
-inline constexpr char UNINITIALIZEDSTRINGQUANTITY[] = "NULL";
+/** Null token used by legacy ASCII, database-row, and fixed-column output adapters. */
+inline constexpr char SERIALIZED_NULL_TOKEN[] = "NULL";
 
 /** Process exit code used when an expected file cannot be opened or found. */
 inline constexpr int EC__FILENOTFOUND = 301;

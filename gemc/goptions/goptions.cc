@@ -288,6 +288,18 @@ int GOptions::getScalarInt(const std::string& tag) const {
 	return it->value.begin()->second.as<int>();
 }
 
+std::optional<int> GOptions::getOptionalScalarInt(const std::string& tag) const {
+	auto it = getOptionIterator(tag);
+	if (it == goptions.end()) {
+		cerr << guts::FATALERRORL << "The option " << guts::YELLOWHHL << tag << guts::RSTHHR
+			<< " was not found." << endl;
+		exit(goptions::EC__NOOPTIONFOUND);
+	}
+	const YAML::Node node = it->value.begin()->second;
+	if (!node.IsDefined() || node.IsNull()) return std::nullopt;
+	return node.as<int>();
+}
+
 // Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 double GOptions::getScalarDouble(const std::string& tag) const {
 	auto it = getOptionIterator(tag);
@@ -297,6 +309,18 @@ double GOptions::getScalarDouble(const std::string& tag) const {
 		exit(goptions::EC__NOOPTIONFOUND);
 	}
 	return it->value.begin()->second.as<double>();
+}
+
+std::optional<double> GOptions::getOptionalScalarDouble(const std::string& tag) const {
+	auto it = getOptionIterator(tag);
+	if (it == goptions.end()) {
+		cerr << guts::FATALERRORL << "The option " << guts::YELLOWHHL << tag << guts::RSTHHR
+			<< " was not found." << endl;
+		exit(goptions::EC__NOOPTIONFOUND);
+	}
+	const YAML::Node node = it->value.begin()->second;
+	if (!node.IsDefined() || node.IsNull()) return std::nullopt;
+	return node.as<double>();
 }
 
 // Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
@@ -535,6 +559,23 @@ T GOptions::get_variable_in_option(const YAML::Node& node, const std::string& va
 	return default_value;
 }
 
+template <typename T>
+T GOptions::get_required_variable_in_option(const YAML::Node& node, const std::string& variable_name) {
+	if (!node[variable_name] || node[variable_name].IsNull()) {
+		std::cerr << guts::FATALERRORL << "The mandatory key " << guts::YELLOWHHL << variable_name
+			<< guts::RSTHHR << " was not provided." << std::endl;
+		std::exit(goptions::EC__MANDATORY_NOT_FILLED);
+	}
+	return node[variable_name].as<T>();
+}
+
+template <typename T>
+std::optional<T> GOptions::get_optional_variable_in_option(
+	const YAML::Node& node, const std::string& variable_name) {
+	if (!node[variable_name] || node[variable_name].IsNull()) return std::nullopt;
+	return node[variable_name].as<T>();
+}
+
 // Explicit template instantiations.
 template int GOptions::get_variable_in_option<int>(const YAML::Node& node, const std::string& variable_name,
                                                    const int&        default_value);
@@ -544,6 +585,16 @@ template string GOptions::get_variable_in_option<string>(const YAML::Node& node,
                                                          const string&     default_value);
 template bool GOptions::get_variable_in_option<bool>(const YAML::Node& node, const std::string& variable_name,
                                                      const bool&       default_value);
+template int GOptions::get_required_variable_in_option<int>(const YAML::Node&, const std::string&);
+template double GOptions::get_required_variable_in_option<double>(const YAML::Node&, const std::string&);
+template string GOptions::get_required_variable_in_option<string>(const YAML::Node&, const std::string&);
+template bool GOptions::get_required_variable_in_option<bool>(const YAML::Node&, const std::string&);
+template std::optional<int> GOptions::get_optional_variable_in_option<int>(
+	const YAML::Node&, const std::string&);
+template std::optional<double> GOptions::get_optional_variable_in_option<double>(const YAML::Node&,
+	                                                                              const std::string&);
+template std::optional<string> GOptions::get_optional_variable_in_option<string>(const YAML::Node&,
+	                                                                              const std::string&);
 
 // Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 int GOptions::getVerbosityFor(const std::string& tag) const {

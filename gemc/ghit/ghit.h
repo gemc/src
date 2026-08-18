@@ -37,6 +37,14 @@
 class GHit : public G4VHit
 {
 public:
+	/** Mother-track information associated with one recorded step. */
+	struct MotherInfo
+	{
+		int                          trackId{};
+		std::optional<G4ThreeVector> vertex;
+		std::optional<int>           pid;
+	};
+
 	/**
 	 * \brief Construct a hit container and optionally seed it from a step.
 	 *
@@ -165,14 +173,8 @@ private:
 	 */
 	std::vector<G4ThreeVector> trackVertexPositions;
 
-	/**
-	 * \brief Mother-track vertex positions per recorded step.
-	 *
-	 * Values are looked up by parent track id from the per-thread track vertex cache.
-	 * If the mother track has not been seen by a sensitive hit, the uninitialized
-	 * numeric sentinel is stored for each coordinate.
-	 */
-	std::vector<G4ThreeVector> motherTrackVertexPositions;
+	/** Mother-track identity and optional cached metadata per recorded step. */
+	std::vector<MotherInfo> motherInfos;
 
 	/**
 	 * \brief Particle PDG encodings per step (always present).
@@ -183,13 +185,6 @@ private:
 	 * \brief Track IDs per step (always present).
 	 */
 	std::vector<int> tids;
-
-	/**
-	 * \brief Parent track IDs per step (always present).
-	 *
-	 * Geant4 uses parent id 0 for primary tracks.
-	 */
-	std::vector<int> motherTids;
 
 	/**
 	 * \brief Creator process names per step (always present).
@@ -213,14 +208,6 @@ private:
 	 * Values are derived from \c preStepPoint->GetTotalEnergy() (kinetic + rest mass, in MeV).
 	 */
 	std::vector<double> trackEs;
-
-	/**
-	 * \brief Mother particle PDG encodings per recorded step (unconditional).
-	 *
-	 * Looked up from the per-thread \c pdgById cache using the parent track ID.
-	 * Stores the uninitialized sentinel when the parent track has not yet been seen.
-	 */
-	std::vector<int> motherPids;
 
 	/**
 	 * \brief Per-thread cache of track-id to particle PDG encoding.
@@ -317,23 +304,11 @@ public:
 	 */
 	[[nodiscard]] inline G4ThreeVector getTrackVertexPosition() const { return trackVertexPositions.front(); }
 
-	/**
-	 * \brief Get per-step mother-track vertex positions.
-	 * \return A copy of the vector of mother-track vertex positions.
-	 */
-	[[nodiscard]] inline std::vector<G4ThreeVector> getMotherTrackVertexPositions() const {
-		return motherTrackVertexPositions;
-	}
+	/** Return all per-step mother records. */
+	[[nodiscard]] inline const std::vector<MotherInfo>& getMotherInfos() const { return motherInfos; }
 
-	/**
-	 * \brief Convenience accessor for the first mother-track vertex position.
-	 * \return The first mother-track vertex position.
-	 *
-	 * \warning This assumes the internal \c motherTrackVertexPositions vector is non-empty.
-	 */
-	[[nodiscard]] inline G4ThreeVector getMotherTrackVertexPosition() const {
-		return motherTrackVertexPositions.front();
-	}
+	/** Return the mother record associated with the first step. */
+	[[nodiscard]] inline const MotherInfo& getMotherInfo() const { return motherInfos.front(); }
 
 	/**
 	 * \brief Get per-step particle PDG encodings (when enabled).
@@ -362,20 +337,6 @@ public:
 	 * \warning This assumes the internal \c track vector is non-empty.
 	 */
 	[[nodiscard]] inline int getTid() const { return tids.front(); }
-
-	/**
-	 * \brief Get per-step mother track IDs.
-	 * \return A copy of the vector of mother track IDs.
-	 */
-	[[nodiscard]] inline std::vector<int> getMotherTids() const { return motherTids; }
-
-	/**
-	 * \brief Convenience accessor for the first mother track ID.
-	 * \return The first mother track ID.
-	 *
-	 * \warning This assumes the internal \c motherTids vector is non-empty.
-	 */
-	[[nodiscard]] inline int getMotherTid() const { return motherTids.front(); }
 
 	/**
 	 * \brief Convenience accessor for the first step track total energy.
@@ -436,20 +397,6 @@ public:
 	 * \warning This assumes the internal \c trackEs vector is non-empty.
 	 */
 	[[nodiscard]] inline double getTrackE() const { return trackEs.front(); }
-
-	/**
-	 * \brief Get per-step mother particle PDG encodings (always present).
-	 * \return A copy of the vector of per-step mother PDG codes.
-	 */
-	[[nodiscard]] inline std::vector<int> getMotherPids() const { return motherPids; }
-
-	/**
-	 * \brief Convenience accessor for the first step mother particle PDG encoding.
-	 * \return The first recorded mother PDG code (sentinel when parent not yet seen).
-	 *
-	 * \warning This assumes the internal \c motherPids vector is non-empty.
-	 */
-	[[nodiscard]] inline int getMpid() const { return motherPids.front(); }
 
 	/**
 	 * \brief Get the representative creator process name for the hit.

@@ -240,16 +240,16 @@ void GWorld::load_systems() {
 				gsystem::DEFAULTPOSITION,               // 06 position
 				gsystem::DEFAULTROTATION,               // 07 rotation
 				gsystem::DEFAULTG4PLACEMENTTYPE,        // 08 Geant4 placement
-				guts::UNINITIALIZEDSTRINGQUANTITY,   // 09 electromagnetic field
+				guts::SERIALIZED_NULL_TOKEN,          // 09 electromagnetic field
 				"1",                           // 10 visible
 				"0",                           // 11 style: wireframe
 				"ffcc33",                      // 12 color
 				"1",                           // 13 opacity
-				guts::UNINITIALIZEDSTRINGQUANTITY,   // 14 digitization
-				guts::UNINITIALIZEDSTRINGQUANTITY,   // 15 gidentity
-				guts::UNINITIALIZEDSTRINGQUANTITY,   // 16 copyOf
-				guts::UNINITIALIZEDSTRINGQUANTITY,   // 17 solidsOpr
-				guts::UNINITIALIZEDSTRINGQUANTITY,   // 18 mirror
+				guts::SERIALIZED_NULL_TOKEN,          // 14 digitization
+				guts::SERIALIZED_NULL_TOKEN,          // 15 gidentity
+				guts::SERIALIZED_NULL_TOKEN,          // 16 copyOf
+				guts::SERIALIZED_NULL_TOKEN,          // 17 solidsOpr
+				guts::SERIALIZED_NULL_TOKEN,          // 18 mirror
 				"1",                           // 19 exist flag
 				"default visible volume for field-only visualization"
 			};

@@ -6,6 +6,7 @@
 #include <map>
 #include <string_view>
 #include <optional>
+#include <filesystem>
 
 // geant4
 #include "G4Colour.hh"
@@ -216,12 +217,10 @@ bool directoryExists(const std::string& path);
  *
  * \param dirName The name of the directory to search for.
  * \param possibleLocations A vector of paths where the directory might be located.
- * \return The path to the found directory or the literal string @c "UNINITIALIZEDSTRINGQUANTITY" if not found.
- *
- * @warning The "not found" case returns a literal marker string (not the macro value). Treat this
- *          as a legacy behavior and compare against the exact returned token if needed.
+ * \return The path to the found directory, or \c std::nullopt when no candidate exists.
  */
-string searchForDirInLocations(const string& dirName, const vector<string>& possibleLocations);
+std::optional<std::filesystem::path> searchForDirInLocations(
+	const string& dirName, const vector<string>& possibleLocations);
 
 /**
  * \brief Checks if a filename has one of the specified extensions.

@@ -33,7 +33,7 @@ namespace gsystem {
  * - name (mandatory)
  * - factory (default: sqlite)
  * - variation (default: "default")
- * - annotations (default: guts::UNINITIALIZEDSTRINGQUANTITY)
+ * - annotations (default: not set)
  */
 SystemList getSystems(const std::shared_ptr<GOptions>& gopts);
 

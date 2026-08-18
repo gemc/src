@@ -11,6 +11,7 @@
  */
 
 #include "gdynamicdigitization.h"
+#include "gdynamicdigitizationConventions.h"
 
 // gemc
 #include "gtranslationTableConventions.h"
@@ -24,9 +25,8 @@
 
 namespace {
 
-// Returns true when systemName (or "all") appears in the option's list of system names.
-// The list is whitespace- or comma-separated; an unset option (the "NULL" sentinel) matches
-// nothing.
+// Returns true when systemName (or "all") appears in the option's whitespace- or comma-separated list.
+// An absent or empty option matches nothing.
 bool system_in_rejection_list(const std::shared_ptr<GOptions>& gopts, const std::string& option,
                               const std::string& systemName) {
 	auto list_option = gopts->getOptionalScalarString(option);
@@ -52,17 +52,22 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 	G4ThreeVector avgGlobalPos = ghit->getAvgGlobalPosition();
 	G4ThreeVector avgLocalPos  = ghit->getAvgLocalPosition();
 	G4ThreeVector trackVertex = ghit->getTrackVertexPosition();
-	G4ThreeVector motherTrackVertex = ghit->getMotherTrackVertexPosition();
+	const auto&   motherInfo = ghit->getMotherInfo();
+	const auto    missingMotherVertex = G4ThreeVector(
+		MISSING_TRUE_INFORMATION_NUMBER,
+		MISSING_TRUE_INFORMATION_NUMBER,
+		MISSING_TRUE_INFORMATION_NUMBER);
+	const G4ThreeVector motherTrackVertex = motherInfo.vertex.value_or(missingMotherVertex);
 
 	trueInfoData->includeVariable("pid", ghit->getPid());
-	trueInfoData->includeVariable("mpid", ghit->getMpid());
+	trueInfoData->includeVariable("mpid", motherInfo.pid.value_or(MISSING_TRUE_INFORMATION_NUMBER));
 	trueInfoData->includeVariable("tid", ghit->getTid());
 	trueInfoData->includeVariable("otid", 0);
 	trueInfoData->includeVariable("opid", 0);
 	trueInfoData->includeVariable("opx", 0.0);
 	trueInfoData->includeVariable("opy", 0.0);
 	trueInfoData->includeVariable("opz", 0.0);
-	trueInfoData->includeVariable("mtid", ghit->getMotherTid());
+	trueInfoData->includeVariable("mtid", motherInfo.trackId);
 	trueInfoData->includeVariable("totalEDeposited", ghit->getTotalEnergyDeposited());
 	trueInfoData->includeVariable("trackE", ghit->getTrackE());
 	trueInfoData->includeVariable("avgTime", ghit->getAverageTime());
@@ -88,7 +93,7 @@ std::unique_ptr<GTrueInfoData> GDynamicDigitization::collectTrueInformationImpl(
 	trueInfoData->includeVariable("nphotons", static_cast<int>(ghit->getNumberOfOpticalPhotons()));
 	trueInfoData->includeVariable("hitn", static_cast<int>(hitn)); // assume hitn < INT_MAX
 
-	const std::string processName = ghit->getProcessName().value_or(guts::UNINITIALIZEDSTRINGQUANTITY);
+	const std::string processName = ghit->getProcessName().value_or(guts::SERIALIZED_NULL_TOKEN);
 	trueInfoData->includeVariable("processName", processName);
 	trueInfoData->includeVariable("procID", processName);
 
@@ -106,12 +111,6 @@ void GDynamicDigitization::chargeAndTimeAtHardware(int time, int q, const GHit* 
 	// Translate a TT id into a crate/slot/channel triple.
 	const GElectronic& electronics = translationTable->getElectronics(ghit->getTTID());
 	std::vector<int> haddress = electronics.getHAddress();
-
-	// The translation table uses a sentinel to indicate an uninitialized hardware address.
-	if (haddress.front() == guts::UNINITIALIZEDNUMBERQUANTITY) {
-		log->error(gtranslationTable::EC__GIDENTITYNOTFOUNDINTT,
-		           "Translation Table found, but haddress was not initialized");
-	}
 
 	gdata.includeVariable(CRATESTRINGID, haddress[0]);
 	gdata.includeVariable(SLOTSTRINGID, haddress[1]);
@@ -176,8 +175,8 @@ std::vector<std::shared_ptr<GTouchable>> GDynamicDigitization::processTouchableI
 
 	// If the touchable does not yet have a time index, or it matches the current step's
 	// index, we can reuse it.
-	if (stepTimeAtElectronicsIndex == gtouchable->getStepTimeAtElectronicsIndex() ||
-		gtouchable->getStepTimeAtElectronicsIndex() == gtouchable::GTOUCHABLEUNSETTIMEINDEX) {
+	const auto& assignedTimeIndex = gtouchable->getStepTimeAtElectronicsIndex();
+	if (!assignedTimeIndex || stepTimeAtElectronicsIndex == *assignedTimeIndex) {
 		gtouchable->assignStepTimeAtElectronicsIndex(stepTimeAtElectronicsIndex);
 		result.emplace_back(gtouchable);
 	}

@@ -78,9 +78,9 @@ std::vector<GParticleSourceDefinition> getGParticleSourceDefinitions(const std::
 
 	for (auto source_item : source_node) {
 		sources.emplace_back(
-			gutilities::convertToLowercase(gopts->get_variable_in_option<std::string>(
-				source_item, "format", goptions::NODFLT)),
-			gopts->get_variable_in_option<std::string>(source_item, "filename", goptions::NODFLT)
+			gutilities::convertToLowercase(
+				gopts->get_required_variable_in_option<std::string>(source_item, "format")),
+			gopts->get_required_variable_in_option<std::string>(source_item, "filename")
 		);
 	}
 

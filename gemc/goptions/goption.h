@@ -11,6 +11,7 @@
 // c++
 #include <map>
 #include <fstream>
+#include <optional>
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -28,32 +29,34 @@
  * - Scalar option: one \ref GVariable : holds option name, default value, and summary description.
  * - Structured option: a vector of \ref GVariable : entries defines the schema (keys and defaults).
  *
- * Values are stored internally as strings for uniform YAML construction and printing.
+ * Defaults are stored as typed YAML nodes, while required fields are represented explicitly.
  */
 struct GVariable
 {
 	std::string name; ///< Variable name (option name for scalar options, schema key name for structured options).
-	std::string value; ///< Default value as a string (or \ref goptions::NODFLT : to mark as mandatory).
+	YAML::Node  defaultValue; ///< Typed default; null for optional-null and required fields.
+	bool        required{}; ///< Whether a structured field must be supplied by the user.
 	std::string description; ///< Human-readable description used in help output.
 
 	/**
 	 * \brief Constructor for initializing a variable with a string default.
 	 * \param n Name of the variable.
-	 * \param val Default value (string) or \ref goptions::NODFLT : .
+	 * \param val Default string value.
 	 * \param d Description displayed in help.
 	 */
 	GVariable(std::string n, std::string val, std::string d)
-		: name(std::move(n)), value(std::move(val)), description(std::move(d)) {
+		: name(std::move(n)), defaultValue(std::move(val)), description(std::move(d)) {
 	}
 
 	/**
 	 * \brief Constructor for initializing a variable with a double default.
 	 * \param n Name of the variable.
-	 * \param val Default value (double), converted to string.
+	 * \param val Typed double default.
 	 * \param d Description displayed in help.
 	 */
 	GVariable(std::string n, double val, std::string d)
-		: name(std::move(n)), description(std::move(d)) { value = std::to_string(val); }
+		: name(std::move(n)), defaultValue(val), description(std::move(d)) {
+	}
 
 	/**
 	 * \brief Constructor for initializing a variable with a C-string default.
@@ -62,26 +65,38 @@ struct GVariable
 	 * \param d Description displayed in help.
 	 */
 	GVariable(std::string n, const char* val, std::string d)
-		: name(std::move(n)), value(val), description(std::move(d)) {
+		: name(std::move(n)), defaultValue(val), description(std::move(d)) {
 	}
 
 	/**
 	 * \brief Constructor for initializing a variable with an integer default.
 	 * \param n Name of the variable.
-	 * \param val Default value (int), converted to string.
+	 * \param val Typed integer default.
 	 * \param d Description displayed in help.
 	 */
 	GVariable(std::string n, int val, std::string d)
-		: name(std::move(n)), description(std::move(d)) { value = std::to_string(val); }
+		: name(std::move(n)), defaultValue(val), description(std::move(d)) {
+	}
 
 	/**
 	 * \brief Constructor for initializing a variable with a boolean default.
 	 * \param n Name of the variable.
-	 * \param val Default value (bool), stored as "true" or "false".
+	 * \param val Typed boolean default.
 	 * \param d Description displayed in help.
 	 */
 	GVariable(std::string n, bool val, std::string d)
-		: name(std::move(n)), description(std::move(d)) { value = val ? "true" : "false"; }
+		: name(std::move(n)), defaultValue(val), description(std::move(d)) {
+	}
+
+	/** Construct an option or field whose default is YAML null. */
+	GVariable(std::string n, std::nullopt_t, std::string d)
+		: name(std::move(n)), defaultValue(YAML::NodeType::Null), description(std::move(d)) {
+	}
+
+	/** Construct a mandatory structured field. */
+	GVariable(std::string n, goptions::RequiredValue, std::string d)
+		: name(std::move(n)), defaultValue(YAML::NodeType::Null), required(true), description(std::move(d)) {
+	}
 };
 
 /**
@@ -96,7 +111,7 @@ struct GVariable
  * - structured schema metadata for printing detailed help.
  *
  * Structured options are defined by a vector of \ref GVariable : entries. If any schema entry uses
- * \ref goptions::NODFLT : as its default, that schema key becomes mandatory and the option becomes
+ * \ref goptions::REQUIRED : as its default, that schema key becomes mandatory and the option becomes
  * **cumulative** (expects a YAML sequence of maps).
  *
  * \ref GOptions : is a friend and drives parsing and saving.
@@ -121,7 +136,7 @@ public:
 	 * \param h Multi-line help text shown in detailed help.
 	 */
 	GOption(GVariable dv, std::string h) : name(dv.name), description(dv.description), help(h) {
-		defaultValue = YAML::Load(name + ": " + dv.value);
+		defaultValue[name] = dv.defaultValue;
 		value        = defaultValue;
 	}
 
@@ -137,7 +152,7 @@ public:
 	 *   - key2: default2
 	 * \endcode
 	 *
-	 * If any schema entry has value \ref goptions::NODFLT : :
+	 * If any schema entry uses \ref goptions::REQUIRED :
 	 * - that key is added to \c mandatory_keys
 	 * - the option is flagged cumulative (\c isCumulative = true)
 	 *
@@ -154,10 +169,12 @@ public:
 		: name(n), description(desc), help(h) {
 		YAML::Node nodes;
 		for (const auto& v : dv) {
-			YAML::Node this_node = YAML::Load(v.name + ": " + v.value);
+			YAML::Node this_node;
+			this_node[v.name] = v.defaultValue;
 			nodes.push_back(this_node);
 			gvar_descs.push_back(v.description);
-			if (v.value == goptions::NODFLT) {
+			gvar_required.push_back(v.required);
+			if (v.required) {
 				isCumulative = true;
 				mandatory_keys.push_back(v.name);
 			}
@@ -197,6 +214,7 @@ private:
 	YAML::Node               value;          ///< Current resolved YAML value for this option (after YAML + CLI parsing).
 	YAML::Node               defaultValue;   ///< Default YAML value/schema for this option (constructed from definitions).
 	std::vector<std::string> gvar_descs;     ///< Per-schema-key descriptions aligned with defaultValue sequence order.
+	std::vector<bool>        gvar_required;  ///< Whether each schema key is mandatory.
 	std::vector<std::string> mandatory_keys; ///< Keys that must be present in every cumulative entry.
 
 	/**
@@ -275,7 +293,7 @@ private:
 	 * \brief Checks whether all mandatory keys are present in a candidate YAML node.
 	 *
 	 * @details
-	 * Mandatory keys are those whose schema default was \ref goptions::NODFLT : .
+	 * Mandatory keys are those whose schema entry uses \ref goptions::REQUIRED : .
 	 * The check is applied to each element of a cumulative sequence.
 	 *
 	 * \param v Candidate YAML node (typically one element of a sequence).

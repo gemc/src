@@ -53,7 +53,7 @@ std::unique_ptr<std::ifstream> GSystemTextFactory::gSystemTextFileStream(GSystem
 	// at this point the file was not found
 	// this could be ok if we are looking for the material file - if the system annotation is 'mats_only'
 	if (SYSTEMTYPE == gsystem::GTEXTGEOMTYPE) {
-		if (system->getAnnotations() == "mats_only") {
+		if (system->getAnnotations() == std::optional<std::string>{"mats_only"}) {
 			log->info(1, "File ", fname, " not found, but this is ok because the system annotation is 'mats_only'");
 			return nullptr;
 		}
