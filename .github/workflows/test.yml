@@ -61,6 +61,7 @@ jobs:
           echo '${{ steps.scan.outputs.matrix_build }}'
 
   build:
+
     name: ${{ matrix.image }}/${{ matrix.image_tag }} ${{ matrix.arch }}
     needs: [ discover ]
     runs-on: ${{ matrix.runner }}
@@ -71,6 +72,16 @@ jobs:
     container: ${{ matrix.container }}
 
     steps:
+      - name: Check available CPU cores
+        run: |
+          echo "CPUs available to this job: $(nproc)"
+            
+            if command -v lscpu >/dev/null 2>&1; then
+              lscpu
+            else
+              echo "lscpu not available"
+            fi
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
@@ -82,7 +93,6 @@ jobs:
 
       - name: Build and test
         shell: bash
-
 
         run: |
           set -euo pipefail
