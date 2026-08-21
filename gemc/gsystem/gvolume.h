@@ -3,6 +3,7 @@
 // namespace needed for the inline functions below
 #include <gemc/guts/gutilities.h>
 #include <gemc/gbase/gbase.h>
+#include <gemc/gsystem/gsystemConventions.h>
 
 // c++
 #include <optional>
@@ -160,7 +161,7 @@ public:
 	 * The returned vector has one entry per dimension token found in \c parameters.
 	 */
 	[[nodiscard]] std::vector<double> getDetectorDimensions() const {
-		if (!parameters) return {};
+		if (!parameters || type == gsystem::GSYSTEMCADTFACTORYLABEL) return {};
 		return gutilities::getG4NumbersFromString(*parameters);
 	}
 

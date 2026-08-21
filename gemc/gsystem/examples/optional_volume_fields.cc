@@ -55,6 +55,11 @@ int main() {
 	GVolume imported(logger, "test",
 	                 volume_parameters("NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL"));
 	if (imported.getParameters() || !imported.getDetectorDimensions().empty()) return EXIT_FAILURE;
+	auto cad_parameters = volume_parameters("NULL", "flux", "organ: 1", "NULL", "NULL", "NULL",
+	                                        "stls/heart_NIH3D.stl, 130");
+	cad_parameters[1] = "CAD";
+	GVolume cad(logger, "test", cad_parameters);
+	if (!cad.getParameters() || !cad.getDetectorDimensions().empty()) return EXIT_FAILURE;
 
 	GVolume configured(logger, "test",
 	                   volume_parameters(" torus field ", " flux ", " sector: 1 ", " source ",
