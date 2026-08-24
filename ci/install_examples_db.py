@@ -15,6 +15,7 @@ EXAMPLES = {
         "b1": {"runs": ["1"], "variations": ["default", "test"]},
         "b2": {"runs": ["1", "11"], "variations": ["default", "alt"]},
         "b3": {"runs": ["1", "11"], "variations": ["default", "alt"]},
+        "scintillator_barrel": {"runs": ["1"], "variations": ["default"]},
     },
     "optical": {
         "cherenkov": {"runs": ["1"], "variations": ["default", "mediumIndexRadiator", "highIndexRadiator"]},

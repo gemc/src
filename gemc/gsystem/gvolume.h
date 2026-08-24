@@ -153,12 +153,24 @@ public:
 	///@}
 
 	/**
-	 * \brief Returns numeric detector dimensions parsed from the \c parameters string.
+	 * \brief Returns the native-solid dimensions parsed from the \c parameters string.
 	 *
-	 * \return Vector of numeric values. If parameters are unset, returns an empty vector.
+	 * \return Vector of numeric values in Geant4 internal units (e.g. mm, deg), one entry per
+	 *         dimension token in \c parameters. Empty when the volume has no native-solid
+	 *         dimensions to report (see the two cases below).
 	 *
-	 * \details Parsing is delegated to gutilities helpers that interpret unit strings.
-	 * The returned vector has one entry per dimension token found in \c parameters.
+	 * \details For a native Geant4 solid (\c G4Box, \c G4Tubs, ...) the \c parameters string holds
+	 * the constructor dimensions, e.g. <tt>"1*cm, 2*cm, 3*cm"</tt>. Parsing is delegated to
+	 * \c gutilities::getG4NumbersFromString, which interprets the unit suffix on each token.
+	 *
+	 * An empty vector is returned in two cases:
+	 * - \c parameters is unset (\c std::nullopt);
+	 * - the volume is CAD-imported (\c type equals \c gsystem::GSYSTEMCADTFACTORYLABEL). A mesh
+	 *   volume has no native solid: its \c parameters field instead carries the resolved mesh path,
+	 *   optionally followed by a numeric suffix (e.g. <tt>"stls/heart_NIH3D.stl, 130"</tt>). Parsing
+	 *   that string would inject a spurious dimension into the touchable/hit metadata that
+	 *   \c gdetectorConstruction forwards to digitization for sensitive volumes, so CAD volumes
+	 *   deliberately report no dimensions here.
 	 */
 	[[nodiscard]] std::vector<double> getDetectorDimensions() const {
 		if (!parameters || type == gsystem::GSYSTEMCADTFACTORYLABEL) return {};

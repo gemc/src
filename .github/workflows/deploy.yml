@@ -10,13 +10,16 @@ permissions:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+# Serialize deploys: a shared group so concurrent deploys queue instead of
+# racing on identical GHCR/Docker Hub tags, and cancel-in-progress: false so a
+# queued deploy waits its turn rather than being skipped.
 concurrency:
-  group: gemc-deploy-${{ github.event.workflow_run.id }}
-  cancel-in-progress: true
+  group: gemc-deploy-${{ github.ref }}
+  cancel-in-progress: false
 
 on:
   workflow_run:
-    workflows: [ "Test", "Test after pygemc" ]
+    workflows: [ "Test" ]
     types: [ completed ]
     branches: [ main ]
 
@@ -26,16 +29,8 @@ jobs:
       ${{
         github.event.workflow_run.conclusion == 'success' &&
         github.event.workflow_run.head_repository.full_name == github.repository &&
-        (
-          (
-            github.event.workflow_run.name == 'Test' &&
-            github.event.workflow_run.event == 'push'
-          ) ||
-          (
-            github.event.workflow_run.name == 'Test after pygemc' &&
-            github.event.workflow_run.event == 'workflow_dispatch'
-          )
-        )
+        github.event.workflow_run.name == 'Test' &&
+        github.event.workflow_run.event == 'push'
       }}
     name: Workflow Overview
     runs-on: ubuntu-latest
@@ -56,16 +51,8 @@ jobs:
       ${{
         github.event.workflow_run.conclusion == 'success' &&
         github.event.workflow_run.head_repository.full_name == github.repository &&
-        (
-          (
-            github.event.workflow_run.name == 'Test' &&
-            github.event.workflow_run.event == 'push'
-          ) ||
-          (
-            github.event.workflow_run.name == 'Test after pygemc' &&
-            github.event.workflow_run.event == 'workflow_dispatch'
-          )
-        )
+        github.event.workflow_run.name == 'Test' &&
+        github.event.workflow_run.event == 'push'
       }}
     name: Create Job Matrices
     runs-on: ubuntu-latest
@@ -407,16 +394,8 @@ jobs:
         always() &&
         github.event.workflow_run.conclusion == 'success' &&
         github.event.workflow_run.head_repository.full_name == github.repository &&
-        (
-          (
-            github.event.workflow_run.name == 'Test' &&
-            github.event.workflow_run.event == 'push'
-          ) ||
-          (
-            github.event.workflow_run.name == 'Test after pygemc' &&
-            github.event.workflow_run.event == 'workflow_dispatch'
-          )
-        )
+        github.event.workflow_run.name == 'Test' &&
+        github.event.workflow_run.event == 'push'
       }}
     needs: [ build_arch, manifest, dockerhub_mirror, dockerhub_readme ]
     runs-on: ubuntu-latest

@@ -18,18 +18,14 @@ src push to main
         -> clas12-systems Binary Tarballs
 ```
 
-A pygemc-only change rebuilds every derived image without requiring commits in the downstream repositories:
+A pygemc-only change runs the GEMC compatibility test but does not deploy; publishing images requires a commit
+in `src`:
 
 ```text
 pygemc push to main
   -> Trigger GEMC compatibility test
   -> src Test after pygemc
-     -> reusable jobs from src Test
-     -> src Deploy
-        -> src Binary Tarballs
-        -> clas12-systems Test after gemc/src deploy
-           -> clas12-systems Deploy
-           -> clas12-systems Binary Tarballs
+     -> reusable jobs from src Test   (no Deploy)
 ```
 
 The pygemc test workflow and its GEMC dispatcher are separate push workflows; the dispatch does not wait for the
@@ -37,13 +33,8 @@ standalone pygemc test matrix.
 
 ## Deployment authorization
 
-`Deploy` accepts only successful, same-repository runs on `main` with one of these workflow/event pairs:
-
-- `Test` with a `push` event.
-- `Test after pygemc` with a `workflow_dispatch` event.
-
-The compatibility workflow can also be run from the Actions page. A successful manual run on `main` is
-deployment-authorized and continues through the CLAS12 deployment chain.
+`Deploy` accepts only a successful, same-repository `Test` run triggered by a `push` to `main`. A `Test after
+pygemc` run validates pygemc compatibility only and does not deploy.
 
 ## Build, test, and deployment workflows
 
@@ -51,12 +42,18 @@ deployment-authorized and continues through the CLAS12 deployment chain.
   - Trigger: pull requests, merge queue runs, pushes to `main`, and `workflow_call`.
   - Effect: builds and tests the configured operating-system and architecture matrix.
   - Downstream: `Deploy` only for a successful push to `main`.
+- [`thread_scaling.yml`](thread_scaling.yml) — **Thread Scaling**
+  - Trigger: pull requests, a weekly schedule, published releases, and manual dispatch.
+  - Effect: builds one optimized GEMC artifact, measures the scintillator-barrel and Cherenkov examples over the
+    CPUs visible to GitHub-hosted runners, and publishes scaling tables and plots.
+  - Profiles: pull requests use a short single sweep; weekly and release runs use replicated full sweeps and
+    update the generated result section in the root README.
 - [`test_after_pygemc.yml`](test_after_pygemc.yml) — **Test after pygemc**
   - Trigger: API or manual `workflow_dispatch`; the upstream dispatcher selects `main`.
   - Effect: calls the reusable jobs in `test.yml` against the current pygemc source consumed by GEMC.
-  - Downstream: `Deploy` after success.
+  - Downstream: none; this workflow validates pygemc compatibility only and does not deploy.
 - [`deploy.yml`](deploy.yml) — **Deploy**
-  - Trigger: completion of either approved Test workflow on `main`.
+  - Trigger: completion of the `Test` workflow for a push to `main`.
   - Effect: builds per-architecture images, publishes GHCR manifests and Docker Hub mirrors, and exports logs
     and GEMC binary tarball artifacts.
   - Downstream: `Binary Tarballs` and the CLAS12 compatibility-test dispatcher after completion.
@@ -109,10 +106,12 @@ Workflow filenames and displayed `name` values are interfaces, not cosmetic labe
 
 - `gemc/pygemc` dispatches `test_after_pygemc.yml`; renaming it requires changing
   `pygemc/.github/workflows/trigger_src_tests.yml`.
-- `Deploy` matches the exact workflow names `Test` and `Test after pygemc`.
+- `Deploy` matches the exact workflow name `Test` for a `push` event.
 - `test_after_pygemc.yml` calls `test.yml` through `workflow_call`; keep the shared matrix in `test.yml`.
 - `trigger_c12s_tests.yml` dispatches `gemc/clas12-systems` file `test_after_src.yml`.
 - The CLAS12 Deploy workflow matches the exact name `Test after gemc/src deploy`.
+- `thread_scaling.yml` consumes the public `gemc/ThreadScale` Action. Publish its referenced major tag before
+  enabling or updating the GEMC workflow.
 
 The local checkout paths used by developers are sibling repositories, but Actions dispatches use repository and
 workflow identifiers hosted by GitHub.
@@ -129,13 +128,14 @@ Never allow an untrusted pull-request workflow to reach image, release, or cross
 
 ## Concurrency, retries, and skipped runs
 
-Long-running workflows use concurrency groups with `cancel-in-progress: true`, so a newer run for the same ref
-or source run can cancel older work.
+Most long-running workflows use concurrency groups with `cancel-in-progress: true`, so a newer run for the same
+ref or source run can cancel older work. `Deploy` is the exception: it uses a shared `gemc-deploy-<ref>` group
+with `cancel-in-progress: false`, so concurrent deploys queue and run in turn instead of racing on identical
+image tags or being skipped.
 
 GitHub creates a `workflow_run` workflow before evaluating its job-level `if`. Consequently,
 `Retry Failed Matrix Jobs` appears as skipped after successful watched workflows. This is expected. Failed
-Deploy runs can similarly create gated Binary Tarballs and CLAS12-dispatch runs. The normal and
-pygemc-triggered successful deployment paths do not create skipped Deploy or Binary Tarballs runs.
+Deploy runs can similarly create gated Binary Tarballs and CLAS12-dispatch runs.
 
 ## Safe workflow changes
 

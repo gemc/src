@@ -1,6 +1,7 @@
 # GEMC
 
 [![Test][test-badge]][test]
+[![Thread Scaling][thread-scaling-badge]][thread-scaling]
 [![Sanitize][sanitize-badge]][sanitize]
 [![CodeQL][codeql-badge]][codeql]
 [![Deploy][deploy-badge]][deploy]
@@ -43,6 +44,21 @@ while still preserving C++ extension points for advanced detector response and o
 - PyVista geometry preview, VTK export
 - Python analyzer CSV and ROOT formats
 - Meson-based C++ build with CI-tested Docker images for Linux `amd64` and `arm64`
+
+<br/>
+
+## Thread scaling
+
+Upcoming in the next release, pull requests run a short thread-scaling sweep of representative basic and optical
+examples. Weekly and versioned-release runs repeat full sweeps across hosted runners to report runtime, event
+rate, speedup, and parallel efficiency. The complete CSV, JSON, Markdown, and SVG reports remain available as
+workflow artifacts.
+
+<!-- thread-scaling-results:start -->
+
+_No weekly or release result has been published yet. See [Thread Scaling][thread-scaling]._
+
+<!-- thread-scaling-results:end -->
 
 <br/>
 
@@ -327,6 +343,10 @@ See the [project roadmap](https://github.com/orgs/gemc/projects/1/views/4) for t
 [test]: https://github.com/gemc/src/actions/workflows/test.yml
 
 [test-badge]: https://github.com/gemc/src/actions/workflows/test.yml/badge.svg
+
+[thread-scaling]: https://github.com/gemc/src/actions/workflows/thread_scaling.yml
+
+[thread-scaling-badge]: https://github.com/gemc/src/actions/workflows/thread_scaling.yml/badge.svg
 
 [deploy]: https://github.com/gemc/src/actions/workflows/deploy.yml
 

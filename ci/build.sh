@@ -85,6 +85,12 @@ fi
 # Print a summary of the installed gemc files and version.
 show_gemc_installation
 
+# Performance workflows need a fresh optimized install but run their own workload instead of the test suite.
+if [[ "${GEMC_SKIP_TESTS:-0}" == "1" ]]; then
+  echo " > Skipping Meson tests because GEMC_SKIP_TESTS=1"
+  exit 0
+fi
+
 # Base options shared by all meson test invocations.
 test_options=(
   -C build
