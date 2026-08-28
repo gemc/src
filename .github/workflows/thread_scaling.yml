@@ -216,7 +216,8 @@ jobs:
     needs: [ profile, build, discover ]
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    container: ghcr.io/gemc/g4install:11.4.2-ubuntu-24.04
+    # ThreadScale runs on an already deployed GEMC image containing all runtime dependencies.
+    container: ghcr.io/gemc/src:dev-ubuntu-24.04
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
