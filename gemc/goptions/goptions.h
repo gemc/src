@@ -404,7 +404,7 @@ private:
 	std::string executableName; ///< Executable basename derived from argv[0] (used in help and saved YAML naming).
 	std::string executableCallingDir;
 	///< Directory from which the executable was invoked (for provenance in version printout).
-	std::string              installDir; ///< Installation directory for the executable (gemc root).
+	std::string              installDir; ///< Canonical directory containing the running executable.
 	std::vector<std::string> yaml_files; ///< YAML configuration files detected on command line (argv order).
 
 	std::vector<std::string> findYamls(int argc, char* argv[]);
