@@ -90,6 +90,7 @@ foreach L : LD
     sources = L.get('sources', [''])
     headers = L.get('headers', [''])
     examples = L.get('examples', empty_dict)
+    example_suites = L.get('example_suites', empty_dict)
     example_internal_dependencies = L.get('example_internal_dependencies', empty_dict)
     geo_build = L.get('geo_build', empty_dict)
     this_deps = L.get('dependencies', [])
@@ -262,6 +263,7 @@ foreach L : LD
                  env : project_test_env,
                  args : arguments,
                  is_parallel : false,
+                 suite : example_suites.get(name, []),
                  priority : -20)
         endforeach
     endif

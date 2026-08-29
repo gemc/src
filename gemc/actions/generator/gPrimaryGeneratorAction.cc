@@ -27,9 +27,9 @@ GParticleRecord make_particle_record(const GparticleRuntimeRecord& particle) {
 	};
 }
 
-void append_runtime_records(GParticleRecordEvent& records, const GparticlePtr& particle) {
-	if (particle == nullptr) { return; }
-	for (const auto& runtime_record : particle->getRuntimeRecords()) {
+void append_runtime_records(GParticleRecordEvent& records,
+                            const std::vector<GparticleRuntimeRecord>& runtime_records) {
+	for (const auto& runtime_record : runtime_records) {
 		records.emplace_back(make_particle_record(runtime_record));
 	}
 }
@@ -103,9 +103,9 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 
 	for (const auto& gparticle : *gparticles) {
 		if (gparticle != nullptr) {
-			gparticle->shootParticle(gparticleGun.get(), anEvent);
-			append_runtime_records(current_generated_particle_records, gparticle);
-			append_runtime_records(current_generated_tracked_particle_records, gparticle);
+			const auto runtime_records = gparticle->shootParticle(gparticleGun.get(), anEvent);
+			append_runtime_records(current_generated_particle_records, runtime_records);
+			append_runtime_records(current_generated_tracked_particle_records, runtime_records);
 		}
 	}
 
@@ -116,9 +116,9 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 
 		for (const auto& gparticle : gparticleFileEvents[static_cast<size_t>(event_id)]) {
 			if (gparticle != nullptr) {
-				gparticle->shootParticle(gparticleGun.get(), anEvent);
-				append_runtime_records(current_generated_particle_records, gparticle);
-				append_runtime_records(current_generated_tracked_particle_records, gparticle);
+				const auto runtime_records = gparticle->shootParticle(gparticleGun.get(), anEvent);
+				append_runtime_records(current_generated_particle_records, runtime_records);
+				append_runtime_records(current_generated_tracked_particle_records, runtime_records);
 			}
 		}
 	}

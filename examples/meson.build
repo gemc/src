@@ -147,3 +147,55 @@ foreach branch : examples_map.keys()
         endif
     endforeach
 endforeach
+
+# Exercise the installed application path used by ThreadScale at every available worker count. CPU discovery
+# mirrors ThreadScale by taking the most restrictive logical, affinity, and Linux cgroup count.
+cpu_probe = '''
+import math
+import os
+from pathlib import Path
+
+counts = [os.cpu_count() or 1]
+try:
+    counts.append(len(os.sched_getaffinity(0)))
+except (AttributeError, OSError):
+    pass
+
+try:
+    quota, period = Path("/sys/fs/cgroup/cpu.max").read_text().split()
+    if quota != "max":
+        counts.append(max(1, math.ceil(int(quota) / int(period))))
+except (OSError, ValueError):
+    pass
+
+try:
+    quota = int(Path("/sys/fs/cgroup/cpu/cpu.cfs_quota_us").read_text())
+    period = int(Path("/sys/fs/cgroup/cpu/cpu.cfs_period_us").read_text())
+    if quota > 0 and period > 0:
+        counts.append(max(1, math.ceil(quota / period)))
+except (OSError, ValueError):
+    pass
+
+print(max(1, min(counts)))
+'''
+available_thread_count = run_command(python_exe, '-c', cpu_probe, check : true).stdout().strip().to_int()
+message('Threading test suite will exercise 1 through @0@ threads'.format(available_thread_count))
+
+scintillator_mt_dir = examples_dir + 'basic/scintillator_barrel/'
+foreach thread_count : range(1, available_thread_count + 1)
+    thread_count_string = thread_count.to_string()
+    test('examples_run_mt' + thread_count_string + '_basic_scintillator_barrel',
+         gemc,
+         args : [scintillator_mt_dir + 'scintillator_barrel.yaml',
+                 '-gsystem="[{name: scintillator_barrel, factory: sqlite}]"',
+                 '-sql=' + sql_db,
+                 '-n=1000',
+                 '-nthreads=' + thread_count_string,
+                 '-seed=12345',
+                 '-gstreamer=[]'],
+         workdir : scintillator_mt_dir,
+         is_parallel : false,
+         suite : 'threading',
+         priority : -14,
+         timeout : 60)
+endforeach

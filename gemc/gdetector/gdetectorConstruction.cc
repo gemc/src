@@ -16,7 +16,6 @@
 // geant4
 #include "G4SDManager.hh"
 #include "G4RunManager.hh"
-#include "G4Threading.hh"
 #include "G4UserLimits.hh"
 #include "G4VVisManager.hh"
 
@@ -66,7 +65,7 @@ GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
 	: GBase(gopts, GDETECTOR_LOGGER),
 	  G4VUserDetectorConstruction(), // Geant4 base class.
 	  gopt(gopts) {
-	// Map is populated after SDs exist, in the SD/field construction path.
+	// The map is populated with the master geometry before worker SDs are constructed.
 	digitization_routines_map = std::make_shared<gdynamicdigitization::dRoutinesMap>();
 }
 
@@ -99,6 +98,13 @@ G4VPhysicalVolume *GDetectorConstruction::Construct() {
 	          g4world->number_of_volumes(), " geant4 built volumes\n - ",
 	          nsdetectors, " sensitive detectors\n");
 
+	// Logical volumes are shared by all workers, so load their digitization metadata and
+	// install user limits once while constructing the master geometry.
+	if (digiplugins_need_reload) {
+		loadDigitizationPlugins();
+		digiplugins_need_reload = false;
+	}
+	assignUserLimits();
 
 	// Return the physical volume for the ROOT world volume.
 	return g4world->getG4Volume(gsystem::ROOTWORLDGVOLUMENAME)->getPhysical();
@@ -312,40 +318,44 @@ void GDetectorConstruction::ConstructSDandField() {
 		          gfields::NO_FIELD_ALL, ": none installed.");
 	}
 
-	// Load digitization plugins only when geometry has changed and only on the master thread.
-	// digiplugins_need_reload is set true by reload_geometry() and prepare_geometry_for_run()
-	// so that routine BeamOn re-initializations (which also call ConstructSDandField() on the
-	// master) do not clear the shared map while worker threads may be concurrently reading it.
-	if (G4Threading::IsMasterThread() && digiplugins_need_reload) {
-		loadDigitizationPlugins();
-		digiplugins_need_reload = false;
-	}
-
 	// Bind each digitization routine to its corresponding sensitive detector.
 	const auto sdetectors = gworld->getSensitiveDetectorsList();
 	for (auto &sdname: sdetectors) {
 		auto digitization_routine = digitization_routines_map->at(sdname);
-		double maxStep = digitization_routine->readoutSpecs->getMaxStep();
 
 		sensitiveDetectorsMap[sdname]->assign_digi_routine(digitization_routine);
 		log->info(1, "Digitization routine <" + sdname + "> has been successfully assigned to SD.",
 		          sensitiveDetectorsMap[sdname]);
+	}
+}
 
-		// Loop over all systems and their volumes.
-		// and assign max step to the corresponding logical volume
-		for (const auto &[systemName, gsystemPtr]: *gworld->getSystemsMap()) {
-			for (const auto &[volumeName, gvolumePtr]: gsystemPtr->getGVolumesMap()) {
-				auto const &digitizationName = gvolumePtr->getDigitization();
-				if (digitizationName && *digitizationName == sdname) {
-					auto const &g4name = gvolumePtr->getG4Name();
-					auto *g4volume = g4world->getG4Volume(g4name)->getLogical();
 
-					// g4volume->SetUserLimits(new G4UserLimits(maxStep, maxStep)); // this will also kill track cause
-					// the second argument is max track length
-					g4volume->SetUserLimits(new G4UserLimits(maxStep));
+// Installs readout step limits once on the master-owned logical volumes.
+void GDetectorConstruction::assignUserLimits() {
+	const auto sdetectors = gworld->getSensitiveDetectorsList();
+	for (const auto& sdname : sdetectors) {
+		const auto digitization_routine = digitization_routines_map->at(sdname);
+		const auto max_step = digitization_routine->readoutSpecs->getMaxStep();
+		auto limits = std::make_unique<G4UserLimits>(max_step);
+		auto* limits_ptr = limits.get();
+		user_limits.emplace_back(std::move(limits));
 
-					log->info(1, "Setting G4UserLimits for volume <", g4name, "> with maxStep <", maxStep, ">");
+		for (const auto& [system_name, system] : *gworld->getSystemsMap()) {
+			for (const auto& [volume_name, volume] : system->getGVolumesMap()) {
+				const auto& digitization_name = volume->getDigitization();
+				if (!digitization_name || *digitization_name != sdname) { continue; }
+
+				const auto& g4name = volume->getG4Name();
+				const auto* g4volume = g4world->getG4Volume(g4name);
+				if (g4volume == nullptr || g4volume->getLogical() == nullptr) {
+					log->error(gsystem::ERR_GVOLUMENOTFOUND, FUNCTION_NAME,
+					           " Logical volume <" + g4name + "> not found while assigning user limits.");
+					continue;
 				}
+
+				g4volume->getLogical()->SetUserLimits(limits_ptr);
+				log->info(1, "Setting G4UserLimits for volume <", g4name,
+				          "> with maxStep <", max_step, ">");
 			}
 		}
 	}
@@ -433,7 +443,7 @@ SystemList GDetectorConstruction::cloneSystemDescriptors(const SystemList& syste
 
 
 void GDetectorConstruction::reload_geometry(SystemList sl) {
-	// Geometry is changing: ensure loadDigitizationPlugins() runs on the next ConstructSDandField().
+	// Geometry is changing: ensure Construct() reloads the digitization plugins.
 	digiplugins_need_reload = true;
 
 	// it could be empty for tests
@@ -464,7 +474,7 @@ void GDetectorConstruction::prepare_geometry_for_run() {
 	if (rm) {
 		auto* visManager = G4VVisManager::GetConcreteInstance();
 		GVisManagerGuard::set(nullptr);
-		// Geometry is being rebuilt: ensure loadDigitizationPlugins() runs inside Initialize().
+		// Geometry is being rebuilt: ensure Construct() reloads the digitization plugins.
 		digiplugins_need_reload = true;
 		rm->ReinitializeGeometry(true, true);
 		rm->GeometryHasBeenModified();

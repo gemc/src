@@ -2,6 +2,7 @@
 
 // geant4
 #include "G4VUserDetectorConstruction.hh"
+#include "G4UserLimits.hh"
 
 // gemc
 #include <gemc/goptions/goptions.h>
@@ -275,7 +276,7 @@ private:
 	static G4ThreadLocal std::map<std::string, GSensitiveDetector*>* tlSDMap;
 
 	/**
-	 * \brief Loads digitization plugins after sensitive detectors have been set up.
+	 * \brief Loads digitization plugins for the current master geometry.
 	 *
 	 * This method populates \ref GDetectorConstruction::digitization_routines_map and
 	 * configures each routine (logger, readout specs). It is intentionally private and
@@ -284,12 +285,27 @@ private:
 	void loadDigitizationPlugins();
 
 	/**
-	 * \brief True when loadDigitizationPlugins() must run on the next ConstructSDandField() call.
+	 * \brief Assigns master-owned step limits to sensitive logical volumes.
+	 *
+	 * Geant4 shares logical volumes between workers. This method therefore runs from
+	 * \ref Construct() and installs each limit once before workers are started.
+	 */
+	void assignUserLimits();
+
+	/**
+	 * \brief Owns user limits installed on current and previously reloaded logical volumes.
+	 *
+	 * Geant4 logical volumes retain non-owning pointers to these objects. Retaining limits
+	 * across geometry reloads avoids dangling pointers while old geometry stores are retired.
+	 */
+	std::vector<std::unique_ptr<G4UserLimits>> user_limits;
+
+	/**
+	 * \brief True when loadDigitizationPlugins() must run during the next Construct() call.
 	 *
 	 * Set to true by reload_geometry() and prepare_geometry_for_run() whenever the geometry
-	 * changes. Cleared to false after loadDigitizationPlugins() completes so that routine
-	 * BeamOn re-initializations (which call ConstructSDandField() on the master) do not
-	 * clear the shared map while worker threads may be concurrently reading it.
+	 * changes. Cleared after Construct() loads the map, before worker threads read it from
+	 * ConstructSDandField(). Loading on the master avoids clearing the map while workers use it.
 	 */
 	bool digiplugins_need_reload = true;
 

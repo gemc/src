@@ -40,5 +40,8 @@ LD += {
             files('examples/generator_file_events_example.cc'),
             generator_file_events
         ],
-    }
+    },
+    'example_suites' : {
+        'test_generator_lund_file_events' : ['threading'],
+    },
 }

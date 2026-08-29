@@ -54,6 +54,14 @@ examples. Weekly and versioned-release runs repeat full sweeps across hosted run
 rate, speedup, and parallel efficiency. The complete CSV, JSON, Markdown, and SVG reports remain available as
 workflow artifacts.
 
+Developers can run the local multithreading and race-focused Meson suite. It detects the CPUs available to the
+process, creates one sequential test for every thread count from one through that maximum, and can be repeated
+to vary worker scheduling:
+
+```shell
+meson test -C build --suite threading --repeat 10 --print-errorlogs
+```
+
 <!-- thread-scaling-results:start -->
 
 _No weekly or release result has been published yet. See [Thread Scaling][thread-scaling]._

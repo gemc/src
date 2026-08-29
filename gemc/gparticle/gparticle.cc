@@ -57,9 +57,11 @@ Gparticle::Gparticle(const std::string&              aname,
 
 // Shoots this particle into the provided event using the provided Geant4 particle gun.
 // Detailed API documentation is in gparticle.h.
-void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent) {
+std::vector<GparticleRuntimeRecord> Gparticle::shootParticle(G4ParticleGun* particleGun,
+                                                             G4Event* anEvent) const {
 	auto particleTable = G4ParticleTable::GetParticleTable();
-	runtimeRecords.clear();
+	std::vector<GparticleRuntimeRecord> runtime_records;
+	if (multiplicity > 0) { runtime_records.reserve(static_cast<size_t>(multiplicity)); }
 
 	if (particleTable) {
 		// Resolve the particle definition by name.
@@ -80,8 +82,7 @@ void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent) {
 				auto beamDirection = calculateBeamDirection(thetaRad, phiRad);
 				auto vertex        = calculateVertex();
 
-				setRunTimeQuantities(kenergy, beamDirection, vertex);
-				runtimeRecords.push_back({
+				runtime_records.push_back({
 					name,
 					pid,
 					generator_type,
@@ -96,7 +97,11 @@ void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent) {
 				particleGun->SetParticlePosition(vertex);
 				particleGun->GeneratePrimaryVertex(anEvent);
 
-				log->info(2, *this);
+				log->info(2, "Generated particle <", name, "> pid ", pid,
+				          ", p [MeV]: ", pmev / CLHEP::MeV,
+				          ", theta [deg]: ", thetaRad / CLHEP::deg,
+				          ", phi [deg]: ", phiRad / CLHEP::deg,
+				          ", vertex [cm]: ", vertex / CLHEP::cm);
 			}
 		}
 		else {
@@ -106,26 +111,28 @@ void Gparticle::shootParticle(G4ParticleGun* particleGun, G4Event* anEvent) {
 	}
 	else {
 		log->error(gparticle::ERR_GPARTICLETABLENOTFOUND,
-				   "G4ParticleTable not found - G4ParticleGun*: ", particleGun);
+		           "G4ParticleTable not found - G4ParticleGun*: ", particleGun);
 	}
+
+	return runtime_records;
 }
 
 
-double Gparticle::calculateMomentum() {
+double Gparticle::calculateMomentum() const {
 	// randomizeNumberFromSigmaWithModel applies the model-dependent interpretation of delta.
 	double pmev = randomizeNumberFromSigmaWithModel(p, delta_p, randomMomentumModel);
 
 	return pmev;
 }
 
-double Gparticle::calculateKinEnergy(double mass) {
+double Gparticle::calculateKinEnergy(double mass) const {
 	double pmev = calculateMomentum();
 
 	return sqrt(pmev * pmev + mass * mass) - mass;
 }
 
 
-G4ThreeVector Gparticle::calculateBeamDirection(double thetaRad, double phiRad) {
+G4ThreeVector Gparticle::calculateBeamDirection(double thetaRad, double phiRad) const {
 	G4ThreeVector pdir = G4ThreeVector(
 									   cos(phiRad) * sin(thetaRad),
 									   sin(phiRad) * sin(thetaRad),
@@ -135,7 +142,7 @@ G4ThreeVector Gparticle::calculateBeamDirection(double thetaRad, double phiRad) 
 	return pdir;
 }
 
-G4ThreeVector Gparticle::calculateVertex() {
+G4ThreeVector Gparticle::calculateVertex() const {
 	double x, y, z;
 
 	switch (randomVertexModel) {
@@ -307,14 +314,6 @@ std::ostream& operator<<(std::ostream& os, const Gparticle& gp) {
 		<< gp.v << "  ± " << gp.delta_v << '\n';
 
 	show(" vertex model:", to_string(gp.randomVertexModel));
-
-	showf(" kinematic energy [MeV]:", gp.kinenergy / CLHEP::MeV);
-	os << left << setw(label_w) << " beam direction :" << ' '
-		<< gp.beamDirection << '\n';
-
-	os << left << setw(label_w) << " vertex :" << ' '
-		<< gp.vertex << '\n';
-
 
 	return os;
 }
