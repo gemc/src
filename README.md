@@ -64,7 +64,76 @@ meson test -C build --suite threading --repeat 10 --print-errorlogs
 
 <!-- thread-scaling-results:start -->
 
-_No weekly or release result has been published yet. See [Thread Scaling][thread-scaling]._
+_Latest [weekly thread-scaling run](https://github.com/gemc/src/actions/runs/33387744546)._
+
+### basic/scintillator_barrel
+
+Runner configurations:
+
+- 1 measurement job: INTEL(R) XEON(R) PLATINUM 8573C; linux 6.17.0-1022-azure; x64; 4 visible CPUs; pid 185's current affinity list: 0-3
+- 3 measurement jobs: AMD EPYC 7763 64-Core Processor; linux 6.17.0-1022-azure; x64; 4 visible CPUs; pid 185's current affinity list: 0-3
+
+| Threads | Median time | Speedup | Efficiency | Median rate | Samples |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 7.484 s | 1.00x | 100.0% | 668.09 events/s | 20 |
+| 2 | 4.524 s | 1.65x | 82.4% | 1105.16 events/s | 20 |
+| 3 | 4.101 s | 1.82x | 60.7% | 1219.33 events/s | 20 |
+| 4 | 3.740 s | 2.01x | 50.2% | 1336.77 events/s | 20 |
+
+#### Rate vs threads
+
+```mermaid
+---
+config:
+  themeCSS: |
+    .line-plot-0 .labels text:first-child { text-anchor: start; }
+    .line-plot-0 .labels text:last-child { text-anchor: end; }
+  themeVariables:
+    xyChart:
+      plotColorPalette: "#0969da"
+---
+xychart
+    title "basic/scintillator_barrel: rate vs threads"
+    x-axis "Threads" [1, 2, 3, 4]
+    y-axis "events / second" 0 --> 1470.45
+    line [668.08824 "● 668.1", 1105.1613 "● 1.11e+3", 1219.3298 "● 1.22e+3", 1336.7728 "● 1.34e+3"]
+```
+
+### optical/cherenkov
+
+Runner configurations:
+
+- 2 measurement jobs: AMD EPYC 7763 64-Core Processor; linux 6.17.0-1022-azure; x64; 4 visible CPUs; pid 185's current affinity list: 0-3
+- 1 measurement job: AMD EPYC 7763 64-Core Processor; linux 6.17.0-1022-azure; x64; 4 visible CPUs; pid 186's current affinity list: 0-3
+- 1 measurement job: AMD EPYC 9V74 80-Core Processor; linux 6.17.0-1022-azure; x64; 4 visible CPUs; pid 185's current affinity list: 0-3
+
+| Threads | Median time | Speedup | Efficiency | Median rate | Samples |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 50.573 s | 1.00x | 100.0% | 9.89 events/s | 20 |
+| 2 | 32.818 s | 1.48x | 74.2% | 15.24 events/s | 20 |
+| 3 | 38.939 s | 1.31x | 43.6% | 12.84 events/s | 20 |
+| 4 | 39.194 s | 1.30x | 32.5% | 12.76 events/s | 20 |
+
+#### Rate vs threads
+
+```mermaid
+---
+config:
+  themeCSS: |
+    .line-plot-0 .labels text:first-child { text-anchor: start; }
+    .line-plot-0 .labels text:last-child { text-anchor: end; }
+  themeVariables:
+    xyChart:
+      plotColorPalette: "#0969da"
+---
+xychart
+    title "optical/cherenkov: rate vs threads"
+    x-axis "Threads" [1, 2, 3, 4]
+    y-axis "events / second" 0 --> 16.759099
+    line [9.886637 "● 9.89", 15.235544 "● 15.2", 12.840606 "● 12.8", 12.75716 "● 12.8"]
+```
+
+> GitHub-hosted runners are suitable for regression signals, not publication-quality benchmarking.
 
 <!-- thread-scaling-results:end -->
 
