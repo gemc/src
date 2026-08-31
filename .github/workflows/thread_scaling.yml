@@ -90,7 +90,7 @@ jobs:
             warmup_runs=1
             replicas=auto
             max_threads=0
-            scintillator_events=5000
+            scintillator_events=50000
             cherenkov_events=500
             retention_days=30
           fi
