@@ -6,12 +6,14 @@ Writes:
   - geant4.pc        : full libs from geant4-config --libs (as before)
   - geant4_core.pc   : libs with graphical/GUI/vis/X11/OpenGL/Qt removed
 
+The two .pc files are written directly into <output-dir> (created if missing).
+
 Usage:
-    ./g4_pkgconfig.py <install-prefix> [geant4-config]
+    ./g4_pkgconfig.py <output-dir> [geant4-config]
 
 Example:
-    ./g4_pkgconfig.py $GEMC
-    ./g4_pkgconfig.py $GEMC $G4INSTALL/bin/geant4-config
+    ./g4_pkgconfig.py build/pkgconfig
+    ./g4_pkgconfig.py build/pkgconfig $G4INSTALL/bin/geant4-config
 """
 import subprocess
 import sys
@@ -132,7 +134,7 @@ def filter_graphical_libs(flags: str) -> str:
 	return " ".join(kept)
 
 
-def generate_pkgconfig(install_prefix: Path,
+def generate_pkgconfig(out_dir: Path,
 					   config_cmd: str,
 					   output_filename: str,
 					   name: str,
@@ -140,7 +142,7 @@ def generate_pkgconfig(install_prefix: Path,
 					   root_lbs: Optional[List[str]] = None,
 					   cflags_filter=None,
 					   libs_filter=None) -> None:
-	"""Create <install_prefix>/lib/pkgconfig/<output_filename>."""
+	"""Create <out_dir>/<output_filename>."""
 	prefix = run_config(config_cmd, "--prefix")
 
 	libs = filter_unwanted_flags(run_config(config_cmd, "--libs"))
@@ -167,7 +169,7 @@ Cflags: {cflags}
 Libs:  {libs}
 """
 
-	pc_path = install_prefix / "lib" / "pkgconfig" / output_filename
+	pc_path = out_dir / output_filename
 	pc_path.parent.mkdir(parents=True, exist_ok=True)
 	pc_path.write_text(pc_content + "\n")
 	print(f"Generated {pc_path}")
@@ -176,18 +178,18 @@ Libs:  {libs}
 # Main
 if __name__ == "__main__":
 	if len(sys.argv) not in (2, 3):
-		sys.exit(f"Usage: {sys.argv[0]} <install-prefix> [geant4-config]")
+		sys.exit(f"Usage: {sys.argv[0]} <output-dir> [geant4-config]")
 
-	install_dir = Path(sys.argv[1]).expanduser().resolve()
+	out_dir = Path(sys.argv[1]).expanduser().resolve()
 	config_cmd = sys.argv[2] if len(sys.argv) == 3 else "geant4-config"
-	if not install_dir.exists():
-		print(f"Creating installation directory {install_dir}")
-		install_dir.mkdir(parents=True, exist_ok=True)
+	if not out_dir.exists():
+		print(f"Creating output directory {out_dir}")
+		out_dir.mkdir(parents=True, exist_ok=True)
 
-	generate_pkgconfig(install_dir, config_cmd,
+	generate_pkgconfig(out_dir, config_cmd,
 					   "geant4.pc", "Geant4", "Geant4 Simulation Toolkit")
 
-	generate_pkgconfig(install_dir, config_cmd,
+	generate_pkgconfig(out_dir, config_cmd,
 					   "geant4_core.pc", "Geant4 Core",
 					   "Geant4 Simulation Toolkit (core, no graphical/GUI libs)",
 					   cflags_filter=filter_graphical_cflags,

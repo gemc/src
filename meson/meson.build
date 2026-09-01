@@ -140,43 +140,83 @@ if (not root_dep.found()) and (not root_opt.disabled())
     endif
 endif
 
-# Generate Geant4 pkg-config files from the active module so downstream builds
-# do not pick stale global pc files from unrelated pkg-config directories.
+# Geant4 ships no pkg-config file, so we generate geant4.pc / geant4_core.pc ourselves from the active
+# geant4-config. They are a build-time helper for locating Geant4, so they live in a hardcoded
+# directory inside the build tree (not tied to the install prefix). A fresh `rm -rf build` drops them,
+# so they regenerate cleanly when the build dir is recreated - e.g. after switching Geant4 versions.
 fs = import('fs')
-gemc_prefix = get_option('prefix')
-geant4_pc_path = gemc_prefix / 'lib/pkgconfig'
+geant4_pc_path = meson.project_build_root() / 'pkgconfig'
+geant4_pc = geant4_pc_path / 'geant4.pc'
+geant4_core_pc = geant4_pc_path / 'geant4_core.pc'
 g4_pkgconfig_script = meson.project_source_root() / 'meson/g4_pkgconfig.py'
 
 geant4_config_version = run_command(geant4_config, '--version', check : true).stdout().strip()
-message('Generating Geant4 pkg-config files in ' + geant4_pc_path + ' from ' + geant4_config.full_path())
-# Configure-time generation: GEMC's own dependency('geant4_core') below needs the .pc files on
-# PKG_CONFIG_PATH to build itself.
-run_command(g4_pkgconfig_script, gemc_prefix, geant4_config.full_path(), check : true)
-# Install-time generation: re-create geant4.pc / geant4_core.pc in the prefix on every install.
-# Without this the files exist only as a one-shot configure side effect, so a reinstall into a
-# freshly wiped prefix (e.g. rm -rf install_dir + meson install) silently drops them and downstream
-# builds such as clas12-systems can no longer resolve geant4_core.
+if not fs.exists(geant4_pc) or not fs.exists(geant4_core_pc)
+    message('Generating geant4.pc / geant4_core.pc in ' + geant4_pc_path + ' from ' + geant4_config.full_path())
+    run_command(g4_pkgconfig_script, geant4_pc_path, geant4_config.full_path(), check : true)
+endif
+
+# The generated .pc files are not on the default pkg-config search path. Rather than requiring the
+# caller to export PKG_CONFIG_PATH / pass -Dpkg_config_path, we resolve geant4 by running pkg-config
+# ourselves with an augmented PKG_CONFIG_PATH and wrap the result in declare_dependency: meson.build
+# cannot mutate the pkg_config_path option or dependency()'s environment, so this is the faithful
+# equivalent of a plain pkg-config lookup. env.append() adds to (does not replace) the inherited
+# PKG_CONFIG_PATH, so module-provided paths still resolve. The generated .pc files carry flat
+# Cflags/Libs with no Requires, so nothing else needs to be found.
+g4_min_version = '>=11.3.2'
+pkgconf = find_program('pkg-config', 'pkgconf', required : true)
+g4_pc_env = environment()
+g4_pc_env.append('PKG_CONFIG_PATH', geant4_pc_path, separator : ':')
+
+g4_built = {}
+foreach g4 : [
+    { 'pc' : 'geant4',      'system' : true  }, # treat includes as system paths - no warnings
+    { 'pc' : 'geant4_core', 'system' : false },
+]
+    pcname = g4['pc']
+    ver = run_command(pkgconf, '--modversion', pcname, env : g4_pc_env, check : true).stdout().strip()
+    if not ver.version_compare(g4_min_version)
+        error(pcname + ' ' + ver + ' found in ' + geant4_pc_path + ', but ' + g4_min_version + ' is required')
+    endif
+    if ver != geant4_config_version
+        error('pkg-config resolved ' + pcname + ' ' + ver + ', but active geant4-config reports ' +
+              geant4_config_version + '. Remove stale entries from PKG_CONFIG_PATH and reconfigure.')
+    endif
+    cflags = run_command(pkgconf, '--cflags', pcname, env : g4_pc_env, check : true).stdout().split()
+    libs = run_command(pkgconf, '--libs', pcname, env : g4_pc_env, check : true).stdout().split()
+    compile_args = []
+    foreach f : cflags
+        if g4['system'] and f.startswith('-I')
+            compile_args += ['-isystem', f.substring(2)] # -I<path> -> -isystem <path>
+        else
+            compile_args += f
+        endif
+    endforeach
+    g4_built += { pcname : declare_dependency(compile_args : compile_args, link_args : libs) }
+endforeach
+geant4_dep = g4_built['geant4']
+geant4_core_dep = g4_built['geant4_core']
+
+# Each static GEMC module library is built with the Geant4 link_args it needs, so a target that links
+# several of them lists the same -lG4* more than once. Meson does not deduplicate raw declare_dependency
+# link_args (unlike real pkg-config dependency objects), and the Geant4 .pc files are resolved here as
+# declare_dependency, so the repeats reach the link line. They are harmless - the linker keeps the first,
+# order-correct copy - but Apple's linker warns on every one of them. GNU ld (Linux/ifarm) is silent, so
+# quiet the macOS linker to keep the build log readable.
+if sys == 'darwin'
+    add_project_link_arguments('-Wl,-no_warn_duplicate_libraries', language : 'cpp')
+endif
+
+# Ship the generated .pc into <prefix>/lib/pkgconfig. Downstream GEMC projects (e.g. clas12-systems)
+# resolve geant4_core straight from the installed GEMC's lib/pkgconfig, so the installed tree must
+# carry these files. An install script (rather than install_data) is used because the .pc are
+# generated build-tree files; $MESON_INSTALL_DESTDIR_PREFIX is set by meson at install time.
 meson.add_install_script(
-    find_program('python3'),
-    files('g4_pkgconfig.py'),
-    gemc_prefix,
-    geant4_config.full_path(),
+    'sh', '-c',
+    'set -e; d="$MESON_INSTALL_DESTDIR_PREFIX/$1"; mkdir -p "$d"; shift; cp "$@" "$d"',
+    'install_geant4_pc', get_option('libdir') / 'pkgconfig', geant4_pc, geant4_core_pc,
 )
 
-geant4_dep = dependency(
-    'geant4',
-    version      : '>=11.3.2',
-    method       : 'pkg-config',
-    include_type : 'system',
-)
-geant4_core_dep = dependency('geant4_core', version : '>=11.3.2', method : 'pkg-config')
-if geant4_core_dep.version() != geant4_config_version
-    error(
-        'pkg-config resolved geant4_core ' + geant4_core_dep.version() +
-        ', but active geant4-config reports ' + geant4_config_version +
-        '. Put ' + geant4_pc_path + ' before stale pkg-config directories and reconfigure.',
-    )
-endif
 geant4_deps = [geant4_dep]
 geant4_core_deps = [geant4_core_dep]
 if sys == 'linux'
