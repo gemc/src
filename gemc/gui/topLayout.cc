@@ -1,6 +1,8 @@
 // gui
 #include "gui.h"
+#ifdef GEMC_HAS_QTCHARTS
 #include "gAnalysisView.h"
+#endif
 
 
 // qt
@@ -80,10 +82,16 @@ void GemcGUI::beamOn() {
 	// Run a batch once, then update the GUI counter label.
 	prepareGeometryForBeamOn();
 	if (analysisAccumulator != nullptr) {
+#ifdef GEMC_HAS_QTCHARTS
 		analysisAccumulator->beginBeamOn(analysisView != nullptr && analysisView->accumulateEnabled());
+#else
+		analysisAccumulator->beginBeamOn(false);
+#endif
 	}
 	eventDispenser->processEvents();
+#ifdef GEMC_HAS_QTCHARTS
 	if (analysisView != nullptr) { analysisView->refresh(); }
+#endif
 	updateGui();
 }
 
@@ -95,10 +103,16 @@ void GemcGUI::cycleBeamOn() {
 	}
 	prepareGeometryForBeamOn();
 	if (analysisAccumulator != nullptr) {
+#ifdef GEMC_HAS_QTCHARTS
 		analysisAccumulator->beginBeamOn(analysisView != nullptr && analysisView->accumulateEnabled());
+#else
+		analysisAccumulator->beginBeamOn(false);
+#endif
 	}
 	eventDispenser->processEvents();
+#ifdef GEMC_HAS_QTCHARTS
 	if (analysisView != nullptr) { analysisView->refresh(); }
+#endif
 }
 
 

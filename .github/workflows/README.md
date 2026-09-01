@@ -43,11 +43,12 @@ pygemc` run validates pygemc compatibility only and does not deploy.
   - Effect: builds and tests the configured operating-system and architecture matrix.
   - Downstream: `Deploy` only for a successful push to `main`.
 - [`thread_scaling.yml`](thread_scaling.yml) — **Thread Scaling**
-  - Trigger: pull requests, a weekly schedule, published releases, and manual dispatch.
-  - Effect: builds one optimized GEMC artifact, measures the scintillator-barrel and Cherenkov examples over the
-    CPUs visible to GitHub-hosted runners, and publishes scaling tables and plots.
-  - Profiles: pull requests use a short single sweep; weekly and release runs use replicated full sweeps and
-    update the generated result section in the root README.
+  - Trigger: pull requests, pushes to `main`, a weekly schedule, published releases, and manual dispatch.
+  - Effect: builds one optimized GEMC artifact, then uses ThreadScale's standalone `test_scaling` command to
+    measure the scintillator-barrel and Cherenkov examples sequentially over the CPUs visible to one hosted
+    runner and publish a combined scaling table and plots.
+  - Profiles: pull requests and pushes use a short single sweep; weekly and release runs use four replicated
+    sweeps and update the generated result section in the root README.
 - [`test_after_pygemc.yml`](test_after_pygemc.yml) — **Test after pygemc**
   - Trigger: API or manual `workflow_dispatch`; the upstream dispatcher selects `main`.
   - Effect: calls the reusable jobs in `test.yml` against the current pygemc source consumed by GEMC.
@@ -110,8 +111,9 @@ Workflow filenames and displayed `name` values are interfaces, not cosmetic labe
 - `test_after_pygemc.yml` calls `test.yml` through `workflow_call`; keep the shared matrix in `test.yml`.
 - `trigger_c12s_tests.yml` dispatches `gemc/clas12-systems` file `test_after_src.yml`.
 - The CLAS12 Deploy workflow matches the exact name `Test after gemc/src deploy`.
-- `thread_scaling.yml` consumes the public `gemc/ThreadScale` Action. Publish its referenced major tag before
-  enabling or updating the GEMC workflow.
+- `thread_scaling.yml` checks out the standalone command from public `gemc/ThreadScale`. It temporarily uses
+  `main` because `test_scaling` was added after `v1.0.1`; switch back to the moving `v1` major tag after the
+  next immutable ThreadScale release contains the command.
 
 The local checkout paths used by developers are sibling repositories, but Actions dispatches use repository and
 workflow identifiers hosted by GitHub.

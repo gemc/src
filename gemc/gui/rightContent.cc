@@ -8,7 +8,9 @@
 #include "dbselectView.h"
 #include "gtree.h"
 #include "pmakerView.h"
+#ifdef GEMC_HAS_QTCHARTS
 #include "gAnalysisView.h"
+#endif
 #include "gemc/actions/gaction.h"
 
 // geant4
@@ -67,8 +69,20 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 	rightContent->addWidget(new PmakerView(sharedParticles, gopts));
 
 	// Analyzer variables are populated from runtime records after the first GUI beamOn.
+#ifdef GEMC_HAS_QTCHARTS
 	analysisView = new GAnalysisView(analysisAccumulator, ganalysis::getOptions(gopts));
 	rightContent->addWidget(analysisView);
+#else
+	// Built without Qt6 Charts: keep the page index stable by showing a placeholder instead of the
+	// histogram view. analysisView stays nullptr, and every caller already guards on that.
+	auto* analysisPlaceholder = new QLabel(
+		QStringLiteral("The analysis view requires Qt6 Charts, which was not available when GEMC was "
+		               "built.\nInstall the Qt6 Charts package and rebuild GEMC to enable live "
+		               "histograms."));
+	analysisPlaceholder->setAlignment(Qt::AlignCenter);
+	analysisPlaceholder->setWordWrap(true);
+	rightContent->addWidget(analysisPlaceholder);
+#endif
 
 	// Default to the first page and update the left bar visual highlight accordingly.
 	rightContent->setCurrentIndex(0);

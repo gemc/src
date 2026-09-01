@@ -8,6 +8,10 @@ on:
   pull_request:
     paths-ignore:
       - "**/*.md"
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - "**/*.md"
   schedule:
     - cron: "17 05 * * 1"
   release:
@@ -23,7 +27,7 @@ on:
           - quick
           - statistical
       strategy:
-        description: ThreadScale job fan-out strategy.
+        description: ThreadScale measurement layout.
         required: true
         default: replicated-sweep
         type: choice
@@ -66,7 +70,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ "${EVENT_NAME}" == "pull_request" ]]; then
+          if [[ "${EVENT_NAME}" == "pull_request" || "${EVENT_NAME}" == "push" ]]; then
             profile=quick
             strategy=single-sweep
           elif [[ "${EVENT_NAME}" == "schedule" || "${EVENT_NAME}" == "release" ]]; then
@@ -88,11 +92,15 @@ jobs:
           else
             runs=5
             warmup_runs=1
-            replicas=auto
+            replicas=4
             max_threads=0
             scintillator_events=50000
             cherenkov_events=500
             retention_days=30
+          fi
+
+          if [[ "${strategy}" != "replicated-sweep" ]]; then
+            replicas=1
           fi
 
           {
@@ -109,33 +117,27 @@ jobs:
           import sys
 
           scintillator_events, cherenkov_events = map(int, sys.argv[1:])
-          command = (
-              'ci/run_thread_scaling.sh "$RUNNER_TEMP/gemc" '
-              '{example} {events} {threads} {run} {replica}'
-          )
+
+          def command(example: str, events: int) -> str:
+              example_name = example.rsplit("/", maxsplit=1)[-1]
+              return (
+                  '"$RUNNER_TEMP/gemc/bin/gemc" '
+                  f'"$RUNNER_TEMP/gemc/examples/{example}/{example_name}.yaml" '
+                  '"-sql=$RUNNER_TEMP/gemc/examples/gemc.db" '
+                  f"-n={events} -nthreads={{threads}} -seed=12345 '-gstreamer=[]'"
+              )
+
           benchmarks = [
               {
                   "name": "basic/scintillator_barrel",
-                  "command": command.format(
-                      example="basic/scintillator_barrel",
-                      events=scintillator_events,
-                      threads="{threads}",
-                      run="{run}",
-                      replica="{replica}",
-                  ),
+                  "command": command("basic/scintillator_barrel", scintillator_events),
                   "working_directory": ".",
                   "workload": scintillator_events,
                   "workload_unit": "events",
               },
               {
                   "name": "optical/cherenkov",
-                  "command": command.format(
-                      example="optical/cherenkov",
-                      events=cherenkov_events,
-                      threads="{threads}",
-                      run="{run}",
-                      replica="{replica}",
-                  ),
+                  "command": command("optical/cherenkov", cherenkov_events),
                   "working_directory": ".",
                   "workload": cherenkov_events,
                   "workload_unit": "events",
@@ -193,39 +195,31 @@ jobs:
           if-no-files-found: error
           retention-days: ${{ fromJSON(needs.profile.outputs.artifact-retention-days) }}
 
-  discover:
-    name: Discover CPUs and create matrix
-    needs: [ profile ]
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.discover.outputs.matrix }}
-    steps:
-      - id: discover
-        name: Detect available CPUs
-        uses: gemc/ThreadScale@v1
-        with:
-          mode: discover
-          benchmarks: ${{ needs.profile.outputs.benchmarks }}
-          strategy: ${{ needs.profile.outputs.strategy }}
-          threads: auto
-          replicas: ${{ needs.profile.outputs.replicas }}
-          max-threads: ${{ needs.profile.outputs.max-threads }}
-
   benchmark:
-    name: ${{ matrix.benchmark }} / ${{ matrix.id }}
-    needs: [ profile, build, discover ]
+    name: Measure and plot scaling
+    needs: [ profile, build ]
     runs-on: ubuntu-latest
-    timeout-minutes: 120
-    # ThreadScale runs on an already deployed GEMC image containing all runtime dependencies.
+    timeout-minutes: 360
+    # ThreadScale runs on an already deployed GEMC image containing all required runtime packages.
     container: ghcr.io/gemc/src:dev-ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     steps:
       - name: Checkout benchmark source
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.release.tag_name || github.sha }}
+
+      - name: Checkout ThreadScale command
+        uses: actions/checkout@v6
+        with:
+          repository: gemc/ThreadScale
+          # test_scaling was added after v1.0.1; use development until the next versioned release.
+          ref: main
+          path: threadscale
+
+      - name: Select Node.js for ThreadScale
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
 
       - name: Download benchmark installation
         uses: actions/download-artifact@v7
@@ -247,56 +241,48 @@ jobs:
           mkdir -p "${RUNNER_TEMP}/gemc"
           tar -xzf "${tarballs[0]}" -C "${RUNNER_TEMP}/gemc" --strip-components=1
 
-      - id: benchmark
-        name: Measure thread scaling
-        uses: gemc/ThreadScale@v1
-        with:
-          benchmark-name: ${{ matrix.benchmark }}
-          command: ${{ matrix.command }}
-          working-directory: ${{ matrix.working_directory }}
-          threads: ${{ matrix.threads }}
-          replica: ${{ matrix.replica }}
-          runs: ${{ needs.profile.outputs.runs }}
-          warmup-runs: ${{ needs.profile.outputs.warmup-runs }}
-          timeout-seconds: 900
-          workload: ${{ matrix.workload }}
-          workload-unit: ${{ matrix.workload_unit }}
-          max-threads: ${{ needs.profile.outputs.max-threads }}
-          output-dir: thread-scaling-part
+      - name: Measure thread scaling
+        env:
+          BENCHMARKS_JSON: ${{ needs.profile.outputs.benchmarks }}
+          MAX_THREADS: ${{ needs.profile.outputs.max-threads }}
+          REPLICAS: ${{ needs.profile.outputs.replicas }}
+          RUNS: ${{ needs.profile.outputs.runs }}
+          STRATEGY: ${{ needs.profile.outputs.strategy }}
+          WARMUP_RUNS: ${{ needs.profile.outputs.warmup-runs }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DOCKER_ENTRYPOINT_SOURCE_ONLY=1
+          . /usr/local/bin/docker-entrypoint.sh
+          module load geant4/"${GEANT4_TAG}"
+          export PATH="${RUNNER_TEMP}/gemc/bin:${PATH}"
+          export LD_LIBRARY_PATH="${RUNNER_TEMP}/gemc/lib:${LD_LIBRARY_PATH:-}"
 
-      - name: Upload partial result
-        uses: actions/upload-artifact@v7
-        with:
-          name: thread-scaling-part-${{ matrix.id }}
-          path: ${{ steps.benchmark.outputs.result-file }}
-          if-no-files-found: error
-          retention-days: ${{ fromJSON(needs.profile.outputs.artifact-retention-days) }}
+          "${RUNNER_TEMP}/gemc/bin/gemc" -v
 
-  report:
-    name: Aggregate and plot
-    needs: [ profile, benchmark ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download partial results
-        uses: actions/download-artifact@v7
-        with:
-          pattern: thread-scaling-part-*
-          path: thread-scaling-parts
+          benchmarks_file="${RUNNER_TEMP}/threadscale-benchmarks.json"
+          printf '%s\n' "${BENCHMARKS_JSON}" > "${benchmarks_file}"
 
-      - id: report
-        name: Create scaling report
-        uses: gemc/ThreadScale@v1
-        with:
-          mode: report
-          input-dir: thread-scaling-parts
-          output-dir: thread-scaling
-          summary-plots: rate
+          ./threadscale/test_scaling \
+            --benchmarks "${benchmarks_file}" \
+            --threads powers-of-two \
+            --max-threads "${MAX_THREADS}" \
+            --duration 0 \
+            --runs "${RUNS}" \
+            --warmup-runs "${WARMUP_RUNS}" \
+            --strategy "${STRATEGY}" \
+            --replicas "${REPLICAS}" \
+            --timeout-seconds 900 \
+            --output-dir thread-scaling \
+            --summary-plots rate
+
+          cat thread-scaling/summary.md >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Upload scaling report
         uses: actions/upload-artifact@v7
         with:
           name: thread-scaling-report
-          path: ${{ steps.report.outputs.results-dir }}
+          path: thread-scaling
           if-no-files-found: error
           retention-days: ${{ fromJSON(needs.profile.outputs.artifact-retention-days) }}
 
@@ -304,10 +290,10 @@ jobs:
     name: Update README scaling summary
     if: >-
       ${{
-        needs.report.result == 'success' &&
+        needs.benchmark.result == 'success' &&
         (github.event_name == 'schedule' || github.event_name == 'release')
       }}
-    needs: [ report ]
+    needs: [ benchmark ]
     runs-on: ubuntu-latest
     permissions:
       contents: write

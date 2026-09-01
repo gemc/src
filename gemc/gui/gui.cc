@@ -2,7 +2,9 @@
 #include "gui.h"
 #include "gtree.h"
 #include "g4SceneProperties.h"
+#ifdef GEMC_HAS_QTCHARTS
 #include "gAnalysisView.h"
+#endif
 
 // geant4
 #include "G4UImanager.hh"
@@ -156,7 +158,9 @@ void GemcGUI::updateGui() {
 
 
 void GemcGUI::resetVisualizationBeforeGeometryReload() {
+#ifdef GEMC_HAS_QTCHARTS
 	if (analysisView != nullptr) { analysisView->clearForGeometryReload(); }
+#endif
 	resetSceneBeforeGeometryReload(G4UImanager::GetUIpointer());
 }
 

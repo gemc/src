@@ -12,14 +12,42 @@ qt6_deps = dependency('qt6',
                       modules : ['Core',
                                  'Gui',
                                  'Widgets',
-                                 'OpenGLWidgets',
-                                 'Svg'],
+                                 'OpenGLWidgets'],
                       static : false,
                       include_type : 'system') # treat as system include paths - no warnings
+
+# Qt Svg is NOT a compile/link dependency: no GEMC source includes a QtSvg header or uses a QSvg
+# class. It is used only at run time to rasterize the GUI toolbar button icons through the "SVG"
+# image-format plugin (QPixmap::loadFromData(svg, "SVG")). We therefore probe it optionally and only
+# warn when it is missing: the GUI still builds and runs, but the toolbar buttons render blank icons
+# (see gemc/gqtbuttonswidget/gQtButtonsWidget.cc, which already falls back to an empty QIcon).
+qt6_svg_dep = dependency('qt6',
+                         modules : ['Svg'],
+                         static : false,
+                         include_type : 'system',
+                         required : false)
+if not qt6_svg_dep.found()
+    warning('Qt6 Svg module not found: GUI toolbar buttons will render without icons. ' +
+            'Install the Qt6 Svg package (e.g. qt6-qtsvg-devel) to enable them.')
+endif
+# Qt Charts is a real compile/link dependency: gemc/ganalysis/gAnalysisView.cc includes
+# <QtCharts/...> and links Qt6Charts to draw the live in-GUI histogram page. Unlike Svg it cannot
+# degrade at run time, so we probe it optionally: when present we define GEMC_HAS_QTCHARTS and build
+# the analysis view; when absent GEMC still builds and runs, but the GUI analysis page is replaced by
+# a short "Qt6 Charts required" placeholder (see gemc/gui/rightContent.cc) and the Charts-only
+# ganalysis sources/examples are dropped from the build (see gemc/ganalysis/meson.build).
 qt6_charts_dep = dependency('qt6',
                             modules : ['Charts'],
                             static : false,
-                            include_type : 'system')
+                            include_type : 'system',
+                            required : false)
+qt6_charts_found = qt6_charts_dep.found()
+if qt6_charts_found
+    add_project_arguments('-DGEMC_HAS_QTCHARTS', language : 'cpp')
+else
+    warning('Qt6 Charts module not found: the GUI analysis (histogram) page is disabled and shows a ' +
+            'placeholder. Install the Qt6 Charts package (e.g. qt6-qtcharts-devel) to enable it.')
+endif
 
 sys = host_machine.system()
 
