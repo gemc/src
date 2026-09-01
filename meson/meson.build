@@ -168,12 +168,17 @@ pkgconf = find_program('pkg-config', 'pkgconf', required : true)
 g4_pc_env = environment()
 g4_pc_env.append('PKG_CONFIG_PATH', geant4_pc_path, separator : ':')
 
-g4_built = {}
-foreach g4 : [
-    { 'pc' : 'geant4',      'system' : true  }, # treat includes as system paths - no warnings
-    { 'pc' : 'geant4_core', 'system' : false },
-]
-    pcname = g4['pc']
+# Resolve the .pc contents. Each Geant4 library (-lG4*) is turned into a real library object through
+# cpp.find_library instead of a raw -l string, and a shared cache makes the full and core sets point at
+# the same objects. This lets meson deduplicate the Geant4 archives across the whole link graph: raw
+# declare_dependency link_args are never deduplicated, so - because every static GEMC module carries the
+# Geant4 link_args - a heavy target listed the same -lG4* a dozen times, and GNU ld (Linux) reprocessed
+# each large static archive on every repeat, making the link crawl (macOS ld only warns and skips them).
+cpp = meson.get_compiler('cpp')
+g4_pc_cflags = {}
+g4_pc_libs = {}
+g4_lib_dirs = []
+foreach pcname : ['geant4', 'geant4_core']
     ver = run_command(pkgconf, '--modversion', pcname, env : g4_pc_env, check : true).stdout().strip()
     if not ver.version_compare(g4_min_version)
         error(pcname + ' ' + ver + ' found in ' + geant4_pc_path + ', but ' + g4_min_version + ' is required')
@@ -182,30 +187,57 @@ foreach g4 : [
         error('pkg-config resolved ' + pcname + ' ' + ver + ', but active geant4-config reports ' +
               geant4_config_version + '. Remove stale entries from PKG_CONFIG_PATH and reconfigure.')
     endif
-    cflags = run_command(pkgconf, '--cflags', pcname, env : g4_pc_env, check : true).stdout().split()
-    libs = run_command(pkgconf, '--libs', pcname, env : g4_pc_env, check : true).stdout().split()
-    compile_args = []
-    foreach f : cflags
-        if g4['system'] and f.startswith('-I')
-            compile_args += ['-isystem', f.substring(2)] # -I<path> -> -isystem <path>
-        else
-            compile_args += f
+    pc_cflags = run_command(pkgconf, '--cflags', pcname, env : g4_pc_env, check : true).stdout().split()
+    pc_libs   = run_command(pkgconf, '--libs',   pcname, env : g4_pc_env, check : true).stdout().split()
+    g4_pc_cflags += { pcname : pc_cflags }
+    g4_pc_libs   += { pcname : pc_libs }
+    foreach l : pc_libs
+        if l.startswith('-L') and not g4_lib_dirs.contains(l.substring(2))
+            g4_lib_dirs += l.substring(2)
         endif
     endforeach
-    g4_built += { pcname : declare_dependency(compile_args : compile_args, link_args : libs) }
 endforeach
-geant4_dep = g4_built['geant4']
-geant4_core_dep = g4_built['geant4_core']
 
-# Each static GEMC module library is built with the Geant4 link_args it needs, so a target that links
-# several of them lists the same -lG4* more than once. Meson does not deduplicate raw declare_dependency
-# link_args (unlike real pkg-config dependency objects), and the Geant4 .pc files are resolved here as
-# declare_dependency, so the repeats reach the link line. They are harmless - the linker keeps the first,
-# order-correct copy - but Apple's linker warns on every one of them. GNU ld (Linux/ifarm) is silent, so
-# quiet the macOS linker to keep the build log readable.
-if sys == 'darwin'
-    add_project_link_arguments('-Wl,-no_warn_duplicate_libraries', language : 'cpp')
-endif
+# Turn each set's -lG4* into find_library objects (cached so the same archive is one shared object),
+# keeping any non -l/-L tokens as plain link_args. -L dirs feed find_library's search path.
+g4_lib_cache = {}
+g4_set_deps = {}
+g4_set_extra = {}
+foreach pcname : ['geant4', 'geant4_core']
+    set_deps = []
+    extra_link = []
+    foreach l : g4_pc_libs[pcname]
+        if l.startswith('-l')
+            name = l.substring(2)
+            if not g4_lib_cache.has_key(name)
+                g4_lib_cache += { name : cpp.find_library(name, dirs : g4_lib_dirs, required : true) }
+            endif
+            set_deps += g4_lib_cache[name]
+        elif not l.startswith('-L')
+            extra_link += l
+        endif
+    endforeach
+    g4_set_deps  += { pcname : set_deps }
+    g4_set_extra += { pcname : extra_link }
+endforeach
+
+# Full Geant4 include paths are marked system (-isystem) to silence third-party header warnings; the
+# core set keeps plain -I, matching the previous include_type behaviour of the two pkg-config deps.
+geant4_full_compile = []
+foreach f : g4_pc_cflags['geant4']
+    if f.startswith('-I')
+        geant4_full_compile += ['-isystem', f.substring(2)] # -I<path> -> -isystem <path>
+    else
+        geant4_full_compile += f
+    endif
+endforeach
+
+geant4_dep = declare_dependency(compile_args : geant4_full_compile,
+                                link_args : g4_set_extra['geant4'],
+                                dependencies : g4_set_deps['geant4'])
+geant4_core_dep = declare_dependency(compile_args : g4_pc_cflags['geant4_core'],
+                                     link_args : g4_set_extra['geant4_core'],
+                                     dependencies : g4_set_deps['geant4_core'])
 
 # Ship the generated .pc into <prefix>/lib/pkgconfig. Downstream GEMC projects (e.g. clas12-systems)
 # resolve geant4_core straight from the installed GEMC's lib/pkgconfig, so the installed tree must
