@@ -176,14 +176,23 @@ try:
 except (OSError, ValueError):
     pass
 
-print(max(1, min(counts)))
+n = max(1, min(counts))
+
+# Keep the threading suite bounded on many-core machines. Rather than one test per worker count (one
+# gemc run per core - hundreds on a large box), exercise at most max_tests worker counts spread evenly
+# across 1..n and always including both endpoints: serial (1) and the full core count (n).
+max_tests = 10
+if n <= max_tests:
+    selected = list(range(1, n + 1))
+else:
+    selected = sorted({round(1 + i * (n - 1) / (max_tests - 1)) for i in range(max_tests)})
+print(",".join(str(c) for c in selected))
 '''
-available_thread_count = run_command(python_exe, '-c', cpu_probe, check : true).stdout().strip().to_int()
-message('Threading test suite will exercise 1 through @0@ threads'.format(available_thread_count))
+thread_counts = run_command(python_exe, '-c', cpu_probe, check : true).stdout().strip().split(',')
+message('Threading test suite will exercise worker counts: @0@'.format(', '.join(thread_counts)))
 
 scintillator_mt_dir = examples_dir + 'basic/scintillator_barrel/'
-foreach thread_count : range(1, available_thread_count + 1)
-    thread_count_string = thread_count.to_string()
+foreach thread_count_string : thread_counts
     test('examples_run_mt' + thread_count_string + '_basic_scintillator_barrel',
          gemc,
          args : [scintillator_mt_dir + 'scintillator_barrel.yaml',
