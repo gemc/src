@@ -1,18 +1,68 @@
 # GEMC
 
-[![Test][test-badge]][test]
-[![Thread Scaling][thread-scaling-badge]][thread-scaling]
-[![Sanitize][sanitize-badge]][sanitize]
-[![CodeQL][codeql-badge]][codeql]
-[![Deploy][deploy-badge]][deploy]
-[![Binary Tarballs][binary-tarballs-badge]][binary-tarballs]
-[![macOS Tarball][macos-tarball-badge]][macos-tarball]
-[![Nightly Dev Release][nightly-badge]][nightly]
-[![GEMC documentation][site-badge]][site]
-[![pygemc PyPI][pypi-badge]][pypi]
-[![Doxygen][docs-badge]][docs]
-[![Docker Pulls][dockerhub-badge]][dockerhub]
-[![Release Tarballs][release-tarballs-badge]][release-tarballs]
+<table>
+  <thead>
+    <tr>
+      <th width="33%">Quality</th>
+      <th width="34%">Deploy</th>
+      <th width="33%">Docs</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" valign="top">
+        <a href="https://github.com/gemc/src/actions/workflows/test.yml">
+          <img alt="Test" src="https://github.com/gemc/src/actions/workflows/test.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/src/actions/workflows/sanitize.yml">
+          <img alt="Sanitize" src="https://github.com/gemc/src/actions/workflows/sanitize.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/src/actions/workflows/codeql.yml">
+          <img alt="CodeQL" src="https://github.com/gemc/src/actions/workflows/codeql.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/src/actions/workflows/thread_scaling.yml">
+          <img alt="Thread Scaling"
+               src="https://github.com/gemc/src/actions/workflows/thread_scaling.yml/badge.svg">
+        </a>
+      </td>
+      <td align="center" valign="top">
+        <a href="https://github.com/gemc/src/actions/workflows/deploy.yml">
+          <img alt="Deploy" src="https://github.com/gemc/src/actions/workflows/deploy.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/src/actions/workflows/binary_tarballs.yml">
+          <img alt="Binary Tarballs"
+               src="https://github.com/gemc/src/actions/workflows/binary_tarballs.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/src/actions/workflows/release_tarballs.yml">
+          <img alt="Release Tarballs"
+               src="https://github.com/gemc/src/actions/workflows/release_tarballs.yml/badge.svg?event=release">
+        </a><br/>
+        <a href="https://github.com/gemc/src/actions/workflows/macos_tarball.yml">
+          <img alt="macOS Tarball"
+               src="https://github.com/gemc/src/actions/workflows/macos_tarball.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/src/actions/workflows/dev_release.yml">
+          <img alt="Nightly Dev Release"
+               src="https://github.com/gemc/src/actions/workflows/dev_release.yml/badge.svg">
+        </a><br/>
+        <a href="https://pypi.org/project/pygemc/">
+          <img alt="pygemc PyPI" src="https://img.shields.io/pypi/v/pygemc.svg?cacheSeconds=300">
+        </a><br/>
+        <a href="https://hub.docker.com/r/gemc/gemc">
+          <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/gemc/gemc.svg">
+        </a>
+      </td>
+      <td align="center" valign="top">
+        <a href="https://gemc.github.io/home/">
+          <img alt="GEMC documentation" src="https://img.shields.io/badge/docs-gemc.github.io-blue.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/src/actions/workflows/doxygen.yml">
+          <img alt="Doxygen" src="https://github.com/gemc/src/actions/workflows/doxygen.yml/badge.svg">
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 GEMC, the GEant Monte-Carlo, is a database-driven [Geant4](https://geant4.web.cern.ch) application for detector and
 radiation-transport
@@ -44,98 +94,6 @@ while still preserving C++ extension points for advanced detector response and o
 - PyVista geometry preview, VTK export
 - Python analyzer CSV and ROOT formats
 - Meson-based C++ build with CI-tested Docker images for Linux `amd64` and `arm64`
-
-<br/>
-
-## Thread scaling
-
-Upcoming in the next release, pull requests run a short thread-scaling sweep of representative basic and optical
-examples. Weekly and versioned-release runs repeat full sweeps across hosted runners to report runtime, event
-rate, speedup, and parallel efficiency. The complete CSV, JSON, Markdown, and SVG reports remain available as
-workflow artifacts.
-
-Developers can run the local multithreading and race-focused Meson suite. It detects the CPUs available to the
-process, creates one sequential test for every thread count from one through that maximum, and can be repeated
-to vary worker scheduling:
-
-```shell
-meson test -C build --suite threading --repeat 10 --print-errorlogs
-```
-
-<!-- thread-scaling-results:start -->
-
-_Latest [weekly thread-scaling run](https://github.com/gemc/src/actions/runs/33387744546)._
-
-### basic/scintillator_barrel
-
-Runner configurations:
-
-- 1 measurement job: INTEL(R) XEON(R) PLATINUM 8573C; linux 6.17.0-1022-azure; x64; 4 visible CPUs; pid 185's current affinity list: 0-3
-- 3 measurement jobs: AMD EPYC 7763 64-Core Processor; linux 6.17.0-1022-azure; x64; 4 visible CPUs; pid 185's current affinity list: 0-3
-
-| Threads | Median time | Speedup | Efficiency | Median rate | Samples |
-|---:|---:|---:|---:|---:|---:|
-| 1 | 7.484 s | 1.00x | 100.0% | 668.09 events/s | 20 |
-| 2 | 4.524 s | 1.65x | 82.4% | 1105.16 events/s | 20 |
-| 3 | 4.101 s | 1.82x | 60.7% | 1219.33 events/s | 20 |
-| 4 | 3.740 s | 2.01x | 50.2% | 1336.77 events/s | 20 |
-
-#### Rate vs threads
-
-```mermaid
----
-config:
-  themeCSS: |
-    .line-plot-0 .labels text:first-child { text-anchor: start; }
-    .line-plot-0 .labels text:last-child { text-anchor: end; }
-  themeVariables:
-    xyChart:
-      plotColorPalette: "#0969da"
----
-xychart
-    title "basic/scintillator_barrel: rate vs threads"
-    x-axis "Threads" [1, 2, 3, 4]
-    y-axis "events / second" 0 --> 1470.45
-    line [668.08824 "● 668.1", 1105.1613 "● 1.11e+3", 1219.3298 "● 1.22e+3", 1336.7728 "● 1.34e+3"]
-```
-
-### optical/cherenkov
-
-Runner configurations:
-
-- 2 measurement jobs: AMD EPYC 7763 64-Core Processor; linux 6.17.0-1022-azure; x64; 4 visible CPUs; pid 185's current affinity list: 0-3
-- 1 measurement job: AMD EPYC 7763 64-Core Processor; linux 6.17.0-1022-azure; x64; 4 visible CPUs; pid 186's current affinity list: 0-3
-- 1 measurement job: AMD EPYC 9V74 80-Core Processor; linux 6.17.0-1022-azure; x64; 4 visible CPUs; pid 185's current affinity list: 0-3
-
-| Threads | Median time | Speedup | Efficiency | Median rate | Samples |
-|---:|---:|---:|---:|---:|---:|
-| 1 | 50.573 s | 1.00x | 100.0% | 9.89 events/s | 20 |
-| 2 | 32.818 s | 1.48x | 74.2% | 15.24 events/s | 20 |
-| 3 | 38.939 s | 1.31x | 43.6% | 12.84 events/s | 20 |
-| 4 | 39.194 s | 1.30x | 32.5% | 12.76 events/s | 20 |
-
-#### Rate vs threads
-
-```mermaid
----
-config:
-  themeCSS: |
-    .line-plot-0 .labels text:first-child { text-anchor: start; }
-    .line-plot-0 .labels text:last-child { text-anchor: end; }
-  themeVariables:
-    xyChart:
-      plotColorPalette: "#0969da"
----
-xychart
-    title "optical/cherenkov: rate vs threads"
-    x-axis "Threads" [1, 2, 3, 4]
-    y-axis "events / second" 0 --> 16.759099
-    line [9.886637 "● 9.89", 15.235544 "● 15.2", 12.840606 "● 12.8", 12.75716 "● 12.8"]
-```
-
-> GitHub-hosted runners are suitable for regression signals, not publication-quality benchmarking.
-
-<!-- thread-scaling-results:end -->
 
 <br/>
 
@@ -371,6 +329,102 @@ For example, after running the [`b2` example](https://gemc.github.io/home/exampl
 
 <br/>
 
+## Thread scaling
+
+Upcoming in the next release, pull requests run a short thread-scaling sweep of representative basic and optical
+examples. Weekly and versioned-release runs repeat full sweeps across hosted runners to report runtime, event
+rate, speedup, and parallel efficiency. The complete CSV, JSON, Markdown, and SVG reports remain available as
+workflow artifacts.
+
+Developers can run the local multithreading and race-focused Meson suite. It detects the CPUs available to the
+process, creates one sequential test for every thread count from one through that maximum, and can be repeated
+to vary worker scheduling:
+
+```shell
+meson test -C build --suite threading --repeat 10 --print-errorlogs
+```
+
+To run the standard 20,000-event scintillator scaling sweep and replace the generated summary below, make sure
+`gemc`, Git, Node.js 24 or newer, and Python 3 are available, then run:
+
+```shell
+bin/scaling.sh
+```
+
+For example, select a 50,000-event workload, cap the sweep at 32 threads, and override ThreadScale's measurement
+defaults with:
+
+```shell
+bin/scaling.sh --workload 50000 --max-threads 32 -- --runs 8 --warmup-runs 2 --summary-plots rate
+```
+
+The script clones the current ThreadScale development branch into a temporary directory and retains the full
+report in `thread-scaling/`. Set `THREADSCALE_REF` to test another branch or tag. Neither `thread-scaling/` nor
+`thread-scaling.parts/` may already exist. Its `{workload}` command placeholder ensures the simulated event
+count is the same value used to calculate the reported rate. The powers-of-two sweep ends at the maximum number
+of CPUs visible to the process unless `--max-threads` sets a cap. Options after `--` are passed to
+`test_scaling` after the defaults, so they can override runs, warmups, duration, thread selection, strategy,
+replicas, and plot selection. Run `bin/scaling.sh --help` for the wrapper options.
+
+<!-- thread-scaling-results:start -->
+
+_Latest local thread-scaling run._
+
+### scintillator-barrel
+
+Runner configurations:
+
+- 1 measurement job: Apple M2 Max; darwin 25.6.0; arm64; 12 visible CPUs; affinity unavailable
+
+| Threads | Median time | Std. dev. | Speedup | Efficiency | Effective serial | Median rate | Samples |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 15.470 s | 0.202 s | 1.00x | 100.0% | — | 1292.85 events/s | 4 |
+| 2 | 8.655 s | 0.050 s | 1.79x | 89.4% | 11.9% | 2310.77 events/s | 4 |
+| 4 | 5.338 s | 0.080 s | 2.90x | 72.4% | 12.7% | 3746.48 events/s | 4 |
+| 8 | 4.134 s | 0.496 s | 3.74x | 46.8% | 16.3% | 4837.88 events/s | 4 |
+| 12 | 4.943 s | 0.026 s | 3.13x | 26.1% | 25.8% | 4045.96 events/s | 4 |
+
+> **Effective serial fraction:** Lower is better. This Amdahl/Karp–Flatt estimate approximates
+> how much of the application's execution behaves serially. It also includes parallel overhead and
+> contention, so it is not a literal percentage of source code.
+> Negative values can result from superlinear scaling or measurement noise.
+
+<details>
+<summary>Per-replica sweeps (1)</summary>
+
+| Replica | Runner | Threads | Median time | Speedup | Effective serial | Median rate |
+|---:|:---|---:|---:|---:|---:|---:|
+| 1 | Apple M2 Max; darwin 25.6.0; arm64; 12 visible CPUs; affinity unavailable | 1 | 15.470 s | 1.00x | — | 1292.85 events/s |
+|  |  | 2 | 8.655 s | 1.79x | 11.9% | 2310.77 events/s |
+|  |  | 4 | 5.338 s | 2.90x | 12.7% | 3746.48 events/s |
+|  |  | 8 | 4.134 s | 3.74x | 16.3% | 4837.88 events/s |
+|  |  | 12 | 4.943 s | 3.13x | 25.8% | 4045.96 events/s |
+
+</details>
+
+#### Rate vs threads
+
+```mermaid
+---
+config:
+  themeVariables:
+    xyChart:
+      plotColorPalette: "#0969da"
+---
+xychart
+    title "scintillator-barrel: rate vs threads"
+    x-axis "Threads" [1, 2, 4, 8, 12]
+    y-axis "events / second" 0 --> 5321.6694
+    line [1292.8504, 2310.7704, 3746.4753, 4837.8813, 4045.9565]
+```
+
+**Measured points:** 🔵 `1 thread: 1.29e+3 events/s` · 🔵 `2 threads: 2.31e+3 events/s` · 🔵 `4 threads: 3.75e+3 events/s` · 🔵 `8 threads: 4.84e+3 events/s` · 🔵 `12 threads: 4.05e+3 events/s`
+
+> For publication-quality results, use an otherwise idle machine with stable CPU placement and frequency.
+
+<!-- thread-scaling-results:end -->
+
+<br/>
 
 ## Documentation
 
@@ -415,56 +469,3 @@ Geant4, CLHEP, Qt, ROOT, SQLite, and Assimp.
 ## Roadmap
 
 See the [project roadmap](https://github.com/orgs/gemc/projects/1/views/4) for the current development plans.
-
-
-[test]: https://github.com/gemc/src/actions/workflows/test.yml
-
-[test-badge]: https://github.com/gemc/src/actions/workflows/test.yml/badge.svg
-
-[thread-scaling]: https://github.com/gemc/src/actions/workflows/thread_scaling.yml
-
-[thread-scaling-badge]: https://github.com/gemc/src/actions/workflows/thread_scaling.yml/badge.svg
-
-[deploy]: https://github.com/gemc/src/actions/workflows/deploy.yml
-
-[deploy-badge]: https://github.com/gemc/src/actions/workflows/deploy.yml/badge.svg
-
-[dockerhub]: https://hub.docker.com/r/gemc/gemc
-
-[dockerhub-badge]: https://img.shields.io/docker/pulls/gemc/gemc.svg
-
-[docs]: https://github.com/gemc/src/actions/workflows/doxygen.yml
-
-[docs-badge]: https://github.com/gemc/src/actions/workflows/doxygen.yml/badge.svg
-
-[sanitize]: https://github.com/gemc/src/actions/workflows/sanitize.yml
-
-[sanitize-badge]: https://github.com/gemc/src/actions/workflows/sanitize.yml/badge.svg
-
-[codeql]: https://github.com/gemc/src/actions/workflows/codeql.yml
-
-[codeql-badge]: https://github.com/gemc/src/actions/workflows/codeql.yml/badge.svg
-
-[nightly]: https://github.com/gemc/src/actions/workflows/dev_release.yml
-
-[nightly-badge]: https://github.com/gemc/src/actions/workflows/dev_release.yml/badge.svg
-
-[release-tarballs]: https://github.com/gemc/src/actions/workflows/release_tarballs.yml
-
-[release-tarballs-badge]: https://github.com/gemc/src/actions/workflows/release_tarballs.yml/badge.svg?event=release
-
-[binary-tarballs]: https://github.com/gemc/src/actions/workflows/binary_tarballs.yml
-
-[binary-tarballs-badge]: https://github.com/gemc/src/actions/workflows/binary_tarballs.yml/badge.svg
-
-[macos-tarball]: https://github.com/gemc/src/actions/workflows/macos_tarball.yml
-
-[macos-tarball-badge]: https://github.com/gemc/src/actions/workflows/macos_tarball.yml/badge.svg
-
-[site]: https://gemc.github.io/home/
-
-[site-badge]: https://img.shields.io/badge/docs-gemc.github.io-blue.svg
-
-[pypi]: https://pypi.org/project/pygemc/
-
-[pypi-badge]: https://img.shields.io/pypi/v/pygemc.svg?cacheSeconds=300

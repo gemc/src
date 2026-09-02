@@ -116,26 +116,26 @@ jobs:
 
           scintillator_events, cherenkov_events = map(int, sys.argv[1:])
 
-          def command(example: str, events: int) -> str:
+          def command(example: str) -> str:
               example_name = example.rsplit("/", maxsplit=1)[-1]
               return (
                   '"$RUNNER_TEMP/gemc/bin/gemc" '
                   f'"$RUNNER_TEMP/gemc/examples/{example}/{example_name}.yaml" '
                   '"-sql=$RUNNER_TEMP/gemc/examples/gemc.db" '
-                  f"-n={events} -nthreads={{threads}} -seed=12345 '-gstreamer=[]'"
+                  "-n={workload} -nthreads={threads} -seed=12345 '-gstreamer=[]'"
               )
 
           benchmarks = [
               {
                   "name": "basic/scintillator_barrel",
-                  "command": command("basic/scintillator_barrel", scintillator_events),
+                  "command": command("basic/scintillator_barrel"),
                   "working_directory": ".",
                   "workload": scintillator_events,
                   "workload_unit": "events",
               },
               {
                   "name": "optical/cherenkov",
-                  "command": command("optical/cherenkov", cherenkov_events),
+                  "command": command("optical/cherenkov"),
                   "working_directory": ".",
                   "workload": cherenkov_events,
                   "workload_unit": "events",

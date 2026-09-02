@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from typing import Optional
 
 
 START_MARKER = "<!-- thread-scaling-results:start -->"
@@ -18,7 +19,7 @@ def demote_headings(markdown: str) -> str:
     return "\n".join(f"#{line}" if line.startswith("#") else line for line in lines).strip()
 
 
-def update_readme(readme: str, summary: str, label: str, run_url: str) -> str:
+def update_readme(readme: str, summary: str, label: str, run_url: Optional[str] = None) -> str:
     if readme.count(START_MARKER) != 1 or readme.count(END_MARKER) != 1:
         raise ValueError("README must contain exactly one ThreadScale marker pair")
     start = readme.index(START_MARKER) + len(START_MARKER)
@@ -27,7 +28,8 @@ def update_readme(readme: str, summary: str, label: str, run_url: str) -> str:
         raise ValueError("ThreadScale README markers are out of order")
 
     report = demote_headings(summary)
-    generated = f"\n\n_Latest [{label}]({run_url})._\n\n{report}\n\n"
+    source = f"[{label}]({run_url})" if run_url else label
+    generated = f"\n\n_Latest {source}._\n\n{report}\n\n"
     return f"{readme[:start]}{generated}{readme[end:]}"
 
 
@@ -36,7 +38,7 @@ def main() -> int:
     parser.add_argument("readme", type=Path)
     parser.add_argument("summary", type=Path)
     parser.add_argument("--label", required=True)
-    parser.add_argument("--run-url", required=True)
+    parser.add_argument("--run-url")
     args = parser.parse_args()
 
     updated = update_readme(
