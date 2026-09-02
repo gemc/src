@@ -333,8 +333,8 @@ For example, after running the [`b2` example](https://gemc.github.io/home/exampl
 
 Upcoming in the next release, pull requests run a short thread-scaling sweep of representative basic and optical
 examples. Weekly and versioned-release runs repeat full sweeps across hosted runners to report runtime, event
-rate, speedup, and parallel efficiency. The complete CSV, JSON, Markdown, and SVG reports remain available as
-workflow artifacts.
+rate, speedup, and parallel efficiency. Each workflow artifact contains the complete CSV, JSON, and SVG reports
+plus a plotted `summary_<cpu>_<os>_<arch>_<ncores>cores.md` report.
 
 Developers can run the local multithreading and race-focused Meson suite. It detects the CPUs available to the
 process, creates one sequential test for every thread count from one through that maximum, and can be repeated
@@ -344,8 +344,8 @@ to vary worker scheduling:
 meson test -C build --suite threading --repeat 10 --print-errorlogs
 ```
 
-To run the standard 20,000-event scintillator scaling sweep and replace the generated summary below, make sure
-`gemc`, Git, Node.js 24 or newer, and Python 3 are available, then run:
+To run the standard 20,000-event scintillator scaling sweep, make sure `gemc`, Git, Node.js 24 or newer, and
+Python 3 are available, then run:
 
 ```shell
 bin/scaling.sh
@@ -359,70 +359,17 @@ bin/scaling.sh --workload 50000 --max-threads 32 -- --runs 8 --warmup-runs 2 --s
 ```
 
 The script clones the current ThreadScale development branch into a temporary directory and retains the full
-report in `thread-scaling/`. Set `THREADSCALE_REF` to test another branch or tag. Neither `thread-scaling/` nor
-`thread-scaling.parts/` may already exist. Its `{workload}` command placeholder ensures the simulated event
-count is the same value used to calculate the reported rate. The powers-of-two sweep ends at the maximum number
-of CPUs visible to the process unless `--max-threads` sets a cap. Options after `--` are passed to
-`test_scaling` after the defaults, so they can override runs, warmups, duration, thread selection, strategy,
-replicas, and plot selection. Run `bin/scaling.sh --help` for the wrapper options.
+report in `thread-scaling/`. Its Markdown report is named from the CPU model, OS and release, architecture, and
+physical core count, for example `summary_amd-epyc-9354-32-core-processor_linux-5-14_x64_64cores.md`. The core
+count falls back to CPUs visible to the benchmark when physical topology is unavailable. The script never reads
+or modifies this README.
 
-<!-- thread-scaling-results:start -->
-
-_Latest local thread-scaling run._
-
-### scintillator-barrel
-
-Runner configurations:
-
-- 1 measurement job: Apple M2 Max; darwin 25.6.0; arm64; 12 visible CPUs; affinity unavailable
-
-| Threads | Median time | Std. dev. | Speedup | Efficiency | Effective serial | Median rate | Samples |
-|---:|---:|---:|---:|---:|---:|---:|---:|
-| 1 | 15.470 s | 0.202 s | 1.00x | 100.0% | — | 1292.85 events/s | 4 |
-| 2 | 8.655 s | 0.050 s | 1.79x | 89.4% | 11.9% | 2310.77 events/s | 4 |
-| 4 | 5.338 s | 0.080 s | 2.90x | 72.4% | 12.7% | 3746.48 events/s | 4 |
-| 8 | 4.134 s | 0.496 s | 3.74x | 46.8% | 16.3% | 4837.88 events/s | 4 |
-| 12 | 4.943 s | 0.026 s | 3.13x | 26.1% | 25.8% | 4045.96 events/s | 4 |
-
-> **Effective serial fraction:** Lower is better. This Amdahl/Karp–Flatt estimate approximates
-> how much of the application's execution behaves serially. It also includes parallel overhead and
-> contention, so it is not a literal percentage of source code.
-> Negative values can result from superlinear scaling or measurement noise.
-
-<details>
-<summary>Per-replica sweeps (1)</summary>
-
-| Replica | Runner | Threads | Median time | Speedup | Effective serial | Median rate |
-|---:|:---|---:|---:|---:|---:|---:|
-| 1 | Apple M2 Max; darwin 25.6.0; arm64; 12 visible CPUs; affinity unavailable | 1 | 15.470 s | 1.00x | — | 1292.85 events/s |
-|  |  | 2 | 8.655 s | 1.79x | 11.9% | 2310.77 events/s |
-|  |  | 4 | 5.338 s | 2.90x | 12.7% | 3746.48 events/s |
-|  |  | 8 | 4.134 s | 3.74x | 16.3% | 4837.88 events/s |
-|  |  | 12 | 4.943 s | 3.13x | 25.8% | 4045.96 events/s |
-
-</details>
-
-#### Rate vs threads
-
-```mermaid
----
-config:
-  themeVariables:
-    xyChart:
-      plotColorPalette: "#0969da"
----
-xychart
-    title "scintillator-barrel: rate vs threads"
-    x-axis "Threads" [1, 2, 4, 8, 12]
-    y-axis "events / second" 0 --> 5321.6694
-    line [1292.8504, 2310.7704, 3746.4753, 4837.8813, 4045.9565]
-```
-
-**Measured points:** 🔵 `1 thread: 1.29e+3 events/s` · 🔵 `2 threads: 2.31e+3 events/s` · 🔵 `4 threads: 3.75e+3 events/s` · 🔵 `8 threads: 4.84e+3 events/s` · 🔵 `12 threads: 4.05e+3 events/s`
-
-> For publication-quality results, use an otherwise idle machine with stable CPU placement and frequency.
-
-<!-- thread-scaling-results:end -->
+Set `THREADSCALE_REF` to test another branch or tag. Neither `thread-scaling/` nor `thread-scaling.parts/` may
+already exist. The `{workload}` command placeholder ensures the simulated event count is the same value used to
+calculate the reported rate. The powers-of-two sweep ends at the maximum number of CPUs visible to the process
+unless `--max-threads` sets a cap. Options after `--` are passed to `test_scaling` after the defaults, so they
+can override runs, warmups, duration, thread selection, strategy, replicas, and plot selection. Run
+`bin/scaling.sh --help` for the wrapper options.
 
 <br/>
 

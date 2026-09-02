@@ -116,30 +116,45 @@ jobs:
 
           scintillator_events, cherenkov_events = map(int, sys.argv[1:])
 
-          def command(example: str) -> str:
+          def command(example: str, streamer: str) -> str:
               example_name = example.rsplit("/", maxsplit=1)[-1]
               return (
                   '"$RUNNER_TEMP/gemc/bin/gemc" '
                   f'"$RUNNER_TEMP/gemc/examples/{example}/{example_name}.yaml" '
                   '"-sql=$RUNNER_TEMP/gemc/examples/gemc.db" '
-                  "-n={workload} -nthreads={threads} -seed=12345 '-gstreamer=[]'"
+                  f"-n={{workload}} -nthreads={{threads}} -seed=12345 '{streamer}'"
               )
 
+          def definitions(example: str, workload: int) -> list[dict[str, object]]:
+              example_name = example.rsplit("/", maxsplit=1)[-1]
+              comparison_group = f"{example} output comparison"
+              return [
+                  {
+                      "name": f"{example}: no output",
+                      "command": command(example, "-gstreamer=[]"),
+                      "working_directory": ".",
+                      "workload": workload,
+                      "workload_unit": "events",
+                      "comparison_group": comparison_group,
+                      "comparison_label": "No output",
+                  },
+                  {
+                      "name": f"{example}: ROOT output",
+                      "command": command(
+                          example,
+                          f"-gstreamer=[{{format: root, filename: {example_name}}}]",
+                      ),
+                      "working_directory": ".",
+                      "workload": workload,
+                      "workload_unit": "events",
+                      "comparison_group": comparison_group,
+                      "comparison_label": "ROOT output",
+                  },
+              ]
+
           benchmarks = [
-              {
-                  "name": "basic/scintillator_barrel",
-                  "command": command("basic/scintillator_barrel"),
-                  "working_directory": ".",
-                  "workload": scintillator_events,
-                  "workload_unit": "events",
-              },
-              {
-                  "name": "optical/cherenkov",
-                  "command": command("optical/cherenkov"),
-                  "working_directory": ".",
-                  "workload": cherenkov_events,
-                  "workload_unit": "events",
-              },
+              *definitions("basic/scintillator_barrel", scintillator_events),
+              *definitions("optical/cherenkov", cherenkov_events),
           ]
           print(f"benchmarks={json.dumps(benchmarks, separators=(',', ':'))}")
           PY
@@ -210,7 +225,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: gemc/ThreadScale
-          # test_scaling was added after v1.0.1; use development until the next versioned release.
+          # Comparison groups are on development; use main until the next versioned release.
           ref: main
           path: threadscale
 
@@ -274,7 +289,9 @@ jobs:
             --output-dir thread-scaling \
             --summary-plots rate
 
-          cat thread-scaling/summary.md >> "${GITHUB_STEP_SUMMARY}"
+          summary_file="$(python3 ci/name_thread_scaling_summary.py thread-scaling)"
+          cat "${summary_file}" >> "${GITHUB_STEP_SUMMARY}"
+          echo "Machine-specific Markdown report: ${summary_file}"
 
       - name: Upload scaling report
         uses: actions/upload-artifact@v7
@@ -283,57 +300,3 @@ jobs:
           path: thread-scaling
           if-no-files-found: error
           retention-days: ${{ fromJSON(needs.profile.outputs.artifact-retention-days) }}
-
-  update-readme:
-    name: Update README scaling summary
-    if: >-
-      ${{
-        needs.benchmark.result == 'success' &&
-        (github.event_name == 'schedule' || github.event_name == 'release')
-      }}
-    needs: [ benchmark ]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout main for the generated summary
-        uses: actions/checkout@v6
-        with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Download scaling report
-        uses: actions/download-artifact@v7
-        with:
-          name: thread-scaling-report
-          path: thread-scaling
-
-      - name: Replace generated README section
-        env:
-          RESULT_LABEL: >-
-            ${{
-              github.event_name == 'release' &&
-              format('release {0} thread-scaling run', github.event.release.tag_name) ||
-              'weekly thread-scaling run'
-            }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          python3 ci/update_thread_scaling_readme.py \
-            README.md \
-            thread-scaling/summary.md \
-            --label "${RESULT_LABEL}" \
-            --run-url "${RUN_URL}"
-
-      - name: Commit updated README summary
-        shell: bash
-        run: |
-          set -euo pipefail
-          if git diff --quiet -- README.md; then
-            echo "README thread-scaling summary is already current"
-            exit 0
-          fi
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add README.md
-          git commit -m "docs: update thread-scaling results [skip ci]"
-          git push origin HEAD:main
