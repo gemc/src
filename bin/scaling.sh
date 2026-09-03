@@ -6,8 +6,10 @@ set -euo pipefail
 repository_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 threadscale_ref="${THREADSCALE_REF:-main}"
 workload=20000
+cores_workload_scale=0
 max_threads=""
 output_path="thread-scaling"
+gemc_options=""
 output_mode="compare-root-output"
 output_mode_selected=false
 threadscale_options=()
@@ -18,21 +20,30 @@ usage() {
     "" \
     "Options:" \
     "  --workload N        events per GEMC invocation (default: 20000)" \
+    "  --cores-workload-scale F" \
+    "                      add F times the one-thread workload per additional thread (default: 0)" \
     "  --max-threads N     cap detected CPUs; omit to use every visible CPU" \
     "  --output-dir DIR    report directory (default: thread-scaling)" \
     "  --threadscale-ref R ThreadScale branch or tag (default: main)" \
+    "  --gemc-options OPTS additional GEMC arguments applied to every run" \
     "  --compare-root-output  compare no output with ROOT output (default)" \
     "  --without-output       disable all output streamers" \
     "  --with-output          keep the YAML-configured output streamers" \
     "  --with-root-output     replace configured streamers with ROOT output only" \
     "  -h, --help          show this help" \
     "" \
-    "Options after -- are passed to test_scaling after the defaults."
+    "Options after -- are passed to test_scaling after the defaults." \
+    "" \
+    "Workload scaling:" \
+    "  W(N) = W(1) * [1 + (N - 1) * F]" \
+    "  To target similar runtimes, first measure fixed-work throughput speedup S(N), then use" \
+    "  F = [S(N) - 1] / (N - 1). Example: S(64) = 6.65 gives F = 0.09; choosing" \
+    "  F = 0.1 scales 20000 events to 146000 events at 64 threads."
 }
 
 while (( $# > 0 )); do
   case "$1" in
-    --workload | --max-threads | --output-dir | --threadscale-ref)
+    --workload | --cores-workload-scale | --max-threads | --output-dir | --threadscale-ref | --gemc-options)
       if (( $# < 2 )); then
         echo "$1 requires a value" >&2
         exit 2
@@ -42,9 +53,11 @@ while (( $# > 0 )); do
       shift 2
       case "${option}" in
         --workload) workload="${value}" ;;
+        --cores-workload-scale) cores_workload_scale="${value}" ;;
         --max-threads) max_threads="${value}" ;;
         --output-dir) output_path="${value}" ;;
         --threadscale-ref) threadscale_ref="${value}" ;;
+        --gemc-options) gemc_options="${value}" ;;
       esac
       ;;
     --compare-root-output | --without-output | --with-output | --with-root-output)
@@ -77,6 +90,10 @@ if [[ ! "${workload}" =~ ^[1-9][0-9]*$ ]]; then
   echo "--workload must be a positive integer: ${workload}" >&2
   exit 2
 fi
+if [[ ! "${cores_workload_scale}" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+  echo "--cores-workload-scale must be a non-negative number: ${cores_workload_scale}" >&2
+  exit 2
+fi
 if [[ -n "${max_threads}" && ! "${max_threads}" =~ ^[0-9]+$ ]]; then
   echo "--max-threads must be a non-negative integer: ${max_threads}" >&2
   exit 2
@@ -87,7 +104,7 @@ if [[ -z "${output_path}" ]]; then
 fi
 for option in "${threadscale_options[@]}"; do
   case "${option}" in
-    --benchmarks | --workload | --max-threads | --output-dir)
+    --benchmarks | --workload | --cores-workload-scale | --max-threads | --output-dir)
       echo "Pass ${option} before -- so the wrapper uses the same value." >&2
       exit 2
       ;;
@@ -127,31 +144,42 @@ git clone --quiet --depth 1 --branch "${threadscale_ref}" \
 cd "${repository_root}"
 gemc_command='gemc examples/basic/scintillator_barrel/scintillator_barrel.yaml'
 gemc_command+=' -n={workload} -nthreads={threads}'
+if [[ -n "${gemc_options}" ]]; then
+  gemc_command+=" ${gemc_options}"
+fi
 test_scaling_arguments=()
 case "${output_mode}" in
   compare-root-output)
     benchmarks_file="${threadscale_tmp}/benchmarks.json"
-    printf '%s\n' \
-      '[' \
-      '  {' \
-      '    "name": "scintillator-barrel: no output",' \
-      "    \"command\": \"${gemc_command} -gstreamer=[]\"," \
-      '    "working_directory": ".",' \
-      "    \"workload\": ${workload}," \
-      '    "workload_unit": "events",' \
-      '    "comparison_group": "scintillator-barrel output comparison",' \
-      '    "comparison_label": "No output"' \
-      '  },' \
-      '  {' \
-      '    "name": "scintillator-barrel: ROOT output",' \
-      "    \"command\": \"${gemc_command} '-gstreamer=[{format: root, filename: barrel}]'\"," \
-      '    "working_directory": ".",' \
-      "    \"workload\": ${workload}," \
-      '    "workload_unit": "events",' \
-      '    "comparison_group": "scintillator-barrel output comparison",' \
-      '    "comparison_label": "ROOT output"' \
-      '  }' \
-      ']' > "${benchmarks_file}"
+    python3 - "${benchmarks_file}" "${gemc_command}" "${workload}" <<'PY'
+import json
+import sys
+
+output_file, command, workload = sys.argv[1], sys.argv[2], int(sys.argv[3])
+common = {
+    "working_directory": ".",
+    "workload": workload,
+    "workload_unit": "events",
+    "comparison_group": "scintillator-barrel output comparison",
+}
+benchmarks = [
+    {
+        **common,
+        "name": "scintillator-barrel: no output",
+        "command": f"{command} -gstreamer=[]",
+        "comparison_label": "No output",
+    },
+    {
+        **common,
+        "name": "scintillator-barrel: ROOT output",
+        "command": f"{command} '-gstreamer=[{{format: root, filename: barrel}}]'",
+        "comparison_label": "ROOT output",
+    },
+]
+with open(output_file, "w", encoding="utf-8") as stream:
+    json.dump(benchmarks, stream, indent=2)
+    stream.write("\n")
+PY
     test_scaling_arguments+=(--benchmarks "${benchmarks_file}")
     ;;
   without-output)
@@ -175,6 +203,9 @@ test_scaling_arguments+=(
 )
 if [[ "${output_mode}" != "compare-root-output" ]]; then
   test_scaling_arguments+=(--workload "${workload}" --workload-unit events)
+fi
+if [[ "${cores_workload_scale}" != "0" ]]; then
+  test_scaling_arguments+=(--cores-workload-scale "${cores_workload_scale}")
 fi
 if [[ -n "${max_threads}" ]]; then
   test_scaling_arguments+=(--max-threads "${max_threads}")

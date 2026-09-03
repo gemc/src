@@ -358,6 +358,20 @@ defaults with:
 bin/scaling.sh --workload 50000 --max-threads 32 -- --runs 8 --warmup-runs 2 --summary-plots rate
 ```
 
+By default, the script compares no output with ROOT output. Use `--without-output` to run only the no-output
+case, without producing the comparison series. Use `--gemc-options` to append GEMC arguments to every measured
+invocation. For example, this transport-focused run disables output, digitization, and true-information
+construction:
+
+```shell
+bin/scaling.sh \
+  --without-output \
+  --gemc-options '-no_digitized=all -no_true_info=all' \
+  --workload 100000 \
+  --max-threads 64 \
+  --output-dir thread-scaling-transport
+```
+
 The script clones the current ThreadScale development branch into a temporary directory and retains the full
 report in `thread-scaling/`. Its Markdown report is named from the CPU model, OS and release, architecture, and
 physical core count, for example `summary_amd-epyc-9354-32-core-processor_linux-5-14_x64_64cores.md`. The core
