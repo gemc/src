@@ -1,6 +1,7 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
 internal_deps = ['goptions', 'guts', 'glogging', 'gbase', 'gfactory', 'gparticle',
-                 'gdynamicDigitization', 'gstreamer', 'gdata', 'ganalysis']
+                 'gdynamicDigitization', 'gstreamer', 'gdata', 'ganalysis', 'ghit']
+# Event actions and SRO tests use GHit directly; shared builds require its allocator and RTTI at link time.
 
 dis_file = meson.project_source_root() + '/gemc/gparticle/examples/test_dis.dat'
 generator_file_events = [

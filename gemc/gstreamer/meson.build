@@ -24,7 +24,7 @@ fmt_args = {
 
 buffer = ['-ebuffer=20']
 
-# JLABSRO is retained only as reference for the clas12-systems port; see its README.
+# Experiment-specific DAQ definitions live in clas12-systems/geometry_src/sro.
 # plugin file lists (unchanged)
 ascii_plugin_files = [files(
                           'factories/ASCII/gstreamerASCIIFactory.cc',
