@@ -15,10 +15,12 @@ GRunAction::CompletedRunData GRunAction::completed_worker_run_data;
 // digitization services for the current execution context.
 GRunAction::GRunAction(std::shared_ptr<GOptions> gopt,
                        std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map,
-                       std::shared_ptr<GAnalysisAccumulator> analyzer) : GBase(gopt, GRUNACTION_LOGGER),
+                       std::shared_ptr<GAnalysisAccumulator> analyzer,
+                       std::shared_ptr<GSROFactory> sro) : GBase(gopt, GRUNACTION_LOGGER),
 	goptions(std::move(gopt)),
 	digitization_routines_map(std::move(digi_map)),
-	analysis_accumulator(std::move(analyzer)) {
+	analysis_accumulator(std::move(analyzer)),
+	sro_factory(std::move(sro)) {
 	const auto desc = std::to_string(G4Threading::G4GetThreadId());
 	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
 }
@@ -45,6 +47,12 @@ void GRunAction::BeginOfRunAction(const G4Run *aRun) {
 	}
 
 	const auto neventsThisRun = aRun->GetNumberOfEventToBeProcessed();
+	if (sro_factory && IsMaster()) {
+		try { sro_factory->begin_run(run, static_cast<GSROEventId>(neventsThisRun)); }
+		catch (const std::exception& error) {
+			log->error(gstreamer::ERR_PUBLISH_ERROR, "SRO begin run: ", error.what());
+		}
+	}
 
 	// Reset the per-run mode flags before scanning the digitization routines.
 	need_a_thread_streamer = false;
@@ -146,6 +154,14 @@ void GRunAction::EndOfRunAction(const G4Run *aRun) {
 	const auto thread_id = G4Threading::G4GetThreadId();
 	const auto runNumber = aRun->GetRunID();
 	const std::string what_am_i = IsMaster() ? "Master" : "Worker";
+	// In MT Geant4 reaches the master here after worker run actions; sequential mode owns both roles.
+	if (sro_factory && IsMaster()) {
+		try { sro_factory->finish_run(aRun->GetNumberOfEvent() == aRun->GetNumberOfEventToBeProcessed()); }
+		catch (const std::exception& error) {
+			// finish_run has already joined all crate/progress threads before reporting the first error.
+			log->error(gstreamer::ERR_PUBLISH_ERROR, "SRO finish run: ", error.what());
+		}
+	}
 
 	if (!IsMaster() && need_a_thread_streamer) {
 		if (gstreamer_threads_map == nullptr) {
@@ -338,109 +354,3 @@ void GRunAction::normalize_run_data(const std::shared_ptr<GRunDataCollection> &r
 		}
 	}
 }
-
-
-// (Legacy/experimental streaming logic remains commented out below.)
-
-// TODO: 2 more is too much we need some calculation here
-// int nFramesToCreate = neventsThisRun * eventDuration / frameDuration + 2;
-
-// if (stream) {
-// 	if (frameStreamVerbosity >= GVERBOSITY_SUMMARY) {
-// 		cout << SROLOGHEADER << " current nframes in the buffer: " << frameRunData.size() << ", new frames to create: " << nFramesToCreate;
-// 		cout << ", last frame id created: " << lastFrameCreated << endl;
-// 	}
-//
-// 	for (int f = lastFrameCreated; f < lastFrameCreated + nFramesToCreate; f++) {
-// 		GFrameDataCollectionHeader* gframeHeader = new GFrameDataCollectionHeader(f + 1, frameDuration, verbosity);
-// 		GFrameDataCollection*       frameData    = new GFrameDataCollection(gframeHeader, verbosity);
-// 		frameRunData.push_back(frameData);
-// 	}
-//
-// 	lastFrameCreated += nFramesToCreate;
-// 	if (frameStreamVerbosity >= GVERBOSITY_SUMMARY) {
-// 		cout << SROLOGHEADER << nFramesToCreate << " new frames, buffer size is now " << frameRunData.size();
-// 		cout << ", last frame id created: " << lastFrameCreated << endl;
-// 	}
-// }
-
-
-// looping over run data and filling frameRunData
-// need to remember last event number here
-// if (stream) {
-// 	for (auto eventDataCollection : theRun->getRunData()) {
-// 		int absoluteEventNumber = eventIndex + eventDataCollection->getEventNumber();
-//
-// 		// filling frameRunData with this eventDataCollection
-// 		for (auto [detectorName, gdataCollection] : *eventDataCollection->getDataCollectionMap()) {
-// 			for (auto hitDigitizedData : *gdataCollection->getDigitizedData()) {
-// 				int timeAtelectronic = hitDigitizedData->getTimeAtElectronics();
-// 					int frameIndex = eventFrameIndex(absoluteEventNumber, timeAtelectronic);
-// 					frameRunData[frameIndex]->addIntegralPayload(formPayload(hitDigitizedData), verbosity);
-// 				}
-// 			}
-// 		}
-// 	}
-// }
-
-
-// now flushing all frames past eventIndex
-
-// if (stream) {
-// 	// updating eventIndex
-// 	eventIndex += neventsThisRun;
-//
-// 	for (auto [factoryName, streamerFactory] : *gstreamerFactoryMap) {
-// 		if (streamerFactory->getStreamType() == "stream" && frameRunData.size() > 0) {
-// 			// need to look for additional frame to flush
-// 			int nFramesToFlush = nFramesToCreate - 2;
-//
-// 			if (frameStreamVerbosity >= GVERBOSITY_SUMMARY) { cout << SROLOGHEADER << "number of frames to flush: " << nFramesToFlush << endl; }
-// 			for (auto fid = 0; fid < nFramesToFlush; fid++) {
-// 				logSummary("Streaming frame id <" + to_string(frameRunData.front()->getFrameID()) + " using streamer factory >" + factoryName + "<");
-// 				streamerFactory->publishFrameRunData(goptions, frameRunData.front());
-// 				delete frameRunData.front();
-// 				frameRunData.erase(frameRunData.begin());
-// 			}
-// 		}
-// 	}
-// }
-
-
-// determine the frame ID based on event number, eventDuration, frameDuration and number of threads
-// add frameData to frameRunData if it's not present
-// int GRunAction::eventFrameIndex(int eventNumber, double timeAtElectronics) {
-// 	int absoluteHitTime = eventNumber * eventDuration + timeAtElectronics;
-// 	int frameID         = absoluteHitTime / frameDuration + 1;
-// 	int frameIndex      = -1;
-//
-// 	// cout << "eventNumber: " << eventNumber << ", absoluteHitTime: " << absoluteHitTime << ", frameID: " << frameID << endl;
-//
-// 	for (size_t f = 0; f < frameRunData.size(); f++) { if (frameRunData[f]->getFrameID() == frameID) { frameIndex = (int)f; } }
-// 	// cout << "eventNumber: " << eventNumber << ", absoluteHitTime: " << absoluteHitTime << ", frameIndex: " << frameIndex << endl;
-//
-// 	return frameIndex;
-// }
-
-// vector<int> GRunAction::formPayload(GDigitizedData* digitizedData) {
-// 	vector<int> payload;
-//
-// 	int crate   = digitizedData->getIntObservable(CRATESTRINGID);
-// 	int slot    = digitizedData->getIntObservable(SLOTSTRINGID);
-// 	int channel = digitizedData->getIntObservable(CHANNELSTRINGID);
-// 	int q       = digitizedData->getIntObservable(CHARGEATELECTRONICS);
-// 	int time    = digitizedData->getIntObservable(TIMEATELECTRONICS);
-//
-// 	payload.push_back(crate);
-// 	payload.push_back(slot);
-// 	payload.push_back(channel);
-// 	payload.push_back(q);
-// 	payload.push_back(time);
-//
-// 	return payload;
-// }
-//
-// bool GRunAction::findFrameID(int fid) {
-// 	for (auto frame : frameRunData) { if (frame->getFrameID() == fid) { return true; } }
-// 	return false;
-// }

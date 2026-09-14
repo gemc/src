@@ -91,6 +91,7 @@ foreach L : LD
     headers = L.get('headers', [''])
     examples = L.get('examples', empty_dict)
     example_suites = L.get('example_suites', empty_dict)
+    example_needs_plugins = L.get('example_needs_plugins', [])
     example_internal_dependencies = L.get('example_internal_dependencies', empty_dict)
     geo_build = L.get('geo_build', empty_dict)
     this_deps = L.get('dependencies', [])
@@ -156,6 +157,7 @@ foreach L : LD
         endif
     endforeach
 
+    module_plugin_targets = []
     if plugins != empty_dict
         # Same rationale as the example executables: a STATIC module library
         # (link_with) propagates this_deps' link args, so pass only their
@@ -174,7 +176,7 @@ foreach L : LD
             if plugin_dependencies.has_key(name)
                 this_plugin_dependencies += plugin_dependencies[name]
             endif
-            shared_library(
+            module_plugin_targets += shared_library(
                 name,
                 sources[0],
                 install : sources[1],
@@ -264,6 +266,7 @@ foreach L : LD
                  args : arguments,
                  is_parallel : false,
                  suite : example_suites.get(name, []),
+                 depends : example_needs_plugins.contains(name) ? module_plugin_targets : [],
                  priority : -20)
         endforeach
     endif

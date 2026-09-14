@@ -164,6 +164,9 @@ private:
 	 */
 	std::shared_ptr<GAnalysisAccumulator> analysis_accumulator;
 
+	/// Optional shared crate output; loaded before workers and retained through all action lifetimes.
+	std::shared_ptr<GSROFactory> sro_factory;
+
 	/**
 	 * \brief Shared particle list used by all GPrimaryGeneratorAction instances and the pmaker GUI.
 	 *

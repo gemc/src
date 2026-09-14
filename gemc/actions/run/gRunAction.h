@@ -14,6 +14,7 @@
 #include <gemc/ganalysis/gAnalysisAccumulator.h>
 #include <gemc/gdynamicDigitization/gdynamicdigitization.h>
 #include <gemc/gstreamer/gstreamer.h>
+#include <gemc/gstreamer/factories/SRO/gSROFactory.h>
 #include <gemc/gdata/run/gRunDataCollection.h>
 #include <gemc/actions/gactionConventions.h>
 
@@ -78,9 +79,12 @@ public:
 	 */
 	explicit GRunAction(std::shared_ptr<GOptions>                           gopts,
 						std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map,
-						std::shared_ptr<GAnalysisAccumulator> analysis_accumulator = nullptr);
+						std::shared_ptr<GAnalysisAccumulator> analysis_accumulator = nullptr,
+						std::shared_ptr<GSROFactory> sro_factory = nullptr);
 
 	~GRunAction() override = default;
+
+	[[nodiscard]] const std::shared_ptr<GSROFactory>& get_sro_factory() const { return sro_factory; }
 
 	// The run action manages thread-local and process-wide state and is therefore
 	// intentionally non-copyable and non-movable.
@@ -292,6 +296,9 @@ private:
 	/** \brief GUI-only shared destination for completed per-thread Analyzer shards. */
 	std::shared_ptr<GAnalysisAccumulator> analysis_accumulator;
 
+	/// Destroy before the digitizer map, which retains libraries defining worker payload types.
+	std::shared_ptr<GSROFactory> sro_factory;
+
 	/** \brief Thread-confined Analyzer data for the current Geant4 run. */
 	std::unique_ptr<GAnalysisShard> analysis_shard;
 
@@ -395,6 +402,6 @@ private:
 // in the constructur we had:
 
 // frameDuration = 64000;
-// eventDuration = gutilities::getG4Number(goptions->getRequiredScalarString("eventTimeSize"));
+// eventDuration = gparticle::getEventTimeWidth(goptions);
 
 // stream = gopt->getSwitch("stream");

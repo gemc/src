@@ -34,7 +34,13 @@ LD += {
     ),
     'dependencies' : [yaml_cpp_dep, clhep_deps, qt6_deps, geant4_core_deps],
     'internal_dependencies' : internal_deps,
+    'plugins' : {
+        'test_sro_implementation' : [files('examples/sro_test_implementation.cc'), false],
+    },
     'examples' : {
+        'test_sro_runtime' : [files('examples/sro_runtime_example.cc'), []],
+        'test_sro_runtime_serial' : [files('examples/sro_runtime_example.cc'), ['-sro_serial']],
+        'test_sro_runtime_empty' : [files('examples/sro_runtime_example.cc'), ['-sro_empty']],
         'test_track_provenance' : [files('examples/track_provenance_example.cc'), ''],
         'test_generator_lund_file_events' : [
             files('examples/generator_file_events_example.cc'),
@@ -42,6 +48,10 @@ LD += {
         ],
     },
     'example_suites' : {
+        'test_sro_runtime' : ['sro', 'threading'],
+        'test_sro_runtime_serial' : ['sro', 'threading'],
+        'test_sro_runtime_empty' : ['sro', 'threading'],
         'test_generator_lund_file_events' : ['threading'],
     },
+    'example_needs_plugins' : ['test_sro_runtime', 'test_sro_runtime_serial', 'test_sro_runtime_empty'],
 }

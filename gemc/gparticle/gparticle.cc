@@ -1,4 +1,4 @@
-// guts
+// gemc
 #include "gutilities.h"
 
 // gparticle

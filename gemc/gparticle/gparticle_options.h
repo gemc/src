@@ -52,6 +52,19 @@ namespace gparticle {
 GOptions defineOptions();
 
 /**
+ * \brief Returns the configured width of each consecutive simulation-event window.
+ *
+ * The value is defined by the scalar \c eventTimeWidth option, owned by the gparticle module because it
+ * describes the generated event timeline rather than a detector or output format. It is returned in Geant4
+ * internal time units. A value of zero means that no continuous-time model was requested; consumers that need
+ * a timeline, such as an SRO implementation, must reject zero before starting a run.
+ *
+ * \param gopts Parsed GEMC options containing the gparticle option schema.
+ * \return Event-window width in Geant4 internal time units.
+ */
+double getEventTimeWidth(const std::shared_ptr<GOptions>& gopts);
+
+/**
  * \brief Builds the list of generator particles from structured options.
  *
  * This function reads the \c gparticle option node and the optional

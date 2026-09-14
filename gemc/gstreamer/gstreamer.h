@@ -630,6 +630,7 @@ namespace gstreamer {
 		auto gstreamers = std::make_shared<gstreamersMap>();
 
 		for (const auto& gstreamer_def : gstreamer::getGStreamerDefinition(gopts)) {
+			if (gstreamer_def.format == "sro") { continue; } // Shared GSROFactory owns crate output.
 			auto        gstreamer_def_thread = GStreamerDefinition(gstreamer_def, thread_id);
 			std::string gstreamer_plugin     = gstreamer_def_thread.gstreamerPluginName();
 			// Key the map by the format-derived plugin name combined with the per-output

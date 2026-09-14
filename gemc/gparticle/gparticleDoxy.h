@@ -64,6 +64,11 @@
  * and \c -gparticlefile=..., into inline particles, file-backed event
  * particles, and output-bank records.
  *
+ * The scalar \c eventTimeWidth option belongs to this module because it describes the generated event
+ * timeline. Consecutive event IDs are assigned consecutive windows of this width. The value is exposed
+ * through \ref gparticle::getEventTimeWidth for timing-aware consumers such as SRO; it is zero by default,
+ * so a consumer must opt into a continuous timeline explicitly.
+ *
  * @section gparticle_angular_sampling Angular sampling
  *
  * For uniform theta sampling, \c delta_theta is the half-width around the nominal \c theta value:

@@ -4,6 +4,7 @@
 // geant4
 #include "G4Event.hh"
 #include "G4Threading.hh"
+#include "G4RunManager.hh"
 
 // c++
 #include <string>
@@ -18,6 +19,7 @@
 #include <cctype>
 #include <chrono>
 #include <sstream>
+#include <limits>
 #include <unordered_set>
 
 namespace {
@@ -192,6 +194,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 
 	// Count each processed event once, even when it produces no payload.
 	run_action->increment_run_events_processed();
+	stream_event(event);
 
 	const auto thread_id = G4Threading::G4GetThreadId();
 	const auto event_id  = event->GetEventID();
@@ -351,6 +354,47 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	    !eventDataCollection->getGeneratedParticles().empty() ||
 	    !eventDataCollection->getGeneratedTrackedParticles().empty()) {
 		publish_event_data(eventDataCollection);
+	}
+}
+
+void GEventAction::stream_event(const G4Event* event) {
+	const auto& sro = run_action->get_sro_factory();
+	if (!sro) { return; }
+	if (event->IsAborted()) {
+		sro->interrupt_run(); // Never complete an event whose hit collection may be truncated.
+		return;
+	}
+	try {
+		sro->rethrow_if_failed();
+		const auto context = sro->event_context(static_cast<GSROEventId>(event->GetEventID()));
+		std::uint64_t sequence = 0;
+		const GSROEmit emit = [&](GSROCrateId crate, GSROTime time, std::unique_ptr<const GSROData> data) {
+			if (sequence == std::numeric_limits<std::uint64_t>::max()) {
+				throw std::overflow_error("SRO payload sequence overflow");
+			}
+			sro->dispatch_payload_to_crate({crate, context.event_id, sequence++, time, std::move(data)});
+		};
+		if (auto* collections = event->GetHCofThisEvent()) {
+			const auto routines = run_action->get_digitization_routines_map();
+			if (!routines) { throw std::runtime_error("SRO requires a digitization routine map"); }
+			for (int index = 0; index < collections->GetNumberOfCollections(); ++index) {
+				auto* hits = static_cast<GHitsCollection*>(collections->GetHC(index));
+				if (!hits || detector_is_listed(goptions, NO_DIGITIZED_OPTION, hits->GetSDname())) { continue; }
+				const auto& routine = routines->at(hits->GetSDname());
+				if (!routine) { throw std::runtime_error("Null SRO digitization routine"); }
+				for (std::size_t hit = 0; hit < hits->GetSize(); ++hit) {
+					if (auto* data = static_cast<GHit*>(hits->GetHit(hit))) {
+						routine->stream_hit(data, hit, context, emit);
+					}
+				}
+			}
+		}
+		sro->complete_event(context.event_id);
+	}
+	catch (...) {
+		sro->cancel_run(std::current_exception());
+		// Leave joining and checked output finalization to the run owner after workers return.
+		if (auto* manager = G4RunManager::GetRunManager()) { manager->AbortRun(true); }
 	}
 }
 

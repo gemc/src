@@ -63,7 +63,8 @@ struct GStreamerDefinition
 	 * \param t Worker thread identifier. A negative value disables filename specialization.
 	 */
 	GStreamerDefinition(const GStreamerDefinition& other, int t) :
-		format(other.format), rootname(other.rootname + "_t" + std::to_string(t)), type(other.type), tid(t) {
+		format(other.format), rootname(other.rootname + "_t" + std::to_string(t)), type(other.type), tid(t),
+		implementation(other.implementation) {
 		if (tid < 0) {
 			rootname = other.rootname;
 		}
@@ -80,6 +81,9 @@ struct GStreamerDefinition
 
 	/// \brief Worker thread id associated with this definition, or a negative value when not specialized.
 	int tid = -1;
+
+	/// SRO implementation library basename, resolved through the usual plugin search path.
+	std::string implementation;
 
 	/**
 	 * \brief Return the plugin library name expected by the dynamic loader.

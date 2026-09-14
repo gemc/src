@@ -1,5 +1,7 @@
 #pragma once
 
+#include <gemc/gstreamer/sro/gSROData.h>
+
 #include "greadoutSpecs.h"
 #include <gemc/gfactory/gfactory_options.h>
 
@@ -339,6 +341,18 @@ public:
      */
     [[nodiscard]] virtual std::unique_ptr<GDigitizedData> digitizeHitImpl(
         [[maybe_unused]] GHit *ghit, [[maybe_unused]] size_t hitn) { return nullptr; }
+
+    /**
+     * Produce owned SRO payloads on the simulation worker, independently of ordinary event digitization.
+     * Called only when SRO is enabled and this detector is not suppressed by no_digitized. Emit zero or
+     * more contributions immediately; the action supplies event/sequence IDs. The implementation supplies
+     * crate IDs and absolute run-relative times consistent with its GSROTiming model. Do not retain the
+     * hit or emit callback. The shared digitizer must not mutate shared state here; use local or thread-local
+     * state. Default: this detector does not contribute to SRO. Frame/overlap policy belongs to crate plugins.
+     */
+    virtual void stream_hit([[maybe_unused]] GHit* hit, [[maybe_unused]] std::size_t hit_index,
+                            [[maybe_unused]] const GSROEventContext& event,
+                            [[maybe_unused]] const GSROEmit& emit) const {}
 
     /**
      * \brief Loads digitization constants (calibration/configuration).

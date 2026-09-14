@@ -1,0 +1,23 @@
+experiment: examples
+runno: 1
+n: 10
+nthreads: 4
+seed: 12345
+eventTimeWidth: 10*ns
+recordZeroEdep: true # Geantinos cross every plane without depositing energy.
+no_true_info: all
+
+gsystem:
+  - name: sro
+    factory: ascii
+
+gstreamer:
+  - format: sro
+    filename: simple_sro
+    implementation: example_sro
+
+phys_list: QBBC
+gparticle:
+  - name: geantino
+    p: 1*GeV
+    theta: 0*deg

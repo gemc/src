@@ -166,6 +166,8 @@ public:
 	void EndOfEventAction(const G4Event* event) override;
 
 private:
+	/// Dispatch SRO on this worker, including completion for empty events; report failure to the shared run.
+	void stream_event(const G4Event* event);
 	/**
 	 * \brief Publishes a completed event data collection to all worker-thread streamers.
 	 *

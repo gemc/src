@@ -49,7 +49,8 @@ namespace gemc {
             "Set to false to keep true information for all Geant4 hits even when no digitized hit is written.");
         // goptions.defineOption(GVariable("event_module_log", 0, "Event Modulo log"), "Logs every <value> events. Default: 0 (log all events)");
         //
-        // goptions.defineOption(GVariable("eventTimeSize", "0*ns", "event duration with unit"), "Default: 0*ns");
+        // eventTimeWidth is defined by gparticle::defineOptions() because it describes the generated
+        // event timeline and may be consumed by timing-aware detector/output implementations.
 
         // random engine name
         // the names, that come from the CLHEP library, can be found with

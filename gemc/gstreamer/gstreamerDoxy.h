@@ -51,9 +51,9 @@
  */
 
 /**
- * \defgroup gstreamer_plugin_jlabsro_api JLAB SRO streamer plugin
+ * \defgroup gstreamer_sro_api SRO crate output
  * \ingroup gstreamer_module
- * \brief Binary frame streamer plugin producing packed JLAB SRO records.
+ * \brief Generic crate threads with implementation-defined payloads, framing, and encoding.
  */
 
 /**
@@ -83,15 +83,38 @@
  * - \c root
  * - \c ascii
  * - \c csv
- * - \c jlabsro
+ * - \c sro (upcoming in the next release)
  * - \c json
  *
- * These map to plugin names using the standard naming convention:
+ * The ordinary event/run formats map to plugins using the standard naming convention:
  * - \c gstreamer_root_plugin
  * - \c gstreamer_ascii_plugin
  * - \c gstreamer_csv_plugin
- * - \c gstreamer_jlabsro_plugin
  * - \c gstreamer_json_plugin
+ *
+ * \section gstreamer_sro Streaming readout (upcoming in the next release)
+ * Configure one shared SRO output alongside any ordinary event outputs:
+ * \code{.yaml}
+ * gstreamer:
+ *   - format: sro
+ *     filename: output
+ *     implementation: experiment_sro
+ * \endcode
+ * The core GSROFactory selects this output and loads experiment_sro.gplugin through the normal plugin
+ * search path. The library exports GSROImplementationFactory and derives from GSROImplementation.
+ * Its configure_run supplies the timing model; create_crate supplies a frame sink and crate plugin.
+ * Filename suffixes, encoding, acquisition limits, overlap response, and incomplete-frame policy belong
+ * to that implementation. It must give each crate/run a distinct output filename.
+ *
+ * Worker digitizers override GDynamicDigitization::stream_hit and invoke GSROEmit immediately for each
+ * owned GSROData contribution. The framework assigns event/sequence IDs, creates crates lazily, and calls
+ * complete_event even for empty events. An aborted event holds back the safe-time prefix. At run end the
+ * master (or sequential run owner) waits for delivery acknowledgments and joins all crate threads.
+ * A background or worker error cancels SRO input; checked shutdown reports it after joining.
+ *
+ * SRO has no per-worker event buffer. The existing ebuffer option applies only to ordinary streamers.
+ * Crate queues apply backpressure; ordering buffers and event bookkeeping have separate failure limits.
+ * The old jlabsro factory and its fixed binary layout are replaced by this implementation API.
  *
  * \section gstreamer_ownership Ownership and lifecycle
  * The module is designed around explicit ownership boundaries:

@@ -24,6 +24,7 @@ fmt_args = {
 
 buffer = ['-ebuffer=20']
 
+# JLABSRO is retained only as reference for the clas12-systems port; see its README.
 # plugin file lists (unchanged)
 ascii_plugin_files = [files(
                           'factories/ASCII/gstreamerASCIIFactory.cc',
@@ -38,14 +39,6 @@ ascii_plugin_files = [files(
                           'factories/ASCII/stream/frameHeader.cc',
                           'factories/ASCII/stream/publishPayload.cc',
                       ), true]
-
-jlab_sro_plugin_files = [files(
-                             'factories/JLABSRO/gstreamerJLABSROFactory.cc',
-                             'factories/JLABSRO/gstreamerJLABSROConnection.cc',
-                             'factories/JLABSRO/stream/stream.cc',
-                             'factories/JLABSRO/stream/frameHeader.cc',
-                             'factories/JLABSRO/stream/publishPayload.cc',
-                         ), true]
 
 root_plugin_files = [files(
                          'factories/ROOT/gRootTree.cc',
@@ -94,13 +87,15 @@ json_plugin_files = [files(
 streamer_plugins = {
     'gstreamer_ascii_plugin' : ascii_plugin_files,
     'gstreamer_csv_plugin' : csv_plugin_files,
-    'gstreamer_jlabsro_plugin' : jlab_sro_plugin_files,
     'gstreamer_json_plugin' : json_plugin_files,
 }
 
-streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_core_deps]
+streamer_dependencies = [yaml_cpp_dep, clhep_deps, geant4_core_deps, dependency('threads')]
 streamer_plugin_dependencies = {}
-additional_includes = ['gemc/gstreamer', 'gemc/gstreamer/factories/ASCII', 'gemc/gstreamer/factories/CSV', 'gemc/gstreamer/factories/JLABSRO', 'gemc/gstreamer/factories/JSON']
+additional_includes = [
+    'gemc/gstreamer', 'gemc/gstreamer/factories/ASCII',
+    'gemc/gstreamer/factories/CSV', 'gemc/gstreamer/factories/JSON',
+]
 
 # Add ROOT bits if available
 if root_dep.found()
@@ -112,6 +107,8 @@ endif
 # ── examples: generate the matrix programmatically ────────────────────────────
 examples = {
     'test_gstreamer_verbose' : [example_source, buffer + verbosities],
+    'test_sro_crate' : [files('examples/sro_crate_example.cc'), []],
+    'test_sro_service' : [files('examples/sro_service_example.cc'), []],
 }
 
 # Always-available formats
@@ -135,12 +132,29 @@ endif
 # ── single LD append with one dict literal ────────────────────────────────────
 LD += {
     'name' : sub_dir_name,
-    'sources' : files('gstreamer.cc', 'gstreamer_options.cc'),
-    'headers' : files('gstreamer.h', 'gstreamerConventions.h', 'gstreamer_options.h'),
+    'sources' : files(
+        'gstreamer.cc', 'gstreamer_options.cc', 'sro/gSROCrate.cc', 'sro/gSROService.cc',
+        'factories/SRO/gSROFactory.cc',
+    ),
+    'headers' : files(
+        'gstreamer.h',
+        'gstreamerConventions.h',
+        'gstreamer_options.h',
+        'sro/gSROData.h',
+        'sro/gSROPlugin.h',
+        'sro/gSROCrate.h',
+        'sro/gSROService.h',
+        'sro/gSROImplementation.h',
+        'factories/SRO/gSROFactory.h',
+    ),
     'plugins' : streamer_plugins,
     'dependencies' : streamer_dependencies,
     'plugin_dependencies' : streamer_plugin_dependencies,
     'internal_dependencies' : internal_deps,
     'additional_includes' : additional_includes,
     'examples' : examples,
+    'example_suites' : {
+        'test_sro_crate' : ['sro', 'threading'],
+        'test_sro_service' : ['sro', 'threading'],
+    },
 }

@@ -9,8 +9,8 @@
 // and immediate run publication. Concrete serialization remains in plugin hooks.
 
 const std::vector<std::string>& GStreamer::supported_formats() {
-	// Keep this list aligned with the available gstreamer_<format>_plugin factories.
-	static const std::vector<std::string> formats = {"jlabsro", "root", "ascii", "csv", "json"};
+	// sro is a shared core factory; the other formats load gstreamer_<format>_plugin.
+	static const std::vector<std::string> formats = {"sro", "root", "ascii", "csv", "json"};
 	return formats;
 }
 

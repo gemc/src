@@ -7,6 +7,9 @@
 #include "gfactory_options.h"
 #include "gutilities.h"
 
+#include <cmath>
+#include <stdexcept>
+
 // namespace to define options
 namespace gparticle {
 using std::string;
@@ -96,11 +99,26 @@ vector<GparticlePtr> getGParticles(const std::shared_ptr<GOptions>& gopts, std::
 	return gparticles;
 }
 
+double getEventTimeWidth(const std::shared_ptr<GOptions>& gopts) {
+	if (!gopts) { throw std::invalid_argument("gparticle eventTimeWidth requires GEMC options"); }
+	const double width = gutilities::getG4Number(gopts->getRequiredScalarString("eventTimeWidth"));
+	if (!std::isfinite(width) || width < 0) {
+		throw std::invalid_argument("eventTimeWidth must be a finite non-negative time");
+	}
+	return width;
+}
+
 
 // Define the gparticle option schema and its human-readable help text.
 // The detailed API contract is documented in gparticle_options.h.
 GOptions defineOptions() {
 	GOptions goptions(GPARTICLE_LOGGER);
+
+	goptions.defineOption(
+		GVariable("eventTimeWidth", "0*ns", "Time assigned to each consecutive generated event"),
+		"Continuous event timeline spacing. Consecutive event IDs begin one eventTimeWidth apart. "
+		"The default 0*ns leaves the timeline disabled; consumers that require continuous time must "
+		"configure it.");
 
 	string help = "Adds a particle to the event generator.\n\n";
 	help        += "Kinematic values accept an explicit Geant4 unit (e.g. '4*GeV', '23*deg', '1*mm').\n";
