@@ -76,6 +76,7 @@ public:
 	 * \param gopts Shared configuration object used by the run action and the GRun object it creates.
 	 * \param digi_map Shared map associating collection names with digitization routines.
 	 * \param analysis_accumulator GUI-only Analyzer service; null in batch mode.
+	 * \param sro_factory Streaming-readout factory; null when streaming readout is not used.
 	 */
 	explicit GRunAction(std::shared_ptr<GOptions>                           gopts,
 						std::shared_ptr<gdynamicdigitization::dRoutinesMap> digi_map,
