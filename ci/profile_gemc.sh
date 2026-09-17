@@ -82,6 +82,10 @@ if [[ ! -d $source_dir ]]; then
 	exit 1
 fi
 
+# The profile build uses shared libraries (see ci/env.sh), so make the installed gemc find its own
+# libraries at runtime even if the install rpath does not cover this launch path.
+export LD_LIBRARY_PATH="$install_dir/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
 # Per-example gemc arguments. Every example is driven from freshly generated ascii geometry
 # (see below), so the gsystem factory is overridden to ascii regardless of what the installed
 # YAML card selects. torus ships as a field-display-only card with no beam, so a muon beam is

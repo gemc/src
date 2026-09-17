@@ -65,7 +65,10 @@ function meson_setup_options {
             meson_options="-Db_sanitize=leak $sanitizer_library_options"
             ;;
         "profile")
-            meson_options=""
+            # Debug symbols for callgrind, but shared libraries (like the sanitizer builds) so the
+            # static-link duplicate-symbol collision between assimp's bundled pugixml and Geant4's
+            # pugixml (in libG4processes_hadronic.a) does not occur. buildtype stays debug (set above).
+            meson_options="$sanitizer_library_options"
             ;;
         "debug")
             meson_options=""
