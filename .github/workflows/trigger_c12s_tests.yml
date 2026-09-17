@@ -36,10 +36,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger workflow_dispatch on gemc/clas12-systems
+        env:
+          CLAS12_SYSTEMS_PAT: ${{ secrets.CLAS12_SYSTEMS_PAT }}
         run: |
-          curl --fail-with-body -X POST \
+          set -euo pipefail
+
+          pat_hint="Set the CLAS12_SYSTEMS_PAT repository secret on gemc/src to a token with access to \
+          gemc/clas12-systems and workflow-dispatch permission (classic PAT: 'workflow' scope; fine-grained \
+          PAT: Actions Read and write). Authorize it for SSO if the organization requires it."
+
+          # Preflight: an unset/empty secret would otherwise send 'Bearer ' and fail with a cryptic 401.
+          if [[ -z "${CLAS12_SYSTEMS_PAT}" ]]; then
+            echo "::error::CLAS12_SYSTEMS_PAT is not set. ${pat_hint}"
+            exit 1
+          fi
+
+          http_code=$(curl --silent --show-error --output response.json --write-out '%{http_code}' -X POST \
             -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.CLAS12_SYSTEMS_PAT }}" \
+            -H "Authorization: Bearer ${CLAS12_SYSTEMS_PAT}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/gemc/clas12-systems/actions/workflows/test_after_src.yml/dispatches \
-            -d '{"ref":"main","inputs":{"triggered_by":"Triggered by gemc/src deploy"}}'
+            -d '{"ref":"main","inputs":{"triggered_by":"Triggered by gemc/src deploy"}}')
+
+          echo "GitHub API responded with HTTP ${http_code}"
+          cat response.json || true
+
+          if [[ "${http_code}" == "401" || "${http_code}" == "403" ]]; then
+            echo "::error::Dispatch rejected (HTTP ${http_code}: bad or unauthorized credentials). ${pat_hint}"
+            exit 1
+          fi
+          # workflow_dispatch returns 204 No Content on success.
+          if [[ "${http_code}" -lt 200 || "${http_code}" -ge 300 ]]; then
+            echo "::error::Dispatch to gemc/clas12-systems failed with HTTP ${http_code}."
+            exit 1
+          fi

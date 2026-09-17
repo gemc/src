@@ -1,8 +1,12 @@
 sanitize = get_option('b_sanitize')  # string option: 'none', 'address', 'undefined', etc.
 
-# only use shared libraries if a sanitizer option is passed
-# this will avoid duplicate symbols errors when sanitizer is used, coming from static library usage
-use_sharedl = (sanitize != 'none')
+# Use shared libraries whenever a shared build is requested: either a sanitizer build, or any build
+# that sets default_library=shared (the profile build, see ci/env.sh). Shared libraries avoid the
+# duplicate-symbol link errors that static linking produces when a bundled subproject (e.g. assimp's
+# pugixml) and Geant4 both provide the same symbols. use_sharedl drives the CMake subprojects'
+# BUILD_SHARED_LIBS and the example/plugin link-dependency propagation below, so it must track the
+# actual library type, not only the sanitizer option.
+use_sharedl = (sanitize != 'none') or (get_option('default_library') == 'shared')
 
 # qt
 qt6 = import('qt6')
