@@ -5,7 +5,7 @@ sql_db = get_option('prefix') + '/examples/gemc.db'
 
 install_subdir(meson.current_source_dir(), install_dir : '.')
 
-subdir('basic/sro')
+subdir('advanced/sro')
 
 gemc_analyzer = find_program('gemc-analyzer', dirs : [venv_bin])
 

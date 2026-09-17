@@ -26,9 +26,10 @@ The [plugin](sro_plugin.cc) keeps the four stages together, with matching number
    the output. It uses a fixed example seed, independently of GEMC's physics RNG and `-seed` option.
    Multiple hits at the same address in one event would receive the same ADC; this geometry produces one hit
    per channel/event.
-2. `Timing` supplies a lower bound on all remaining input times. Here event `e` samples every channel at
-   `e * eventTimeWidth`. The YAML sets `eventTimeWidth: 10*ns`; this is artificial sampling time,
-   independent of the geantino's flight time.
+2. `Timing` tells GEMC how early a sample that has not arrived yet could be. This helps the crate decide
+   when it has everything needed to write a frame. In this example, all samples from event 0 have time 0 ns,
+   event 1 has time 10 ns, event 2 has time 20 ns, and so on. These times come from
+   `eventTimeWidth: 10*ns`; the example deliberately ignores the geantino's travel time.
 3. `CsvSink` opens, writes, and closes one file on its owning crate thread.
 4. `Crate` groups samples into 40 ns frames and writes only frames whose end is at or before safe time.
    `finish_run` discards any unfinished frames. No overlap, dead time, or ADC calibration is modeled.
@@ -36,6 +37,30 @@ The [plugin](sro_plugin.cc) keeps the four stages together, with matching number
 GEMC supplies event completion and delivery acknowledgments. The plugin defines the 10 ns sampling period,
 40 ns frame width, CSV encoding, and unfinished-frame policy. The same library exports both the digitizer
 and `GSROImplementation` factories, making it a small starting point for an experiment implementation.
+
+## Events, frames, and knowing when to write
+
+An event and a frame are different things. An event is one simulated interaction. A frame collects samples
+whose signal times fall in a chosen time interval, regardless of which event produced them.
+
+Here, event starts are 10 ns apart and frames are 40 ns long. Frame 0 contains times from 0 ns up to, but
+not including, 40 ns. Frame 1 contains times from 40 ns up to, but not including, 80 ns.
+
+In a detector model that includes travel or electronics delays, **one event can contribute to several
+frames**. For example, event 3 starts at 30 ns. A hit delayed by 5 ns has signal time 35 ns and goes into
+frame 0; another hit delayed by 15 ns has signal time 45 ns and goes into frame 1. The random-ADC example
+uses zero delay for every sample, so it does not demonstrate this split itself.
+
+Receiving a sample at 45 ns does not mean frame 0 is ready: another worker could still send a sample at
+35 ns. GEMC waits until events 0–3 have finished and all their samples have reached the crate buffers.
+If no signal can occur before its event starts, the earliest possible sample still to come is then at
+40 ns, from event 4. After processing all samples before 40 ns, the crate can write frame 0. Samples at
+45 ns stay in frame 1, waiting for that frame to become complete.
+
+This earliest possible time is called `safe_time`. It is a guarantee about samples still to come, not the
+latest sample time seen so far. If a detector's timing corrections can move signals before their event
+starts, its `Timing` implementation must allow for that too. See
+[The timing contract](https://gemc.github.io/home/documentation/sro/plugins/#the-timing-contract).
 
 ## Sensitive IDs and electronics mapping
 
@@ -68,12 +93,12 @@ Generate the geometry and run in a scratch directory to keep generated files out
 ```sh
 gemc_src="$PWD"
 sro_run=$(mktemp -d /tmp/gemc-sro-example.XXXXXX)
-cp "$gemc_src/examples/basic/sro/sro.yaml" "$sro_run/"
+cp "$gemc_src/examples/advanced/sro/sro.yaml" "$sro_run/"
 cd "$sro_run"
 "$gemc_src/build/subprojects/pygemc/python_env/bin/python" \
-  "$gemc_src/examples/basic/sro/sro.py" -f ascii
+  "$gemc_src/examples/advanced/sro/sro.py" -f ascii
 "$gemc_src/build/bin/gemc" sro.yaml \
-  -plugin_path="$gemc_src/build/examples/basic/sro"
+  -plugin_path="$gemc_src/build/examples/advanced/sro"
 ```
 
 The supplied YAML selects `format: sro` with `implementation: example_sro`, sets `eventTimeWidth: 10*ns`,

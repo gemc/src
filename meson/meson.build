@@ -79,7 +79,7 @@ if g4install != ''
 endif
 
 if not geant4_config.found()
-    error('geant4-config was not found. Load a Geant4 module before configuring GEMC.')
+    error('geant4-config was not found. Make sure Geant4 is installed.')
 endif
 
 # pkg-config --cflags --libs clhep

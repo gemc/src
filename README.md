@@ -23,6 +23,10 @@
         <a href="https://github.com/gemc/src/actions/workflows/thread_scaling.yml">
           <img alt="Thread Scaling"
                src="https://github.com/gemc/src/actions/workflows/thread_scaling.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/src/actions/workflows/valgrind_profile.yml">
+          <img alt="Valgrind Profile"
+               src="https://github.com/gemc/src/actions/workflows/valgrind_profile.yml/badge.svg">
         </a>
       </td>
       <td align="center" valign="top">

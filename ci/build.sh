@@ -33,7 +33,7 @@ fi
 } | tee -a "$setup_log"
 
 if [[ "$geant4_found" == false ]]; then
-  echo "Geant4 was not found. Load a Geant4 module before configuring GEMC." | tee -a "$setup_log"
+  echo "Geant4 was not found. Make sure Geant4 is installed." | tee -a "$setup_log"
   exit 1
 fi
 
