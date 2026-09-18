@@ -71,6 +71,10 @@ def location_to_func(location: str) -> str:
 
 def parse_annotate(text: str) -> tuple[dict[str, int], list[tuple[str, dict[str, int]]]]:
     """Parse ``callgrind_annotate`` output into (program totals, [(function, counts), ...])."""
+    # callgrind_annotate may print a percentage after each count (e.g. "12,345 (6.7%)"); drop those
+    # so the numeric columns tokenize cleanly.
+    text = re.sub(r"\(\s*[\d.]+%\)", " ", text)
+
     events: list[str] | None = None
     for line in text.splitlines():
         if line.startswith("Events shown:"):
@@ -145,16 +149,28 @@ def render(title: str, total: dict[str, int], rows: list[tuple[str, dict[str, in
     return "\n".join(lines)
 
 
-def summarize(path: Path, title: str) -> str:
-    result = subprocess.run(
+def annotate(path: Path) -> str:
+    """Run callgrind_annotate and return its stdout (raises CalledProcessError on tool failure)."""
+    return subprocess.run(
         ["callgrind_annotate", "--inclusive=yes", "--threshold=100", str(path)],
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=True,
-    )
-    total, rows = parse_annotate(result.stdout)
+    ).stdout
+
+
+def summarize(path: Path, title: str) -> str:
+    total, rows = parse_annotate(annotate(path))
     return render(title, total, rows)
+
+
+def fallback(title: str, path: Path, detail: str) -> str:
+    """A section that still names the problem, with collapsible diagnostics, when parsing fails."""
+    return (
+        f"### {title}\n\n_Profile summary unavailable for `{path.name}`._\n\n"
+        f"<details><summary>diagnostics</summary>\n\n```\n{detail.strip()[:2000]}\n```\n\n</details>\n"
+    )
 
 
 def title_for(path: Path) -> str:
@@ -173,10 +189,19 @@ def main() -> int:
         title = args.title if (args.title and len(args.files) == 1) else title_for(path)
         try:
             sections.append(summarize(path, title))
-        except (subprocess.CalledProcessError, ValueError) as error:
-            detail = error.stderr if isinstance(error, subprocess.CalledProcessError) else str(error)
-            print(f"Warning: could not summarize {path}: {detail}", file=sys.stderr)
-            sections.append(f"### {title}\n\n_Profile summary unavailable for `{path.name}`._\n")
+        except subprocess.CalledProcessError as error:
+            detail = f"callgrind_annotate exited {error.returncode}:\n{(error.stderr or '').strip()}"
+            print(f"Warning: {detail}", file=sys.stderr)
+            sections.append(fallback(title, path, detail))
+        except ValueError as error:
+            # Re-run to capture the actual output so the format problem is visible in the summary.
+            try:
+                snippet = "\n".join(annotate(path).splitlines()[:30])
+            except Exception as rerun_error:  # noqa: BLE001 - diagnostics only
+                snippet = f"(could not re-run callgrind_annotate: {rerun_error})"
+            detail = f"parse error: {error}\n\nFirst lines of callgrind_annotate output:\n{snippet}"
+            print(f"Warning: could not parse {path}: {error}", file=sys.stderr)
+            sections.append(fallback(title, path, detail))
 
     print("\n".join(sections))
     return 0

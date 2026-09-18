@@ -168,5 +168,16 @@ else
 	echo " > callgrind_annotate not found; skipping the category summary."
 fi
 
+# Show the table in this job's own summary too, so it does not depend on the artifact round-trip.
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+	if [[ -s "$summary_md" ]]; then
+		cat "$summary_md" >> "$GITHUB_STEP_SUMMARY"
+	else
+		echo "_No category table was produced for $example (see the job log)._" >> "$GITHUB_STEP_SUMMARY"
+	fi
+fi
+
+echo " > Category summary:"
+cat "$summary_md" 2>/dev/null || echo "   (none)"
 ls -l "$output_dir"
 echo
