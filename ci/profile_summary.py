@@ -149,10 +149,40 @@ def render(title: str, total: dict[str, int], rows: list[tuple[str, dict[str, in
     return "\n".join(lines)
 
 
-def annotate(path: Path) -> str:
-    """Run callgrind_annotate and return its stdout (raises CalledProcessError on tool failure)."""
+def shorten(name: str, width: int = 90) -> str:
+    """Escape table-breaking pipes and truncate a long demangled function name."""
+    name = name.replace("|", "\\|")
+    return name if len(name) <= width else name[: width - 1] + "…"
+
+
+def top_routines(rows: list[tuple[str, dict[str, int]]], total_cest: int, count: int = 10) -> str:
+    """Table of the hottest individual routines by self cost (time spent in the routine itself)."""
+    ranked = sorted(
+        ((func, cest(counts)) for func, counts in rows),
+        key=lambda item: item[1],
+        reverse=True,
+    )
+    lines = [f"### Top {count} routines by self time (CEst)", ""]
+    lines.append("| # | Routine | CEst (Mcycles) | % of run |")
+    lines.append("|---|---------|---------------:|---------:|")
+    for rank, (func, value) in enumerate(ranked[:count], start=1):
+        percent = 100.0 * value / total_cest if total_cest else 0.0
+        lines.append(f"| {rank} | `{shorten(func)}` | {value / 1e6:,.1f} | {percent:.2f}% |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def annotate(path: Path, inclusive: bool = True) -> str:
+    """Run callgrind_annotate and return its stdout (raises CalledProcessError on tool failure).
+
+    inclusive=True gives each function's cost including its callees (used for the category totals);
+    inclusive=False gives self cost only (used to rank the hottest individual routines).
+    """
+    command = ["callgrind_annotate", "--threshold=100", str(path)]
+    if inclusive:
+        command.insert(1, "--inclusive=yes")
     return subprocess.run(
-        ["callgrind_annotate", "--inclusive=yes", "--threshold=100", str(path)],
+        command,
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -161,8 +191,14 @@ def annotate(path: Path) -> str:
 
 
 def summarize(path: Path, title: str) -> str:
-    total, rows = parse_annotate(annotate(path))
-    return render(title, total, rows)
+    incl_total, incl_rows = parse_annotate(annotate(path, inclusive=True))
+    section = render(title, incl_total, incl_rows)
+    try:
+        self_total, self_rows = parse_annotate(annotate(path, inclusive=False))
+        section += "\n" + top_routines(self_rows, cest(self_total))
+    except (subprocess.CalledProcessError, ValueError) as error:
+        section += f"\n_Top-routines table unavailable: {error}_\n"
+    return section
 
 
 def fallback(title: str, path: Path, detail: str) -> str:
