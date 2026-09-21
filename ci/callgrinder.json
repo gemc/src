@@ -1,0 +1,13 @@
+{
+  "cost": "CEst",
+  "top_routines": 10,
+  "categories": [
+    { "label": "Track swimming (field propagation)", "match": "G4PropagatorInField::ComputeStep" },
+    { "label": "Hit collection (sensitive detector)", "match": "GSensitiveDetector::ProcessHits" },
+    { "label": "SRO event processing (worker)", "match": "GEventAction::stream_event" },
+    { "label": "Output writing", "match": "GStreamer::publishEventData" },
+    { "family": "Digitization", "discover": "([A-Za-z_]\\w*)::digitizeHit" },
+    { "family": "SRO stream_hit", "discover": "([A-Za-z_]\\w*)::stream_hit" },
+    { "family": "Field evaluation", "discover": "(GField_[A-Za-z0-9_]*)::GetFieldValue" }
+  ]
+}

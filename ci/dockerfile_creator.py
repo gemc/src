@@ -36,8 +36,10 @@ def gemc_path_export() -> str:
     )
 
 
-def docker_header(image: str, image_tag: str, geant4_tag: str) -> str:
-    commands = f"FROM {g4_registry}:{geant4_tag}-{image}-{image_tag} AS final\n"
+def docker_header(image: str, image_tag: str, geant4_tag: str, debug_symbols: bool = False) -> str:
+    # The debug image builds on the g4install debug base so Geant4 and CLHEP also carry symbols.
+    base_suffix = "-debug" if debug_symbols else ""
+    commands = f"FROM {g4_registry}:{geant4_tag}-{image}-{image_tag}{base_suffix} AS final\n"
     commands += f"LABEL maintainer=\"Maurizio Ungaro <ungaro@jlab.org>\"\n\n"
     commands += f"# run bash instead of sh\n"
     commands += f"SHELL [\"/bin/bash\", \"-c\"]\n\n"
@@ -65,13 +67,16 @@ def update_os_packages(image: str) -> str:
     return commands
 
 
-def install_gemc(geant4_version: str, gemc_version: str, source: str) -> str:
+def install_gemc(geant4_version: str, gemc_version: str, source: str, debug_symbols: bool = False) -> str:
+    # The debug image builds gemc with the profile buildtype (debug symbols, shared libraries) and
+    # skips the test suite; it is meant for Valgrind profiling, not release.
+    build_command = "GEMC_SKIP_TESTS=1 ./ci/build.sh profile" if debug_symbols else "./ci/build.sh"
     if source == "context":
         commands = f'\nCOPY . /root/src \n'
         commands += f'RUN  cd /root/src \\\n'
         commands += f"     && DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . {remote_entrypoint()} \\\n"
         commands += f'     && module load geant4/{geant4_version} \\\n'
-        commands += f'     &&  ./ci/build.sh  \\\n'
+        commands += f'     &&  {build_command}  \\\n'
         commands += f'     && echo "{gemc_path_export()}" >> {remote_entrypoint_addon()} \n'
         return commands
 
@@ -84,7 +89,7 @@ def install_gemc(geant4_version: str, gemc_version: str, source: str) -> str:
     commands += f'     && cd /root/src \\\n'
     commands += f"     && DOCKER_ENTRYPOINT_SOURCE_ONLY=1 . {remote_entrypoint()} \\\n"
     commands += f'     && module load geant4/{geant4_version} \\\n'
-    commands += f'     &&  ./ci/build.sh  \\\n'
+    commands += f'     &&  {build_command}  \\\n'
     commands += f'     && echo "{gemc_path_export()}" >> {remote_entrypoint_addon()} \n'
     return commands
 

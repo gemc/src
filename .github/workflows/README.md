@@ -50,16 +50,16 @@ pygemc` run validates pygemc compatibility only and does not deploy.
   - Profiles: pull requests and pushes use a short single sweep; weekly and release runs use four replicated
     sweeps and update the generated result section in the root README.
 - [`valgrind_profile.yml`](valgrind_profile.yml) — **Valgrind Profile**
-  - Trigger: a weekly schedule (Monday 01:10 UTC) and manual dispatch with a per-example event count.
-  - Effect: builds one profile (debug) GEMC per matrix example, then runs it under `valgrind --tool=callgrind
-    --cache-sim=yes --branch-sim=yes` for the requested number of events (default 100) and uploads one
-    callgrind profile artifact per example, each with a per-category CEst table from `ci/profile_summary.py`.
+  - Trigger: completion of `Test` on `main`, or manual dispatch with an event count.
+  - Effect: builds one profile (debug) GEMC per matrix example and generates its geometry, then the
+    [Callgrinder action](https://github.com/gemc/Callgrinder) runs it under callgrind and reports a per-category
+    and per-routine CEst summary. All profiling and summarizing is done by the action; the categories come from
+    `ci/callgrinder.json`.
   - Examples: `basic/scintillator_barrel`, `fields/torus` (a muon beam is injected into the field-display
     card), `optical/cherenkov`, `optical/mirrors`, and `advanced/sro`. The manual-dispatch `events` input
-    overrides the count. The `guidance` job stitches the category tables and publishes qcachegrind/kcachegrind
-    reading instructions to the run summary. Digitization, SRO, and field categories are discovered from the
-    profile (`::digitizeHit`, `::stream_hit`, `GField_*::GetFieldValue`), so clas12-systems plugins appear on
-    their own.
+    overrides the default (100). The `guidance` job runs Callgrinder's `report` mode to aggregate the tables and
+    publish the qcachegrind reading guide. Digitization, SRO, and field categories are discovered from the
+    profile (`::digitizeHit`, `::stream_hit`, `GField_*::GetFieldValue`), so plugins appear on their own.
 - [`test_after_pygemc.yml`](test_after_pygemc.yml) — **Test after pygemc**
   - Trigger: API or manual `workflow_dispatch`; the upstream dispatcher selects `main`.
   - Effect: calls the reusable jobs in `test.yml` against the current pygemc source consumed by GEMC.

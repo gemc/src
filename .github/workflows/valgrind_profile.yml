@@ -2,14 +2,15 @@ name: Valgrind Profile
 
 run-name: ${{ github.event.head_commit.message || github.event.pull_request.title || github.workflow }}
 
+# Profiles representative examples under callgrind. All profiling and reporting is done by the
+# Callgrinder action (gemc/Callgrinder); this workflow only builds GEMC, generates each example's
+# geometry, and hands the command to the action.
+
 on:
-  # Weekly, Monday 01:10 UTC. Callgrind is ~50x slower than a native run, so this is not a per-push check.
-  schedule:
-    - cron: '10 1 * * 1'
   workflow_dispatch:
     inputs:
       events:
-        description: Override the per-example event count for every example (blank keeps per-example defaults).
+        description: Event count for every example (blank uses 100).
         required: false
         default: ''
         type: string
@@ -17,7 +18,7 @@ on:
     workflows: [ "Test" ]
     types: [ completed ]
     branches: [ main ]
-    
+
 permissions:
   contents: read
 
@@ -33,21 +34,28 @@ jobs:
     name: Profile ${{ matrix.example }}
     runs-on: ubuntu-latest
     timeout-minutes: 350
-    container: ghcr.io/gemc/g4install:11.4.2-ubuntu-24.04
+    # Debug-symbols image (Geant4 and CLHEP built RelWithDebInfo) so callgrind can name their routines.
+    container: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04-debug
     strategy:
       fail-fast: false
       matrix:
         include:
           - example: basic/scintillator_barrel
             slug: basic-scintillator_barrel
+            command: 'gemc scintillator_barrel.yaml -gsystem="[{name: scintillator_barrel, factory: ascii}]" -n={events} -nthreads=1'
+          # torus ships as a field-display card with no beam; inject a muon beam so events traverse the field.
           - example: fields/torus
             slug: fields-torus
+            command: 'gemc torus.yaml -gsystem="[{name: torus, factory: ascii}]" -gparticle="[{name: mu-, p: 2*GeV, theta: 20*deg, delta_phi: 360*deg, multiplicity: 6}]" -n={events} -nthreads=1'
           - example: optical/cherenkov
             slug: optical-cherenkov
+            command: 'gemc cherenkov.yaml -gsystem="[{name: cherenkov, factory: ascii}]" -n={events} -nthreads=1'
           - example: optical/mirrors
             slug: optical-mirrors
+            command: 'gemc mirrors.yaml -gsystem="[{name: mirrors, factory: ascii}]" -n={events} -nthreads=1'
           - example: advanced/sro
             slug: advanced-sro
+            command: 'gemc sro.yaml -n={events} -nthreads=1'
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -74,21 +82,44 @@ jobs:
           module load geant4/"${GEANT4_TAG}"
           ./ci/build.sh profile
 
-      - name: Profile ${{ matrix.example }}
+      - name: Prepare ${{ matrix.example }} geometry and environment
         shell: bash
         run: |
           set -euo pipefail
           export DOCKER_ENTRYPOINT_SOURCE_ONLY=1
           . /usr/local/bin/docker-entrypoint.sh
           module load geant4/"${GEANT4_TAG}"
-          events="${{ github.event.inputs.events || '100' }}"
-          ./ci/profile_gemc.sh -e "${{ matrix.example }}" -n "${events}"
+          install="${SIM_HOME}/gemc/dev"
+          example="${{ matrix.example }}"
+          name="${example##*/}"
+          workdir="${RUNNER_TEMP}/prof-${{ matrix.slug }}"
+          mkdir -p "${workdir}"
+          cp -a "${install}/examples/${example}/." "${workdir}/"
+          ( cd "${workdir}" && "${install}/python_env/bin/python3" "${name}.py" -f ascii )
+          # Hand the profiled command (run by the Callgrinder action) the environment it needs.
+          {
+            env | grep -E '^G4[A-Z0-9_]*DATA='
+            echo "LD_LIBRARY_PATH=${install}/lib:${LD_LIBRARY_PATH:-}"
+            echo "PROFILE_WORKDIR=${workdir}"
+          } >> "${GITHUB_ENV}"
+          echo "${install}/bin" >> "${GITHUB_PATH}"
 
-      - name: Upload callgrind profile
+      - name: Profile ${{ matrix.example }}
+        uses: gemc/Callgrinder@v1
+        with:
+          mode: profile
+          name: ${{ matrix.example }}
+          command: ${{ matrix.command }}
+          events: ${{ github.event.inputs.events || '100' }}
+          config: ci/callgrinder.json
+          working-directory: ${{ env.PROFILE_WORKDIR }}
+          output-dir: callgrinder-parts
+
+      - name: Upload profile
         uses: actions/upload-artifact@v7
         with:
-          name: callgrind-${{ matrix.slug }}
-          path: profile-logs
+          name: callgrinder-${{ matrix.slug }}
+          path: callgrinder-parts
           if-no-files-found: error
           retention-days: 30
 
@@ -98,87 +129,17 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Download callgrind profiles
+      - name: Download profiles
         uses: actions/download-artifact@v7
         with:
-          pattern: callgrind-*
+          pattern: callgrinder-*
           path: profiles
 
-      - name: Write category tables and qcachegrind guidance
-        shell: bash
-        run: |
-          {
-            echo "## Valgrind callgrind profiles"
-            echo
-            echo "Each matrix job profiled one example for the requested number of events under"
-            echo "\`valgrind --tool=callgrind --cache-sim=yes --branch-sim=yes\` (single thread, freshly"
-            echo "generated ascii geometry). The \`fields/torus\` card is a field-display card with no beam,"
-            echo "so a muon beam is injected so the events traverse the field."
-            echo
-            echo "### Time per category (CEst)"
-            echo
-            echo "The tables below sum the **inclusive** cost of each category's entry function, in CEst"
-            echo "(cycle estimation: \`Ir + 10*L1_misses + 100*LL_misses\`). Digitization, SRO worker, and"
-            echo "field categories are discovered from every \`::digitizeHit\`, \`::stream_hit\`, and"
-            echo "\`GField_*::GetFieldValue\` in the profile, so plugins added in clas12-systems appear"
-            echo "automatically. Categories use inclusive cost and can overlap, so they do not sum to 100%."
-          } >> "$GITHUB_STEP_SUMMARY"
-
-          # Stitch the per-example category tables produced alongside each callgrind file, in a stable order.
-          for slug in basic-scintillator_barrel fields-torus optical-cherenkov optical-mirrors advanced-sro; do
-            fragment="profiles/callgrind-${slug}/summary.${slug//-/_}.md"
-            if [[ -f "$fragment" ]]; then
-              echo >> "$GITHUB_STEP_SUMMARY"
-              cat "$fragment" >> "$GITHUB_STEP_SUMMARY"
-            fi
-          done
-
-          {
-            echo
-            echo "One artifact per example is attached to this run:"
-            echo
-            echo "| Artifact | Callgrind file |"
-            echo "|----------|----------------|"
-            echo "| \`callgrind-basic-scintillator_barrel\` | \`callgrind.out.basic_scintillator_barrel\` |"
-            echo "| \`callgrind-fields-torus\` | \`callgrind.out.fields_torus\` |"
-            echo "| \`callgrind-optical-cherenkov\` | \`callgrind.out.optical_cherenkov\` |"
-            echo "| \`callgrind-optical-mirrors\` | \`callgrind.out.optical_mirrors\` |"
-            echo "| \`callgrind-advanced-sro\` | \`callgrind.out.advanced_sro\` |"
-            echo
-            echo "### Reading a profile with qcachegrind"
-            echo
-            echo "The callgrind output is best explored interactively with **qcachegrind** (Qt) or its KDE"
-            echo "sibling **kcachegrind**. The profiles were dumped with \`--dump-instr=yes\` and"
-            echo "\`--collect-jumps=yes\`, so per-source-line and per-instruction annotation and the"
-            echo "jump/branch arrows in the source and disassembly views are available."
-            echo
-            echo "1. **Install a viewer.**"
-            echo "   - macOS: \`brew install qcachegrind\` (installs \`qcachegrind\`; \`brew install graphviz\`"
-            echo "     enables call graphs)."
-            echo "   - Debian/Ubuntu: \`apt-get install kcachegrind graphviz\`."
-            echo "   - Fedora/AlmaLinux: \`dnf install kcachegrind graphviz\`."
-            echo "2. **Download and unzip** the artifact for the example you want, then open it:"
-            echo "   \`qcachegrind callgrind.out.optical_cherenkov\` (or File → Open)."
-            echo "3. **Pick the cost type** in the toolbar dropdown. Because the runs enable cache and branch"
-            echo "   simulation, **\`CEst\`** (cycle estimation) is available and matches the category tables"
-            echo "   above; \`Ir\` (instruction reads) is the simpler default. Each row shows \`Incl.\`"
-            echo "   (self + callees) and \`Self\` costs. Toggle the \`%\` (Relative) and \`Cycle Detection\`"
-            echo "   buttons to switch between absolute counts and percentages and to fold recursive cycles."
-            echo "4. **Find hotspots** in the left **Flat Profile** list: sort by \`Self\` to rank the"
-            echo "   functions doing the work themselves, or by \`Incl.\` to rank whole call subtrees (field"
-            echo "   lookup, optical-photon transport, stepping)."
-            echo "5. **Follow the call structure** in the right panel tabs for the selected function:"
-            echo "   **Callers** / **Callees** lists, the **Call Graph** (needs graphviz), and the **Call Map**"
-            echo "   treemap. Double-click any callee to navigate into it."
-            echo "6. **Drill into source** with the **Source** and **Machine Code** tabs to see cost attributed"
-            echo "   per line and per instruction; use **Grouping** (by ELF object / source file / class) to"
-            echo "   split GEMC, Geant4, and CLHEP costs apart."
-            echo "7. **Compare examples** by opening two viewer windows side by side (callgrind files are not"
-            echo "   diffed in-tool); the same cost type and Relative setting make the percentages comparable."
-            echo
-            echo "For a non-interactive summary without a GUI, \`callgrind_annotate callgrind.out.<example>\`"
-            echo "prints the top functions and, with \`--auto=yes\`, annotated source."
-          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Aggregate the category tables and qcachegrind guidance
+        uses: gemc/Callgrinder@v1
+        with:
+          mode: report
+          input-dir: profiles
 
       - name: Gate on profile results
         if: needs.profile.result != 'success'
