@@ -135,14 +135,16 @@ def create_dockerfile(
     with_package: bool = False,
     source: str = "clone",
     package_arch: str = "amd64",
+    debug_symbols: bool = False,
 ) -> str:
     commands = ""
-    commands += docker_header(image, image_tag, geant4_version)
+    commands += docker_header(image, image_tag, geant4_version, debug_symbols)
     commands += update_os_packages(image)
     commands += dockerfile_install_command(image)
-    commands += install_gemc(geant4_version, gemc_version, source)
+    commands += install_gemc(geant4_version, gemc_version, source, debug_symbols)
     commands += log_exporters()
-    if with_package:
+    # The debug image is for profiling, not release, so it is not packaged as a tarball.
+    if with_package and not debug_symbols:
         commands += package_install(geant4_version, gemc_version, image, image_tag, package_arch)
         commands += package_exporters()
 
@@ -193,6 +195,10 @@ def main():
         "--package-arch", choices=["amd64", "arm64"], default="amd64",
         help="Architecture suffix to use in the package artifact name"
     )
+    parser.add_argument(
+        "--debug-symbols", action="store_true",
+        help="Build gemc with debug symbols on the g4install debug base image (for profiling)."
+    )
 
     args = parser.parse_args()
 
@@ -211,6 +217,7 @@ def main():
         args.with_package,
         args.source,
         args.package_arch,
+        args.debug_symbols,
     )
     print(dockerfile)
 

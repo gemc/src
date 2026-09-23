@@ -160,6 +160,14 @@ void run_manager_commands(const std::shared_ptr<GOptions>& gopts,
                           const std::shared_ptr<GLogger>& log,
                           const std::vector<std::string>& commands);
 
+/**
+ * \brief Execute a Geant4 macro file, terminating with an error if it cannot complete.
+ *
+ * Uses Geant4's macro interpreter, including nested macros, aliases, and comments.
+ * Relative filenames are resolved from the current working directory.
+ */
+void execute_macro(const std::string& filename, const std::shared_ptr<GLogger>& log);
+
 void define_new_gemc_units();
 
 /**

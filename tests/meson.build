@@ -7,6 +7,13 @@ system_template = find_program('gemc-system-template', dirs: [venv_bin])
 
 build_root = meson.project_build_root()
 
+test('geant4_macro',
+     python_exe,
+     args: [files('geant4_macro.py'), gemc],
+     env: project_test_env,
+     suite: 'macro',
+     timeout: 180)
+
 g4objects = {
     'G4Box'    : '10 10 10 cm',
     'G4Tubs'   : '0, 20, 40, 0, 360 cm deg',

@@ -70,10 +70,25 @@ build_matrix_build() {
           body+="\"platform\":\"${platform}\","
           body+="\"runner\":\"${runner}\","
           body+="\"suffix\":\"${suffix}\","
-          body+="\"logs_dir\":\"${logs_dir}\""
+          body+="\"logs_dir\":\"${logs_dir}\","
+          body+="\"debug\":\"false\""
           body+="}"
           sep=","
         done
+
+        # Additional profiling image: an amd64 Ubuntu 26.04 gemc built with debug symbols on the
+        # g4install debug base. Published as <gemc>-ubuntu-26.04-debug alongside the release image
+        # (it does not replace it); suffix is empty so it is pushed as the final tag (no manifest).
+        if [[ "$cpuv" == "amd64" ]]; then
+          body+="${sep}{"
+          body+="\"image\":\"ubuntu\",\"image_tag\":\"26.04\",\"geant4_tag\":\"${g4v}\","
+          body+="\"gemc_tag\":\"${gemcv}\",\"arch\":\"amd64\","
+          body+="\"container\":\"ghcr.io/gemc/g4install:${g4v}-ubuntu-26.04-debug\","
+          body+="\"platform\":\"linux/amd64\",\"runner\":\"$(get_runner amd64)\","
+          body+="\"suffix\":\"\",\"logs_dir\":\"logs-amd64-debug\",\"debug\":\"true\""
+          body+="}"
+          sep=","
+        fi
       done
     done
   done

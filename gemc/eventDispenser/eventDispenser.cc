@@ -154,6 +154,43 @@ int EventDispenser::getTotalNumberOfEvents() const {
 }
 
 
+void EventDispenser::prepareRun(int runNumber) {
+	// Load constants and translation tables if the run number has changed.
+	if (!currentRunno || runNumber != *currentRunno) {
+		// Iterate the (plugin name -> digitization routine) map.
+		// digiRoutine is a std::shared_ptr<GDynamicDigitization>.
+		for (const auto& [plugin, digiRoutine] : *gDigitizationMap) {
+			// The variation is resolved per routine at geometry load (gsystem variation,
+			// or the digitization_variation option override when set).
+			const std::string& variation = digiRoutine->getDigitizationVariation();
+
+			log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadConstants for run ", runNumber,
+			           " with variation ", variation);
+			if (digiRoutine->loadConstants(runNumber, variation) == false) {
+				log->error(ERR_LOADCONSTANTFAIL,
+				           "Failed to load constants for ", plugin, " for run ", runNumber, " with variation ",
+				           variation);
+			}
+
+			log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadTT for run ", runNumber);
+			if (digiRoutine->loadTT(runNumber, variation) == false) {
+				log->error(ERR_LOADTTFAIL,
+				           "Failed to load translation table for ", plugin, " for run ", runNumber,
+				           " with variation ", variation);
+			}
+		}
+		currentRunno = runNumber;
+	}
+
+	if (analysisAccumulator != nullptr) { analysisAccumulator->setCurrentRunNumber(runNumber); }
+	// Tag the next G4Run with this run number. Guarded because standalone/unit-test
+	// contexts (e.g. the event_dispenser example) may run without a G4RunManager.
+	if (G4RunManager* g4rm = G4RunManager::GetRunManager()) { g4rm->SetRunIDCounter(runNumber); }
+
+	closeOpenGeometryBeforeBeamOn(log);
+}
+
+
 // processEvents summary:
 // - Iterates the run allocation.
 // - For each run, loads run-dependent constants/TT via digitization routines (if run changed).
@@ -167,43 +204,12 @@ int EventDispenser::processEvents() {
 		int runNumber = run.first;
 		int nevents   = run.second;
 
-		// Load constants and translation tables if the run number has changed.
-		if (!currentRunno || runNumber != *currentRunno) {
-			// Iterate the (plugin name -> digitization routine) map.
-			// digiRoutine is a std::shared_ptr<GDynamicDigitization>.
-			for (const auto& [plugin, digiRoutine] : *gDigitizationMap) {
-				// The variation is resolved per routine at geometry load (gsystem variation,
-				// or the digitization_variation option override when set).
-				const std::string& variation = digiRoutine->getDigitizationVariation();
-
-				log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadConstants for run ", runNumber,
-				           " with variation ", variation);
-				if (digiRoutine->loadConstants(runNumber, variation) == false) {
-					log->error(ERR_LOADCONSTANTFAIL,
-					           "Failed to load constants for ", plugin, " for run ", runNumber, " with variation ",
-					           variation);
-				}
-
-				log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadTT for run ", runNumber);
-				if (digiRoutine->loadTT(runNumber, variation) == false) {
-					log->error(ERR_LOADTTFAIL,
-					           "Failed to load translation table for ", plugin, " for run ", runNumber,
-					           " with variation ", variation);
-				}
-			}
-			currentRunno = runNumber;
-		}
-
+		prepareRun(runNumber);
 		log->info(1, "Starting run ", runNumber, " with ", nevents, " events.");
-		if (analysisAccumulator != nullptr) { analysisAccumulator->setCurrentRunNumber(runNumber); }
-		// Tag the next G4Run with this run number. Guarded because standalone/unit-test
-		// contexts (e.g. the event_dispenser example) may run without a G4RunManager.
-		if (G4RunManager* g4rm = G4RunManager::GetRunManager()) { g4rm->SetRunIDCounter(runNumber); }
 
 		// Dispatch all events for this run in a single call.
 		// The command string is a standard Geant4 UI command: \c /run/beamOn <N>.
 		log->info(1, "Processing ", nevents, " events in one go");
-		closeOpenGeometryBeforeBeamOn(log);
 		// Record the moment the first BeamOn is issued so a timing summary can be produced later.
 		if (!beamOnTime.has_value()) { beamOnTime = std::chrono::steady_clock::now(); }
 		g4uim->ApplyCommand("/run/beamOn " + to_string(nevents));

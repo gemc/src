@@ -68,7 +68,7 @@ jobs:
   # arch build jobs
   # uses matrix_build
   build_arch:
-    name: ${{ matrix.image }}/${{ matrix.image_tag }} ${{ matrix.arch }}
+    name: ${{ matrix.image }}/${{ matrix.image_tag }} ${{ matrix.arch }}${{ matrix.debug == 'true' && ' (debug)' || '' }}
     needs: [ overview, discover ]
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 360
@@ -77,7 +77,7 @@ jobs:
       matrix: ${{ fromJSON(needs.discover.outputs.matrix_build) }}
 
     env:
-      CACHE_REF: type=registry,ref=${{ needs.discover.outputs.image }}:cache-${{ matrix.arch }}
+      CACHE_REF: type=registry,ref=${{ needs.discover.outputs.image }}:cache-${{ matrix.arch }}${{ matrix.debug == 'true' && '-debug' || '' }}
       TAG4: ${{ format('{0}-{1}-{2}', matrix.gemc_tag, matrix.image, matrix.image_tag) }}
       LOGNAME: ${{ format('{0}-{1}-{2}-{3}', matrix.gemc_tag, matrix.image, matrix.image_tag, matrix.arch) }}
       DOCKER_BUILD_SUMMARY: false
@@ -111,21 +111,27 @@ jobs:
         with:
           images: ${{ needs.discover.outputs.image }}
           tags: |
-            type=raw,value=${{ env.TAG4 }}
+            type=raw,value=${{ env.TAG4 }}${{ matrix.debug == 'true' && '-debug' || '' }}
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
-            org.opencontainers.image.description=GEMC ${{ matrix.gemc_tag }} ${{ matrix.arch }}
+            org.opencontainers.image.description=GEMC ${{ matrix.gemc_tag }} ${{ matrix.arch }}${{ matrix.debug == 'true' && ' debug symbols' || '' }}
 
       - name: Generate Dockerfile
         run: |
+          # The debug entry builds gemc with debug symbols on the g4install debug base and skips the
+          # release tarball stage (a profiling image, not a release).
+          extra_args=(--source context)
+          if [[ "${{ matrix.debug }}" == "true" ]]; then
+            extra_args+=(--debug-symbols)
+          else
+            extra_args+=(--with-package --package-arch "${{ matrix.arch }}")
+          fi
           python3 ci/dockerfile_creator.py \
           -i "${{ matrix.image }}" \
           -t "${{ matrix.image_tag }}" \
           --gemc-version "${{ matrix.gemc_tag }}" \
           --geant4-version "${{ matrix.geant4_tag }}" \
-          --with-package \
-          --source context \
-          --package-arch "${{ matrix.arch }}" \
+          "${extra_args[@]}" \
           > Dockerfile.generated
           cat Dockerfile.generated
 
@@ -161,7 +167,9 @@ jobs:
           cache-from: ${{ env.CACHE_REF }}
           outputs: type=local,dest=${{ runner.temp }}/artifacts/${{ matrix.logs_dir }}
 
+      # The debug image has no release tarball stage, so skip its export/upload.
       - name: Export GEMC tarball (runner artifact)
+        if: ${{ matrix.debug != 'true' }}
         uses: docker/build-push-action@v7
         with:
           pull: true
@@ -189,6 +197,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload GEMC tarball artifact
+        if: ${{ matrix.debug != 'true' }}
         uses: actions/upload-artifact@v7
         with:
           name: gemc-tarball-${{ env.LOGNAME }}

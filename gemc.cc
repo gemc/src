@@ -39,9 +39,10 @@ int main(int argc, char* argv[]) {
 	if (gfields::runFieldQueries(gopts)) { return EXIT_SUCCESS; }
 
 	auto gui      = gopts->getSwitch("gui");
+	const auto geant4_macro = gopts->getOptionalScalarString("geant4_macro");
 	auto nthreads = gemc::get_nthreads(gopts, log);
 	auto has_startup_geometry = !gsystem::getSystems(gopts).empty() ||
-		!gfields::get_GFieldDefinition(gopts).empty();
+		!gfields::get_GFieldDefinition(gopts).empty() || geant4_macro.has_value();
 
 	// The Analyzer is a GUI-only service. Batch mode keeps a null pointer and allocates no analysis state.
 	auto analysisAccumulator = makeAnalysisAccumulator(gui);
@@ -112,6 +113,11 @@ int main(int argc, char* argv[]) {
 		gopts, gdetector->get_digitization_routines_map(), analysisAccumulator);
 
 	auto app_result = EXIT_SUCCESS;
+	auto execute_startup_macro = [&] {
+		if (!geant4_macro) { return; }
+		geventDispenser->prepareRun(gopts->getRequiredScalarInt("run"));
+		gemc::execute_macro(*geant4_macro, log);
+	};
 
 	if (gui) {
 		// initializing qt session
@@ -125,6 +131,8 @@ int main(int argc, char* argv[]) {
 
 		GemcGUI gemcGui(gopts, geventDispenser, gdetector, analysisAccumulator, has_startup_geometry);
 		gemcGui.show();
+		// Run the user macro last, after the usual starter commands and GUI setup.
+		execute_startup_macro();
 
 		spash_screen->finish(&gemcGui);
 		app_result = QApplication::exec();
@@ -138,10 +146,13 @@ int main(int argc, char* argv[]) {
 		auto startup_commands = gemc::initial_commands(gopts, log, has_startup_geometry);
 		gemc::run_manager_commands(gopts, log, startup_commands);
 
+		// Run the user macro last, before handing control to the interactive terminal.
+		execute_startup_macro();
+
 		// start the session if interactive
 		if (gopts->getSwitch("i")) { session->SessionStart(); }
 
-		geventDispenser->processEvents();
+		if (!geant4_macro) { geventDispenser->processEvents(); }
 
 		delete session;
 	}

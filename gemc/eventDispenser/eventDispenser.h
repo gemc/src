@@ -187,6 +187,13 @@ public:
 	int processEvents();
 
 	/**
+	 * \brief Load detector conditions and set the run context before an externally issued beamOn.
+	 *
+	 * Call after geometry initialization. Prepares digitization and GUI analysis without generating events.
+	 */
+	void prepareRun(int runNumber);
+
+	/**
 	 * \brief Returns whether at least one \c /run/beamOn has been issued.
 	 *
 	 * \return True once \ref processEvents() has dispatched its first run.

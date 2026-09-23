@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 
@@ -241,6 +243,21 @@ namespace gemc {
 		for (const auto& cmd : commands) {
 			log->info(2, "Executing UIManager command: ", cmd);
 			g4uim->ApplyCommand(cmd);
+		}
+	}
+
+	void execute_macro(const std::string& filename, const std::shared_ptr<GLogger>& log) {
+		std::error_code error;
+		if (!std::filesystem::is_regular_file(filename, error) || !std::ifstream(filename)) {
+			log->error(EXIT_FAILURE, "Cannot read Geant4 macro file: ", filename);
+		}
+
+		log->info(0, "Executing Geant4 macro: ", filename);
+		auto* uim = G4UImanager::GetUIpointer();
+		// Pass the filename directly so paths containing spaces are not parsed as command arguments.
+		uim->ExecuteMacroFile(filename.c_str());
+		if (const auto status = uim->GetLastReturnCode(); status != 0) {
+			log->error(EXIT_FAILURE, "Geant4 macro failed: ", filename, " (command status ", status, ")");
 		}
 	}
 

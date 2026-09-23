@@ -42,6 +42,15 @@ namespace gemc {
             "since beamOn, and the average event rate). On by default; disable with -print_summary=false.",
             true);
 
+        goptions.defineOption(
+            GVariable("geant4_macro", std::nullopt, "execute a Geant4 macro text file at startup"),
+            "Example: -geant4_macro=run.mac (or geant4_macro: run.mac in YAML).\n"
+            "Executed after GEMC initialization and visualization setup, before the GUI or terminal session.\n"
+            "Relative paths use the current working directory. Geant4 macro syntax and nested macros apply.\n"
+            "In batch mode the macro controls event generation with /run/beamOn; -n and -run_weights do not\n"
+            "dispatch extra events. Detector conditions use -run. Without this option, normal runs apply.\n"
+            "A missing file or a failed macro command terminates GEMC with a nonzero exit status.");
+
         goptions.defineOption(GVariable("nthreads", 0, "sets number of threads."), "Default: 0 (use one thread for each available cores)");
         goptions.defineOption(
             GVariable("also_reject_true_info", true, "also reject true information for rejected hits"),

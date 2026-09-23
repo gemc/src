@@ -270,6 +270,23 @@ Run with the Geant4 GUI:
 gemc counter.yaml -gui
 ```
 
+Execute a Geant4 macro text file (upcoming in the next release):
+
+```shell
+gemc counter.yaml -geant4_macro=run.mac
+gemc counter.yaml -gui -geant4_macro=vis.mac
+```
+
+The equivalent YAML setting is `geant4_macro: run.mac`. GEMC executes the macro after initialization and
+visualization setup, before entering the GUI or interactive terminal. Relative paths use the working directory;
+Geant4 handles comments, aliases, and nested `/control/execute` commands. Missing files and failed commands
+produce a nonzero exit status.
+
+In batch mode, the macro controls event generation with commands such as `/run/beamOn 100`; GEMC does not
+automatically run the `-n` events or the `-run_weights` allocation afterward. Detector conditions are prepared
+using `-run`. A visualization-only macro generates no events unless it contains a beam-on command. Without
+`geant4_macro`, the usual event processing is unchanged.
+
 Generate an off-screen Geant4 image:
 
 ```shell

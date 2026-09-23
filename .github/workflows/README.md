@@ -68,6 +68,10 @@ pygemc` run validates pygemc compatibility only and does not deploy.
   - Trigger: completion of the `Test` workflow for a push to `main`.
   - Effect: builds per-architecture images, publishes GHCR manifests and Docker Hub mirrors, and exports logs
     and GEMC binary tarball artifacts.
+  - Debug image: also publishes an amd64 `ghcr.io/gemc/src:<gemc>-ubuntu-26.04-debug` built with debug symbols
+    (`build.sh profile`) on the g4install debug base, so gemc, Geant4, and CLHEP all carry symbols. It is a
+    profiling image (used by the Valgrind Profile workflows here and in clas12-systems), published alongside
+    the release image, not a replacement, and it has no binary tarball.
   - Downstream: `Binary Tarballs` and the CLAS12 compatibility-test dispatcher after completion.
 - [`binary_tarballs.yml`](binary_tarballs.yml) — **Binary Tarballs**
   - Trigger: completion of `Deploy`.
