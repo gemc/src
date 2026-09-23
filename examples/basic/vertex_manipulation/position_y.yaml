@@ -1,0 +1,80 @@
+# Fixed vertex at (0, -3, -300) mm; all spreads are zero.
+experiment: examples
+runno: 1
+nthreads: 1
+recordZeroEdep: true
+n: 5000
+seed: 12345
+show_field_lines: 0
+show_auxiliary_edges: false
+
+gsystem:
+  - name: vertex_manipulation
+    factory: ascii
+
+gstreamer:
+  - format: csv
+    filename: position_y
+
+phys_list: QBBC
+
+g4camera:
+  theta: 90*deg
+  phi: 0*deg
+
+gparticle:
+  - name: geantino
+    p: 1*GeV
+    theta: 0*deg
+    phi: 0*deg
+    vx: 0*mm
+    vy: -3*mm
+    vz: -300*mm
+    delta_vx: 0*mm
+    delta_vy: 0*mm
+    delta_vz: 0*mm
+    randomVertexModel: uniform
+
+# Flux true information carries the original track vertex in mm.
+# One noninteracting primary per event gives one unbiased target hit per thrown vertex.
+ganalysis_plots: 4
+ganalysis_accumulate: true
+ganalysis:
+  - position: top_left
+    plugin: flux
+    source: "true"
+    x: vx
+    bins: 60
+    x_min_auto: false
+    x_max_auto: false
+    x_min: -1
+    x_max: 1
+    title: "vx (mm): fixed at 0 mm"
+  - position: top_right
+    plugin: flux
+    source: "true"
+    x: vy
+    bins: 60
+    x_min_auto: false
+    x_max_auto: false
+    x_min: -4
+    x_max: -2
+    title: "vy (mm): fixed at -3 mm"
+  - position: bottom_left
+    plugin: flux
+    source: "true"
+    x: vz
+    bins: 60
+    x_min_auto: false
+    x_max_auto: false
+    x_min: -301
+    x_max: -299
+    title: "vz (mm): fixed at -300 mm"
+  - position: bottom_right
+    plugin: flux
+    source: "true"
+    dimension: 2d
+    x: vx
+    y: vy
+    bins: 40
+    title: "Thrown vy versus vx (mm)"

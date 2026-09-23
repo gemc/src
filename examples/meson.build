@@ -6,6 +6,7 @@ sql_db = get_option('prefix') + '/examples/gemc.db'
 install_subdir(meson.current_source_dir(), install_dir : '.')
 
 subdir('advanced/sro')
+subdir('basic/vertex_manipulation')
 
 gemc_analyzer = find_program('gemc-analyzer', dirs : [venv_bin])
 

@@ -1,0 +1,71 @@
+# Theta uniform on [1, 3] deg; phi = 0 deg.
+experiment: examples
+runno: 1
+nthreads: 1
+recordZeroEdep: true
+n: 5000
+seed: 12345
+show_field_lines: 0
+show_auxiliary_edges: false
+
+gsystem:
+  - name: vertex_manipulation
+    factory: ascii
+
+gstreamer:
+  - format: csv
+    filename: uniform_theta
+
+phys_list: QBBC
+
+g4camera:
+  theta: 90*deg
+  phi: 0*deg
+
+gparticle:
+  - name: geantino
+    p: 1*GeV
+    theta: 2*deg
+    delta_theta: 1*deg
+    randomThetaModel: uniform
+    phi: 0*deg
+    delta_phi: 0*deg
+    vx: 0*mm
+    vy: 0*mm
+    vz: -300*mm
+    delta_vx: 0*mm
+    delta_vy: 0*mm
+    delta_vz: 0*mm
+    randomVertexModel: uniform
+
+# True momentum is unchanged by geantino transport.
+# px = p*sin(theta)*cos(phi), py = p*sin(theta)*sin(phi), pz = p*cos(theta).
+ganalysis_plots: 4
+ganalysis_accumulate: true
+ganalysis:
+  - position: top_left
+    plugin: flux
+    source: "true"
+    x: px
+    bins: 60
+    title: "px (MeV/c): 1000 sin(theta) cos(phi)"
+  - position: top_right
+    plugin: flux
+    source: "true"
+    x: py
+    bins: 60
+    title: "py (MeV/c): 1000 sin(theta) sin(phi)"
+  - position: bottom_left
+    plugin: flux
+    source: "true"
+    x: pz
+    bins: 60
+    title: "pz (MeV/c): 1000 cos(theta)"
+  - position: bottom_right
+    plugin: flux
+    source: "true"
+    dimension: 2d
+    x: px
+    y: py
+    bins: 60
+    title: "Transverse momentum: py versus px (MeV/c)"

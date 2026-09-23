@@ -1,0 +1,80 @@
+# Gaussian sigma in z; the other two coordinates stay fixed.
+experiment: examples
+runno: 1
+nthreads: 1
+recordZeroEdep: true
+n: 5000
+seed: 12345
+show_field_lines: 0
+show_auxiliary_edges: false
+
+gsystem:
+  - name: vertex_manipulation
+    factory: ascii
+
+gstreamer:
+  - format: csv
+    filename: gaussian_z
+
+phys_list: QBBC
+
+g4camera:
+  theta: 90*deg
+  phi: 0*deg
+
+gparticle:
+  - name: geantino
+    p: 1*GeV
+    theta: 0*deg
+    phi: 0*deg
+    vx: 2*mm
+    vy: -3*mm
+    vz: -300*mm
+    delta_vx: 0*mm
+    delta_vy: 0*mm
+    delta_vz: 20*mm
+    randomVertexModel: gaussian
+
+# Flux true information carries the original track vertex in mm.
+# One noninteracting primary per event gives one unbiased target hit per thrown vertex.
+ganalysis_plots: 4
+ganalysis_accumulate: true
+ganalysis:
+  - position: top_left
+    plugin: flux
+    source: "true"
+    x: vx
+    bins: 60
+    x_min_auto: false
+    x_max_auto: false
+    x_min: 1
+    x_max: 3
+    title: "vx (mm): fixed at 2 mm"
+  - position: top_right
+    plugin: flux
+    source: "true"
+    x: vy
+    bins: 60
+    x_min_auto: false
+    x_max_auto: false
+    x_min: -4
+    x_max: -2
+    title: "vy (mm): fixed at -3 mm"
+  - position: bottom_left
+    plugin: flux
+    source: "true"
+    x: vz
+    bins: 60
+    x_min_auto: false
+    x_max_auto: false
+    x_min: -400
+    x_max: -200
+    title: "vz (mm): gaussian, center -300, sigma = 20 mm"
+  - position: bottom_right
+    plugin: flux
+    source: "true"
+    dimension: 2d
+    x: vx
+    y: vz
+    bins: 40
+    title: "Thrown vz versus vx (mm)"
