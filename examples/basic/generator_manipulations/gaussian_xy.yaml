@@ -1,0 +1,49 @@
+# Independent Gaussian x/y: means (2, -3) mm, sigmas (4, 5) mm; z = 0 mm.
+experiment: examples
+runno: 1
+nthreads: 1
+recordZeroEdep: true
+n: 5000
+seed: 12345
+show_field_lines: 0
+show_auxiliary_edges: false
+
+gsystem:
+  - name: generator_manipulations
+    factory: ascii
+
+gstreamer:
+  - format: csv
+    filename: gaussian_xy
+
+phys_list: QBBC
+
+g4camera:
+  theta: 90*deg
+  phi: 0*deg
+
+gparticle:
+  - name: geantino
+    p: 1*GeV
+    theta: 45*deg
+    phi: 90*deg
+    vx: 2*mm
+    vy: -3*mm
+    vz: 0*mm
+    delta_vx: 4*mm
+    delta_vy: 5*mm
+    delta_vz: 0*mm
+    randomVertexModel: gaussian
+
+# Plot the original transverse vertex coordinates from target true information.
+ganalysis_plots: 1
+ganalysis_accumulate: true
+ganalysis:
+  - position: top_left
+    plugin: flux
+    source: "true"
+    dimension: 2d
+    x: vx
+    y: vy
+    bins: 40
+    title: "Gaussian X and Y: thrown vy versus vx (mm)"

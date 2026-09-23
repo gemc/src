@@ -1,4 +1,4 @@
-# Fixed vertex at (0, 0, -250) mm; all spreads are zero.
+# Uniform sphere centered at (2, -3, 0) mm; radius = sqrt(1^2 + 2^2 + 2^2) = 3 mm.
 experiment: examples
 runno: 1
 nthreads: 1
@@ -9,12 +9,12 @@ show_field_lines: 0
 show_auxiliary_edges: false
 
 gsystem:
-  - name: vertex_manipulation
+  - name: generator_manipulations
     factory: ascii
 
 gstreamer:
   - format: csv
-    filename: position_z
+    filename: sphere
 
 phys_list: QBBC
 
@@ -25,15 +25,15 @@ g4camera:
 gparticle:
   - name: geantino
     p: 1*GeV
-    theta: 0*deg
-    phi: 0*deg
-    vx: 0*mm
-    vy: 0*mm
-    vz: -250*mm
-    delta_vx: 0*mm
-    delta_vy: 0*mm
-    delta_vz: 0*mm
-    randomVertexModel: uniform
+    theta: 45*deg
+    phi: 90*deg
+    vx: 2*mm
+    vy: -3*mm
+    vz: 0*mm
+    delta_vx: 1*mm
+    delta_vy: 2*mm
+    delta_vz: 2*mm
+    randomVertexModel: sphere
 
 # Flux true information carries the original track vertex in mm.
 # One noninteracting primary per event gives one unbiased target hit per thrown vertex.
@@ -47,9 +47,9 @@ ganalysis:
     bins: 60
     x_min_auto: false
     x_max_auto: false
-    x_min: -1
-    x_max: 1
-    title: "vx (mm): fixed at 0 mm"
+    x_min: -1.6
+    x_max: 5.6
+    title: "vx (mm): sphere marginal, center 2, R = 3 mm"
   - position: top_right
     plugin: flux
     source: "true"
@@ -57,9 +57,9 @@ ganalysis:
     bins: 60
     x_min_auto: false
     x_max_auto: false
-    x_min: -1
-    x_max: 1
-    title: "vy (mm): fixed at 0 mm"
+    x_min: -6.6
+    x_max: 0.6
+    title: "vy (mm): sphere marginal, center -3, R = 3 mm"
   - position: bottom_left
     plugin: flux
     source: "true"
@@ -67,9 +67,9 @@ ganalysis:
     bins: 60
     x_min_auto: false
     x_max_auto: false
-    x_min: -251
-    x_max: -249
-    title: "vz (mm): fixed at -250 mm"
+    x_min: -3.6
+    x_max: 3.6
+    title: "vz (mm): sphere marginal, center 0, R = 3 mm"
   - position: bottom_right
     plugin: flux
     source: "true"

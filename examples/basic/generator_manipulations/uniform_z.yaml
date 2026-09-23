@@ -1,4 +1,4 @@
-# Gaussian sigma in z; the other two coordinates stay fixed.
+# Uniform half-width in z; the other two coordinates stay fixed.
 experiment: examples
 runno: 1
 nthreads: 1
@@ -9,12 +9,12 @@ show_field_lines: 0
 show_auxiliary_edges: false
 
 gsystem:
-  - name: vertex_manipulation
+  - name: generator_manipulations
     factory: ascii
 
 gstreamer:
   - format: csv
-    filename: gaussian_z
+    filename: uniform_z
 
 phys_list: QBBC
 
@@ -25,15 +25,15 @@ g4camera:
 gparticle:
   - name: geantino
     p: 1*GeV
-    theta: 0*deg
-    phi: 0*deg
+    theta: 90*deg
+    phi: 90*deg
     vx: 2*mm
     vy: -3*mm
-    vz: -300*mm
+    vz: 0*mm
     delta_vx: 0*mm
     delta_vy: 0*mm
     delta_vz: 20*mm
-    randomVertexModel: gaussian
+    randomVertexModel: uniform
 
 # Flux true information carries the original track vertex in mm.
 # One noninteracting primary per event gives one unbiased target hit per thrown vertex.
@@ -67,9 +67,9 @@ ganalysis:
     bins: 60
     x_min_auto: false
     x_max_auto: false
-    x_min: -400
-    x_max: -200
-    title: "vz (mm): gaussian, center -300, sigma = 20 mm"
+    x_min: -24
+    x_max: 24
+    title: "vz (mm): uniform, center 0, half-width = 20 mm"
   - position: bottom_right
     plugin: flux
     source: "true"

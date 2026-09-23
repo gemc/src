@@ -1,4 +1,4 @@
-# Fixed vertex at (2, 0, -300) mm; all spreads are zero.
+# Gaussian sigma in z; the other two coordinates stay fixed.
 experiment: examples
 runno: 1
 nthreads: 1
@@ -9,12 +9,12 @@ show_field_lines: 0
 show_auxiliary_edges: false
 
 gsystem:
-  - name: vertex_manipulation
+  - name: generator_manipulations
     factory: ascii
 
 gstreamer:
   - format: csv
-    filename: position_x
+    filename: gaussian_z
 
 phys_list: QBBC
 
@@ -25,15 +25,15 @@ g4camera:
 gparticle:
   - name: geantino
     p: 1*GeV
-    theta: 0*deg
-    phi: 0*deg
+    theta: 90*deg
+    phi: 90*deg
     vx: 2*mm
-    vy: 0*mm
-    vz: -300*mm
+    vy: -3*mm
+    vz: 0*mm
     delta_vx: 0*mm
     delta_vy: 0*mm
-    delta_vz: 0*mm
-    randomVertexModel: uniform
+    delta_vz: 3*mm
+    randomVertexModel: gaussian
 
 # Flux true information carries the original track vertex in mm.
 # One noninteracting primary per event gives one unbiased target hit per thrown vertex.
@@ -57,9 +57,9 @@ ganalysis:
     bins: 60
     x_min_auto: false
     x_max_auto: false
-    x_min: -1
-    x_max: 1
-    title: "vy (mm): fixed at 0 mm"
+    x_min: -4
+    x_max: -2
+    title: "vy (mm): fixed at -3 mm"
   - position: bottom_left
     plugin: flux
     source: "true"
@@ -67,14 +67,14 @@ ganalysis:
     bins: 60
     x_min_auto: false
     x_max_auto: false
-    x_min: -301
-    x_max: -299
-    title: "vz (mm): fixed at -300 mm"
+    x_min: -15
+    x_max: 15
+    title: "vz (mm): gaussian, center 0, sigma = 3 mm"
   - position: bottom_right
     plugin: flux
     source: "true"
     dimension: 2d
     x: vx
-    y: vy
+    y: vz
     bins: 40
-    title: "Thrown vy versus vx (mm)"
+    title: "Thrown vz versus vx (mm)"

@@ -1,4 +1,4 @@
-# cos(theta) uniform between cos(3 deg) and cos(1 deg); phi = 0 deg.
+# Theta uniform on [-18, 22] deg; phi = 0 deg.
 experiment: examples
 runno: 1
 nthreads: 1
@@ -9,12 +9,12 @@ show_field_lines: 0
 show_auxiliary_edges: false
 
 gsystem:
-  - name: vertex_manipulation
+  - name: generator_manipulations
     factory: ascii
 
 gstreamer:
   - format: csv
-    filename: cosine_theta
+    filename: uniform_theta
 
 phys_list: QBBC
 
@@ -26,13 +26,13 @@ gparticle:
   - name: geantino
     p: 1*GeV
     theta: 2*deg
-    delta_theta: 1*deg
-    randomThetaModel: cosine
+    delta_theta: 20*deg
+    randomThetaModel: uniform
     phi: 0*deg
     delta_phi: 0*deg
     vx: 0*mm
     vy: 0*mm
-    vz: -300*mm
+    vz: 0*mm
     delta_vx: 0*mm
     delta_vy: 0*mm
     delta_vz: 0*mm

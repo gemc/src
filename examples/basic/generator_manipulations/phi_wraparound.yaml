@@ -1,4 +1,4 @@
-# Theta Gaussian with mean 2 deg and sigma 0.3 deg; phi = 0 deg.
+# Phi uniform on [330, 370] deg, crossing 360 deg, at theta = 45 deg.
 experiment: examples
 runno: 1
 nthreads: 1
@@ -9,12 +9,12 @@ show_field_lines: 0
 show_auxiliary_edges: false
 
 gsystem:
-  - name: vertex_manipulation
+  - name: generator_manipulations
     factory: ascii
 
 gstreamer:
   - format: csv
-    filename: gaussian_theta
+    filename: phi_wraparound
 
 phys_list: QBBC
 
@@ -25,14 +25,14 @@ g4camera:
 gparticle:
   - name: geantino
     p: 1*GeV
-    theta: 2*deg
-    delta_theta: 0.3*deg
-    randomThetaModel: gaussian
-    phi: 0*deg
-    delta_phi: 0*deg
+    theta: 45*deg
+    delta_theta: 0*deg
+    randomThetaModel: uniform
+    phi: 350*deg
+    delta_phi: 20*deg
     vx: 0*mm
     vy: 0*mm
-    vz: -300*mm
+    vz: 0*mm
     delta_vx: 0*mm
     delta_vy: 0*mm
     delta_vz: 0*mm

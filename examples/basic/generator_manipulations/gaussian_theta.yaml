@@ -1,4 +1,4 @@
-# Fixed vertex at (0, -3, -300) mm; all spreads are zero.
+# Theta Gaussian with mean 2 deg and sigma 20 deg; phi = 0 deg.
 experiment: examples
 runno: 1
 nthreads: 1
@@ -9,12 +9,12 @@ show_field_lines: 0
 show_auxiliary_edges: false
 
 gsystem:
-  - name: vertex_manipulation
+  - name: generator_manipulations
     factory: ascii
 
 gstreamer:
   - format: csv
-    filename: position_y
+    filename: gaussian_theta
 
 phys_list: QBBC
 
@@ -25,56 +25,47 @@ g4camera:
 gparticle:
   - name: geantino
     p: 1*GeV
-    theta: 0*deg
+    theta: 2*deg
+    delta_theta: 20*deg
+    randomThetaModel: gaussian
     phi: 0*deg
+    delta_phi: 0*deg
     vx: 0*mm
-    vy: -3*mm
-    vz: -300*mm
+    vy: 0*mm
+    vz: 0*mm
     delta_vx: 0*mm
     delta_vy: 0*mm
     delta_vz: 0*mm
     randomVertexModel: uniform
 
-# Flux true information carries the original track vertex in mm.
-# One noninteracting primary per event gives one unbiased target hit per thrown vertex.
+# True momentum is unchanged by geantino transport.
+# px = p*sin(theta)*cos(phi), py = p*sin(theta)*sin(phi), pz = p*cos(theta).
 ganalysis_plots: 4
 ganalysis_accumulate: true
 ganalysis:
   - position: top_left
     plugin: flux
     source: "true"
-    x: vx
+    x: px
     bins: 60
-    x_min_auto: false
-    x_max_auto: false
-    x_min: -1
-    x_max: 1
-    title: "vx (mm): fixed at 0 mm"
+    title: "px (MeV/c): 1000 sin(theta) cos(phi)"
   - position: top_right
     plugin: flux
     source: "true"
-    x: vy
+    x: py
     bins: 60
-    x_min_auto: false
-    x_max_auto: false
-    x_min: -4
-    x_max: -2
-    title: "vy (mm): fixed at -3 mm"
+    title: "py (MeV/c): 1000 sin(theta) sin(phi)"
   - position: bottom_left
     plugin: flux
     source: "true"
-    x: vz
+    x: pz
     bins: 60
-    x_min_auto: false
-    x_max_auto: false
-    x_min: -301
-    x_max: -299
-    title: "vz (mm): fixed at -300 mm"
+    title: "pz (MeV/c): 1000 cos(theta)"
   - position: bottom_right
     plugin: flux
     source: "true"
     dimension: 2d
-    x: vx
-    y: vy
-    bins: 40
-    title: "Thrown vy versus vx (mm)"
+    x: pz
+    y: px
+    bins: 60
+    title: "Momentum: px versus pz (MeV/c)"

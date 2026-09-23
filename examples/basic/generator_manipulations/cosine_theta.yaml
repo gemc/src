@@ -1,4 +1,4 @@
-# Phi uniform on [330, 370] deg, crossing 360 deg, at theta = 3 deg.
+# cos(theta) uniform between cos(22 deg) and cos(0 deg); phi = 0 deg.
 experiment: examples
 runno: 1
 nthreads: 1
@@ -9,12 +9,12 @@ show_field_lines: 0
 show_auxiliary_edges: false
 
 gsystem:
-  - name: vertex_manipulation
+  - name: generator_manipulations
     factory: ascii
 
 gstreamer:
   - format: csv
-    filename: phi_wraparound
+    filename: cosine_theta
 
 phys_list: QBBC
 
@@ -25,14 +25,14 @@ g4camera:
 gparticle:
   - name: geantino
     p: 1*GeV
-    theta: 3*deg
-    delta_theta: 0*deg
-    randomThetaModel: uniform
-    phi: 350*deg
-    delta_phi: 20*deg
+    theta: 2*deg
+    delta_theta: 20*deg
+    randomThetaModel: cosine
+    phi: 0*deg
+    delta_phi: 0*deg
     vx: 0*mm
     vy: 0*mm
-    vz: -300*mm
+    vz: 0*mm
     delta_vx: 0*mm
     delta_vy: 0*mm
     delta_vz: 0*mm
@@ -65,7 +65,7 @@ ganalysis:
     plugin: flux
     source: "true"
     dimension: 2d
-    x: px
-    y: py
+    x: pz
+    y: px
     bins: 60
-    title: "Transverse momentum: py versus px (MeV/c)"
+    title: "Momentum: px versus pz (MeV/c)"

@@ -5,6 +5,7 @@ import csv
 import math
 from pathlib import Path
 import shutil
+from statistics import correlation
 import subprocess
 import sys
 import tempfile
@@ -38,13 +39,17 @@ def check_cdf(values, cdf):
 
 
 def check_vertices(rows, particle):
+    # The shared tube has radius 25 mm and half-length 20 mm, centered at the origin.
+    for row in rows:
+        x, y, z = (float(row["v" + axis]) for axis in "xyz")
+        assert math.hypot(x, y) < 25 and abs(z) < 20, "Generated vertex is outside the target"
     center = [millimeters(particle["v" + axis]) for axis in "xyz"]
     delta = [millimeters(particle["delta_v" + axis]) for axis in "xyz"]
     model = particle["randomVertexModel"]
     radius = math.sqrt(sum(value * value for value in delta))
     offsets = [[float(row["v" + axis]) - center[i] for i, axis in enumerate("xyz")] for row in rows]
     assert all(math.isfinite(value) for point in offsets for value in point)
-    # CSV uses six significant digits; allow its rounding at the -300 mm longitudinal offset.
+    # CSV uses six significant digits; allow rounding in the distribution comparisons.
     tolerance = 0.001
     for i, axis in enumerate("xyz"):
         values = [point[i] for point in offsets]
@@ -61,6 +66,10 @@ def check_vertices(rows, particle):
             check_cdf(values, lambda value: (1 + math.erf(value / (delta[i] * math.sqrt(2)))) / 2)
         else:
             raise AssertionError(f"Unexpected vertex model: {model}")
+    if model in ("uniform", "gaussian") and delta[0] > 0 and delta[1] > 0:
+        # Correct marginal shapes alone would miss a shared random draw for both coordinates.
+        transverse_correlation = correlation([point[0] for point in offsets], [point[1] for point in offsets])
+        assert abs(transverse_correlation) < 0.06, "Transverse vertex coordinates are correlated"
     if model == "sphere":
         radii = [math.sqrt(sum(value * value for value in point)) for point in offsets]
         assert max(radii) <= radius + tolerance
@@ -81,6 +90,9 @@ def check_angles(rows, particle):
             check_cdf(values, lambda value: (1 + math.erf((value - center) / (delta * math.sqrt(2)))) / 2)
         else:
             low, high = center - delta, center + delta
+            if model == "cosine":
+                # Rejection sampling draws acos values, so its support is restricted to [0, 180].
+                low, high = max(0, low), min(180, high)
             assert min(values) >= low - 0.001 and max(values) <= high + 0.001
             if model == "uniform":
                 check_cdf(values, lambda value: (value - low) / (high - low))
@@ -98,23 +110,29 @@ def check_momentum(hit, thrown):
     expected = (momentum * math.sin(theta) * math.cos(phi),
                 momentum * math.sin(theta) * math.sin(phi), momentum * math.cos(theta))
     actual = [float(hit["p" + axis]) for axis in "xyz"]
+    # Six-significant-digit CSV angles near pi/2 lose up to 5e-6 rad each.
+    momentum_tolerance = momentum * 1e-5 + 0.001
     for component, reference in zip(actual, expected):
-        assert math.isclose(component, reference, abs_tol=0.002), "Analyzer momentum disagrees with throw"
+        assert math.isclose(component, reference, abs_tol=momentum_tolerance), (
+            "Analyzer momentum disagrees with throw")
     measured_theta = math.degrees(math.atan2(math.hypot(*actual[:2]), actual[2]))
-    assert abs(measured_theta - math.degrees(theta)) < 0.002
+    # Momentum has a canonical polar angle even when the generator samples signed theta.
+    canonical_theta = math.degrees(math.acos(math.cos(theta)))
+    assert abs(measured_theta - canonical_theta) < 0.002
     if math.hypot(*actual[:2]) > 0.001:
         measured_phi = math.degrees(math.atan2(actual[1], actual[0]))
-        difference = (measured_phi - math.degrees(phi) + 180) % 360 - 180
+        canonical_phi = math.degrees(phi) + (180 if math.sin(theta) < 0 else 0)
+        difference = (measured_phi - canonical_phi + 180) % 360 - 180
         assert abs(difference) < 0.002, "Reconstructed phi disagrees with throw modulo 360 degrees"
 
 
 def main():
     gemc, card = (Path(arg).resolve() for arg in sys.argv[1:])
     config = yaml.safe_load(card.read_text())
-    with tempfile.TemporaryDirectory(prefix=f"gemc-vertex-{card.stem}-") as temporary:
+    with tempfile.TemporaryDirectory(prefix=f"gemc-generator-{card.stem}-") as temporary:
         directory = Path(temporary)
         shutil.copyfile(card, directory / card.name)
-        run([sys.executable, str(card.parent / "vertex_manipulation.py"), "-f", "ascii"], directory)
+        run([sys.executable, str(card.parent / "generator_manipulations.py"), "-f", "ascii"], directory)
         run([str(gemc), card.name], directory)
         base = config["gstreamer"][0]["filename"]
         generated_files = list(directory.glob(base + "*_generated.csv"))
