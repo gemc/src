@@ -96,9 +96,9 @@ jobs:
           mkdir -p "${workdir}"
           cp -a "${install}/examples/${example}/." "${workdir}/"
           ( cd "${workdir}" && "${install}/python_env/bin/python3" "${name}.py" -f ascii )
-          # Hand the profiled command (run by the Callgrinder action) the environment it needs.
+          # gemc finds its Geant4 data through the installed package cache, so the Callgrinder action only
+          # needs gemc on PATH and its own shared libraries on the library path.
           {
-            env | grep -E '^G4[A-Z0-9_]*DATA='
             echo "LD_LIBRARY_PATH=${install}/lib:${LD_LIBRARY_PATH:-}"
             echo "PROFILE_WORKDIR=${workdir}"
           } >> "${GITHUB_ENV}"
