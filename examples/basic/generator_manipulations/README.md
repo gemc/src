@@ -59,8 +59,8 @@ gemc uniform_z.yaml -gui
 ```
 
 Generate events using the GUI's beam-on control, then open the Analyzer. The combined XY cards each prepare
-one two-dimensional `vy`-versus-`vx` plot. The Z and sphere cards prepare histograms of `vx`, `vy`, and `vz`,
-plus a two-dimensional vertex projection. The titles state the expected fixed value,
+one two-dimensional `vy`-versus-`vx` plot. The Z cards prepare histograms of `vx`, `vy`, and `vz`; the sphere
+card also includes a two-dimensional vertex projection. The titles state the expected fixed value,
 half-width, sigma, or sphere radius. Accumulate is enabled so repeated beam-on calls improve the statistics.
 The prepared GUI plots require a GEMC build with Qt Charts.
 
@@ -71,8 +71,9 @@ Gaussian plot windows extend to five sigma; these display limits do not truncate
 Gaussian Z uses sigma = 3 mm, with more than six sigma inside the 20 mm target half-length. Gaussian tails
 are unbounded; every vertex in the seeded example samples is checked to lie inside the target.
 
-The angular cards prepare histograms of `px`, `py`, and `pz`. Gaussian and cosine theta use a `px`-versus-`pz`
-projection (horizontal `pz`, vertical `px`); the other cards use `py` versus `px`.
+The angular cards prepare histograms of `px`, `py`, and `pz`. Uniform, Gaussian, and cosine theta also use a
+`px`-versus-`pz` projection (horizontal `pz`, vertical `px`); the phi-spread cards use `py` versus `px`.
+The fixed-angle card contains only the three momentum histograms.
 The Analyzer exposes these true-information fields directly, in MeV/c. Their expected values follow
 `px = p*sin(theta)*cos(phi)`, `py = p*sin(theta)*sin(phi)`, and `pz = p*cos(theta)`.
 The cosine-theta case therefore has a flat pz distribution; fixed theta with a phi spread gives an arc in
@@ -83,7 +84,9 @@ so cases have separate output files. Built-in `ganalysis` plots are displayed in
 runs.
 
 The [website guide](https://gemc.github.io/home/examples/basic/generator_manipulations)
-shows a 100-event GEMC view and a verified analysis plot for every case.
+shows a 100-event GEMC view and a verified analysis plot for every case. Its Z-smearing figures place the Z
+histogram across the bottom row, and its fixed-angle figure places all three histograms in one row. These
+website layouts use the configured variables; the GUI retains its single-panel or four-slot layout.
 
 ## Automated verification
 

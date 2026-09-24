@@ -61,11 +61,3 @@ ganalysis:
     x: pz
     bins: 60
     title: "pz (MeV/c): 1000 cos(theta)"
-  - position: bottom_right
-    plugin: flux
-    source: "true"
-    dimension: 2d
-    x: px
-    y: py
-    bins: 60
-    title: "Transverse momentum: py versus px (MeV/c)"

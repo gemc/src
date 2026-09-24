@@ -65,7 +65,7 @@ ganalysis:
     plugin: flux
     source: "true"
     dimension: 2d
-    x: px
-    y: py
+    x: pz
+    y: px
     bins: 60
-    title: "Transverse momentum: py versus px (MeV/c)"
+    title: "Momentum: px versus pz (MeV/c)"

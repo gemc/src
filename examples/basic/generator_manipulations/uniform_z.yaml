@@ -70,11 +70,3 @@ ganalysis:
     x_min: -24
     x_max: 24
     title: "vz (mm): uniform, center 0, half-width = 20 mm"
-  - position: bottom_right
-    plugin: flux
-    source: "true"
-    dimension: 2d
-    x: vx
-    y: vz
-    bins: 40
-    title: "Thrown vz versus vx (mm)"

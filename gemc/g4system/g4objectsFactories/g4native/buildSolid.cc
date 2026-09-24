@@ -25,6 +25,7 @@
 #include "G4Polyhedra.hh"
 #include "G4Paraboloid.hh"
 #include "G4EllipticalTube.hh"
+#include "G4Ellipsoid.hh"
 #include "G4UnionSolid.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4IntersectionSolid.hh"
@@ -324,6 +325,16 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 		                                            pars[0], // half length in x
 		                                            pars[1], // half length in y
 		                                            pars[2]  // half length in z
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4Ellipsoid") {
+		thisG4Volume->setSolid(new G4Ellipsoid(g4name, // name
+		                                       pars[0], // semi-axis in x
+		                                       pars[1], // semi-axis in y
+		                                       pars[2], // semi-axis in z
+		                                       pars[3], // lower cut in z (0 = no cut)
+		                                       pars[4]  // upper cut in z (0 = no cut)
 		                       ), log);
 		return thisG4Volume->getSolid();
 	}

@@ -70,11 +70,3 @@ ganalysis:
     x_min: -15
     x_max: 15
     title: "vz (mm): gaussian, center 0, sigma = 3 mm"
-  - position: bottom_right
-    plugin: flux
-    source: "true"
-    dimension: 2d
-    x: vx
-    y: vz
-    bins: 40
-    title: "Thrown vz versus vx (mm)"
