@@ -10,7 +10,7 @@ namespace gemc {
     GOptions defineOptions();
 
     /**
-     * \brief Scans YAML files in argv for gsystem names and probes each corresponding
+     * \brief Scans YAML files in argv for gsystem and gstreamer plugins and probes each corresponding
      *        .gplugin for an optional \c definePluginOptions symbol.
      *
      * Called before the main GOptions parsing constructor so that plugin-specific
@@ -22,6 +22,7 @@ namespace gemc {
      * -# \c plugin_path: entries found in YAML files listed in argv
      * -# the \c GEMC_PLUGIN_PATH environment variable
      * -# the current working directory
+     * -# the GEMC root's \c lib and \c build directories, as used by the runtime loader
      *
      * Failures (missing plugin, missing symbol, bad YAML) are silently skipped;
      * not every system has a plugin and not every plugin declares custom options.

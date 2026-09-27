@@ -25,7 +25,6 @@
 #include <cstring>
 #include <cctype>
 #include <cstdlib>
-#include <filesystem>
 
 using namespace std;
 
@@ -42,34 +41,6 @@ bool parse_bool_token(const std::string& raw, bool& out) {
 	return false;
 }
 
-std::string geant4_installation() {
-	const char* path_environment = std::getenv("PATH");
-	if (path_environment == nullptr) {
-		return "geant4-config not found (PATH is not set)";
-	}
-
-	const std::string path = path_environment;
-	std::size_t       start = 0;
-	while (start <= path.size()) {
-		const std::size_t end = path.find(':', start);
-		const std::string directory = path.substr(start, end - start);
-		const auto candidate = std::filesystem::path(directory.empty() ? "." : directory) / "geant4-config";
-		std::error_code error;
-		if (std::filesystem::is_regular_file(candidate, error)) {
-			auto resolved = std::filesystem::canonical(candidate, error);
-			if (error) {
-				resolved = candidate;
-			}
-			return resolved.parent_path().parent_path().string();
-		}
-		if (end == std::string::npos) {
-			break;
-		}
-		start = end + 1;
-	}
-
-	return "geant4-config not found in PATH";
-}
 }
 
 // See goptions.h for full constructor API documentation.
@@ -762,7 +733,6 @@ void GOptions::print_version() {
 	     << gversion << guts::RST << endl;
 	cout << " Called from: " << guts::KGRN << executableCallingDir << guts::RST << endl;
 	cout << " Install: " << guts::KGRN << installDir << guts::RST << endl;
-	cout << " Geant4 Installation: " << guts::KGRN << geant4_installation() << guts::RST << endl;
 	cout << " Released on: " << guts::KGRN << grelease_date << guts::RST << endl;
 
 	// Report the plugin search path when one was provided, either through the

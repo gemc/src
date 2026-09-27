@@ -68,6 +68,16 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 	const auto& solidsOpr = s->getSolidsOpr();
 	if (solidsOpr) {
 		std::vector<std::string> solidOperations = gutilities::getStringVectorFromString(*solidsOpr);
+
+		// GEMC2 `Operation:@` marks operands whose position/rotation are given in the common mother
+		// frame (clas12Tags detector.cc). pygemc encodes it as a leading "@" token. When absent, the
+		// default `Operation:` convention applies (first solid at identity).
+		bool absoluteCoordinates = false;
+		if (!solidOperations.empty() && solidOperations[0] == "@") {
+			absoluteCoordinates = true;
+			solidOperations.erase(solidOperations.begin());
+		}
+
 		if (solidOperations.size() == 3) {
 			auto resolveOperandName = [s, g4s](const std::string& operand) -> std::string {
 				if (getSolidFromMap(operand, g4s) != nullptr) return operand;
@@ -80,16 +90,37 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 			auto right     = getSolidFromMap(rightName, g4s);
 			if (left == nullptr || right == nullptr) return nullptr;
 
-			// GEMC2 `Operation:` convention (clas12Tags detector.cc): the first solid
-			// is taken at identity; the second is rotated by the inverse of its own
-			// frame rotation, then translated by its own position.
-			auto             rightWrapper = getOrCreateG4Volume(rightName, g4s);
-			G4RotationMatrix rotate       = rightWrapper->getSolidRotation();
-			G4ThreeVector    translate    = rightWrapper->getSolidTranslation();
-			G4RotationMatrix invRot       = rotate.invert();
-			G4Transform3D    transf1(invRot, G4ThreeVector(0, 0, 0));
-			G4Transform3D    transf2(G4RotationMatrix(), translate);
-			G4Transform3D    transform = transf2 * transf1;
+			auto rightWrapper = getOrCreateG4Volume(rightName, g4s);
+
+			G4Transform3D transform;
+			if (absoluteCoordinates) {
+				// `Operation:@`: both operands are placed in absolute (common mother) coordinates, so
+				// the second solid's transform relative to the first accounts for the first solid's own
+				// rotation and position (clas12Tags detector.cc). Reduces to the default convention when
+				// the first solid is at identity.
+				auto             leftWrapper = getOrCreateG4Volume(leftName, g4s);
+				G4RotationMatrix rot1        = leftWrapper->getSolidRotation();
+				G4RotationMatrix rot2        = rightWrapper->getSolidRotation();
+				G4ThreeVector    pos1        = leftWrapper->getSolidTranslation();
+				G4ThreeVector    pos2        = rightWrapper->getSolidTranslation();
+
+				G4RotationMatrix invRot1         = rot1.inverse();
+				G4RotationMatrix invNetRotation  = (rot2 * invRot1).invert();
+				G4ThreeVector    netTranslation  = pos2 - pos1;
+				netTranslation *= rot1;
+				transform = G4Transform3D(invNetRotation, netTranslation);
+			}
+			else {
+				// GEMC2 `Operation:` convention (clas12Tags detector.cc): the first solid is taken at
+				// identity; the second is rotated by the inverse of its own frame rotation, then
+				// translated by its own position.
+				G4RotationMatrix rotate    = rightWrapper->getSolidRotation();
+				G4ThreeVector    translate = rightWrapper->getSolidTranslation();
+				G4RotationMatrix invRot    = rotate.invert();
+				G4Transform3D    transf1(invRot, G4ThreeVector(0, 0, 0));
+				G4Transform3D    transf2(G4RotationMatrix(), translate);
+				transform = transf2 * transf1;
+			}
 
 			if (solidOperations[1] == "+") {
 				thisG4Volume->setSolid(new G4UnionSolid(g4name, left, right, transform), log);

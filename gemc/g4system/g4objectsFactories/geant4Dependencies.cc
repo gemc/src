@@ -52,6 +52,12 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
 		std::vector<std::string> solidOperations =
 			gutilities::getStringVectorFromString(*solidsOpr);
 
+		// A leading "@" marks GEMC2's Operation:@ absolute-coordinate placement (see buildSolid.cc); it
+		// is not an operand, so drop it before checking the operand dependencies.
+		if (!solidOperations.empty() && solidOperations[0] == "@") {
+			solidOperations.erase(solidOperations.begin());
+		}
+
 		if (solidOperations.size() == 3) {
 			// Supported operators: + (union), - (subtraction), * (intersection).
 			if (solidOperations[1] == "+" || solidOperations[1] == "-" || solidOperations[1] == "*") {

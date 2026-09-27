@@ -1,6 +1,7 @@
 // gemc
 #include "gemc_options.h"
 #include "gemcConventions.h"
+#include "gutilities.h"
 
 // yaml-cpp — needed by collectPluginOptions for the bootstrap YAML scan
 #include "yaml-cpp/yaml.h"
@@ -161,7 +162,19 @@ namespace gemc {
                 }
             }
             if (lib_path.empty() && std::filesystem::exists(basename)) lib_path = basename;
+            // Match the installation/build fallbacks used by DynamicLib at runtime.
+            if (lib_path.empty()) {
+                const auto root = gutilities::gemc_root();
+                for (const auto& directory : {root / "lib", root / "build"}) {
+                    const auto candidate = directory / basename;
+                    if (std::filesystem::exists(candidate)) {
+                        lib_path = candidate.string();
+                        break;
+                    }
+                }
+            }
             if (lib_path.empty()) return;  // no plugin — normal
+            lib_path = std::filesystem::absolute(lib_path).string();
 
             // On Linux, RTLD_NODELETE keeps it resident so that the later GManager dlopen
             // gets the exact same handle without re-executing static initialisers.
