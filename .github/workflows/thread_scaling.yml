@@ -156,7 +156,15 @@ jobs:
               *definitions("basic/scintillator_barrel", scintillator_events),
               *definitions("optical/cherenkov", cherenkov_events),
           ]
-          print(f"benchmarks={json.dumps(benchmarks, separators=(',', ':'))}")
+          matrix = [
+              {
+                  "name": benchmark["name"],
+                  "artifact": benchmark["name"].replace("/", "-").replace(": ", "-").replace(" ", "-"),
+                  "benchmarks": [benchmark],
+              }
+              for benchmark in benchmarks
+          ]
+          print(f"benchmarks={json.dumps(matrix, separators=(',', ':'))}")
           PY
 
   build:
@@ -209,8 +217,12 @@ jobs:
           retention-days: ${{ fromJSON(needs.profile.outputs.artifact-retention-days) }}
 
   benchmark:
-    name: Measure and plot scaling
+    name: ${{ matrix.name }}
     needs: [ profile, build ]
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.profile.outputs.benchmarks) }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
     # ThreadScale runs on an already deployed GEMC image containing all required runtime packages.
@@ -256,7 +268,7 @@ jobs:
 
       - name: Measure thread scaling
         env:
-          BENCHMARKS_JSON: ${{ needs.profile.outputs.benchmarks }}
+          BENCHMARKS_JSON: ${{ toJSON(matrix.benchmarks) }}
           MAX_THREADS: ${{ needs.profile.outputs.max-threads }}
           REPLICAS: ${{ needs.profile.outputs.replicas }}
           RUNS: ${{ needs.profile.outputs.runs }}
@@ -296,7 +308,7 @@ jobs:
       - name: Upload scaling report
         uses: actions/upload-artifact@v7
         with:
-          name: thread-scaling-report
+          name: thread-scaling-report-${{ matrix.artifact }}
           path: thread-scaling
           if-no-files-found: error
           retention-days: ${{ fromJSON(needs.profile.outputs.artifact-retention-days) }}
