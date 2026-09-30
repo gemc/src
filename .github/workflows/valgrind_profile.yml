@@ -36,6 +36,8 @@ jobs:
     timeout-minutes: 350
     # Debug-symbols image (Geant4 and CLHEP built RelWithDebInfo) so callgrind can name their routines.
     container: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04-debug
+    env:
+      GEMC_DOCKER_IMAGE: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04-debug
     strategy:
       fail-fast: false
       matrix:

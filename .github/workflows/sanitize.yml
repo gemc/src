@@ -66,6 +66,8 @@ jobs:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 180
     container: ${{ matrix.container }}
+    env:
+      GEMC_DOCKER_IMAGE: ${{ matrix.container }}
 
     steps:
       - name: Checkout

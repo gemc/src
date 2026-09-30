@@ -39,7 +39,9 @@ def gemc_path_export() -> str:
 def docker_header(image: str, image_tag: str, geant4_tag: str, debug_symbols: bool = False) -> str:
     # The debug image builds on the g4install debug base so Geant4 and CLHEP also carry symbols.
     base_suffix = "-debug" if debug_symbols else ""
-    commands = f"FROM {g4_registry}:{geant4_tag}-{image}-{image_tag}{base_suffix} AS final\n"
+    base_image = f"{g4_registry}:{geant4_tag}-{image}-{image_tag}{base_suffix}"
+    commands = f"FROM {base_image} AS final\n"
+    commands += f"ARG GEMC_DOCKER_IMAGE={base_image}\n"
     commands += f"LABEL maintainer=\"Maurizio Ungaro <ungaro@jlab.org>\"\n\n"
     commands += f"# run bash instead of sh\n"
     commands += f"SHELL [\"/bin/bash\", \"-c\"]\n\n"

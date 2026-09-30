@@ -10,6 +10,9 @@
 # Load environment variables: log file paths, job count, helper functions.
 source ci/env.sh
 
+# Record the active environment before configuring, building, or running GEMC tests.
+bash ci/report_environment.sh | tee -a "$setup_log"
+
 # Resolve meson setup flags from the optional sanitizer argument.
 meson_option=$(meson_setup_options "${1:-}")
 

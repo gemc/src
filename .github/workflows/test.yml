@@ -70,18 +70,10 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.discover.outputs.matrix_build) }}
     container: ${{ matrix.container }}
+    env:
+      GEMC_DOCKER_IMAGE: ${{ matrix.container }}
 
     steps:
-      - name: Check available CPU cores
-        run: |
-          echo "CPUs available to this job: $(nproc)"
-            
-            if command -v lscpu >/dev/null 2>&1; then
-              lscpu
-            else
-              echo "lscpu not available"
-            fi
-
       - name: Checkout
         uses: actions/checkout@v6
         with:

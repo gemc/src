@@ -170,7 +170,9 @@ jobs:
     needs: [ profile ]
     runs-on: ubuntu-latest
     timeout-minutes: 180
-    container: ghcr.io/gemc/g4install:11.4.2-ubuntu-24.04
+    container: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04
+    env:
+      GEMC_DOCKER_IMAGE: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04
     steps:
       - name: Checkout benchmark source
         uses: actions/checkout@v6
@@ -223,8 +225,10 @@ jobs:
         include: ${{ fromJSON(needs.profile.outputs.benchmarks) }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
-    # ThreadScale runs on an already deployed GEMC image containing all required runtime packages.
-    container: ghcr.io/gemc/src:dev-ubuntu-24.04
+    # Run the freshly compiled installation on the same Geant4 base image used by the build job.
+    container: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04
+    env:
+      GEMC_DOCKER_IMAGE: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04
     steps:
       - name: Checkout benchmark source
         uses: actions/checkout@v6
@@ -238,6 +242,10 @@ jobs:
           # Comparison groups are on development; use main until the next versioned release.
           ref: main
           path: threadscale
+
+      - name: Install GEMC dependencies
+        # The Geant4 base image needs the Qt Charts libraries also installed by the build job.
+        run: python3 ci/build_packages.py --image ubuntu
 
       - name: Select Node.js for ThreadScale
         uses: actions/setup-node@v6
@@ -281,6 +289,7 @@ jobs:
           export PATH="${RUNNER_TEMP}/gemc/bin:${PATH}"
           export LD_LIBRARY_PATH="${RUNNER_TEMP}/gemc/lib:${LD_LIBRARY_PATH:-}"
 
+          bash ci/report_environment.sh
           "${RUNNER_TEMP}/gemc/bin/gemc" -v
 
           benchmarks_file="${RUNNER_TEMP}/threadscale-benchmarks.json"

@@ -3,6 +3,14 @@
 This directory contains the CI, deployment, release, documentation, and maintenance workflows for GEMC. This
 file is the authoritative overview of the cross-repository `pygemc -> src -> clas12-systems` automation chain.
 
+All GEMC builds call `ci/report_environment.sh` from `ci/build.sh` before configuring or running tests. The
+report logs available CPUs, the CPU model, topology, affinity, Docker image, `geant4-config` path and version,
+and the contents of `$G4INSTALL/share/Geant4/data`. It is also saved in `logs/01_setup.log` (under `SIM_HOME`
+for native builds). Docker build jobs report their Geant4 base image; native macOS jobs report that Docker
+is not in use. Missing diagnostic tools or data directories are reported without stopping the build.
+Thread-scaling runtime jobs call the same helper before running GEMC; ThreadScale also reports thread counts,
+strategy, and replicas for the selected workload. This shared report is upcoming in the next release.
+
 ## End-to-end dependency chain
 
 A direct GEMC change follows this path:
@@ -47,6 +55,8 @@ pygemc` run validates pygemc compatibility only and does not deploy.
   - Effect: builds one optimized GEMC artifact, then uses ThreadScale's standalone `test_scaling` command to
     measure the scintillator-barrel and Cherenkov examples sequentially over the CPUs visible to one hosted
     runner and publish a combined scaling table and plots.
+  - Environment: both compilation and benchmark jobs use `ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04`, with
+    GEMC dependencies installed explicitly. Benchmarks use the fresh build artifact from the same run.
   - Profiles: pull requests and pushes use a short single sweep; weekly and release runs use four replicated
     sweeps and update the generated result section in the root README.
 - [`valgrind_profile.yml`](valgrind_profile.yml) — **Valgrind Profile**
