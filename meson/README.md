@@ -119,6 +119,11 @@ Geant4 ships no pkg-config file, so `src` builds its own and installs them for d
    build-tree files). This is the step that makes the producer/consumer model work: `clas12-systems` reads
    `geant4_core.pc` from here.
 
+Static Geant4 and Assimp both bundle pugixml. Upcoming in the next release, the Assimp target compiles with
+`-Dpugi=gemc_assimp_pugi`, giving its bundled XML parser a distinct namespace and preventing duplicate symbols
+when both archives are linked into GEMC. The definition applies to all Assimp sources, including XML importers,
+and is private to that target; GEMC, yaml-cpp, and Geant4 do not receive it.
+
 
 ## `use_sharedl` — why there are two build shapes
 

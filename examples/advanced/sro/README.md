@@ -107,6 +107,10 @@ The plugin is built as
 `example_sro.gplugin` and is also installed with GEMC. In an installed tree, use the installed Python
 environment, `bin/gemc`, and plugin search path instead of the build paths above.
 
+In the default static build, the module resolves framework symbols from the running GEMC executable instead
+of embedding framework and Geant4 archives. This avoids extra static TLS storage when Linux loads the plugin.
+With shared GEMC libraries, the module links directly to the streamer, digitization, and particle libraries.
+
 ## Read the output
 
 The default run creates `simple_sro_r1_crate1.csv` and `simple_sro_r1_crate2.csv`. GEMC sets Geant4's run ID

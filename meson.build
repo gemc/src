@@ -352,6 +352,17 @@ pkg.generate(
     variables : gemc_pkgconfig_variables,
 )
 
+# Expose GEMC as a Meson dependency so consumers (e.g. clas12-systems) can build it as a subproject
+# fallback instead of requiring a prior install. It mirrors the generated gemc.pc: the GEMC libraries
+# and headers plus the CLHEP/Geant4 include flags. override_dependency lets dependency('gemc',
+# allow_fallback : true) resolve to this build.
+gemc_dep = declare_dependency(
+    include_directories : gemc_includes,
+    link_with : all_libs,
+    compile_args : gemc_pkgconfig_cflags,
+)
+meson.override_dependency('gemc', gemc_dep)
+
 # test gemc options. Adjust root to fit the geometry
 examples_dir = get_option('prefix') + '/examples'
 dbhost = ['-sql=' + examples_dir + '/gemc.db']

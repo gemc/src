@@ -322,6 +322,11 @@ cmake_opts.append_compile_args('cpp',
                                '-D_LIBCPP_HARDENING_MODE_DEBUG=true',
 )
 
+# Assimp and static Geant4 bundle different pugixml versions with the same namespace.
+# Rename it in every Assimp translation unit so its XML importers use their own implementation.
+# Keep the definition private to Assimp; GEMC, yaml-cpp, and Geant4 retain their normal namespaces.
+cmake_opts.append_compile_args('cpp', '-Dpugi=gemc_assimp_pugi', target : 'assimp')
+
 assimp_proj = cmake.subproject('assimp', options : cmake_opts)
 assimp_dep = assimp_proj.dependency('assimp')
 
