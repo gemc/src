@@ -1,9 +1,12 @@
-# Notice: if both static and dynamic libraries are present, the dynamic library will be used
-# Forcing suffix lib instead of variants like lib64
+# Shared build defaults for direct setup and CI; command-line -D options can override them.
 project('gemc', 'cpp',
         default_options : [
+            'cpp_std=c++17',
+            'b_lundef=false',
+            'b_asneeded=false',
             'default_library=static',
             'default_both_libraries=static',
+            'prefer_static=true',
             'libdir=lib'
         ],
         version : run_command('ci/gemc_version.sh', check : true).stdout().strip(),

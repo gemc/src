@@ -13,7 +13,8 @@ simple_sro_plugin = shared_library(
     'example_sro', 'sro_plugin.cc',
     name_prefix : '', name_suffix : 'gplugin', install : true,
     include_directories : simple_sro_includes,
-    link_with : [lib_target_maps['gstreamer'], lib_target_maps['gdynamicDigitization']],
+    link_with : [lib_target_maps['gstreamer'], lib_target_maps['gdynamicDigitization'],
+                 lib_target_maps['gparticle']],
     dependencies : [simple_sro_dependencies, zlib_dep],
 )
 

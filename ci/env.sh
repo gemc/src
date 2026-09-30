@@ -87,7 +87,6 @@ function meson_setup_options {
     args=(
             $meson_options
             $test_interactive_option
-            "--native-file=core.ini"
             "-Droot=enabled"
             "-Dprefix=${install_dir}"
             "-Dpkg_config_path=${pkg_config_path}"
