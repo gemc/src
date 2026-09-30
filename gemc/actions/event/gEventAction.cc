@@ -283,12 +283,22 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 			// Apply post-digitization threshold and efficiency policies. Plugins may declare a
 			// policy intrinsic or leave it controlled by -applyThresholds / -applyInefficiencies.
 			// Both are evaluated so the detector's random-number sequence remains stable.
+			//
+			// An intrinsic policy reproduces a rejection baked into the GEMC2 digitization (e.g. the
+			// ECAL FADC threshold), where a rejected hit is dropped from every output bank. Track when
+			// the rejection came from such a policy so the true-info row is dropped too, matching GEMC2
+			// regardless of the global also_reject_true_info flag. Global-option-driven rejection of a
+			// non-intrinsic plugin keeps the legacy behaviour (true info governed by that flag).
+			bool rejected_by_intrinsic_policy = false;
 			if (hit_accepted) {
 				const bool skip_threshold  = digitization_routine->apply_thresholds(this_hit, digi_data.get());
 				const bool skip_efficiency = digitization_routine->apply_efficiency(this_hit, digi_data.get());
 				if (skip_threshold || skip_efficiency) {
 					digi_data.reset();
 					hit_accepted = false;
+					rejected_by_intrinsic_policy =
+						(skip_threshold  && digitization_routine->thresholds_are_intrinsic_impl()) ||
+						(skip_efficiency && digitization_routine->efficiencies_are_intrinsic_impl());
 				}
 			}
 
@@ -313,8 +323,11 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 
 			// Event output already requires true information. In GUI analysis mode, request it for
 			// run-mode plugins too so their runtime-defined variables can be discovered without an API schema.
+			// A hit rejected by an intrinsic policy drops its true-info row like GEMC2 did, in addition to
+			// the global also_reject_true_info opt-in.
+			const bool drop_true_for_rejected_hit = also_reject_true_info || rejected_by_intrinsic_policy;
 			const bool collect_true = !no_true_info &&
-				(no_digitized || hit_accepted || !also_reject_true_info) &&
+				(no_digitized || hit_accepted || !drop_true_for_rejected_hit) &&
 				(collection_mode == CollectionMode::event || run_action->analysis_enabled());
 			if (collect_true) {
 				const size_t output_hit_index = collection_mode == CollectionMode::event && hit_accepted

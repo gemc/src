@@ -572,8 +572,8 @@ public:
      *
      * Wrapper called automatically by the event action after digitizeHit(). It delegates to the
      * plugin when the system is listed in \c -applyThresholds or the plugin declares its
-     * threshold intrinsic. Returning true drops the digitized hit and, when
-     * \c also_reject_true_info is set, its true-info row.
+     * threshold intrinsic. Returning true drops the digitized hit; it also drops the true-info row
+     * when the rejecting policy is intrinsic (matching GEMC2) or \c also_reject_true_info is set.
      *
      * \param ghit The hit being digitized.
      * \param digitizedData The digitized record produced by digitizeHit().
@@ -609,7 +609,8 @@ public:
      * Wrapper called automatically by the event action after digitizeHit(). It delegates to the
      * plugin when the system is listed in \c -applyInefficiencies or the plugin declares its
      * efficiency policy intrinsic. The callback may mutate the digitized record; returning true
-     * drops it and, when \c also_reject_true_info is set, its true-info row.
+     * drops it, and also drops the true-info row when the policy is intrinsic (matching GEMC2) or
+     * \c also_reject_true_info is set.
      *
      * \param ghit The hit being digitized.
      * \param digitizedData The digitized record produced by digitizeHit().
