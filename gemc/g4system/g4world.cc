@@ -169,17 +169,17 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions> &gopts,
 		// this will always be false for the default native label because it was registered above.
 		if (factory == gsystem::GSYSTEMASCIIFACTORYLABEL || factory == gsystem::GSYSTEMSQLITETFACTORYLABEL ||
 		    factory == gsystem::GSYSTEMMYSQLTFACTORYLABEL) {
-			if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) {
+			if (!g4systemFactory.contains(g4Factory)) {
 				manager.RegisterObjectFactory<G4NativeSystemFactory>(g4Factory, gopts);
 			}
 		} else if (factory == gsystem::GSYSTEMCADTFACTORYLABEL) {
-			if (g4systemFactory.find(g4system::G4SYSTEMCADFACTORY) == g4systemFactory.end()) {
+			if (!g4systemFactory.contains(g4system::G4SYSTEMCADFACTORY)) {
 				manager.RegisterObjectFactory<G4CadSystemFactory>(g4Factory, gopts);
 			}
 		}
 
 		// Create and initialize the concrete factory instance once per label.
-		if (g4systemFactory.find(g4Factory) == g4systemFactory.end()) {
+		if (!g4systemFactory.contains(g4Factory)) {
 			g4systemFactory[g4Factory] = manager.CreateObject<G4ObjectsFactory>(g4Factory);
 			g4systemFactory[g4Factory]->initialize_context(check_overlaps, backup_material);
 		}
@@ -188,7 +188,7 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions> &gopts,
 		// any volume in this system declares solid=CAD, independently of the system loading factory.
 		for (const auto &[volumeName, gvolume]: gsystem->getGVolumesMap()) {
 			if (gvolume->getType() != gsystem::GSYSTEMCADTFACTORYLABEL ||
-			    g4systemFactory.find(g4system::G4SYSTEMCADFACTORY) != g4systemFactory.end()) {
+			    g4systemFactory.contains(g4system::G4SYSTEMCADFACTORY)) {
 				continue;
 			}
 

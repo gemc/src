@@ -256,7 +256,7 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] in
 		root_tree->Branch(varname.c_str(), &intVarsMap[varname]);
 	}
 	else {
-		if (intVarsMap.find(varname) == intVarsMap.end()) {
+		if (!intVarsMap.contains(varname)) {
 			root_tree->Branch(varname.c_str(), &intVarsMap[varname]);
 		}
 		else {
@@ -267,7 +267,7 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] in
 }
 
 void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] double value) {
-	if (doubleVarsMap.find(varname) == doubleVarsMap.end()) {
+	if (!doubleVarsMap.contains(varname)) {
 		root_tree->Branch(varname.c_str(), &doubleVarsMap[varname]);
 	}
 	else {
@@ -277,7 +277,7 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] do
 }
 
 void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] const std::string& value) {
-	if (stringVarsMap.find(varname) == stringVarsMap.end()) {
+	if (!stringVarsMap.contains(varname)) {
 		root_tree->Branch(varname.c_str(), &stringVarsMap[varname]);
 	}
 	else {

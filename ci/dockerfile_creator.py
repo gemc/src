@@ -164,7 +164,7 @@ def main():
             "geant4 versions"
         ),
         epilog=(
-            "Example: python3 ./ci/dockerfile_creator.py -i fedora -t 42 --geant4-version 11.4.2 "
+            "Example: python3 ./ci/dockerfile_creator.py -i fedora -t 42 --geant4-version 11.4.3 "
             "--gemc-version dev"
         )
     )
@@ -178,7 +178,7 @@ def main():
         help="Base image tag (e.g., 42 for fedora, 24.04 for ubuntu, etc.)"
     )
     parser.add_argument(
-        "--geant4-version", default="11.4.2",
+        "--geant4-version", default="11.4.3",
         help="Version of Geant4 to install (default: %(default)s)"
     )
     parser.add_argument(

@@ -171,7 +171,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 
 				// Switch with an explicit boolean value: -gui=false / -gui=true. This gives the
 				// CLI a way to turn a switch off, honoring the documented CLI-over-YAML precedence.
-				if (switches.find(keyPart) != switches.end()) {
+				if (switches.contains(keyPart)) {
 					bool on = false;
 					if (parse_bool_token(valuePart, on)) { on ? switches[keyPart].turnOn() : switches[keyPart].turnOff(); }
 					else {
@@ -215,7 +215,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 			else {
 				// Treat as a switch: -gui, -i, etc.
 				const string& possibleSwitch = argStr;
-				if (switches.find(possibleSwitch) != switches.end()) {
+				if (switches.contains(possibleSwitch)) {
 					switches[possibleSwitch].turnOn();
 				}
 				else {
@@ -242,7 +242,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 
 // Implementation note: public API docs are in goptions.h (avoid duplicate \param blocks).
 void GOptions::defineSwitch(const std::string& name, const std::string& description, bool default_status) {
-	if (switches.find(name) == switches.end()) {
+	if (!switches.contains(name)) {
 		switches[name] = GSwitch(description, default_status);
 	}
 	else {
@@ -429,15 +429,11 @@ void GOptions::printSearch(const std::string& tag) const {
 // Private method: see header. Kept undocumented here to avoid duplicate param docs.
 vector<string> GOptions::findYamls(int argc, char* argv[]) {
 	vector<string> yaml_files;
-	auto ends_with = [](const string& s, const string& suffix) {
-		return s.size() >= suffix.size() &&
-		       s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
-	};
 	for (int i = 1; i < argc; i++) {
 		string arg = argv[i];
 		// Match a trailing .yaml/.yml extension, not any substring, so option values such as
 		// -prefix=run.yaml.bak are not mistaken for input files (and silently dropped).
-		if (ends_with(arg, ".yaml") || ends_with(arg, ".yml")) yaml_files.push_back(arg);
+		if (arg.ends_with(".yaml") || arg.ends_with(".yml")) yaml_files.push_back(arg);
 	}
 	return yaml_files;
 }
@@ -477,7 +473,7 @@ void GOptions::setOptionsValuesFromYamlFile(const std::string& yaml) {
 
 		// If it is not an option, it may still be a switch.
 		if (option_it == goptions.end()) {
-			if (switches.find(option_name) == switches.end()) {
+			if (!switches.contains(option_name)) {
 				cerr << guts::FATALERRORL << "The option or switch " << guts::YELLOWHHL << option_name << guts::RSTHHR
 					<< " is not known to this system." << endl;
 				exit(goptions::EC__NOOPTIONFOUND);

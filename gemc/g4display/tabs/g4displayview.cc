@@ -16,6 +16,7 @@ using namespace gutilities;
 
 // c++ math
 #include <cmath>
+#include <numbers>
 
 // geant4
 #include "G4UImanager.hh"
@@ -751,7 +752,7 @@ void G4DisplayView::showEvent(QShowEvent* event) {
 
 	// Light direction: use g4light values if specified, otherwise follow camera.
 	const auto   g4light       = getG4Light(gopts);
-	const double toDegrees     = 180.0 / M_PI;
+	const double toDegrees     = 180.0 / std::numbers::pi;
 	const double lightThetaDeg = getG4Number(g4light.theta) * toDegrees;
 	const double lightPhiDeg   = getG4Number(g4light.phi)   * toDegrees;
 
@@ -923,8 +924,8 @@ void G4DisplayView::readCameraFromViewer() {
 	const G4Vector3D& vp = viewer->GetViewParameters().GetViewpointDirection();
 
 	const double cosTheta = std::clamp(vp.z(), -1.0, 1.0);
-	const double thetaDeg = std::acos(cosTheta) * 180.0 / M_PI;
-	double phiDeg = std::atan2(vp.y(), vp.x()) * 180.0 / M_PI;
+	const double thetaDeg = std::acos(cosTheta) * 180.0 / std::numbers::pi;
+	double phiDeg = std::atan2(vp.y(), vp.x()) * 180.0 / std::numbers::pi;
 	if (phiDeg < 0.0) phiDeg += 360.0;
 
 	const int thetaInt = static_cast<int>(std::round(thetaDeg));

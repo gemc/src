@@ -18,7 +18,7 @@ std::atomic<int> GEventHeader::globalEventHeaderCounter{1};
 
 void GEventDataCollection::addDetectorTrueInfoData(const std::string& sdName, std::unique_ptr<GTrueInfoData> data) {
 	// Create the detector entry on first insertion.
-	if (gdataCollectionMap.find(sdName) == gdataCollectionMap.end()) {
+	if (!gdataCollectionMap.contains(sdName)) {
 		gdataCollectionMap[sdName] = std::make_unique<GDataCollection>();
 	}
 
@@ -29,7 +29,7 @@ void GEventDataCollection::addDetectorTrueInfoData(const std::string& sdName, st
 
 void GEventDataCollection::addDetectorDigitizedData(const std::string& sdName, std::unique_ptr<GDigitizedData> data) {
 	// Create the detector entry on first insertion.
-	if (gdataCollectionMap.find(sdName) == gdataCollectionMap.end()) {
+	if (!gdataCollectionMap.contains(sdName)) {
 		gdataCollectionMap[sdName] = std::make_unique<GDataCollection>();
 	}
 

@@ -25,7 +25,8 @@ namespace {
 	bool numeric_value(const std::string& value) {
 		try {
 			size_t parsed = 0;
-			std::stod(value, &parsed);
+			// Only the parsed length matters here (is the whole string numeric?); discard the value.
+			static_cast<void>(std::stod(value, &parsed));
 			return parsed == value.size();
 		}
 		catch (const std::exception&) { return false; }

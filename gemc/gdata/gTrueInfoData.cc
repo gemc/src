@@ -36,7 +36,7 @@ void GTrueInfoData::includeVariable(const std::string& varName, std::string valu
 
 void GTrueInfoData::accumulateVariable(const std::string& vname, double value) {
 	// Run/integrated accumulation by summation.
-	if (doubleObservablesMap.find(vname) == doubleObservablesMap.end()) {
+	if (!doubleObservablesMap.contains(vname)) {
 		doubleObservablesMap[vname] = value;
 		log->info(2, FUNCTION_NAME, "Creating double variable ", vname, " with value ", value, ", sum is now:",
 		          doubleObservablesMap[vname]);

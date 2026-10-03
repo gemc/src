@@ -53,7 +53,7 @@ GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts,
 
 		// When a filter is given, load only the fields that are actually used. Fields no volume
 		// references (e.g. reset via -no_field) have their plugin and map skipped entirely.
-		if (!required_fields.empty() && required_fields.find(name) == required_fields.end()) {
+		if (!required_fields.empty() && !required_fields.contains(name)) {
 			log->info(1, "Field <", name, "> is not used by any volume: skipping plugin and map load.");
 			continue;
 		}

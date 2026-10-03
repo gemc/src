@@ -15,6 +15,9 @@
 // geant4
 #include "G4UImanager.hh"
 
+// c++
+#include <numbers>
+
 namespace {
 bool is3DTextKind(const std::string& kind) {
 	return kind == "3D" || kind == "3d" || kind == "text" || kind == "Text";
@@ -70,7 +73,7 @@ std::vector<std::string> G4SceneProperties::scene_commands(const std::shared_ptr
 	}
 	if (open_configured_viewer) {
 		// Convert configured camera angles to degrees for the Geant4 viewer command.
-		const double toDegrees = 180.0 / M_PI;
+		const double toDegrees = 180.0 / std::numbers::pi;
 		double thetaValue      = gutilities::getG4Number(g4camera.theta) * toDegrees;
 		double phiValue        = gutilities::getG4Number(g4camera.phi)   * toDegrees;
 		double lightThetaValue = gutilities::getG4Number(g4light.theta)  * toDegrees;

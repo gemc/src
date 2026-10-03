@@ -23,6 +23,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <numbers>
 #include <sstream>
 
 namespace {
@@ -176,7 +177,7 @@ namespace gemc {
 		if (g4view.driver != "TOOLSSG_OFFSCREEN") {
 			auto g4camera = g4display::getG4Camera(gopts);
 			auto g4light  = g4display::getG4Light(gopts);
-			const double toDegrees = 180.0 / M_PI;
+			const double toDegrees = 180.0 / std::numbers::pi;
 			double thetaValue      = gutilities::getG4Number(g4camera.theta) * toDegrees;
 			double phiValue        = gutilities::getG4Number(g4camera.phi)   * toDegrees;
 			double lightThetaValue = gutilities::getG4Number(g4light.theta)  * toDegrees;

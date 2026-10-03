@@ -1,7 +1,7 @@
 # Shared build defaults for direct setup and CI; command-line -D options can override them.
 project('gemc', 'cpp',
         default_options : [
-            'cpp_std=c++17',
+            'cpp_std=c++20',
             'b_lundef=false',
             'b_asneeded=false',
             'default_library=static',
@@ -24,6 +24,12 @@ endif
 # Do not to write .pyc bytecode cache files
 test_env = environment()
 test_env.set('PYTHONDONTWRITEBYTECODE', '1')
+
+# Register GEMC's own tests and examples only for a standalone build. When GEMC is consumed as a
+# subproject (e.g. clas12-systems building it from source), those tests belong to gemc/src and must
+# not land in the parent project's `meson test`; the parent registers only its own suites. They also
+# run the uninstalled build-tree gemc, which cannot resolve its runtime layout.
+register_tests = not meson.is_subproject()
 
 
 # init lists
@@ -197,8 +203,8 @@ foreach L : LD
     endif
 
 
-    # examples
-    if examples != empty_dict
+    # examples (standalone build only; see register_tests)
+    if examples != empty_dict and register_tests
 
         # geometry, higher priority so it is run before the test
         if geo_build != empty_dict
@@ -360,8 +366,16 @@ gemc_dep = declare_dependency(
     include_directories : gemc_includes,
     link_with : all_libs,
     compile_args : gemc_pkgconfig_cflags,
+    # yaml-cpp is part of gemc's public API (goption.h includes yaml-cpp/yaml.h). An installed gemc
+    # exposes it via the yaml-cpp headers copied next to the gemc headers (install_subdir above); a
+    # subproject consumer gets it only if the dependency propagates the yaml-cpp include directory.
+    dependencies : [yaml_cpp_dep],
 )
 meson.override_dependency('gemc', gemc_dep)
+
+# Expose the built gemc executable (declared in bin/meson.build) under an intentional name so a
+# parent project consuming this as a subproject can run it from the build tree without an install.
+gemc_exe = gemc
 
 # test gemc options. Adjust root to fit the geometry
 examples_dir = get_option('prefix') + '/examples'
@@ -413,6 +427,7 @@ test_options = [
                           '-gparticle="[{name: e-, p: 2300, theta: 23.0}]"'] }
 ]
 
+if register_tests
 foreach opt_dict : test_options
     foreach key, value : opt_dict            # each dict has exactly one entry
         test_name = 'gemc_' + key            # => gemc_default, gemc_show_pys
@@ -433,5 +448,6 @@ endforeach
 subdir('examples')
 meson.add_install_script(find_program('python3'), files('ci/install_examples_db.py'))
 subdir('tests')
+endif  # register_tests
 
 post_install = run_command('echo', 'Installation completed!', check : true)

@@ -119,7 +119,7 @@ QWidget* GTree::right_widget() {
     connect(inspectButton, &QPushButton::clicked, this, &GTree::inspectVolume);
     blayout->addWidget(inspectButton);
 
-    // Draw Logical Overlaps button: not yet functional — blocked by Geant4 11.4.2 TOOLSSG bug.
+    // Draw Logical Overlaps button: not yet functional — blocked by Geant4 11.4.3 TOOLSSG bug.
     blayout->addSpacing(4);
     drawOverlapsButton = new QPushButton(bottomPanel);
     drawOverlapsButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);

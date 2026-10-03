@@ -452,8 +452,7 @@ std::optional<std::filesystem::path> searchForDirInLocations(
 
 bool hasExtension(const std::string& filename, const std::vector<std::string>& extensions) {
 	for (const auto& ext : extensions) {
-		if (filename.size() >= ext.size() &&
-			filename.compare(filename.size() - ext.size(), ext.size(), ext) == 0) { return true; }
+		if (filename.ends_with(ext)) { return true; }
 	}
 	return false;
 }

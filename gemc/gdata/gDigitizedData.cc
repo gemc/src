@@ -84,7 +84,7 @@ void GDigitizedData::includeTransientVariable(const std::string& vname, double v
 }
 
 bool GDigitizedData::hasTransientVariable(const std::string& vname) const {
-	return transientVariablesMap.find(vname) != transientVariablesMap.end();
+	return transientVariablesMap.contains(vname);
 }
 
 double GDigitizedData::getTransientVariable(const std::string& vname) const {
@@ -93,7 +93,7 @@ double GDigitizedData::getTransientVariable(const std::string& vname) const {
 
 void GDigitizedData::accumulateVariable(const std::string& vname, int value) {
 	// Run/integrated accumulation by summation.
-	if (intObservablesMap.find(vname) == intObservablesMap.end()) {
+	if (!intObservablesMap.contains(vname)) {
 		log->info(2, "Accumulating new int variable ", vname, " with value ", value);
 		intObservablesMap[vname] = value;
 	}
@@ -105,7 +105,7 @@ void GDigitizedData::accumulateVariable(const std::string& vname, int value) {
 
 void GDigitizedData::accumulateVariable(const std::string& vname, double value) {
 	// Run/integrated accumulation by summation.
-	if (doubleObservablesMap.find(vname) == doubleObservablesMap.end()) {
+	if (!doubleObservablesMap.contains(vname)) {
 		log->info(2, "Accumulating double variable ", vname, " with value ", value);
 		doubleObservablesMap[vname] = value;
 	}
@@ -124,7 +124,7 @@ std::optional<int> GDigitizedData::getTimeAtElectronics() const {
 
 int GDigitizedData::getIntObservable(const std::string& varName) {
 	// Retrieve a single integer observable by key.
-	if (intObservablesMap.find(varName) == intObservablesMap.end()) {
+	if (!intObservablesMap.contains(varName)) {
 		log->error(ERR_VARIABLENOTFOUND,
 		           "variable name <" + varName + "> not found in GDigitizedData::intObservablesMap");
 	}
@@ -133,7 +133,7 @@ int GDigitizedData::getIntObservable(const std::string& varName) {
 
 double GDigitizedData::getDblObservable(const std::string& varName) {
 	// Retrieve a single floating-point observable by key.
-	if (doubleObservablesMap.find(varName) == doubleObservablesMap.end()) {
+	if (!doubleObservablesMap.contains(varName)) {
 		log->error(ERR_VARIABLENOTFOUND,
 		           "variable name <" + varName + "> not found in GDigitizedData::doubleObservablesMap");
 	}

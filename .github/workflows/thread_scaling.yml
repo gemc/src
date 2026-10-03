@@ -37,7 +37,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  GEANT4_TAG: 11.4.2
+  GEANT4_TAG: 11.4.3
 
 concurrency:
   group: gemc-thread-scaling-${{ github.event_name }}-${{ github.ref }}
@@ -170,9 +170,9 @@ jobs:
     needs: [ profile ]
     runs-on: ubuntu-latest
     timeout-minutes: 180
-    container: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04
+    container: ghcr.io/gemc/g4install:11.4.3-ubuntu-26.04
     env:
-      GEMC_DOCKER_IMAGE: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04
+      GEMC_DOCKER_IMAGE: ghcr.io/gemc/g4install:11.4.3-ubuntu-26.04
     steps:
       - name: Checkout benchmark source
         uses: actions/checkout@v6
@@ -226,9 +226,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     # Run the freshly compiled installation on the same Geant4 base image used by the build job.
-    container: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04
+    container: ghcr.io/gemc/g4install:11.4.3-ubuntu-26.04
     env:
-      GEMC_DOCKER_IMAGE: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04
+      GEMC_DOCKER_IMAGE: ghcr.io/gemc/g4install:11.4.3-ubuntu-26.04
     steps:
       - name: Checkout benchmark source
         uses: actions/checkout@v6

@@ -55,7 +55,7 @@ pygemc` run validates pygemc compatibility only and does not deploy.
   - Effect: builds one optimized GEMC artifact, then uses ThreadScale's standalone `test_scaling` command to
     measure the scintillator-barrel and Cherenkov examples sequentially over the CPUs visible to one hosted
     runner and publish a combined scaling table and plots.
-  - Environment: both compilation and benchmark jobs use `ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04`, with
+  - Environment: both compilation and benchmark jobs use `ghcr.io/gemc/g4install:11.4.3-ubuntu-26.04`, with
     GEMC dependencies installed explicitly. Benchmarks use the fresh build artifact from the same run.
   - Profiles: pull requests and pushes use a short single sweep; weekly and release runs use four replicated
     sweeps and update the generated result section in the root README.

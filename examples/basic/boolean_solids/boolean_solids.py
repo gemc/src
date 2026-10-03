@@ -22,7 +22,10 @@ cfg = autogeometry("examples", "boolean_solids")
 
 world = GVolume('root')
 world.description = 'World'
-world.make_box(450, 200, 200)
+# x half-length (550 mm) must contain the generator's uniform vertex spread: the gparticle in
+# boolean_solids.yaml fires from vx = -40 cm with delta_vx = 12 cm, so the vertex reaches -52 cm.
+# A vertex generated outside the world makes Geant4 navigation dereference a null volume and crash.
+world.make_box(550, 200, 200)
 world.material = 'G4_AIR'
 world.color = '889922'
 world.style = 0

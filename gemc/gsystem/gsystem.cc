@@ -95,7 +95,7 @@ void GSystem::addGVolume(std::vector<std::string> pars) {
 	std::string volume_name = pars[0];
 
 	// Check if the volume already exists in the map.
-	if (gvolumesMap.find(volume_name) == gvolumesMap.end()) {
+	if (!gvolumesMap.contains(volume_name)) {
 		// Create and add GVolume to the map.
 		gvolumesMap[volume_name] = std::make_shared<GVolume>(log, name, pars);
 		log->info(1, "Adding gVolume <" + volume_name + "> to gvolumesMap.");
@@ -176,7 +176,7 @@ GVolume* GSystem::getGVolume(const std::string& volumeName) const {
 void GSystem::addGMaterial(std::vector<std::string> pars) {
 	std::string materialName = pars[0];
 
-	if (gmaterialsMap.find(materialName) == gmaterialsMap.end()) {
+	if (!gmaterialsMap.contains(materialName)) {
 		gmaterialsMap[materialName] = std::make_shared<GMaterial>(name, pars, log);
 		log->info(1, "Adding gMaterial <" + materialName + "> to gmaterialsMap.");
 		log->info(2, *gmaterialsMap[materialName]);
@@ -194,7 +194,7 @@ void GSystem::addGMaterial(std::vector<std::string> pars) {
 void GSystem::addGMirror(std::vector<std::string> pars) {
 	std::string mirrorName = pars[0];
 
-	if (gmirrorsMap.find(mirrorName) == gmirrorsMap.end()) {
+	if (!gmirrorsMap.contains(mirrorName)) {
 		gmirrorsMap[mirrorName] = std::make_shared<GMirror>(name, pars, log);
 		log->info(1, "Adding gMirror <" + mirrorName + "> to gmirrorsMap.");
 		log->info(2, *gmirrorsMap[mirrorName]);

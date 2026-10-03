@@ -27,7 +27,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  GEANT4_TAG: 11.4.2
+  GEANT4_TAG: 11.4.3
 
 jobs:
   profile:
@@ -35,9 +35,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 350
     # Debug-symbols image (Geant4 and CLHEP built RelWithDebInfo) so callgrind can name their routines.
-    container: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04-debug
+    container: ghcr.io/gemc/g4install:11.4.3-ubuntu-26.04-debug
     env:
-      GEMC_DOCKER_IMAGE: ghcr.io/gemc/g4install:11.4.2-ubuntu-26.04-debug
+      GEMC_DOCKER_IMAGE: ghcr.io/gemc/g4install:11.4.3-ubuntu-26.04-debug
     strategy:
       fail-fast: false
       matrix:

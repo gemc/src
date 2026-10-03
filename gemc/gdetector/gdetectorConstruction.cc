@@ -238,7 +238,7 @@ void GDetectorConstruction::ConstructSDandField() {
 				// If we created a new SD, G4SDManager would call Initialize() on the stale object
 				// while SetSensitiveDetector() pointed the logical volume to the new one — leaving
 				// the new SD's gHitsCollection uninitialized when ProcessHits() is called.
-				if (sensitiveDetectorsMap.find(digitization) == sensitiveDetectorsMap.end()) {
+				if (!sensitiveDetectorsMap.contains(digitization)) {
 					// Reuse a previously registered SD for this name if one exists on this thread.
 					// AddNewDetector() silently keeps the OLD object on duplicate names (DET1010);
 					// reusing the same pointer avoids that and ensures G4SDManager's Initialize()

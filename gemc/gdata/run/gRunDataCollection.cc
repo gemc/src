@@ -14,7 +14,7 @@
 void GRunDataCollection::collectDetectorDigitizedData(const std::string&                     sdName,
 													  const std::unique_ptr<GDigitizedData>& data) {
 	// Create the detector accumulator entry on first use.
-	if (gdataCollectionMap.find(sdName) == gdataCollectionMap.end()) {
+	if (!gdataCollectionMap.contains(sdName)) {
 		gdataCollectionMap[sdName] = std::make_unique<GDataCollection>();
 	}
 

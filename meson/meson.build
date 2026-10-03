@@ -225,21 +225,36 @@ foreach pcname : ['geant4', 'geant4_core']
     g4_set_extra += { pcname : extra_link }
 endforeach
 
+# Geant4's generated .pc hardcodes `-std=c++17`. Drop any `-std=` token when ingesting its cflags so the
+# C++ standard is governed solely by this project's `cpp_std` option (top-level meson.build). Left in, it
+# is appended after meson's own `-std=` and - last one wins - pins every Geant4-consuming translation unit
+# back to C++17, which also re-triggers ROOT's "C++ standard does not match" warning. Geant4 11.4 headers
+# compile cleanly at the newer standard, so this only removes the override.
+#
 # Full Geant4 include paths are marked system (-isystem) to silence third-party header warnings; the
 # core set keeps plain -I, matching the previous include_type behaviour of the two pkg-config deps.
 geant4_full_compile = []
 foreach f : g4_pc_cflags['geant4']
-    if f.startswith('-I')
+    if f.startswith('-std=')
+        continue
+    elif f.startswith('-I')
         geant4_full_compile += ['-isystem', f.substring(2)] # -I<path> -> -isystem <path>
     else
         geant4_full_compile += f
     endif
 endforeach
 
+geant4_core_compile = []
+foreach f : g4_pc_cflags['geant4_core']
+    if not f.startswith('-std=')
+        geant4_core_compile += f
+    endif
+endforeach
+
 geant4_dep = declare_dependency(compile_args : geant4_full_compile,
                                 link_args : g4_set_extra['geant4'],
                                 dependencies : g4_set_deps['geant4'])
-geant4_core_dep = declare_dependency(compile_args : g4_pc_cflags['geant4_core'],
+geant4_core_dep = declare_dependency(compile_args : geant4_core_compile,
                                      link_args : g4_set_extra['geant4_core'],
                                      dependencies : g4_set_deps['geant4_core'])
 

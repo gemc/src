@@ -191,10 +191,10 @@ QString formatParameters(const std::string& solid, const std::string& paramsStr)
 std::string resolveBooleanOperandName(const std::string& systemName,
                                       const std::string& operand,
                                       const std::unordered_map<std::string, const GVolume*>& gvolumes) {
-    if (gvolumes.find(operand) != gvolumes.end()) return operand;
+    if (gvolumes.contains(operand)) return operand;
 
     const std::string qualified = systemName.empty() ? operand : systemName + "/" + operand;
-    if (gvolumes.find(qualified) != gvolumes.end()) return qualified;
+    if (gvolumes.contains(qualified)) return qualified;
 
     return operand;
 }
@@ -826,7 +826,7 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
                 const auto slash = fullName.find_last_of('/');
                 const std::string systemName = slash == std::string::npos ? "" : fullName.substr(0, slash);
                 const std::string mirrorKey = systemName + "/" + mirrorName;
-                if (gmirrors_map.find(mirrorKey) != gmirrors_map.end()) {
+                if (gmirrors_map.contains(mirrorKey)) {
                     mirrorButton->setText(tr("Mirror: %1").arg(QString::fromStdString(mirrorName)));
                     mirrorButton->setProperty("mirrorKey", QString::fromStdString(mirrorKey));
                     mirrorButton->setVisible(true);
@@ -1064,13 +1064,13 @@ void GTree::showMirrorProperties() {
 }
 
 
-// Warn that /vis/drawLogicalVolume is not yet usable due to a Geant4 11.4.2 TOOLSSG bug.
+// Warn that /vis/drawLogicalVolume is not yet usable due to a Geant4 11.4.3 TOOLSSG bug.
 void GTree::drawOverlapsWarning() {
     QMessageBox::warning(this,
         tr("Not yet implemented"),
         tr("Draw Logical Overlaps will be implemented when Geant4 fixes the\n"
            "G4ToolsSGSceneHandler::GetOrCreateNode \"World mis-match\" crash\n"
-           "triggered by /vis/drawLogicalVolume in Geant4 11.4.2."));
+           "triggered by /vis/drawLogicalVolume in Geant4 11.4.3."));
 }
 
 

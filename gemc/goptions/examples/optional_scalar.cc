@@ -33,10 +33,10 @@ int main(int argc, char* argv[]) {
 	const std::string int_option_prefix = "-optional_int=";
 	for (int index = 1; index < argc; ++index) {
 		const std::string argument = argv[index];
-		if (argument.rfind(option_prefix, 0) == 0) {
+		if (argument.starts_with(option_prefix)) {
 			expected = argument.substr(option_prefix.size());
 		}
-		if (argument.rfind(int_option_prefix, 0) == 0) {
+		if (argument.starts_with(int_option_prefix)) {
 			expectedInt = std::stoi(argument.substr(int_option_prefix.size()));
 		}
 	}
