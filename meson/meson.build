@@ -122,7 +122,13 @@ if (not root_dep.found()) and (not root_opt.disabled())
         #                              required: false,
         #                              include_type: 'system')
 
-        root_cflags = run_command(rootcfg, '--cflags', check: true).stdout().strip().split()
+        # Keep Meson's cpp_std authoritative even when ROOT was built with an older standard.
+        root_cflags = []
+        foreach flag : run_command(rootcfg, '--cflags', check: true).stdout().strip().split()
+            if not flag.startswith('-std=')
+                root_cflags += flag
+            endif
+        endforeach
         root_libs   = run_command(rootcfg, '--libs',   check: true).stdout().strip().split()
 
         root_dep = declare_dependency(
