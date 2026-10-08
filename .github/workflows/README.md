@@ -104,7 +104,10 @@ pygemc` run validates pygemc compatibility only and does not deploy.
   - Effect: builds and tests GEMC natively on Apple Silicon and updates the selected release.
 - [`dev_release.yml`](dev_release.yml) — **Nightly Dev Release**
   - Trigger: daily at 01:44 UTC or manual dispatch.
-  - Effect: moves the `dev` tag and updates the development prerelease and generated notes.
+  - Effect: `gemc/DRelease@v1` moves the `dev` tag and updates the development prerelease,
+    preserving its assets. Notes include commits after the latest version tag's date.
+  - Upcoming in the next release: DRelease replaces duplicated release steps and the fixed start date.
+    Publication is serialized, and notes are generated in the runner's temporary directory.
 
 ## Documentation, security, and maintenance workflows
 

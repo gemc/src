@@ -1,60 +1,29 @@
-# https://github.com/marketplace/actions/automatic-releases
 name: Nightly Dev Release
-permissions:
-  contents: write
-  pull-requests: write
 
 on:
   schedule:
-    # every day at 1:44 am
     - cron: '44 1 * * *'
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: drelease-dev
+  cancel-in-progress: false
 
 jobs:
   dev-release:
     runs-on: ubuntu-latest
-    env:
-      DEVMD_SINCE: "2026-06-17"   # optional fixed start date
-      TAG_NAME: "dev"             # reuse the same tag each night
-      RELEASE_TITLE: "Dev Nightly"
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      - name: Generate dev notes
-        run: |
-          ci/update-devmd.sh
-
-      # (Optional) Only extract the auto section between markers for the release body
-      - name: Extract release body from dev.md markers
-        id: notes
-        run: |
-          awk '/<!-- AUTO-DEVMD:START -->/{f=1;print;next} /<!-- AUTO-DEVMD:END -->/{print;f=0} f' releases/dev.md > /tmp/release_notes.md
-          # Fallback to entire file if markers missing or empty
-          if [ ! -s /tmp/release_notes.md ]; then
-            cp releases/dev.md /tmp/release_notes.md
-          fi
-
-      - name: Create or move tag to current commit
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -f "${TAG_NAME}" "${GITHUB_SHA}"
-          git push --force origin "refs/tags/${TAG_NAME}"
-
-      - name: Create/Update release
-        uses: ncipollo/release-action@v1
+          persist-credentials: false
+      - name: Publish nightly prerelease
+        uses: gemc/DRelease@v1
         with:
-          tag: ${{ env.TAG_NAME }}
-          name: ${{ env.RELEASE_TITLE }}
-          # If the tag didn’t exist the very first time, this tells the action
-          # what commit to use to create it (safe to keep even after creation):
-          commit: ${{ github.sha }}
-          bodyFile: /tmp/release_notes.md
-          prerelease: true
-          allowUpdates: true
-          replacesArtifacts: false
-          artifactErrorsFailBuild: false
+          tag: dev
+          title: Dev Nightly
+          ref: ${{ github.sha }}
+          notes-path: ${{ runner.temp }}/dev-release-notes.md
