@@ -1,3 +1,7 @@
+<!-- TRANSLATIONS:START (managed by bin/translate) -->
+**Languages:** **EN** · [IT](README.it.md) · [日本語](README.ja.md) · [FR](README.fr.md) · [中文](README.zh.md)
+<!-- TRANSLATIONS:END -->
+
 # GEMC
 
 <table>
