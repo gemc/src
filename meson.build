@@ -43,6 +43,7 @@ all_pkgconfig_libs = []
 all_includes = ['.']
 empty_dict = { 'na' : [''] }
 lib_target_maps = {}
+plugin_target_maps = {}
 subdir('meson')
 
 # Fill dictionary
@@ -155,14 +156,19 @@ foreach L : LD
     endif
 
     this_library_link_with = []
+    this_plugin_link_with = []
     # todo: this produces duplicates ROOT libraries
     if not sources.contains('')
         this_library_link_with += this_library
+        if L.get('plugin_link_module', true)
+            this_plugin_link_with += this_library
+        endif
     endif
 
     foreach this_link_with : this_internal_libs
         if lib_target_maps.has_key(this_link_with)
             this_library_link_with += [lib_target_maps[this_link_with]]
+            this_plugin_link_with += [lib_target_maps[this_link_with]]
         endif
     endforeach
 
@@ -174,8 +180,9 @@ foreach L : LD
         # linked once explicitly. With shared module libraries (use_sharedl, e.g. the
         # sanitizer build) the .so is self-contained and does not forward those link
         # args, so the full this_deps must be passed instead.
+        # Plugins that omit the module archive also need the full external dependencies explicitly.
         # (computed here, before 'sources' is rebound by the plugin loop below.)
-        if sources.contains('') or use_sharedl
+        if sources.contains('') or use_sharedl or not L.get('plugin_link_module', true)
             plugin_base_deps = [this_deps, zlib_dep]
         else
             plugin_base_deps = [declare_dependency(dependencies : this_deps).partial_dependency(compile_args : true, includes : true), zlib_dep]
@@ -185,19 +192,21 @@ foreach L : LD
             if plugin_dependencies.has_key(name)
                 this_plugin_dependencies += plugin_dependencies[name]
             endif
-            module_plugin_targets += shared_library(
+            this_plugin = shared_library(
                 name,
                 sources[0],
                 install : sources[1],
                 dependencies : this_plugin_dependencies,
                 include_directories : all_includes + ('gemc' / this_lib_name) + additional_includes,
-                link_with : this_library_link_with,
+                link_with : this_plugin_link_with,
                 name_suffix : 'gplugin',
                 name_prefix : '',
                 # Forces any static libraries that get built as part of the Meson project to be built with PIC
                 # so they can be linked into a shared module
                 override_options : ['b_staticpic=true']
             )
+            module_plugin_targets += this_plugin
+            plugin_target_maps += { name : this_plugin }
 
         endforeach
     endif

@@ -51,6 +51,11 @@ LD += {
     'dependencies' : [yaml_cpp_dep, clhep_deps, geant4_core_deps],
     'internal_dependencies' : internal_deps,
 
+    # Field plugins use GField's inline interface; the registry and manager construction
+    # belong to the host. Formatting-related weak symbols can otherwise pull gmagneto.cc and its static
+    # Geant4 geometry state into a plugin, corrupting worker geometry during task-manager startup.
+    'plugin_link_module' : false,
+
     'examples' : {
         'test_gfield_dipole_verbose' : [example_source, input_file + verbosities],
         'test_gfield_dipole_field_at' : [example_source, input_file + ['-fieldAt=10*cm 0*cm 0*cm']],

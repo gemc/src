@@ -7,6 +7,21 @@ system_template = find_program('gemc-system-template', dirs: [venv_bin])
 
 build_root = meson.project_build_root()
 
+gfield_random_state = executable(
+    'test_gfield_random_state',
+    'gfield_random_state.cc',
+    include_directories: gemc_includes,
+    dependencies: [yaml_cpp_dep, clhep_deps, geant4_core_deps, expat_dep, zlib_dep,
+                   dependency('threads')],
+    link_with: [lib_target_maps['gfields'], lib_target_maps['gfactory'],
+                lib_target_maps['glogging'], lib_target_maps['goptions'], lib_target_maps['guts']],
+    export_dynamic: true)
+test('gfield_random_state', gfield_random_state,
+     args: [meson.project_source_root() / 'gemc/gfields/examples/dipole.yaml',
+            '-plugin_path=' + build_root],
+     depends: [plugin_target_maps['gfieldmultipolesFactory']],
+     env: project_test_env, suite: 'gfields')
+
 test('gui_catalogs', python_exe,
      args: [files('qt_catalogs.py')], env: project_test_env, suite: 'gui')
 test('gui_catalog_freshness', python_exe,

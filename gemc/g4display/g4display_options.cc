@@ -117,7 +117,7 @@ GOptions defineOptions() {
 		{"dimension", std::string(g4display::GDEFAULTVIEWERSIZE), "Geant4 viewer dimension"},
 		{"position", std::string(g4display::GDEFAULTVIEWERPOS), "Geant4 viewer position"},
 		{"segsPerCircle", g4display::GDEFAULTVSEGPERCIRCLE, "Number of segments per circle"},
-		{"background", "0 0.07059 0.16863", "Geant4 viewer background color as '<red> <green> <blue>'"},
+		{"background", "1.0 1.0 1.0", "Geant4 viewer background color as '<red> <green> <blue>'"},
 		{"cloudPoints", 1000, "Number of points used for cloud volume rendering"}
 	};
 
