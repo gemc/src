@@ -11,6 +11,7 @@
 #include "G4BooleanSolid.hh"
 
 // Qt
+#include <QCoreApplication>
 #include <QHeaderView>
 #include <QTextEdit>
 #include <QVBoxLayout>

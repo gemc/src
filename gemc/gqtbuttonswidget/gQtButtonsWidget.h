@@ -2,6 +2,7 @@
 
 #include <QString>
 
+/** \brief GEMC helpers for translating and rendering Qt toolbar artwork. */
 namespace gemc {
 /** \brief Translate SVG toolbar captions and fit their font size without changing stored artwork. */
 QString translateSvgLabels(QString svg);

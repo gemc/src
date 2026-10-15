@@ -16,6 +16,7 @@
 #include <gemc/glogging/gbatch_session.h>
 #include "gQtTranslation.h"
 
+/** \brief GEMC runtime setup, command, and translation utilities. */
 namespace gemc {
 
 /**
