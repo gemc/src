@@ -195,6 +195,29 @@ Line two: %1)x", value);
         with self.assertRaisesRegex(ValueError, "catalog is stale"):
             catalogs.validate_tree(self.root)
 
+    def test_catalog_stays_identical_when_source_lines_shift(self):
+        self.catalog_tree()
+        output = self.root / "translations/en.yaml"
+        before = output.read_bytes()
+        source = self.root / "src/main.cc"
+        source.write_text('#include <string>\n\n// Shift the logging calls.\n' + source.read_text())
+        with redirect_stdout(io.StringIO()):
+            catalogs.validate_tree(self.root)
+            catalogs.extract(self.root, check=False)
+        self.assertEqual(output.read_bytes(), before)
+        self.assertIn("  # src/main.cc\n", before.decode())
+        self.assertNotIn("src/main.cc:", before.decode())
+
+    def test_catalog_lists_each_source_file_once_per_message(self):
+        self.catalog_tree()
+        self.source('log->info("Other");\nlog->info("Other");\n', "src/main.cc")
+        self.source('log->info("Other");\n', "src/another.cc")
+        with redirect_stdout(io.StringIO()):
+            catalogs.extract(self.root, check=False)
+        text = (self.root / "translations/en.yaml").read_text()
+        self.assertIn('  # src/another.cc\n  # src/main.cc\n  "Other": "Other"\n', text)
+        self.assertEqual(text.count("  # src/main.cc\n"), 1)
+
     def test_owning_source_tree_exclusions_and_stale_catalog(self):
         self.source('log->info("A real message");', "src/main.cc")
         for name in ("src/build/generated.cc", "src/subprojects/vendor.cc", "src/docsDoxy.h",

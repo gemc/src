@@ -4,7 +4,7 @@ Upcoming in the next release: logging templates are extracted from the owning C+
 through cached catalogs at runtime. Language selection is automatic, with English fallback for missing text.
 The shared Claude/Codex workflow generates project-language catalogs through the existing weekday cron job.
 
-Edit English templates in C++, then regenerate the catalog. Do not hand-edit `en.yaml` or its source-location
+Edit English templates in C++, then regenerate the catalog. Do not hand-edit `en.yaml` or its source-file
 comments. `catalog.yaml` selects the source files; build directories and `subprojects/` copies are always
 excluded. Documentation snippets, module examples, and tests are excluded by the GEMC manifest. The scanner
 reads all conditional-compilation branches without invoking a C++ compiler.
@@ -19,8 +19,10 @@ build/subprojects/pygemc/python_env/bin/python ci/extract_messages.py validate-t
 ```
 
 `extract` writes `translations/en.yaml`. `extract --check` fails if it needs updating and writes nothing;
-the Meson `glogging_catalog_freshness` test runs this check. Extraction rejects nonliteral templates or
-invalid/unused placeholders with a source location, and merges identical templates into a single entry.
+the Meson `glogging_catalog_freshness` test runs this check. Upcoming in the next release: generated references
+list source files without line numbers, so moving calls within a file does not make the catalog stale.
+Extraction rejects nonliteral templates or invalid/unused placeholders with an exact source line, and merges
+identical templates into a single entry.
 Messages containing only placeholders, punctuation, or numbers are omitted: dynamic diagnostics and object
 dumps remain parameter data. Templates containing literal words are included, even at debug verbosity.
 
@@ -39,14 +41,14 @@ Each language uses `translations/<language>.yaml`, with exact English templates 
 schema: 1
 language: en
 messages:
-  # gemc/example.cc:10
+  # gemc/example.cc
   "Using %1 threads.": "Using %1 threads."
 ```
 
 A translated catalog keeps the same keys and replaces only the values. Keys preserve original whitespace,
-newlines, punctuation, and escapes; changing the English sentence creates a new key. Source locations are
-comments for reviewers, separate from the message mapping. Long entries may use YAML's explicit `?` / `:`
-mapping syntax and escaped line continuations to preserve the text while wrapping at column 112.
+newlines, punctuation, and escapes; changing the English sentence creates a new key. Source files are listed
+once per message in comments for reviewers, separate from the message mapping. Long entries may use YAML's
+explicit `?` / `:` mapping syntax and escaped line continuations to preserve the text while wrapping at column 112.
 
 The source manifest uses schema 1 with a `sources` list and optional `exclude` patterns, relative to the
 repository root. Exclusion patterns use Python `fnmatch` semantics, where `*` also matches directory
@@ -142,7 +144,7 @@ terminology come from the same `languages.yaml` and `glossary.yml` used for the 
 The catalog handler refreshes English templates, sends batches to Claude, and requests Codex review.
 Local checks reject changed placeholders, literal percent escapes, surrounding whitespace, line breaks,
 and tabs. It atomically saves validated catalog output and state after every batch. Only changed/new
-messages need translation; removed English keys are pruned. Source-location comments do not change the
+messages need translation; removed English keys are pruned. Source-file comments do not change the
 semantic source hash. Per-file and per-message state record the full git commit alongside content hashes,
 so uncommitted English changes are also identified by their content.
 
