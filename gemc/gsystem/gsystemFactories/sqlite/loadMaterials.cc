@@ -32,15 +32,19 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system) {
 	sqlite3_stmt* count_stmt  = nullptr;
 	int           rc          = sqlite3_prepare_v2(db, count_query, -1, &count_stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite error preparing count query in loadMaterials: ",
-		           sqlite3_errmsg(db), " (", rc, ") using query: ", count_query);
+		log->error(
+			gsystem::ERR_GSQLITEERROR,
+			"Sqlite error preparing count query in loadMaterials: %1 (%2) using query: %3", sqlite3_errmsg(db),
+			rc, count_query);
 	}
 	if (sqlite3_step(count_stmt) == SQLITE_ROW) { count = sqlite3_column_int(count_stmt, 0); }
 	sqlite3_finalize(count_stmt);
 
 	if (count == 0) {
-		log->info(2, "Table 'materials' is empty for system <", system_name, ">, variation <", variation, ">, "
-		          "run ", runno, ". This may be ok if the materials are from the Geant4 database.");
+		log->info(
+			2,
+			"Table 'materials' is empty for system <%1>, variation <%2>, run %3. This may be ok if the "
+			"materials are from the Geant4 database.", system_name, variation, runno);
 		return;
 	}
 
@@ -50,8 +54,9 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system) {
 	sqlite3_stmt* stmt      = nullptr;
 	rc                      = sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadMaterials: ",
-		           sqlite3_errmsg(db), " (", rc, ") using query: ", sql_query);
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadMaterials: %1 (%2) using query: %3",
+			sqlite3_errmsg(db), rc, sql_query);
 	}
 
 	// Bind parameters.
@@ -76,7 +81,7 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system) {
 					? "NULL"
 					: reinterpret_cast<const char*>(sqlite3_column_text(stmt, i));
 
-			log->info(2, "<sqlite> column: ", cname, " = ", ctext);
+			log->info(2, "<sqlite> column: %1 = %2", cname, ctext);
 
 			// The first columns are metadata; columns beyond index 4 are GMaterial constructor parameters.
 			if (i > 4) {
@@ -90,8 +95,9 @@ void GSystemSQLiteFactory::loadMaterials(GSystem* system) {
 
 
 	if (rc != SQLITE_DONE) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadMaterials: ",
-		           sqlite3_errmsg(db), " (", rc, ")");
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadMaterials: %1 (%2)", sqlite3_errmsg(db),
+			rc);
 	}
 
 

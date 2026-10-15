@@ -79,7 +79,7 @@ void run_simulation_in_threads(int                                              
 	for (int tid = 0; tid < nthreads; ++tid) {
 		pool.emplace_back([&, tid]
 		{
-			log->info(0, "worker ", tid, " started");
+			log->info(0, "worker %1 started", tid);
 
 			int localCount = 0;
 
@@ -89,7 +89,7 @@ void run_simulation_in_threads(int                                              
 			// Open every backend connection before entering the event loop.
 			for (auto& [name, gstreamer] : *gstreamer_map) {
 				if (!gstreamer->openConnection()) {
-					log->error(1, "Failed to open connection for GStreamer ", name, " in thread ", tid);
+					log->error(1, "Failed to open connection for GStreamer %1 in thread %2", name, tid);
 				}
 			}
 
@@ -116,9 +116,9 @@ void run_simulation_in_threads(int                                              
 					eventData->addDetectorTrueInfoData("ctof", std::move(true_data));
 				}
 
-				log->info(0, "worker ", tid, " event ", evn, " has ",
-				          eventData->getDataCollectionMap().at("ctof")->getDigitizedData().size(),
-				          " digitized hits");
+				log->info(
+					0, "worker %1 event %2 has %3 digitized hits", tid, evn,
+					eventData->getDataCollectionMap().at("ctof")->getDigitizedData().size());
 
 				// Publish the event to each configured streamer instance.
 				for (const auto& [name, gstreamer] : *gstreamer_map) {
@@ -131,11 +131,11 @@ void run_simulation_in_threads(int                                              
 			// Close all output backends. This also flushes any buffered events.
 			for (const auto& [name, gstreamer] : *gstreamer_map) {
 				if (!gstreamer->closeConnection()) {
-					log->error(1, "Failed to close connection for GStreamer ", name, " in thread ", tid);
+					log->error(1, "Failed to close connection for GStreamer %1 in thread %2", name, tid);
 				}
 			}
 
-			log->info(0, "worker ", tid, " processed ", localCount, " events");
+			log->info(0, "worker %1 processed %2 events", tid, localCount);
 		});
 	}
 }
@@ -166,8 +166,9 @@ int main(int argc, char* argv[]) {
 	// Load the dynamic digitization plugin used to generate synthetic detector content.
 	auto dynamicRoutinesMap = gdynamicdigitization::dynamicRoutinesMap({plugin_name}, gopts);
 	if (dynamicRoutinesMap->at(plugin_name)->loadConstants(1, "default") == false) {
-		log->error(1, "Failed to load constants for dynamic routine", plugin_name,
-		           "for run number 1 with variation 'default'.");
+		log->error(
+			1, "Failed to load constants for dynamic routine%1for run number 1 with variation 'default'.",
+			plugin_name);
 	}
 
 	// Load streamer plugins before worker threads start. Sanitized Linux builds can fail

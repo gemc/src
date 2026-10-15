@@ -3,12 +3,17 @@
 // Color conventions and logging macros
 #include <gemc/guts/gutsConventions.h>
 #include <gemc/goptions/goptions.h>
+#include <gemc/glogging/gmessageCatalog.h>
 
 // Geant4
 #include "G4UIsession.hh"
+#include <array>
 #include <atomic>
+#include <stdexcept>
 #include <string>
+#include <string_view>
 #include <sstream>
+#include <type_traits>
 #include <utility>
 
 
@@ -70,8 +75,9 @@ enum debug_type { NORMAL, CONSTRUCTOR, DESTRUCTOR };
  * Key responsibilities:
  * - Apply verbosity/debug filtering consistently across the codebase.
  * - Render standardized message headers including a per-instance atomic counter.
- * - Provide convenience APIs that accept variadic "streamable" arguments, allowing callers to
- *   build messages without manual string formatting.
+ * - Accept complete message templates with numbered, streamable parameters.
+ * - Resolve cached translations automatically, retaining English for missing messages.
+ * - Keep the transitional `*Template()` methods as forwarding aliases.
  *
  * \par Filtering model
  * - Debug messages are emitted only when the resolved debug level is nonzero.
@@ -91,6 +97,7 @@ public:
 	 * The constructor queries the provided GOptions to resolve:
 	 * - The verbosity level associated with \p lname.
 	 * - The debug level associated with \p lname.
+	 * - The message language and shared catalog configuration.
 	 *
 	 * It also emits a constructor-style debug message via
 	 * \ref GLogger::debug "debug()" (only if debug is enabled for this logger name).
@@ -100,27 +107,27 @@ public:
 	 * \param lname The logger name (subsystem identifier). This is used as the lookup key in
 	 * GOptions.
 	 */
-	explicit GLogger(const std::shared_ptr<GOptions>& gopts, const std::string& cname, const std::string& lname = "")
-		: class_name(cname), logger_name(lname), log_counter{0} {
+	explicit GLogger(const std::shared_ptr<GOptions>& gopts, const std::string& cname,
+	                 const std::string& lname = "")
+		: class_name(cname), logger_name(lname), log_counter{0}, catalog(GMessageCatalog::load(gopts.get())) {
 		// Resolve the runtime policy for this subsystem name from the global options.
 		verbosity_level = gopts->getVerbosityFor(logger_name);
 		debug_level     = gopts->getDebugFor(logger_name);
 
 		// Optional lifetime trace to help identify logger ownership and construction order.
-		debug(CONSTRUCTOR, logger_name, " logger");
+		debug(CONSTRUCTOR, "%1 logger", logger_name);
 	}
 
 	/**
 	 * \brief Default constructor.
 	 *
-	 * This constructor does not resolve verbosity/debug settings and leaves the logger in a
-	 * default-initialized state. It is primarily useful for scenarios where a logger instance
-	 * must exist before configuration is available.
+	 * This constructor leaves verbosity/debug settings at their defaults and resolves the language
+	 * from environment or system settings. It is useful before GOptions configuration is available.
 	 *
 	 * \note If you use this constructor, ensure \c logger_name, \c verbosity_level, and \c debug_level
 	 * are set through the normal construction path before relying on filtering behavior.
 	 */
-	GLogger() = default;
+	GLogger() : catalog(GMessageCatalog::load()) {}
 
 	/**
 	 * \brief Destructor.
@@ -128,77 +135,74 @@ public:
 	 * Emits a destructor-style debug message via \ref GLogger::debug "debug()"
 	 * (only if debug is enabled).
 	 */
-	~GLogger() { debug(DESTRUCTOR, logger_name, " logger"); }
+	~GLogger();
 
 	/**
 	 * \brief Logs a debug message if the debug level is nonzero.
 	 *
-	 * This method builds a single message string from \p args... using stream insertion into an
-	 * \c std::ostringstream. It then prints the message with a standardized header and optional
-	 * constructor/destructor markers depending on \p type.
+	 * This method formats a complete message using the placeholder rules of info(), then prints
+	 * the standardized header and optional constructor/destructor markers depending on \p type.
 	 *
 	 * \tparam Args Variadic template parameters representing any streamable types.
 	 * \param type The debug message classification : NORMAL, CONSTRUCTOR, or DESTRUCTOR.
-	 * \param args The message components. Each argument must be insertable into \c std::ostream.
-	 *
-	 * @details Implementation techniques used:
-	 * - Variadic templates for a flexible number of message components.
-	 * - Perfect forwarding (\c std::forward) to preserve value categories.
-	 * - Fold expression \c (oss << ... << arg) to stream all arguments.
+	 * \param message Complete message template.
+	 * \param args Values referenced by the numbered placeholders.
 	 *
 	 * \note Debug output is suppressed entirely when \c debug_level == 0.
 	 */
 	template <typename... Args>
-	void debug(debug_type type, Args&&... args) const {
+	void debug(debug_type type, std::string_view message, Args&&... args) const {
 		if (debug_level == 0) return; // Debug disabled for this logger instance.
-
-		std::ostringstream oss;
-		(oss << ... << std::forward<Args>(args));
+		const auto text = format_message(message, std::forward<Args>(args)...);
 
 		switch (type) {
 		case NORMAL:
-			G4cout << guts::KCYN << header_string() << "DEBUG: " << oss.str() << guts::RST << G4endl;
+			G4cout << guts::KCYN << header_string() << "DEBUG: " << text << guts::RST << G4endl;
 			break;
 		case CONSTRUCTOR:
 			G4cout << guts::KCYN << header_string() << "DEBUG: " <<
-				guts::CONSTRUCTORLOG << " " << oss.str() << " " << guts::CONSTRUCTORLOG << guts::RST << G4endl;
+				guts::CONSTRUCTORLOG << " " << text << " " << guts::CONSTRUCTORLOG << guts::RST << G4endl;
 			break;
 		case DESTRUCTOR:
 			G4cout << guts::KCYN << header_string() << "DEBUG: " <<
-				guts::DESTRUCTORLOG << " " << oss.str() << " " << guts::DESTRUCTORLOG << guts::RST << G4endl;
+				guts::DESTRUCTORLOG << " " << text << " " << guts::DESTRUCTORLOG << guts::RST << G4endl;
 			break;
 		}
 	}
 
 	/**
-	 * \brief Logs an informational message, optionally gated by verbosity level.
+	 * \brief Logs a complete message template, optionally gated by verbosity level.
 	 *
 	 * Info messages support three levels of detail:
 	 * - level 0 : Always printed (baseline information).
 	 * - level 1 : Printed only when \c verbosity_level > 0.
 	 * - level 2 : Printed only when \c verbosity_level > 1 (most detailed).
 	 *
-	 * \tparam Args Variadic template parameters for any streamable types.
+	 * Placeholders `%1` through `%99` identify arguments by their one-based position. They may be
+	 * reordered or repeated; each supplied argument must appear at least once. `%%` emits a literal
+	 * percent sign. Other percent signs are literal. Inserted values are never parsed as templates.
+	 * Each argument is converted once using its own std::ostringstream and normal stream formatting.
+	 * All logging categories share these placeholder rules. Catalog lookup precedes parameter substitution;
+	 * untranslated messages retain their English templates. Language selection never changes numeric formatting.
+	 *
+	 * Filtering happens before formatting; C++ still evaluates argument expressions before the call.
+	 * Dynamic or already-formatted text should be logged as a value: `info("%1", text)`.
+	 *
+	 * \tparam Args Parameter types with stream insertion support (at most 99 arguments).
 	 * \param level The info importance/detail level (0, 1, or 2).
-	 * \param args Message components to log. Each argument must be stream-insertable.
+	 * \param message Complete message template.
+	 * \param args Values referenced by the numbered placeholders.
+	 * \throws std::invalid_argument If an emitted template references an unavailable/invalid argument
+	 * or leaves a supplied argument unused. A suppressed message is not validated or formatted.
 	 *
 	 * \throws (process termination) If \p level is not 0, 1, or 2, this method prints a fatal error
 	 * and terminates the process with \c goptions::EC_WRONG_VERBOSITY_LEVEL.
 	 */
 	template <typename... Args>
-	void info(int level, Args&&... args) const {
-		// Validate the requested verbosity level early so callers fail fast with a clear message.
-		if (level != 0 && level != 1 && level != 2) {
-			G4cerr << guts::FATALERRORL << header_string() << guts::GWARNING
-			       << " Invalid verbosity level requested: " << level << guts::RST << G4endl;
-			exit(goptions::EC_WRONG_VERBOSITY_LEVEL);
-		}
-
-		// Apply the gating rule associated with the requested level.
-		if (level == 0 || (level == 1 && verbosity_level > 0) || (level == 2 && verbosity_level > 1)) {
-			std::ostringstream oss;
-			(oss << ... << std::forward<Args>(args));
-			G4cout << header_string() << "INFO L" << level << ": " << oss.str() << G4endl;
+	void info(int level, std::string_view message, Args&&... args) const {
+		if (info_enabled(level)) {
+			const auto text = format_message(message, std::forward<Args>(args)...);
+			G4cout << header_string() << "INFO L" << level << ": " << text << G4endl;
 		}
 	}
 
@@ -209,10 +213,14 @@ public:
 	 * printed irrespective of verbosity configuration.
 	 *
 	 * @tparam Args Variadic template parameters for any streamable types.
-	 * \param args Streamable message components.
+	 * \param message Complete message template.
+	 * \param args Values referenced by the numbered placeholders.
 	 */
-	template <typename... Args>
-	void info(Args&&... args) const { info(0, std::forward<Args>(args)...); }
+	template <typename Message, typename... Args>
+		requires std::is_convertible_v<Message, std::string_view>
+	void info(Message&& message, Args&&... args) const {
+		info(0, std::string_view(std::forward<Message>(message)), std::forward<Args>(args)...);
+	}
 
 	/**
 	 * \brief Logs a warning message.
@@ -221,15 +229,16 @@ public:
 	 * suspicious conditions, or degraded behavior that does not warrant immediate termination.
 	 *
 	 * @tparam Args Variadic template parameters for any streamable types.
-	 * \param args Message parts to be logged.
+	 * \param message Complete message template, using the placeholder rules of info().
+	 * \param args Values referenced by the numbered placeholders.
 	 *
 	 * @details This method does not consult verbosity or debug levels.
 	 */
 	template <typename... Args>
-	void warning(Args&&... args) const {
-		std::ostringstream oss;
-		(oss << ... << std::forward<Args>(args));
-		G4cout << guts::KYEL << header_string() << guts::GWARNING << guts::KYEL << oss.str() << guts::RST << G4endl;
+	void warning(std::string_view message, Args&&... args) const {
+		const auto text = format_message(message, std::forward<Args>(args)...);
+		G4cout << guts::KYEL << header_string() << guts::GWARNING << guts::KYEL << text
+		       << guts::RST << G4endl;
 	}
 
 	/**
@@ -243,15 +252,15 @@ public:
 	 *
 	 * @tparam Args Variadic template parameters for any streamable types.
 	 * \param exit_code The program exit code to return to the calling environment.
-	 * \param args Message parts to be logged before exiting.
+	 * \param message Complete message template, using the placeholder rules of info().
+	 * \param args Values referenced by the numbered placeholders.
 	 *
 	 * \note This function is marked \c [[noreturn]] because it always terminates the process.
 	 */
 	template <typename... Args>
-	[[noreturn]] void error(int exit_code, Args&&... args) const {
-		std::ostringstream oss;
-		(oss << ... << std::forward<Args>(args));
-		G4cerr << guts::FATALERRORL << header_string() << guts::KRED << oss.str() << guts::RST << G4endl;
+	[[noreturn]] void error(int exit_code, std::string_view message, Args&&... args) const {
+		const auto text = format_message(message, std::forward<Args>(args)...);
+		G4cerr << guts::FATALERRORL << header_string() << guts::KRED << text << guts::RST << G4endl;
 		G4cerr << guts::FATALERRORL << header_string() << guts::KRED << "Exit Code: " << exit_code << guts::RST
 		       << G4endl;
 		std::exit(exit_code);
@@ -264,13 +273,55 @@ public:
 	 * should stand out (for example : major state transitions, run headers, or emphasized notices).
 	 *
 	 * @tparam Args Variadic template parameters for any streamable types.
-	 * \param args Message parts to be logged.
+	 * \param message Complete message template, using the placeholder rules of info().
+	 * \param args Values referenced by the numbered placeholders.
 	 */
 	template <typename... Args>
-	void critical(Args&&... args) const {
-		std::ostringstream oss;
-		(oss << ... << std::forward<Args>(args));
-		G4cout << guts::KBOLD << header_string() << guts::RST << oss.str() << G4endl;
+	void critical(std::string_view message, Args&&... args) const {
+		const auto text = format_message(message, std::forward<Args>(args)...);
+		G4cout << guts::KBOLD << header_string() << guts::RST << text << G4endl;
+	}
+
+	/**
+	 * \brief Transitional alias for info(), with identical template and filtering semantics.
+	 * \param level Info verbosity level (0, 1, or 2).
+	 * \param message Complete message template.
+	 * \param args Values referenced by the numbered placeholders.
+	 */
+	template <typename... Args>
+	void infoTemplate(int level, std::string_view message, Args&&... args) const {
+		info(level, message, std::forward<Args>(args)...);
+	}
+
+	/// Logs a message template at info level 0; see infoTemplate(int, std::string_view, Args&&...).
+	template <typename Message, typename... Args>
+		requires std::is_convertible_v<Message, std::string_view>
+	void infoTemplate(Message&& message, Args&&... args) const {
+		info(0, std::string_view(std::forward<Message>(message)), std::forward<Args>(args)...);
+	}
+
+	/// Transitional alias for debug().
+	template <typename... Args>
+	void debugTemplate(debug_type type, std::string_view message, Args&&... args) const {
+		debug(type, message, std::forward<Args>(args)...);
+	}
+
+	/// Transitional alias for warning().
+	template <typename... Args>
+	void warningTemplate(std::string_view message, Args&&... args) const {
+		warning(message, std::forward<Args>(args)...);
+	}
+
+	/// Transitional alias for error().
+	template <typename... Args>
+	[[noreturn]] void errorTemplate(int exit_code, std::string_view message, Args&&... args) const {
+		error(exit_code, message, std::forward<Args>(args)...);
+	}
+
+	/// Transitional alias for critical().
+	template <typename... Args>
+	void criticalTemplate(std::string_view message, Args&&... args) const {
+		critical(message, std::forward<Args>(args)...);
 	}
 
 	/**
@@ -283,14 +334,34 @@ public:
 	 */
 	[[nodiscard]] std::string get_class_name() const { return class_name; }
 
+	/// Normalized language selected from options, environment, or system settings.
+	[[nodiscard]] const std::string& get_language() const { return catalog->language(); }
+
 private:
 	std::string class_name; ///< Logical "owner" class name that instantiated the logger (informational).
 	std::string logger_name;
 	///< Logger/subsystem name used as the configuration lookup key in GOptions.
-	int verbosity_level{}; ///< Resolved verbosity level for this logger instance (0 = minimal, higher = more detailed).
-	int debug_level{};     ///< Resolved debug level for this logger instance (0 = off; nonzero enables debug printing).
+	int verbosity_level{}; ///< Resolved verbosity level (0 = minimal, higher = more detailed).
+	int debug_level{};     ///< Resolved debug level (0 = off; nonzero enables debug printing).
 
-	mutable std::atomic<int> log_counter{}; ///< Thread-safe per-instance message counter used by the message header.
+	mutable std::atomic<int> log_counter{}; ///< Thread-safe per-instance message counter used by the header.
+	std::shared_ptr<const GMessageCatalog> catalog; ///< Immutable translations shared by matching configurations.
+
+	/// Validates and filters info levels before formatting their message templates.
+	[[nodiscard]] bool info_enabled(int level) const {
+		if (level != 0 && level != 1 && level != 2) {
+			G4cerr << guts::FATALERRORL << header_string() << guts::GWARNING
+			       << " Invalid verbosity level requested: " << level << guts::RST << G4endl;
+			std::exit(goptions::EC_WRONG_VERBOSITY_LEVEL);
+		}
+		return level == 0 || (level == 1 && verbosity_level > 0) || (level == 2 && verbosity_level > 1);
+	}
+
+	/// Format a translated template without interpreting inserted parameter text.
+	template <typename... Args>
+	[[nodiscard]] std::string format_message(std::string_view message, Args&&... args) const {
+		return catalog->format(message, std::forward<Args>(args)...);
+	}
 
 	/**
 	 * \brief Constructs the standardized header prepended to each log message.

@@ -37,8 +37,9 @@ static double parseG4Value(const YAML::Node&               node,
 	}
 
 	// Plain number without a unit — apply the fallback and warn.
-	logger->warning("gparticle field <", key, "> value <", val, "> has no unit; assuming ",
-	                fallback_unit, ". Use '", val, "*", fallback_unit, "' to suppress this warning.");
+	logger->warning(
+		"gparticle field <%1> value <%2> has no unit; assuming %3. Use '%4*%5' to suppress this warning.", key,
+		val, fallback_unit, val, fallback_unit);
 	return gutilities::getG4Number(val + "*" + fallback_unit);
 }
 
@@ -47,8 +48,7 @@ static double parseRequiredG4Value(const YAML::Node&               node,
 	                               const string&                   fallback_unit,
 	                               const std::shared_ptr<GLogger>& logger) {
 	if (!node[key] || node[key].IsNull()) {
-		logger->error(goptions::EC__MANDATORY_NOT_FILLED,
-		              "Mandatory gparticle field <", key, "> is missing");
+		logger->error(goptions::EC__MANDATORY_NOT_FILLED, "Mandatory gparticle field <%1> is missing", key);
 	}
 	return parseG4Value(node, key, fallback_unit, 0.0, logger);
 }

@@ -111,6 +111,7 @@ private:
 	 * in ~GemcGUI().
 	 */
 	QLabel* eventNumberLabel;
+	qulonglong displayedEventCount = 0; ///< Counter stored independently of translated display text.
 
 	/**
 	 * \brief Timer used to implement periodic event processing in “Cycle” mode.

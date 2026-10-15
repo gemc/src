@@ -16,7 +16,7 @@ GUI_Session::GUI_Session(const std::shared_ptr<GOptions>& gopt, GBoard* b) :
 	G4UImanager::GetUIpointer()->SetCoutDestination(this);
 	G4coutDestination::masterG4coutDestination = this;
 
-	log->info(1, SFUNCTION_NAME, " g4 dialog : GUI_Session created");
+	log->info(1, "%1 g4 dialog : GUI_Session created", SFUNCTION_NAME);
 }
 
 G4int GUI_Session::ReceiveG4cout(const G4String& coutString) {

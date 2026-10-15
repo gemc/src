@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="/gemc/gui">
+    <file alias="it.qm">../../translations/gui/it.qm</file>
+    <file alias="ja.qm">../../translations/gui/ja.qm</file>
+    <file alias="fr.qm">../../translations/gui/fr.qm</file>
+    <file alias="zh.qm">../../translations/gui/zh.qm</file>
+  </qresource>
+</RCC>

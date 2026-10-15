@@ -31,8 +31,9 @@ G4FieldManager* GField::create_FieldManager() {
 
 	// Validate the requested stepper name and fall back to the default if unsupported.
 	if (std::find(SUPPORTED_STEPPERS.begin(), SUPPORTED_STEPPERS.end(), integration_stepper) == SUPPORTED_STEPPERS.end()) {
-		log->info(0, "Integration Stepper ", integration_stepper,
-		          " not supported. Using default: ", gfields::GFIELD_DEFAULT_INTEGRATION_STEPPER);
+		log->info(
+			0, "Integration Stepper %1 not supported. Using default: %2", integration_stepper,
+			gfields::GFIELD_DEFAULT_INTEGRATION_STEPPER);
 		integration_stepper = gfields::GFIELD_DEFAULT_INTEGRATION_STEPPER;
 	}
 
@@ -64,8 +65,8 @@ G4FieldManager* GField::create_FieldManager() {
 		mag_int_stepper = new G4ExplicitEuler(iEquation);
 	} else {
 		// If we got here, the name was expected to be valid but no branch matched.
-		log->error(gfields::ERR_STEPPER_NOT_FOUND, "Integration Stepper ", integration_stepper,
-		           " not found. Exiting.");
+		log->error(
+			gfields::ERR_STEPPER_NOT_FOUND, "Integration Stepper %1 not found. Exiting.", integration_stepper);
 	}
 
 	// Build the chord finder (controls step subdivision and interpolation along curved trajectories).

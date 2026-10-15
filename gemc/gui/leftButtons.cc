@@ -14,4 +14,10 @@ void GemcGUI::createLeftButtons() {
 
 	// The button widget provides both the list UI and the selected index used for page switching.
 	leftButtons = new GQTButtonsWidget(96, 96, bicons);
+	const QStringList names{tr("Display"), tr("Setup"), tr("Geometry"), tr("Commands"),
+	                        tr("Generator"), tr("Analyzer")};
+	for (int index = 0; index < names.size(); ++index) {
+		leftButtons->buttonsWidget->item(index)->setToolTip(names[index]);
+		leftButtons->buttonsWidget->item(index)->setData(Qt::AccessibleTextRole, names[index]);
+	}
 }

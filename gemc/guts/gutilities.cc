@@ -131,6 +131,56 @@ string replaceCharInStringWithChars(const std::string& input, const std::string&
 }
 
 /*
+ * Closest candidate by case-insensitive Levenshtein distance, for "did you mean ...?" hints.
+ *
+ * See the API documentation in gutilities.h for full Doxygen docs.
+ */
+std::optional<std::string> closestMatch(const std::string&              query,
+                                        const std::vector<std::string>& candidates,
+                                        std::size_t                     max_distance) {
+	auto lower = [](std::string s) {
+		std::transform(s.begin(), s.end(), s.begin(),
+		               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+		return s;
+	};
+
+	// Iterative Levenshtein distance using two rolling rows.
+	auto distance = [](const std::string& a, const std::string& b) -> std::size_t {
+		const std::size_t  m = a.size(), n = b.size();
+		std::vector<std::size_t> prev(n + 1), curr(n + 1);
+		for (std::size_t j = 0; j <= n; ++j) prev[j] = j;
+		for (std::size_t i = 1; i <= m; ++i) {
+			curr[0] = i;
+			for (std::size_t j = 1; j <= n; ++j) {
+				const std::size_t cost = (a[i - 1] == b[j - 1]) ? 0 : 1;
+				curr[j] = std::min({prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost});
+			}
+			std::swap(prev, curr);
+		}
+		return prev[n];
+	};
+
+	const std::string ql = lower(query);
+	std::optional<std::string> best;
+	std::size_t                best_distance = max_distance + 1;
+	for (const auto& candidate : candidates) {
+		const std::size_t d = distance(ql, lower(candidate));
+		if (d < best_distance) {
+			best_distance = d;
+			best          = candidate;
+		}
+	}
+
+	if (!best) return std::nullopt;
+
+	// Reject matches that are not close enough to be a useful suggestion.
+	const std::size_t longer    = std::max(query.size(), best->size());
+	const std::size_t relative  = (longer + 2) / 3; // one third, rounded up
+	if (best_distance > max_distance || best_distance > relative) return std::nullopt;
+	return best;
+}
+
+/*
  * Replace all occurrences of substring 'from' with substring 'to'.
  *
  * See the API documentation in gutilities.h for full Doxygen docs.

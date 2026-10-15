@@ -31,18 +31,20 @@ bool G4ObjectsFactory::checkSolidDependencies(const GVolume* s,
 	if (copyOf) { message = ", copyOf: " + *copyOf; }
 	else if (solidsOpr) { message = ", solidsOpr: " + *solidsOpr; }
 
-	log->debug(NORMAL, className(), " checkSolidDependencies: checking dependencies for <",
-	           s->getName(), ">", message);
+	log->debug(
+		NORMAL, "%1 checkSolidDependencies: checking dependencies for <%2>%3", className(), s->getName(),
+		message);
 
 	/*──────────────────────────────────── copyOf: volumeName ───────────────────────────────────*/
 	if (copyOf) {
 		auto volume_copy = gsystem + "/" + *copyOf;
 		if (getSolidFromMap(volume_copy, g4s) != nullptr) {
-			log->info(2, "<", s->getName(), "> is a copy of <", volume_copy, ">, which already exists");
+			log->info(2, "<%1> is a copy of <%2>, which already exists", s->getName(), volume_copy);
 			return true;
 		}
-		log->info(2, "<", s->getName(), "> is a copy of <", volume_copy,
-		          ">, which already exists, which does not exist yet");
+		log->info(
+			2, "<%1> is a copy of <%2>, which already exists, which does not exist yet", s->getName(),
+			volume_copy);
 		return false;
 	}
 
@@ -96,7 +98,7 @@ bool G4ObjectsFactory::checkPhysicalDependencies(const GVolume* s,
 
 	// Candidate wrapper must exist in the map before we can reason about its logical/physical state.
 	if (g4s->find(vname) == g4s->end()) {
-		log->info(2, "dependencies: ", vname, " not found in gvolume map yet.");
+		log->info(2, "dependencies: %1 not found in gvolume map yet.", vname);
 		return false;
 	}
 
@@ -108,31 +110,32 @@ bool G4ObjectsFactory::checkPhysicalDependencies(const GVolume* s,
 			auto gsystem     = s->getSystem();
 			auto volume_copy = gsystem + "/" + *copyOf;
 			if (getLogicalFromMap(volume_copy, g4s) == nullptr) {
-				log->info(2, "dependencies: copy ", volume_copy, " logical volume not found yet.");
+				log->info(2, "dependencies: copy %1 logical volume not found yet.", volume_copy);
 				return false;
 			}
 		}
 		else {
-			log->info(2, "dependencies: ", vname, " logical volume not found yet.");
+			log->info(2, "dependencies: %1 logical volume not found yet.", vname);
 			return false;
 		}
 	}
 
 	// Mother logical must exist unless this is the world volume.
 	if (motherName != gsystem::MOTHEROFUSALL && getLogicalFromMap(motherName, g4s) == nullptr) {
-		log->info(2, "dependencies: ", vname,
-		          " mother <", motherName, "> logical volume not found yet.");
+		log->info(2, "dependencies: %1 mother <%2> logical volume not found yet.", vname, motherName);
 		return false;
 	}
 
 	// Everything satisfied – emit verbose trace.
 	if (motherName != gsystem::MOTHEROFUSALL) {
-		log->info(2, "dependencies: <", vname, "> and mother <", motherName,
-		          "> logical volumes are found. Ready to build or get physical volume.");
+		log->info(
+			2,
+			"dependencies: <%1> and mother <%2> logical volumes are found. Ready to build or get physical "
+			"volume.", vname, motherName);
 	}
 	else {
-		log->info(2, "dependencies: <", vname,
-		          "> logical volume is found. Ready to build or get physical volume.");
+		log->info(
+			2, "dependencies: <%1> logical volume is found. Ready to build or get physical volume.", vname);
 	}
 	return true;
 }

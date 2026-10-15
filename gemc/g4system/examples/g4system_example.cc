@@ -51,12 +51,12 @@ int main(int argc, char* argv[]) {
 	auto g4world = std::make_shared<G4World>(gworld.get(), gopts);
 
 	// Print the number of volumes in the GEMC world definition.
-	log->info(2, "Number of volumes in the gworld: ", gworld->get_number_of_volumes());
+	log->info(2, "Number of volumes in the gworld: %1", gworld->get_number_of_volumes());
 
 	// Print the list of sensitive detectors declared by the world definition.
 	auto sensitiveDetectors = gworld->getSensitiveDetectorsList();
 	for (const auto& sd : sensitiveDetectors) {
-		log->info(2, "Sensitive detector: ", sd);
+		log->info(2, "Sensitive detector: %1", sd);
 	}
 
 	return EXIT_SUCCESS;

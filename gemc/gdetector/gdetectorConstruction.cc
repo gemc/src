@@ -71,7 +71,7 @@ GDetectorConstruction::GDetectorConstruction(std::shared_ptr<GOptions> gopts)
 
 // Builds (or rebuilds) the GEMC world and then the Geant4 world.
 G4VPhysicalVolume *GDetectorConstruction::Construct() {
-	log->debug(NORMAL, FUNCTION_NAME);
+	log->debug(NORMAL, "%1", FUNCTION_NAME);
 
 	// Delete old geometry objects if they exist.
 	// These shared_ptr resets guarantee we won't keep references to stale world objects.
@@ -81,10 +81,10 @@ G4VPhysicalVolume *GDetectorConstruction::Construct() {
 	// - if no systems are provided, we just launched gemc: create from options
 	// - otherwise, it's a geometry re-load. use existing systems.
 	if (gsystems.empty()) {
-		log->debug(NORMAL, FUNCTION_NAME, "creating world from options");
+		log->debug(NORMAL, "%1creating world from options", FUNCTION_NAME);
 		gworld = std::make_shared<GWorld>(gopt);
 	} else {
-		log->debug(NORMAL, FUNCTION_NAME, "creating world from a gsystem vector of size ", gsystems.size());
+		log->debug(NORMAL, "%1creating world from a gsystem vector of size %2", FUNCTION_NAME, gsystems.size());
 		gworld = std::make_shared<GWorld>(gopt, cloneSystemDescriptors(gsystems));
 	}
 
@@ -94,9 +94,9 @@ G4VPhysicalVolume *GDetectorConstruction::Construct() {
 	auto nsdetectors = gworld->getSensitiveDetectorsList().size();
 
 	// tally with number :
-	log->info(0, "Tally summary: \n - ", gworld->get_number_of_volumes() - 1, " volumes\n - ",
-	          g4world->number_of_volumes(), " geant4 built volumes\n - ",
-	          nsdetectors, " sensitive detectors\n");
+	log->info(
+		0, "Tally summary: \n - %1 volumes\n - %2 geant4 built volumes\n - %3 sensitive detectors\n",
+		gworld->get_number_of_volumes() - 1, g4world->number_of_volumes(), nsdetectors);
 
 	// Logical volumes are shared by all workers, so load their digitization metadata and
 	// install user limits once while constructing the master geometry.
@@ -114,7 +114,7 @@ G4VPhysicalVolume *GDetectorConstruction::Construct() {
 void GDetectorConstruction::ConstructSDandField() {
 	auto sdManager = G4SDManager::GetSDMpointer();
 
-	log->debug(NORMAL, FUNCTION_NAME);
+	log->debug(NORMAL, "%1", FUNCTION_NAME);
 
 	// Deactivate all SDs this thread registered in prior geometry loads.
 	// G4SDManager retains SDs indefinitely across reloads; an active stale SD has
@@ -162,8 +162,10 @@ void GDetectorConstruction::ConstructSDandField() {
 		}
 		if (configured_fields.size() == 1) {
 			global_field_name = configured_fields.front();
-			log->info(1, "No explicit global field selected: using the only configured field <",
-			          global_field_name, "> on the ROOT world volume.");
+			log->info(
+				1,
+				"No explicit global field selected: using the only configured field <%1> on the ROOT world "
+				"volume.", global_field_name);
 		}
 	}
 	const bool global_field_set = !disable_all_fields && !is_unset_field_name(global_field_name);
@@ -187,7 +189,7 @@ void GDetectorConstruction::ConstructSDandField() {
 		}
 		for (const auto &name: no_field_volumes) {
 			if (!matched_no_field.count(name)) {
-				log->warning("-", gfields::NO_FIELD_OPTION, ": volume <", name, "> not found in the geometry.");
+				log->warning("-%1: volume <%2> not found in the geometry.", gfields::NO_FIELD_OPTION, name);
 			}
 		}
 	}
@@ -219,13 +221,15 @@ void GDetectorConstruction::ConstructSDandField() {
 					auto volume_copy = gsystem + "/" + *copyOf;
 					auto copyG4Volume = g4world->getG4Volume(volume_copy)->getLogical();
 					if (copyG4Volume != nullptr) { g4volume = copyG4Volume; } else {
-						log->error(gsystem::ERR_GVOLUMENOTFOUND, FUNCTION_NAME,
-						           " Logical volume copy <" + volume_copy + "> not found.");
+						log->error(
+							gsystem::ERR_GVOLUMENOTFOUND, "%1 Logical volume copy <%2> not found.",
+							FUNCTION_NAME, volume_copy);
 					}
 				}
 			}
 			if (g4volume == nullptr) {
-				log->error(gsystem::ERR_GVOLUMENOTFOUND, FUNCTION_NAME, " Logical volume <" + g4name + "> not found.");
+				log->error(
+					gsystem::ERR_GVOLUMENOTFOUND, "%1 Logical volume <%2> not found.", FUNCTION_NAME, g4name);
 			}
 
 			// Skip volumes with no digitization.
@@ -245,20 +249,24 @@ void GDetectorConstruction::ConstructSDandField() {
 					// fires on the same object that SetSensitiveDetector() wires to the volumes.
 					auto tlIt = tlSDMap->find(digitization);
 					if (tlIt != tlSDMap->end()) {
-						log->info(2, "Reusing existing sensitive detector <", digitization, "> for volume <", g4name, ">");
+						log->info(
+							2, "Reusing existing sensitive detector <%1> for volume <%2>", digitization,
+							g4name);
 						tlIt->second->resetTouchableMap();
 						tlIt->second->Activate(true);
 						sensitiveDetectorsMap[digitization] = tlIt->second;
 					} else {
-						log->info(2, "Creating new sensitive detector <", digitization, "> for volume <", g4name, ">");
+						log->info(
+							2, "Creating new sensitive detector <%1> for volume <%2>", digitization, g4name);
 						auto* newSD = new GSensitiveDetector(digitization, gopt);
 						sdManager->AddNewDetector(newSD);
 						sensitiveDetectorsMap[digitization] = newSD;
 						(*tlSDMap)[digitization] = newSD;
 					}
 				} else {
-					log->info(2, "Sensitive detector <", digitization,
-					          "> is already created and available for volume <", g4name, ">");
+					log->info(
+						2, "Sensitive detector <%1> is already created and available for volume <%2>",
+						digitization, g4name);
 				}
 
 				// Register the volume touchable with the sensitive detector.
@@ -266,8 +274,9 @@ void GDetectorConstruction::ConstructSDandField() {
 				const auto &vdimensions = gvolumePtr->getDetectorDimensions();
 				const auto &identity = gvolumePtr->getGIdentity();
 				if (!identity) {
-					log->error(gsystem::ERR_GWRONGNUMBEROFPARS, "Sensitive volume <", g4name,
-					           "> has digitization <", digitization, "> but no identifier.");
+					log->error(
+						gsystem::ERR_GWRONGNUMBEROFPARS,
+						"Sensitive volume <%1> has digitization <%2> but no identifier.", g4name, digitization);
 				}
 				const auto &mass = g4volume->GetMass();
 				auto this_gtouchable = std::make_shared<
@@ -281,8 +290,9 @@ void GDetectorConstruction::ConstructSDandField() {
 
 				//g4volume->SetUserLimits(new G4UserLimits(0.1*mm, 0.1*mm));
 
-				log->info(2, "Logical Volume  <" + g4name + "> has been successfully assigned to SD.",
-				          sensitiveDetectorsMap[digitization]);
+				log->info(
+					2, "Logical Volume  <%1> has been successfully assigned to SD.%2", g4name,
+					sensitiveDetectorsMap[digitization]);
 			}
 
 			// Process electromagnetic fields.
@@ -293,12 +303,14 @@ void GDetectorConstruction::ConstructSDandField() {
 			const bool  volume_field_reset   = disable_all_fields ||
 				no_field_volumes.count(volumeName) || no_field_volumes.count(g4name);
 			if (volume_field_present && volume_field_reset) {
-				log->info(2, "Volume <", volumeName, "> field <", *field_name, "> reset by -",
-				          gfields::NO_FIELD_OPTION, ": no field installed.");
+				log->info(
+					2, "Volume <%1> field <%2> reset by -%3: no field installed.", volumeName, *field_name,
+					gfields::NO_FIELD_OPTION);
 			} else if (volume_field_present) {
-				log->info(2, "Volume <", volumeName, "> has field: <", *field_name,
-				          ">. Looking into field map definitions.");
-				log->info(2, "Setting field manager for volume <", g4name, "> with field <", *field_name, ">");
+				log->info(
+					2, "Volume <%1> has field: <%2>. Looking into field map definitions.", volumeName,
+					*field_name);
+				log->info(2, "Setting field manager for volume <%1> with field <%2>", g4name, *field_name);
 				g4world->setFieldManagerForVolume(g4name, gmagneto->getFieldMgr(*field_name).get(), true);
 			}
 		}
@@ -308,14 +320,16 @@ void GDetectorConstruction::ConstructSDandField() {
 	// A global field is associated with the ROOT world volume and propagated to all daughters, so it
 	// applies everywhere a more specific per-volume field has not been installed.
 	if (global_field_set) {
-		log->info(2, "Setting global field manager for the ROOT world volume <", gsystem::ROOTWORLDGVOLUMENAME,
-		          "> with field <", global_field_name, ">");
+		log->info(
+			2, "Setting global field manager for the ROOT world volume <%1> with field <%2>",
+			gsystem::ROOTWORLDGVOLUMENAME, global_field_name);
 		g4world->setFieldManagerForVolume(gsystem::ROOTWORLDGVOLUMENAME,
 		                                  gmagneto->getFieldMgr(global_field_name).get(), true);
 	} else if (disable_all_fields && global_field_name != "" &&
 		!is_unset_field_name(global_field_name)) {
-		log->info(2, "Global field <", global_field_name, "> reset by -", gfields::NO_FIELD_OPTION, "=",
-		          gfields::NO_FIELD_ALL, ": none installed.");
+		log->info(
+			2, "Global field <%1> reset by -%2=%3: none installed.", global_field_name,
+			gfields::NO_FIELD_OPTION, gfields::NO_FIELD_ALL);
 	}
 
 	// Bind each digitization routine to its corresponding sensitive detector.
@@ -324,8 +338,9 @@ void GDetectorConstruction::ConstructSDandField() {
 		auto digitization_routine = digitization_routines_map->at(sdname);
 
 		sensitiveDetectorsMap[sdname]->assign_digi_routine(digitization_routine);
-		log->info(1, "Digitization routine <" + sdname + "> has been successfully assigned to SD.",
-		          sensitiveDetectorsMap[sdname]);
+		log->info(
+			1, "Digitization routine <%1> has been successfully assigned to SD.%2", sdname,
+			sensitiveDetectorsMap[sdname]);
 	}
 }
 
@@ -348,14 +363,14 @@ void GDetectorConstruction::assignUserLimits() {
 				const auto& g4name = volume->getG4Name();
 				const auto* g4volume = g4world->getG4Volume(g4name);
 				if (g4volume == nullptr || g4volume->getLogical() == nullptr) {
-					log->error(gsystem::ERR_GVOLUMENOTFOUND, FUNCTION_NAME,
-					           " Logical volume <" + g4name + "> not found while assigning user limits.");
+					log->error(
+						gsystem::ERR_GVOLUMENOTFOUND,
+						"%1 Logical volume <%2> not found while assigning user limits.", FUNCTION_NAME, g4name);
 					continue;
 				}
 
 				g4volume->getLogical()->SetUserLimits(limits_ptr);
-				log->info(1, "Setting G4UserLimits for volume <", g4name,
-				          "> with maxStep <", max_step, ">");
+				log->info(1, "Setting G4UserLimits for volume <%1> with maxStep <%2>", g4name, max_step);
 			}
 		}
 	}
@@ -388,20 +403,20 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 
 	for (auto &sdname: sdetectors) {
 		if (sdname == gtouchable::FLUXNAME) {
-			log->info(1, "Loading flux digitization plugin for routine <" + sdname + ">");
+			log->info(1, "Loading flux digitization plugin for routine <%1>", sdname);
 			digitization_routines_map->emplace(sdname, std::make_shared<GFluxDigitization>(gopt));
 		} else if (sdname == gtouchable::GPHOTON_DETECTORNAME) {
-			log->info(1, "Loading gPhotonDetector digitization plugin for routine <" + sdname + ">");
+			log->info(1, "Loading gPhotonDetector digitization plugin for routine <%1>", sdname);
 			digitization_routines_map->emplace(sdname, std::make_shared<GPhotonDetectorDigitization>(gopt));
 		} else if (sdname == gtouchable::COUNTERNAME) {
-			log->info(1, "Loading particle counter digitization plugin for routine <" + sdname + ">");
+			log->info(1, "Loading particle counter digitization plugin for routine <%1>", sdname);
 			digitization_routines_map->emplace(sdname, std::make_shared<GParticleCounterDigitization>(gopt));
 		} else if (sdname == gtouchable::DOSIMETERNAME) {
-			log->info(1, "Loading dosimeter digitization plugin for routine <" + sdname + ">");
+			log->info(1, "Loading dosimeter digitization plugin for routine <%1>", sdname);
 			digitization_routines_map->emplace(sdname, std::make_shared<GDosimeterDigitization>(gopt));
 		} else {
 			// if it's not in the map already, add it
-			log->info(0, "Loading new digitization plugin for routine <" + sdname + ">");
+			log->info(0, "Loading new digitization plugin for routine <%1>", sdname);
 			digitization_routines_map->emplace(sdname, gdynamicdigitization::load_dynamicRoutine(sdname, gopt));
 		}
 
@@ -422,8 +437,8 @@ void GDetectorConstruction::loadDigitizationPlugins() {
 		digitization_routines_map->at(sdname)->setHitRejectionPolicies(sdname);
 
 		if (digitization_routines_map->at(sdname)->defineReadoutSpecs()) {
-			log->info(1, "Digitization routine <" + sdname + "> has been successfully defined.");
-		} else { log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <" + sdname + ">"); }
+			log->info(1, "Digitization routine <%1> has been successfully defined.", sdname);
+		} else { log->error(ERR_DEFINESPECFAIL, "defineReadoutSpecs failure for <%1>", sdname); }
 	}
 }
 
@@ -465,7 +480,7 @@ void GDetectorConstruction::reload_geometry(SystemList sl) {
 		rm->DefineWorldVolume(Construct());
 		GVisManagerGuard::set(visManager);
 		ConstructSDandField();
-	} else { log->error(1, "GDetectorConstruction::reload_geometry", "Geant4 Run manager not found."); }
+	} else { log->error(1, "GDetectorConstruction::reload_geometryGeant4 Run manager not found."); }
 }
 
 void GDetectorConstruction::prepare_geometry_for_run() {
@@ -485,5 +500,5 @@ void GDetectorConstruction::prepare_geometry_for_run() {
 		rm->PhysicsHasBeenModified();
 		rm->Initialize();
 		GVisManagerGuard::set(visManager);
-	} else { log->error(1, "GDetectorConstruction::prepare_geometry_for_run", "Geant4 Run manager not found."); }
+	} else { log->error(1, "GDetectorConstruction::prepare_geometry_for_runGeant4 Run manager not found."); }
 }

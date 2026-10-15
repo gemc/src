@@ -42,12 +42,12 @@ int main(int argc, char* argv[]) {
 		// Create randomized test hits (for demonstration only).
 		auto hit = GHit::create(gopts);
 
-		log->info(" GHit: ", *hit->getGTouchable(), " with total Edep: ", hit->getTotalEnergyDeposited(), " MeV");
+		log->info(" GHit: %1 with total Edep: %2 MeV", *hit->getGTouchable(), hit->getTotalEnergyDeposited());
 
 		// Compare without copying; hits stores raw pointers, so iterate by pointer.
 		for (const auto& hit_in_v : hits) {
 			if (hit->is_same_hit(hit_in_v)) {
-				log->info(NORMAL, (*hit->getGTouchable()), " found in hit n. ", i);
+				log->info("%1%2 found in hit n. %3", NORMAL, (*hit->getGTouchable()), i);
 			}
 		}
 

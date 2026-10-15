@@ -7,11 +7,11 @@
 
 bool GstreamerJsonFactory::startStreamImpl(const GFrameDataCollection* frameRunData) {
 	if (!ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename());
 	}
 	if (!frameRunData) {
-		log->error(gstreamer::ERR_PUBLISH_ERROR,
-		           "frameRunData is null in GstreamerJsonFactory::startStreamImpl");
+		log->error(
+			gstreamer::ERR_PUBLISH_ERROR, "frameRunData is null in GstreamerJsonFactory::startStreamImpl");
 	}
 
 	// Ensure the top-level JSON document is initialized for frame output.
@@ -30,8 +30,9 @@ bool GstreamerJsonFactory::startStreamImpl(const GFrameDataCollection* frameRunD
 
 bool GstreamerJsonFactory::endStreamImpl(const GFrameDataCollection* frameRunData) {
 	if (!is_building_frame) {
-		log->error(gstreamer::ERR_PUBLISH_ERROR,
-		           "endStreamImpl called without an active frame in GstreamerJsonFactory");
+		log->error(
+			gstreamer::ERR_PUBLISH_ERROR,
+			"endStreamImpl called without an active frame in GstreamerJsonFactory");
 		return false;
 	}
 

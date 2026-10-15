@@ -201,7 +201,7 @@ public:
     [[nodiscard]] double processStepTime(const std::shared_ptr<GTouchable> &gTouchID,
                                          [[maybe_unused]] G4Step *thisStep) {
         check_if_log_defined();
-        log->debug(NORMAL, FUNCTION_NAME);
+        log->debug(NORMAL, "%1", FUNCTION_NAME);
         return processStepTimeImpl(gTouchID, thisStep);
     }
 
@@ -220,7 +220,7 @@ public:
     [[nodiscard]] std::vector<std::string> variables_to_normalize() {
         check_if_log_defined();
 
-        log->debug(NORMAL, FUNCTION_NAME);
+        log->debug(NORMAL, "%1", FUNCTION_NAME);
 
         return variables_to_normalizeImpl();
     }
@@ -246,7 +246,7 @@ public:
     [[nodiscard]] std::vector<std::shared_ptr<GTouchable> > processTouchable(
         std::shared_ptr<GTouchable> gtouchable, G4Step *thisStep) {
         check_if_log_defined();
-        log->debug(NORMAL, FUNCTION_NAME);
+        log->debug(NORMAL, "%1", FUNCTION_NAME);
         return processTouchableImpl(std::move(gtouchable), thisStep);
     }
 
@@ -273,7 +273,7 @@ public:
     [[nodiscard]] std::vector<std::shared_ptr<GTouchable> > processGTouchableModifiers(
         const std::shared_ptr<GTouchable> &gTouchID, const GTouchableModifiers &gmods) {
         check_if_log_defined();
-        log->debug(NORMAL, FUNCTION_NAME);
+        log->debug(NORMAL, "%1", FUNCTION_NAME);
         return processGTouchableModifiersImpl(gTouchID, gmods);
     }
 
@@ -301,8 +301,9 @@ public:
      */
     [[nodiscard]] std::unique_ptr<GTrueInfoData> collectTrueInformation(GHit *ghit, size_t hitn) {
         check_if_log_defined();
-        log->info(2, "GDynamicDigitization::collect true information for hit number ", hitn, " with size ",
-                  ghit->nsteps(), " steps");
+        log->info(
+            2, "GDynamicDigitization::collect true information for hit number %1 with size %2 steps", hitn,
+            ghit->nsteps());
         return collectTrueInformationImpl(ghit, hitn);
     }
 
@@ -326,7 +327,7 @@ public:
      */
     [[nodiscard]] std::unique_ptr<GDigitizedData> digitizeHit(GHit *ghit, [[maybe_unused]] size_t hitn) {
         check_if_log_defined();
-        log->info(2, "GDynamicDigitization::digitize  hit number ", hitn, " with size ", ghit->nsteps(), " steps");
+        log->info(2, "GDynamicDigitization::digitize  hit number %1 with size %2 steps", hitn, ghit->nsteps());
         return digitizeHitImpl(ghit, hitn);
     }
 
@@ -393,8 +394,9 @@ public:
      */
     [[nodiscard]] bool loadTT([[maybe_unused]] int runno, [[maybe_unused]] std::string const &variation) {
         check_if_log_defined();
-        log->debug(NORMAL, "GDynamicDigitization::load Translation Table for run ", runno, " with variation ",
-                   variation);
+        log->debug(
+            NORMAL, "GDynamicDigitization::load Translation Table for run %1 with variation %2", runno,
+            variation);
         return loadTTImpl(runno, variation);
     }
 
@@ -710,7 +712,7 @@ namespace gdynamicdigitization {
 
         for (const auto &plugin: plugin_names) {
             routines->emplace(plugin, manager.LoadAndRegisterObjectFromLibrary<GDynamicDigitization>(plugin, gopts));
-            log->info(0, "dynamicRoutinesMap[", plugin, "]: ", (*routines)[plugin]);
+            log->info(0, "dynamicRoutinesMap[%1]: %2", plugin, (*routines)[plugin]);
         }
 
         return routines;

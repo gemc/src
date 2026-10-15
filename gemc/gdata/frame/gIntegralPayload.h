@@ -52,8 +52,9 @@ public:
 	 */
 	GIntegralPayload(int c, int s, int ch, int q, int t, std::shared_ptr<GLogger> logger)
 		: log(logger), crate(c), slot(s), channel(ch), charge(q), time(t) {
-		log->debug(CONSTRUCTOR, "GIntegralPayload crate ", crate, " slot ", slot, " channel ", channel, " charge ",
-		           charge, " time ", time);
+		log->debug(
+			CONSTRUCTOR, "GIntegralPayload crate %1 slot %2 channel %3 charge %4 time %5", crate, slot, channel,
+			charge, time);
 	}
 
 	/**
@@ -64,8 +65,9 @@ public:
 	 * Destruction logging is useful mainly for lifecycle tracing in tests and examples.
 	 */
 	~GIntegralPayload() {
-		log->debug(DESTRUCTOR, "GIntegralPayload crate ", crate, " slot ", slot, " channel ", channel, " charge ",
-		           charge, " time ", time);
+		log->debug(
+			DESTRUCTOR, "GIntegralPayload crate %1 slot %2 channel %3 charge %4 time %5", crate, slot, channel,
+			charge, time);
 	}
 
 	/**

@@ -59,7 +59,7 @@ public:
 		timeWindow(tw),
 		gridStartTime(gst),
 		maxStep(ms) {
-		log->info(1, "GReadoutSpecs: timeWindow=", timeWindow, ", gridStartTime=", gridStartTime);
+		log->info(1, "GReadoutSpecs: timeWindow=%1, gridStartTime=%2", timeWindow, gridStartTime);
 	}
 
 	[[nodiscard]] inline double getMaxStep() const { return maxStep; }

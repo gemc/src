@@ -8,7 +8,7 @@
 
 bool GstreamerTextFactory::startRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
 	if (!ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename());
 	}
 
 	auto runId = run_data->getHeader()->getRunID();
@@ -22,7 +22,7 @@ bool GstreamerTextFactory::startRunImpl([[maybe_unused]] const std::shared_ptr<G
 
 bool GstreamerTextFactory::endRunImpl([[maybe_unused]] const std::shared_ptr<GRunDataCollection>& run_data) {
 	if (!ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename());
 	}
 
 	auto runId = run_data->getHeader()->getRunID();

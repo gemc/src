@@ -9,6 +9,7 @@
 #include <QtCharts/QChartView>
 #include <QString>
 #include <QWidget>
+#include <QCoreApplication>
 
 // c++
 #include <array>
@@ -31,6 +32,7 @@ enum class GHistogram2DStyle {
 /** \brief Qt Charts renderer shared by the Analyzer page and PDF export. */
 class GHistogramChart : public QChartView
 {
+	Q_DECLARE_TR_FUNCTIONS(GHistogramChart)
 public:
 	explicit GHistogramChart(QWidget* parent = nullptr);
 
@@ -65,6 +67,7 @@ private:
  */
 class GAnalysisView : public QWidget
 {
+	Q_DECLARE_TR_FUNCTIONS(GAnalysisView)
 public:
 	explicit GAnalysisView(std::shared_ptr<GAnalysisAccumulator> accumulator,
 	                       QWidget* parent = nullptr);

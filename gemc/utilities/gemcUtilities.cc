@@ -85,7 +85,7 @@ namespace gemc {
 		// - values larger than available cores are clamped
 		if (useThreads == 0 || useThreads > ncores) useThreads = ncores;
 
-		log->info(0, "Using ", useThreads, " threads out of ", ncores, " available cores.");
+		log->info(0, "Using %1 threads out of %2 available cores.", useThreads, ncores);
 
 		return useThreads;
 	}
@@ -147,7 +147,7 @@ namespace gemc {
 			cmds.emplace_back("/geometry/test/run");
 		}
 		else if (check_overlaps >= 100) {
-			log->info(0, "Running /geometry/test/run with ", check_overlaps, " points.");
+			log->info(0, "Running /geometry/test/run with %1 points.", check_overlaps);
 			cmds.emplace_back("/geometry/test/resolution " + std::to_string(check_overlaps));
 			cmds.emplace_back("/geometry/test/run");
 		}
@@ -242,7 +242,7 @@ namespace gemc {
 
 		// Apply commands sequentially so the UI manager sees the same order as a macro file.
 		for (const auto& cmd : commands) {
-			log->info(2, "Executing UIManager command: ", cmd);
+			log->info(2, "Executing UIManager command: %1", cmd);
 			g4uim->ApplyCommand(cmd);
 		}
 	}
@@ -250,15 +250,15 @@ namespace gemc {
 	void execute_macro(const std::string& filename, const std::shared_ptr<GLogger>& log) {
 		std::error_code error;
 		if (!std::filesystem::is_regular_file(filename, error) || !std::ifstream(filename)) {
-			log->error(EXIT_FAILURE, "Cannot read Geant4 macro file: ", filename);
+			log->error(EXIT_FAILURE, "Cannot read Geant4 macro file: %1", filename);
 		}
 
-		log->info(0, "Executing Geant4 macro: ", filename);
+		log->info(0, "Executing Geant4 macro: %1", filename);
 		auto* uim = G4UImanager::GetUIpointer();
 		// Pass the filename directly so paths containing spaces are not parsed as command arguments.
 		uim->ExecuteMacroFile(filename.c_str());
 		if (const auto status = uim->GetLastReturnCode(); status != 0) {
-			log->error(EXIT_FAILURE, "Geant4 macro failed: ", filename, " (command status ", status, ")");
+			log->error(EXIT_FAILURE, "Geant4 macro failed: %1 (command status %2)", filename, status);
 		}
 	}
 
@@ -284,10 +284,10 @@ namespace gemc {
 			auto clockd  = clock();
 			auto getpidi = getpid();
 			seed         = (G4int)( timed - clockd - getpidi );
-			log->info(1, "Using random seed ", seed);
+			log->info(1, "Using random seed %1", seed);
 		} else {
 			seed = *configuredSeed;
-			log->info(1, "User defined seed ", seed);
+			log->info(1, "User defined seed %1", seed);
 		}
 
 
@@ -322,12 +322,12 @@ namespace gemc {
 		else if (randomEngineName == "TripleRand")
 			G4Random::setTheEngine(new CLHEP::TripleRand(seed));
 	    else {
-		    log->error(gemc::EC__RANDOMENGINENOTFOUND, "Random engine >", randomEngineName,
-		               "< not found. Exiting.");
+		    log->error(gemc::EC__RANDOMENGINENOTFOUND,
+		                       "Random engine >%1< not found. Exiting.", randomEngineName);
 	    }
 
 	    // Apply the seed after selecting the engine so the engine instance is active.
-		log->info(0, "Starting random engine ", randomEngineName, " with seed ", seed);
+		log->info(0, "Starting random engine %1 with seed %2", randomEngineName, seed);
 		G4Random::setTheSeed(seed);
 	}
 }

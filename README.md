@@ -357,6 +357,8 @@ For example, after running the [`b2` example](https://gemc.github.io/home/exampl
 ## Documentation
 
 - [GEMC homepage](https://gemc.github.io/home/)
+- [C++ logging](https://gemc.github.io/home/documentation/api/logging/) — numbered message templates,
+  filtering, and error handling; template methods are upcoming in the next release
 - [Thread scaling](https://gemc.github.io/home/documentation/support/thread_scaling) — multithread benchmarking
   and the scaling sweep
 - [Profiling](https://gemc.github.io/home/documentation/support/valgrind_profile) — Valgrind callgrind metrics
@@ -376,6 +378,27 @@ keep changes focused. See:
 - [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
 - [`SECURITY.md`](SECURITY.md)
 - [CI workflow guide](.github/workflows/README.md)
+
+Upcoming in the next release: C++ logging methods accept complete messages with numbered parameters:
+
+```cpp
+log->info(0, "Using %1 threads out of %2 available cores.", useThreads, ncores);
+```
+
+Migrate concatenating calls in external plugins and rebuild against matching GEMC headers. The transitional
+`*Template()` methods remain forwarding aliases. See the
+[logging guide](https://gemc.github.io/home/documentation/api/logging/) for placeholder rules and handling
+dynamic diagnostic text.
+
+English logging catalogs are generated from the C++ templates in each owning repository. See
+[message catalogs](translations/README.md) for extraction, validation, and installation commands. Logging
+detects the language automatically; `-language=it` selects Italian and `-language=en` forces English.
+Missing translations fall back to English. The shared Claude/Codex workflow generates project-language
+catalogs through the same weekday cron job used for website and README translations.
+
+Upcoming in the next release: GUI controls, tooltips, geometry descriptions, analyzer messages, and SVG button
+captions use the same language selection. See [GUI translations](translations/gui/README.md). Qt Linguist tools
+compile the GUI catalogs during the build; standard-dialog translations use Qt's installed language data.
 
 <br/>
 

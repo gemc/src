@@ -7,7 +7,7 @@
 
 bool GstreamerTextFactory::publishPayloadImpl(const std::vector<GIntegralPayload*>* payload) {
 	if (!ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename());
 	}
 
 	ofile << guts::GTAB << "Payload  {\n";

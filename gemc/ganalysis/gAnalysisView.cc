@@ -46,7 +46,9 @@
 namespace {
 
 QString sourceName(GAnalysisSource source) {
-	return source == GAnalysisSource::true_information ? "True information" : "Digitized";
+	return source == GAnalysisSource::true_information
+	       ? QCoreApplication::translate("GAnalysisPlotPanel", "True information")
+	       : QCoreApplication::translate("GAnalysisPlotPanel", "Digitized");
 }
 
 double roundedEntriesMaximum(double maximum_count) {
@@ -196,7 +198,7 @@ void GHistogramChart::setHistogram(const GHistogramData& histogram, const QStrin
 	chart()->legend()->hide();
 
 	auto* x_axis = new QValueAxis;
-	x_axis->setTitleText("Value");
+	x_axis->setTitleText(tr("Value"));
 	x_axis->setRange(histogram.x_min, histogram.x_max);
 	x_axis->setLabelFormat("%.5g");
 	chart()->addAxis(x_axis, Qt::AlignBottom);
@@ -205,10 +207,10 @@ void GHistogramChart::setHistogram(const GHistogramData& histogram, const QStrin
 	double y_min = requested_y_min.value_or(logarithmic ? 0.5 : 0.0);
 	double y_max = requested_y_max.value_or(roundedEntriesMaximum(maximum_count));
 	if (logarithmic && y_min <= 0.0) {
-		throw std::invalid_argument("Logarithmic y minimum must be positive");
+		throw std::invalid_argument(tr("Logarithmic y minimum must be positive").toStdString());
 	}
 	if (!std::isfinite(y_min) || !std::isfinite(y_max) || y_min >= y_max) {
-		throw std::invalid_argument("Histogram y minimum must be finite and below y maximum");
+		throw std::invalid_argument(tr("Histogram y minimum must be finite and below y maximum").toStdString());
 	}
 
 	QAbstractAxis* y_axis = nullptr;
@@ -225,7 +227,7 @@ void GHistogramChart::setHistogram(const GHistogramData& histogram, const QStrin
 		value_axis->setRange(y_min, y_max);
 		y_axis = value_axis;
 	}
-	y_axis->setTitleText("Entries");
+	y_axis->setTitleText(tr("Entries"));
 	chart()->addAxis(y_axis, Qt::AlignLeft);
 
 	const QColor line_color = palette().color(QPalette::Highlight);
@@ -320,6 +322,7 @@ void GHistogramChart::clearHistogram() {
 
 class GAnalysisPlotPanel : public QGroupBox
 {
+	Q_DECLARE_TR_FUNCTIONS(GAnalysisPlotPanel)
 public:
 	GAnalysisPlotPanel(std::size_t plot_index, QWidget* chart_parent, QWidget* parent = nullptr);
 
@@ -381,17 +384,16 @@ GAnalysisPlotPanel::GAnalysisPlotPanel(std::size_t plot_index, QWidget* chart_pa
 	run_combo->setObjectName(plotObjectName("analyzerRun", plot_index));
 	detector_combo = new QComboBox(this);
 	detector_combo->setObjectName(plotObjectName("analyzerDetector", plot_index));
-	plot_1d = new QRadioButton("1D", this);
-	plot_2d = new QRadioButton("2D", this);
+	plot_1d = new QRadioButton(tr("1D"), this);
+	plot_2d = new QRadioButton(tr("2D"), this);
 	plot_1d->setObjectName(plotObjectName("analyzerPlot1D", plot_index));
 	plot_2d->setObjectName(plotObjectName("analyzerPlot2D", plot_index));
 	plot_1d->setChecked(true);
 	auto* dimension_group = new QButtonGroup(this);
 	dimension_group->addButton(plot_1d);
 	dimension_group->addButton(plot_2d);
-
-	true_source = new QRadioButton("True information", this);
-	digitized_source = new QRadioButton("Digitized", this);
+	true_source = new QRadioButton(tr("True information"), this);
+	digitized_source = new QRadioButton(tr("Digitized"), this);
 	true_source->setObjectName(plotObjectName("analyzerTrueSource", plot_index));
 	digitized_source->setObjectName(plotObjectName("analyzerDigitizedSource", plot_index));
 	true_source->setChecked(true);
@@ -405,25 +407,24 @@ GAnalysisPlotPanel::GAnalysisPlotPanel(std::size_t plot_index, QWidget* chart_pa
 	y_variable_combo->setEditable(false);
 	x_variable_combo->setObjectName(plotObjectName("analyzerXVariable", plot_index));
 	y_variable_combo->setObjectName(plotObjectName("analyzerYVariable", plot_index));
-	y_variable_label = new QLabel("Y variable:", this);
+	y_variable_label = new QLabel(tr("Y variable:"), this);
 	style_combo = new QComboBox(this);
 	style_combo->setObjectName(plotObjectName("analyzerStyle", plot_index));
-	style_combo->addItem("Heatmap", static_cast<int>(GHistogram2DStyle::heatmap));
-	style_combo->addItem("Boxes", static_cast<int>(GHistogram2DStyle::boxes));
-	style_label = new QLabel("2D style:", this);
-
+	style_combo->addItem(tr("Heatmap"), static_cast<int>(GHistogram2DStyle::heatmap));
+	style_combo->addItem(tr("Boxes"), static_cast<int>(GHistogram2DStyle::boxes));
+	style_label = new QLabel(tr("2D style:"), this);
 	auto* selectors = new QGridLayout;
-	selectors->addWidget(new QLabel("Run:"), 0, 0);
+	selectors->addWidget(new QLabel(tr("Run:")), 0, 0);
 	selectors->addWidget(run_combo, 0, 1);
-	selectors->addWidget(new QLabel("Plugin / detector:"), 0, 2);
+	selectors->addWidget(new QLabel(tr("Plugin / detector:")), 0, 2);
 	selectors->addWidget(detector_combo, 0, 3, 1, 3);
-	selectors->addWidget(new QLabel("Plot:"), 1, 0);
+	selectors->addWidget(new QLabel(tr("Plot:")), 1, 0);
 	selectors->addWidget(plot_1d, 1, 1);
 	selectors->addWidget(plot_2d, 1, 2);
-	selectors->addWidget(new QLabel("Variables:"), 1, 3);
+	selectors->addWidget(new QLabel(tr("Variables:")), 1, 3);
 	selectors->addWidget(true_source, 1, 4);
 	selectors->addWidget(digitized_source, 1, 5);
-	selectors->addWidget(new QLabel("X variable:"), 2, 0);
+	selectors->addWidget(new QLabel(tr("X variable:")), 2, 0);
 	selectors->addWidget(x_variable_combo, 2, 1, 1, 2);
 	selectors->addWidget(y_variable_label, 2, 3);
 	selectors->addWidget(y_variable_combo, 2, 4, 1, 2);
@@ -436,9 +437,8 @@ GAnalysisPlotPanel::GAnalysisPlotPanel(std::size_t plot_index, QWidget* chart_pa
 	bins_spin->setObjectName(plotObjectName("analyzerBins", plot_index));
 	bins_spin->setRange(1, 10000);
 	bins_spin->setValue(100);
-
-	automatic_x_min = new QCheckBox("Auto", this);
-	automatic_x_max = new QCheckBox("Auto", this);
+	automatic_x_min = new QCheckBox(tr("Auto"), this);
+	automatic_x_max = new QCheckBox(tr("Auto"), this);
 	automatic_x_min->setObjectName(plotObjectName("analyzerAutomaticXMin", plot_index));
 	automatic_x_max->setObjectName(plotObjectName("analyzerAutomaticXMax", plot_index));
 	automatic_x_min->setChecked(true);
@@ -451,9 +451,8 @@ GAnalysisPlotPanel::GAnalysisPlotPanel(std::size_t plot_index, QWidget* chart_pa
 	configureNumberSpin(x_max_spin);
 	x_min_spin->setEnabled(false);
 	x_max_spin->setEnabled(false);
-
-	automatic_y_min = new QCheckBox("Auto", this);
-	automatic_y_max = new QCheckBox("Auto", this);
+	automatic_y_min = new QCheckBox(tr("Auto"), this);
+	automatic_y_max = new QCheckBox(tr("Auto"), this);
 	automatic_y_min->setObjectName(plotObjectName("analyzerAutomaticYMin", plot_index));
 	automatic_y_max->setObjectName(plotObjectName("analyzerAutomaticYMax", plot_index));
 	automatic_y_min->setChecked(true);
@@ -471,42 +470,40 @@ GAnalysisPlotPanel::GAnalysisPlotPanel(std::size_t plot_index, QWidget* chart_pa
 
 	title_edit = new QLineEdit(this);
 	title_edit->setObjectName(plotObjectName("analyzerTitle", plot_index));
-	title_edit->setPlaceholderText("Automatic histogram title");
+	title_edit->setPlaceholderText(tr("Automatic histogram title"));
 	scale_combo = new QComboBox(this);
 	scale_combo->setObjectName(plotObjectName("analyzerScale", plot_index));
-	scale_combo->addItem("Linear", false);
-	scale_combo->addItem("Logarithmic", true);
-	scale_label = new QLabel("Y scale:", this);
-
+	scale_combo->addItem(tr("Linear"), false);
+	scale_combo->addItem(tr("Logarithmic"), true);
+	scale_label = new QLabel(tr("Y scale:"), this);
 	auto* controls = new QGridLayout;
-	controls->addWidget(new QLabel("Bins:"), 0, 0);
+	controls->addWidget(new QLabel(tr("Bins:")), 0, 0);
 	controls->addWidget(bins_spin, 0, 1);
-	controls->addWidget(new QLabel("Title:"), 0, 2);
+	controls->addWidget(new QLabel(tr("Title:")), 0, 2);
 	controls->addWidget(title_edit, 0, 3, 1, 3);
 	controls->addWidget(scale_label, 0, 6);
 	controls->addWidget(scale_combo, 0, 7);
-	controls->addWidget(new QLabel("X min:"), 1, 0);
+	controls->addWidget(new QLabel(tr("X min:")), 1, 0);
 	controls->addWidget(x_min_spin, 1, 1);
 	controls->addWidget(automatic_x_min, 1, 2);
-	controls->addWidget(new QLabel("X max:"), 1, 3);
+	controls->addWidget(new QLabel(tr("X max:")), 1, 3);
 	controls->addWidget(x_max_spin, 1, 4);
 	controls->addWidget(automatic_x_max, 1, 5);
-	controls->addWidget(new QLabel("Y min:"), 2, 0);
+	controls->addWidget(new QLabel(tr("Y min:")), 2, 0);
 	controls->addWidget(y_min_spin, 2, 1);
 	controls->addWidget(automatic_y_min, 2, 2);
-	controls->addWidget(new QLabel("Y max:"), 2, 3);
+	controls->addWidget(new QLabel(tr("Y max:")), 2, 3);
 	controls->addWidget(y_max_spin, 2, 4);
 	controls->addWidget(automatic_y_max, 2, 5);
 	controls->setColumnStretch(3, 1);
 
 	histogram_chart = new GHistogramChart(chart_parent);
 	histogram_chart->setObjectName(plotObjectName("analyzerChart", plot_index));
-	status_label = new QLabel("Run beamOn to discover Analyzer variables.", this);
+	status_label = new QLabel(tr("Run beamOn to discover Analyzer variables."), this);
 	status_label->setWordWrap(true);
-	auto* pdf_button = new QPushButton("Export PDF…", this);
+	auto* pdf_button = new QPushButton(tr("Export PDF…"), this);
 	pdf_button->setObjectName(plotObjectName("analyzerExportPdf", plot_index));
-	pdf_button->setToolTip("Save this histogram as a vector PDF");
-
+	pdf_button->setToolTip(tr("Save this histogram as a vector PDF"));
 	auto* footer = new QHBoxLayout;
 	footer->addWidget(status_label, 1);
 	footer->addWidget(pdf_button);
@@ -615,7 +612,7 @@ void GAnalysisPlotPanel::setSnapshot(const GAnalysisSeriesMap* new_snapshot, boo
 	}
 	restore(x_variable_combo, previous_x);
 	restore(y_variable_combo, previous_y);
-	if (data().empty()) { status_label->setText("Run beamOn to discover Analyzer variables."); }
+	if (data().empty()) { status_label->setText(tr("Run beamOn to discover Analyzer variables.")); }
 }
 
 void GAnalysisPlotPanel::populateRuns() {
@@ -695,7 +692,7 @@ void GAnalysisPlotPanel::populateVariables() {
 void GAnalysisPlotPanel::populateVariable(QComboBox* combo, const std::set<QString>& variables,
 	                                       const std::string& configured_name) {
 	combo->clear();
-	combo->addItem("Select variable…");
+	combo->addItem(tr("Select variable…"));
 	for (const auto& variable : variables) { combo->addItem(variable, variable); }
 	if (configured_name.empty()) { return; }
 
@@ -718,7 +715,7 @@ void GAnalysisPlotPanel::updatePlotType() {
 	y_variable_combo->setEnabled(is_2d);
 	style_label->setEnabled(is_2d);
 	style_combo->setEnabled(is_2d);
-	scale_label->setText(is_2d ? "Z scale:" : "Y scale:");
+	scale_label->setText(is_2d ? tr("Z scale:") : tr("Y scale:"));
 	updateHistogram();
 }
 
@@ -726,15 +723,15 @@ void GAnalysisPlotPanel::updateHistogram() {
 	const auto x_key = selectedSeriesKey(x_variable_combo);
 	if (!x_key.has_value()) {
 		histogram_chart->clearHistogram();
-		if (!data().empty()) { status_label->setText("Select an X variable to plot."); }
+		if (!data().empty()) { status_label->setText(tr("Select an X variable to plot.")); }
 		return;
 	}
 	const auto x_series = data().find(*x_key);
 	if (x_series == data().end()) {
 		histogram_chart->clearHistogram();
 		status_label->setText(validation_started
-		                      ? QString("%1 — Not available").arg(x_variable_combo->currentData().toString())
-		                      : "Run beamOn to validate configured variables.");
+		                      ? tr("%1 — Not available").arg(x_variable_combo->currentData().toString())
+		                      : tr("Run beamOn to validate configured variables."));
 		return;
 	}
 	try {
@@ -743,7 +740,7 @@ void GAnalysisPlotPanel::updateHistogram() {
 	}
 	catch (const std::exception& error) {
 		histogram_chart->clearHistogram();
-		status_label->setText(QString("Cannot draw histogram: %1").arg(error.what()));
+		status_label->setText(tr("Cannot draw histogram: %1").arg(error.what()));
 	}
 }
 
@@ -759,7 +756,7 @@ void GAnalysisPlotPanel::updateHistogram1D(const GAnalysisSeriesKey& x_key,
 	                                    ? std::nullopt : std::optional<double>(y_min_spin->value());
 	const std::optional<double> y_max = automatic_y_max->isChecked()
 	                                    ? std::nullopt : std::optional<double>(y_max_spin->value());
-	const QString automatic_title = QString("%1 / %2 / %3 — run %4")
+	const QString automatic_title = tr("%1 / %2 / %3 — run %4")
 	                                    .arg(QString::fromStdString(x_key.detector),
 	                                         sourceName(x_key.source),
 	                                         QString::fromStdString(x_key.variable))
@@ -767,7 +764,7 @@ void GAnalysisPlotPanel::updateHistogram1D(const GAnalysisSeriesKey& x_key,
 	const QString title = title_edit->text().trimmed().isEmpty()
 	                      ? automatic_title : title_edit->text().trimmed();
 	histogram_chart->setHistogram(histogram, title, y_min, y_max, scale_combo->currentData().toBool());
-	status_label->setText(QString("%1 entries in range; %2 underflow; %3 overflow")
+	status_label->setText(tr("%1 entries in range; %2 underflow; %3 overflow")
 	                      .arg(histogram.in_range_entries).arg(histogram.underflow).arg(histogram.overflow));
 }
 
@@ -776,15 +773,15 @@ void GAnalysisPlotPanel::updateHistogram2D(const GAnalysisSeriesKey& x_key,
 	const auto y_key = selectedSeriesKey(y_variable_combo);
 	if (!y_key.has_value()) {
 		histogram_chart->clearHistogram();
-		status_label->setText("Select a Y variable to plot.");
+		status_label->setText(tr("Select a Y variable to plot."));
 		return;
 	}
 	const auto y_series = data().find(*y_key);
 	if (y_series == data().end()) {
 		histogram_chart->clearHistogram();
 		status_label->setText(validation_started
-		                      ? QString("%1 — Not available").arg(y_variable_combo->currentData().toString())
-		                      : "Run beamOn to validate configured variables.");
+		                      ? tr("%1 — Not available").arg(y_variable_combo->currentData().toString())
+		                      : tr("Run beamOn to validate configured variables."));
 		return;
 	}
 	const auto paired_values = matchAnalysisSeries(x_series, y_series->second);
@@ -809,7 +806,7 @@ void GAnalysisPlotPanel::updateHistogram2D(const GAnalysisSeriesKey& x_key,
 	const auto style = static_cast<GHistogram2DStyle>(style_combo->currentData().toInt());
 	histogram_chart->setHistogram2D(histogram, title, x_name, y_name, style,
 	                                scale_combo->currentData().toBool());
-	status_label->setText(QString("%1 paired entries in range; %2 outside the selected axes")
+	status_label->setText(tr("%1 paired entries in range; %2 outside the selected axes")
 	                      .arg(histogram.in_range_entries).arg(histogram.out_of_range));
 }
 
@@ -818,12 +815,12 @@ bool GAnalysisPlotPanel::exportPdf(const QString& filename) const {
 }
 
 void GAnalysisPlotPanel::choosePdfFilename() {
-	QString filename = QFileDialog::getSaveFileName(this, "Export Analyzer histogram", QString(),
-	                                                "PDF documents (*.pdf)");
+	QString filename = QFileDialog::getSaveFileName(this, tr("Export Analyzer histogram"), QString(),
+	                                                tr("PDF documents (*.pdf)"));
 	if (filename.isEmpty()) { return; }
 	if (!filename.endsWith(".pdf", Qt::CaseInsensitive)) { filename += ".pdf"; }
 	if (!exportPdf(filename)) {
-		QMessageBox::warning(this, "Analyzer PDF export", "The histogram could not be written to PDF.");
+		QMessageBox::warning(this, tr("Analyzer PDF export"), tr("The histogram could not be written to PDF."));
 	}
 }
 
@@ -835,17 +832,15 @@ GAnalysisView::GAnalysisView(std::shared_ptr<GAnalysisAccumulator> accumulator,
 	                         const ganalysis::Options& startup_options, QWidget* parent) :
 	QWidget(parent), analysis_accumulator(std::move(accumulator)) {
 	setObjectName("gemcAnalyzerView");
-
-	accumulate_button = new QPushButton("Accumulate", this);
+	accumulate_button = new QPushButton(tr("Accumulate"), this);
 	accumulate_button->setObjectName("analyzerAccumulate");
 	accumulate_button->setCheckable(true);
 	accumulate_button->setChecked(startup_options.accumulate);
-	accumulate_button->setToolTip("Preserve Analyzer samples and append subsequent beamOn results");
-	four_plots_button = new QPushButton("4 plots", this);
+	accumulate_button->setToolTip(tr("Preserve Analyzer samples and append subsequent beamOn results"));
+	four_plots_button = new QPushButton(tr("4 plots"), this);
 	four_plots_button->setObjectName("analyzerFourPlots");
 	four_plots_button->setCheckable(true);
-	four_plots_button->setToolTip("Switch between one plot and four independently configured plots");
-
+	four_plots_button->setToolTip(tr("Switch between one plot and four independently configured plots"));
 	auto* toolbar = new QHBoxLayout;
 	toolbar->addWidget(accumulate_button);
 	toolbar->addStretch(1);
@@ -861,7 +856,7 @@ GAnalysisView::GAnalysisView(std::shared_ptr<GAnalysisAccumulator> accumulator,
 	plots_layout->setRowStretch(1, 1);
 	plots_layout->setColumnStretch(0, 1);
 	plots_layout->setColumnStretch(1, 1);
-	const std::array<QString, 4> tab_names{"Top Left", "Top Right", "Bottom Left", "Bottom Right"};
+	const std::array<QString, 4> tab_names{tr("Top Left"), tr("Top Right"), tr("Bottom Left"), tr("Bottom Right")};
 	for (std::size_t index = 0; index < plots.size(); ++index) {
 		plots[index] = new GAnalysisPlotPanel(index, this, configuration_tabs);
 		if (startup_options.plots[index].has_value()) {
@@ -896,7 +891,7 @@ void GAnalysisView::setFourPlotMode(bool enabled) {
 			plots[index]->histogramChart()->show();
 			configuration_tabs->setTabVisible(static_cast<int>(index), true);
 		}
-		four_plots_button->setText("1 plot");
+		four_plots_button->setText(tr("1 plot"));
 	}
 	else {
 		plots_layout->addWidget(plots.front()->histogramChart(), 0, 0, 2, 2);
@@ -906,7 +901,7 @@ void GAnalysisView::setFourPlotMode(bool enabled) {
 			configuration_tabs->setTabVisible(static_cast<int>(index), false);
 		}
 		configuration_tabs->setCurrentIndex(0);
-		four_plots_button->setText("4 plots");
+		four_plots_button->setText(tr("4 plots"));
 	}
 }
 

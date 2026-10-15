@@ -131,12 +131,13 @@ public:
 			// Create and store one owned payload object for this frame.
 			auto gpayload = new GIntegralPayload(crate, slot, channel, charge, time, log);
 			integralPayloads->push_back(gpayload);
-			log->debug(NORMAL, " adding integral payload for crate ", crate, " slot ", slot, " channel ", channel,
-			           " charge ", charge, " time ", time);
+			log->debug(
+				NORMAL, " adding integral payload for crate %1 slot %2 channel %3 charge %4 time %5", crate,
+				slot, channel, charge, time);
 		}
 		else {
 			// Reject malformed packed payloads and keep the collection unchanged.
-			log->error(ERR_WRONGPAYLOAD, "payload size is not 5 but ", payload.size());
+			log->error(ERR_WRONGPAYLOAD, "payload size is not 5 but %1", payload.size());
 		}
 	}
 

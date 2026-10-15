@@ -1,0 +1,13 @@
+# English Qt strings are authoritative; generated TS catalogs are not edited by hand.
+schema: 1
+languages: [it, ja, fr, zh]
+sources:
+  - gemc/gui
+  - gemc/gboard
+  - gemc/g4dialog
+  - gemc/g4display
+  - gemc/gqtbuttonswidget
+  - gemc/dbselect
+  - gemc/gtree
+  - gemc/pmaker
+  - gemc/ganalysis

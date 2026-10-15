@@ -116,8 +116,9 @@ GParticleEvents getGParticleEventsFromSources(const std::shared_ptr<GOptions>& g
 		}
 
 		if (reader == nullptr) {
-			logger->error(gparticle::ERR_GPARTICLEREADERNOTFOUND,
-			              "Could not create gparticle reader for format <", source.format, ">");
+			logger->error(
+				gparticle::ERR_GPARTICLEREADERNOTFOUND, "Could not create gparticle reader for format <%1>",
+				source.format);
 			continue;
 		}
 
@@ -153,8 +154,9 @@ GParticleRecordEvents getGParticleRecordEventsFromSources(const std::shared_ptr<
 		}
 
 		if (reader == nullptr) {
-			logger->error(gparticle::ERR_GPARTICLEREADERNOTFOUND,
-			              "Could not create gparticle reader for format <", source.format, ">");
+			logger->error(
+				gparticle::ERR_GPARTICLEREADERNOTFOUND, "Could not create gparticle reader for format <%1>",
+				source.format);
 			continue;
 		}
 

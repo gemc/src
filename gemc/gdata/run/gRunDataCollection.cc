@@ -43,7 +43,7 @@ void GRunDataCollection::collect_event_data_collection(const std::shared_ptr<GEv
 void GRunDataCollection::collect_event_data_collections(const std::string&              sdName,
 														std::unique_ptr<GDigitizedData> ddata) {
 	collectDetectorDigitizedData(sdName, ddata);
-	log->info(2, *gdataCollectionMap[sdName]);
+	log->info(2, "%1", *gdataCollectionMap[sdName]);
 }
 
 void GRunDataCollection::merge(const GRunDataCollection& other) {

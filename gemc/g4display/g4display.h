@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QCoreApplication>
+
 /**
  * \file g4display.h
  * \brief Declaration of the \ref G4Display main widget.
@@ -33,6 +35,7 @@
  */
 class G4Display : public GBase<G4Display>, public QWidget
 {
+	Q_DECLARE_TR_FUNCTIONS(G4Display)
 public:
 	/**
 	 * \brief Construct the main display widget.

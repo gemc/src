@@ -12,14 +12,14 @@ GSensitiveDetector::GSensitiveDetector(const std::string&               sdName,
 	GBase(goptions, GSENSITIVE_LOGGER),
 	G4VSensitiveDetector(sdName),
 	gHitsCollection(nullptr) {
-	log->info(2, FUNCTION_NAME, " for " + sdName);
+	log->info(2, "%1 for %2", FUNCTION_NAME, sdName);
 
 	// collectionName is a G4VSensitiveDetector G4CollectionNameVector.
 	// GEMC uses its own handling of hits; this is set primarily for compatibility with Geant4 conventions/examples.
 	std::string hitCollectionName = sdName + "__HitCollection";
 	collectionName.insert(hitCollectionName);
 
-	log->debug(CONSTRUCTOR, FUNCTION_NAME, " for " + sdName);
+	log->debug(CONSTRUCTOR, "%1 for %2", FUNCTION_NAME, sdName);
 }
 
 
@@ -27,7 +27,7 @@ GSensitiveDetector::GSensitiveDetector(const std::string&               sdName,
 // Allocates and registers the per-event hits collection and resets per-event caches.
 void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc) {
 	std::string sdName = GetName();
-	log->info(1, FUNCTION_NAME, sdName);
+	log->info(1, "%1%2", FUNCTION_NAME, sdName);
 
 	// Clearing the per-event hit-cell map (per-event hit identity cache).
 	hitsByCellKey.clear();
@@ -41,7 +41,7 @@ void GSensitiveDetector::Initialize(G4HCofThisEvent* g4hc) {
 	auto hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
 	g4hc->AddHitsCollection(hcID, gHitsCollection);
 
-	log->info(2, "Added collection id ", hcID, " to G4HCofThisEvent");
+	log->info(2, "Added collection id %1 to G4HCofThisEvent", hcID);
 }
 
 
@@ -64,9 +64,9 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 
 	auto hcsize = gHitsCollection->GetSize();
 
-	log->info(2, FUNCTION_NAME, " for ", GetName(),
-	          " with ", std::to_string(thisStepProcessedTouchables.size()), " touchable(s), edep: ",
-	          std::to_string(depe), ", Hit collection size: ", hcsize);
+	log->info(
+		2, "%1 for %2 with %3 touchable(s), edep: %4, Hit collection size: %5", FUNCTION_NAME, GetName(),
+		std::to_string(thisStepProcessedTouchables.size()), std::to_string(depe), hcsize);
 
 	for (auto thisGTouchable : thisStepProcessedTouchables) {
 		// Track id is attached to the touchable to keep hit identity consistent across updates.
@@ -77,12 +77,12 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 		// semantics as GTouchable::operator== (identity + type discriminator).
 		auto [it, isNewCell] = hitsByCellKey.try_emplace(thisGTouchable->cellKey(), nullptr);
 		if (isNewCell) {
-			log->info(2, " ✅ new GTouchable for ", GetName(), ": ", thisGTouchable->getIdentityString());
+			log->info(2, " ✅ new GTouchable for %1: %2", GetName(), thisGTouchable->getIdentityString());
 			it->second = new GHit(thisGTouchable, thisStep);
 			gHitsCollection->insert(it->second);
 		}
 		else {
-			log->info(2, " ❌ existing GTouchable for ", GetName(), ": ", thisGTouchable->getIdentityString());
+			log->info(2, " ❌ existing GTouchable for %1: %2", GetName(), thisGTouchable->getIdentityString());
 			it->second->addHitInfos(thisStep);
 		}
 	}
@@ -100,5 +100,5 @@ G4bool GSensitiveDetector::ProcessHits(G4Step* thisStep, [[maybe_unused]] G4Touc
 // Thread-local end-of-event hook.
 // At this stage, Geant4 owns the event hit container that references the hits collection.
 void GSensitiveDetector::EndOfEvent([[maybe_unused]] G4HCofThisEvent* g4hc) {
-	log->info(1, "GSensitiveDetector::EndOfEvent for " + GetName());
+	log->info(1, "GSensitiveDetector::EndOfEvent for %1", GetName());
 }

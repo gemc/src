@@ -97,21 +97,23 @@ std::vector<GparticleRuntimeRecord> Gparticle::shootParticle(G4ParticleGun* part
 				particleGun->SetParticlePosition(vertex);
 				particleGun->GeneratePrimaryVertex(anEvent);
 
-				log->info(2, "Generated particle <", name, "> pid ", pid,
-				          ", p [MeV]: ", pmev / CLHEP::MeV,
-				          ", theta [deg]: ", thetaRad / CLHEP::deg,
-				          ", phi [deg]: ", phiRad / CLHEP::deg,
-				          ", vertex [cm]: ", vertex / CLHEP::cm);
+				log->info(
+					2,
+					"Generated particle <%1> pid %2, p [MeV]: %3, theta [deg]: %4, phi [deg]: %5, vertex "
+					"[cm]: %6", name, pid, pmev / CLHEP::MeV, thetaRad / CLHEP::deg, phiRad / CLHEP::deg,
+					vertex / CLHEP::cm);
 			}
 		}
 		else {
-			log->error(gparticle::ERR_GPARTICLENOTFOUND,
-					   "Particle <", name, "> not found in G4ParticleTable* ", particleTable);
+			log->error(
+				gparticle::ERR_GPARTICLENOTFOUND, "Particle <%1> not found in G4ParticleTable* %2", name,
+				particleTable);
 		}
 	}
 	else {
-		log->error(gparticle::ERR_GPARTICLETABLENOTFOUND,
-		           "G4ParticleTable not found - G4ParticleGun*: ", particleGun);
+		log->error(
+			gparticle::ERR_GPARTICLETABLENOTFOUND, "G4ParticleTable not found - G4ParticleGun*: %1",
+			particleGun);
 	}
 
 	return runtime_records;
@@ -327,13 +329,15 @@ int Gparticle::get_pdg_id() {
 
 		if (particleDef != nullptr) { return particleDef->GetPDGEncoding(); }
 		else {
-			log->error(gparticle::ERR_GPARTICLENOTFOUND,
-					   "Particle <", name, "> not found in G4ParticleTable* ", particleTable);
+			log->error(
+				gparticle::ERR_GPARTICLENOTFOUND, "Particle <%1> not found in G4ParticleTable* %2", name,
+				particleTable);
 		}
 	}
 	else {
-		log->error(gparticle::ERR_GPARTICLETABLENOTFOUND,
-				   "G4ParticleTable not found - G4ParticleGun*: ", particleTable);
+		log->error(
+			gparticle::ERR_GPARTICLETABLENOTFOUND, "G4ParticleTable not found - G4ParticleGun*: %1",
+			particleTable);
 	}
 }
 

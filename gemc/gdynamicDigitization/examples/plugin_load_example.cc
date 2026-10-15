@@ -63,7 +63,7 @@ auto run_simulation_in_threads(int                                              
 
 	for (int tid = 0; tid < nthreads; ++tid) {
 		pool.emplace_back([&, tid] {
-			log->info(0, "worker ", tid, " started");
+			log->info(0, "worker %1 started", tid);
 
 			int localCount = 0; // events processed by this worker
 			thread_local std::vector<std::unique_ptr<GEventDataCollection>> localRunData;
@@ -85,8 +85,9 @@ auto run_simulation_in_threads(int                                              
 					eventData->addDetectorTrueInfoData("ctof", std::move(true_data));
 				}
 
-				log->info(0, "worker ", tid, " event ", evn, " has ",
-				          eventData->getDataCollectionMap().at("ctof")->getDigitizedData().size(), " digitized hits");
+				log->info(
+					0, "worker %1 event %2 has %3 digitized hits", tid, evn,
+					eventData->getDataCollectionMap().at("ctof")->getDigitizedData().size());
 
 				localRunData.emplace_back(std::move(eventData));
 				++localCount;
@@ -102,7 +103,7 @@ auto run_simulation_in_threads(int                                              
 				localRunData.clear();
 			}
 
-			log->info(0, "worker ", tid, " processed ", localCount, " events");
+			log->info(0, "worker %1 processed %2 events", tid, localCount);
 		});
 	}
 
@@ -138,15 +139,16 @@ int main(int argc, char* argv[]) {
 	auto dynamicRoutinesMap = gdynamicdigitization::dynamicRoutinesMap({plugin_name}, gopts);
 
 	if (dynamicRoutinesMap->at(plugin_name)->loadConstants(1, "default") == false) {
-		log->error(1, "Failed to load constants for dynamic routine ", plugin_name,
-		           " for run number 1 with variation 'default'.");
+		log->error(
+			1, "Failed to load constants for dynamic routine %1 for run number 1 with variation 'default'.",
+			plugin_name);
 	}
 
 	auto runData = run_simulation_in_threads(nevents, nthreads, gopts, log, dynamicRoutinesMap);
 
 	// Print the collected events (not all processed events are collected in this example).
 	for (size_t i = 0; i < runData.size(); i++) {
-		log->info(" > Event ", i + 1, " collected with local event number: ", runData[i]->getEventNumber());
+		log->info(" > Event %1 collected with local event number: %2", i + 1, runData[i]->getEventNumber());
 	}
 
 	return EXIT_SUCCESS;

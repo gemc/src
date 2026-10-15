@@ -10,14 +10,15 @@
 
 bool GstreamerJsonFactory::startEventImpl(const std::shared_ptr<GEventDataCollection>& event_data) {
 	if (!ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename());
 	}
 	if (!event_data) {
 		log->error(gstreamer::ERR_PUBLISH_ERROR, "event_data is null in GstreamerJsonFactory::startEventImpl");
 		return false;
 	}
 	if (!event_data->getHeader()) {
-		log->error(gstreamer::ERR_PUBLISH_ERROR, "event header is null in GstreamerJsonFactory::startEventImpl");
+		log->error(
+			gstreamer::ERR_PUBLISH_ERROR, "event header is null in GstreamerJsonFactory::startEventImpl");
 		return false;
 	}
 
@@ -46,8 +47,9 @@ bool GstreamerJsonFactory::startEventImpl(const std::shared_ptr<GEventDataCollec
 
 bool GstreamerJsonFactory::endEventImpl(const std::shared_ptr<GEventDataCollection>& event_data) {
 	if (!is_building_event) {
-		log->error(gstreamer::ERR_PUBLISH_ERROR,
-		           "endEventImpl called without an active event in GstreamerJsonFactory");
+		log->error(
+			gstreamer::ERR_PUBLISH_ERROR,
+			"endEventImpl called without an active event in GstreamerJsonFactory");
 		return false;
 	}
 
@@ -94,8 +96,9 @@ bool GstreamerJsonFactory::endEventImpl(const std::shared_ptr<GEventDataCollecti
 bool GstreamerJsonFactory::publishEventGeneratedParticlesImpl(const std::string& bankName,
                                                               const GGeneratedParticleBank& particles) {
 	if (!is_building_event) {
-		log->error(gstreamer::ERR_PUBLISH_ERROR,
-		           "publishEventGeneratedParticlesImpl called without an active event in GstreamerJsonFactory");
+		log->error(
+			gstreamer::ERR_PUBLISH_ERROR,
+			"publishEventGeneratedParticlesImpl called without an active event in GstreamerJsonFactory");
 		return false;
 	}
 
@@ -138,8 +141,9 @@ bool GstreamerJsonFactory::publishEventGeneratedParticlesImpl(const std::string&
 
 bool GstreamerJsonFactory::publishEventAncestorsImpl(const GAncestorBank& ancestors) {
 	if (!is_building_event) {
-		log->error(gstreamer::ERR_PUBLISH_ERROR,
-		           "publishEventAncestorsImpl called without an active event in GstreamerJsonFactory");
+		log->error(
+			gstreamer::ERR_PUBLISH_ERROR,
+			"publishEventAncestorsImpl called without an active event in GstreamerJsonFactory");
 		return false;
 	}
 

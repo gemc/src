@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     visManager->Initialize();
 
     if (gopts->getSwitch("gui")) {
-        log->info(0, "gtree", "Running in GUI mode...");
+        log->info(0, "gtreeRunning in GUI mode...");
         app = new QApplication(argc, argv);
         window = new QMainWindow();
         window->setWindowTitle(QString::fromUtf8("gtree example"));
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
     auto gvmap = gdetector->get_gvolumes_flat_map();
     auto gmmap = gdetector->get_gmirrors_flat_map();
 
-    log->info(0, "gtree", "Detector construction successful with ", g4vmap.size(), " volumes.");
+    log->info(0, "gtreeDetector construction successful with %1 volumes.", g4vmap.size());
 
     if (gopts->getSwitch("gui")) {
 

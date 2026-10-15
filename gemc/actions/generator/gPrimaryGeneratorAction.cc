@@ -55,7 +55,7 @@ GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts
 
 	if (gparticles->empty() && allGparticleFileRecordEvents.empty()) {
 		auto default_particle = Gparticle::create_default_gparticle(log);
-		log->info(1, "No gparticle was defined. Creating default:", *default_particle);
+		log->info(1, "No gparticle was defined. Creating default:%1", *default_particle);
 		gparticles->emplace_back(default_particle);
 	}
 }
@@ -70,7 +70,7 @@ GPrimaryGeneratorAction::GPrimaryGeneratorAction(std::shared_ptr<GOptions> gopts
 
 	if (gparticles->empty() && allGparticleFileRecordEvents.empty()) {
 		auto default_particle = Gparticle::create_default_gparticle(log);
-		log->info(1, "No gparticle was defined. Creating default:", *default_particle);
+		log->info(1, "No gparticle was defined. Creating default:%1", *default_particle);
 		gparticles->emplace_back(default_particle);
 	}
 }
@@ -110,9 +110,9 @@ void GPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
 	}
 
 	if (event_id >= 0 && static_cast<size_t>(event_id) < gparticleFileEvents.size()) {
-		log->info(2, "Generating gparticlefile event ", event_id,
-		          " with ", gparticleFileEvents[static_cast<size_t>(event_id)].size(),
-		          " propagated particles");
+		log->info(
+			2, "Generating gparticlefile event %1 with %2 propagated particles", event_id,
+			gparticleFileEvents[static_cast<size_t>(event_id)].size());
 
 		for (const auto& gparticle : gparticleFileEvents[static_cast<size_t>(event_id)]) {
 			if (gparticle != nullptr) {

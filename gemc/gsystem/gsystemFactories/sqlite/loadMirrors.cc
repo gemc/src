@@ -62,8 +62,9 @@ void GSystemSQLiteFactory::loadMirrors(GSystem* system) {
 	sqlite3_stmt* stmt = nullptr;
 	int           rc   = sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite error preparing query in loadMirrors: ",
-		           sqlite3_errmsg(db), " (", rc, ") using query: ", sql_query);
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "Sqlite error preparing query in loadMirrors: %1 (%2) using query: %3",
+			sqlite3_errmsg(db), rc, sql_query);
 	}
 
 	// Bind parameters.
@@ -79,7 +80,7 @@ void GSystemSQLiteFactory::loadMirrors(GSystem* system) {
 
 	// Log the expanded SQL for debugging (caller must free it).
 	if (auto sql = sqlite3_expanded_sql(stmt)) {
-		log->info(2, sql);
+		log->info(2, "%1", sql);
 		sqlite3_free(sql);
 	}
 
@@ -95,7 +96,7 @@ void GSystemSQLiteFactory::loadMirrors(GSystem* system) {
 					? "NULL"
 					: reinterpret_cast<const char*>(sqlite3_column_text(stmt, i));
 
-			log->info(2, "<sqlite> column: ", cname, " = ", ctext);
+			log->info(2, "<sqlite> column: %1 = %2", cname, ctext);
 
 			gmirrorPars.emplace_back(ctext);
 		}
@@ -104,8 +105,8 @@ void GSystemSQLiteFactory::loadMirrors(GSystem* system) {
 	}
 
 	if (rc != SQLITE_DONE) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadMirrors: ",
-		           sqlite3_errmsg(db), " (", rc, ")");
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadMirrors: %1 (%2)", sqlite3_errmsg(db), rc);
 	}
 
 	sqlite3_finalize(stmt);

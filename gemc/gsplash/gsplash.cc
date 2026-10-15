@@ -88,9 +88,9 @@ GSplash::GSplash(const std::shared_ptr<GOptions>& gopts, const string& imageName
 			pixmap.load(filename); // loads or leaves null
 		}
 		else {
-			log->error(gsplash::ERR_NOSPLASHENVFOUND,
-			           "Environment variable ", gsplash::GSPLASHENVIRONMENT,
-			           " must point to an image file.");
+			log->error(
+				gsplash::ERR_NOSPLASHENVFOUND, "Environment variable %1 must point to an image file.",
+				gsplash::GSPLASHENVIRONMENT);
 		}
 	}
 	else {
@@ -104,7 +104,7 @@ GSplash::GSplash(const std::shared_ptr<GOptions>& gopts, const string& imageName
 		}
 
 		if (pixmap.isNull())
-			log->error(gsplash::ERR_NOSPLASHENVFOUND, "Image ", imageName, " not found.");
+			log->error(gsplash::ERR_NOSPLASHENVFOUND, "Image %1 not found.", imageName);
 	}
 
 	// Create the splash only when we have a valid pixmap; otherwise leave it inactive.

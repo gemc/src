@@ -14,6 +14,7 @@
 #include <gemc/glogging/glogger.h>
 #include <gemc/gsplash/gsplash.h>
 #include <gemc/glogging/gbatch_session.h>
+#include "gQtTranslation.h"
 
 namespace gemc {
 
@@ -65,11 +66,14 @@ namespace gemc {
  * \param gui If `true`, create a `QApplication`; otherwise create a `QCoreApplication`
  *            and redirect Geant4 cout to a `GBatch_Session`.
  *
+ * \param options Optional runtime language settings; GUI translators are installed before widgets exist.
+ *                If omitted, automatic environment/system language detection is used.
+ *
  * \return A `std::unique_ptr<QCoreApplication>` owning either a `QCoreApplication`
  *         or a `QApplication` instance.
  */
 inline std::unique_ptr<QCoreApplication>
-makeQtApplication(int& argc, char* argv[], bool gui) {
+makeQtApplication(int& argc, char* argv[], bool gui, const GOptions* options = nullptr) {
 
 	if (!gui) {
 		auto gbatch = std::make_unique<GBatch_Session>();
@@ -77,7 +81,9 @@ makeQtApplication(int& argc, char* argv[], bool gui) {
 
 		return std::make_unique<QCoreApplication>(argc, argv);
 	}
-	return std::make_unique<QApplication>(argc, argv);
+	auto application = std::make_unique<QApplication>(argc, argv);
+	installGuiTranslations(*application, options);
+	return application;
 }
 
 /**

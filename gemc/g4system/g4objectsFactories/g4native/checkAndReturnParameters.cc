@@ -26,8 +26,9 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 
 	// Convert comma-/space-separated string into a vector<double>.
 	if (!s->getParameters()) {
-		log->error(g4system::ERR_G4VOLUMEBUILDFAILED,
-		           "Native solid <", s->getG4Name(), "> has no constructor parameters");
+		log->error(
+			g4system::ERR_G4VOLUMEBUILDFAILED, "Native solid <%1> has no constructor parameters",
+			s->getG4Name());
 	}
 	std::vector<double> parameters = gutilities::getG4NumbersFromString(*s->getParameters());
 	int                 actualNumberOfParameters = static_cast<int>(parameters.size());
@@ -50,9 +51,10 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 		// second constructor -> ((nPars-3) mod 2) == 0
 		if (actualNumberOfParameters % 3 != 0 &&
 			(actualNumberOfParameters - 3) % 2 != 0) {
-			log->error(g4system::ERR_G4PARAMETERSMISMATCH,
-			           "Wrong number of parameters in the constructor of <",
-			           name, "> of solid type <", type, ">: ", *s->getParameters());
+			log->error(
+				g4system::ERR_G4PARAMETERSMISMATCH,
+				"Wrong number of parameters in the constructor of <%1> of solid type <%2>: %3", name, type,
+				*s->getParameters());
 		}
 		return parameters; // valid - return early
 	}
@@ -63,9 +65,10 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 		// second constructor -> ((nPars-4) mod 2) == 0
 		if ((actualNumberOfParameters - 4) % 3 != 0 &&
 			(actualNumberOfParameters - 4) % 2 != 0) {
-			log->error(g4system::ERR_G4PARAMETERSMISMATCH,
-			           "Wrong number of parameters in the constructor of <",
-			           name, "> of solid type <", type, ">: ", *s->getParameters());
+			log->error(
+				g4system::ERR_G4PARAMETERSMISMATCH,
+				"Wrong number of parameters in the constructor of <%1> of solid type <%2>: %3", name, type,
+				*s->getParameters());
 		}
 		return parameters; // valid - return early
 	}
@@ -81,17 +84,18 @@ std::vector<double> G4NativeSystemFactory::checkAndReturnParameters(const GVolum
 	else if (type == "G4TwistedTrd") possibleNumberOfParameters = {6};
 	else if (type == "G4TwistedTubs") possibleNumberOfParameters = {5};
 	else {
-		log->error(g4system::ERR_G4SOLIDTYPENOTFOUND,
-		           "The constructor of <", name,
-		           "> uses an unknown solid type <", type, ">");
+		log->error(
+			g4system::ERR_G4SOLIDTYPENOTFOUND, "The constructor of <%1> uses an unknown solid type <%2>", name,
+			type);
 	}
 
 	// Generic count check for fixed-count solids.
 	if (possibleNumberOfParameters.find(actualNumberOfParameters)
 		== possibleNumberOfParameters.end()) {
-		log->error(g4system::ERR_G4PARAMETERSMISMATCH,
-		           "Wrong number of parameters in the constructor of <", name,
-		           "> of solid type <", type, ">: ", *s->getParameters());
+		log->error(
+			g4system::ERR_G4PARAMETERSMISMATCH,
+			"Wrong number of parameters in the constructor of <%1> of solid type <%2>: %3", name, type,
+			*s->getParameters());
 	}
 
 	return parameters;

@@ -19,8 +19,8 @@ void GSystemTextFactory::loadGeometry(GSystem* system) {
 	auto IN = gSystemTextFileStream(system, gsystem::GTEXTGEOMTYPE);
 
 	if (IN != nullptr) {
-		log->info(1, "Loading geometry for system ", system->getName(),
-		          " using factory ", system->getFactoryName() );
+		log->info(
+			1, "Loading geometry for system %1 using factory %2", system->getName(), system->getFactoryName());
 
 		// Each non-empty line is a serialized parameter row separated by '|'.
 		while (!IN->eof()) {

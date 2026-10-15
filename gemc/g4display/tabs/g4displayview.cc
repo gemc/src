@@ -141,7 +141,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	cameraTheta->setValue(thetaValue);
 	cameraTheta->setTracking(true); // updates while dragging
 
-	auto cameraThetaLabel = new QLabel(tr("θ"));
+	auto cameraThetaLabel = new QLabel("θ");
 
 	thetaLCD = new QLCDNumber(this);
 	thetaLCD->setFont(flcd);
@@ -166,7 +166,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	cameraPhi->setValue(phiValue);
 	cameraPhi->setTracking(true); // updates while dragging
 
-	auto cameraPhiLabel = new QLabel(tr("ɸ"));
+	auto cameraPhiLabel = new QLabel("ɸ");
 
 	phiLCD = new QLCDNumber(this);
 	phiLCD->setFont(flcd);
@@ -225,18 +225,19 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	// Projection: orthogonal or perspective (with typical angles).
 	QLabel* projLabel   = new QLabel(tr("Projection:"));
 	perspectiveDropdown = new QComboBox;
-	perspectiveDropdown->addItem(tr("Orthogonal"));
-	perspectiveDropdown->addItem(tr("Perspective 30"));
-	perspectiveDropdown->addItem(tr("Perspective 45"));
-	perspectiveDropdown->addItem(tr("Perspective 60"));
+	perspectiveDropdown->setObjectName("gemcProjection");
+	perspectiveDropdown->addItem(tr("Orthogonal"), "o 0");
+	perspectiveDropdown->addItem(tr("Perspective 30"), "p 30");
+	perspectiveDropdown->addItem(tr("Perspective 45"), "p 45");
+	perspectiveDropdown->addItem(tr("Perspective 60"), "p 60");
 
 	// Sides per circle: maps to /vis/viewer/set/lineSegmentsPerCircle.
 	QLabel* sides_per_circlesLabel = new QLabel(tr("Sides per circle:"));
 	precisionDropdown              = new QComboBox;
-	precisionDropdown->addItem(tr("50"));
-	precisionDropdown->addItem(tr("100"));
-	precisionDropdown->addItem(tr("200"));
-	precisionDropdown->addItem(tr("300"));
+	precisionDropdown->addItem("50");
+	precisionDropdown->addItem("100");
+	precisionDropdown->addItem("200");
+	precisionDropdown->addItem("300");
 	precisionDropdown->setCurrentIndex(0);
 
 	connect(perspectiveDropdown, &QComboBox::currentTextChanged, this, &G4DisplayView::set_projection);
@@ -269,7 +270,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	lightTheta->setValue(lightThetaValue);
 	lightTheta->setTracking(true);
 
-	auto lightThetaLabel = new QLabel(tr("θ"));
+	auto lightThetaLabel = new QLabel("θ");
 
 	lthetaLCD = new QLCDNumber(this);
 	lthetaLCD->setFont(flcd);
@@ -294,7 +295,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	lightPhi->setValue(lightPhiValue);
 	lightPhi->setTracking(true);
 
-	auto lightPhiLabel = new QLabel(tr("ɸ"));
+	auto lightPhiLabel = new QLabel("ɸ");
 
 	lphiLCD = new QLCDNumber(this);
 	lphiLCD->setFont(flcd);
@@ -338,13 +339,14 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 
 	QLabel* cullingLabel = new QLabel(tr("Culling:"));
 	cullingDropdown      = new QComboBox;
-	cullingDropdown->addItem(tr("Reset"));
-	cullingDropdown->addItem(tr("Covered Daughters"));
-	cullingDropdown->addItem(tr("Density: 1 mg/cm3"));
-	cullingDropdown->addItem(tr("Density: 10 mg/cm3"));
-	cullingDropdown->addItem(tr("Density: 100 mg/cm3"));
-	cullingDropdown->addItem(tr("Density: 1 g/cm3"));
-	cullingDropdown->addItem(tr("Density: 10 g/cm3"));
+	cullingDropdown->setObjectName("gemcCulling");
+	cullingDropdown->addItem(tr("Reset"), "reset");
+	cullingDropdown->addItem(tr("Covered Daughters"), "daughters");
+	cullingDropdown->addItem(tr("Density: 1 mg/cm3"), "0.001");
+	cullingDropdown->addItem(tr("Density: 10 mg/cm3"), "0.01");
+	cullingDropdown->addItem(tr("Density: 100 mg/cm3"), "0.1");
+	cullingDropdown->addItem(tr("Density: 1 g/cm3"), "1");
+	cullingDropdown->addItem(tr("Density: 10 g/cm3"), "10");
 
 	QLabel* backgroundColorLabel = new QLabel(tr("Background Color:"));
 	backgroundColorDropdown      = new QComboBox;
@@ -395,7 +397,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	explodeSlider->setValue(0);
 	explodeSlider->setSingleStep(1);
 	explodeSlider->setPageStep(5);
-	explodeValueLabel = new QLabel(tr("1.00"));
+	explodeValueLabel = new QLabel("1.00");
 	explodeIntensityDropdown = new QComboBox;
 	explodeIntensityDropdown->addItem(tr("Low"),    QVariant(45.0));
 	explodeIntensityDropdown->addItem(tr("Medium"), QVariant(15.0));
@@ -446,7 +448,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	// -------------------------
 
 	// X slice controls.
-	sliceXEdit = new QLineEdit(tr("0"));
+	sliceXEdit = new QLineEdit("0");
 	sliceXEdit->setMaximumWidth(100);
 	sliceXEdit->setValidator(new QDoubleValidator(sliceXEdit));
 	sliceXActi = new QCheckBox(tr("&On"));
@@ -465,7 +467,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	sliceXLayout->addStretch(1);
 
 	// Y slice controls.
-	sliceYEdit = new QLineEdit(tr("0"));
+	sliceYEdit = new QLineEdit("0");
 	sliceYEdit->setMaximumWidth(100);
 	sliceYEdit->setValidator(new QDoubleValidator(sliceYEdit));
 	sliceYActi = new QCheckBox(tr("&On"));
@@ -484,7 +486,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	sliceYLayout->addStretch(1);
 
 	// Z slice controls.
-	sliceZEdit = new QLineEdit(tr("0"));
+	sliceZEdit = new QLineEdit("0");
 	sliceZEdit->setMaximumWidth(100);
 	sliceZEdit->setValidator(new QDoubleValidator(sliceZEdit));
 	sliceZActi = new QCheckBox(tr("&On"));
@@ -504,7 +506,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 
 	// Clear slice planes button.
 	QPushButton* clearSliceButton = new QPushButton(tr("Clear Slices"));
-	clearSliceButton->setToolTip("Clear Slice Planes");
+	clearSliceButton->setToolTip(tr("Clear Slice Planes"));
 	clearSliceButton->setIcon(QIcon::fromTheme("edit-clear"));
 	clearSliceButton->setIconSize(QSize(16, 16));
 	connect(clearSliceButton, &QPushButton::clicked, this, &G4DisplayView::clearSlices);
@@ -583,7 +585,7 @@ G4DisplayView::G4DisplayView(const std::shared_ptr<GOptions>& gopts,
 	buttons_field_HBox->addWidget(buttons_set1);
 	buttons_field_HBox->addWidget(fieldPrecisionBox);
 	fieldPrecisionBox->setMaximumHeight(3 * buttons_set1->height());
-	fieldPrecisionBox->setMaximumWidth(140);
+	fieldPrecisionBox->setMinimumWidth(140);
 
 	// -------------------------
 	// Assemble final tab layout
@@ -624,17 +626,8 @@ void G4DisplayView::setCameraDirection(int which) {
 
 void G4DisplayView::set_projection() {
 	// Dropdown selections map to Geant4 projection parameters: orthogonal (o) or perspective (p, angle).
-	string value = perspectiveDropdown->currentText().toStdString();
-
-	string g4perspective = "o";
-	string g4perpvalue   = "0";
-	if (value.find("Perspective") != string::npos) {
-		g4perspective = "p";
-		// Second token after space is the angle.
-		g4perpvalue = value.substr(value.find(" ") + 1);
-	}
-
-	string command = "/vis/viewer/set/projection " + g4perspective + " " + g4perpvalue;
+	const string command = "/vis/viewer/set/projection " +
+	                       perspectiveDropdown->currentData().toString().toStdString();
 	G4UImanager::GetUIpointer()->ApplyCommand(command);
 }
 
@@ -649,24 +642,22 @@ void G4DisplayView::set_precision() {
 
 void G4DisplayView::set_culling() {
 	// Culling configuration uses Geant4 viewer culling commands.
-	string value = cullingDropdown->currentText().toStdString();
-	int    index = cullingDropdown->currentIndex() - 2;
+	string value = cullingDropdown->currentData().toString().toStdString();
 
-	if (value.find("Reset") != string::npos) {
+	if (value == "reset") {
 		G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/set/culling global true");
 		G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/set/culling density false");
 	}
-	else if (value.find("Daughters") != string::npos) {
+	else if (value == "daughters") {
 		G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/set/culling coveredDaughters true");
 		G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/set/culling density false");
 	}
 	else {
 		// Density-based thresholds (unit assumed by Geant4 command expectations).
-		vector<double> density = {0.001, 0.01, 0.1, 1.0, 10.0, 100.0, 1000.0};
-		string         command = "/vis/viewer/set/culling density true " + to_string(density[index]);
+		string command = "/vis/viewer/set/culling density true " + value;
 		G4UImanager::GetUIpointer()->ApplyCommand(command);
 		G4UImanager::GetUIpointer()->ApplyCommand("/vis/viewer/flush");
-		log->info(0, command);
+		log->info(0, "%1", command);
 	}
 }
 

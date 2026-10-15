@@ -36,7 +36,7 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
                                             std::unordered_map<std::string, G4Volume*>* g4s) {
 	std::string g4name = s->getG4Name();
 
-	log->info(2, className(), "G4NativeSystemFactory::buildSolid for ", g4name);
+	log->info(2, "%1G4NativeSystemFactory::buildSolid for %2", className(), g4name);
 
 	// Dependencies must be satisfied before constructing a solid (copy/boolean operands).
 	if (!checkSolidDependencies(s, g4s)) return nullptr;
@@ -132,14 +132,16 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 				thisG4Volume->setSolid(new G4IntersectionSolid(g4name, left, right, transform), log);
 			}
 			else {
-				log->error(g4system::ERR_G4PARAMETERSMISMATCH,
-				           "The boolean constructor of <", g4name, "> uses unsupported operator <",
-				           solidOperations[1], ">. Use +, -, or *.");
+				log->error(
+					g4system::ERR_G4PARAMETERSMISMATCH,
+					"The boolean constructor of <%1> uses unsupported operator <%2>. Use +, -, or *.", g4name,
+					solidOperations[1]);
 			}
 			return thisG4Volume->getSolid();
 		}
-		log->error(g4system::ERR_G4PARAMETERSMISMATCH,
-		           "The boolean constructor of <", g4name, "> must be: left operator right.");
+		log->error(
+			g4system::ERR_G4PARAMETERSMISMATCH, "The boolean constructor of <%1> must be: left operator right.",
+			g4name);
 		return nullptr;
 	}
 
@@ -275,9 +277,11 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 			thisG4Volume->setSolid(new G4Trap(g4name, pt), log);
 		}
 		else {
-			log->error(g4system::ERR_G4PARAMETERSMISMATCH,
-			           "The constructor of <", g4name, "> must have 4, 11 or 24 parameters",
-			           " see https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Detector/Geometry/geomSolids.html");
+			log->error(
+				g4system::ERR_G4PARAMETERSMISMATCH,
+				"The constructor of <%1> must have 4, 11 or 24 parameters see "
+				"https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Detector/"
+				"Geometry/geomSolids.html", g4name);
 		}
 		return thisG4Volume->getSolid();
 	}
@@ -316,9 +320,10 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 		int    zplanes  = static_cast<int>(pars[3]);
 
 		if (numSides < 1 || static_cast<int>(pars.size()) != 4 + 3 * zplanes) {
-			log->error(g4system::ERR_G4PARAMETERSMISMATCH,
-			           "The constructor of <", g4name, "> must have numSides >= 1 and ",
-			           4 + 3 * zplanes, " parameters (4 + 3 x numZPlanes), we got ", pars.size());
+			log->error(
+				g4system::ERR_G4PARAMETERSMISMATCH,
+				"The constructor of <%1> must have numSides >= 1 and %2 parameters (4 + 3 x numZPlanes), we "
+				"got %3", g4name, 4 + 3 * zplanes, pars.size());
 		}
 
 		// Allocate arrays (data is copied by G4Polyhedra during construction).
@@ -370,9 +375,10 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 		return thisG4Volume->getSolid();
 	}
 	else {
-		log->error(g4system::ERR_G4SOLIDTYPENOTFOUND,
-		           "The constructor of <", g4name, "> uses an unknown solid type <", type,
-		           ">. See Geant4 manual for supported primitives.");
+		log->error(
+			g4system::ERR_G4SOLIDTYPENOTFOUND,
+			"The constructor of <%1> uses an unknown solid type <%2>. See Geant4 manual for supported "
+			"primitives.", g4name, type);
 	}
 	return nullptr;
 }

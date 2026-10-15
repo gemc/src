@@ -32,14 +32,15 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTr
 	}
 
 	if (!event_header) {
-		log->error(gstreamer::ERR_PUBLISH_ERROR,
-		           "event header is null in GstreamerRootFactory::getOrInstantiateHeaderTree");
+		log->error(
+			gstreamer::ERR_PUBLISH_ERROR,
+			"event header is null in GstreamerRootFactory::getOrInstantiateHeaderTree");
 	}
 
 	// operator[] either returns the existing entry or creates an empty one.
 	auto& treePtr = gRootTrees[gstreamer::root::EVENTHEADERTREENAME];
 	if (!treePtr) {
-		log->info(2, "GstreamerRootFactory", "Creating ROOT", gstreamer::root::EVENTHEADERTREENAME, " tree");
+		log->info(2, "GstreamerRootFactoryCreating ROOT%1 tree", gstreamer::root::EVENTHEADERTREENAME);
 		treePtr = std::make_unique<GRootTree>(event_header, log);
 	}
 
@@ -58,13 +59,14 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateHeaderTr
 	}
 
 	if (!run_header) {
-		log->error(gstreamer::ERR_PUBLISH_ERROR,
-		           "run header is null in GstreamerRootFactory::getOrInstantiateHeaderTree");
+		log->error(
+			gstreamer::ERR_PUBLISH_ERROR,
+			"run header is null in GstreamerRootFactory::getOrInstantiateHeaderTree");
 	}
 
 	auto& treePtr = gRootTrees[gstreamer::root::RUNHEADERTREENAME];
 	if (!treePtr) {
-		log->info(2, "GstreamerRootFactory", "Creating ROOT", gstreamer::root::RUNHEADERTREENAME, " tree");
+		log->info(2, "GstreamerRootFactoryCreating ROOT%1 tree", gstreamer::root::RUNHEADERTREENAME);
 		treePtr = std::make_unique<GRootTree>(run_header, log);
 	}
 
@@ -81,7 +83,7 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateTrueInfo
 
 	auto& treePtr = gRootTrees[treeName];
 	if (!treePtr) {
-		log->info(2, "GstreamerRootFactory", "Creating GTrueInfoData ROOT tree for ", detectorName);
+		log->info(2, "GstreamerRootFactoryCreating GTrueInfoData ROOT tree for %1", detectorName);
 		treePtr = std::make_unique<GRootTree>(treeName, gdata, log);
 	}
 
@@ -98,7 +100,7 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateDigitize
 
 	auto& treePtr = gRootTrees[treeName];
 	if (!treePtr) {
-		log->info(2, "GstreamerRootFactory", "Creating GDigitizedData ROOT tree for ", detectorName);
+		log->info(2, "GstreamerRootFactoryCreating GDigitizedData ROOT tree for %1", detectorName);
 		treePtr = std::make_unique<GRootTree>(treeName, gdata, log);
 	}
 
@@ -111,7 +113,7 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateGenerate
 	rootfile->cd();
 	auto& treePtr = gRootTrees[treeName];
 	if (!treePtr) {
-		log->info(2, "GstreamerRootFactory", "Creating generated-particle ROOT tree for ", treeName);
+		log->info(2, "GstreamerRootFactoryCreating generated-particle ROOT tree for %1", treeName);
 		treePtr = std::make_unique<GRootTree>(treeName, particles, log);
 	}
 
@@ -123,7 +125,7 @@ const std::unique_ptr<GRootTree>& GstreamerRootFactory::getOrInstantiateAncestor
 	rootfile->cd();
 	auto& tree_ptr = gRootTrees[gstreamer::root::ANCESTORTREENAME];
 	if (!tree_ptr) {
-		log->info(2, "GstreamerRootFactory", "Creating ancestor ROOT tree");
+		log->info(2, "GstreamerRootFactoryCreating ancestor ROOT tree");
 		tree_ptr = std::make_unique<GRootTree>(ancestors, log);
 	}
 	return tree_ptr;

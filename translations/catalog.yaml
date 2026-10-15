@@ -1,0 +1,11 @@
+# English C++ is the source of truth. The extractor never scans builds or subproject copies.
+schema: 1
+languages: [it, ja, fr, zh]
+sources:
+  - gemc
+  - gemc.cc
+  - gemc_options.cc
+exclude:
+  - "gemc/*/examples/*"
+  - "gemc/*Doxy.h"
+  - "gemc/*/CADMesh.hh"

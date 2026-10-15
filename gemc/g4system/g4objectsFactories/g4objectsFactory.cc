@@ -121,9 +121,9 @@ G4VisAttributes G4ObjectsFactory::createVisualAttributes(const GVolume *s) {
 
 	const auto g4color = gutilities::makeG4Colour(color, opacity);
 
-	log->info(2, className(), " createVisualAttributes for color ", color,
-	          " resulted in RGB = (", g4color.GetRed(), ", ", g4color.GetGreen(), ", ", g4color.GetBlue(),
-	          ", opacity: ", opacity, ")");
+	log->info(
+		2, "%1 createVisualAttributes for color %2 resulted in RGB = (%3, %4, %5, opacity: %6)", className(),
+		color, g4color.GetRed(), g4color.GetGreen(), g4color.GetBlue(), opacity);
 
 	G4VisAttributes attr(g4color);
 
@@ -227,13 +227,11 @@ G4LogicalVolume *G4ObjectsFactory::buildLogical(const GVolume *s,
 	auto *mat = nist->FindOrBuildMaterial(s->getMaterial());
 	if (!mat && backupMaterial) {
 		mat = nist->FindOrBuildMaterial(*backupMaterial);
-		log->warning("Material <", s->getMaterial(), "> not found. Using backup material <",
-		             *backupMaterial, ">.");
+		log->warning("Material <%1> not found. Using backup material <%2>.", s->getMaterial(), *backupMaterial);
 	}
 
 	if (!mat) {
-		log->error(g4system::ERR_G4MATERIALNOTFOUND,
-		           "Material <", s->getMaterial(), "> not found.");
+		log->error(g4system::ERR_G4MATERIALNOTFOUND, "Material <%1> not found.", s->getMaterial());
 	}
 
 	// The solid must exist: a logical volume built on a null solid would be placed
@@ -303,9 +301,10 @@ G4VPhysicalVolume *G4ObjectsFactory::buildPhysical(const GVolume *s,
 			                          log);
 		}
 		else {
-			log->error(gsystem::ERR_G4PLACEMENTTYPE,
-			           "GVolume <", s->getName(), "> has unsupported g4placement_type <",
-			           placementType, ">. Use 'active' or 'passive'.");
+			log->error(
+				gsystem::ERR_G4PLACEMENTTYPE,
+				"GVolume <%1> has unsupported g4placement_type <%2>. Use 'active' or 'passive'.", s->getName(),
+				placementType);
 		}
 	}
 	return thisG4Volume->getPhysical();
@@ -319,7 +318,7 @@ bool G4ObjectsFactory::build_g4volume(const GVolume *s,
 	// solid to `solidsOpr` operations but get no material, logical, or placement.
 	if (s->getMaterial() == gsystem::GSYSTEMCOMPONENTMATERIAL) {
 		auto *solid = buildSolid(s, g4s);
-		log->info(2, className(), " result for component ", name, ": solid: ", solid != nullptr);
+		log->info(2, "%1 result for component %2: solid: %3", className(), name, solid != nullptr);
 		return solid != nullptr;
 	}
 
@@ -329,7 +328,7 @@ bool G4ObjectsFactory::build_g4volume(const GVolume *s,
 	// null solid would be placed and crash the navigation voxelization later.
 	auto sbuild = buildSolid(s, g4s);
 	if (sbuild == nullptr) {
-		log->info(2, className(), " result for ", name, ": solid not ready, deferring");
+		log->info(2, "%1 result for %2: solid not ready, deferring", className(), name);
 		return false;
 	}
 	auto lbuild = buildLogical(s, g4s);
@@ -340,11 +339,9 @@ bool G4ObjectsFactory::build_g4volume(const GVolume *s,
 	const bool okPhysical = (pbuild != nullptr);
 	const bool okAll = okSolid && okLogical && okPhysical;
 
-	log->info(2, className(), " result for ",
-	          name,
-	          ": solid: ", okSolid,
-	          " logical: ", okLogical,
-	          " physical: ", okPhysical);
+	log->info(
+		2, "%1 result for %2: solid: %3 logical: %4 physical: %5", className(), name, okSolid, okLogical,
+		okPhysical);
 
 	return okAll;
 }

@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 	fffv["triangle"]->Area();
 	fffv["box1"]->Area();
 
-	log->info(0, " Shape pointers from map: ", fffv["triangle"], ", from direct pointer:", aShape);
+	log->info(0, " Shape pointers from map: %1, from direct pointer:%2", fffv["triangle"], aShape);
 
 
 	// --------------------------
@@ -74,8 +74,8 @@ int main(int argc, char* argv[]) {
 	ggg["tesla"]->go();
 	ggg["ford"]->go();
 
-	log->info(0, " Car pointers from map: ", ggg["ford"], ", from direct pointer:", aCar);
-	log->info(0, " run generalCarVar method from factory map: ", ggg["tesla"]->generalCarVar);
+	log->info(0, " Car pointers from map: %1, from direct pointer:%2", ggg["ford"], aCar);
+	log->info(0, " run generalCarVar method from factory map: %1", ggg["tesla"]->generalCarVar);
 
 	return EXIT_SUCCESS;
 }

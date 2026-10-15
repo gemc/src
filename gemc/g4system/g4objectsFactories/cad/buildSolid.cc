@@ -78,8 +78,9 @@ G4VSolid* G4CadSystemFactory::buildSolid(const GVolume* s,
 	if (cadParameters.size() > 1) {
 		fileName = cadParameters[0];
 		if (!numeric_value(cadParameters[1], scale)) {
-			log->warning("G4CadSystemFactory: volume <", g4name,
-			             "> has a non-numeric scale <", cadParameters[1], ">; using 1.0");
+			log->warning(
+				"G4CadSystemFactory: volume <%1> has a non-numeric scale <%2>; using 1.0", g4name,
+				cadParameters[1]);
 			scale = 1.0;
 		}
 	}
@@ -112,7 +113,6 @@ G4VSolid* G4CadSystemFactory::buildSolid(const GVolume* s,
 	}
 
 	// Unsupported extension: return nullptr so the caller can decide whether to treat it as fatal.
-	log->warning("G4CadSystemFactory: file <", fileName,
-	             "> has unsupported extension <", extension, ">");
+	log->warning("G4CadSystemFactory: file <%1> has unsupported extension <%2>", fileName, extension);
 	return nullptr;
 }

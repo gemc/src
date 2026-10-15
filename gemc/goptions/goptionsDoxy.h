@@ -99,6 +99,27 @@
  * - `debug=true` (or debug > 0): developer-focused diagnostics — internal state, parsing details,
  *   and other troubleshooting information beyond normal verbosity.
  *
+ * \section goptions_main_language Logging and GUI language
+ * Upcoming in the next release: the scalar `language` option defaults to `auto`, letting \ref GLogger
+ * and the Qt GUI select the language without requiring a user option. An explicit `-language=it` or YAML
+ * `language: it` overrides `GEMC_LANGUAGE` and locale detection; `-language=en` forces English.
+ * Supported values are:
+ * - `auto`: detect the user's language automatically (default).
+ * - `en`: English, using the original English messages.
+ * - `it`: italiano (Italian).
+ * - `ja`: 日本語 (Japanese).
+ * - `fr`: français (French).
+ * - `zh`: 中文 (Chinese).
+ *
+ * Automatic detection checks `GEMC_LANGUAGE`, `LC_ALL`, `LC_MESSAGES`, and `LANG`, then native settings
+ * or English. Regional tags such as `it_IT.UTF-8` use the base language when a regional entry is missing.
+ * `C` and `POSIX` locales select English.
+ * Missing translations use the original English template, without changing numeric formatting.
+ * The startup/version banner shares these catalogs; paths, dates, citation, and author are parameters.
+ * `-v -language=it` honors overrides before or after the version flag. Version remains an early action
+ * without reading YAML; the normal startup banner uses the fully parsed command-line/YAML settings.
+
+ *
  * \section goptions_main_examples Examples
  *
  * The following example program is provided with this module:

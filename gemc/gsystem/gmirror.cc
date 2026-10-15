@@ -27,9 +27,10 @@ GMirror::GMirror(const std::string& s, std::vector<std::string> pars,
                  const std::shared_ptr<GLogger>& logger) : GBase(logger),
                                                            system(s) {
 	if (pars.size() != gsystem::GMIRRORNUMBEROFPARS) {
-		log->error(gsystem::ERR_GWRONGNUMBEROFPARS,
-		           "Incorrect number of mirror parameters for ", pars[0], ". Expected ",
-		           gsystem::GMIRRORNUMBEROFPARS, " but we got ", pars.size());
+		log->error(
+			gsystem::ERR_GWRONGNUMBEROFPARS,
+			"Incorrect number of mirror parameters for %1. Expected %2 but we got %3", pars[0],
+			gsystem::GMIRRORNUMBEROFPARS, pars.size());
 	}
 
 	// The parameter vector is a serialized DB/ASCII row. Parsing is positional.
@@ -47,7 +48,8 @@ GMirror::GMirror(const std::string& s, std::vector<std::string> pars,
 	for (const auto& [field, value] : std::initializer_list<std::pair<const char*, const std::string&>>{
 		     {"type", type}, {"finish", finish}, {"model", model}, {"border", border}}) {
 		if (mirror_field_is_unset(value)) {
-			log->error(gsystem::ERR_GMIRRORINVALID, "mirror <", name, ">: mandatory field <", field, "> is not set");
+			log->error(
+				gsystem::ERR_GMIRRORINVALID, "mirror <%1>: mandatory field <%2> is not set", name, field);
 		}
 	}
 
@@ -72,15 +74,18 @@ GMirror::GMirror(const std::string& s, std::vector<std::string> pars,
 			sigmaAlphaSet = true;
 		}
 		catch (const std::exception&) {
-			log->error(gsystem::ERR_GMIRRORINVALID, "mirror <", name, ">: could not parse sigmaAlpha <",
-			           sigmaAlphaPar, ">");
+			log->error(
+				gsystem::ERR_GMIRRORINVALID, "mirror <%1>: could not parse sigmaAlpha <%2>", name,
+				sigmaAlphaPar);
 		}
 	}
 
 	// The boundary needs optical properties from one of the two sources.
 	if (matOptProps.empty() && photonEnergy.empty()) {
-		log->error(gsystem::ERR_GMIRRORINVALID, "mirror <", name,
-		           ">: no optical properties. Set matOptProps or photonEnergy with the properties tables");
+		log->error(
+			gsystem::ERR_GMIRRORINVALID,
+			"mirror <%1>: no optical properties. Set matOptProps or photonEnergy with the properties tables",
+			name);
 	}
 
 	// Every provided property vector must be evaluated on the photonEnergy grid.
@@ -90,8 +95,10 @@ GMirror::GMirror(const std::string& s, std::vector<std::string> pars,
 		     {"specularspike", specularspike}, {"backscatter", backscatter},
 		     {"transmittance", transmittance}}) {
 		if (!values.empty() && values.size() != photonEnergy.size()) {
-			log->error(gsystem::ERR_GMIRRORINVALID, "mirror <", name, ">: property <", property, "> has ",
-			           values.size(), " entries but photonEnergy has ", photonEnergy.size());
+			log->error(
+				gsystem::ERR_GMIRRORINVALID,
+				"mirror <%1>: property <%2> has %3 entries but photonEnergy has %4", name, property,
+				values.size(), photonEnergy.size());
 		}
 	}
 }

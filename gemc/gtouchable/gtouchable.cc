@@ -43,7 +43,7 @@ GTouchable::GTouchable(const std::shared_ptr<GOptions>& gopt,
 
 		gidentity.emplace_back(idName, idValue);
 	}
-	log->debug(CONSTRUCTOR, "GTouchable", gtouchable::to_string(gType), " ", getIdentityString());
+	log->debug(CONSTRUCTOR, "GTouchable%1 %2", gtouchable::to_string(gType), getIdentityString());
 }
 
 // constructor from logger, digitization and gidentity strings
@@ -81,7 +81,7 @@ GTouchable::GTouchable(const std::shared_ptr<GLogger>& logger,
 
 		gidentity.emplace_back(idName, idValue);
 	}
-	log->debug(CONSTRUCTOR, "GTouchable", gtouchable::to_string(gType), " ", getIdentityString());
+	log->debug(CONSTRUCTOR, "GTouchable%1 %2", gtouchable::to_string(gType), getIdentityString());
 }
 
 // Overloaded "==" operator for the class 'GTouchable'
@@ -99,7 +99,7 @@ bool GTouchable::operator==(const GTouchable& that) const {
 	for (size_t i = 0; i < this->gidentity.size(); ++i) {
 		bool        equal            = ( this->gidentity[i].getValue() == that.gidentity[i].getValue() );
 		std::string comparisonResult = equal ? " ✅" : " ❌";
-		log->debug(NORMAL, "     ← ", this->gidentity[i], "   → ", that.gidentity[i], comparisonResult);
+		log->debug(NORMAL, "     ← %1   → %2%3", this->gidentity[i], that.gidentity[i], comparisonResult);
 		if (!equal) { return false; }
 	}
 
@@ -111,39 +111,44 @@ bool GTouchable::operator==(const GTouchable& that) const {
 		case readout:
 			typeComparison = this->stepTimeAtElectronicsIndex == that.stepTimeAtElectronicsIndex;
 			result = typeComparison ? " ✅" : " ❌";
-			log->debug(NORMAL, "    Touchable type is readout. Time cell comparison: ",
-					   this->stepTimeAtElectronicsIndex.value_or(-1),
-					   " ", that.stepTimeAtElectronicsIndex.value_or(-1),
-					   " result:", result);
+			log->debug(
+				NORMAL, "    Touchable type is readout. Time cell comparison: %1 %2 result:%3",
+				this->stepTimeAtElectronicsIndex.value_or(-1), that.stepTimeAtElectronicsIndex.value_or(-1),
+				result);
 			break;
 		case flux:
 			typeComparison = this->trackId == that.trackId;
 			result = typeComparison ? " ✅" : " ❌";
-			log->debug(NORMAL, "    Touchable type is flux. Track id comparison: ", this->trackId, " ", that.trackId,
-					   " result:", result);
+			log->debug(
+				NORMAL, "    Touchable type is flux. Track id comparison: %1 %2 result:%3", this->trackId,
+				that.trackId, result);
 			break;
 		case gPhotonDetector:
 			typeComparison = this->trackId == that.trackId;
 			result = typeComparison ? " ✅" : " ❌";
-			log->debug(NORMAL, "    Touchable type is gPhotonDetector. Track id comparison: ",
-					   this->trackId, " ", that.trackId, " result:", result);
+			log->debug(
+				NORMAL, "    Touchable type is gPhotonDetector. Track id comparison: %1 %2 result:%3",
+				this->trackId, that.trackId, result);
 			break;
 		case dosimeter:
 			typeComparison = true;
-			log->debug(NORMAL, "    Touchable type is dosimeter. No additional comparison needed, returning true ✅");
+			log->debug(
+				NORMAL, "    Touchable type is dosimeter. No additional comparison needed, returning true ✅");
 			break;
 
 		case particle_counter:
 			typeComparison = this->pid == that.pid;
 			result = typeComparison ? " ✅" : " ❌";
-			log->debug(NORMAL, "    Touchable type is flux. Track id comparison: ", this->trackId, " ", that.trackId,
-					   " result:", result);
+			log->debug(
+				NORMAL, "    Touchable type is flux. Track id comparison: %1 %2 result:%3", this->trackId,
+				that.trackId, result);
 			break;
 
 		case integral_counter:
 			typeComparison = true;
-			log->debug(NORMAL,
-					   "    Touchable type is integral_counter. No additional comparison needed, returning true ✅");
+			log->debug(
+				NORMAL,
+				"    Touchable type is integral_counter. No additional comparison needed, returning true ✅");
 			break;
 	}
 	return typeComparison;

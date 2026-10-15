@@ -76,9 +76,8 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 	// Built without Qt6 Charts: keep the page index stable by showing a placeholder instead of the
 	// histogram view. analysisView stays nullptr, and every caller already guards on that.
 	auto* analysisPlaceholder = new QLabel(
-		QStringLiteral("The analysis view requires Qt6 Charts, which was not available when GEMC was "
-		               "built.\nInstall the Qt6 Charts package and rebuild GEMC to enable live "
-		               "histograms."));
+		tr("The analysis view requires Qt6 Charts, which was not available when GEMC was "
+		   "built.\nInstall the Qt6 Charts package and rebuild GEMC to enable live histograms."));
 	analysisPlaceholder->setAlignment(Qt::AlignCenter);
 	analysisPlaceholder->setWordWrap(true);
 	rightContent->addWidget(analysisPlaceholder);

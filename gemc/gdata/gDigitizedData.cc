@@ -34,7 +34,7 @@ std::map<std::string, int> GDigitizedData::getIntObservablesMap(int which) const
 	for (const auto& [varName, value] : intObservablesMap) {
 		if (validVarName(varName, which)) { filteredIntObservablesMap[varName] = value; }
 	}
-	log->info(2, " getting ", which, " from intObservablesMap.");
+	log->info(2, " getting %1 from intObservablesMap.", which);
 	return filteredIntObservablesMap;
 }
 
@@ -44,7 +44,7 @@ std::map<std::string, double> GDigitizedData::getDblObservablesMap(int which) co
 	for (const auto& [varName, value] : doubleObservablesMap) {
 		if (validVarName(varName, which)) { filteredDblObservablesMap[varName] = value; }
 	}
-	log->info(2, " getting ", which, " from doubleObservablesMap.");
+	log->info(2, " getting %1 from doubleObservablesMap.", which);
 	return filteredDblObservablesMap;
 }
 
@@ -68,18 +68,18 @@ bool GDigitizedData::validVarName(const std::string& varName, int which) {
 
 void GDigitizedData::includeVariable(const std::string& vname, int value) {
 	// Event-level insertion with overwrite semantics.
-	log->info(2, "Including int variable ", vname, " with value ", value);
+	log->info(2, "Including int variable %1 with value %2", vname, value);
 	intObservablesMap[vname] = value;
 }
 
 void GDigitizedData::includeVariable(const std::string& vname, double value) {
 	// Event-level insertion with overwrite semantics.
-	log->info(2, "Including double variable ", vname, " with value ", value);
+	log->info(2, "Including double variable %1 with value %2", vname, value);
 	doubleObservablesMap[vname] = value;
 }
 
 void GDigitizedData::includeTransientVariable(const std::string& vname, double value) {
-	log->info(2, "Including transient variable ", vname, " with value ", value);
+	log->info(2, "Including transient variable %1 with value %2", vname, value);
 	transientVariablesMap[vname] = value;
 }
 
@@ -94,11 +94,11 @@ double GDigitizedData::getTransientVariable(const std::string& vname) const {
 void GDigitizedData::accumulateVariable(const std::string& vname, int value) {
 	// Run/integrated accumulation by summation.
 	if (!intObservablesMap.contains(vname)) {
-		log->info(2, "Accumulating new int variable ", vname, " with value ", value);
+		log->info(2, "Accumulating new int variable %1 with value %2", vname, value);
 		intObservablesMap[vname] = value;
 	}
 	else {
-		log->info(2, "Accumulating int variable ", vname, " with value ", value);
+		log->info(2, "Accumulating int variable %1 with value %2", vname, value);
 		intObservablesMap[vname] += value;
 	}
 }
@@ -106,11 +106,11 @@ void GDigitizedData::accumulateVariable(const std::string& vname, int value) {
 void GDigitizedData::accumulateVariable(const std::string& vname, double value) {
 	// Run/integrated accumulation by summation.
 	if (!doubleObservablesMap.contains(vname)) {
-		log->info(2, "Accumulating double variable ", vname, " with value ", value);
+		log->info(2, "Accumulating double variable %1 with value %2", vname, value);
 		doubleObservablesMap[vname] = value;
 	}
 	else {
-		log->info(2, "Accumulating double variable ", vname, " with value ", value);
+		log->info(2, "Accumulating double variable %1 with value %2", vname, value);
 		doubleObservablesMap[vname] += value;
 	}
 }
@@ -125,8 +125,8 @@ std::optional<int> GDigitizedData::getTimeAtElectronics() const {
 int GDigitizedData::getIntObservable(const std::string& varName) {
 	// Retrieve a single integer observable by key.
 	if (!intObservablesMap.contains(varName)) {
-		log->error(ERR_VARIABLENOTFOUND,
-		           "variable name <" + varName + "> not found in GDigitizedData::intObservablesMap");
+		log->error(
+			ERR_VARIABLENOTFOUND, "variable name <%1> not found in GDigitizedData::intObservablesMap", varName);
 	}
 	return intObservablesMap[varName];
 }
@@ -134,8 +134,9 @@ int GDigitizedData::getIntObservable(const std::string& varName) {
 double GDigitizedData::getDblObservable(const std::string& varName) {
 	// Retrieve a single floating-point observable by key.
 	if (!doubleObservablesMap.contains(varName)) {
-		log->error(ERR_VARIABLENOTFOUND,
-		           "variable name <" + varName + "> not found in GDigitizedData::doubleObservablesMap");
+		log->error(
+			ERR_VARIABLENOTFOUND, "variable name <%1> not found in GDigitizedData::doubleObservablesMap",
+			varName);
 	}
 	return doubleObservablesMap[varName];
 }

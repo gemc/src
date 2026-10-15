@@ -15,6 +15,10 @@
  *
  * These widgets are intended for **GUI-thread usage** inside Qt applications.
  *
+ * Upcoming in the next release: translateSvgLabels translates the known GEMC SVG captions using the
+ * GGuiIcons context before rendering either button state. Captions are XML-escaped and shrink to fit;
+ * technical command glyphs remain unchanged. Install GUI translators before constructing the widgets.
+ *
  * \section gqtbuttonswidget_design Design overview
  * \subsection gqtbuttonswidget_icon_buttons Icon buttons (\c GQTButtonsWidget)
  * The icon-buttons widget uses a \c QListWidget configured in \c QListView::IconMode. Each logical button

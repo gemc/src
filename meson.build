@@ -47,6 +47,7 @@ subdir('meson')
 
 # Fill dictionary
 #################
+subdir('translations/gui')
 subdir('gemc/guts')
 subdir('gemc/goptions')
 subdir('gemc/glogging')
@@ -352,7 +353,7 @@ pkg.generate(
     description : project_description,
     version : meson.project_version(),
     libraries : all_pkgconfig_libs,
-    libraries_private : [yaml_cpp_dep, assimp_dep] + gemc_pkgconfig_private_libs,
+    libraries_private : [yaml_cpp_dep, assimp_dep] + catalog_platform_deps + gemc_pkgconfig_private_libs,
     extra_cflags : gemc_pkgconfig_cflags,
     variables : gemc_pkgconfig_variables,
 )

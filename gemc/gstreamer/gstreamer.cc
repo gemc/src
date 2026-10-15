@@ -45,11 +45,11 @@ void GStreamer::publishEventData(const std::shared_ptr<GEventDataCollection>& ev
 // Run data are published immediately instead of being buffered. The publish order
 // mirrors the base-class run sequence: start, header, detector banks, end.
 void GStreamer::publishRunData(const std::shared_ptr<GRunDataCollection>& run_data) {
-	log->info(2, "GStreamer::publishRunData->startRun: ",
-			  gutilities::success_or_fail(startRun(run_data)));
+	log->info(2, "GStreamer::publishRunData->startRun: %1", gutilities::success_or_fail(startRun(run_data)));
 
-	log->info(2, SFUNCTION_NAME, "->publishRunHeader -> ",
-		  gutilities::success_or_fail(publishRunHeader(run_data->getHeader())));
+	log->info(
+		2, "%1->publishRunHeader -> %2", SFUNCTION_NAME,
+		gutilities::success_or_fail(publishRunHeader(run_data->getHeader())));
 
 	// Iterate over each detector collection and expose it to the plugin as a
 	// vector of raw pointers. The owning run collection remains alive throughout
@@ -63,36 +63,37 @@ void GStreamer::publishRunData(const std::shared_ptr<GRunDataCollection>& run_da
 
 		for (const auto& hit : tdptr->getDigitizedData()) { digitizedPtrs.push_back(hit.get()); }
 
-		log->info(2, SFUNCTION_NAME, "->publishEventDigitizedData for detector -> ", sdname,
-				  gutilities::success_or_fail(publishRunDigitizedData(sdname, digitizedPtrs)));
+		log->info(
+			2, "%1->publishEventDigitizedData for detector -> %2%3", SFUNCTION_NAME, sdname,
+			gutilities::success_or_fail(publishRunDigitizedData(sdname, digitizedPtrs)));
 	}
 
-	log->info(2, "GStreamer::endEvent -> ",
-			  gutilities::success_or_fail(endRun(run_data)));
+	log->info(2, "GStreamer::endEvent -> %1", gutilities::success_or_fail(endRun(run_data)));
 }
 
 
 void GStreamer::flushEventBuffer() {
-	log->info(2, "GStreamer::flushEventBuffer -> flushing ", eventBuffer.size(), " events to file");
+	log->info(2, "GStreamer::flushEventBuffer -> flushing %1 events to file", eventBuffer.size());
 
 	// Each buffered event is treated as read-only while the plugin hooks serialize it.
 	// The buffer's shared_ptr ownership keeps all event-owned hit objects alive during the flush.
 	for (const auto& eventData : eventBuffer) {
-		log->info(2, SFUNCTION_NAME, "->startEvent: ",
-				  gutilities::success_or_fail(startEvent(eventData)));
+		log->info(2, "%1->startEvent: %2", SFUNCTION_NAME, gutilities::success_or_fail(startEvent(eventData)));
 
-		log->info(2, SFUNCTION_NAME, "->publishEventHeader -> ",
-				  gutilities::success_or_fail(publishEventHeader(eventData->getHeader())));
+		log->info(
+			2, "%1->publishEventHeader -> %2", SFUNCTION_NAME,
+			gutilities::success_or_fail(publishEventHeader(eventData->getHeader())));
 
-		log->info(2, SFUNCTION_NAME, "->publishEventGeneratedParticles -> generated: ",
-		          gutilities::success_or_fail(publishEventGeneratedParticles("generated",
-		                                                                     eventData->getGeneratedParticles())));
-		log->info(2, SFUNCTION_NAME, "->publishEventGeneratedParticles -> generated_tracked: ",
-		          gutilities::success_or_fail(publishEventGeneratedParticles("generated_tracked",
-		                                                                     eventData->getGeneratedTrackedParticles())));
+		log->info(2, "%1->publishEventGeneratedParticles -> generated: %2", SFUNCTION_NAME,
+		          gutilities::success_or_fail(publishEventGeneratedParticles(
+		              "generated", eventData->getGeneratedParticles())));
+		log->info(2, "%1->publishEventGeneratedParticles -> generated_tracked: %2", SFUNCTION_NAME,
+		          gutilities::success_or_fail(publishEventGeneratedParticles(
+		              "generated_tracked", eventData->getGeneratedTrackedParticles())));
 		if (eventData->hasAncestorBank()) {
-			log->info(2, SFUNCTION_NAME, "->publishEventAncestors: ",
-			          gutilities::success_or_fail(publishEventAncestors(eventData->getAncestors())));
+			log->info(
+				2, "%1->publishEventAncestors: %2", SFUNCTION_NAME,
+				gutilities::success_or_fail(publishEventAncestors(eventData->getAncestors())));
 		}
 
 		// Publish one detector collection at a time.
@@ -109,14 +110,16 @@ void GStreamer::flushEventBuffer() {
 			for (const auto& hit : tdptr->getTrueInfoData()) { trueInfoPtrs.push_back(hit.get()); }
 			for (const auto& hit : tdptr->getDigitizedData()) { digitizedPtrs.push_back(hit.get()); }
 
-			log->info(2, SFUNCTION_NAME, "->publishEventTrueInfoData for detector -> ", sdname,
-					  gutilities::success_or_fail(publishEventTrueInfoData(sdname, trueInfoPtrs)));
+			log->info(
+				2, "%1->publishEventTrueInfoData for detector -> %2%3", SFUNCTION_NAME, sdname,
+				gutilities::success_or_fail(publishEventTrueInfoData(sdname, trueInfoPtrs)));
 
-			log->info(2, SFUNCTION_NAME, "->publishEventDigitizedData for detector -> ", sdname,
-					  gutilities::success_or_fail(publishEventDigitizedData(sdname, digitizedPtrs)));
+			log->info(
+				2, "%1->publishEventDigitizedData for detector -> %2%3", SFUNCTION_NAME, sdname,
+				gutilities::success_or_fail(publishEventDigitizedData(sdname, digitizedPtrs)));
 		}
 
-		log->info(2, "GStreamer::endEvent -> ", gutilities::success_or_fail(endEvent(eventData)));
+		log->info(2, "GStreamer::endEvent -> %1", gutilities::success_or_fail(endEvent(eventData)));
 	}
 
 	// All buffered events have now been handed to the plugin hooks.

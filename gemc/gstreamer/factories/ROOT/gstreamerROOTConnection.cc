@@ -9,16 +9,17 @@
 // Manage the lifetime of the ROOT file that owns all trees created by the plugin.
 
 bool GstreamerRootFactory::openConnection() {
-	log->debug(NORMAL, "GstreamerRootFactory::openConnection -> opening file " + filename());
+	log->debug(NORMAL, "GstreamerRootFactory::openConnection -> opening file %1", filename());
 
 	rootfile = std::make_unique<TFile>(filename().c_str(), "RECREATE");
 
 	if (rootfile->IsZombie()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT,
-		           "GstreamerRootFactory: could not create file " + filename() + " (file is a zombie)");
+		log->error(
+			gstreamer::ERR_CANTOPENOUTPUT, "GstreamerRootFactory: could not create file %1 (file is a zombie)",
+			filename());
 	}
 
-	log->info(1, SFUNCTION_NAME, "GstreamerRootFactory: opened file " + filename());
+	log->info(1, "%1GstreamerRootFactory: opened file %2", SFUNCTION_NAME, filename());
 
 	return true;
 }
@@ -32,7 +33,7 @@ bool GstreamerRootFactory::closeConnectionImpl() {
 	gRootTrees.clear();
 	rootfile->Close();
 
-	log->info(1, SFUNCTION_NAME, "GstreamerRootFactory: closed file " + filename());
+	log->info(1, "%1GstreamerRootFactory: closed file %2", SFUNCTION_NAME, filename());
 
 	return true;
 }

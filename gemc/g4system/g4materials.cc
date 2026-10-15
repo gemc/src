@@ -13,7 +13,7 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial> &gmaterial) {
 	// Only build the material if it is not already available in Geant4.
 	auto g4material = NISTman->FindMaterial(materialName);
 	if (g4material != nullptr) {
-		log->info(2, "Material <", materialName, "> already exists in G4NistManager");
+		log->info(2, "Material <%1> already exists in G4NistManager", materialName);
 		return true;
 	}
 
@@ -26,14 +26,14 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial> &gmaterial) {
 	for (auto &componentName: components) {
 		if (isChemical) {
 			if (NISTman->FindOrBuildElement(componentName) == nullptr) {
-				log->info(2, "Element <", componentName, ">, needed by ", materialName, ",  not found yet");
+				log->info(2, "Element <%1>, needed by %2,  not found yet", componentName, materialName);
 				return false;
-			} else { log->info(2, "Element <", componentName, "> needed by ", materialName, " now found"); }
+			} else { log->info(2, "Element <%1> needed by %2 now found", componentName, materialName); }
 		} else {
 			if (NISTman->FindOrBuildMaterial(componentName) == nullptr) {
-				log->info(2, "Material <", componentName, ">, needed by ", materialName, ",  not found yet");
+				log->info(2, "Material <%1>, needed by %2,  not found yet", componentName, materialName);
 				return false;
-			} else { log->info(2, "Material <", componentName, "> needed by ", materialName, " now found"); }
+			} else { log->info(2, "Material <%1> needed by %2 now found", componentName, materialName); }
 		}
 	}
 
@@ -43,9 +43,9 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial> &gmaterial) {
 	                                              static_cast<G4int>(components.size()));
 
 	if (isChemical) {
-		log->info(2, "Building material <", materialName, "> with components:");
+		log->info(2, "Building material <%1> with components:", materialName);
 		for (size_t i = 0; i < components.size(); i++) {
-			log->info(2, "element <", components[i], "> with amount: ", amounts[i]);
+			log->info(2, "element <%1> with amount: %2", components[i], amounts[i]);
 		}
 
 		for (size_t i = 0; i < components.size(); i++) {
@@ -53,9 +53,9 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial> &gmaterial) {
 			g4materialsMap[materialName]->AddElement(element, static_cast<G4int>(amounts[i]));
 		}
 	} else {
-		log->info(2, "Building material <", materialName, "> with components:");
+		log->info(2, "Building material <%1> with components:", materialName);
 		for (size_t i = 0; i < components.size(); i++) {
-			log->info(2, "material <", components[i], "> with fractional mass: ", amounts[i]);
+			log->info(2, "material <%1> with fractional mass: %2", components[i], amounts[i]);
 		}
 
 		for (size_t i = 0; i < components.size(); i++) {
@@ -73,9 +73,10 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial> &gmaterial) {
 		auto addProperty = [&](const char *propertyName, const std::vector<double> &values) {
 			if (values.empty()) { return; }
 			if (values.size() != photonEnergy.size()) {
-				log->error(gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
-				           "material <", materialName, "> optical property <", propertyName, "> has ",
-				           values.size(), " entries but photonEnergy has ", photonEnergy.size());
+				log->error(
+					gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+					"material <%1> optical property <%2> has %3 entries but photonEnergy has %4", materialName,
+					propertyName, values.size(), photonEnergy.size());
 			}
 			materialPropertiesTable->AddProperty(propertyName, photonEnergy, values);
 			hasOpticalProperties = true;
@@ -120,7 +121,7 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial> &gmaterial) {
 
 		if (hasOpticalProperties) {
 			g4materialsMap[materialName]->SetMaterialPropertiesTable(materialPropertiesTable);
-			log->info(2, "Attached optical material properties table to material <", materialName, ">");
+			log->info(2, "Attached optical material properties table to material <%1>", materialName);
 		} else { delete materialPropertiesTable; }
 	}
 
@@ -150,7 +151,7 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		                                               T);
 		g4materialsMap[g4system::HGAS_MATERIAL]->AddElement(Hydrogen, 1);
 	}
-	log->info(2, "G4World: Hydrogen gas material <", g4system::HGAS_MATERIAL, "> created with density <", d, ">");
+	log->info(2, "G4World: Hydrogen gas material <%1> created with density <%2>", g4system::HGAS_MATERIAL, d);
 
 	// ----  Deuterium
 
@@ -165,7 +166,7 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		Deuterium = new G4Element(g4system::DEUTERIUM_ELEMENT, g4system::DEUTERIUM_ELEMENT, 1);
 		Deuterium->AddIsotope(Deuteron, 1);
 	}
-	log->info(2, "G4World: Deuterium element <", g4system::DEUTERIUM_ELEMENT, "> created with density <", d, ">");
+	log->info(2, "G4World: Deuterium element <%1> created with density <%2>", g4system::DEUTERIUM_ELEMENT, d);
 
 	// Deuterium gas material.
 	if (G4NistManager::Instance()->FindMaterial(g4system::DEUTERIUMGAS_MATERIAL) == nullptr) {
@@ -178,8 +179,9 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		                                                       T);
 		g4materialsMap[g4system::DEUTERIUMGAS_MATERIAL]->AddElement(Deuterium, 1);
 	}
-	log->info(2, "G4World: Deuterium gas material <", g4system::DEUTERIUMGAS_MATERIAL,
-	          "> created with density <", d, ">");
+	log->info(
+		2, "G4World: Deuterium gas material <%1> created with density <%2>", g4system::DEUTERIUMGAS_MATERIAL,
+		d);
 
 	// Liquid Deuterium material.
 	if (G4NistManager::Instance()->FindMaterial(g4system::LD2_MATERIAL) == nullptr) {
@@ -192,8 +194,8 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		                                              T);
 		g4materialsMap[g4system::LD2_MATERIAL]->AddElement(Deuterium, 2);
 	}
-	log->info(2, "G4World: Liquid Deuterium material <", g4system::LD2_MATERIAL, "> created with density <", d,
-	          ">");
+	log->info(
+		2, "G4World: Liquid Deuterium material <%1> created with density <%2>", g4system::LD2_MATERIAL, d);
 
 	// Ammonia (ND3) material definition.
 	if (G4NistManager::Instance()->FindMaterial(g4system::ND3_MATERIAL) == nullptr) {
@@ -210,7 +212,7 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		g4materialsMap[g4system::ND3_MATERIAL]->AddElement(Nitrogen, 1);
 		g4materialsMap[g4system::ND3_MATERIAL]->AddElement(Deuterium, 3);
 	}
-	log->info(2, "G4World: Ammonia material <", g4system::ND3_MATERIAL, "> created with density <", d, ">");
+	log->info(2, "G4World: Ammonia material <%1> created with density <%2>", g4system::ND3_MATERIAL, d);
 
 	// ---- Helium 3
 
@@ -225,7 +227,7 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		Helium3 = new G4Element(g4system::HELIUM3_ELEMENT, g4system::HELIUM3_ELEMENT, 1);
 		Helium3->AddIsotope(Helion, 1);
 	}
-	log->info(2, "G4World: Helium 3 element <", g4system::HELIUM3_ELEMENT, "> created with density <", d, ">");
+	log->info(2, "G4World: Helium 3 element <%1> created with density <%2>", g4system::HELIUM3_ELEMENT, d);
 
 	// Helium-3 gas material definition.
 	if (G4NistManager::Instance()->FindMaterial(g4system::HELIUM3GAS_MATERIAL) == nullptr) {
@@ -239,8 +241,8 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		                                                     T);
 		g4materialsMap[g4system::HELIUM3GAS_MATERIAL]->AddElement(Helium3, 1);
 	}
-	log->info(2, "G4World: Helium 3 gas material <", g4system::HELIUM3GAS_MATERIAL, "> created with density <",
-	          d, ">");
+	log->info(
+		2, "G4World: Helium 3 gas material <%1> created with density <%2>", g4system::HELIUM3GAS_MATERIAL, d);
 
 	// ---- Tritium
 
@@ -254,7 +256,7 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		Tritium = new G4Element(g4system::TRITIUM_ELEMENT, g4system::TRITIUM_ELEMENT, 1);
 		Tritium->AddIsotope(Triton, 1);
 	}
-	log->info(2, "G4World: Tritium element <", g4system::TRITIUM_ELEMENT, "> created with density <", d, ">");
+	log->info(2, "G4World: Tritium element <%1> created with density <%2>", g4system::TRITIUM_ELEMENT, d);
 
 	// Tritium gas material definition.
 	if (G4NistManager::Instance()->FindMaterial(g4system::TRITIUMGAS_MATERIAL) == nullptr) {
@@ -266,8 +268,8 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		                                                     kStateGas, T);
 		g4materialsMap[g4system::TRITIUMGAS_MATERIAL]->AddElement(Tritium, 1);
 	}
-	log->info(2, "G4World: Tritium gas material <", g4system::TRITIUMGAS_MATERIAL, "> created with density <",
-	          d, ">");
+	log->info(
+		2, "G4World: Tritium gas material <%1> created with density <%2>", g4system::TRITIUMGAS_MATERIAL, d);
 
 	// ---- Optical Air
 
@@ -288,8 +290,8 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		airOpticalMPT->AddProperty("RINDEX", photonEnergy, refractiveIndex);
 		g4materialsMap[g4system::AIROPTICAL_MATERIAL]->SetMaterialPropertiesTable(airOpticalMPT);
 	}
-	log->info(2, "G4World: Optical air material <", g4system::AIROPTICAL_MATERIAL, "> created with density <",
-	          d, ">");
+	log->info(
+		2, "G4World: Optical air material <%1> created with density <%2>", g4system::AIROPTICAL_MATERIAL, d);
 
 	// ---- Kryptonite
 
@@ -300,6 +302,6 @@ void G4World::buildDefaultMaterialsElementsAndIsotopes() {
 		g4materialsMap[g4system::KRYPTONITE_MATERIAL]->AddMaterial(
 		    G4NistManager::Instance()->FindOrBuildMaterial("G4_Ar"), 100 * CLHEP::perCent);
 	}
-	log->info(2, "G4World: Kryptonite material <", g4system::KRYPTONITE_MATERIAL, "> created with density <", d,
-	          ">");
+	log->info(
+		2, "G4World: Kryptonite material <%1> created with density <%2>", g4system::KRYPTONITE_MATERIAL, d);
 }

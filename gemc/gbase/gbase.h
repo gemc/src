@@ -133,7 +133,7 @@ public:
 	 */
 	explicit GBase(const std::shared_ptr<GOptions>& gopt, std::string logger_name = "") {
 		log = std::make_shared<GLogger>(gopt, getDerivedName(), logger_name);
-		log->debug(CONSTRUCTOR, getDerivedName());
+		log->debug(CONSTRUCTOR, "%1", getDerivedName());
 	}
 
 	// sharing logger for heavy creations like gtouchable
@@ -167,7 +167,7 @@ public:
 	 * - The destructor must be safe in all shutdown orders; it therefore checks \c log
 	 *   before attempting to log.
 	 */
-	virtual ~GBase() { if (log) log->debug(DESTRUCTOR, getDerivedName()); }
+	virtual ~GBase() { if (log) log->debug(DESTRUCTOR, "%1", getDerivedName()); }
 
 	// Important: because we declared a destructor, default these explicitly.
 	/**

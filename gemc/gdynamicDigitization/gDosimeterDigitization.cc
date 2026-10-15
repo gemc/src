@@ -88,12 +88,13 @@ bool GDosimeterDigitization::loadConstantsImpl([[maybe_unused]] int             
 			dataFileWithPath = gemcRoot.string() + "/gemc/gdynamicDigitization/dosimeterData" + "/Niel/" + filename;
 			inputfile.open(dataFileWithPath);
 			if (!inputfile) {
-				log->error(guts::EC__FILENOTFOUND, "Error loading dosimeter data for pid <", pid, "> from file ",
-						   dataFileWithPath);
+				log->error(
+					guts::EC__FILENOTFOUND, "Error loading dosimeter data for pid <%1> from file %2", pid,
+					dataFileWithPath);
 			}
 		}
 
-		log->info(1, " Loading dosimeter data for pid <", pid, "> from file ", dataFileWithPath);
+		log->info(1, " Loading dosimeter data for pid <%1> from file %2", pid, dataFileWithPath);
 
 		// Expected file format: repeated pairs (factor, energyMeV).
 		double p0, p1;
@@ -120,7 +121,8 @@ double GDosimeterDigitization::getNielFactorForParticleAtEnergy(int pid, double 
 	// Guard against missing/empty calibration data.
 	// (If this happens, it indicates loadConstantsImpl did not populate the maps as expected.)
 	if (niel_N == 0) {
-		log->error(guts::EC__FILENOTFOUND, "NIEL tables are empty for pid <", pid, ">. Did loadConstantsImpl fail?");
+		log->error(
+			guts::EC__FILENOTFOUND, "NIEL tables are empty for pid <%1>. Did loadConstantsImpl fail?", pid);
 		return 0.0;
 	}
 
@@ -155,7 +157,7 @@ double GDosimeterDigitization::getNielFactorForParticleAtEnergy(int pid, double 
 		value = nielfactorMap[pid].back();
 	}
 
-	log->debug(NORMAL, " pid: ", pid, ", j: ", j, ", value: ", value, ", energy: ", energyMeV);
+	log->debug(NORMAL, " pid: %1, j: %2, value: %3, energy: %4", pid, j, value, energyMeV);
 
 	return value;
 }

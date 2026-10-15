@@ -25,12 +25,13 @@ GTrueInfoData::GTrueInfoData(const std::shared_ptr<GOptions>& gopts, const GHit*
 void GTrueInfoData::includeVariable(const std::string& varName, double value) {
 	// Event-level insertion with overwrite semantics.
 	doubleObservablesMap[varName] = value;
-	log->info(2, FUNCTION_NAME, " including ", varName, " in trueInfoDoublesVariablesMap with value: ", value);
+	log->info(
+		2, "%1 including %2 in trueInfoDoublesVariablesMap with value: %3", FUNCTION_NAME, varName, value);
 }
 
 void GTrueInfoData::includeVariable(const std::string& varName, std::string value) {
 	// Event-level insertion with overwrite semantics.
-	log->info(2, FUNCTION_NAME, " including ", varName, " in trueInfoStringVariablesMap  with value:", value);
+	log->info(2, "%1 including %2 in trueInfoStringVariablesMap  with value:%3", FUNCTION_NAME, varName, value);
 	stringVariablesMap[varName] = std::move(value);
 }
 
@@ -38,13 +39,15 @@ void GTrueInfoData::accumulateVariable(const std::string& vname, double value) {
 	// Run/integrated accumulation by summation.
 	if (!doubleObservablesMap.contains(vname)) {
 		doubleObservablesMap[vname] = value;
-		log->info(2, FUNCTION_NAME, "Creating double variable ", vname, " with value ", value, ", sum is now:",
-		          doubleObservablesMap[vname]);
+		log->info(
+			2, "%1Creating double variable %2 with value %3, sum is now:%4", FUNCTION_NAME, vname, value,
+			doubleObservablesMap[vname]);
 	}
 	else {
 		doubleObservablesMap[vname] += value;
-		log->info(2, FUNCTION_NAME, "Accumulating double variable ", vname, " with value ", value, ", sum is now:",
-		          doubleObservablesMap[vname]);
+		log->info(
+			2, "%1Accumulating double variable %2 with value %3, sum is now:%4", FUNCTION_NAME, vname, value,
+			doubleObservablesMap[vname]);
 	}
 }
 

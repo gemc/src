@@ -211,7 +211,7 @@ public:
 		  trackId(base->trackId),
 		  eMultiplier(base->eMultiplier),
 		  stepTimeAtElectronicsIndex(newTimeIndex) {
-		log->debug(CONSTRUCTOR, "Copy-with-time-index", gtouchable::to_string(gType), " ", getIdentityString());
+		log->debug(CONSTRUCTOR, "Copy-with-time-index%1 %2", gtouchable::to_string(gType), getIdentityString());
 	}
 
 	/**
@@ -220,7 +220,7 @@ public:
 	 * The destructor logs the type and \ref GTouchable::getIdentityString "getIdentityString()"
 	 * at debug level, which can be useful when diagnosing object lifetimes.
 	 */
-	~GTouchable() { log->debug(DESTRUCTOR, gtouchable::to_string(gType), " ", getIdentityString()); }
+	~GTouchable() { log->debug(DESTRUCTOR, "%1 %2", gtouchable::to_string(gType), getIdentityString()); }
 
 	/**
 	 * \brief Compares two \c GTouchable instances using the module comparison semantics.
@@ -338,11 +338,11 @@ public:
 	[[nodiscard]] bool exists_in_vector(const std::vector<GTouchable>& v) const {
 		for (const auto& gt : v) {
 			if (*this == gt) {
-				log->info(2, "GTouchable", this, " exists in vector.");
+				log->info(2, "GTouchable%1 exists in vector.", this);
 				return true;
 			}
 		}
-		log->info(2, "GTouchable", this, " does not exist in vector.");
+		log->info(2, "GTouchable%1 does not exist in vector.", this);
 
 		return false;
 	}

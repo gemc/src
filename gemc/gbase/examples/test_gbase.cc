@@ -30,13 +30,13 @@ public:
 	int object1 = 2;
 
 	explicit g1(const std::shared_ptr<GOptions>& gopt) : GBase(gopt, G1_LOGGER) {
-		log->info(0, "hello derived class ", SFUNCTION_NAME);
+		log->info(0, "hello derived class %1", SFUNCTION_NAME);
 	}
 
 	void doSomething([[maybe_unused]] int a = 0) {
 		log->info(0, "doing something ");
-		log->debug(NORMAL, FUNCTION_NAME, "debug message ");
-		log->warning(FUNCTION_NAME, "warning message ");
+		log->debug(NORMAL, "%1debug message ", FUNCTION_NAME);
+		log->warning("%1warning message ", FUNCTION_NAME);
 	}
 
 	~g1() = default;
@@ -49,13 +49,13 @@ public:
 	int object1 = 2;
 
 	explicit g2(const std::shared_ptr<GLogger>& log) : GBase(log) {
-		log->info(0, "hello derived class ", SFUNCTION_NAME);
+		log->info(0, "hello derived class %1", SFUNCTION_NAME);
 	}
 
 	void doSomething([[maybe_unused]] int a = 0) {
 		log->info(0, "doing something ");
-		log->debug(NORMAL, FUNCTION_NAME, "debug message ");
-		log->warning(FUNCTION_NAME, "warning message ");
+		log->debug(NORMAL, "%1debug message ", FUNCTION_NAME);
+		log->warning("%1warning message ", FUNCTION_NAME);
 	}
 
 	~g2() = default;

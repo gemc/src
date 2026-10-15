@@ -39,7 +39,7 @@ PmakerView::PmakerView(std::shared_ptr<std::vector<GparticlePtr>> particles,
 	mainLayout->setContentsMargins(10, 10, 10, 10);
 	mainLayout->setSpacing(10);
 
-	auto* titleLabel = new QLabel("Generator", this);
+	auto* titleLabel = new QLabel(tr("Generator"), this);
 	QFont titleFont("Avenir", 20, QFont::Bold);
 	titleLabel->setFont(titleFont);
 	mainLayout->addWidget(titleLabel);

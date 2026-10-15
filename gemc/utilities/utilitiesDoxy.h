@@ -86,6 +86,14 @@
  *   - Behavior:
  *     - if unset, a seed is derived from time/clock/pid sources
  *
+ * @section utilities_languages GUI translation startup
+ *
+ * Upcoming in the next release: makeQtApplication accepts an optional GOptions pointer and installs GUI
+ * translators before widgets are constructed. installGuiTranslations owns the translators through the
+ * application, uses the same language/catalog search settings as logging, and loads embedded project QMs
+ * plus optional external regional overrides. Unavailable messages fall back to English. The process
+ * numeric locale is unchanged. Reconstruct widgets after replacing translators, or restart GEMC.
+ *
  * @section utilities_verbosity Module verbosity
  *
  * The utilities report their activity through the logger passed into each function.

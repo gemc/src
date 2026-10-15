@@ -65,11 +65,12 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 
 	if (pars.size() != gsystem::GVOLUMENUMBEROFPARS) {
 		// Dump received parameters to help diagnose mismatched schema or input corruption.
-		for (auto& parameter : pars) { log->warning(" - parameter ", parameter); }
+		for (auto& parameter : pars) { log->warning(" - parameter %1", parameter); }
 
-		log->error(gsystem::ERR_GWRONGNUMBEROFPARS,
-		           "Incorrect number of system parameters for GVolume: ", pars.size(), ", it should be ",
-		           gsystem::GVOLUMENUMBEROFPARS);
+		log->error(
+			gsystem::ERR_GWRONGNUMBEROFPARS,
+			"Incorrect number of system parameters for GVolume: %1, it should be %2", pars.size(),
+			gsystem::GVOLUMENUMBEROFPARS);
 	}
 	else {
 		// The parameter vector is a serialized DB/ASCII row. Parsing is positional.
@@ -80,9 +81,10 @@ GVolume::GVolume(const std::shared_ptr<GLogger>& logger,
 		// checking that name does not contain gsystem::GSYSTEM_DELIMITER
 		// because gsystem::GSYSTEM_DELIMITER is used later to build fully-qualified Geant4 names.
 		if (name.find(gsystem::GSYSTEM_DELIMITER) != string::npos) {
-			log->error(gsystem::ERR_GVOLUMENAMECONTAINSINVALID,
-			           "the gVolume name <", name, "> contains the invalid character: <", gsystem::GSYSTEM_DELIMITER,
-			           ">. Exiting.");
+			log->error(
+				gsystem::ERR_GVOLUMENAMECONTAINSINVALID,
+				"the gVolume name <%1> contains the invalid character: <%2>. Exiting.", name,
+				gsystem::GSYSTEM_DELIMITER);
 		}
 
 		type           = removeAllSpacesFromString(pars[i++]);

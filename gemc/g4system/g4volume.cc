@@ -9,19 +9,19 @@
 // Store the solid pointer and emit a debug trace to help diagnose factory/build ordering.
 void G4Volume::setSolid(G4VSolid* s, const std::shared_ptr<GLogger>& log) {
 	solidVolume = s;
-	log->debug(NORMAL, "G4Volume: solid assigned @", s);
+	log->debug(NORMAL, "G4Volume: solid assigned @%1", s);
 }
 
 // Store the logical pointer and emit a debug trace to help diagnose factory/build ordering.
 void G4Volume::setLogical(G4LogicalVolume* l, const std::shared_ptr<GLogger>& log) {
 	logicalVolume = l;
-	log->debug(NORMAL, "G4Volume: logical assigned @", l);
+	log->debug(NORMAL, "G4Volume: logical assigned @%1", l);
 }
 
 // Store the physical pointer and emit a debug trace to help diagnose factory/build ordering.
 void G4Volume::setPhysical(G4VPhysicalVolume* p, const std::shared_ptr<GLogger>& log) {
 	physicalVolume = p;
-	log->debug(NORMAL, "G4Volume: physical assigned @", p);
+	log->debug(NORMAL, "G4Volume: physical assigned @%1", p);
 }
 
 // Attach a field manager to the logical volume if it exists; otherwise do nothing.

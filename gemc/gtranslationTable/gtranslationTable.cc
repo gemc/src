@@ -29,16 +29,16 @@ void GTranslationTable::addGElectronicWithIdentity(const std::vector<int> &ident
 	const bool inserted = tt.try_emplace(ttKey, gtron).second;
 
 	if (!inserted) {
-		log->warning("Key <" + ttKey + "> already present in TT map");
+		log->warning("Key <%1> already present in TT map", ttKey);
 	}
 
 	// Level 1: typical "milestone" message indicating a configuration registration was attempted.
-	log->info(1, inserted ? "Added" : "Preserved", " GElectronic with identity <", ttKey, "> in TT map");
+	log->info(1, "%1 GElectronic with identity <%2> in TT map", inserted ? "Added" : "Preserved", ttKey);
 
 	// Debug: print the entire table content for troubleshooting configuration/key issues.
 	log->debug(NORMAL, "Translation Table:");
 	for (auto &thisItem: tt) {
-		log->debug(NORMAL, guts::GTAB, "<", thisItem.first, ">  ⇢ ", thisItem.second);
+		log->debug(NORMAL, "%1<%2>  ⇢ %3", guts::GTAB, thisItem.first, thisItem.second);
 	}
 }
 
@@ -49,9 +49,9 @@ const GElectronic& GTranslationTable::getElectronics(const std::vector<int> &ide
 	auto search = tt.find(ttKey);
 
 	if (search == tt.end()) {
-		log->error(gtranslationTable::EC__TTNOTFOUNDINTT, "Key <", ttKey, "> not found in TT map");
+		log->error(gtranslationTable::EC__TTNOTFOUNDINTT, "Key <%1> not found in TT map", ttKey);
 	}
 
-	log->debug(NORMAL, "Retrieved Electronic using key <", ttKey, "> in TT map: ", search->second);
+	log->debug(NORMAL, "Retrieved Electronic using key <%1> in TT map: %2", ttKey, search->second);
 	return search->second;
 }

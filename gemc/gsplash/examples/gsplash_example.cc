@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 	QMainWindow*  window = nullptr;
 
 	if (gui) {
-		log->info(0, "g4dialog", "Running in GUI mode...");
+		log->info(0, "g4dialogRunning in GUI mode...");
 
 		// Create the Qt application and a main window to demonstrate returning focus.
 		app    = new QApplication(argc, argv);

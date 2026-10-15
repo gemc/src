@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QCoreApplication>
+
 // qt
 #include <QtWidgets>
 
@@ -24,6 +26,7 @@
  */
 class G4Dialog : public GBase<G4Dialog>, public QWidget
 {
+	Q_DECLARE_TR_FUNCTIONS(G4Dialog)
 public:
 	/**
 	 * \brief Construct the main dialog widget.

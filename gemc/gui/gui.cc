@@ -121,14 +121,14 @@ GemcGUI::GemcGUI(std::shared_ptr<GOptions>             gopts,
 
 	setLayout(mainLayout);
 	setWindowTitle(tr("GEMC: Geant4 Monte-Carlo"));
-	setFixedWidth(1000);
+	setMinimumWidth(1000);
 	setMinimumHeight(760);
 	resize(1000, std::max(sizeHint().height(), 760));
 	QTimer::singleShot(0, this, [this]() {
 		adjustSize();
 		const int preferredHeight = std::max(sizeHint().height(), 760);
 		setMinimumHeight(preferredHeight);
-		resize(1000, preferredHeight);
+		resize(std::max(1000, sizeHint().width()), preferredHeight);
 	});
 
 	// Timer used for cycle mode; timeouts are connected to cycleBeamOn().
@@ -143,17 +143,9 @@ GemcGUI::GemcGUI(std::shared_ptr<GOptions>             gopts,
 
 
 void GemcGUI::updateGui() {
-	// Parse the current label text and increment by the amount run in the most recent batch.
-	std::vector<std::string> sBefore =
-		gutilities::getStringVectorFromString(eventNumberLabel->text().toStdString());
-
-	int nThatWasRun = nEvents->text().toInt();
-	int nBefore     = stoi(sBefore[2]);
-
-	QString newNEvents("Event Number: ");
-	newNEvents.append(std::to_string(nBefore + nThatWasRun).c_str());
-
-	eventNumberLabel->setText(newNEvents);
+	// The translated label may reorder words and parameters; never parse it as simulation state.
+	displayedEventCount += nEvents->text().toULongLong();
+	eventNumberLabel->setText(tr("Event Number: %1").arg(displayedEventCount));
 }
 
 

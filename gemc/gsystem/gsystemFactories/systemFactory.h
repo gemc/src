@@ -61,7 +61,7 @@ public:
 	 * - leaving the system in a consistent state on success.
 	 */
 	void loadSystem(GSystem* system) {
-		log->info(1, "Loading system <", system->getName(), "> using factory <", system->getFactoryName(), ">");
+		log->info(1, "Loading system <%1> using factory <%2>", system->getName(), system->getFactoryName());
 
 		// Default: allow local execution context to resolve relative paths.
 		possibleLocationOfFiles.emplace_back(".");

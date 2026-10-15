@@ -94,8 +94,10 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 	sqlite3_stmt* stmt = nullptr;
 	int           rc   = sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite error preparing count query in loadGeometry: ",
-		           sqlite3_errmsg(db), " (", rc, ") using query: ", sql_query);
+		log->error(
+			gsystem::ERR_GSQLITEERROR,
+			"Sqlite error preparing count query in loadGeometry: %1 (%2) using query: %3", sqlite3_errmsg(db),
+			rc, sql_query);
 	}
 
 	// Bind parameters.
@@ -106,25 +108,28 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 
 	rc = sqlite3_bind_text(stmt, 1, experiment.c_str(), -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Error binding experiment: >", experiment, "<, ", sqlite3_errmsg(db));
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "Error binding experiment: >%1<, %2", experiment, sqlite3_errmsg(db));
 	}
 	rc = sqlite3_bind_text(stmt, 2, system_name.c_str(), -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Error binding system name: >", system_name, "<, ", sqlite3_errmsg(db));
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "Error binding system name: >%1<, %2", system_name, sqlite3_errmsg(db));
 	}
 	rc = sqlite3_bind_text(stmt, 3, variation.c_str(), -1, SQLITE_STATIC);
 	if (rc != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Error binding variation: >", variation, "<, ", sqlite3_errmsg(db));
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "Error binding variation: >%1<, %2", variation, sqlite3_errmsg(db));
 	}
 	rc = sqlite3_bind_int(stmt, 4, runno);
 	if (rc != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Error binding run number: >", runno, "<, ", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "Error binding run number: >%1<, %2", runno, sqlite3_errmsg(db));
 	}
 
 	// Log the expanded SQL for debugging (caller must free it).
 	if (auto sql = sqlite3_expanded_sql(stmt)) {
 		// returns char*
-		log->info(2, sql);
+		log->info(2, "%1", sql);
 		sqlite3_free(sql); // need to free the expanded SQL string
 	}
 
@@ -146,8 +151,9 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 			const char*          colName = sqlite3_column_name(stmt, i);
 			const unsigned char* colText = sqlite3_column_text(stmt, i);
 
-			log->info(2, "<sqlite> column: ", (colName ? colName : "NULL"), " = ",
-			          (colText ? reinterpret_cast<const char*>(colText) : "NULL"), " (column ", i, ")");
+			log->info(
+				2, "<sqlite> column: %1 = %2 (column %3)", (colName ? colName : "NULL"),
+				(colText ? reinterpret_cast<const char*>(colText) : "NULL"), i);
 
 			gvolumePars.emplace_back(colText ? reinterpret_cast<const char*>(colText) : "");
 		}
@@ -159,8 +165,9 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 			auto meshPath = gutilities::searchForFileInLocations(cadSearchDirectories,
 			                                                     meshReference);
 			if (!meshPath) {
-				log->warning("SQLite factory: CAD volume <", gvolumePars[0],
-				             "> references missing mesh <", meshReference, ">; skipping.");
+				log->warning(
+					"SQLite factory: CAD volume <%1> references missing mesh <%2>; skipping.", gvolumePars[0],
+					meshReference);
 				gvolumePars.clear();
 				continue;
 			}
@@ -172,8 +179,9 @@ void GSystemSQLiteFactory::loadGeometry(GSystem* system) {
 	}
 
 	if (rc != SQLITE_DONE) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadGeometry: ",
-		           sqlite3_errmsg(db), " (", rc, ")");
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "Sqlite database error in loadGeometry: %1 (%2)", sqlite3_errmsg(db),
+			rc);
 	}
 
 	sqlite3_finalize(stmt);

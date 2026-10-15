@@ -179,7 +179,11 @@ G4DisplayUtilities::G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt,
 	textKindCombo->addItems({"2D", "3D"});
 
 	textLayoutCombo = new QComboBox(this);
-	textLayoutCombo->addItems({"", "left", "centre", "center", "right"});
+	textLayoutCombo->addItem(tr("Default"), "");
+	textLayoutCombo->addItem(tr("Left"), "left");
+	textLayoutCombo->addItem(tr("Centre"), "centre");
+	textLayoutCombo->addItem(tr("Center"), "center");
+	textLayoutCombo->addItem(tr("Right"), "right");
 
 	textEdit = new QLineEdit(this);
 	textEdit->setPlaceholderText(tr("Text"));
@@ -192,7 +196,7 @@ G4DisplayUtilities::G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt,
 	textSizeSpin->setValue(24);
 	textDxSpin = doubleSpin(4.0, -100000.0, 100000.0, 0.5, this);
 	textDySpin = doubleSpin(4.0, -100000.0, 100000.0, 0.5, this);
-	textUnitEdit = new QLineEdit(tr("cm"), this);
+	textUnitEdit = new QLineEdit("cm", this);
 
 	textDxSpin->setToolTip(tr("Pixel offset from the projected text anchor."));
 	textDySpin->setToolTip(tr("Pixel offset from the projected text anchor."));
@@ -317,7 +321,7 @@ void G4DisplayUtilities::addText() {
 	    .arg(textColor.greenF(), 0, 'f', 4)
 	    .arg(textColor.blueF(), 0, 'f', 4)
 	    .toStdString();
-	text.layout = textLayoutCombo->currentText().toStdString();
+	text.layout = textLayoutCombo->currentData().toString().toStdString();
 	text.text   = textEdit->text().toStdString();
 	text.x      = textXSpin->value();
 	text.y      = textYSpin->value();

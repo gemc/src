@@ -110,7 +110,7 @@ GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* ru
 	track_provenance(std::move(provenance)) {
 	const auto thread_id = G4Threading::G4GetThreadId();
 	const auto desc      = "GEventAction " + std::to_string(thread_id);
-	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
+	log->debug(CONSTRUCTOR, "%1%2", FUNCTION_NAME, desc);
 	save_all_ancestors  = goptions->getSwitch(SAVE_ALL_ANCESTORS_SWITCH);
 	save_original_track = goptions->getSwitch(SAVE_ORIGINAL_TRACK_SWITCH) || save_all_ancestors;
 
@@ -131,15 +131,15 @@ GEventAction::GEventAction(const std::shared_ptr<GOptions>& gopt, GRunAction* ru
 		int n = 0;
 		if (!to_non_negative_int(n_part, n) || n == 0) {
 			if (thread_id <= 0)
-				log->warning("Ignoring invalid -", LOG_EVERY_OPTION, "=", spec,
-				             " : N must be a positive integer.");
+				log->warning("Ignoring invalid -%1=%2 : N must be a positive integer.", LOG_EVERY_OPTION, spec);
 		}
 		else if (dash != std::string::npos) {
 			int nth = 0;
 			if (!to_non_negative_int(nth_part, nth) || nth >= nthreads) {
 				if (thread_id <= 0)
-					log->warning("Ignoring invalid -", LOG_EVERY_OPTION, "=", spec,
-					             " : thread id must be in [0, ", nthreads - 1, "].");
+					log->warning(
+						"Ignoring invalid -%1=%2 : thread id must be in [0, %3].", LOG_EVERY_OPTION, spec,
+						nthreads - 1);
 			}
 			else {
 				log_every_n      = n;
@@ -168,8 +168,9 @@ void GEventAction::log_event_start(int thread_id) {
 	const double rate      = elapsed_s > 0.0 ? static_cast<double>(log_events_seen) / elapsed_s : 0.0;
 
 	// log_events_seen is this thread's own 1-based count, not the global Geant4 event id.
-	log->info(0, "Starting event n. ", log_events_seen, " in thread ", thread_id,
-	          ". Average rate: ", rate, " events / second");
+	log->info(
+		0, "Starting event n. %1 in thread %2. Average rate: %3 events / second", log_events_seen, thread_id,
+		rate);
 }
 
 // Begin-of-event hook used mainly for tracing event and thread identifiers.
@@ -177,7 +178,7 @@ void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) {
 	const auto thread_id = G4Threading::G4GetThreadId();
 	const auto event_id  = event->GetEventID();
 
-	log->debug(NORMAL, FUNCTION_NAME, " event id ", event_id, " in thread ", thread_id);
+	log->debug(NORMAL, "%1 event id %2 in thread %3", FUNCTION_NAME, event_id, thread_id);
 	if (track_provenance != nullptr) { track_provenance->clear(); }
 
 	log_event_start(thread_id);
@@ -187,8 +188,9 @@ void GEventAction::BeginOfEventAction([[maybe_unused]] const G4Event* event) {
 // resulting payload according to collection mode, and publishing event-mode output.
 void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 	if (run_action == nullptr) {
-		log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-				   " run_action is null - cannot access digitization routines or streamers.");
+		log->error(
+			gaction::ERR_GRUNACTION_NOT_EXISTING,
+			"%1 run_action is null - cannot access digitization routines or streamers.", FUNCTION_NAME);
 		return;
 	}
 
@@ -217,8 +219,9 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 
 	const auto digi_map = run_action->get_digitization_routines_map();
 	if (digi_map == nullptr) {
-		log->error(gaction::ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-				   " no digitization routines map available in thread ", thread_id);
+		log->error(
+			gaction::ERR_GDIGIMAP_NOT_EXISTING, "%1 no digitization routines map available in thread %2",
+			FUNCTION_NAME, thread_id);
 		return;
 	}
 
@@ -239,25 +242,26 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 		const bool no_digitized = detector_is_listed(goptions, NO_DIGITIZED_OPTION, hcSDName);
 		const bool no_true_info = detector_is_listed(goptions, NO_TRUE_INFO_OPTION, hcSDName);
 
-		log->info(2, FUNCTION_NAME, " worker ", thread_id,
-				  " for event number ", event_id,
-				  " for collection number ", hci + 1,
-				  " collection name: ", hcSDName);
+		log->info(
+			2, "%1 worker %2 for event number %3 for collection number %4 collection name: %5", FUNCTION_NAME,
+			thread_id, event_id, hci + 1, hcSDName);
 
 		// Resolve the digitization routine responsible for this collection.
 		const auto it = digi_map->find(hcSDName);
 		if (it == digi_map->end()) {
-			log->error(gaction::ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-					   " no digitization routine registered for collection ", hcSDName,
-					   " in thread ", thread_id);
+			log->error(
+				gaction::ERR_GDIGIMAP_NOT_EXISTING,
+				"%1 no digitization routine registered for collection %2 in thread %3", FUNCTION_NAME, hcSDName,
+				thread_id);
 			continue;
 		}
 
 		const auto& digitization_routine = it->second;
 		if (digitization_routine == nullptr) {
-			log->error(gaction::ERR_GDIGIMAP_NOT_EXISTING, FUNCTION_NAME,
-					   " digitization routine is null for collection ", hcSDName,
-					   " in thread ", thread_id);
+			log->error(
+				gaction::ERR_GDIGIMAP_NOT_EXISTING,
+				"%1 digitization routine is null for collection %2 in thread %3", FUNCTION_NAME, hcSDName,
+				thread_id);
 			continue;
 		}
 
@@ -423,15 +427,17 @@ void GEventAction::publish_event_data(const std::shared_ptr<GEventDataCollection
 
 	const auto gstreamers_threads_map = run_action->get_streamer_threads_map();
 	if (gstreamers_threads_map == nullptr) {
-		log->error(gaction::ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
-				   " no thread streamer map available - event will not be published.");
+		log->error(
+			gaction::ERR_STREAMERMAP_NOT_EXISTING,
+			"%1 no thread streamer map available - event will not be published.", FUNCTION_NAME);
 		return;
 	}
 
 	for (const auto& [name, gstreamer] : *gstreamers_threads_map) {
 		if (gstreamer == nullptr) {
-			log->error(gaction::ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME,
-					   " null gstreamer instance for streamer ", name);
+			log->error(
+				gaction::ERR_STREAMERMAP_NOT_EXISTING, "%1 null gstreamer instance for streamer %2",
+				FUNCTION_NAME, name);
 			continue;
 		}
 

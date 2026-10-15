@@ -84,10 +84,9 @@ public:
 		: GBase(gopts, GDATAEVENTHEADER_LOGGER), g4localEventNumber(n), threadID(tid) {
 		timeStamp = assignTimeStamp();
 		log->debug(CONSTRUCTOR, "GEventHeader");
-		log->info(1, "\n",
-		          guts::TPOINTITEM, " Event Number:  ", g4localEventNumber, "\n",
-		          guts::TPOINTITEM, " Thread ID:  ", threadID, "\n",
-		          guts::TPOINTITEM, " Time Stamp:  ", timeStamp);
+		log->info(
+			1, "\n%1 Event Number:  %2\n%3 Thread ID:  %4\n%5 Time Stamp:  %6", guts::TPOINTITEM,
+			g4localEventNumber, guts::TPOINTITEM, threadID, guts::TPOINTITEM, timeStamp);
 	}
 
 	/**

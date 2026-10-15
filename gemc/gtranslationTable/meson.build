@@ -1,5 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = ['goptions', 'guts', 'gtouchable']
+internal_deps = ['goptions', 'guts', 'glogging', 'gtouchable']
 
 example_source = files('examples/tt_example.cc')
 verbosities = ['-verbosity.gtranslationtable=2',

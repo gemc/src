@@ -157,7 +157,7 @@ static auto generate_events_in_threads(int                              nevents,
 
 	for (int tid = 0; tid < nthreads; ++tid) {
 		pool.emplace_back([&, tid] {
-			log->info(0, "worker ", tid, " started");
+			log->info(0, "worker %1 started", tid);
 
 			int                                                             localCount = 0;
 			thread_local std::vector<std::shared_ptr<GEventDataCollection>> localEvents;
@@ -186,7 +186,7 @@ static auto generate_events_in_threads(int                              nevents,
 				localEvents.clear();
 			}
 
-			log->info(0, "worker ", tid, " processed ", localCount, " events");
+			log->info(0, "worker %1 processed %2 events", tid, localCount);
 		});
 	}
 
@@ -294,7 +294,7 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 										   const PerDetectorDoubles&                  digi_dbl_ref,
 										   const std::shared_ptr<GLogger>&            log) {
 	log->info(0, "============================================================");
-	log->info(0, "RUN SUMMARY (integrated): runID=", run_data->getRunNumber());
+	log->info(0, "RUN SUMMARY (integrated): runID=%1", run_data->getRunNumber());
 	log->info(0, "============================================================");
 
 	const auto& rmap = run_data->getDataCollectionMap();
@@ -309,13 +309,14 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 		const auto& truthVec = det->getTrueInfoData();
 		const auto& digiVec  = det->getDigitizedData();
 
-		log->info(0, "Detector <", sdName, ">: integrated truth entries=", truthVec.size(),
-				  " integrated digitized entries=", digiVec.size());
+		log->info(
+			0, "Detector <%1>: integrated truth entries=%2 integrated digitized entries=%3", sdName,
+			truthVec.size(), digiVec.size());
 
 		// Truth integrated entry.
 		if (!truthVec.empty() && truthVec.front()) {
 			const auto integrated_truth = truthVec.front()->getDoubleVariablesMap();
-			log->info(0, "  integrated truth doubles: ", map_to_string(integrated_truth));
+			log->info(0, "  integrated truth doubles: %1", map_to_string(integrated_truth));
 
 			const auto it_ref_det = truth_ref.find(sdName);
 			if (it_ref_det != truth_ref.end()) {
@@ -323,12 +324,12 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 					const auto   itv = integrated_truth.find(k);
 					const double got = (itv == integrated_truth.end()) ? 0.0 : itv->second;
 					if (got != refv) {
-						log->info(0, "  MISMATCH truth <", sdName, ">::", k, " got=", got, " ref=", refv);
+						log->info(0, "  MISMATCH truth <%1>::%2 got=%3 ref=%4", sdName, k, got, refv);
 					}
 				}
 			}
 			else {
-				log->info(0, "  NOTE: no reference truth sums found for detector <", sdName, ">.");
+				log->info(0, "  NOTE: no reference truth sums found for detector <%1>.", sdName);
 			}
 		}
 		else {
@@ -340,13 +341,13 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 			const auto ints_non_sro = digiVec.front()->getIntObservablesMap(0);
 			const auto dbls_non_sro = digiVec.front()->getDblObservablesMap(0);
 
-			log->info(0, "  integrated digi int  non-SRO: ", map_to_string(ints_non_sro));
-			log->info(0, "  integrated digi dbl  non-SRO: ", map_to_string(dbls_non_sro));
+			log->info(0, "  integrated digi int  non-SRO: %1", map_to_string(ints_non_sro));
+			log->info(0, "  integrated digi dbl  non-SRO: %1", map_to_string(dbls_non_sro));
 
 			const auto ints_sro = digiVec.front()->getIntObservablesMap(1);
 			const auto dbls_sro = digiVec.front()->getDblObservablesMap(1);
-			log->info(0, "  integrated digi int  SRO:     ", map_to_string(ints_sro));
-			log->info(0, "  integrated digi dbl  SRO:     ", map_to_string(dbls_sro));
+			log->info(0, "  integrated digi int  SRO:     %1", map_to_string(ints_sro));
+			log->info(0, "  integrated digi dbl  SRO:     %1", map_to_string(dbls_sro));
 
 			const auto it_int_ref_det = digi_int_ref.find(sdName);
 			if (it_int_ref_det != digi_int_ref.end()) {
@@ -354,12 +355,12 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 					const auto      itv = ints_non_sro.find(k);
 					const long long got = (itv == ints_non_sro.end()) ? 0LL : static_cast<long long>(itv->second);
 					if (got != refv) {
-						log->info(0, "  MISMATCH digi-int <", sdName, ">::", k, " got=", got, " ref=", refv);
+						log->info(0, "  MISMATCH digi-int <%1>::%2 got=%3 ref=%4", sdName, k, got, refv);
 					}
 				}
 			}
 			else {
-				log->info(0, "  NOTE: no reference digitized-int sums found for detector <", sdName, ">.");
+				log->info(0, "  NOTE: no reference digitized-int sums found for detector <%1>.", sdName);
 			}
 
 			const auto it_dbl_ref_det = digi_dbl_ref.find(sdName);
@@ -368,12 +369,12 @@ static void validate_run_against_reference(const std::shared_ptr<GRunDataCollect
 					const auto   itv = dbls_non_sro.find(k);
 					const double got = (itv == dbls_non_sro.end()) ? 0.0 : itv->second;
 					if (got != refv) {
-						log->info(0, "  MISMATCH digi-dbl <", sdName, ">::", k, " got=", got, " ref=", refv);
+						log->info(0, "  MISMATCH digi-dbl <%1>::%2 got=%3 ref=%4", sdName, k, got, refv);
 					}
 				}
 			}
 			else {
-				log->info(0, "  NOTE: no reference digitized-double sums found for detector <", sdName, ">.");
+				log->info(0, "  NOTE: no reference digitized-double sums found for detector <%1>.", sdName);
 			}
 		}
 		else {
@@ -405,7 +406,7 @@ int main(int argc, char* argv[]) {
 	constexpr int nthreads = 4;
 
 	auto events = generate_events_in_threads(nevents, nthreads, gopts, log);
-	log->info(0, "Generated ", events.size(), " events.");
+	log->info(0, "Generated %1 events.", events.size());
 
 	PerDetectorDoubles truth_ref;
 	PerDetectorInts    digi_int_ref;

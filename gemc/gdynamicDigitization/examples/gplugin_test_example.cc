@@ -32,8 +32,9 @@ bool GPlugin_test_example::loadConstantsImpl(int runno, [[maybe_unused]] std::st
 	// Simple string constant.
 	var4 = "hello";
 
-	log->info(0, " Constants loaded for run number ", runno, " for ctof. var1  is ", var1,
-			  ", var2 pointer is ", var2, ", variation is ", variation);
+	log->info(
+		0, " Constants loaded for run number %1 for ctof. var1  is %2, var2 pointer is %3, variation is %4",
+		runno, var1, var2, variation);
 
 	return true;
 }

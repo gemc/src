@@ -67,11 +67,12 @@ EventDispenser::EventDispenser(
 		ifstream in(filename->c_str());
 		if (!in) {
 			// Keep behavior unchanged: log error and continue with an empty distribution.
-			log->error(eventDispenser::ERR_EVENTDISTRIBUTIONFILENOTFOUND,
-			           "Error: can't open run weights input file >", *filename, "<. Check your spelling. Exiting.");
+			log->error(
+				eventDispenser::ERR_EVENTDISTRIBUTIONFILENOTFOUND,
+				"Error: can't open run weights input file >%1<. Check your spelling. Exiting.", *filename);
 		}
 		else {
-			log->info(1, "Loading run weights from ", *filename);
+			log->info(1, "Loading run weights from %1", *filename);
 
 			// Read "run weight" pairs, one per line.
 			// The order of insertion into listOfRuns reflects the file order and may be used by clients.
@@ -89,11 +90,12 @@ EventDispenser::EventDispenser(
 		in.close();
 
 		// Log summary information: overall distribution table.
-		log->info(0, "EventDispenser initialized with ", neventsToProcess, " events distributed among ",
-		          runWeights.size(), " runs:");
+		log->info(
+			0, "EventDispenser initialized with %1 events distributed among %2 runs:", neventsToProcess,
+			runWeights.size());
 		log->info(0, " run\t weight\t  n. events");
 		for (const auto& weight : runWeights) {
-			log->info(0, " ", weight.first, "\t ", weight.second, "\t  ", runEvents[weight.first]);
+			log->info(0, " %1\t %2\t  %3", weight.first, weight.second, runEvents[weight.first]);
 		}
 	}
 }
@@ -124,8 +126,9 @@ void EventDispenser::distributeEvents(int nevents_to_process) {
 	double totalWeight = 0;
 	for (const auto& weight : runWeights) { totalWeight += weight.second; }
 	if (totalWeight <= 0) {
-		log->error(eventDispenser::ERR_EVENTDISTRIBUTIONFILENOTFOUND,
-		           "Run weights sum to ", totalWeight, " (must be > 0). Check your run weights file.");
+		log->error(
+			eventDispenser::ERR_EVENTDISTRIBUTIONFILENOTFOUND,
+			"Run weights sum to %1 (must be > 0). Check your run weights file.", totalWeight);
 		return;
 	}
 
@@ -164,19 +167,20 @@ void EventDispenser::prepareRun(int runNumber) {
 			// or the digitization_variation option override when set).
 			const std::string& variation = digiRoutine->getDigitizationVariation();
 
-			log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadConstants for run ", runNumber,
-			           " with variation ", variation);
+			log->debug(
+				NORMAL, "%1Calling %2 loadConstants for run %3 with variation %4", FUNCTION_NAME, plugin,
+				runNumber, variation);
 			if (digiRoutine->loadConstants(runNumber, variation) == false) {
-				log->error(ERR_LOADCONSTANTFAIL,
-				           "Failed to load constants for ", plugin, " for run ", runNumber, " with variation ",
-				           variation);
+				log->error(
+					ERR_LOADCONSTANTFAIL, "Failed to load constants for %1 for run %2 with variation %3",
+					plugin, runNumber, variation);
 			}
 
-			log->debug(NORMAL, FUNCTION_NAME, "Calling ", plugin, " loadTT for run ", runNumber);
+			log->debug(NORMAL, "%1Calling %2 loadTT for run %3", FUNCTION_NAME, plugin, runNumber);
 			if (digiRoutine->loadTT(runNumber, variation) == false) {
-				log->error(ERR_LOADTTFAIL,
-				           "Failed to load translation table for ", plugin, " for run ", runNumber,
-				           " with variation ", variation);
+				log->error(
+					ERR_LOADTTFAIL, "Failed to load translation table for %1 for run %2 with variation %3",
+					plugin, runNumber, variation);
 			}
 		}
 		currentRunno = runNumber;
@@ -205,11 +209,11 @@ int EventDispenser::processEvents() {
 		int nevents   = run.second;
 
 		prepareRun(runNumber);
-		log->info(1, "Starting run ", runNumber, " with ", nevents, " events.");
+		log->info(1, "Starting run %1 with %2 events.", runNumber, nevents);
 
 		// Dispatch all events for this run in a single call.
 		// The command string is a standard Geant4 UI command: \c /run/beamOn <N>.
-		log->info(1, "Processing ", nevents, " events in one go");
+		log->info(1, "Processing %1 events in one go", nevents);
 		// Record the moment the first BeamOn is issued so a timing summary can be produced later.
 		if (!beamOnTime.has_value()) { beamOnTime = std::chrono::steady_clock::now(); }
 		g4uim->ApplyCommand("/run/beamOn " + to_string(nevents));
@@ -224,7 +228,7 @@ int EventDispenser::processEvents() {
 			g4uim->ApplyCommand("/vis/viewer/rebuild");
 		}
 
-		log->info(1, "Run ", runNumber, " done with ", nevents, " events");
+		log->info(1, "Run %1 done with %2 events", runNumber, nevents);
 	}
 
 	return 1;

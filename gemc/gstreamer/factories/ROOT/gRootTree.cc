@@ -9,7 +9,7 @@ using std::vector;
 
 GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& gevent_header,
 					 std::shared_ptr<GLogger>&                             logger) : log(logger) {
-	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree header");
+	log->debug(CONSTRUCTOR, "GRootTreeROOT tree header");
 
 	root_tree =
 	    std::make_unique<TTree>(gstreamer::root::EVENTHEADERTREENAME, gstreamer::root::EVENTHEADERTREENAMEDESC);
@@ -27,8 +27,9 @@ GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GEventHeader>& geven
 
 // fill the GEventHeader tree
 bool GRootTree::fillTree(const std::unique_ptr<GEventHeader>& gevent_header) {
-	log->info(2, "Filling header tree for local event n. ", gevent_header->getG4LocalEvn(), " threadID ",
-			  gevent_header->getThreadID());
+	log->info(
+		2, "Filling header tree for local event n. %1 threadID %2", gevent_header->getG4LocalEvn(),
+		gevent_header->getThreadID());
 
 	// Clear the vectors backing the branches before writing the next entry.
 	intVarsMap["g4localEventNumber"].clear();
@@ -46,7 +47,7 @@ bool GRootTree::fillTree(const std::unique_ptr<GEventHeader>& gevent_header) {
 
 // fill the GRunHeader tree
 bool GRootTree::fillTree(const std::unique_ptr<GRunHeader>& grun_header) {
-	log->info(2, "Filling header tree for run n. ", grun_header->getRunID());
+	log->info(2, "Filling header tree for run n. %1", grun_header->getRunID());
 
 	// Clear and refill the vectors backing the run-header branches.
 	intVarsMap["runID"].clear();
@@ -59,7 +60,7 @@ bool GRootTree::fillTree(const std::unique_ptr<GRunHeader>& grun_header) {
 
 GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GRunHeader>& grun_header,
 					 std::shared_ptr<GLogger>&                           logger) : log(logger) {
-	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree header");
+	log->debug(CONSTRUCTOR, "GRootTreeROOT tree header");
 
 	root_tree =
 	    std::make_unique<TTree>(gstreamer::root::RUNHEADERTREENAME, gstreamer::root::RUNHEADERTREENAMEDESC);
@@ -76,7 +77,7 @@ GRootTree::GRootTree([[maybe_unused]] const std::unique_ptr<GRunHeader>& grun_he
 GRootTree::GRootTree(const std::string&        detectorName,
 					 const GTrueInfoData*      gdata,
 					 std::shared_ptr<GLogger>& logger) : log(logger) {
-	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree True Info");
+	log->debug(CONSTRUCTOR, "GRootTreeROOT tree True Info");
 
 	root_tree = std::make_unique<TTree>(detectorName.c_str(), gstreamer::root::TRUEINFOTREENAMEDESC);
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
@@ -93,7 +94,7 @@ GRootTree::GRootTree(const std::string&        detectorName,
 GRootTree::GRootTree(const std::string& treeName,
 					 [[maybe_unused]] const GGeneratedParticleBank& particles,
 					 std::shared_ptr<GLogger>& logger) : log(logger) {
-	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree Generated Particles");
+	log->debug(CONSTRUCTOR, "GRootTreeROOT tree Generated Particles");
 
 	root_tree = std::make_unique<TTree>(treeName.c_str(), gstreamer::root::GENERATEDTREENAMEDESC);
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
@@ -113,7 +114,7 @@ GRootTree::GRootTree(const std::string& treeName,
 
 GRootTree::GRootTree([[maybe_unused]] const GAncestorBank& ancestors,
 	                 std::shared_ptr<GLogger>& logger) : log(logger) {
-	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree Ancestors");
+	log->debug(CONSTRUCTOR, "GRootTreeROOT tree Ancestors");
 	root_tree = std::make_unique<TTree>(gstreamer::root::ANCESTORTREENAME, gstreamer::root::ANCESTORTREENAMEDESC);
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
 	root_tree->SetAutoSave(50 * 1024 * 1024);
@@ -137,7 +138,7 @@ GRootTree::GRootTree([[maybe_unused]] const GAncestorBank& ancestors,
 GRootTree::GRootTree(const std::string&        detectorName,
 					 const GDigitizedData*     gdata,
 					 std::shared_ptr<GLogger>& logger) : log(logger) {
-	log->debug(CONSTRUCTOR, "GRootTree", "ROOT tree Digitized Data");
+	log->debug(CONSTRUCTOR, "GRootTreeROOT tree Digitized Data");
 
 	root_tree = std::make_unique<TTree>(detectorName.c_str(), gstreamer::root::DIGITIZEDTREENAMEDESC);
 	root_tree->SetAutoFlush(20 * 1024 * 1024);
@@ -260,8 +261,10 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] in
 			root_tree->Branch(varname.c_str(), &intVarsMap[varname]);
 		}
 		else {
-			log->error(gstreamer::ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
-					   "> already registered in the int variable map of tree ", root_tree->GetName());
+			log->error(
+				gstreamer::ERR_GSTREAMERVARIABLEEXISTS,
+				"variable <%1> already registered in the int variable map of tree %2", varname,
+				root_tree->GetName());
 		}
 	}
 }
@@ -271,8 +274,10 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] do
 		root_tree->Branch(varname.c_str(), &doubleVarsMap[varname]);
 	}
 	else {
-		log->error(gstreamer::ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
-				   "> already registered in the double variable map of tree ", root_tree->GetName());
+		log->error(
+			gstreamer::ERR_GSTREAMERVARIABLEEXISTS,
+			"variable <%1> already registered in the double variable map of tree %2", varname,
+			root_tree->GetName());
 	}
 }
 
@@ -281,7 +286,9 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] co
 		root_tree->Branch(varname.c_str(), &stringVarsMap[varname]);
 	}
 	else {
-		log->error(gstreamer::ERR_GSTREAMERVARIABLEEXISTS, "variable <", varname,
-				   "> already registered in the string variable map of tree ", root_tree->GetName());
+		log->error(
+			gstreamer::ERR_GSTREAMERVARIABLEEXISTS,
+			"variable <%1> already registered in the string variable map of tree %2", varname,
+			root_tree->GetName());
 	}
 }

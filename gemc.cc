@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 
 	// createQtApplication returns a QApplication if gui is true
 	// otherwise, it returns a QCoreApplication and sets the Geant4 CoutDestination to a GBatch_Session
-	auto app = gemc::makeQtApplication(argc, argv, gui);
+	auto app = gemc::makeQtApplication(argc, argv, gui, gopts.get());
 
 	// splash screen - nullptr if in batch mode
 	auto spash_screen = GSplash::create(gopts, "gemcArchitecture", 0.7);
@@ -161,15 +161,16 @@ int main(int argc, char* argv[]) {
 	if (gopts->getSwitch("print_summary")) {
 		const auto   now     = std::chrono::steady_clock::now();
 		const double total_s = std::chrono::duration<double>(now - program_start).count();
-		log->info(0, "Timing summary: total simulation time ", total_s, " seconds.");
+		log->info(0, "Timing summary: total simulation time %1 seconds.", total_s);
 		if (geventDispenser->beamOnIssued()) {
 			const double beam_s     = std::chrono::duration<double>(now - geventDispenser->beamOnStartTime()).count();
 			const int    total_n    = geventDispenser->getTotalNumberOfEvents();
-			log->info(0, "Timing summary: total time since beamOn was issued ", beam_s, " seconds.");
+			log->info(0, "Timing summary: total time since beamOn was issued %1 seconds.", beam_s);
 			if (beam_s > 0.0) {
 				const double avg_rate = static_cast<double>(total_n) / beam_s;
-				log->info(0, "Timing summary: average event rate ", avg_rate, " events / second (",
-				          total_n, " events / ", beam_s, " seconds).");
+				log->info(
+					0, "Timing summary: average event rate %1 events / second (%2 events / %3 seconds).",
+					avg_rate, total_n, beam_s);
 			}
 		}
 	}

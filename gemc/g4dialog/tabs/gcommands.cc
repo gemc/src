@@ -62,12 +62,12 @@ G4Commands::G4Commands(QWidget* parent) : QWidget(parent) {
 
 	// Putting all together into a vertical layout.
 	QVBoxLayout* v_layout = new QVBoxLayout(this);
-	v_layout->addWidget(new QLabel("Search Commands"));
+	v_layout->addWidget(new QLabel(tr("Search Commands")));
 	v_layout->addWidget(w_search);
 	v_layout->addWidget(commands_help_splitter, /* stretch factor */ 2);
-	v_layout->addWidget(new QLabel("History"));
+	v_layout->addWidget(new QLabel(tr("History")));
 	v_layout->addWidget(w_history);
-	v_layout->addWidget(new QLabel("Enter Command"));
+	v_layout->addWidget(new QLabel(tr("Enter Command")));
 	v_layout->addWidget(w_command);
 }
 
@@ -88,8 +88,7 @@ void G4Commands::create_geant4_commands_widget() {
 	w_commands->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	// Set header label for the QTreeView model.
-	model->setHorizontalHeaderLabels(QStringList() << "Commands");
-
+	model->setHorizontalHeaderLabels(QStringList() << tr("Commands"));
 	// Add top-level command directories to the model.
 	G4int g4_commands_tree_size = g4_commands_tree->GetTreeEntry();
 	for (int a = 0; a < g4_commands_tree_size; a++) {
@@ -279,41 +278,36 @@ QString G4Commands::get_command_g4help(const G4UIcommand* aCommand) {
 	if ((commandPath == "") && (rangeString == "") && (n_guidanceEntry == 0) && (n_parameterEntry == 0)) { return txt; }
 
 	// CommandPath ending with '/' denotes a directory in Geant4 UI; otherwise it's a concrete command.
-	if ((commandPath.length() - 1) != '/') { txt += "Command " + QString((char*)(commandPath).data()) + "\n"; }
-	txt += "Guidance :\n";
-
+	if ((commandPath.length() - 1) != '/') { txt += tr("Command %1\n").arg(QString::fromStdString(commandPath)); }
+	txt += tr("Guidance :\n");
 	for (G4int i_thGuidance = 0; i_thGuidance < n_guidanceEntry; i_thGuidance++) {
 		txt += QString((char*)(aCommand->GetGuidanceLine(i_thGuidance)).data()) + "\n";
 	}
-
-	if (rangeString != "") { txt += " Range of parameters : " + QString((char*)(rangeString).data()) + "\n"; }
-
+	if (rangeString != "") { txt += tr(" Range of parameters : %1\n").arg(QString::fromStdString(rangeString)); }
 	if (n_parameterEntry > 0) {
 		G4UIparameter* param;
 
 		// Re-implementation from G4UIparameter.cc (mirrors Geant4 formatting for consistency).
 		for (G4int i_thParameter = 0; i_thParameter < n_parameterEntry; i_thParameter++) {
 			param = aCommand->GetParameter(i_thParameter);
-			txt   += "\nParameter : " + QString((char*)(param->GetParameterName()).data()) + "\n";
+			txt   += tr("\nParameter : %1\n").arg(QString::fromStdString(param->GetParameterName()));
 			if (param->GetParameterGuidance() != "") {
 				txt += QString((char*)(param->GetParameterGuidance()).data()) + "\n";
 			}
-			txt += " Parameter type  : " + QString(QChar(param->GetParameterType())) + "\n";
-
-			if (param->IsOmittable()) { txt += " Omittable       : True\n"; }
-			else { txt += " Omittable       : False\n"; }
-
-			if (param->GetCurrentAsDefault()) { txt += " Default value   : taken from the current value\n"; }
+			txt += tr(" Parameter type  : %1\n").arg(QChar(param->GetParameterType()));
+			if (param->IsOmittable()) { txt += tr(" Omittable       : True\n"); }
+			else { txt += tr(" Omittable       : False\n"); }
+			if (param->GetCurrentAsDefault()) { txt += tr(" Default value   : taken from the current value\n"); }
 			else if (param->GetDefaultValue() != "") {
-				txt += " Default value   : " + QString((char*)(param->GetDefaultValue()).data()) + "\n";
+				txt += tr(" Default value   : %1\n").arg(QString::fromStdString(param->GetDefaultValue()));
 			}
 
 			if (param->GetParameterRange() != "") {
-				txt += " Parameter range : " + QString((char*)(param->GetParameterRange()).data()) + "\n";
+				txt += tr(" Parameter range : %1\n").arg(QString::fromStdString(param->GetParameterRange()));
 			}
 
 			if (param->GetParameterCandidates() != "") {
-				txt += " Candidates      : " + QString((char*)(param->GetParameterCandidates()).data()) + "\n";
+				txt += tr(" Candidates      : %1\n").arg(QString::fromStdString(param->GetParameterCandidates()));
 			}
 		}
 	}

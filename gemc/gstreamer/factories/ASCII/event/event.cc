@@ -8,7 +8,7 @@
 
 bool GstreamerTextFactory::startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 	if (!ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename());
 	}
 
 	auto eventNumber = event_data->getHeader()->getG4LocalEvn();
@@ -20,7 +20,7 @@ bool GstreamerTextFactory::startEventImpl([[maybe_unused]] const std::shared_ptr
 
 bool GstreamerTextFactory::endEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
 	if (!ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename());
 	}
 
 	int eventNumber = event_data->getHeader()->getG4LocalEvn();

@@ -11,7 +11,7 @@ G4Dialog::G4Dialog(const std::shared_ptr<GOptions>& gopt, QWidget* parent) :
 	auto dialogTabs = new QTabWidget;
 
 	// Tab: Geant4 commands browser/executor.
-	dialogTabs->addTab(new G4Commands(this), "Geant4 Commands");
+	dialogTabs->addTab(new G4Commands(this), tr("Geant4 Commands"));
 
 	// Main vertical layout: tabs fill the widget.
 	auto* mainLayout = new QVBoxLayout;

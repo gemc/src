@@ -21,7 +21,7 @@ GAction::GAction(std::shared_ptr<GOptions>                           gopts,
 	sharedParticles_(std::make_shared<std::vector<GparticlePtr>>(
 	    gparticle::getGParticlesFromOption(goptions, log))) {
 
-	log->debug(CONSTRUCTOR, FUNCTION_NAME);
+	log->debug(CONSTRUCTOR, "%1", FUNCTION_NAME);
 
 }
 
@@ -30,7 +30,7 @@ GAction::GAction(std::shared_ptr<GOptions>                           gopts,
 // In GEMC, the master needs only the run action because it does not execute
 // primary generation or per-event processing.
 void GAction::BuildForMaster() const {
-	log->debug(NORMAL, FUNCTION_NAME);
+	log->debug(NORMAL, "%1", FUNCTION_NAME);
 
 	SetUserAction(new GRunAction(goptions, digitization_routines_map, analysis_accumulator, sro_factory));
 }
@@ -41,7 +41,7 @@ void GAction::BuildForMaster() const {
 void GAction::Build() const {
 	const auto thread_id = G4Threading::G4GetThreadId();
 
-	log->debug(NORMAL, FUNCTION_NAME, "thread id: " + std::to_string(thread_id));
+	log->debug(NORMAL, "%1thread id: %2", FUNCTION_NAME, std::to_string(thread_id));
 
 	// Primary generation is event-scoped and therefore worker-owned.
 	SetUserAction(new GPrimaryGeneratorAction(goptions, sharedParticles_));

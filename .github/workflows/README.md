@@ -48,7 +48,13 @@ pygemc` run validates pygemc compatibility only and does not deploy.
 
 - [`test.yml`](test.yml) — **Test**
   - Trigger: pull requests, merge queue runs, pushes to `main`, and `workflow_call`.
-  - Effect: builds and tests the configured operating-system and architecture matrix.
+  - Effect: validates generated message catalogs, then builds and tests the operating-system and architecture
+    matrix.
+  - Upcoming in the next release: the catalog job checks freshness, required language files, metadata, keys,
+    placeholders, percent escapes, and whitespace without agents. Meson also tests actual project-language
+    output, overrides, and English fallback. Missing messages report coverage while retaining English fallback.
+  - GUI TS catalogs are checked for contexts, plural forms, Qt placeholders, rich text, accelerators, and filters.
+    Qt-enabled Meson tests check GUI source freshness, actual widgets/dialogs, command routing, and relocation.
   - Downstream: `Deploy` only for a successful push to `main`.
 - [`thread_scaling.yml`](thread_scaling.yml) — **Thread Scaling**
   - Trigger: pull requests, pushes to `main`, a weekly schedule, published releases, and manual dispatch.

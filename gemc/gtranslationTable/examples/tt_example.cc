@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	// Level 0: essential output for a user running the example.
-	log->info(0, "Retrieved electronic: ", retrievedElectronic);
+	log->info(0, "Retrieved electronic: %1", retrievedElectronic);
 
 	return EXIT_SUCCESS;
 }

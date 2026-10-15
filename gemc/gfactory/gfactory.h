@@ -260,30 +260,29 @@ inline void GManager::registerDL(std::string_view name) {
 
 	dlMap_.emplace(std::string{name},
 	               std::make_shared<DynamicLib>(log, filename));
-	log->debug(NORMAL, "Loading DL ", name, " (resolved: ", filename, ")");
+	log->debug(NORMAL, "Loading DL %1 (resolved: %2)", name, filename);
 }
 
 template <class Derived>
 void GManager::RegisterObjectFactory(std::string_view name) {
 	// Note: the factory is stored type-erased (GFactoryBase) but remains responsible for creating Derived.
 	factoryMap_.emplace(std::string{name}, std::make_unique<GFactory<Derived>>());
-	log->debug(NORMAL, "Registering ", name, " into factory map");
+	log->debug(NORMAL, "Registering %1 into factory map", name);
 }
 
 template <class Derived>
 void GManager::RegisterObjectFactory(std::string_view name, const std::shared_ptr<GOptions>& gopts) {
 	factoryMap_.emplace(std::string{name}, std::make_unique<GFactory<Derived>>(gopts));
-	log->debug(NORMAL, "Registering ", name, " into factory map");
+	log->debug(NORMAL, "Registering %1 into factory map", name);
 }
 
 template <class Base>
 Base* GManager::CreateObject(std::string_view name) const {
 	auto it = factoryMap_.find(std::string{name});
 	if (it == factoryMap_.end()) {
-		log->error(gfactory::ERR_FACTORYNOTFOUND,
-		           "Couldn't find factory <", name, "> in factory map.");
+		log->error(gfactory::ERR_FACTORYNOTFOUND, "Couldn't find factory <%1> in factory map.", name);
 	}
-	log->debug(NORMAL, "Creating instance of <", name, "> factory.");
+	log->debug(NORMAL, "Creating instance of <%1> factory.", name);
 
 	// Type-erased creation returns void*; caller requests a Base* view.
 	return static_cast<Base*>(it->second->Create());
@@ -300,7 +299,8 @@ std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view  
 		// The product type performs the symbol lookup and raw allocation.
 		T* raw = T::instantiate(pluginLib->handle, gopts);
 		if (raw == nullptr) {
-			log->error(gfactory::ERR_FACTORYNOTFOUND, "Plugin ", name, " could not instantiate its factory object.");
+			log->error(
+				gfactory::ERR_FACTORYNOTFOUND, "Plugin %1 could not instantiate its factory object.", name);
 		}
 
 		// Standardize logger wiring on the instance.
@@ -315,9 +315,9 @@ std::shared_ptr<T> GManager::LoadAndRegisterObjectFromLibrary(std::string_view  
 	}
 
 	const char* envPath = std::getenv("GEMC_PLUGIN_PATH");
-	log->error(gfactory::ERR_DLHANDLENOTFOUND,
-	           "Plugin ", name, ".gplugin could not be loaded.\n",
-	           "  GEMC_PLUGIN_PATH = ", (envPath ? envPath : "(not set)"), "\n",
-	           "  Hint: set GEMC_PLUGIN_PATH or use -plugin_path=<dir> to point to the directory ",
-	           "containing *.gplugin files.");
+	log->error(
+		gfactory::ERR_DLHANDLENOTFOUND,
+		"Plugin %1.gplugin could not be loaded.\n  GEMC_PLUGIN_PATH = %2\n  Hint: set GEMC_PLUGIN_PATH or "
+		"use -plugin_path=<dir> to point to the directory containing *.gplugin files.", name,
+		(envPath ? envPath : "(not set)"));
 }

@@ -13,8 +13,8 @@ void GSystemTextFactory::loadMaterials(GSystem* system) {
 	auto IN = gSystemTextFileStream(system, gsystem::GTEXTMATSTYPE);
 
 	if (IN != nullptr) {
-		log->info(1, "Loading materials for system ", system->getName(),
-		          " using factory ", system->getFactoryName());
+		log->info(
+			1, "Loading materials for system %1 using factory %2", system->getName(), system->getFactoryName());
 
 		// Each non-empty line is a serialized parameter row separated by '|'.
 		while (!IN->eof()) {

@@ -38,7 +38,7 @@ QWidget* GTree::right_widget() {
     opacityLayout->setContentsMargins(0, 0, 0, 0);
 
     auto* label = new QLabel(tr("Opacity:"), opacityContainer);
-    opacityLabel = new QLabel(tr("1.00"), opacityContainer);
+    opacityLabel = new QLabel("1.00", opacityContainer);
 
     opacitySlider = new QSlider(Qt::Horizontal, opacityContainer);
     opacitySlider->setRange(0, 100);

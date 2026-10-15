@@ -59,7 +59,7 @@ public:
 	 */
 	GFrameHeader(long int frameID_, double frameDuration_, std::shared_ptr<GLogger> logger)
 		: frameID(frameID_), frameDuration(frameDuration_), log(logger) {
-		log->debug(CONSTRUCTOR, "GFrameHeader id ", frameID);
+		log->debug(CONSTRUCTOR, "GFrameHeader id %1", frameID);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public:
 	 * A debug message is emitted when a logger is available.
 	 * Logging is guarded by a null check so destruction remains tolerant of absent logger instances.
 	 */
-	~GFrameHeader() { if (log) log->debug(DESTRUCTOR, "GFrameHeader id ", frameID); }
+	~GFrameHeader() { if (log) log->debug(DESTRUCTOR, "GFrameHeader id %1", frameID); }
 
 	/**
 	 * \brief Test/example factory creating a header with a unique frame ID.

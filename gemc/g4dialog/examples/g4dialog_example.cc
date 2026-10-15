@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
 	QMainWindow*  window = nullptr;
 
 	if (gui) {
-		log->info(0, "g4dialog", "Running in GUI mode...");
+		log->info(0, "g4dialogRunning in GUI mode...");
 		app    = new QApplication(argc, argv);
 		window = new QMainWindow();
 		window->setWindowTitle(QString::fromUtf8("displayUI example"));

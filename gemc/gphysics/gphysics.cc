@@ -57,14 +57,14 @@ GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 	physList = factory.GetReferencePhysList(g4physList);
 
 	if (!physList) {
-		log->error(gphysics::ERR_PHYSLISTERROR, "physics list <" + gphysList + "> could not be loaded.");
+		log->error(gphysics::ERR_PHYSLISTERROR, "physics list <%1> could not be loaded.", gphysList);
 	}
 
 	// Register step limiters (module default add-on).
 	// This is intentionally registered even when users select a standard reference list.
 	physList->RegisterPhysics(new G4StepLimiterPhysics());
 
-	log->info(2, "G4PhysListFactory: <" + g4physList + "> loaded.");
+	log->info(2, "G4PhysListFactory: <%1> loaded.", g4physList);
 }
 
 
@@ -73,7 +73,7 @@ GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 void GPhysics::printAvailable() const {
 	std::string g4ver = gutilities::replaceCharInStringWithChars(G4Version, "$", "");
 
-	log->info(0, "Geant4 Version ", g4ver, " ", G4Date);;
+	log->info(0, "Geant4 Version %1 %2", g4ver, G4Date);;
 
 	g4alt::G4PhysListFactory factory;
 	factory.PrintAvailablePhysLists();

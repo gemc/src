@@ -14,21 +14,21 @@ GBoard::GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
 	// The top bar provides a lightweight "console" UX: filter, clear, save.
 	searchLineEdit = new QLineEdit(this);
 	searchLineEdit->setObjectName("searchLineEdit");
-	searchLineEdit->setPlaceholderText("Filter log lines (case insensitive)...");
+	searchLineEdit->setPlaceholderText(tr("Filter log lines (case insensitive)..."));
 	searchLineEdit->setClearButtonEnabled(true); // Allows quickly removing the filter text.
 
 	clearButton = new QToolButton(this);
 	clearButton->setObjectName("clearButton");
 	clearButton->setIcon(style()->standardIcon(QStyle::SP_DialogResetButton));
-	clearButton->setToolTip("Clear Log");
-	clearButton->setText("Clear");
+	clearButton->setToolTip(tr("Clear Log"));
+	clearButton->setText(tr("Clear"));
 	// for some reason, the SP_TrashIcon icon is not showing, so using SP_DialogResetButton
 	clearButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon); // Or other style
 	clearButton->setEnabled(true);
 
 	saveButton = new QToolButton(this);
 	saveButton->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
-	saveButton->setToolTip("Save Log to File");
+	saveButton->setToolTip(tr("Save Log to File"));
 	saveButton->setEnabled(true);
 
 
@@ -138,7 +138,8 @@ void GBoard::saveLog() {
 		QMessageBox::warning(this, tr("Save Log Error"),
 		                     tr("Could not open file %1 for writing:\n%2.")
 		                     .arg(QDir::toNativeSeparators(fileName), file.errorString()));
-		log->warning("Failed to save log to ", fileName.toStdString(), ". Error: ", file.errorString().toStdString());
+		log->warning(
+			"Failed to save log to %1. Error: %2", fileName.toStdString(), file.errorString().toStdString());
 		return;
 	}
 
@@ -148,6 +149,6 @@ void GBoard::saveLog() {
 	out << logTextEdit->toPlainText();
 	file.close(); // Stream destructor closes it, but explicit is fine
 
-	log->info("Log saved successfully to ", fileName.toStdString());
+	log->info("Log saved successfully to %1", fileName.toStdString());
 	// Optional: Show a status bar message or brief confirmation dialog
 }

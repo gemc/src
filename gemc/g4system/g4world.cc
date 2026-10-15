@@ -65,7 +65,7 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 				if (!build_g4volume(gvolume, objectsFactory)) {
 					// Only track volumes that are meant to exist; nonexistent volumes are skipped quietly.
 					if (gvolume->getExistence()) {
-						log->info(2, " >> adding volumeName <", volumeName, "> to the list of remaining volumes");
+						log->info(2, " >> adding volumeName <%1> to the list of remaining volumes", volumeName);
 						thisIterationRemainingVolumes.push_back(gvolume);
 					}
 				}
@@ -73,12 +73,13 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 
 			// Diagnostic listing of the volumes that could not be built due to missing mothers.
 			if (!thisIterationRemainingVolumes.empty()) {
-				log->info(2, "G4World: ", systemName, " : ",
-				          thisIterationRemainingVolumes.size(),
-				          " remaining motherless g4volumes to be built:");
+				log->info(
+					2, "G4World: %1 : %2 remaining motherless g4volumes to be built:", systemName,
+					thisIterationRemainingVolumes.size());
 				for (auto *gvolumeLeft: thisIterationRemainingVolumes) {
-					log->info(2, "G4World: ", gvolumeLeft->getName(),
-					          " with mother <", gvolumeLeft->getG4MotherName(), "> ");
+					log->info(
+						2, "G4World: %1 with mother <%2> ", gvolumeLeft->getName(),
+						gvolumeLeft->getG4MotherName());
 				}
 			}
 		}
@@ -88,12 +89,14 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 		if (previousRemainingVolumes != 0 && !thisIterationRemainingVolumes.empty() &&
 		    thisIterationRemainingVolumes.size() >= previousRemainingVolumes) {
 			for (auto *gvolumeLeft: thisIterationRemainingVolumes) {
-				log->warning(" >> ", gvolumeLeft->getName(),
-				             " with mother <", gvolumeLeft->getG4MotherName(), "> not built");
+				log->warning(
+					" >> %1 with mother <%2> not built", gvolumeLeft->getName(),
+					gvolumeLeft->getG4MotherName());
 			}
-			log->error(g4system::ERR_G4DEPENDENCIESNOTSOLVED,
-			           "dependencies are not being resolved: their number should diminish. "
-			           "Above are the outstanding gvolumes");
+			log->error(
+				g4system::ERR_G4DEPENDENCIESNOTSOLVED,
+				"dependencies are not being resolved: their number should diminish. Above are the "
+				"outstanding gvolumes");
 		}
 		previousRemainingVolumes = thisIterationRemainingVolumes.size();
 	} while (!thisIterationRemainingVolumes.empty());
@@ -108,14 +111,15 @@ G4World::G4World(const GWorld *gworld, const std::shared_ptr<GOptions> &gopts)
 	if (gopts->getSwitch("printSystemsMaterials")) {
 		auto matTable = (G4MaterialTable *) G4Material::GetMaterialTable();
 		for (auto thisMat: *matTable) {
-			log->info(0, 2, "G4World: GEMC Material: <", thisMat->GetName(), ">, density: ",
-			          thisMat->GetDensity() / (CLHEP::g / CLHEP::cm3), "g/cm3");
+			log->info(
+				0, "%1G4World: GEMC Material: <%2>, density: %3g/cm3", 2, thisMat->GetName(),
+				thisMat->GetDensity() / (CLHEP::g / CLHEP::cm3));
 
 			// Print each component; negative/zero values mean "fractional mass", positive means "number of atoms".
 			for (auto &[material, component]: thisMat->GetMatComponents()) {
 				if (component > 0.0) {
-					log->info(0, "element", material->GetName(), "number of atoms: ", component);
-				} else { log->info(0, "element", material->GetName(), "fractional mass: ", component); }
+					log->info(0, "element%1number of atoms: %2", material->GetName(), component);
+				} else { log->info(0, "element%1fractional mass: %2", material->GetName(), component); }
 			}
 		}
 	}
@@ -142,8 +146,9 @@ std::string G4World::g4FactoryNameFromSystemFactory(const std::string &factory) 
 	    factory == gsystem::GSYSTEMSQLITETFACTORYLABEL ||
 	    factory == gsystem::GSYSTEMMYSQLTFACTORYLABEL) { return g4system::G4SYSTEMNATFACTORY; } else if (
 		factory == gsystem::GSYSTEMCADTFACTORYLABEL) { return g4system::G4SYSTEMCADFACTORY; } else {
-		log->error(g4system::ERR_G4SYSTEMFACTORYNOTFOUND,
-		           "gsystemFactory factory <", factory, "> is not mapped to any G4SystemFactory");
+		log->error(
+			g4system::ERR_G4SYSTEMFACTORYNOTFOUND,
+			"gsystemFactory factory <%1> is not mapped to any G4SystemFactory", factory);
 	}
 }
 
@@ -155,7 +160,7 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions> &gopts,
 	GManager manager(gopts);
 
 	// Creating the native factory no matter what (it is the default for ASCII/SQLite/MySQL systems).
-	log->info(2, "G4World: registering default factory <", g4system::G4SYSTEMNATFACTORY, ">");
+	log->info(2, "G4World: registering default factory <%1>", g4system::G4SYSTEMNATFACTORY);
 	manager.RegisterObjectFactory<G4NativeSystemFactory>(g4system::G4SYSTEMNATFACTORY, gopts);
 
 	// Register factories based on the system factory label, then create/initialize them lazily.
@@ -163,7 +168,7 @@ void G4World::createG4SystemFactory(const std::shared_ptr<GOptions> &gopts,
 		std::string factory = gsystem->getFactoryName();
 		std::string g4Factory = g4FactoryNameFromSystemFactory(factory);
 
-		log->info(2, "G4World: creating factory <", g4Factory, "> to for system <", gsystemName, ">");
+		log->info(2, "G4World: creating factory <%1> to for system <%2>", g4Factory, gsystemName);
 
 		// Register needed factory types:
 		// this will always be false for the default native label because it was registered above.
@@ -221,17 +226,21 @@ void G4World::buildMaterials(SystemMap *system_map) {
 		// count fails to strictly decrease across iterations.
 		if (previousRemainingMaterials != 0 && !thisIterationRemainingMaterials.empty() &&
 		    thisIterationRemainingMaterials.size() >= previousRemainingMaterials) {
-			for (auto &gmaterialLeft: thisIterationRemainingMaterials) { log->warning(gmaterialLeft->getName()); }
-			log->error(g4system::ERR_G4DEPENDENCIESNOTSOLVED,
-			           "Dependencies are not being resolved: their number should diminish. Above are the Outstanding gmaterials");
+			for (auto &gmaterialLeft: thisIterationRemainingMaterials) {
+				log->warning("%1", gmaterialLeft->getName());
+			}
+			log->error(
+				g4system::ERR_G4DEPENDENCIESNOTSOLVED,
+				"Dependencies are not being resolved: their number should diminish. Above are the "
+				"Outstanding gmaterials");
 		}
 		previousRemainingMaterials = thisIterationRemainingMaterials.size();
 	} while (!thisIterationRemainingMaterials.empty());
 }
 
 bool G4World::build_g4volume(const GVolume *s, G4ObjectsFactory *objectsFactory) {
-	log->info(2, "G4World: using factory <", objectsFactory->className(),
-	          "> to build g4volume <", s->getG4Name(), ">");
+	log->info(
+		2, "G4World: using factory <%1> to build g4volume <%2>", objectsFactory->className(), s->getG4Name());
 
 	return objectsFactory->build_g4volume(s, &g4volumesMap);
 }

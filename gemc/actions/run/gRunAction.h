@@ -119,7 +119,8 @@ public:
 	[[nodiscard]] auto get_streamer_threads_map() const
 		-> std::shared_ptr<const gstreamer::gstreamersMap> {
 		if (!gstreamer_threads_map) {
-			log->error(gaction::ERR_STREAMERMAP_NOT_EXISTING, FUNCTION_NAME, " no gstreamer thread map available");
+			log->error(
+				gaction::ERR_STREAMERMAP_NOT_EXISTING, "%1 no gstreamer thread map available", FUNCTION_NAME);
 		}
 		return gstreamer_threads_map;
 	}
@@ -158,8 +159,10 @@ public:
 	void collect_event_data_collections(const std::string&              hcSDName,
 										std::unique_ptr<GDigitizedData> digi_data) {
 		if (run_data == nullptr) {
-			log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-					   " run_data is null - cannot collect run-level payload for collection ", hcSDName);
+			log->error(
+				gaction::ERR_GRUNACTION_NOT_EXISTING,
+				"%1 run_data is null - cannot collect run-level payload for collection %2", FUNCTION_NAME,
+				hcSDName);
 		}
 
 		run_data->collect_event_data_collections(
@@ -175,14 +178,16 @@ public:
 	 */
 	void increment_run_events_processed() {
 		if (run_data == nullptr) {
-			log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-					   " run_data is null - cannot increment processed events.");
+			log->error(
+				gaction::ERR_GRUNACTION_NOT_EXISTING,
+				"%1 run_data is null - cannot increment processed events.", FUNCTION_NAME);
 		}
 
 		auto& header = run_data->getHeader();
 		if (header == nullptr) {
-			log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-					   " run_data header is null - cannot increment processed events.");
+			log->error(
+				gaction::ERR_GRUNACTION_NOT_EXISTING,
+				"%1 run_data header is null - cannot increment processed events.", FUNCTION_NAME);
 		}
 
 		header->increment_events_processed();
@@ -196,14 +201,16 @@ public:
 	 */
 	void increment_run_events_with_payload() {
 		if (run_data == nullptr) {
-			log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-					   " run_data is null - cannot increment payload events.");
+			log->error(
+				gaction::ERR_GRUNACTION_NOT_EXISTING, "%1 run_data is null - cannot increment payload events.",
+				FUNCTION_NAME);
 		}
 
 		auto& header = run_data->getHeader();
 		if (header == nullptr) {
-			log->error(gaction::ERR_GRUNACTION_NOT_EXISTING, FUNCTION_NAME,
-					   " run_data header is null - cannot increment payload events.");
+			log->error(
+				gaction::ERR_GRUNACTION_NOT_EXISTING,
+				"%1 run_data header is null - cannot increment payload events.", FUNCTION_NAME);
 		}
 
 		header->increment_events_with_payload();

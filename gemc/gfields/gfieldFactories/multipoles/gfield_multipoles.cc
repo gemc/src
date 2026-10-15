@@ -33,8 +33,9 @@ void GField_MultipolesFactory::GetFieldValue(const double pos[3], G4double* bfie
 
 	// ======= Basic checks =======
 	if (pole_number < 2 || (pole_number % 2) != 0) {
-		log->error(gfields::ERR_WRONG_POLE_NUMBER,
-		           "Pole number must be an even integer >= 2 (2=dipole,4=quadrupole,...)");
+		log->error(
+			gfields::ERR_WRONG_POLE_NUMBER,
+			"Pole number must be an even integer >= 2 (2=dipole,4=quadrupole,...)");
 	}
 
 	// ======= Positions and local frame =======
@@ -89,8 +90,9 @@ void GField_MultipolesFactory::GetFieldValue(const double pos[3], G4double* bfie
 		bfield[1] = B_lab.y();
 		bfield[2] = B_lab.z();
 
-		log->info(2, "Axial field mode (solenoid-like). Strength: ", strength,
-		          " T, Field: (", bfield[0], ", ", bfield[1], ", ", bfield[2], ")");
+		log->info(
+			2, "Axial field mode (solenoid-like). Strength: %1 T, Field: (%2, %3, %4)", strength, bfield[0],
+			bfield[1], bfield[2]);
 		return;
 	}
 
@@ -142,14 +144,11 @@ void GField_MultipolesFactory::GetFieldValue(const double pos[3], G4double* bfie
 	bfield[1] = B_lab.y();
 	bfield[2] = B_lab.z();
 
-	log->info(2, "Pole Number: ", pole_number,
-	          ", n: ", n,
-	          ", Strength: ", strength,
-	          ", Requested at: (", pos[0], ", ", pos[1], ", ", pos[2], ")",
-	          ", Rotation angle: ", rotation_angle,
-	          ", Rotation axis: ", rotaxis,
-	          ", longitudinal: ", longitudinal,
-	          ", Field: (", bfield[0], ", ", bfield[1], ", ", bfield[2], ")");
+	log->info(
+		2,
+		"Pole Number: %1, n: %2, Strength: %3, Requested at: (%4, %5, %6), Rotation angle: %7, Rotation "
+		"axis: %8, longitudinal: %9, Field: (%10, %11, %12)", pole_number, n, strength, pos[0], pos[1], pos[2],
+		rotation_angle, rotaxis, longitudinal, bfield[0], bfield[1], bfield[2]);
 }
 
 
@@ -177,11 +176,12 @@ void GField_MultipolesFactory::load_field_definitions(GFieldDefinition gfd) {
 	else if (rot_axis_option == "Y" || rot_axis_option == "y") { rotaxis = 1; }
 	else if (rot_axis_option == "Z" || rot_axis_option == "z") { rotaxis = 2; }
 	else {
-		log->error(gfields::ERR_WRONG_FIELD_ROTATION,
-		           "GField_MultipolesFactory::load_field_definitions: Rotation axis " +
-		               gfield_definitions.field_parameters["rotaxis"] + " not supported. Exiting.");
+		log->error(
+			gfields::ERR_WRONG_FIELD_ROTATION,
+			"GField_MultipolesFactory::load_field_definitions: Rotation axis %1 not supported. Exiting.",
+			gfield_definitions.field_parameters["rotaxis"]);
 	}
 
-	log->info(1, "Rotation axis: ", rotaxis);
+	log->info(1, "Rotation axis: %1", rotaxis);
 	strength = get_field_parameter_double("strength");
 }

@@ -69,11 +69,10 @@ GSystem::GSystem(const std::shared_ptr<GOptions>& gopts,
 	// If the provided name does not include a directory, set the path to empty.
 	if (name == path || factoryName == gsystem::GSYSTEMSQLITETFACTORYLABEL) {
 		path = "";
-		log->info(1, "Instantiating GSystem <", name, "> using factory <", factoryName, ">");
+		log->info(1, "Instantiating GSystem <%1> using factory <%2>", name, factoryName);
 	}
 	else {
-		log->info(1, "Instantiating GSystem <", name, "> using path <", path, "> ",
-		          "and factory <", factoryName, ">");
+		log->info(1, "Instantiating GSystem <%1> using path <%2> and factory <%3>", name, path, factoryName);
 	}
 }
 
@@ -98,19 +97,19 @@ void GSystem::addGVolume(std::vector<std::string> pars) {
 	if (!gvolumesMap.contains(volume_name)) {
 		// Create and add GVolume to the map.
 		gvolumesMap[volume_name] = std::make_shared<GVolume>(log, name, pars);
-		log->info(1, "Adding gVolume <" + volume_name + "> to gvolumesMap.");
-		log->info(2, *gvolumesMap[volume_name]);
+		log->info(1, "Adding gVolume <%1> to gvolumesMap.", volume_name);
+		log->info(2, "%1", *gvolumesMap[volume_name]);
 	}
 	else {
-		log->error(gsystem::ERR_GVOLUMEALREADYPRESENT,
-		           "gVolume <" + volume_name + "> already exists in gvolumesMap.");
+		log->error(
+			gsystem::ERR_GVOLUMEALREADYPRESENT, "gVolume <%1> already exists in gvolumesMap.", volume_name);
 	}
 }
 
 
 // See gsystem.h for API docs.
 void GSystem::addROOTVolume(const std::string& rootVolumeDefinition) {
-	log->warning("Adding ROOT volume using <" + rootVolumeDefinition + "> to gvolumesMap.");
+	log->warning("Adding ROOT volume using <%1> to gvolumesMap.", rootVolumeDefinition);
 	// gsystem::ROOTWORLDGVOLUMENAME is assumed to be defined in gsystemConventions.h.
 	gvolumesMap[gsystem::ROOTWORLDGVOLUMENAME] = std::make_shared<GVolume>(rootVolumeDefinition, log);
 }
@@ -178,12 +177,13 @@ void GSystem::addGMaterial(std::vector<std::string> pars) {
 
 	if (!gmaterialsMap.contains(materialName)) {
 		gmaterialsMap[materialName] = std::make_shared<GMaterial>(name, pars, log);
-		log->info(1, "Adding gMaterial <" + materialName + "> to gmaterialsMap.");
-		log->info(2, *gmaterialsMap[materialName]);
+		log->info(1, "Adding gMaterial <%1> to gmaterialsMap.", materialName);
+		log->info(2, "%1", *gmaterialsMap[materialName]);
 	}
 	else {
-		log->error(gsystem::ERR_GMATERIALALREADYPRESENT,
-		           "gMaterial <" + materialName + "> already exists in gmaterialsMap.");
+		log->error(
+			gsystem::ERR_GMATERIALALREADYPRESENT, "gMaterial <%1> already exists in gmaterialsMap.",
+			materialName);
 	}
 }
 
@@ -196,12 +196,12 @@ void GSystem::addGMirror(std::vector<std::string> pars) {
 
 	if (!gmirrorsMap.contains(mirrorName)) {
 		gmirrorsMap[mirrorName] = std::make_shared<GMirror>(name, pars, log);
-		log->info(1, "Adding gMirror <" + mirrorName + "> to gmirrorsMap.");
-		log->info(2, *gmirrorsMap[mirrorName]);
+		log->info(1, "Adding gMirror <%1> to gmirrorsMap.", mirrorName);
+		log->info(2, "%1", *gmirrorsMap[mirrorName]);
 	}
 	else {
-		log->error(gsystem::ERR_GMIRRORALREADYPRESENT,
-		           "gMirror <" + mirrorName + "> already exists in gmirrorsMap.");
+		log->error(
+			gsystem::ERR_GMIRRORALREADYPRESENT, "gMirror <%1> already exists in gmirrorsMap.", mirrorName);
 	}
 }
 
@@ -224,8 +224,9 @@ const GMaterial* GSystem::getMaterialForGVolume(const std::string& volumeName) c
 		if (matIt != gmaterialsMap.end())
 			return matIt->second.get();
 		else {
-			log->error(gsystem::ERR_GMATERIALNOTFOUND,
-			           "gMaterial <" + materialName + "> not found for volume <" + volumeName + ">");
+			log->error(
+				gsystem::ERR_GMATERIALNOTFOUND, "gMaterial <%1> not found for volume <%2>", materialName,
+				volumeName);
 		}
 	}
 	return nullptr;

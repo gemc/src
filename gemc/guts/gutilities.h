@@ -117,6 +117,24 @@ std::vector<std::string> getStringVectorFromString(const std::string& input);
 std::string replaceCharInStringWithChars(const std::string& input, const std::string& toReplace,
                                          const std::string& replacement);
 
+/**
+ * \brief Returns the candidate closest to @p query, for "did you mean ...?" suggestions.
+ *
+ * The comparison is case-insensitive and uses the Levenshtein edit distance. A candidate is
+ * only returned when it is reasonably close: the best distance must be at most
+ * @p max_distance, and no greater than one third of the longer string's length (rounded up).
+ * This keeps suggestions relevant (e.g. @c languag -> @c language) while avoiding nonsensical
+ * matches for completely unrelated input.
+ *
+ * \param query The (typically misspelled) input to match.
+ * \param candidates The known-good strings to compare against.
+ * \param max_distance Hard upper bound on the accepted edit distance (default 3).
+ * \return The closest candidate, or @c std::nullopt when none is close enough.
+ */
+std::optional<std::string> closestMatch(const std::string&              query,
+                                         const std::vector<std::string>& candidates,
+                                         std::size_t                     max_distance = 3);
+
 
 /**
  * \brief Replaces all occurrences of a substring with another string.

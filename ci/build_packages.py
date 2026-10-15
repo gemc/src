@@ -8,9 +8,9 @@ import subprocess
 VALID_IMAGES = ["fedora", "ubuntu", "archlinux", "almalinux", "debian"]
 
 BUILD_PACKAGES = {
-	"fedora": ["qt6-qtcharts-devel"],
-	"debian": ["qt6-charts-dev"],
-	"archlinux": ["qt6-charts"],
+	"fedora": ["qt6-qtcharts-devel", "qt6-qttools-devel", "qt6-qttranslations"],
+	"debian": ["qt6-charts-dev", "qt6-l10n-tools", "qt6-translations-l10n"],
+	"archlinux": ["qt6-charts", "qt6-tools", "qt6-translations"],
 }
 
 

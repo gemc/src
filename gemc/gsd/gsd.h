@@ -204,7 +204,7 @@ private:
 		// time-cell index, so the registry entry must stay pristine across steps and events.
 		if (it != gTouchableMap.end()) { return std::make_shared<GTouchable>(*it->second); }
 		// If not found, log an error. The calling code assumes a valid pointer.
-		log->error(ERR_DYNAMICPLUGINNOTFOUND, "GTouchable for volume " + vname + " not found in gTouchableMap");
+		log->error(ERR_DYNAMICPLUGINNOTFOUND, "GTouchable for volume %1 not found in gTouchableMap", vname);
 	}
 
 	/**
@@ -235,7 +235,7 @@ public:
 	 * \param gt   Touchable instance associated with @p name.
 	 */
 	inline void registerGVolumeTouchable(const std::string& name, std::shared_ptr<GTouchable> gt) {
-		log->info(2, "Registering touchable gvolume <" + name + "> with value: " + gt->getIdentityString());
+		log->info(2, "Registering touchable gvolume <%1> with value: %2", name, gt->getIdentityString());
 
 		// Store the GTouchable in the map; this module retains a shared ownership reference.
 		gTouchableMap[name] = gt;

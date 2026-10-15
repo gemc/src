@@ -74,7 +74,7 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 	// Resolve the directory holding the CAD meshes.
 	const auto dirLocation = gutilities::searchForDirInLocations(s->getFilePath(), possibleLocationOfFiles);
 	if (!dirLocation) {
-		log->error(gsystem::ERR_GDIRNOTFOUND, "CAD Directory >" + s->getFilePath() + "< not found.");
+		log->error(gsystem::ERR_GDIRNOTFOUND, "CAD Directory >%1< not found.", s->getFilePath());
 	}
 
 	// Map each available mesh file to its stem (filename without extension), which is the volume name.
@@ -95,17 +95,17 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 	};
 	auto dbPath = gutilities::searchForFileInLocations(dirs, dbhost);
 	if (!dbPath) {
-		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: sqlite database <" + dbhost + "> not found.");
+		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: sqlite database <%1> not found.", dbhost);
 		return;
 	}
 
 	sqlite3* db = nullptr;
 	if (sqlite3_open_v2(dbPath.value().c_str(), &db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK) {
 		sqlite3_close(db);
-		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: failed to open sqlite database <" + dbhost + ">.");
+		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: failed to open sqlite database <%1>.", dbhost);
 		return;
 	}
-	log->info(1, "CAD factory: reading definitions from sqlite database ", dbPath.value());
+	log->info(1, "CAD factory: reading definitions from sqlite database %1", dbPath.value());
 
 	const string placement_column = geometry_column_exists(db, "g4placement_type")
 	                                ? "g4placement_type"
@@ -119,7 +119,7 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 
 	sqlite3_stmt* stmt = nullptr;
 	if (sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: error preparing query: ", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: error preparing query: %1", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return;
 	}
@@ -152,9 +152,9 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 		if (solidType == gsystem::GSYSTEMCADTFACTORYLABEL) {
 			auto it = meshByName.find(volumeName);
 			if (it == meshByName.end()) {
-				log->warning("CAD factory: volume <", volumeName,
-				             "> is defined in the database but no mesh file was found in <",
-				             dirLocation->string(), ">; skipping.");
+				log->warning(
+					"CAD factory: volume <%1> is defined in the database but no mesh file was found in <%2>; "
+					"skipping.", volumeName, dirLocation->string());
 				continue;
 			}
 			set_resolved_cad_mesh(gvolumePars, (*dirLocation / it->second).string());
@@ -165,14 +165,16 @@ void GSystemCADFactory::loadGeometry(GSystem* s) {
 	}
 
 	if (rc != SQLITE_DONE) {
-		log->error(gsystem::ERR_GSQLITEERROR,
-		           "CAD factory: sqlite error while reading geometry: ", sqlite3_errmsg(db));
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "CAD factory: sqlite error while reading geometry: %1",
+			sqlite3_errmsg(db));
 	}
 
 	sqlite3_finalize(stmt);
 	sqlite3_close(db);
 
-	log->info(0, "CAD factory: loaded ", loaded, " volume(s) for system <", system_name,
-	          ">, variation <", variation, ">, run ", runno,
-	          " (", meshByName.size(), " mesh file(s) present in <", dirLocation->string(), ">).");
+	log->info(
+		0,
+		"CAD factory: loaded %1 volume(s) for system <%2>, variation <%3>, run %4 (%5 mesh file(s) present "
+		"in <%6>).", loaded, system_name, variation, runno, meshByName.size(), dirLocation->string());
 }

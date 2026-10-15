@@ -34,7 +34,7 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system) {
 
 	// Use system dbhost if not already set.
 	if (dbhost == "na") { dbhost = system->get_dbhost(); }
-	log->info(1, "GSystemSQLiteFactory: dbhost set to <", dbhost, ">");
+	log->info(1, "GSystemSQLiteFactory: dbhost set to <%1>", dbhost);
 
 	// Use the YAML directories and standard locations collected by GSystemFactory. Keep the examples
 	// directory as an additional fallback for the source-tree examples.
@@ -51,13 +51,13 @@ void GSystemSQLiteFactory::initialize_sqlite_db(GSystem* system) {
 	if (sqlite3_open_v2(dbPath.value().c_str(), &db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK) {
 		sqlite3_close(db);
 		db = nullptr;
-		log->error(gsystem::ERR_GSQLITEERROR, " Failed to open or validate database", dbhost);
+		log->error(gsystem::ERR_GSQLITEERROR, " Failed to open or validate database%1", dbhost);
 	}
-	log->info(1, "Opened database: " + dbhost, " found at ", dbPath.value());
+	log->info(1, "Opened database: %1 found at %2", dbhost, dbPath.value());
 	return;
 
 	// If we are here, no valid database file was found.
-	log->error(gsystem::ERR_GSETUPFILENOTOFOUND, "Sqlite database >" + dbhost + "< not found");
+	log->error(gsystem::ERR_GSETUPFILENOTOFOUND, "Sqlite database >%1< not found", dbhost);
 }
 
 
@@ -65,7 +65,7 @@ void GSystemSQLiteFactory::closeSystem() {
 	if (db) {
 		sqlite3_close(db);
 		db = nullptr; // Reset the pointer after closing
-		log->info(1, "Closing sqlite database >", dbhost, "<");
+		log->info(1, "Closing sqlite database >%1<", dbhost);
 	}
 	possibleLocationOfFiles.clear();
 }

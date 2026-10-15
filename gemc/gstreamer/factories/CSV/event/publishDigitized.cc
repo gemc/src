@@ -8,7 +8,8 @@
 bool GstreamerCsvFactory::publishEventDigitizedDataImpl(const std::string&                        detectorName,
                                                         const std::vector<const GDigitizedData*>& digitizedData) {
 	if (!ofile_digitized.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename_digitized());
+		log->error(
+			gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename_digitized());
 	}
 
 	// Emit the header row from the first non-empty detector collection so column names
@@ -24,8 +25,7 @@ bool GstreamerCsvFactory::publishEventDigitizedDataImpl(const std::string&      
 			size_t total = dmap.size();
 			size_t i     = 0;
 
-			log->debug(NORMAL, SFUNCTION_NAME, "Writing header for run ", runId, " with ", total,
-			           " variables");
+			log->debug(NORMAL, "%1Writing header for run %2 with %3 variables", SFUNCTION_NAME, runId, total);
 
 			for (const auto& [name, value] : getIdentityMap(first_hit->getIdentity())) { ofile_digitized << name << ", "; }
 			for (const auto& [name, value] : imap) { ofile_digitized << name << ", "; }

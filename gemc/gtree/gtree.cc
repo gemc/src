@@ -59,55 +59,55 @@ using PDesc = std::vector<const char*>;
 
 const PDesc& solidParamDescs(const std::string& solid, std::size_t n) {
     static const std::unordered_map<std::string, PDesc> kFixed = {
-        {"G4Box",    {"dx: half length in x",
-                      "dy: half length in y",
-                      "dz: half length in z"}},
-        {"G4Tubs",   {"rin: inner radius",
-                      "rout: outer radius",
-                      "length: half length in z",
-                      "phi start: starting phi angle",
-                      "phi total: total phi angle"}},
-        {"G4Cons",   {"rin1: inner radius at -dz",
-                      "rout1: outer radius at -dz",
-                      "rin2: inner radius at +dz",
-                      "rout2: outer radius at +dz",
-                      "length: half length in z",
-                      "phi start: starting phi angle",
-                      "phi total: total phi angle"}},
-        {"G4Trd",    {"dx1: half length in x at -dz",
-                      "dx2: half length in x at +dz",
-                      "dy1: half length in y at -dz",
-                      "dy2: half length in y at +dz",
-                      "z: half length in z"}},
-        {"G4Sphere", {"rmin: inner radius",
-                      "rmax: outer radius",
-                      "sphi: starting phi angle",
-                      "dphi: delta phi angle",
-                      "stheta: starting theta angle",
-                      "dtheta: delta theta angle"}},
-        {"G4Paraboloid", {"dz: half length in z",
-                          "r1: radius at -dz",
-                          "r2: radius at +dz"}},
-        {"G4EllipticalTube", {"dx: half length in x",
-                              "dy: half length in y",
-                              "dz: half length in z"}},
+        {"G4Box",    {QT_TRANSLATE_NOOP("GTreeParameters", "dx: half length in x"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "dy: half length in y"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "dz: half length in z")}},
+        {"G4Tubs",   {QT_TRANSLATE_NOOP("GTreeParameters", "rin: inner radius"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "rout: outer radius"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "length: half length in z"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "phi start: starting phi angle"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "phi total: total phi angle")}},
+        {"G4Cons",   {QT_TRANSLATE_NOOP("GTreeParameters", "rin1: inner radius at -dz"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "rout1: outer radius at -dz"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "rin2: inner radius at +dz"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "rout2: outer radius at +dz"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "length: half length in z"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "phi start: starting phi angle"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "phi total: total phi angle")}},
+        {"G4Trd",    {QT_TRANSLATE_NOOP("GTreeParameters", "dx1: half length in x at -dz"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "dx2: half length in x at +dz"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "dy1: half length in y at -dz"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "dy2: half length in y at +dz"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "z: half length in z")}},
+        {"G4Sphere", {QT_TRANSLATE_NOOP("GTreeParameters", "rmin: inner radius"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "rmax: outer radius"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "sphi: starting phi angle"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "dphi: delta phi angle"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "stheta: starting theta angle"),
+                      QT_TRANSLATE_NOOP("GTreeParameters", "dtheta: delta theta angle")}},
+        {"G4Paraboloid", {QT_TRANSLATE_NOOP("GTreeParameters", "dz: half length in z"),
+                          QT_TRANSLATE_NOOP("GTreeParameters", "r1: radius at -dz"),
+                          QT_TRANSLATE_NOOP("GTreeParameters", "r2: radius at +dz")}},
+        {"G4EllipticalTube", {QT_TRANSLATE_NOOP("GTreeParameters", "dx: half length in x"),
+                              QT_TRANSLATE_NOOP("GTreeParameters", "dy: half length in y"),
+                              QT_TRANSLATE_NOOP("GTreeParameters", "dz: half length in z")}},
     };
     static const std::unordered_map<std::size_t, PDesc> kTrap = {
-        {4,  {"pz: length along Z",
-              "py: length along Y",
-              "px: length along X (wider side)",
-              "pltx: length along X (narrower side)"}},
-        {11, {"pDz: half Z length",
-              "pTheta: polar angle of line joining base centres",
-              "pPhi: azimuthal angle of line joining base centres",
-              "pDy1: half Y length at -dz",
-              "pDx1: half X length at smaller Y, base at -dz",
-              "pDx2: half X length at bigger Y, base at -dz",
-              "pAlp1: angle between Y-axis and centre line at -dz",
-              "pDy2: half Y length at +dz",
-              "pDx3: half X length at smaller Y, base at +dz",
-              "pDx4: half X length at bigger Y, base at +dz",
-              "pAlp2: angle between Y-axis and centre line at +dz"}},
+        {4,  {QT_TRANSLATE_NOOP("GTreeParameters", "pz: length along Z"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "py: length along Y"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "px: length along X (wider side)"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "pltx: length along X (narrower side)")}},
+        {11, {QT_TRANSLATE_NOOP("GTreeParameters", "pDz: half Z length"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "pTheta: polar angle of line joining base centres"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "pPhi: azimuthal angle of line joining base centres"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "pDy1: half Y length at -dz"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "pDx1: half X length at smaller Y, base at -dz"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "pDx2: half X length at bigger Y, base at -dz"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "pAlp1: angle between Y-axis and centre line at -dz"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "pDy2: half Y length at +dz"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "pDx3: half X length at smaller Y, base at +dz"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "pDx4: half X length at bigger Y, base at +dz"),
+              QT_TRANSLATE_NOOP("GTreeParameters", "pAlp2: angle between Y-axis and centre line at +dz")}},
     };
     static const PDesc kEmpty;
 
@@ -143,18 +143,17 @@ QString formatParameters(const std::string& solid, const std::string& paramsStr)
     if (paramsStr.empty()) return {};
     const auto vals = splitParams(paramsStr);
     if (vals.empty()) return {};
-
-    QString html = "Parameters:";
-
+    QString html = QCoreApplication::translate("GTreeParameters", "Parameters:");
     // Polycone: fixed header (phiStart, phiTotal, nplanes) then arrays
     if (solid == "G4Polycone" && vals.size() >= 3) {
         const char* kPcFixed[3] = {
-            "phi start: starting phi angle",
-            "phi total: total phi angle",
-            "nplanes: number of planes"
+            QT_TRANSLATE_NOOP("GTreeParameters", "phi start: starting phi angle"),
+            QT_TRANSLATE_NOOP("GTreeParameters", "phi total: total phi angle"),
+            QT_TRANSLATE_NOOP("GTreeParameters", "nplanes: number of planes")
         };
         for (int i = 0; i < 3 && i < (int)vals.size(); ++i)
-            html += QString("<br>&nbsp;&nbsp;<i>%1</i>: %2").arg(kPcFixed[i], formatVal(vals[i]));
+            html += QString(QT_TRANSLATE_NOOP("GTreeParameters", "<br>&nbsp;&nbsp;<i>%1</i>: %2"))
+                .arg(QCoreApplication::translate("GTreeParameters", kPcFixed[i]), formatVal(vals[i]));
         int nplanes = 0;
         try { nplanes = std::stoi(vals[2]); } catch (...) {}
         int idx = 3;
@@ -181,8 +180,8 @@ QString formatParameters(const std::string& solid, const std::string& paramsStr)
     const auto& descs = solidParamDescs(solid, vals.size());
     for (std::size_t i = 0; i < vals.size(); ++i) {
         const QString desc = i < descs.size()
-            ? QString::fromStdString(descs[i])
-            : QString("missing parameters description");
+            ? QCoreApplication::translate("GTreeParameters", descs[i])
+            : QCoreApplication::translate("GTreeParameters", "missing parameters description");
         html += QString("<br>&nbsp;&nbsp;<i>%1</i>: %2").arg(desc, formatVal(vals[i]));
     }
     return html;
@@ -427,7 +426,7 @@ GTree::GTree(const std::shared_ptr<GOptions>& gopt,
     treeWidget = new QTreeWidget(this);
     treeWidget->setColumnCount(3);
     QStringList headers;
-    headers << "Visibility" << "Color" << "Name";
+    headers << tr("Visibility") << tr("Color") << tr("Name");
     treeWidget->setHeaderLabels(headers);
     treeWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     treeWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -470,7 +469,7 @@ GTree::GTree(const std::shared_ptr<GOptions>& gopt,
             this, &GTree::onOpacitySliderChanged);
 
 
-    log->debug(NORMAL, SFUNCTION_NAME, "GTree added");
+    log->debug(NORMAL, "%1GTree added", SFUNCTION_NAME);
 }
 
 // Build the Qt tree view from the internal system/volume model.
@@ -560,7 +559,7 @@ void GTree::build_tree(std::unordered_map<std::string, G4Volume*> g4volumes_map)
     for (auto [name, g4volume] : g4volumes_map) {
         if (g4volume == nullptr || g4volume->getLogical() == nullptr ||
             g4volume->getSolid() == nullptr || g4volume->getPhysical() == nullptr) {
-            log->info(2, "Skipping non-placed helper volume <", name, "> from tree");
+            log->info(2, "Skipping non-placed helper volume <%1> from tree", name);
             continue;
         }
 
@@ -583,7 +582,7 @@ void GTree::build_tree(std::unordered_map<std::string, G4Volume*> g4volumes_map)
 
         // do not log mass/volume/density here: reading them triggers the (potentially
         // Monte-Carlo) physics computation for every volume in the tree
-        log->info(2, "Adding ", name, " to tree, system_name is ", system_name);
+        log->info(2, "Adding %1 to tree, system_name is %2", name, system_name);
     }
 }
 
@@ -744,11 +743,11 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
 
     // Type label
     if (isVolume) {
-        typeLabel->setText(QStringLiteral("<b>G4 Volume</b>"));
+        typeLabel->setText(tr("<b>G4 Volume</b>"));
         current_volume_name = v.toString().toStdString();
     }
     else {
-        typeLabel->setText(QStringLiteral("<b>System</b>"));
+        typeLabel->setText(tr("<b>System</b>"));
         current_volume_name.clear();
     }
 
@@ -863,17 +862,17 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
         if (inspectButton) inspectButton->setVisible(false);
         if (drawOverlapsButton) drawOverlapsButton->setVisible(false);
         // Systems don't have a single material etc.
-        materialLabel->setText(tr(""));
-        massLabel->setText(tr(""));
-        volumeLabel->setText(tr(""));
-        densityLabel->setText(tr(""));
-        solidTypeLabel->setText(tr(""));
+        materialLabel->setText(QString());
+        massLabel->setText(QString());
+        volumeLabel->setText(QString());
+        densityLabel->setText(QString());
+        solidTypeLabel->setText(QString());
         parametersLabel->clear();
         parametersLabel->setVisible(false);
-        positionLabel->setText(tr(""));
-        rotationLabel->setText(tr(""));
-        motherLabel->setText(tr(""));
-        descriptionLabel->setText(tr(""));
+        positionLabel->setText(QString());
+        rotationLabel->setText(QString());
+        motherLabel->setText(QString());
+        descriptionLabel->setText(QString());
     }
 }
 

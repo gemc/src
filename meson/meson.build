@@ -363,6 +363,8 @@ install_subdir(
 
 # sanitizer settings
 project_test_env = environment()
+project_test_env.set('GEMC_LANGUAGE', 'en')
+project_test_env.set('PYTHONDONTWRITEBYTECODE', '1')
 project_test_env.set(
     'UBSAN_OPTIONS',
     'halt_on_error=1',

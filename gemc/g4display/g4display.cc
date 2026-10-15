@@ -29,5 +29,5 @@ G4Display::G4Display(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
 	mainLayout->addWidget(dialogTabs);
 	setLayout(mainLayout);
 
-	log->debug(NORMAL, SFUNCTION_NAME, "View and Utilities tabs added.");
+	log->debug(NORMAL, "%1View and Utilities tabs added.", SFUNCTION_NAME);
 }

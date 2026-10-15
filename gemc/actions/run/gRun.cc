@@ -12,5 +12,5 @@ GRun::GRun(std::shared_ptr<GOptions> gopt,
 	GBase(gopt, GRUN_LOGGER),
 	digitization_routines_map(std::move(digi_map)) {
 	const auto desc = "GRun " + std::to_string(G4Threading::G4GetThreadId());
-	log->debug(CONSTRUCTOR, FUNCTION_NAME, desc);
+	log->debug(CONSTRUCTOR, "%1%2", FUNCTION_NAME, desc);
 }

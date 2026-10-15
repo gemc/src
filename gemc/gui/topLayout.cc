@@ -21,29 +21,32 @@ void GemcGUI::createTopButtons(QHBoxLayout* topLayout) {
 	auto* nEventsLabel = new QLabel(tr("N. Events:"));
 
 	auto* runButton = new QPushButton(tr("Run"));
-	runButton->setToolTip("Run events");
+	runButton->setObjectName("gemcRun");
+	runButton->setToolTip(tr("Run events"));
 	runButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
 
 	// getting the number of events from eventDispenser, which
 	// in turns gets it from options if no grun file is provided
 	auto grunNumberOfEvents = std::to_string(eventDispenser->getTotalNumberOfEvents());
-	nEvents                 = new QLineEdit(tr(grunNumberOfEvents.c_str()));
+	nEvents                 = new QLineEdit(QString::fromStdString(grunNumberOfEvents));
+	nEvents->setObjectName("gemcNumberOfEvents");
 	nEvents->setMaximumWidth(50);
 
 	auto* cycleButton = new QPushButton(tr("Cycle"));
-	cycleButton->setToolTip("Run 1 event every 2 seconds");
+	cycleButton->setToolTip(tr("Run 1 event every 2 seconds"));
 	cycleButton->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
 
 	auto* stopButton = new QPushButton(tr("Stop"));
-	stopButton->setToolTip("Stops running events");
+	stopButton->setToolTip(tr("Stops running events"));
 	stopButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
 
 	auto* closeButton = new QPushButton(tr("Exit"));
-	closeButton->setToolTip("Quit GEMC");
+	closeButton->setToolTip(tr("Quit GEMC"));
 	closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
 
 	// The label stores the cumulative number of processed events (as displayed to the user).
-	eventNumberLabel = new QLabel(tr("Event Number: 0"));
+	eventNumberLabel = new QLabel(tr("Event Number: %1").arg(displayedEventCount));
+	eventNumberLabel->setObjectName("gemcEventNumber");
 
 	topLayout->addWidget(nEventsLabel);
 	topLayout->addWidget(nEvents);

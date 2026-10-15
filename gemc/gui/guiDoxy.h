@@ -55,6 +55,17 @@
  *   - The "N. Events" field updates the number of events via EventDispenser::setNumberOfEvents().
  *   - The initial value is read from EventDispenser::getTotalNumberOfEvents().
  *
+ * @section gui_languages GUI language
+ *
+ * Upcoming in the next release: English, Italian, Japanese, French, and Chinese GUI catalogs share the
+ * logging language option and automatic system detection. gemc::makeQtApplication installs translators
+ * before constructing widgets; pass the GOptions pointer to honor explicit overrides. Restart to change
+ * language. Missing translations use English. Qt's installed catalogs translate standard dialogs.
+ *
+ * Use complete tr() messages and QString::arg() parameters. Store command identifiers in item data and
+ * counters as numeric members, independent of translated labels. SVG captions are translated at runtime.
+ * Generated catalogs and the shared cron workflow are documented in translations/gui/README.md.
+ *
  * @section gui_verbosity Module verbosity
  *
  * The top-level widget has no module-specific logger. Child pages use their own logger categories, including

@@ -13,8 +13,8 @@ void GSystemTextFactory::loadMirrors(GSystem* system) {
 	auto IN = gSystemTextFileStream(system, gsystem::GTEXTMIRSTYPE);
 
 	if (IN != nullptr) {
-		log->info(1, "Loading mirrors for system ", system->getName(),
-		          " using factory ", system->getFactoryName());
+		log->info(
+			1, "Loading mirrors for system %1 using factory %2", system->getName(), system->getFactoryName());
 
 		// Each non-empty line is a serialized parameter row separated by '|'.
 		while (!IN->eof()) {

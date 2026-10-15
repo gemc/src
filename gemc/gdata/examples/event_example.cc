@@ -133,7 +133,7 @@ static std::string map_to_string(const MapType& m) {
  */
 static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const std::shared_ptr<GLogger>& log) {
 	log->info(0, "------------------------------------------------------------");
-	log->info(0, "Dumping event: local event number = ", edc->getEventNumber());
+	log->info(0, "Dumping event: local event number = %1", edc->getEventNumber());
 	log->info(0, "------------------------------------------------------------");
 
 	const auto& dcm = edc->getDataCollectionMap();
@@ -144,14 +144,14 @@ static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const s
 
 	for (const auto& [sdName, det] : dcm) {
 		if (!det) {
-			log->info(0, "Detector <", sdName, "> has a null GDataCollection pointer (unexpected).");
+			log->info(0, "Detector <%1> has a null GDataCollection pointer (unexpected).", sdName);
 			continue;
 		}
 
 		const auto& truthHits = det->getTrueInfoData();
 		const auto& digiHits  = det->getDigitizedData();
 
-		log->info(0, "Detector <", sdName, ">: truthHits=", truthHits.size(), " digitizedHits=", digiHits.size());
+		log->info(0, "Detector <%1>: truthHits=%2 digitizedHits=%3", sdName, truthHits.size(), digiHits.size());
 
 		// Truth hits are printed first so the example shows the simulation-side view before the readout-side view.
 		for (size_t i = 0; i < truthHits.size(); ++i) {
@@ -163,12 +163,12 @@ static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const s
 
 			auto idString = getIdentityString(th->getIdentity());
 
-			log->info(0, "  [truth hit ", i, "] id={",idString, "}");
-			log->info(0, "    doubles: ", map_to_string(doubles));
+			log->info(0, "  [truth hit %1] id={%2}", i, idString);
+			log->info(0, "    doubles: %1", map_to_string(doubles));
 
 			// Strings are often empty in this toy factory, but the code shows how to inspect them.
 			if (!strings.empty()) {
-				log->info(0, "    strings: ", map_to_string(strings));
+				log->info(0, "    strings: %1", map_to_string(strings));
 			}
 			else {
 				log->info(0, "    strings: {} (none)");
@@ -187,16 +187,17 @@ static void dump_event(const std::shared_ptr<GEventDataCollection>& edc, const s
 
 			auto idString = getIdentityString(dh->getIdentity());
 
-			log->info(0, "  [digi  hit ", i, "] id={",idString, "}");
-			log->info(0, "    int  non-SRO: ", map_to_string(ints_non_sro));
-			log->info(0, "    int  SRO:     ", map_to_string(ints_sro));
-			log->info(0, "    dbl  non-SRO: ", map_to_string(dbls_non_sro));
-			log->info(0, "    dbl  SRO:     ", map_to_string(dbls_sro_only));
+			log->info(0, "  [digi  hit %1] id={%2}", i, idString);
+			log->info(0, "    int  non-SRO: %1", map_to_string(ints_non_sro));
+			log->info(0, "    int  SRO:     %1", map_to_string(ints_sro));
+			log->info(0, "    dbl  non-SRO: %1", map_to_string(dbls_non_sro));
+			log->info(0, "    dbl  SRO:     %1", map_to_string(dbls_sro_only));
 
 			// Demonstrate the convenience accessor for one common SRO quantity.
 			const auto electronicsTime = dh->getTimeAtElectronics();
-			log->info(0, "    timeAtElectronics() = ",
-			          electronicsTime ? std::to_string(*electronicsTime) : "not available");
+			log->info(
+				0, "    timeAtElectronics() = %1",
+				electronicsTime ? std::to_string(*electronicsTime) : "not available");
 		}
 	}
 }
@@ -220,13 +221,14 @@ static void validate_event_structure(const std::shared_ptr<GEventDataCollection>
 									 const std::shared_ptr<GLogger>&              log) {
 	const auto& dcm = edc->getDataCollectionMap();
 	if (dcm.empty()) {
-		log->info(0, "VALIDATION: event ", edc->getEventNumber(), " has no detectors (unexpected in this example).");
+		log->info(
+			0, "VALIDATION: event %1 has no detectors (unexpected in this example).", edc->getEventNumber());
 		return;
 	}
 
 	for (const auto& [sdName, det] : dcm) {
 		if (!det) {
-			log->info(0, "VALIDATION: detector <", sdName, "> has null GDataCollection pointer.");
+			log->info(0, "VALIDATION: detector <%1> has null GDataCollection pointer.", sdName);
 			continue;
 		}
 
@@ -234,16 +236,17 @@ static void validate_event_structure(const std::shared_ptr<GEventDataCollection>
 		const auto& digiHits  = det->getDigitizedData();
 
 		for (size_t i = 0; i < truthHits.size(); ++i) {
-			if (!truthHits[i]) log->info(0, "VALIDATION: detector <", sdName, "> truth hit ", i, " is null.");
+			if (!truthHits[i]) log->info(0, "VALIDATION: detector <%1> truth hit %2 is null.", sdName, i);
 		}
 		for (size_t i = 0; i < digiHits.size(); ++i) {
-			if (!digiHits[i]) log->info(0, "VALIDATION: detector <", sdName, "> digitized hit ", i, " is null.");
+			if (!digiHits[i]) log->info(0, "VALIDATION: detector <%1> digitized hit %2 is null.", sdName, i);
 		}
 
 		// Matching truth and digitized counts are often expected by example producers, even though the API allows them to differ.
 		if (truthHits.size() != digiHits.size()) {
-			log->info(0, "VALIDATION: detector <", sdName, "> truthHits(", truthHits.size(),
-					  ") != digitizedHits(", digiHits.size(), ") in event ", edc->getEventNumber());
+			log->info(
+				0, "VALIDATION: detector <%1> truthHits(%2) != digitizedHits(%3) in event %4", sdName,
+				truthHits.size(), digiHits.size(), edc->getEventNumber());
 		}
 	}
 }
@@ -284,7 +287,7 @@ static auto run_simulation_in_threads(int                              nevents,
 
 	for (int tid = 0; tid < nthreads; ++tid) {
 		pool.emplace_back([&, tid] {
-			log->info(0, "worker ", tid, " started");
+			log->info(0, "worker %1 started", tid);
 
 			int localCount = 0;
 
@@ -319,7 +322,7 @@ static auto run_simulation_in_threads(int                              nevents,
 				localEvents.clear();
 			}
 
-			log->info(0, "worker ", tid, " processed ", localCount, " events");
+			log->info(0, "worker %1 processed %2 events", tid, localCount);
 		});
 	}
 
@@ -363,7 +366,7 @@ int main(int argc, char* argv[]) {
 		dump_event(edc, log);
 	}
 
-	log->info(0, "Generated ", events.size(), " event containers.");
+	log->info(0, "Generated %1 event containers.", events.size());
 
 	return EXIT_SUCCESS;
 }

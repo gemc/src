@@ -81,7 +81,7 @@ auto run_simulation_in_threads(int                                              
 		// The capture [&, tid] gives the thread references to variables like tid
 		pool.emplace_back([&, tid] // capture tid *by value*
 		{
-			log->info(0, "worker ", tid, " started");
+			log->info(0, "worker %1 started", tid);
 
 			int localCount = 0; // events built by *this* worker
 
@@ -104,15 +104,19 @@ auto run_simulation_in_threads(int                                              
 				auto gevent_header      = GEventHeader::create(gopts, tid);
 				auto eventData    = std::make_shared<GEventDataCollection>(gopts, std::move(gevent_header));
 				auto digi_routine = gdetector->get_digitization_routines_for_sdname(sdname);
-				log->debug(NORMAL, "Calling ", sdname, " loadConstants for run ", runNumber);
+				log->debug(NORMAL, "Calling %1 loadConstants for run %2", sdname, runNumber);
 
 				if (digi_routine->loadConstants(runNumber, variation) == false) {
-					log->error(ERR_LOADCONSTANTFAIL, "Failed to load constants for ", sdname, " for run ", runNumber, " with variation ", variation);
+					log->error(
+						ERR_LOADCONSTANTFAIL, "Failed to load constants for %1 for run %2 with variation %3",
+						sdname, runNumber, variation);
 				}
 
-				log->debug(NORMAL, "Calling ", sdname, " loadTT for run ", runNumber);
+				log->debug(NORMAL, "Calling %1 loadTT for run %2", sdname, runNumber);
 				if (digi_routine->loadTT(runNumber, variation) == false) {
-					log->error(ERR_LOADTTFAIL, "Failed to load translation table for ", sdname, " for run ", runNumber, " with variation ", variation);
+					log->error(
+						ERR_LOADTTFAIL, "Failed to load translation table for %1 for run %2 with variation %3",
+						sdname, runNumber, variation);
 				}
 				// each event has 10 hits
 				for (unsigned i = 1; i < 11; i++) {
@@ -129,7 +133,7 @@ auto run_simulation_in_threads(int                                              
 
 				if (flux_data_it != eventData->getDataCollectionMap().end()) {
 					const auto& digitized_data = flux_data_it->second->getDigitizedData();
-					log->info(0, "worker ", tid, " event ", evn, " has ", digitized_data.size(), " digitized hits");
+					log->info(0, "worker %1 event %2 has %3 digitized hits", tid, evn, digitized_data.size());
 				}
 
 				// NOTE: This example does not currently push eventData into localRunData.
@@ -146,7 +150,7 @@ auto run_simulation_in_threads(int                                              
 			}
 
 
-			log->info(0, "worker ", tid, " processed ", localCount, " events");
+			log->info(0, "worker %1 processed %2 events", tid, localCount);
 		}); // jthread constructor launches the thread immediately
 	}       // pool’s destructor blocks until every jthread has joined
 	return collected;

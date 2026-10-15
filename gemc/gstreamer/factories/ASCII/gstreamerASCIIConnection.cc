@@ -17,10 +17,10 @@ bool GstreamerTextFactory::openConnection() {
 	ofile.open(filename(), std::ios::out | std::ios::trunc);
 
 	if (!ofile.is_open() || !ofile) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, " could not open file ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1 could not open file %2", SFUNCTION_NAME, filename());
 	}
 
-	log->info(1, SFUNCTION_NAME, "GstreamerTextFactory: opened file " + filename());
+	log->info(1, "%1GstreamerTextFactory: opened file %2", SFUNCTION_NAME, filename());
 
 	return true;
 }
@@ -30,10 +30,10 @@ bool GstreamerTextFactory::closeConnectionImpl() {
 
 	if (ofile.is_open()) ofile.close();
 	if (ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTCLOSEOUTPUT, SFUNCTION_NAME, " could not close file " + filename());
+		log->error(gstreamer::ERR_CANTCLOSEOUTPUT, "%1 could not close file %2", SFUNCTION_NAME, filename());
 	}
 
-	log->info(1, SFUNCTION_NAME, "GstreamerTextFactory: closed file " + filename());
+	log->info(1, "%1GstreamerTextFactory: closed file %2", SFUNCTION_NAME, filename());
 
 	return true;
 }

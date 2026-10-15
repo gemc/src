@@ -18,7 +18,7 @@
 GWorld::GWorld(const std::shared_ptr<GOptions>& g)
 	: GBase(g, GWORLD_LOGGER),
 	  gopts(g) {
-	log->debug(NORMAL, SFUNCTION_NAME, "New");
+	log->debug(NORMAL, "%1New", SFUNCTION_NAME);
 
 	// 1. Load system descriptors from options and build the internal map.
 	auto gsystems = gsystem::getSystems(gopts);
@@ -35,7 +35,7 @@ GWorld::GWorld(const std::shared_ptr<GOptions>& g)
 GWorld::GWorld(const std::shared_ptr<GOptions>& g, SystemList gsystems)
 	: GBase(g, GWORLD_LOGGER),
 	  gopts(g) {
-	log->debug(NORMAL, SFUNCTION_NAME, "From SystemList");
+	log->debug(NORMAL, "%1From SystemList", SFUNCTION_NAME);
 
 	// 1. Adopt external systems and build internal map.
 	create_gsystemsMap(gsystems);
@@ -59,8 +59,9 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 		manager.CreateObject<GSystemFactory>(gsystem::GSYSTEMSQLITETFACTORYLABEL));
 
 	if (!sqliteFactory) {
-		log->error(gfactory::ERR_FACTORYNOTFOUND,
-		           "Failed to create factory <", gsystem::GSYSTEMSQLITETFACTORYLABEL, ">");
+		log->error(
+			gfactory::ERR_FACTORYNOTFOUND, "Failed to create factory <%1>",
+			gsystem::GSYSTEMSQLITETFACTORYLABEL);
 	}
 	factoryMap.emplace(gsystem::GSYSTEMSQLITETFACTORYLABEL, std::move(sqliteFactory));
 
@@ -70,9 +71,9 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 		const std::string& facName = sysPtr->getFactoryName();
 
 		if (facName.empty()) {
-			log->error(gfactory::ERR_FACTORYNOTFOUND,
-			           "Factory name for system <", sysName,
-			           "> is empty!  This system will not be loaded.");
+			log->error(
+				gfactory::ERR_FACTORYNOTFOUND,
+				"Factory name for system <%1> is empty!  This system will not be loaded.", sysName);
 		}
 
 		// Already have it?  Move on.
@@ -88,18 +89,18 @@ std::map<std::string, std::unique_ptr<GSystemFactory>> GWorld::createSystemFacto
 		else if (facName == gsystem::GSYSTEMASCIIFACTORYLABEL)
 			manager.RegisterObjectFactory<GSystemTextFactory>(facName, gopts);
 		else {
-			log->error(gfactory::ERR_FACTORYNOTFOUND,
-			           "Unrecognized factory name <", facName,
-			           "> for system <", sysName, ">");
+			log->error(
+				gfactory::ERR_FACTORYNOTFOUND, "Unrecognized factory name <%1> for system <%2>", facName,
+				sysName);
 		}
 
 		//------------------ create the factory object --------------------------
 		auto facPtr = std::unique_ptr<GSystemFactory>(manager.CreateObject<GSystemFactory>(facName));
 
 		if (!facPtr) {
-			log->error(gfactory::ERR_FACTORYNOTFOUND,
-			           "Failed to create factory <", facName,
-			           "> for system <", sysName, ">");
+			log->error(
+				gfactory::ERR_FACTORYNOTFOUND, "Failed to create factory <%1> for system <%2>", facName,
+				sysName);
 		}
 
 		factoryMap.emplace(facName, std::move(facPtr));
@@ -118,13 +119,14 @@ GVolume* GWorld::searchForVolume(const std::string& volumeName, const std::strin
 	for (auto& systemPair : *gsystemsMap) {
 		GVolume* thisVolume = systemPair.second->getGVolume(volumeName);
 		if (thisVolume != nullptr) {
-			log->info(1, "gvolume named <", volumeName, "> found with purpose: ", purpose);
+			log->info(1, "gvolume named <%1> found with purpose: %2", volumeName, purpose);
 			return thisVolume;
 		}
 	}
 	// If volume not found, print error and exit.
-	log->error(gsystem::ERR_GVOLUMENOTFOUND,
-	           "gvolume named <", volumeName, "> (", purpose, ") not found in gsystemsMap ", purpose);
+	log->error(
+		gsystem::ERR_GVOLUMENOTFOUND, "gvolume named <%1> (%2) not found in gsystemsMap %3", volumeName,
+		purpose, purpose);
 }
 
 
@@ -172,20 +174,18 @@ void GWorld::load_systems() {
 		const std::string& factoryName = sysPtr->getFactoryName();
 
 		if (factoryName.empty()) {
-			log->error(gfactory::ERR_FACTORYNOTFOUND,
-			           "Factory name for system <", sysName, "> is empty!");
+			log->error(gfactory::ERR_FACTORYNOTFOUND, "Factory name for system <%1> is empty!", sysName);
 		}
 
 		auto facIt = systemFactories.find(factoryName);
 		if (facIt == systemFactories.end()) {
-			log->error(gfactory::ERR_FACTORYNOTFOUND,
-			           "Factory <", factoryName, "> not found for system <", sysName, ">");
+			log->error(
+				gfactory::ERR_FACTORYNOTFOUND, "Factory <%1> not found for system <%2>", factoryName, sysName);
 		}
 
 		auto& factory = facIt->second; // std::unique_ptr<GSystemFactory>&
 		if (!factory) {
-			log->error(gfactory::ERR_FACTORYNOTFOUND,
-			           "Factory pointer <", factoryName, "> is nullptr");
+			log->error(gfactory::ERR_FACTORYNOTFOUND, "Factory pointer <%1> is nullptr", factoryName);
 		}
 
 		// Feed YAML directories as possible file locations.
@@ -193,7 +193,7 @@ void GWorld::load_systems() {
 		for (const auto& yaml : yamlFiles) {
 			std::string dir = gutilities::getDirFromPath(yaml);
 			if (dir.empty())
-				log->warning("Directory extracted from YAML <", yaml, "> is empty.");
+				log->warning("Directory extracted from YAML <%1> is empty.", yaml);
 			factory->addPossibleFileLocation(dir);
 		}
 
@@ -208,7 +208,7 @@ void GWorld::load_systems() {
 	for (auto& [sysName, sysPtr] : *gsystemsMap) {
 		// for each system run getGVolume(gsystem::ROOTWORLDGVOLUMENAME)
 		if (sysPtr->getGVolume(gsystem::ROOTWORLDGVOLUMENAME) != nullptr) {
-			log->info(1, "ROOT world volume found in system <", sysName, ">");
+			log->info(1, "ROOT world volume found in system <%1>", sysName);
 			world_is_defined = true;
 		}
 	}
@@ -283,9 +283,8 @@ void GWorld::load_gmodifiers() {
 		vol->applyTilt(modPtr->getTilts());
 		vol->modifyExistence(modPtr->getExistence());
 
-		log->info(2, "g-modifying volume <", volumeName,
-		          "> with modifier: ", *modPtr);
-		log->info(2, "After modifications:", *vol);
+		log->info(2, "g-modifying volume <%1> with modifier: %2", volumeName, *modPtr);
+		log->info(2, "After modifications:%1", *vol);
 	}
 }
 

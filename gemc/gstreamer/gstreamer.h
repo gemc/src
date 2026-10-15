@@ -216,7 +216,9 @@ protected:
 	 * \return \c true on success, \c false on failure.
 	 */
 	[[nodiscard]] bool startEvent([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
-		if (!event_data) { log->error(gstreamer::ERR_PUBLISH_ERROR, "eventData is null in GStreamer::startEvent"); }
+		if (!event_data) {
+			log->error(gstreamer::ERR_PUBLISH_ERROR, "eventData is null in GStreamer::startEvent");
+		}
 		if (!event_data->getHeader()) {
 			log->error(gstreamer::ERR_PUBLISH_ERROR, "event header is null in GStreamer::startEvent");
 		}
@@ -295,7 +297,7 @@ protected:
 	 */
 	[[nodiscard]] bool publishEventTrueInfoData([[maybe_unused]] const std::string& detectorName,
 												[[maybe_unused]] const std::vector<const GTrueInfoData*>& trueInfoData) {
-		log->debug(NORMAL, "GStreamer::publishEventTrueInfoData for detector ", detectorName);
+		log->debug(NORMAL, "GStreamer::publishEventTrueInfoData for detector %1", detectorName);
 		return publishEventTrueInfoDataImpl(detectorName, trueInfoData);
 	}
 
@@ -323,13 +325,13 @@ protected:
 	 */
 	[[nodiscard]] bool publishEventDigitizedData([[maybe_unused]] const std::string& detectorName,
 												 [[maybe_unused]] const std::vector<const GDigitizedData*>& digitizedData) {
-		log->debug(NORMAL, "GStreamer::publishEventDigitizedData for detector ", detectorName);
+		log->debug(NORMAL, "GStreamer::publishEventDigitizedData for detector %1", detectorName);
 		return publishEventDigitizedDataImpl(detectorName, digitizedData);
 	}
 
 	[[nodiscard]] bool publishEventGeneratedParticles([[maybe_unused]] const std::string& bankName,
 	                                                  [[maybe_unused]] const GGeneratedParticleBank& particles) {
-		log->debug(NORMAL, "GStreamer::publishEventGeneratedParticles for bank ", bankName);
+		log->debug(NORMAL, "GStreamer::publishEventGeneratedParticles for bank %1", bankName);
 		return publishEventGeneratedParticlesImpl(bankName, particles);
 	}
 
@@ -455,7 +457,7 @@ protected:
 	 */
 	bool publishRunDigitizedData([[maybe_unused]] const std::string& detectorName,
 								 [[maybe_unused]] const std::vector<const GDigitizedData*>& digitizedData) {
-		log->debug(NORMAL, "GStreamer::publishRunDigitizedData for detector ", detectorName);
+		log->debug(NORMAL, "GStreamer::publishRunDigitizedData for detector %1", detectorName);
 		return publishRunDigitizedDataImpl(detectorName, digitizedData);
 	}
 
@@ -644,8 +646,7 @@ namespace gstreamer {
 			auto streamer = manager.LoadAndRegisterObjectFromLibrary<GStreamer>(gstreamer_plugin, gopts);
 			auto [it, inserted] = gstreamers->emplace(output_key, streamer);
 			if (!inserted) {
-				log->warning("duplicate gstreamer output name '", output_key,
-				             "' - ignoring later definition");
+				log->warning("duplicate gstreamer output name '%1' - ignoring later definition", output_key);
 				continue;
 			}
 

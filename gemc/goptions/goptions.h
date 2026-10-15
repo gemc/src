@@ -414,6 +414,14 @@ private:
 	[[nodiscard]] std::vector<GOption>::const_iterator getOptionIterator(const std::string& name) const;
 	void printOptionOrSwitchHelp(const std::string& tag) const;
 	void printSearch(const std::string& tag) const;
+
+	/// Prints "The <kind> <name> is not known to this system.", appends a "Did you mean -X?"
+	/// hint when a close option/switch name exists, then exits with EC__NOOPTIONFOUND.
+	[[noreturn]] void reportUnknownNameAndExit(const std::string& kind, const std::string& name) const;
+
+	/// Validates that every command-line token is a known option/switch (or a YAML file), so a
+	/// typo is reported even when combined with an early-exit flag such as -v or help.
+	void validateCommandLineArguments(int argc, char* argv[], const std::vector<std::string>& yamls) const;
 	void printHelp() const;
 	void printWebHelp() const;
 	void saveOptions() const;

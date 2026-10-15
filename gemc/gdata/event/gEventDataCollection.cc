@@ -24,7 +24,7 @@ void GEventDataCollection::addDetectorTrueInfoData(const std::string& sdName, st
 
 	// Event-level insertion transfers ownership of the hit-side object to the detector container.
 	gdataCollectionMap[sdName]->addTrueInfoData(std::move(data));
-	log->info(2, "GEventDataCollection: added new detector TrueInfoData for ", sdName);
+	log->info(2, "GEventDataCollection: added new detector TrueInfoData for %1", sdName);
 }
 
 void GEventDataCollection::addDetectorDigitizedData(const std::string& sdName, std::unique_ptr<GDigitizedData> data) {
@@ -35,5 +35,5 @@ void GEventDataCollection::addDetectorDigitizedData(const std::string& sdName, s
 
 	// Event-level insertion transfers ownership of the hit-side object to the detector container.
 	gdataCollectionMap[sdName]->addDigitizedData(std::move(data));
-	log->info(2, "GEventDataCollection: added new detector DigitizedData for ", sdName);
+	log->info(2, "GEventDataCollection: added new detector DigitizedData for %1", sdName);
 }

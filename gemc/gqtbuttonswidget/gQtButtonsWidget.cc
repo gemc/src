@@ -4,6 +4,62 @@
 #include <QListView>
 #include <QEvent>
 #include <QShowEvent>
+#include <QCoreApplication>
+#include <QFontMetricsF>
+#include <QRegularExpression>
+
+QString gemc::translateSvgLabels(QString svg) {
+	// These captions are rendered from the existing SVGs; Qt extracts the complete source phrases.
+	static const char* captions[] = {
+		QT_TRANSLATE_NOOP("GGuiIcons", "Display"), QT_TRANSLATE_NOOP("GGuiIcons", "Setup"),
+		QT_TRANSLATE_NOOP("GGuiIcons", "Volumes"), QT_TRANSLATE_NOOP("GGuiIcons", "G4Dialog"),
+		QT_TRANSLATE_NOOP("GGuiIcons", "Generator"), QT_TRANSLATE_NOOP("GGuiIcons", "Analyzer"),
+		QT_TRANSLATE_NOOP("GGuiIcons", "Wire"), QT_TRANSLATE_NOOP("GGuiIcons", "Surface"),
+		QT_TRANSLATE_NOOP("GGuiIcons", "Cloud"), QT_TRANSLATE_NOOP("GGuiIcons", "Twinkle"),
+		QT_TRANSLATE_NOOP("GGuiIcons", "Hidden\nLines"), QT_TRANSLATE_NOOP("GGuiIcons", "Anti\nAliasing"),
+		QT_TRANSLATE_NOOP("GGuiIcons", "Auxiliary\nEdges"), QT_TRANSLATE_NOOP("GGuiIcons", "Field\nLines")
+	};
+	const QRegularExpression textTag("(<text\\b[^>]*>)([^<]*)(</text>)");
+	const QRegularExpression fontSize("font-size=\"([0-9.]+)\"");
+	const QRegularExpression fontFamily("font-family=\"([^\"]+)\"");
+	QList<QRegularExpressionMatch> matches;
+	QStringList lines;
+	auto iterator = textTag.globalMatch(svg);
+	while (iterator.hasNext()) {
+		const auto match = iterator.next();
+		const auto text = match.captured(2).trimmed();
+		if (text == ">_" || text.isEmpty()) continue; // Command glyph, not a caption.
+		matches.append(match);
+		lines.append(text);
+	}
+	const auto source = lines.join('\n');
+	for (const auto caption : captions) {
+		if (source != QString::fromUtf8(caption)) continue;
+		const auto translated = QCoreApplication::translate("GGuiIcons", caption).split('\n');
+		if (translated.size() != matches.size()) return svg;
+		for (int index = matches.size() - 1; index >= 0; --index) {
+			const auto& match = matches[index];
+			auto opening = match.captured(1);
+			const auto size = fontSize.match(opening);
+			if (size.hasMatch()) {
+				const qreal pixels = size.captured(1).toDouble();
+				const auto family = fontFamily.match(opening);
+				QFont font(family.hasMatch() ? family.captured(1) : QString());
+				// Reserve space inside the frame and account conservatively for fallback glyphs.
+				font.setPointSizeF(pixels);
+				const qreal width = QFontMetricsF(font).horizontalAdvance(translated[index]);
+				if (width > 32) {
+					opening.replace(size.capturedStart(1), size.capturedLength(1),
+					                QString::number(pixels * 32 / width, 'f', 2));
+				}
+			}
+			svg.replace(match.capturedStart(), match.capturedLength(),
+			            opening + translated[index].toHtmlEscaped() + match.captured(3));
+		}
+		break;
+	}
+	return svg;
+}
 
 /* --- ButtonInfo Implementation ---
  *
@@ -29,7 +85,7 @@ QIcon ButtonInfo::iconForState(int state, const QSize& iconSize, const QPalette&
 		return QIcon();
 	}
 
-	QString svg = QString::fromUtf8(file.readAll());
+	QString svg = gemc::translateSvgLabels(QString::fromUtf8(file.readAll()));
 	const QColor foreground = state == 2
 	                          ? palette.color(QPalette::HighlightedText)
 	                          : palette.color(QPalette::WindowText);
@@ -269,7 +325,7 @@ void GQTToggleButtonWidget::refresh_svg_icons() {
 		const QColor  fg      = checked ? hlText : windowText;
 		const QString bg      = checked ? hlBg.name(QColor::HexRgb) : "none";
 
-		QString svg = QString::fromUtf8(f.readAll());
+		QString svg = gemc::translateSvgLabels(QString::fromUtf8(f.readAll()));
 		svg.replace("width=\"48\" height=\"48\"",
 		            QString("width=\"%1\" height=\"%2\"").arg(entry.size.width()).arg(entry.size.height()));
 		svg.replace("currentColor", fg.name(QColor::HexRgb));

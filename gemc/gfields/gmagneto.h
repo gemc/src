@@ -119,7 +119,9 @@ public:
 	std::shared_ptr<GField> getField(std::string name) {
 		bool not_found = (fields_map->find(name) == fields_map->end());
 
-		if (not_found) { log->error(gfields::ERR_WRONG_FIELD_NOT_FOUND, "GField >", name, "< not found. Exiting."); }
+		if (not_found) {
+			log->error(gfields::ERR_WRONG_FIELD_NOT_FOUND, "GField >%1< not found. Exiting.", name);
+		}
 		return fields_map->at(name);
 	}
 
@@ -134,11 +136,11 @@ public:
 
 		// Debug visibility: print out the full map of registered field managers.
 		for (const auto& [key, value] : *fields_manager) {
-			log->info(2, "GFieldManager >", key, "< >", value);
+			log->info(2, "GFieldManager >%1< >%2", key, value);
 		}
 
 		if (fields_manager->find(name) == fields_manager->end()) {
-			log->error(gfields::ERR_WRONG_FIELD_NOT_FOUND, "GField >", name, "< not found. Exiting.");
+			log->error(gfields::ERR_WRONG_FIELD_NOT_FOUND, "GField >%1< not found. Exiting.", name);
 		}
 
 		return fields_manager->at(name);

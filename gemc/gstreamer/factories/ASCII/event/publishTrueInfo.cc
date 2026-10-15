@@ -9,7 +9,7 @@
 bool GstreamerTextFactory::publishEventTrueInfoDataImpl(const std::string&                       detectorName,
 														const std::vector<const GTrueInfoData*>& trueInfoData) {
 	if (!ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename());
 	}
 
 	ofile << guts::GTAB << "Detector <" << detectorName << "> True Info Bank {\n";
@@ -36,7 +36,7 @@ bool GstreamerTextFactory::publishEventTrueInfoDataImpl(const std::string&      
 bool GstreamerTextFactory::publishEventGeneratedParticlesImpl(const std::string& bankName,
                                                               const GGeneratedParticleBank& particles) {
 	if (!ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename());
 	}
 
 	ofile << guts::GTAB << "Generated Particle Bank <" << bankName << "> {\n";
@@ -62,7 +62,7 @@ bool GstreamerTextFactory::publishEventGeneratedParticlesImpl(const std::string&
 
 bool GstreamerTextFactory::publishEventAncestorsImpl(const GAncestorBank& ancestors) {
 	if (!ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename());
 	}
 
 	ofile << guts::GTAB << "Ancestor Bank {\n";

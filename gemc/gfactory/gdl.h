@@ -85,12 +85,12 @@ public:
 	 * opens the library via \c load_lib().
 	 */
 	DynamicLib(std::shared_ptr<GLogger> logger, std::string path) : dlFileName(path), log(logger), handle(nullptr) {
-		log->debug(CONSTRUCTOR, "Instantiating ", path);
-		log->debug(NORMAL, "Trying ", dlFileName);
+		log->debug(CONSTRUCTOR, "Instantiating %1", path);
+		log->debug(NORMAL, "Trying %1", dlFileName);
 
 		// Try GEMC_PLUGIN_PATH directories before falling back to gemc installation paths.
 		if (!doesFileExists(dlFileName)) {
-			log->debug(NORMAL, dlFileName, " not found...");
+			log->debug(NORMAL, "%1 not found...", dlFileName);
 
 			if (const char* envPath = std::getenv("GEMC_PLUGIN_PATH")) {
 				std::istringstream ss(envPath);
@@ -103,27 +103,27 @@ public:
 					}
 				}
 			}
-			log->debug(NORMAL, "Trying ", dlFileName);
+			log->debug(NORMAL, "Trying %1", dlFileName);
 		}
 
 		// Try installation path + "/lib" if not found at the provided location.
 		if (!doesFileExists(dlFileName)) {
-			log->debug(NORMAL, dlFileName, " not found...");
+			log->debug(NORMAL, "%1 not found...", dlFileName);
 
 			std::filesystem::path gemcRoot = gutilities::gemc_root();
 			dlFileName                     = gemcRoot.string() + "/lib/" + path;
 
-			log->debug(NORMAL, "Trying ", dlFileName);
+			log->debug(NORMAL, "Trying %1", dlFileName);
 		}
 
 		// Try installation path + "/build" if not found - allows Meson tests to run from the build dir.
 		if (!doesFileExists(dlFileName)) {
-			log->debug(NORMAL, dlFileName, " not found...");
+			log->debug(NORMAL, "%1 not found...", dlFileName);
 
 			std::filesystem::path gemcRoot = gutilities::gemc_root();
 			dlFileName                     = gemcRoot.string() + "/build/" + path;
 
-			log->debug(NORMAL, "Trying ", dlFileName);
+			log->debug(NORMAL, "Trying %1", dlFileName);
 		}
 
 		if (doesFileExists(dlFileName)) {
@@ -131,19 +131,19 @@ public:
 			handle = load_lib(dlFileName);
 			if (handle == nullptr) {
 				char const* const dlopen_error = dlerror();
-				log->error(gfactory::ERR_DLHANDLENOTFOUND, "File ", dlFileName,
-				           " found, but handle is null. dlopen_error >> ",
-				           dlopen_error != nullptr ? dlopen_error : "unknown dlopen error");
+				log->error(
+					gfactory::ERR_DLHANDLENOTFOUND, "File %1 found, but handle is null. dlopen_error >> %2",
+					dlFileName, dlopen_error != nullptr ? dlopen_error : "unknown dlopen error");
 			}
-			else { log->info(1, "Loaded ", dlFileName); }
+			else { log->info(1, "Loaded %1", dlFileName); }
 		}
 		else {
 				const char* envPath = std::getenv("GEMC_PLUGIN_PATH");
-				log->error(gfactory::ERR_DLNOTFOUND,
-				           "could not find ", dlFileName, "\n",
-				           "  GEMC_PLUGIN_PATH = ", (envPath ? envPath : "(not set)"), "\n",
-				           "  Hint: set GEMC_PLUGIN_PATH or use -plugin_path=<dir> to the directory ",
-				           "containing *.gplugin files.");
+				log->error(
+					gfactory::ERR_DLNOTFOUND,
+					"could not find %1\n  GEMC_PLUGIN_PATH = %2\n  Hint: set GEMC_PLUGIN_PATH or use "
+					"-plugin_path=<dir> to the directory containing *.gplugin files.", dlFileName,
+					(envPath ? envPath : "(not set)"));
 			}
 	}
 
@@ -162,7 +162,7 @@ public:
 	~DynamicLib() {
 		if (handle != nullptr) {
 			close_lib(handle);
-			log->debug(DESTRUCTOR, "Destroying ", dlFileName);
+			log->debug(DESTRUCTOR, "Destroying %1", dlFileName);
 		}
 	}
 };

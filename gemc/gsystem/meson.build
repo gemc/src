@@ -1,5 +1,5 @@
 sub_dir_name = meson.current_source_dir().split('/').get(-1)
-internal_deps = ['goptions', 'guts', 'gtouchable', 'gfactory']
+internal_deps = ['goptions', 'guts', 'glogging', 'gtouchable', 'gfactory']
 
 # notice the test run on the installation dir, which does has 'examples' stripped from the path
 examples_dir = meson.project_build_root() + '/test/' + sub_dir_name

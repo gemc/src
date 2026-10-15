@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 		// - then a type-specific discriminator
 		bool is_equal = ctof == a_ctof_gtouchable;
 
-		log->info(" GTouchable: ", ctof, " is equal: ", is_equal ? "true" : "false");
+		log->info(" GTouchable: %1 is equal: %2", ctof, is_equal ? "true" : "false");
 	}
 
 	return EXIT_SUCCESS;

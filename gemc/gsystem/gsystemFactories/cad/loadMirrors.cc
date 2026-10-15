@@ -71,14 +71,14 @@ void GSystemCADFactory::loadMirrors(GSystem* s) {
 	};
 	auto dbPath = gutilities::searchForFileInLocations(dirs, dbhost);
 	if (!dbPath) {
-		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: sqlite database <" + dbhost + "> not found.");
+		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: sqlite database <%1> not found.", dbhost);
 		return;
 	}
 
 	sqlite3* db = nullptr;
 	if (sqlite3_open_v2(dbPath.value().c_str(), &db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK) {
 		sqlite3_close(db);
-		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: failed to open sqlite database <" + dbhost + ">.");
+		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: failed to open sqlite database <%1>.", dbhost);
 		return;
 	}
 
@@ -103,7 +103,8 @@ void GSystemCADFactory::loadMirrors(GSystem* s) {
 
 	sqlite3_stmt* stmt = nullptr;
 	if (sqlite3_prepare_v2(db, sql_query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "CAD factory: error preparing mirrors query: ", sqlite3_errmsg(db));
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "CAD factory: error preparing mirrors query: %1", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		return;
 	}
@@ -133,8 +134,9 @@ void GSystemCADFactory::loadMirrors(GSystem* s) {
 	}
 
 	if (rc != SQLITE_DONE) {
-		log->error(gsystem::ERR_GSQLITEERROR,
-		           "CAD factory: sqlite error while reading mirrors: ", sqlite3_errmsg(db));
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "CAD factory: sqlite error while reading mirrors: %1",
+			sqlite3_errmsg(db));
 	}
 
 	sqlite3_finalize(stmt);

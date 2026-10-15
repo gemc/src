@@ -18,6 +18,7 @@
 
 // gemc
 #include "gutilities.h"
+#include <gemc/glogging/gmessageCatalog.h>
 
 // c++
 #include <algorithm>
@@ -65,6 +66,20 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	// switches for all everyone
 	defineSwitch("gui", "run with the graphical user interface (Qt window)");
 	defineSwitch("i", "drop into the interactive Geant4 terminal session (non-GUI mode)");
+	defineOption(GVariable("language", "auto",
+	                       "language for GEMC logging messages, startup banner, and GUI text"),
+	             "Supported values:\n"
+	             "  auto: detect your language automatically (default).\n"
+	             "  en: English (original English messages).\n"
+	             "  it: italiano (Italian).\n"
+	             "  ja: 日本語 (Japanese).\n"
+	             "  fr: français (French).\n"
+	             "  zh: 中文 (Chinese).\n\n"
+	             "Automatic selection checks GEMC_LANGUAGE, LC_ALL, LC_MESSAGES, LANG, then system settings.\n"
+	             "Use -language=<code> or YAML language: <code> to override automatic selection.\n"
+	             "Regional tags such as it_IT.UTF-8 are accepted; missing regional entries use the base language.\n"
+	             "Missing languages or messages fall back to English. C and POSIX locales select English.\n"
+	             "Numeric formatting is unchanged.\n");
 	defineOption(
 		GVariable("conf_yaml", "saved_configuration", "infix for the YAML file that records the resolved options"),
 		"On exit the resolved configuration is written to <executable>.<conf_yaml>.yaml,\n"
@@ -116,6 +131,14 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 	help += "     - gemc: true\n \n";
 	defineOption("debug", "Sets the debug level for various classes", option_verbosity_names, help);
 
+	// Locate YAML input files up front so they can be excluded from command-line validation.
+	yaml_files = findYamls(argc, argv);
+
+	// Validate every command-line token before acting on any early-exit flag (-v, help, ...).
+	// This ensures a typo such as --language=fr is reported instead of being silently ignored
+	// when it accompanies a flag that would otherwise print and exit immediately.
+	validateCommandLineArguments(argc, argv, yaml_files);
+
 	// Process help/version command-line arguments.
 	// These are handled early and exit immediately (they do not proceed to parse YAML/options).
 	for (int i = 1; i < argc; i++) {
@@ -128,6 +151,18 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 		}
 		else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--v") == 0 ||
 			strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "--version") == 0) {
+			// Version remains an early action, but its language override may appear anywhere in argv.
+			for (int argument = 1; argument < argc; ++argument) {
+				string candidate = argv[argument];
+				if (candidate.starts_with("--language=")) candidate.erase(0, 1); // --language= -> -language=
+				if (candidate.starts_with("-language=")) {
+					string value = candidate.substr(string("-language=").size());
+					if (value.size() >= 2 && value.front() == '"' && value.back() == '"') {
+						value = value.substr(1, value.size() - 2);
+					}
+					setOptionValuesFromCommandLineArgument("language", value);
+				}
+			}
 			print_version();
 			exit(EXIT_SUCCESS);
 		}
@@ -145,9 +180,8 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 		}
 	}
 
-	// finds and parse the yaml files
+	// Parse the yaml files located above.
 	// YAML file tokens are treated as inputs, not as "invalid command-line arguments".
-	yaml_files = findYamls(argc, argv);
 	for (auto& yaml_file : yaml_files) {
 		cout << " Parsing " << yaml_file << endl;
 		setOptionsValuesFromYamlFile(yaml_file);
@@ -162,7 +196,11 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 		if (find(yaml_files.begin(), yaml_files.end(), candidate) != yaml_files.end()) continue;
 
 		if (candidate[0] == '-') {
+			// Accept a long form (--name) by normalizing it to the canonical single-dash form,
+			// so both -language=fr and --language=fr behave identically and error messages do
+			// not carry a spurious leading dash.
 			string argStr = candidate.substr(1);
+			if (!argStr.empty() && argStr[0] == '-') argStr = argStr.substr(1);
 			size_t eqPos  = argStr.find('=');
 
 			if (eqPos != string::npos) {
@@ -196,20 +234,14 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 						auto it = getOptionIterator(mainOption);
 						it->set_sub_option_value(subOption, valuePart);
 					}
-					else {
-						cerr << "The option " << mainOption << " is not known to this system." << endl;
-						exit(goptions::EC__NOOPTIONFOUND);
-					}
+					else { reportUnknownNameAndExit("option", mainOption); }
 				}
 				else {
 					// Standard option syntax: -name=value
 					if (doesOptionExist(keyPart)) {
 						setOptionValuesFromCommandLineArgument(keyPart, valuePart);
 					}
-					else {
-						cerr << "The option " << keyPart << " is not known to this system." << endl;
-						exit(goptions::EC__NOOPTIONFOUND);
-					}
+					else { reportUnknownNameAndExit("option", keyPart); }
 				}
 			}
 			else {
@@ -218,10 +250,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 				if (switches.contains(possibleSwitch)) {
 					switches[possibleSwitch].turnOn();
 				}
-				else {
-					cerr << "The switch " << possibleSwitch << " is not known to this system." << endl;
-					exit(goptions::EC__NOOPTIONFOUND);
-				}
+				else { reportUnknownNameAndExit("switch", possibleSwitch); }
 			}
 		}
 		else {
@@ -367,6 +396,70 @@ std::optional<std::string> GOptions::getOptionalScalarString(const std::string& 
 
 
 // Private method: see header. Kept undocumented here to avoid duplicate param docs.
+void GOptions::reportUnknownNameAndExit(const std::string& kind, const std::string& name) const {
+	// Build the pool of known names (options + switches) to search for a close match.
+	vector<string> known;
+	known.reserve(goptions.size() + switches.size());
+	for (const auto& option : goptions) {
+		if (option.name != goptions::GVERSION_STRING) known.push_back(option.name);
+	}
+	for (const auto& s : switches) known.push_back(s.first);
+
+	cerr << guts::FATALERRORL << "The " << kind << " " << guts::YELLOWHHL << name << guts::RSTHHR
+		<< " is not known to this system." << endl;
+
+	if (auto suggestion = gutilities::closestMatch(name, known)) {
+		cerr << guts::TPOINTITEM << "Did you mean " << guts::KGRN << "-" << *suggestion << guts::RST << "?" << endl;
+	}
+	cerr << guts::TPOINTITEM << "Run " << guts::KGRN << executableName << " -h" << guts::RST
+		<< " for the list of options and switches." << endl;
+	exit(goptions::EC__NOOPTIONFOUND);
+}
+
+// Private method: see header. Kept undocumented here to avoid duplicate param docs.
+void GOptions::validateCommandLineArguments(int argc, char* argv[], const vector<string>& yamls) const {
+	// Tokens handled by the early help/version loop; they are legal on their own.
+	static const vector<string> meta = {
+		"-h", "--h", "-help", "--help", "-hweb", "-v", "--v", "-version", "--version"
+	};
+
+	for (int i = 1; i < argc; i++) {
+		string candidate = argv[i];
+		if (candidate.empty()) continue;
+
+		// "help"/"search" consume the following token as their argument (topic / search text).
+		if (candidate == "help" || candidate == "search") {
+			if (i + 1 < argc) ++i;
+			continue;
+		}
+		if (find(meta.begin(), meta.end(), candidate) != meta.end()) continue;
+		if (find(yamls.begin(), yamls.end(), candidate) != yamls.end()) continue;
+
+		if (candidate[0] == '-') {
+			// Normalize a leading long form (--name -> -name) before extracting the key.
+			string argStr = candidate.substr(1);
+			if (!argStr.empty() && argStr[0] == '-') argStr = argStr.substr(1);
+
+			const size_t eqPos   = argStr.find('=');
+			const bool   hasValue = eqPos != string::npos;
+			string       keyPart = hasValue ? argStr.substr(0, eqPos) : argStr;
+
+			// Dot-notation (verbosity.gemc) is validated against the owning option.
+			const size_t dotPos = keyPart.find('.');
+			if (dotPos != string::npos) keyPart = keyPart.substr(0, dotPos);
+
+			if (switches.contains(keyPart) || doesOptionExist(keyPart)) continue;
+			reportUnknownNameAndExit(hasValue ? "option" : "switch", keyPart);
+		}
+		else {
+			cerr << guts::FATALERRORL << "The command-line argument " << guts::YELLOWHHL << candidate
+				<< guts::RSTHHR << " is not valid." << endl;
+			exit(goptions::EC__NOOPTIONFOUND);
+		}
+	}
+}
+
+// Private method: see header. Kept undocumented here to avoid duplicate param docs.
 void GOptions::printOptionOrSwitchHelp(const std::string& tag) const {
 	auto switchIt = switches.find(tag);
 	if (switchIt != switches.end()) {
@@ -381,9 +474,7 @@ void GOptions::printOptionOrSwitchHelp(const std::string& tag) const {
 			exit(EXIT_SUCCESS);
 		}
 	}
-	cerr << guts::FATALERRORL << "The " << guts::YELLOWHHL << tag << guts::RSTHHR
-		<< " option is not known to this system." << endl;
-	exit(goptions::EC__NOOPTIONFOUND);
+	reportUnknownNameAndExit("option", tag);
 }
 
 // Private method: see header. Kept undocumented here to avoid duplicate param docs.
@@ -473,11 +564,7 @@ void GOptions::setOptionsValuesFromYamlFile(const std::string& yaml) {
 
 		// If it is not an option, it may still be a switch.
 		if (option_it == goptions.end()) {
-			if (!switches.contains(option_name)) {
-				cerr << guts::FATALERRORL << "The option or switch " << guts::YELLOWHHL << option_name << guts::RSTHHR
-					<< " is not known to this system." << endl;
-				exit(goptions::EC__NOOPTIONFOUND);
-			}
+			if (!switches.contains(option_name)) { reportUnknownNameAndExit("option or switch", option_name); }
 			else {
 				// A bare key (null value) means "present" -> on; an explicit boolean value is honored,
 				// so a default-on switch can be turned off from YAML (e.g. print_summary: false).
@@ -725,11 +812,13 @@ void GOptions::saveOptions() const {
 void GOptions::print_version() {
 	string asterisks = "*******************************************************************";
 	cout << endl << asterisks << endl;
-	cout << " " << guts::KGRN << guts::KBOLD << executableName << guts::RST << "  version: " << guts::KGRN
-	     << gversion << guts::RST << endl;
-	cout << " Called from: " << guts::KGRN << executableCallingDir << guts::RST << endl;
-	cout << " Install: " << guts::KGRN << installDir << guts::RST << endl;
-	cout << " Released on: " << guts::KGRN << grelease_date << guts::RST << endl;
+	const auto catalog = GMessageCatalog::load(this);
+	const auto colored = [](const string& value) { return string(guts::KGRN) + value + guts::RST; };
+	const string executable = string(guts::KGRN) + guts::KBOLD + executableName + guts::RST;
+	cout << catalog->format(" %1  version: %2", executable, colored(gversion)) << endl;
+	cout << catalog->format(" Called from: %1", colored(executableCallingDir)) << endl;
+	cout << catalog->format(" Install: %1", colored(installDir)) << endl;
+	cout << catalog->format(" Released on: %1", colored(grelease_date)) << endl;
 
 	// Report the plugin search path when one was provided, either through the
 	// -plugin_path option (or a plugin_path: YAML key) or the GEMC_PLUGIN_PATH
@@ -744,12 +833,12 @@ void GOptions::print_version() {
 			if (!combined.empty()) combined += ':';
 			combined += plugin_env;
 		}
-		cout << " Plugin path: " << guts::KGRN << combined << guts::RST << endl;
+		cout << catalog->format(" Plugin path: %1", colored(combined)) << endl;
 	}
 
-	cout << " GEMC Reference: " << guts::KGRN << greference << guts::RST << endl;
-	cout << " GEMC Homepage: " << guts::KGRN << gweb << guts::RST << endl;
-	cout << " Author: " << guts::KGRN << gauthor << guts::RST << endl << endl;
+	cout << catalog->format(" GEMC Reference: %1", colored(greference)) << endl;
+	cout << catalog->format(" GEMC Homepage: %1", colored(gweb)) << endl;
+	cout << catalog->format(" Author: %1", colored(gauthor)) << endl << endl;
 	cout << asterisks << endl << endl;
 }
 

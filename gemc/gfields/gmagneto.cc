@@ -54,11 +54,11 @@ GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts,
 		// When a filter is given, load only the fields that are actually used. Fields no volume
 		// references (e.g. reset via -no_field) have their plugin and map skipped entirely.
 		if (!required_fields.empty() && !required_fields.contains(name)) {
-			log->info(1, "Field <", name, "> is not used by any volume: skipping plugin and map load.");
+			log->info(1, "Field <%1> is not used by any volume: skipping plugin and map load.", name);
 			continue;
 		}
 
-		log->info(1, field_definition);
+		log->info(1, "%1", field_definition);
 
 		// Only create each named field once; repeated names are ignored by this map check.
 		if (fields_map->find(name) == fields_map->end()) {
@@ -79,7 +79,7 @@ GMagneto::GMagneto(const std::shared_ptr<GOptions>& gopts,
 		G4TransportationManager::GetTransportationManager()
 			->GetPropagatorInField()
 			->SetLargestAcceptableStep(max_field_step);
-		log->info(1, "Maximum acceptable field step set to ", max_field_step / CLHEP::mm, " mm.");
+		log->info(1, "Maximum acceptable field step set to %1 mm.", max_field_step / CLHEP::mm);
 	}
 }
 
@@ -92,8 +92,9 @@ std::shared_ptr<GField> GMagneto::initialize_magnetic_field(
 		const auto no_field_value = gopts->getOptionalScalarString(gfields::NO_FIELD_OPTION);
 		if (no_field_value && *no_field_value == gfields::NO_FIELD_ALL) {
 			if (caller_log != nullptr) {
-				caller_log->info(1, "Global field reset by -", gfields::NO_FIELD_OPTION, "=", gfields::NO_FIELD_ALL,
-				                 ": direct field probes disabled.");
+				caller_log->info(
+					1, "Global field reset by -%1=%2: direct field probes disabled.", gfields::NO_FIELD_OPTION,
+					gfields::NO_FIELD_ALL);
 			}
 			return nullptr;
 		}
@@ -113,8 +114,9 @@ std::shared_ptr<GField> GMagneto::initialize_magnetic_field(
 				field_polarity = std::stod(torus_scale_it->second) < 0.0 ? -1.0 : 1.0;
 			} catch (const std::exception&) {
 				if (caller_log != nullptr) {
-					caller_log->warning("Could not parse torus_scale <", torus_scale_it->second,
-					                    "> for field polarity; using +1.");
+					caller_log->warning(
+						"Could not parse torus_scale <%1> for field polarity; using +1.",
+						torus_scale_it->second);
 				}
 				field_polarity = 1.0;
 			}
@@ -125,15 +127,16 @@ std::shared_ptr<GField> GMagneto::initialize_magnetic_field(
 	auto magneto = std::make_unique<GMagneto>(gopts, std::set<std::string>{*field_name});
 	if (magneto->isField(*field_name)) {
 		if (caller_log != nullptr) {
-			caller_log->info(1, "Using magnetic field <", *field_name,
-			                 "> for direct probes with torus polarity ", field_polarity);
+			caller_log->info(
+				1, "Using magnetic field <%1> for direct probes with torus polarity %2", *field_name,
+				field_polarity);
 		}
 		return magneto->getField(*field_name);
 	}
 
 	if (caller_log != nullptr) {
-		caller_log->warning("Global field <", *field_name,
-		                    "> is configured but was not available for direct probes.");
+		caller_log->warning(
+			"Global field <%1> is configured but was not available for direct probes.", *field_name);
 	}
 	return nullptr;
 }

@@ -25,13 +25,13 @@ std::unique_ptr<std::ifstream> GSystemTextFactory::gSystemTextFileStream(GSystem
 	std::string variation = system->getVariation();
 	std::string fname     = fileName + SYSTEMTYPE + variation + ".txt";
 
-	log->info(0, "gSystemTextFileStream filename is: ", fname);
+	log->info(0, "gSystemTextFileStream filename is: %1", fname);
 
 	// default dir is "."
 	auto IN = std::make_unique<std::ifstream>(fname.c_str());
 
 	if (IN->good()) {
-		log->info(1, "Trying file ", fname);
+		log->info(1, "Trying file %1", fname);
 		return IN;
 	}
 	else {
@@ -39,12 +39,12 @@ std::unique_ptr<std::ifstream> GSystemTextFactory::gSystemTextFileStream(GSystem
 		for (const auto& trialLocation : possibleLocationOfFiles) {
 			std::string newName = trialLocation + "/" + fname;
 
-			log->info(1, "Trying file ", newName);
+			log->info(1, "Trying file %1", newName);
 
 			IN->open(newName.c_str());
 			if (IN->good()) {
 				// file found, return stream
-				log->info(1, "Trying file ", newName);
+				log->info(1, "Trying file %1", newName);
 				return IN;
 			}
 		}
@@ -54,10 +54,11 @@ std::unique_ptr<std::ifstream> GSystemTextFactory::gSystemTextFileStream(GSystem
 	// this could be ok if we are looking for the material file - if the system annotation is 'mats_only'
 	if (SYSTEMTYPE == gsystem::GTEXTGEOMTYPE) {
 		if (system->getAnnotations() == std::optional<std::string>{"mats_only"}) {
-			log->info(1, "File ", fname, " not found, but this is ok because the system annotation is 'mats_only'");
+			log->info(
+				1, "File %1 not found, but this is ok because the system annotation is 'mats_only'", fname);
 			return nullptr;
 		}
-		log->error(gsystem::ERR_GSETUPFILENOTOFOUND, "File ", fname, " not found.");
+		log->error(gsystem::ERR_GSETUPFILENOTOFOUND, "File %1 not found.", fname);
 	}
 
 	// the file was not found

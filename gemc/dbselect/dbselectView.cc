@@ -43,14 +43,15 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 
 	auto dbPath = gutilities::searchForFileInLocations(dirs, dbhost);
 	if (!dbPath) {
-		log->warning("Failed to find database file <", dbhost, ">. Setup tab will start empty.");
+		log->warning("Failed to find database file <%1>. Setup tab will start empty.", dbhost);
 		setupUI();
 		experimentModel->blockSignals(true);
-		experimentModel->setHorizontalHeaderLabels(QStringList() << "exp/system" << "volumes" << "variation" << "run");
+		experimentModel->setHorizontalHeaderLabels(
+		    QStringList() << tr("exp/system") << tr("volumes") << tr("variation") << tr("run"));
 		experimentModel->blockSignals(false);
 		modified = false;
 		updateModifiedUI();
-		experimentHeaderLabel->setText(QString("Database \"%1\" was not found.").arg(QString::fromStdString(dbhost)));
+		experimentHeaderLabel->setText(tr("Database \"%1\" was not found.").arg(QString::fromStdString(dbhost)));
 		return;
 	}
 
@@ -58,18 +59,20 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 	if (sqlite3_open_v2(dbPath.value().c_str(), &db, SQLITE_OPEN_READONLY, nullptr) != SQLITE_OK || !isGeometryTableValid()) {
 		sqlite3_close(db);
 		db = nullptr;
-		log->warning("Failed to open or validate database <", dbhost, ">. Setup tab will start empty.");
+		log->warning("Failed to open or validate database <%1>. Setup tab will start empty.", dbhost);
 		setupUI();
 		experimentModel->blockSignals(true);
-		experimentModel->setHorizontalHeaderLabels(QStringList() << "exp/system" << "volumes" << "variation" << "run");
+		experimentModel->setHorizontalHeaderLabels(
+		    QStringList() << tr("exp/system") << tr("volumes") << tr("variation") << tr("run"));
 		experimentModel->blockSignals(false);
 		modified = false;
 		updateModifiedUI();
-		experimentHeaderLabel->setText(QString("Database \"%1\" could not be opened or validated.").arg(QString::fromStdString(dbhost)));
+		experimentHeaderLabel->setText(
+		    tr("Database \"%1\" could not be opened or validated.").arg(QString::fromStdString(dbhost)));
 		return;
 	}
 
-	log->info(1, "Opened database: " + dbhost, " found at ", dbPath.value());
+	log->info(1, "Opened database: %1 found at %2", dbhost, dbPath.value());
 
 	// Create UI widgets and model.
 	setupUI();
@@ -90,7 +93,7 @@ DBSelectView::DBSelectView(const std::shared_ptr<GOptions>& gopts, GDetectorCons
 		}
 	}
 	if (!expFound) {
-		log->error(gsystem::ERR_EXPERIMENTNOTFOUND, experiment, " not found in database.", dbhost);
+		log->error(gsystem::ERR_EXPERIMENTNOTFOUND, "%1 not found in database.%2", experiment, dbhost);
 	}
 
 	// Apply selections from configured GSystem objects (if any).
@@ -123,8 +126,9 @@ bool DBSelectView::isGeometryTableValid() const {
 
 	// First check: table existence.
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR,
-		           "SQL Error: Failed to check geometry table existence:", sqlite3_errmsg(db));
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "SQL Error: Failed to check geometry table existence:%1",
+			sqlite3_errmsg(db));
 	}
 
 	bool tableExists = false;
@@ -139,8 +143,9 @@ bool DBSelectView::isGeometryTableValid() const {
 	// Second check: table contains data.
 	sql_query = "SELECT COUNT(*) FROM geometry";
 	if (sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr) != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR,
-		           "SQL Error: Failed to count rows in geometry table:", sqlite3_errmsg(db));
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "SQL Error: Failed to count rows in geometry table:%1",
+			sqlite3_errmsg(db));
 	}
 
 	bool hasData = false;
@@ -214,8 +219,7 @@ void DBSelectView::setupUI() {
 	auto headerLayout = new QHBoxLayout();
 
 	auto labelLayout = new QVBoxLayout();
-
-	titleLabel = new QLabel("Experiment Selection", this);
+	titleLabel = new QLabel(tr("Experiment Selection"), this);
 	QFont titleFont("Avenir", 20, QFont::Bold);
 	titleLabel->setFont(titleFont);
 	titleLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
@@ -229,8 +233,7 @@ void DBSelectView::setupUI() {
 
 	headerLayout->addLayout(labelLayout);
 	headerLayout->addStretch();
-
-	reloadButton = new QPushButton("Reload", this);
+	reloadButton = new QPushButton(tr("Reload"), this);
 	reloadButton->setEnabled(false);
 	headerLayout->addWidget(reloadButton);
 	connect(reloadButton, &QPushButton::pressed, this, &DBSelectView::reload_geometry);
@@ -245,8 +248,8 @@ void DBSelectView::setupUI() {
 	experimentTree->header()->show();
 
 	experimentModel = new QStandardItemModel(this);
-	experimentModel->setHorizontalHeaderLabels(QStringList() << "exp/system" << "volumes" << "variation" << "run");
-
+	experimentModel->setHorizontalHeaderLabels(
+	    QStringList() << tr("exp/system") << tr("volumes") << tr("variation") << tr("run"));
 	experimentTree->setModel(experimentModel);
 
 	// Run values are edited via a drop-down.
@@ -268,7 +271,7 @@ void DBSelectView::loadExperiments() {
 
 	int rc = sqlite3_prepare_v2(db, sql_query, -1, &stmt, nullptr);
 	if (rc != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "Failed to prepare experiment query:", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "Failed to prepare experiment query:%1", sqlite3_errmsg(db));
 	}
 
 	// Populate one top-level item per experiment.
@@ -365,7 +368,7 @@ int DBSelectView::getGeometryCount(const std::string& system, const std::string&
 		}
 	}
 	else {
-		log->error(gsystem::ERR_GSQLITEERROR, "SQL Error: Failed togetGeometryCounte:", sqlite3_errmsg(db));
+		log->error(gsystem::ERR_GSQLITEERROR, "SQL Error: Failed togetGeometryCounte:%1", sqlite3_errmsg(db));
 	}
 
 	sqlite3_finalize(stmt);
@@ -401,7 +404,8 @@ bool DBSelectView::systemAvailable(const std::string& system, const std::string&
 	sqlite3_stmt* stmt  = nullptr;
 
 	if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-		log->error(gsystem::ERR_GSQLITEERROR, "SQL Error:systemAvailable: prepare failed:e:", sqlite3_errmsg(db));
+		log->error(
+			gsystem::ERR_GSQLITEERROR, "SQL Error:systemAvailable: prepare failed:e:%1", sqlite3_errmsg(db));
 	}
 
 	sqlite3_bind_text(stmt, 1, system.c_str(), -1, SQLITE_TRANSIENT);
@@ -478,7 +482,7 @@ void DBSelectView::updateExperimentHeader() {
 
 	if (selectedExp) {
 		int totalSystems = selectedExp->rowCount();
-		experimentHeaderLabel->setText(QString("Total systems for experiment \"%1\": %2")
+		experimentHeaderLabel->setText(tr("Total systems for experiment \"%1\": %2")
 		                               .arg(selectedExp->text()).arg(totalSystems));
 	}
 	else {
@@ -486,7 +490,8 @@ void DBSelectView::updateExperimentHeader() {
 	}
 
 	// Ensure headers remain visible after model clear/reset patterns.
-	experimentModel->setHorizontalHeaderLabels(QStringList() << "exp/system" << "volumes" << "variation" << "run");
+	experimentModel->setHorizontalHeaderLabels(
+	    QStringList() << tr("exp/system") << tr("volumes") << tr("variation") << tr("run"));
 }
 
 void DBSelectView::onItemChanged(QStandardItem* item) {
@@ -568,7 +573,9 @@ SystemList DBSelectView::get_gsystems() {
 				int         run        = runItem->data(Qt::EditRole).toInt();
 				std::string expName    = expItem->text().toStdString();
 
-				log->info(2, SFUNCTION_NAME, ": adding systemName: ", systemName, " , variation: ", variation, ", for run:", run);
+				log->info(
+					2, "%1: adding systemName: %2 , variation: %3, for run:%4", SFUNCTION_NAME, systemName,
+					variation, run);
 
 				updatedSystems.emplace_back(
 					std::make_shared<GSystem>(
@@ -592,10 +599,9 @@ void DBSelectView::updateModifiedUI() {
 	updateExperimentHeader();
 
 	if (modified)
-		titleLabel->setText("Experiment Selection* (modified)");
+		titleLabel->setText(tr("Experiment Selection* (modified)"));
 	else
-		titleLabel->setText("Experiment Selection");
-
+		titleLabel->setText(tr("Experiment Selection"));
 	reloadButton->setEnabled(modified);
 
 	// Column sizing and tree expansion provide a readable default view after changes.
@@ -614,7 +620,7 @@ void DBSelectView::resizeExperimentColumns() {
 }
 
 void DBSelectView::reload_geometry() {
-	log->info(0, SFUNCTION_NAME, ": Reloading geometry...");
+	log->info(0, "%1: Reloading geometry...", SFUNCTION_NAME);
 
 	// Extract selection into a SystemList and provide visibility into what is being reloaded.
 	auto reloaded_system = get_gsystems();
@@ -637,7 +643,7 @@ void DBSelectView::reload_geometry() {
 		gopt->setOptionValueFromString("runno", std::to_string(reloaded_system.front()->getRunno()));
 	}
 	for (auto& gsys : reloaded_system) {
-		log->info(2, SFUNCTION_NAME, ": reloaded system: ", gsys->getName());
+		log->info(2, "%1: reloaded system: %2", SFUNCTION_NAME, gsys->getName());
 	}
 
 	emit geometryAboutToReload();

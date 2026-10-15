@@ -181,7 +181,7 @@ PmakerTab::PmakerTab(QWidget* parent)
 
 void PmakerTab::onParticleChanged(const QString& name) {
 	if (multLabel)
-		multLabel->setText("Number of " + name + "s per event:");
+		multLabel->setText(tr("Number of particles (%1) per event:").arg(name));
 	if (gp_)
 		gp_->setName(name.toStdString());
 	emit nameChanged(name);
@@ -207,12 +207,12 @@ void PmakerTab::buildLayout(const std::string& name,
 	multSpin = new QSpinBox(this);
 	multSpin->setRange(1, 10000);
 	multSpin->setValue(mult);
-	multLabel = new QLabel("Number of " + particleCombo->currentText() + "s per event:", this);
+	multLabel = new QLabel(tr("Number of particles (%1) per event:").arg(particleCombo->currentText()), this);
 
 	auto* identityLayout = new QFormLayout;
-	identityLayout->addRow("Particle:", particleCombo);
+	identityLayout->addRow(tr("Particle:"), particleCombo);
 	identityLayout->addRow(multLabel, multSpin);
-	auto* identityBox = new QGroupBox("Particle");
+	auto* identityBox = new QGroupBox(tr("Particle"));
 	identityBox->setLayout(identityLayout);
 
 	connect(particleCombo, &QComboBox::currentTextChanged, this, &PmakerTab::onParticleChanged);
@@ -224,15 +224,15 @@ void PmakerTab::buildLayout(const std::string& name,
 	pModelCombo->setCurrentText(pModel);
 
 	auto* momRow = new QHBoxLayout;
-	momRow->addWidget(new QLabel("p (MeV):"));
+	momRow->addWidget(new QLabel(tr("p (MeV):")));
 	momRow->addWidget(pSpin);
 	momRow->addWidget(new QLabel("\302\261"));
 	momRow->addWidget(dpSpin);
 	momRow->addSpacing(8);
-	momRow->addWidget(new QLabel("model:"));
+	momRow->addWidget(new QLabel(tr("model:")));
 	momRow->addWidget(pModelCombo);
 	momRow->addStretch();
-	auto* momBox = new QGroupBox("Momentum");
+	auto* momBox = new QGroupBox(tr("Momentum"));
 	auto* momLayout = new QVBoxLayout(momBox);
 	momLayout->addLayout(momRow);
 
@@ -254,13 +254,13 @@ void PmakerTab::buildLayout(const std::string& name,
 
 	auto* thetaLeft = new QGridLayout;
 	thetaLeft->setColumnStretch(1, 1);
-	thetaLeft->addWidget(new QLabel("\316\270 (deg):"),  0, 0, Qt::AlignRight | Qt::AlignVCenter);
+	thetaLeft->addWidget(new QLabel(tr("\316\270 (deg):")),  0, 0, Qt::AlignRight | Qt::AlignVCenter);
 	thetaLeft->addWidget(thetaSpin,                       0, 1);
 	thetaLeft->addWidget(thetaSlider,                     1, 1);
 	thetaLeft->addWidget(new QLabel("\302\261"),           2, 0, Qt::AlignRight | Qt::AlignVCenter);
 	thetaLeft->addWidget(dthetaSpin,                      2, 1);
 	thetaLeft->addWidget(dthetaSlider,                    3, 1);
-	thetaLeft->addWidget(new QLabel("\316\270 model:"),  4, 0, Qt::AlignRight | Qt::AlignVCenter);
+	thetaLeft->addWidget(new QLabel(tr("\316\270 model:")),  4, 0, Qt::AlignRight | Qt::AlignVCenter);
 	thetaLeft->addWidget(thetaModelCombo,                 4, 1);
 
 	auto* thetaCoverage = new AngleCoverageWidget(this);
@@ -282,7 +282,7 @@ void PmakerTab::buildLayout(const std::string& name,
 
 	auto* phiLeft = new QGridLayout;
 	phiLeft->setColumnStretch(1, 1);
-	phiLeft->addWidget(new QLabel("\317\206 (deg):"),  0, 0, Qt::AlignRight | Qt::AlignVCenter);
+	phiLeft->addWidget(new QLabel(tr("\317\206 (deg):")),  0, 0, Qt::AlignRight | Qt::AlignVCenter);
 	phiLeft->addWidget(phiSpin,                         0, 1);
 	phiLeft->addWidget(phiSlider,                       1, 1);
 	phiLeft->addWidget(new QLabel("\302\261"),           2, 0, Qt::AlignRight | Qt::AlignVCenter);
@@ -302,7 +302,7 @@ void PmakerTab::buildLayout(const std::string& name,
 	angleSep->setFrameShape(QFrame::HLine);
 	angleSep->setFrameShadow(QFrame::Sunken);
 
-	auto* anglesBox = new QGroupBox("Angles");
+	auto* anglesBox = new QGroupBox(tr("Angles"));
 	auto* anglesLayout = new QVBoxLayout(anglesBox);
 	anglesLayout->addLayout(thetaRow);
 	anglesLayout->addWidget(angleSep);
@@ -322,24 +322,24 @@ void PmakerTab::buildLayout(const std::string& name,
 	vertexGrid->setColumnStretch(1, 1);
 	vertexGrid->setColumnStretch(3, 1);
 
-	vertexGrid->addWidget(new QLabel("vx (cm):"), 0, 0, Qt::AlignRight | Qt::AlignVCenter);
+	vertexGrid->addWidget(new QLabel(tr("vx (cm):")), 0, 0, Qt::AlignRight | Qt::AlignVCenter);
 	vertexGrid->addWidget(vxSpin,                  0, 1);
 	vertexGrid->addWidget(new QLabel("\302\261"),   0, 2, Qt::AlignCenter);
 	vertexGrid->addWidget(dvxSpin,                 0, 3);
-	vertexGrid->addWidget(new QLabel("model:"),    0, 4, Qt::AlignRight | Qt::AlignVCenter);
+	vertexGrid->addWidget(new QLabel(tr("model:")),    0, 4, Qt::AlignRight | Qt::AlignVCenter);
 	vertexGrid->addWidget(vertexModelCombo,         0, 5);
 
-	vertexGrid->addWidget(new QLabel("vy (cm):"), 1, 0, Qt::AlignRight | Qt::AlignVCenter);
+	vertexGrid->addWidget(new QLabel(tr("vy (cm):")), 1, 0, Qt::AlignRight | Qt::AlignVCenter);
 	vertexGrid->addWidget(vySpin,                  1, 1);
 	vertexGrid->addWidget(new QLabel("\302\261"),   1, 2, Qt::AlignCenter);
 	vertexGrid->addWidget(dvySpin,                 1, 3);
 
-	vertexGrid->addWidget(new QLabel("vz (cm):"), 2, 0, Qt::AlignRight | Qt::AlignVCenter);
+	vertexGrid->addWidget(new QLabel(tr("vz (cm):")), 2, 0, Qt::AlignRight | Qt::AlignVCenter);
 	vertexGrid->addWidget(vzSpin,                  2, 1);
 	vertexGrid->addWidget(new QLabel("\302\261"),   2, 2, Qt::AlignCenter);
 	vertexGrid->addWidget(dvzSpin,                 2, 3);
 
-	auto* vertexBox = new QGroupBox("Vertex");
+	auto* vertexBox = new QGroupBox(tr("Vertex"));
 	auto* vertexLayout = new QVBoxLayout(vertexBox);
 	vertexLayout->addLayout(vertexGrid);
 

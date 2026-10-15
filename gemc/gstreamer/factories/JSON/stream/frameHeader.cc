@@ -7,13 +7,15 @@
 
 bool GstreamerJsonFactory::publishFrameHeaderImpl(const GFrameHeader* gframeHeader) {
 	if (!is_building_frame) {
-		log->error(gstreamer::ERR_PUBLISH_ERROR,
-		           "publishFrameHeaderImpl called without an active frame in GstreamerJsonFactory");
+		log->error(
+			gstreamer::ERR_PUBLISH_ERROR,
+			"publishFrameHeaderImpl called without an active frame in GstreamerJsonFactory");
 		return false;
 	}
 	if (!gframeHeader) {
-		log->error(gstreamer::ERR_PUBLISH_ERROR,
-		           "gframeHeader is null in GstreamerJsonFactory::publishFrameHeaderImpl");
+		log->error(
+			gstreamer::ERR_PUBLISH_ERROR,
+			"gframeHeader is null in GstreamerJsonFactory::publishFrameHeaderImpl");
 		return false;
 	}
 

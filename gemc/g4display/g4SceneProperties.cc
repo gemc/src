@@ -136,8 +136,7 @@ std::vector<std::string> G4SceneProperties::addSceneTexts(const std::shared_ptr<
 
 		if (is3DTextKind(text.kind)) {
 			if (!text.z) {
-				log->error(goptions::EC__MANDATORY_NOT_FILLED,
-				           "A 3D g4text entry requires a z coordinate");
+				log->error(goptions::EC__MANDATORY_NOT_FILLED, "A 3D g4text entry requires a z coordinate");
 			}
 			commands.emplace_back(
 				"/vis/scene/add/text " +

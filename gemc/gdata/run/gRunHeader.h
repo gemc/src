@@ -83,17 +83,18 @@ public:
 		: GBase(gopts, GDATARUNHEADER_LOGGER), runID(rid) {
 		log->debug(CONSTRUCTOR, "GRunHeader");
 		if (tid != -1) {
-			log->info(1, "\n",
-			          guts::TPOINTITEM, " Run ID:  ", rid, "\n",
-			          guts::TPOINTITEM, " Number of events processed:  ", events_processed, "\n",
-			          guts::TPOINTITEM, " Number of events with payload:  ", events_with_payload, "\n",
-			          guts::TPOINTITEM, " Thread ID:  ", tid);
+			log->info(
+				1,
+				"\n%1 Run ID:  %2\n%3 Number of events processed:  %4\n%5 Number of events with payload:  "
+				"%6\n%7 Thread ID:  %8", guts::TPOINTITEM, rid, guts::TPOINTITEM, events_processed,
+				guts::TPOINTITEM, events_with_payload, guts::TPOINTITEM, tid);
 		}
 		else {
-			log->info(1, "\n",
-			          guts::TPOINTITEM, " Run ID:  ", rid, "\n",
-			          guts::TPOINTITEM, " Number of events processed:  ", events_processed, "\n",
-			          guts::TPOINTITEM, " Number of events with payload:  ", events_with_payload);
+			log->info(
+				1,
+				"\n%1 Run ID:  %2\n%3 Number of events processed:  %4\n%5 Number of events with payload:  %6",
+				guts::TPOINTITEM, rid, guts::TPOINTITEM, events_processed, guts::TPOINTITEM,
+				events_with_payload);
 		}
 	}
 

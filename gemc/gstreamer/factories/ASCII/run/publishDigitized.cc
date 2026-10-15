@@ -10,7 +10,7 @@ bool GstreamerTextFactory::publishRunDigitizedDataImpl(const std::string&       
 													   const std::vector<const GDigitizedData*>& digitizedData)
 {
 	if (!ofile.is_open()) {
-		log->error(gstreamer::ERR_CANTOPENOUTPUT, SFUNCTION_NAME, "Error: can't access ", filename());
+		log->error(gstreamer::ERR_CANTOPENOUTPUT, "%1Error: can't access %2", SFUNCTION_NAME, filename());
 	}
 
 	ofile << guts::GTAB << "Detector <" << detectorName << "> Digitized Bank {\n";
