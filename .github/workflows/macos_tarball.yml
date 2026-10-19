@@ -86,6 +86,13 @@ jobs:
           brew install meson ninja cmake pkg-config qt root sqlite expat zlib tbb
           brew install --cask xquartz
 
+      # Run after Homebrew so Meson selects this Python for both virtual environments.
+      - name: Set up Python for pygemc
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: arm64
+
       - name: Download the Geant4 macOS tarball
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -143,6 +150,12 @@ jobs:
 
           echo " > geant4-config: $(command -v geant4-config) ($(geant4-config --version))"
           echo " > root-config:   $(command -v root-config) ($(root-config --version))"
+
+          # Check the interpreter and wheel before spending time compiling GEMC.
+          echo " > python3:       $(command -v python3) ($(python3 --version))"
+          python3 -c 'import sys; assert sys.version_info[:2] == (3, 12), sys.version'
+          python3 -m pip download --only-binary=:all: --no-deps pymeshlab \
+            --dest "${RUNNER_TEMP}/pygemc-wheels"
 
           # --- Resolve the package versions ---------------------------------
           # Geant4 version from the active install; OSRELEASE from THIS build host
