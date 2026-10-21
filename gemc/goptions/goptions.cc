@@ -173,7 +173,7 @@ GOptions::GOptions(int argc, char* argv[], const GOptions& user_defined_options)
 			exit(EXIT_SUCCESS);
 		}
 		else if (strcmp(argv[i], "search") == 0) {
-			// "gemc search <value>" lists options/switches whose name or description contains <value>.
+			// "gemc search <value>" matches all option help content, including schemas and defaults.
 			if (i + 1 < argc) { printSearch(argv[i + 1]); }
 			else { printHelp(); }
 			exit(EXIT_SUCCESS);
@@ -479,14 +479,14 @@ void GOptions::printOptionOrSwitchHelp(const std::string& tag) const {
 
 // Private method: see header. Kept undocumented here to avoid duplicate param docs.
 void GOptions::printSearch(const std::string& tag) const {
-	// Case-insensitive substring match against switch/option names and descriptions.
+	// Case-insensitive substring match against all registered help content.
 	auto to_lower = [](string s) {
 		transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
 		return s;
 	};
 	const string needle = to_lower(tag);
-	auto         matches = [&](const string& a, const string& b) {
-		return to_lower(a).find(needle) != string::npos || to_lower(b).find(needle) != string::npos;
+	auto         matches = [&](const string& text) {
+		return to_lower(text).find(needle) != string::npos;
 	};
 
 	long int fill_width = string(goptions::HELPFILLSPACE).size() + 1;
@@ -497,7 +497,7 @@ void GOptions::printSearch(const std::string& tag) const {
 
 	bool found = false;
 	for (auto& s : switches) {
-		if (matches(s.first, s.second.getDescription())) {
+		if (matches(s.first) || matches(s.second.getDescription())) {
 			found = true;
 			cout << guts::KGRN << " " << left;
 			cout.width(fill_width);
@@ -505,7 +505,12 @@ void GOptions::printSearch(const std::string& tag) const {
 		}
 	}
 	for (auto& option : goptions) {
-		if (option.name != goptions::GVERSION_STRING && matches(option.name, option.description)) {
+		if (option.name == goptions::GVERSION_STRING) continue;
+		// The default YAML snapshot includes scalar defaults and structured keys/defaults, even
+		// for cumulative options whose current value is unset. Search metadata without printing help.
+		if (matches(option.name) || matches(option.description) || matches(option.help) ||
+		    matches(YAML::Dump(option.defaultValue)) ||
+		    any_of(option.gvar_descs.begin(), option.gvar_descs.end(), matches)) {
 			found = true;
 			option.printHelp(false);
 		}
@@ -778,7 +783,7 @@ void GOptions::printHelp() const {
 		string("help <value>") + guts::RST,
 		string("print detailed help for option <value> and exit"),
 		string("search <value>") + guts::RST,
-		string("list all options/switches whose name or description contains <value> and exit\n")
+		string("search names, descriptions, detailed help, schema keys and defaults (case-insensitive) and exit\n")
 	};
 	unsigned half_help = helps.size() / 2;
 	for (unsigned i = 0; i < half_help; i++) {

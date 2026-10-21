@@ -7,6 +7,16 @@ system_template = find_program('gemc-system-template', dirs: [venv_bin])
 
 build_root = meson.project_build_root()
 
+goptions_search = executable(
+    'test_goptions_search',
+    'goptions_search.cc',
+    include_directories: gemc_includes,
+    dependencies: [yaml_cpp_dep, clhep_deps, geant4_core_deps, expat_dep, zlib_dep],
+    link_with: [lib_target_maps['goptions'], lib_target_maps['guts']])
+test('goptions_search', python_exe,
+     args: [files('goptions_search.py'), goptions_search, gemc],
+     env: project_test_env, suite: 'goptions')
+
 gfield_random_state = executable(
     'test_gfield_random_state',
     'gfield_random_state.cc',
