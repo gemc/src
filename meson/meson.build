@@ -151,9 +151,9 @@ if (not root_dep.found()) and (not root_opt.disabled())
 endif
 
 # Geant4 ships no pkg-config file, so we generate geant4.pc / geant4_core.pc ourselves from the active
-# geant4-config. They are a build-time helper for locating Geant4, so they live in a hardcoded
-# directory inside the build tree (not tied to the install prefix). A fresh `rm -rf build` drops them,
-# so they regenerate cleanly when the build dir is recreated - e.g. after switching Geant4 versions.
+# geant4-config. Refresh them on every configure so rebuilding Geant4 in place (e.g. enabling XR)
+# updates the flags even when its version and install prefix stay the same. The helper only writes
+# changed contents. These build-time files live in the build tree, independently of the install prefix.
 fs = import('fs')
 geant4_pc_path = meson.project_build_root() / 'pkgconfig'
 geant4_pc = geant4_pc_path / 'geant4.pc'
@@ -161,10 +161,8 @@ geant4_core_pc = geant4_pc_path / 'geant4_core.pc'
 g4_pkgconfig_script = meson.project_source_root() / 'meson/g4_pkgconfig.py'
 
 geant4_config_version = run_command(geant4_config, '--version', check : true).stdout().strip()
-if not fs.exists(geant4_pc) or not fs.exists(geant4_core_pc)
-    message('Generating geant4.pc / geant4_core.pc in ' + geant4_pc_path + ' from ' + geant4_config.full_path())
-    run_command(g4_pkgconfig_script, geant4_pc_path, geant4_config.full_path(), check : true)
-endif
+message('Refreshing geant4.pc / geant4_core.pc in ' + geant4_pc_path + ' from ' + geant4_config.full_path())
+run_command(g4_pkgconfig_script, geant4_pc_path, geant4_config.full_path(), check : true)
 
 # The generated .pc files are not on the default pkg-config search path. Rather than requiring the
 # caller to export PKG_CONFIG_PATH / pass -Dpkg_config_path, we resolve geant4 by running pkg-config
@@ -237,8 +235,8 @@ endforeach
 # back to C++17, which also re-triggers ROOT's "C++ standard does not match" warning. Geant4 11.4 headers
 # compile cleanly at the newer standard, so this only removes the override.
 #
-# Full Geant4 include paths are marked system (-isystem) to silence third-party header warnings; the
-# core set keeps plain -I, matching the previous include_type behaviour of the two pkg-config deps.
+# Mark both Geant4 sets' include paths as system (-isystem). The core set also includes dependency
+# paths such as Homebrew's include root, whose Qt forwarding headers otherwise trigger -pedantic warnings.
 geant4_full_compile = []
 foreach f : g4_pc_cflags['geant4']
     if f.startswith('-std=')
@@ -252,7 +250,11 @@ endforeach
 
 geant4_core_compile = []
 foreach f : g4_pc_cflags['geant4_core']
-    if not f.startswith('-std=')
+    if f.startswith('-std=')
+        continue
+    elif f.startswith('-I')
+        geant4_core_compile += ['-isystem', f.substring(2)]
+    else
         geant4_core_compile += f
     endif
 endforeach

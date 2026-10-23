@@ -268,6 +268,10 @@ Parameter : %1
       <translation>Size:</translation>
     </message>
     <message>
+      <source>Start the XR server and export one event.</source>
+      <translation>Start the XR server and export one event.</translation>
+    </message>
+    <message>
       <source>Text</source>
       <translation>Text</translation>
     </message>
@@ -286,6 +290,10 @@ Parameter : %1
     <message>
       <source>X:</source>
       <translation>X:</translation>
+    </message>
+    <message>
+      <source>XR Server</source>
+      <translation>XR Server</translation>
     </message>
     <message>
       <source>Y:</source>

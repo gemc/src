@@ -72,48 +72,46 @@
   </tbody>
 </table>
 
-GEMC（GEant Monte-Carlo）は、検出器および放射線輸送のシミュレーションに用いる、
-データベース駆動型の [Geant4](https://geant4.web.cern.ch) アプリケーションです。
-検出器の記述を、コンパイル済みの C++ アプリケーションの外部に保持します。
+**GEMC** は、検出器および放射線輸送シミュレーションのためのデータベース駆動型の
+[Geant4](https://geant4.web.cern.ch) アプリケーションです。Python API により、Geant4 のコードを書くことなく
+複雑な検出器構成を定義できます。
 
-- ユーザーは Python でセットアップを構築します
-- GEMC は実行時にそれらの定義を読み込み、Geant4 のシミュレーションパイプラインを実行します
+検出器の記述は実行ファイルから分離されています。Python で検出器を記述し、ASCII または SQLite データベースに
+保存すると、GEMC が実行時にそれらを読み込んで Geant4 シミュレーションを実行します。
 
-その目的は、独自の Geant4 アプリケーションを記述せずに
-検出器システムのプロトタイプを作成したいユーザーが、Geant4 ベースのシミュレーションを利用しやすくすることです。
-高度な検出器応答や出力ワークフローのための C++ 拡張ポイントも維持しています。
+C++ プラグインにより、独自の検出器応答、磁場、イベントジェネレータ、出力形式をサポートできます。
 
 ![GEMC のアーキテクチャ](https://gemc.github.io/home/assets/images/gemcArchitecture.svg)
 
 <br/>
 
-## 主な特長
+## 主な特徴
 
-- [`pygemc`](https://github.com/gemc/pygemc) を用いた、Python を中心とする検出器定義
-- SQLite または ASCII データベースへのジオメトリとマテリアルの格納
-- GDML、CAD メッシュからのジオメトリインポート
-- ラン番号およびジオメトリのバリエーション
-- 組み込みの感応型: `flux`、`gPhotonDetector`、`dosimeter`、`particle_counter`
-- 独自のデジタイゼーション、場、ジェネレーター、出力ストリーマー向けの C++ プラグイン基盤
-- コマンドライン/YAML による粒子定義や LUND ファイルからのイベント生成
-- サポートされる出力形式: ASCII、CSV、JSON、ROOT
-- 磁場サポート（多重極磁場や ASCII マップを含む）
+- Python を中心とした検出器定義
+- [`pyvista`](https://pyvista.org) によるジオメトリのプレビューと VTK エクスポート
+- ASCII、SQLite データベース
+- GDML および CAD ファイルからのジオメトリインポート
 - インタラクティブな Geant4/Qt 可視化とオフスクリーン画像生成
-- PyVista によるジオメトリプレビュー、VTK エクスポート
-- CSV および ROOT 形式に対応した Python アナライザー
+- 組み込みの感応検出器タイプ: `flux`、`gPhotonDetector`、`dosimeter`、`particle_counter`
+- ASCII、CSV、JSON、[ROOT](https://root.cern) 形式のシミュレーション出力
+- GUI、コマンドライン、YAML および LUND ファイルによるイベント生成
+- 多重極磁場や ASCII マップを含む磁場サポート
+- シミュレーション出力（CSV、ROOT）の読み込みとプロットを行う Python `analyzer` モジュール
+- ジオメトリのバリエーションおよびラン番号に応じた構成
 - Linux `amd64` および `arm64` 向けの CI テスト済み Docker イメージを備えた meson ベースの C++ ビルド
+
 
 <br/>
 
 ## クイックスタート
 
-GEMC を試す最も手軽な方法は、サンプルを使うことです。
+GEMC を試す最も手早い方法は、サンプルを利用することです:
 
 - [Jupyter クイックスタート](https://mybinder.org/v2/gh/gemc/binder-tutorials/main?urlpath=lab/tree/notebooks/basic/quickstart.ipynb)
 - [ドキュメントとサンプル](https://gemc.github.io/home/)
 - [サンプルギャラリー](https://gemc.github.io/home/examples/)
 
-`counter` 検出器を作成し、その検出器で 1000 イベントをシミュレーションする最小限のローカルワークフローは次のとおりです。
+`counter` 検出器を作成し、1000 イベントをシミュレートする最小限のローカルワークフローは次のとおりです:
 
 ```shell
 gemc-system-template -s counter
@@ -123,23 +121,23 @@ gemc counter.yaml -n=1000
 gemc-analyzer counter_t0_digitized.csv totEdep --kind csv --bins 50
 ```
 
-テンプレートコマンドは `counter` システムを作成します。
-Python スクリプトがジオメトリを構築して SQLite ファイル `gemc.db` に格納し、
-`gemc` がシミュレーションを実行し、`gemc-analyzer` が CSV 出力の変数をプロットします。
+テンプレートコマンドは `counter` システムを作成し、
+Python スクリプトはジオメトリを構築して SQLite ファイル `gemc.db` に保存します。
+`gemc` はシミュレーションを実行し、`gemc-analyzer` は CSV 出力から変数をプロットします。
 
 <br/>
 
 ## インストール
 
-インストール手順については、[インストールガイド](https://gemc.github.io/home/installation/) を参照してください。
+インストール手順については[インストールガイド](https://gemc.github.io/home/installation/)を参照してください。
 
 
 <br/>
 
 ## pygemc
 
-検出器システムは [`pygemc`](https://pypi.org/project/pygemc/) を使って構築され、データベースに書き込まれます。
-flux 型の感応ボックスを定義する例は次のとおりです。
+検出器システムは [`pygemc`](https://pypi.org/project/pygemc/) を使って構築し、データベースに書き込みます。
+フラックス測定用の感応ボックスを定義する例:
 
 ```python
 from pygemc import GVolume, autogeometry
@@ -157,7 +155,7 @@ flux.set_identifier("box", 2)
 flux.publish(cfg)
 ```
 
-ジオメトリスクリプトでは、SQLite または ASCII データベースへの書き込み、PyVista によるジオメトリ表示、VTK.js ファイルのエクスポートが可能です。
+ジオメトリスクリプトでは、SQLite または ASCII データベースへの書き込み、PyVista によるジオメトリ表示、VTK.js ファイルのエクスポートを行えます:
 
 ```shell
 ./counter.py --factory sqlite
@@ -170,8 +168,8 @@ flux.publish(cfg)
 ### PyVista による可視化
 
 PyVista は通常の GEMC ジオメトリワークフローの一部です。Geant4 を実行する前に検出器ジオメトリを確認したり、
-ドキュメント用に持ち運び可能な VTK.js シーンをエクスポートしたり、Python ジオメトリスクリプトの編集中に
-配置や回転のミスを発見したりできます。いくつかの例を示します。
+ドキュメント用にポータブルな VTK.js シーンをエクスポートしたり、Python ジオメトリスクリプトの編集中に
+配置や回転のミスを発見したりできます。いくつかの例を示します:
 <table>
   <tr>
     <td>
@@ -187,7 +185,7 @@ PyVista は通常の GEMC ジオメトリワークフローの一部です。Gea
          target="_blank" rel="noopener noreferrer">
         <img src="https://gemc.github.io/home/assets/images/examples/materials/gemc_view.png"
              alt="Materials PyVista" width="180"><br>
-        マテリアル
+        材料
       </a>
     </td>
   </tr>
@@ -197,7 +195,7 @@ PyVista は通常の GEMC ジオメトリワークフローの一部です。Gea
          target="_blank" rel="noopener noreferrer">
         <img src="https://gemc.github.io/home/assets/images/examples/scintillator_barrel/gemc_view.png"
              alt="Scintillator Barrel PyVista" width="180"><br>
-        シンチレーターバレル
+        シンチレータバレル
       </a>
     </td>
     <td>
@@ -215,7 +213,7 @@ PyVista は通常の GEMC ジオメトリワークフローの一部です。Gea
          target="_blank" rel="noopener noreferrer">
         <img src="https://gemc.github.io/home/assets/images/examples/boolean_solids/gemc_view.png"
              alt="Boolean Solids PyVista" width="180"><br>
-        ブール演算ソリッド
+        ブール演算によるソリッド
       </a>
     </td>
     <td>
@@ -229,15 +227,15 @@ PyVista は通常の GEMC ジオメトリワークフローの一部です。Gea
   </tr>
 </table>
 
-リンクを開くと、GEMC のサンプルから生成されたインタラクティブな PyVista シーンを確認できます。
+GEMC のサンプルから生成された、リンク先のインタラクティブな PyVista シーンを開いてみてください。
 
 
 <br/>
 
 ## シミュレーションの実行
 
-GEMC は YAML ファイルと、それに相当するコマンドラインオプションで設定します。簡潔なステアリングファイルで、
-ラン番号、イベント数、ジェネレーター、ジオメトリシステム、出力ストリーマー、ワールドボリュームを定義できます。
+GEMC は YAML ファイルと、それと等価なコマンドラインオプションで設定します。コンパクトなステアリングファイルで、
+ラン番号、イベント数、ジェネレータ、ジオメトリシステム、出力ストリーマ、ワールドボリュームを定義できます:
 
 ```yaml
 runno: 1
@@ -262,36 +260,36 @@ gstreamer:
 root: G4Box, 15*cm, 15*cm, 15*cm, G4_AIR
 ```
 
-バッチモードで実行します。
+バッチモードで実行:
 
 ```shell
 gemc counter.yaml
 ```
 
-Geant4 の GUI を使用して実行します。
+Geant4 GUI で実行:
 
 ```shell
 gemc counter.yaml -gui
 ```
 
-Geant4 マクロのテキストファイルを実行します（次のリリースで提供予定）。
+Geant4 マクロのテキストファイルを実行（次のリリースで導入予定）:
 
 ```shell
 gemc counter.yaml -geant4_macro=run.mac
 gemc counter.yaml -gui -geant4_macro=vis.mac
 ```
 
-これに相当する YAML 設定は `geant4_macro: run.mac` です。GEMC は初期化と可視化の設定の後、
-GUI または対話型ターミナルに入る前にマクロを実行します。相対パスは作業ディレクトリを基準に解決されます。
-Geant4 はコメント、エイリアス、ネストした `/control/execute` コマンドを処理します。
-ファイルが存在しない場合やコマンドが失敗した場合は、終了ステータスが非ゼロになります。
+等価な YAML 設定は `geant4_macro: run.mac` です。GEMC は初期化と可視化のセットアップの後、GUI または
+インタラクティブ端末に入る前にマクロを実行します。相対パスは作業ディレクトリを基準とします。Geant4 は
+コメント、エイリアス、ネストされた `/control/execute` コマンドを処理します。ファイルが見つからない場合や
+コマンドが失敗した場合は、非ゼロの終了ステータスを返します。
 
-バッチモードでは、マクロが `/run/beamOn 100` などのコマンドでイベント生成を制御します。GEMC はその後、
-`-n` で指定したイベント数や `-run_weights` で割り当てたイベント数の処理を自動的には実行しません。
-検出器の条件は `-run` を使って準備されます。可視化専用のマクロは、beam-on コマンドを含まない限りイベントを生成しません。
-`geant4_macro` を指定しない場合、通常のイベント処理は変わりません。
+バッチモードでは、マクロが `/run/beamOn 100` などのコマンドでイベント生成を制御します。GEMC はその後に、
+`-n` で指定されたイベント数や `-run_weights` に基づく割り当てで自動的に実行することはありません。検出器の条件は
+`-run` を使って準備されます。可視化専用のマクロは、ビームオンコマンドを含まない限りイベントを生成しません。
+`geant4_macro` が指定されていない場合、通常のイベント処理は変わりません。
 
-オフスクリーンの Geant4 画像を生成します。
+オフスクリーンの Geant4 画像を生成:
 
 ```shell
 gemc counter.yaml -n=10 \
@@ -304,29 +302,29 @@ gemc counter.yaml -n=10 \
 
 ## 出力と解析
 
-出力レイヤーはプラグインベースです。組み込みのストリーマー形式には次のものがあります。
+出力レイヤーはプラグインベースです。組み込みのストリーマ形式は次のとおりです:
 
-| 形式    | 備考                                                                                                             |
+| 形式    | 備考                                                                                                            |
 |---------|------------------------------------------------------------------------------------------------------------------|
-| `ascii` | 人間が読めるテキスト出力                                                                                          |
-| `csv`   | デジタイズされたヒット、真値情報、生成粒子、追跡された生成粒子のスレッドごとの CSV テーブル                         |
-| `json`  | 構造化されたイベント出力                                                                                         |
-| `root`  | ROOT TTrees（GEMC が ROOT 対応でビルドされている場合に利用可能）                                                    |
+| `ascii` | 人間が読めるテキスト出力                                                                                       |
+| `csv`   | デジタイズされたヒット、真値情報、生成粒子、追跡された生成粒子を格納するスレッドごとの CSV テーブル |
+| `json`  | 構造化されたイベント出力                                                                                          |
+| `root`  | ROOT TTree。GEMC が ROOT を有効にしてビルドされている場合に利用可能                                                              |
 
-次のリリースでは、イベント出力でトラックの来歴を記録する機能を有効にできる予定です。
+次のリリースでは、イベント出力にトラックの来歴情報を含める機能が導入される予定です:
 
 ```shell
 gemc counter.yaml -save_original_track
 gemc counter.yaml -save_all_ancestors
 ```
 
-`-save_original_track` は、各真値情報ヒットの `otid` を設定します。`-save_all_ancestors` は、
-オリジナルトラック ID も有効にし、各ヒットを生成したトラックとその親をたどる完全な連鎖を含む、
-重複を除去した `ancestors` バンクを書き込みます。CSV 出力では別個の `_ancestors.csv` ファイルを使用します。
-ASCII、JSON、ROOT は、そのイベント出力にバンクを含めます。
+`-save_original_track` は、各真値情報ヒットの `otid` に値を設定します。`-save_all_ancestors` は元のトラック ID も有効にし、
+ヒットを生成した各トラックと、その親トラックをすべてたどった連鎖を含む、重複を除いた `ancestors` バンクを書き込みます。
+CSV 出力では別の `_ancestors.csv` ファイルを使用します。ASCII、JSON、ROOT では、このバンクを
+それぞれのイベント出力に含めます。
 
 
-`pygemc` には、CSV または ROOT 出力を解析するためのユーティリティがいくつか用意されています。例えば次のとおりです。
+`pygemc` は CSV または ROOT 出力を解析するためのユーティリティをいくつか提供します。例えば:
 
 ```shell
 gemc-analyzer counter_t0_digitized.csv totEdep --kind csv --bins 50
@@ -334,8 +332,8 @@ gemc-analyzer out.root E --kind root --detector flux --save energy.png
 ```
 
 
-例えば、[`b2` サンプル](https://gemc.github.io/home/examples/basic/b2/) を
-`gemc b2.yaml -n=1000` で実行した後、アナライザーは次を生成します。
+例えば、[`b2` サンプル](https://gemc.github.io/home/examples/basic/b2/)を
+`gemc b2.yaml -n=1000` で実行した後、アナライザは次のような結果を生成します:
 
 <table>
   <tr>
@@ -358,9 +356,9 @@ gemc-analyzer out.root E --kind root --detector flux --save energy.png
 
 - [GEMC ホームページ](https://gemc.github.io/home/)
 - [C++ ロギング](https://gemc.github.io/home/documentation/api/logging/) — 番号付きメッセージテンプレート、
-  フィルタリング、エラー処理。テンプレートメソッドは次のリリースで提供予定です
+  フィルタリング、エラー処理。テンプレートメソッドは次のリリースで導入予定
 - [スレッドスケーリング](https://gemc.github.io/home/documentation/support/thread_scaling) — マルチスレッドのベンチマークと
-  スレッド数を変化させるスケーリング測定
+  スレッド数を変えて行うスケーリング測定
 - [プロファイリング](https://gemc.github.io/home/documentation/support/valgrind_profile) — Valgrind callgrind の指標と
   その読み方
 - [Python API リポジトリ](https://github.com/gemc/pygemc)
@@ -371,40 +369,40 @@ gemc-analyzer out.root E --kind root --detector flux --save energy.png
 
 ## コントリビューション
 
-通常のプルリクエストによる貢献を歓迎します。プルリクエストを作成する前に、関連する meson テストを実行し、
-変更範囲を目的に沿って絞ってください。以下を参照してください。
+通常のプルリクエストを通じた貢献を歓迎します。プルリクエストを作成する前に、関連する meson テストを実行し、
+変更の範囲を絞ってください。以下を参照してください:
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
 - [`SECURITY.md`](SECURITY.md)
 - [CI ワークフローガイド](.github/workflows/README.md)
 
-次のリリースでは、C++ ロギングメソッドが番号付きパラメータを含む完全なメッセージを受け取れるようになる予定です。
+次のリリースでは、C++ ロギングメソッドが番号付きパラメータを含む完全なメッセージを受け付けるようになる予定です:
 
 ```cpp
 log->info(0, "Using %1 threads out of %2 available cores.", useThreads, ncores);
 ```
 
-外部プラグイン内の文字列連結を使った呼び出しを移行し、対応する GEMC ヘッダーを使用して再ビルドしてください。
-移行用の `*Template()` メソッドは、呼び出しを転送するエイリアスとして引き続き残ります。
-プレースホルダーの規則や動的な診断テキストの扱いについては、
-[ロギングガイド](https://gemc.github.io/home/documentation/api/logging/) を参照してください。
+外部プラグインで文字列連結を使っている呼び出しを移行し、対応する GEMC ヘッダを使って再ビルドしてください。移行用の
+`*Template()` メソッドは転送エイリアスとして残ります。プレースホルダの規則と
+動的な診断テキストの扱いについては、[ロギングガイド](https://gemc.github.io/home/documentation/api/logging/)を
+参照してください。
 
-英語のロギングカタログは、それぞれのコードを管理するリポジトリ内の C++ テンプレートから生成されます。
-抽出、検証、インストールのコマンドについては、[メッセージカタログ](translations/README.md) を参照してください。
-ロギングは言語を自動的に検出します。`-language=it` はイタリア語を選択し、`-language=en` は英語を強制します。
-翻訳が存在しない場合は英語にフォールバックします。共有の Claude/Codex ワークフローは、ウェブサイトや README の翻訳と
-同じ平日に実行される cron ジョブを通じて、プロジェクトの各言語のカタログを生成します。
+英語のログメッセージカタログは、各管理元リポジトリの C++ テンプレートから生成されます。抽出、検証、インストールの
+コマンドについては[メッセージカタログ](translations/README.md)を参照してください。ログ出力の言語は
+自動検出されます。`-language=it` はイタリア語を選択し、`-language=en` は英語を強制します。
+翻訳がない場合は英語にフォールバックします。共有の Claude/Codex ワークフローは、ウェブサイトと README の翻訳に
+使われるものと同じ平日実行の cron ジョブを通じて、プロジェクトの各言語のカタログを生成します。
 
-次のリリースでは、GUI コントロール、ツールチップ、ジオメトリの説明、アナライザーのメッセージ、SVG ボタンのキャプションにも
-同じ言語選択が適用される予定です。[GUI 翻訳](translations/gui/README.md) を参照してください。Qt Linguist ツールが
-ビルド時に GUI カタログをコンパイルします。標準ダイアログの翻訳には、Qt にインストールされた言語データを使用します。
+次のリリースでは、GUI コントロール、ツールチップ、ジオメトリの説明、アナライザのメッセージ、SVG ボタンの
+ラベルにも同じ言語選択が適用される予定です。[GUI 翻訳](translations/gui/README.md)を参照してください。Qt Linguist ツールが
+ビルド時に GUI カタログをコンパイルします。標準ダイアログの翻訳には、Qt にインストールされている言語データを使用します。
 
 <br/>
 
 ## 引用
 
-科学研究で GEMC を使用する場合は、以下を引用してください。
+科学研究で GEMC を使用する場合は、次を引用してください:
 
 > M. Ungaro and the CLAS Collaboration, "The CLAS12 Geant4 simulation," *Nuclear Instruments and Methods
 > in Physics Research Section A* **959**, 163422 (2020). https://doi.org/10.1016/j.nima.2020.163422
@@ -415,12 +413,12 @@ BibTeX およびその他の引用形式は [`CITATION.md`](CITATION.md) にあ�
 
 ## ライセンス
 
-GEMC は [Apache ライセンス、バージョン 2.0](LICENSE) に基づいてライセンスされています。帰属表示および
-サードパーティへの謝辞については [`NOTICE`](NOTICE) を参照してください。本ソフトウェアは、Geant4、CLHEP、Qt、
-ROOT、SQLite、Assimp など、個別のライセンスが適用されるサードパーティコンポーネントにも依存しています。
+GEMC は [Apache ライセンス、バージョン 2.0](LICENSE) に基づいてライセンスされています。帰属表示と
+サードパーティへの謝辞については [`NOTICE`](NOTICE) を参照してください。本ソフトウェアは、Geant4、CLHEP、Qt、ROOT、
+SQLite、Assimp など、個別のライセンスが適用されるサードパーティコンポーネントにも依存しています。
 
 <br/>
 
 ## ロードマップ
 
-現在の開発計画については、[プロジェクトロードマップ](https://github.com/orgs/gemc/projects/1/views/4) を参照してください。
+現在の開発計画については[プロジェクトロードマップ](https://github.com/orgs/gemc/projects/1/views/4)を参照してください。

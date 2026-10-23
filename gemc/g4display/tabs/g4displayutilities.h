@@ -21,7 +21,9 @@
  * \brief “Utilities” tab for \ref G4Display.
  *
  * This widget is placed in the “Utilities” tab of \ref G4Display. It hosts scene decoration
- * and text controls that redraw the persistent visualization scene when applied.
+ * and text controls that redraw the persistent visualization scene when applied, plus an XR Server button.
+ * The button opens the XR driver, draws the geometry, adds rich trajectories, accumulates up to 100 events,
+ * runs one event, and flushes the viewer. The sequence stops if a Geant4 command fails.
  *
  * Lifetime and ownership:
  * - Child widgets created with \c this as parent are owned by Qt and deleted automatically.
@@ -92,6 +94,7 @@ private:
 	QLineEdit* textUnitEdit = nullptr;
 
 private slots:
+	void startXRServer();
 	void applyDecorations();
 	void addText();
 	void clearTexts();

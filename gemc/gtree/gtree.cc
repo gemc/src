@@ -20,6 +20,7 @@
 #include <QDialogButtonBox>
 #include <QMessageBox>
 #include <QSignalBlocker>
+#include <QShortcut>
 #include <QStringList>
 #include <QTimer>
 
@@ -434,6 +435,7 @@ GTree::GTree(const std::shared_ptr<GOptions>& gopt,
     treeWidget->header()->setSectionResizeMode(2, QHeaderView::Stretch);
     treeWidget->setRootIsDecorated(true);
     treeWidget->setAlternatingRowColors(true);
+    treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     auto* mainLayout = new QHBoxLayout(this);
     mainLayout->addWidget(treeWidget, /*stretch*/ 3);
@@ -450,6 +452,24 @@ GTree::GTree(const std::shared_ptr<GOptions>& gopt,
     // react to checkboxes
     connect(treeWidget, &QTreeWidget::itemChanged,
             this, &GTree::onItemChanged);
+
+    // Toggle the selected group from any column while the tree has keyboard focus.
+    auto* visibilityShortcut = new QShortcut(QKeySequence(Qt::Key_Space), treeWidget);
+    visibilityShortcut->setContext(Qt::WidgetShortcut);
+    visibilityShortcut->setAutoRepeat(false);
+    connect(visibilityShortcut, &QShortcut::activated, this, [this] {
+        const auto items = treeWidget->selectedItems();
+        bool anyVisible = false;
+        for (const auto* item : items) {
+            if (item->checkState(0) == Qt::Checked) anyVisible = true;
+        }
+        const auto state = anyVisible ? Qt::Unchecked : Qt::Checked;
+        for (auto* item : items) {
+            if ((item->flags() & Qt::ItemIsUserCheckable) && !item->isDisabled()) {
+                item->setCheckState(0, state);
+            }
+        }
+    });
 
 
     // react to clicks / selection to update the right panel

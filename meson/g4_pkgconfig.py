@@ -47,6 +47,25 @@ def filter_unwanted_flags(flags: str) -> str:
 					if not any(uw in f for uw in unwanted))
 
 
+def supplement_xr_flags(prefix: str, libs: str, cflags: str):
+	"""Older geant4-config scripts omit the installed XR driver's flags."""
+	lib_tokens = libs.split()
+	cflag_tokens = cflags.split()
+	lib_dirs = [Path(t[2:]) for t in lib_tokens if t.startswith("-L")]
+	lib_dirs += [Path(prefix) / "lib", Path(prefix) / "lib64"]
+	xr_installed = any((directory / filename).is_file()
+					   for directory in lib_dirs
+					   for filename in ("libG4visXr.a", "libG4visXr.so", "libG4visXr.dylib"))
+	if "-lG4visXr" in lib_tokens or xr_installed:
+		if "-lG4visXr" not in lib_tokens:
+			# Put the driver before its Geant4 dependencies for static linkers.
+			index = next((i for i, token in enumerate(lib_tokens) if token.startswith("-lG4")), 0)
+			lib_tokens.insert(index, "-lG4visXr")
+		if not any(token.split("=", 1)[0] == "-DG4VIS_USE_XR" for token in cflag_tokens):
+			cflag_tokens.append("-DG4VIS_USE_XR")
+	return " ".join(lib_tokens), " ".join(cflag_tokens)
+
+
 def filter_graphical_cflags(flags: str) -> str:
 	"""
 	Remove GUI/visualization-related compile flags for a "core" Geant4 .pc.
@@ -148,6 +167,7 @@ def generate_pkgconfig(out_dir: Path,
 	libs = filter_unwanted_flags(run_config(config_cmd, "--libs"))
 	cflags = filter_unwanted_flags(run_config(config_cmd, "--cflags"))
 	version = run_config(config_cmd, "--version")
+	libs, cflags = supplement_xr_flags(prefix, libs, cflags)
 
 	if cflags_filter is not None:
 		cflags = cflags_filter(cflags)
@@ -171,7 +191,8 @@ Libs:  {libs}
 
 	pc_path = out_dir / output_filename
 	pc_path.parent.mkdir(parents=True, exist_ok=True)
-	pc_path.write_text(pc_content + "\n")
+	if not pc_path.exists() or pc_path.read_text() != pc_content + "\n":
+		pc_path.write_text(pc_content + "\n")
 	print(f"Generated {pc_path}")
 
 

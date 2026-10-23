@@ -31,6 +31,13 @@
         <a href="https://github.com/gemc/src/actions/workflows/valgrind_profile.yml">
           <img alt="Valgrind Profile"
                src="https://github.com/gemc/src/actions/workflows/valgrind_profile.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/pygemc/actions/workflows/pygemc_tests.yml">
+          <img alt="pygemc tests"
+               src="https://github.com/gemc/pygemc/actions/workflows/pygemc_tests.yml/badge.svg">
+        </a><br/>
+        <a href="https://hub.docker.com/r/gemc/gemc">
+          <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/gemc/gemc.svg">
         </a>
       </td>
       <td align="center" valign="top">
@@ -50,14 +57,19 @@
                src="https://github.com/gemc/src/actions/workflows/macos_tarball.yml/badge.svg">
         </a><br/>
         <a href="https://github.com/gemc/src/actions/workflows/dev_release.yml">
-          <img alt="Nightly Dev Release"
+          <img alt="Nightly gemc Release"
                src="https://github.com/gemc/src/actions/workflows/dev_release.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/pygemc/actions/workflows/publish_pypi.yml">
+          <img alt="Publish PyPI"
+               src="https://github.com/gemc/pygemc/actions/workflows/publish_pypi.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/pygemc/actions/workflows/dev_release.yml">
+          <img alt="Nightly pygemc Release"
+               src="https://github.com/gemc/pygemc/actions/workflows/dev_release.yml/badge.svg">
         </a><br/>
         <a href="https://pypi.org/project/pygemc/">
           <img alt="pygemc PyPI" src="https://img.shields.io/pypi/v/pygemc.svg?cacheSeconds=300">
-        </a><br/>
-        <a href="https://hub.docker.com/r/gemc/gemc">
-          <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/gemc/gemc.svg">
         </a>
       </td>
       <td align="center" valign="top">
@@ -66,22 +78,27 @@
         </a><br/>
         <a href="https://github.com/gemc/src/actions/workflows/doxygen.yml">
           <img alt="Doxygen" src="https://github.com/gemc/src/actions/workflows/doxygen.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/home/actions/workflows/jekyll.yml">
+          <img alt="Homepage" src="https://github.com/gemc/home/actions/workflows/jekyll.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/binder-tutorials/actions/workflows/publish-image.yml">
+          <img alt="Publish Jupyter Image"
+               src="https://github.com/gemc/binder-tutorials/actions/workflows/publish-image.yml/badge.svg">
         </a>
       </td>
     </tr>
   </tbody>
 </table>
 
-GEMC, the GEant Monte-Carlo, is a database-driven [Geant4](https://geant4.web.cern.ch) application for detector and
-radiation-transport
-simulations. It keeps detector descriptions outside the compiled C++ application:
+**GEMC** is a database-driven [Geant4](https://geant4.web.cern.ch) application for detector and
+radiation-transport simulations. Its Python API lets you define complex detector setups without writing Geant4
+code.
 
-- users builds setups in Python
-- GEMC loads those definitions at run time and executes the Geant4 simulation pipeline
+Detector descriptions stay separate from the executable: you create them in Python, store them in
+ASCII or SQLite databases, and GEMC loads them at run time to execute the Geant4 simulation.
 
-The goal is to make Geant4-based simulation accessible to users who want to
-prototype detector systems without writing a custom Geant4 application,
-while still preserving C++ extension points for advanced detector response and output workflows.
+C++ plugins support custom detector response, magnetic fields, event generators, and output formats.
 
 ![GEMC architecture](https://gemc.github.io/home/assets/images/gemcArchitecture.svg)
 
@@ -89,19 +106,19 @@ while still preserving C++ extension points for advanced detector response and o
 
 ## Highlights
 
-- Python-first detector definitions through [`pygemc`](https://github.com/gemc/pygemc)
-- Geometry and material storage in SQLite or ASCII databases
-- Geometry imports from GDML, CAD meshes
-- Run-number and geometry variations
-- Built-in sensitive  types: `flux`, `gPhotonDetector`, `dosimeter`, `particle_counter`
-- C++ plugin infrastructure for custom digitization, fields, generators, and output streamers
-- Event generation from command-line/YAML particle definitions and LUND files
-- Supported output formats: ASCII, CSV, JSON, ROOT
-- Magnetic-field support, including multipoles field and ascii maps
+- Python-first detector definitions
+- Geometry preview and VTK export with [`pyvista`](https://pyvista.org)
+- ASCII, SQLite databases
+- Geometry imports from GDML and CAD files
 - Interactive Geant4/Qt visualization and off-screen image generation
-- PyVista geometry preview, VTK export
-- Python analyzer CSV and ROOT formats
+- Built-in sensitive  types: `flux`, `gPhotonDetector`, `dosimeter`, `particle_counter`
+- Simulation output in ASCII, CSV, JSON, and [ROOT](https://root.cern)
+- Event generation from the GUI, command-line, YAML and LUND files
+- Magnetic-field support, including multipoles field and ascii maps
+- A Python `analyzer` module for reading and plotting simulation output (CSV, ROOT)
+- Geometry variations and run-number-dependent configurations
 - Meson-based C++ build with CI-tested Docker images for Linux `amd64` and `arm64`
+
 
 <br/>
 
@@ -132,6 +149,10 @@ the Python script builds the geometry and stores it in a SQLite file `gemc.db`,
 ## Installation
 
 For installation instructions see the [installation guide](https://gemc.github.io/home/installation/)
+
+The Python environment uses Python 3.10-3.14 and includes `pymeshlab`. Upcoming in the next release:
+the pygemc subproject selects a supported installed Python and manages both environments, including
+dependency installation at `meson install` time.
 
 
 <br/>

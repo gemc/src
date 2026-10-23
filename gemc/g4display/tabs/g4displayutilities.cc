@@ -247,11 +247,32 @@ G4DisplayUtilities::G4DisplayUtilities(const std::shared_ptr<GOptions>& gopt,
 	auto* textGroup = new QGroupBox(tr("Scene Text"), this);
 	textGroup->setLayout(textLayout);
 
+	auto* xrServerButton = new QPushButton(tr("XR Server"), this);
+	xrServerButton->setObjectName("gemcXRServer");
+	xrServerButton->setToolTip(tr("Start the XR server and export one event."));
+	connect(xrServerButton, &QPushButton::clicked, this, &G4DisplayUtilities::startXRServer);
+
 	auto* mainLayout = new QVBoxLayout;
 	mainLayout->addWidget(decorationGroup);
 	mainLayout->addWidget(textGroup);
 	mainLayout->addStretch();
+	mainLayout->addWidget(xrServerButton);
 	setLayout(mainLayout);
+}
+
+void G4DisplayUtilities::startXRServer() {
+	const char* commands[] = {
+		"/vis/open Xr",
+		"/vis/drawVolume",
+		"/vis/scene/add/trajectories rich",
+		"/vis/scene/endOfEventAction accumulate 100",
+		"/run/beamOn 1",
+		"/vis/viewer/flush"
+	};
+	auto* ui = G4UImanager::GetUIpointer();
+	for (const auto* command : commands) {
+		if (ui->ApplyCommand(command) != 0) { return; }
+	}
 }
 
 void G4DisplayUtilities::applyDecorations() {

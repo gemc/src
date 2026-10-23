@@ -7,6 +7,9 @@ system_template = find_program('gemc-system-template', dirs: [venv_bin])
 
 build_root = meson.project_build_root()
 
+test('geant4_pkgconfig', python_exe,
+     args: [files('geant4_pkgconfig.py')], env: project_test_env, suite: 'build')
+
 goptions_search = executable(
     'test_goptions_search',
     'goptions_search.cc',
