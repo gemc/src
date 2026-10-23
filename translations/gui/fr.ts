@@ -915,16 +915,8 @@ cachées</translation>
       <translation>Description : %1</translation>
     </message>
     <message>
-      <source>Draw Logical Overlaps %1</source>
-      <translation>Dessiner les chevauchements logiques %1</translation>
-    </message>
-    <message>
-      <source>Draw Logical Overlaps will be implemented when Geant4 fixes the
-G4ToolsSGSceneHandler::GetOrCreateNode "World mis-match" crash
-triggered by /vis/drawLogicalVolume in Geant4 11.4.3.</source>
-      <translation>Le dessin des chevauchements logiques sera implémenté lorsque Geant4 corrigera le
-plantage "World mis-match" de G4ToolsSGSceneHandler::GetOrCreateNode
-déclenché par /vis/drawLogicalVolume dans Geant4 11.4.3.</translation>
+      <source>Draw Logical Overlap within %1</source>
+      <translation>Dessiner les chevauchements logiques dans %1</translation>
     </message>
     <message>
       <source>Inspect %1</source>
@@ -957,10 +949,6 @@ déclenché par /vis/drawLogicalVolume dans Geant4 11.4.3.</translation>
     <message>
       <source>Name: %1</source>
       <translation>Nom : %1</translation>
-    </message>
-    <message>
-      <source>Not yet implemented</source>
-      <translation>Pas encore implémenté</translation>
     </message>
     <message>
       <source>Opacity:</source>

@@ -915,16 +915,8 @@ Lines</source>
       <translation>描述: %1</translation>
     </message>
     <message>
-      <source>Draw Logical Overlaps %1</source>
-      <translation>绘制逻辑体重叠 %1</translation>
-    </message>
-    <message>
-      <source>Draw Logical Overlaps will be implemented when Geant4 fixes the
-G4ToolsSGSceneHandler::GetOrCreateNode "World mis-match" crash
-triggered by /vis/drawLogicalVolume in Geant4 11.4.3.</source>
-      <translation>绘制逻辑体重叠功能将在 Geant4 修复以下崩溃后实现：
-G4ToolsSGSceneHandler::GetOrCreateNode "World mis-match" 崩溃，
-该崩溃由 Geant4 11.4.3 中的 /vis/drawLogicalVolume 触发。</translation>
+      <source>Draw Logical Overlap within %1</source>
+      <translation>绘制 %1 内的逻辑重叠</translation>
     </message>
     <message>
       <source>Inspect %1</source>
@@ -957,10 +949,6 @@ G4ToolsSGSceneHandler::GetOrCreateNode "World mis-match" 崩溃，
     <message>
       <source>Name: %1</source>
       <translation>名称: %1</translation>
-    </message>
-    <message>
-      <source>Not yet implemented</source>
-      <translation>尚未实现</translation>
     </message>
     <message>
       <source>Opacity:</source>

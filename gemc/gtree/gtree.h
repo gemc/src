@@ -417,13 +417,10 @@ private:
     QPushButton* inspectButton = nullptr;
 
     /**
-     * \brief Full-width button that will invoke /vis/drawLogicalVolume for overlap visualization.
+     * \brief Full-width button that opens logical-overlap visualization in a new viewer window.
      *
-     * Not yet functional: blocked by a Geant4 11.4.3 TOOLSSG bug
-     * (G4ToolsSGSceneHandler::GetOrCreateNode throws "World mis-match" FatalException
-     * for the standalone PVPlacement created by G4LogicalVolumeModel).
-     * Displays a warning until the upstream fix is available.
-     * The label is updated to "Draw Logical Overlaps <volumename>" whenever a volume is selected.
+     * The label is updated to "Draw Logical Overlap within <volumename>" when a volume is selected.
+     * Hidden while a system node is selected.
      */
     QPushButton* drawOverlapsButton = nullptr;
 
@@ -506,6 +503,12 @@ private:
      */
     void centreTwinkle();
 
+    /**
+     * \brief Open the selected volume in a separate viewer and restore the original viewer's focus.
+     * \param overlaps Use a logical-volume model with overlap checking instead of a physical-volume model.
+     */
+    void drawVolume(bool overlaps);
+
 private slots:
     /**
      * \brief React to checkbox state changes in the tree.
@@ -576,13 +579,11 @@ private slots:
     void showMirrorProperties();
 
     /**
-     * \brief Show a warning that Draw Logical Overlaps is not yet implemented.
+     * \brief Draw logical overlaps within the selected volume in a separate viewer window.
      *
-     * /vis/drawLogicalVolume crashes in Geant4 11.4.3 with the TOOLSSG driver
-     * (G4ToolsSGSceneHandler::GetOrCreateNode "World mis-match" FatalException).
-     * This slot will be wired to the real implementation once Geant4 is fixed.
+     * Uses OpenGL when the current viewer is ToolsSG, whose logical-volume rendering crashes.
      */
-    void drawOverlapsWarning();
+    void drawOverlaps();
 
     /**
      * \brief Advance one step of the twinkle color animation; restore original on completion.

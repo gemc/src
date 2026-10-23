@@ -915,16 +915,8 @@ nascoste</translation>
       <translation>Descrizione: %1</translation>
     </message>
     <message>
-      <source>Draw Logical Overlaps %1</source>
-      <translation>Disegna sovrapposizioni logiche %1</translation>
-    </message>
-    <message>
-      <source>Draw Logical Overlaps will be implemented when Geant4 fixes the
-G4ToolsSGSceneHandler::GetOrCreateNode "World mis-match" crash
-triggered by /vis/drawLogicalVolume in Geant4 11.4.3.</source>
-      <translation>Il disegno delle sovrapposizioni logiche sarà implementato quando Geant4 correggerà il
-crash "World mis-match" di G4ToolsSGSceneHandler::GetOrCreateNode
-causato da /vis/drawLogicalVolume in Geant4 11.4.3.</translation>
+      <source>Draw Logical Overlap within %1</source>
+      <translation>Disegna le sovrapposizioni logiche all’interno di %1</translation>
     </message>
     <message>
       <source>Inspect %1</source>
@@ -957,10 +949,6 @@ causato da /vis/drawLogicalVolume in Geant4 11.4.3.</translation>
     <message>
       <source>Name: %1</source>
       <translation>Nome: %1</translation>
-    </message>
-    <message>
-      <source>Not yet implemented</source>
-      <translation>Non ancora implementato</translation>
     </message>
     <message>
       <source>Opacity:</source>

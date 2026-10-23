@@ -915,16 +915,8 @@ Lines</source>
       <translation>説明: %1</translation>
     </message>
     <message>
-      <source>Draw Logical Overlaps %1</source>
-      <translation>論理ボリュームの重なりを描画 %1</translation>
-    </message>
-    <message>
-      <source>Draw Logical Overlaps will be implemented when Geant4 fixes the
-G4ToolsSGSceneHandler::GetOrCreateNode "World mis-match" crash
-triggered by /vis/drawLogicalVolume in Geant4 11.4.3.</source>
-      <translation>論理ボリュームの重なりの描画は、Geant4 が
-G4ToolsSGSceneHandler::GetOrCreateNode の "World mis-match" クラッシュ
-（Geant4 11.4.3 で /vis/drawLogicalVolume により発生）を修正した時点で実装されます。</translation>
+      <source>Draw Logical Overlap within %1</source>
+      <translation>%1 内の論理ボリュームの重なりを描画</translation>
     </message>
     <message>
       <source>Inspect %1</source>
@@ -957,10 +949,6 @@ G4ToolsSGSceneHandler::GetOrCreateNode の "World mis-match" クラッシュ
     <message>
       <source>Name: %1</source>
       <translation>名前: %1</translation>
-    </message>
-    <message>
-      <source>Not yet implemented</source>
-      <translation>未実装</translation>
     </message>
     <message>
       <source>Opacity:</source>

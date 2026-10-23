@@ -923,16 +923,8 @@ Lines</translation>
       <translation>Description: %1</translation>
     </message>
     <message>
-      <source>Draw Logical Overlaps %1</source>
-      <translation>Draw Logical Overlaps %1</translation>
-    </message>
-    <message>
-      <source>Draw Logical Overlaps will be implemented when Geant4 fixes the
-G4ToolsSGSceneHandler::GetOrCreateNode "World mis-match" crash
-triggered by /vis/drawLogicalVolume in Geant4 11.4.3.</source>
-      <translation>Draw Logical Overlaps will be implemented when Geant4 fixes the
-G4ToolsSGSceneHandler::GetOrCreateNode "World mis-match" crash
-triggered by /vis/drawLogicalVolume in Geant4 11.4.3.</translation>
+      <source>Draw Logical Overlap within %1</source>
+      <translation>Draw Logical Overlap within %1</translation>
     </message>
     <message>
       <source>Inspect %1</source>
@@ -965,10 +957,6 @@ triggered by /vis/drawLogicalVolume in Geant4 11.4.3.</translation>
     <message>
       <source>Name: %1</source>
       <translation>Name: %1</translation>
-    </message>
-    <message>
-      <source>Not yet implemented</source>
-      <translation>Not yet implemented</translation>
     </message>
     <message>
       <source>Opacity:</source>

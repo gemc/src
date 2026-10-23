@@ -18,7 +18,6 @@
 #include <QColorDialog>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QMessageBox>
 #include <QSignalBlocker>
 #include <QShortcut>
 #include <QStringList>
@@ -872,7 +871,7 @@ void GTree::onTreeItemClicked(QTreeWidgetItem* item, int /*column*/) {
         }
         if (drawOverlapsButton) {
             const QString leaf = QString::fromStdString(G4Ttree_item::vname_from_v4name(current_volume_name));
-            drawOverlapsButton->setText(tr("Draw Logical Overlaps %1").arg(leaf));
+            drawOverlapsButton->setText(tr("Draw Logical Overlap within %1").arg(leaf));
             drawOverlapsButton->setVisible(true);
         }
     }
@@ -1008,6 +1007,16 @@ void GTree::onTwinkleStep() {
 
 // Open the selected volume in a new viewer window of the same driver type.
 void GTree::inspectVolume() {
+    drawVolume(false);
+}
+
+// Open the selected logical volume with Geant4's overlap visualization enabled.
+void GTree::drawOverlaps() {
+    drawVolume(true);
+}
+
+// Share viewer setup and focus restoration between inspection and overlap visualization.
+void GTree::drawVolume(bool overlaps) {
     if (current_volume_name.empty()) return;
 
     G4UImanager* uim = G4UImanager::GetUIpointer();
@@ -1025,7 +1034,11 @@ void GTree::inspectVolume() {
             const auto* sh = viewer->GetSceneHandler();
             if (sh) {
                 const auto* gs = sh->GetGraphicsSystem();
-                if (gs) driverName = gs->GetNickname();
+                if (gs) {
+                    driverName = gs->GetNickname();
+                    // ToolsSG cannot render the standalone placement used by logical-volume models.
+                    if (overlaps && gs->GetName().starts_with("TOOLSSG")) driverName = "OGLSQt";
+                }
             }
         }
     }
@@ -1037,10 +1050,17 @@ void GTree::inspectVolume() {
     // /vis/scene/create makes a new empty scene but does NOT re-attach the handler.
     // /vis/sceneHandler/attach must come before /vis/scene/add/volume to wire the new handler
     // to the new empty scene; otherwise the first flush renders the full detector.
-    uim->ApplyCommand("/vis/open " + driverName);
+    if (uim->ApplyCommand("/vis/open " + driverName) != 0) return;
     uim->ApplyCommand("/vis/scene/create");
     uim->ApplyCommand("/vis/sceneHandler/attach");
-    uim->ApplyCommand("/vis/scene/add/volume " + current_volume_name + " -1");
+    if (overlaps) {
+        uim->ApplyCommand("/vis/viewer/set/style wireframe");
+        uim->ApplyCommand("/vis/viewer/set/hiddenMarker false");
+        uim->ApplyCommand("/vis/scene/add/logicalVolume " + current_volume_name);
+    }
+    else {
+        uim->ApplyCommand("/vis/scene/add/volume " + current_volume_name + " -1");
+    }
     uim->ApplyCommand("/vis/viewer/set/background 1 1 1 1");
     uim->ApplyCommand("/vis/viewer/set/lineSegmentsPerCircle 100");
     // 2D label: large black text centred near the top of the window.
@@ -1081,16 +1101,6 @@ void GTree::showMirrorProperties() {
 
     dialog.resize(650, 520);
     dialog.exec();
-}
-
-
-// Warn that /vis/drawLogicalVolume is not yet usable due to a Geant4 11.4.3 TOOLSSG bug.
-void GTree::drawOverlapsWarning() {
-    QMessageBox::warning(this,
-        tr("Not yet implemented"),
-        tr("Draw Logical Overlaps will be implemented when Geant4 fixes the\n"
-           "G4ToolsSGSceneHandler::GetOrCreateNode \"World mis-match\" crash\n"
-           "triggered by /vis/drawLogicalVolume in Geant4 11.4.3."));
 }
 
 

@@ -119,7 +119,7 @@ QWidget* GTree::right_widget() {
     connect(inspectButton, &QPushButton::clicked, this, &GTree::inspectVolume);
     blayout->addWidget(inspectButton);
 
-    // Draw Logical Overlaps button: not yet functional — blocked by Geant4 11.4.3 TOOLSSG bug.
+    // Draw logical overlaps within the selected volume in a dedicated viewer window.
     blayout->addSpacing(4);
     drawOverlapsButton = new QPushButton(bottomPanel);
     drawOverlapsButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -127,7 +127,7 @@ QWidget* GTree::right_widget() {
         "QPushButton { border: 2px solid black; border-radius: 4px; padding: 4px 8px; }"
         "QPushButton:hover { background-color: palette(highlight); color: palette(highlighted-text); }"
     );
-    connect(drawOverlapsButton, &QPushButton::clicked, this, &GTree::drawOverlapsWarning);
+    connect(drawOverlapsButton, &QPushButton::clicked, this, &GTree::drawOverlaps);
     blayout->addWidget(drawOverlapsButton);
 
     // Hidden until a volume or system is selected in the tree.
