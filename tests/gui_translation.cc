@@ -2,6 +2,7 @@
 #include <gemc/gui/gui.h>
 #include <gemc/gboard/gboard.h>
 #include <gemc/gqtbuttonswidget/gQtButtonsWidget.h>
+#include <gemc/gui/physicsView.h>
 #include "gemc_options.h"
 
 #include <G4UIcommand.hh>
@@ -70,6 +71,17 @@ int main(int argc, char* argv[]) {
 	application->processEvents();
 
 	QJsonObject report;
+	auto* navigation = window.findChild<GQTButtonsWidget*>();
+	auto* physicsPage = window.findChild<PhysicsView*>();
+	report["physics_page"] = navigation && physicsPage && navigation->buttonsWidget->count() == 7;
+	if (navigation && physicsPage) {
+		navigation->press_button(6);
+		application->processEvents();
+		report["physics_page"] = physicsPage->isVisible();
+		report["physics_button_fits"] = navigation->buttonsWidget->viewport()->rect().contains(
+			navigation->buttonsWidget->visualItemRect(navigation->buttonsWidget->item(6)));
+		navigation->press_button(0);
+	}
 	report["language"] = application->property("gemcGuiLanguage").toString();
 	report["numeric_locale_unchanged"] = QLocale().name() == numericLocale;
 	auto* runButton = window.findChild<QPushButton*>("gemcRun");
@@ -130,7 +142,11 @@ int main(int argc, char* argv[]) {
 	report["caption_fits"] = renderer.isValid() && bounds.left() >= 0 && bounds.right() <= 48;
 #endif
 	const auto snapshot = options->getRequiredScalarString("gui_snapshot");
-	if (!snapshot.empty()) window.grab().save(QString::fromStdString(snapshot));
+	if (!snapshot.empty()) {
+		navigation->press_button(6);
+		application->processEvents();
+		window.grab().save(QString::fromStdString(snapshot));
+	}
 
 	// The GUI session is about to die; subsequent Geant4 cleanup must not retain its cout destination.
 	G4UImanager::GetUIpointer()->SetCoutDestination(nullptr);

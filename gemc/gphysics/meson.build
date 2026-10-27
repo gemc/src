@@ -10,10 +10,12 @@ LD += {
     'name' : sub_dir_name,
     'sources' : files(
                           'gphysics.cc',
+                          'gphysicsRuntime.cc',
                           'gphysics_options.cc'
                       ),
     'headers' : files(
                           'gphysics.h',
+                          'gphysicsRuntime.h',
                           'gphysics_options.h',
                           'gphysicsConventions.h'
                       ),

@@ -8,6 +8,7 @@
 #include "dbselectView.h"
 #include "gtree.h"
 #include "pmakerView.h"
+#include "physicsView.h"
 #ifdef GEMC_HAS_QTCHARTS
 #include "gAnalysisView.h"
 #endif
@@ -82,6 +83,9 @@ void GemcGUI::createRightContent(std::shared_ptr<GOptions> gopts,
 	analysisPlaceholder->setWordWrap(true);
 	rightContent->addWidget(analysisPlaceholder);
 #endif
+
+	physicsView = new PhysicsView(gopts);
+	rightContent->addWidget(physicsView);
 
 	// Default to the first page and update the left bar visual highlight accordingly.
 	rightContent->setCurrentIndex(0);

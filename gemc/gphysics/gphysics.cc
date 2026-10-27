@@ -2,6 +2,7 @@
 #include "gphysics.h"
 #include "gphysics_options.h"
 #include "gphysicsConventions.h"
+#include "gphysicsRuntime.h"
 
 // gemc
 #include "gutilities.h"
@@ -18,8 +19,6 @@
 // pre-defining a short name (e.g. RADIO for G4RadioactiveDecayPhysics) or
 // providing the full class name.
 #include "G4PhysListFactoryAlt.hh"
-
-#include "G4StepLimiterPhysics.hh"
 
 // allow ourselves to give the user extra info about available physics constructors (ctors)
 #include "G4PhysicsConstructorFactory.hh"
@@ -49,20 +48,24 @@ GPhysics::GPhysics(const std::shared_ptr<GOptions>& gopts) :
 	//    using namespace g4alt;
 	// would make this a drop-in replacement, but we'll list the explicit
 	// namespace here just for clarity
-	g4alt::G4PhysListFactory factory;
-
 	// The Geant4 factory syntax is whitespace-sensitive; normalize user input.
 	std::string              g4physList = gutilities::removeAllSpacesFromString(gphysList);
 
-	physList = factory.GetReferencePhysList(g4physList);
+	try {
+		physList = new gphysics::RuntimePhysicsList(g4physList);
+	} catch (const std::exception& error) {
+		log->error(gphysics::ERR_PHYSLISTERROR, "%1", error.what());
+	}
+	if (const auto cut = gopts->getOptionalScalarDouble("production_cut")) {
+		std::string error;
+		if (!static_cast<gphysics::RuntimePhysicsList*>(physList)->setProductionCut(*cut, error)) {
+			log->error(gphysics::ERR_PHYSLISTERROR, "%1", error);
+		}
+	}
 
 	if (!physList) {
 		log->error(gphysics::ERR_PHYSLISTERROR, "physics list <%1> could not be loaded.", gphysList);
 	}
-
-	// Register step limiters (module default add-on).
-	// This is intentionally registered even when users select a standard reference list.
-	physList->RegisterPhysics(new G4StepLimiterPhysics());
 
 	log->info(2, "G4PhysListFactory: <%1> loaded.", g4physList);
 }

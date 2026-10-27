@@ -37,6 +37,13 @@
  * GPhysics itself is a small helper object used to coordinate option parsing, logging,
  * and factory invocation.
  *
+ * Upcoming in the next release: the GUI Physics page selects a reference list and additional constructors,
+ * sets a global production range cut, and enables or disables installed processes by name or category.
+ * Configuration is applied explicitly or before the next GUI run, only in PreInit or Idle state.
+ * Runtime list changes retain the original EM processes because Geant4 caches their addresses. Switching
+ * to a different EM constructor after initialization is rejected; select that model at startup instead.
+ * Transportation remains enabled. Combined processes are exposed as their installed process entry.
+ *
  * @section gphysics_arch Architecture
  * @subsection gphysics_design Architecture overview
  * The module is composed of:
@@ -77,6 +84,10 @@
  * - `showPhysics`
  *   - Type: boolean (switch)
  *   - Meaning: print available physics lists and constructors and exit
+ * - `production_cut`
+ *   - Type: optional positive number, in millimeters.
+ *   - Meaning: common secondary-production range cut for gamma, electron, positron, and proton.
+ *     Without an override, retain the selected reference list's cuts. This is not a tracking cutoff.
  *   - Behavior:
  *     - when enabled, the module prints the curated list and terminates early
  *

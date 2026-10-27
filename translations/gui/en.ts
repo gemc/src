@@ -857,6 +857,10 @@ Lines</source>
 Lines</translation>
     </message>
     <message>
+      <source>Physics</source>
+      <translation>Physics</translation>
+    </message>
+    <message>
       <source>Setup</source>
       <translation>Setup</translation>
     </message>
@@ -1213,6 +1217,10 @@ Lines</translation>
       <translation>N. Events:</translation>
     </message>
     <message>
+      <source>Physics</source>
+      <translation>Physics</translation>
+    </message>
+    <message>
       <source>Quit GEMC</source>
       <translation>Quit GEMC</translation>
     </message>
@@ -1245,6 +1253,125 @@ Lines</translation>
 Install the Qt6 Charts package and rebuild GEMC to enable live histograms.</source>
       <translation>The analysis view requires Qt6 Charts, which was not available when GEMC was built.
 Install the Qt6 Charts package and rebuild GEMC to enable live histograms.</translation>
+    </message>
+  </context>
+  <context>
+    <name>PhysicsView</name>
+    <message>
+      <source>%1 particle types</source>
+      <translation>%1 particle types</translation>
+    </message>
+    <message>
+      <source>Add a physics constructor to the reference list.</source>
+      <translation>Add a physics constructor to the reference list.</translation>
+    </message>
+    <message>
+      <source>Applies to</source>
+      <translation>Applies to</translation>
+    </message>
+    <message>
+      <source>Apply physics</source>
+      <translation>Apply physics</translation>
+    </message>
+    <message>
+      <source>Changes are applied before the next run, or with Apply physics.</source>
+      <translation>Changes are applied before the next run, or with Apply physics.</translation>
+    </message>
+    <message>
+      <source>Check processes to enable them. Category checkboxes control the whole group. Combined processes are controlled as a single entry.</source>
+      <translation>Check processes to enable them. Category checkboxes control the whole group. Combined processes are controlled as a single entry.</translation>
+    </message>
+    <message>
+      <source>Decay</source>
+      <translation>Decay</translation>
+    </message>
+    <message>
+      <source>Electromagnetic</source>
+      <translation>Electromagnetic</translation>
+    </message>
+    <message>
+      <source>Filter processes</source>
+      <translation>Filter processes</translation>
+    </message>
+    <message>
+      <source>General</source>
+      <translation>General</translation>
+    </message>
+    <message>
+      <source>Hadronic</source>
+      <translation>Hadronic</translation>
+    </message>
+    <message>
+      <source>Optical</source>
+      <translation>Optical</translation>
+    </message>
+    <message>
+      <source>Other</source>
+      <translation>Other</translation>
+    </message>
+    <message>
+      <source>Parallel worlds</source>
+      <translation>Parallel worlds</translation>
+    </message>
+    <message>
+      <source>Parameterisation</source>
+      <translation>Parameterisation</translation>
+    </message>
+    <message>
+      <source>Physics</source>
+      <translation>Physics</translation>
+    </message>
+    <message>
+      <source>Physics applied. The next run uses these settings.</source>
+      <translation>Physics applied. The next run uses these settings.</translation>
+    </message>
+    <message>
+      <source>Physics changes pending. They will be applied before the next run.</source>
+      <translation>Physics changes pending. They will be applied before the next run.</translation>
+    </message>
+    <message>
+      <source>Physics constructor</source>
+      <translation>Physics constructor</translation>
+    </message>
+    <message>
+      <source>Physics controls require a GEMC run manager.</source>
+      <translation>Physics controls require a GEMC run manager.</translation>
+    </message>
+    <message>
+      <source>Physics list</source>
+      <translation>Physics list</translation>
+    </message>
+    <message>
+      <source>Process</source>
+      <translation>Process</translation>
+    </message>
+    <message>
+      <source>Processes</source>
+      <translation>Processes</translation>
+    </message>
+    <message>
+      <source>Processes appear after physics initialization.</source>
+      <translation>Processes appear after physics initialization.</translation>
+    </message>
+    <message>
+      <source>Production range cut</source>
+      <translation>Production range cut</translation>
+    </message>
+    <message>
+      <source>Range cut for producing secondary gamma, electron, positron, and proton tracks. This does not stop existing tracks below an energy threshold.</source>
+      <translation>Range cut for producing secondary gamma, electron, positron, and proton tracks. This does not stop existing tracks below an energy threshold.</translation>
+    </message>
+    <message>
+      <source>Reference list</source>
+      <translation>Reference list</translation>
+    </message>
+    <message>
+      <source>Transportation</source>
+      <translation>Transportation</translation>
+    </message>
+    <message>
+      <source>Transportation is required for tracking.</source>
+      <translation>Transportation is required for tracking.</translation>
     </message>
   </context>
   <context>

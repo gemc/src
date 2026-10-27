@@ -63,14 +63,21 @@ GBoard::GBoard(const std::shared_ptr<GOptions>& gopt, QWidget* parent)
 
 void GBoard::appendLog(const QString& htmlFragment) {
 	// See header for API docs.
+	if (QThread::currentThread() != thread()) {
+		QMetaObject::invokeMethod(this, [this, htmlFragment]() { appendLog(htmlFragment); });
+		return;
+	}
 	if (htmlFragment.trimmed().isEmpty()) { return; }
 
 	// Append to the source of truth, the full log line list.
 	// NOTE: We intentionally store all lines (even when filtered out) so the user can change filters later.
 	fullLogLines.append(htmlFragment);
 
-	// Refresh the view so the new line appears if it matches the current filter.
-	updateDisplay();
+	// Coalesce output bursts, including synchronous Geant4 initialization, into one incremental update.
+	if (!displayUpdatePending) {
+		displayUpdatePending = true;
+		QMetaObject::invokeMethod(this, "updateDisplay", Qt::QueuedConnection);
+	}
 }
 
 void GBoard::updateDisplay() {
@@ -84,13 +91,14 @@ void GBoard::updateDisplay() {
 		return;
 	}
 
-	logTextEdit->clear(); // Rebuild from scratch using the stored history.
+	displayUpdatePending = false;
 
 	const bool          filtering = !currentFilterText.isEmpty();
 	Qt::CaseSensitivity cs        = Qt::CaseInsensitive;
 
-	// Re-append only the matching HTML fragments.
-	for (const QString& line : fullLogLines) {
+	// Previously displayed history remains in place; only visit newly received lines.
+	while (displayedLineCount < fullLogLines.size()) {
+		const auto& line = fullLogLines[displayedLineCount++];
 		bool matches = true;
 
 		if (filtering) { matches = (line.indexOf(currentFilterText, 0, cs) >= 0); }
@@ -106,6 +114,8 @@ void GBoard::filterLog(const QString& searchText) {
 	// See header for API docs.
 	// Keep the filter string normalized so repeated updates remain stable.
 	currentFilterText = searchText.trimmed();
+	logTextEdit->clear();
+	displayedLineCount = 0;
 	updateDisplay();
 }
 
@@ -113,6 +123,8 @@ void GBoard::clearLog() {
 	// See header for API docs.
 	if (logTextEdit) {
 		fullLogLines.clear();
+		logTextEdit->clear();
+		displayedLineCount = 0;
 		updateDisplay();
 		log->info(1, "Log cleared by user.");
 	}
@@ -122,6 +134,7 @@ void GBoard::clearLog() {
 void GBoard::saveLog() {
 	// See header for API docs.
 	if (!logTextEdit) return;
+	updateDisplay(); // Include queued output in the exported view.
 
 	QString defaultFileName = "gboard_log.log"; // Suggest a default name
 	QString fileName        = QFileDialog::getSaveFileName(this,

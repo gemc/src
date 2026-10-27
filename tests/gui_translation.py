@@ -39,6 +39,7 @@ def main():
             if not lines:
                 raise AssertionError(f"GUI report missing:\n{result.stdout}\n{result.stderr}")
             report = json.loads(lines[-1].removeprefix("GUI_REPORT="))
+            assert report["physics_page"] and report["physics_button_fits"], report
             assert report["numeric_locale_unchanged"] and report["button_fits"] and report["caption_fits"]
             assert report["projection_command"] == "p 30", report
             assert report["culling_density"] == "0.001", report

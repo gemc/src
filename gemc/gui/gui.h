@@ -18,6 +18,7 @@
 
 class GTree;
 class GAnalysisView;
+class PhysicsView;
 
 /**
  * @class GemcGUI
@@ -146,6 +147,7 @@ private:
 	GDetectorConstruction* detectorConstruction = nullptr;
 	GTree* geometryTree = nullptr;
 	GAnalysisView* analysisView = nullptr;
+	PhysicsView* physicsView = nullptr;
 	bool geometryReloadedSinceRun = false;
 	bool viewerInitialized = false;
 	bool visualizationNeedsRunRestore = false;

@@ -1,5 +1,6 @@
 // gui
 #include "gui.h"
+#include "physicsView.h"
 #ifdef GEMC_HAS_QTCHARTS
 #include "gAnalysisView.h"
 #endif
@@ -83,6 +84,7 @@ void GemcGUI::neventsChanged() {
 
 void GemcGUI::beamOn() {
 	// Run a batch once, then update the GUI counter label.
+	if (physicsView && !physicsView->applyPending()) { return; }
 	prepareGeometryForBeamOn();
 	if (analysisAccumulator != nullptr) {
 #ifdef GEMC_HAS_QTCHARTS
@@ -92,6 +94,7 @@ void GemcGUI::beamOn() {
 #endif
 	}
 	eventDispenser->processEvents();
+	if (physicsView) { physicsView->refreshProcesses(); }
 #ifdef GEMC_HAS_QTCHARTS
 	if (analysisView != nullptr) { analysisView->refresh(); }
 #endif
@@ -104,6 +107,7 @@ void GemcGUI::cycleBeamOn() {
 	if (!gtimer->isActive()) {
 		gtimer->start(2000);
 	}
+	if (physicsView && !physicsView->applyPending()) { gtimer->stop(); return; }
 	prepareGeometryForBeamOn();
 	if (analysisAccumulator != nullptr) {
 #ifdef GEMC_HAS_QTCHARTS
@@ -113,6 +117,7 @@ void GemcGUI::cycleBeamOn() {
 #endif
 	}
 	eventDispenser->processEvents();
+	if (physicsView) { physicsView->refreshProcesses(); }
 #ifdef GEMC_HAS_QTCHARTS
 	if (analysisView != nullptr) { analysisView->refresh(); }
 #endif

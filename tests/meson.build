@@ -43,6 +43,18 @@ test('gui_catalog_freshness', python_exe,
 gui_probe_dependencies = [yaml_cpp_dep, qt6_deps, clhep_deps, geant4_deps, ogl_deps,
                           assimp_dep, expat_dep, zlib_dep]
 gui_probe_arguments = []
+physics_switching = executable(
+    'test_physics_switching',
+    files('physics_switching.cc', '../gemc_options.cc') + qrc_gemc_sources,
+    include_directories: gemc_includes,
+    dependencies: gui_probe_dependencies,
+    link_with: all_libs,
+    export_dynamic: true)
+foreach mode : ['serial', 'tasking', 'mt', 'gui']
+    test('physics_switching_' + mode, python_exe,
+         args: [files('physics_switching.py'), physics_switching, meson.project_source_root(), mode],
+         env: project_test_env, suite: 'gphysics', timeout: 300)
+endforeach
 if qt6_svg_dep.found()
     gui_probe_dependencies += qt6_svg_dep
     gui_probe_arguments += '-DGEMC_TEST_QTSVG'

@@ -2,6 +2,7 @@
 #include "gui.h"
 #include "gtree.h"
 #include "g4SceneProperties.h"
+#include "physicsView.h"
 #ifdef GEMC_HAS_QTCHARTS
 #include "gAnalysisView.h"
 #endif
@@ -247,4 +248,5 @@ void GemcGUI::change_page(QListWidgetItem* current, QListWidgetItem* previous) {
 	// The left button widget provides the active page index; apply it to the stacked widget.
 	int thisIndex = leftButtons->button_pressed();
 	rightContent->setCurrentIndex(thisIndex);
+	if (rightContent->currentWidget() == physicsView) { physicsView->refreshProcesses(); }
 }

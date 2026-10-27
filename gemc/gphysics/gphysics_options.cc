@@ -154,6 +154,10 @@ GOptions defineOptions() {
 	physicsListHelp += string(goptions::HELPFILLSPACE) + " -phys_list=\"FTFP_BERT_EMZ + G4OpticalPhysics\"\n";
 	goptions.defineOption(GVariable("phys_list", gphysics::DEFAULTPHYSICSLIST, "Select Physics List"),
 	                      physicsListHelp);
+	goptions.defineOption(GVariable("production_cut", std::nullopt, "Production range cut in millimeters"),
+	                      "Global secondary-production range cut for gamma, e-, e+, and proton.\n"
+	                      "By default, retain the selected physics list's production cuts.\n"
+	                      "This is a range cut, not a tracking-energy threshold.");
 
 	goptions.defineSwitch("showPhysics", "Log Geant4 Physics Available Modules that can be used with the \"phys_list\" option and exit");
 

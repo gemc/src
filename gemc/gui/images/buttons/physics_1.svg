@@ -1,0 +1,13 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none"
+     xmlns="http://www.w3.org/2000/svg">
+    <rect x="6" y="6" width="36" height="36" rx="3" stroke="currentColor" stroke-width="1"/>
+    <g stroke="currentColor" stroke-width="1" opacity="0.75">
+        <ellipse cx="24" cy="20" rx="12" ry="5"/>
+        <ellipse cx="24" cy="20" rx="12" ry="5" transform="rotate(60 24 20)"/>
+        <ellipse cx="24" cy="20" rx="12" ry="5" transform="rotate(120 24 20)"/>
+    </g>
+    <circle cx="24" cy="20" r="2.5" fill="currentColor"/>
+    <text x="24" y="38" text-anchor="middle" fill="currentColor" font-size="7" font-family="Arial">
+        Physics
+    </text>
+</svg>

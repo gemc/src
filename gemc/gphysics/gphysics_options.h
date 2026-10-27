@@ -14,6 +14,7 @@ namespace gphysics {
  *
  * The returned GOptions instance defines:
  * - \c phys_list : selects the reference physics list string (with optional extensions).
+ * - \c production_cut : optionally overrides the global production range cut in millimeters.
  * - \c showPhysics : prints available physics lists and constructors and exits.
  *
  * The help text includes the Geant4 version tag and a curated list of common reference lists and

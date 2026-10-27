@@ -43,7 +43,7 @@ inline GOptions defineOptions() {
  *
  * ### Data model and display strategy
  * - \c fullLogLines is the **source of truth** for all received log lines (stored as HTML fragments).
- * - The visible \c QTextEdit is rebuilt from \c fullLogLines whenever the filter changes or a new line arrives.
+ * - New lines are appended in batches on the GUI event loop; history is rebuilt only when the filter changes.
  *
  * ### Threading notes
  * In typical usage, log lines may arrive from non-GUI threads. The implementation ensures the
@@ -81,7 +81,7 @@ public:
 	 *
 	 * The input is treated as an **HTML fragment** (not a full HTML document):
 	 * - It is stored verbatim into \c fullLogLines.
-	 * - The display is refreshed so the new line becomes visible immediately if it matches the current filter.
+	 * - One queued update appends new matching lines when the GUI event loop resumes.
 	 *
 	 * Empty or whitespace-only fragments are ignored.
 	 *
@@ -117,12 +117,12 @@ slots :
 	void saveLog();
 
 	/**
-	 * \brief Rebuilds the visible log view from the stored history.
+	 * \brief Appends pending matching lines to the visible log view.
 	 *
 	 * This method:
 	 * - Ensures execution on the GUI thread.
-	 * - Clears the \c QTextEdit.
-	 * - Re-appends all stored lines that match the current filter.
+	 * - Visits only stored lines that have not yet been displayed.
+	 * - Appends new lines that match the current filter.
 	 * - Scrolls to the bottom after update.
 	 *
 	 * This is an internal method; callers should typically use higher-level operations such as
@@ -166,6 +166,8 @@ private:
 	 * This is the authoritative storage used for filtering and rebuilding the display.
 	 */
 	QStringList fullLogLines;
+	qsizetype displayedLineCount = 0;
+	bool displayUpdatePending = false;
 
 	/**
 	 * \brief Active filter string (trimmed).

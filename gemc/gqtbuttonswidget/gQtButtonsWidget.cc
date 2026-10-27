@@ -14,6 +14,7 @@ QString gemc::translateSvgLabels(QString svg) {
 		QT_TRANSLATE_NOOP("GGuiIcons", "Display"), QT_TRANSLATE_NOOP("GGuiIcons", "Setup"),
 		QT_TRANSLATE_NOOP("GGuiIcons", "Volumes"), QT_TRANSLATE_NOOP("GGuiIcons", "G4Dialog"),
 		QT_TRANSLATE_NOOP("GGuiIcons", "Generator"), QT_TRANSLATE_NOOP("GGuiIcons", "Analyzer"),
+		QT_TRANSLATE_NOOP("GGuiIcons", "Physics"),
 		QT_TRANSLATE_NOOP("GGuiIcons", "Wire"), QT_TRANSLATE_NOOP("GGuiIcons", "Surface"),
 		QT_TRANSLATE_NOOP("GGuiIcons", "Cloud"), QT_TRANSLATE_NOOP("GGuiIcons", "Twinkle"),
 		QT_TRANSLATE_NOOP("GGuiIcons", "Hidden\nLines"), QT_TRANSLATE_NOOP("GGuiIcons", "Anti\nAliasing"),
