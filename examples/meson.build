@@ -151,6 +151,44 @@ foreach branch : examples_map.keys()
     endforeach
 endforeach
 
+# ---------------------------------------------------------------------------
+# Solid gallery: the basic/solid example builds any Geant4 solid from its name
+# and parameter string (see basic/solid/solids_catalog.py). Generate one geometry
+# build + gemc run test per solid (each solid is its own geometry variation), plus
+# an 'all' variation that builds every solid together. The solid list is read from
+# the catalog so adding a solid there automatically adds its tests.
+# ---------------------------------------------------------------------------
+solid_dir     = examples_dir + 'basic/solid/'
+solid_yaml    = solid_dir + 'solid.yaml'
+solid_catalog = meson.current_source_dir() + '/basic/solid/solids_catalog.py'
+
+solid_keys_cmd = run_command(
+    python_exe, '-c',
+    'import runpy; print(" ".join(runpy.run_path("' + solid_catalog + '")["SOLIDS"].keys()))',
+    check : true)
+solid_variations = ['all'] + solid_keys_cmd.stdout().strip().split(' ')
+message('Solid gallery test suite will exercise: @0@'.format(', '.join(solid_variations)))
+
+foreach format : ['ascii', 'sqlite']
+    foreach variation : solid_variations
+        gsystem_arg = '-gsystem="[{name: solid, factory: ' + format + ', variation: ' + variation + '}]"'
+        solid_stream = '-gstreamer="[{format: ascii, filename: ' + test_outdir + '/solid_' + variation + format + '}]"'
+        test('examples_geo_basic_solid_' + format + '_' + variation,
+             python_exe,
+             args : [solid_dir + 'solid.py', '-f', format, '-sql', sql_db, '-v', variation],
+             workdir : solid_dir,
+             is_parallel : false,
+             env : test_env,
+             priority : 10)
+        test('examples_run_basic_solid_' + format + '_' + variation,
+             gemc,
+             args : [solid_yaml, gsystem_arg, solid_stream, '-n=1', '-sql=' + sql_db],
+             workdir : solid_dir,
+             is_parallel : false,
+             priority : -10)
+    endforeach
+endforeach
+
 # Exercise the installed application path used by ThreadScale at every available worker count. CPU discovery
 # mirrors ThreadScale by taking the most restrictive logical, affinity, and Linux cgroup count.
 cpu_probe = '''

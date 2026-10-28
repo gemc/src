@@ -26,6 +26,15 @@
 #include "G4Paraboloid.hh"
 #include "G4EllipticalTube.hh"
 #include "G4Ellipsoid.hh"
+#include "G4Orb.hh"
+#include "G4GenericPolycone.hh"
+#include "G4EllipticalCone.hh"
+#include "G4Hype.hh"
+#include "G4Tet.hh"
+#include "G4TwistedBox.hh"
+#include "G4TwistedTrap.hh"
+#include "G4TwistedTrd.hh"
+#include "G4TwistedTubs.hh"
 #include "G4UnionSolid.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4IntersectionSolid.hh"
@@ -371,6 +380,126 @@ G4VSolid* G4NativeSystemFactory::buildSolid(const GVolume*                      
 		                                       pars[2], // semi-axis in z
 		                                       pars[3], // lower cut in z (0 = no cut)
 		                                       pars[4]  // upper cut in z (0 = no cut)
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4Orb") {
+		thisG4Volume->setSolid(new G4Orb(g4name,  // name
+		                                 pars[0]  // outer radius
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4GenericPolycone") {
+		double phistart = pars[0];
+		double phitotal = pars[1];
+		int    numRZ    = static_cast<int>(pars[2]);
+
+		// The (r, z) corner arrays are copied by G4GenericPolycone during construction.
+		auto r = std::make_unique<double[]>(numRZ);
+		auto z = std::make_unique<double[]>(numRZ);
+		for (int i = 0; i < numRZ; ++i) {
+			r[i] = pars[3 + 0 * numRZ + i];
+			z[i] = pars[3 + 1 * numRZ + i];
+		}
+
+		thisG4Volume->setSolid(new G4GenericPolycone(g4name,   // name
+		                                             phistart, // Initial Phi starting angle
+		                                             phitotal, // Total Phi angle
+		                                             numRZ,    // Number of corners in the r,z space
+		                                             r.get(),
+		                                             z.get()
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4EllipticalCone") {
+		thisG4Volume->setSolid(new G4EllipticalCone(g4name,  // name
+		                                            pars[0], // semi-axis in x (dimensionless)
+		                                            pars[1], // semi-axis in y (dimensionless)
+		                                            pars[2], // height z
+		                                            pars[3]  // upper cut in z
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4Hype") {
+		thisG4Volume->setSolid(new G4Hype(g4name,  // name
+		                                  pars[0], // inner radius
+		                                  pars[1], // outer radius
+		                                  pars[2], // inner stereo angle
+		                                  pars[3], // outer stereo angle
+		                                  pars[4]  // half-length in z
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4Tet") {
+		// Four vertices (12 parameters); an optional 13th legacy flag value is ignored.
+		thisG4Volume->setSolid(new G4Tet(g4name,                                   // name
+		                                 G4ThreeVector(pars[0], pars[1], pars[2]),  // anchor
+		                                 G4ThreeVector(pars[3], pars[4], pars[5]),  // p2
+		                                 G4ThreeVector(pars[6], pars[7], pars[8]),  // p3
+		                                 G4ThreeVector(pars[9], pars[10], pars[11]) // p4
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4TwistedBox") {
+		thisG4Volume->setSolid(new G4TwistedBox(g4name,  // name
+		                                        pars[0], // twist angle
+		                                        pars[1], // half-length in x
+		                                        pars[2], // half-length in y
+		                                        pars[3]  // half-length in z
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4TwistedTrap") {
+		// Like G4Trap, the parameter count selects the constructor layout.
+		if (pars.size() == 5) {
+			thisG4Volume->setSolid(new G4TwistedTrap(g4name,  // name
+			                                         pars[0], // twist angle
+			                                         pars[1], // half x length at -pDz,-pDy
+			                                         pars[2], // half x length at -pDz,+pDy
+			                                         pars[3], // half y length
+			                                         pars[4]  // half z length
+			                       ), log);
+		}
+		else if (pars.size() == 11) {
+			thisG4Volume->setSolid(new G4TwistedTrap(g4name,   // name
+			                                         pars[0],  // twist angle
+			                                         pars[1],  // half z length
+			                                         pars[2],  // polar angle between end planes
+			                                         pars[3],  // azimuthal angle between end planes
+			                                         pars[4],  // half y length at -pDz
+			                                         pars[5],  // half x length at -pDz,-pDy
+			                                         pars[6],  // half x length at -pDz,+pDy
+			                                         pars[7],  // half y length at +pDz
+			                                         pars[8],  // half x length at +pDz,-pDy
+			                                         pars[9],  // half x length at +pDz,+pDy
+			                                         pars[10]  // tilt angle
+			                       ), log);
+		}
+		else {
+			log->error(
+				g4system::ERR_G4PARAMETERSMISMATCH,
+				"The constructor of <%1> must have 5 or 11 parameters.", g4name);
+		}
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4TwistedTrd") {
+		thisG4Volume->setSolid(new G4TwistedTrd(g4name,  // name
+		                                        pars[0], // half x length at -pDz
+		                                        pars[1], // half x length at +pDz
+		                                        pars[2], // half y length at -pDz
+		                                        pars[3], // half y length at +pDz
+		                                        pars[4], // half z length
+		                                        pars[5]  // twist angle
+		                       ), log);
+		return thisG4Volume->getSolid();
+	}
+	else if (type == "G4TwistedTubs") {
+		thisG4Volume->setSolid(new G4TwistedTubs(g4name,  // name
+		                                         pars[0], // twist angle
+		                                         pars[1], // inner radius at endcap
+		                                         pars[2], // outer radius at endcap
+		                                         pars[3], // half-length in z
+		                                         pars[4]  // phi angle of the segment
 		                       ), log);
 		return thisG4Volume->getSolid();
 	}

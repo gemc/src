@@ -1081,6 +1081,9 @@ messages:
   : "The constructor of <%1> must have 4, 11 or 24 parameters see https://geant4-userdoc.web.cern.ch/UsersGu\
     ides/ForApplicationDeveloper/html/Detector/Geometry/geomSolids.html"
   # gemc/g4system/g4objectsFactories/g4native/buildSolid.cc
+  ? "The constructor of <%1> must have 5 or 11 parameters."
+  : "The constructor of <%1> must have 5 or 11 parameters."
+  # gemc/g4system/g4objectsFactories/g4native/buildSolid.cc
   ? "The constructor of <%1> must have numSides >= 1 and %2 parameters (4 + 3 x numZPlanes), we got %3"
   : "The constructor of <%1> must have numSides >= 1 and %2 parameters (4 + 3 x numZPlanes), we got %3"
   # gemc/g4system/g4objectsFactories/g4native/checkAndReturnParameters.cc
