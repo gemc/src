@@ -215,3 +215,9 @@ foreach volume : g4objects.keys()
              priority: -30)
     endforeach
 endforeach
+
+material_optics = executable('test_material_optics', 'material_optics.cc',
+    include_directories: gemc_includes,
+    dependencies: gui_probe_dependencies,
+    link_with: all_libs)
+test('material_optics', material_optics, suite: 'gsystem')

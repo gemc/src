@@ -928,6 +928,8 @@ messages:
   "Material <%1>, needed by %2,  not found yet": "Material <%1>, needed by %2,  not found yet"
   # gemc/gfields/gmagneto.cc
   "Maximum acceptable field step set to %1 mm.": "Maximum acceptable field step set to %1 mm."
+  # gemc/gsystem/gmaterial.cc
+  "Mie size %1 mismatch: photonEnergy has size %2": "Mie size %1 mismatch: photonEnergy has size %2"
   # gemc/gdynamicDigitization/gDosimeterDigitization.cc
   ? "NIEL tables are empty for pid <%1>. Did loadConstantsImpl fail?"
   : "NIEL tables are empty for pid <%1>. Did loadConstantsImpl fail?"

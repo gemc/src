@@ -21,7 +21,8 @@
 GMaterial::GMaterial(const std::string &s, std::vector<std::string> pars,
                      const std::shared_ptr<GLogger> &logger) : GBase(logger),
                                                                system(s) {
-	if (pars.size() != gsystem::GMATERIALNUMBEROFPARS) {
+	if (pars.size() != gsystem::GMATERIALNUMBEROFPARS &&
+	    pars.size() != gsystem::GMATERIALNUMBEROFPARS + 4) {
 		log->error(
 			gsystem::ERR_GWRONGNUMBEROFPARS,
 			"Incorrect number of material parameters for %1. Expected %2 but we got %3", pars[0],
@@ -60,6 +61,12 @@ GMaterial::GMaterial(const std::string &s, std::vector<std::string> pars,
 
 		// Other optical processes: the final vector load triggers cross-vector size validation.
 		getMaterialPropertyFromString(pars[i++], "rayleigh");
+		if (i < pars.size()) {
+			getMaterialPropertyFromString(pars[i++], "mie");
+			mieforwardSet = assign_if_set(pars, i, mieforward);
+			miebackwardSet = assign_if_set(pars, i, miebackward);
+			mieratioSet = assign_if_set(pars, i, mieratio);
+		}
 	}
 }
 
@@ -139,6 +146,8 @@ void GMaterial::getMaterialPropertyFromString(const std::string &parameter, cons
 			slowtimeconstant = gutilities::getG4Number(trimmedComponent);
 		} else if (propertyName == "yieldratio") {
 			yieldratio = gutilities::getG4Number(trimmedComponent);
+		} else if (propertyName == "mie") {
+			mie.push_back(gutilities::getG4Number(trimmedComponent));
 		} else if (propertyName == "rayleigh") {
 			rayleigh.push_back(gutilities::getG4Number(trimmedComponent));
 		}
@@ -148,7 +157,7 @@ void GMaterial::getMaterialPropertyFromString(const std::string &parameter, cons
 	// Rayleigh is loaded last, so every other optical vector is fully populated and can be
 	// cross-checked against photonEnergy here. (Running this inside the token loop fired on
 	// the very first rayleigh value, before the vector was complete.)
-	if (propertyName == "rayleigh") {
+	if (propertyName == "rayleigh" || propertyName == "mie") {
 		// Rayleigh is loaded last: at this point we can validate that all other optical vectors
 		// either are empty (not specified) or match the photonEnergy vector length.
 		//
@@ -191,6 +200,10 @@ void GMaterial::getMaterialPropertyFromString(const std::string &parameter, cons
 				gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
 				"slowcomponent size %1 mismatch: photonEnergy has size %2", slowcomponent.size(),
 				photonEnergyVectorSize);
+		}
+		if (!mie.empty() && mie.size() != photonEnergyVectorSize) {
+			log->error(gsystem::ERR_GMATERIALOPTICALPROPERTYMISMATCH,
+			           "Mie size %1 mismatch: photonEnergy has size %2", mie.size(), photonEnergyVectorSize);
 		}
 		if (!rayleigh.empty() && rayleigh.size() != photonEnergyVectorSize) {
 			log->error(

@@ -118,6 +118,16 @@ bool G4World::createG4Material(const std::shared_ptr<GMaterial> &gmaterial) {
 
 		// leaving RAYLEIGH last for consistency checks in
 		addProperty("RAYLEIGH", gmaterial->getRayleigh());
+		addProperty("MIEHG", gmaterial->getMie());
+		if (gmaterial->hasMieForward()) {
+			materialPropertiesTable->AddConstProperty("MIEHG_FORWARD", gmaterial->getMieForward());
+		}
+		if (gmaterial->hasMieBackward()) {
+			materialPropertiesTable->AddConstProperty("MIEHG_BACKWARD", gmaterial->getMieBackward());
+		}
+		if (gmaterial->hasMieRatio()) {
+			materialPropertiesTable->AddConstProperty("MIEHG_FORWARD_RATIO", gmaterial->getMieRatio());
+		}
 
 		if (hasOpticalProperties) {
 			g4materialsMap[materialName]->SetMaterialPropertiesTable(materialPropertiesTable);

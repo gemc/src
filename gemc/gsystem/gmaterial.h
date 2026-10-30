@@ -122,6 +122,9 @@ private:
 	 */
 	///@{
 	std::vector<double> rayleigh; ///< Rayleigh scattering attenuation coefficients evaluated at \c photonEnergy.
+	std::vector<double> mie; ///< Mie scattering lengths evaluated at photonEnergy.
+	double mieforward{}, miebackward{}, mieratio{};
+	bool mieforwardSet{}, miebackwardSet{}, mieratioSet{};
 	///@}
 
 	/**
@@ -208,6 +211,13 @@ public:
 	/// \name Additional optical properties
 	///@{
 	[[nodiscard]] std::vector<double> getRayleigh() const { return rayleigh; }
+	[[nodiscard]] std::vector<double> getMie() const { return mie; }
+	[[nodiscard]] double getMieForward() const { return mieforward; }
+	[[nodiscard]] double getMieBackward() const { return miebackward; }
+	[[nodiscard]] double getMieRatio() const { return mieratio; }
+	[[nodiscard]] bool hasMieForward() const { return mieforwardSet; }
+	[[nodiscard]] bool hasMieBackward() const { return miebackwardSet; }
+	[[nodiscard]] bool hasMieRatio() const { return mieratioSet; }
 	///@}
 
 	/**
