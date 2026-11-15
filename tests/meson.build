@@ -221,3 +221,12 @@ material_optics = executable('test_material_optics', 'material_optics.cc',
     dependencies: gui_probe_dependencies,
     link_with: all_libs)
 test('material_optics', material_optics, suite: 'gsystem')
+
+lund_units_args = [files('lund_generated_units.py'), gemc, '--plugin-path=' + build_root]
+if root_dep.found()
+    lund_units_args += ['--root']
+endif
+test('lund_generated_units', python_exe,
+     args: lund_units_args,
+     depends: plugin_target_maps.values(),
+     env: project_test_env, suite: 'gparticle')
