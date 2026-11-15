@@ -221,3 +221,14 @@ material_optics = executable('test_material_optics', 'material_optics.cc',
     dependencies: gui_probe_dependencies,
     link_with: all_libs)
 test('material_optics', material_optics, suite: 'gsystem')
+
+sparse_hit_collections = executable('test_sparse_hit_collections',
+    files('sparse_hit_collections.cc', '../gemc_options.cc') + qrc_gemc_sources,
+    include_directories: gemc_includes,
+    dependencies: gui_probe_dependencies,
+    link_with: all_libs,
+    export_dynamic: true)
+test('sparse_hit_collections', python_exe,
+     args: [files('sparse_hit_collections.py'), sparse_hit_collections, get_option('prefix'), '--plugin-path=' + build_root],
+     depends: plugin_target_maps.values(),
+     env: project_test_env, suite: 'gactions', timeout: 180)
