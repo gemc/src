@@ -184,4 +184,8 @@ void GField_MultipolesFactory::load_field_definitions(GFieldDefinition gfd) {
 
 	log->info(1, "Rotation axis: %1", rotaxis);
 	strength = get_field_parameter_double("strength");
+	// Bare strengths are documented in Tesla; explicit expressions already carry units.
+	if (gfield_definitions.field_parameters.at("strength").find('*') == std::string::npos) {
+		strength *= CLHEP::tesla;
+	}
 }
