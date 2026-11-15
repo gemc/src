@@ -805,7 +805,7 @@ void GOptions::printWebHelp() const {
 void GOptions::saveOptions() const {
 	for (auto& s : switches) {
 		string status = s.second.getStatus() ? "true" : "false";
-		*yamlConf << s.first + ": " + status << "," << endl;
+		*yamlConf << s.first + ": " + status << endl;
 	}
 	for (const auto& option : goptions) {
 		option.saveOption(yamlConf);
