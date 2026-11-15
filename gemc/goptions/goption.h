@@ -222,7 +222,7 @@ private:
 	 *
 	 * @details
 	 * Serialization behavior:
-	 * - Writes comment lines for any YAML null values (paths) to help users understand which fields were not provided.
+	 * - Preserves YAML nulls and writes each option under its name, including unset cumulative options.
 	 * - Writes the YAML node in block style so nested maps/sequences remain readable.
 	 *
 	 * This method is invoked by the option manager during configuration snapshot writing.
