@@ -149,7 +149,7 @@ public:
 	 * \param trueInfoData Raw-pointer view of the detector true-information hits.
 	 * \return \c true on success.
 	 */
-	bool fillTree(const std::vector<const GTrueInfoData*>& trueInfoData);
+	bool fillTree(const std::vector<const GTrueInfoData*>& trueInfoData, int event_number = -1, int thread_id = -1);
 
 	/**
 	 * \brief Fill a digitized detector tree with one detector collection.
@@ -159,7 +159,7 @@ public:
 	 * \param digitizedData Raw-pointer view of the detector digitized hits.
 	 * \return \c true on success.
 	 */
-	bool fillTree(const std::vector<const GDigitizedData*>& digitizedData);
+	bool fillTree(const std::vector<const GDigitizedData*>& digitizedData, int event_number = -1, int thread_id = -1);
 
 	/**
 	 * \brief Fill a generated-particle tree with one event bank.
@@ -175,6 +175,8 @@ public:
 	bool fillTree(const GAncestorBank& ancestors);
 
 private:
+	bool event_identity_registered = false;
+	void fillEventIdentity(int event_number, int thread_id);
 	/// \brief Owned ROOT tree instance receiving all branch data.
 	std::unique_ptr<TTree> root_tree;
 

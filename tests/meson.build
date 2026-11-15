@@ -221,3 +221,16 @@ material_optics = executable('test_material_optics', 'material_optics.cc',
     dependencies: gui_probe_dependencies,
     link_with: all_libs)
 test('material_optics', material_optics, suite: 'gsystem')
+
+if root_dep.found()
+    root_sparse_fixture = executable('test_root_sparse_fixture',
+        files('root_sparse_fixture.cc', '../gemc_options.cc') + qrc_gemc_sources,
+        include_directories: gemc_includes,
+        dependencies: gui_probe_dependencies,
+        link_with: all_libs,
+        export_dynamic: true)
+    test('root_event_association', python_exe,
+         args: [files('root_event_association.py'), gemc, get_option('prefix'), root_sparse_fixture, '--plugin-path=' + build_root],
+         depends: plugin_target_maps.values(),
+         env: project_test_env, suite: 'gstreamer', timeout: 180)
+endif
