@@ -234,3 +234,8 @@ material_optics = executable('test_material_optics', 'material_optics.cc',
     dependencies: gui_probe_dependencies,
     link_with: all_libs)
 test('material_optics', material_optics, suite: 'gsystem')
+
+test('multipole_units', python_exe,
+     args: [files('multipole_units.py'), gemc, '--plugin-path=' + build_root],
+     depends: plugin_target_maps.values(),
+     env: project_test_env, suite: 'gfields')
