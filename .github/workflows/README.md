@@ -97,8 +97,21 @@ pygemc` run validates pygemc compatibility only and does not deploy.
   - Trigger: pull requests, merge queue runs, pushes to `main`, or manual dispatch.
   - Effect: runs the sanitizer matrix and uploads sanitizer logs.
 - [`pr-docker-image.yml`](pr-docker-image.yml) — **PR Docker Image**
-  - Trigger: pull request open, update, reopen, and close events.
-  - Effect: publishes an AlmaLinux preview image for an open PR and deletes it when the PR closes.
+  - Trigger: pull request open, update, and reopen events.
+  - Upcoming in the next release: builds AlmaLinux previews for amd64 and arm64 with read-only permissions,
+    exporting OCI archives as one-day artifacts. Fork contributors do not need repository write access.
+- [`pr-docker-image-publish.yml`](pr-docker-image-publish.yml) — **Publish PR Docker Image**
+  - Trigger: completion of `PR Docker Image`, or a PR close event through `pull_request_target`.
+  - Upcoming in the next release: validates the successful source workflow and matches its repository,
+    head branch, and commit to exactly one current open PR, including fork PRs with empty event PR arrays.
+    Skopeo copies the two archives from that exact run to GHCR and Buildx creates the preview manifest.
+    Destination tags come from trusted configuration; artifacts never supply commands or destinations.
+  - Publication checks out only the trusted workflow commit and never builds or executes PR code or images.
+    It rechecks the PR before publishing and shares a concurrency group with close-event cleanup.
+    Cleanup checks out no code, removes only versions exclusively tagged for that PR, and reports API errors.
+  - Both workflows must be present on the default branch before fork previews can publish. Existing fork PRs
+    need a new build after the change lands. Under the GHCR package's **Manage Actions access**, `gemc/src`
+    needs Write access to publish and Admin access to delete versions; collaborator access stays unchanged.
 
 ## Release workflows
 
@@ -160,7 +173,10 @@ workflow identifiers hosted by GitHub.
 - `GITHUB_TOKEN` handles GHCR, artifacts, releases, tags, Pages, and same-repository Actions API operations.
 
 Privileged `workflow_run` jobs must retain conclusion, same-repository, branch, workflow-name, and event checks.
-Never allow an untrusted pull-request workflow to reach image, release, or cross-repository publication steps.
+Release and cross-repository publication must never accept untrusted PR runs. The PR preview publisher is a
+separate, limited path: it accepts image data from validated PR builds, uses trusted code and destination tags,
+and never executes PR content with write credentials. Do not replace its build trigger with
+`pull_request_target`.
 
 ## Concurrency, retries, and skipped runs
 

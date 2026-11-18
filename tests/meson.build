@@ -35,6 +35,19 @@ test('gfield_random_state', gfield_random_state,
      depends: [plugin_target_maps['gfieldmultipolesFactory']],
      env: project_test_env, suite: 'gfields')
 
+multipole_correctness = executable(
+    'test_multipole_correctness',
+    'multipole_correctness.cc',
+    include_directories: gemc_includes,
+    dependencies: [yaml_cpp_dep, clhep_deps, geant4_core_deps, expat_dep, zlib_dep],
+    link_with: [lib_target_maps['gfields'], lib_target_maps['gfactory'],
+                lib_target_maps['glogging'], lib_target_maps['goptions'], lib_target_maps['guts']],
+    export_dynamic: true)
+test('multipole_correctness', multipole_correctness,
+     args: [files('multipole_correctness.yaml'), '-plugin_path=' + build_root],
+     depends: [plugin_target_maps['gfieldmultipolesFactory']],
+     env: project_test_env, suite: 'gfields')
+
 test('gui_catalogs', python_exe,
      args: [files('qt_catalogs.py')], env: project_test_env, suite: 'gui')
 test('gui_catalog_freshness', python_exe,
@@ -232,3 +245,7 @@ test('serial_output', python_exe,
      args: [files('serial_output.py'), gemc, get_option('prefix'), run_normalization, '--plugin-path=' + build_root],
      depends: plugin_target_maps.values(),
      env: project_test_env, suite: 'gactions', timeout: 180)
+test('multipole_units', python_exe,
+     args: [files('multipole_units.py'), gemc, '--plugin-path=' + build_root],
+     depends: plugin_target_maps.values(),
+     env: project_test_env, suite: 'gfields')
