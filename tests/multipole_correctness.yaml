@@ -23,6 +23,11 @@ gmultipoles:
     rotaxis: Z
     strength: 1*tesla
     rotation_angle: 45*deg
+  - name: quad_rolled_90
+    pole_number: 4
+    rotaxis: Z
+    strength: 1*tesla
+    rotation_angle: 90*deg
   - name: sextupole
     pole_number: 6
     rotaxis: Z

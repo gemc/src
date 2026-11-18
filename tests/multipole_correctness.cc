@@ -32,6 +32,31 @@ bool near(double value, double expected, double tolerance, const std::string& la
 	return false;
 }
 
+bool check_focusing(const std::string& name, const std::shared_ptr<GField>& field, bool x_focusing) {
+	// For a positive charge moving along +Z, F/(q*v) = (-By, Bx, 0).
+	// With G=1 T/m, the normal quadrupole restores X and defocuses Y; a 90-degree roll swaps them.
+	bool passed = true;
+	for (int axis = 0; axis < 2; ++axis) {
+		const bool focusing = (axis == 0) == x_focusing;
+		for (const double offset : {-10*mm, 10*mm}) {
+			Vector position{};
+			position[axis] = offset;
+			const auto value = evaluate(field, position);
+			const Vector force_per_charge_speed{-value[1], value[0], 0};
+			Vector expected{};
+			expected[axis] = (focusing ? -1.0 : 1.0) * offset / m * tesla;
+			const std::string label = name + (axis == 0 ? " X " : " Y ") +
+			                          (focusing ? "focusing" : "defocusing") +
+			                          (offset < 0 ? " at negative offset" : " at positive offset");
+			for (int component = 0; component < 3; ++component) {
+				passed &= near(force_per_charge_speed[component], expected[component], 1e-10*tesla,
+				               label + " force/(q*v) component " + std::to_string(component));
+			}
+		}
+	}
+	return passed;
+}
+
 bool check_maxwell(const std::string& name, const std::shared_ptr<GField>& field) {
 	const Vector position{0.1*m, 0.2*m, 0.3*m};
 	const double h = 0.1*mm;
@@ -91,7 +116,10 @@ int main(int argc, char* argv[]) {
 	for (const auto& name : magneto.getFieldNames()) {
 		passed &= check_maxwell(name, magneto.getField(name));
 	}
+	passed &= check_focusing("quad_z", magneto.getField("quad_z"), true);
+	passed &= check_focusing("quad_rolled_90", magneto.getField("quad_rolled_90"), false);
 	if (!passed) { return EXIT_FAILURE; }
-	std::cout << "Multipole reference fields, divergence/curl, and dipole preservation passed.\n";
+	std::cout << "Multipole reference fields, focusing/defocusing, roll, divergence/curl, "
+	             "and dipole preservation passed.\n";
 	return EXIT_SUCCESS;
 }
