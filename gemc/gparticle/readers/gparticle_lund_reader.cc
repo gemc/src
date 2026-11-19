@@ -169,12 +169,12 @@ GParticleRecord make_record_from_lund(const LundParticleLine& particle,
 		particle.pid,
 		particle.type,
 		1,
-		momentum,
+		momentum * CLHEP::GeV,
 		theta,
 		std::atan2(particle.py, particle.px),
-		particle.vx,
-		particle.vy,
-		particle.vz
+		particle.vx * CLHEP::cm,
+		particle.vy * CLHEP::cm,
+		particle.vz * CLHEP::cm
 	};
 }
 
