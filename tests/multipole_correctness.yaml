@@ -1,0 +1,48 @@
+gmultipoles:
+  - name: quad_z
+    pole_number: 4
+    rotaxis: Z
+    strength: 1*tesla
+  - name: quad_x
+    pole_number: 4
+    rotaxis: X
+    strength: 1*tesla
+  - name: quad_y
+    pole_number: 4
+    rotaxis: Y
+    strength: 1*tesla
+  - name: quad_shifted
+    pole_number: 4
+    rotaxis: Z
+    strength: 1*tesla
+    vx: 30*mm
+    vy: -40*mm
+    vz: 50*mm
+  - name: quad_rolled
+    pole_number: 4
+    rotaxis: Z
+    strength: 1*tesla
+    rotation_angle: 45*deg
+  - name: quad_rolled_90
+    pole_number: 4
+    rotaxis: Z
+    strength: 1*tesla
+    rotation_angle: 90*deg
+  - name: sextupole
+    pole_number: 6
+    rotaxis: Z
+    strength: 1*tesla
+  - name: dipole
+    pole_number: 2
+    rotaxis: Z
+    strength: 1*tesla
+  - name: dipole_rolled
+    pole_number: 2
+    rotaxis: Z
+    strength: 1*tesla
+    rotation_angle: 45*deg
+  - name: longitudinal
+    pole_number: 2
+    rotaxis: Y
+    strength: 1*tesla
+    longitudinal: true

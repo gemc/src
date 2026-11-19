@@ -14,7 +14,7 @@ bool GstreamerRootFactory::publishEventTrueInfoDataImpl(const std::string&      
 	if (!trueInfoData.empty()) {
 		const auto& trueInforDataTree = getOrInstantiateTrueInfoDataTree(detectorName, trueInfoData.front());
 
-		return trueInforDataTree->fillTree(trueInfoData);
+		return trueInforDataTree->fillTree(trueInfoData, current_event_number, current_thread_id);
 	}
 
 	return false;

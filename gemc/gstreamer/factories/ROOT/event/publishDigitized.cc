@@ -14,7 +14,7 @@ bool GstreamerRootFactory::publishEventDigitizedDataImpl(const std::string&     
 	if (!digitizedData.empty()) {
 		const auto& digitizedDataTree = getOrInstantiateDigitizedDataTree(detectorName, digitizedData.front());
 
-		return digitizedDataTree->fillTree(digitizedData);
+		return digitizedDataTree->fillTree(digitizedData, current_event_number, current_thread_id);
 	}
 
 	return false;

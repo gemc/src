@@ -1,0 +1,197 @@
+# Privileged publication copies untrusted OCI blobs; it never builds or runs PR code.
+name: Publish PR Docker Image
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  workflow_run:
+    workflows: [ "PR Docker Image" ]
+    types: [ completed ]
+  pull_request_target:
+    types: [ closed ]
+
+jobs:
+  resolve:
+    if: >-
+      ${{ github.event_name == 'workflow_run' &&
+          github.event.workflow_run.event == 'pull_request' &&
+          github.event.workflow_run.conclusion == 'success' }}
+    name: Validate PR build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    outputs:
+      pr: ${{ steps.pr.outputs.pr }}
+      image: ${{ steps.cfg.outputs.image }}
+      tag: ${{ steps.cfg.outputs.tag }}
+    steps:
+      - name: Checkout trusted publisher
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+
+      - name: Test publication guards
+        run: node --test ci/test_pr_image_context.cjs
+
+      - id: pr
+        name: Validate source workflow and find current open PR
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = await require('./ci/pr_image_context.cjs')({ github, context, core });
+            if (pr) core.setOutput('pr', pr);
+
+      - id: cfg
+        if: ${{ steps.pr.outputs.pr != '' }}
+        name: Resolve destination from trusted configuration
+        env:
+          PR: ${{ steps.pr.outputs.pr }}
+        run: |
+          source ci/tags_config.sh
+          gemc_tag="$(get_gemc_tags | awk '{print $1}')"
+          alma_tag="$(get_latest_almalinux)"
+          {
+            echo "image=$(build_image_ref)"
+            echo "tag=${gemc_tag}-almalinux-${alma_tag}-pr-${PR}"
+          } >> "$GITHUB_OUTPUT"
+
+  publish:
+    if: ${{ needs.resolve.outputs.pr != '' }}
+    name: Publish preview and multi-arch manifest
+    needs: resolve
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+      pull-requests: read
+    # Serialize with close-event cleanup; recheck the PR after acquiring this group.
+    concurrency:
+      group: pr-docker-image-package-${{ needs.resolve.outputs.pr }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout trusted publisher
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+
+      - name: Free up disk space for both image archives
+        uses: ./.github/actions/free-disk-space
+
+      - name: Download amd64 OCI archive from the validated run
+        uses: actions/download-artifact@v7
+        with:
+          name: pr-image-amd64
+          path: ${{ runner.temp }}/pr-images/amd64
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Download arm64 OCI archive from the validated run
+        uses: actions/download-artifact@v7
+        with:
+          name: pr-image-arm64
+          path: ${{ runner.temp }}/pr-images/arm64
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Install skopeo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - id: current
+        name: Recheck PR state and head before publication
+        uses: actions/github-script@v8
+        env:
+          PR: ${{ needs.resolve.outputs.pr }}
+        with:
+          script: |
+            const pr = await require('./ci/pr_image_context.cjs')({
+              github, context, core, expectedPullRequest: process.env.PR,
+            });
+            if (pr) core.setOutput('pr', pr);
+
+      - name: Log in to GHCR
+        if: ${{ steps.current.outputs.pr != '' }}
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Copy images and create multi-arch manifest
+        if: ${{ steps.current.outputs.pr != '' }}
+        env:
+          BASE_TAG: ${{ needs.resolve.outputs.image }}:${{ needs.resolve.outputs.tag }}
+        run: |
+          # Treat archives as data. Never load scripts, build Dockerfiles, or run these images.
+          for arch in amd64 arm64; do
+            skopeo copy --all --retry-times 5 --authfile "$HOME/.docker/config.json" \
+              "oci-archive:${RUNNER_TEMP}/pr-images/${arch}/pr-image.tar" \
+              "docker://${BASE_TAG}-${arch}"
+          done
+          docker buildx imagetools create -t "$BASE_TAG" "${BASE_TAG}-amd64" "${BASE_TAG}-arm64"
+          {
+            echo '### GEMC PR image (multi-arch)'
+            echo '```'
+            echo "$BASE_TAG"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  cleanup:
+    if: ${{ github.event_name == 'pull_request_target' && github.event.action == 'closed' }}
+    name: Delete PR image
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    concurrency:
+      group: pr-docker-image-package-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    steps:
+      # No checkout: closing a fork PR must never execute code from that fork.
+      - name: Delete only this PR's image versions
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const org = context.repo.owner;
+            const package_name = context.repo.repo.toLowerCase();
+            const pr = context.payload.pull_request.number;
+            if (!Number.isSafeInteger(pr) || pr <= 0) throw new Error('Invalid PR number');
+            const pattern = new RegExp(`-pr-${pr}(-amd64|-arm64)?$`);
+            let versions;
+            try {
+              versions = await github.paginate(
+                'GET /orgs/{org}/packages/container/{package_name}/versions',
+                { org, package_name, per_page: 100 },
+              );
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              core.info('Package does not exist; nothing to delete.');
+              return;
+            }
+            for (const version of versions) {
+              const tags = version.metadata?.container?.tags ?? [];
+              if (!tags.some(tag => pattern.test(tag))) continue;
+              if (!tags.every(tag => pattern.test(tag))) {
+                core.warning(`Keeping version ${version.id}: it also has tags outside this PR.`);
+                continue;
+              }
+              await github.request(
+                'DELETE /orgs/{org}/packages/container/{package_name}/versions/{package_version_id}',
+                { org, package_name, package_version_id: version.id },
+              );
+              core.info(`Deleted PR #${pr} image version ${version.id}`);
+            }

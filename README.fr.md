@@ -31,6 +31,13 @@
         <a href="https://github.com/gemc/src/actions/workflows/valgrind_profile.yml">
           <img alt="Valgrind Profile"
                src="https://github.com/gemc/src/actions/workflows/valgrind_profile.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/pygemc/actions/workflows/pygemc_tests.yml">
+          <img alt="pygemc tests"
+               src="https://github.com/gemc/pygemc/actions/workflows/pygemc_tests.yml/badge.svg">
+        </a><br/>
+        <a href="https://hub.docker.com/r/gemc/gemc">
+          <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/gemc/gemc.svg">
         </a>
       </td>
       <td align="center" valign="top">
@@ -50,14 +57,19 @@
                src="https://github.com/gemc/src/actions/workflows/macos_tarball.yml/badge.svg">
         </a><br/>
         <a href="https://github.com/gemc/src/actions/workflows/dev_release.yml">
-          <img alt="Nightly Dev Release"
+          <img alt="Nightly gemc Release"
                src="https://github.com/gemc/src/actions/workflows/dev_release.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/pygemc/actions/workflows/publish_pypi.yml">
+          <img alt="Publish PyPI"
+               src="https://github.com/gemc/pygemc/actions/workflows/publish_pypi.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/pygemc/actions/workflows/dev_release.yml">
+          <img alt="Nightly pygemc Release"
+               src="https://github.com/gemc/pygemc/actions/workflows/dev_release.yml/badge.svg">
         </a><br/>
         <a href="https://pypi.org/project/pygemc/">
           <img alt="pygemc PyPI" src="https://img.shields.io/pypi/v/pygemc.svg?cacheSeconds=300">
-        </a><br/>
-        <a href="https://hub.docker.com/r/gemc/gemc">
-          <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/gemc/gemc.svg">
         </a>
       </td>
       <td align="center" valign="top">
@@ -66,6 +78,13 @@
         </a><br/>
         <a href="https://github.com/gemc/src/actions/workflows/doxygen.yml">
           <img alt="Doxygen" src="https://github.com/gemc/src/actions/workflows/doxygen.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/home/actions/workflows/jekyll.yml">
+          <img alt="Homepage" src="https://github.com/gemc/home/actions/workflows/jekyll.yml/badge.svg">
+        </a><br/>
+        <a href="https://github.com/gemc/binder-tutorials/actions/workflows/publish-image.yml">
+          <img alt="Publish Jupyter Image"
+               src="https://github.com/gemc/binder-tutorials/actions/workflows/publish-image.yml/badge.svg">
         </a>
       </td>
     </tr>
@@ -74,10 +93,10 @@
 
 **GEMC** est une application [Geant4](https://geant4.web.cern.ch) pilotée par des bases de données, destinée aux
 simulations de détecteurs et de transport des rayonnements. Son API Python permet de définir des configurations
-complexes de détecteurs sans écrire de code Geant4.
+de détecteurs complexes sans écrire de code Geant4.
 
-Les descriptions des détecteurs restent indépendantes de l'exécutable : vous les créez en Python, les stockez
-dans des bases de données ASCII ou SQLite, et GEMC les charge à l'exécution pour lancer la simulation Geant4.
+Les descriptions de détecteurs restent séparées de l'exécutable : vous les créez en Python, les stockez dans
+des bases de données ASCII ou SQLite, et GEMC les charge à l'exécution pour lancer la simulation Geant4.
 
 Des plugins C++ prennent en charge la réponse personnalisée des détecteurs, les champs magnétiques, les
 générateurs d'événements et les formats de sortie.
@@ -96,9 +115,9 @@ générateurs d'événements et les formats de sortie.
 - Types de détecteurs sensibles intégrés : `flux`, `gPhotonDetector`, `dosimeter`, `particle_counter`
 - Sortie de simulation en ASCII, CSV, JSON et [ROOT](https://root.cern)
 - Génération d'événements depuis l'interface graphique, la ligne de commande et les fichiers YAML et LUND
-- Prise en charge des champs magnétiques, notamment des champs multipolaires et des cartes au format ASCII
-- Module Python `analyzer` pour lire les sorties de simulation (CSV, ROOT) et en tracer les données
-- Variantes de géométrie et configurations dépendant du numéro d'exécution
+- Prise en charge des champs magnétiques, y compris les champs multipolaires et les cartes de champ ASCII
+- Un module Python `analyzer` pour lire les résultats de simulation et les représenter graphiquement (CSV, ROOT)
+- Variations de géométrie et configurations dépendant du numéro de run
 - Compilation C++ avec Meson et images Docker testées en intégration continue pour Linux `amd64` et `arm64`
 
 
@@ -108,11 +127,11 @@ générateurs d'événements et les formats de sortie.
 
 Le moyen le plus rapide d'essayer GEMC est de passer par les exemples :
 
-- [Démarrage rapide avec Jupyter](https://mybinder.org/v2/gh/gemc/binder-tutorials/main?urlpath=lab/tree/notebooks/basic/quickstart.ipynb)
+- [Démarrage rapide Jupyter](https://mybinder.org/v2/gh/gemc/binder-tutorials/main?urlpath=lab/tree/notebooks/basic/quickstart.ipynb)
 - [Documentation et exemples](https://gemc.github.io/home/)
 - [Galerie d'exemples](https://gemc.github.io/home/examples/)
 
-Un flux de travail local minimal qui crée un détecteur `counter` et y simule le passage de 1000 événements :
+Une procédure locale minimale qui crée un détecteur `counter` et y simule 1000 événements :
 
 ```shell
 gemc-system-template -s counter
@@ -122,9 +141,9 @@ gemc counter.yaml -n=1000
 gemc-analyzer counter_t0_digitized.csv totEdep --kind csv --bins 50
 ```
 
-La commande de génération à partir d'un modèle crée un système `counter`,
+La commande de création à partir d'un modèle crée un système `counter`,
 le script Python construit la géométrie et la stocke dans un fichier SQLite `gemc.db`,
-`gemc` lance la simulation et `gemc-analyzer` trace une variable à partir de la sortie CSV.
+`gemc` exécute la simulation et `gemc-analyzer` trace une variable à partir de la sortie CSV.
 
 <br/>
 
@@ -132,14 +151,17 @@ le script Python construit la géométrie et la stocke dans un fichier SQLite `g
 
 Pour les instructions d'installation, consultez le [guide d'installation](https://gemc.github.io/home/installation/)
 
+L'environnement Python utilise Python 3.10-3.14 et inclut `pymeshlab`. À venir dans la prochaine version :
+le sous-projet pygemc sélectionne une version de Python installée et prise en charge, et gère les deux
+environnements, y compris l'installation des dépendances lors de `meson install`.
+
 
 <br/>
 
 ## pygemc
 
 Les systèmes de détecteurs sont construits et enregistrés dans des bases de données à l'aide de
-[`pygemc`](https://pypi.org/project/pygemc/).
-Un exemple de définition d'une boîte sensible de type flux :
+[`pygemc`](https://pypi.org/project/pygemc/). Exemple de définition d'un volume sensible en forme de boîte de type flux :
 
 ```python
 from pygemc import GVolume, autogeometry
@@ -170,9 +192,9 @@ PyVista ou exporter des fichiers VTK.js :
 
 ### Visualisation PyVista
 
-PyVista fait partie du flux de travail habituel de GEMC pour la géométrie. Il permet d'inspecter la géométrie
-des détecteurs avant de lancer Geant4, d'exporter des scènes VTK.js portables pour la documentation et de
-détecter les erreurs de positionnement ou de rotation lors de la modification des scripts Python de géométrie.
+PyVista fait partie du processus habituel de définition des géométries dans GEMC. Il permet d'inspecter la
+géométrie des détecteurs avant de lancer Geant4, d'exporter des scènes VTK.js portables pour la documentation et
+de repérer les erreurs de positionnement ou de rotation lors de la modification des scripts de géométrie Python.
 Quelques exemples :
 <table>
   <tr>
@@ -231,7 +253,7 @@ Quelques exemples :
   </tr>
 </table>
 
-Ouvrez les liens pour explorer les scènes PyVista interactives générées à partir des exemples GEMC.
+Ouvrez les liens vers les scènes PyVista interactives générées à partir des exemples GEMC.
 
 
 <br/>
@@ -239,7 +261,7 @@ Ouvrez les liens pour explorer les scènes PyVista interactives générées à p
 ## Exécution des simulations
 
 GEMC se configure avec des fichiers YAML et des options de ligne de commande équivalentes. Un fichier de
-pilotage compact peut définir le numéro d'exécution, le nombre d'événements, le générateur, les systèmes de
+pilotage compact peut définir le numéro de run, le nombre d'événements, le générateur, les systèmes de
 géométrie, les modules de sortie et le volume monde :
 
 ```yaml
@@ -265,19 +287,19 @@ gstreamer:
 root: G4Box, 15*cm, 15*cm, 15*cm, G4_AIR
 ```
 
-Lancer en mode non interactif :
+Exécution en mode batch :
 
 ```shell
 gemc counter.yaml
 ```
 
-Lancer avec l'interface graphique Geant4 :
+Exécution avec l'interface graphique Geant4 :
 
 ```shell
 gemc counter.yaml -gui
 ```
 
-Exécuter un fichier texte de macro Geant4 (à venir dans la prochaine version) :
+Exécution d'un fichier texte contenant une macro Geant4 (à venir dans la prochaine version) :
 
 ```shell
 gemc counter.yaml -geant4_macro=run.mac
@@ -285,18 +307,18 @@ gemc counter.yaml -gui -geant4_macro=vis.mac
 ```
 
 Le paramètre YAML équivalent est `geant4_macro: run.mac`. GEMC exécute la macro après l'initialisation et la
-configuration de la visualisation, avant d'entrer dans l'interface graphique ou le terminal interactif. Les
-chemins relatifs sont résolus à partir du répertoire de travail ; Geant4 gère les commentaires, les alias et les
-commandes `/control/execute` imbriquées. Les fichiers manquants et les commandes en échec entraînent un code de
-sortie non nul.
+configuration de la visualisation, avant d'ouvrir l'interface graphique ou le terminal interactif. Les chemins
+relatifs sont résolus à partir du répertoire de travail ; Geant4 gère les commentaires, les alias et les
+commandes `/control/execute` imbriquées. Les fichiers manquants et les commandes qui échouent entraînent un
+code de sortie non nul.
 
-En mode non interactif, la macro contrôle la génération d'événements avec des commandes comme `/run/beamOn 100` ;
-GEMC ne lance ensuite automatiquement ni les événements spécifiés par `-n` ni ceux répartis par `-run_weights`.
-Les conditions du détecteur sont préparées avec `-run`. Une macro dédiée à la visualisation ne génère aucun
-événement sauf si elle contient une commande de lancement du faisceau. Sans `geant4_macro`, le traitement
+En mode batch, la macro contrôle la génération d'événements avec des commandes telles que `/run/beamOn 100` ;
+GEMC ne simule pas automatiquement ensuite les événements spécifiés par `-n` ou répartis selon `-run_weights`.
+Les conditions du détecteur sont préparées à l'aide de `-run`. Une macro consacrée à la visualisation ne génère
+aucun événement à moins de contenir une commande de lancement du faisceau. Sans `geant4_macro`, le traitement
 habituel des événements reste inchangé.
 
-Générer une image Geant4 hors écran :
+Génération d'une image Geant4 hors écran :
 
 ```shell
 gemc counter.yaml -n=10 \
@@ -313,27 +335,25 @@ La couche de sortie repose sur des plugins. Les formats intégrés des modules d
 
 | Format  | Remarques |
 |---------|------------------------------------------------------------------------------------------------------------------|
-| `ascii` | Sortie texte lisible par l'humain |
-| `csv`   | Tables CSV par thread pour les hits numérisés, les données de vérité, les particules générées et les particules générées suivies |
+| `ascii` | Sortie texte lisible par un humain |
+| `csv`   | Tables CSV par thread pour les hits numérisés, les informations de vérité, les particules générées et les particules générées suivies |
 | `json`  | Sortie structurée des événements |
 | `root`  | TTrees ROOT, disponibles lorsque GEMC est compilé avec ROOT |
 
-À venir dans la prochaine version : la provenance des trajectoires pourra être enregistrée dans les événements
-en sortie :
+À venir dans la prochaine version : la provenance des trajectoires pourra être activée dans la sortie des événements :
 
 ```shell
 gemc counter.yaml -save_original_track
 gemc counter.yaml -save_all_ancestors
 ```
 
-`-save_original_track` renseigne `otid` dans chaque hit contenant des données de vérité. `-save_all_ancestors`
-active également les identifiants des trajectoires d'origine et écrit une banque `ancestors` sans doublons,
-contenant chaque trajectoire ayant produit un hit et toute sa chaîne de trajectoires parentes. La sortie CSV
-utilise un fichier `_ancestors.csv` distinct ; les formats ASCII, JSON et ROOT incluent cette banque dans les
-événements en sortie.
+`-save_original_track` renseigne `otid` dans chaque hit contenant les informations de vérité. `-save_all_ancestors`
+active également les identifiants de trajectoire d'origine et écrit une banque `ancestors` sans doublons contenant
+chaque trajectoire produisant un hit et la chaîne complète de ses ancêtres. La sortie CSV utilise un fichier
+`_ancestors.csv` distinct ; les sorties ASCII, JSON et ROOT incluent cette banque dans les données des événements.
 
 
-`pygemc` fournit quelques utilitaires pour analyser les sorties CSV ou ROOT. Par exemple :
+`pygemc` fournit des utilitaires pour analyser les sorties CSV ou ROOT. Par exemple :
 
 ```shell
 gemc-analyzer counter_t0_digitized.csv totEdep --kind csv --bins 50
@@ -365,10 +385,10 @@ Par exemple, après avoir exécuté l'[exemple `b2`](https://gemc.github.io/home
 
 - [Page d'accueil de GEMC](https://gemc.github.io/home/)
 - [Journalisation C++](https://gemc.github.io/home/documentation/api/logging/) — modèles de messages à paramètres
-  numérotés, filtrage et gestion des erreurs ; les méthodes utilisant ces modèles sont à venir dans la prochaine version
-- [Passage à l'échelle multithread](https://gemc.github.io/home/documentation/support/thread_scaling) — mesures de
-  performances multithread et balayage du nombre de threads
-- [Profilage](https://gemc.github.io/home/documentation/support/valgrind_profile) — métriques de Valgrind callgrind
+  numérotés, filtrage et gestion des erreurs ; les méthodes à base de modèles sont à venir dans la prochaine version
+- [Passage à l'échelle selon le nombre de threads](https://gemc.github.io/home/documentation/support/thread_scaling) — mesures
+  de performances multithread et exploration des performances selon le nombre de threads
+- [Profilage](https://gemc.github.io/home/documentation/support/valgrind_profile) — métriques callgrind de Valgrind
   et leur interprétation
 - [Dépôt de l'API Python](https://github.com/gemc/pygemc)
 - [Dépôt des systèmes GEMC pour CLAS12](https://github.com/gemc/clas12-systems)
@@ -378,7 +398,7 @@ Par exemple, après avoir exécuté l'[exemple `b2`](https://gemc.github.io/home
 
 ## Contribuer
 
-Les contributions sont les bienvenues sous forme de pull requests classiques. Avant d'ouvrir une pull request,
+Les contributions sont les bienvenues via les pull requests habituelles. Avant d'ouvrir une pull request,
 exécutez les tests Meson pertinents et limitez les modifications à l'objectif visé. Consultez :
 
 - [`CONTRIBUTING.md`](CONTRIBUTING.md)
@@ -393,23 +413,23 @@ paramètres numérotés :
 log->info(0, "Using %1 threads out of %2 available cores.", useThreads, ncores);
 ```
 
-Adaptez les appels utilisant la concaténation dans les plugins externes et recompilez avec les en-têtes GEMC
-correspondants. Les méthodes transitoires `*Template()` restent des alias qui transmettent les appels. Consultez
-le [guide de journalisation](https://gemc.github.io/home/documentation/api/logging/) pour les règles relatives aux
-marqueurs de substitution et la gestion des textes de diagnostic dynamiques.
+Migrez les appels utilisant la concaténation dans les plugins externes et recompilez avec les en-têtes GEMC
+correspondants. Les méthodes transitoires `*Template()` restent des alias qui redirigent vers les nouvelles méthodes.
+Consultez le [guide de journalisation](https://gemc.github.io/home/documentation/api/logging/) pour les règles
+relatives aux paramètres de substitution et la gestion des textes de diagnostic dynamiques.
 
-Les catalogues de journalisation en anglais sont générés à partir des modèles de messages C++ dans chaque dépôt
-qui en est responsable. Consultez les [catalogues de messages](translations/README.md) pour les commandes
-d'extraction, de validation et d'installation. La journalisation détecte automatiquement la langue ;
-`-language=it` sélectionne l'italien et `-language=en` impose l'anglais. En l'absence de traduction, l'anglais est
-utilisé. Le processus partagé Claude/Codex génère les catalogues dans les langues du projet au moyen de la même
-tâche cron exécutée les jours de semaine que pour les traductions du site web et des README.
+Les catalogues de journalisation en anglais sont générés à partir des modèles C++ dans chaque dépôt responsable
+du code concerné. Consultez les [catalogues de messages](translations/README.md) pour les commandes d'extraction,
+de validation et d'installation. La journalisation détecte automatiquement la langue ; `-language=it` sélectionne
+l'italien et `-language=en` impose l'anglais. En l'absence de traduction, l'anglais est utilisé. Le workflow
+Claude/Codex partagé génère les catalogues dans les langues du projet au moyen de la même tâche cron exécutée
+les jours de semaine pour les traductions du site web et des README.
 
-À venir dans la prochaine version : les commandes de l'interface graphique, les info-bulles, les descriptions
-de géométrie, les messages de l'analyseur et les libellés des boutons SVG utilisent le même choix de langue.
-Consultez les [traductions de l'interface graphique](translations/gui/README.md). Les outils Qt Linguist
-compilent les catalogues de l'interface graphique pendant la compilation ; les traductions des boîtes de
-dialogue standard utilisent les données linguistiques installées avec Qt.
+À venir dans la prochaine version : les commandes de l'interface graphique, les infobulles, les descriptions de
+géométrie, les messages de l'analyseur et les libellés des boutons SVG utilisent la même sélection de langue.
+Consultez les [traductions de l'interface graphique](translations/gui/README.md). Les outils Qt Linguist compilent
+les catalogues de l'interface graphique lors de la compilation ; les traductions des boîtes de dialogue standard
+utilisent les données linguistiques installées de Qt.
 
 <br/>
 
@@ -420,19 +440,19 @@ Si vous utilisez GEMC dans un travail scientifique, citez :
 > M. Ungaro and the CLAS Collaboration, "The CLAS12 Geant4 simulation," *Nuclear Instruments and Methods
 > in Physics Research Section A* **959**, 163422 (2020). https://doi.org/10.1016/j.nima.2020.163422
 
-La référence au format BibTeX et dans d'autres formats de citation se trouve dans [`CITATION.md`](CITATION.md).
+La référence BibTeX et d'autres formats de citation se trouvent dans [`CITATION.md`](CITATION.md).
 
 <br/>
 
 ## Licence
 
 GEMC est distribué sous la [licence Apache, version 2.0](LICENSE) ; consultez [`NOTICE`](NOTICE) pour les mentions
-d'attribution et les remerciements aux tiers. Le logiciel dépend également de composants tiers soumis à des
-licences distinctes, notamment Geant4, CLHEP, Qt, ROOT, SQLite et Assimp.
+d'attribution et les remerciements aux tiers. Le logiciel dépend également de composants tiers sous des licences
+distinctes, notamment Geant4, CLHEP, Qt, ROOT, SQLite et Assimp.
 
 <br/>
 
 ## Feuille de route
 
-Consultez la [feuille de route du projet](https://github.com/orgs/gemc/projects/1/views/4) pour connaître les
-plans de développement actuels.
+Consultez la [feuille de route du projet](https://github.com/orgs/gemc/projects/1/views/4) pour les plans de
+développement actuels.
