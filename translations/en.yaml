@@ -411,6 +411,9 @@ messages:
   : "Dependencies are not being resolved: their number should diminish. Above are the Outstanding gmaterials"
   # gemc/gfactory/gdl.h
   "Destroying %1": "Destroying %1"
+  # gemc/gstreamer/factories/ROOT/gRootTree.cc
+  ? "Detector variable %1 conflicts with reserved ROOT event metadata."
+  : "Detector variable %1 conflicts with reserved ROOT event metadata."
   # gemc/gdetector/gdetectorConstruction.cc
   ? "Digitization routine <%1> has been successfully assigned to SD.%2"
   : "Digitization routine <%1> has been successfully assigned to SD.%2"

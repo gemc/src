@@ -35,6 +35,19 @@ test('gfield_random_state', gfield_random_state,
      depends: [plugin_target_maps['gfieldmultipolesFactory']],
      env: project_test_env, suite: 'gfields')
 
+multipole_correctness = executable(
+    'test_multipole_correctness',
+    'multipole_correctness.cc',
+    include_directories: gemc_includes,
+    dependencies: [yaml_cpp_dep, clhep_deps, geant4_core_deps, expat_dep, zlib_dep],
+    link_with: [lib_target_maps['gfields'], lib_target_maps['gfactory'],
+                lib_target_maps['glogging'], lib_target_maps['goptions'], lib_target_maps['guts']],
+    export_dynamic: true)
+test('multipole_correctness', multipole_correctness,
+     args: [files('multipole_correctness.yaml'), '-plugin_path=' + build_root],
+     depends: [plugin_target_maps['gfieldmultipolesFactory']],
+     env: project_test_env, suite: 'gfields')
+
 test('gui_catalogs', python_exe,
      args: [files('qt_catalogs.py')], env: project_test_env, suite: 'gui')
 test('gui_catalog_freshness', python_exe,
@@ -224,6 +237,28 @@ test('material_optics', material_optics, suite: 'gsystem')
 
 sparse_hit_collections = executable('test_sparse_hit_collections',
     files('sparse_hit_collections.cc', '../gemc_options.cc') + qrc_gemc_sources,
+lund_units_args = [files('lund_generated_units.py'), gemc, '--plugin-path=' + build_root]
+if root_dep.found()
+    lund_units_args += ['--root']
+endif
+test('lund_generated_units', python_exe,
+     args: lund_units_args,
+     depends: plugin_target_maps.values(),
+     env: project_test_env, suite: 'gparticle')
+if root_dep.found()
+    root_sparse_fixture = executable('test_root_sparse_fixture',
+        files('root_sparse_fixture.cc', '../gemc_options.cc') + qrc_gemc_sources,
+        include_directories: gemc_includes,
+        dependencies: gui_probe_dependencies,
+        link_with: all_libs,
+        export_dynamic: true)
+    test('root_event_association', python_exe,
+         args: [files('root_event_association.py'), gemc, get_option('prefix'), root_sparse_fixture, '--plugin-path=' + build_root],
+         depends: plugin_target_maps.values(),
+         env: project_test_env, suite: 'gstreamer', timeout: 180)
+endif
+run_normalization = executable('test_run_normalization',
+    files('run_normalization.cc', '../gemc_options.cc') + qrc_gemc_sources,
     include_directories: gemc_includes,
     dependencies: gui_probe_dependencies,
     link_with: all_libs,
@@ -232,3 +267,11 @@ test('sparse_hit_collections', python_exe,
      args: [files('sparse_hit_collections.py'), sparse_hit_collections, get_option('prefix'), '--plugin-path=' + build_root],
      depends: plugin_target_maps.values(),
      env: project_test_env, suite: 'gactions', timeout: 180)
+test('serial_output', python_exe,
+     args: [files('serial_output.py'), gemc, get_option('prefix'), run_normalization, '--plugin-path=' + build_root],
+     depends: plugin_target_maps.values(),
+     env: project_test_env, suite: 'gactions', timeout: 180)
+test('multipole_units', python_exe,
+     args: [files('multipole_units.py'), gemc, '--plugin-path=' + build_root],
+     depends: plugin_target_maps.values(),
+     env: project_test_env, suite: 'gfields')

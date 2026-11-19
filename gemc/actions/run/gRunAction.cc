@@ -91,10 +91,10 @@ void GRunAction::BeginOfRunAction(const G4Run *aRun) {
 
 	// Worker threads own event-mode publication, so they lazily build and open
 	// thread-local streamers only when at least one event-mode digitizer exists.
-	if (!IsMaster() && need_a_thread_streamer) {
+	if ((!IsMaster() || !G4Threading::IsMultithreadedApplication()) && need_a_thread_streamer) {
 		if (gstreamer_threads_map == nullptr) {
 			log->info(1, "Defining thread gstreamers for run %1 in thread %2", run, thread_id);
-			gstreamer_threads_map = gstreamer::gstreamersMapPtr(goptions, thread_id);
+			gstreamer_threads_map = gstreamer::gstreamersMapPtr(goptions, thread_id < 0 ? 0 : thread_id);
 		}
 
 		if (gstreamer_threads_map == nullptr) {
@@ -124,7 +124,7 @@ void GRunAction::BeginOfRunAction(const G4Run *aRun) {
 	}
 	// The master thread owns run-mode publication, so it opens the run streamers
 	// only when at least one digitizer accumulates payload at run scope.
-	else if (IsMaster() && need_a_run_streamer) {
+	if (IsMaster() && need_a_run_streamer) {
 		if (gstreamer_run_map == nullptr) {
 			log->info(1, "Defining run gstreamers for run %1", run);
 			gstreamer_run_map = gstreamer::gstreamersMapPtr(goptions);
@@ -170,7 +170,7 @@ void GRunAction::EndOfRunAction(const G4Run *aRun) {
 		}
 	}
 
-	if (!IsMaster() && need_a_thread_streamer) {
+	if ((!IsMaster() || !G4Threading::IsMultithreadedApplication()) && need_a_thread_streamer) {
 		if (gstreamer_threads_map == nullptr) {
 			log->error(
 				gaction::ERR_STREAMERMAP_NOT_EXISTING,
@@ -213,6 +213,9 @@ void GRunAction::EndOfRunAction(const G4Run *aRun) {
 		// Gather all worker-produced run data for this run and merge them into a
 		// single master-side run-data object before publication.
 		auto completed_run_data = take_completed_worker_run_data();
+		if (!G4Threading::IsMultithreadedApplication()) {
+			completed_run_data.emplace_back(std::move(run_data));
+		}
 		log->info(
 			2, "%1 master collected %2 worker run_data object(s) for run %3", FUNCTION_NAME,
 			static_cast<int>(completed_run_data.size()), runNumber);

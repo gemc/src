@@ -5,6 +5,8 @@
 // Emit lightweight lifecycle logs around event publication for the ROOT backend.
 
 bool GstreamerRootFactory::startEventImpl([[maybe_unused]] const std::shared_ptr<GEventDataCollection>& event_data) {
+	current_event_number = event_data->getHeader()->getG4LocalEvn();
+	current_thread_id = event_data->getHeader()->getThreadID();
 	log->info(2, "Start of event %1 in %2", event_data->getHeader()->getG4LocalEvn(), filename());
 
 	return true;
