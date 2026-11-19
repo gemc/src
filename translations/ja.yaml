@@ -207,6 +207,7 @@ messages:
   ? "Dependencies are not being resolved: their number should diminish. Above are the Outstanding gmaterials"
   : "依存関係の解決が進んでいません: 未解決の依存関係の数は減少するはずです。未解決の gmaterials は上記のとおりです"
   "Destroying %1": "%1 を破棄しています"
+  "Detector variable %1 conflicts with reserved ROOT event metadata.": "検出器変数 %1 が予約済みの ROOT イベントメタデータと競合しています。"
   "Digitization routine <%1> has been successfully assigned to SD.%2": "デジタイズルーチン <%1> が SD.%2 に正常に割り当てられました"
   "Digitization routine <%1> has been successfully defined.": "デジタイズルーチン <%1> が正常に定義されました。"
   "Directory extracted from YAML <%1> is empty.": "YAML <%1> から抽出されたディレクトリが空です。"
@@ -471,6 +472,7 @@ messages:
   "Material <%1> not found. Using backup material <%2>.": "マテリアル <%1> が見つかりません。代替マテリアル <%2> を使用します。"
   "Material <%1>, needed by %2,  not found yet": "%2 が必要とするマテリアル <%1> は、  まだ見つかっていません"
   "Maximum acceptable field step set to %1 mm.": "磁場の許容最大ステップ幅を %1 mm に設定しました。"
+  "Mie size %1 mismatch: photonEnergy has size %2": "Mie のサイズ %1 が一致しません: photonEnergy のサイズは %2 です"
   ? "NIEL tables are empty for pid <%1>. Did loadConstantsImpl fail?"
   : "pid <%1> の NIEL テーブルが空です。loadConstantsImpl が失敗しましたか？"
   "Native solid <%1> has no constructor parameters": "ネイティブソリッド <%1> にコンストラクターパラメーターがありません"
@@ -557,6 +559,7 @@ messages:
     ides/ForApplicationDeveloper/html/Detector/Geometry/geomSolids.html"
   : "<%1> のコンストラクタには 4、11、または 24 個のパラメータが必要です。https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationD\
     eveloper/html/Detector/Geometry/geomSolids.html を参照してください"
+  "The constructor of <%1> must have 5 or 11 parameters.": "<%1> のコンストラクタは 5 個または 11 個のパラメータを持つ必要があります。"
   ? "The constructor of <%1> must have numSides >= 1 and %2 parameters (4 + 3 x numZPlanes), we got %3"
   : "<%1> のコンストラクタでは numSides >= 1 を満たし、パラメータ数を %2（4 + 3 x numZPlanes）にする必要がありますが、%3 個が指定されています"
   "The constructor of <%1> uses an unknown solid type <%2>": "<%1> のコンストラクタで、不明なソリッド型 <%2> が使用されています"

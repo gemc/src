@@ -194,6 +194,7 @@ messages:
   ? "Dependencies are not being resolved: their number should diminish. Above are the Outstanding gmaterials"
   : "依赖项未得到解决：其数量应逐步减少。上方列出了仍有未解决依赖项的 gmaterials"
   "Destroying %1": "正在销毁 %1"
+  "Detector variable %1 conflicts with reserved ROOT event metadata.": "探测器变量 %1 与保留的 ROOT 事件元数据冲突。"
   "Digitization routine <%1> has been successfully assigned to SD.%2": "数字化例程 <%1> 已成功分配给 SD.%2"
   "Digitization routine <%1> has been successfully defined.": "数字化例程 <%1> 已成功定义。"
   "Directory extracted from YAML <%1> is empty.": "从 YAML <%1> 中提取的目录为空。"
@@ -437,6 +438,7 @@ messages:
   "Material <%1> not found. Using backup material <%2>.": "未找到材料 <%1>。使用备用材料 <%2>。"
   "Material <%1>, needed by %2,  not found yet": "材料 <%1> 是 %2 所需的，  尚未找到"
   "Maximum acceptable field step set to %1 mm.": "最大可接受场步长已设为 %1 mm。"
+  "Mie size %1 mismatch: photonEnergy has size %2": "Mie 大小 %1 不匹配：photonEnergy 的大小为 %2"
   ? "NIEL tables are empty for pid <%1>. Did loadConstantsImpl fail?"
   : "pid <%1> 的 NIEL 表为空。loadConstantsImpl 是否失败？"
   "Native solid <%1> has no constructor parameters": "原生实体 <%1> 没有构造函数参数"
@@ -518,6 +520,7 @@ messages:
     ides/ForApplicationDeveloper/html/Detector/Geometry/geomSolids.html"
   : "<%1> 的构造函数必须有 4、11 或 24 个参数，请参阅 https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/\
     html/Detector/Geometry/geomSolids.html"
+  "The constructor of <%1> must have 5 or 11 parameters.": "<%1> 的构造函数必须有 5 或 11 个参数。"
   ? "The constructor of <%1> must have numSides >= 1 and %2 parameters (4 + 3 x numZPlanes), we got %3"
   : "<%1> 的构造函数必须满足 numSides >= 1，且有 %2 个参数（4 + 3 x numZPlanes），实际收到 %3 个"
   "The constructor of <%1> uses an unknown solid type <%2>": "<%1> 的构造函数使用了未知的实体类型 <%2>"

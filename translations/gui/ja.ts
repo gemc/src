@@ -268,6 +268,10 @@ Parameter : %1
       <translation>サイズ:</translation>
     </message>
     <message>
+      <source>Start the XR server and export one event.</source>
+      <translation>XRサーバーを起動し、イベントを1件エクスポートします。</translation>
+    </message>
+    <message>
       <source>Text</source>
       <translation>テキスト</translation>
     </message>
@@ -286,6 +290,10 @@ Parameter : %1
     <message>
       <source>X:</source>
       <translation>X:</translation>
+    </message>
+    <message>
+      <source>XR Server</source>
+      <translation>XRサーバー</translation>
     </message>
     <message>
       <source>Y:</source>
@@ -849,6 +857,10 @@ Lines</source>
 表示</translation>
     </message>
     <message>
+      <source>Physics</source>
+      <translation>物理</translation>
+    </message>
+    <message>
       <source>Setup</source>
       <translation>設定</translation>
     </message>
@@ -916,7 +928,7 @@ Lines</source>
     </message>
     <message>
       <source>Draw Logical Overlap within %1</source>
-      <translation>%1 内の論理ボリュームの重なりを描画</translation>
+      <translation>%1内の論理ボリュームの重なりを描画</translation>
     </message>
     <message>
       <source>Inspect %1</source>
@@ -1205,6 +1217,10 @@ Lines</source>
       <translation>イベント数:</translation>
     </message>
     <message>
+      <source>Physics</source>
+      <translation>物理</translation>
+    </message>
+    <message>
       <source>Quit GEMC</source>
       <translation>GEMC を終了</translation>
     </message>
@@ -1237,6 +1253,125 @@ Lines</source>
 Install the Qt6 Charts package and rebuild GEMC to enable live histograms.</source>
       <translation>解析ビューには Qt6 Charts が必要ですが、GEMC のビルド時に利用できませんでした。
 ライブヒストグラムを有効にするには、Qt6 Charts パッケージをインストールして GEMC を再ビルドしてください。</translation>
+    </message>
+  </context>
+  <context>
+    <name>PhysicsView</name>
+    <message>
+      <source>%1 particle types</source>
+      <translation>%1種類の粒子</translation>
+    </message>
+    <message>
+      <source>Add a physics constructor to the reference list.</source>
+      <translation>物理コンストラクターをリファレンスリストに追加します。</translation>
+    </message>
+    <message>
+      <source>Applies to</source>
+      <translation>適用対象</translation>
+    </message>
+    <message>
+      <source>Apply physics</source>
+      <translation>物理設定を適用</translation>
+    </message>
+    <message>
+      <source>Changes are applied before the next run, or with Apply physics.</source>
+      <translation>変更は次のランの前、または「物理設定を適用」で適用されます。</translation>
+    </message>
+    <message>
+      <source>Check processes to enable them. Category checkboxes control the whole group. Combined processes are controlled as a single entry.</source>
+      <translation>プロセスにチェックを入れると有効になります。カテゴリのチェックボックスはグループ全体を制御します。複合プロセスは単一の項目として制御されます。</translation>
+    </message>
+    <message>
+      <source>Decay</source>
+      <translation>崩壊</translation>
+    </message>
+    <message>
+      <source>Electromagnetic</source>
+      <translation>電磁</translation>
+    </message>
+    <message>
+      <source>Filter processes</source>
+      <translation>プロセスを絞り込み</translation>
+    </message>
+    <message>
+      <source>General</source>
+      <translation>一般</translation>
+    </message>
+    <message>
+      <source>Hadronic</source>
+      <translation>ハドロン</translation>
+    </message>
+    <message>
+      <source>Optical</source>
+      <translation>光学</translation>
+    </message>
+    <message>
+      <source>Other</source>
+      <translation>その他</translation>
+    </message>
+    <message>
+      <source>Parallel worlds</source>
+      <translation>パラレルワールド</translation>
+    </message>
+    <message>
+      <source>Parameterisation</source>
+      <translation>パラメータ化</translation>
+    </message>
+    <message>
+      <source>Physics</source>
+      <translation>物理</translation>
+    </message>
+    <message>
+      <source>Physics applied. The next run uses these settings.</source>
+      <translation>物理設定を適用しました。次のランではこれらの設定が使用されます。</translation>
+    </message>
+    <message>
+      <source>Physics changes pending. They will be applied before the next run.</source>
+      <translation>物理設定に未適用の変更があります。次のランの前に適用されます。</translation>
+    </message>
+    <message>
+      <source>Physics constructor</source>
+      <translation>物理コンストラクター</translation>
+    </message>
+    <message>
+      <source>Physics controls require a GEMC run manager.</source>
+      <translation>物理設定の操作にはGEMCのランマネージャーが必要です。</translation>
+    </message>
+    <message>
+      <source>Physics list</source>
+      <translation>物理リスト</translation>
+    </message>
+    <message>
+      <source>Process</source>
+      <translation>プロセス</translation>
+    </message>
+    <message>
+      <source>Processes</source>
+      <translation>プロセス</translation>
+    </message>
+    <message>
+      <source>Processes appear after physics initialization.</source>
+      <translation>プロセスは物理の初期化後に表示されます。</translation>
+    </message>
+    <message>
+      <source>Production range cut</source>
+      <translation>生成レンジカット</translation>
+    </message>
+    <message>
+      <source>Range cut for producing secondary gamma, electron, positron, and proton tracks. This does not stop existing tracks below an energy threshold.</source>
+      <translation>二次粒子（ガンマ線、電子、陽電子、陽子）のトラックを生成する際のレンジカット。既存のトラックのエネルギーがしきい値を下回っても、そのトラックを停止させるものではありません。</translation>
+    </message>
+    <message>
+      <source>Reference list</source>
+      <translation>リファレンスリスト</translation>
+    </message>
+    <message>
+      <source>Transportation</source>
+      <translation>輸送</translation>
+    </message>
+    <message>
+      <source>Transportation is required for tracking.</source>
+      <translation>トラッキングには輸送が必要です。</translation>
     </message>
   </context>
   <context>

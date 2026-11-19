@@ -268,6 +268,10 @@ Parameter : %1
       <translation>大小：</translation>
     </message>
     <message>
+      <source>Start the XR server and export one event.</source>
+      <translation>启动 XR 服务器并导出一个事件。</translation>
+    </message>
+    <message>
       <source>Text</source>
       <translation>文字</translation>
     </message>
@@ -286,6 +290,10 @@ Parameter : %1
     <message>
       <source>X:</source>
       <translation>X：</translation>
+    </message>
+    <message>
+      <source>XR Server</source>
+      <translation>XR 服务器</translation>
     </message>
     <message>
       <source>Y:</source>
@@ -849,6 +857,10 @@ Lines</source>
 线</translation>
     </message>
     <message>
+      <source>Physics</source>
+      <translation>物理</translation>
+    </message>
+    <message>
       <source>Setup</source>
       <translation>设置</translation>
     </message>
@@ -916,7 +928,7 @@ Lines</source>
     </message>
     <message>
       <source>Draw Logical Overlap within %1</source>
-      <translation>绘制 %1 内的逻辑重叠</translation>
+      <translation>绘制 %1 内的逻辑体重叠</translation>
     </message>
     <message>
       <source>Inspect %1</source>
@@ -1205,6 +1217,10 @@ Lines</source>
       <translation>事件数：</translation>
     </message>
     <message>
+      <source>Physics</source>
+      <translation>物理</translation>
+    </message>
+    <message>
       <source>Quit GEMC</source>
       <translation>退出 GEMC</translation>
     </message>
@@ -1237,6 +1253,125 @@ Lines</source>
 Install the Qt6 Charts package and rebuild GEMC to enable live histograms.</source>
       <translation>分析视图需要 Qt6 Charts，但构建 GEMC 时未找到该组件。
 请安装 Qt6 Charts 软件包并重新构建 GEMC，以启用实时直方图。</translation>
+    </message>
+  </context>
+  <context>
+    <name>PhysicsView</name>
+    <message>
+      <source>%1 particle types</source>
+      <translation>%1 种粒子类型</translation>
+    </message>
+    <message>
+      <source>Add a physics constructor to the reference list.</source>
+      <translation>将物理构造器添加到参考列表。</translation>
+    </message>
+    <message>
+      <source>Applies to</source>
+      <translation>适用于</translation>
+    </message>
+    <message>
+      <source>Apply physics</source>
+      <translation>应用物理设置</translation>
+    </message>
+    <message>
+      <source>Changes are applied before the next run, or with Apply physics.</source>
+      <translation>更改将在下次运行前应用，也可点击“应用物理设置”立即应用。</translation>
+    </message>
+    <message>
+      <source>Check processes to enable them. Category checkboxes control the whole group. Combined processes are controlled as a single entry.</source>
+      <translation>勾选过程以启用。类别复选框控制整组过程。组合过程作为单个条目控制。</translation>
+    </message>
+    <message>
+      <source>Decay</source>
+      <translation>衰变</translation>
+    </message>
+    <message>
+      <source>Electromagnetic</source>
+      <translation>电磁</translation>
+    </message>
+    <message>
+      <source>Filter processes</source>
+      <translation>筛选过程</translation>
+    </message>
+    <message>
+      <source>General</source>
+      <translation>常规</translation>
+    </message>
+    <message>
+      <source>Hadronic</source>
+      <translation>强子</translation>
+    </message>
+    <message>
+      <source>Optical</source>
+      <translation>光学</translation>
+    </message>
+    <message>
+      <source>Other</source>
+      <translation>其他</translation>
+    </message>
+    <message>
+      <source>Parallel worlds</source>
+      <translation>平行世界</translation>
+    </message>
+    <message>
+      <source>Parameterisation</source>
+      <translation>参数化</translation>
+    </message>
+    <message>
+      <source>Physics</source>
+      <translation>物理</translation>
+    </message>
+    <message>
+      <source>Physics applied. The next run uses these settings.</source>
+      <translation>物理设置已应用。下次运行将使用这些设置。</translation>
+    </message>
+    <message>
+      <source>Physics changes pending. They will be applied before the next run.</source>
+      <translation>物理设置有待应用的更改，将在下次运行前应用。</translation>
+    </message>
+    <message>
+      <source>Physics constructor</source>
+      <translation>物理构造器</translation>
+    </message>
+    <message>
+      <source>Physics controls require a GEMC run manager.</source>
+      <translation>物理控制需要 GEMC 运行管理器。</translation>
+    </message>
+    <message>
+      <source>Physics list</source>
+      <translation>物理列表</translation>
+    </message>
+    <message>
+      <source>Process</source>
+      <translation>过程</translation>
+    </message>
+    <message>
+      <source>Processes</source>
+      <translation>过程</translation>
+    </message>
+    <message>
+      <source>Processes appear after physics initialization.</source>
+      <translation>物理初始化后将显示过程。</translation>
+    </message>
+    <message>
+      <source>Production range cut</source>
+      <translation>次级粒子产生射程阈值</translation>
+    </message>
+    <message>
+      <source>Range cut for producing secondary gamma, electron, positron, and proton tracks. This does not stop existing tracks below an energy threshold.</source>
+      <translation>用于产生次级伽马光子、电子、正电子和质子径迹的射程阈值。此设置不会终止能量低于某个阈值的已有径迹。</translation>
+    </message>
+    <message>
+      <source>Reference list</source>
+      <translation>参考列表</translation>
+    </message>
+    <message>
+      <source>Transportation</source>
+      <translation>输运</translation>
+    </message>
+    <message>
+      <source>Transportation is required for tracking.</source>
+      <translation>径迹跟踪需要输运。</translation>
     </message>
   </context>
   <context>

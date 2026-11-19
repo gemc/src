@@ -268,6 +268,10 @@ Paramètre : %1
       <translation>Taille :</translation>
     </message>
     <message>
+      <source>Start the XR server and export one event.</source>
+      <translation>Démarrer le serveur XR et exporter un événement.</translation>
+    </message>
+    <message>
       <source>Text</source>
       <translation>Texte</translation>
     </message>
@@ -286,6 +290,10 @@ Paramètre : %1
     <message>
       <source>X:</source>
       <translation>X :</translation>
+    </message>
+    <message>
+      <source>XR Server</source>
+      <translation>Serveur XR</translation>
     </message>
     <message>
       <source>Y:</source>
@@ -849,6 +857,10 @@ Lines</source>
 cachées</translation>
     </message>
     <message>
+      <source>Physics</source>
+      <translation>Physique</translation>
+    </message>
+    <message>
       <source>Setup</source>
       <translation>Configuration</translation>
     </message>
@@ -916,7 +928,7 @@ cachées</translation>
     </message>
     <message>
       <source>Draw Logical Overlap within %1</source>
-      <translation>Dessiner les chevauchements logiques dans %1</translation>
+      <translation>Afficher le chevauchement logique dans %1</translation>
     </message>
     <message>
       <source>Inspect %1</source>
@@ -1205,6 +1217,10 @@ cachées</translation>
       <translation>Nb d'événements :</translation>
     </message>
     <message>
+      <source>Physics</source>
+      <translation>Physique</translation>
+    </message>
+    <message>
       <source>Quit GEMC</source>
       <translation>Quitter GEMC</translation>
     </message>
@@ -1237,6 +1253,125 @@ cachées</translation>
 Install the Qt6 Charts package and rebuild GEMC to enable live histograms.</source>
       <translation>La vue d'analyse nécessite Qt6 Charts, qui n'était pas disponible lors de la compilation de GEMC.
 Installez le paquet Qt6 Charts et recompilez GEMC pour activer les histogrammes en direct.</translation>
+    </message>
+  </context>
+  <context>
+    <name>PhysicsView</name>
+    <message>
+      <source>%1 particle types</source>
+      <translation>%1 types de particules</translation>
+    </message>
+    <message>
+      <source>Add a physics constructor to the reference list.</source>
+      <translation>Ajouter un constructeur de physique à la liste de référence.</translation>
+    </message>
+    <message>
+      <source>Applies to</source>
+      <translation>S'applique à</translation>
+    </message>
+    <message>
+      <source>Apply physics</source>
+      <translation>Appliquer la physique</translation>
+    </message>
+    <message>
+      <source>Changes are applied before the next run, or with Apply physics.</source>
+      <translation>Les modifications sont appliquées avant la prochaine exécution ou via Appliquer la physique.</translation>
+    </message>
+    <message>
+      <source>Check processes to enable them. Category checkboxes control the whole group. Combined processes are controlled as a single entry.</source>
+      <translation>Cochez les processus pour les activer. Les cases à cocher des catégories commandent tout le groupe. Les processus combinés sont gérés comme une seule entrée.</translation>
+    </message>
+    <message>
+      <source>Decay</source>
+      <translation>Désintégration</translation>
+    </message>
+    <message>
+      <source>Electromagnetic</source>
+      <translation>Électromagnétique</translation>
+    </message>
+    <message>
+      <source>Filter processes</source>
+      <translation>Filtrer les processus</translation>
+    </message>
+    <message>
+      <source>General</source>
+      <translation>Général</translation>
+    </message>
+    <message>
+      <source>Hadronic</source>
+      <translation>Hadronique</translation>
+    </message>
+    <message>
+      <source>Optical</source>
+      <translation>Optique</translation>
+    </message>
+    <message>
+      <source>Other</source>
+      <translation>Autre</translation>
+    </message>
+    <message>
+      <source>Parallel worlds</source>
+      <translation>Mondes parallèles</translation>
+    </message>
+    <message>
+      <source>Parameterisation</source>
+      <translation>Paramétrisation</translation>
+    </message>
+    <message>
+      <source>Physics</source>
+      <translation>Physique</translation>
+    </message>
+    <message>
+      <source>Physics applied. The next run uses these settings.</source>
+      <translation>Physique appliquée. La prochaine exécution utilisera ces paramètres.</translation>
+    </message>
+    <message>
+      <source>Physics changes pending. They will be applied before the next run.</source>
+      <translation>Modifications de physique en attente. Elles seront appliquées avant la prochaine exécution.</translation>
+    </message>
+    <message>
+      <source>Physics constructor</source>
+      <translation>Constructeur de physique</translation>
+    </message>
+    <message>
+      <source>Physics controls require a GEMC run manager.</source>
+      <translation>Les commandes de physique nécessitent un gestionnaire d'exécution GEMC.</translation>
+    </message>
+    <message>
+      <source>Physics list</source>
+      <translation>Liste de physique</translation>
+    </message>
+    <message>
+      <source>Process</source>
+      <translation>Processus</translation>
+    </message>
+    <message>
+      <source>Processes</source>
+      <translation>Processus</translation>
+    </message>
+    <message>
+      <source>Processes appear after physics initialization.</source>
+      <translation>Les processus apparaissent après l'initialisation de la physique.</translation>
+    </message>
+    <message>
+      <source>Production range cut</source>
+      <translation>Seuil de production en parcours</translation>
+    </message>
+    <message>
+      <source>Range cut for producing secondary gamma, electron, positron, and proton tracks. This does not stop existing tracks below an energy threshold.</source>
+      <translation>Seuil en parcours pour la production de trajectoires secondaires de photons gamma, d'électrons, de positrons et de protons. Il n'arrête pas les trajectoires existantes sous un seuil d'énergie.</translation>
+    </message>
+    <message>
+      <source>Reference list</source>
+      <translation>Liste de référence</translation>
+    </message>
+    <message>
+      <source>Transportation</source>
+      <translation>Transport</translation>
+    </message>
+    <message>
+      <source>Transportation is required for tracking.</source>
+      <translation>Le transport est nécessaire au suivi des trajectoires.</translation>
     </message>
   </context>
   <context>

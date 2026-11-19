@@ -243,6 +243,8 @@ messages:
   : "Le dipendenze non vengono risolte: il loro numero dovrebbe diminuire. Sopra sono elencati i gmaterials \
     ancora da risolvere"
   "Destroying %1": "Distruzione di %1"
+  ? "Detector variable %1 conflicts with reserved ROOT event metadata."
+  : "La variabile del rivelatore %1 è in conflitto con i metadati riservati dell'evento ROOT."
   ? "Digitization routine <%1> has been successfully assigned to SD.%2"
   : "La routine di digitizzazione <%1> è stata assegnata correttamente a SD.%2"
   ? "Digitization routine <%1> has been successfully defined."
@@ -564,6 +566,8 @@ messages:
   : "Materiale <%1> non trovato. Utilizzo del materiale di riserva <%2>."
   "Material <%1>, needed by %2,  not found yet": "Materiale <%1>, necessario per %2,  non ancora trovato"
   "Maximum acceptable field step set to %1 mm.": "Passo massimo accettabile nel campo impostato a %1 mm."
+  ? "Mie size %1 mismatch: photonEnergy has size %2"
+  : "La dimensione di Mie %1 non corrisponde: photonEnergy ha dimensione %2"
   ? "NIEL tables are empty for pid <%1>. Did loadConstantsImpl fail?"
   : "Le tabelle NIEL sono vuote per il pid <%1>. loadConstantsImpl non è riuscito?"
   "Native solid <%1> has no constructor parameters": "Il solido nativo <%1> non ha parametri del costruttore"
@@ -662,6 +666,7 @@ messages:
     ides/ForApplicationDeveloper/html/Detector/Geometry/geomSolids.html"
   : "Il costruttore di <%1> deve avere 4, 11 o 24 parametri, vedi https://geant4-userdoc.web.cern.ch/UsersGu\
     ides/ForApplicationDeveloper/html/Detector/Geometry/geomSolids.html"
+  "The constructor of <%1> must have 5 or 11 parameters.": "Il costruttore di <%1> deve avere 5 o 11 parametri."
   ? "The constructor of <%1> must have numSides >= 1 and %2 parameters (4 + 3 x numZPlanes), we got %3"
   : "Il costruttore di <%1> deve avere numSides >= 1 e %2 parametri (4 + 3 x numZPlanes), ne sono stati forn\
     iti %3"
