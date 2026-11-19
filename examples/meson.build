@@ -18,7 +18,8 @@ examples_map = {
     'basic' : {
         'simple_flux' : { 'runs' : ['1'], 'variations' : ['default'], 'plot_var' : 'totEdep' },
         'b1' : { 'runs' : ['1'], 'variations' : ['default', 'test'], 'plot_var' : 'dose', 'n_events' : '50' },
-        'b2' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'], 'plot_var' : 'totEdep' },
+        'b2' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'], 'plot_var' : 'totEdep',
+                 'n_events' : '50', 'seed' : '12345' },
         'b3' : { 'runs' : ['1', '11'], 'variations' : ['default', 'alt'] },
         'boolean_solids' : { 'runs' : ['1'], 'variations' : ['default'] },
         'scintillator_barrel' : { 'runs' : ['1'], 'variations' : ['default'], 'plot_var' : 'totEdep' }
@@ -119,11 +120,14 @@ foreach branch : examples_map.keys()
             csv_base   = test_outdir + '/' + branch + '_' + example + '_csv'
             n_events   = config.get('n_events', '')
             n_events_arg = n_events != '' ? ['-n=' + n_events] : []
+            # B2 can produce no detector hits in a single event; use a reproducible plotting sample.
+            seed = config.get('seed', '')
+            seed_arg = seed != '' ? ['-seed=' + seed] : []
             test('examples_run_csv_' + branch + '_' + example,
                  gemc,
                  args : [yaml_file,
                          '-gsystem="[{name: ' + example + ', factory: ascii}]"',
-                         '-gstreamer="[{format: csv, filename: ' + csv_base + '}]"'] + n_events_arg,
+                         '-gstreamer="[{format: csv, filename: ' + csv_base + '}]"'] + n_events_arg + seed_arg,
                  workdir : example_dir,
                  is_parallel : false,
                  priority : -15)

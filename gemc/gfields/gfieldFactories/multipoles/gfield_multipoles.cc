@@ -111,12 +111,10 @@ void GField_MultipolesFactory::GetFieldValue(const double pos[3], G4double* bfie
 		ra = std::pow(r / r0, static_cast<double>(a));
 	}
 
-	// "Normal" multipole angular dependence:
-	// Bu = strength * r^(n-1) * cos((n-1)*phi)
-	// Bv = strength * r^(n-1) * sin((n-1)*phi)
-	// This yields a constant transverse dipole for n=1.
-	const double Bu = strength * ra * std::cos(a * phi);
-	const double Bv = strength * ra * std::sin(a * phi);
+	// Normal higher multipoles: a quadrupole has Bu proportional to v and Bv to u.
+	// Preserve the existing dipole direction along u when n=1 (a=0).
+	const double Bu = (a == 0) ? strength : strength * ra * std::sin(a * phi);
+	const double Bv = (a == 0) ? 0.0 : strength * ra * std::cos(a * phi);
 
 	// Place (Bu,Bv) into the correct transverse components of B_local; axial component = 0
 	G4ThreeVector B_local(0, 0, 0);
@@ -184,4 +182,8 @@ void GField_MultipolesFactory::load_field_definitions(GFieldDefinition gfd) {
 
 	log->info(1, "Rotation axis: %1", rotaxis);
 	strength = get_field_parameter_double("strength");
+	// Bare strengths are documented in Tesla; explicit expressions already carry units.
+	if (gfield_definitions.field_parameters.at("strength").find('*') == std::string::npos) {
+		strength *= CLHEP::tesla;
+	}
 }
