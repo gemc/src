@@ -156,7 +156,7 @@ GRootTree::GRootTree(const std::string&        detectorName,
 
 
 // fill the True Info Tree
-bool GRootTree::fillTree(const std::vector<const GTrueInfoData*>& trueInfoData) {
+bool GRootTree::fillTree(const std::vector<const GTrueInfoData*>& trueInfoData, int event_number, int thread_id) {
 	// Reset all branch vectors before repopulating them for this detector collection.
 	for (auto& [varname, values] : intVarsMap) { values.clear(); }
 	for (auto& [varname, values] : doubleVarsMap) { values.clear(); }
@@ -174,13 +174,14 @@ bool GRootTree::fillTree(const std::vector<const GTrueInfoData*>& trueInfoData) 
 		for (auto& [varname, value] : dataHits->getStringVariablesMap()) { stringVarsMap[varname].push_back(value); }
 	}
 
+	fillEventIdentity(event_number, thread_id);
 	root_tree->Fill();
 
 	return true;
 }
 
 // fill the Digitized Data Tree
-bool GRootTree::fillTree(const std::vector<const GDigitizedData*>& digitizedData) {
+bool GRootTree::fillTree(const std::vector<const GDigitizedData*>& digitizedData, int event_number, int thread_id) {
 	// Reset all branch vectors before repopulating them for this detector collection.
 	for (auto& [varname, values] : intVarsMap) { values.clear(); }
 	for (auto& [varname, values] : doubleVarsMap) { values.clear(); }
@@ -198,6 +199,7 @@ bool GRootTree::fillTree(const std::vector<const GDigitizedData*>& digitizedData
 		for (auto& [varname, value] : dataHits->getIntObservablesMap(0)) { intVarsMap[varname].push_back(value); }
 		for (auto& [varname, value] : dataHits->getDblObservablesMap(0)) { doubleVarsMap[varname].push_back(value); }
 	}
+	fillEventIdentity(event_number, thread_id);
 	root_tree->Fill();
 
 	return true;
@@ -291,4 +293,20 @@ void GRootTree::registerVariable(const std::string& varname, [[maybe_unused]] co
 			"variable <%1> already registered in the string variable map of tree %2", varname,
 			root_tree->GetName());
 	}
+}
+
+// Event trees remain sparse; these keys identify the matching header/generated entry.
+void GRootTree::fillEventIdentity(int event_number, int thread_id) {
+	if (event_number < 0) { return; } // Run-integrated trees have no event identity.
+	if (!event_identity_registered) {
+		for (const auto* key : {"g4localEventNumber", "threadID"}) {
+			if (intVarsMap.contains(key) || doubleVarsMap.contains(key) || stringVarsMap.contains(key)) {
+				log->error(gstreamer::ERR_PUBLISH_ERROR, "Detector variable %1 conflicts with reserved ROOT event metadata.", key);
+			}
+			registerVariable(key, 0);
+		}
+		event_identity_registered = true;
+	}
+	intVarsMap["g4localEventNumber"] = {event_number};
+	intVarsMap["threadID"] = {thread_id};
 }

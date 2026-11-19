@@ -207,6 +207,8 @@ private:
 
 	/// \brief ROOT file owning all trees written by this plugin instance.
 	std::unique_ptr<TFile> rootfile;
+	int current_event_number = -1;
+	int current_thread_id = -1;
 
 	/**
 	 * \brief Return the final ROOT filename for this plugin instance.
