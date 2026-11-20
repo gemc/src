@@ -24,6 +24,13 @@ void require(bool condition, const char* message) {
 	if (!condition) { throw std::runtime_error(message); }
 }
 
+// Reserve an inactive slot before the live collection, including empty-event runs.
+class Inactive final : public G4VSensitiveDetector {
+public:
+    Inactive() : G4VSensitiveDetector("unused") { collectionName.insert("unused"); }
+    G4bool ProcessHits(G4Step*, G4TouchableHistory*) override { return false; }
+};
+
 class Sensitive final : public G4VSensitiveDetector {
 public:
 	Sensitive() : G4VSensitiveDetector("test_sro") { collectionName.insert("hits"); }
@@ -55,6 +62,9 @@ public:
 		return new G4PVPlacement(nullptr, {}, logical, "world", nullptr, false, 0);
 	}
 	void ConstructSDandField() override {
+		auto* inactive = new Inactive;
+		G4SDManager::GetSDMpointer()->AddNewDetector(inactive);
+		inactive->Activate(false);
 		if (!empty) { G4SDManager::GetSDMpointer()->AddNewDetector(new Sensitive); }
 	}
 private:

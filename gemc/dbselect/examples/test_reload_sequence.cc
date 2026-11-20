@@ -74,7 +74,7 @@ public:
         // G4HCofThisEvent::GetHC / GetNumberOfCollections are not marked const in G4 11.4.
         auto* hc = const_cast<G4HCofThisEvent*>(event->GetHCofThisEvent());
         if (!hc) return;
-        for (G4int i = 0; i < hc->GetNumberOfCollections(); ++i) {
+        for (G4int i = 0; i < hc->GetCapacity(); ++i) {
             auto* col = static_cast<GHitsCollection*>(hc->GetHC(i));
             if (!col || col->GetSize() == 0) continue;
             const std::string sdName = col->GetSDname();
@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
     if (stale_dosi_in_flux)
         std::cout << "WARNING: unexpected dosimeter hits in flux-only phases (stale SD).\n";
 
-    bool passed = (flux1 > 0) && (flux3 > 0) && !stale_flux_in_b1 && !stale_dosi_in_flux;
+    bool passed = (flux1 > 0) && (dosi2 > 0) && (flux3 > 0) && !stale_flux_in_b1 && !stale_dosi_in_flux;
 
     delete runManager;
 
@@ -175,6 +175,7 @@ int main(int argc, char* argv[]) {
     }
     std::cout << "FAILED"
               << (flux1 == 0 ? " (no flux hits in Phase 1)" : "")
+              << (dosi2 == 0 ? " (no dosimeter hits in Phase 2)" : "")
               << (flux3 == 0 ? " (no flux hits in Phase 3)" : "")
               << (stale_flux_in_b1   ? " (stale flux SD in Phase 2)"   : "")
               << (stale_dosi_in_flux ? " (stale dosimeter SD in flux phases)" : "")

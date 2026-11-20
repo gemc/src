@@ -232,7 +232,7 @@ void GEventAction::EndOfEventAction([[maybe_unused]] const G4Event* event) {
 
 	// Loop over every hit collection produced during this event and dispatch each
 	// collection to the digitization routine registered under its collection name.
-	for (G4int hci = 0; hci < hcs_this_event->GetNumberOfCollections(); ++hci) {
+	for (G4int hci = 0; hci < hcs_this_event->GetCapacity(); ++hci) {
 		auto* const this_ghc = static_cast<GHitsCollection*>(hcs_this_event->GetHC(hci));
 		if (this_ghc == nullptr) {
 			continue;
@@ -394,7 +394,7 @@ void GEventAction::stream_event(const G4Event* event) {
 		if (auto* collections = event->GetHCofThisEvent()) {
 			const auto routines = run_action->get_digitization_routines_map();
 			if (!routines) { throw std::runtime_error("SRO requires a digitization routine map"); }
-			for (int index = 0; index < collections->GetNumberOfCollections(); ++index) {
+			for (int index = 0; index < collections->GetCapacity(); ++index) {
 				auto* hits = static_cast<GHitsCollection*>(collections->GetHC(index));
 				if (!hits || detector_is_listed(goptions, NO_DIGITIZED_OPTION, hits->GetSDname())) { continue; }
 				const auto& routine = routines->at(hits->GetSDname());
