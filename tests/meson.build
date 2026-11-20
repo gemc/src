@@ -237,6 +237,10 @@ test('material_optics', material_optics, suite: 'gsystem')
 
 sparse_hit_collections = executable('test_sparse_hit_collections',
     files('sparse_hit_collections.cc', '../gemc_options.cc') + qrc_gemc_sources,
+    include_directories: gemc_includes,
+    dependencies: gui_probe_dependencies,
+    link_with: all_libs,
+    export_dynamic: true)
 lund_units_args = [files('lund_generated_units.py'), gemc, '--plugin-path=' + build_root]
 if root_dep.found()
     lund_units_args += ['--root']
